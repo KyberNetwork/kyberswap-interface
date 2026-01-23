@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, defaultToken } from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, defaultToken, getDexName } from '@kyber/schema';
 import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
@@ -13,7 +13,13 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType } = useWidgetStore(['theme', 'chainId', 'onClose', 'poolType']);
+  const { theme, chainId, onClose, poolType, dexId } = useWidgetStore([
+    'theme',
+    'chainId',
+    'onClose',
+    'poolType',
+    'dexId',
+  ]);
   const { pool } = usePoolStore(['pool']);
 
   const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
@@ -36,8 +42,8 @@ const Header = () => {
   const isToken0Native = token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
   const isToken1Native = token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
-  const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
+  const dexName = getDexName(poolType as PoolType, chainId, dexId);
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();

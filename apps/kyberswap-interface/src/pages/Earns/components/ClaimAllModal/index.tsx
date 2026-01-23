@@ -34,9 +34,7 @@ type Props = {
   rewardInfo: RewardInfo
   filteredRewardInfo: RewardInfo
   onClose: () => void
-  claiming: boolean
-  setClaiming: (claiming: boolean) => void
-  onClaimAll: () => void
+  onClaimAll: () => Promise<void>
   isLoadingUserPositions?: boolean
   thresholdValue?: number
   onThresholdChange?: (value: number) => void
@@ -48,8 +46,6 @@ export default function ClaimAllModal({
   rewardInfo,
   filteredRewardInfo,
   onClose,
-  claiming,
-  setClaiming,
   onClaimAll,
   isLoadingUserPositions,
   thresholdValue,
@@ -63,12 +59,14 @@ export default function ClaimAllModal({
   const { changeNetwork } = useChangeNetwork()
 
   const [autoClaim, setAutoClaim] = useState(false)
+  const [claimingByChain, setClaimingByChain] = useState<Record<number, boolean>>({})
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null)
   const [selectedChainExpanded, setSelectedChainExpanded] = useState(false)
 
   const selectedRewardChain = selectedChainId
     ? filteredRewardInfo.chains.find(c => c.chainId === selectedChainId)
     : null
+  const isClaiming = !!(selectedChainId && claimingByChain[selectedChainId])
 
   const handleClaim = useCallback(async () => {
     if (!library || !selectedChainId) return
@@ -79,7 +77,12 @@ export default function ClaimAllModal({
       return
     }
 
-    onClaimAll()
+    setClaimingByChain(prev => ({ ...prev, [selectedChainId]: true }))
+    try {
+      await onClaimAll()
+    } finally {
+      setClaimingByChain(prev => ({ ...prev, [selectedChainId]: false }))
+    }
   }, [chainId, changeNetwork, library, onClaimAll, selectedChainId])
 
   const handleSelectChain = (chainId: number) => {
@@ -99,12 +102,6 @@ export default function ClaimAllModal({
       setAutoClaim(false)
     }
   }, [autoClaim, chainId, handleClaim, selectedChainId])
-
-  useEffect(() => {
-    return () => {
-      setClaiming(false)
-    }
-  }, [setClaiming])
 
   return (
     <Modal isOpen onDismiss={onClose} maxWidth={460}>
@@ -230,9 +227,13 @@ export default function ClaimAllModal({
 
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
-          <ButtonPrimary gap="4px" disabled={claiming || !selectedRewardChain?.claimableUsdValue} onClick={handleClaim}>
-            {claiming && <Loader stroke={'#505050'} />}
-            {claiming ? t`Claiming` : t`Claim`}
+          <ButtonPrimary
+            gap="4px"
+            disabled={isClaiming || !selectedRewardChain?.claimableUsdValue}
+            onClick={handleClaim}
+          >
+            {isClaiming && <Loader stroke={'#505050'} />}
+            {isClaiming ? t`Claiming` : t`Claim`}
           </ButtonPrimary>
         </Row>
       </Wrapper>

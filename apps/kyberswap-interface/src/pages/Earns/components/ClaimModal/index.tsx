@@ -48,7 +48,6 @@ export interface ClaimInfo {
 
 const ClaimModal = ({
   claimType,
-  claiming,
   claimInfo,
   compoundable,
   onClaim,
@@ -56,10 +55,9 @@ const ClaimModal = ({
   onClose,
 }: {
   claimType: ClaimType
-  claiming: boolean
   claimInfo: ClaimInfo
   compoundable?: boolean
-  onClaim: () => void
+  onClaim: () => Promise<void>
   onCompound?: () => void
   onClose: () => void
 }) => {
@@ -70,6 +68,7 @@ const ClaimModal = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [autoClaim, setAutoClaim] = useState(false)
+  const [isClaiming, setIsClaiming] = useState(false)
 
   const handleClaim = useCallback(async () => {
     if (!library) return
@@ -80,7 +79,12 @@ const ClaimModal = ({
       return
     }
 
-    onClaim()
+    setIsClaiming(true)
+    try {
+      await onClaim()
+    } finally {
+      setIsClaiming(false)
+    }
   }, [library, chainId, claimInfo.chainId, onClaim, changeNetwork])
 
   useEffect(() => {
@@ -133,15 +137,15 @@ const ClaimModal = ({
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           {compoundable && onCompound ? (
-            <ButtonOutlined color={theme.primary} gap="4px" disabled={claiming} onClick={onCompound}>
+            <ButtonOutlined color={theme.primary} gap="4px" disabled={isClaiming} onClick={onCompound}>
               {t`Compound`}
             </ButtonOutlined>
           ) : (
             <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           )}
-          <ButtonPrimary gap="4px" disabled={claiming} onClick={handleClaim}>
-            {claiming && <Loader stroke={'#505050'} />}
-            {claiming ? t`Claiming` : t`Claim only`}
+          <ButtonPrimary gap="4px" disabled={isClaiming} onClick={handleClaim}>
+            {isClaiming && <Loader stroke={'#505050'} />}
+            {isClaiming ? t`Claiming` : t`Claim only`}
           </ButtonPrimary>
         </Row>
       </Wrapper>

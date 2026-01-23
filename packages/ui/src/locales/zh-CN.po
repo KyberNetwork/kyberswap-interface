@@ -412,6 +412,11 @@ msgstr "24 小时交易量"
 
 #. js-lingui-explicit-id
 #: src/components/StatusDialog/utils.ts
+msgid "Transaction cancelled"
+msgstr "交易已取消"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
 msgid "Transaction failed"
 msgstr "交易失败"
 
@@ -498,6 +503,11 @@ msgstr "您已达到代币选择上限。请取消选择一个或多个代币后
 #: src/components/TokenSelectorModal/TokenSelector.tsx
 msgid "Your Position(s)"
 msgstr "您的持仓"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Your transaction has been cancelled"
+msgstr "您的交易已取消"
 
 #. js-lingui-explicit-id
 #: src/components/StatusDialog/utils.ts

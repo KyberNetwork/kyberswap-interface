@@ -26,7 +26,7 @@ const arbitrumInfo: NetworkInfo = {
     logo: ethereumIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://arbitrum.kyberengineering.io',
+  defaultRpcUrl: 'https://arbitrum-rpc.kyberswap.com',
   multicall: '0x80C7DD17B01855a6D2347444a0FCC36136a314de', // must use this for arbitrum to get exactly block number instead of L1 block number
   classic: {
     defaultSubgraph:

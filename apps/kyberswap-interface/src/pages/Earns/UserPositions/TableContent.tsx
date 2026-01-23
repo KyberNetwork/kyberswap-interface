@@ -1,5 +1,6 @@
 import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
+import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
@@ -13,7 +14,7 @@ import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
+import { APP_PATHS, ETHER_ADDRESS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
@@ -77,26 +78,28 @@ export default function TableContent({
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
-  const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
 
   const {
     claimModal: claimFeesModal,
     onOpenClaim: onOpenClaimFees,
-    claiming: feesClaiming,
+    pendingClaimKeys: pendingFeeClaimKeys,
   } = useCollectFees({
-    refetchAfterCollect: () => {
-      handleFetchUnclaimedFee(positionThatClaimingFees)
-      setPositionThatClaimingFees(null)
+    refetchAfterCollect: claimKey => {
+      if (!claimKey) return
+      const [claimChainId, claimTokenId] = claimKey.split(':')
+      const position = positions.find(
+        item => item.chain.id === Number(claimChainId) && String(item.tokenId) === claimTokenId,
+      )
+      handleFetchUnclaimedFee(position || null)
     },
   })
 
   const {
     claimModal: claimRewardsModal,
     onOpenClaim: onOpenClaimRewards,
-    claiming: rewardsClaiming,
-  } = useKemRewards(refetchPositions)
+    pendingClaimKeys: pendingRewardClaimKeys,
+  } = useKemRewards({ refetchAfterCollect: refetchPositions })
 
   const { rewardsByPosition } = useMerklRewards({ positions })
 
@@ -166,16 +169,14 @@ export default function TableContent({
   const handleClaimFees = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (position.pool.isUniv2 || feesClaiming || position.unclaimedFees === 0) return
-    setPositionThatClaimingFees(position)
+    if (position.pool.isUniv2 || position.unclaimedFees === 0) return
     onOpenClaimFees(position)
   }
 
   const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
-    setPositionThatClaimingRewards(position)
+    if (position.rewards.unclaimedUsdValue === 0) return
     onOpenClaimRewards(position)
   }
 
@@ -198,10 +199,26 @@ export default function TableContent({
     const targetToken0Decimals = targetPool.token0.decimals
     const targetToken1Decimals = targetPool.token1.decimals
 
-    // Check if tokens are in the same order by comparing addresses
+    const isSameTokenAddress = (address1: string, address2: string, chainId: number): boolean => {
+      const addr1Lower = address1.toLowerCase()
+      const addr2Lower = address2.toLowerCase()
+
+      if (addr1Lower === addr2Lower) return true
+
+      const chainIdKey = chainId as keyof typeof WETH
+      const nativeAddress = ETHER_ADDRESS.toLowerCase()
+      const wrappedNativeAddress = WETH[chainIdKey].address.toLowerCase()
+      return (
+        (addr1Lower === nativeAddress && addr2Lower === wrappedNativeAddress) ||
+        (addr1Lower === wrappedNativeAddress && addr2Lower === nativeAddress)
+      )
+    }
+
+    // Check if tokens are in the same order by comparing addresses (considering WETH/ETH equivalence)
+    const chainId = sourcePosition.chain.id
     const isTokenOrderSame =
-      sourcePosition.token0.address.toLowerCase() === targetPool.token0.address.toLowerCase() &&
-      sourcePosition.token1.address.toLowerCase() === targetPool.token1.address.toLowerCase()
+      isSameTokenAddress(sourcePosition.token0.address, targetPool.token0.address, chainId) &&
+      isSameTokenAddress(sourcePosition.token1.address, targetPool.token1.address, chainId)
 
     const isMinPrice = sourcePosition.priceRange.isMinPrice
     const isMaxPrice = sourcePosition.priceRange.isMaxPrice
@@ -234,10 +251,12 @@ export default function TableContent({
         poolType: sourcePosition.dex.id,
         poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+        dexId: sourcePosition.dex.id,
       },
       to: {
-        poolType: targetPool.poolExchange,
+        poolType: targetPool.exchange,
         poolAddress: targetPool.address,
+        dexId: targetPool.exchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -258,6 +277,7 @@ export default function TableContent({
         poolType: position.dex.id,
         poolAddress: position.pool.address,
         positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+        dexId: position.dex.id,
       },
       rePositionMode: true,
     })
@@ -295,7 +315,7 @@ export default function TableContent({
         {account && positions && positions.length > 0
           ? positions.map((position, index) => {
               const {
-                id,
+                positionId,
                 tokenId,
                 token0,
                 token1,
@@ -311,15 +331,18 @@ export default function TableContent({
                 rewards,
                 isUnfinalized,
               } = position
-              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || feesClaiming
-              const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
+              const claimKey = `${chain.id}:${tokenId}`
+              const isFeeClaiming = pendingFeeClaimKeys.includes(claimKey)
+              const isRewardClaiming = pendingRewardClaimKeys.includes(claimKey)
+              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || isFeeClaiming
+              const rewardsClaimDisabled = position.rewards.claimableUsdValue === 0 || isRewardClaiming
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
-              const merklRewards = rewardsByPosition?.[id]?.rewards || []
-              const merklRewardsTotalUsd = rewardsByPosition?.[id]?.totalUsdValue || 0
+              const merklRewards = rewardsByPosition?.[positionId]?.rewards || []
+              const merklRewardsTotalUsd = rewardsByPosition?.[positionId]?.totalUsdValue || 0
               const suggestedProtocolName = position.suggestionPool
-                ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
+                ? EARN_DEXES[position.suggestionPool.exchange].name.replace('FairFlow', '').trim()
                 : ''
 
               const actions = (
@@ -331,14 +354,12 @@ export default function TableContent({
                   claimFees={{
                     onClaimFee: handleClaimFees,
                     feesClaimDisabled,
-                    feesClaiming,
-                    positionThatClaimingFees,
+                    feesClaiming: isFeeClaiming,
                   }}
                   claimRewards={{
                     onClaimRewards: handleClaimRewards,
                     rewardsClaimDisabled,
-                    rewardsClaiming,
-                    positionThatClaimingRewards,
+                    rewardsClaiming: isRewardClaiming,
                   }}
                 />
               )
@@ -346,9 +367,10 @@ export default function TableContent({
               return (
                 <PositionRow
                   key={`${tokenId}-${pool.address}-${index}`}
-                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
+                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? positionId : pool.address)
                     .replace(':chainId', chain.id.toString())
                     .replace(':exchange', dex.id)}
+                  $isUnfinalized={isUnfinalized}
                 >
                   {/* Overview info */}
                   <PositionOverview>
@@ -531,7 +553,7 @@ export default function TableContent({
 
                   {/* Unclaimed fees info */}
                   <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
-                    <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                    <PositionValueLabel>{t`Unclaimed fees`}</PositionValueLabel>
 
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />

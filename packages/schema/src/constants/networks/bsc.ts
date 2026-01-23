@@ -6,7 +6,7 @@ export default {
   logo: bscLogo,
   scanLink: 'https://bscscan.com',
   multiCall: '0xcA11bde05977b3631167028862bE2a173976CA11',
-  defaultRpc: 'https://bsc.kyberengineering.io',
+  defaultRpc: 'https://bsc-rpc.kyberswap.com',
   coingeckoNetworkId: 'binance-smart-chain',
   coingeckoNativeTokenId: 'binancecoin',
   wrappedToken: {

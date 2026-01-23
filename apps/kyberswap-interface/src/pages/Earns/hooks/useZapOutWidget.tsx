@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { TxStatus, ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
+import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
 import '@kyberswap/zap-out-widgets/dist/style.css'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -13,9 +13,10 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
+import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
@@ -41,19 +42,11 @@ const zapOutDexMapping: Record<Exchange, ZapOutDex> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapOutDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
-}
-
-const getDexFromPoolType = (poolType: ZapOutDex) => {
-  const dexIndex = Object.values(zapOutDexMapping).findIndex(
-    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapOutDexMapping)[index] as Exchange],
-  )
-  if (dexIndex === -1) {
-    console.error('Cannot find dex')
-    return
-  }
-  const dex = Object.keys(zapOutDexMapping)[dexIndex] as Exchange
-
-  return dex
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_AERODROMECL]: ZapOutDex.DEX_AERODROMECL,
 }
 
 const useZapOutWidget = (
@@ -61,7 +54,6 @@ const useZapOutWidget = (
   explorePoolsEnabled?: boolean,
 ) => {
   const addTransactionWithType = useTransactionAdder()
-  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -75,22 +67,11 @@ const useZapOutWidget = (
     poolType: ZapOutDex
     poolAddress: string
     chainId: ZapOutChainId
+    dexId: Exchange
   } | null>(null)
   const locale = useActiveLocale()
-  const [zapTxHash, setZapTxHash] = useState<string[]>([])
+  const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
   const { rpc: zapOutRpcUrl } = useKyberSwapConfig(zapOutPureParams?.chainId as ChainId | undefined)
-
-  const zapStatus = useMemo(() => {
-    if (!allTransactions || !zapTxHash.length) return {}
-
-    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
-      const zapTx = allTransactions[txHash]
-      if (zapTx?.[0].receipt) {
-        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
-      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
-      return acc
-    }, {})
-  }, [allTransactions, zapTxHash])
 
   const zapOutParams = useMemo(
     () =>
@@ -108,7 +89,8 @@ const useZapOutWidget = (
               address: account,
               chainId: chainId as unknown as ZapOutChainId,
             },
-            zapStatus,
+            txStatus,
+            txHashMapping: originalToCurrentHash,
             locale,
             onClose: () => {
               setTimeout(() => {
@@ -127,24 +109,32 @@ const useZapOutWidget = (
                 })
               }, 500)
               setZapOutPureParams(null)
-              setZapTxHash([])
+              clearTracking()
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
             onSubmitTx: async (
               txData: { from: string; to: string; value: string; data: string },
-              additionalInfo?: {
-                pool: string
-                dexLogo: string
-                tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>
-              },
+              additionalInfo?:
+                | {
+                    type: 'zap'
+                    pool: string
+                    dexLogo: string
+                    tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                  }
+                | {
+                    type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
+                    tokenAddress: string
+                    tokenSymbol?: string
+                    dexName?: string
+                  },
             ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              const dex = getDexFromPoolType(zapOutPureParams.poolType)
-              if (additionalInfo && dex) {
+              const dex = zapOutPureParams.dexId
+              if (additionalInfo?.type === 'zap' && dex) {
                 addTransactionWithType({
                   hash: txHash,
                   type: TRANSACTION_TYPE.EARN_REMOVE_LIQUIDITY,
@@ -156,9 +146,28 @@ const useZapOutWidget = (
                     dex,
                   },
                 })
+              } else if (additionalInfo?.type === 'erc20_approval') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.tokenSymbol,
+                  },
+                })
+              } else if (additionalInfo?.type === 'nft_approval' || additionalInfo?.type === 'nft_approval_all') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.dexName || EARN_DEXES[zapOutPureParams.dexId].name,
+                  },
+                })
               }
 
-              setZapTxHash(prev => [...prev, txHash])
+              // Track all transactions for replacement detection
+              addTrackedTxHash(txHash)
               return txHash
             },
             onExplorePools: explorePoolsEnabled
@@ -179,10 +188,13 @@ const useZapOutWidget = (
       refCode,
       onRefreshPosition,
       addTransactionWithType,
-      zapStatus,
+      txStatus,
+      originalToCurrentHash,
       locale,
       navigate,
       explorePoolsEnabled,
+      addTrackedTxHash,
+      clearTracking,
     ],
   )
 
@@ -204,12 +216,13 @@ const useZapOutWidget = (
       chainId: position.chainId as ZapOutChainId,
       poolAddress: position.poolAddress,
       positionId: position.id,
+      dexId: position.dex,
     })
   }
 
   useAccountChanged(() => {
     setZapOutPureParams(null)
-    setZapTxHash([])
+    clearTracking()
   })
 
   const widget = zapOutParams ? (
@@ -220,7 +233,7 @@ const useZapOutWidget = (
       width={'760px'}
       onDismiss={() => {
         setZapOutPureParams(null)
-        setZapTxHash([])
+        clearTracking()
       }}
     >
       <ZapOut {...zapOutParams} />

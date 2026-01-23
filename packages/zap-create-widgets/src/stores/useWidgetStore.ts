@@ -29,6 +29,7 @@ const initState = {
   chainId: ChainId.Ethereum,
   rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   poolType: PoolType.DEX_UNISWAPV3,
+  dexId: undefined,
   createPoolConfig: {
     token0: defaultToken,
     token1: defaultToken,
@@ -40,7 +41,8 @@ const initState = {
     chainId: ChainId.Ethereum,
   },
   source: '',
-  zapStatus: undefined,
+  txStatus: undefined,
+  txHashMapping: undefined,
   onClose: undefined,
   onConnectWallet: () => {},
   onSwitchChain: () => {},

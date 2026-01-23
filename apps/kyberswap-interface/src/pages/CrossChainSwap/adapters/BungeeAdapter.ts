@@ -178,6 +178,10 @@ export class BungeeAdapter extends BaseSwapAdapter {
       throw new Error(`Status error: ${data.error?.message || 'Unknown error'}`)
     }
     const res = data.result[0]
+
+    // Extract actual output amount from destination data if available
+    const actualAmountOut = res?.destinationData?.output?.[0]?.amount
+
     return {
       txHash: res?.destinationData?.txHash || '',
       status:
@@ -188,6 +192,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
           : [RequestStatusEnum.FULFILLED, RequestStatusEnum.SETTLED].includes(res.bungeeStatusCode)
           ? 'Success'
           : 'Processing',
+      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
 }

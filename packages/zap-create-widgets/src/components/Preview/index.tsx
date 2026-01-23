@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool, getDexName } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -43,22 +43,27 @@ export default function Preview(props: PreviewProps) {
     onDismiss,
   } = props;
 
-  const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, source, onClose } = useWidgetStore([
-    'chainId',
-    'rpcUrl',
-    'poolType',
-    'connectedAccount',
-    'onSubmitTx',
-    'onViewPosition',
-    'source',
-    'onClose',
-  ]);
+  const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, source, onClose, dexId } =
+    useWidgetStore([
+      'chainId',
+      'rpcUrl',
+      'poolType',
+      'connectedAccount',
+      'onSubmitTx',
+      'onViewPosition',
+      'source',
+      'onClose',
+      'dexId',
+    ]);
   const { setSlippage, slippage, tokensIn, amountsIn } = useZapState();
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const { txStatus } = useTxStatus({ txHash });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   const { token0, token1 } = pool;
   const { addedAmountInfo, zapImpact, suggestedSlippage } = parseZapInfo({
@@ -69,7 +74,7 @@ export default function Preview(props: PreviewProps) {
 
   useOnSuccess({
     pool,
-    txHash,
+    txHash: displayTxHash,
     txStatus,
     addedAmountInfo,
     zapInfo,
@@ -120,6 +125,7 @@ export default function Preview(props: PreviewProps) {
                 gasLimit: calculateGasMargin(gasEstimation),
               },
               {
+                type: 'zap',
                 tokensIn: parsedTokensIn,
                 pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
                 dexLogo: DEXES_INFO[poolType].icon,
@@ -138,8 +144,7 @@ export default function Preview(props: PreviewProps) {
   };
 
   if (attempTx || txHash || txError) {
-    const dexName =
-      typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
+    const dexName = getDexName(poolType, chainId, dexId);
     const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
     const translatedErrorMessage = translateFriendlyErrorMessage(errorMessage);
 
@@ -153,11 +158,13 @@ export default function Preview(props: PreviewProps) {
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
-            : txStatus === 'failed' || txError
-              ? StatusDialogType.ERROR
-              : txHash
-                ? StatusDialogType.PROCESSING
-                : StatusDialogType.WAITING
+            : txStatus === 'cancelled'
+              ? StatusDialogType.CANCELLED
+              : txStatus === 'failed' || txError
+                ? StatusDialogType.ERROR
+                : txHash
+                  ? StatusDialogType.PROCESSING
+                  : StatusDialogType.WAITING
         }
         description={
           txStatus === 'success'
@@ -167,7 +174,7 @@ export default function Preview(props: PreviewProps) {
               : undefined
         }
         errorMessage={txError ? translatedErrorMessage : undefined}
-        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
           txStatus === 'success' ? (
             <>
@@ -181,7 +188,7 @@ export default function Preview(props: PreviewProps) {
                 <Trans>Close</Trans>
               </button>
               {onViewPosition ? (
-                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                   <Trans>View position</Trans>
                 </button>
               ) : null}

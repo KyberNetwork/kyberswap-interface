@@ -68,23 +68,24 @@ const PositionDetail = () => {
   const { reduceFetchInterval, setReduceFetchInterval } = useReduceFetchInterval()
 
   const {
-    data: userPositions,
+    data: userPositionsData,
     isLoading,
     isFetching,
     refetch,
   } = useUserPositionsQuery(
     {
-      addresses: account || '',
-      positionId: positionId?.toLowerCase(),
+      wallet: account || '',
+      positionIds: positionId?.toLowerCase(),
       chainIds: chainId || '',
       protocols: exchange || '',
+      useOnFly: true,
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
-  const { rewardInfo } = useKemRewards(refetch)
-  const rewardInfoThisPosition = !userPositions
-    ? undefined
-    : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
+  const { rewardInfo } = useKemRewards({ refetchAfterCollect: refetch })
+
+  const userPositions = useMemo(() => userPositionsData?.positions || [], [userPositionsData?.positions])
+  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === userPositions[0]?.tokenId.toString())
 
   const currentWalletAddress = useRef(account)
   const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
@@ -99,15 +100,13 @@ const PositionDetail = () => {
   const position: ParsedPosition | undefined = useMemo(() => {
     const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
-      const unfinalizedPositions = getUnfinalizedPositions([])
+      const unfinalizedPositions = getUnfinalizedPositions([], account || undefined)
       if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
         return unfinalizedPositions[0]
       return
     }
 
-    const isClosedFromRpc = closedPositionsFromRpc.some(
-      (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPositions[0].tokenId,
-    )
+    const isClosedFromRpc = closedPositionsFromRpc.includes(userPositions[0].tokenId)
 
     const parsedPosition = parsePosition({
       position: userPositions[0],
@@ -116,13 +115,13 @@ const PositionDetail = () => {
       isClosedFromRpc,
     })
 
-    const unfinalizedPositions = getUnfinalizedPositions([parsedPosition])
+    const unfinalizedPositions = getUnfinalizedPositions([parsedPosition], account || undefined)
 
     if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
       return unfinalizedPositions[0]
 
     return parsedPosition
-  }, [feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
+  }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -190,10 +189,12 @@ const PositionDetail = () => {
         poolType: sourcePosition.dex.id,
         poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+        dexId: sourcePosition.dex.id,
       },
       to: {
-        poolType: targetPool.poolExchange,
+        poolType: targetPool.exchange,
         poolAddress: targetPool.address,
+        dexId: targetPool.exchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -215,6 +216,7 @@ const PositionDetail = () => {
           poolType: position.dex.id,
           poolAddress: position.pool.address,
           positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+          dexId: position.dex.id,
         },
         rePositionMode: true,
       })
@@ -234,7 +236,7 @@ const PositionDetail = () => {
 
   useEffect(() => {
     if (!position || !forceLoading) return
-    if (position.pool.isUniv2 ? position.id === positionId : position.tokenId === positionId?.split('-')[1]) {
+    if (position.pool.isUniv2 ? position.positionId === positionId : position.tokenId === positionId?.split('-')[1]) {
       removeForceLoading()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -451,9 +453,7 @@ const PositionDetail = () => {
         onClose={() => setPositionToMigrate(null)}
       />
     ) : null
-  const suggestedProtocolName = position?.suggestionPool
-    ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
-    : ''
+  const suggestedProtocolName = position?.suggestionPool ? EARN_DEXES[position.suggestionPool.exchange].name : ''
 
   return (
     <>
@@ -476,7 +476,7 @@ const PositionDetail = () => {
                       {!!position.suggestionPool
                         ? position.pool.fee === position.suggestionPool.feeTier
                           ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
-                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
+                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} to start earning farming rewards.`
                         : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                     </Text>
                     <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>

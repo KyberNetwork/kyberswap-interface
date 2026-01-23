@@ -26,6 +26,10 @@ const listDexesWithVersion = [
   Exchange.DEX_UNISWAP_V4_FAIRFLOW,
   Exchange.DEX_PANCAKE_INFINITY_CL,
   Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+  Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA,
+  Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC,
+  Exchange.DEX_PANCAKE_INFINITY_CL_LO,
+  Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS,
   Exchange.DEX_PANCAKESWAPV3,
   Exchange.DEX_SUSHISWAPV3,
   Exchange.DEX_QUICKSWAPV3ALGEBRA,
@@ -77,8 +81,8 @@ const UserPositions = ({
 
   const copy = (position: EarnPosition) => {
     if (!navigator?.clipboard) return;
-    navigator.clipboard.writeText(position.pool.poolAddress);
-    setCopied(position.tokenId);
+    navigator.clipboard.writeText(position.pool.address);
+    setCopied(position.tokenId.toString());
 
     clearTimeout(hideCopied);
     hideCopied = setTimeout(() => {
@@ -103,10 +107,10 @@ const UserPositions = ({
     <TokenLoader />
   ) : positions.length ? (
     positions.map((position: EarnPosition, index: number) => {
-      const isUniv2 = Univ2EarnDex.safeParse(position.pool.exchange).success;
+      const isUniv2 = Univ2EarnDex.safeParse(position.pool.protocol.type).success;
       const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
-      const dexName = DEX_NAME[position.pool.exchange];
-      const version = listDexesWithVersion.includes(position.pool.exchange)
+      const dexName = DEX_NAME[position.pool.protocol.type];
+      const version = listDexesWithVersion.includes(position.pool.protocol.type)
         ? dexName.split(' ')[dexName.split(' ').length - 1] || ''
         : '';
 
@@ -115,14 +119,14 @@ const UserPositions = ({
           <div
             className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
             onClick={() => {
-              const isUniV2 = Univ2EarnDex.safeParse(position.pool.exchange).success;
+              const isUniV2 = Univ2EarnDex.safeParse(position.pool.protocol.type).success;
               if (isUniV2 && !account) return;
 
               onClose();
               onOpenZapMigration(
                 {
-                  exchange: position.pool.exchange,
-                  poolId: position.pool.poolAddress,
+                  exchange: position.pool.protocol.type,
+                  poolId: position.pool.address,
                   positionId: !isUniV2 ? position.tokenId : account,
                 },
                 initialSlippage,
@@ -143,7 +147,7 @@ const UserPositions = ({
                     className="ml-[-8px] border-[2px] border-transparent"
                   />
                   <TokenLogo
-                    src={position.chainLogo}
+                    src={position.chain.logo}
                     size={14}
                     className="ml-[-6px] border-[2px] border-transparent  relative top-1"
                   />
@@ -159,7 +163,7 @@ const UserPositions = ({
                 )}
               </div>
               <div className="max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
-                {formatDisplayNumber(position.currentPositionValue, {
+                {formatDisplayNumber(position.valueInUSD, {
                   style: 'currency',
                   significantDigits: 4,
                 })}
@@ -168,13 +172,13 @@ const UserPositions = ({
             <div className="flex items-center justify-between w-full flex-wrap">
               <div className="flex gap-2 items-center">
                 <div className="flex gap-1 items-center">
-                  <TokenLogo src={position.pool.projectLogo} />
+                  <TokenLogo src={position.pool.protocol.logo} />
                   {version && <span className="text-subText text-xs">{version}</span>}
                 </div>
                 {!isUniv2 && <span className="text-subText">#{position.tokenId}</span>}
                 <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
-                  {shortenAddress(position.pool.poolAddress, 4)}
-                  {copied !== position.tokenId ? (
+                  {shortenAddress(position.pool.address, 4)}
+                  {copied !== position.tokenId.toString() ? (
                     <IconCopy
                       className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
                       onClick={e => {

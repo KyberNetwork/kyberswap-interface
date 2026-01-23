@@ -10,8 +10,9 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Exchange } from 'pages/Earns/constants'
-import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
+import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
 import { fetchExistingPoolAddress, navigateToPositionAfterZap, sortTokensByAddress } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
@@ -38,12 +39,14 @@ const useZapCreatePoolWidget = () => {
   const addTransactionWithType = useTransactionAdder()
 
   const [config, setConfig] = useState<CreateConfig | null>(null)
+  const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
 
   const { rpc: defaultRpc } = useKyberSwapConfig(config?.chainId)
 
   const handleClose = useCallback(() => {
     setConfig(null)
-  }, [])
+    clearTracking()
+  }, [clearTracking])
 
   useAccountChanged(handleClose)
 
@@ -52,12 +55,9 @@ const useZapCreatePoolWidget = () => {
       if (!library || !config) return
       const poolAddress = await fetchExistingPoolAddress(config)
 
-      const poolType = ZAPIN_DEX_MAPPING[config.protocol]
-      const dex = getDexFromPoolType(poolType)
+      if (!poolAddress) return
 
-      if (!dex || !poolAddress) return
-
-      navigateToPositionAfterZap(library, txHash, config.chainId, dex, poolAddress, navigate)
+      navigateToPositionAfterZap(library, txHash, config.chainId, config.protocol, poolAddress, navigate)
     },
     [library, navigate],
   )
@@ -81,6 +81,8 @@ const useZapCreatePoolWidget = () => {
         rpcUrl: defaultRpc,
         source: 'kyberswap-earn',
         locale,
+        txStatus,
+        txHashMapping: originalToCurrentHash,
         onViewPosition: (txHash: string) => {
           handleNavigateToPosition(txHash, config)
           handleClose()
@@ -92,18 +94,29 @@ const useZapCreatePoolWidget = () => {
         onSwitchChain: () => changeNetwork(config.chainId),
         onSubmitTx: async (
           txData: { from: string; to: string; data: string; value: string; gasLimit: string },
-          additionalInfo?: {
-            tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
-            pool: string
-            dexLogo: string
-          },
+          additionalInfo?:
+            | {
+                type: 'zap'
+                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                pool: string
+                dexLogo: string
+              }
+            | {
+                type: 'erc20_approval'
+                tokenAddress: string
+                tokenSymbol?: string
+                dexName?: string
+              },
         ) => {
           const res = await submitTransaction({ library, txData })
           const { txHash, error } = res
 
           if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-          if (config && additionalInfo) {
+          // Track this tx hash for status updates
+          addTrackedTxHash(txHash)
+
+          if (additionalInfo?.type === 'zap' && config) {
             addTransactionWithType({
               hash: txHash,
               type: TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
@@ -112,6 +125,15 @@ const useZapCreatePoolWidget = () => {
                 tokensIn: additionalInfo.tokensIn,
                 dexLogoUrl: additionalInfo.dexLogo,
                 dex: config.protocol,
+              },
+            })
+          } else if (additionalInfo?.type === 'erc20_approval') {
+            addTransactionWithType({
+              hash: txHash,
+              type: TRANSACTION_TYPE.APPROVE,
+              extraInfo: {
+                tokenAddress: additionalInfo.tokenAddress,
+                summary: additionalInfo.tokenSymbol,
               },
             })
           }
@@ -128,6 +150,7 @@ const useZapCreatePoolWidget = () => {
     }
   }, [
     account,
+    addTrackedTxHash,
     addTransactionWithType,
     changeNetwork,
     config,
@@ -137,7 +160,9 @@ const useZapCreatePoolWidget = () => {
     handleNavigateToPosition,
     library,
     locale,
+    originalToCurrentHash,
     toggleWalletModal,
+    txStatus,
   ])
 
   const widget = widgetProps ? (

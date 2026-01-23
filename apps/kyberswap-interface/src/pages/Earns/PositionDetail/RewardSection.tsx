@@ -38,6 +38,31 @@ const formatTimeRemaining = (seconds: number) => {
   return `${days}d ${hours}h ${minutes}m ${secs}s`
 }
 
+const CycleCountdown = ({ endTime, textColor }: { endTime: number; textColor: string }) => {
+  const [timeRemaining, setTimeRemaining] = useState('')
+
+  useEffect(() => {
+    const calculateTimeRemaining = () => {
+      const now = Math.floor(Date.now() / 1000)
+      const remaining = Math.max(0, endTime - now)
+      setTimeRemaining(formatTimeRemaining(remaining))
+    }
+
+    calculateTimeRemaining()
+    const interval = setInterval(calculateTimeRemaining, 1000)
+    return () => clearInterval(interval)
+  }, [endTime])
+
+  return (
+    <Flex alignItems={'center'} sx={{ gap: 1 }}>
+      <Clock size={16} color={textColor} />
+      <Text fontSize={14} color={textColor}>
+        {timeRemaining}
+      </Text>
+    </Flex>
+  )
+}
+
 const RewardSection = ({
   position,
   initialLoading,
@@ -51,20 +76,18 @@ const RewardSection = ({
 }) => {
   const theme = useTheme()
 
-  const [timeRemaining, setTimeRemaining] = useState('')
-
   const {
     rewardInfo,
     claimModal: claimRewardsModal,
     onOpenClaim: onOpenClaimRewards,
-    claiming: rewardsClaiming,
-  } = useKemRewards(refetchPositions)
+    pendingClaimKeys: pendingRewardClaimKeys,
+  } = useKemRewards({ refetchAfterCollect: refetchPositions })
 
   const { rewardsByPosition } = useMerklRewards({ positions: position ? [position] : undefined })
-  const merklRewards = position ? rewardsByPosition[position.id]?.rewards || [] : []
-  const merklRewardsTotalUsd = position ? rewardsByPosition[position.id]?.totalUsdValue || 0 : 0
+  const merklRewards = position ? rewardsByPosition[position.positionId]?.rewards || [] : []
+  const merklRewardsTotalUsd = position ? rewardsByPosition[position.positionId]?.totalUsdValue || 0 : 0
 
-  const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
+  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === position?.tokenId.toString())
 
   const chain = position?.chain.id ? NETWORKS_INFO[position.chain.id as ChainId]?.route || '' : ''
   const { data: cycleConfig } = useCycleConfigQuery(
@@ -75,19 +98,8 @@ const RewardSection = ({
   const isUnfinalized = position?.isUnfinalized
   const isEarlyPosition = !!position && checkEarlyPosition(position)
   const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
-
-  useEffect(() => {
-    const calculateTimeRemaining = () => {
-      if (!cycleConfig) return
-      const now = Math.floor(Date.now() / 1000)
-      const remaining = cycleConfig.endTime - now
-      setTimeRemaining(formatTimeRemaining(remaining))
-    }
-
-    calculateTimeRemaining()
-    const interval = setInterval(calculateTimeRemaining, 1000)
-    return () => clearInterval(interval)
-  }, [cycleConfig])
+  const claimKey = position ? `${position.chain.id}:${position.tokenId}` : ''
+  const isRewardsClaiming = claimKey ? pendingRewardClaimKeys.includes(claimKey) : false
 
   return (
     <>
@@ -201,12 +213,7 @@ const RewardSection = ({
               ) : isUnfinalized ? (
                 <PositionSkeleton width={112} height={16} text={t`Finalizing...`} />
               ) : (
-                <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                  <Clock size={16} color={theme.subText} />
-                  <Text fontSize={14} color={theme.subText}>
-                    {timeRemaining}
-                  </Text>
-                </Flex>
+                <CycleCountdown endTime={cycleConfig.endTime} textColor={theme.subText} />
               )}
             </NextDistribution>
           )}
@@ -235,17 +242,19 @@ const RewardSection = ({
             small
             outline
             mobileAutoWidth
-            disabled={initialLoading || isUnfinalized || !rewardInfoThisPosition?.claimableUsdValue || rewardsClaiming}
+            disabled={
+              initialLoading || isUnfinalized || !rewardInfoThisPosition?.claimableUsdValue || isRewardsClaiming
+            }
             onClick={() =>
               !initialLoading &&
               !isUnfinalized &&
               rewardInfoThisPosition?.claimableUsdValue &&
-              !rewardsClaiming &&
+              !isRewardsClaiming &&
               onOpenClaimRewards(position)
             }
           >
-            {rewardsClaiming && <Loader size="14px" />}
-            {rewardsClaiming ? t`Claiming` : t`Claim`}
+            {isRewardsClaiming && <Loader size="14px" />}
+            {isRewardsClaiming ? t`Claiming` : t`Claim`}
           </PositionAction>
         </RewardDetailInfo>
       </RewardsSection>
@@ -381,8 +390,8 @@ export const totalRewardTooltip = ({
       {t`EG Sharing Reward:`}
       {!egTokens.length ? ' 0' : ''}
     </Text>
-    {egTokens.map(token => (
-      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+    {egTokens.map((token, index) => (
+      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${index}`}>
         <TokenLogo src={token.logo} size={16} />
         <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
         <Text color={textColor}>{token.symbol}</Text>
