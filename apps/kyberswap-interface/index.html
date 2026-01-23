@@ -171,10 +171,12 @@
         gap: 4px;
         align-items: center;
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 992px) {
+          gap: 0px;
           justify-content: flex-end;
           width: 100%;
           height: 36px;
+          margin-top: 1px;
         }
       }
 
@@ -184,10 +186,6 @@
         display: flex;
         align-items: center;
         gap: 2px;
-
-        @media screen and (max-width: 768px) {
-          padding: 0 4px;
-        }
       }
 
       .preloadhtml-header-link-item {
@@ -199,6 +197,7 @@
       }
 
       .preloadhtml-header-link-label {
+        display: flex;
         padding: 8px 12px;
 
         &:has(+ .preloadhtml-dropdown-icon) {
@@ -209,8 +208,7 @@
       .preloadhtml-new-label {
         font-size: 10px;
         color: #ff537b;
-        margin-left: -3px;
-        margin-bottom: 6px;
+        margin-left: 4px;
       }
 
       .mobile-hidden {
@@ -240,30 +238,33 @@
         </div>
         <div class="preloadhtml-header-link">
           <div class="preloadhtml-header-link-item active">
-            <span class="preloadhtml-header-link-label">Trade</span>
+            <div class="preloadhtml-header-link-label">Trade</div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
           <div class="preloadhtml-header-link-item">
             <img width="20px" src="/icons/kem.svg" alt="kemSvg" style="margin-left: 6px; margin-right: -4px" />
-            <span class="preloadhtml-header-link-label"> Earn </span>
+            <div class="preloadhtml-header-link-label">Earn</div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
           <div class="preloadhtml-header-link-item mobile-hidden">
-            <span class="preloadhtml-header-link-label">Market</span>
+            <div class="preloadhtml-header-link-label">Market</div>
           </div>
           <div class="preloadhtml-header-link-item mobile-hidden">
-            <span class="preloadhtml-header-link-label">Campaigns</span>
+            <div class="preloadhtml-header-link-label">
+              Campaigns
+              <!-- <span class="preloadhtml-new-label">New</span> -->
+            </div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
           <div class="preloadhtml-header-link-item mobile-hidden">
-            <span class="preloadhtml-header-link-label">KyberDAO</span>
+            <div class="preloadhtml-header-link-label">KyberDAO</div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
           <div class="preloadhtml-header-link-item mobile-hidden">
-            <span class="preloadhtml-header-link-label">Analytics</span>
+            <div class="preloadhtml-header-link-label">Analytics</div>
           </div>
           <div class="preloadhtml-header-link-item mobile-hidden">
-            <span class="preloadhtml-header-link-label">About</span>
+            <div class="preloadhtml-header-link-label">About</div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
         </div>
