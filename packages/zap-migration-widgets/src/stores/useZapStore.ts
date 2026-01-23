@@ -40,9 +40,6 @@ interface ZapState {
   ttl: number;
   setTtl: (value: number) => void;
 
-  slippageOpen: boolean;
-  setSlippageOpen: (value: boolean) => void;
-
   reset: () => void;
 }
 
@@ -58,8 +55,10 @@ const initState = {
   fetchingRoute: false,
   route: null,
   highlightDegenMode: false,
-  slippageOpen: false,
 };
+
+let abortController: AbortController | null = null;
+let latestRequestId = 0;
 
 const useZapRawStore = create<ZapState>((set, get) => ({
   ...initState,
@@ -104,9 +103,18 @@ const useZapRawStore = create<ZapState>((set, get) => ({
       liquidityOut === 0n ||
       (isToUniV3 ? tickLower === null || tickUpper === null || tickLower >= tickUpper : false)
     ) {
-      set({ route: null });
+      // Invalid input → clear info and abort any in-flight request
+      abortController?.abort();
+      abortController = null;
+      set({ route: null, fetchingRoute: false });
       return;
     }
+
+    // Abort previous request and prepare a new controller
+    abortController?.abort();
+    const controller = new AbortController();
+    abortController = controller;
+    const requestId = ++latestRequestId;
 
     set({ fetchingRoute: true });
 
@@ -146,16 +154,22 @@ const useZapRawStore = create<ZapState>((set, get) => ({
           headers: {
             'x-client-id': client,
           },
+          signal: controller.signal,
         },
       ).then(res => res.json());
 
+      // Only update state if this is the latest request
+      if (requestId !== latestRequestId) return;
+
       set({ route: res.data, fetchingRoute: false });
-    } catch (e) {
+    } catch (e: any) {
+      // Ignore abort errors and stale requests
+      if (requestId !== latestRequestId) return;
+      if (e?.name === 'AbortError') return;
       console.log(e);
       set({ fetchingRoute: false, route: null });
     }
   },
-  setSlippageOpen: value => set({ slippageOpen: value }),
 }));
 
 type ZapStoreKeys = keyof ReturnType<typeof useZapRawStore.getState>;

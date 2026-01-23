@@ -51,7 +51,6 @@ export default function usePoolInfo(
         poolAddress,
         poolType,
         chainId,
-        publicClient,
       });
 
       if (!poolInfo) {
@@ -76,7 +75,12 @@ export default function usePoolInfo(
         const { owner, tickLower, tickUpper, liquidity, token0, token1, fee } =
           positionInfo;
 
-        if (!tickLower || !tickUpper || !liquidity || !fee) {
+        if (
+          (!tickLower && tickLower !== 0) ||
+          (!tickUpper && tickUpper !== 0) ||
+          !liquidity ||
+          !fee
+        ) {
           setError(`can't get position info`);
           return;
         }
@@ -89,16 +93,16 @@ export default function usePoolInfo(
           isPancakeV3
             ? token0
             : token0 === PANCAKE_NATIVE_TOKEN_ADDRESS
-            ? NATIVE_TOKEN_ADDRESS
-            : token0
+              ? NATIVE_TOKEN_ADDRESS
+              : token0
         )?.toLowerCase();
 
         const token1Address = (
           isPancakeV3
             ? token1
             : token1 === PANCAKE_NATIVE_TOKEN_ADDRESS
-            ? NATIVE_TOKEN_ADDRESS
-            : token1
+              ? NATIVE_TOKEN_ADDRESS
+              : token1
         )?.toLowerCase();
 
         if (
@@ -134,7 +138,6 @@ export default function usePoolInfo(
           poolAddress,
           poolType,
           chainId,
-          publicClient,
         });
         if (!poolInfo) return;
 

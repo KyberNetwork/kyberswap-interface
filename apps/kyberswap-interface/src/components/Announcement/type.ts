@@ -13,8 +13,9 @@ export enum PrivateAnnouncementType {
   LIMIT_ORDER = 'LIMIT_ORDER',
   BRIDGE_ASSET = 'BRIDGE_ASSET',
   ELASTIC_POOLS = 'ELASTIC_POOLS',
+  POSITION_STATUS = 'POSITION_STATUS',
   PRICE_ALERT = 'PRICE_ALERT',
-  DIRECT_MESSAGE = 'DIRECT_MESSAGE', // for some specific addresses
+  DIRECT_MESSAGE = 'DIRECT_MESSAGE',
 }
 
 export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTemplate> = {
@@ -24,6 +25,7 @@ export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTem
   templateBody: T
   isRead: boolean
   sentAt: number
+  isPinned?: boolean
 }
 
 export type AnnouncementCTA = { name: string; url: string }
@@ -41,24 +43,30 @@ type LimitOrderAnnouncement = {
   makerAssetLogoURL: string
   takerAssetLogoURL: string
   kyberswapURL: string
-  status: LimitOrderStatus
+  status: LimitOrderStatus | string
   // for partial fill
   filledPercent: string
   increasedFilledPercent: string
   chainId: string
+  createdAt?: number
+  expiredAt?: number
+  requiredMakingAmount?: string
+  availableMakingAmount?: string
 }
 
-type PoolPositionAnnouncement = {
-  token0LogoURL: string
-  token1LogoURL: string
+export type PoolPositionAnnouncement = {
+  positionId: string
+  chainId: string
+  exchange: string
   token0Symbol: string
   token1Symbol: string
-  minPrice: string
-  maxPrice: string
-  currentPrice: string
+  token0LogoURL: string
+  token1LogoURL: string
+  currentPrice: number
+  minPrice: number
+  maxPrice: number
   poolAddress: string
   type: 'OUT_OF_RANGE' | 'IN_RANGE'
-  chainId: string
 }
 
 export type AnnouncementTemplateLimitOrder = {

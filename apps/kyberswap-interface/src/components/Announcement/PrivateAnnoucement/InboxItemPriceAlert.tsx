@@ -5,6 +5,7 @@ import { Flex, Text } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
+import InboxActions from 'components/Announcement/PrivateAnnoucement/InboxActions'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplatePriceAlert } from 'components/Announcement/type'
 import { ButtonLight } from 'components/Button'
@@ -29,6 +30,8 @@ function InboxItemBridge({
   style,
   time,
   title,
+  onPin,
+  onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplatePriceAlert>) {
   const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
@@ -53,6 +56,11 @@ function InboxItemBridge({
 
   return (
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
+      <InboxActions
+        isPinned={announcement.isPinned}
+        onPin={onPin ? () => onPin(announcement) : undefined}
+        onDelete={onDelete ? () => onDelete(announcement) : undefined}
+      />
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} chainId={chainId} />
@@ -61,7 +69,7 @@ function InboxItemBridge({
         </RowItem>
         <RowItem>
           <ButtonLight height={'24px'} style={{ display: 'flex', gap: '6px', padding: '12px 10px' }}>
-            <Repeat size={16} /> Swap
+            <Repeat size={16} /> <Trans>Swap</Trans>
           </ButtonLight>
         </RowItem>
       </InboxItemRow>

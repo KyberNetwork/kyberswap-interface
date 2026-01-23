@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -46,19 +47,19 @@ export default function AnnouncementItem({
 
   const statusMessage = isReorg ? (
     <Text as="span" color={theme.red}>
-      reverted {increasedFilledPercent}
+      <Trans>reverted {increasedFilledPercent}</Trans>
     </Text>
   ) : isFilled ? (
     <Text as="span" color={theme.primary}>
-      successfully filled
+      <Trans>successfully filled</Trans>
     </Text>
   ) : isPartialFilled ? (
     <Text as="span" color={theme.warning}>
-      partially filled ({filledPercent})
+      <Trans>partially filled ({filledPercent})</Trans>
     </Text>
   ) : (
     <Text as="span" color={theme.warning}>
-      expired ({filledPercent}% filled)
+      <Trans>expired ({filledPercent}% filled)</Trans>
     </Text>
   )
 
@@ -75,13 +76,15 @@ export default function AnnouncementItem({
         </Flex>
       </Flex>
       <Desc>
-        Your order to pay <StyledLogo srcs={[makerAssetLogoURL]} /> {makingAmount} {makerAssetSymbol} and receive{' '}
-        <StyledLogo srcs={[takerAssetLogoURL]} /> {takingAmount} {takerAssetSymbol} when{' '}
-        <span>1 {makerAssetSymbol} is equal to </span>
-        <span>
-          {takingAmountRate} {takerAssetSymbol}
-        </span>{' '}
-        was {statusMessage}
+        <Trans>
+          Your order to pay <StyledLogo srcs={[makerAssetLogoURL]} /> {makingAmount} {makerAssetSymbol} and receive{' '}
+          <StyledLogo srcs={[takerAssetLogoURL]} /> {takingAmount} {takerAssetSymbol} when{' '}
+          <span>1 {makerAssetSymbol} is equal to </span>
+          <span>
+            {takingAmountRate} {takerAssetSymbol}
+          </span>{' '}
+          was {statusMessage}
+        </Trans>
       </Desc>
     </Wrapper>
   )

@@ -4,16 +4,18 @@
   "version": "1.0.14",
   "type": "module",
   "scripts": {
-    "dev": "tsup --watch",
+    "dev": "pnpm run i18n:compile && tsup --watch",
     "type-check": "tsc --noEmit",
-    "build": "tsup",
+    "build": "pnpm run i18n:compile && tsup",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
-    "prepublishOnly": "tsc && tsup"
+    "prepublishOnly": "pnpm run i18n:compile && tsc && tsup",
+    "i18n": "pnpm run i18n:extract && pnpm run i18n:compile",
+    "i18n:compile": "lingui compile",
+    "i18n:extract": "lingui extract"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.8",
-    "react-popper": "^2.3.0",
-    "zod": "^3.23.8",
+    "@lingui/core": "^4.6.0",
+    "@lingui/react": "^4.6.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
@@ -26,6 +28,11 @@
     "@kyber/typescript-config": "workspace:*",
     "@kyber/ui": "workspace:^",
     "@kyber/utils": "workspace:*",
+    "@lingui/cli": "^4.6.0",
+    "@lingui/macro": "^4.6.0",
+    "@babel/core": "^7.26.0",
+    "babel-plugin-macros": "^3.1.0",
+    "esbuild-plugin-babel": "^0.2.3",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.2.17",
     "autoprefixer": "^10.4.20",

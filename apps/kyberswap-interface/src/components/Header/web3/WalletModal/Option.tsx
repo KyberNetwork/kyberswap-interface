@@ -19,6 +19,7 @@ export const IconWrapper = styled.div`
   span {
     height: 20px;
     width: 20px;
+    border-radius: 4px;
   }
   ${({ theme }) => theme.mediaWidth.upToMedium`
     align-items: flex-end;

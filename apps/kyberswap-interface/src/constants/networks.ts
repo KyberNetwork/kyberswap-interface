@@ -9,13 +9,17 @@ import {
   blast,
   bnb,
   ethereum,
+  etherlink,
   fantom,
   görli,
   hyperevm,
   linea,
   mantle,
   matic,
+  megaeth,
+  monad,
   optimism,
+  plasma,
   ronin,
   scroll,
   sonic,
@@ -46,6 +50,10 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.RONIN]: ronin,
   [ChainId.UNICHAIN]: unichain,
   [ChainId.HYPEREVM]: hyperevm,
+  [ChainId.PLASMA]: plasma,
+  [ChainId.ETHERLINK]: etherlink,
+  [ChainId.MONAD]: monad,
+  [ChainId.MEGAETH]: megaeth,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -78,6 +86,10 @@ export const MAINNET_NETWORKS = [
   ChainId.RONIN,
   ChainId.UNICHAIN,
   ChainId.HYPEREVM,
+  ChainId.ETHERLINK,
+  ChainId.PLASMA,
+  ChainId.MONAD,
+  ChainId.MEGAETH,
 ] as const
 
 // These option of walletconnect is not support by wallets properly

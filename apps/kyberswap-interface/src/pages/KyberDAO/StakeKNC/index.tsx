@@ -152,7 +152,9 @@ export default function StakeKNC() {
             <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.warning}>
               <Trans>Note: Staking KNC is only available on Ethereum chain.</Trans>
             </Text>
-            <NavLink to={APP_PATHS.ABOUT + '/knc'}>Read about KNC ↗</NavLink>
+            <NavLink to={APP_PATHS.ABOUT + '/knc'}>
+              <Trans>Read about KNC ↗</Trans>
+            </NavLink>
           </RowBetween>
         </Information>
         <KyberImageWrapper>
@@ -160,7 +162,7 @@ export default function StakeKNC() {
         </KyberImageWrapper>
         <CardGroup>
           <Card>
-            <Image src={governancePNG} alt="DAO Governance" />
+            <Image src={governancePNG} alt={t`DAO Governance`} />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
                 <Trans>DAO Governance</Trans>
@@ -172,7 +174,7 @@ export default function StakeKNC() {
             </CardInfo>
           </Card>
           <Card>
-            <Image src={stakevotePNG} alt="Stake + Vote" />
+            <Image src={stakevotePNG} alt={t`Stake + Vote`} />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
                 <Trans>Stake + Vote</Trans>
@@ -189,11 +191,11 @@ export default function StakeKNC() {
               width="120px"
               height="44px"
             >
-              Vote
+              <Trans>Vote</Trans>
             </ButtonPrimary>
           </Card>
           <Card>
-            <Image src={migratePNG} alt="Migrate" />
+            <Image src={migratePNG} alt={t`Migrate`} />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
                 <Trans>Migrate</Trans>
@@ -221,11 +223,11 @@ export default function StakeKNC() {
               </Row>
             </CardInfo>
             <ButtonLight width="120px" height="44px" onClick={handleMigrateClick}>
-              Migrate
+              <Trans>Migrate</Trans>
             </ButtonLight>
           </Card>
           <Card>
-            <Image src={kncUtilityPNG} alt="KNC Utility" />
+            <Image src={kncUtilityPNG} alt={t`KNC Utility`} />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
                 <Trans>KNC Utility</Trans>

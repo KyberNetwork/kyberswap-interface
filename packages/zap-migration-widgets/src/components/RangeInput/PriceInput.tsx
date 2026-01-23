@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { UniV3Pool, defaultToken, univ3Types } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
@@ -46,7 +48,7 @@ export default function PriceInput() {
         : nearestUsableTick((targetPool as UniV3Pool).tick, (targetPool as UniV3Pool).tickSpacing);
 
   const increaseTickLower = () => {
-    if (!isTargetUniV3 || !targetPool || !poolTick) return;
+    if (!isTargetUniV3 || !targetPool || poolTick === undefined) return;
     const newTick =
       tickLower !== null
         ? tickLower + (targetPool as UniV3Pool).tickSpacing
@@ -54,7 +56,7 @@ export default function PriceInput() {
     if (newTick <= MAX_TICK) setTickLower(newTick);
   };
   const increaseTickUpper = () => {
-    if (!isTargetUniV3 || !targetPool || !poolTick) return;
+    if (!isTargetUniV3 || !targetPool || poolTick === undefined) return;
     const newTick =
       tickUpper !== null
         ? tickUpper + (targetPool as UniV3Pool).tickSpacing
@@ -63,14 +65,14 @@ export default function PriceInput() {
   };
 
   const decreaseTickLower = () => {
-    if (!isTargetUniV3 || !targetPool || !poolTick) return;
+    if (!isTargetUniV3 || !targetPool || poolTick === undefined) return;
     const newTick =
       (tickLower !== null ? tickLower : (targetPool as UniV3Pool).tick) - (targetPool as UniV3Pool).tickSpacing;
 
     if (newTick >= MIN_TICK) setTickLower(newTick);
   };
   const decreaseTickUpper = () => {
-    if (!isTargetUniV3 || !targetPool || !poolTick) return;
+    if (!isTargetUniV3 || !targetPool || poolTick === undefined) return;
     const newTick = (tickUpper !== null ? tickUpper : poolTick) - (targetPool as UniV3Pool).tickSpacing;
 
     if (newTick >= MIN_TICK) setTickUpper(newTick);
@@ -96,7 +98,7 @@ export default function PriceInput() {
           -
         </button>
         <div className="flex flex-col items-center py-2 flex-1 min-w-0 gap-1">
-          <p className="text-sm text-subText whitespace-nowrap">Min Price</p>
+          <p className="text-sm text-subText whitespace-nowrap">{t`Min Price`}</p>
           {tickLower === null || tickUpper === null ? (
             <Skeleton className="h-5 w-40 md:w-20" />
           ) : (
@@ -156,7 +158,7 @@ export default function PriceInput() {
           -
         </button>
         <div className="flex flex-col items-center py-2 flex-1 min-w-0 gap-1">
-          <p className="text-sm text-subText whitespace-nowrap">Max Price</p>
+          <p className="text-sm text-subText whitespace-nowrap">{t`Max Price`}</p>
           {tickLower === null || tickUpper === null ? (
             <Skeleton className="h-5 w-40 md:w-20" />
           ) : (

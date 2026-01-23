@@ -36,7 +36,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://etherscan.io",
     multiCall: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
-    defaultRpc: "https://ethereum.kyberengineering.io",
+    defaultRpc: "https://ethereum-rpc.kyberswap.com",
     wrappedToken: {
       chainId: 1,
       name: "WETH",
@@ -86,7 +86,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://arbiscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://arbitrum.kyberengineering.io",
+    defaultRpc: "https://arbitrum-rpc.kyberswap.com",
     wrappedToken: {
       chainId: 42161,
       name: "WETH",
@@ -103,7 +103,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png",
     scanLink: "https://snowscan.xyz",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://avalanche.kyberengineering.io",
+    defaultRpc: "https://avalanche-rpc.kyberswap.com",
     wrappedToken: {
       chainId: 43114,
       name: "WAVAX",
@@ -119,7 +119,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://basescan.org",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://base.kyberengineering.io",
+    defaultRpc: "https://base-rpc.kyberswap.com",
     wrappedToken: {
       chainId: 8453,
       name: "ETH",
@@ -199,7 +199,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://optimistic.etherscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://optimism.kyberengineering.io",
+    defaultRpc: "https://mainnet.optimism.io",
     wrappedToken: {
       chainId: 10,
       name: "WETH",
@@ -290,18 +290,6 @@ export enum PoolType {
 export const API_URL = {
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1",
   KYBERSWAP_BFF_API: "https://bff.kyberswap.com/api",
-};
-
-export const POOL_MANAGER_CONTRACT: {
-  [poolType in PoolType]: { [chainId: number]: string } | string;
-} = {
-  [PoolType.DEX_PANCAKESWAPV3]: "",
-  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
-    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
-  },
-  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
-    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
-  },
 };
 
 export const POSITION_MANAGER_CONTRACT: {

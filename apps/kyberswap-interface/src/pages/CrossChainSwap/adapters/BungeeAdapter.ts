@@ -1,13 +1,14 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 
-import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS } from 'constants/index'
+import { BUNGEE_AFFILIATE_ID, CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS, KYBERSWAP_DOMAIN } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 
 import { Quote } from '../registry'
+import { isWrappedToken } from '../utils'
 import {
   BaseSwapAdapter,
   Chain,
+  Currency,
   EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
@@ -15,7 +16,10 @@ import {
   SwapStatus,
 } from './BaseSwapAdapter'
 
-const BUNGEE_API_BASE_URL = 'https://public-backend.bungee.exchange'
+const BUNGEE_API_BASE_URL =
+  typeof window !== 'undefined' && window.location?.hostname === KYBERSWAP_DOMAIN
+    ? 'https://backend.bungee.exchange' // use whitelisted backend for kyberswap.com
+    : 'https://public-backend.bungee.exchange' // use public backend for local development/testing
 enum RequestStatusEnum {
   PENDING = 0,
   ASSIGNED = 1,
@@ -39,6 +43,21 @@ export class BungeeAdapter extends BaseSwapAdapter {
   getIcon(): string {
     return 'https://www.bungee.exchange/favicon.ico'
   }
+
+  canSupport(_category: string, tokenIn?: Currency, _tokenOut?: Currency): boolean {
+    // Bungee only supports EVM tokens, so check if it has chainId
+    if (!tokenIn || !('chainId' in tokenIn) || !tokenIn.chainId) return false
+
+    const isWrappedTokenIn = isWrappedToken(tokenIn)
+
+    if (isWrappedTokenIn) {
+      console.warn(`Bungee does not support swap from wrapped token: ${tokenIn.symbol || 'unknown'}`)
+      return false
+    }
+
+    return true
+  }
+
   getSupportedChains(): Chain[] {
     return [...MAINNET_NETWORKS]
   }
@@ -56,7 +75,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
       inputAmount: params.amount,
       receiverAddress: params.recipient,
       outputToken: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.wrapped.address,
-      slippage: params.slippage.toString(),
+      slippage: ((params.slippage * 100) / 10_000).toString(),
       // delegateAddress: params.sender // optional
 
       feeBps: params.feeBps.toString(),
@@ -73,6 +92,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        affiliate: BUNGEE_AFFILIATE_ID,
       },
     })
 
@@ -135,16 +155,33 @@ export class BungeeAdapter extends BaseSwapAdapter {
       account,
     })
 
-    return { ...params, sourceTxHash: hash }
+    return {
+      ...params,
+      sourceTxHash: hash,
+      amountInUsd: quote.inputUsd,
+      amountOutUsd: quote.outputUsd,
+      platformFeePercent: quote.platformFeePercent,
+      recipient: quote.quoteParams.recipient,
+    }
   }
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
-    const response = await fetch(`${BUNGEE_API_BASE_URL}/api/v1/bungee/status?requestHash=${params.id}`)
+    const response = await fetch(`${BUNGEE_API_BASE_URL}/api/v1/bungee/status?requestHash=${params.id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        affiliate: BUNGEE_AFFILIATE_ID,
+      },
+    })
     const data = await response.json()
 
     if (!data.success) {
       throw new Error(`Status error: ${data.error?.message || 'Unknown error'}`)
     }
     const res = data.result[0]
+
+    // Extract actual output amount from destination data if available
+    const actualAmountOut = res?.destinationData?.output?.[0]?.amount
+
     return {
       txHash: res?.destinationData?.txHash || '',
       status:
@@ -152,9 +189,10 @@ export class BungeeAdapter extends BaseSwapAdapter {
           ? 'Refunded'
           : [RequestStatusEnum.EXPIRED, RequestStatusEnum.CANCELLED].includes(res.bungeeStatusCode)
           ? 'Failed'
-          : res.bungeeStatusCode == RequestStatusEnum.FULFILLED
+          : [RequestStatusEnum.FULFILLED, RequestStatusEnum.SETTLED].includes(res.bungeeStatusCode)
           ? 'Success'
           : 'Processing',
+      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
 }

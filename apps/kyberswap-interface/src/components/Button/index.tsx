@@ -76,11 +76,11 @@ const disabledPrimary = css<{
 }>`
   background-color: ${({ theme, altDisabledStyle }) =>
     altDisabledStyle ? theme.primary : theme.buttonGray} !important;
-  color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.border)};
+  color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? theme.textReverse : theme.border)};
   box-shadow: none !important;
   border: 1px solid transparent;
   outline: none;
-  opacity: ${({ altDisabledStyle }) => (altDisabledStyle ? '0.7' : '1')};
+  opacity: ${({ altDisabledStyle }) => (altDisabledStyle ? '0.5' : '1')};
 `
 export const ButtonPrimary = styled(Base)`
   background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary};
@@ -210,15 +210,6 @@ export const ButtonOutlined = styled(Base)<{ color?: string }>`
   color: ${({ theme, color }) => color || theme.subText};
   border-radius: 999px;
   font-size: 14px;
-  &:focus {
-    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
-  }
-  &:hover {
-    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
-  }
-  &:active {
-    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
-  }
   &:disabled {
     ${disabledOutlined}
   }

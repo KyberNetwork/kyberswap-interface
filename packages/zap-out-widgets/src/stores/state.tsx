@@ -1,8 +1,12 @@
-import { z } from 'zod';
 import { create } from 'zustand';
 
-import { CHAIN_ID_TO_CHAIN, PATHS, poolTypeToDexId } from '@/constants';
-import { ChainId, PoolType, Token } from '@/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, PoolType, Token, ZapRouteDetail } from '@kyber/schema';
+
+import { BuildRouteData } from '@/utils';
+
+interface BuildDataWithGas extends BuildRouteData {
+  gasUsd: number;
+}
 
 interface ZapOutUserState {
   ttl: number;
@@ -14,9 +18,6 @@ interface ZapOutUserState {
   degenMode: boolean;
   toggleDegenMode: () => void;
 
-  revertPrice: boolean;
-  toggleRevertPrice: () => void;
-
   slippage: number | undefined;
   setSlippage: (value: number) => void;
 
@@ -26,11 +27,11 @@ interface ZapOutUserState {
   tokenOut: Token | null;
   setTokenOut: (token: Token) => void;
 
-  showPreview: boolean;
-  togglePreview: () => void;
+  buildData: BuildDataWithGas | undefined;
+  setBuildData: (buildData: BuildDataWithGas | undefined) => void;
 
   fetchingRoute: boolean;
-  route: GetZapOutRouteResponse | null;
+  route: ZapRouteDetail | null;
   fetchZapOutRoute: (params: {
     chainId: ChainId;
     poolType: PoolType;
@@ -39,8 +40,6 @@ interface ZapOutUserState {
     signal?: AbortSignal;
   }) => Promise<void>;
   highlightDegenMode: boolean;
-  slippageOpen: boolean;
-  setSlippageOpen: (value: boolean) => void;
   resetState: () => void;
   mode: 'zapOut' | 'withdrawOnly';
   setMode: (mode: 'zapOut' | 'withdrawOnly') => void;
@@ -52,13 +51,11 @@ const initState = {
   showSetting: false,
   highlightDegenMode: false,
   degenMode: false,
-  revertPrice: false,
   slippage: undefined,
   liquidityOut: 0n,
-  showPreview: false,
+  buildData: undefined,
   fetchingRoute: false,
   route: null,
-  slippageOpen: false,
   mode: 'zapOut' as const,
 };
 
@@ -81,15 +78,13 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
 
   toggleDegenMode: () => set(state => ({ degenMode: !state.degenMode })),
 
-  toggleRevertPrice: () => set(state => ({ revertPrice: !state.revertPrice })),
+  setBuildData: (buildData: BuildDataWithGas | undefined) => set({ buildData }),
 
   setSlippage: (value: number) => set({ slippage: value }),
 
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
 
   setMode: (mode: 'zapOut' | 'withdrawOnly') => set({ mode }),
-
-  togglePreview: () => set(state => ({ showPreview: !state.showPreview })),
 
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress, signal }) => {
     const { tokenOut, liquidityOut, slippage, mode } = get();
@@ -101,7 +96,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
 
     set({ fetchingRoute: true });
     const params: { [key: string]: string | number | boolean } = {
-      dexFrom: poolTypeToDexId[poolType],
+      dexFrom: poolType,
       'poolFrom.id': poolAddress,
       'positionFrom.id': positionId,
       liquidityOut: liquidityOut.toString(),
@@ -118,7 +113,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     });
 
     try {
-      const res = await fetch(`${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route?${search.slice(1)}`, {
+      const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route?${search.slice(1)}`, {
         signal,
       }).then(res => res.json());
 
@@ -126,8 +121,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
         set({ route: null, fetchingRoute: false });
         return;
       }
-      apiResponse.parse(res.data);
-      set({ route: res.data, fetchingRoute: false });
+      set({ route: res.data as ZapRouteDetail, fetchingRoute: false });
     } catch (e) {
       if (signal?.aborted || (e as any)?.name === 'AbortError') {
         return;
@@ -136,97 +130,4 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       set({ fetchingRoute: false, route: null });
     }
   },
-
-  setSlippageOpen: value => set({ slippageOpen: value }),
 }));
-
-const token = z.object({
-  address: z.string(),
-  amount: z.string(),
-  amountUsd: z.string(),
-});
-
-const removeLiquidityAction = z.object({
-  type: z.literal('ACTION_TYPE_REMOVE_LIQUIDITY'),
-  removeLiquidity: z.object({
-    tokens: z.array(token),
-    fees: z.array(token).optional(),
-  }),
-});
-
-export type RemoveLiquidityAction = z.infer<typeof removeLiquidityAction>;
-
-const aggregatorSwapAction = z.object({
-  type: z.literal('ACTION_TYPE_AGGREGATOR_SWAP'),
-  aggregatorSwap: z.object({
-    swaps: z.array(
-      z.object({
-        tokenIn: token,
-        tokenOut: token,
-      }),
-    ),
-  }),
-});
-
-export type AggregatorSwapAction = z.infer<typeof aggregatorSwapAction>;
-
-const refundAction = z.object({
-  type: z.literal('ACTION_TYPE_REFUND'),
-  refund: z.object({
-    tokens: z.array(token),
-  }),
-});
-
-export type RefundAction = z.infer<typeof refundAction>;
-
-const apiResponse = z.object({
-  gas: z.string(),
-  gasUsd: z.string(),
-  zapDetails: z.object({
-    finalAmountUsd: z.string(),
-    initialAmountUsd: z.string(),
-    priceImpact: z.number().nullable().optional(),
-    suggestedSlippage: z.number(),
-    actions: z.array(
-      z.discriminatedUnion('type', [
-        removeLiquidityAction,
-
-        aggregatorSwapAction,
-
-        z.object({
-          type: z.literal('ACTION_TYPE_POOL_SWAP'),
-          poolSwap: z.object({
-            swaps: z.array(
-              z.object({
-                tokenIn: token,
-                tokenOut: token,
-              }),
-            ),
-          }),
-        }),
-
-        refundAction,
-
-        z.object({
-          type: z.literal('ACTION_TYPE_PROTOCOL_FEE'),
-          protocolFee: z.object({
-            pcm: z.number(),
-            tokens: z.array(token).optional(),
-          }),
-        }),
-
-        //z.object({
-        //  type: z.literal("ACTION_TYPE_PARTNER_FEE"),
-        //  protocolFee: z.object({
-        //    pcm: z.number(),
-        //    tokens: z.array(token),
-        //  }),
-        //}),
-      ]),
-    ),
-  }),
-  route: z.string(),
-  routerAddress: z.string(),
-});
-
-export type GetZapOutRouteResponse = z.infer<typeof apiResponse>;

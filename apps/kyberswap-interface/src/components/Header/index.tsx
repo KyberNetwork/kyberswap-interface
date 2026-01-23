@@ -15,6 +15,7 @@ import { StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import Menu from 'components/Menu'
+import RecapButton from 'components/Recap/RecapButton'
 import Row, { RowFixed } from 'components/Row'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
@@ -37,12 +38,11 @@ const HeaderFrame = styled.div<{ hide?: boolean }>`
   position: relative;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   z-index: ${Z_INDEXS.HEADER};
-  ${({ theme, hide }) => theme.mediaWidth.upToMedium`
+  ${({ theme, hide }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 1fr;
     padding: ${hide ? 0 : '1rem'};
     width: calc(100%);
     position: relative;
-    
   `};
 
   ${({ theme, hide }) => theme.mediaWidth.upToExtraSmall`
@@ -212,7 +212,11 @@ export default function Header() {
             <SwapNavGroup />
             <EarnNavGroup />
 
-            {!upToExtraSmall && <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>}
+            {!upToExtraSmall && (
+              <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>
+                <Trans>Market</Trans>
+              </StyledNavLink>
+            )}
             <CampaignNavGroup />
             <KyberDAONavGroup />
             {!upToMedium && (
@@ -221,6 +225,7 @@ export default function Header() {
               </StyledNavExternalLink>
             )}
             <AboutNavGroup />
+            <RecapButton />
           </HeaderLinks>
         )}
       </HeaderRow>

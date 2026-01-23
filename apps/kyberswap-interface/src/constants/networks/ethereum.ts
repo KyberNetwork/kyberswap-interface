@@ -24,10 +24,10 @@ const ethereumInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'Ether',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    logo: ethereumIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://ethereum.kyberengineering.io',
+  defaultRpcUrl: 'https://ethereum-rpc.kyberswap.com',
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum',

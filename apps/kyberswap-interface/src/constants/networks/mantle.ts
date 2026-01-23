@@ -1,3 +1,4 @@
+import mantleIcon from 'assets/networks/mantle.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -10,7 +11,7 @@ const mantle: NetworkInfo = {
   priceRoute: 'mantle',
   aggregatorRoute: 'mantle',
   name: 'Mantle',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
+  icon: mantleIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -20,7 +21,7 @@ const mantle: NetworkInfo = {
   nativeToken: {
     symbol: 'MNT',
     name: 'MNT',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
+    logo: mantleIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.ankr.com/mantle',

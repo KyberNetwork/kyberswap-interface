@@ -42,7 +42,7 @@ const BodyWrapper = styled.div`
 
 const CodeBlockWrapper = styled.div`
   overflow: auto;
-  white-space: pre;
+  white-space: pre-line;
 `
 
 const LinkWrapper = styled.div`
@@ -138,7 +138,7 @@ const FallbackView: React.FC<Props> = ({ error }) => {
               window.location.reload()
             }}
           >
-            Refresh
+            <Trans>Refresh</Trans>
           </ButtonPrimary>
         </AutoColumn>
       </BodyWrapper>

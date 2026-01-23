@@ -169,7 +169,7 @@ const ActionButtons = ({
               <IconWrap color={isChildren ? '' : theme.subText} isDisabled={isDisabledCopy} style={itemStyle}>
                 <CopyHelper
                   toCopy={txHash}
-                  style={{ color: isDisabledCopy ? theme.border : theme.subText, margin: 0 }}
+                  style={{ color: isDisabledCopy ? rgba(theme.subText, 0.4) : theme.subText, margin: 0 }}
                   size="15"
                 />
               </IconWrap>
@@ -181,7 +181,7 @@ const ActionButtons = ({
             >
               <IconWrap color={isChildren ? '' : theme.primary} isDisabled={isDisabledCopy} style={itemStyle}>
                 <ExternalLink href={chainId ? getEtherscanLink(chainId, txHash, 'transaction') : ''}>
-                  <LinkIcon size={15} color={isDisabledCopy ? theme.border : theme.primary} />
+                  <LinkIcon size={15} color={isDisabledCopy ? rgba(theme.subText, 0.4) : theme.primary} />
                 </ExternalLink>
               </IconWrap>
             </MouseoverTooltipDesktopOnly>

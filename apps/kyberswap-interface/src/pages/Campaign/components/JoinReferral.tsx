@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
@@ -68,11 +69,11 @@ export default function JoinReferal() {
     const message = new SiweMessage({
       domain: 'kyberswap.com',
       address: account,
-      statement: `By signing this message, you confirm your participation in the KyberSwap Referral Program. This action does not trigger any transaction and does not incur any gas fees.`,
+      statement: t`By signing this message, you confirm your participation in the KyberSwap Referral Program. This action does not trigger any transaction and does not incur any gas fees.`,
       uri: 'https://kyberswap.com',
       version: '1',
       chainId: ChainId.ARBITRUM,
-      nonce: res?.data?.data?.nonce || 'why get nonce failed?',
+      nonce: res?.data?.data?.nonce || t`Nonce Retrieval Failed`,
     }).prepareMessage()
 
     const signature = await library.getSigner().signMessage(message)
@@ -86,13 +87,13 @@ export default function JoinReferal() {
 
     if ((joinCampaignRes as any)?.error) {
       notify({
-        title: 'Join Referral Campaign Failed',
-        summary: (joinCampaignRes as any)?.error?.data?.message || 'Something went wrong',
+        title: t`Join Referral Campaign Failed`,
+        summary: (joinCampaignRes as any)?.error?.data?.message || t`Something went wrong`,
         type: NotificationType.ERROR,
       })
     } else {
       notify({
-        title: 'Join Referral Campaign Success',
+        title: t`Join Referral Campaign Success`,
         type: NotificationType.SUCCESS,
       })
       await refetch()
@@ -111,25 +112,27 @@ export default function JoinReferal() {
     return (
       <>
         <ButtonPrimary width="fit-content" padding="8px 16px" onClick={() => setShowRefModal(true)}>
-          Confirm to join
+          <Trans>Confirm to join</Trans>
         </ButtonPrimary>
         <Modal isOpen={showRefModal} onDismiss={() => setShowRefModal(false)}>
           <Flex width="100%" padding="24px 32px 32px" flexDirection="column">
             <Flex justifyContent="space-between" alignItems="center">
               <Text fontSize={20} fontWeight="500">
-                Code Referral
+                <Trans>Code Referral</Trans>
               </Text>
               <X cursor="pointer" color={theme.subText} onClick={() => setShowRefModal(false)} role="button" />
             </Flex>
 
             <Text marginTop="32px" color={theme.subText}>
-              Enter the referral code to get 5% extra bonus, more information{' '}
-              <ExternalLink href="/campaigns/referrals?tab=information">here.</ExternalLink>
+              <Trans>
+                Enter the referral code to get 5% extra bonus, more information{' '}
+                <ExternalLink href="/campaigns/referrals?tab=information">here.</ExternalLink>
+              </Trans>
             </Text>
 
             <Input
               style={{ marginTop: '24px' }}
-              placeholder="Referral Code Input (Optional)"
+              placeholder={t`Referral Code Input (Optional)`}
               value={refCode}
               onChange={e => {
                 setRefCode(e.target.value.trim())
@@ -142,7 +145,7 @@ export default function JoinReferal() {
                   handleJoin(refCode)
                 }}
               >
-                Confirm
+                <Trans>Confirm</Trans>
               </ButtonPrimary>
             </Flex>
           </Flex>
@@ -155,20 +158,20 @@ export default function JoinReferal() {
   return (
     <>
       <ButtonPrimary width="fit-content" padding="8px 16px" onClick={() => setShowInviteModal(true)}>
-        Invite your friends
+        <Trans>Invite your friends</Trans>
       </ButtonPrimary>
 
       <Modal isOpen={showInviteModal} onDismiss={() => setShowInviteModal(false)}>
         <Flex width="100%" padding="24px 32px 32px" flexDirection="column">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize={20} fontWeight="500">
-              Generate Referral
+              <Trans>Generate Referral</Trans>
             </Text>
             <X cursor="pointer" color={theme.subText} onClick={() => setShowInviteModal(false)} role="button" />
           </Flex>
 
           <Text marginTop="32px" color={theme.subText}>
-            Copy and share your link/code with your network.
+            <Trans>Copy and share your link/code with your network.</Trans>
           </Text>
 
           <Box sx={{ position: 'relative', marginTop: '24px' }}>

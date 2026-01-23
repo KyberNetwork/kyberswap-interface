@@ -1,4 +1,5 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Star, X } from 'react-feather'
 import { useMedia, usePreviousDistinct } from 'react-use'
@@ -27,7 +28,6 @@ const Disclaimer = styled.div`
   margin-top: 1rem;
 `
 
-// () => setShowTokenId(null)
 export default function DetailModal({
   tokenToShow,
   onDismiss,
@@ -104,7 +104,7 @@ export default function DetailModal({
           >
             <div>
               <Text fontSize={12} color={theme.subText}>
-                Market Cap
+                <Trans>Market Cap</Trans>
               </Text>
               <Text marginTop="4px">
                 {tokenToShow.marketCap
@@ -114,7 +114,7 @@ export default function DetailModal({
             </div>
             <div>
               <Text fontSize={12} color={theme.subText}>
-                24h Volume
+                <Trans>24h Volume</Trans>
               </Text>
               <Text marginTop="4px">
                 {tokenToShow.volume24h
@@ -125,7 +125,7 @@ export default function DetailModal({
 
             <div>
               <Text fontSize={12} color={theme.subText}>
-                All Time Low
+                <Trans>All Time Low</Trans>
               </Text>
               <Text marginTop="4px">
                 {formatDisplayNumber(tokenToShow.allTimeLow, { style: 'currency', fractionDigits: 2 })}
@@ -133,7 +133,7 @@ export default function DetailModal({
             </div>
             <div>
               <Text fontSize={12} color={theme.subText}>
-                All Time High
+                <Trans>All Time High</Trans>
               </Text>
               <Text marginTop="4px">
                 {formatDisplayNumber(tokenToShow.allTimeHigh, { style: 'currency', fractionDigits: 2 })}
@@ -148,10 +148,10 @@ export default function DetailModal({
             >
               <div />
               <Text fontSize={12} color={theme.subText} textAlign="right">
-                Buy Price
+                <Trans>Buy Price</Trans>
               </Text>
               <Text fontSize={12} color={theme.subText} textAlign="right">
-                Sell Price
+                <Trans>Sell Price</Trans>
               </Text>
               <div />
             </Box>
@@ -159,7 +159,7 @@ export default function DetailModal({
             <>
               <Flex alignItems="center" marginY="8px" justifyContent="flex-end" sx={{ gap: '12px' }}>
                 <Text fontSize={12} color={theme.subText} textAlign="right">
-                  On-chain Price
+                  <Trans>On-chain Price</Trans>
                 </Text>
                 <Flex
                   sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
@@ -172,7 +172,7 @@ export default function DetailModal({
                       setSelectedPrice('buy')
                     }}
                   >
-                    Buy
+                    <Trans>Buy</Trans>
                   </TabItem>
 
                   <TabItem
@@ -181,7 +181,7 @@ export default function DetailModal({
                       setSelectedPrice('sell')
                     }}
                   >
-                    Sell
+                    <Trans>Sell</Trans>
                   </TabItem>
                 </Flex>
               </Flex>
@@ -297,13 +297,15 @@ export default function DetailModal({
                         )
                       }}
                     >
-                      Swap
+                      <Trans>Swap</Trans>
                     </ButtonOutlined>
                   </Flex>
                 </Box>
               )
             })}
-          <Disclaimer>Grouping selection across chains is sourced from Coingecko and CoinMarketCap</Disclaimer>
+          <Disclaimer>
+            <Trans>Grouping selection across chains is sourced from Coingecko and CoinMarketCap</Trans>
+          </Disclaimer>
         </Flex>
       ) : null}
     </Modal>

@@ -1,18 +1,17 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
+import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
 import { Button, Input, ScrollArea, TokenLogo } from '@kyber/ui';
 import { formatUnits, isAddress } from '@kyber/utils/crypto';
+import { formatWei } from '@kyber/utils/number';
 
 import Info from '@/assets/svg/info.svg';
 import IconSearch from '@/assets/svg/search.svg';
 import TrashIcon from '@/assets/svg/trash.svg';
 import X from '@/assets/svg/x.svg';
-import { NATIVE_TOKEN_ADDRESS } from '@/constants';
 import { useTokenList } from '@/hooks/useTokenList';
-import { Token } from '@/schema';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
-import { formatWei } from '@/utils';
 
 export enum TOKEN_TAB {
   ALL,
@@ -50,8 +49,8 @@ export default function TokenSelector({
     logo: '',
     symbol: '',
   };
-  const { address: token0Address } = pool === 'loading' ? defaultToken : pool.token0;
-  const { address: token1Address } = pool === 'loading' ? defaultToken : pool.token1;
+  const { address: token0Address } = !pool ? defaultToken : pool.token0;
+  const { address: token1Address } = !pool ? defaultToken : pool.token1;
 
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
@@ -154,7 +153,7 @@ export default function TokenSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredTokens]);
 
-  if (pool === 'loading') return null;
+  if (!pool) return null;
 
   return (
     <div className="w-full mx-auto text-white overflow-hidden">

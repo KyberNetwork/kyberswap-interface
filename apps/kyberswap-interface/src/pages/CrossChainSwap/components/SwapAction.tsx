@@ -1,4 +1,5 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState } from 'react'
@@ -30,7 +31,6 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     toChainId,
     currencyIn,
     currencyOut,
-    allLoading,
     loading,
     selectedQuote,
     recipient,
@@ -73,21 +73,21 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
   } = (() => {
     if (approvalState === ApprovalState.PENDING || clickedApprove) {
       return {
-        label: 'Approving...',
+        label: t`Approving...`,
         disabled: true,
         onClick: () => {},
       }
     }
-    if (allLoading)
+    if (loading)
       return {
-        label: 'Finding the best route...',
+        label: t`Finding the best route...`,
         disabled: true,
         onClick: () => {},
       }
 
     if (!fromChainId || !toChainId || !currencyIn || !currencyOut) {
       return {
-        label: 'Please select a token',
+        label: t`Please select a token`,
         disabled: true,
         onClick: () => {},
       }
@@ -95,7 +95,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (!amountInWei || amountInWei === '0') {
       return {
-        label: 'Please input an amount',
+        label: t`Please input an amount`,
         disabled: true,
         onClick: () => {},
       }
@@ -103,7 +103,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (isFromBitcoin && !btcAddress) {
       return {
-        label: 'Connect Bitcoin Wallet',
+        label: t`Connect Bitcoin Wallet`,
         onClick: () => {
           setShowBtcModal(true)
         },
@@ -112,7 +112,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (isFromEvm && !account)
       return {
-        label: 'Connect Wallet',
+        label: t`Connect Wallet`,
         onClick: () => {
           toggleWalletModal()
         },
@@ -120,7 +120,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (isFromNear && !signedAccountId) {
       return {
-        label: 'Connect NEAR Wallet',
+        label: t`Connect NEAR Wallet`,
         onClick: () => {
           onOpenWallet('near')
         },
@@ -128,7 +128,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     }
     if (isFromSol && !solanaAddress) {
       return {
-        label: 'Connect Solana Wallet',
+        label: t`Connect Solana Wallet`,
         onClick: () => {
           setIsOpen(true)
         },
@@ -137,7 +137,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (!selectedQuote)
       return {
-        label: 'No route found',
+        label: t`No route found`,
         disabled: true,
         onClick: () => {},
       }
@@ -152,7 +152,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (notEnougBalance) {
       return {
-        label: 'Insufficient Balance',
+        label: t`Insufficient Balance`,
         disabled: true,
         onClick: () => {},
       }
@@ -160,7 +160,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (isFromEvm && chainId !== fromChainId) {
       return {
-        label: 'Switch Network',
+        label: t`Switch Network`,
         onClick: () => {
           if (isFromEvm) changeNetwork(fromChainId as ChainId)
         },
@@ -169,7 +169,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (!recipient) {
       return {
-        label: 'Enter Recipient',
+        label: t`Enter Recipient`,
         disabled: true,
         onClick: () => {},
       }
@@ -177,7 +177,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (approvalState === 'NOT_APPROVED' && selectedQuote.quote.contractAddress !== ZERO_ADDRESS) {
       return {
-        label: `Approve`,
+        label: t`Approve`,
         onClick: () => {
           setClickedApprove(true)
           approve(inputAmount).finally(() => {
@@ -188,7 +188,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     }
 
     return {
-      label: 'Review the Cross-chain Swap',
+      label: t`Review the Cross-chain Swap`,
       onClick: () => {
         setShowPreview(true)
       },

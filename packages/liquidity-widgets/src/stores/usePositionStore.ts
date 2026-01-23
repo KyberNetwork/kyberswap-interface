@@ -6,14 +6,14 @@ import { getUniv2PositionInfo, getUniv3PositionInfo } from '@kyber/utils';
 
 interface PositionState {
   positionError: string;
-  position: 'loading' | Position | null;
+  position: Position | null;
   firstLoad: boolean;
   getPosition: (props: getPositionProps) => void;
   reset: () => void;
 }
 
 const initState: Omit<PositionState, 'getPosition' | 'reset'> = {
-  position: 'loading',
+  position: null,
   positionError: '',
   firstLoad: true,
 };
@@ -70,6 +70,8 @@ const usePositionRawStore = create<PositionState>((set, get) => ({
         });
 
         if (positionInfo.error) {
+          // TODO: Check with multi-language message
+          if (!positionId && positionInfo.error.includes('Position not found')) return;
           set({ positionError: positionInfo.error, position: null });
           return;
         }

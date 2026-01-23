@@ -13,8 +13,8 @@ import {
 } from '@kyber/schema';
 
 import { formatUnits } from '../crypto';
-import { formatDisplayNumber, formatTokenAmount, toRawString } from '../number';
-import { PI_LEVEL, getZapImpact } from './price-impact';
+import { formatDisplayNumber, toRawString } from '../number';
+import { PI_LEVEL, ZAP_MESSAGES, getZapImpact } from './price-impact';
 
 export const parseZapInfo = ({
   zapInfo,
@@ -25,7 +25,7 @@ export const parseZapInfo = ({
   zapInfo: ZapRouteDetail | undefined | null;
   token0: Token;
   token1: Token;
-  position: Position | undefined | null | 'loading';
+  position?: Position | undefined | null | 'loading';
 }) => {
   if (!zapInfo)
     return {
@@ -136,51 +136,74 @@ export const parseZapInfo = ({
 
 // NEW
 const defaultZapImpact = {
-  msg: `Unable to calculate zap impact`,
+  msg: ZAP_MESSAGES.UNABLE_TO_CALCULATE,
   level: PI_LEVEL.INVALID,
   display: '--',
 };
 
 const defaultZapRoute = {
   addedLiquidity: {
-    addedAmount0: '0',
-    addedAmount1: '0',
+    addedAmount0: 0n,
+    addedAmount1: 0n,
     addedValue0: 0,
     addedValue1: 0,
   },
   removeLiquidity: {
-    removedAmount0: '0',
-    removedAmount1: '0',
+    removedAmount0: 0n,
+    removedAmount1: 0n,
     removedValue0: 0,
     removedValue1: 0,
   },
   earnedFee: {
     earnedFee0: 0n,
     earnedFee1: 0n,
+    feeValue0: 0,
+    feeValue1: 0,
   },
   refund: {
     value: 0,
     refunds: [],
   },
-  zapFee: 0,
+  zapFee: {
+    protocolFee: 0,
+    partnerFee: 0,
+  },
   suggestedSlippage: 0,
   initUsd: 0,
+  finalAmountUsd: 0,
+  gasUsd: 0,
   zapImpact: defaultZapImpact,
   swapActions: [],
 };
 
-export const parseZapRoute = (route: ZapRouteDetail | null, tokens: Token[], dexName: string) => {
-  if (!route) return defaultZapRoute;
+export const parseZapRoute = ({
+  route,
+  token0Address,
+  token1Address,
+  tokens,
+  dexName,
+  poolAddress,
+}: {
+  route: ZapRouteDetail | null;
+  token0Address: string;
+  token1Address: string;
+  tokens: Token[];
+  dexName: string;
+  poolAddress: string;
+}) => {
+  if (!route || !token0Address || !token1Address) return defaultZapRoute;
 
   const addedLiquidity = parseAddedLiquidity(route);
-  const removeLiquidity = parseRemoveLiquidity(route);
-  const earnedFee = parseEarnedFee(route);
+  const removeLiquidity = parseRemoveLiquidity(route, token0Address, token1Address);
+  const earnedFee = parseEarnedFee(route, token0Address, token1Address);
   const suggestedSlippage = route.zapDetails.suggestedSlippage || 0;
   const initUsd = Number(route?.zapDetails.initialAmountUsd || 0);
+  const finalAmountUsd = Number(route?.zapDetails.finalAmountUsd || 0);
+  const gasUsd = Number(route?.gasUsd || 0);
   const refund = parseRefund(route, tokens);
   const zapFee = parseZapFee(route);
   const zapImpact = parseZapImpact(route.zapDetails.priceImpact, suggestedSlippage);
-  const swapActions = parseSwapActions(route, tokens, dexName);
+  const swapActions = parseSwapActions(route, tokens, dexName, poolAddress);
 
   return {
     addedLiquidity,
@@ -189,6 +212,8 @@ export const parseZapRoute = (route: ZapRouteDetail | null, tokens: Token[], dex
     suggestedSlippage,
     refund,
     initUsd,
+    finalAmountUsd,
+    gasUsd,
     zapFee,
     zapImpact,
     swapActions,
@@ -200,10 +225,13 @@ const parseAddedLiquidity = (route: ZapRouteDetail) => {
     item => item.type === ZapAction.ADD_LIQUIDITY,
   ) as AddLiquidityAction;
 
-  const addedAmount0 = addLiquidityInfo?.addLiquidity.token0.amount || '0';
-  const addedAmount1 = addLiquidityInfo?.addLiquidity.token1.amount || '0';
-  const addedValue0 = +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0);
-  const addedValue1 = +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0);
+  const token0 = addLiquidityInfo?.addLiquidity.token0;
+  const token1 = addLiquidityInfo?.addLiquidity.token1;
+
+  const addedAmount0 = BigInt(token0?.amount || '0');
+  const addedAmount1 = BigInt(token1?.amount || '0');
+  const addedValue0 = +(token0?.amountUsd || 0);
+  const addedValue1 = +(token1?.amountUsd || 0);
 
   return {
     addedAmount0,
@@ -213,15 +241,22 @@ const parseAddedLiquidity = (route: ZapRouteDetail) => {
   };
 };
 
-const parseRemoveLiquidity = (route: ZapRouteDetail) => {
+const parseRemoveLiquidity = (route: ZapRouteDetail, token0Address: string, token1Address: string) => {
   const actionRemoveLiquidity = route?.zapDetails.actions.find(item => item.type === ZapAction.REMOVE_LIQUIDITY) as
     | RemoveLiquidityAction
     | undefined;
 
-  const removedAmount0 = actionRemoveLiquidity?.removeLiquidity.tokens[0]?.amount || '0';
-  const removedAmount1 = actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amount || '0';
-  const removedValue0 = +(actionRemoveLiquidity?.removeLiquidity.tokens[0]?.amountUsd || 0);
-  const removedValue1 = +(actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amountUsd || 0);
+  const token0 = actionRemoveLiquidity?.removeLiquidity.tokens.find(
+    item => item.address.toLowerCase() === token0Address.toLowerCase(),
+  );
+  const token1 = actionRemoveLiquidity?.removeLiquidity.tokens.find(
+    item => item.address.toLowerCase() === token1Address.toLowerCase(),
+  );
+
+  const removedAmount0 = BigInt(token0?.amount || '0');
+  const removedAmount1 = BigInt(token1?.amount || '0');
+  const removedValue0 = +(token0?.amountUsd || 0);
+  const removedValue1 = +(token1?.amountUsd || 0);
 
   return {
     removedAmount0,
@@ -231,21 +266,28 @@ const parseRemoveLiquidity = (route: ZapRouteDetail) => {
   };
 };
 
-const parseEarnedFee = (route: ZapRouteDetail) => {
+const parseEarnedFee = (route: ZapRouteDetail, token0Address: string, token1Address: string) => {
   const actionRemoveLiquidity = route?.zapDetails.actions.find(item => item.type === ZapAction.REMOVE_LIQUIDITY) as
     | RemoveLiquidityAction
     | undefined;
 
-  const { fees } = actionRemoveLiquidity?.removeLiquidity || {};
-  const fee0 = fees?.[0];
-  const fee1 = fees?.[1];
+  const token0 = actionRemoveLiquidity?.removeLiquidity.fees?.find(
+    item => item.address.toLowerCase() === token0Address.toLowerCase(),
+  );
+  const token1 = actionRemoveLiquidity?.removeLiquidity.fees?.find(
+    item => item.address.toLowerCase() === token1Address.toLowerCase(),
+  );
 
-  const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
-  const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
+  const feeAmount0 = BigInt(token0 ? token0.amount : 0);
+  const feeAmount1 = BigInt(token1 ? token1.amount : 0);
+  const feeValue0 = +(token0 ? token0.amountUsd : 0);
+  const feeValue1 = +(token1 ? token1.amountUsd : 0);
 
   return {
     earnedFee0: feeAmount0,
     earnedFee1: feeAmount1,
+    feeValue0,
+    feeValue1,
   };
 };
 
@@ -258,7 +300,7 @@ const parseRefund = (route: ZapRouteDetail, tokens: Token[]) => {
     const token = tokens.find(t => t.address.toLowerCase() === refund.address.toLowerCase());
     if (token) {
       refunds.push({
-        amount: formatTokenAmount(BigInt(refund.amount), token.decimals),
+        amount: formatUnits(refund.amount, token.decimals),
         symbol: token.symbol,
       });
     }
@@ -271,13 +313,15 @@ const parseRefund = (route: ZapRouteDetail, tokens: Token[]) => {
 };
 
 const parseZapFee = (route: ZapRouteDetail) => {
-  const feeInfo = route?.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
-    | ProtocolFeeAction
-    | undefined;
+  const feeInfo = route.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as ProtocolFeeAction;
+  const partnerFeeInfo = route.zapDetails.actions.find(item => item.type === ZapAction.PARTNET_FEE) as PartnerFeeAction;
+  const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+  const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
-  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-
-  return zapFee;
+  return {
+    protocolFee,
+    partnerFee,
+  };
 };
 
 const parseZapImpact = (pi: number | null | undefined, suggestedSlippage: number) => {
@@ -289,7 +333,7 @@ const parseZapImpact = (pi: number | null | undefined, suggestedSlippage: number
 
   if (pi > 2 * warningThreshold) {
     return {
-      msg: "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+      msg: ZAP_MESSAGES.ZAP_IMPACT_HIGH,
       level: PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
@@ -297,7 +341,7 @@ const parseZapImpact = (pi: number | null | undefined, suggestedSlippage: number
 
   if (pi > warningThreshold) {
     return {
-      msg: 'Overall zap price impact is higher than expected.',
+      msg: ZAP_MESSAGES.ZAP_IMPACT_WARNING,
       level: PI_LEVEL.HIGH,
       display: piDisplay,
     };
@@ -310,7 +354,7 @@ const parseZapImpact = (pi: number | null | undefined, suggestedSlippage: number
   };
 };
 
-const parseSwapActions = (route: ZapRouteDetail, tokens: Token[], dexName: string) => {
+const parseSwapActions = (route: ZapRouteDetail, tokens: Token[], dexName: string, poolAddress: string) => {
   const aggregatorSwapInfo = route?.zapDetails.actions.find(
     item => item.type === ZapAction.AGGREGATOR_SWAP,
   ) as AggregatorSwapAction | null;
@@ -332,24 +376,29 @@ const parseSwapActions = (route: ZapRouteDetail, tokens: Token[], dexName: strin
         amountIn,
         amountOut,
         pool: 'KyberSwap',
+        poolAddress: '',
       };
     }) || [];
 
   const parsedPoolSwapInfo =
     poolSwapInfo?.poolSwap?.swaps?.map(item => {
       const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-
       const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-
       const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
       const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
+
+      const displayPool =
+        item.poolAddress && poolAddress && item.poolAddress !== poolAddress
+          ? `${tokenIn?.symbol}-${tokenOut?.symbol}`
+          : dexName;
 
       return {
         tokenInSymbol: tokenIn?.symbol || '--',
         tokenOutSymbol: tokenOut?.symbol || '--',
         amountIn,
         amountOut,
-        pool: `${dexName} Pool`,
+        pool: ZAP_MESSAGES.DISPLAY_POOL.replace('{displayPool}', displayPool),
+        poolAddress: item.poolAddress || '',
       };
     }) || [];
 

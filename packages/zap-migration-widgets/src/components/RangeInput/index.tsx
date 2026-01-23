@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
-import { UniV3Position, univ3Types } from '@kyber/schema';
+import { UniV3Pool, UniV3Position, univ3Types } from '@kyber/schema';
+import { nearestUsableTick } from '@kyber/utils/uniswapv3';
 
 import PoolPrice from '@/components/PoolPrice';
 import LiquidityChart from '@/components/RangeInput/LiquidityChart';
@@ -33,10 +34,22 @@ export default function RangeInput({ initialTick }: { initialTick?: { tickLower:
       setTickLower((targetPosition as UniV3Position).tickLower);
       setTickUpper((targetPosition as UniV3Position).tickUpper);
     } else if (initialTick) {
-      setTickLower(initialTick.tickLower);
-      setTickUpper(initialTick.tickUpper);
+      const nearestTickLower = nearestUsableTick(initialTick.tickLower, (targetPool as UniV3Pool).tickSpacing);
+      const nearestTickUpper = nearestUsableTick(initialTick.tickUpper, (targetPool as UniV3Pool).tickSpacing);
+      setTickLower(nearestTickLower);
+      setTickUpper(nearestTickUpper);
     }
-  }, [initialTick, isTargetUniV3, setTickLower, setTickUpper, targetPosition, targetPositionId, tickLower, tickUpper]);
+  }, [
+    initialTick,
+    isTargetUniV3,
+    setTickLower,
+    setTickUpper,
+    targetPool,
+    targetPosition,
+    targetPositionId,
+    tickLower,
+    tickUpper,
+  ]);
 
   if (targetPositionId) return null;
   return (

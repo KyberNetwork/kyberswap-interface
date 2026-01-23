@@ -1,13 +1,18 @@
 import { create } from 'zustand';
 import { useShallow } from 'zustand/shallow';
 
-import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
+import { ChainId, NETWORKS_INFO, PoolType, Theme, defaultTheme } from '@kyber/schema';
+
+import { OnSuccessProps, TxStatus } from '@/types/index';
 
 interface WidgetProps {
   chainId: ChainId;
+  rpcUrl?: string;
   theme: Theme;
   sourcePoolType?: PoolType;
   targetPoolType?: PoolType;
+  sourceDexId?: string;
+  targetDexId?: string;
   rePositionMode?: boolean;
   client: string;
   referral?: string;
@@ -15,9 +20,16 @@ interface WidgetProps {
     address: string | undefined;
     chainId: number;
   };
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
+  onClose: () => void;
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
+  onSuccess?: (props: OnSuccessProps) => void;
 }
 
 interface WidgetState extends WidgetProps {
+  rpcUrl: string;
   widgetError: string;
   setWidgetError: (error: string) => void;
   reset: () => void;
@@ -27,8 +39,11 @@ interface WidgetState extends WidgetProps {
 const initState = {
   theme: defaultTheme,
   chainId: ChainId.Ethereum,
+  rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   sourcePoolType: undefined,
   targetPoolType: undefined,
+  sourceDexId: undefined,
+  targetDexId: undefined,
   rePositionMode: false,
   client: '',
   referral: undefined,
@@ -37,6 +52,10 @@ const initState = {
     chainId: ChainId.Ethereum,
   },
   widgetError: '',
+  onClose: () => {},
+  onSubmitTx: async () => '',
+  signTypedData: undefined,
+  onSuccess: undefined,
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -45,12 +64,21 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
   setInitiaWidgetState: ({
     theme,
     chainId,
+    rpcUrl,
     rePositionMode,
     sourcePoolType,
     targetPoolType,
+    sourceDexId,
+    targetDexId,
     client,
     referral,
     connectedAccount,
+    txStatus,
+    txHashMapping,
+    onClose,
+    onSubmitTx,
+    signTypedData,
+    onSuccess,
   }: WidgetProps) => {
     const themeToApply =
       theme && typeof theme === 'object'
@@ -63,12 +91,21 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     set({
       theme: themeToApply,
       chainId,
+      rpcUrl: rpcUrl ?? NETWORKS_INFO[chainId].defaultRpc,
       rePositionMode,
       sourcePoolType,
       targetPoolType,
+      sourceDexId,
+      targetDexId,
       client,
       referral,
       connectedAccount,
+      txStatus,
+      txHashMapping,
+      onClose,
+      onSubmitTx,
+      signTypedData,
+      onSuccess,
     });
   },
   setWidgetError: (error: string) => set({ widgetError: error }),

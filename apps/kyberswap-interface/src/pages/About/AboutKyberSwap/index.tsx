@@ -8,6 +8,8 @@ import styled from 'styled-components'
 
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
+import megaEthIcon from 'assets/networks/megaeth.svg'
+import monadIcon from 'assets/networks/monad.svg'
 import AboutAvalanche from 'assets/svg/about_icon_avalanche.svg'
 import BSC from 'assets/svg/about_icon_bsc.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
@@ -22,10 +24,7 @@ import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
-import { formatBigLiquidity } from 'utils/formatBalance'
-
-import KyberSwapGeneralIntro from '../KyberSwapGeneralIntro'
+import KyberSwapGeneralIntro from 'pages/About/KyberSwapGeneralIntro'
 import {
   AboutKNC,
   AboutPage,
@@ -42,7 +41,9 @@ import {
   SupportedChain,
   VerticalDivider,
   Wrapper,
-} from '../styleds'
+} from 'pages/About/styleds'
+import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
+import { formatBigLiquidity } from 'utils/formatBalance'
 
 // import MeetTheTeam from './MeetTheTeam'
 
@@ -341,13 +342,34 @@ function AboutKyberSwap() {
               <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
 
               <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
-                <img src="https://www.berachain.com/images/icons/berachain.svg" alt="Bera" width="80px" />
+                <img
+                  src="https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png"
+                  alt="Bera"
+                  width="80px"
+                />
                 <Text>Berachain</Text>
               </Flex>
 
               <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
                 <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" height="80px" />
                 <Text>Roninchain</Text>
+              </Flex>
+              <img src="https://www.etherlink.com/logo-desktop.svg" alt="Etherlink" width="100%" />
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <img
+                  src="https://storage.googleapis.com/ks-setting-1d682dca/9cdb1542-1d9a-4cf0-b67b-b68b1a29b09d1758725874771.png"
+                  alt="Plasma"
+                  width="80px"
+                />
+                <Text>Plasma</Text>
+              </Flex>
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <img src={monadIcon} alt="Monad" width="80px" />
+                <Text>Monad</Text>
+              </Flex>
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <img src={megaEthIcon} alt="MegaETH" width="80px" />
+                <Text>MegaETH</Text>
               </Flex>
             </Powered>
           </Text>

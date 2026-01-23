@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { NewLabel } from 'components/Menu'
@@ -34,7 +34,7 @@ const TabWrapper = styled.div`
   }
 `
 
-export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
+export const Tab = styled(ButtonEmpty)<{ isActive: boolean; isDisabled?: boolean }>`
   width: fit-content;
   font-weight: 500;
   padding: 0px 0.5rem;
@@ -59,6 +59,12 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   &:last-child {
     margin-right: 0;
   }
+
+  ${({ theme, isDisabled }) =>
+    isDisabled &&
+    css`
+      color: ${theme.border};
+    `};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 14px;

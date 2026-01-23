@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/react/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
@@ -7,7 +8,7 @@ import { FARMING_CONTRACTS, univ3PoolNormalize } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL, getZapImpact } from '@kyber/utils';
 
-import { ERROR_MESSAGE } from '@/constants';
+import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -100,18 +101,18 @@ export default function Action({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const btnText = (() => {
-    if (error) return error;
-    if (initializing) return `Loading${'.'.repeat(dots)}`;
+    if (error) return translateErrorMessage(error);
+    if (initializing) return t`Loading${'.'.repeat(dots)}`;
     if (isNotOwner) {
-      if (isFarming) return 'Your position is in farming';
-      return 'Not the position owner';
+      if (isFarming) return t`Your position is in farming`;
+      return t`Not the position owner`;
     }
-    if (zapLoading) return `Fetching Route${'.'.repeat(dots)}`;
-    if (nftApprovePendingTx) return `Approving${'.'.repeat(dots)}`;
-    if (positionId && !nftApproved) return 'Approve NFT';
-    if (isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
+    if (zapLoading) return t`Fetching Route${'.'.repeat(dots)}`;
+    if (nftApprovePendingTx) return t`Approving${'.'.repeat(dots)}`;
+    if (positionId && !nftApproved) return t`Approve NFT`;
+    if (isVeryHighZapImpact || isInvalidZapImpact) return t`Zap anyway`;
 
-    return 'Confirm';
+    return t`Confirm`;
   })();
 
   const hanldeClick = () => {
@@ -155,7 +156,7 @@ export default function Action({
   return (
     <div className="flex justify-center gap-5 mt-6">
       <button className="ks-outline-btn w-[190px]" onClick={onClose}>
-        Cancel
+        <Trans>Cancel</Trans>
       </button>
       <button
         className={`ks-primary-btn min-w-[190px] w-fit ${
@@ -177,8 +178,8 @@ export default function Action({
             color="#ffffff"
             text={
               degenMode
-                ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
-                : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
+                ? t`You have turned on Degen Mode from settings. Trades with very high price impact can be executed`
+                : t`To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.`
             }
           />
         )}

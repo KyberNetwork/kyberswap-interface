@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 import { getFunctionSelector } from '@kyber/utils/crypto';
-
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@/constants';
-import { ChainId } from '@/schema';
 
 function encodeBytes(data: string) {
   const length = data.length / 2; // Hex string length divided by 2 for bytes
@@ -110,9 +108,7 @@ function decodeMulticallOutput(result: string | undefined): bigint[] {
 
 const ERC20_BALANCE_OF_SELECTOR = getFunctionSelector('balanceOf(address)'); // "70a08231"; // Function selector for "";
 
-const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], account?: string) => {
-  const { defaultRpc: rpcUrl, multiCall } = NETWORKS_INFO[chainId];
-
+const useTokenBalances = (chainId: ChainId, rpcUrl: string, tokenAddresses: string[], account?: string) => {
   const [balances, setBalances] = useState<{ [address: string]: bigint }>({});
   const [loading, setLoading] = useState(false);
 
@@ -163,7 +159,7 @@ const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], account?: 
         method: 'eth_call',
         params: [
           {
-            to: multiCall,
+            to: NETWORKS_INFO[chainId].multiCall,
             data: encodedData,
           },
           'latest',
@@ -202,7 +198,7 @@ const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], account?: 
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rpcUrl, account, JSON.stringify(tokenAddresses)]);
+  }, [chainId, rpcUrl, account, JSON.stringify(tokenAddresses)]);
 
   useEffect(() => {
     fetchBalances();

@@ -65,8 +65,12 @@ const PoolPriceBarItem = styled.div<{ isAdd?: boolean }>`
 const DefaultPriceRange = () => {
   return (
     <>
-      <TYPE.black fontWeight={400}>Max: {DEFAULT_MAX_PRICE}</TYPE.black>
-      <TYPE.black fontWeight={400}>Min: {DEFAULT_MIN_PRICE}</TYPE.black>
+      <TYPE.black fontWeight={400}>
+        {t`Max:`} {DEFAULT_MAX_PRICE}
+      </TYPE.black>
+      <TYPE.black fontWeight={400}>
+        {t`Min:`} {DEFAULT_MIN_PRICE}
+      </TYPE.black>
     </>
   )
 }
@@ -241,12 +245,12 @@ export function PoolPriceRangeBar({
             ) : show && !!pair ? (
               <>
                 <TYPE.black color={theme.text} fontWeight={400}>
-                  Max:{' '}
+                  {t`Max:`}{' '}
                   {priceRangeCalcByPair(pair)[wrappedA?.symbol === pair.token0.symbol ? 0 : 1][1]?.toSignificant(6) ??
                     '-'}
                 </TYPE.black>
                 <TYPE.black color={theme.text} fontWeight={400}>
-                  Min:{' '}
+                  {t`Min:`}{' '}
                   {priceRangeCalcByPair(pair)[wrappedA?.symbol === pair.token0.symbol ? 0 : 1][0]?.toSignificant(6) ??
                     '-'}
                 </TYPE.black>
@@ -264,12 +268,12 @@ export function PoolPriceRangeBar({
             ) : show && !!pair ? (
               <>
                 <TYPE.black color={theme.text} fontWeight={400}>
-                  Max:{' '}
+                  {t`Max:`}{' '}
                   {priceRangeCalcByPair(pair)[wrappedA?.symbol === pair.token0.symbol ? 1 : 0][1]?.toSignificant(6) ??
                     '-'}
                 </TYPE.black>
                 <TYPE.black color={theme.text} fontWeight={400}>
-                  Min:{' '}
+                  {t`Min:`}{' '}
                   {priceRangeCalcByPair(pair)[wrappedA?.symbol === pair.token0.symbol ? 1 : 0][0]?.toSignificant(6) ??
                     '-'}
                 </TYPE.black>
@@ -298,10 +302,10 @@ export function PoolPriceRangeBar({
             ) : show ? (
               <>
                 <TYPE.black color={theme.text}>
-                  Max: {priceRangeCalc(price, amp)[0]?.toSignificant(6) ?? '-'}
+                  {t`Max:`} {priceRangeCalc(price, amp)[0]?.toSignificant(6) ?? '-'}
                 </TYPE.black>
                 <TYPE.black color={theme.text}>
-                  Min: {priceRangeCalc(price, amp)[1]?.toSignificant(6) ?? '-'}
+                  {t`Min:`} {priceRangeCalc(price, amp)[1]?.toSignificant(6) ?? '-'}
                 </TYPE.black>
               </>
             ) : (
@@ -317,10 +321,10 @@ export function PoolPriceRangeBar({
             ) : show ? (
               <>
                 <TYPE.black color={theme.text}>
-                  Max: {priceRangeCalc(price?.invert(), amp)[0]?.toSignificant(6) ?? '-'}
+                  {t`Max:`} {priceRangeCalc(price?.invert(), amp)[0]?.toSignificant(6) ?? '-'}
                 </TYPE.black>
                 <TYPE.black color={theme.text}>
-                  Min: {priceRangeCalc(price?.invert(), amp)[1]?.toSignificant(6) ?? '-'}
+                  {t`Min:`} {priceRangeCalc(price?.invert(), amp)[1]?.toSignificant(6) ?? '-'}
                 </TYPE.black>
               </>
             ) : (

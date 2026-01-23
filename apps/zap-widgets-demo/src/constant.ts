@@ -6,6 +6,8 @@ import { PoolType as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widget
 export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_UNISWAP_V4]: "Uniswap V4",
   [ZapInDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapInDex.DEX_PANCAKE_INFINITY_CL]: "Pancake ∞ CL",
+  [ZapInDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: "Pancake ∞ CL FairFlow",
   [ZapInDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapInDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapInDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -28,11 +30,14 @@ export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_KODIAK_V2]: "Kodiak V2",
   [ZapInDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [ZapInDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
+  [ZapInDex.DEX_AERODROMECL]: "Aerodrome CL",
 };
 
 export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
   [ZapMigrationDex.DEX_UNISWAP_V4]: "Uniswap V4",
   [ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapMigrationDex.DEX_PANCAKE_INFINITY_CL]: "Pancake ∞ CL",
+  [ZapMigrationDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: "Pancake ∞ CL FairFlow",
   [ZapMigrationDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapMigrationDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapMigrationDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -55,11 +60,14 @@ export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
   [ZapMigrationDex.DEX_KODIAK_V2]: "Kodiak V2",
   [ZapMigrationDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [ZapMigrationDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
+  [ZapMigrationDex.DEX_AERODROMECL]: "Aerodrome CL",
 };
 
 export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_UNISWAP_V4]: "Uniswap V4",
   [ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapOutDex.DEX_PANCAKE_INFINITY_CL]: "Pancake ∞ CL",
+  [ZapOutDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: "Pancake ∞ CL FairFlow",
   [ZapOutDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapOutDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapOutDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -82,6 +90,7 @@ export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_KODIAK_V2]: "Kodiak V2",
   [ZapOutDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [ZapOutDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
+  [ZapOutDex.DEX_AERODROMECL]: "Aerodrome CL",
 };
 
 export const pancakeZapInDexMapping: Record<PancakeZapInDex, string> = {

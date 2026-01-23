@@ -270,7 +270,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
             <DoubleCurrencyLogo currency0={native0} currency1={native1} size={16} />
             <UppercaseText style={{ marginLeft: '4px' }}>
               <Text fontWeight={500} fontSize={12} color={theme.subText}>
-                {native0?.symbol}/{native1?.symbol} LP Tokens
+                {native0?.symbol}/{native1?.symbol} <Trans>LP Tokens</Trans>
               </Text>
             </UppercaseText>
           </RowFixed>

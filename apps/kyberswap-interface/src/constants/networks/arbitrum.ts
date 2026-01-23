@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import arbitrumIcon from 'assets/networks/arbitrum.svg'
+import ethereumIcon from 'assets/networks/ethereum.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -22,10 +23,10 @@ const arbitrumInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    logo: ethereumIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://arbitrum.kyberengineering.io',
+  defaultRpcUrl: 'https://arbitrum-rpc.kyberswap.com',
   multicall: '0x80C7DD17B01855a6D2347444a0FCC36136a314de', // must use this for arbitrum to get exactly block number instead of L1 block number
   classic: {
     defaultSubgraph:

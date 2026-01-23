@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { defaultToken } from '@kyber/schema';
 import { Slider } from '@kyber/ui';
 import { toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import MigrationAccordion from '@/components/MigrationAccordion';
+import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -16,6 +19,7 @@ export default function AmountToMigrate() {
   const { sourcePool } = usePoolStore(['sourcePool']);
   const { sourcePosition, sourcePositionLoading } = usePositionStore(['sourcePosition', 'sourcePositionLoading']);
   const { setLiquidityOut } = useZapStore(['setLiquidityOut']);
+  const { earnedFee } = useZapRoute();
 
   const [percent, setPercent] = useState(100);
 
@@ -24,11 +28,14 @@ export default function AmountToMigrate() {
   const amount0 = +toRawString(sourcePosition?.amount0 || 0n, token0.decimals);
   const amount1 = +toRawString(sourcePosition?.amount1 || 0n, token1.decimals);
 
-  const amount0ToMigrate = amount0 * (percent / 100);
-  const amount1ToMigrate = amount1 * (percent / 100);
+  const fee0 = +toRawString(earnedFee.earnedFee0, token0.decimals);
+  const fee1 = +toRawString(earnedFee.earnedFee1, token1.decimals);
 
-  const amount0Remain = amount0 - amount0ToMigrate;
-  const amount1Remain = amount1 - amount1ToMigrate;
+  const amount0ToMigrate = amount0 * (percent / 100) + fee0;
+  const amount1ToMigrate = amount1 * (percent / 100) + fee1;
+
+  const amount0Remain = amount0 + fee0 - amount0ToMigrate;
+  const amount1Remain = amount1 + fee1 - amount1ToMigrate;
 
   useEffect(() => {
     if (!sourcePosition) return;
@@ -39,8 +46,10 @@ export default function AmountToMigrate() {
   return (
     <div className="border border-stroke rounded-md px-4 py-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-subText">Amount to migrate</p>
-        <p>{percent}%</p>
+        <Trans>
+          <p className="text-sm text-subText">Amount to migrate</p>
+          <p>{percent}%</p>
+        </Trans>
       </div>
 
       <Slider
@@ -65,13 +74,13 @@ export default function AmountToMigrate() {
             )}
             onClick={() => setPercent(item)}
           >
-            {item === 100 ? 'Max' : `${item}%`}
+            {item === 100 ? t`Max` : `${item}%`}
           </button>
         ))}
       </div>
 
       <MigrationAccordion
-        title="Will migrate"
+        title={t`Will migrate`}
         amount0={amount0ToMigrate}
         amount1={amount1ToMigrate}
         className="mt-4"
@@ -79,7 +88,7 @@ export default function AmountToMigrate() {
         amountLoading={sourcePositionLoading}
       />
       <MigrationAccordion
-        title="Will remain"
+        title={t`Will remain`}
         amount0={amount0Remain}
         amount1={amount1Remain}
         className="mt-3"

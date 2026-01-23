@@ -1,25 +1,26 @@
 import { useState } from 'react';
 
+import { ChainId, Token } from '@kyber/schema';
+
 import Modal from '@/components/Modal';
-import TokenInfo from '@/components/TokenInfo';
 import TokenSelector from '@/components/TokenSelector';
+import TokenImportConfirm from '@/components/TokenSelector/TokenImportConfirm';
+import TokenInfo from '@/components/TokenSelector/TokenInfo';
 import useTokenBalances from '@/hooks/useTokenBalances';
 import { useTokenList } from '@/hooks/useTokenList';
-import { ChainId, Token } from '@/schema';
 import { useZapOutContext } from '@/stores';
-
-import TokenImportConfirm from './TokenImportConfirm';
 
 const TokenSelectorModal = ({ onClose, chainId }: { onClose: () => void; chainId: ChainId }) => {
   const [tokenToShow, setTokenToShow] = useState<Token | null>(null);
   const [tokenToImport, setTokenToImport] = useState<Token | null>(null);
 
-  const { connectedAccount } = useZapOutContext(s => s);
+  const { connectedAccount, rpcUrl } = useZapOutContext(s => s);
   const { address: account } = connectedAccount;
 
   const { allTokens } = useTokenList();
   const { balances: balanceTokens } = useTokenBalances(
     chainId,
+    rpcUrl,
     allTokens.map(item => item.address),
     account,
   );

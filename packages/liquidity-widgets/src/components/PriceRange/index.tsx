@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { usePrevious } from '@kyber/hooks';
 import { POOL_CATEGORY, univ3PoolNormalize, univ3Types } from '@kyber/schema';
 import { Button, Skeleton } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
-import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from '@/components/PriceRange/constants';
 import { useZapState } from '@/hooks/useZapState';
@@ -23,7 +25,7 @@ const PriceRange = () => {
   const { poolType, initialTick } = useWidgetStore(['poolType', 'initialTick']);
   const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const previousRevertPrice = usePrevious(revertPrice);
 
@@ -89,8 +91,8 @@ const PriceRange = () => {
 
         return {
           range: item,
-          tickLower: validLowerTick,
-          tickUpper: validUpperTick,
+          tickLower: validLowerTick < MIN_TICK ? MIN_TICK : validLowerTick,
+          tickUpper: validUpperTick > MAX_TICK ? MAX_TICK : validUpperTick,
         };
       })
       .filter(item => !!item) as PriceRange[];
@@ -124,7 +126,7 @@ const PriceRange = () => {
   // Set default price range depending on protocol fee
   useEffect(() => {
     if (!pairCategory || !priceRanges.length || initialTick) return;
-    if (!tickLower || !tickUpper)
+    if (tickLower === null || tickUpper === null)
       handleSelectPriceRange(
         DEFAULT_PRICE_RANGE[pairCategory as keyof typeof DEFAULT_PRICE_RANGE] ||
           DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR],
@@ -136,7 +138,7 @@ const PriceRange = () => {
   if (!isUniv3) return null;
 
   return (
-    <div className="flex mt-6 gap-[6px] my-[10px] border border-stroke rounded-md">
+    <div className="flex mt-2 gap-[6px] border border-stroke rounded-md">
       {initializing ? (
         <>
           <Button variant="outline" className="flex-1 !border-none !text-icon">
@@ -160,7 +162,7 @@ const PriceRange = () => {
             className={`flex-1 !border-none !text-icon ${rangeSelected === item.range ? ' !bg-[#ffffff14]' : ''}`}
             onClick={() => handleSelectPriceRange(item.range)}
           >
-            {item.range === FULL_PRICE_RANGE ? item.range : `${Number(item.range) * 100}%`}
+            {item.range === FULL_PRICE_RANGE ? t`Full Range` : `${Number(item.range) * 100}%`}
           </Button>
         ))
       )}

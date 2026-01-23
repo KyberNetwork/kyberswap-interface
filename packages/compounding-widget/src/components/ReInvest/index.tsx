@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { Skeleton, TokenLogo } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -21,7 +23,9 @@ export default function ReInvest() {
   return (
     <div className="px-4 py-3 border border-stroke rounded-md">
       <div className="flex justify-between mb-3">
-        <p className="text-subText text-sm">Your Earning to Reinvest</p>
+        <p className="text-subText text-sm">
+          <Trans>Your Earning to Reinvest</Trans>
+        </p>
         {initializing ? (
           <Skeleton className="w-16 h-5" />
         ) : (

@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 
+import { Trans } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import {
   AddLiquidityAction,
-  DEXES_INFO,
   PoolType,
   RemoveLiquidityAction,
   ZapAction,
   defaultToken,
+  getDexName,
 } from '@kyber/schema';
 import { parseSwapActions } from '@kyber/utils';
 import { formatDisplayNumber, formatWei } from '@kyber/utils/number';
@@ -18,12 +19,13 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function ZapSummary() {
-  const { nativeToken, wrappedNativeToken, chainId, poolType } = useWidgetStore(
+  const { nativeToken, wrappedNativeToken, chainId, poolType, dexId } = useWidgetStore(
     useShallow(s => ({
       nativeToken: s.nativeToken,
       wrappedNativeToken: s.wrappedNativeToken,
       chainId: s.chainId,
       poolType: s.poolType,
+      dexId: s.dexId,
     })),
   );
   const { zapInfo, tokensIn } = useZapState();
@@ -35,8 +37,7 @@ export default function ZapSummary() {
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
-  const dexNameObj = DEXES_INFO[poolType as PoolType].name;
-  const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+  const dexName = getDexName(poolType as PoolType, chainId, dexId);
 
   const tokensToCheck = useMemo(
     () => [...tokensIn, token0, token1, wrappedNativeToken, nativeToken],
@@ -79,18 +80,22 @@ export default function ZapSummary() {
 
   return (
     <div className="w-full mt-4 px-4 py-3 text-sm border border-stroke text-text rounded-md">
-      <p>Compound Summary</p>
+      <p>
+        <Trans>Compound Summary</Trans>
+      </p>
       <div className="h-[1px] w-full bg-stroke mt-2 mb-3" />
 
       <div className="flex gap-3 items-center text-xs mt-3">
         <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">1</div>
         <div className="flex-1 text-subText leading-4">
-          Collect{' '}
-          {collectFeesActions
-            ?.map(item => `${formatDisplayNumber(item.amount, { significantDigits: 4 })} ${item.tokenName}`)
-            .join(' and ')}{' '}
-          from <span className="font-medium text-text">{dexName}</span> via{' '}
-          <span className="font-medium text-text">KyberSwap</span>
+          <Trans>
+            Collect{' '}
+            {collectFeesActions
+              ?.map(item => `${formatDisplayNumber(item.amount, { significantDigits: 4 })} ${item.tokenName}`)
+              .join(' and ')}{' '}
+            from <span className="font-medium text-text">{dexName}</span> via{' '}
+            <span className="font-medium text-text">KyberSwap</span>
+          </Trans>
         </div>
       </div>
 
@@ -98,8 +103,10 @@ export default function ZapSummary() {
         <div className="flex gap-3 items-center mt-3 text-xs" key={index}>
           <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">{index + 2}</div>
           <div className="flex-1 text-subText leading-4">
-            Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
-            <span className="font-medium text-text">{item.pool}</span>
+            <Trans>
+              Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
+              <span className="font-medium text-text">{item.pool}</span>
+            </Trans>
           </div>
         </div>
       ))}
@@ -109,9 +116,11 @@ export default function ZapSummary() {
           {swapActions.length + 2}
         </div>
         <div className="flex-1 text-subText leading-4">
-          Zap {formatDisplayNumber(addedLiquidityInfo.addedAmount0, { significantDigits: 4 })} {symbol0} and{' '}
-          {formatDisplayNumber(addedLiquidityInfo.addedAmount1, { significantDigits: 4 })} {symbol1} into{' '}
-          <span className="font-medium text-text">{dexName}</span> in the selected fee pool.
+          <Trans>
+            Zap {formatDisplayNumber(addedLiquidityInfo.addedAmount0, { significantDigits: 4 })} {symbol0} and{' '}
+            {formatDisplayNumber(addedLiquidityInfo.addedAmount1, { significantDigits: 4 })} {symbol1} into{' '}
+            <span className="font-medium text-text">{dexName}</span> in the selected fee pool.
+          </Trans>
         </div>
       </div>
     </div>

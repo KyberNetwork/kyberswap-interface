@@ -7,10 +7,12 @@ import styled from 'styled-components'
 
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { StyledInternalLink } from 'theme'
+import { isSupportLimitOrder } from 'utils'
 import { checkPriceImpact } from 'utils/prices'
 
 export const TextUnderlineColor = styled(Text)`
@@ -38,6 +40,7 @@ type Props = {
 
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
   const priceImpactResult = checkPriceImpact(priceImpact)
   const switchToLimitOrder = useSwitchPairToLimitOrder()
   const { mixpanelHandler } = useMixpanel()
@@ -54,7 +57,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
         switchToLimitOrder()
       }}
     >
-      Limit Order
+      <Trans>Limit Order</Trans>
     </Text>
   )
 
@@ -68,18 +71,21 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
             <Trans>
               Unable to calculate{' '}
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
-                Price Impact.
+                Price Impact
               </TextUnderlineColor>
-              {!isDegenMode ? (
-                <span>
+              {'. '}
+            </Trans>
+            {!isDegenMode ? (
+              <span>
+                <Trans>
                   {' '}
                   Consider requesting a {limitOrderLink} instead, or click &apos;Swap Anyway&apos; if you wish to
                   continue by enabling Degen Mode.
-                </span>
-              ) : (
-                ''
-              )}
-            </Trans>
+                </Trans>
+              </span>
+            ) : (
+              ''
+            )}
           </Text>
         }
         longText={
@@ -149,7 +155,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
   }
 
   // high
-  if (showLimitOrderLink && !!priceImpact && priceImpact > 1) {
+  if (showLimitOrderLink && !!priceImpact && priceImpact > 1 && isSupportLimitOrder(chainId)) {
     return (
       <WarningNote
         shortText={

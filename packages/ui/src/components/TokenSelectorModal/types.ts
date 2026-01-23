@@ -1,63 +1,110 @@
-import { EarnDex } from '@kyber/schema';
+import { Exchange } from '@kyber/schema';
 
 export interface EarnPosition {
-  [x: string]: any;
-  chainName: 'eth';
-  chainId: number;
-  chainLogo: string;
-  id: string;
+  chain: {
+    name: string;
+    logo: string;
+    id: number;
+  };
+  tokenId: number;
   tokenAddress: string;
-  tokenId: string;
-  minPrice: number;
-  maxPrice: number;
-  currentAmounts: Array<PositionAmount>;
-  feePending: Array<PositionAmount>;
-  feesClaimed: Array<PositionAmount>;
-  createdTime: number;
-  apr: number;
-  aprKem: number;
-  currentPositionValue: number;
-  earning24h: number;
-  earning7d: number;
+  positionId: string;
+  wallet: string;
+  liquidity: string;
   status: PositionStatus;
-  pool: {
-    id: string;
-    poolAddress: string;
-    price: number;
-    tokenAmounts: Array<PositionAmount>;
-    fees: Array<number>;
-    tickSpacing: number;
-    project: EarnDex;
-    projectLogo: string;
+  stats: PositionStats;
+  currentAmounts: TokenAmount[];
+  providedAmounts: TokenAmount[];
+  pool: PositionPool;
+  suggestionPool: SuggestedPool | null;
+  valueInUSD: number;
+  createdAtTime: number;
+  lastUpdatedAt: number;
+  createdAtBlock: number;
+  latestBlock: number;
+  extra: {
+    priceRange: {
+      min: number;
+      maxPrice: number;
+    };
+  };
+  id: number;
+}
+
+export interface PositionStats {
+  apr: {
+    all: TimeIntervalValues;
+    reward: {
+      lm: TimeIntervalValues;
+      eg: TimeIntervalValues;
+    };
+    lp: TimeIntervalValues;
+  };
+  earning: {
+    totalUsd: TimeIntervalValues;
+    fee: {
+      unclaimed: TokenAmount[];
+      claimed: TokenAmount[];
+    };
+    reward: any | null;
   };
 }
 
-interface PositionAmount {
+export interface TimeIntervalValues {
+  '24h': number;
+  '7d': number;
+  '30d': number;
+}
+
+export interface TokenAmount {
+  amount: {
+    usdValue: number;
+    priceUsd: number;
+    amount: string;
+  };
   token: {
-    address: string;
+    logo: string;
     symbol: string;
     name: string;
     decimals: number;
-    logo: string;
-    tag: string;
-    price: number;
-  };
-  tokenType: string;
-  tokenID: string;
-  balance: string;
-  quotes: {
-    usd: {
-      symbol: string;
-      marketPrice: number;
-      price: number;
-      priceChange24hPercentage: number;
-      value: number;
-      timestamp: number;
-    };
+    address: string;
   };
 }
 
 export enum PositionStatus {
-  IN_RANGE = 'IN_RANGE',
-  OUT_RANGE = 'OUT_RANGE',
+  IN_RANGE = 'PositionStatusInRange',
+  OUT_RANGE = 'PositionStatusOutRange',
+  CLOSED = 'PositionStatusClosed',
+}
+
+interface PositionPool {
+  id: string;
+  address: string;
+  price: number;
+  tokenAmounts: TokenAmount[];
+  fees: number[];
+  programs: string[];
+  tickSpacing: number;
+  protocol: {
+    type: Exchange;
+    logo: string;
+    name: string;
+  };
+  category: string;
+  hooks: string;
+  merklOpportunity?: any;
+}
+
+interface SuggestedPool {
+  address: string;
+  feeTier: number;
+  exchange: Exchange;
+  token0: {
+    address: string;
+    decimals: number;
+  };
+  token1: {
+    address: string;
+    decimals: number;
+  };
 }

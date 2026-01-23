@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router-dom'
 import blackjackApi from 'services/blackjack'
 import { useAccount as useAccountWagmi } from 'wagmi'
 
+import { SMART_WALLETS } from 'components/Web3Provider'
 import { MOCK_ACCOUNT_EVM } from 'constants/env'
 import { isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
@@ -114,6 +115,7 @@ export function useWeb3React() {
       library: wrappedProvider,
       connector: account.connector,
       active: account.address !== undefined,
+      isSmartConnector: SMART_WALLETS.includes(account.connector?.id),
     }),
     [account.address, account.chainId, account.connector, wrappedProvider],
   )

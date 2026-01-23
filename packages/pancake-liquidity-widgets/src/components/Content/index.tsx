@@ -35,7 +35,7 @@ import {
   POSITION_MANAGER_CONTRACT,
   CoreProtocol,
 } from "@/constants";
-import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { sqrtToPrice } from "@kyber/utils/uniswapv3";
 import { useNftApproval } from "@/hooks/useNftApproval";
 
 export default function Content({
@@ -63,6 +63,7 @@ export default function Content({
     positionId,
     degenMode,
     revertPrice,
+    getZapRoute,
   } = useZapState();
   const {
     pool,
@@ -275,8 +276,8 @@ export default function Content({
   }, [snapshotState, onTogglePreview]);
 
   const currentPoolPrice = pool
-    ? tickToPrice(
-        pool.tickCurrent,
+    ? sqrtToPrice(
+        BigInt(pool.sqrtRatioX96 || 0),
         pool.token0.decimals,
         pool.token1.decimals,
         revertPrice
@@ -308,8 +309,13 @@ export default function Content({
   );
 
   useEffect(() => {
-    if (!tickLower && !tickUpper && pool) selectPriceRange(0.2);
+    if (tickLower === null && tickUpper === null && pool) selectPriceRange(0.2);
   }, [pool, selectPriceRange, tickLower, tickUpper]);
+
+  const onDismissPreview = useCallback(() => {
+    setSnapshotState(null);
+    getZapRoute?.();
+  }, [getZapRoute]);
 
   return (
     <>
@@ -328,13 +334,13 @@ export default function Content({
         </Modal>
       )}
       {snapshotState && (
-        <Modal isOpen onClick={() => setSnapshotState(null)}>
+        <Modal isOpen onClick={onDismissPreview}>
           <div className="flex justify-between text-xl font-medium">
             <div>{positionId ? "Increase" : "Add"} Liquidity via Zap</div>
             <div
               className="cursor-pointer"
               role="button"
-              onClick={() => setSnapshotState(null)}
+              onClick={onDismissPreview}
             >
               <X />
             </div>
@@ -344,9 +350,7 @@ export default function Content({
             onTxSubmit={onTxSubmit}
             checkNftApproval={checkNftApproval}
             zapState={snapshotState}
-            onDismiss={() => {
-              setSnapshotState(null);
-            }}
+            onDismiss={onDismissPreview}
           />
         </Modal>
       )}

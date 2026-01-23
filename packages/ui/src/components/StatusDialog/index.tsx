@@ -1,3 +1,5 @@
+import { useLingui } from '@lingui/react';
+
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ArrowUpRightIcon from '@/assets/icons/ic-arrow-up-right.svg?react';
@@ -13,6 +15,7 @@ export enum StatusDialogType {
   PROCESSING = 'PROCESSING',
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR',
+  CANCELLED = 'CANCELLED',
 }
 
 export interface StatusDialogProps {
@@ -38,17 +41,18 @@ export default function StatusDialog({
   action,
   onClose,
 }: StatusDialogProps) {
+  const { i18n } = useLingui();
   const statusIcon =
     type === StatusDialogType.SUCCESS ? (
       <SuccessIcon className="w-6 h-6" />
-    ) : type === StatusDialogType.ERROR ? (
+    ) : type === StatusDialogType.ERROR || type === StatusDialogType.CANCELLED ? (
       <ErrorIcon className="w-6 h-6" />
     ) : (
       <Loading className="w-6 h-6 text-accent" />
     );
 
-  const statusText = title === undefined ? getStatusText(type) : title;
-  const statusDescription = description === undefined ? getStatusDescription(type) : description;
+  const statusText = title === undefined ? getStatusText(i18n, type) : title;
+  const statusDescription = description === undefined ? getStatusDescription(i18n, type) : description;
 
   return (
     <Dialog onOpenChange={onClose} open={true}>
@@ -59,7 +63,7 @@ export default function StatusDialog({
         aria-describedby={undefined}
       >
         <DialogTitle className="hidden" />
-        <div>
+        <div className="text-sm text-muted-foreground">
           <div className="w-full flex items-center justify-center gap-2 py-4">
             {statusIcon}
             <div className="text-xl font-medium text-center">{statusText}</div>
@@ -75,7 +79,7 @@ export default function StatusDialog({
                 target="_blank"
                 rel="noopener norefferer noreferrer"
               >
-                <span>View transaction</span>
+                <span>{i18n._('View transaction')}</span>
                 <ArrowUpRightIcon className="w-4 h-4" />
               </a>
             </div>
@@ -91,7 +95,7 @@ export default function StatusDialog({
           ) : null}
         </div>
 
-        {action ? <DialogFooter className="sm:space-x-4">{action}</DialogFooter> : null}
+        {action ? <DialogFooter className="sm:space-x-4 gap-y-3">{action}</DialogFooter> : null}
       </DialogContent>
     </Dialog>
   );

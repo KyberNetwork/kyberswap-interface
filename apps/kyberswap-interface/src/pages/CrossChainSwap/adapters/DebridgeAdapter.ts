@@ -22,12 +22,14 @@ import {
 } from './BaseSwapAdapter'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
+const DEBRIDGE_STATS_API = 'https://stats-api.dln.trade/api'
 
 const mappingChainId: Record<string, number> = {
   [ChainId.SONIC]: 100000014,
   [ChainId.MANTLE]: 100000023,
   [ChainId.BERA]: 100000020,
   [ChainId.HYPEREVM]: 100000022,
+  [ChainId.MONAD]: 100000030,
   [NonEvmChain.Solana]: 7565164,
 }
 
@@ -56,6 +58,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       ChainId.BERA,
       ChainId.SONIC,
       ChainId.HYPEREVM,
+      ChainId.MONAD,
       // NonEvmChain.Solana,
     ]
   }
@@ -192,7 +195,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       // Try to deserialize as VersionedTransaction first
       let transaction
       try {
-        transaction = VersionedTransaction.deserialize(txBuffer)
+        transaction = VersionedTransaction.deserialize(txBuffer as any)
         console.log('Parsed as VersionedTransaction')
       } catch (versionedError) {
         console.log('Failed to parse as VersionedTransaction, trying legacy Transaction')
@@ -256,6 +259,10 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
         sourceToken: quote.quoteParams.fromToken,
         targetToken: quote.quoteParams.toToken,
         timestamp: new Date().getTime(),
+        amountInUsd: quote.inputUsd,
+        amountOutUsd: quote.outputUsd,
+        platformFeePercent: quote.platformFeePercent,
+        recipient: quote.quoteParams.recipient,
       }
     }
 
@@ -281,14 +288,28 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       sourceToken: quote.quoteParams.fromToken,
       targetToken: quote.quoteParams.toToken,
       timestamp: new Date().getTime(),
+      amountInUsd: quote.inputUsd,
+      amountOutUsd: quote.outputUsd,
+      platformFeePercent: quote.platformFeePercent,
+      recipient: quote.quoteParams.recipient,
     }
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const r = await fetch(`${DEBRIDGE_API}/${p.id}/status`).then(res => res.json())
+    const r = await fetch(`${DEBRIDGE_STATS_API}/Orders/${p.id}`).then(res => res.json())
+
+    // Extract actual output amount from takeOfferWithMetadata if available
+    const actualAmountOut = r?.takeOfferWithMetadata?.amount?.stringValue
+
     return {
-      status: r.status === 'Fulfilled' ? 'Success' : 'Processing',
+      status:
+        r.state === 'Fulfilled' || r.state === 'SentUnlock' || r.state === 'ClaimedUnlock'
+          ? 'Success'
+          : r.state === 'OrderCancelled'
+          ? 'Failed'
+          : 'Processing',
       txHash: p.id,
+      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
 }

@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
+import InboxActions from 'components/Announcement/PrivateAnnoucement/InboxActions'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplatePopup } from 'components/Announcement/type'
 import { useNavigateToUrl } from 'utils/redirect'
@@ -31,6 +32,8 @@ function InboxItemBridge({
   style,
   time,
   title,
+  onPin,
+  onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplatePopup>) {
   const { templateBody, isRead, templateType } = announcement
   const { ctaURL } = templateBody || {}
@@ -42,6 +45,11 @@ function InboxItemBridge({
 
   return (
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
+      <InboxActions
+        isPinned={announcement.isPinned}
+        onPin={onPin ? () => onPin(announcement) : undefined}
+        onDelete={onDelete ? () => onDelete(announcement) : undefined}
+      />
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} />

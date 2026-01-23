@@ -103,12 +103,8 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                             )
                           })(
                             <>
-                              {dex?.logoURL ? (
-                                <img src={dex?.logoURL} alt="" className="img--sm" />
-                              ) : (
-                                <i className="img--sm" />
-                              )}
-                              {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
+                              {dex?.logoURL ? <img src={dex.logoURL} alt="" className="img--sm" /> : null}
+                              {`${dex?.name || pool.exchange}: ${pool.swapPercentage}%`}
                             </>,
                           )
                           return link

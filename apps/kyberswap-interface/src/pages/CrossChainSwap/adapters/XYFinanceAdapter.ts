@@ -180,6 +180,10 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
         sourceToken: fromToken,
         targetToken: toToken,
         timestamp: new Date().getTime(),
+        amountInUsd: quote.inputUsd,
+        amountOutUsd: quote.outputUsd,
+        platformFeePercent: quote.platformFeePercent,
+        recipient: quote.quoteParams.recipient,
       }
     }
 
@@ -193,7 +197,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
     const receipt = await publicClient?.getTransactionReceipt({
       hash: p.id as `0x${string}`,
     })
-    if (receipt.status === 'reverted') {
+    if (receipt?.status === 'reverted') {
       return {
         txHash: '',
         status: 'Failed',

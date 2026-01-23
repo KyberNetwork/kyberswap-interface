@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useState } from 'react'
 import { Clock, X } from 'react-feather'
@@ -105,7 +106,7 @@ export const QuoteSelector = ({
     <Wrapper>
       <Flex justifyContent="space-between">
         <Text fontSize="16px" fontWeight="500">
-          Choose your Route
+          {t`Choose your Route`}
         </Text>
         {upToLarge && <X onClick={() => setShow(false)} />}
       </Flex>
@@ -168,7 +169,7 @@ export const QuoteSelector = ({
                         marginLeft: 'auto',
                       }}
                     >
-                      On-Going Campaign
+                      {t`On-Going Campaign`}
                     </Box>
                   )}
 
@@ -184,14 +185,14 @@ export const QuoteSelector = ({
                         marginLeft: 'auto',
                       }}
                     >
-                      Best Return
+                      {t`Best Return`}
                     </Box>
                   )}
                 </Flex>
                 <Flex marginTop="8px" alignItems="center" color={theme.subText} fontSize="14px">
                   <img src={quote.adapter.getIcon()} alt={quote.adapter.getName()} width={14} height={14} />
                   <Text ml="4px">{quote.adapter.getName()}</Text>
-                  {quote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
+                  {quote.adapter.getName() === 'Optimex' && <Tag>{t`Beta`}</Tag>}
                   <Text mx="8px">|</Text>
                   <Clock size={14} />
                   <Text ml="4px" mr="8px">
@@ -200,7 +201,7 @@ export const QuoteSelector = ({
                   {quote.quote.protocolFee > 0 ? (
                     <>
                       <Text ml="4px" mr="8px">
-                        Protocol fee:{' '}
+                        {t`Protocol fee:`}{' '}
                         {formatDisplayNumber(quote.quote.protocolFee, {
                           style: 'currency',
                           significantDigits: 3,
@@ -209,7 +210,7 @@ export const QuoteSelector = ({
                     </>
                   ) : quote.quote.protocolFeeString ? (
                     <Text ml="4px" mr="8px">
-                      Protocol fee: {quote.quote.protocolFeeString}
+                      {t`Protocol fee:`} {quote.quote.protocolFeeString}
                     </Text>
                   ) : null}
 
@@ -276,7 +277,7 @@ export const QuoteSelector = ({
       }}
     >
       <RouteIcon />
-      Route Options
+      {t`Route Options`}
     </Box>
   )
 
@@ -301,7 +302,7 @@ export const QuoteSelector = ({
     <MenuFlyout
       isOpen={show}
       trigger={
-        <MouseoverTooltip text="More options" width="fit-content">
+        <MouseoverTooltip text={t`More options`} width="fit-content">
           {trigger}
         </MouseoverTooltip>
       }

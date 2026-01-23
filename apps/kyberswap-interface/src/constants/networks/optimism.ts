@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import ethereumIcon from 'assets/networks/ethereum.svg'
 import optimismIcon from 'assets/networks/optimism.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
@@ -22,10 +23,10 @@ const optimismInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    logo: ethereumIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://optimism.kyberengineering.io',
+  defaultRpcUrl: 'https://mainnet.optimism.io',
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-optimism',

@@ -4,7 +4,9 @@ import { useDebounce } from '@kyber/hooks';
 import { ChainId, Pool, Token } from '@kyber/schema';
 import { fetchTokens } from '@kyber/utils';
 import { getTokenBalances } from '@kyber/utils/crypto';
-import { formatWei } from '@kyber/utils/number';
+import { formatUnits } from '@kyber/utils/number';
+
+import { formatAmountWithDecimals } from '@/utils';
 
 export default function useInitialTokensIn({
   pool,
@@ -14,7 +16,7 @@ export default function useInitialTokensIn({
   account,
   nativeToken,
 }: {
-  pool: Pool | 'loading';
+  pool: Pool | null;
   chainId: ChainId;
   initDepositTokens?: string;
   initAmounts?: string;
@@ -28,7 +30,7 @@ export default function useInitialTokensIn({
 
   useEffect(() => {
     const setDefaultTokensIn = async () => {
-      if (!pool || pool === 'loading' || tokensIn.length) return;
+      if (!pool || tokensIn.length) return;
 
       // with params
       if (initDepositTokens) {
@@ -55,22 +57,42 @@ export default function useInitialTokensIn({
       // with balance
       if (!initDepositTokens && account) {
         const tokensToSet = [];
+        const amountsToSet = [];
 
         const token0Address = pool.token0.address.toLowerCase();
         const token1Address = pool.token1.address.toLowerCase();
         const pairBalance = await getTokenBalances({
-          tokenAddresses: [token0Address, token1Address],
+          tokenAddresses: [token0Address, token1Address, nativeToken.address],
           chainId,
           account,
         });
 
-        const token0Balance = formatWei(pairBalance[token0Address]?.toString() || '0', pool.token0.decimals);
-        const token1Balance = formatWei(pairBalance[token1Address]?.toString() || '0', pool.token1.decimals);
-        if (parseFloat(token0Balance) > 0) tokensToSet.push(pool.token0);
-        if (parseFloat(token1Balance) > 0) tokensToSet.push(pool.token1);
-        if (!tokensToSet.length) tokensToSet.push(nativeToken);
+        const token0Balance = formatUnits(BigInt(pairBalance[token0Address]).toString(), pool.token0.decimals);
+        const token1Balance = formatUnits(BigInt(pairBalance[token1Address]).toString(), pool.token1.decimals);
+        const nativeTokenBalance = formatUnits(
+          BigInt(pairBalance[nativeToken.address]).toString(),
+          nativeToken.decimals,
+        );
+        if (parseFloat(token0Balance) > 0) {
+          tokensToSet.push(pool.token0);
+          const amount =
+            +token0Balance >= 1 ? 1 : token0Address === nativeToken.address ? +token0Balance * 0.95 : +token0Balance;
+          amountsToSet.push(formatAmountWithDecimals(amount, pool.token0.decimals));
+        }
+        if (parseFloat(token1Balance) > 0) {
+          tokensToSet.push(pool.token1);
+          const amount =
+            +token1Balance >= 1 ? 1 : token1Address === nativeToken.address ? +token1Balance * 0.95 : +token1Balance;
+          amountsToSet.push(formatAmountWithDecimals(amount, pool.token1.decimals));
+        }
+        if (!tokensToSet.length) {
+          tokensToSet.push(nativeToken);
+          const amount = +nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance * 0.95 : 1;
+          amountsToSet.push(formatAmountWithDecimals(amount, nativeToken.decimals));
+        }
 
         setTokensIn(tokensToSet as Token[]);
+        setAmountsIn(amountsToSet.join(','));
       }
     };
 

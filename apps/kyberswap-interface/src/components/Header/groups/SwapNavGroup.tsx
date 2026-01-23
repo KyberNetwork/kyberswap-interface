@@ -44,7 +44,7 @@ const IconWrapper = styled.div`
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const upToXXSmall = useMedia('(max-width: 420px)')
+  const upTo430 = useMedia('(max-width: 430px)')
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
 
@@ -54,7 +54,7 @@ const SwapNavGroup = () => {
 
   return (
     <NavGroup
-      dropdownAlign={upToXXSmall ? 'center' : 'left'}
+      dropdownAlign={upTo430 ? 'center' : 'left'}
       isActive={isActive}
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
@@ -63,7 +63,7 @@ const SwapNavGroup = () => {
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={upToXXSmall ? '230px' : '250px'}>
+        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={upTo430 ? '160px' : '250px'}>
           <StyledNavLink
             id={`swapv2-nav-link`}
             to={`${APP_PATHS.SWAP}/${networkInfo.route}`}

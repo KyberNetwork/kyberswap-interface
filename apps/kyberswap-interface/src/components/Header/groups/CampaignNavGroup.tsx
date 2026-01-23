@@ -1,9 +1,8 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
-import styled, { useTheme } from 'styled-components'
+import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Column from 'components/Column'
@@ -23,9 +22,10 @@ const StyledNavGroup = styled(NavGroup)`
   `}
 `
 
-const ELabel = styled.span`
+const ELabel = styled.span<{ isNew?: boolean }>`
   font-size: 10px;
   margin-left: 4px;
+  color: ${({ theme, isNew }) => (isNew ? theme.red : theme.subText)};
 `
 
 const NestedNavLink = styled(StyledNavLink)`
@@ -33,17 +33,18 @@ const NestedNavLink = styled(StyledNavLink)`
   gap: 12px;
 `
 
+const showCampaignNew = new Date() < new Date('2025-12-02T23:59:59Z')
+
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
   const isActiveMayTrading = pathname.includes('/campaigns/may-trading')
   const isActive = pathname.includes('/campaigns') && !isActiveMayTrading
-  const upTo420 = useMedia('(max-width: 420px)')
+  // const upTo420 = useMedia('(max-width: 420px)')
   const upTo500 = useMedia('(max-width: 500px)')
-  const theme = useTheme()
 
   const [showStip, setShowStip] = useState(false)
 
-  if (upTo420) return null
+  if (upTo500) return null
 
   return (
     <>
@@ -51,31 +52,38 @@ const CampaignNavGroup = () => {
         dropdownAlign={upTo500 ? 'right' : 'left'}
         isActive={isActive}
         anchor={
-          <DropdownTextAnchor style={{ position: 'relative', width: 'max-content' }}>
-            <Flex>Campaigns</Flex>
+          <DropdownTextAnchor style={{ display: 'flex', position: 'relative', width: 'max-content' }}>
+            <Trans>Campaigns</Trans>
+            {showCampaignNew && <ELabel isNew>{t`New`}</ELabel>}
           </DropdownTextAnchor>
         }
         dropdownContent={
           <Column>
+            <StyledNavLink to={APP_PATHS.RAFFLE_CAMPAIGN}>
+              <Trans>Weekly Rewards</Trans>
+              {showCampaignNew ? <ELabel isNew>{t`New`}</ELabel> : <ELabel>{t`Ended`}</ELabel>}
+            </StyledNavLink>
+
             <StyledNavLink to={APP_PATHS.NEAR_INTENTS_CAMPAIGN}>
               <Trans>Cross Chain Campaign</Trans>
+              <ELabel>{t`Ended`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.MAY_TRADING_CAMPAIGN}>
               <Trans>May Trading</Trans>
-              <ELabel>ENDED</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink
               to={APP_PATHS.AGGREGATOR_CAMPAIGN}
-              style={{ textDecoration: 'none', color: theme.subText, paddingRight: '0', paddingBottom: '0' }}
+              style={{ paddingRight: '0' }}
               onClick={e => {
                 e.preventDefault()
                 setShowStip(!showStip)
               }}
             >
               Arbitrum STIP
-              <ELabel>ENDED</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
               <DropdownIcon open={showStip} />
             </StyledNavLink>
 
@@ -90,13 +98,13 @@ const CampaignNavGroup = () => {
               }}
             >
               <NestedNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN}>
-                <li>Aggregator Trading</li>
+                <li>{t`Aggregator Trading`}</li>
               </NestedNavLink>
               <NestedNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN}>
-                <li>Limit Order</li>
+                <li>{t`Limit Order`}</li>
               </NestedNavLink>
               <NestedNavLink to={APP_PATHS.REFFERAL_CAMPAIGN}>
-                <li>Referral</li>
+                <li>{t`Referral`}</li>
               </NestedNavLink>
             </Column>
             <StyledNavLink to={APP_PATHS.MY_DASHBOARD} style={{ gap: '12px' }}>

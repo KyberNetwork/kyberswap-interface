@@ -10,7 +10,7 @@ export default function usePoolActiveLiquidity({ pool, revertPrice }: { pool: Po
   const { tickCurrent, tickSpacing, ticks, liquidity, token0, token1 } = pool;
 
   return useMemo(() => {
-    if ((!tickCurrent && tickCurrent !== 0) || !tickSpacing || !ticks || !ticks.length || !token0 || !token1) return [];
+    if (tickCurrent === undefined || !tickSpacing || !ticks || !ticks.length || !token0 || !token1) return [];
 
     const activeTick = Math.floor(tickCurrent / tickSpacing) * tickSpacing;
     const finalActiveTick = tickCurrent < 0 && activeTick < MIN_TICK ? activeTick + tickSpacing : activeTick;

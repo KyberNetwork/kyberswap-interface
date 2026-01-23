@@ -21,10 +21,10 @@ const avaxInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'AVAX',
     name: 'AVAX',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png',
+    logo: avalancheIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://avalanche.kyberengineering.io',
+  defaultRpcUrl: 'https://avalanche-rpc.kyberswap.com',
   multicall: '0xF2FD8219609E28C61A998cc534681f95D2740f61',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche',

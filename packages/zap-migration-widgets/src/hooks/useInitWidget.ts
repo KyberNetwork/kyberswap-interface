@@ -19,7 +19,13 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     initialSlippage,
     connectedAccount,
     client,
+    rpcUrl,
     referral,
+    onClose,
+    onSubmitTx,
+    signTypedData,
+    txStatus,
+    txHashMapping,
   } = widgetProps;
 
   const [hasReseted, setHasReseted] = useState(false);
@@ -73,24 +79,40 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     setInitiaWidgetState({
       theme: themeProps as Theme,
       chainId,
+      rpcUrl,
       rePositionMode,
       sourcePoolType: from.poolType,
       targetPoolType: to?.poolType || from.poolType,
+      sourceDexId: from.dexId,
+      targetDexId: to?.dexId || from.dexId,
       connectedAccount,
       client,
       referral,
+      onClose,
+      onSubmitTx,
+      signTypedData,
+      txStatus,
+      txHashMapping,
     });
   }, [
     themeProps,
     chainId,
+    rpcUrl,
     setInitiaWidgetState,
     hasReseted,
     rePositionMode,
     from.poolType,
     to?.poolType,
+    from.dexId,
+    to?.dexId,
     connectedAccount,
     client,
     referral,
+    onClose,
+    onSubmitTx,
+    signTypedData,
+    txStatus,
+    txHashMapping,
   ]);
 
   useEffect(() => {

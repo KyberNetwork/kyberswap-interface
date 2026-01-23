@@ -1,8 +1,10 @@
-import { useCopy } from '@kyber/hooks';
-import { ChainId, DEXES_INFO, NETWORKS_INFO, Pool } from '@kyber/schema';
-import { TokenLogo } from '@kyber/ui';
+import { Trans } from '@lingui/macro';
 
-export default function PreviewPoolInfo({ pool, chainId }: { pool: Pool; chainId: ChainId }) {
+import { useCopy } from '@kyber/hooks';
+import { ChainId, DEXES_INFO, NETWORKS_INFO, Pool, getDexName } from '@kyber/schema';
+import { TokenLogo, TokenSymbol } from '@kyber/ui';
+
+export default function PreviewPoolInfo({ pool, chainId, dexId }: { pool: Pool; chainId: ChainId; dexId?: string }) {
   const copy = useCopy({
     text: pool.address,
     copyClassName: 'text-subText w-4 h-4',
@@ -10,7 +12,7 @@ export default function PreviewPoolInfo({ pool, chainId }: { pool: Pool; chainId
   });
 
   const dex = DEXES_INFO[pool.poolType];
-  const dexName = typeof dex.name === 'string' ? dex.name : dex.name[chainId];
+  const dexName = getDexName(pool.poolType, chainId, dexId);
 
   return (
     <div className="border border-stroke rounded-md p-4 flex gap-2 items-start">
@@ -21,12 +23,15 @@ export default function PreviewPoolInfo({ pool, chainId }: { pool: Pool; chainId
       </div>
       <div>
         <div className="flex gap-1 items-center">
-          {pool.token0.symbol}/{pool.token1.symbol} {copy}
+          <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />/
+          <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} /> {copy}
         </div>
         <div className="flex gap-1 items-center text-subText mt-1">
           <TokenLogo src={dex.icon} size={12} alt={dexName} />
           <div className="text-sm opacity-70">{dexName}</div>
-          <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pool.fee}%</div>
+          <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
+            <Trans>Fee {pool.fee}%</Trans>
+          </div>
         </div>
       </div>
     </div>

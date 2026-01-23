@@ -17,25 +17,25 @@ export default function LiquidityChart() {
   const { tickLower, tickUpper, setTickLower, setTickUpper, minPrice, maxPrice } = useZapState();
 
   const pool = useMemo(() => {
-    if (rawPool === 'loading') return rawPool;
+    if (rawPool === null) return rawPool;
     const { success, data } = univ3PoolNormalize.safeParse(rawPool);
     if (success) return data;
-    return 'loading';
+    return null;
   }, [rawPool]);
 
-  const fee = pool === 'loading' ? undefined : pool.fee;
-  const tickCurrent = pool === 'loading' || !('tick' in pool) ? undefined : pool.tick;
-  const tickSpacing = pool === 'loading' || !('tickSpacing' in pool) ? undefined : pool.tickSpacing;
-  const ticks = pool === 'loading' || !('ticks' in pool) ? [] : pool.ticks;
-  const liquidity = pool === 'loading' ? '0' : pool.liquidity;
-  const token0 = pool === 'loading' ? undefined : pool.token0;
-  const token1 = pool === 'loading' ? undefined : pool.token1;
-  const category = pool === 'loading' ? undefined : pool.category;
+  const fee = !pool ? undefined : pool.fee;
+  const tickCurrent = !pool || !('tick' in pool) ? undefined : pool.tick;
+  const tickSpacing = !pool || !('tickSpacing' in pool) ? undefined : pool.tickSpacing;
+  const ticks = !pool || !('ticks' in pool) ? [] : pool.ticks;
+  const liquidity = !pool ? '0' : pool.liquidity;
+  const token0 = !pool ? undefined : pool.token0;
+  const token1 = !pool ? undefined : pool.token1;
+  const category = !pool ? undefined : pool.category;
 
   const ticksAtLimit = useMemo(
     () => ({
-      LOWER: pool !== 'loading' && 'minTick' in pool && pool.minTick === tickLower,
-      UPPER: pool !== 'loading' && 'maxTick' in pool && pool.maxTick === tickUpper,
+      LOWER: pool !== null && 'minTick' in pool && pool.minTick === tickLower,
+      UPPER: pool !== null && 'maxTick' in pool && pool.maxTick === tickUpper,
     }),
     [pool, tickLower, tickUpper],
   );
@@ -123,35 +123,33 @@ export default function LiquidityChart() {
   );
 
   return (
-    <div className="mt-4">
-      <LiquidityChartRangeInput
-        id="zap-widget-liquidity-chart"
-        pool={{
-          fee,
-          tickCurrent,
-          tickSpacing,
-          ticks,
-          liquidity,
-          token0,
-          token1,
-          category,
-        }}
-        price={{
-          current: poolPrice ?? undefined,
-          lower: minPrice,
-          upper: maxPrice,
-        }}
-        ticksAtLimit={ticksAtLimit}
-        revertPrice={revertPrice}
-        onBrushDomainChange={onBrushDomainChange}
-        zoomPosition={{
-          top: '0px',
-          left: undefined,
-          right: '0px',
-          bottom: undefined,
-          gap: '8px',
-        }}
-      />
-    </div>
+    <LiquidityChartRangeInput
+      id="zap-widget-liquidity-chart"
+      pool={{
+        fee,
+        tickCurrent,
+        tickSpacing,
+        ticks,
+        liquidity,
+        token0,
+        token1,
+        category,
+      }}
+      price={{
+        current: poolPrice ?? undefined,
+        lower: minPrice,
+        upper: maxPrice,
+      }}
+      ticksAtLimit={ticksAtLimit}
+      revertPrice={revertPrice}
+      onBrushDomainChange={onBrushDomainChange}
+      zoomPosition={{
+        top: '0px',
+        left: undefined,
+        right: '0px',
+        bottom: undefined,
+        gap: '8px',
+      }}
+    />
   );
 }

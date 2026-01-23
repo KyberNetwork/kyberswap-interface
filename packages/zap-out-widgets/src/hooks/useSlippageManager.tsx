@@ -11,7 +11,7 @@ export default function useSlippageManager() {
   const { tokenOut, setSlippage, slippage } = useZapOutUserState();
 
   useEffect(() => {
-    if (pool === 'loading' || slippage) return;
+    if (!pool || slippage) return;
 
     if (pool.token0?.symbol && pool.token1?.symbol) {
       try {

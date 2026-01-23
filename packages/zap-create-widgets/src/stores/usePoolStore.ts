@@ -1,0 +1,144 @@
+import { create } from 'zustand';
+import { useShallow } from 'zustand/shallow';
+
+import { Pool, PoolType } from '@kyber/schema';
+import { POOL_ERROR, getPoolInfo, getPoolPrice } from '@kyber/utils';
+import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3';
+
+import { CreatePoolConfig } from '@/types/index';
+
+const buildSyntheticPool = (config: CreatePoolConfig, poolType: PoolType): Pool => {
+  const tickSpacing = Math.max(Math.round((2 * config.fee * 10_000) / 100), 1);
+  return {
+    address: '',
+    poolType: poolType as PoolType.DEX_UNISWAP_V4_FAIRFLOW,
+    token0: config.token0,
+    token1: config.token1,
+    fee: config.fee,
+    tick: 0,
+    liquidity: '0',
+    sqrtPriceX96: (1n << 96n).toString(),
+    tickSpacing,
+    ticks: [],
+    minTick: nearestUsableTick(MIN_TICK, tickSpacing),
+    maxTick: nearestUsableTick(MAX_TICK, tickSpacing),
+    category: config.poolCategory,
+    stats: {
+      tvl: 0,
+      volume24h: 0,
+      fees24h: 0,
+      apr: 0,
+      apr24h: 0,
+      apr30d: 0,
+      kemLMApr24h: 0,
+      kemLMApr30d: 0,
+      kemEGApr24h: 0,
+      kemEGApr30d: 0,
+    },
+    isFarming: false,
+    isFarmingLm: false,
+  };
+};
+
+interface PoolState {
+  poolLoading: boolean;
+  poolError: string;
+  pool: Pool | null;
+  poolPrice: number | null;
+  includeInvalidTokens: boolean;
+  revertPrice: boolean;
+  setPoolPrice: (price: number | null) => void;
+  setIncludeInvalidTokens: (value: boolean) => void;
+  toggleRevertPrice: () => void;
+  getPool: (props: getPoolProps) => void;
+  setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => void;
+  reset: () => void;
+}
+
+const initState: Omit<
+  PoolState,
+  'getPool' | 'setCreatePool' | 'toggleRevertPrice' | 'reset' | 'setPoolPrice' | 'setIncludeInvalidTokens'
+> = {
+  poolLoading: false,
+  pool: null,
+  poolError: '',
+  poolPrice: null,
+  includeInvalidTokens: false,
+  revertPrice: false,
+};
+
+interface getPoolProps {
+  poolAddress: string;
+  chainId: number;
+  poolType: PoolType;
+}
+
+const usePoolRawStore = create<PoolState>((set, get) => ({
+  ...initState,
+  reset: () => set(initState),
+  getPool: async ({ poolAddress, chainId, poolType }: getPoolProps) => {
+    set({ poolLoading: true });
+
+    const poolInfo = await getPoolInfo({ poolAddress, chainId, poolType });
+    const firstLoad = get().pool === null;
+
+    if (poolInfo.error && (!poolInfo.error.includes(POOL_ERROR.CANT_GET_POOL_INFO) || firstLoad))
+      set({ poolError: poolInfo.error });
+    else if (poolInfo.pool) {
+      set({ pool: poolInfo.pool as Pool });
+
+      const revertPrice = get().revertPrice;
+      const price = getPoolPrice({ pool: poolInfo.pool as Pool, revertPrice });
+      if (price !== null) set({ poolPrice: price });
+    }
+
+    set({ poolLoading: false });
+  },
+  setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => {
+    set({
+      pool: buildSyntheticPool(config, poolType),
+      poolPrice: null,
+      includeInvalidTokens: false,
+      revertPrice: false,
+    });
+  },
+  setPoolPrice: (price: number | null) => {
+    set({ poolPrice: price });
+  },
+  setIncludeInvalidTokens: (value: boolean) => {
+    set({ includeInvalidTokens: value });
+  },
+  toggleRevertPrice: () => {
+    set(state => {
+      const nextRevertPrice = !state.revertPrice;
+      let nextPoolPrice = state.poolPrice;
+
+      if (state.pool && state.pool.address) {
+        const derivedPrice = getPoolPrice({ pool: state.pool, revertPrice: nextRevertPrice });
+        if (derivedPrice !== null) {
+          nextPoolPrice = derivedPrice;
+        }
+      } else if (state.poolPrice && state.poolPrice > 0) {
+        nextPoolPrice = 1 / state.poolPrice;
+      }
+
+      return { revertPrice: nextRevertPrice, poolPrice: nextPoolPrice };
+    });
+  },
+}));
+
+type PoolStoreKeys = keyof ReturnType<typeof usePoolRawStore.getState>;
+
+export const usePoolStore = <K extends PoolStoreKeys>(keys: K[]) => {
+  return usePoolRawStore(
+    useShallow(s =>
+      keys.reduce(
+        (acc, key) => {
+          acc[key] = s[key];
+          return acc;
+        },
+        {} as Pick<typeof s, K>,
+      ),
+    ),
+  );
+};

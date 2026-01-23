@@ -1,11 +1,11 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
@@ -26,11 +26,12 @@ import {
   PositionTableWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { earnSupportedChains, earnSupportedExchanges, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
+import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import useSupportedDexesAndChains, { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
@@ -40,12 +41,10 @@ import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
-const POSITIONS_TABLE_LIMIT = 10
-
 const UserPositions = () => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const { filters, updateFilters } = useFilter()
@@ -58,21 +57,21 @@ const UserPositions = () => {
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const positionQueryParams = useMemo(() => {
-    const statusFilter = filters.status.split(',')
-    const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
-    const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
-
     return {
-      addresses: account || '',
-      chainIds: earnSupportedChains.join(','),
-      protocols: earnSupportedExchanges.join(','),
-      q: filters.q,
-      positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
+      wallet: account || '',
+      chainIds: filters.chainIds,
+      protocols: filters.protocols,
+      statuses: filters.statuses,
+      keyword: filters.keyword,
+      positionIds: filters.positionId,
+      sorts: [filters.sortBy, filters.orderBy].filter(Boolean).join(':'),
+      page: filters.page,
+      pageSize: filters.pageSize,
     }
-  }, [account, filters.q, filters.status])
+  }, [account, filters])
 
   const {
-    data: userPosition,
+    data: userPositionsData,
     isFetching,
     isError,
     refetch,
@@ -80,6 +79,8 @@ const UserPositions = () => {
     skip: !account,
     pollingInterval: 15_000,
   })
+
+  const positionsStats = userPositionsData?.stats
 
   const {
     widget: zapMigrationWidget,
@@ -106,97 +107,54 @@ const UserPositions = () => {
     setLoading(true)
   })
 
-  const parsedPositions: Array<ParsedPosition> = useMemo(
-    () =>
-      [...(userPosition || [])].map(position => {
-        const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
-        const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
-        const isClosedFromRpc = closedPositionsFromRpc.some(
-          closedPosition => closedPosition.tokenId === position.tokenId,
-        )
+  const selectedChainsLabel = useMemo(() => {
+    const arrValue = filters.chainIds?.split(',').filter(Boolean)
+    const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
+    if (selectedChains.length >= 1) {
+      return (
+        <Flex alignItems="center" sx={{ gap: '6px' }}>
+          <Flex>
+            {selectedChains.map((chain, index) => (
+              <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
+            ))}
+          </Flex>
+          {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
+        </Flex>
+      )
+    }
+    return AllChainsOption.label
+  }, [supportedChains, filters.chainIds])
 
-        return parsePosition({
-          position,
-          feeInfo,
-          nftRewardInfo,
-          isClosedFromRpc,
-        })
-      }),
-    [feeInfoFromRpc, rewardInfo?.nfts, userPosition, closedPositionsFromRpc],
-  )
+  const parsedPositions: Array<ParsedPosition> = useMemo(() => {
+    return (userPositionsData?.positions || []).map(position => {
+      const tokenId = position.tokenId.toString()
+      const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === tokenId)
+      const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === tokenId)
+      const isClosedFromRpc = closedPositionsFromRpc.includes(tokenId)
+
+      return parsePosition({
+        position,
+        feeInfo,
+        nftRewardInfo,
+        isClosedFromRpc,
+      })
+    })
+  }, [feeInfoFromRpc, rewardInfo?.nfts, userPositionsData, closedPositionsFromRpc])
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
-    let result = []
-
-    const positionsToCheckWithCache = [...parsedPositions]
-
-    const unfinalizedPositions = getUnfinalizedPositions(positionsToCheckWithCache)
-
-    const arrStatus = filters.status.split(',')
-    result = [...parsedPositions]
-      .filter(position => !unfinalizedPositions.some(p => p.tokenId === position.tokenId))
-      .filter(position => {
-        if (filters.status === PositionStatus.OUT_RANGE)
-          return !position.pool.isUniv2 && arrStatus.includes(position.status)
-
-        return arrStatus.includes(position.status)
-      })
-
-    if (filters.chainIds) result = result.filter(position => position.chain.id === Number(filters.chainIds))
-    if (filters.protocols) {
-      result = result.filter(position =>
-        filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id]),
+    let unfinalizedPositions: ParsedPosition[] = []
+    if (filters.page && filters.page === 1) {
+      const rawUnfinalizedPositions = getUnfinalizedPositions(parsedPositions, account || undefined)
+      unfinalizedPositions = rawUnfinalizedPositions.filter(
+        position =>
+          (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
+          (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
+          (filters.statuses.includes(PositionStatus.IN_RANGE) || filters.statuses.includes(PositionStatus.OUT_RANGE)),
       )
     }
 
-    if (filters.sortBy) {
-      if (filters.sortBy === SortBy.VALUE) {
-        result.sort((a, b) => {
-          const aValue = a.totalValue
-          const bValue = b.totalValue
-
-          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-        })
-      } else if (filters.sortBy === SortBy.APR) {
-        result.sort((a, b) => {
-          const aValue = a.apr
-          const bValue = b.apr
-
-          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-        })
-      } else if (filters.sortBy === SortBy.UNCLAIMED_FEE) {
-        result.sort((a, b) => {
-          const aValue = a.unclaimedFees
-          const bValue = b.unclaimedFees
-
-          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-        })
-      } else if (filters.sortBy === SortBy.UNCLAIMED_REWARDS) {
-        result.sort((a, b) => {
-          const aValue = a.rewards.unclaimedUsdValue
-          const bValue = b.rewards.unclaimedUsdValue
-
-          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-        })
-      }
-    }
-
-    unfinalizedPositions.filter(
-      position =>
-        (filters.chainIds ? Number(filters.chainIds) === position.chain.id : true) &&
-        (filters.protocols
-          ? filters.protocols.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
-          : true) &&
-        (filters.status.includes(PositionStatus.IN_RANGE) || filters.status.includes(PositionStatus.OUT_RANGE)),
-    )
-
-    return [...result, ...unfinalizedPositions]
-  }, [filters.chainIds, filters.orderBy, filters.protocols, filters.sortBy, filters.status, parsedPositions])
-
-  const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
-    if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
-    return filteredPositions.slice((filters.page - 1) * POSITIONS_TABLE_LIMIT, filters.page * POSITIONS_TABLE_LIMIT)
-  }, [filteredPositions, filters.page])
+    return [...unfinalizedPositions, ...parsedPositions]
+  }, [account, filters.chainIds, filters.page, filters.protocols, filters.statuses, parsedPositions])
 
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
@@ -291,18 +249,28 @@ const UserPositions = () => {
       {zapOutWidget}
 
       <PositionPageWrapper>
+        <Flex alignItems="center" sx={{ gap: 3 }}>
+          <IconArrowLeft onClick={() => navigate(-1)} />
+          <Text as="h1" fontSize={24} fontWeight="500">
+            {t`My Positions`}
+          </Text>
+        </Flex>
+
         <Flex
           flexDirection={upToSmall ? 'column' : 'row'}
           alignItems={upToSmall ? 'flex-start' : 'center'}
           justifyContent={'space-between'}
-          sx={{ gap: 3 }}
+          sx={{ gap: 2 }}
         >
-          <Flex alignItems="center" sx={{ gap: 3 }}>
-            <IconArrowLeft onClick={() => navigate(-1)} />
-            <Text as="h1" fontSize={24} fontWeight="500">
-              {t`My Positions`}
-            </Text>
-          </Flex>
+          <MultiSelectDropdownMenu
+            alignLeft
+            highlightOnSelect
+            label={selectedChainsLabel || t`Select chains`}
+            options={supportedChains.length ? supportedChains : [AllChainsOption]}
+            value={filters.chainIds || ''}
+            onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
+          />
+
           <NavigateButton
             mobileFullWidth
             icon={<RocketIcon width={20} height={20} />}
@@ -311,7 +279,13 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={parsedPositions} initialLoading={initialLoading} />}
+        {account && (
+          <PositionBanner
+            positions={filteredPositions}
+            positionsStats={positionsStats}
+            initialLoading={initialLoading}
+          />
+        )}
 
         <Filter
           supportedChains={supportedChains}
@@ -325,56 +299,48 @@ const UserPositions = () => {
 
         <PositionTableWrapper>
           <ContentWrapper>
-            {!upToLarge && paginatedPositions && paginatedPositions.length > 0 && (
+            {!upToCustomLarge && filteredPositions && filteredPositions.length > 0 && (
               <PositionTableHeader>
                 <PositionTableHeaderItem>{t`Position`}</PositionTableHeaderItem>
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.VALUE)}>
                   {t`Value`}
-                  <SortIcon
-                    sorted={filters.sortBy === SortBy.VALUE ? (filters.orderBy as Direction) : undefined}
-                    style={{ position: 'relative', top: '5px' }}
-                  />
+                  <SortIcon sorted={filters.sortBy === SortBy.VALUE ? (filters.orderBy as Direction) : undefined} />
                 </PositionTableHeaderFlexItem>
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.APR)}>
-                  {t`est. APR`}
-                  <SortIcon
-                    sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined}
-                    style={{ position: 'relative', top: '4px' }}
-                  />
+                  {t`Est. APR`}
+                  <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
                 </PositionTableHeaderFlexItem>
 
-                <Flex
-                  flexDirection={'column'}
-                  justifyContent={'flex-start'}
-                  sx={{ height: '100%', gap: '9px', cursor: 'pointer' }}
+                <PositionTableHeaderFlexItem
+                  flexDirection="column"
+                  alignItems="flex-start"
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
-                  <div>Unclaimed</div>
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                    fees
-                    <SortIcon
-                      sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
-                    />
-                  </Flex>
-                </Flex>
-
-                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
-                  <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
-                    <IconKem width={24} height={24} />
+                  <Trans>
                     <Text>Unclaimed</Text>
-                  </Flex>
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
-                    <Text>rewards</Text>
-                    <SortIcon
-                      sorted={filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined}
-                    />
-                  </Flex>
+                    <Flex alignItems={'center'} sx={{ gap: '4px' }}>
+                      <Text>fees</Text>
+                      <SortIcon
+                        sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
+                      />
+                    </Flex>
+                  </Trans>
                 </PositionTableHeaderFlexItem>
 
-                {!upToLarge && <div />}
+                <Flex sx={{ gap: '4px' }}>
+                  <FarmingIcon width={24} height={24} />
+                  <PositionTableHeaderFlexItem flexDirection="column">
+                    <Trans>
+                      <Text>Unclaimed</Text>
+                      <Text>rewards</Text>
+                    </Trans>
+                  </PositionTableHeaderFlexItem>
+                </Flex>
+
+                {!upToCustomLarge && <div />}
 
                 <PositionTableHeaderItem>{t`Balance`}</PositionTableHeaderItem>
 
@@ -390,7 +356,7 @@ const UserPositions = () => {
               <LocalLoader />
             ) : (
               <TableContent
-                positions={paginatedPositions}
+                positions={filteredPositions}
                 feeInfoFromRpc={feeInfoFromRpc}
                 setFeeInfoFromRpc={setFeeInfoFromRpc}
                 onOpenZapInWidget={handleOpenZapIn}
@@ -399,13 +365,12 @@ const UserPositions = () => {
               />
             )}
           </ContentWrapper>
-          {!isError && (!isFetching || !loading) && (
+          {!isError && (!isFetching || !loading) && positionsStats && (
             <Pagination
-              haveBg={false}
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
-              totalCount={filteredPositions.length || 0}
+              totalCount={positionsStats.totalItems || 0}
               currentPage={filters.page}
-              pageSize={POSITIONS_TABLE_LIMIT}
+              pageSize={filters.pageSize || 10}
             />
           )}
         </PositionTableWrapper>

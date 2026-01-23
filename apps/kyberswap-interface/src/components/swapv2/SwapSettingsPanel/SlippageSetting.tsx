@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import SlippageControl from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
-import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
@@ -32,19 +32,19 @@ type Props = {
 }
 
 const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
+  const theme = useTheme()
   const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } = useSlippageSettingByPage()
 
-  const cat = usePairCategory()
+  const pairCategory = usePairCategory()
 
   const options = useMemo(
-    () => (cat === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
-    [cat],
+    () => (pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
+    [pairCategory],
   )
 
-  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
+  const slippageStatus = checkRangeSlippage(rawSlippage, pairCategory)
   const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
-  const msg = SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[cat] || ''
-  const theme = useTheme()
+  const msg = SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || ''
 
   return (
     <Flex
@@ -89,7 +89,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
 
       {isWarning && (
         <Message data-warning={true} data-error={false}>
-          Your slippage {msg}
+          {t`Your slippage ${msg}`}
         </Message>
       )}
     </Flex>

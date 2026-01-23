@@ -61,6 +61,7 @@ const ZapContext = createContext<{
   positionId?: string;
   marketPrice: number | undefined | null;
   source: string;
+  getZapRoute: () => void;
 }>({
   revertPrice: false,
   tickLower: null,
@@ -86,6 +87,7 @@ const ZapContext = createContext<{
   setDegenMode: () => {},
   marketPrice: undefined,
   source: "",
+  getZapRoute: () => {},
 });
 
 export const ZapContextProvider = ({
@@ -254,7 +256,7 @@ export const ZapContextProvider = ({
         listAmountsIn[index] === "0" ||
         !parseFloat(listAmountsIn[index])
     );
-    if (listTokenEmptyAmount.length)
+    if (tokensIn.length === listTokenEmptyAmount.length)
       return (
         ERROR_MESSAGE.ENTER_AMOUNT +
         " " +
@@ -274,7 +276,6 @@ export const ZapContextProvider = ({
     } catch (e) {
       return ERROR_MESSAGE.INVALID_INPUT_AMOUNTT;
     }
-
     if (zapApiError) return zapApiError;
     return "";
   }, [
@@ -301,7 +302,7 @@ export const ZapContextProvider = ({
     if (
       initTickLower !== undefined &&
       initTickLower % pool.tickSpacing === 0 &&
-      !tickLower
+      tickLower === null
     ) {
       setTickLower(initTickLower);
     }
@@ -309,7 +310,7 @@ export const ZapContextProvider = ({
     if (
       initTickUpper !== undefined &&
       initTickUpper % pool.tickSpacing === 0 &&
-      !tickUpper
+      tickUpper === null
     ) {
       setTickUpper(initTickUpper);
     }
@@ -372,8 +373,7 @@ export const ZapContextProvider = ({
     });
   }, [chainId, pool]);
 
-  // get zap route
-  useEffect(() => {
+  const getZapRoute = useCallback(() => {
     if (
       debounceTickLower !== null &&
       debounceTickUpper !== null &&
@@ -383,21 +383,40 @@ export const ZapContextProvider = ({
         error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
         error === ERROR_MESSAGE.WRONG_NETWORK)
     ) {
-      let formattedAmountsInWeis = "";
       const listAmountsIn = amountsIn.split(",");
+      let tokensInParam = "";
+      let formattedAmountsInWeis = "";
 
       try {
-        formattedAmountsInWeis = tokensIn
-          .map((token: Token, index: number) =>
-            parseUnits(listAmountsIn[index] || "0", token.decimals).toString()
-          )
+        const tokenAmountPairs = tokensIn
+          .map((token: Token, index: number) => {
+            const amountInWei = parseUnits(
+              listAmountsIn[index] || "0",
+              token.decimals
+            );
+
+            if (amountInWei === 0n) return null;
+
+            return {
+              address: token.address as string,
+              amountWei: amountInWei.toString(),
+            };
+          })
+          .filter((item): item is { address: string; amountWei: string } => {
+            return !!item?.address && !!item.amountWei;
+          });
+
+        tokensInParam = tokenAmountPairs.map((item) => item.address).join(",");
+
+        formattedAmountsInWeis = tokenAmountPairs
+          .map((item) => item.amountWei)
           .join(",");
       } catch (error) {
         console.log(error);
       }
 
       if (
-        !tokensInAddress ||
+        !tokensInParam ||
         !formattedAmountsInWeis ||
         !formattedAmountsInWeis.length ||
         !formattedAmountsInWeis[0] ||
@@ -416,7 +435,7 @@ export const ZapContextProvider = ({
         "pool.fee": pool.fee,
         "position.tickUpper": debounceTickUpper,
         "position.tickLower": debounceTickLower,
-        tokensIn: tokensInAddress,
+        tokensIn: tokensInParam,
         amountsIn: formattedAmountsInWeis,
         slippage,
         ...(positionId ? { "position.id": positionId } : {}),
@@ -481,6 +500,11 @@ export const ZapContextProvider = ({
     poolType,
   ]);
 
+  // get zap route
+  useEffect(() => {
+    getZapRoute();
+  }, [getZapRoute]);
+
   return (
     <ZapContext.Provider
       value={{
@@ -509,6 +533,7 @@ export const ZapContextProvider = ({
         setDegenMode,
         marketPrice,
         source,
+        getZapRoute,
       }}
     >
       {children}

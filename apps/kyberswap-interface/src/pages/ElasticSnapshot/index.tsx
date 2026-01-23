@@ -426,8 +426,12 @@ export default function ElasticSnapshot() {
 
                     {!upToSmall && (
                       <TableHeader>
-                        <Text textAlign="left">POOLS</Text>
-                        <Text textAlign="right">NFT ID</Text>
+                        <Text textAlign="left">
+                          <Trans>POOLS</Trans>
+                        </Text>
+                        <Text textAlign="right">
+                          <Trans>NFT ID</Trans>
+                        </Text>
 
                         <Text
                           textAlign="right"
@@ -487,7 +491,7 @@ export default function ElasticSnapshot() {
                                 fontWeight="500"
                                 sx={{ borderBottom: `1px dotted ${theme.border}` }}
                               >
-                                POSITION LIQUIDITY (USD)
+                                <Trans>POSITION LIQUIDITY (USD)</Trans>
                               </Text>
                             </MouseoverTooltip>
 
@@ -502,7 +506,7 @@ export default function ElasticSnapshot() {
                               <MouseoverTooltip
                                 text={t`This is the USD value of the fees earned by your liquidity position immediately before the exploit.`}
                               >
-                                POSITION FEES (USD)
+                                <Trans>POSITION FEES (USD)</Trans>
                               </MouseoverTooltip>
                             </Text>
                           </>

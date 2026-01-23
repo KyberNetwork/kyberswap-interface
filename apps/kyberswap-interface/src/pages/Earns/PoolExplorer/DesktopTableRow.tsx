@@ -1,40 +1,48 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
+import { MAX_TICK } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
 
-import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
+import { isUniswapExchange } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const kemFarming = (pool: ParsedEarnPool) => {
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+  const isFarmingLm = programs.includes(ProgramType.LM)
 
   return isFarming ? (
-    <MouseoverTooltipDesktopOnly
-      placement="bottom"
-      width="max-content"
-      text={
-        <div>
-          {t`LP Fee APR`}: {formatAprNumber(pool.feeApr)}%
-          <br />
-          {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
-          <br />
-          {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
-        </div>
-      }
-    >
-      <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
-    </MouseoverTooltipDesktopOnly>
+    <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
+      {isFarmingLm ? (
+        <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
+      ) : (
+        <FarmingIcon width={24} height={24} style={{ marginLeft: 4 }} />
+      )}
+    </AprDetailTooltip>
+  ) : null
+}
+
+export const uniReward = (pool: ParsedEarnPool) => {
+  const hasReward = isUniswapExchange(pool.exchange) && pool.bonusApr && pool.bonusApr > 0
+
+  return hasReward ? (
+    <AprDetailTooltip uniApr={pool.bonusApr}>
+      <UniBonusIcon width={24} height={24} style={{ marginLeft: 4 }} />
+    </AprDetailTooltip>
   ) : null
 }
 
@@ -59,7 +67,7 @@ const DesktopTableRow = ({
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: pool.chainId || filters.chainId,
+        chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
       initialTick:
@@ -82,29 +90,34 @@ const DesktopTableRow = ({
         <Text color={theme.subText}>{pool.dexName}</Text>
       </Flex>
       <Flex alignItems="center" sx={{ gap: 2 }}>
-        <Flex alignItems="center">
+        <Flex alignItems="flex-end" sx={{ position: 'relative' }}>
           <TokenLogo src={pool.tokens?.[0]?.logoURI} />
           <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+          {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
         </Flex>
         <SymbolText>
           {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
         </SymbolText>
         <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
       </Flex>
-      <Apr value={pool.apr}>
-        {formatAprNumber(pool.apr)}% {kemFarming(pool)}
+      <Apr value={pool.allApr}>
+        {formatAprNumber(pool.allApr)}% {kemFarming(pool)} {uniReward(pool)}
       </Apr>
       {isFarmingFiltered && (
         <Flex justifyContent="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
           <MouseoverTooltipDesktopOnly
             text={
               pool.maxAprInfo
-                ? `Add liquidity with price range: ${
+                ? t`Add liquidity with price range:` +
+                  ` ${
                     pool.maxAprInfo.minPrice
                       ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
                       : '--'
-                  } - ${
-                    pool.maxAprInfo.maxPrice
+                  }` +
+                  ` - ${
+                    pool.maxAprInfo.tickUpper === MAX_TICK
+                      ? '∞'
+                      : pool.maxAprInfo.maxPrice
                       ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
                       : '--'
                   }`
@@ -115,16 +128,17 @@ const DesktopTableRow = ({
           >
             {pool.maxAprInfo
               ? formatAprNumber(
-                  Number(pool.maxAprInfo.apr || 0) +
-                    Number(pool.maxAprInfo.kemEGApr || 0) +
-                    Number(pool.maxAprInfo.kemLMApr || 0),
+                  Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
                 ) + '%'
               : ''}
           </MouseoverTooltipDesktopOnly>
         </Flex>
       )}
       <Flex justifyContent="flex-end">
-        {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
+        {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+          style: 'currency',
+          significantDigits: 6,
+        })}
       </Flex>
       <Flex justifyContent="flex-end">
         {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}

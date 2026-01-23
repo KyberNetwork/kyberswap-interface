@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -8,18 +8,17 @@ import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
-import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import { AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 const POSITION_STATUS = [
-  { label: 'In Range', value: PositionStatus.IN_RANGE },
-  { label: 'Out Range', value: PositionStatus.OUT_RANGE },
-  { label: 'Closed Positions', value: PositionStatus.CLOSED },
+  { label: <Trans>In Range</Trans>, value: PositionStatus.IN_RANGE },
+  { label: <Trans>Out Range</Trans>, value: PositionStatus.OUT_RANGE },
+  { label: <Trans>Closed Positions</Trans>, value: PositionStatus.CLOSED },
 ]
 
 export default function Filter({
-  supportedChains,
   supportedDexes,
   filters,
   updateFilters,
@@ -35,14 +34,14 @@ export default function Filter({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   useEffect(() => {
-    if (filters.q !== deboundedSearch) {
-      updateFilters('q', deboundedSearch || '')
+    if (filters.keyword !== deboundedSearch) {
+      updateFilters('keyword', deboundedSearch || '')
     }
-  }, [deboundedSearch, filters.q, updateFilters])
+  }, [deboundedSearch, filters.keyword, updateFilters])
 
   useEffect(() => {
-    if (searchParams.get('q') && !search) {
-      setSearch(searchParams.get('q') || '')
+    if (searchParams.get('keyword') && !search) {
+      setSearch(searchParams.get('keyword') || '')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -70,25 +69,18 @@ export default function Filter({
       <Flex sx={{ gap: 2, width: upToSmall ? '100%' : 'auto' }} flexWrap={'wrap'}>
         <DropdownMenu
           alignLeft
-          mobileHalfWidth
-          value={filters.chainIds || ''}
-          options={supportedChains.length ? supportedChains : [AllChainsOption]}
-          onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
-        />
-        <DropdownMenu
-          alignLeft
-          mobileHalfWidth
-          value={filters.protocols || ''}
+          mobileFullWidth
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}
+          value={filters.protocols || ''}
           onChange={value => value !== filters.protocols && updateFilters('protocols', value)}
         />
         <MultiSelectDropdownMenu
           alignLeft
           mobileFullWidth
           label={t`Position status`}
-          options={POSITION_STATUS}
-          value={filters.status || ''}
-          onChange={value => value !== filters.status && updateFilters('status', value)}
+          options={POSITION_STATUS as unknown as MenuOption[]}
+          value={filters.statuses || ''}
+          onChange={value => value !== filters.statuses && updateFilters('statuses', value)}
         />
       </Flex>
       <Search
