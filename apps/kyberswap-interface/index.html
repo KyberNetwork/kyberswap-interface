@@ -148,52 +148,73 @@
 
       .preloadhtml-header {
         display: flex;
+        gap: 12px;
         padding: 1rem;
         z-index: 2;
       }
 
       .preloadhtml-logo {
-        transition: transform 0.3s ease;
-      }
+        height: 51.38px;
 
-      .preloadhtml-logo:hover {
-        transform: rotate(-5deg);
+        .kyber-logo {
+          width: 140px;
+          margin-top: 1px;
+
+          @media screen and (max-width: 768px) {
+            width: 100px;
+          }
+        }
       }
 
       .preloadhtml-header-link {
         display: flex;
+        gap: 4px;
         align-items: center;
-        margin-left: 12px;
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 992px) {
+          gap: 0px;
           justify-content: flex-end;
           width: 100%;
           height: 36px;
+          margin-top: 1px;
         }
       }
 
       .preloadhtml-header-link-item {
-        padding: 8px;
-        width: max-content;
-        font-weight: 500;
         font-size: 16px;
+        font-weight: 500;
         display: flex;
         align-items: center;
-        gap: 6px;
-
-        @media screen and (max-width: 768px) {
-          padding: 0 4px;
-          font-size: 16px;
-        }
+        gap: 2px;
       }
 
       .preloadhtml-header-link-item {
         color: rgb(169, 169, 169);
+
+        &.active {
+          color: #31cb9e;
+        }
       }
 
-      .preloadhtml-logo {
-        width: 140px;
-        height: 51.38px;
+      .preloadhtml-header-link-label {
+        display: flex;
+        padding: 8px 12px;
+
+        &:has(+ .preloadhtml-dropdown-icon) {
+          padding: 8px 0px 8px 6px;
+        }
+      }
+
+      .preloadhtml-new-label {
+        font-size: 10px;
+        color: #ff537b;
+        margin-left: 4px;
+      }
+
+      .mobile-hidden {
+        @media screen and (max-width: 768px) {
+          display: none;
+        }
       }
 
       @keyframes pulse {
@@ -209,71 +230,47 @@
           transform: scale(1);
         }
       }
-
-      .preloadhtml-new-label {
-        font-size: 10px;
-        color: #ff537b;
-        margin-left: -3px;
-        margin-bottom: 6px;
-      }
-
-      .preloadhtml-dropdown-icon {
-        margin-top: 1px;
-        margin-left: -5px;
-      }
-
-      .mt-1 {
-        margin-top: 1px;
-      }
-
-      .mobile-hidden {
-        @media screen and (max-width: 768px) {
-          display: none;
-        }
-      }
-
-      .kyber-logo {
-        width: 140px;
-
-        @media screen and (max-width: 768px) {
-          width: 100px;
-        }
-      }
     </style>
     <div class="preloadhtml">
       <div class="preloadhtml-header">
         <div class="preloadhtml-logo">
-          <img class="onlyVisibleInDarkMode mt-1 kyber-logo" src="/logo-dark.svg" alt="DmmLogo" />
+          <img class="kyber-logo" src="/logo-dark.svg" alt="DmmLogo" />
         </div>
         <div class="preloadhtml-header-link">
-          <div style="color: #31cb9e" class="preloadhtml-header-link-item">
-            Trade
+          <div class="preloadhtml-header-link-item active">
+            <div class="preloadhtml-header-link-label">Trade</div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
           <div class="preloadhtml-header-link-item">
-            <img class="mt-1" width="20px" src="/icons/kem.svg" alt="kemSvg" />
-            Earn
-            <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
-          </div>
-          <div class="preloadhtml-header-link-item mobile-hidden">Market</div>
-          <div class="preloadhtml-header-link-item mobile-hidden">
-            Campaigns
+            <img width="20px" src="/icons/kem.svg" alt="kemSvg" style="margin-left: 6px; margin-right: -4px" />
+            <div class="preloadhtml-header-link-label">Earn</div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
           <div class="preloadhtml-header-link-item mobile-hidden">
-            KyberDAO
+            <div class="preloadhtml-header-link-label">Market</div>
+          </div>
+          <div class="preloadhtml-header-link-item mobile-hidden">
+            <div class="preloadhtml-header-link-label">
+              Campaigns
+              <!-- <span class="preloadhtml-new-label">New</span> -->
+            </div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
-          <div class="preloadhtml-header-link-item mobile-hidden">Analytics</div>
           <div class="preloadhtml-header-link-item mobile-hidden">
-            About
+            <div class="preloadhtml-header-link-label">KyberDAO</div>
+            <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
+          </div>
+          <div class="preloadhtml-header-link-item mobile-hidden">
+            <div class="preloadhtml-header-link-label">Analytics</div>
+          </div>
+          <div class="preloadhtml-header-link-item mobile-hidden">
+            <div class="preloadhtml-header-link-label">About</div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
         </div>
       </div>
       <div style="height: 180px; display: flex">
         <img
-          class="onlyVisibleInDarkMode"
           style="animation: pulse 800ms linear infinite; margin: auto"
           width="160px"
           src="/logo-dark.svg"
