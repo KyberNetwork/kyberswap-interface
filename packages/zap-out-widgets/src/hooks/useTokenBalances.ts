@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { ethCall, getBalance } from '@kyber/rpc-client/fetch';
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 import { getFunctionSelector } from '@kyber/utils/crypto';
 
@@ -108,12 +109,12 @@ function decodeMulticallOutput(result: string | undefined): bigint[] {
 
 const ERC20_BALANCE_OF_SELECTOR = getFunctionSelector('balanceOf(address)'); // "70a08231"; // Function selector for "";
 
-const useTokenBalances = (chainId: ChainId, rpcUrl: string, tokenAddresses: string[], account?: string) => {
+const useTokenBalances = (chainId: ChainId, _rpcUrl: string, tokenAddresses: string[], account?: string) => {
   const [balances, setBalances] = useState<{ [address: string]: bigint }>({});
   const [loading, setLoading] = useState(false);
 
   const fetchBalances = useCallback(async () => {
-    if (!rpcUrl || !account) {
+    if (!account) {
       setBalances({});
       return;
     }
@@ -122,23 +123,8 @@ const useTokenBalances = (chainId: ChainId, rpcUrl: string, tokenAddresses: stri
     setLoading(true);
 
     try {
-      const nativeBalance = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'eth_getBalance',
-          params: [
-            account, // Address
-            'latest', // Block number or state
-          ],
-          id: 1,
-        }),
-      })
-        .then(res => res.json())
-        .then(res => BigInt(res.result || '0'));
+      // Get native balance with RPC rotation
+      const nativeBalance = await getBalance(chainId, account);
 
       // Prepare calls for the Multicall contract
       const calls = tokenAddresses.map(token => {
@@ -152,33 +138,11 @@ const useTokenBalances = (chainId: ChainId, rpcUrl: string, tokenAddresses: stri
 
       const encodedData = encodeMulticallInput(false, calls);
 
-      // Encode multicall transaction
-      const data = {
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'eth_call',
-        params: [
-          {
-            to: NETWORKS_INFO[chainId].multiCall,
-            data: encodedData,
-          },
-          'latest',
-        ],
-      };
-
-      // Send request to the RPC endpoint
-      const response = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
+      // Call multicall with RPC rotation
+      const result = await ethCall(chainId, NETWORKS_INFO[chainId].multiCall, encodedData);
 
       // Decode balances from the multicall output
-      const decodedBalances = decodeMulticallOutput(result.result);
+      const decodedBalances = decodeMulticallOutput(result);
 
       // Map balances to token addresses
       const balancesMap = tokenAddresses.reduce(
@@ -198,7 +162,7 @@ const useTokenBalances = (chainId: ChainId, rpcUrl: string, tokenAddresses: stri
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, rpcUrl, account, JSON.stringify(tokenAddresses)]);
+  }, [chainId, account, JSON.stringify(tokenAddresses)]);
 
   useEffect(() => {
     fetchBalances();
