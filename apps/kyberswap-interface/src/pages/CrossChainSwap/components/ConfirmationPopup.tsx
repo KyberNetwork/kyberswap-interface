@@ -21,17 +21,16 @@ import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
+import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
+import { Summary } from 'pages/CrossChainSwap/components/Summary'
+import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, isEvmChain, shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
-import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
-import { getChainName } from '../utils'
-import { PiWarning } from './PiWarning'
-import { Tag } from './QuoteSelector'
-import { Summary } from './Summary'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -407,8 +406,10 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             <PiWarning />
 
             <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
-              <Trans>Routed via {selectedQuote.adapter.getName()}</Trans>
-              {selectedQuote.adapter.getName() === 'Optimex' && <Tag>{t`Beta`}</Tag>}
+              <Text as="span" mr="4px">
+                <Trans>Routed via</Trans>
+              </Text>
+              <QuoteProviderName quote={selectedQuote} />
             </Text>
 
             <ButtonPrimary onClick={handleSwap}>{t`Confirm Swap`}</ButtonPrimary>

@@ -9,6 +9,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 import { formatUnits } from 'viem'
 
+import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Pagination from 'components/Pagination'
@@ -59,6 +60,11 @@ export const TransactionHistory = () => {
   // Track ongoing API calls to prevent duplicates
   const ongoingCallsRef = useRef(new Set())
   const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const latestTransactionsRef = useRef(transactions)
+
+  useEffect(() => {
+    latestTransactionsRef.current = transactions
+  }, [transactions])
 
   const pendingTxs = useMemo(() => {
     return transactions.filter(
@@ -83,7 +89,7 @@ export const TransactionHistory = () => {
       txsToCheck.forEach(tx => ongoingCallsRef.current.add(tx.id))
 
       try {
-        const updatedTransactions = [...transactions]
+        const updatesById = new Map<string, Partial<(typeof transactions)[number]>>()
         let hasUpdates = false
 
         // Use Promise.allSettled to handle individual failures gracefully
@@ -102,88 +108,84 @@ export const TransactionHistory = () => {
 
               // Only update if we have meaningful changes
               // Check if actual amountOut is available and different from estimated
-              const hasActualAmountOut = amountOut && amountOut !== '0' && amountOut !== tx.outputAmount
-              if ((txHash && txHash !== tx.targetTxHash) || status !== tx.status || hasActualAmountOut) {
-                const txIndex = updatedTransactions.findIndex(t => t.id === tx.id)
+              const currentTx = latestTransactionsRef.current.find(t => t.id === tx.id) || tx
+              const hasActualAmountOut = amountOut && amountOut !== '0' && amountOut !== currentTx.outputAmount
+              if ((txHash && txHash !== currentTx.targetTxHash) || status !== currentTx.status || hasActualAmountOut) {
+                const oldStatus = currentTx.status
 
-                if (txIndex !== -1) {
-                  const oldStatus = updatedTransactions[txIndex].status
-                  updatedTransactions[txIndex] = {
-                    ...updatedTransactions[txIndex],
-                    targetTxHash: txHash || updatedTransactions[txIndex].targetTxHash,
-                    status: status || updatedTransactions[txIndex].status,
-                    // Update outputAmount with actual amount if available
-                    // Store original outputAmount as estimatedAmountOut for debugging (in local storage)
-                    ...(hasActualAmountOut && {
-                      outputAmount: amountOut,
-                      estimatedAmountOut:
-                        updatedTransactions[txIndex].estimatedAmountOut || updatedTransactions[txIndex].outputAmount,
-                    }),
+                updatesById.set(tx.id, {
+                  targetTxHash: txHash || currentTx.targetTxHash,
+                  status: status || currentTx.status,
+                  // Update outputAmount with actual amount if available
+                  // Store original outputAmount as estimatedAmountOut for debugging (in local storage)
+                  ...(hasActualAmountOut && {
+                    outputAmount: amountOut,
+                    estimatedAmountOut: currentTx.estimatedAmountOut || currentTx.outputAmount,
+                  }),
+                })
+
+                // Fire specific GA events for success/failure
+                if (status && status !== oldStatus) {
+                  const swapDetails = {
+                    amount_in: tx.inputAmount,
+                    amount_in_usd: tx.amountInUsd,
+                    amount_out: tx.outputAmount,
+                    amount_out_usd: tx.amountOutUsd,
+                    currency: 'USD',
+                    fee_percent: tx.platformFeePercent,
+                    from_chain: tx.sourceChain,
+                    from_chain_name: getChainName(tx.sourceChain),
+                    from_token:
+                      tx.sourceChain === NonEvmChain.Bitcoin
+                        ? tx.sourceToken.symbol
+                        : tx.sourceChain === NonEvmChain.Solana
+                        ? (tx.sourceToken as any).id
+                        : tx.sourceChain === NonEvmChain.Near
+                        ? (tx.sourceToken as any).assetId
+                        : (tx.sourceToken as any)?.address ||
+                          (tx.sourceToken as any)?.wrapped?.address ||
+                          tx.sourceToken?.symbol,
+                    from_token_symbol: tx.sourceToken?.symbol,
+                    from_token_decimals: tx.sourceToken?.decimals,
+                    to_chain: tx.targetChain,
+                    to_chain_name: getChainName(tx.targetChain),
+                    to_token:
+                      tx.targetChain === NonEvmChain.Bitcoin
+                        ? tx.targetToken.symbol
+                        : tx.targetChain === NonEvmChain.Solana
+                        ? (tx.targetToken as any).id
+                        : tx.targetChain === NonEvmChain.Near
+                        ? (tx.targetToken as any).assetId
+                        : (tx.targetToken as any)?.address ||
+                          (tx.targetToken as any)?.wrapped?.address ||
+                          tx.targetToken?.symbol,
+                    to_token_symbol: tx.targetToken?.symbol,
+                    to_token_decimals: tx.targetToken?.decimals,
+                    partner: tx.adapter,
+                    platform: 'KyberSwap Cross-Chain',
+                    source_tx_hash: tx.sourceTxHash,
+                    target_tx_hash: txHash || tx.targetTxHash,
+                    recipient: tx.recipient,
+                    sender: tx.sender,
+                    status: status,
+                    time: Date.now(),
+                    timestamp: tx.timestamp,
                   }
 
-                  // Fire specific GA events for success/failure
-                  if (status && status !== oldStatus) {
-                    const swapDetails = {
-                      amount_in: tx.inputAmount,
-                      amount_in_usd: tx.amountInUsd,
-                      amount_out: tx.outputAmount,
-                      amount_out_usd: tx.amountOutUsd,
-                      currency: 'USD',
-                      fee_percent: tx.platformFeePercent,
-                      from_chain: tx.sourceChain,
-                      from_chain_name: getChainName(tx.sourceChain),
-                      from_token:
-                        tx.sourceChain === NonEvmChain.Bitcoin
-                          ? tx.sourceToken.symbol
-                          : tx.sourceChain === NonEvmChain.Solana
-                          ? (tx.sourceToken as any).id
-                          : tx.sourceChain === NonEvmChain.Near
-                          ? (tx.sourceToken as any).assetId
-                          : (tx.sourceToken as any)?.address ||
-                            (tx.sourceToken as any)?.wrapped?.address ||
-                            tx.sourceToken?.symbol,
-                      from_token_symbol: tx.sourceToken?.symbol,
-                      from_token_decimals: tx.sourceToken?.decimals,
-                      to_chain: tx.targetChain,
-                      to_chain_name: getChainName(tx.targetChain),
-                      to_token:
-                        tx.targetChain === NonEvmChain.Bitcoin
-                          ? tx.targetToken.symbol
-                          : tx.targetChain === NonEvmChain.Solana
-                          ? (tx.targetToken as any).id
-                          : tx.targetChain === NonEvmChain.Near
-                          ? (tx.targetToken as any).assetId
-                          : (tx.targetToken as any)?.address ||
-                            (tx.targetToken as any)?.wrapped?.address ||
-                            tx.targetToken?.symbol,
-                      to_token_symbol: tx.targetToken?.symbol,
-                      to_token_decimals: tx.targetToken?.decimals,
-                      partner: tx.adapter,
-                      platform: 'KyberSwap Cross-Chain',
-                      source_tx_hash: tx.sourceTxHash,
-                      target_tx_hash: txHash || tx.targetTxHash,
-                      recipient: tx.recipient,
-                      sender: tx.sender,
-                      status: status,
-                      time: Date.now(),
-                      timestamp: tx.timestamp,
-                    }
-
-                    if (status === 'Success') {
-                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS, {
-                        ...swapDetails,
-                        status: 'succeed',
-                      })
-                    } else if (status === 'Failed') {
-                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, {
-                        ...swapDetails,
-                        status: 'failed',
-                      })
-                    }
+                  if (status === 'Success') {
+                    crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS, {
+                      ...swapDetails,
+                      status: 'succeed',
+                    })
+                  } else if (status === 'Failed') {
+                    crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, {
+                      ...swapDetails,
+                      status: 'failed',
+                    })
                   }
-
-                  hasUpdates = true
                 }
+
+                hasUpdates = true
               }
               return { success: true, txId: tx.id }
             } catch (error) {
@@ -203,9 +205,17 @@ export const TransactionHistory = () => {
           }
         })
 
+        // Ensure all in-flight ids are released even if adapter lookup failed
+        txsToCheck.forEach(tx => ongoingCallsRef.current.delete(tx.id))
+
         // Update transactions if we have changes
         if (hasUpdates) {
-          setTransactions(updatedTransactions)
+          const baseTransactions = latestTransactionsRef.current
+          const nextTransactions = baseTransactions.map(tx => {
+            const patch = updatesById.get(tx.id)
+            return patch ? { ...tx, ...patch } : tx
+          })
+          setTransactions(nextTransactions)
         }
       } catch (error) {
         console.error('Error in checkTransactions:', error)
@@ -258,9 +268,12 @@ export const TransactionHistory = () => {
         </TableHeader>
       )}
       {transactions.length === 0 && (
-        <Text color={theme.subText} padding="36px" textAlign="center">
-          {t`No transaction found`}
-        </Text>
+        <Flex flexDirection="column" alignItems="center">
+          <NoTransactionIcon width="120px" />
+          <Text color={theme.subText} padding="36px" textAlign="center" fontStyle="italic">
+            {t`No historical data available.`}
+          </Text>
+        </Flex>
       )}
       {transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(tx => {
         const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin, NonEvmChain.Solana].includes(tx.sourceChain)
