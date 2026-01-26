@@ -1606,6 +1606,10 @@ msgstr "总余额"
 msgid "Your output amount is invalid."
 msgstr "您的输出数量无效。"
 
+#: src/pages/Earns/UserPositions/index.tsx
+msgid "<0>Unclaimed</0><1>rewards</1>"
+msgstr ""
+
 #: src/pages/Campaign/constants.tsx
 msgid "<0>Week 4</0> July 29 - Aug 04"
 msgstr "<0>第 4 周</0> 7 月 29 日 - 8 月 4 日"
@@ -5702,8 +5706,8 @@ msgid "Limit Orders"
 msgstr "限价单"
 
 #: src/pages/Earns/UserPositions/index.tsx
-msgid "<0>Unclaimed</0><1><2>rewards</2><3/></1>"
-msgstr "<0>未领取</0><1><2>奖励</2><3/></1>"
+#~ msgid "<0>Unclaimed</0><1><2>rewards</2><3/></1>"
+#~ msgstr "<0>未领取</0><1><2>奖励</2><3/></1>"
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
 msgid "KyberSwap also allows users to <0>trade smarter</0>. We provide various trading insights so our users can get access to <1>alpha</1> instantly!"

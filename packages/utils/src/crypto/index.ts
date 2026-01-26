@@ -1,5 +1,6 @@
 import { keccak256 } from 'js-sha3';
 
+import { directRpcFetch, ethCall, getBalance, rpcFetch } from '@kyber/rpc-client/fetch';
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 
 export * from './address';
@@ -45,101 +46,89 @@ export function decodeInt24(hex: string): number {
   return int >= 0x800000 ? int - 0x1000000 : int;
 }
 
-export async function getCurrentGasPrice(rpcUrl: string) {
-  const response = await fetch(rpcUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'eth_gasPrice',
-      params: [],
-      id: 1,
-    }),
-  });
-  const result = (await response.json()) as JsonRpcResponse<string>;
-  if (result.error) {
-    throw new Error(result.error.message);
+/**
+ * Get current gas price for a chain.
+ * @param chainIdOrRpcUrl - Either a chainId (number) for automatic rotation, or a specific RPC URL (string)
+ */
+export async function getCurrentGasPrice(chainIdOrRpcUrl: number | string): Promise<number> {
+  if (typeof chainIdOrRpcUrl === 'number') {
+    // Use RPC client with rotation
+    const result = await rpcFetch<string>(chainIdOrRpcUrl, 'eth_gasPrice', []);
+    return parseInt(result, 16);
   }
-  if (!result.result) {
-    throw new Error('No result returned from RPC call');
-  }
-  return parseInt(result.result, 16); // Convert from hex to decimal
+
+  // Legacy: direct RPC URL provided
+  const result = await directRpcFetch<string>(chainIdOrRpcUrl, 'eth_gasPrice', []);
+  return parseInt(result, 16);
 }
 
+/**
+ * Estimate gas for a transaction.
+ * @param chainIdOrRpcUrl - Either a chainId (number) for automatic rotation, or a specific RPC URL (string)
+ */
 export async function estimateGas(
-  rpcUrl: string,
+  chainIdOrRpcUrl: number | string,
   { from, to, value = '0x0', data = '0x' }: { from: string; to: string; value: string; data: string },
 ): Promise<bigint> {
-  const response = await fetch(rpcUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'eth_estimateGas',
-      params: [
-        {
-          from: from,
-          to: to,
-          value: value, // Optional if no ETH transfer
-          data: data, // Optional if no function call
-        },
-      ],
-      id: 1,
-    }),
-  });
-  const result = (await response.json()) as JsonRpcResponse<string>;
-  if (result.error) {
-    throw new Error(result.error.message);
+  const params = [{ from, to, value, data }];
+
+  if (typeof chainIdOrRpcUrl === 'number') {
+    const result = await rpcFetch<string>(chainIdOrRpcUrl, 'eth_estimateGas', params);
+    return BigInt(result);
   }
-  if (!result.result) {
-    throw new Error('No result returned from RPC call');
-  }
-  return BigInt(result.result); // Gas estimate as a hex string
+
+  // Legacy: direct RPC URL provided
+  const result = await directRpcFetch<string>(chainIdOrRpcUrl, 'eth_estimateGas', params);
+  return BigInt(result);
 }
 
 interface TxReceipt {
   status: string;
 }
 
-export async function isTransactionSuccessful(rpcUrl: string, txHash: string): Promise<false | { status: boolean }> {
-  const response = await fetch(rpcUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'eth_getTransactionReceipt',
-      params: [txHash],
-      id: 1,
-    }),
-  });
+/**
+ * Check if a transaction was successful.
+ * @param chainIdOrRpcUrl - Either a chainId (number) for automatic rotation, or a specific RPC URL (string)
+ */
+export async function isTransactionSuccessful(
+  chainIdOrRpcUrl: number | string,
+  txHash: string,
+): Promise<false | { status: boolean }> {
+  let result: TxReceipt | null;
 
-  const result = (await response.json()) as JsonRpcResponse<TxReceipt>;
+  if (typeof chainIdOrRpcUrl === 'number') {
+    result = await rpcFetch<TxReceipt | null>(chainIdOrRpcUrl, 'eth_getTransactionReceipt', [txHash]);
+  } else {
+    // Legacy: direct RPC URL provided
+    result = await directRpcFetch<TxReceipt | null>(chainIdOrRpcUrl, 'eth_getTransactionReceipt', [txHash]);
+  }
 
   // Check if the transaction receipt was found
-  if (!result.result) {
+  if (!result) {
     console.log('Transaction not mined yet or invalid transaction hash.');
     return false;
   }
 
   // `status` is "0x1" for success, "0x0" for failure
   return {
-    status: result.result.status === '0x1',
+    status: result.status === '0x1',
   };
 }
 
+/**
+ * Check token approval allowance.
+ * @param params.chainId - Chain ID for automatic RPC rotation (optional, falls back to rpcUrl)
+ * @param params.rpcUrl - Legacy: specific RPC URL (optional if chainId is provided)
+ */
 export async function checkApproval({
+  chainId,
   rpcUrl,
   token,
   owner,
   spender,
 }: {
-  rpcUrl: string;
+  chainId?: number;
+  rpcUrl?: string;
   token: string;
   owner: string;
   spender: string;
@@ -149,32 +138,18 @@ export async function checkApproval({
   const paddedSpender = spender.replace('0x', '').padStart(64, '0');
   const data = `0x${allowanceFunctionSig}${paddedOwner}${paddedSpender}`;
 
-  const response = await fetch(rpcUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'eth_call',
-      params: [
-        {
-          to: token,
-          data,
-        },
-        'latest',
-      ],
-      id: 1,
-    }),
-  });
-  const result = (await response.json()) as JsonRpcResponse<string>;
-  if (result.error) {
-    throw new Error(result.error.message);
+  let result: string;
+
+  if (chainId !== undefined) {
+    result = await ethCall(chainId, token, data);
+  } else if (rpcUrl) {
+    // Legacy: direct RPC URL provided
+    result = await directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: token, data }, 'latest']);
+  } else {
+    throw new Error('Either chainId or rpcUrl must be provided');
   }
-  if (!result.result) {
-    throw new Error('No result returned from RPC call');
-  }
-  return BigInt(result.result);
+
+  return BigInt(result);
 }
 
 export function calculateGasMargin(value: bigint): string {
@@ -243,6 +218,10 @@ export function formatUnits(value: string | number, decimals = 18): string {
   return cleanedFractional ? `${integerPart}.${cleanedFractional}` : integerPart;
 }
 
+/**
+ * Get token balances for multiple tokens.
+ * Uses RPC client with automatic rotation for better reliability.
+ */
 export const getTokenBalances = async ({
   tokenAddresses,
   chainId,
@@ -252,26 +231,11 @@ export const getTokenBalances = async ({
   chainId: ChainId;
   account: string;
 }) => {
-  const { defaultRpc: rpcUrl, multiCall } = NETWORKS_INFO[chainId];
+  const { multiCall } = NETWORKS_INFO[chainId];
 
   try {
-    const nativeBalance = await fetch(rpcUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'eth_getBalance',
-        params: [
-          account, // Address
-          'latest', // Block number or state
-        ],
-        id: 1,
-      }),
-    })
-      .then(res => res.json())
-      .then(res => BigInt((res as JsonRpcResponse<string>).result || '0'));
+    // Get native balance with rotation
+    const nativeBalance = await getBalance(chainId, account);
 
     const paddedAccount = account.replace('0x', '').padStart(64, '0');
     const ERC20_BALANCE_OF_SELECTOR = getFunctionSelector('balanceOf(address)');
@@ -287,33 +251,11 @@ export const getTokenBalances = async ({
 
     const encodedData = encodeMulticallInput(false, calls);
 
-    // Encode multicall transaction
-    const data = {
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'eth_call',
-      params: [
-        {
-          to: multiCall,
-          data: encodedData,
-        },
-        'latest',
-      ],
-    };
-
-    // Send request to the RPC endpoint
-    const response = await fetch(rpcUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    const result = (await response.json()) as JsonRpcResponse<string>;
+    // Call multicall with rotation
+    const result = await ethCall(chainId, multiCall, encodedData);
 
     // Decode balances from the multicall output
-    const decodedBalances = decodeMulticallOutput(result.result);
+    const decodedBalances = decodeMulticallOutput(result);
 
     // Map balances to token addresses
     const balancesMap = tokenAddresses.reduce(
