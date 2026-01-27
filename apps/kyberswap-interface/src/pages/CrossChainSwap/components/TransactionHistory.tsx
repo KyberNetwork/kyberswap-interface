@@ -66,15 +66,10 @@ export const TransactionHistory = () => {
   }, [transactions])
 
   const pendingTxs = useMemo(() => {
-    return transactions.filter(
-      tx =>
-        (!tx.targetTxHash || !tx.status || tx.status === 'Processing') &&
-        tx.status !== 'Refunded' &&
-        // hardcode to update status for a failed tx, if user checked again, we can remove this in next release
-        (tx.sourceTxHash.toLowerCase() !== '0xb321c90b203b9641cc6b7039eade7a6d212a9e133b6817b593f4b9408ca55d87'
-          ? tx.status !== 'Failed'
-          : true),
-    )
+    return transactions.filter(tx => {
+      const isProcessing = !tx.targetTxHash || !tx.status || tx.status === 'Processing'
+      return isProcessing && tx.status !== 'Refunded' && tx.status !== 'Failed'
+    })
   }, [transactions])
 
   useEffect(() => {
