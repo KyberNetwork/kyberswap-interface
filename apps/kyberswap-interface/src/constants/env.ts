@@ -121,9 +121,15 @@ export const FIREBASE: { [key in EnvKeys]: { DEFAULT: FirebaseConfig; LIMIT_ORDE
   },
 }
 
+export enum EnvKeys {
+  PROD = 'production',
+  STG = 'staging',
+  DEV = 'development',
+}
+
 type TemplateConfig = { [type in PrivateAnnouncementType]: string } & { EXCLUDE: string }
 const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
-  development: {
+  [EnvKeys.DEV]: {
     [PrivateAnnouncementType.PRICE_ALERT]: '53',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
@@ -132,39 +138,36 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,29,1,47,50,44,45',
   },
-  staging: {
-    [PrivateAnnouncementType.PRICE_ALERT]: '30',
-    [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17,31',
-    [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
-    [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
-    [PrivateAnnouncementType.POSITION_STATUS]: '',
+  [EnvKeys.STG]: {
+    [PrivateAnnouncementType.PRICE_ALERT]: '',
+    [PrivateAnnouncementType.LIMIT_ORDER]: '3,4,5,6,7,8,9',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '',
+    [PrivateAnnouncementType.POSITION_STATUS]: '1,2,11',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
-    EXCLUDE: '2,11,1,28,29,22,23,27',
+    EXCLUDE: '',
   },
-  production: {
+  [EnvKeys.PROD]: {
     [PrivateAnnouncementType.PRICE_ALERT]: '29',
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15,31,34,35,36',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
-    [PrivateAnnouncementType.POSITION_STATUS]: '11,32,33',
+    [PrivateAnnouncementType.POSITION_STATUS]: '32,33',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,16,19,9,25,24,21,22,25,26,30',
   },
 }
 
-export enum EnvKeys {
-  PROD = 'production',
-  STG = 'staging',
-  DEV = 'development',
-}
 export const ENV_KEY: EnvKeys = import.meta.env.VITE_ENV
 
+const NOTI_ENV = NOTIFICATION_API.includes('pre-') ? EnvKeys.STG : EnvKeys.PROD
+
 export const getAnnouncementsTemplateIds = (type: keyof TemplateConfig) => {
-  return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]?.[type]
+  return ANNOUNCEMENT_TEMPLATE_IDS[NOTI_ENV]?.[type]
 }
 
 export const getAnnouncementTemplateType = (templateId?: number) => {
-  const entries = Object.entries(ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY] ?? {})
+  const entries = Object.entries(ANNOUNCEMENT_TEMPLATE_IDS[NOTI_ENV] ?? {})
   for (const [type, ids] of entries) {
     if (ids.split(',').includes(templateId?.toString())) {
       return type
