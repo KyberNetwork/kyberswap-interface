@@ -16,6 +16,10 @@ import {
   mantleTokens,
   beraTokens,
   sonicTokens,
+  plasmaTokens,
+  etherlinkTokens,
+  monadTokens,
+  megaethTokens,
 } from './tokens'
 import hyperEvmTokens from './tokens/hyperevm'
 
@@ -135,9 +139,34 @@ export const NATIVE_TOKEN: {
     symbol: 'HYPE',
     decimals: 18,
     address: NATIVE_TOKEN_ADDRESS,
-    chainId: 199,
+    chainId: 999,
     logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/5735d731-d5da-4ba4-af94-2e945110130c1750316953655.png',
   },
+  9745: {
+    name: 'XPL',
+    symbol: 'XPL',
+    decimals: 18,
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 9745,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/edfa3cd7-890c-42e6-97e8-8b313bd1d4f11758776117769.png',
+  },
+  42793: {
+    name: 'XTZ',
+    symbol: 'XTZ',
+    decimals: 18,
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 42793,
+    logoURI: 'https://bridge.etherlink.com/static/tokens/XTZ.png',
+  },
+  143: {
+    name: 'MON',
+    symbol: 'MON',
+    decimals: 18,
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 143,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/43addef0-610f-4495-8eca-b9cfe93364df1763539360932.png',
+  },
+  4326: eth(4326),
 }
 
 export const WRAPPED_NATIVE_TOKEN: {
@@ -287,6 +316,38 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 999,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/35881.png',
   },
+  9745: {
+    name: 'Wrapped XPL',
+    decimals: 18,
+    symbol: 'WXPL',
+    address: '0x6100E367285b01F48D07953803A2d8dCA5D19873',
+    chainId: 9745,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/edfa3cd7-890c-42e6-97e8-8b313bd1d4f11758776117769.png',
+  },
+  42793: {
+    name: 'Wrapped XTZ',
+    decimals: 18,
+    symbol: 'WXTZ',
+    address: '0xc9B53AB2679f573e480d01e0f49e2B5CFB7a3EAb',
+    chainId: 42793,
+    logoURI: 'https://bridge.etherlink.com/static/tokens/XTZ.png',
+  },
+  143: {
+    name: 'Wrapped MON',
+    decimals: 18,
+    symbol: 'WMON',
+    address: '0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A',
+    chainId: 143,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/43addef0-610f-4495-8eca-b9cfe93364df1763539360932.png',
+  },
+  4326: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x4200000000000000000000000000000000000006',
+    chainId: 4326,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -312,6 +373,10 @@ export const DEFAULT_TOKENS: {
   80094: beraTokens,
   146: sonicTokens,
   999: hyperEvmTokens,
+  9745: plasmaTokens,
+  42793: etherlinkTokens,
+  143: monadTokens,
+  4326: megaethTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -333,6 +398,10 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   80094: '0xcA11bde05977b3631167028862bE2a173976CA11',
   146: '0xcA11bde05977b3631167028862bE2a173976CA11',
   999: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  9745: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  42793: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  143: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  4326: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -354,6 +423,10 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   80094: 'berachain',
   146: 'sonic',
   999: 'hyperevm',
+  9745: 'plasma',
+  42793: 'etherlink',
+  143: 'monad',
+  4326: 'megaeth',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -375,6 +448,10 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   80094: 'https://berascan.com',
   146: 'https://sonicscan.org',
   999: 'https://hyperevmscan.io',
+  9745: 'https://plasmascan.to',
+  42793: 'https://explorer.etherlink.com',
+  143: 'https://mainnet-beta.monvision.io',
+  4326: 'https://megaeth.blockscout.com',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
@@ -396,6 +473,10 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   80094: 'https://rpc.berachain.com',
   146: 'https://rpc.soniclabs.com',
   999: 'https://rpc.hyperliquid.xyz/evm',
+  9745: 'https://rpc.plasma.to',
+  42793: 'https://node.mainnet.etherlink.com',
+  143: 'https://rpc.monad.xyz',
+  4326: 'https://mainnet.megaeth.com/rpc',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)
