@@ -20,7 +20,7 @@ const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcem
       try {
         templateBody = JSON.parse(event.templateBody ?? '{}')
       } catch (error) {}
-      const templateType = event.templateType || getAnnouncementTemplateType(event.templateId)
+      const templateType = getAnnouncementTemplateType(event.templateId)
       return {
         ...event,
         templateType,

@@ -20,6 +20,7 @@ export enum PrivateAnnouncementType {
 
 export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTemplate> = {
   id: number
+  /** This field in the API is deprecated, so the FE will override it by mapping templateId to templateType */
   templateType: PrivateAnnouncementType
   templateId: number
   templateBody: T
