@@ -18,6 +18,7 @@ export enum ChainId {
   ZkSync = 324,
   Berachain = 80094,
   Sonic = 146,
+  Monad = 143,
 }
 
 export const chainId = z.nativeEnum(ChainId);

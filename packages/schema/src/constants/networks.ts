@@ -8,6 +8,7 @@ import ethereum from '@/constants/networks/ethereum';
 import fantom from '@/constants/networks/fantom';
 import linea from '@/constants/networks/linea';
 import mantle from '@/constants/networks/mantle';
+import monad from '@/constants/networks/monad';
 import optimism from '@/constants/networks/optimism';
 import polygon from '@/constants/networks/polygon';
 import scroll from '@/constants/networks/scroll';
@@ -44,6 +45,7 @@ export const NETWORKS_INFO: Record<ChainId, NetworkInfo> = {
   [ChainId.ZkSync]: zkSync,
   [ChainId.Berachain]: berachain,
   [ChainId.Sonic]: sonic,
+  [ChainId.Monad]: monad,
 };
 
 export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
@@ -62,4 +64,5 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
   [ChainId.ZkSync]: 'zksync',
   [ChainId.Berachain]: 'berachain',
   [ChainId.Sonic]: 'sonic',
+  [ChainId.Monad]: 'monad',
 };
