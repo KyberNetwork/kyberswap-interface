@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
+import { Announcement, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { NOTIFICATION_API, getAnnouncementTemplateType } from 'constants/env'
 
 type NotificationResponse<T extends PrivateAnnouncement | Announcement = Announcement> = {
@@ -21,6 +21,11 @@ const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcem
         templateBody = JSON.parse(event.templateBody ?? '{}')
       } catch (error) {}
       const templateType = getAnnouncementTemplateType(event.templateId)
+      if (templateType === PrivateAnnouncementType.POSITION_STATUS) {
+        if (templateBody && !('position' in templateBody)) {
+          templateBody = { position: templateBody }
+        }
+      }
       return {
         ...event,
         templateType,
