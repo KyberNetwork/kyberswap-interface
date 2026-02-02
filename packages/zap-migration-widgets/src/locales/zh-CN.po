@@ -14,7 +14,7 @@ msgstr ""
 
 #: src/components/Setting/index.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
-msgstr "请输入下方的 <0>Confirm</0> 以启用 Degen 模式"
+msgstr "请输入下方 <0>Confirm</0> 以开启 Degen 模式"
 
 #: src/components/Estimated/index.tsx
 #: src/components/Preview/Estimated.tsx
@@ -23,19 +23,19 @@ msgstr "Zap 价格影响"
 
 #: src/components/PoolInfo.tsx
 msgid "● In range"
-msgstr "● 区间内"
+msgstr "● 价格区间内"
 
 #: src/components/Setting/index.tsx
 msgid "No, Go back"
-msgstr "不，返回"
+msgstr "否，返回"
 
 #: src/components/Preview/MigrationSummary.tsx
 msgid "Add {0} {1} and {2} {3} into {4} in the selected fee pool"
-msgstr "将在所选手续费池 {4} 中添加 {0} {1} 和 {2} {3}"
+msgstr "将 {0} {1} 与 {2} {3} 添加至所选费率池的 {4} 中"
 
 #: src/components/TargetPosition/index.tsx
 msgid "New position"
-msgstr "新头寸"
+msgstr "新仓位"
 
 #: src/components/Setting/index.tsx
 msgid "Degen Mode"
@@ -43,11 +43,11 @@ msgstr "Degen 模式"
 
 #: src/components/Preview/Estimated.tsx
 msgid "Est. Gas Fee"
-msgstr "预计 Gas 费用"
+msgstr "预估 Gas 费"
 
 #: src/components/Preview/index.tsx
 msgid "You have successfully migrated your liquidity"
-msgstr "您已成功迁移流动性"
+msgstr "您的流动性已成功迁移"
 
 #: src/components/Setting/index.tsx
 msgid "mins"
@@ -55,20 +55,20 @@ msgstr "分钟"
 
 #: src/components/Setting/index.tsx
 msgid "Transaction Time Limit"
-msgstr "交易时间限制"
+msgstr "交易时效限制"
 
 #: src/components/Header.tsx
 #: src/components/Preview/index.tsx
 msgid "Migrate to increase position liquidity"
-msgstr "迁移以提升头寸流动性"
+msgstr "通过迁移提升仓位流动性"
 
 #: src/components/Preview/index.tsx
 msgid "Reposition Completed"
-msgstr "重新部署完成"
+msgstr "仓位重新定位完成"
 
 #: src/components/Action/index.tsx
 msgid "Signing..."
-msgstr "正在签名..."
+msgstr "签名中…"
 
 #: src/components/PoolPriceWithRange/PriceRange.tsx
 msgid "Current Price: {0}"
@@ -76,11 +76,11 @@ msgstr "当前价格：{0}"
 
 #: src/components/PositionToMigrate/index.tsx
 msgid "Position to migrate"
-msgstr "待迁移头寸"
+msgstr "待迁移仓位"
 
 #: src/components/Setting/index.tsx
 msgid "Are you sure?"
-msgstr "确定吗？"
+msgstr "确认继续？"
 
 #: src/components/Action/useActionButton.ts
 msgid "Switch Network"
@@ -93,15 +93,15 @@ msgstr "确认"
 
 #: src/index.tsx
 msgid "Failed to load zap route"
-msgstr "加载 Zap 路线失败"
+msgstr "加载 Zap 路由失败"
 
 #: src/components/RangeInput/RangePreset.tsx
 msgid "Full Range"
-msgstr "全范围"
+msgstr "全区间"
 
 #: src/components/Action/useActionButton.ts
 msgid "No Route Found"
-msgstr "未找到路线"
+msgstr "未找到路由"
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Custom"
@@ -122,20 +122,20 @@ msgstr "手续费 {0}%"
 
 #: src/components/Action/useActionButton.ts
 msgid "Fetching Route..."
-msgstr "正在获取路线..."
+msgstr "获取交易路径中…"
 
 #: src/components/Action/useActionButton.ts
 msgid "Estimate gas failed"
-msgstr "估算 Gas 失败"
+msgstr "Gas 预估失败"
 
 #: src/components/Setting/index.tsx
 #: src/components/Setting/index.tsx
 msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
-msgstr "开启该选项后，可在极高价格影响或高滑点容忍度下交易，可能导致糟糕汇率甚至资金损失，请谨慎操作。"
+msgstr "开启后可执行高价格影响交易或设置极高滑点容忍度，可能导致成交价不佳甚至资金损失，请谨慎操作"
 
 #: src/components/Action/useActionButton.ts
 msgid "You are not the owner of this position"
-msgstr "您不是该头寸的所有者"
+msgstr "您不是该仓位的所有者"
 
 #: src/components/AmountToMigrate.tsx
 msgid "Max"
@@ -143,7 +143,7 @@ msgstr "最大"
 
 #: src/components/Preview/Estimated.tsx
 msgid "Estimated network fee for your transaction."
-msgstr "该交易的预估网络费用。"
+msgstr "本次交易的预估网络手续费"
 
 #: src/components/Action/useActionButton.ts
 msgid "Connect Wallet"
@@ -151,7 +151,7 @@ msgstr "连接钱包"
 
 #: src/components/Setting/index.tsx
 msgid "Transaction will revert if it is pending for longer than the indicated time."
-msgstr "若交易等待时间超过设定值将被回滚。"
+msgstr "若交易等待时间超过设定值，将自动回退"
 
 #: src/components/Preview/UpdatedPosition.tsx
 msgid "Current price"
@@ -160,11 +160,11 @@ msgstr "当前价格"
 #: src/components/PositionToMigrate/index.tsx
 #: src/components/TargetPosition/index.tsx
 msgid "Current position"
-msgstr "当前头寸"
+msgstr "当前仓位"
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Dynamic entry based on trading pair."
-msgstr "根据交易对动态生成。"
+msgstr "根据交易对动态设定入场价"
 
 #: src/components/RangeInput/PriceInput.tsx
 msgid "Max Price"
@@ -172,37 +172,37 @@ msgstr "最高价格"
 
 #: src/components/Action/useActionButton.ts
 msgid "Approve source NFT"
-msgstr "批准源 NFT"
+msgstr "授权源 NFT"
 
 #: src/components/Action/useActionButton.ts
 #: src/components/Action/useActionButton.ts
 msgid "Approve source position"
-msgstr "批准源头寸"
+msgstr "授权源仓位"
 
 #: src/components/Preview/Estimated.tsx
 msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
-msgstr "根据您的价格区间设置，部分流动性会自动 Zap 入池，剩余部分将留在钱包。"
+msgstr "根据您的价格区间设置，部分流动性将自动 Zap 进入资金池，其余资产将保留在您的钱包中"
 
 #: src/components/Action/index.tsx
 msgid "Authorize this position for ZapRouter by signing off-chain. No gas fee."
-msgstr "通过链下签名授权此头寸给 ZapRouter。无需 Gas 费。"
+msgstr "通过链下签名授权该仓位给 Zap路由器，无需 Gas 费"
 
 #: src/components/Preview/MigrationSummary.tsx
 msgid "Remove {0} {1} and {2} {3} from {4}"
-msgstr "从 {4} 移除 {0} {1} 和 {2} {3}"
+msgstr "从 {4} 中移除 {0} {1} 与 {2} {3}"
 
 #: src/components/Action/useActionButton.ts
 msgid "Build route data failed"
-msgstr "构建路线数据失败"
+msgstr "构建路由数据失败"
 
 #: src/components/Action/index.tsx
 #: src/components/Action/index.tsx
 msgid "Approve this position"
-msgstr "批准该头寸"
+msgstr "授权该仓位"
 
 #: src/index.tsx
 msgid "Failed to load pool"
-msgstr "加载池失败"
+msgstr "加载资金池失败"
 
 #: src/index.tsx
 msgid "Close & Refresh"
@@ -210,15 +210,15 @@ msgstr "关闭并刷新"
 
 #: src/components/Preview/index.tsx
 msgid "Explore pools"
-msgstr "探索更多池子"
+msgstr "浏览资金池"
 
 #: src/components/PoolInfo.tsx
 msgid "● Out of range"
-msgstr "● 超出区间"
+msgstr "● 超出价格区间"
 
 #: src/components/Preview/index.tsx
 msgid "Reposition liquidity"
-msgstr "重新部署流动性"
+msgstr "重新定位流动性仓位"
 
 #: src/components/Preview/index.tsx
 msgid "Use Suggested Slippage"
@@ -230,11 +230,11 @@ msgstr "选择要迁移的流动性"
 
 #: src/components/Header.tsx
 msgid "Your current position will be closed and a new one created."
-msgstr "您的当前头寸将被关闭并创建新的头寸。"
+msgstr "当前仓位将被关闭，并创建一个新仓位"
 
 #: src/components/Warning/HoneypotWarning.tsx
 msgid "{0} is a Fee-On-Transfer token with a {1}% transaction fee applied on every transfer, please beware before triggering trades with this token."
-msgstr "{0} 是转账收税代币，每次转账会收取 {1}% 手续费，交易前请谨慎。"
+msgstr "{0} 为转账收税代币，每次转账将收取 {1}% 手续费，交易前请务必注意风险"
 
 #: src/components/Setting/SlippageInput.tsx
 #: src/components/Setting/SlippageInput.tsx
@@ -244,7 +244,7 @@ msgstr "请输入有效的滑点百分比"
 
 #: src/components/Action/useActionButton.ts
 msgid "Your position is in farming"
-msgstr "您的头寸正在参与挖矿"
+msgstr "您的仓位正在流动性挖矿中"
 
 #: src/components/PoolInfo.tsx
 #: src/components/PoolInfo.tsx
@@ -253,15 +253,15 @@ msgstr "原生代币"
 
 #: src/components/Preview/UpdatedPosition.tsx
 msgid "Updated position"
-msgstr "更新后的头寸"
+msgstr "已更新仓位"
 
 #: src/components/Action/useActionButton.ts
 msgid "Approve target NFT"
-msgstr "批准目标 NFT"
+msgstr "授权目标 NFT"
 
 #: src/components/Action/index.tsx
 msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-msgstr "为避免因极高价格影响造成损失，本次兑换已被禁用。如仍要继续，请在设置中开启 Degen 模式。"
+msgstr "为避免因极高价格影响造成资金损失，本次交易已禁用兑换。如仍需继续，请在设置中开启 Degen 模式"
 
 #: src/components/AmountToMigrate.tsx
 msgid "Will migrate"
@@ -269,21 +269,21 @@ msgstr "将迁移"
 
 #: src/components/Warning/HoneypotWarning.tsx
 msgid "Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries extremely high sell fee). Please research carefully before adding liquidity or trading."
-msgstr "我们的安全检查发现 {honeypotTokensNames} 可能是蜜罐代币（无法出售或手续费极高）。请在添加流动性或交易前仔细核实。"
+msgstr "安全检测发现 {honeypotTokensNames} 可能为蜜罐代币（无法卖出或卖出手续费极高），请在添加流动性或交易前谨慎调研"
 
 #: src/components/Preview/Estimated.tsx
 msgid "Remaining amount"
-msgstr "剩余金额"
+msgstr "剩余数量"
 
 #: src/components/Action/useActionButton.ts
 #: src/components/Action/useActionButton.ts
 #: src/components/Action/useActionButton.ts
 msgid "Approving..."
-msgstr "正在批准..."
+msgstr "授权中…"
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Suggestion"
-msgstr "建议值"
+msgstr "建议"
 
 #: src/components/Preview/index.tsx
 msgid "Migrated liquidity"
@@ -291,7 +291,7 @@ msgstr "已迁移流动性"
 
 #: src/index.tsx
 msgid "Failed to load position"
-msgstr "加载头寸失败"
+msgstr "加载仓位失败"
 
 #: src/components/Preview/index.tsx
 msgid "Migrate liquidity via Zap"
@@ -299,7 +299,7 @@ msgstr "通过 Zap 迁移流动性"
 
 #: src/components/PoolInfo.tsx
 msgid "Pool Address"
-msgstr "池地址"
+msgstr "资金池地址"
 
 #: src/components/Action/index.tsx
 #: src/components/Preview/index.tsx
@@ -308,7 +308,7 @@ msgstr "取消"
 
 #: src/components/Action/useActionButton.ts
 msgid "Zap anyway"
-msgstr "仍要 Zap"
+msgstr "仍然 Zap"
 
 #: src/components/Preview/index.tsx
 msgid "Set Custom Slippage"
@@ -317,28 +317,28 @@ msgstr "设置自定义滑点"
 #: src/components/Action/index.tsx
 #: src/components/Action/index.tsx
 msgid "Approve for all"
-msgstr "全部批准"
+msgstr "全部授权"
 
 #: src/components/Action/useActionButton.ts
 msgid "Invalid Price Range"
-msgstr "价格区间无效"
+msgstr "无效的价格区间"
 
 #: src/components/Header.tsx
 #: src/components/Preview/index.tsx
 msgid "Reposition"
-msgstr "重新部署"
+msgstr "重新定位仓位"
 
 #: src/components/Preview/MigrationSummary.tsx
 msgid "Migration Summary"
-msgstr "迁移摘要"
+msgstr "迁移概览"
 
 #: src/components/Action/useActionButton.ts
 msgid "Estimating Gas..."
-msgstr "正在估算 Gas..."
+msgstr "预估 Gas 中…"
 
 #: src/components/Action/useActionButton.ts
 msgid "Approve target position"
-msgstr "批准目标头寸"
+msgstr "授权目标仓位"
 
 #: src/components/Action/useActionButton.ts
 msgid "Select Price Range"
@@ -366,11 +366,11 @@ msgstr "<0>迁移数量</0><1>{percent}%</1>"
 
 #: src/components/Action/useActionButton.ts
 msgid "Checking Allowance..."
-msgstr "正在检查授权..."
+msgstr "检查授权额度中…"
 
 #: src/components/Warning/SlippageWarning.tsx
 msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
-msgstr "您设置的滑点低于常规，可能导致交易失败。"
+msgstr "当前滑点设置过低，可能增加交易失败风险"
 
 #: src/components/Setting/index.tsx
 msgid "Slippage Tolerance"
@@ -383,11 +383,11 @@ msgstr "迁移流动性"
 #: src/components/Estimated/index.tsx
 #: src/components/Preview/Estimated.tsx
 msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
-msgstr "输入与预估获得流动性（含剩余金额）之间的差额，数值过高请谨慎操作！"
+msgstr "输入金额与预估获得的流动性（含剩余资产）之间的差额，高额操作请务必留意！"
 
 #: src/components/Warning/FullRangeWarning.tsx
 msgid "Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity."
-msgstr "您的流动性覆盖整个价格区间，但可能因集中度较低导致实际 APR 低于预期。"
+msgstr "您的流动性覆盖全价格区间，但由于集中度较低，年化收益率 可能低于预期"
 
 #: src/components/Setting/index.tsx
 msgid "Advanced Setting"
@@ -399,7 +399,7 @@ msgstr "请在钱包中确认此交易"
 
 #: src/components/Action/useActionButton.ts
 msgid "Reposition to New Range"
-msgstr "重新部署到新区间"
+msgstr "重新定位至新区间"
 
 #: src/components/Action/index.tsx
 msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
@@ -411,7 +411,7 @@ msgstr "预览"
 
 #: src/components/Preview/index.tsx
 msgid "View position"
-msgstr "查看头寸"
+msgstr "查看仓位"
 
 #: src/components/Preview/index.tsx
 msgid "Confirm migration"
@@ -420,34 +420,34 @@ msgstr "确认迁移"
 #: src/components/Estimated/index.tsx
 #: src/components/Preview/Estimated.tsx
 msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
-msgstr "自动 Zap 入流动性池所收取的费用。您仍需支付标准 Gas 费用。<0>了解详情。</0>"
+msgstr "自动 Zap 进入流动性池所收取的费用，仍需支付标准 Gas 费。<0>了解更多</0>"
 
 #: src/components/Estimated/SlippageRow.tsx
 #: src/components/Preview/Estimated.tsx
 #: src/components/Setting/index.tsx
 msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-msgstr "每个 Zap 步骤都会应用该滑点。滑点过高虽能提高成功率，但可能导致不利价格，请谨慎使用！"
+msgstr "适用于每一步 Zap。提高滑点可提升成功率，但成交价格可能不理想，请谨慎使用"
 
 #: src/components/Estimated/index.tsx
 #: src/components/Preview/Estimated.tsx
 msgid "Migration Fee"
-msgstr "迁移费用"
+msgstr "迁移手续费"
 
 #: src/components/Warning/OutRangeWarning.tsx
 msgid "Your liquidity is outside the current market range and will not be used/earn fees until the market price enters your specified range."
-msgstr "您的流动性位于当前市场区间之外，价格进入设定区间前不会被使用或赚取手续费。"
+msgstr "您的流动性当前不在市场价格区间内，在价格进入您设定区间前将不会被使用或产生手续费"
 
 #: src/components/TargetPosition/index.tsx
 msgid "Total position"
-msgstr "头寸总额"
+msgstr "仓位总额"
 
 #: src/components/PositionToMigrate/index.tsx
 msgid "Earned fee to migrate"
-msgstr "待迁移收益"
+msgstr "可迁移的已赚手续费"
 
 #: src/components/Warning/SlippageWarning.tsx
 msgid "Your slippage is set higher than usual, which may cause unexpected losses."
-msgstr "您设置的滑点高于常规，可能带来意外损失。"
+msgstr "当前滑点设置过高，可能导致非预期损失"
 
 #: src/components/Estimated/SlippageRow.tsx
 #: src/components/Preview/Estimated.tsx
@@ -456,11 +456,11 @@ msgstr "最大滑点"
 
 #: src/components/Action/index.tsx
 msgid "Authorize ZapRouter through an on-chain approval. Choose whether to approve once or all positions."
-msgstr "通过链上授权 ZapRouter。选择仅批准一次或批准全部头寸。"
+msgstr "通过链上授权 ZapRouter，选择仅授权一次或授权全部仓位"
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Enter a smaller slippage percentage"
-msgstr "请输入较小的滑点百分比"
+msgstr "请输入更小的滑点百分比"
 
 #: src/components/Preview/index.tsx
 #: src/index.tsx
