@@ -30,7 +30,10 @@ const routeApi = createApi({
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
         return {
           url,
-          params: rest,
+          params: {
+            ...rest,
+            source: 'li.fi_binance',
+          },
           authentication,
           headers: {
             'x-client-id': 'li.fi_binance',
@@ -104,7 +107,10 @@ const routeApi = createApi({
         return {
           url,
           method: 'POST',
-          body: rest,
+          body: {
+            ...rest,
+            source: 'li.fi_binance',
+          },
           signal,
           authentication,
           headers: {
