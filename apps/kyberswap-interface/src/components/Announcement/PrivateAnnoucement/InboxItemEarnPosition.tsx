@@ -1,5 +1,3 @@
-import { formatCurrency } from '@kyber/utils/dist/number'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo } from 'react'
@@ -28,6 +26,7 @@ import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { getDexVersion, getTokenId } from 'pages/Earns/utils/position'
+import { formatDisplayNumber } from 'utils/numbers'
 
 enum Status {
   NEW,
@@ -50,11 +49,11 @@ const InboxItemEarnPosition = ({
   const navigate = useNavigate()
 
   const { isRead, templateType, templateBody } = announcement
-  const position = normalizePosition(templateBody.position) || {}
+  const position = (normalizePosition(templateBody.position) || {}) as PoolPositionLiquidityAnnouncement<number>
 
   const {
     positionId,
-    chainId: rawChain,
+    chainId,
     token0Symbol,
     token1Symbol,
     token0LogoURL,
@@ -66,9 +65,13 @@ const InboxItemEarnPosition = ({
     notificationType,
     oldValueUsd,
     newValueUsd,
+    oldToken0Amount,
+    newToken0Amount,
+    oldToken1Amount,
+    newToken1Amount,
+    token0Decimals,
+    token1Decimals,
   } = position
-
-  const chainId = Number(rawChain) as ChainId
 
   const [statusMessage, status] = useMemo(() => {
     if (!notificationType) {
@@ -95,11 +98,25 @@ const InboxItemEarnPosition = ({
     }
   }, [exchange])
 
+  const token0Before = oldToken0Amount / 10 ** token0Decimals
+  const token0After = newToken0Amount / 10 ** token0Decimals
+  const token1Before = oldToken1Amount / 10 ** token1Decimals
+  const token1After = newToken1Amount / 10 ** token1Decimals
+  const token0Delta = Math.abs(token0After - token0Before)
+  const token1Delta = Math.abs(token1After - token1Before)
+
+  const formatTokenAmounts = (amount0: number, amount1: number) => {
+    return (
+      `${formatDisplayNumber(amount0, { significantDigits: 4 })} ${token0Symbol}  + ` +
+      `${formatDisplayNumber(amount1, { significantDigits: 4 })} ${token1Symbol}`
+    )
+  }
+
   const tokenId = getTokenId(positionId)
 
   const onClick = () => {
     const positionUrl = APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', positionId)
-      .replace(':chainId', rawChain)
+      .replace(':chainId', String(chainId))
       .replace(':exchange', exchange)
     navigate(positionUrl)
     onRead(announcement, statusMessage)
@@ -122,7 +139,7 @@ const InboxItemEarnPosition = ({
       </InboxItemRow>
 
       <InboxItemRow>
-        <Flex alignItems={'center'} style={{ gap: '4px' }}>
+        <Flex alignItems="center" style={{ gap: '4px' }}>
           <DoubleCurrencyLogoV2
             style={{ marginRight: 10 }}
             logoUrl1={token0LogoURL}
@@ -149,10 +166,14 @@ const InboxItemEarnPosition = ({
 
       {[Status.NEW, Status.ADD, Status.PARTIAL_REMOVE, Status.FULL_REMOVE].includes(status) && (
         <InboxItemRow>
-          <Flex alignItems={'center'} style={{ gap: '4px' }}>
-            <PrimaryText color={theme.subText}>Balance:</PrimaryText>
+          <Flex alignItems="center" style={{ gap: '4px' }}>
+            <PrimaryText color={theme.subText}>
+              {status === Status.NEW ? t`Created Balance:` : status === Status.ADD ? t`Added:` : t`Received:`}
+            </PrimaryText>
             <PrimaryText>
-              {formatCurrency(oldValueUsd as number)} ➞ {formatCurrency(newValueUsd as number)}
+              {status === Status.NEW
+                ? formatTokenAmounts(token0After, token1After)
+                : formatTokenAmounts(token0Delta, token1Delta)}
             </PrimaryText>
           </Flex>
         </InboxItemRow>
@@ -176,17 +197,21 @@ export default InboxItemEarnPosition
 
 const normalizePosition = (position?: PoolPositionAnnouncement | PoolPositionLiquidityAnnouncement) => {
   if (position && 'notificationType' in position) {
+    const numberRegex = /^-?\d+(\.\d+)?$/
+
+    const normalizedPosition = Object.fromEntries(
+      Object.entries(position).map(([key, value]) => {
+        if (typeof value === 'string' && numberRegex.test(value)) {
+          return [key, Number(value)]
+        }
+        return [key, value]
+      }),
+    ) as PoolPositionLiquidityAnnouncement<number>
+
     return {
-      ...position,
-      currentPrice: Number(position.currentPrice),
-      minPrice: Number(position.minPrice),
-      maxPrice: Number(position.maxPrice),
-      exchange: position.kyberswapUrl.match(/[^/]+$/)?.[0] || '',
-      oldLiquidity: Number(position.oldLiquidity),
-      newLiquidity: Number(position.newLiquidity),
-      oldValueUsd: Number(position.oldValueUsd),
-      newValueUsd: Number(position.newValueUsd),
+      ...normalizedPosition,
+      exchange: position.exchange || position.kyberswapUrl.match(/[^/]+$/)?.[0] || '',
     }
   }
-  return position as PoolPositionAnnouncement & PoolPositionLiquidityAnnouncement
+  return position as PoolPositionAnnouncement
 }
