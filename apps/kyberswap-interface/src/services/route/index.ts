@@ -26,14 +26,14 @@ const routeApi = createApi({
         clientId?: string
       }
     >({
-      query: ({ params, url, authentication, clientId }) => {
+      query: ({ params, url, authentication, clientId: _ }) => {
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
         return {
           url,
           params: rest,
           authentication,
           headers: {
-            'x-client-id': clientId || 'kyberswap',
+            'x-client-id': 'li.fi_binance',
           },
         }
       },
@@ -108,7 +108,7 @@ const routeApi = createApi({
           signal,
           authentication,
           headers: {
-            'x-client-id': payload.source || 'kyberswap',
+            'x-client-id': 'li.fi_binance',
           },
         }
       },

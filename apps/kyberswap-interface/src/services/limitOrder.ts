@@ -118,7 +118,7 @@ const limitOrderApi = createApi({
         body,
         method: 'POST',
         headers: {
-          'x-client-id': body.clientId || 'kyberswap',
+          'x-client-id': 'li.fi_binance',
         },
       }),
       transformResponse,
