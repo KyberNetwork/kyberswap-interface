@@ -130,17 +130,19 @@ export enum EnvKeys {
 type TemplateConfig = { [type in PrivateAnnouncementType]: string } & { EXCLUDE: string }
 const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   [EnvKeys.DEV]: {
-    [PrivateAnnouncementType.PRICE_ALERT]: '53',
-    [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
-    [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
-    [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
+    [PrivateAnnouncementType.PRICE_ALERT]: '',
+    [PrivateAnnouncementType.LIMIT_ORDER]: '',
+    [PrivateAnnouncementType.SMART_EXIT]: '',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '',
     [PrivateAnnouncementType.POSITION_STATUS]: '',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
-    EXCLUDE: '2,29,1,47,50,44,45',
+    EXCLUDE: '',
   },
   [EnvKeys.STG]: {
     [PrivateAnnouncementType.PRICE_ALERT]: '',
     [PrivateAnnouncementType.LIMIT_ORDER]: '3,4,5,6,7,8,9',
+    [PrivateAnnouncementType.SMART_EXIT]: '12,13,14,15,16',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '',
     [PrivateAnnouncementType.POSITION_STATUS]: '1,2,11',
@@ -148,13 +150,14 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     EXCLUDE: '',
   },
   [EnvKeys.PROD]: {
-    [PrivateAnnouncementType.PRICE_ALERT]: '29',
-    [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15,31,34,35,36',
-    [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
-    [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
+    [PrivateAnnouncementType.PRICE_ALERT]: '',
+    [PrivateAnnouncementType.LIMIT_ORDER]: '31,34,35,36',
+    [PrivateAnnouncementType.SMART_EXIT]: '12,13,14,15,16',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '',
     [PrivateAnnouncementType.POSITION_STATUS]: '32,33',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
-    EXCLUDE: '2,16,19,9,25,24,21,22,25,26,30',
+    EXCLUDE: '',
   },
 }
 

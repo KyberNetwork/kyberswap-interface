@@ -11,6 +11,7 @@ export type Announcement = {
 
 export enum PrivateAnnouncementType {
   LIMIT_ORDER = 'LIMIT_ORDER',
+  SMART_EXIT = 'SMART_EXIT',
   BRIDGE_ASSET = 'BRIDGE_ASSET',
   ELASTIC_POOLS = 'ELASTIC_POOLS',
   POSITION_STATUS = 'POSITION_STATUS',
@@ -76,6 +77,30 @@ export type AnnouncementTemplateLimitOrder = {
   isReorg: boolean
 }
 
+export type SmartExitOrder = {
+  id: string
+  conditionText?: string
+}
+
+export type SmartExitPosition = {
+  id: string
+  tokenId: string
+  pool: {
+    token0: { symbol: string; logo: string }
+    token1: { symbol: string; logo: string }
+  }
+  chain: { id: string; logo: string; name: string }
+  dex: { logo: string; type: string }
+}
+
+export type AnnouncementTemplateSmartExit = {
+  order: SmartExitOrder
+  position: SmartExitPosition
+  popupType: PopupType
+  reason?: string
+  received?: string
+}
+
 export type TokenInfoWatchlist = {
   logoURL: string
   kyberScore: string
@@ -115,6 +140,7 @@ export type AnnouncementTemplate =
   | AnnouncementTemplatePoolPosition
   | AnnouncementTemplatePopup
   | AnnouncementTemplatePriceAlert
+  | AnnouncementTemplateSmartExit
 
 export enum NotificationType {
   SUCCESS,

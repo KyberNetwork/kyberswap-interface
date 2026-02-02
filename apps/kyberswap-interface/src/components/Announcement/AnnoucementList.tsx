@@ -23,12 +23,14 @@ export enum Tab {
 export enum Category {
   EARN_POSITION = 'EARN_POSITION',
   LIMIT_ORDER = 'LIMIT_ORDER',
+  SMART_EXIT = 'SMART_EXIT',
   ANNOUNCEMENTS = 'ANNOUNCEMENTS',
 }
 
 const getViewHeight = (category: Category | null) => {
   if (category === Category.EARN_POSITION) return 112
   if (category === Category.LIMIT_ORDER) return 150
+  if (category === Category.SMART_EXIT) return 112
   return 128
 }
 

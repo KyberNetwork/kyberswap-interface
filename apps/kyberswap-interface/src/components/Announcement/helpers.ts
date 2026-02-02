@@ -1,5 +1,6 @@
 import {
   AnnouncementTemplateLimitOrder,
+  AnnouncementTemplateSmartExit,
   PoolPositionAnnouncement,
   PrivateAnnouncement,
 } from 'components/Announcement/type'
@@ -45,4 +46,16 @@ export const getLimitOrderPreview = (
   })()
 
   return { pair, status }
+}
+
+export const getSmartExitPreview = (
+  announcement?: PrivateAnnouncement,
+): { pair?: string; note?: string } | undefined => {
+  const body = announcement?.templateBody as AnnouncementTemplateSmartExit | undefined
+  const token0 = body?.position.pool.token0.symbol
+  const token1 = body?.position.pool.token1.symbol
+  const pair = token0 && token1 ? `${token0}/${token1}` : undefined
+  const note = body?.reason || body?.order.conditionText
+  if (!pair && !note) return undefined
+  return { pair, note }
 }
