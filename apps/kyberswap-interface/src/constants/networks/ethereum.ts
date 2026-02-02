@@ -27,7 +27,7 @@ const ethereumInfo: NetworkInfo = {
     logo: ethereumIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://ethereum.kyberengineering.io',
+  defaultRpcUrl: 'https://ethereum-rpc.kyberswap.com',
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum',
