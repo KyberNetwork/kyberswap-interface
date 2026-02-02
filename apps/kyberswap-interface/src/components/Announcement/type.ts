@@ -90,26 +90,32 @@ export type PoolPositionAnnouncement = {
   exchange: string
 }
 
-export type PoolPositionLiquidityAnnouncement = {
+export type PoolPositionLiquidityAnnouncement<NumberOrString = string> = {
   positionId: string
-  chainId: string
+  chainId: NumberOrString
   chainName: string
   token0Symbol: string
   token1Symbol: string
+  token0Decimals: NumberOrString
+  token1Decimals: NumberOrString
   token0LogoURL: string
   token1LogoURL: string
-  currentPrice: string
-  minPrice: string
-  maxPrice: string
+  currentPrice: NumberOrString
+  minPrice: NumberOrString
+  maxPrice: NumberOrString
   poolAddress: string
   exchange: string
-  wallet: string
   kyberswapUrl: string
+  wallet: string
   notificationType: 'CREATED' | 'LIQUIDITY_DECREASED' | 'LIQUIDITY_INCREASED'
-  oldLiquidity: string
-  newLiquidity: string
-  oldValueUsd: string
-  newValueUsd: string
+  oldLiquidity: NumberOrString
+  newLiquidity: NumberOrString
+  oldToken0Amount: NumberOrString
+  newToken0Amount: NumberOrString
+  oldToken1Amount: NumberOrString
+  newToken1Amount: NumberOrString
+  oldValueUsd: NumberOrString
+  newValueUsd: NumberOrString
 }
 
 export type AnnouncementTemplateLimitOrder = {
