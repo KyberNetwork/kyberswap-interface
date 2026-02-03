@@ -242,6 +242,7 @@ const UserPositions = ({
   account,
   positionId,
   poolAddress,
+  excludePositionIds,
   initialSlippage,
   onConnectWallet,
   onSelectLiquiditySource,
@@ -252,6 +253,7 @@ const UserPositions = ({
   account?: string;
   positionId?: string;
   poolAddress?: string;
+  excludePositionIds?: string[];
   initialSlippage?: number;
   onConnectWallet?: () => void;
   onSelectLiquiditySource: OnSelectLiquiditySource;
@@ -261,13 +263,24 @@ const UserPositions = ({
   const [copied, setCopied] = useState<string | null>(null);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { positions, loading } = usePositions({
+  const { positions: rawPositions, loading } = usePositions({
     positionId,
     poolAddress,
     search,
     account,
     chainId,
   });
+
+  // Filter out excluded positions (e.g., positions with existing smart exit orders)
+  const positions = useMemo(() => {
+    if (!excludePositionIds || excludePositionIds.length === 0) {
+      return rawPositions;
+    }
+    const excludeSet = new Set(excludePositionIds);
+    return rawPositions.filter(
+      (pos) => !excludeSet.has(pos.positionId.toString()),
+    );
+  }, [rawPositions, excludePositionIds]);
 
   const copy = useCallback((position: EarnPosition) => {
     if (!navigator?.clipboard) return;

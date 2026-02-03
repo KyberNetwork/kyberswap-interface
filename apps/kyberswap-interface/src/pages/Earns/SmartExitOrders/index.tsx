@@ -7,7 +7,11 @@ import { X } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useCancelSmartExitOrderMutation, useGetSmartExitCancelSignMessageMutation } from 'services/smartExit'
+import {
+  useCancelSmartExitOrderMutation,
+  useGetSmartExitCancelSignMessageMutation,
+  useGetSmartExitOrdersQuery,
+} from 'services/smartExit'
 import styled from 'styled-components'
 
 import { ReactComponent as IconListSmartExit } from 'assets/svg/earn/ic_list_smart_exit.svg'
@@ -28,7 +32,7 @@ import OrderItem from 'pages/Earns/SmartExitOrders/OrderItem'
 import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { useSmartExitOrdersData } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { SmartExit as SmartExitModal } from 'pages/Earns/components/SmartExit'
-import { ParsedPosition, SmartExitOrder, UserPosition } from 'pages/Earns/types'
+import { OrderStatus, ParsedPosition, SmartExitOrder, UserPosition } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -172,6 +176,22 @@ const SmartExit = () => {
     shouldShowEmptyState,
   } = useSmartExitOrdersData({ account, filters, pageSize: SMART_EXIT_ORDERS_PAGE_SIZE, updateFilters })
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+
+  // Fetch all active orders to get position IDs that should be excluded from position selector
+  const { data: activeOrdersData } = useGetSmartExitOrdersQuery(
+    {
+      userWallet: account || '',
+      status: OrderStatus.OrderStatusOpen,
+      pageSize: 1000, // Get all active orders
+    },
+    { skip: !account },
+  )
+
+  // Extract position IDs from active orders to exclude from position selector
+  const excludePositionIds = useMemo(() => {
+    if (!activeOrdersData?.orders) return []
+    return activeOrdersData.orders.map(order => order.positionId)
+  }, [activeOrdersData])
 
   const handleDeleteRequest = useCallback((order: SmartExitOrder) => setShowCancelConfirm(order), [])
   const handleDismissModal = useCallback(() => setShowCancelConfirm(null), [])
@@ -353,6 +373,7 @@ const SmartExit = () => {
             title={t`Select Position`}
             showUserPositions
             positionsOnly
+            excludePositionIds={excludePositionIds}
             onSelectLiquiditySource={handleSelectPosition}
             onConnectWallet={toggleWalletModal}
             onClose={handleCloseTokenSelector}

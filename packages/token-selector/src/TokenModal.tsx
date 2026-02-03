@@ -60,6 +60,7 @@ const TokenModal = ({
   token1Address = "",
   showUserPositions = false,
   positionsOnly = false,
+  excludePositionIds,
   setTokensIn,
   setAmountsIn,
   onTokenSelect,
@@ -188,6 +189,7 @@ const TokenModal = ({
             poolAddress={poolAddress}
             showUserPositions={showUserPositions}
             positionsOnly={positionsOnly}
+            excludePositionIds={excludePositionIds}
             onTokenSelect={onTokenSelect}
             onConnectWallet={onConnectWallet}
             onSelectLiquiditySource={onSelectLiquiditySource}

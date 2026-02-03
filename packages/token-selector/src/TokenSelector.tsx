@@ -160,6 +160,7 @@ export default function TokenSelector({
   token1Address = "",
   showUserPositions = false,
   positionsOnly = false,
+  excludePositionIds,
   selectedTokens,
   setTokensIn,
   setAmountsIn,
@@ -695,6 +696,7 @@ export default function TokenSelector({
                   account={account}
                   positionId={positionId}
                   poolAddress={poolAddress}
+                  excludePositionIds={excludePositionIds}
                   onConnectWallet={onConnectWallet}
                   onSelectLiquiditySource={onSelectLiquiditySource}
                   onClose={onClose}

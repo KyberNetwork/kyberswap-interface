@@ -152,6 +152,7 @@ export interface TokenSelectorModalProps {
   // User position features (optional)
   showUserPositions?: boolean;
   positionsOnly?: boolean; // When true, only show Positions tab (hide Tokens tab)
+  excludePositionIds?: string[]; // Position IDs to exclude from the list (e.g., positions with existing smart exit orders)
   positionId?: string;
   poolAddress?: string;
   initialSlippage?: number;
