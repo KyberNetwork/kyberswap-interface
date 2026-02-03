@@ -343,6 +343,7 @@ const SmartExit = () => {
           totalCount={tableLoading ? 0 : totalItems}
           currentPage={currentPage}
           pageSize={SMART_EXIT_ORDERS_PAGE_SIZE}
+          style={{ margin: '0 -20px', width: 'calc(100% + 40px)' }}
         />
       </TableWrapper>
 
