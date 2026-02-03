@@ -12,7 +12,7 @@ import { calculateExpectedAmounts } from 'pages/Earns/components/SmartExit/Metri
 import { PriceCustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/styles'
 import { defaultPriceCondition } from 'pages/Earns/components/SmartExit/utils'
 import { getPriceCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
-import { Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { Metric, PAIR_CATEGORY, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
 export default function PriceInput({
@@ -226,17 +226,40 @@ export default function PriceInput({
   const handleComparatorChange = useCallback(
     (next: 'gte' | 'lte') => {
       setComparator(next)
-      // Manual change should respect current tick side for future crossings
-      if (tick !== undefined) {
-        lastSideRef.current = tick >= currentTick ? 'above' : 'below'
+
+      // Calculate default price with gap based on pair category
+      const pairCategory = position.pool.category
+      const gap =
+        pairCategory === PAIR_CATEGORY.STABLE ? 0.0001 : pairCategory === PAIR_CATEGORY.CORRELATED ? 0.001 : 0.1
+      const defaultPrice = position.priceRange.current * (1 + (next === 'gte' ? gap : -gap))
+      const newTick = priceToClosestTick(toString(defaultPrice), position.token0.decimals, position.token1.decimals)
+
+      if (newTick !== undefined) {
+        const nearestTick = nearestUsableTick(newTick, position.pool.tickSpacing)
+        const correctedPrice = toString(
+          formatNumberBySignificantDigits(
+            tickToPrice(nearestTick, position.token0.decimals, position.token1.decimals, false),
+            6,
+          ),
+        )
+
+        setInputPrice(correctedPrice)
+        setTick(nearestTick)
+        lastSideRef.current = nearestTick >= currentTick ? 'above' : 'below'
+
+        setMetric({
+          metric: Metric.PoolPrice,
+          condition: { gte: next === 'gte' ? correctedPrice : '', lte: next === 'lte' ? correctedPrice : '' },
+        })
+      } else {
+        // Fallback to current input price if tick calculation fails
+        setMetric({
+          metric: Metric.PoolPrice,
+          condition: { gte: next === 'gte' ? inputPrice : '', lte: next === 'lte' ? inputPrice : '' },
+        })
       }
-      const price = inputPrice
-      setMetric({
-        metric: Metric.PoolPrice,
-        condition: { gte: next === 'gte' ? price : '', lte: next === 'lte' ? price : '' },
-      })
     },
-    [currentTick, inputPrice, setMetric, tick],
+    [currentTick, inputPrice, position, setMetric],
   )
 
   const expectedAmounts = useMemo(
