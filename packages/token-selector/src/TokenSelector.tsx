@@ -116,7 +116,11 @@ const TokenRow = memo(function TokenRow({
         )}
         <TokenLogo src={token.logo} size={24} />
         <div>
-          <TokenSymbol className="leading-6" symbol={token.symbol} maxWidth={120} />
+          <TokenSymbol
+            className="leading-6"
+            symbol={token.symbol}
+            maxWidth={120}
+          />
           <p
             className={`${tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""} text-subText`}
           >
@@ -205,9 +209,7 @@ export default function TokenSelector({
     }
 
     // Pre-compute lowercase addresses once for lookup
-    const tokensInSet = new Set(
-      tokensIn.map((t) => t.address.toLowerCase()),
-    );
+    const tokensInSet = new Set(tokensIn.map((t) => t.address.toLowerCase()));
     const selectedTokensSet = new Set(
       selectedTokens.map((t) => t.address.toLowerCase()),
     );
