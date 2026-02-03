@@ -4,6 +4,7 @@ import { X } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
+import { HighlightWrapper, useGuidedHighlight } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import FeeYieldInput from 'pages/Earns/components/SmartExit/Metrics/FeeYieldInput'
 import PriceInput from 'pages/Earns/components/SmartExit/Metrics/PriceInput'
 import TimeInput from 'pages/Earns/components/SmartExit/Metrics/TimeInput'
@@ -17,14 +18,23 @@ export default function MetricSelect({
   selectedMetric,
   position,
   onRemove,
+  isFirstMetric = false,
 }: {
   metric: SelectedMetric | null
   setMetric: (value: SelectedMetric) => void
   selectedMetric?: SelectedMetric | null
   position: ParsedPosition
   onRemove?: () => void
+  isFirstMetric?: boolean
 }) {
   const theme = useTheme()
+  const { currentStep } = useGuidedHighlight()
+
+  // Highlight dropdown when on metric-select step OR both step
+  const shouldHighlightDropdown = isFirstMetric && (currentStep === 'metric-select' || currentStep === 'both')
+  // Highlight input when on metric-input step OR both step
+  const shouldHighlightInput = isFirstMetric && (currentStep === 'metric-input' || currentStep === 'both')
+
   const metricOptions = useMemo(
     () =>
       [
@@ -59,32 +69,41 @@ export default function MetricSelect({
         <Text>
           <Trans>Select Metric</Trans>
         </Text>
-        <CustomSelect
-          options={metricOptions}
-          onChange={value => {
-            if (value === metric?.metric) return
-            const newMetric = value as Metric
-            const condition = getDefaultCondition(newMetric, position)
-            if (condition === null) return
-            setMetric({ metric: newMetric, condition })
-          }}
-          value={metric?.metric ?? null}
-          placeholder={<Trans>Select</Trans>}
-          menuStyle={{ width: '250px', marginTop: '2px' }}
-          arrow="chevron"
-          arrowSize={16}
-          arrowColor={theme.border}
-        />
+        <HighlightWrapper isHighlighted={shouldHighlightDropdown}>
+          <CustomSelect
+            options={metricOptions}
+            onChange={value => {
+              if (value === metric?.metric) return
+              const newMetric = value as Metric
+              const condition = getDefaultCondition(newMetric, position)
+              if (condition === null) return
+              setMetric({ metric: newMetric, condition })
+            }}
+            value={metric?.metric ?? null}
+            placeholder={<Trans>Select</Trans>}
+            menuStyle={{ width: '250px', marginTop: '2px' }}
+            arrow="chevron"
+            arrowSize={16}
+            arrowColor={theme.border}
+          />
+        </HighlightWrapper>
       </Flex>
 
-      {metric !== null && metric.metric === Metric.FeeYield && <FeeYieldInput metric={metric} setMetric={setMetric} />}
+      {metric !== null && metric.metric === Metric.FeeYield && (
+        <FeeYieldInput metric={metric} setMetric={setMetric} isHighlighted={shouldHighlightInput} />
+      )}
 
       {metric !== null && metric.metric === Metric.PoolPrice && (
-        <PriceInput metric={metric} setMetric={setMetric} position={position} />
+        <PriceInput metric={metric} setMetric={setMetric} position={position} isHighlighted={shouldHighlightInput} />
       )}
 
       {metric !== null && metric.metric === Metric.Time && (
-        <TimeInput metric={metric} setMetric={setMetric} selectedMetric={selectedMetric} />
+        <TimeInput
+          metric={metric}
+          setMetric={setMetric}
+          selectedMetric={selectedMetric}
+          isHighlighted={shouldHighlightInput}
+        />
       )}
     </Flex>
   )

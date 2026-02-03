@@ -8,6 +8,7 @@ import { Box, Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import { HighlightWrapper } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import { calculateExpectedAmounts } from 'pages/Earns/components/SmartExit/Metrics/calculateExpectedAmounts'
 import { PriceCustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/styles'
 import { defaultPriceCondition } from 'pages/Earns/components/SmartExit/utils'
@@ -19,10 +20,12 @@ export default function PriceInput({
   metric,
   setMetric,
   position,
+  isHighlighted = false,
 }: {
   metric: SelectedMetric
   setMetric: (value: SelectedMetric) => void
   position: ParsedPosition
+  isHighlighted?: boolean
 }) {
   const theme = useTheme()
   const priceCondition = useMemo(() => getPriceCondition(metric) || defaultPriceCondition, [metric])
@@ -292,37 +295,41 @@ export default function PriceInput({
             Exit when {position.token0.symbol}/{position.token1.symbol}
           </Trans>
         </Text>
-        <Flex
-          sx={{
-            display: 'inline-flex',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            border: `1px solid ${theme.border}`,
-          }}
-        >
-          <PriceInputIcon onClick={() => handleComparatorChange('gte')} $active={comparator === 'gte'}>
-            ≥
-          </PriceInputIcon>
-          <PriceInputIcon onClick={() => handleComparatorChange('lte')} $active={comparator === 'lte'}>
-            ≤
-          </PriceInputIcon>
-        </Flex>
-        <PriceCustomInput
-          placeholder={`${position.token0.symbol}/${position.token1.symbol}`}
-          value={inputPrice}
-          onChange={e => {
-            const value = e.target.value
-            // Only allow numbers and decimal point
-            if (/^\d*\.?\d*$/.test(value)) {
-              setInputPrice(value)
-              const typedTick = priceToTick(value)
-              if (typedTick !== undefined) {
-                updateComparatorOnCross(typedTick, value) // change comparator immediately on cross
-              }
-            }
-          }}
-          onBlur={e => wrappedCorrectPrice(e.target.value)}
-        />
+        <HighlightWrapper isHighlighted={isHighlighted}>
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <Flex
+              sx={{
+                display: 'inline-flex',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                border: `1px solid ${theme.border}`,
+              }}
+            >
+              <PriceInputIcon onClick={() => handleComparatorChange('gte')} $active={comparator === 'gte'}>
+                ≥
+              </PriceInputIcon>
+              <PriceInputIcon onClick={() => handleComparatorChange('lte')} $active={comparator === 'lte'}>
+                ≤
+              </PriceInputIcon>
+            </Flex>
+            <PriceCustomInput
+              placeholder={`${position.token0.symbol}/${position.token1.symbol}`}
+              value={inputPrice}
+              onChange={e => {
+                const value = e.target.value
+                // Only allow numbers and decimal point
+                if (/^\d*\.?\d*$/.test(value)) {
+                  setInputPrice(value)
+                  const typedTick = priceToTick(value)
+                  if (typedTick !== undefined) {
+                    updateComparatorOnCross(typedTick, value) // change comparator immediately on cross
+                  }
+                }
+              }}
+              onBlur={e => wrappedCorrectPrice(e.target.value)}
+            />
+          </Flex>
+        </HighlightWrapper>
       </Flex>
 
       <Box>

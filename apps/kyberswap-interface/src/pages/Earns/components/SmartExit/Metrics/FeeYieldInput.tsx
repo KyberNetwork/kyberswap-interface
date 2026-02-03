@@ -3,6 +3,7 @@ import { Flex, Text } from 'rebass'
 import { useTheme } from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
+import { InlineHighlightWrapper } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import { FEE_YIELD_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomInput, CustomOption } from 'pages/Earns/components/SmartExit/styles'
 import { getFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
@@ -11,9 +12,11 @@ import { SelectedMetric } from 'pages/Earns/types'
 export default function FeeYieldInput({
   metric,
   setMetric,
+  isHighlighted = false,
 }: {
   metric: SelectedMetric
   setMetric: (value: SelectedMetric) => void
+  isHighlighted?: boolean
 }) {
   const feeYieldCondition = getFeeYieldCondition(metric) || ''
   const theme = useTheme()
@@ -65,32 +68,34 @@ export default function FeeYieldInput({
           />
           <Text> ≥</Text>
         </Flex>
-        <Flex sx={{ position: 'relative' }} flex={1}>
-          <CustomInput
-            value={feeYieldCondition}
-            onChange={e => {
-              const value = e.target.value
-              // Only allow numbers and decimal point
-              if (/^\d*\.?\d*$/.test(value)) {
-                const numValue = parseFloat(value)
-                // Allow 0-100%
-                if (value === '' || (!Number.isNaN(numValue) && numValue >= 0 && numValue <= 100)) {
-                  setMetric({ ...metric, condition: value })
+        <InlineHighlightWrapper isHighlighted={isHighlighted}>
+          <Flex sx={{ position: 'relative' }} flex={1}>
+            <CustomInput
+              value={feeYieldCondition}
+              onChange={e => {
+                const value = e.target.value
+                // Only allow numbers and decimal point
+                if (/^\d*\.?\d*$/.test(value)) {
+                  const numValue = parseFloat(value)
+                  // Allow 0-100%
+                  if (value === '' || (!Number.isNaN(numValue) && numValue >= 0 && numValue <= 100)) {
+                    setMetric({ ...metric, condition: value })
+                  }
                 }
-              }
-            }}
-            placeholder="Fee yield"
-          />
-          <Text
-            sx={{
-              top: '8px',
-              right: '8px',
-              position: 'absolute',
-            }}
-          >
-            %
-          </Text>
-        </Flex>
+              }}
+              placeholder="Fee yield"
+            />
+            <Text
+              sx={{
+                top: '8px',
+                right: '8px',
+                position: 'absolute',
+              }}
+            >
+              %
+            </Text>
+          </Flex>
+        </InlineHighlightWrapper>
       </Flex>
       <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
         {FEE_YIELD_PRESETS.map(item => {

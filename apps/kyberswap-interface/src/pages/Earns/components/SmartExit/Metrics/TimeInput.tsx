@@ -8,6 +8,7 @@ import { Flex, Text } from 'rebass'
 import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import useTheme from 'hooks/useTheme'
 import { DEFAULT_TIME_OPTIONS } from 'pages/Earns/components/SmartExit/ExpireSetting'
+import { HighlightWrapper } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import { CustomSelect } from 'pages/Earns/components/SmartExit/styles'
 import { defaultTimeCondition } from 'pages/Earns/components/SmartExit/utils'
 import { getTimeCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
@@ -17,10 +18,12 @@ export default function TimeInput({
   metric,
   setMetric,
   selectedMetric,
+  isHighlighted = false,
 }: {
   metric: SelectedMetric
   setMetric: (value: SelectedMetric) => void
   selectedMetric?: SelectedMetric | null
+  isHighlighted?: boolean
 }) {
   const theme = useTheme()
   const [openDatePicker, setOpenDatePicker] = useState(false)
@@ -63,23 +66,25 @@ export default function TimeInput({
       <Text>
         <Trans>Set Schedule</Trans>
       </Text>
-      <Flex
-        sx={{
-          borderRadius: '12px',
-          background: rgba(theme.text, 0.04),
-          padding: '8px 12px',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          cursor: 'pointer',
-        }}
-        role="button"
-        onClick={() => setOpenDatePicker(true)}
-      >
-        <Text color={timeCondition.time === null ? theme.border : theme.text}>
-          {timeCondition.time === null ? t`Pickup time` : dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}
-        </Text>
-        <Calendar color={theme.primary} size={20} />
-      </Flex>
+      <HighlightWrapper isHighlighted={isHighlighted}>
+        <Flex
+          sx={{
+            borderRadius: '12px',
+            background: rgba(theme.text, 0.04),
+            padding: '8px 12px',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            cursor: 'pointer',
+          }}
+          role="button"
+          onClick={() => setOpenDatePicker(true)}
+        >
+          <Text color={timeCondition.time === null ? theme.border : theme.text}>
+            {timeCondition.time === null ? t`Pickup time` : dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}
+          </Text>
+          <Calendar color={theme.primary} size={20} />
+        </Flex>
+      </HighlightWrapper>
 
       <DateTimePicker
         title={<Trans>Time Setup</Trans>}

@@ -10,6 +10,7 @@ import Actions from 'pages/Earns/components/SmartExit/Actions'
 import Confirmation from 'pages/Earns/components/SmartExit/Confirmation'
 import ExpireSetting from 'pages/Earns/components/SmartExit/ExpireSetting'
 import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
+import { GuidedHighlightProvider } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import Metrics from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
@@ -93,7 +94,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             isSuccess={smartExit.isSuccess}
           />
         ) : (
-          <>
+          <GuidedHighlightProvider selectedMetrics={selectedMetrics}>
             <Flex justifyContent="space-between" alignItems="center" mb="16px">
               <Text fontSize={20} fontWeight={500}>
                 <Trans>Set Up Smart Exit</Trans>
@@ -147,7 +148,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
               feeLoading={feeLoading}
               positionLoading={positionLoading}
             />
-          </>
+          </GuidedHighlightProvider>
         )}
       </Flex>
     </Modal>

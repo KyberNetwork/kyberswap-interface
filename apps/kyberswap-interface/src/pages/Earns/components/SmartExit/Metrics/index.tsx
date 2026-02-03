@@ -74,7 +74,13 @@ export default function Metrics({
 
   return (
     <Flex flexDirection="column">
-      <MetricSelect metric={metric1} setMetric={onChangeMetric1} selectedMetric={metric2} position={position} />
+      <MetricSelect
+        metric={metric1}
+        setMetric={onChangeMetric1}
+        selectedMetric={metric2}
+        position={position}
+        isFirstMetric
+      />
       {metric2 !== undefined ? (
         <>
           <Box py="1rem">
