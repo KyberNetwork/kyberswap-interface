@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import { useGetSmartExitConfigQuery } from 'services/smartExit'
 
 import { ButtonPrimary } from 'components/Button'
 import { useActiveWeb3React } from 'hooks'
@@ -11,7 +12,6 @@ import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Condition from 'pages/Earns/components/SmartExit/Confirmation/Condition'
 import MoreInfo from 'pages/Earns/components/SmartExit/Confirmation/MoreInfo'
 import Success from 'pages/Earns/components/SmartExit/Confirmation/Success'
-import { SMART_EXIT_ADDRESS } from 'pages/Earns/constants'
 import { ConditionType, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 
 export default function Confirmation({
@@ -40,10 +40,11 @@ export default function Confirmation({
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
+  const { data: smartExitConfig } = useGetSmartExitConfigQuery(position.chain.id)
   const { permitState, signPermitNft, permitData } = usePermitNft({
     contractAddress: position.positionId.split('-')[0],
     tokenId: position.tokenId,
-    spender: SMART_EXIT_ADDRESS,
+    spender: smartExitConfig?.smartIntentAddress ?? '',
     deadline,
   })
 

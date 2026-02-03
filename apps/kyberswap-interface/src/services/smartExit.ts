@@ -35,11 +35,33 @@ export interface SmartExitFeeParams {
   deadline: number
 }
 
+export interface SmartExitConfig {
+  smartIntentAddress: string
+  supportedDexes: Record<string, number[]>
+  enums: {
+    dexType: Array<{ key: string; index: number }>
+    orderStatus: Array<{ key: string; index: number }>
+    orderType: Array<{ key: string; index: number }>
+  }
+}
+
 const smartExitApi = createApi({
   reducerPath: 'smartExitApi',
   baseQuery: fetchBaseQuery({ baseUrl: SMART_EXIT_API_URL }),
   tagTypes: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
   endpoints: builder => ({
+    getSmartExitConfig: builder.query<SmartExitConfig, ChainId>({
+      query: chainId => ({
+        url: '/v1/configs/public',
+        params: { chainId },
+      }),
+      transformResponse: (data: any): SmartExitConfig => ({
+        smartIntentAddress: data?.data?.config?.smartIntentAddress ?? '',
+        supportedDexes: data?.data?.config?.supportedDexes ?? {},
+        enums: data?.data?.config?.enums ?? { dexType: [], orderStatus: [], orderType: [] },
+      }),
+    }),
+
     getSmartExitOrders: builder.query<SmartExitOrderResponse, SmartExitOrderParams>({
       query: ({ chainIds, dexTypes, userWallet, status, page = 1, pageSize = 10, positionIds }) => {
         const params = new URLSearchParams({
@@ -190,6 +212,7 @@ const smartExitApi = createApi({
 })
 
 export const {
+  useGetSmartExitConfigQuery,
   useGetSmartExitOrdersQuery,
   useLazyGetSmartExitOrdersQuery,
   useCreateSmartExitOrderMutation,
