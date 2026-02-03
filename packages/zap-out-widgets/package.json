@@ -39,6 +39,7 @@
     "@kyber/eslint-config": "workspace:*",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
+    "@kyber/token-selector": "workspace:^",
     "@kyber/ui": "workspace:^",
     "@kyber/schema": "workspace:^",
     "@kyberswap/liquidity-chart": "workspace:^",

@@ -1,3 +1,4 @@
+import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'

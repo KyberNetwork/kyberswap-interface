@@ -3,13 +3,8 @@ import { useState } from 'react';
 import { Trans, t } from '@lingui/macro';
 
 import { defaultToken } from '@kyber/schema';
-import {
-  StatusDialog,
-  StatusDialogType,
-  TOKEN_SELECT_MODE,
-  TokenSelectorModal,
-  translateFriendlyErrorMessage,
-} from '@kyber/ui';
+import TokenSelectorModal, { TOKEN_SELECT_MODE } from '@kyber/token-selector';
+import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import Action from '@/components/Action';

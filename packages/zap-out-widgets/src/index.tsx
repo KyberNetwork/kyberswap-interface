@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useMemo } from 'react';
 
 import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
+import '@kyber/token-selector/styles.css';
 import '@kyber/ui/styles.css';
 import { cn } from '@kyber/utils/tailwind-helpers';
 

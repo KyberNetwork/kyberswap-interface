@@ -1,5 +1,6 @@
 import { ChainId, POOL_CATEGORY, Token as TokenSchema } from '@kyber/schema'
-import { TOKEN_SELECT_MODE, TokenLogo, TokenSelectorModal } from '@kyber/ui'
+import TokenSelectorModal, { TOKEN_SELECT_MODE } from '@kyber/token-selector'
+import { TokenLogo } from '@kyber/ui'
 import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
 import { useQuery } from '@tanstack/react-query'

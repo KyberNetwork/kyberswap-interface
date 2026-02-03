@@ -1,4 +1,3 @@
-import { sassPlugin } from 'esbuild-sass-plugin';
 import { defineConfig } from 'tsup';
 
 // @ts-expect-error esbuild-plugin-babel does not provide TypeScript types
@@ -6,24 +5,15 @@ import babelPlugin from 'esbuild-plugin-babel';
 import { svgrPlugin } from '@kyber/svgr-esbuild-plugin';
 
 export default defineConfig({
-  entry: { 'zap-create-widget': 'src/index.tsx' },
+  entry: ['src/index.tsx'],
   format: ['esm', 'cjs'],
   outDir: 'dist',
   target: 'esnext',
   clean: true,
-  dts: true, // This generates type declaration files
-  minify: false, // Set to true if you want to minify the output
-  sourcemap: true,
-  onSuccess: 'tsc --noEmit',
-  external: ['react', 'react-dom'], // Externals
-  noExternal: ['@kyber/ui', '@kyber/utils', '@kyber/hooks', '@kyber/schema', '@kyber/token-selector', '@kyberswap/price-slider'],
-  loader: {
-    '.png': 'dataurl',
-  },
-
+  dts: true,
+  external: ['react', 'react-dom', '@lingui/core', '@lingui/react', '@kyber/ui', '@kyber/hooks', '@kyber/schema', '@kyber/utils'],
   esbuildPlugins: [
     svgrPlugin(),
-    sassPlugin(),
     babelPlugin({
       filter: /\.[jt]sx?$/,
       config: {
@@ -38,17 +28,12 @@ export default defineConfig({
     }),
   ],
   esbuildOptions(options) {
-    options.globalName = 'ZapCreateWidget';
+    options.globalName = 'TokenSelector';
     options.define = {
       global: 'globalThis',
     };
     options.supported = {
       bigint: true,
     };
-  },
-  banner: {
-    js: `
-      // eslint-disable
-    `,
   },
 });

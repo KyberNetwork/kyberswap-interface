@@ -3,7 +3,8 @@ import { useCallback, useState } from 'react';
 import { Trans, t } from '@lingui/macro';
 
 import { defaultToken } from '@kyber/schema';
-import { InfoHelper, MAX_TOKENS, TOKEN_SELECT_MODE, TokenSelectorModal } from '@kyber/ui';
+import TokenSelectorModal, { MAX_TOKENS, TOKEN_SELECT_MODE } from '@kyber/token-selector';
+import { InfoHelper } from '@kyber/ui';
 
 import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/TokenInput/LiquidityToAdd';
 import { useZapState } from '@/hooks/useZapState';
@@ -102,8 +103,9 @@ export default function TokenInput({ className }: { className?: string }) {
           selectedTokenAddress={tokenAddressSelected}
           positionId={positionId}
           poolAddress={poolAddress}
+          showUserPositions={!!onOpenZapMigration}
           onConnectWallet={onConnectWallet}
-          onOpenZapMigration={onOpenZapMigration ? handleOpenZapMigration : undefined}
+          onSelectLiquiditySource={onOpenZapMigration ? handleOpenZapMigration : undefined}
           onClose={onCloseTokenSelectModal}
           token0Address={token0.address}
           token1Address={token1.address}
