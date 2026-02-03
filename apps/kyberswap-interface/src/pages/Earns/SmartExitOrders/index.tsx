@@ -40,7 +40,7 @@ import { friendlyError } from 'utils/errorMessage'
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 1fr 0.6fr 0.7fr 0.5fr 0.5fr 40px;
+  grid-template-columns: 40px 1.2fr 1fr 0.6fr 0.7fr 0.5fr 0.5fr 40px;
   color: ${({ theme }) => theme.subText};
   padding: 16px 0;
   gap: 1rem;
@@ -273,6 +273,7 @@ const SmartExit = () => {
       <TableWrapper style={tableWrapperStyle}>
         {!upToMedium && (
           <TableHeader>
+            <Text>#</Text>
             <Text>
               <Trans>Position</Trans>
             </Text>
@@ -322,8 +323,14 @@ const SmartExit = () => {
             </Flex>
           </EmptyStateWrapper>
         ) : (
-          renderedOrders.map(order => (
-            <OrderItem key={order.id} order={order} upToMedium={upToMedium} onDelete={handleDeleteRequest} />
+          renderedOrders.map((order, index) => (
+            <OrderItem
+              key={order.id}
+              order={order}
+              index={index + 1}
+              upToMedium={upToMedium}
+              onDelete={handleDeleteRequest}
+            />
           ))
         )}
 

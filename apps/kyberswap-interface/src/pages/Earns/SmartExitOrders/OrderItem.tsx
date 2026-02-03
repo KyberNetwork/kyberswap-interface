@@ -59,7 +59,7 @@ const ExternalLinkWrapper = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 1fr 0.6fr 0.7fr 0.5fr 0.5fr 40px;
+  grid-template-columns: 40px 1.2fr 1fr 0.6fr 0.7fr 0.5fr 0.5fr 40px;
   color: ${({ theme }) => theme.text};
   padding: 16px 0;
   gap: 1rem;
@@ -71,6 +71,7 @@ type ConditionLogical = SmartExitOrder['condition']['logical']
 
 type OrderItemProps = {
   order: ParsedSmartExitOrder
+  index: number
   upToMedium: boolean
   onDelete: (order: ParsedSmartExitOrder) => void
 }
@@ -285,7 +286,7 @@ const TitleContent = ({ order, tokenId }: { order: ParsedSmartExitOrder; tokenId
   )
 }
 
-const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) => {
+const OrderItem = React.memo(({ order, index, upToMedium, onDelete }: OrderItemProps) => {
   const theme = useTheme()
   const tokenId = order.positionId.split('-')[1]
   const executedAmounts = order.executions[0]?.extraData?.executedAmounts
@@ -383,6 +384,7 @@ const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) =
 
   return (
     <TableRow key={order.id}>
+      <Text color={theme.subText}>{index}</Text>
       <div>{title}</div>
       {condition}
       {currentValue}
