@@ -31,7 +31,10 @@ const TokenInfoLoader = () => (
     </div>
     <div className="flex flex-col gap-3 px-[26px] py-[14px]">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="flex items-center justify-between animate-pulse">
+        <div
+          key={i}
+          className="flex items-center justify-between animate-pulse"
+        >
           <div className="w-28 h-3 rounded bg-stroke" />
           <div className="w-20 h-3 rounded bg-stroke" />
         </div>
@@ -56,6 +59,7 @@ const TokenModal = ({
   token0Address = "",
   token1Address = "",
   showUserPositions = false,
+  positionsOnly = false,
   setTokensIn,
   setAmountsIn,
   onTokenSelect,
@@ -183,6 +187,7 @@ const TokenModal = ({
             token1Address={token1Address}
             poolAddress={poolAddress}
             showUserPositions={showUserPositions}
+            positionsOnly={positionsOnly}
             onTokenSelect={onTokenSelect}
             onConnectWallet={onConnectWallet}
             onSelectLiquiditySource={onSelectLiquiditySource}

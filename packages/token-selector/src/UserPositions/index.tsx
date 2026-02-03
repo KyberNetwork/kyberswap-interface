@@ -153,6 +153,7 @@ const PositionRow = memo(function PositionRow({
               positionId: !isUniV2 ? position.tokenId : account!,
             },
             initialSlippage,
+            position,
           );
         }}
       >

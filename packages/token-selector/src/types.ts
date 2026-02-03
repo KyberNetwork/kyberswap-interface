@@ -123,6 +123,7 @@ interface SuggestedPool {
 export type OnSelectLiquiditySource = (
   position: { exchange: string; poolId: string; positionId: string | number },
   initialSlippage?: number,
+  earnPosition?: EarnPosition,
 ) => void;
 
 // Main TokenSelectorModal props
@@ -150,6 +151,7 @@ export interface TokenSelectorModalProps {
 
   // User position features (optional)
   showUserPositions?: boolean;
+  positionsOnly?: boolean; // When true, only show Positions tab (hide Tokens tab)
   positionId?: string;
   poolAddress?: string;
   initialSlippage?: number;

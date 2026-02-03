@@ -159,6 +159,7 @@ export default function TokenSelector({
   token0Address = "",
   token1Address = "",
   showUserPositions = false,
+  positionsOnly = false,
   selectedTokens,
   setTokensIn,
   setAmountsIn,
@@ -189,7 +190,7 @@ export default function TokenSelector({
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
   const [tabSelected, setTabSelected] = useState<TOKEN_TAB>(TOKEN_TAB.ALL);
   const [modalTabSelected, setModalTabSelected] = useState<MODAL_TAB>(
-    MODAL_TAB.TOKENS,
+    positionsOnly ? MODAL_TAB.POSITIONS : MODAL_TAB.TOKENS,
   );
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string>("");
@@ -541,7 +542,7 @@ export default function TokenSelector({
           </div>
         </div>
 
-        {showUserPositions && onSelectLiquiditySource && (
+        {showUserPositions && onSelectLiquiditySource && !positionsOnly && (
           <div className="border rounded-full p-[2px] flex mx-6 text-sm gap-1 border-icon-200">
             <div
               className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
@@ -576,7 +577,9 @@ export default function TokenSelector({
           )}
 
         {modalTabSelected === MODAL_TAB.POSITIONS && (
-          <p className="text-sm text-subText px-6">
+          <p
+            className={`text-sm text-subText px-6 ${positionsOnly ? "!-mt-2" : ""}`}
+          >
             {i18n._(
               "Use your existing liquidity positions from supported protocols as a source.",
             )}
