@@ -8,8 +8,6 @@ export {
   InlineHighlightWrapper,
 } from 'pages/Earns/components/SmartExit/GuidedHighlight/HighlightWrapper'
 
-const SESSION_KEY = 'smart_exit_guided_shown'
-
 export type HighlightStep = 'metric-select' | 'metric-input' | 'both' | 'none'
 
 interface GuidedHighlightContextValue {
@@ -62,21 +60,13 @@ interface GuidedHighlightProviderProps {
 }
 
 export const GuidedHighlightProvider = ({ children, selectedMetrics }: GuidedHighlightProviderProps) => {
-  const [isHighlightEnabled, setIsHighlightEnabled] = useState(false)
+  // Always enable highlight when modal opens
+  const [isHighlightEnabled, setIsHighlightEnabled] = useState(true)
   const [hasUserFilledCondition, setHasUserFilledCondition] = useState(false)
 
   // Track metric changes to re-trigger animation
   const prevMetricRef = useRef<Metric | null>(null)
   const [animationKey, setAnimationKey] = useState(0)
-
-  // Check session storage on mount
-  useEffect(() => {
-    const hasShown = sessionStorage.getItem(SESSION_KEY)
-    if (!hasShown) {
-      setIsHighlightEnabled(true)
-      sessionStorage.setItem(SESSION_KEY, 'true')
-    }
-  }, [])
 
   // Track metric changes and condition fills
   useEffect(() => {
