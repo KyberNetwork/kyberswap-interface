@@ -329,7 +329,7 @@ const SmartExit = () => {
             <OrderItem
               key={order.id}
               order={order}
-              index={index + 1}
+              index={(currentPage - 1) * SMART_EXIT_ORDERS_PAGE_SIZE + index + 1}
               upToMedium={upToMedium}
               onDelete={handleDeleteRequest}
             />
