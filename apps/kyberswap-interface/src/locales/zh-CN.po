@@ -32,7 +32,7 @@ msgstr "质押流动性"
 
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
-msgstr "请在下方输入“确认”以启用 "高风险" 模式"
+msgstr "请在下方输入“Confirm”以启用 "高风险" 模式"
 
 #: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "You need to first allow KyberSwap smart contracts to use your {inSymbol}. This has to be done only once for each token."
