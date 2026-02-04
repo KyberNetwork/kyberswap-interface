@@ -29,6 +29,7 @@ import { NavigateButton, PoolPageWrapper, StyledNavigateButton, TableWrapper } f
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/SmartExitOrders/Filter'
 import OrderItem from 'pages/Earns/SmartExitOrders/OrderItem'
+import { ORDERS_TABLE_GRID_COLUMNS } from 'pages/Earns/SmartExitOrders/constants'
 import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { useSmartExitOrdersData } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { SmartExit as SmartExitModal } from 'pages/Earns/components/SmartExit'
@@ -40,7 +41,7 @@ import { friendlyError } from 'utils/errorMessage'
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 40px 1.2fr 1fr 0.6fr 0.7fr 0.5fr 0.5fr 40px;
+  grid-template-columns: ${ORDERS_TABLE_GRID_COLUMNS};
   color: ${({ theme }) => theme.subText};
   padding: 16px 0;
   gap: 1rem;
@@ -233,6 +234,7 @@ const SmartExit = () => {
     () => ({
       position: 'absolute' as const,
       inset: 0,
+      zIndex: 10,
       backdropFilter: overlayLoading ? 'blur(1px)' : 'none',
       opacity: overlayLoading ? 1 : 0,
       pointerEvents: overlayLoading ? ('auto' as const) : ('none' as const),

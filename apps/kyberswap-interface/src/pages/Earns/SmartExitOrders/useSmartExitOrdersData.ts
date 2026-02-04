@@ -5,9 +5,54 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
-import { ParsedPosition, PositionStatus, SmartExitFilter, SmartExitOrder, UserPosition } from 'pages/Earns/types'
+import {
+  OrderStatus,
+  ParsedPosition,
+  PositionStatus,
+  SmartExitFilter,
+  SmartExitOrder,
+  UserPosition,
+} from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { friendlyError } from 'utils/errorMessage'
+
+/**
+ * For executed orders, the position may be closed and `earningFeeYield` from position data
+ * could be undefined/NaN (since totalProvide becomes 0 for closed positions).
+ *
+ * When an order is executed, it means the fee yield condition was met (actual yield >= target).
+ * Since we cannot calculate the exact yield at execution time from closed position data,
+ * we return the target yield from the condition as a lower bound representation.
+ *
+ * This is a reasonable approximation because:
+ * 1. The order executed, so the condition was satisfied (actual >= target)
+ * 2. The target yield is what the user set as their exit threshold
+ * 3. Displaying the target provides meaningful context about why the order triggered
+ */
+const getExecutedOrderFeeYield = (order: SmartExitOrder): number | undefined => {
+  const execution = order.executions[0]
+  if (!execution?.extraData) return undefined
+
+  const { executedAmounts, receivedAmounts, tokensInfo } = execution.extraData
+  if (!executedAmounts || !tokensInfo || executedAmounts.length < 2 || tokensInfo.length < 2) {
+    return undefined
+  }
+
+  const executedUsd =
+    parseFloat(executedAmounts[0]?.amountUsd || '0') + parseFloat(executedAmounts[1]?.amountUsd || '0')
+  const receivedUsd =
+    parseFloat(receivedAmounts?.[0]?.amountUsd || '0') + parseFloat(receivedAmounts?.[1]?.amountUsd || '0')
+
+  // Verify we have valid execution data before returning the target yield
+  if (receivedUsd > 0 || executedUsd > 0) {
+    const feeYieldCondition = order.condition.logical.conditions.find(c => c.field.type === 'fee_yield')
+    if (feeYieldCondition) {
+      return feeYieldCondition.field.value.gte
+    }
+  }
+
+  return undefined
+}
 
 // Parsed order with position data aggregated
 export type ParsedSmartExitOrder = SmartExitOrder & {
@@ -19,6 +64,10 @@ export type ParsedSmartExitOrder = SmartExitOrder & {
     poolFee: ParsedPosition['pool']['fee']
     status: ParsedPosition['status']
     currentValue: ParsedPosition['currentValue']
+    // Can be undefined for executed orders where position is closed and yield cannot be calculated
+    earningFeeYield: ParsedPosition['earningFeeYield'] | undefined
+    priceRange: ParsedPosition['priceRange']
+    tickSpacing: ParsedPosition['pool']['tickSpacing']
   }
 }
 
@@ -156,6 +205,16 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
     return orders.map(order => {
       const parsedPos = parsedPositionsById[order.positionId.toLowerCase()]
 
+      // For executed orders where position is closed, earningFeeYield may be invalid.
+      // Fall back to the target yield from the order condition as a lower bound.
+      let earningFeeYield: number | undefined = parsedPos?.earningFeeYield
+      if (
+        order.status === OrderStatus.OrderStatusDone &&
+        (earningFeeYield === undefined || !isFinite(earningFeeYield) || isNaN(earningFeeYield))
+      ) {
+        earningFeeYield = getExecutedOrderFeeYield(order)
+      }
+
       const enrichedOrder: ParsedSmartExitOrder = {
         ...order,
         position: parsedPos
@@ -167,6 +226,9 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
               poolFee: parsedPos.pool.fee,
               status: parsedPos.status,
               currentValue: parsedPos.currentValue,
+              earningFeeYield: earningFeeYield,
+              priceRange: parsedPos.priceRange,
+              tickSpacing: parsedPos.pool.tickSpacing,
             }
           : undefined,
       }

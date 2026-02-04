@@ -1,24 +1,17 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import React from 'react'
 import { ExternalLink, Trash2 } from 'react-feather'
-import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
-import TokenLogo from 'components/TokenLogo'
-import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import ConditionContent from 'pages/Earns/SmartExitOrders/components/ConditionContent'
+import TitleContent from 'pages/Earns/SmartExitOrders/components/TitleContent'
+import { ORDERS_TABLE_GRID_COLUMNS } from 'pages/Earns/SmartExitOrders/constants'
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
-import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
-import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
-import { OrderStatus, PositionStatus, SmartExitOrder } from 'pages/Earns/types'
-import { getDexVersion } from 'pages/Earns/utils/position'
+import { Badge, BadgeType } from 'pages/Earns/UserPositions/styles'
+import { OrderStatus, SmartExitOrder } from 'pages/Earns/types'
 import { getEtherscanLink } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -59,7 +52,7 @@ const ExternalLinkWrapper = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 40px 1.2fr 1fr 0.6fr 0.7fr 0.5fr 0.5fr 40px;
+  grid-template-columns: ${ORDERS_TABLE_GRID_COLUMNS};
   color: ${({ theme }) => theme.text};
   padding: 16px 0;
   gap: 1rem;
@@ -67,102 +60,11 @@ const TableRow = styled.div`
   align-items: center;
 `
 
-type ConditionLogical = SmartExitOrder['condition']['logical']
-
 type OrderItemProps = {
   order: ParsedSmartExitOrder
   index: number
   upToMedium: boolean
   onDelete: (order: ParsedSmartExitOrder) => void
-}
-
-// Map SmartExitDexType to Exchange - memoized once
-const DEX_TYPE_TO_EXCHANGE_MAP = Object.entries(EARN_DEXES).reduce((acc, [exchange, dexInfo]) => {
-  if (dexInfo.smartExitDexType) {
-    acc[dexInfo.smartExitDexType] = exchange as Exchange
-  }
-  return acc
-}, {} as Record<SmartExitDexType, Exchange>)
-
-// Map SmartExitDexType to Exchange and get dex info
-const getDexInfoFromDexType = (dexType: string) => {
-  const exchange = DEX_TYPE_TO_EXCHANGE_MAP[dexType as SmartExitDexType]
-  if (!exchange) return null
-
-  const dexInfo = EARN_DEXES[exchange]
-  return { exchange, dexInfo }
-}
-
-const ConditionContent = ({ logical }: { logical: ConditionLogical }) => {
-  const theme = useTheme()
-  const { conditions, op } = logical
-
-  return (
-    <Flex flexDirection="column" sx={{ gap: '4px', fontSize: '14px' }}>
-      {conditions.map((c, i) => {
-        if (c.field.type === 'fee_yield')
-          return (
-            <Text color={theme.subText} key={`${c.field.type}-${i}`}>
-              The{' '}
-              <Text as="span" color={theme.text}>
-                fee yield ≥ {Number(c.field.value.gte.toFixed(2))}%
-              </Text>{' '}
-              {i !== conditions.length - 1 && (
-                <Text as="span" fontWeight={500} color={theme.text}>
-                  {op.toUpperCase()}
-                </Text>
-              )}
-            </Text>
-          )
-
-        if (c.field.type === 'pool_price')
-          return (
-            <Text color={theme.subText} key={`${c.field.type}-${i}`}>
-              Pool price is {c.field.value.lte ? '≤' : '≥'}{' '}
-              <Text as="span" color={theme.text}>
-                {formatDisplayNumber(c.field.value.gte || c.field.value.lte, { significantDigits: 6 })}
-              </Text>{' '}
-              {i !== conditions.length - 1 && (
-                <Text as="span" fontWeight={500} color={theme.text}>
-                  {op.toUpperCase()}
-                </Text>
-              )}
-            </Text>
-          )
-
-        if (c.field.type === 'time')
-          return (
-            <React.Fragment key={`${c.field.type}-${i}`}>
-              <Text color={theme.subText} sx={{ gap: '4px' }}>
-                {c.field.value.lte > 0 && c.field.value.lte < 4914460753 ? (
-                  <>
-                    <Trans>Before</Trans>{' '}
-                    <Text as="span" color={theme.text}>
-                      {dayjs(c.field.value.lte * 1000).format('DD/MM/YYYY HH:mm:ss')}
-                    </Text>
-                  </>
-                ) : null}
-
-                {c.field.value.gte > 0 && c.field.value.gte < 4914460753 ? (
-                  <Text>
-                    <Trans>After</Trans>{' '}
-                    <Text as="span" color={theme.text}>
-                      {dayjs(c.field.value.gte * 1000).format('DD/MM/YYYY HH:mm:ss')}
-                    </Text>
-                  </Text>
-                ) : null}
-              </Text>
-              {i !== conditions.length - 1 && (
-                <Text fontWeight={500} color={theme.text} mt="4px">
-                  {op.toUpperCase()}
-                </Text>
-              )}
-            </React.Fragment>
-          )
-        return null
-      })}
-    </Flex>
-  )
 }
 
 const StatusContent = ({ order }: { order: SmartExitOrder }) => (
@@ -200,91 +102,6 @@ const StatusContent = ({ order }: { order: SmartExitOrder }) => (
     ) : null}
   </Flex>
 )
-
-const TitleContent = ({ order, tokenId }: { order: ParsedSmartExitOrder; tokenId: string }) => {
-  const theme = useTheme()
-
-  if (!order.position) {
-    // Show placeholder with order info when position is not available
-    const chainInfo = NETWORKS_INFO[order.chainId as ChainId]
-    const dexMapping = getDexInfoFromDexType(order.dexType)
-    const dexVersion = dexMapping ? getDexVersion(dexMapping.exchange) : ''
-
-    return (
-      <>
-        <Flex alignItems="center" sx={{ opacity: 0.6 }}>
-          <ImageContainer>
-            <TokenLogo src={UnknownToken} size={24} style={{ opacity: 0.6 }} />
-            <TokenLogo src={UnknownToken} size={24} translateLeft style={{ opacity: 0.6 }} />
-            {chainInfo?.icon && (
-              <TokenLogo src={chainInfo.icon} size={12} translateLeft translateTop style={{ opacity: 0.6 }} />
-            )}
-          </ImageContainer>
-          <Text mr="8px" color={theme.subText} fontStyle="italic">
-            <Trans>Position</Trans> #{tokenId}
-          </Text>
-        </Flex>
-        <Flex alignItems="center" sx={{ gap: '4px', opacity: 0.6 }} mt="4px" ml="1rem">
-          {dexMapping?.dexInfo.logo && <TokenLogo src={dexMapping.dexInfo.logo} size={16} style={{ opacity: 0.6 }} />}
-          {dexVersion && (
-            <Text color={theme.subText} fontStyle="italic" fontSize={14}>
-              {dexVersion}
-            </Text>
-          )}
-        </Flex>
-      </>
-    )
-  }
-
-  const posDetail = order.position
-  const protocol = getDexVersion(posDetail.dex.id)
-  const posStatus = posDetail.status || PositionStatus.IN_RANGE
-
-  // Build position detail URL
-  const positionDetailUrl = APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', order.positionId)
-    .replace(':chainId', order.chainId.toString())
-    .replace(':exchange', posDetail.dex.id)
-
-  return (
-    <>
-      <Flex alignItems="center">
-        <ImageContainer>
-          <TokenLogo src={posDetail.token0.logo} />
-          <TokenLogo src={posDetail.token1.logo} translateLeft />
-          <TokenLogo src={posDetail.chain.logo} size={12} translateLeft translateTop />
-        </ImageContainer>
-        <Link to={positionDetailUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <Text mr="8px" sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}>
-            {posDetail.token0.symbol}/{posDetail.token1.symbol}
-          </Text>
-        </Link>
-        <Badge>Fee {posDetail.poolFee}%</Badge>
-      </Flex>
-      <Flex alignItems="center" sx={{ gap: '4px' }} mt="4px" ml="1rem">
-        <TokenLogo src={posDetail.dex.logo} size={16} />
-        <Text color={theme.subText}>
-          {protocol} #{tokenId}
-        </Text>
-        <Badge
-          type={
-            posStatus === PositionStatus.IN_RANGE
-              ? BadgeType.PRIMARY
-              : posStatus === PositionStatus.OUT_RANGE
-              ? BadgeType.WARNING
-              : BadgeType.DISABLED
-          }
-        >
-          ●{' '}
-          {posStatus === PositionStatus.IN_RANGE
-            ? t`In range`
-            : posStatus === PositionStatus.OUT_RANGE
-            ? t`Out of range`
-            : t`Closed`}
-        </Badge>
-      </Flex>
-    </>
-  )
-}
 
 const OrderItem = React.memo(({ order, index, upToMedium, onDelete }: OrderItemProps) => {
   const theme = useTheme()
@@ -339,7 +156,9 @@ const OrderItem = React.memo(({ order, index, upToMedium, onDelete }: OrderItemP
       <div />
     )
 
-  const condition = <ConditionContent logical={order.condition.logical} />
+  const condition = (
+    <ConditionContent logical={order.condition.logical} position={order.position} upToMedium={upToMedium} />
+  )
   const status = <StatusContent order={order} />
   const title = <TitleContent order={order} tokenId={tokenId} />
 
