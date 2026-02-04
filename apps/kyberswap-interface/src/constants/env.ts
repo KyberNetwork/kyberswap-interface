@@ -163,7 +163,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
 
 export const ENV_KEY: EnvKeys = import.meta.env.VITE_ENV
 
-const NOTI_ENV = NOTIFICATION_API.includes('pre-') ? EnvKeys.STG : EnvKeys.PROD
+export const NOTI_ENV = NOTIFICATION_API.includes('pre-') ? EnvKeys.STG : EnvKeys.PROD
 
 export const getAnnouncementsTemplateIds = (type: keyof TemplateConfig) => {
   return ANNOUNCEMENT_TEMPLATE_IDS[NOTI_ENV]?.[type]

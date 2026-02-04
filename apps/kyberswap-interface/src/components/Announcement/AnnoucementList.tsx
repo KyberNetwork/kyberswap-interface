@@ -30,7 +30,7 @@ export enum Category {
 const getViewHeight = (category: Category | null) => {
   if (category === Category.EARN_POSITION) return 112
   if (category === Category.LIMIT_ORDER) return 150
-  if (category === Category.SMART_EXIT) return 112
+  if (category === Category.SMART_EXIT) return 120
   return 128
 }
 

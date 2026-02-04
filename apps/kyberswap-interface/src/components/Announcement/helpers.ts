@@ -1,10 +1,18 @@
+import { t } from '@lingui/macro'
+import dayjs from 'dayjs'
+
 import {
   AnnouncementTemplateLimitOrder,
   AnnouncementTemplateSmartExit,
   PoolPositionAnnouncement,
   PrivateAnnouncement,
+  SmartExitReason,
+  SmartExitStatus,
 } from 'components/Announcement/type'
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { EnvKeys, NOTI_ENV } from 'constants/env'
+import { Metric, SmartExitCondition } from 'pages/Earns/types'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export const getEarnPosition = (announcement?: PrivateAnnouncement): PoolPositionAnnouncement | undefined => {
   const body = announcement?.templateBody as unknown
@@ -55,7 +63,98 @@ export const getSmartExitPreview = (
   const token0 = body?.position.pool.token0.symbol
   const token1 = body?.position.pool.token1.symbol
   const pair = token0 && token1 ? `${token0}/${token1}` : undefined
-  const note = body?.reason || body?.order.conditionText
+  const status = getSmartExitStatusFromTemplateId(announcement?.templateId)
+  const note = getSmartExitStatusMessage(status)
   if (!pair && !note) return undefined
   return { pair, note }
+}
+
+export const getSmartExitStatusFromTemplateId = (templateId?: number): SmartExitStatus => {
+  if (!templateId) return SmartExitStatus.UNKNOWN
+  if (NOTI_ENV === EnvKeys.PROD) return SmartExitStatus.UNKNOWN
+
+  if (templateId === 12) return SmartExitStatus.CREATED
+  if (templateId === 13) return SmartExitStatus.NOT_EXECUTED
+  if (templateId === 14) return SmartExitStatus.EXECUTED
+  if (templateId === 15) return SmartExitStatus.EXPIRED
+  if (templateId === 16) return SmartExitStatus.CANCELLED
+  return SmartExitStatus.UNKNOWN
+}
+
+export const getSmartExitStatusMessage = (status: SmartExitStatus) => {
+  switch (status) {
+    case SmartExitStatus.CREATED:
+      return t`Smart Exit created`
+    case SmartExitStatus.EXECUTED:
+      return t`Smart Exit executed`
+    case SmartExitStatus.NOT_EXECUTED:
+      return t`Smart Exit not executed`
+    case SmartExitStatus.EXPIRED:
+      return t`Smart Exit expired`
+    case SmartExitStatus.CANCELLED:
+      return t`Smart Exit cancelled`
+    default:
+      return t`Smart Exit updated`
+  }
+}
+
+export const getSmartExitConditionText = (condition?: SmartExitCondition, fallbackText?: string) => {
+  const logical = condition?.logical
+  if (!logical?.conditions?.length) return fallbackText
+
+  const parts = logical.conditions
+    .map((item, index) => {
+      const field = item?.field
+      if (!field) return null
+
+      if (field.type === Metric.FeeYield) {
+        const value = Number(field.value?.gte)
+        if (!Number.isFinite(value)) return null
+        return `Yield ≥ ${Number(value.toFixed(2))}%`
+      }
+
+      if (field.type === Metric.PoolPrice) {
+        const raw = field.value?.gte ?? field.value?.lte
+        if (raw === undefined || raw === null) return null
+        const operator = field.value?.lte ? '≤' : '≥'
+        return `Price ${operator} ${formatDisplayNumber(raw, { significantDigits: 6 })}`
+      }
+
+      if (field.type === Metric.Time) {
+        const raw = field.value?.lte ?? field.value?.gte
+        if (!raw) return null
+        const formattedTime = dayjs(raw * 1000).format('DD/MM/YYYY HH:mm:ss')
+        const label = field.value?.lte ? 'Before' : 'After'
+        const displayLabel = index === 0 ? label : label.toLowerCase()
+        return `${displayLabel} ${formattedTime}`
+      }
+
+      return null
+    })
+    .filter((part): part is string => Boolean(part))
+
+  if (!parts.length) return fallbackText
+  const op = logical.op ? logical.op.toUpperCase() : 'AND'
+  return parts.join(` ${op} `)
+}
+
+export const getSmartExitReasonText = (reason?: SmartExitReason | string, status?: SmartExitStatus) => {
+  if (status === SmartExitStatus.EXPIRED) return t`Expiry reached`
+  if (!reason) return undefined
+  switch (reason) {
+    case SmartExitReason.CancelledByYou:
+      return t`Cancelled by you`
+    case SmartExitReason.LiquidityChanged:
+      return t`Liquidity changed`
+    case SmartExitReason.ConditionNeverMet:
+      return t`Condition never met`
+    case SmartExitReason.OwnerChanged:
+      return t`Owner changed`
+    case SmartExitReason.MaxGasFeeExceeded:
+      return t`Max gas fee exceeded (retrying)`
+    case SmartExitReason.ExpiryReached:
+      return t`Expiry reached`
+    default:
+      return reason
+  }
 }

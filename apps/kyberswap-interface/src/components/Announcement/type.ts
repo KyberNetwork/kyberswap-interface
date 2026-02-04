@@ -1,6 +1,8 @@
 import { ReactNode } from 'react'
 
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
+import { SmartExitCondition } from 'pages/Earns/types'
 import { HistoricalPriceAlert } from 'pages/NotificationCenter/const'
 
 export type Announcement = {
@@ -17,6 +19,24 @@ export enum PrivateAnnouncementType {
   POSITION_STATUS = 'POSITION_STATUS',
   PRICE_ALERT = 'PRICE_ALERT',
   DIRECT_MESSAGE = 'DIRECT_MESSAGE',
+}
+
+export enum SmartExitReason {
+  CancelledByYou = 'CANCELLED_BY_YOU',
+  LiquidityChanged = 'LIQUIDITY_CHANGED',
+  ConditionNeverMet = 'CONDITION_NEVER_MET',
+  OwnerChanged = 'OWNER_CHANGED',
+  MaxGasFeeExceeded = 'MAX_GAS_EXCEEDED',
+  ExpiryReached = 'EXPIRY_REACHED',
+}
+
+export enum SmartExitStatus {
+  CREATED = 'CREATED',
+  EXECUTED = 'EXECUTED',
+  NOT_EXECUTED = 'NOT_EXECUTED',
+  EXPIRED = 'EXPIRED',
+  CANCELLED = 'CANCELLED',
+  UNKNOWN = 'UNKNOWN',
 }
 
 export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTemplate> = {
@@ -79,7 +99,11 @@ export type AnnouncementTemplateLimitOrder = {
 
 export type SmartExitOrder = {
   id: string
-  conditionText?: string
+  condition?: SmartExitCondition
+  execution?: {
+    receivedAmount0?: string
+    receivedAmount1?: string
+  }
 }
 
 export type SmartExitPosition = {
@@ -90,15 +114,14 @@ export type SmartExitPosition = {
     token1: { symbol: string; logo: string }
   }
   chain: { id: string; logo: string; name: string }
-  dex: { logo: string; type: string }
+  dex: { logo: string; type: SmartExitDexType }
 }
 
 export type AnnouncementTemplateSmartExit = {
   order: SmartExitOrder
   position: SmartExitPosition
   popupType: PopupType
-  reason?: string
-  received?: string
+  reason?: SmartExitReason
 }
 
 export type TokenInfoWatchlist = {

@@ -14,12 +14,21 @@ import {
   RowItem,
   StatusTitle,
 } from 'components/Announcement/PrivateAnnoucement/styled'
+import {
+  getSmartExitConditionText,
+  getSmartExitReasonText,
+  getSmartExitStatusFromTemplateId,
+  getSmartExitStatusMessage,
+} from 'components/Announcement/helpers'
 import { AnnouncementTemplateSmartExit } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import TokenLogo from 'components/TokenLogo'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { Exchange } from 'pages/Earns/constants'
+import { EARN_DEXES, SMART_EXIT_DEX_TYPE_TO_EXCHANGE } from 'pages/Earns/constants'
 import { getDexVersion } from 'pages/Earns/utils/position'
+import { formatDisplayNumber } from 'utils/numbers'
+import { useNavigateToUrl } from 'utils/redirect'
 
 const InboxItemSmartExit = ({
   announcement,
@@ -30,12 +39,24 @@ const InboxItemSmartExit = ({
   onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplateSmartExit>) => {
   const theme = useTheme()
+  const navigate = useNavigateToUrl()
   const { templateBody, isRead, templateType } = announcement
-  const { position, order, reason, received } = templateBody || {}
+  const { position, order, reason } = templateBody || {}
 
-  const statusMessage = getStatusMessage(reason, received)
+  if (!position || !order) return null
+
+  const orderStatus = getSmartExitStatusFromTemplateId(announcement.templateId)
+  const statusMessage = getSmartExitStatusMessage(orderStatus)
+  const conditionText = getSmartExitConditionText(order.condition)
+  const reasonText = getSmartExitReasonText(reason, orderStatus)
+  const receivedText = getReceivedText(order.execution, position.pool.token0.symbol, position.pool.token1.symbol)
+
+  const exchange = SMART_EXIT_DEX_TYPE_TO_EXCHANGE[position.dex.type]
+  const dexInfo = EARN_DEXES[exchange]
+  const dexVersion = getDexVersion(exchange)
 
   const onClick = () => {
+    navigate(`${APP_PATHS.EARN_SMART_EXIT}?orderId=${order.id}`)
     onRead(announcement, statusMessage)
   }
 
@@ -68,9 +89,9 @@ const InboxItemSmartExit = ({
           </PrimaryText>
 
           <Flex alignItems="center" p="4px 8px" bg={rgba(theme.white, 0.05)} sx={{ gap: 1, borderRadius: 12 }}>
-            <TokenLogo src={position.dex.logo} size={14} />
+            <TokenLogo src={dexInfo.logo} size={14} />
             <Text fontSize={12} color={theme.subText}>
-              {getDexVersion(position.dex.type as Exchange)}
+              {dexVersion}
             </Text>
             <Text fontSize={12} color={theme.subText}>
               #{position.tokenId}
@@ -79,28 +100,48 @@ const InboxItemSmartExit = ({
         </Flex>
       </InboxItemRow>
 
-      <RowItem>
-        <Text fontSize={12} color={theme.subText}>
-          {order.conditionText ? t`Cond:` : t`Reason:`}
-        </Text>
-        <PrimaryText>{order.conditionText || reason}</PrimaryText>
-      </RowItem>
+      {conditionText ? (
+        <RowItem>
+          <Text fontSize={12} color={theme.subText}>
+            {t`Cond:`}
+          </Text>
+          <PrimaryText>{conditionText}</PrimaryText>
+        </RowItem>
+      ) : null}
+      {reasonText ? (
+        <RowItem>
+          <Text fontSize={12} color={theme.subText}>
+            {t`Reason:`}
+          </Text>
+          <PrimaryText>{reasonText}</PrimaryText>
+        </RowItem>
+      ) : null}
+      {receivedText ? (
+        <RowItem>
+          <Text fontSize={12} color={theme.subText}>
+            {t`Received:`}
+          </Text>
+          <PrimaryText>{receivedText}</PrimaryText>
+        </RowItem>
+      ) : null}
     </InboxItemWrapper>
   )
 }
 
 export default InboxItemSmartExit
 
-const getStatusMessage = (reason?: string, received?: string) => {
-  if (received) return t`Smart Exit executed`
-  if (!reason) return t`Smart Exit created`
-  const lower = reason.toLowerCase()
-  if (lower.includes('executed')) return t`Smart Exit executed`
-  if (lower.includes('expired') || lower.includes('expiry')) return t`Smart Exit expired`
-  if (lower.includes('cancel')) return t`Smart Exit cancelled`
-  if (lower.includes('max gas') || lower.includes('not executed') || lower.includes('retry')) {
-    return t`Smart Exit not executed`
+const getReceivedText = (
+  execution?: { receivedAmount0?: string; receivedAmount1?: string },
+  token0Symbol?: string,
+  token1Symbol?: string,
+) => {
+  const parts: string[] = []
+  if (execution?.receivedAmount0 && token0Symbol) {
+    parts.push(`${formatDisplayNumber(execution.receivedAmount0, { significantDigits: 6 })} ${token0Symbol}`)
   }
-  if (lower.includes('liquidity')) return t`Smart Exit cancelled`
-  return t`Smart Exit updated`
+  if (execution?.receivedAmount1 && token1Symbol) {
+    parts.push(`${formatDisplayNumber(execution.receivedAmount1, { significantDigits: 6 })} ${token1Symbol}`)
+  }
+  if (parts.length) return parts.join(' + ')
+  return undefined
 }

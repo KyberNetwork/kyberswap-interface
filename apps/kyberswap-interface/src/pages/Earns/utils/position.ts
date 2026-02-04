@@ -28,11 +28,11 @@ import {
 } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isNativeToken, isUniswapExchange } from 'pages/Earns/utils'
 
-export const getDexVersion = (dex: Exchange) => {
-  if (!EARN_DEXES[dex].showVersion) return ''
-  if (dex.includes('fairflow')) return 'FairFlow'
+export const getDexVersion = (exchange: Exchange) => {
+  if (!EARN_DEXES[exchange].showVersion) return ''
+  if (exchange.includes('fairflow')) return 'FairFlow'
 
-  const dexStringSplit = EARN_DEXES[dex].name.split(' ')
+  const dexStringSplit = EARN_DEXES[exchange].name.split(' ')
   return dexStringSplit.length > 0 ? dexStringSplit.slice(1).join(' ') : ''
 }
 
