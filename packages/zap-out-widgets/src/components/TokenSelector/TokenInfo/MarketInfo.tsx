@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import { useCopy } from '@kyber/hooks';
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 import { Token } from '@kyber/schema';
@@ -46,7 +48,11 @@ const MarketInfo = ({ token }: { token: Token }) => {
           <span>Market Info</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">Powered by</span> <LogoCoingecko className="h-4 w-14" />
+          <span className="text-subText text-[10px]">
+            <Trans>
+              Powered by <LogoCoingecko className="h-4 w-14" />
+            </Trans>
+          </span>
         </div>
       </div>
       <div

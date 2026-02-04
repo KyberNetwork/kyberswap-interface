@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 
+import { Trans } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 
 import { useCopy } from '@kyber/hooks';
@@ -45,8 +46,11 @@ const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
           <span>{i18n._('Market Info')}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">{i18n._('Powered by')}</span>{' '}
-          <LogoCoingecko className="h-4 w-14" />
+          <span className="text-subText text-[10px]">
+            <Trans>
+              Powered by <LogoCoingecko className="h-4 w-14" />
+            </Trans>
+          </span>
         </div>
       </div>
       <div

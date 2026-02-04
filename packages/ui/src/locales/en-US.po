@@ -282,8 +282,8 @@ msgstr "Position age: {duration}"
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
 #: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
-msgid "Powered by"
-msgstr "Powered by"
+msgid "Powered by <0/>"
+msgstr "Powered by <0/>"
 
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenInfo/utils.ts

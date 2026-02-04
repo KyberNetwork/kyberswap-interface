@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import { Trans } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
@@ -40,7 +41,11 @@ const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) =>
           </MouseoverTooltip>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">{i18n._('Powered by')}</span> <LogoGoPlus className="h-4 w-14" />
+          <span className="text-subText text-[10px]">
+            <Trans>
+              Powered by <LogoGoPlus className="h-4 w-14" />
+            </Trans>
+          </span>
         </div>
       </div>
       <div className="flex flex-col gap-[14px] p-[14px]">
