@@ -32,11 +32,11 @@ const routeApi = createApi({
           url,
           params: {
             ...rest,
-            source: 'li.fi_binance',
+            source: 'aggregator_internal_test',
           },
           authentication,
           headers: {
-            'x-client-id': 'li.fi_binance',
+            'x-client-id': 'aggregator_internal_test',
           },
         }
       },
@@ -109,12 +109,12 @@ const routeApi = createApi({
           method: 'POST',
           body: {
             ...rest,
-            source: 'li.fi_binance',
+            source: 'aggregator_internal_test',
           },
           signal,
           authentication,
           headers: {
-            'x-client-id': 'li.fi_binance',
+            'x-client-id': 'aggregator_internal_test',
           },
         }
       },
