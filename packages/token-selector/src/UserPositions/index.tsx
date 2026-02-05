@@ -304,6 +304,7 @@ const UserPositions = ({
   poolAddress,
   excludePositionIds,
   filterExchanges,
+  filterChains,
   variant = "default",
   initialSlippage,
   onConnectWallet,
@@ -317,6 +318,7 @@ const UserPositions = ({
   poolAddress?: string;
   excludePositionIds?: string[];
   filterExchanges?: Exchange[];
+  filterChains?: number[]; // Only fetch positions from these chains (e.g., smart-exit supported chains)
   variant?: TokenSelectorVariant;
   initialSlippage?: number;
   onConnectWallet?: () => void;
@@ -341,6 +343,8 @@ const UserPositions = ({
     chainId,
     // Filter by protocols at API level for better performance
     filterExchanges,
+    // Filter by chains at API level (e.g., for smart-exit supported chains)
+    filterChains,
     // For smart-exit variant, skip out-range first sorting (keep API's valueUsd:desc order)
     skipOutRangeSort: variant === "smart-exit",
   });

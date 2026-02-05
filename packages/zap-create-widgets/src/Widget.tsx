@@ -84,19 +84,25 @@ export default function Widget() {
 
       {openTokenSelectModal && (
         <TokenSelectorModal
-          tokensIn={tokensIn}
-          amountsIn={amountsIn}
-          setTokensIn={setTokensIn}
-          setAmountsIn={setAmountsIn}
-          account={connectedAccount?.address}
           chainId={chainId}
-          mode={tokenAddressSelected ? TOKEN_SELECT_MODE.SELECT : TOKEN_SELECT_MODE.ADD}
-          selectedTokenAddress={tokenAddressSelected}
-          onConnectWallet={onConnectWallet}
           onClose={onCloseTokenSelectModal}
-          token0Address={token0.address}
-          token1Address={token1.address}
-          initialSlippage={slippage}
+          wallet={{
+            account: connectedAccount?.address,
+            onConnectWallet,
+          }}
+          tokenOptions={{
+            tokensIn,
+            amountsIn,
+            setTokensIn,
+            setAmountsIn,
+            mode: tokenAddressSelected ? TOKEN_SELECT_MODE.SELECT : TOKEN_SELECT_MODE.ADD,
+            selectedTokenAddress: tokenAddressSelected,
+            token0Address: token0.address,
+            token1Address: token1.address,
+          }}
+          positionOptions={{
+            initialSlippage: slippage,
+          }}
         />
       )}
 

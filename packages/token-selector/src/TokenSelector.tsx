@@ -14,7 +14,7 @@ import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 
 import { useLingui } from "@lingui/react";
 
-import { NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
+import { Exchange, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
 import { Button, Input, TokenLogo, TokenSymbol } from "@kyber/ui";
 import { fetchTokenInfo } from "@kyber/utils";
 import { isAddress } from "@kyber/utils/crypto";
@@ -28,8 +28,9 @@ import X from "@/assets/x.svg?react";
 import {
   CustomizeToken,
   MAX_TOKENS,
+  OnSelectLiquiditySource,
   TOKEN_SELECT_MODE,
-  TokenSelectorModalProps,
+  TokenSelectorVariant,
 } from "@/types";
 import UserPositions, { TokenLoader } from "@/UserPositions";
 import { useTokenState } from "@/useTokenState";
@@ -47,7 +48,41 @@ enum MODAL_TAB {
 const MESSAGE_TIMEOUT = 4_000;
 const DEBOUNCE_DELAY = 300;
 
-interface TokenSelectorProps extends TokenSelectorModalProps {
+/** Internal props for TokenSelector component (used by TokenModal) */
+interface TokenSelectorProps {
+  // Base props
+  onClose: () => void;
+  chainId?: number;
+  title?: string;
+
+  // Wallet
+  account?: string;
+  onConnectWallet?: () => void;
+
+  // Token selection
+  tokensIn: Token[];
+  amountsIn: string;
+  setTokensIn?: (tokens: Token[]) => void;
+  setAmountsIn?: (amounts: string) => void;
+  onTokenSelect?: (token: Token) => void;
+  mode: TOKEN_SELECT_MODE;
+  selectedTokenAddress?: string;
+  token0Address: string;
+  token1Address: string;
+
+  // Position features
+  showUserPositions: boolean;
+  positionsOnly: boolean;
+  excludePositionIds?: string[];
+  filterExchanges?: Exchange[];
+  filterChains?: number[];
+  positionId?: string;
+  poolAddress?: string;
+  initialSlippage?: number;
+  onSelectLiquiditySource?: OnSelectLiquiditySource;
+  variant: TokenSelectorVariant;
+
+  // Internal props (managed by TokenModal)
   selectedTokens: Token[];
   setSelectedTokens: (tokens: Token[]) => void;
   setTokenToShow: (token: Token) => void;
@@ -163,6 +198,7 @@ export default function TokenSelector({
   positionsOnly = false,
   excludePositionIds,
   filterExchanges,
+  filterChains,
   variant = "default",
   selectedTokens,
   setTokensIn,
@@ -722,6 +758,7 @@ export default function TokenSelector({
                   poolAddress={poolAddress}
                   excludePositionIds={excludePositionIds}
                   filterExchanges={filterExchanges}
+                  filterChains={filterChains}
                   variant={variant}
                   onConnectWallet={onConnectWallet}
                   onSelectLiquiditySource={onSelectLiquiditySource}

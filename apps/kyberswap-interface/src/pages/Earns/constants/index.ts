@@ -168,3 +168,8 @@ export const LIMIT_TEXT_STYLES = {
 export const SMART_EXIT_SUPPORTED_EXCHANGES = Object.entries(EARN_DEXES_CONFIG)
   .filter(([, config]) => config.smartExitDexType !== undefined)
   .map(([exchange]) => exchange as Exchange)
+
+// Get list of chains that support smart exit
+export const SMART_EXIT_SUPPORTED_CHAINS = Object.entries(EARN_CHAINS)
+  .filter(([, config]) => config.smartExitSupported)
+  .map(([chain]) => Number(chain))

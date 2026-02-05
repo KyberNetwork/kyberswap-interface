@@ -66,10 +66,12 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
         <TokenSelectorModal
           chainId={chainId}
           title="Select Token Out"
-          token0Address={pool?.token0.address}
-          token1Address={pool?.token1.address}
-          onTokenSelect={(token: Token) => setTokenOut(token)}
           onClose={() => setShowTokenSelect(false)}
+          tokenOptions={{
+            token0Address: pool?.token0.address,
+            token1Address: pool?.token1.address,
+            onTokenSelect: (token: Token) => setTokenOut(token),
+          }}
         />
       )}
       <LiquidityToRemove />

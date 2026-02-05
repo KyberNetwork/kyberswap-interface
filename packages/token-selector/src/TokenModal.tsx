@@ -47,32 +47,44 @@ const TokenInfoLoader = () => (
 );
 
 const TokenModal = ({
-  tokensIn = [],
-  amountsIn = "",
-  account,
-  title,
-  chainId,
-  mode = TOKEN_SELECT_MODE.SELECT,
-  selectedTokenAddress,
-  positionId,
-  poolAddress,
-  token0Address = "",
-  token1Address = "",
-  showUserPositions = false,
-  positionsOnly = false,
-  excludePositionIds,
-  filterExchanges,
-  variant = "default",
-  setTokensIn,
-  setAmountsIn,
-  onTokenSelect,
-  onConnectWallet,
-  onSelectLiquiditySource,
   onClose,
-  initialSlippage,
+  chainId,
+  title,
+  wallet,
+  tokenOptions,
+  positionOptions,
 }: TokenSelectorModalProps) => {
   const { importToken } = useTokenState();
 
+  // Extract props from grouped options with defaults
+  const { account, onConnectWallet } = wallet ?? {};
+
+  const {
+    tokensIn = [],
+    amountsIn = "",
+    setTokensIn,
+    setAmountsIn,
+    onTokenSelect,
+    mode = TOKEN_SELECT_MODE.SELECT,
+    selectedTokenAddress,
+    token0Address = "",
+    token1Address = "",
+  } = tokenOptions ?? {};
+
+  const {
+    showUserPositions = false,
+    positionsOnly = false,
+    excludePositionIds,
+    filterExchanges,
+    filterChains,
+    positionId,
+    poolAddress,
+    initialSlippage,
+    onSelectLiquiditySource,
+    variant = "default",
+  } = positionOptions ?? {};
+
+  // Component State
   const [tokenToShow, setTokenToShow] = useState<Token | null>(null);
   const [tokenToImport, setTokenToImport] = useState<Token | null>(null);
   const [selectedTokens, setSelectedTokens] = useState<Token[]>([...tokensIn]);
@@ -193,6 +205,7 @@ const TokenModal = ({
             positionsOnly={positionsOnly}
             excludePositionIds={excludePositionIds}
             filterExchanges={filterExchanges}
+            filterChains={filterChains}
             variant={variant}
             onTokenSelect={onTokenSelect}
             onConnectWallet={onConnectWallet}

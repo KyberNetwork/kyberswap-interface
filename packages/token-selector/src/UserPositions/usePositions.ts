@@ -38,6 +38,7 @@ export default function usePositions({
   account,
   chainId,
   filterExchanges,
+  filterChains,
   skipOutRangeSort = false,
 }: {
   positionId?: string;
@@ -46,6 +47,7 @@ export default function usePositions({
   account?: string;
   chainId?: number; // Optional - when not provided, fetches positions from all supported chains
   filterExchanges?: Exchange[];
+  filterChains?: number[]; // Optional - when provided, only fetch positions from these chains
   skipOutRangeSort?: boolean;
 }) {
   const [userPositions, setUserPositions] = useState<EarnPosition[]>([]);
@@ -99,9 +101,14 @@ export default function usePositions({
           page: pageNum.toString(),
           pageSize: PAGE_SIZE.toString(),
         };
-        // Only add chainIds param if specific chain is requested, otherwise fetch all supported chains
+        // Determine which chains to fetch:
+        // 1. If specific chainId is provided, use that chain only
+        // 2. If filterChains is provided, use those chains
+        // 3. Otherwise, fetch all supported chains
         if (chainId !== undefined) {
           params.chainIds = chainId.toString();
+        } else if (filterChains && filterChains.length > 0) {
+          params.chainIds = filterChains.join(",");
         } else {
           params.chainIds = earnSupportedChains.join(",");
         }
@@ -144,7 +151,7 @@ export default function usePositions({
         setHasFetched(true);
       }
     },
-    [account, chainId, debouncedSearch, filterExchanges],
+    [account, chainId, debouncedSearch, filterExchanges, filterChains],
   );
 
   const loadMore = useCallback(() => {
@@ -173,7 +180,7 @@ export default function usePositions({
 
   // Reset and fetch when params change (except page)
   useEffect(() => {
-    const paramsKey = `${account}-${chainId}-${debouncedSearch}-${filterExchanges?.join(",")}`;
+    const paramsKey = `${account}-${chainId}-${debouncedSearch}-${filterExchanges?.join(",")}-${filterChains?.join(",")}`;
     if (currentParamsRef.current !== paramsKey) {
       currentParamsRef.current = paramsKey;
       setPage(1);
@@ -181,7 +188,7 @@ export default function usePositions({
       setUserPositions([]);
       fetchPositions(1, false);
     }
-  }, [account, chainId, debouncedSearch, filterExchanges, fetchPositions]);
+  }, [account, chainId, debouncedSearch, filterExchanges, filterChains, fetchPositions]);
 
   // Show loading state if currently fetching OR if we haven't fetched yet (and have account)
   // When chainId is not provided (all chains mode), always allow showing loading state

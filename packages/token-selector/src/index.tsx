@@ -22,7 +22,9 @@ export interface TokenSelectorProps extends TokenSelectorModalProps {}
  * <TokenSelectorModal
  *   chainId={1}
  *   onClose={() => setOpen(false)}
- *   onTokenSelect={(token) => console.log('Selected:', token)}
+ *   tokenOptions={{
+ *     onTokenSelect: (token) => console.log('Selected:', token),
+ *   }}
  * />
  * ```
  *
@@ -30,12 +32,14 @@ export interface TokenSelectorProps extends TokenSelectorModalProps {}
  * ```tsx
  * <TokenSelectorModal
  *   chainId={1}
- *   mode={TOKEN_SELECT_MODE.ADD}
- *   tokensIn={selectedTokens}
- *   amountsIn={amounts}
- *   setTokensIn={setSelectedTokens}
- *   setAmountsIn={setAmounts}
  *   onClose={() => setOpen(false)}
+ *   tokenOptions={{
+ *     mode: TOKEN_SELECT_MODE.ADD,
+ *     tokensIn: selectedTokens,
+ *     amountsIn: amounts,
+ *     setTokensIn: setSelectedTokens,
+ *     setAmountsIn: setAmounts,
+ *   }}
  * />
  * ```
  *
@@ -43,19 +47,29 @@ export interface TokenSelectorProps extends TokenSelectorModalProps {}
  * ```tsx
  * <TokenSelectorModal
  *   chainId={1}
- *   showUserPositions={true}
- *   account={userAddress}
- *   token0Address={pool.token0.address}
- *   token1Address={pool.token1.address}
- *   onSelectLiquiditySource={(position) => handleSelectPosition(position)}
- *   onConnectWallet={() => openConnectModal()}
  *   onClose={() => setOpen(false)}
+ *   wallet={{
+ *     account: userAddress,
+ *     onConnectWallet: () => openConnectModal(),
+ *   }}
+ *   tokenOptions={{
+ *     token0Address: pool.token0.address,
+ *     token1Address: pool.token1.address,
+ *   }}
+ *   positionOptions={{
+ *     showUserPositions: true,
+ *     onSelectLiquiditySource: (position) => handleSelectPosition(position),
+ *   }}
  * />
  * ```
  */
 const TokenSelectorModal = (props: TokenSelectorProps) => {
-  const { chainId, token0Address, token1Address, account, tokenBalances } =
-    props;
+  const { chainId, wallet, tokenOptions } = props;
+
+  const token0Address = tokenOptions?.token0Address;
+  const token1Address = tokenOptions?.token1Address;
+  const account = wallet?.account;
+  const tokenBalances = tokenOptions?.tokenBalances;
 
   const additionalTokenAddresses =
     token0Address && token1Address
@@ -85,6 +99,10 @@ export type {
   PositionStatus,
   OnSelectLiquiditySource,
   CustomizeToken,
+  // Grouped props interfaces
+  WalletOptions,
+  TokenOptions,
+  PositionOptions,
 } from "@/types";
 
 // Export hooks for advanced usage

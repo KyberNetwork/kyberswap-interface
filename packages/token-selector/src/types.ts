@@ -12,6 +12,72 @@ export enum TOKEN_SELECT_MODE {
 // Maximum number of tokens that can be selected in ADD mode
 export const MAX_TOKENS = 5;
 
+// ============================================================================
+// Grouped Props Interfaces
+// ============================================================================
+
+/**
+ * Wallet-related options for the token selector
+ */
+export interface WalletOptions {
+  /** User's wallet address */
+  account?: string;
+  /** Callback to open wallet connection modal */
+  onConnectWallet?: () => void;
+}
+
+/**
+ * Token selection options (for token tab functionality)
+ */
+export interface TokenOptions {
+  /** Currently selected tokens (for multi-token mode) */
+  tokensIn?: Token[];
+  /** Comma-separated amounts corresponding to tokensIn */
+  amountsIn?: string;
+  /** Callback to update selected tokens */
+  setTokensIn?: (tokens: Token[]) => void;
+  /** Callback to update amounts */
+  setAmountsIn?: (amounts: string) => void;
+  /** Callback when a single token is selected (simple mode) */
+  onTokenSelect?: (token: Token) => void;
+  /** Selection mode - SELECT for single token, ADD for multi-token */
+  mode?: TOKEN_SELECT_MODE;
+  /** Address of currently selected token (for highlighting) */
+  selectedTokenAddress?: string;
+  /** Pool token 0 address (for highlighting pool tokens) */
+  token0Address?: string;
+  /** Pool token 1 address (for highlighting pool tokens) */
+  token1Address?: string;
+  /** External token balances (optional - if not provided, will fetch internally) */
+  tokenBalances?: { [key: string]: bigint };
+}
+
+/**
+ * Position/liquidity source options (for positions tab functionality)
+ */
+export interface PositionOptions {
+  /** Show the positions tab */
+  showUserPositions?: boolean;
+  /** Only show positions tab (hide tokens tab) */
+  positionsOnly?: boolean;
+  /** Position IDs to exclude from the list */
+  excludePositionIds?: string[];
+  /** Only show positions from these exchanges */
+  filterExchanges?: Exchange[];
+  /** Only show positions from these chains */
+  filterChains?: number[];
+  /** Current position ID (for excluding from list) */
+  positionId?: string;
+  /** Current pool address */
+  poolAddress?: string;
+  /** Initial slippage value passed to position selection callback */
+  initialSlippage?: number;
+  /** Callback when a position is selected as liquidity source */
+  onSelectLiquiditySource?: OnSelectLiquiditySource;
+  /** Variant affecting UI text and sorting behavior */
+  variant?: TokenSelectorVariant;
+}
+
 // Position-related types for UserPositions feature
 export interface EarnPosition {
   chain: {
@@ -129,53 +195,38 @@ export type OnSelectLiquiditySource = (
   earnPosition?: EarnPosition,
 ) => void;
 
-// Main TokenSelectorModal props
+// ============================================================================
+// Main TokenSelectorModal Props
+// ============================================================================
+
+/**
+ * Main TokenSelectorModal props
+ * Props are organized into logical groups for better readability
+ *
+ * @example
+ * ```tsx
+ * <TokenSelectorModal
+ *   onClose={handleClose}
+ *   chainId={1}
+ *   wallet={{ account, onConnectWallet }}
+ *   tokenOptions={{ tokensIn, amountsIn, setTokensIn, setAmountsIn }}
+ *   positionOptions={{ showUserPositions: true, filterExchanges, filterChains }}
+ * />
+ * ```
+ */
 export interface TokenSelectorModalProps {
-  // Required props
+  /** Required: callback to close the modal */
   onClose: () => void;
-
-  // Chain configuration (optional - when not provided, shows positions from all supported chains)
+  /** Chain ID (optional - when not provided, shows positions from all supported chains) */
   chainId?: ChainId;
-
-  // Token selection (for multi-token mode)
-  tokensIn?: Token[];
-  amountsIn?: string;
-  setTokensIn?: (tokens: Token[]) => void;
-  setAmountsIn?: (amounts: string) => void;
-
-  // Single token selection callback (for simple mode)
-  onTokenSelect?: (token: Token) => void;
-
-  // Selection mode configuration
-  mode?: TOKEN_SELECT_MODE;
-  selectedTokenAddress?: string;
-
-  // Pool context (for highlighting pool tokens)
-  token0Address?: string;
-  token1Address?: string;
-
-  // User position features (optional)
-  showUserPositions?: boolean;
-  positionsOnly?: boolean; // When true, only show Positions tab (hide Tokens tab)
-  excludePositionIds?: string[]; // Position IDs to exclude from the list (e.g., positions with existing smart exit orders)
-  filterExchanges?: Exchange[]; // Only show positions from these exchanges (e.g., smart-exit supported protocols)
-  positionId?: string;
-  poolAddress?: string;
-  initialSlippage?: number;
-  onSelectLiquiditySource?: OnSelectLiquiditySource;
-
-  // Variant for different use cases (affects description, sorting, etc.)
-  variant?: TokenSelectorVariant;
-
-  // Wallet connection
-  account?: string;
-  onConnectWallet?: () => void;
-
-  // Customization
+  /** Custom modal title */
   title?: string;
-
-  // Token balances (optional - if not provided, will fetch internally)
-  tokenBalances?: { [key: string]: bigint };
+  /** Wallet connection options */
+  wallet?: WalletOptions;
+  /** Token selection options */
+  tokenOptions?: TokenOptions;
+  /** Position/liquidity source options */
+  positionOptions?: PositionOptions;
 }
 
 // Internal token with additional UI state
