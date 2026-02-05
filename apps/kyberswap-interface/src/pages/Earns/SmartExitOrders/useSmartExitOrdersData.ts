@@ -236,9 +236,11 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
     })
   }, [orders, parsedPositionsById])
 
-  // Track if we have orders and positions data synced
+  // Track if data fetch is complete (both APIs done fetching)
+  const isFetchComplete = !smartExitFetching && !userPosFetching
+  // Data is synced when fetch is complete AND we have orders to enrich with positions
   const hasOrdersData = orders.length > 0
-  const isDataSynced = !smartExitFetching && !userPosFetching && hasOrdersData
+  const isDataSynced = isFetchComplete && hasOrdersData
 
   useEffect(() => {
     // Only update cache when data is fully synced (both APIs done fetching)
@@ -289,20 +291,21 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
     [updateFilters],
   )
 
-  // Sync pagination with table data - only update when data is synced
+  // Sync pagination with table data - update when fetch is complete
+  // Use isFetchComplete (not isDataSynced) to handle empty results correctly
   const syncedTotalItems = useMemo(() => {
-    if (isDataSynced) {
+    if (isFetchComplete) {
       return totalItemsFromAPI
     }
     return lastTotalItemsRef.current
-  }, [isDataSynced, totalItemsFromAPI])
+  }, [isFetchComplete, totalItemsFromAPI])
 
   const syncedCurrentPage = useMemo(() => {
-    if (isDataSynced) {
+    if (isFetchComplete) {
       return currentPage
     }
     return lastCurrentPageRef.current
-  }, [isDataSynced, currentPage])
+  }, [isFetchComplete, currentPage])
 
   return {
     currentPage: syncedCurrentPage,
