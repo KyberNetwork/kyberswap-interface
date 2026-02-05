@@ -92,47 +92,48 @@ type PoolPriceChartProps = {
 const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProps) => {
   const theme = useTheme()
 
-  const { currentPricePosition, targetPricePosition, highlightLeft, highlightWidth, positionsTooClose } = useMemo(() => {
-    if (currentPrice === undefined) {
-      // When no current price, show target in middle with highlight from edge
-      return {
-        currentPricePosition: undefined,
-        targetPricePosition: 50,
-        highlightLeft: isLte ? 0 : 50,
-        highlightWidth: 50,
-        positionsTooClose: false,
+  const { currentPricePosition, targetPricePosition, highlightLeft, highlightWidth, positionsTooClose } =
+    useMemo(() => {
+      if (currentPrice === undefined) {
+        // When no current price, show target in middle with highlight from edge
+        return {
+          currentPricePosition: undefined,
+          targetPricePosition: 50,
+          highlightLeft: isLte ? 0 : 50,
+          highlightWidth: 50,
+          positionsTooClose: false,
+        }
       }
-    }
 
-    // Calculate range: use current price and target price to define the visible range
-    const priceDiff = Math.abs(targetPrice - currentPrice)
-    // Use minimum padding to avoid overlapping indicators when prices are very close
-    const padding = Math.max(priceDiff * 0.5, targetPrice * 0.01)
-    const minP = Math.min(currentPrice, targetPrice) - padding
-    const maxP = Math.max(currentPrice, targetPrice) + padding
-    const range = maxP - minP
+      // Calculate range: use current price and target price to define the visible range
+      const priceDiff = Math.abs(targetPrice - currentPrice)
+      // Use minimum padding to avoid overlapping indicators when prices are very close
+      const padding = Math.max(priceDiff * 0.5, targetPrice * 0.01)
+      const minP = Math.min(currentPrice, targetPrice) - padding
+      const maxP = Math.max(currentPrice, targetPrice) + padding
+      const range = maxP - minP
 
-    const currentPos = range > 0 ? ((currentPrice - minP) / range) * 100 : 50
-    const targetPos = range > 0 ? ((targetPrice - minP) / range) * 100 : 50
+      const currentPos = range > 0 ? ((currentPrice - minP) / range) * 100 : 50
+      const targetPos = range > 0 ? ((targetPrice - minP) / range) * 100 : 50
 
-    const clampedCurrentPos = Math.max(5, Math.min(95, currentPos))
-    const clampedTargetPos = Math.max(5, Math.min(95, targetPos))
+      const clampedCurrentPos = Math.max(5, Math.min(95, currentPos))
+      const clampedTargetPos = Math.max(5, Math.min(95, targetPos))
 
-    // Calculate highlight: from left edge to target (lte) or from target to right edge (gte)
-    const hlLeft = isLte ? 0 : clampedTargetPos
-    const hlWidth = isLte ? clampedTargetPos : 100 - clampedTargetPos
+      // Calculate highlight: from left edge to target (lte) or from target to right edge (gte)
+      const hlLeft = isLte ? 0 : clampedTargetPos
+      const hlWidth = isLte ? clampedTargetPos : 100 - clampedTargetPos
 
-    // Check if positions are too close (within 15% of each other)
-    const positionsTooClose = Math.abs(clampedCurrentPos - clampedTargetPos) < 15
+      // Check if positions are too close (within 15% of each other)
+      const positionsTooClose = Math.abs(clampedCurrentPos - clampedTargetPos) < 15
 
-    return {
-      currentPricePosition: clampedCurrentPos,
-      targetPricePosition: clampedTargetPos,
-      highlightLeft: hlLeft,
-      highlightWidth: hlWidth,
-      positionsTooClose,
-    }
-  }, [currentPrice, targetPrice, isLte])
+      return {
+        currentPricePosition: clampedCurrentPos,
+        targetPricePosition: clampedTargetPos,
+        highlightLeft: hlLeft,
+        highlightWidth: hlWidth,
+        positionsTooClose,
+      }
+    }, [currentPrice, targetPrice, isLte])
 
   // Color logic: green (#31CB9E) for lte (≤), purple (#7289DA) for gte (≥) - matching price-slider
   const handleColor = isLte ? '#31CB9E' : '#7289DA'
