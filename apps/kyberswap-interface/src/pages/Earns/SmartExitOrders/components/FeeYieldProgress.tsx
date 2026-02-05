@@ -36,7 +36,6 @@ type FeeYieldProgressProps = {
 const FeeYieldProgress = ({ targetYield, currentYield }: FeeYieldProgressProps) => {
   const theme = useTheme()
   const progress = currentYield !== undefined ? (currentYield / targetYield) * 100 : 0
-  const displayCurrentYield = currentYield !== undefined ? Number(currentYield.toFixed(2)) : 0
 
   return (
     <FeeYieldProgressWrapper>
@@ -48,7 +47,7 @@ const FeeYieldProgress = ({ targetYield, currentYield }: FeeYieldProgressProps) 
       </Text>
       <Text fontSize="12px" color={theme.subText} textAlign="right" mt="3px">
         <Text as="span" color={theme.text}>
-          {displayCurrentYield}%
+          {formatDisplayNumber(currentYield, { significantDigits: 4 })}%
         </Text>{' '}
         / {formatDisplayNumber(targetYield, { significantDigits: 4 })}%
       </Text>
