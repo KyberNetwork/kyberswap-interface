@@ -43,7 +43,8 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
   const [customGasPercent, setCustomGasPercent] = useState<string>('')
 
   const deadline = useSmartExitDeadline(expireTime)
-  const { isValid, deadlineBeforeConditionTime, timeBeforeNow } = useSmartExitValidation(selectedMetrics, deadline)
+  const { isValid, deadlineBeforeConditionTime, timeBeforeNow, orWithTimeAlreadyMet, conditionTime } =
+    useSmartExitValidation(selectedMetrics, deadline, conditionType)
 
   const smartExit = useSmartExit({
     position,
@@ -141,6 +142,8 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
                   deadlineBeforeConditionTime={deadlineBeforeConditionTime}
                   timeBeforeNow={timeBeforeNow}
                   isGasTooHigh={isGasTooHigh}
+                  orWithTimeAlreadyMet={orWithTimeAlreadyMet}
+                  conditionTime={conditionTime}
                 />
               </Flex>
             </ContentWrapper>

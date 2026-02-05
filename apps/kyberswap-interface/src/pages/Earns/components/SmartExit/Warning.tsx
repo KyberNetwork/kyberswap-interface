@@ -17,10 +17,14 @@ export default function Warning({
   deadlineBeforeConditionTime,
   timeBeforeNow,
   isGasTooHigh,
+  orWithTimeAlreadyMet,
+  conditionTime,
 }: {
   deadlineBeforeConditionTime: boolean
   timeBeforeNow: boolean
   isGasTooHigh: boolean
+  orWithTimeAlreadyMet: boolean
+  conditionTime?: string
 }) {
   return (
     <>
@@ -37,6 +41,14 @@ export default function Warning({
       {isGasTooHigh && (
         <WarningMessage>
           <Trans>Max fee is capped at 100% for safety.</Trans>
+        </WarningMessage>
+      )}
+      {orWithTimeAlreadyMet && conditionTime && (
+        <WarningMessage>
+          <Trans>
+            This will likely execute immediately. &ldquo;Before {conditionTime}&rdquo; is already met. If you want both
+            conditions to be required, switch to AND.
+          </Trans>
         </WarningMessage>
       )}
     </>

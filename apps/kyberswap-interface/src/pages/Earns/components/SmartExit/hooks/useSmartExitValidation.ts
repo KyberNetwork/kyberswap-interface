@@ -5,13 +5,17 @@ import {
   getPriceCondition,
   getTimeCondition,
 } from 'pages/Earns/components/SmartExit/utils/typeGuards'
-import { Metric, SelectedMetric } from 'pages/Earns/types'
+import { ConditionType, Metric, SelectedMetric } from 'pages/Earns/types'
 
 /**
  * Custom hook to validate Smart Exit conditions
  * Returns validation flags for each metric type
  */
-export const useSmartExitValidation = (selectedMetrics: Array<SelectedMetric | null>, deadline?: number) => {
+export const useSmartExitValidation = (
+  selectedMetrics: Array<SelectedMetric | null>,
+  deadline?: number,
+  conditionType?: ConditionType,
+) => {
   const [timeValidation, setTimeValidation] = useState(() => ({
     invalidTimeCondition: false,
     deadlineBeforeConditionTime: false,
@@ -80,6 +84,26 @@ export const useSmartExitValidation = (selectedMetrics: Array<SelectedMetric | n
     return timeValidation
   }, [timeValidation])
 
+  const orWithTimeAlreadyMet = useMemo(() => {
+    if (conditionType !== ConditionType.Or) return { isAlreadyMet: false, conditionTime: undefined }
+
+    const timeMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.Time)
+    if (!timeMetric) return { isAlreadyMet: false, conditionTime: undefined }
+
+    const timeCondition = getTimeCondition(timeMetric)
+    if (!timeCondition || !timeCondition.time || timeCondition.condition !== 'before') {
+      return { isAlreadyMet: false, conditionTime: undefined }
+    }
+
+    const hasOtherMetric = selectedMetrics.some(metric => metric !== null && metric.metric !== Metric.Time)
+    if (!hasOtherMetric) return { isAlreadyMet: false, conditionTime: undefined }
+
+    const isAlreadyMet = timeCondition.time > Date.now()
+    const conditionTime = new Date(timeCondition.time).toLocaleString()
+
+    return { isAlreadyMet, conditionTime }
+  }, [conditionType, selectedMetrics])
+
   const isValid =
     !invalidYieldCondition &&
     !invalidPriceCondition &&
@@ -93,6 +117,8 @@ export const useSmartExitValidation = (selectedMetrics: Array<SelectedMetric | n
     invalidTimeCondition,
     deadlineBeforeConditionTime,
     timeBeforeNow,
+    orWithTimeAlreadyMet: orWithTimeAlreadyMet.isAlreadyMet,
+    conditionTime: orWithTimeAlreadyMet.conditionTime,
     isValid,
   }
 }
