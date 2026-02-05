@@ -60,10 +60,10 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
             <Trans>Position</Trans> #{tokenId}
           </Text>
         </Flex>
-        <Flex alignItems="center" sx={{ gap: '4px', opacity: 0.6 }} mt="4px" ml="1rem">
-          {dexMapping?.dexInfo.logo && <TokenLogo src={dexMapping.dexInfo.logo} size={16} style={{ opacity: 0.6 }} />}
+        <Flex alignItems="center" sx={{ gap: '4px', opacity: 0.6 }} mt="4px" ml="1rem" flexWrap="wrap">
+          {dexMapping?.dexInfo.logo && <TokenLogo src={dexMapping.dexInfo.logo} size={14} style={{ opacity: 0.6 }} />}
           {dexVersion && (
-            <Text color={theme.subText} fontStyle="italic" fontSize={14}>
+            <Text color={theme.subText} fontStyle="italic" fontSize={12}>
               {dexVersion}
             </Text>
           )}
@@ -96,9 +96,9 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
         </Link>
         <Badge>Fee {posDetail.poolFee}%</Badge>
       </Flex>
-      <Flex alignItems="center" sx={{ gap: '4px' }} mt="4px" ml="1rem">
-        <TokenLogo src={posDetail.dex.logo} size={16} />
-        <Text color={theme.subText} fontSize={14}>
+      <Flex alignItems="center" sx={{ gap: '4px' }} mt="4px" ml="1rem" flexWrap="wrap">
+        <TokenLogo src={posDetail.dex.logo} size={14} />
+        <Text color={theme.subText} fontSize={12}>
           {protocol} #{tokenId}
         </Text>
         <Badge
