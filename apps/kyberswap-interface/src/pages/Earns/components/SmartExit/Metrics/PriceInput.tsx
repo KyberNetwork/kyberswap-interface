@@ -354,16 +354,22 @@ export default function PriceInput({
         </Text>
         <Flex alignItems="center" sx={{ gap: '8px' }}>
           {expectedAmounts ? (
-            <Text fontSize={14}>
-              {formatDisplayNumber(expectedAmounts.amount0, { significantDigits: 4 })} {position.token0.symbol}
+            <Text fontSize={14} color={theme.primary}>
+              {formatDisplayNumber(expectedAmounts.amount0, { significantDigits: 4 })}{' '}
+              <Text as="span" color={theme.text}>
+                {position.token0.symbol}
+              </Text>
             </Text>
           ) : (
             <PositionSkeleton width={60} height={14} />
           )}
           <Box width={'1px'} height={'12px'} bg={theme.border} />
           {expectedAmounts ? (
-            <Text fontSize={14}>
-              {formatDisplayNumber(expectedAmounts.amount1, { significantDigits: 4 })} {position.token1.symbol}
+            <Text fontSize={14} color={theme.primary}>
+              {formatDisplayNumber(expectedAmounts.amount1, { significantDigits: 4 })}{' '}
+              <Text as="span" color={theme.text}>
+                {position.token1.symbol}
+              </Text>
             </Text>
           ) : (
             <PositionSkeleton width={60} height={14} />
