@@ -500,13 +500,14 @@ export default function TokenSelector({
   useEffect(() => {
     const search = searchTerm.toLowerCase().trim();
 
-    if (!filteredTokens.length && isAddress(search)) {
+    // Skip fetching unimported tokens when chainId is not provided (positionsOnly mode)
+    if (!filteredTokens.length && isAddress(search) && chainId) {
       fetchTokenInfo(search, chainId).then((res) => {
         setUnImportedTokens(res);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredTokens]);
+  }, [filteredTokens, chainId]);
 
   useEffect(() => {
     const cloneTokensIn = [...tokensIn];

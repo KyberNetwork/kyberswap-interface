@@ -132,8 +132,10 @@ export type OnSelectLiquiditySource = (
 // Main TokenSelectorModal props
 export interface TokenSelectorModalProps {
   // Required props
-  chainId: ChainId;
   onClose: () => void;
+
+  // Chain configuration (optional - when not provided, shows positions from all supported chains)
+  chainId?: ChainId;
 
   // Token selection (for multi-token mode)
   tokensIn?: Token[];

@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import { useTokenBalances } from "@kyber/hooks";
-import { API_URLS, ChainId, Token } from "@kyber/schema";
+import { API_URLS, Token } from "@kyber/schema";
 import { fetchTokenInfo } from "@kyber/utils";
 
 import { getCachedTokens, setCachedTokens } from "@/tokenCache";
@@ -47,7 +47,7 @@ export const TokenContextProvider = ({
   externalTokenBalances,
 }: {
   children: ReactNode;
-  chainId: ChainId;
+  chainId?: number; // Optional - when not provided (e.g., positionsOnly mode), tokens and balances won't be fetched
   account?: string;
   additionalTokenAddresses?: string;
   externalTokenBalances?: { [key: string]: bigint };
@@ -61,13 +61,14 @@ export const TokenContextProvider = ({
   } | null>(null);
 
   // Use external balances if provided, otherwise fetch internally
+  // Skip fetching balances when chainId is not provided (positionsOnly mode)
   const { balances: internalBalances, loading: tokenBalancesLoading } =
     useTokenBalances(
-      chainId,
-      externalTokenBalances
+      chainId as number,
+      externalTokenBalances || !chainId
         ? []
         : [...tokens, ...importedTokens].map((item) => item.address),
-      externalTokenBalances ? undefined : account,
+      externalTokenBalances || !chainId ? undefined : account,
     );
 
   const tokenBalances = externalTokenBalances || internalBalances;
@@ -122,6 +123,9 @@ export const TokenContextProvider = ({
   }, []);
 
   const fetchTokens = useCallback(async () => {
+    // Skip fetching tokens when chainId is not provided (positionsOnly mode)
+    if (!chainId) return;
+
     // Check cache first
     const cachedTokens = getCachedTokens(chainId, additionalTokenAddresses);
 

@@ -158,7 +158,7 @@ const TokenModal = ({
         aria-describedby={undefined}
       >
         <DialogTitle className="hidden" />
-        {tokenToShow ? (
+        {tokenToShow && chainId ? (
           <Suspense fallback={<TokenInfoLoader />}>
             <TokenInfo
               token={tokenToShow}
@@ -166,7 +166,7 @@ const TokenModal = ({
               onGoBack={handleGoBackFromTokenInfo}
             />
           </Suspense>
-        ) : tokenToImport ? (
+        ) : tokenToImport && chainId ? (
           <TokenImportConfirm
             chainId={chainId}
             token={tokenToImport}

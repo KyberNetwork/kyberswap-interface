@@ -4,7 +4,7 @@ import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 
 import { useLingui } from "@lingui/react";
 
-import { ChainId, DEX_NAME, Exchange, Univ2EarnDex } from "@kyber/schema";
+import { DEX_NAME, Exchange, Univ2EarnDex } from "@kyber/schema";
 import { Skeleton, TokenLogo } from "@kyber/ui";
 import { enumToArrayOfValues } from "@kyber/utils";
 import { shortenAddress } from "@kyber/utils/crypto";
@@ -296,7 +296,7 @@ const UserPositions = ({
   onClose,
 }: {
   search: string;
-  chainId: ChainId;
+  chainId?: number; // Optional - when not provided, fetches positions from all supported chains
   account?: string;
   positionId?: string;
   poolAddress?: string;

@@ -379,7 +379,6 @@ const SmartExit = () => {
       {showTokenSelector && (
         <Portal>
           <TokenSelectorModal
-            chainId={chainId as number}
             account={account}
             title={t`Select Position`}
             showUserPositions

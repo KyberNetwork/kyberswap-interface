@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { API_URLS, ChainId, EarnChain, Exchange } from "@kyber/schema";
+import { API_URLS, EarnChain, Exchange } from "@kyber/schema";
 import { enumToArrayOfValues } from "@kyber/utils";
 
 import { EarnPosition, PositionStatus } from "@/types";
@@ -41,7 +41,7 @@ export default function usePositions({
   poolAddress?: string;
   search: string;
   account?: string;
-  chainId: ChainId;
+  chainId?: number; // Optional - when not provided, fetches positions from all supported chains
   filterExchanges?: Exchange[];
   skipOutRangeSort?: boolean;
 }) {
@@ -63,7 +63,11 @@ export default function usePositions({
   }, [poolAddress, positionId, userPositions, skipOutRangeSort]);
 
   const handleGetUserPositions = useCallback(async () => {
-    if (!account || !earnSupportedChains.includes(chainId)) {
+    // If chainId is provided, check if it's supported; if not provided, fetch all chains
+    if (
+      !account ||
+      (chainId !== undefined && !earnSupportedChains.includes(chainId))
+    ) {
       setHasFetched(true);
       return;
     }
@@ -71,10 +75,15 @@ export default function usePositions({
     try {
       const params: Record<string, string> = {
         wallet: account,
-        chainIds: chainId.toString(),
         statuses: "PositionStatusInRange,PositionStatusOutRange",
         sorts: "valueUsd:desc",
       };
+      // Only add chainIds param if specific chain is requested, otherwise fetch all supported chains
+      if (chainId !== undefined) {
+        params.chainIds = chainId.toString();
+      } else {
+        params.chainIds = earnSupportedChains.join(",");
+      }
       if (search) {
         params.keyword = search;
       }
@@ -102,8 +111,12 @@ export default function usePositions({
   }, [handleGetUserPositions]);
 
   // Show loading state if currently fetching OR if we haven't fetched yet (and have account)
+  // When chainId is not provided (all chains mode), always allow showing loading state
   const isLoading =
-    loading || (!hasFetched && !!account && earnSupportedChains.includes(chainId));
+    loading ||
+    (!hasFetched &&
+      !!account &&
+      (chainId === undefined || earnSupportedChains.includes(chainId)));
 
   return { positions, loading: isLoading };
 }
