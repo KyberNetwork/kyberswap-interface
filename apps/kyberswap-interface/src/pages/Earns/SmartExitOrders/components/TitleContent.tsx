@@ -48,7 +48,7 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
 
     return (
       <>
-        <Flex alignItems="center" sx={{ opacity: 0.6 }}>
+        <Flex alignItems="center" sx={{ opacity: 0.6 }} flexWrap="wrap">
           <ImageContainer>
             <TokenLogo src={UnknownToken} size={24} style={{ opacity: 0.6 }} />
             <TokenLogo src={UnknownToken} size={24} translateLeft style={{ opacity: 0.6 }} />
@@ -83,7 +83,7 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
 
   return (
     <>
-      <Flex alignItems="center">
+      <Flex alignItems="center" flexWrap="wrap">
         <ImageContainer>
           <TokenLogo src={posDetail.token0.logo} />
           <TokenLogo src={posDetail.token1.logo} translateLeft />

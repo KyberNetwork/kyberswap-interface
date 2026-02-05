@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import React from 'react'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
@@ -10,6 +11,7 @@ import PoolPriceChart from 'pages/Earns/SmartExitOrders/components/PoolPriceChar
 import { MAX_VALID_TIMESTAMP } from 'pages/Earns/SmartExitOrders/constants'
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { ConditionType, SmartExitOrder } from 'pages/Earns/types'
+import { MEDIA_WIDTHS } from 'theme'
 
 type ConditionLogical = SmartExitOrder['condition']['logical']
 
@@ -66,19 +68,19 @@ const ConditionItem = ({ condition, position }: ConditionItemProps) => {
 type ConditionContentProps = {
   logical: ConditionLogical
   position?: ParsedSmartExitOrder['position']
-  upToMedium?: boolean
 }
 
-const ConditionContent = ({ logical, position, upToMedium }: ConditionContentProps) => {
+const ConditionContent = ({ logical, position }: ConditionContentProps) => {
   const theme = useTheme()
   const { conditions, op } = logical
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   // If there are multiple conditions, display them horizontally (desktop) or vertically (mobile)
   if (conditions.length > 1) {
     return (
       <Flex
-        flexDirection={upToMedium ? 'column' : 'row'}
-        alignItems={upToMedium ? 'stretch' : 'center'}
+        flexDirection={upToLarge ? 'column' : 'row'}
+        alignItems={upToLarge ? 'stretch' : 'center'}
         sx={{ gap: '12px', fontSize: '14px' }}
       >
         {conditions.map((c, i) => (
@@ -92,7 +94,7 @@ const ConditionContent = ({ logical, position, upToMedium }: ConditionContentPro
                   background: rgba(theme.white, 0.04),
                   padding: '4px 8px',
                   borderRadius: '8px',
-                  alignSelf: upToMedium ? 'flex-start' : 'center',
+                  alignSelf: upToLarge ? 'flex-start' : 'center',
                 }}
               >
                 <Text fontWeight={500} color={theme.text} fontSize={12} flexShrink={0}>
@@ -116,7 +118,7 @@ const ConditionContent = ({ logical, position, upToMedium }: ConditionContentPro
   // For time condition: no width limit needed
   // On mobile: full width
   return (
-    <Flex sx={{ fontSize: '14px', width: upToMedium ? '100%' : isTimeCondition ? 'auto' : 'calc(50% - 36px)' }}>
+    <Flex sx={{ fontSize: '14px', width: upToLarge ? '100%' : isTimeCondition ? 'auto' : 'calc(50% - 36px)' }}>
       {conditions.map((c, i) => (
         <ConditionItem key={`${c.field.type}-${i}`} condition={c} position={position} />
       ))}

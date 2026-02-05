@@ -156,9 +156,7 @@ const OrderItem = React.memo(({ order, index, upToMedium, onDelete }: OrderItemP
       <div />
     )
 
-  const condition = (
-    <ConditionContent logical={order.condition.logical} position={order.position} upToMedium={upToMedium} />
-  )
+  const condition = <ConditionContent logical={order.condition.logical} position={order.position} />
   const status = <StatusContent order={order} />
   const title = <TitleContent order={order} tokenId={tokenId} />
 
