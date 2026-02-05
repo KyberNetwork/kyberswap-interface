@@ -230,6 +230,13 @@ const UserPositions = () => {
             </Text>
             : {t`Claim your claimable farming rewards from a position.`}
           </Text>
+          <Text fontSize={14}>
+            <Text as="u" color={theme.primary}>
+              {t`Smart Exit`}
+            </Text>
+            :{' '}
+            {t`Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s).`}
+          </Text>
         </Flex>
       }
       noArrow
