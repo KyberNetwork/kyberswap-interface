@@ -42,11 +42,12 @@ const PoolPriceRangeHighlight = styled.div<{ $left: number; $width: number; $col
   opacity: 0.5;
 `
 
-const CurrentPriceLabel = styled.div<{ $left: number }>`
+const CurrentPriceLabel = styled.div<{ $left: number; $alignLeft?: boolean }>`
   position: absolute;
   bottom: 18px;
   left: ${({ $left }) => $left}%;
-  transform: translateX(-50%);
+  transform: ${({ $alignLeft }) =>
+    $alignLeft === undefined ? 'translateX(-50%)' : $alignLeft ? 'translateX(-100%)' : 'translateX(0)'};
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   white-space: nowrap;
@@ -91,7 +92,7 @@ type PoolPriceChartProps = {
 const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProps) => {
   const theme = useTheme()
 
-  const { currentPricePosition, targetPricePosition, highlightLeft, highlightWidth } = useMemo(() => {
+  const { currentPricePosition, targetPricePosition, highlightLeft, highlightWidth, positionsTooClose } = useMemo(() => {
     if (currentPrice === undefined) {
       // When no current price, show target in middle with highlight from edge
       return {
@@ -99,6 +100,7 @@ const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProp
         targetPricePosition: 50,
         highlightLeft: isLte ? 0 : 50,
         highlightWidth: 50,
+        positionsTooClose: false,
       }
     }
 
@@ -120,16 +122,20 @@ const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProp
     const hlLeft = isLte ? 0 : clampedTargetPos
     const hlWidth = isLte ? clampedTargetPos : 100 - clampedTargetPos
 
+    // Check if positions are too close (within 15% of each other)
+    const positionsTooClose = Math.abs(clampedCurrentPos - clampedTargetPos) < 15
+
     return {
       currentPricePosition: clampedCurrentPos,
       targetPricePosition: clampedTargetPos,
       highlightLeft: hlLeft,
       highlightWidth: hlWidth,
+      positionsTooClose,
     }
   }, [currentPrice, targetPrice, isLte])
 
-  // Color logic: primary/green for lte (≤), blue for gte (≥)
-  const handleColor = isLte ? theme.primary : theme.blue
+  // Color logic: green (#31CB9E) for lte (≤), purple (#7289DA) for gte (≥) - matching price-slider
+  const handleColor = isLte ? '#31CB9E' : '#7289DA'
 
   return (
     <PoolPriceChartWrapper>
@@ -141,8 +147,12 @@ const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProp
       </Text>
       <PoolPriceChartContainer>
         {/* Current price label - positioned above current price indicator */}
+        {/* When too close to target, align to opposite side to avoid overlap */}
         {currentPricePosition !== undefined && currentPrice !== undefined && (
-          <CurrentPriceLabel $left={currentPricePosition}>
+          <CurrentPriceLabel
+            $left={currentPricePosition}
+            $alignLeft={positionsTooClose ? currentPricePosition < targetPricePosition : undefined}
+          >
             {formatDisplayNumber(currentPrice, { significantDigits: 4 })}
           </CurrentPriceLabel>
         )}
