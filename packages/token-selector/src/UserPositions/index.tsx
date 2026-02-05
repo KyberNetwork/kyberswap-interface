@@ -5,7 +5,7 @@ import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import { useLingui } from "@lingui/react";
 
 import { ChainId, DEX_NAME, Exchange, Univ2EarnDex } from "@kyber/schema";
-import { TokenLogo } from "@kyber/ui";
+import { Skeleton, TokenLogo } from "@kyber/ui";
 import { enumToArrayOfValues } from "@kyber/utils";
 import { shortenAddress } from "@kyber/utils/crypto";
 import { formatDisplayNumber } from "@kyber/utils/number";
@@ -15,7 +15,12 @@ import CircleCheckBig from "@/assets/circle-check-big.svg?react";
 import IconCopy from "@/assets/copy.svg?react";
 import IconPositionConnectWallet from "@/assets/ic_position_connect_wallet.svg?react";
 import IconPositionNotFound from "@/assets/ic_position_not_found.svg?react";
-import { EarnPosition, OnSelectLiquiditySource, PositionStatus } from "@/types";
+import {
+  EarnPosition,
+  OnSelectLiquiditySource,
+  PositionStatus,
+  TokenSelectorVariant,
+} from "@/types";
 
 const COPY_TIMEOUT = 2000;
 const POSITION_ROW_HEIGHT = 88;
@@ -39,17 +44,27 @@ const listDexesWithVersion = [
 
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
 
-/** Skeleton row for token list loading state */
+/** Skeleton row for token list loading state - matches TokenRow layout */
 const TokenSkeletonRow = () => (
-  <div className="flex items-center justify-between py-2 px-6 animate-pulse">
+  <div className="flex items-center justify-between py-2 px-6">
+    {/* Left side: Token logo + symbol + name */}
     <div className="flex items-center space-x-3">
-      <div className="w-6 h-6 rounded-full bg-stroke" />
+      {/* Token logo (24x24) */}
+      <Skeleton className="!rounded-full" style={{ width: 24, height: 24 }} />
       <div className="flex flex-col gap-1">
-        <div className="w-16 h-4 rounded bg-stroke" />
-        <div className="w-24 h-3 rounded bg-stroke" />
+        {/* Token symbol */}
+        <Skeleton style={{ width: 60, height: 16 }} />
+        {/* Token name */}
+        <Skeleton style={{ width: 80, height: 12 }} />
       </div>
     </div>
-    <div className="w-16 h-4 rounded bg-stroke" />
+    {/* Right side: balance + info icon */}
+    <div className="flex items-center gap-2">
+      {/* Balance */}
+      <Skeleton style={{ width: 50, height: 16 }} />
+      {/* Info icon placeholder */}
+      <Skeleton className="!rounded-full" style={{ width: 18, height: 18 }} />
+    </div>
   </div>
 );
 
@@ -62,34 +77,64 @@ export const TokenLoader = ({ rows = 6 }: { rows?: number }) => (
   </div>
 );
 
-/** Skeleton row for position list loading state */
+/** Skeleton row for position list loading state - matches PositionRow layout */
 const PositionSkeletonRow = () => (
-  <div className="flex flex-col py-3 px-[26px] gap-2 animate-pulse">
+  <div className="flex flex-col py-3 px-[26px] gap-2">
+    {/* Row 1: Token logos + pair name + fee badge | value */}
     <div className="flex items-center justify-between w-full">
       <div className="flex gap-2 items-center">
         <div className="flex items-end">
-          <div className="w-[26px] h-[26px] rounded-full bg-stroke" />
-          <div className="w-[26px] h-[26px] rounded-full bg-stroke -ml-2" />
-          <div className="w-[14px] h-[14px] rounded-full bg-stroke -ml-[6px]" />
+          {/* Token 0 logo */}
+          <Skeleton
+            className="!rounded-full"
+            style={{ width: 26, height: 26 }}
+          />
+          {/* Token 1 logo */}
+          <Skeleton
+            className="!rounded-full"
+            style={{ width: 26, height: 26, marginLeft: -8 }}
+          />
+          {/* Chain logo */}
+          <Skeleton
+            className="!rounded-full relative top-1"
+            style={{ width: 14, height: 14, marginLeft: -6 }}
+          />
         </div>
-        <div className="w-24 h-4 rounded bg-stroke" />
-        <div className="w-12 h-6 rounded-full bg-stroke" />
+        {/* Token pair name (e.g., "ETH/USDC") */}
+        <Skeleton style={{ width: 80, height: 16 }} />
+        {/* Fee badge (e.g., "0.3%") */}
+        <Skeleton className="!rounded-full" style={{ width: 44, height: 26 }} />
       </div>
-      <div className="w-16 h-4 rounded bg-stroke" />
+      {/* Value (e.g., "$1,234") */}
+      <Skeleton style={{ width: 60, height: 16 }} />
     </div>
-    <div className="flex items-center justify-between w-full">
+    {/* Row 2: Protocol logo + version + tokenId + pool address | status badge */}
+    <div className="flex items-center justify-between w-full flex-wrap">
       <div className="flex gap-2 items-center">
-        <div className="w-4 h-4 rounded-full bg-stroke" />
-        <div className="w-20 h-4 rounded bg-stroke" />
-        <div className="w-28 h-6 rounded-full bg-stroke" />
+        {/* Protocol logo + version */}
+        <div className="flex gap-1 items-center">
+          <Skeleton
+            className="!rounded-full"
+            style={{ width: 16, height: 16 }}
+          />
+          <Skeleton style={{ width: 20, height: 12 }} />
+        </div>
+        {/* Token ID (e.g., "#12345") */}
+        <Skeleton style={{ width: 48, height: 12 }} />
+        {/* Pool address badge */}
+        <Skeleton
+          className="!rounded-full"
+          style={{ width: 100, height: 26 }}
+        />
       </div>
-      <div className="w-20 h-6 rounded-full bg-stroke" />
+      {/* Status badge (e.g., "● In range") */}
+      <Skeleton className="!rounded-full" style={{ width: 76, height: 22 }} />
     </div>
   </div>
 );
 
 /** Skeleton loader for position list */
-export const PositionLoader = ({ rows = 4 }: { rows?: number }) => (
+export const PositionLoader = ({ rows = 5 }: { rows?: number }) => (
   <div className="flex flex-col">
     {Array.from({ length: rows }).map((_, index) => (
       <PositionSkeletonRow key={index} />
@@ -202,7 +247,7 @@ const PositionRow = memo(function PositionRow({
               )}
             </div>
             {!isUniv2 && (
-              <span className="text-subText">#{position.tokenId}</span>
+              <span className="text-subText text-xs">#{position.tokenId}</span>
             )}
             <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
               {shortenAddress(position.pool.address, 4)}
@@ -243,6 +288,8 @@ const UserPositions = ({
   positionId,
   poolAddress,
   excludePositionIds,
+  filterExchanges,
+  variant = "default",
   initialSlippage,
   onConnectWallet,
   onSelectLiquiditySource,
@@ -254,6 +301,8 @@ const UserPositions = ({
   positionId?: string;
   poolAddress?: string;
   excludePositionIds?: string[];
+  filterExchanges?: Exchange[];
+  variant?: TokenSelectorVariant;
   initialSlippage?: number;
   onConnectWallet?: () => void;
   onSelectLiquiditySource: OnSelectLiquiditySource;
@@ -269,9 +318,13 @@ const UserPositions = ({
     search,
     account,
     chainId,
+    // Filter by protocols at API level for better performance
+    filterExchanges,
+    // For smart-exit variant, skip out-range first sorting (keep API's valueUsd:desc order)
+    skipOutRangeSort: variant === "smart-exit",
   });
 
-  // Filter out excluded positions (e.g., positions with existing smart exit orders)
+  // Filter out excluded position IDs (excludePositionIds still needs client-side filtering)
   const positions = useMemo(() => {
     if (!excludePositionIds || excludePositionIds.length === 0) {
       return rawPositions;

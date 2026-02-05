@@ -34,15 +34,21 @@ export default function usePositions({
   search,
   account,
   chainId,
+  filterExchanges,
+  skipOutRangeSort = false,
 }: {
   positionId?: string;
   poolAddress?: string;
   search: string;
   account?: string;
   chainId: ChainId;
+  filterExchanges?: Exchange[];
+  skipOutRangeSort?: boolean;
 }) {
   const [userPositions, setUserPositions] = useState([]);
   const [loading, setLoading] = useState(false);
+  // Track if we've completed the initial fetch
+  const [hasFetched, setHasFetched] = useState(false);
 
   const positions = useMemo(() => {
     const positions = positionId
@@ -52,11 +58,15 @@ export default function usePositions({
             : position.pool.address !== poolAddress,
         )
       : userPositions;
-    return sortPositions(positions);
-  }, [poolAddress, positionId, userPositions]);
+    // Skip out-range sorting for smart-exit variant (keep API's valueUsd:desc order)
+    return skipOutRangeSort ? positions : sortPositions(positions);
+  }, [poolAddress, positionId, userPositions, skipOutRangeSort]);
 
   const handleGetUserPositions = useCallback(async () => {
-    if (!account || !earnSupportedChains.includes(chainId)) return;
+    if (!account || !earnSupportedChains.includes(chainId)) {
+      setHasFetched(true);
+      return;
+    }
     setLoading(true);
     try {
       const params: Record<string, string> = {
@@ -67,6 +77,10 @@ export default function usePositions({
       };
       if (search) {
         params.keyword = search;
+      }
+      // Filter by protocols at API level for better performance
+      if (filterExchanges && filterExchanges.length > 0) {
+        params.protocols = filterExchanges.join(",");
       }
       const response = await fetch(
         `${API_URLS.ZAP_EARN_API}/v1/positions?${new URLSearchParams(params).toString()}`,
@@ -79,12 +93,17 @@ export default function usePositions({
       console.log("fetch user positions error", error);
     } finally {
       setLoading(false);
+      setHasFetched(true);
     }
-  }, [account, chainId, search]);
+  }, [account, chainId, search, filterExchanges]);
 
   useEffect(() => {
     handleGetUserPositions();
   }, [handleGetUserPositions]);
 
-  return { positions, loading };
+  // Show loading state if currently fetching OR if we haven't fetched yet (and have account)
+  const isLoading =
+    loading || (!hasFetched && !!account && earnSupportedChains.includes(chainId));
+
+  return { positions, loading: isLoading };
 }

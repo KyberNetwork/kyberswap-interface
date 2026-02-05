@@ -61,6 +61,8 @@ const TokenModal = ({
   showUserPositions = false,
   positionsOnly = false,
   excludePositionIds,
+  filterExchanges,
+  variant = "default",
   setTokensIn,
   setAmountsIn,
   onTokenSelect,
@@ -190,6 +192,8 @@ const TokenModal = ({
             showUserPositions={showUserPositions}
             positionsOnly={positionsOnly}
             excludePositionIds={excludePositionIds}
+            filterExchanges={filterExchanges}
+            variant={variant}
             onTokenSelect={onTokenSelect}
             onConnectWallet={onConnectWallet}
             onSelectLiquiditySource={onSelectLiquiditySource}

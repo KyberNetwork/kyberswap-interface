@@ -1,5 +1,8 @@
 import { ChainId, Exchange, Token } from "@kyber/schema";
 
+// Token selector variants for different use cases
+export type TokenSelectorVariant = "default" | "smart-exit";
+
 // Token selection modes
 export enum TOKEN_SELECT_MODE {
   SELECT = "SELECT", // Single token replacement
@@ -153,10 +156,14 @@ export interface TokenSelectorModalProps {
   showUserPositions?: boolean;
   positionsOnly?: boolean; // When true, only show Positions tab (hide Tokens tab)
   excludePositionIds?: string[]; // Position IDs to exclude from the list (e.g., positions with existing smart exit orders)
+  filterExchanges?: Exchange[]; // Only show positions from these exchanges (e.g., smart-exit supported protocols)
   positionId?: string;
   poolAddress?: string;
   initialSlippage?: number;
   onSelectLiquiditySource?: OnSelectLiquiditySource;
+
+  // Variant for different use cases (affects description, sorting, etc.)
+  variant?: TokenSelectorVariant;
 
   // Wallet connection
   account?: string;

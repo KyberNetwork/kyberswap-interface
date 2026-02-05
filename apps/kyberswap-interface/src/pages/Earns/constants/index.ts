@@ -163,3 +163,8 @@ export const LIMIT_TEXT_STYLES = {
   overflow: 'hidden',
   whiteSpace: 'nowrap',
 }
+
+// Get list of exchanges that support smart exit
+export const SMART_EXIT_SUPPORTED_EXCHANGES = Object.entries(EARN_DEXES_CONFIG)
+  .filter(([, config]) => config.smartExitDexType !== undefined)
+  .map(([exchange]) => exchange as Exchange)

@@ -33,6 +33,7 @@ import { ORDERS_TABLE_GRID_COLUMNS } from 'pages/Earns/SmartExitOrders/constants
 import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { useSmartExitOrdersData } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { SmartExit as SmartExitModal } from 'pages/Earns/components/SmartExit'
+import { SMART_EXIT_SUPPORTED_EXCHANGES } from 'pages/Earns/constants'
 import { OrderStatus, ParsedPosition, SmartExitOrder, UserPosition } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -383,7 +384,9 @@ const SmartExit = () => {
             title={t`Select Position`}
             showUserPositions
             positionsOnly
+            variant="smart-exit"
             excludePositionIds={excludePositionIds}
+            filterExchanges={SMART_EXIT_SUPPORTED_EXCHANGES}
             onSelectLiquiditySource={handleSelectPosition}
             onConnectWallet={toggleWalletModal}
             onClose={handleCloseTokenSelector}

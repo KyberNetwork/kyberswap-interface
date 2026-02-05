@@ -25,7 +25,7 @@ const config: Pick<
     "sm:h-5",
     "sm:w-5",
 
-    // Skeleton classes - dimensions
+    // Skeleton classes - dimensions and animation
     "w-[300px]",
     "h-7",
     "w-[400px]",
@@ -56,6 +56,16 @@ const config: Pick<
     "w-[120px]",
     "mt-3",
     "h-10",
+    "w-4",
+    "w-12",
+    "w-28",
+    "w-[26px]",
+    "h-[26px]",
+    "animate-pulse",
+    "bg-stroke",
+    "bg-[#ffffff1a]",
+    "px-[26px]",
+    "overflow-auto",
 
     // Button classes
     "flex-1",

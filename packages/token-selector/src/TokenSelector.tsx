@@ -161,6 +161,8 @@ export default function TokenSelector({
   showUserPositions = false,
   positionsOnly = false,
   excludePositionIds,
+  filterExchanges,
+  variant = "default",
   selectedTokens,
   setTokensIn,
   setAmountsIn,
@@ -582,7 +584,9 @@ export default function TokenSelector({
             className={`text-sm text-subText px-6 ${positionsOnly ? "!-mt-2" : ""}`}
           >
             {i18n._(
-              "Use your existing liquidity positions from supported protocols as a source.",
+              variant === "smart-exit"
+                ? "Select the position for setting up Smart Exit."
+                : "Use your existing liquidity positions from supported protocols as a source.",
             )}
           </p>
         )}
@@ -697,6 +701,8 @@ export default function TokenSelector({
                   positionId={positionId}
                   poolAddress={poolAddress}
                   excludePositionIds={excludePositionIds}
+                  filterExchanges={filterExchanges}
+                  variant={variant}
                   onConnectWallet={onConnectWallet}
                   onSelectLiquiditySource={onSelectLiquiditySource}
                   onClose={onClose}

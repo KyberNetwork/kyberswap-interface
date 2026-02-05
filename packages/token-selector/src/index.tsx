@@ -80,6 +80,7 @@ export default TokenSelectorModal;
 export { TOKEN_SELECT_MODE, MAX_TOKENS };
 export type {
   TokenSelectorModalProps,
+  TokenSelectorVariant,
   EarnPosition,
   PositionStatus,
   OnSelectLiquiditySource,
