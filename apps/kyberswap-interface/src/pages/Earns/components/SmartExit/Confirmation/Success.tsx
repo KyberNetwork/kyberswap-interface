@@ -44,6 +44,7 @@ export default function Success({
         <ButtonPrimary
           flex={1}
           onClick={() => {
+            onCloseSmartExit()
             navigate(APP_PATHS.EARN_SMART_EXIT)
           }}
         >

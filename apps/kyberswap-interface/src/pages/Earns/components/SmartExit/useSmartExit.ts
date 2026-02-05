@@ -1,13 +1,12 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  SmartExitFeeParams,
+  useCreateSmartExitOrderMutation,
   useEstimateSmartExitFeeMutation,
   useGetSmartExitSignMessageMutation,
 } from 'services/smartExit'
 
 import { NotificationType } from 'components/Announcement/type'
-import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useSuccessSound } from 'hooks/useSuccessSound'
 import { SmartExitState } from 'pages/Earns/components/SmartExit/constants'
@@ -34,6 +33,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
   const [positionLiquidity, setPositionLiquidity] = useState<string | null>(null)
   const [getSignMessage] = useGetSmartExitSignMessageMutation()
   const [estimateFeeMutation] = useEstimateSmartExitFeeMutation()
+  const [createOrderMutation] = useCreateSmartExitOrderMutation()
 
   const dexType = position ? EARN_DEXES[position.dex.id]?.smartExitDexType : undefined
 
@@ -106,26 +106,12 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         // Step 2: Sign the typed data
         const orderSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
 
-        // Step 3: Create the order with both signatures
-        const orderParams: SmartExitFeeParams & { permitData: string; signature: string; maxGasPercentage: number } = {
+        // Step 3: Create the order using RTK Query mutation (this will auto-invalidate and refetch the orders list)
+        const result = await createOrderMutation({
           ...createSmartExitOrderParams,
           signature: orderSignature,
-        }
+        }).unwrap()
 
-        const response = await fetch(`${SMART_EXIT_API_URL}/v1/orders/smart-exit`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(orderParams),
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
-        }
-
-        const result = await response.json()
         setState(SmartExitState.SUCCESS)
 
         notify({
@@ -135,7 +121,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         })
         playSuccessSound()
 
-        return result.orderId || result.id
+        return !!(result.orderId || result.id)
       } catch (error) {
         const message = friendlyError(error)
         console.error('Smart exit order creation error:', { message, error })
@@ -150,7 +136,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         return false
       }
     },
-    [account, baseParams, getSignMessage, library, notify, playSuccessSound],
+    [account, baseParams, createOrderMutation, getSignMessage, library, notify, playSuccessSound],
   )
 
   const estimateFee = useCallback(async (): Promise<SmartExitFee | null> => {

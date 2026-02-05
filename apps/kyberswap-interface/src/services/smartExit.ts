@@ -105,7 +105,7 @@ const smartExitApi = createApi({
 
     createSmartExitOrder: builder.mutation<
       { id: string; orderId: string },
-      SmartExitFeeParams & { signature: string; maxFeesPercentage?: number[] }
+      SmartExitFeeParams & { signature: string; maxGasPercentage: number; permitData: string }
     >({
       query: body => ({
         url: '/v1/orders/smart-exit',
