@@ -13,18 +13,33 @@ const WarningMessage = styled.div`
   max-width: 100%;
 `
 
+const OrTimeWarning = styled.div`
+  background-color: ${({ theme }) => rgba(theme.warning, 0.1)};
+  font-size: 14px;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 16px;
+  line-height: 20px;
+  width: fit-content;
+  max-width: 100%;
+`
+
+const WarningText = styled.span`
+  color: ${({ theme }) => theme.warning};
+`
+
+const NormalText = styled.span`
+  color: ${({ theme }) => theme.subText};
+`
+
 export default function Warning({
   deadlineBeforeConditionTime,
   timeBeforeNow,
   isGasTooHigh,
-  orWithTimeAlreadyMet,
-  conditionTime,
 }: {
   deadlineBeforeConditionTime: boolean
   timeBeforeNow: boolean
   isGasTooHigh: boolean
-  orWithTimeAlreadyMet: boolean
-  conditionTime?: string
 }) {
   return (
     <>
@@ -43,14 +58,24 @@ export default function Warning({
           <Trans>Max fee is capped at 100% for safety.</Trans>
         </WarningMessage>
       )}
-      {orWithTimeAlreadyMet && conditionTime && (
-        <WarningMessage>
-          <Trans>
-            This will likely execute immediately. &ldquo;Before {conditionTime}&rdquo; is already met. If you want both
-            conditions to be required, switch to AND.
-          </Trans>
-        </WarningMessage>
-      )}
     </>
+  )
+}
+
+export function OrTimeAlreadyMetWarning({ conditionTime }: { conditionTime: string }) {
+  return (
+    <OrTimeWarning>
+      <WarningText>
+        <Trans>This will likely execute immediately.</Trans>
+      </WarningText>
+      <br />
+      <NormalText>
+        <Trans>{conditionTime} is already met.</Trans>
+      </NormalText>
+      <br />
+      <NormalText>
+        <Trans>If you want both conditions to be required, switch to AND.</Trans>
+      </NormalText>
+    </OrTimeWarning>
   )
 }

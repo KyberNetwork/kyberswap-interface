@@ -14,7 +14,7 @@ import { GuidedHighlightProvider } from 'pages/Earns/components/SmartExit/Guided
 import Metrics from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
-import Warning from 'pages/Earns/components/SmartExit/Warning'
+import Warning, { OrTimeAlreadyMetWarning } from 'pages/Earns/components/SmartExit/Warning'
 import { FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
 import { useSmartExitDeadline } from 'pages/Earns/components/SmartExit/hooks/useSmartExitDeadline'
 import { useSmartExitFeeEstimation } from 'pages/Earns/components/SmartExit/hooks/useSmartExitFeeEstimation'
@@ -119,6 +119,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
               <Flex flexDirection="column" sx={{ gap: '1rem' }} flex={1}>
                 <PositionLiquidity position={position} isLoading={positionLoading} />
                 <PoolPrice position={position} isLoading={positionLoading} />
+                {orWithTimeAlreadyMet && conditionTime && <OrTimeAlreadyMetWarning conditionTime={conditionTime} />}
               </Flex>
 
               <Flex flexDirection="column" flex={1} sx={{ gap: '1rem' }}>
@@ -142,8 +143,6 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
                   deadlineBeforeConditionTime={deadlineBeforeConditionTime}
                   timeBeforeNow={timeBeforeNow}
                   isGasTooHigh={isGasTooHigh}
-                  orWithTimeAlreadyMet={orWithTimeAlreadyMet}
-                  conditionTime={conditionTime}
                 />
               </Flex>
             </ContentWrapper>
