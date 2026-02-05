@@ -128,6 +128,22 @@ export const parsePosition = ({
     ? token1CurrentQuote.value / (token1CurrentQuote.price || 1)
     : 0
 
+  const token0CurrentAmount = forceClosed
+    ? 0
+    : Number(currentAmount0?.amount?.amount || 0) && token0Data?.decimals
+    ? Number(currentAmount0?.amount?.amount) / 10 ** token0Data?.decimals
+    : token0CurrentQuote
+    ? token0CurrentQuote.value / (token0CurrentQuote.price || 1)
+    : 0
+
+  const token1CurrentAmount = forceClosed
+    ? 0
+    : Number(currentAmount1?.amount?.amount || 0) && token1Data?.decimals
+    ? Number(currentAmount1?.amount?.amount) / 10 ** token1Data?.decimals
+    : token1CurrentQuote
+    ? token1CurrentQuote.value / (token1CurrentQuote.price || 1)
+    : 0
+
   const token0PendingEarned =
     Number(feePending0?.amount?.amount || 0) && token0Data?.decimals
       ? Number(feePending0?.amount?.amount) / 10 ** token0Data?.decimals
@@ -318,6 +334,7 @@ export const parsePosition = ({
       price: currentAmounts[0]?.amount?.priceUsd,
       isNative: isNativeToken(token0Address, chainId as keyof typeof WETH),
       totalProvide: token0TotalProvide,
+      currentAmount: token0CurrentAmount,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount0) : token0PendingEarned,
       unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance0) : Number(feePending0?.amount?.amount || 0),
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value0) : token0PendingQuote?.value || 0,
@@ -330,6 +347,7 @@ export const parsePosition = ({
       price: currentAmounts[1]?.amount?.priceUsd,
       isNative: isNativeToken(token1Address, chainId as keyof typeof WETH),
       totalProvide: token1TotalProvide,
+      currentAmount: token1CurrentAmount,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount1) : token1PendingEarned,
       unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance1) : Number(feePending1?.amount?.amount || 0),
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value1) : token1PendingQuote?.value || 0,

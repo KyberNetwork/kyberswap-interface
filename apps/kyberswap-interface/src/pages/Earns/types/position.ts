@@ -202,6 +202,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     price: 0,
     isNative: false,
     totalProvide: 0,
+    currentAmount: 0,
     unclaimedAmount: 0,
     unclaimedBalance: 0,
     unclaimedValue: 0,
@@ -214,6 +215,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     price: 0,
     isNative: false,
     totalProvide: 0,
+    currentAmount: 0,
     unclaimedAmount: 0,
     unclaimedBalance: 0,
     unclaimedValue: 0,
@@ -345,4 +347,5 @@ export interface Token {
   unclaimedAmount: number
   unclaimedBalance: number
   unclaimedValue: number
+  currentAmount: number
 }

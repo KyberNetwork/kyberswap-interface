@@ -63,9 +63,9 @@ export default function PositionLiquidity({ position, isLoading = false }: Posit
           {position.token0.symbol}
         </Flex>
         <Flex flexDirection="column" sx={{ gap: '4px' }} alignItems="flex-end">
-          <Text>{formatDisplayNumber(position.token0.totalProvide, { significantDigits: 6 })}</Text>
+          <Text>{formatDisplayNumber(position.token0.currentAmount, { significantDigits: 6 })}</Text>
           <Text fontSize={12} color={theme.subText}>
-            {formatDisplayNumber(position.token0.price * position.token0.totalProvide, {
+            {formatDisplayNumber(position.token0.price * position.token0.currentAmount, {
               style: 'currency',
               significantDigits: 6,
             })}
@@ -79,9 +79,9 @@ export default function PositionLiquidity({ position, isLoading = false }: Posit
         </Flex>
 
         <Flex flexDirection="column" sx={{ gap: '4px' }} alignItems="flex-end">
-          <Text>{formatDisplayNumber(position.token1.totalProvide, { significantDigits: 6 })}</Text>
+          <Text>{formatDisplayNumber(position.token1.currentAmount, { significantDigits: 6 })}</Text>
           <Text fontSize={12} color={theme.subText}>
-            {formatDisplayNumber(position.token1.price * position.token1.totalProvide, {
+            {formatDisplayNumber(position.token1.price * position.token1.currentAmount, {
               style: 'currency',
               significantDigits: 6,
             })}
