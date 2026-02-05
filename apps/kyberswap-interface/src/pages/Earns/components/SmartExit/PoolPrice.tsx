@@ -105,7 +105,7 @@ export default function PoolPrice({ position, isLoading = false }: PoolPriceProp
             }
           />{' '}
         </Text>
-        <Text>{formatDisplayNumber(position.earningFeeYield, { significantDigits: 2 })}%</Text>
+        <Text>{formatDisplayNumber(position.earningFeeYield, { significantDigits: 4 })}%</Text>
       </Flex>
     </CustomBox>
   )
