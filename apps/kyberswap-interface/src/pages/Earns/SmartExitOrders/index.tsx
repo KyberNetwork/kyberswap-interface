@@ -281,7 +281,7 @@ const SmartExit = () => {
               <Trans>Position</Trans>
             </Text>
             <Text>
-              <Trans>Conditional</Trans>
+              <Trans>Condition(s)</Trans>
             </Text>
             <Text textAlign="left" lineHeight="1.45">
               <Trans>
