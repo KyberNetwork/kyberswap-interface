@@ -334,7 +334,7 @@ const PositionDetail = () => {
         ) : (
           <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
             <TokenLogo src={position?.token0.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token0.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{formatDisplayNumber(position?.token0.currentAmount, { significantDigits: 4 })}</Text>
             <Text>{position?.token0.symbol}</Text>
           </Flex>
         )}
@@ -344,7 +344,7 @@ const PositionDetail = () => {
         ) : (
           <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
             <TokenLogo src={position?.token1.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token1.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{formatDisplayNumber(position?.token1.currentAmount, { significantDigits: 4 })}</Text>
             <Text>{position?.token1.symbol}</Text>
           </Flex>
         )}
