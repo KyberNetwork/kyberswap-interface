@@ -36,6 +36,17 @@ export default function Metrics({
     if (metric1 === null) return
     setSelectedMetrics([{ ...metric1 }, value])
   }
+  const onRemoveMetric1 = () => {
+    if (metric2 === null || metric2 === undefined) return
+    let newMetric2 = metric2
+    if (metric2.metric === Metric.Time) {
+      const timeCondition = getTimeCondition(metric2)
+      if (timeCondition && timeCondition.condition === 'before') {
+        newMetric2 = { ...metric2, condition: { ...timeCondition, condition: 'after' } }
+      }
+    }
+    setSelectedMetrics([newMetric2])
+  }
   const onRemoveMetric2 = () => {
     if (metric1 === null) return
     let newMetric1 = metric1
@@ -80,6 +91,7 @@ export default function Metrics({
         selectedMetric={metric2}
         position={position}
         isFirstMetric
+        onRemove={metric2 !== undefined ? onRemoveMetric1 : undefined}
       />
       {metric2 !== undefined ? (
         <>
