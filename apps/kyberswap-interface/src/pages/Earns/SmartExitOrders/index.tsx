@@ -184,7 +184,7 @@ const SmartExit = () => {
     {
       userWallet: account || '',
       status: OrderStatus.OrderStatusOpen,
-      pageSize: 1000, // Get all active orders
+      pageSize: 100, // Get all active orders
     },
     { skip: !account },
   )
