@@ -86,7 +86,8 @@ export const buildConditions = (
               type: Metric.FeeYield,
               value: {
                 gte: parseFloat(feeYieldCondition),
-                ...(providedAmounts ? { initialTokenAmounts: providedAmounts.map(toString) } : {}),
+                // ...(providedAmounts ? { initialTokenAmounts: providedAmounts.map(toString) } : {}),
+                ...(providedAmounts ? { initialTokenAmounts: providedAmounts } : {}),
               },
             },
           })
