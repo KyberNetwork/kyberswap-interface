@@ -60,7 +60,7 @@ const SecurityInfo = ({
         </div>
         <div className="flex items-center gap-1">
           <span className="text-subText text-[10px]">
-            {i18n._("Powered by")}
+{i18n._("Powered by")}
           </span>{" "}
           <LogoGoPlus className="h-4 w-14" />
         </div>

@@ -75,7 +75,7 @@ const ListItem = styled(motion.div)<{ selected?: boolean; $disabled?: boolean; $
       cursor: not-allowed;
       color: ${({ theme }) => theme.subText + '72'};
     `}
-    
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 12px;
     height: 54px;
@@ -296,12 +296,11 @@ const DraggableNetworkButton = ({
                 <MaintainLabel
                   style={{
                     position: 'absolute',
-                    color: theme.subText,
-                    top: '50%',
+                    top: '20%',
                     right: '-90%',
                   }}
                 >
-                  Deprecated Soon
+                  Deprecating
                 </MaintainLabel>
               )}
             </Text>

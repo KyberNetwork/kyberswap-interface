@@ -5642,6 +5642,9 @@ msgstr "KYBER DAO"
 #: src/components/LiveChart/index.tsx
 #: src/components/swapv2/TokenInfo/index.tsx
 #: src/components/swapv2/TokenInfo/index.tsx
+msgid "Powered by <0/>"
+msgstr "Powered by <0/>"
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Powered by"
 msgstr "Powered by"

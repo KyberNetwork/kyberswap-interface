@@ -12,6 +12,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/components/TokenSelector/TokenInfo/MarketInfo.tsx
+#: src/components/TokenSelector/TokenInfo/SecurityInfo.tsx
+msgid "Powered by <0/>"
+msgstr "Powered by <0/>"
+
 #: src/components/Setting/index.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"

@@ -99,7 +99,7 @@ function SelectNetwork(): JSX.Element | null {
         <DropdownIcon open={networkModalOpen} />
       </NetworkSwitchContainer>
       <NetworkModal
-        deprecatedSoons={[ChainId.ZKSYNC]}
+        deprecatedSoons={[ChainId.ZKSYNC, ChainId.MANTLE]}
         selectedId={chainId}
         disabledMsg={t`Unsupported by your wallet.`}
         activeChainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...supportedChains.map(item => item.chainId)]}
