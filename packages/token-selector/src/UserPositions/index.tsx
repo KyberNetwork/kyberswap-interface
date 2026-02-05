@@ -24,6 +24,7 @@ import {
 
 const COPY_TIMEOUT = 2000;
 const POSITION_ROW_HEIGHT = 88;
+const LOAD_MORE_THRESHOLD = 5; // Load more when scrolling within 5 items of the end
 
 const listDexesWithVersion = [
   Exchange.DEX_UNISWAPV2,
@@ -147,6 +148,8 @@ interface PositionRowData {
   account?: string;
   copied: string | null;
   initialSlippage?: number;
+  loadingMore?: boolean;
+  hasMore?: boolean;
   onCopy: (position: EarnPosition) => void;
   onSelectLiquiditySource: OnSelectLiquiditySource;
   onClose: () => void;
@@ -163,6 +166,7 @@ const PositionRow = memo(function PositionRow({
     account,
     copied,
     initialSlippage,
+    loadingMore,
     onCopy,
     onSelectLiquiditySource,
     onClose,
@@ -170,7 +174,18 @@ const PositionRow = memo(function PositionRow({
   } = data;
 
   const position = positions[index];
-  if (!position) return null;
+
+  // Show loading skeleton for the extra row when loading more
+  if (!position) {
+    if (loadingMore) {
+      return (
+        <div style={style}>
+          <PositionSkeletonRow />
+        </div>
+      );
+    }
+    return null;
+  }
 
   const isUniv2 = Univ2EarnDex.safeParse(position.pool.protocol.type).success;
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
@@ -312,7 +327,13 @@ const UserPositions = ({
   const [copied, setCopied] = useState<string | null>(null);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { positions: rawPositions, loading } = usePositions({
+  const {
+    positions: rawPositions,
+    loading,
+    loadingMore,
+    hasMore,
+    loadMore,
+  } = usePositions({
     positionId,
     poolAddress,
     search,
@@ -357,12 +378,31 @@ const UserPositions = ({
     };
   }, []);
 
+  // Handle infinite scroll - load more when user scrolls near the end
+  const handleItemsRendered = useCallback(
+    ({ visibleStopIndex }: { visibleStopIndex: number }) => {
+      if (
+        hasMore &&
+        !loadingMore &&
+        visibleStopIndex >= positions.length - LOAD_MORE_THRESHOLD
+      ) {
+        loadMore();
+      }
+    },
+    [hasMore, loadingMore, positions.length, loadMore],
+  );
+
+  // Total item count includes loading row when loading more
+  const itemCount = positions.length + (loadingMore ? 1 : 0);
+
   const positionListData = useMemo<PositionRowData>(
     () => ({
       positions,
       account,
       copied,
       initialSlippage,
+      loadingMore,
+      hasMore,
       onCopy: copy,
       onSelectLiquiditySource,
       onClose,
@@ -373,6 +413,8 @@ const UserPositions = ({
       account,
       copied,
       initialSlippage,
+      loadingMore,
+      hasMore,
       copy,
       onSelectLiquiditySource,
       onClose,
@@ -407,10 +449,11 @@ const UserPositions = ({
           <List
             height={height}
             width={width}
-            itemCount={positions.length}
+            itemCount={itemCount}
             itemSize={POSITION_ROW_HEIGHT}
             itemData={positionListData}
             overscanCount={3}
+            onItemsRendered={handleItemsRendered}
           >
             {PositionRow}
           </List>

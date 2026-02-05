@@ -45,6 +45,7 @@ enum MODAL_TAB {
 }
 
 const MESSAGE_TIMEOUT = 4_000;
+const DEBOUNCE_DELAY = 300;
 
 interface TokenSelectorProps extends TokenSelectorModalProps {
   selectedTokens: Token[];
@@ -190,6 +191,7 @@ export default function TokenSelector({
   );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
   const [tabSelected, setTabSelected] = useState<TOKEN_TAB>(TOKEN_TAB.ALL);
   const [modalTabSelected, setModalTabSelected] = useState<MODAL_TAB>(
@@ -200,6 +202,7 @@ export default function TokenSelector({
   const [modalTokensIn, setModalTokensIn] = useState<Token[]>([...tokensIn]);
   const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const modalTokensInAddress = useMemo(
     () => modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
@@ -483,6 +486,22 @@ export default function TokenSelector({
     };
   }, [message]);
 
+  // Debounce search term for API calls
+  useEffect(() => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    debounceTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, DEBOUNCE_DELAY);
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [searchTerm]);
+
   useEffect(() => {
     if (unImportedTokens?.length) {
       const cloneUnImportedTokens = [...unImportedTokens].filter(
@@ -498,7 +517,7 @@ export default function TokenSelector({
   }, [importedTokens]);
 
   useEffect(() => {
-    const search = searchTerm.toLowerCase().trim();
+    const search = debouncedSearchTerm.toLowerCase().trim();
 
     // Skip fetching unimported tokens when chainId is not provided (positionsOnly mode)
     if (!filteredTokens.length && isAddress(search) && chainId) {
@@ -507,7 +526,7 @@ export default function TokenSelector({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredTokens, chainId]);
+  }, [filteredTokens, chainId, debouncedSearchTerm]);
 
   useEffect(() => {
     const cloneTokensIn = [...tokensIn];

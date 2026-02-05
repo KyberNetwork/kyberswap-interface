@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { API_URLS, EarnChain, Exchange } from "@kyber/schema";
 import { enumToArrayOfValues } from "@kyber/utils";
 
 import { EarnPosition, PositionStatus } from "@/types";
+
+const DEBOUNCE_DELAY = 300;
+const PAGE_SIZE = 10;
 
 const earnSupportedChains = enumToArrayOfValues(EarnChain, "number");
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
@@ -45,10 +48,19 @@ export default function usePositions({
   filterExchanges?: Exchange[];
   skipOutRangeSort?: boolean;
 }) {
-  const [userPositions, setUserPositions] = useState([]);
+  const [userPositions, setUserPositions] = useState<EarnPosition[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   // Track if we've completed the initial fetch
   const [hasFetched, setHasFetched] = useState(false);
+  // Debounced search value
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  // Track current fetch params to detect changes
+  const currentParamsRef = useRef<string>("");
 
   const positions = useMemo(() => {
     const positions = positionId
@@ -62,53 +74,114 @@ export default function usePositions({
     return skipOutRangeSort ? positions : sortPositions(positions);
   }, [poolAddress, positionId, userPositions, skipOutRangeSort]);
 
-  const handleGetUserPositions = useCallback(async () => {
-    // If chainId is provided, check if it's supported; if not provided, fetch all chains
-    if (
-      !account ||
-      (chainId !== undefined && !earnSupportedChains.includes(chainId))
-    ) {
-      setHasFetched(true);
-      return;
-    }
-    setLoading(true);
-    try {
-      const params: Record<string, string> = {
-        wallet: account,
-        statuses: "PositionStatusInRange,PositionStatusOutRange",
-        sorts: "valueUsd:desc",
-      };
-      // Only add chainIds param if specific chain is requested, otherwise fetch all supported chains
-      if (chainId !== undefined) {
-        params.chainIds = chainId.toString();
-      } else {
-        params.chainIds = earnSupportedChains.join(",");
+  const fetchPositions = useCallback(
+    async (pageNum: number, isLoadMore = false) => {
+      // If chainId is provided, check if it's supported; if not provided, fetch all chains
+      if (
+        !account ||
+        (chainId !== undefined && !earnSupportedChains.includes(chainId))
+      ) {
+        setHasFetched(true);
+        return;
       }
-      if (search) {
-        params.keyword = search;
-      }
-      // Filter by protocols at API level for better performance
-      if (filterExchanges && filterExchanges.length > 0) {
-        params.protocols = filterExchanges.join(",");
-      }
-      const response = await fetch(
-        `${API_URLS.ZAP_EARN_API}/v1/positions?${new URLSearchParams(params).toString()}`,
-      );
-      const data = await response.json();
-      if (data?.data?.positions) {
-        setUserPositions(data.data.positions);
-      }
-    } catch (error) {
-      console.log("fetch user positions error", error);
-    } finally {
-      setLoading(false);
-      setHasFetched(true);
-    }
-  }, [account, chainId, search, filterExchanges]);
 
+      if (isLoadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+
+      try {
+        const params: Record<string, string> = {
+          wallet: account,
+          statuses: "PositionStatusInRange,PositionStatusOutRange",
+          sorts: "valueUsd:desc",
+          page: pageNum.toString(),
+          pageSize: PAGE_SIZE.toString(),
+        };
+        // Only add chainIds param if specific chain is requested, otherwise fetch all supported chains
+        if (chainId !== undefined) {
+          params.chainIds = chainId.toString();
+        } else {
+          params.chainIds = earnSupportedChains.join(",");
+        }
+        if (debouncedSearch) {
+          params.keyword = debouncedSearch;
+        }
+        // Filter by protocols at API level for better performance
+        if (filterExchanges && filterExchanges.length > 0) {
+          params.protocols = filterExchanges.join(",");
+        }
+
+        const response = await fetch(
+          `${API_URLS.ZAP_EARN_API}/v1/positions?${new URLSearchParams(params).toString()}`,
+        );
+        const data = await response.json();
+
+        if (data?.data?.positions) {
+          const newPositions = data.data.positions;
+
+          if (isLoadMore) {
+            setUserPositions((prev) => [...prev, ...newPositions]);
+          } else {
+            setUserPositions(newPositions);
+          }
+
+          // Check if there are more pages
+          const pagination = data.data.pagination;
+          if (pagination) {
+            setHasMore(pagination.page < pagination.totalPages);
+          } else {
+            // Fallback: if we got fewer items than page size, no more pages
+            setHasMore(newPositions.length >= PAGE_SIZE);
+          }
+        }
+      } catch (error) {
+        console.log("fetch user positions error", error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        setHasFetched(true);
+      }
+    },
+    [account, chainId, debouncedSearch, filterExchanges],
+  );
+
+  const loadMore = useCallback(() => {
+    if (!loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchPositions(nextPage, true);
+    }
+  }, [loadingMore, hasMore, page, fetchPositions]);
+
+  // Debounce search term
   useEffect(() => {
-    handleGetUserPositions();
-  }, [handleGetUserPositions]);
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    debounceTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, DEBOUNCE_DELAY);
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [search]);
+
+  // Reset and fetch when params change (except page)
+  useEffect(() => {
+    const paramsKey = `${account}-${chainId}-${debouncedSearch}-${filterExchanges?.join(",")}`;
+    if (currentParamsRef.current !== paramsKey) {
+      currentParamsRef.current = paramsKey;
+      setPage(1);
+      setHasMore(true);
+      setUserPositions([]);
+      fetchPositions(1, false);
+    }
+  }, [account, chainId, debouncedSearch, filterExchanges, fetchPositions]);
 
   // Show loading state if currently fetching OR if we haven't fetched yet (and have account)
   // When chainId is not provided (all chains mode), always allow showing loading state
@@ -118,5 +191,11 @@ export default function usePositions({
       !!account &&
       (chainId === undefined || earnSupportedChains.includes(chainId)));
 
-  return { positions, loading: isLoading };
+  return {
+    positions,
+    loading: isLoading,
+    loadingMore,
+    hasMore,
+    loadMore,
+  };
 }
