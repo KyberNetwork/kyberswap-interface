@@ -16,9 +16,11 @@ const WarningMessage = styled.div`
 export default function Warning({
   deadlineBeforeConditionTime,
   timeBeforeNow,
+  isGasTooHigh,
 }: {
   deadlineBeforeConditionTime: boolean
   timeBeforeNow: boolean
+  isGasTooHigh: boolean
 }) {
   return (
     <>
@@ -30,6 +32,11 @@ export default function Warning({
       {deadlineBeforeConditionTime && (
         <WarningMessage>
           <Trans>Trigger time must be before the order expires. Adjust the time settings accordingly.</Trans>
+        </WarningMessage>
+      )}
+      {isGasTooHigh && (
+        <WarningMessage>
+          <Trans>Max fee is capped at 100% for safety.</Trans>
         </WarningMessage>
       )}
     </>

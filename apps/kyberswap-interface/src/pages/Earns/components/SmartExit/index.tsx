@@ -137,7 +137,11 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
                   setCustomGasPercent={setCustomGasPercent}
                   isLoading={positionLoading}
                 />
-                <Warning deadlineBeforeConditionTime={deadlineBeforeConditionTime} timeBeforeNow={timeBeforeNow} />
+                <Warning
+                  deadlineBeforeConditionTime={deadlineBeforeConditionTime}
+                  timeBeforeNow={timeBeforeNow}
+                  isGasTooHigh={isGasTooHigh}
+                />
               </Flex>
             </ContentWrapper>
 
