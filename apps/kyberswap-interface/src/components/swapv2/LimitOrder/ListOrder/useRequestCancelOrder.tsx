@@ -70,7 +70,7 @@ const useRequestCancelOrder = ({
 }) => {
   const { setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
   const { account, chainId, networkInfo, walletKey } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
   const [createCancelSignature] = useCreateCancelOrderSignatureMutation()
@@ -89,6 +89,7 @@ const useRequestCancelOrder = ({
         contractAddress: contract,
         encodedData,
         value: BigNumber.from(0),
+        isSmartConnector,
         sentryInfo: {
           name: ErrorName.LimitOrderError,
           wallet: walletKey,
