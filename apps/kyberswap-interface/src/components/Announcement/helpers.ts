@@ -110,7 +110,7 @@ export const getSmartExitConditionText = (condition?: SmartExitCondition, fallba
       if (field.type === Metric.FeeYield) {
         const value = Number(field.value?.gte)
         if (!Number.isFinite(value)) return null
-        return `Yield ≥ ${Number(value.toFixed(2))}%`
+        return `Yield ≥ ${formatDisplayNumber(value, { significantDigits: 6 })}%`
       }
 
       if (field.type === Metric.PoolPrice) {
