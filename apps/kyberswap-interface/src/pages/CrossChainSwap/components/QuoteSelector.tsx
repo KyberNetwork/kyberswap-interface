@@ -10,27 +10,19 @@ import styled from 'styled-components'
 import { ReactComponent as RouteIcon } from 'assets/svg/route_icon.svg'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
+import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
+// import { GasStation } from 'components/Icons'
+import { Currency } from 'pages/CrossChainSwap/adapters'
+import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
+import { formatTime } from 'pages/CrossChainSwap/components/Summary'
+import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
+import { registry, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { Quote } from 'pages/CrossChainSwap/registry'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-// import { GasStation } from 'components/Icons'
-import { Currency } from '../adapters'
-import { registry, useCrossChainSwap } from '../hooks/useCrossChainSwap'
-import { Quote } from '../registry'
-import { formatTime } from './Summary'
-import { TokenLogoWithChain } from './TokenLogoWithChain'
-
-export const Tag = styled.div`
-  background-color: ${({ theme }) => theme.subText + '33'};
-  color: ${({ theme }) => theme.text};
-  border-radius: 999px;
-  margin-left: 4px;
-  font-size: 10px;
-  padding: 2px 6px;
-`
 
 const Wrapper = styled.div`
   display: flex;
@@ -40,11 +32,11 @@ const Wrapper = styled.div`
   width: 100%;
   color: ${({ theme }) => theme.text};
 `
-const ListRoute = styled.div`
+const ListRoute = styled(ScrollableWithSignal)`
   padding-bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 12px;
   max-height: 100%;
   overflow-y: auto;
   padding-right: 8px;
@@ -75,7 +67,7 @@ const Row = styled.div<{ selected: boolean }>`
   border-radius: 16px;
   border: 1px solid ${({ selected, theme }) => (selected ? theme.darkGreen : theme.border)};
   cursor: pointer;
-  hover {
+  &:hover {
     background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
   }
 `
@@ -110,13 +102,8 @@ export const QuoteSelector = ({
         </Text>
         {upToLarge && <X onClick={() => setShow(false)} />}
       </Flex>
-      <Box
-        sx={{
-          flex: 1,
-          overflowY: 'scroll',
-        }}
-      >
-        <ListRoute>
+      <Box sx={{ flex: 1, overflowY: 'scroll' }}>
+        <ListRoute data-open="true" showArrow>
           {quotes.map((quote, index) => {
             const ongoingTag = nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
             return (
@@ -125,11 +112,8 @@ export const QuoteSelector = ({
                 selected={selectedQuote.adapter.getName() === quote.adapter.getName()}
                 role="button"
                 onClick={() => {
-                  if (quote.adapter.getName() !== selectedQuote.adapter.getName()) {
-                    onChange(quote)
-                    setShow(false)
-                    return
-                  }
+                  onChange(quote)
+                  setShow(false)
                 }}
               >
                 <Flex alignItems="center">
@@ -190,9 +174,7 @@ export const QuoteSelector = ({
                   )}
                 </Flex>
                 <Flex marginTop="8px" alignItems="center" color={theme.subText} fontSize="14px">
-                  <img src={quote.adapter.getIcon()} alt={quote.adapter.getName()} width={14} height={14} />
-                  <Text ml="4px">{quote.adapter.getName()}</Text>
-                  {quote.adapter.getName() === 'Optimex' && <Tag>{t`Beta`}</Tag>}
+                  <QuoteProviderName quote={quote} />
                   <Text mx="8px">|</Text>
                   <Clock size={14} />
                   <Text ml="4px" mr="8px">
@@ -274,6 +256,7 @@ export const QuoteSelector = ({
         alignItems: 'center',
         justifyContent: 'center',
         fontWeight: 500,
+        '&:hover': { backgroundColor: rgba(theme.subText, 0.12) },
       }}
     >
       <RouteIcon />

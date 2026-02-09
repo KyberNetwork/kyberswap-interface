@@ -9,7 +9,7 @@ import { Text } from 'rebass'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
-import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
+import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'

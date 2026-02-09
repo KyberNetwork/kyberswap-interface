@@ -8,7 +8,7 @@ import { Text } from 'rebass'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 import styled, { CSSProperties } from 'styled-components'
 
-import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
+import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import LocalLoader from 'components/LocalLoader'
 import RefreshLoading from 'components/RefreshLoading'
 import { useActiveWeb3React } from 'hooks'
