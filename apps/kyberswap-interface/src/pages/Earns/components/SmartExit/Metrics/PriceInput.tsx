@@ -52,6 +52,8 @@ export default function PriceInput({
   const priceToTick = useCallback(
     (price: string) => {
       if (!price) return undefined
+      const priceNum = parseFloat(price)
+      if (!priceNum || priceNum <= 0 || !isFinite(priceNum)) return undefined
       return nearestUsableTick(
         priceToClosestTick(price, position.token0.decimals, position.token1.decimals) || 0,
         position.pool.tickSpacing,
@@ -146,7 +148,10 @@ export default function PriceInput({
     }
     debounceTickFromInputRef.current = setTimeout(() => {
       const t = priceToTick(inputPrice)
-      if (t !== undefined && t !== tick) {
+      if (t === undefined) {
+        // Reset tick when price is invalid (e.g., 0 or empty)
+        setTick(undefined)
+      } else if (t !== tick) {
         setTick(t)
         lastSideRef.current = t >= currentTick ? 'above' : 'below'
       }
@@ -196,7 +201,10 @@ export default function PriceInput({
     if (changeSourceRef.current === 'slider') return
     if (priceCondition) {
       const priceTick = priceToTick(priceCondition.gte ?? priceCondition.lte ?? '')
-      if (priceTick !== undefined && priceTick !== tick) {
+      if (priceTick === undefined) {
+        // Reset tick when price is invalid
+        setTick(undefined)
+      } else if (priceTick !== tick) {
         setTick(priceTick)
         // Update side reference but don't auto-switch comparator unless crossing
         lastSideRef.current = priceTick >= currentTick ? 'above' : 'below'

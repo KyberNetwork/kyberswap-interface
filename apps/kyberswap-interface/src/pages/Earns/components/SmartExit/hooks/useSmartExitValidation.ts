@@ -77,7 +77,13 @@ export const useSmartExitValidation = (
     if (!priceMetric) return false
 
     const priceCondition = getPriceCondition(priceMetric)
-    return !priceCondition || (!priceCondition.gte && !priceCondition.lte)
+    if (!priceCondition) return true
+
+    const gteValue = priceCondition.gte ? parseFloat(priceCondition.gte) : 0
+    const lteValue = priceCondition.lte ? parseFloat(priceCondition.lte) : 0
+
+    // Invalid if both values are empty/zero
+    return gteValue === 0 && lteValue === 0
   }, [selectedMetrics])
 
   const { invalidTimeCondition, deadlineBeforeConditionTime, timeBeforeNow } = useMemo(() => {
