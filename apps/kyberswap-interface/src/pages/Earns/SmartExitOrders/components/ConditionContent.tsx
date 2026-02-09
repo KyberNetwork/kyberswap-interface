@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import React from 'react'
@@ -10,8 +10,44 @@ import FeeYieldProgress from 'pages/Earns/SmartExitOrders/components/FeeYieldPro
 import PoolPriceChart from 'pages/Earns/SmartExitOrders/components/PoolPriceChart'
 import { MAX_VALID_TIMESTAMP } from 'pages/Earns/SmartExitOrders/constants'
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
-import { ConditionType, SmartExitOrder } from 'pages/Earns/types'
+import { ConditionType, OrderStatus, SmartExitLogReason, SmartExitOrder } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+
+/**
+ * Get the cancellation reason message from order logs
+ * Returns null if no reason should be displayed (e.g., user cancelled manually)
+ */
+const getCancelReasonMessage = (logs: SmartExitOrder['logs']): string | null => {
+  if (!logs || logs.length === 0) return null
+
+  // Find the most recent log entry that contains a reason
+  for (let i = logs.length - 1; i >= 0; i--) {
+    const reason = logs[i]?.detail?.reason
+    if (reason) {
+      switch (reason) {
+        case SmartExitLogReason.UpdateStatusReasonLiquidityChanged:
+          return t`Smart Exit canceled: position liquidity is different than the signed amount.`
+        case SmartExitLogReason.UpdateStatusReasonUserAPIUpdate:
+          // User cancelled manually - don't show message
+          return null
+        case SmartExitLogReason.UpdateStatusReasonExpiredOrder:
+          return t`Smart Exit canceled: order has expired.`
+        case SmartExitLogReason.UpdateStatusReasonConditionNeverMet:
+          return t`Smart Exit canceled: condition can never be met.`
+        case SmartExitLogReason.UpdateStatusReasonOwnerChanged:
+          return t`Smart Exit canceled: position owner has changed.`
+        case SmartExitLogReason.UpdateStatusReasonFailedSimulation:
+          return t`Smart Exit canceled: transaction simulation failed.`
+        case SmartExitLogReason.UpdateStatusReasonFinalizedTx:
+          return t`Smart Exit canceled: transaction has been finalized.`
+        default:
+          return null
+      }
+    }
+  }
+
+  return null
+}
 
 type ConditionLogical = SmartExitOrder['condition']['logical']
 
@@ -68,42 +104,53 @@ const ConditionItem = ({ condition, position }: ConditionItemProps) => {
 type ConditionContentProps = {
   logical: ConditionLogical
   position?: ParsedSmartExitOrder['position']
+  status?: OrderStatus
+  logs?: SmartExitOrder['logs']
 }
 
-const ConditionContent = ({ logical, position }: ConditionContentProps) => {
+const ConditionContent = ({ logical, position, status, logs }: ConditionContentProps) => {
   const theme = useTheme()
   const { conditions, op } = logical
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
+  const cancelReasonMessage = status === OrderStatus.OrderStatusCancelled ? getCancelReasonMessage(logs || []) : null
+
   // If there are multiple conditions, display them horizontally (desktop) or vertically (mobile)
   if (conditions.length > 1) {
     return (
-      <Flex
-        flexDirection={upToLarge ? 'column' : 'row'}
-        alignItems={upToLarge ? 'stretch' : 'center'}
-        sx={{ gap: '12px', fontSize: '14px' }}
-      >
-        {conditions.map((c, i) => (
-          <React.Fragment key={`${c.field.type}-${i}`}>
-            <Flex flex="1" minWidth="0">
-              <ConditionItem condition={c} position={position} />
-            </Flex>
-            {i !== conditions.length - 1 && (
-              <Box
-                sx={{
-                  background: rgba(theme.white, 0.04),
-                  padding: '4px 8px',
-                  borderRadius: '8px',
-                  alignSelf: upToLarge ? 'flex-start' : 'center',
-                }}
-              >
-                <Text fontWeight={500} color={theme.text} fontSize={12} flexShrink={0}>
-                  {op === ConditionType.And ? 'AND' : 'OR'}
-                </Text>
-              </Box>
-            )}
-          </React.Fragment>
-        ))}
+      <Flex flexDirection="column" sx={{ gap: '8px' }}>
+        <Flex
+          flexDirection={upToLarge ? 'column' : 'row'}
+          alignItems={upToLarge ? 'stretch' : 'center'}
+          sx={{ gap: '12px', fontSize: '14px' }}
+        >
+          {conditions.map((c, i) => (
+            <React.Fragment key={`${c.field.type}-${i}`}>
+              <Flex flex="1" minWidth="0">
+                <ConditionItem condition={c} position={position} />
+              </Flex>
+              {i !== conditions.length - 1 && (
+                <Box
+                  sx={{
+                    background: rgba(theme.white, 0.04),
+                    padding: '4px 8px',
+                    borderRadius: '8px',
+                    alignSelf: upToLarge ? 'flex-start' : 'center',
+                  }}
+                >
+                  <Text fontWeight={500} color={theme.text} fontSize={12} flexShrink={0}>
+                    {op === ConditionType.And ? 'AND' : 'OR'}
+                  </Text>
+                </Box>
+              )}
+            </React.Fragment>
+          ))}
+        </Flex>
+        {cancelReasonMessage && (
+          <Text color="#D67300" fontSize="12px" fontStyle="italic" mt="4px">
+            {cancelReasonMessage}
+          </Text>
+        )}
       </Flex>
     )
   }
@@ -117,11 +164,21 @@ const ConditionContent = ({ logical, position }: ConditionContentProps) => {
   // Operator box ~48px + 2*12px gaps = ~72px total, so each condition ≈ calc(50% - 36px)
   // For time condition: no width limit needed
   // On mobile: full width
+  // If there's a cancel reason, use full width so the message isn't truncated
+  const conditionWidth = upToLarge || isTimeCondition || cancelReasonMessage ? 'auto' : 'calc(50% - 36px)'
+
   return (
-    <Flex sx={{ fontSize: '14px', width: upToLarge ? '100%' : isTimeCondition ? 'auto' : 'calc(50% - 36px)' }}>
-      {conditions.map((c, i) => (
-        <ConditionItem key={`${c.field.type}-${i}`} condition={c} position={position} />
-      ))}
+    <Flex flexDirection="column" sx={{ gap: '8px', fontSize: '14px', width: conditionWidth }}>
+      <Flex>
+        {conditions.map((c, i) => (
+          <ConditionItem key={`${c.field.type}-${i}`} condition={c} position={position} />
+        ))}
+      </Flex>
+      {cancelReasonMessage && (
+        <Text color="#D67300" fontSize="12px" fontStyle="italic" mt="4px">
+          {cancelReasonMessage}
+        </Text>
+      )}
     </Flex>
   )
 }

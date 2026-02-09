@@ -62,7 +62,22 @@ export interface SmartExitOrder {
       tokensInfo: Array<{ address: string; symbol: string; decimals: number; priceUsd: string }>
     }
   }>
+  logs: Array<{
+    detail: {
+      reason?: SmartExitLogReason
+    }
+  }>
   maxGasPercentage: number
+}
+
+export enum SmartExitLogReason {
+  UpdateStatusReasonUserAPIUpdate = 'UpdateStatusReasonUserAPIUpdate',
+  UpdateStatusReasonLiquidityChanged = 'UpdateStatusReasonLiquidityChanged',
+  UpdateStatusReasonExpiredOrder = 'UpdateStatusReasonExpiredOrder',
+  UpdateStatusReasonConditionNeverMet = 'UpdateStatusReasonConditionNeverMet',
+  UpdateStatusReasonOwnerChanged = 'UpdateStatusReasonOwnerChanged',
+  UpdateStatusReasonFailedSimulation = 'UpdateStatusReasonFailedSimulation',
+  UpdateStatusReasonFinalizedTx = 'UpdateStatusReasonFinalizedTx',
 }
 
 export interface SelectedMetric {
