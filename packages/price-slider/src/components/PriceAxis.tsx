@@ -6,6 +6,12 @@ import { MAX_AXIS_TICK_COUNT, MIN_AXIS_TICK_COUNT } from '@/constants';
 import type { PriceAxisProps } from '@/types';
 import { formatAxisPrice, formatDisplayNumber } from '@/utils';
 
+// Approximate character width in percentage of container width (for 10px font)
+// Assuming container is ~300px wide, each char is ~5.5px = ~1.8% of width
+const CHAR_WIDTH_PERCENT = 1.8;
+// Additional padding between labels
+const LABEL_PADDING_PERCENT = 2;
+
 /**
  * Calculate the optimal number of ticks and minimum gap based on price range
  * More ticks for small ranges, fewer for large ranges
@@ -75,43 +81,93 @@ const calculateAxisTicks = (
 };
 
 /**
+ * Estimate label width in percentage based on formatted text length
+ */
+const estimateLabelWidth = (price: number, usedLabels: Set<string>): { label: string; widthPercent: number } => {
+  let label = formatAxisPrice(price);
+  if (usedLabels.has(label)) {
+    label = formatDisplayNumber(price, { significantDigits: 6 });
+  }
+  // Estimate width: character count * char width + some padding
+  const widthPercent = label.length * CHAR_WIDTH_PERCENT;
+  return { label, widthPercent };
+};
+
+/**
  * Filter ticks to ensure minimum spacing between labels
- * Only shows labels that have sufficient gap from previous label
+ * Takes into account actual label width to prevent overlap
  */
 const filterOverlappingTicks = (
   ticks: Array<{ tick: number; price: number; position: number }>,
   minGapPercent: number,
-): Array<{ tick: number; price: number; position: number; showLabel: boolean }> => {
+): Array<{ tick: number; price: number; position: number; showLabel: boolean; label: string }> => {
   if (ticks.length === 0) return [];
 
-  const result: Array<{ tick: number; price: number; position: number; showLabel: boolean }> = [];
-  let lastLabelPosition = -Infinity;
+  const usedLabels = new Set<string>();
+  const result: Array<{ tick: number; price: number; position: number; showLabel: boolean; label: string }> = [];
 
-  for (let i = 0; i < ticks.length; i++) {
-    const tick = ticks[i];
+  // First pass: calculate all labels and their widths
+  const ticksWithLabels = ticks.map(tick => {
+    const { label, widthPercent } = estimateLabelWidth(tick.price, usedLabels);
+    usedLabels.add(label);
+    return { ...tick, label, widthPercent };
+  });
+
+  // Track the right edge of the last shown label
+  let lastLabelRightEdge = -Infinity;
+
+  for (let i = 0; i < ticksWithLabels.length; i++) {
+    const tick = ticksWithLabels[i];
     const isFirst = i === 0;
-    const isLast = i === ticks.length - 1;
-    const gap = tick.position - lastLabelPosition;
+    const isLast = i === ticksWithLabels.length - 1;
+
+    // For first label (left-aligned): right edge is position + full width
+    // For middle labels (center-aligned): left edge is position - half width
+    // For last label (right-aligned): left edge is position - full width (but we use 100 - width as reference)
+
+    let labelLeftEdge: number;
+    let labelRightEdge: number;
+
+    if (isFirst) {
+      // Left-aligned: starts at 0
+      labelLeftEdge = 0;
+      labelRightEdge = tick.widthPercent;
+    } else if (isLast) {
+      // Right-aligned: ends at 100
+      labelLeftEdge = 100 - tick.widthPercent;
+      labelRightEdge = 100;
+    } else {
+      // Center-aligned
+      labelLeftEdge = tick.position - tick.widthPercent / 2;
+      labelRightEdge = tick.position + tick.widthPercent / 2;
+    }
+
+    // Calculate required gap considering label width
+    const requiredGap = Math.max(minGapPercent, LABEL_PADDING_PERCENT);
+    const hasEnoughSpace = labelLeftEdge >= lastLabelRightEdge + requiredGap;
 
     // First tick always shows label
     if (isFirst) {
-      lastLabelPosition = tick.position;
+      lastLabelRightEdge = labelRightEdge;
       result.push({ ...tick, showLabel: true });
       continue;
     }
 
-    // Last tick: only show if enough gap, otherwise hide
+    // Last tick: only show if enough space
     if (isLast) {
-      const showLabel = gap >= minGapPercent;
-      if (showLabel) lastLabelPosition = tick.position;
+      const showLabel = hasEnoughSpace;
+      if (showLabel) lastLabelRightEdge = labelRightEdge;
       result.push({ ...tick, showLabel });
       continue;
     }
 
-    // Middle ticks: show if enough gap from previous label
-    const showLabel = gap >= minGapPercent;
-    if (showLabel) lastLabelPosition = tick.position;
-    result.push({ ...tick, showLabel });
+    // Middle ticks: show if enough space from previous label
+    if (hasEnoughSpace) {
+      lastLabelRightEdge = labelRightEdge;
+      result.push({ ...tick, showLabel: true });
+    } else {
+      result.push({ ...tick, showLabel: false });
+    }
   }
 
   return result;
@@ -123,8 +179,6 @@ const filterOverlappingTicks = (
  * Dynamically reduces tick count when price range is very large
  */
 function PriceAxis({ viewRange, token0Decimals, token1Decimals, invertPrice }: PriceAxisProps) {
-  const usedLabels = new Set<string>();
-
   const axisTicks = useMemo(() => {
     // Get min and max prices to determine optimal tick config
     const minPrice = +tickToPrice(Math.round(viewRange.min), token0Decimals, token1Decimals, invertPrice);
@@ -146,7 +200,7 @@ function PriceAxis({ viewRange, token0Decimals, token1Decimals, invertPrice }: P
       <div className="absolute top-0 left-0 right-0 h-px bg-[#3a3a3a]" />
 
       {/* Ticks and Labels */}
-      {axisTicks.map(({ tick, price, position, showLabel }, index) => {
+      {axisTicks.map(({ tick, position, showLabel, label }, index) => {
         // Only render if within visible range
         if (position < -2 || position > 102) return null;
 
@@ -154,13 +208,6 @@ function PriceAxis({ viewRange, token0Decimals, token1Decimals, invertPrice }: P
         const isFirst = index === 0;
         const isLast = index === axisTicks.length - 1;
         const alignClass = isFirst ? 'left-0' : isLast ? 'right-0' : '-translate-x-1/2';
-
-        // Ensure labels are differentiated when values are very close
-        let label = formatAxisPrice(price);
-        if (usedLabels.has(label)) {
-          label = formatDisplayNumber(price, { significantDigits: 6 });
-        }
-        usedLabels.add(label);
 
         return (
           <React.Fragment key={tick}>
