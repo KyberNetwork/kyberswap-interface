@@ -96,7 +96,7 @@ export default function PoolPrice({ position, isLoading = false }: PoolPriceProp
                 <Trans>
                   Based on the amount of fee tokens your position has earned compared with your initial deposit.
                 </Trans>
-                <ExternalLink href="/TODO">
+                <ExternalLink href="#">
                   <Text as="span" ml="4px">
                     <Trans>Details</Trans>
                   </Text>

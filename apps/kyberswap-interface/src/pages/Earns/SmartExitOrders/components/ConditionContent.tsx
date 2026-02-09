@@ -164,18 +164,17 @@ const ConditionContent = ({ logical, position, status, logs }: ConditionContentP
   // Operator box ~48px + 2*12px gaps = ~72px total, so each condition ≈ calc(50% - 36px)
   // For time condition: no width limit needed
   // On mobile: full width
-  // If there's a cancel reason, use full width so the message isn't truncated
-  const conditionWidth = upToLarge || isTimeCondition || cancelReasonMessage ? 'auto' : 'calc(50% - 36px)'
+  const conditionWidth = upToLarge || isTimeCondition ? 'auto' : 'calc(50% - 36px)'
 
   return (
-    <Flex flexDirection="column" sx={{ gap: '8px', fontSize: '14px', width: conditionWidth }}>
-      <Flex>
+    <Flex flexDirection="column" sx={{ gap: '8px', fontSize: '14px' }}>
+      <Flex sx={{ width: conditionWidth }}>
         {conditions.map((c, i) => (
           <ConditionItem key={`${c.field.type}-${i}`} condition={c} position={position} />
         ))}
       </Flex>
       {cancelReasonMessage && (
-        <Text color="#D67300" fontSize="12px" fontStyle="italic" mt="4px">
+        <Text color="#D67300" fontSize="12px" fontStyle="italic">
           {cancelReasonMessage}
         </Text>
       )}
