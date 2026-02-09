@@ -200,7 +200,8 @@ export default function PriceInput({
   useEffect(() => {
     if (changeSourceRef.current === 'slider') return
     if (priceCondition) {
-      const priceTick = priceToTick(priceCondition.gte ?? priceCondition.lte ?? '')
+      // Use || instead of ?? so empty strings fall through correctly
+      const priceTick = priceToTick(priceCondition.gte || priceCondition.lte || '')
       if (priceTick === undefined) {
         // Reset tick when price is invalid
         setTick(undefined)
