@@ -19,7 +19,7 @@ import { ErrorName } from 'utils/sentry'
 // and the user has approved the slippage adjusted input amount for the trade
 const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   const { account, chainId } = useActiveWeb3React()
-  const { library, connector } = useWeb3React()
+  const { library, connector, isSmartConnector } = useWeb3React()
   const walletKey = connector?.name
 
   const { recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
@@ -127,6 +127,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
         contractAddress: routerAddress,
         encodedData: encodedSwapData,
         value,
+        isSmartConnector,
         sentryInfo: {
           name: ErrorName.SwapError,
           wallet: walletKey,
@@ -138,7 +139,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
       handleSwapResponse(response)
       return response?.hash
     },
-    [account, chainId, handleSwapResponse, inputAmount, library, walletKey, paymentToken?.address],
+    [account, chainId, handleSwapResponse, inputAmount, library, walletKey, paymentToken?.address, isSmartConnector],
   )
 
   return swapCallbackForEVM
