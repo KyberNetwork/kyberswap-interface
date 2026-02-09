@@ -61,12 +61,15 @@ export default function useSmartExitWidget(): {
 
   // Parse position when data arrives
   useEffect(() => {
-    if (userPositionsData && userPositionsData.positions.length > 0 && !smartExitPosition) {
+    if (userPositionsData && userPositionsData.positions.length > 0 && !smartExitPosition && positionId) {
       const rawPosition = userPositionsData.positions[0] as UserPosition
       const parsed = parsePosition({ position: rawPosition })
-      setSmartExitPosition(parsed)
+      // Verify the fetched position matches the requested positionId to avoid stale data
+      if (parsed.positionId === positionId) {
+        setSmartExitPosition(parsed)
+      }
     }
-  }, [userPositionsData, smartExitPosition])
+  }, [userPositionsData, smartExitPosition, positionId])
 
   const onOpenSmartExit = useCallback((params: SmartExitParams | ParsedPosition | undefined) => {
     if (!params) {
