@@ -35,7 +35,9 @@ type FeeYieldProgressProps = {
 
 const FeeYieldProgress = ({ targetYield, currentYield }: FeeYieldProgressProps) => {
   const theme = useTheme()
-  const progress = currentYield !== undefined ? (currentYield / targetYield) * 100 : 0
+  const rawProgress =
+    currentYield !== undefined && isFinite(currentYield) && targetYield > 0 ? (currentYield / targetYield) * 100 : 0
+  const progress = isFinite(rawProgress) ? rawProgress : 0
 
   return (
     <FeeYieldProgressWrapper>
