@@ -1,5 +1,4 @@
 import type { I18n } from "@lingui/core";
-import Numeral from "numeral";
 
 export interface TokenInfo {
   price: number;
@@ -14,8 +13,13 @@ export interface TokenInfo {
   name: string;
 }
 
+const compactFormatter = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 2,
+});
+
 const toK = (num: string) => {
-  return Numeral(num).format("0.[00]a");
+  return compactFormatter.format(Number(num)).toLowerCase();
 };
 
 const formatDollarFractionAmount = (num: number, digits: number) => {
@@ -38,8 +42,13 @@ const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
   return `${wholePart}.${fractionalPart.slice(0, maximumFractionDigits)}`;
 };
 
+const longNumberFormatter = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0,
+});
+
 const formatLongNumber = (num: string, usd?: boolean): string => {
-  return usd ? `$${Numeral(num).format("0,0")}` : Numeral(num).format("0,0");
+  const formatted = longNumberFormatter.format(Number(num));
+  return usd ? `$${formatted}` : formatted;
 };
 
 const formattedNum = (

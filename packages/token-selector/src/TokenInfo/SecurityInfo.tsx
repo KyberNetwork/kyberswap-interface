@@ -1,13 +1,6 @@
-import { useMemo } from "react";
-
 import { useLingui } from "@lingui/react";
 
-import {
-  ChainId,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
-  Token,
-} from "@kyber/schema";
+import { ChainId } from "@kyber/schema";
 import { MouseoverTooltip } from "@kyber/ui";
 
 import CollapseInfoItem from "@/TokenInfo/CollapseInfoItem";
@@ -18,23 +11,13 @@ import IconSecurityTrading from "@/assets/security-trading.svg?react";
 import IconSecurity from "@/assets/security.svg?react";
 
 const SecurityInfo = ({
-  token,
+  tokenAddress,
   chainId,
 }: {
-  token: Token;
+  tokenAddress: string;
   chainId: ChainId;
 }) => {
   const { i18n } = useLingui();
-  const tokenAddress = useMemo(
-    () =>
-      (token?.address
-        ? token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NETWORKS_INFO[chainId].wrappedToken.address
-          : token.address
-        : ""
-      ).toLowerCase(),
-    [token, chainId],
-  );
 
   const { securityInfo, loading } = useSecurityTokenInfo({
     tokenAddress,
@@ -60,7 +43,7 @@ const SecurityInfo = ({
         </div>
         <div className="flex items-center gap-1">
           <span className="text-subText text-[10px]">
-{i18n._("Powered by")}
+            {i18n._("Powered by")}
           </span>{" "}
           <LogoGoPlus className="h-4 w-14" />
         </div>

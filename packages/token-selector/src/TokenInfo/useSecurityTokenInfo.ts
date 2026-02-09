@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { I18n } from "@lingui/core";
 
@@ -27,7 +27,8 @@ export default function useSecurityTokenInfo({
     [securityRawInfo, i18n],
   );
 
-  const handleFetchSecurityData = () => {
+  const handleFetchSecurityData = useCallback(() => {
+    if (!tokenAddress) return;
     setLoading(true);
     fetch(
       `${API_URLS.GO_PLUS_API}/${chainId}?contract_addresses=${tokenAddress}`,
@@ -39,14 +40,11 @@ export default function useSecurityTokenInfo({
         setSecurityRawInfo(null);
       })
       .finally(() => setLoading(false));
-  };
+  }, [tokenAddress, chainId]);
 
   useEffect(() => {
-    if (!tokenAddress) return;
     handleFetchSecurityData();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, tokenAddress]);
+  }, [handleFetchSecurityData]);
 
   return { securityInfo: parsedSecurityInfo, loading };
 }

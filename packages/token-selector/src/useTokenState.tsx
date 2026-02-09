@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -86,34 +87,30 @@ export const TokenContextProvider = ({
     }
   }, []);
 
-  const importToken = useCallback(
-    (token: Token) => {
+  const importToken = useCallback((token: Token) => {
+    setImportedTokens((prev) => {
       const newTokens = [
-        ...importedTokens.filter((t) => t.address !== token.address),
+        ...prev.filter((t) => t.address !== token.address),
         token,
       ];
-      setImportedTokens(newTokens);
-
       if (typeof window !== "undefined") {
         localStorage.setItem(IMPORTED_TOKENS_KEY, JSON.stringify(newTokens));
       }
-    },
-    [importedTokens],
-  );
+      return newTokens;
+    });
+  }, []);
 
-  const removeImportedToken = useCallback(
-    (token: Token) => {
-      const newTokens = [...importedTokens].filter(
+  const removeImportedToken = useCallback((token: Token) => {
+    setImportedTokens((prev) => {
+      const newTokens = prev.filter(
         (t) => t.address.toLowerCase() !== token.address.toLowerCase(),
       );
-      setImportedTokens(newTokens);
-
       if (typeof window !== "undefined") {
         localStorage.setItem(IMPORTED_TOKENS_KEY, JSON.stringify(newTokens));
       }
-    },
-    [importedTokens],
-  );
+      return newTokens;
+    });
+  }, []);
 
   const removeAllImportedTokens = useCallback(() => {
     setImportedTokens([]);
@@ -265,19 +262,32 @@ export const TokenContextProvider = ({
     fetchTokens();
   }, [fetchTokens]);
 
+  const isLoadingFinal =
+    isLoading || (!externalTokenBalances && tokenBalancesLoading);
+
+  const contextValue = useMemo(
+    () => ({
+      tokens,
+      importedTokens,
+      tokenBalances,
+      isLoading: isLoadingFinal,
+      importToken,
+      removeImportedToken,
+      removeAllImportedTokens,
+    }),
+    [
+      tokens,
+      importedTokens,
+      tokenBalances,
+      isLoadingFinal,
+      importToken,
+      removeImportedToken,
+      removeAllImportedTokens,
+    ],
+  );
+
   return (
-    <TokenContext.Provider
-      value={{
-        tokens,
-        importedTokens,
-        tokenBalances,
-        isLoading:
-          isLoading || (!externalTokenBalances && tokenBalancesLoading),
-        importToken,
-        removeImportedToken,
-        removeAllImportedTokens,
-      }}
-    >
+    <TokenContext.Provider value={contextValue}>
       {children}
     </TokenContext.Provider>
   );

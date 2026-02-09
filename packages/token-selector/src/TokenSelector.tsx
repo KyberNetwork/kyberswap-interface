@@ -46,7 +46,7 @@ enum MODAL_TAB {
 }
 
 const MESSAGE_TIMEOUT = 4_000;
-const DEBOUNCE_DELAY = 300;
+const DEBOUNCE_DELAY = 150;
 
 /** Internal props for TokenSelector component (used by TokenModal) */
 interface TokenSelectorProps {
@@ -98,7 +98,7 @@ interface TokenRowData {
   mode: TOKEN_SELECT_MODE;
   tabSelected: TOKEN_TAB;
   selectedTokenAddress?: string;
-  modalTokensInAddress: string[];
+  modalTokensInAddress: Set<string>;
   onClickToken: (token: CustomizeToken) => void;
   onRemoveImportedToken: (e: React.MouseEvent, token: Token) => void;
   onShowTokenInfo: (e: React.MouseEvent, token: Token) => void;
@@ -140,12 +140,12 @@ const TokenRow = memo(function TokenRow({
         {mode === TOKEN_SELECT_MODE.ADD && (
           <div
             className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer mr-1 ${
-              modalTokensInAddress.includes(token.address?.toLowerCase())
+              modalTokensInAddress.has(token.address?.toLowerCase())
                 ? "bg-emerald-400"
                 : "bg-gray-700"
             }`}
           >
-            {modalTokensInAddress.includes(token.address?.toLowerCase()) && (
+            {modalTokensInAddress.has(token.address?.toLowerCase()) && (
               <Check className="h-3 w-3 text-black" />
             )}
           </div>
@@ -241,7 +241,10 @@ export default function TokenSelector({
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const modalTokensInAddress = useMemo(
-    () => modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
+    () =>
+      new Set(
+        modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
+      ),
     [modalTokensIn],
   );
 
@@ -291,6 +294,14 @@ export default function TokenSelector({
               : tokenAddrLower === token1Lower
                 ? 1
                 : 0,
+          // Pre-normalize for search filtering to avoid repeated work per keystroke
+          _searchName: normalizeSpecialCharacters(
+            token.name || "",
+          ).toLowerCase(),
+          _searchSymbol: normalizeSpecialCharacters(
+            token.symbol || "",
+          ).toLowerCase(),
+          _searchAddress: tokenAddrLower,
         };
       })
       .sort((a: CustomizeToken, b: CustomizeToken) => {
@@ -317,22 +328,20 @@ export default function TokenSelector({
   const deferredListTokens = useDeferredValue(listTokens);
 
   const filteredTokens = useMemo(() => {
-    const search = normalizeSpecialCharacters(searchTerm).toLowerCase().trim();
+    const search = normalizeSpecialCharacters(debouncedSearchTerm)
+      .toLowerCase()
+      .trim();
+
+    if (!search) return deferredListTokens;
 
     return deferredListTokens.filter((item: CustomizeToken) => {
-      const normalizeName = normalizeSpecialCharacters(
-        item.name || "",
-      ).toLowerCase();
-      const normalizeSymbol = normalizeSpecialCharacters(
-        item.symbol || "",
-      ).toLowerCase();
       return (
-        normalizeName.includes(search) ||
-        normalizeSymbol.includes(search) ||
-        item.address?.toLowerCase().includes(search)
+        item._searchName?.includes(search) ||
+        item._searchSymbol?.includes(search) ||
+        item._searchAddress?.includes(search)
       );
     });
-  }, [deferredListTokens, searchTerm]);
+  }, [deferredListTokens, debouncedSearchTerm]);
 
   const handleClickToken = useCallback(
     (newToken: CustomizeToken) => {
@@ -540,13 +549,11 @@ export default function TokenSelector({
 
   useEffect(() => {
     if (unImportedTokens?.length) {
-      const cloneUnImportedTokens = [...unImportedTokens].filter(
-        (token) =>
-          !importedTokens.find(
-            (importedToken) => importedToken.address === token.address,
-          ),
+      const importedAddresses = new Set(importedTokens.map((t) => t.address));
+      const remaining = unImportedTokens.filter(
+        (token) => !importedAddresses.has(token.address),
       );
-      setUnImportedTokens(cloneUnImportedTokens);
+      setUnImportedTokens(remaining);
       setSearchTerm("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -565,23 +572,19 @@ export default function TokenSelector({
   }, [filteredTokens, chainId, debouncedSearchTerm]);
 
   useEffect(() => {
-    const cloneTokensIn = [...tokensIn];
-    const cloneAmountsIn = amountsIn.split(",");
+    const tokensInSet = new Set(tokensIn.map((t) => t.address.toLowerCase()));
+    const mergedTokens = [...tokensIn];
+    const mergedAmounts = amountsIn.split(",");
 
     selectedTokens.forEach((token: Token) => {
-      if (
-        !cloneTokensIn.find(
-          (tokenIn: Token) =>
-            tokenIn.address.toLowerCase() === token.address.toLowerCase(),
-        )
-      ) {
-        cloneTokensIn.push(token);
-        cloneAmountsIn.push("");
+      if (!tokensInSet.has(token.address.toLowerCase())) {
+        mergedTokens.push(token);
+        mergedAmounts.push("");
       }
     });
 
-    setModalTokensIn(cloneTokensIn);
-    setModalAmountsIn(cloneAmountsIn.join(","));
+    setModalTokensIn(mergedTokens);
+    setModalAmountsIn(mergedAmounts.join(","));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokensIn, amountsIn]);

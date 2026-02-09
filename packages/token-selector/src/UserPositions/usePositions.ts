@@ -12,7 +12,7 @@ const earnSupportedChains = enumToArrayOfValues(EarnChain, "number");
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
 
 const sortPositions = (positions: EarnPosition[]) => {
-  return positions.sort((a, b) => {
+  return [...positions].sort((a, b) => {
     // First sort by status: OUT_RANGE should come before IN_RANGE
     if (
       a.status === PositionStatus.OUT_RANGE &&
@@ -188,7 +188,14 @@ export default function usePositions({
       setUserPositions([]);
       fetchPositions(1, false);
     }
-  }, [account, chainId, debouncedSearch, filterExchanges, filterChains, fetchPositions]);
+  }, [
+    account,
+    chainId,
+    debouncedSearch,
+    filterExchanges,
+    filterChains,
+    fetchPositions,
+  ]);
 
   // Show loading state if currently fetching OR if we haven't fetched yet (and have account)
   // When chainId is not provided (all chains mode), always allow showing loading state

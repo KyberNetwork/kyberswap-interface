@@ -1,14 +1,9 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { useLingui } from "@lingui/react";
 
 import { useCopy } from "@kyber/hooks";
-import {
-  ChainId,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
-  Token,
-} from "@kyber/schema";
+import { ChainId, Token } from "@kyber/schema";
 import { Loading, TokenLogo } from "@kyber/ui";
 import { shortenAddress } from "@kyber/utils/crypto";
 
@@ -17,18 +12,16 @@ import LogoCoingecko from "@/assets/coingecko.svg?react";
 import IconDown from "@/assets/down.svg?react";
 import IconZiczac from "@/assets/ziczac.svg?react";
 
-const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
+const MarketInfo = ({
+  token,
+  tokenAddress,
+  chainId,
+}: {
+  token: Token;
+  tokenAddress: string;
+  chainId: ChainId;
+}) => {
   const { i18n } = useLingui();
-  const tokenAddress = useMemo(
-    () =>
-      (token?.address
-        ? token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NETWORKS_INFO[chainId].wrappedToken.address
-          : token.address
-        : ""
-      ).toLowerCase(),
-    [token, chainId],
-  );
   const Copy = useCopy({
     text: tokenAddress,
     copyClassName: "w-3 h-3 text-text hover:text-subText",

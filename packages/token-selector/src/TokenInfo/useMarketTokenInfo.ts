@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { I18n } from "@lingui/core";
 
@@ -7,7 +7,6 @@ import { API_URLS, ChainId, NETWORKS_INFO } from "@kyber/schema";
 import { TokenInfo, getMarketTokenInfo } from "@/TokenInfo/utils";
 
 const FETCH_INTERVAL = 60_000;
-let fetchInterval: ReturnType<typeof setInterval>;
 
 interface UseMarketTokenInfoParams {
   tokenAddress: string;
@@ -24,13 +23,14 @@ export default function useMarketTokenInfo({
     null,
   );
   const [loading, setLoading] = useState<boolean>(false);
+  const fetchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const parsedMarketTokenInfo = useMemo(
     () => getMarketTokenInfo(marketTokenInfo, i18n),
     [marketTokenInfo, i18n],
   );
 
-  const handleFetchCoingeckoData = () => {
+  const handleFetchCoingeckoData = useCallback(() => {
     if (!tokenAddress) return;
     setLoading(true);
     fetch(
@@ -58,23 +58,22 @@ export default function useMarketTokenInfo({
         setMarketTokenInfo(null);
       })
       .finally(() => setLoading(false));
-  };
+  }, [tokenAddress, chainId]);
 
   useEffect(() => {
     if (!tokenAddress) return;
 
-    if (fetchInterval) clearInterval(fetchInterval);
+    if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current);
     handleFetchCoingeckoData();
 
-    fetchInterval = setInterval(() => {
+    fetchIntervalRef.current = setInterval(() => {
       handleFetchCoingeckoData();
     }, FETCH_INTERVAL);
 
     return () => {
-      clearInterval(fetchInterval);
+      if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenAddress]);
+  }, [tokenAddress, handleFetchCoingeckoData]);
 
   return { marketTokenInfo: parsedMarketTokenInfo, loading };
 }
