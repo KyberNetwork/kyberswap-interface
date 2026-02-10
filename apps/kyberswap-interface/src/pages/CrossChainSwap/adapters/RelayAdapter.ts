@@ -5,7 +5,7 @@ import {
   convertViemChainToRelayChain,
   createClient,
   getClient,
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits } from 'viem'
 import {
