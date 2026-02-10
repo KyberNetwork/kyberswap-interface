@@ -127,6 +127,13 @@ export const EARN_DEXES = new Proxy(EARN_DEXES_CONFIG as any, {
   },
 }) as typeof EARN_DEXES_CONFIG & Record<string, EarnDexInfo>
 
+export const SMART_EXIT_DEX_TYPE_TO_EXCHANGE = Object.entries(EARN_DEXES).reduce((acc, [exchange, dexInfo]) => {
+  if (dexInfo.smartExitDexType) {
+    acc[dexInfo.smartExitDexType] = exchange as Exchange
+  }
+  return acc
+}, {} as Record<SmartExitDexType, Exchange>)
+
 // Chain info
 export interface EarnChainInfo {
   nativeAddress: string
