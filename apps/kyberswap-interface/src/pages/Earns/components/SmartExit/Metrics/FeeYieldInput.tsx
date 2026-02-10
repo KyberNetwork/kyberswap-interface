@@ -50,7 +50,7 @@ export default function FeeYieldInput({
                 <br />
                 <Text
                   as="a"
-                  href="https://docs.kyberswap.com/"
+                  href="https://docs.kyberswap.com/kyberswap-solutions/smart-exit/feature-capabilities#id-1.-fee-yield-condition"
                   target="_blank"
                   rel="noopener noreferrer"
                   color={theme.primary}
