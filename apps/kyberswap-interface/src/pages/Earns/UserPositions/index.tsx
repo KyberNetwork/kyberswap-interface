@@ -225,9 +225,10 @@ const UserPositions = () => {
           </Text>
           <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
-              {t`Remove liquidity`}
+              {t`Smart Exit`}
             </Text>
-            : {t`Remove liquidity from this position by zapping out to any token(s).`}
+            :{' '}
+            {t`Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s).`}
           </Text>
           <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
@@ -240,6 +241,12 @@ const UserPositions = () => {
               {t`Claim rewards`}
             </Text>
             : {t`Claim your claimable farming rewards from a position.`}
+          </Text>
+          <Text fontSize={14}>
+            <Text as="u" color={theme.primary}>
+              {t`Remove liquidity`}
+            </Text>
+            : {t`Remove liquidity from this position by zapping out to any token(s).`}
           </Text>
         </Flex>
       }

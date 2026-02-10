@@ -5,6 +5,7 @@ export function colors() {
   return {
     // base
     white,
+    white2: '#fafafa',
     black,
 
     // text

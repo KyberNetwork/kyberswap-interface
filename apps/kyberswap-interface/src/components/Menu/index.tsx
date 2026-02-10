@@ -167,7 +167,7 @@ export const BetaLabel = styled.span`
   font-size: 10px;
   color: ${({ theme }) => theme.subText};
   height: calc(100% + 4px);
-  margin-left: 2px;
+  margin-left: -2px;
 `
 
 const Divider = styled.div`

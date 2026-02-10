@@ -1,0 +1,98 @@
+export enum Metric {
+  FeeYield = 'fee_yield',
+  PoolPrice = 'pool_price',
+  Time = 'time',
+}
+
+export enum ConditionType {
+  And = 'and',
+  Or = 'or',
+}
+
+export enum OrderStatus {
+  OrderStatusOpen = 'OrderStatusOpen',
+  OrderStatusDone = 'OrderStatusDone',
+  OrderStatusCancelled = 'OrderStatusCancelled',
+  OrderStatusExpired = 'OrderStatusExpired',
+}
+
+export interface SmartExitFilter {
+  chainIds?: string
+  status?: string
+  dexTypes?: string
+  page: number
+}
+
+export interface SmartExitFee {
+  protocol: { percentage: number; category: string }
+  gas: { percentage: number; usd: number; wei: string }
+}
+
+export interface SmartExitCondition {
+  logical: {
+    op: ConditionType
+    conditions: Array<{
+      field: {
+        type: Metric
+        value: any
+      }
+    }>
+  }
+}
+
+export interface SmartExitOrder {
+  id: string
+  chainId: number
+  userWallet: string
+  dexType: string
+  poolId: string
+  positionId: string
+  removeLiquidity: string
+  unwrap: boolean
+  condition: SmartExitCondition
+  status: OrderStatus
+  createdAt: number
+  updatedAt: number
+  deadline: number
+  executions: Array<{
+    hash: string
+    extraData?: {
+      executedAmounts: Array<{ amount: string; amountUsd: string; amountWei: number }>
+      receivedAmounts: Array<{ amount: string; amountUsd: string; amountWei: number }>
+      tokensInfo: Array<{ address: string; symbol: string; decimals: number; priceUsd: string }>
+    }
+  }>
+  logs: Array<{
+    detail: {
+      reason?: SmartExitLogReason
+    }
+  }>
+  maxGasPercentage: number
+}
+
+export enum SmartExitLogReason {
+  UpdateStatusReasonUserAPIUpdate = 'UpdateStatusReasonUserAPIUpdate',
+  UpdateStatusReasonLiquidityChanged = 'UpdateStatusReasonLiquidityChanged',
+  UpdateStatusReasonExpiredOrder = 'UpdateStatusReasonExpiredOrder',
+  UpdateStatusReasonConditionNeverMet = 'UpdateStatusReasonConditionNeverMet',
+  UpdateStatusReasonOwnerChanged = 'UpdateStatusReasonOwnerChanged',
+  UpdateStatusReasonFailedSimulation = 'UpdateStatusReasonFailedSimulation',
+  UpdateStatusReasonFinalizedTx = 'UpdateStatusReasonFinalizedTx',
+}
+
+export interface SelectedMetric {
+  metric: Metric
+  condition: FeeYieldCondition | PriceCondition | TimeCondition
+}
+
+export type FeeYieldCondition = string
+
+export interface PriceCondition {
+  gte: string
+  lte: string
+}
+
+export interface TimeCondition {
+  time: number | null
+  condition: 'after' | 'before'
+}

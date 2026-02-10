@@ -17,4 +17,5 @@ export default {
   isForkFrom: CoreProtocol.UniswapV3,
   showVersion: false,
   farmingSupported: false,
+  smartExitDexType: undefined,
 }
