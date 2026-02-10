@@ -71,13 +71,20 @@ export const getSmartExitPreview = (
 
 export const getSmartExitStatusFromTemplateId = (templateId?: number): SmartExitStatus => {
   if (!templateId) return SmartExitStatus.UNKNOWN
-  if (NOTI_ENV === EnvKeys.PROD) return SmartExitStatus.UNKNOWN
-
-  if (templateId === 12) return SmartExitStatus.CREATED
-  if (templateId === 13) return SmartExitStatus.NOT_EXECUTED
-  if (templateId === 14) return SmartExitStatus.EXECUTED
-  if (templateId === 15) return SmartExitStatus.EXPIRED
-  if (templateId === 16) return SmartExitStatus.CANCELLED
+  if (NOTI_ENV === EnvKeys.STG) {
+    if (templateId === 12) return SmartExitStatus.CREATED
+    if (templateId === 13) return SmartExitStatus.NOT_EXECUTED
+    if (templateId === 14) return SmartExitStatus.EXECUTED
+    if (templateId === 15) return SmartExitStatus.EXPIRED
+    if (templateId === 16) return SmartExitStatus.CANCELLED
+  }
+  if (NOTI_ENV === EnvKeys.PROD) {
+    if (templateId === 39) return SmartExitStatus.CREATED
+    if (templateId === 40) return SmartExitStatus.NOT_EXECUTED
+    if (templateId === 41) return SmartExitStatus.EXECUTED
+    if (templateId === 42) return SmartExitStatus.EXPIRED
+    if (templateId === 43) return SmartExitStatus.CANCELLED
+  }
   return SmartExitStatus.UNKNOWN
 }
 

@@ -152,7 +152,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   [EnvKeys.PROD]: {
     [PrivateAnnouncementType.PRICE_ALERT]: '',
     [PrivateAnnouncementType.LIMIT_ORDER]: '31,34,35,36',
-    [PrivateAnnouncementType.SMART_EXIT]: '12,13,14,15,16',
+    [PrivateAnnouncementType.SMART_EXIT]: '39,40,41,42,43',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '',
     [PrivateAnnouncementType.POSITION_STATUS]: '32,33',
