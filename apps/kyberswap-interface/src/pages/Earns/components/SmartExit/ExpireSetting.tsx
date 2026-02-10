@@ -33,6 +33,7 @@ export default function ExpireSetting({
   const theme = useTheme()
   const [openDatePicker, setOpenDatePicker] = useState(false)
   const [openSetting, setOpenSetting] = useState(false)
+  const [customDefaultDate, setCustomDefaultDate] = useState<Date | undefined>(undefined)
   const settingRef = useRef<HTMLDivElement>(null)
 
   useOnClickOutside(settingRef, () => setOpenSetting(false))
@@ -52,9 +53,13 @@ export default function ExpireSetting({
       <DateTimePicker
         defaultOptions={DEFAULT_TIME_OPTIONS}
         isOpen={openDatePicker}
-        onDismiss={() => setOpenDatePicker(false)}
+        onDismiss={() => {
+          setOpenDatePicker(false)
+          setCustomDefaultDate(undefined)
+        }}
         onSetDate={(val: Date | number) => setExpireTime(typeof val === 'number' ? val : val.getTime())}
         expire={expireTime}
+        defaultDate={customDefaultDate}
       />
 
       <SettingContainer ref={settingRef}>
@@ -104,6 +109,9 @@ export default function ExpireSetting({
                 {
                   label: 'Custom',
                   onSelect: () => {
+                    // Set default date to 1 month from now for the date picker
+                    const oneMonthFromNow = new Date(Date.now() + EXPIRE_TIME_PRESETS.THIRTY_DAYS * 1000)
+                    setCustomDefaultDate(oneMonthFromNow)
                     setOpenDatePicker(true)
                   },
                 },
