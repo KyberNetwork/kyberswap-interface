@@ -71,7 +71,7 @@ export type SwapFormProps = {
 }
 
 const SwapForm: React.FC<SwapFormProps> = props => {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const {
     hidden,
     currencyIn,
@@ -103,6 +103,21 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     },
     [updateInputAmount],
   )
+
+  const prefillInputAmount = searchParams.get('input')
+
+  useEffect(() => {
+    const inputAmount = prefillInputAmount?.trim()
+    if (!inputAmount) return
+
+    searchParams.delete('input')
+    setSearchParams(searchParams, { replace: true })
+
+    const isValidRegex = /^\d*\.?\d*$/.test(inputAmount)
+    if (isValidRegex && Number.isFinite(Number(inputAmount)) && !Number.isNaN(Number(inputAmount))) {
+      updateInputAmount(Field.INPUT, inputAmount)
+    }
+  }, [prefillInputAmount, searchParams, setSearchParams, updateInputAmount])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const {
