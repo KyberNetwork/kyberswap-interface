@@ -260,13 +260,35 @@ const DropdownAction = ({
       },
     },
     {
-      label: t`Remove Liquidity`,
-      disabled: removeDisabled,
-      icon: <Minus size={16} />,
+      label: hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`,
+      disabled: smartExitDisabled,
+      disabledTooltip: !EARN_DEXES[position.dex.id].smartExitDexType
+        ? t`Smart Exit is currently not supported on ${dexName}`
+        : !EARN_CHAINS[position.chain.id as unknown as EarnChain].smartExitSupported
+        ? t`Smart Exit is currently not supported on ${chainName}`
+        : position.stakingOwner && account !== position.stakingOwner
+        ? t`Position is in farming in another protocol`
+        : '',
+      icon: hasActiveSmartExitOrder ? <ListSmartExitIcon width={16} /> : <IconSmartExit width={16} />,
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()
-        if (removeDisabled) return
-        handleAction(e, onOpenZapOut)
+        e.preventDefault()
+        if (hasActiveSmartExitOrder) {
+          navigate(APP_PATHS.EARN_SMART_EXIT)
+          return
+        }
+        if (smartExitDisabled) return
+        handleAction(e, onOpenSmartExit)
+      },
+    },
+    {
+      label: t`Reposition`,
+      disabled: repositionDisabled,
+      icon: <IconReposition width={16} />,
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (repositionDisabled) return
+        handleAction(e, onOpenReposition)
       },
     },
     {
@@ -294,35 +316,13 @@ const DropdownAction = ({
       },
     },
     {
-      label: t`Reposition`,
-      disabled: repositionDisabled,
-      icon: <IconReposition width={16} />,
+      label: t`Remove Liquidity`,
+      disabled: removeDisabled,
+      icon: <Minus size={16} />,
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()
-        if (repositionDisabled) return
-        handleAction(e, onOpenReposition)
-      },
-    },
-    {
-      label: hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`,
-      disabled: smartExitDisabled,
-      disabledTooltip: !EARN_DEXES[position.dex.id].smartExitDexType
-        ? t`Smart Exit is currently not supported on ${dexName}`
-        : !EARN_CHAINS[position.chain.id as unknown as EarnChain].smartExitSupported
-        ? t`Smart Exit is currently not supported on ${chainName}`
-        : position.stakingOwner && account !== position.stakingOwner
-        ? t`Position is in farming in another protocol`
-        : '',
-      icon: hasActiveSmartExitOrder ? <ListSmartExitIcon width={16} /> : <IconSmartExit width={16} />,
-      onClick: (e: React.MouseEvent) => {
-        e.stopPropagation()
-        e.preventDefault()
-        if (hasActiveSmartExitOrder) {
-          navigate(APP_PATHS.EARN_SMART_EXIT)
-          return
-        }
-        if (smartExitDisabled) return
-        handleAction(e, onOpenSmartExit)
+        if (removeDisabled) return
+        handleAction(e, onOpenZapOut)
       },
     },
   ]

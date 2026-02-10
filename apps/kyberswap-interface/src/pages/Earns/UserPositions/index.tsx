@@ -214,9 +214,10 @@ const UserPositions = () => {
           </Text>
           <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
-              {t`Remove liquidity`}
+              {t`Smart Exit`}
             </Text>
-            : {t`Remove liquidity from this position by zapping out to any token(s).`}
+            :{' '}
+            {t`Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s).`}
           </Text>
           <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
@@ -232,10 +233,9 @@ const UserPositions = () => {
           </Text>
           <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
-              {t`Smart Exit`}
+              {t`Remove liquidity`}
             </Text>
-            :{' '}
-            {t`Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s).`}
+            : {t`Remove liquidity from this position by zapping out to any token(s).`}
           </Text>
         </Flex>
       }
