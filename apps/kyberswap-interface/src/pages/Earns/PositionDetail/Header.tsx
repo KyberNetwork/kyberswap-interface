@@ -144,9 +144,36 @@ const PositionDetailHeader = ({
             <Badge type={BadgeType.ROUNDED}>
               <InfoHelperWithDelay
                 text={
-                  <Flex alignItems={'center'} sx={{ gap: 1 }} color={theme.blue2}>
-                    <Text fontSize={14}>{position ? shortenAddress(position?.pool.address || '', 6) : ''}</Text>
-                    <CopyHelper size={16} toCopy={position?.pool.address || ''} />
+                  <Flex flexDirection="column" sx={{ gap: 1 }} style={{ fontSize: 12 }} color={theme.subText}>
+                    <Flex alignItems="center" sx={{ gap: '8px' }}>
+                      <Text>{position?.token0.symbol}: </Text>
+                      <Text>
+                        {position?.token0.isNative ? (
+                          <Trans>Native token</Trans>
+                        ) : (
+                          shortenAddress(position?.token0.address || '', 4)
+                        )}
+                      </Text>
+                      {!position?.token0.isNative && <CopyHelper size={16} toCopy={position?.token0.address || ''} />}
+                    </Flex>
+                    <Flex alignItems="center" sx={{ gap: 1 }}>
+                      <Text>{position?.token1.symbol}: </Text>
+                      <Text>
+                        {position?.token1.isNative ? (
+                          <Trans>Native token</Trans>
+                        ) : (
+                          shortenAddress(position?.token1.address || '', 4)
+                        )}
+                      </Text>
+                      {!position?.token1.isNative && <CopyHelper size={16} toCopy={position?.token1.address || ''} />}
+                    </Flex>
+                    <Flex alignItems="center" sx={{ gap: 1 }}>
+                      <Text>
+                        <Trans>Pool Address:</Trans>{' '}
+                      </Text>
+                      <Text>{shortenAddress(position?.pool.address || '', 4)}</Text>
+                      <CopyHelper size={16} toCopy={position?.pool.address || ''} />
+                    </Flex>
                   </Flex>
                 }
                 size={16}
