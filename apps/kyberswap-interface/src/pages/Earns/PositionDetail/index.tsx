@@ -115,6 +115,7 @@ const PositionDetail = () => {
   const position: ParsedPosition | undefined = useMemo(() => {
     const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
+      // API has no data yet — show cached unfinalized position if available
       const unfinalizedPositions = getUnfinalizedPositions([], account || undefined)
       if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
         return unfinalizedPositions[0]
@@ -131,9 +132,14 @@ const PositionDetail = () => {
     })
 
     const unfinalizedPositions = getUnfinalizedPositions([parsedPosition], account || undefined)
+    const matchedUnfinalized = unfinalizedPositions.find(p => Number(p.tokenId) === Number(tokenId))
 
-    if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
-      return unfinalizedPositions[0]
+    if (matchedUnfinalized) {
+      // For increase-liquidity (isValueUpdating), use API data with loading flag only
+      if (matchedUnfinalized.isValueUpdating) return { ...parsedPosition, isValueUpdating: true }
+      // For truly new positions not yet in API, use cached data
+      return matchedUnfinalized
+    }
 
     return parsedPosition
   }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
