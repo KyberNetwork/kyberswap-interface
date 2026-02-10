@@ -65,7 +65,7 @@ export default function useSmartExitWidget(): {
       const rawPosition = userPositionsData.positions[0] as UserPosition
       const parsed = parsePosition({ position: rawPosition })
       // Verify the fetched position matches the requested positionId to avoid stale data
-      if (parsed.positionId === positionId) {
+      if (parsed.positionId.toLowerCase() === positionId.toLowerCase()) {
         setSmartExitPosition(parsed)
       }
     }
