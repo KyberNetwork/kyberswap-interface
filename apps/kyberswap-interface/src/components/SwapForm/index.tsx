@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
@@ -9,6 +9,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
+import { NotificationType } from 'components/Announcement/type'
 import FeeControlGroup from 'components/FeeControlGroup'
 import WarningIcon from 'components/Icons/WarningIcon'
 import { NetworkSelector } from 'components/NetworkSelector'
@@ -32,6 +33,7 @@ import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
@@ -71,6 +73,7 @@ export type SwapFormProps = {
 }
 
 const SwapForm: React.FC<SwapFormProps> = props => {
+  const notify = useNotify()
   const [searchParams, setSearchParams] = useSearchParams()
   const {
     hidden,
@@ -105,10 +108,16 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   )
 
   const prefillInputAmount = searchParams.get('input')
+  const handledPrefillInputRef = useRef<string | null>(null)
 
   useEffect(() => {
     const inputAmount = prefillInputAmount?.trim()
-    if (!inputAmount) return
+    if (!inputAmount) {
+      handledPrefillInputRef.current = null
+      return
+    }
+    if (handledPrefillInputRef.current === inputAmount) return
+    handledPrefillInputRef.current = inputAmount
 
     searchParams.delete('input')
     setSearchParams(searchParams, { replace: true })
@@ -116,8 +125,13 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     const isValidRegex = /^\d*\.?\d*$/.test(inputAmount)
     if (isValidRegex && Number.isFinite(Number(inputAmount)) && !Number.isNaN(Number(inputAmount))) {
       updateInputAmount(Field.INPUT, inputAmount)
+    } else {
+      notify({
+        title: 'Invalid input amount in. Please enter another amount',
+        type: NotificationType.WARNING,
+      })
     }
-  }, [prefillInputAmount, searchParams, setSearchParams, updateInputAmount])
+  }, [prefillInputAmount, searchParams, setSearchParams, updateInputAmount, notify])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const {
