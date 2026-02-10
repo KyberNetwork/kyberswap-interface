@@ -94,7 +94,8 @@ export default function PoolPrice({ position, isLoading = false }: PoolPriceProp
             text={
               <Text>
                 <Trans>
-                  Based on the amount of fee tokens your position has earned compared with your initial deposit.
+                  Your position’s % earned fees so far, based on the amount of fee tokens earned compared with your
+                  initial deposit.
                 </Trans>
                 <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/smart-exit/feature-capabilities#id-1.-fee-yield-condition">
                   <Text as="span" ml="4px">
