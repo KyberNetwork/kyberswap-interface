@@ -74,7 +74,7 @@ export type SwapFormProps = {
 
 const SwapForm: React.FC<SwapFormProps> = props => {
   const notify = useNotify()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const {
     hidden,
     currencyIn,
@@ -119,9 +119,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     if (handledPrefillInputRef.current === inputAmount) return
     handledPrefillInputRef.current = inputAmount
 
-    searchParams.delete('input')
-    setSearchParams(searchParams, { replace: true })
-
     const isValidRegex = /^\d*\.?\d*$/.test(inputAmount)
     if (isValidRegex && Number.isFinite(Number(inputAmount)) && !Number.isNaN(Number(inputAmount))) {
       updateInputAmount(Field.INPUT, inputAmount)
@@ -131,7 +128,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
         type: NotificationType.WARNING,
       })
     }
-  }, [prefillInputAmount, searchParams, setSearchParams, updateInputAmount, notify])
+  }, [prefillInputAmount, updateInputAmount, notify])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const {
