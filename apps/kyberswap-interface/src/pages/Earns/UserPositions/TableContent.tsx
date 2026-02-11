@@ -694,12 +694,12 @@ export default function TableContent({
                         sx={{ gap: 1.8 }}
                       >
                         <Flex alignItems="center" sx={{ gap: 1 }}>
-                          <Text>{formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text>{formatDisplayNumber(token0.currentAmount, { significantDigits: 4 })}</Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
                         </Flex>
                         {upToSmall && <Divider />}
                         <Flex alignItems="center" sx={{ gap: 1 }}>
-                          <Text>{formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text>{formatDisplayNumber(token1.currentAmount, { significantDigits: 4 })}</Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token1.symbol}</Text>
                         </Flex>
                       </Flex>
