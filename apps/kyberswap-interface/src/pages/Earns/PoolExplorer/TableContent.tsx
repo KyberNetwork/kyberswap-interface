@@ -40,7 +40,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
     isFetching,
     isError,
   } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
-  const { handleFavorite, favoriteLoading } = useFavoritePool({ refetch })
+  const { handleFavorite, favoriteLoading, getFavoriteStatus } = useFavoritePool({ refetch })
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -68,7 +68,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
 
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => {
-      const poolChainId = pool.chain?.id ?? pool.chainId
+      const poolChainId = (pool.chain?.id ?? pool.chainId) as number
 
       const dexKey = dexKeyMapping[pool.exchange] || pool.exchange
 
@@ -84,9 +84,10 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
         ...pool,
         dexLogo: dexInfo?.logoURL || '',
         dexName: dexInfo?.name || pool.exchange,
+        favorite: { chainId: poolChainId, isFavorite: getFavoriteStatus(pool) },
       }
     })
-  }, [poolData?.data?.pools, dexLookupMap])
+  }, [poolData?.data?.pools, dexLookupMap, getFavoriteStatus])
 
   if (isLoading) {
     return <LocalLoader />
