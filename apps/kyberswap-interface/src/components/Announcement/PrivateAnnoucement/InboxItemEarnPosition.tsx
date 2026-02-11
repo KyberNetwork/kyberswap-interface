@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo } from 'react'
@@ -53,7 +54,7 @@ const InboxItemEarnPosition = ({
 
   const {
     positionId,
-    chainId,
+    chainId: rawChain,
     token0Symbol,
     token1Symbol,
     token0LogoURL,
@@ -72,6 +73,8 @@ const InboxItemEarnPosition = ({
     token0Decimals,
     token1Decimals,
   } = position
+
+  const chainId = Number(rawChain) as ChainId
 
   const [statusMessage, status] = useMemo(() => {
     if (!notificationType) {
