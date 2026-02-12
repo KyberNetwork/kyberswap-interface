@@ -77,23 +77,6 @@ export function useOrderedConnections(): InjectableConnector[] {
       return injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
     }
 
-    // Special-case: On mobile inside an iframe (e.g. partner-swap), dApp browser wallets may inject
-    // window.ethereum but EIP-6963 announcements don't cross iframe boundaries, so the real connector
-    // (e.g. 'io.rabby') is not detected. In this case, show only the fallback injected connector
-    // instead of hardcoded connectors that would redirect to install pages.
-    const isInIframe = window.self !== window.top
-    if (
-      isMobile &&
-      isInIframe &&
-      Boolean(window.ethereum) &&
-      injectedConnectorsWithoutHardcoded.length <= 2 &&
-      injectedConnectorsWithoutHardcoded.every(
-        c => c.id === CONNECTION.INJECTED_CONNECTOR_ID || c.id === CONNECTION.PORTO,
-      )
-    ) {
-      return injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
-    }
-
     // Special-case: Only display the Coinbase connector in the Coinbase Wallet.
     if (isCoinbaseWalletBrowser) {
       return [coinbaseSdkConnector]
