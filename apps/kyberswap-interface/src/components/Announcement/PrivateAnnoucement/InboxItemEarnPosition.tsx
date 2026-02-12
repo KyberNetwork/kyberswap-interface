@@ -213,7 +213,7 @@ const normalizePosition = (position?: PoolPositionAnnouncement | PoolPositionLiq
 
     return {
       ...normalizedPosition,
-      exchange: position.exchange || position.kyberswapUrl.match(/[^/]+$/)?.[0] || '',
+      exchange: position.exchange || position.kyberswapUrl?.match(/[^/]+$/)?.[0] || '',
     }
   }
   return position as PoolPositionAnnouncement
