@@ -36,6 +36,7 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
 }
 
 type InjectableConnector = Connector & { isInjected?: boolean }
+
 export function useOrderedConnections(): InjectableConnector[] {
   const { connectors } = useConnect()
 
@@ -77,21 +78,33 @@ export function useOrderedConnections(): InjectableConnector[] {
       return injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
     }
 
-    // Special-case: On mobile inside an iframe (e.g. partner-swap), dApp browser wallets may inject
-    // window.ethereum but EIP-6963 announcements don't cross iframe boundaries, so the real connector
-    // (e.g. 'io.rabby') is not detected. In this case, show only the fallback injected connector
-    // instead of hardcoded connectors that would redirect to install pages.
-    const isInIframe = window.self !== window.top
-    if (
-      isMobile &&
-      isInIframe &&
-      Boolean(window.ethereum) &&
-      injectedConnectorsWithoutHardcoded.length <= 2 &&
-      injectedConnectorsWithoutHardcoded.every(
-        c => c.id === CONNECTION.INJECTED_CONNECTOR_ID || c.id === CONNECTION.PORTO,
+    // Special-case: On mobile inside an iframe (e.g. partner-swap), dApp browser wallets cannot
+    // inject window.ethereum or fire EIP-6963 events across cross-origin iframe boundaries.
+    // Without a real injected connector, hardcoded connectors just open install pages which is
+    // useless inside a dApp browser. Show only WalletConnect (+ fallback injected if ethereum
+    // is somehow available) so the user can connect via deep link.
+    let isInIframe = false
+    try {
+      isInIframe = window.self !== window.top
+    } catch {
+      // cross-origin iframe will throw on accessing window.top
+      isInIframe = true
+    }
+    if (isMobile && isInIframe) {
+      const hasRealInjected = injectedConnectorsWithoutHardcoded.some(
+        c => c.id !== CONNECTION.INJECTED_CONNECTOR_ID && c.id !== CONNECTION.PORTO,
       )
-    ) {
-      return injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
+      if (!hasRealInjected) {
+        const result: InjectableConnector[] = []
+        if (Boolean(window.ethereum)) {
+          const fallbackInjector = injectedConnectorsWithoutHardcoded.find(
+            c => c.id === CONNECTION.INJECTED_CONNECTOR_ID,
+          )
+          if (fallbackInjector) result.push(fallbackInjector)
+        }
+        result.push(walletConnectConnector)
+        return result
+      }
     }
 
     // Special-case: Only display the Coinbase connector in the Coinbase Wallet.
