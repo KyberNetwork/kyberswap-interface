@@ -37,7 +37,7 @@ export const getDexVersion = (exchange: Exchange) => {
 }
 
 export const getTokenId = (positionId: string) => {
-  return positionId.match(/^\w{42}-(\d+)$/)?.[1]
+  return positionId?.match(/^\w{42}-(\d+)$/)?.[1]
 }
 
 const convertToPoolAprInterval = (newFormat: TimeIntervalValues | any): PoolAprInterval | undefined => {
