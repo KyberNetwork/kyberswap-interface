@@ -171,7 +171,7 @@ const InboxItemEarnPosition = ({
         <InboxItemRow>
           <Flex alignItems="center" style={{ gap: '4px' }}>
             <PrimaryText color={theme.subText}>
-              {status === Status.NEW ? t`Created Balance:` : status === Status.ADD ? t`Added:` : t`Received:`}
+              {status === Status.NEW ? t`Created Balance:` : status === Status.ADD ? t`Added:` : t`Removed:`}
             </PrimaryText>
             <PrimaryText>
               {status === Status.NEW
