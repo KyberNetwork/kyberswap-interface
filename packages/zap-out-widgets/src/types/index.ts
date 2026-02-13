@@ -22,6 +22,7 @@ export interface ZapOutProps {
   txStatus?: Record<string, TxStatus>;
   txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
+  mode?: 'zapOut' | 'withdrawOnly';
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;

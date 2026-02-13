@@ -7,6 +7,7 @@ import InboxItemLimitOrder from 'components/Announcement/PrivateAnnoucement/Inbo
 import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/InboxItemPoolPosition'
 import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
 import InboxItemPrivateMessage from 'components/Announcement/PrivateAnnoucement/InboxItemPrivateMessage'
+import InboxItemSmartExit from 'components/Announcement/PrivateAnnoucement/InboxItemSmartExit'
 import { InboxItemTime } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplate, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { formatTime } from 'utils/time'
@@ -31,6 +32,7 @@ const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
     [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLimitOrder,
     [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
     [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
+    [PrivateAnnouncementType.SMART_EXIT]: InboxItemSmartExit,
   } as PrivateAnnouncementMap)
 
 export const hasValidPrivateAnnouncementType = (announcement: PrivateAnnouncement) =>
@@ -40,6 +42,7 @@ export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
   [PrivateAnnouncementType.POSITION_STATUS]: t`Earn Position`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
+  [PrivateAnnouncementType.SMART_EXIT]: t`Smart Exit`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
 })

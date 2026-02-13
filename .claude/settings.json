@@ -3,8 +3,6 @@
   "permissions": {
     "allow": [
       "Read",
-      "Write",
-      "Edit",
       "Bash(pnpm lint:*)",
       "Bash(pnpm type-check:*)",
       "Bash(pnpm test:*)",

@@ -5,6 +5,7 @@ import styled, { CSSProperties } from 'styled-components'
 import { ReactComponent as AnnouncementSvg } from 'assets/svg/ic_announcement.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/kyber/limit_order.svg'
+import { ReactComponent as SmartExitIcon } from 'assets/svg/kyber/smart_exit.svg'
 import { Category } from 'components/Announcement/AnnoucementList'
 import { PoolPositionAnnouncement } from 'components/Announcement/type'
 import useTheme from 'hooks/useTheme'
@@ -84,13 +85,16 @@ const CategoryItem = ({ onClick, style, title, icon, subLine1, subLine2, counter
 }
 
 type LimitOrderPreview = { pair?: string; status?: string }
+type SmartExitPreview = { pair?: string; note?: string }
 
 type Props = {
   earnUnread?: number
   limitOrderUnread?: number
+  smartExitUnread?: number
   announcementCount?: number
   previewPosition?: PoolPositionAnnouncement
   previewLimitOrder?: LimitOrderPreview
+  previewSmartExit?: SmartExitPreview
   announcementName?: string
   onSelectCategory?: (category: Category) => void
 }
@@ -98,9 +102,11 @@ type Props = {
 export default function AnnouncementCategoryList({
   earnUnread,
   limitOrderUnread,
+  smartExitUnread,
   announcementCount,
   previewPosition,
   previewLimitOrder,
+  previewSmartExit,
   announcementName,
   onSelectCategory,
 }: Props) {
@@ -121,6 +127,14 @@ export default function AnnouncementCategoryList({
         subLine2={previewLimitOrder?.status}
         icon={<LimitOrderIcon />}
         onClick={() => onSelectCategory?.(Category.LIMIT_ORDER)}
+      />
+      <CategoryItem
+        title="Smart Exit"
+        counter={smartExitUnread}
+        subLine1={previewSmartExit?.pair}
+        subLine2={previewSmartExit?.note}
+        icon={<SmartExitIcon />}
+        onClick={() => onSelectCategory?.(Category.SMART_EXIT)}
       />
       <CategoryItem
         title="Announcements"
