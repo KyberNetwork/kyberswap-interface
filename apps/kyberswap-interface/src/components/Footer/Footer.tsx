@@ -4,6 +4,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import ChainSecurity from 'assets/svg/chainsecurity.svg'
+import Hexens from 'assets/svg/hexens.svg'
 import Omniscia from 'assets/svg/omniscia.svg'
 import Spearbit from 'assets/svg/spearbit.svg'
 import { Telegram } from 'components/Icons'
@@ -158,6 +159,18 @@ function Footer() {
             >
               <img src={Spearbit} alt="" height={20} />
               <Text color={theme.subText}>Spearbit</Text>
+            </ExternalLink>
+            {above768 && (
+              <Text marginRight="6px" marginLeft="6px">
+                &
+              </Text>
+            )}
+            <ExternalLink
+              href="https://github.com/Hexens/Smart-Contract-Review-Public-Reports/blob/main/kyberswap-dec-25(Final).pdf"
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+            >
+              <img src={Hexens} alt="" height={20} />
+              <Text color={theme.subText}>Hexens</Text>
             </ExternalLink>
           </Item>
         </InfoWrapper>

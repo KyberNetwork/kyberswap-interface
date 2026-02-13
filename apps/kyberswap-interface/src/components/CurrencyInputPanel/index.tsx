@@ -122,7 +122,7 @@ export const StyledTokenName = styled.span<{ tight?: boolean; active?: boolean; 
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 145px;
+  max-width: 100px;
 
   @media only screen and (max-width: 445px) {
     max-width: 102px;

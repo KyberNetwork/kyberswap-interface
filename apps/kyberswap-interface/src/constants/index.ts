@@ -187,6 +187,7 @@ export const APP_PATHS = {
   EARN_POOLS: '/earn/pools',
   EARN_POSITIONS: '/earn/positions',
   EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:exchange',
+  EARN_SMART_EXIT: '/earn/smart-exit',
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',
@@ -249,6 +250,9 @@ export const RTK_QUERY_TAGS = {
   // limit order
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
   GET_ORDERS_BY_TOKEN_PAIR: 'GET_ORDERS_BY_TOKEN_PAIR',
+
+  // smart exit
+  GET_SMART_EXIT_ORDERS: 'GET_SMART_EXIT_ORDERS',
 
   GET_FARM_V2: 'GET_FARM_V2',
 }

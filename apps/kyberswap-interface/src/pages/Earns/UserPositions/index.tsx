@@ -143,17 +143,28 @@ const UserPositions = () => {
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
     let unfinalizedPositions: ParsedPosition[] = []
+    const valueUpdatingTokenIds: Set<number> = new Set()
+
     if (filters.page && filters.page === 1) {
       const rawUnfinalizedPositions = getUnfinalizedPositions(parsedPositions, account || undefined)
-      unfinalizedPositions = rawUnfinalizedPositions.filter(
+      const filtered = rawUnfinalizedPositions.filter(
         position =>
           (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
           (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
           (filters.statuses.includes(PositionStatus.IN_RANGE) || filters.statuses.includes(PositionStatus.OUT_RANGE)),
       )
+
+      // Separate truly new positions from increase-liquidity positions
+      unfinalizedPositions = filtered.filter(p => !p.isValueUpdating)
+      filtered.filter(p => p.isValueUpdating).forEach(p => valueUpdatingTokenIds.add(Number(p.tokenId)))
     }
 
-    return [...unfinalizedPositions, ...parsedPositions]
+    // Mark API positions that just had liquidity increased
+    const mergedPositions = parsedPositions.map(p =>
+      valueUpdatingTokenIds.has(Number(p.tokenId)) ? { ...p, isValueUpdating: true } : p,
+    )
+
+    return [...unfinalizedPositions, ...mergedPositions]
   }, [account, filters.chainIds, filters.page, filters.protocols, filters.statuses, parsedPositions])
 
   const onSortChange = (sortBy: string) => {
@@ -214,9 +225,10 @@ const UserPositions = () => {
           </Text>
           <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
-              {t`Remove liquidity`}
+              {t`Smart Exit`}
             </Text>
-            : {t`Remove liquidity from this position by zapping out to any token(s).`}
+            :{' '}
+            {t`Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s).`}
           </Text>
           <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
@@ -229,6 +241,12 @@ const UserPositions = () => {
               {t`Claim rewards`}
             </Text>
             : {t`Claim your claimable farming rewards from a position.`}
+          </Text>
+          <Text fontSize={14}>
+            <Text as="u" color={theme.primary}>
+              {t`Remove liquidity`}
+            </Text>
+            : {t`Remove liquidity from this position by zapping out to any token(s).`}
           </Text>
         </Flex>
       }

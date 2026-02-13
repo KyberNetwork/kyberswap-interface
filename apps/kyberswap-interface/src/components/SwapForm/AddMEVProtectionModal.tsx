@@ -40,9 +40,9 @@ const Wrapper = styled.div`
 `
 
 export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
-  [ChainId.MAINNET]: 'https://ethereum-mev-protection.kyberengineering.io/',
-  [ChainId.BSCMAINNET]: 'https://bsc-mev-protection.kyberengineering.io/',
-  // [ChainId.BASE]: 'https://base-mev-protection.kyberengineering.io/',
+  [ChainId.MAINNET]: 'https://ethereum-rpc-mev-protection.kyberswap.com/',
+  [ChainId.BSCMAINNET]: 'https://bsc-rpc-mev-protection.kyberswap.com/',
+  // [ChainId.BASE]: 'https://base-rpc-mev-protection.kyberswap.com/',
 }
 
 export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {

@@ -1,0 +1,73 @@
+{
+  "name": "@kyber/token-selector",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/index.css"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup && node build-css.mjs",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react-virtualized-auto-sizer": "^1.0.7",
+    "react-window": "^1.8.9"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.26.0",
+    "@kyber/eslint-config": "workspace:*",
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
+    "@kyber/tailwind-config": "workspace:^",
+    "@kyber/typescript-config": "workspace:*",
+    "@lingui/cli": "^4.6.0",
+    "@lingui/macro": "^4.6.0",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@types/react-virtualized-auto-sizer": "^1.0.1",
+    "@types/react-window": "^1.8.8",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "autoprefixer": "^10.4.20",
+    "babel-plugin-macros": "^3.1.0",
+    "esbuild-plugin-babel": "^0.2.3",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss": "^8.4.47",
+    "postcss-load-config": "^5.1.0",
+    "postcss-prefix-selector": "^2.1.0",
+    "prettier": "^3.5.3",
+    "tailwindcss": "^3.4.13",
+    "tsup": "^8.0.2",
+    "typescript": "5.3.2"
+  },
+  "peerDependencies": {
+    "@kyber/hooks": "workspace:^",
+    "@kyber/schema": "workspace:^",
+    "@kyber/ui": "workspace:^",
+    "@kyber/utils": "workspace:^",
+    "@lingui/core": ">=4.0.0",
+    "@lingui/react": ">=4.0.0",
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  }
+}

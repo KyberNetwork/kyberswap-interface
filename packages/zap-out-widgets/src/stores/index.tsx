@@ -131,10 +131,11 @@ export function ZapOutProvider({ children, ...props }: ZapOutProviderState) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
 
-  const { resetState } = useZapOutUserState();
+  const { resetState, setMode } = useZapOutUserState();
 
   useEffect(() => {
     resetState();
+    if (props.mode && props.mode !== 'zapOut') setMode(props.mode);
     // get Pool and position then update store here
     store.getState().getPool();
     // store.getState().getPosition();

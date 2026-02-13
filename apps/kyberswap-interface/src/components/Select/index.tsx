@@ -6,11 +6,10 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 import styled from 'styled-components'
 
+import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Icon from 'components/Icons/Icon'
 import { Z_INDEXS } from 'constants/styles'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-
-import { DropdownArrowIcon } from '../ArrowRotate'
 
 const SelectWrapper = styled.div`
   cursor: pointer;
@@ -38,15 +37,16 @@ const SelectMenu = styled(motion.div)`
   width: max-content;
 `
 
-const Option = styled.div<{ $selected: boolean }>`
+const Option = styled.div<{ $selected: boolean; $disabled?: boolean }>`
   padding: 8px;
   border-radius: 8px;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-size: 12px;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme, $disabled }) => ($disabled ? theme.border : theme.subText)};
   white-space: nowrap;
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   &:hover {
-    background-color: ${({ theme }) => theme.background};
+    background-color: ${({ theme, $disabled }) => ($disabled ? 'transparent' : theme.background)};
   }
   font-weight: ${({ $selected }) => ($selected ? '500' : 'unset')};
 `
@@ -85,7 +85,7 @@ const SearchWrapper = styled.div`
     color: ${({ theme }) => theme.text};
   }
 `
-export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void }
+export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void; disabled?: boolean }
 
 const getOptionValue = (option: SelectOption | undefined) => {
   if (!option) return ''
@@ -99,18 +99,21 @@ const getOptionLabel = (option: SelectOption | undefined) => {
 const defaultOffset: [number, number] = [0 /* skidding */, 2 /* distance */]
 
 export type SelectProps = {
-  value?: string | number
+  value?: string | number | null
   className?: string
   options: SelectOption[]
   dropdownRender?: (menu: ReactNode) => ReactNode
   activeRender?: (selectedItem: SelectOption | undefined) => ReactNode
   optionRender?: (option: SelectOption | undefined) => ReactNode
+  placeholder?: ReactNode
   style?: CSSProperties
   menuStyle?: CSSProperties
   optionStyle?: CSSProperties
   onChange?: (value: any) => void
   forceMenuPlacementTop?: boolean
+  arrow?: 'chevron' | 'arrow'
   arrowColor?: string
+  arrowSize?: number
   placement?: Placement
   withSearch?: boolean
   onHideMenu?: () => void // hide without changes
@@ -127,21 +130,47 @@ function Select({
   value: selectedValue,
   className,
   forceMenuPlacementTop = false,
+  arrow = 'arrow',
   arrowColor,
+  arrowSize = 24,
   dropdownRender,
   onHideMenu,
   withSearch,
   placement = 'bottom',
+  placeholder,
 }: SelectProps) {
-  const [selected, setSelected] = useState(getOptionValue(options?.[0]))
+  const hasPlaceholder = placeholder !== undefined && placeholder !== null
+  const getInitialSelected = () => {
+    const isUnset = selectedValue === null || selectedValue === undefined
+    if (hasPlaceholder && isUnset) return ''
+    const found = options.find(item => getOptionValue(item) === selectedValue)?.value
+    if (found !== undefined) return found
+    if (!isUnset && selectedValue !== undefined) return selectedValue
+    return getOptionValue(options?.[0])
+  }
+
+  const [selected, setSelected] = useState<string | number | undefined>(getInitialSelected())
   const [showMenu, setShowMenu] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [menuPlacementTop] = useState(forceMenuPlacementTop)
 
   useEffect(() => {
+    const isUnset = selectedValue === null || selectedValue === undefined
+    if (hasPlaceholder && isUnset) {
+      setSelected('')
+      return
+    }
     const findValue = options.find(item => getOptionValue(item) === selectedValue)?.value
-    setSelected(findValue || getOptionValue(options?.[0]))
-  }, [selectedValue, options])
+    if (findValue !== undefined) {
+      setSelected(findValue)
+      return
+    }
+    if (!isUnset && selectedValue !== undefined) {
+      setSelected(selectedValue)
+      return
+    }
+    setSelected(getOptionValue(options?.[0]))
+  }, [selectedValue, options, hasPlaceholder])
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -150,6 +179,8 @@ function Select({
     onHideMenu?.()
   })
   const selectedInfo = options.find(item => getOptionValue(item) === selected)
+  const shouldShowPlaceholder =
+    hasPlaceholder && (selectedValue === null || selectedValue === undefined) && !selectedInfo
 
   const renderMenu = () => {
     return options
@@ -162,6 +193,7 @@ function Select({
         const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
           e.stopPropagation()
           e.preventDefault()
+          if (item.disabled) return
           setShowMenu(false)
           setSearchValue('')
           if (item.onSelect) item.onSelect?.()
@@ -175,6 +207,7 @@ function Select({
             key={value}
             role="button"
             $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
+            $disabled={item.disabled}
             onClick={onClick}
             style={optionStyle}
           >
@@ -202,8 +235,10 @@ function Select({
       style={style}
       className={className}
     >
-      <SelectedWrap>{activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}</SelectedWrap>
-      <DropdownArrowIcon rotate={showMenu} color={arrowColor} />
+      <SelectedWrap>
+        {shouldShowPlaceholder ? placeholder : activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}
+      </SelectedWrap>
+      <DropdownArrowIcon rotate={showMenu} color={arrowColor} arrow={arrow} size={arrowSize} />
       <AnimatePresence>
         {showMenu && (
           <Portal>

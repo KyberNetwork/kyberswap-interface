@@ -18,12 +18,15 @@
     "./crypto": "./src/crypto/index.ts",
     "./number": "./src/number.ts",
     "./crypto/transaction": "./src/crypto/transaction.ts",
+    "./liquidity": "./src/liquidity/index.ts",
     "./liquidity/zap": "./src/liquidity/zap.ts",
+    "./liquidity/position": "./src/liquidity/position.ts",
     ".": "./src/index.ts",
     "./dist/tailwind-helpers": "./src/tailwind-helpers.ts",
     "./dist/uniswapv3": "./src/uniswapv3.ts",
     "./dist/crypto": "./src/crypto/index.ts",
     "./dist/number": "./src/number.ts",
+    "./dist/liquidity": "./src/liquidity/index.ts",
     "./dist/liquidity/position": "./src/liquidity/position.ts"
   },
   "devDependencies": {

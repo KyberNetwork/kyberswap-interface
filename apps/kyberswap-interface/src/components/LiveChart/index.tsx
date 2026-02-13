@@ -318,9 +318,10 @@ function LiveChart({
               {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} label={label} />}
               <Flex justifyContent="flex-end" sx={{ gap: '0.5rem', marginTop: '6px' }}>
                 <Text color={theme.subText} fontSize="10px">
-                  <Trans>Powered by</Trans>
+                  <Trans>
+                    Powered by <GeckoTerminalSVG style={{ width: '75px' }} />
+                  </Trans>
                 </Text>
-                <GeckoTerminalSVG style={{ width: '75px' }} />
               </Flex>
             </div>
 

@@ -219,3 +219,93 @@ export const formatWei = (value?: string, decimals?: number) => {
 
   return '--';
 };
+
+/**
+ * Format a number based on significant digits (with truncation)
+ * @param value - The number or string to format
+ * @param significantDigits - Number of significant digits to display
+ * @returns Formatted number with the specified number of significant digits
+ */
+export function formatNumberBySignificantDigits(value: string | number, significantDigits: number): number {
+  // Convert input to number
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+
+  // Handle invalid numbers
+  if (isNaN(num) || !isFinite(num)) {
+    return 0;
+  }
+
+  // Handle zero
+  if (num === 0) {
+    return 0;
+  }
+
+  // Handle negative numbers
+  const isNegative = num < 0;
+  const absNum = Math.abs(num);
+
+  // Convert to string to work with significant digits
+  const numStr = absNum.toString();
+
+  // Handle scientific notation
+  let plainStr: string;
+  if (numStr.includes('e')) {
+    plainStr = absNum.toFixed(20);
+  } else {
+    plainStr = numStr;
+  }
+
+  // Split into parts
+  const parts = plainStr.split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1] || '';
+
+  let result = '';
+  let sigDigitsCount = 0;
+
+  // Process integer part
+  let foundNonZero = false;
+  for (let i = 0; i < integerPart.length; i++) {
+    const digit = integerPart[i];
+    result += digit;
+
+    // Count significant digits (skip leading zeros)
+    if (digit !== '0' || foundNonZero) {
+      foundNonZero = true;
+      sigDigitsCount++;
+    }
+
+    if (sigDigitsCount >= significantDigits) {
+      // Convert to number and return
+      return isNegative ? -parseFloat(result) : parseFloat(result);
+    }
+  }
+
+  // If we have decimal part and still need more significant digits
+  if (decimalPart && sigDigitsCount < significantDigits) {
+    result += '.';
+
+    for (let i = 0; i < decimalPart.length; i++) {
+      const digit = decimalPart[i];
+
+      // Count significant digits (after decimal, zeros count if we found non-zero)
+      if (digit !== '0' || foundNonZero) {
+        foundNonZero = true;
+        sigDigitsCount++;
+      }
+
+      result += digit;
+
+      if (sigDigitsCount >= significantDigits) {
+        break;
+      }
+    }
+  }
+
+  // Remove trailing zeros and decimal point if necessary
+  if (result.includes('.')) {
+    result = result.replace(/\.?0+$/, '');
+  }
+
+  return isNegative ? -parseFloat(result) : parseFloat(result);
+}
