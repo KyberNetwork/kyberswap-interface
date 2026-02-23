@@ -1606,10 +1606,6 @@ msgstr "Total Balance"
 msgid "Your output amount is invalid."
 msgstr "Your output amount is invalid."
 
-#: src/pages/Earns/UserPositions/index.tsx
-msgid "<0>Unclaimed</0><1>rewards</1>"
-msgstr "<0>Unclaimed</0><1>rewards</1>"
-
 #: src/pages/Campaign/constants.tsx
 msgid "<0>Week 4</0> July 29 - Aug 04"
 msgstr "<0>Week 4</0> July 29 - Aug 04"
@@ -5709,8 +5705,8 @@ msgid "Limit Orders"
 msgstr "Limit Orders"
 
 #: src/pages/Earns/UserPositions/index.tsx
-#~ msgid "<0>Unclaimed</0><1><2>rewards</2><3/></1>"
-#~ msgstr "<0>Unclaimed</0><1><2>rewards</2><3/></1>"
+msgid "<0>Unclaimed</0><1><2>rewards</2><3/></1>"
+msgstr "<0>Unclaimed</0><1><2>rewards</2><3/></1>"
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
 msgid "KyberSwap also allows users to <0>trade smarter</0>. We provide various trading insights so our users can get access to <1>alpha</1> instantly!"
