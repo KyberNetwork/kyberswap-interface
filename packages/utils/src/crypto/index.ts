@@ -46,19 +46,9 @@ export function decodeInt24(hex: string): number {
   return int >= 0x800000 ? int - 0x1000000 : int;
 }
 
-/**
- * Get current gas price for a chain.
- * @param chainIdOrRpcUrl - Either a chainId (number) for automatic rotation, or a specific RPC URL (string)
- */
-export async function getCurrentGasPrice(chainIdOrRpcUrl: number | string): Promise<number> {
-  if (typeof chainIdOrRpcUrl === 'number') {
-    // Use RPC client with rotation
-    const result = await rpcFetch<string>(chainIdOrRpcUrl, 'eth_gasPrice', []);
-    return parseInt(result, 16);
-  }
-
-  // Legacy: direct RPC URL provided
-  const result = await directRpcFetch<string>(chainIdOrRpcUrl, 'eth_gasPrice', []);
+// Get current gas price for a chain
+export async function getCurrentGasPrice(chainId: number): Promise<number> {
+  const result = await rpcFetch<string>(chainId, 'eth_gasPrice', []);
   return parseInt(result, 16);
 }
 

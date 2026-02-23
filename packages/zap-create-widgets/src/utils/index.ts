@@ -167,7 +167,7 @@ export const estimateGasForTx = async ({
           return prices[wethAddress]?.PriceBuy || 0;
         })
         .catch(() => 0),
-      getCurrentGasPrice(rpcUrl),
+      getCurrentGasPrice(chainId),
     ]);
 
     const gasUsd = +formatUnits(gasPrice.toString(), 18) * +gasEstimation.toString() * nativeTokenPrice;
