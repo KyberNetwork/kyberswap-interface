@@ -11,6 +11,7 @@
     "prepublishOnly": "tsc && tsup"
   },
   "dependencies": {
+    "@kyber/rpc-client": "workspace:*",
     "@popperjs/core": "^2.11.8",
     "eslint-plugin-better-styled-components": "^1.1.2",
     "lodash.throttle": "^4.1.1",
