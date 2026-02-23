@@ -1,6 +1,6 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import { AdaptedWallet } from '@relayprotocol/relay-sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
 import { WalletClient } from 'viem'
