@@ -1,11 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
-import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { TAB } from 'pages/SwapV3'
@@ -138,10 +137,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
           isActive={activeTab === TAB.CROSS_CHAIN}
           data-testid="cross-chain-tab"
         >
-          <Flex fontWeight={500}>
-            <Trans>Cross-Chain</Trans>
-            <NewLabel>New</NewLabel>
-          </Flex>
+          <Trans>Cross-Chain</Trans>
         </Tab>
       </TabWrapper>
     </TabContainer>
