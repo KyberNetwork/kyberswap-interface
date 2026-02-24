@@ -28,10 +28,11 @@ import {
 } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isNativeToken, isUniswapExchange } from 'pages/Earns/utils'
 
-export const getDexVersion = (dex: Exchange) => {
-  if (!EARN_DEXES[dex].showVersion) return ''
+export const getDexVersion = (exchange: Exchange) => {
+  if (!EARN_DEXES[exchange].showVersion) return ''
+  if (exchange.includes('fairflow')) return 'FairFlow'
 
-  const dexStringSplit = EARN_DEXES[dex].name.split(' ')
+  const dexStringSplit = EARN_DEXES[exchange].name.split(' ')
   return dexStringSplit.length > 0 ? dexStringSplit.slice(1).join(' ') : ''
 }
 
@@ -69,6 +70,7 @@ export const parsePosition = ({
   const forceClosed = isClosedFromRpc && position.status !== PositionStatus.CLOSED
 
   const currentAmounts = position.currentAmounts || []
+  const providedAmounts = position.providedAmounts || []
   const feePending = position.stats?.earning?.fee?.unclaimed || []
   const feesClaimed = position.stats?.earning?.fee?.claimed || []
   const pool = position.pool
@@ -76,13 +78,14 @@ export const parsePosition = ({
   const token0Data = tokenAmounts[0]?.token
   const token1Data = tokenAmounts[1]?.token
 
-  const currentAmount0 = currentAmounts[0]
-  const currentAmount1 = currentAmounts[1]
+  const token0Address = token0Data?.address || ''
+  const token1Address = token1Data?.address || ''
 
-  const feePending0 = feePending[0]
-  const feePending1 = feePending[1]
-  const feesClaimed0 = feesClaimed[0]
-  const feesClaimed1 = feesClaimed[1]
+  const [currentAmount0, currentAmount1] = currentAmounts
+  const [providedAmount0, providedAmount1] = providedAmounts
+
+  const [feePending0, feePending1] = feePending
+  const [feesClaimed0, feesClaimed1] = feesClaimed
 
   const token0CurrentQuote = {
     price: currentAmount0?.amount?.priceUsd || 0,
@@ -111,13 +114,29 @@ export const parsePosition = ({
 
   const token0TotalProvide = forceClosed
     ? 0
+    : Number(providedAmount0?.amount?.amount || 0) && token0Data?.decimals
+    ? Number(providedAmount0?.amount?.amount) / 10 ** token0Data?.decimals
+    : token0CurrentQuote
+    ? token0CurrentQuote.value / (token0CurrentQuote.price || 1)
+    : 0
+
+  const token1TotalProvide = forceClosed
+    ? 0
+    : Number(providedAmount1?.amount?.amount || 0) && token1Data?.decimals
+    ? Number(providedAmount1?.amount?.amount) / 10 ** token1Data?.decimals
+    : token1CurrentQuote
+    ? token1CurrentQuote.value / (token1CurrentQuote.price || 1)
+    : 0
+
+  const token0CurrentAmount = forceClosed
+    ? 0
     : Number(currentAmount0?.amount?.amount || 0) && token0Data?.decimals
     ? Number(currentAmount0?.amount?.amount) / 10 ** token0Data?.decimals
     : token0CurrentQuote
     ? token0CurrentQuote.value / (token0CurrentQuote.price || 1)
     : 0
 
-  const token1TotalProvide = forceClosed
+  const token1CurrentAmount = forceClosed
     ? 0
     : Number(currentAmount1?.amount?.amount || 0) && token1Data?.decimals
     ? Number(currentAmount1?.amount?.amount) / 10 ** token1Data?.decimals
@@ -161,11 +180,9 @@ export const parsePosition = ({
     : feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + (fee.amount?.usdValue || 0), 0)
   const totalProvidedValue = forceClosed ? 0 : (position.valueInUSD || 0) - unclaimedFees
 
-  const token0Address = token0Data?.address || ''
-  const token1Address = token1Data?.address || ''
-
   const dex = (pool?.protocol?.type || '') as Exchange
   const isUniv2 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV2
+  const isUniv4 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV4
   const isUniswap = isUniswapExchange(dex)
 
   const programs = pool.programs || []
@@ -250,6 +267,14 @@ export const parsePosition = ({
   const isPositionInRange = parsedStatus === PositionStatus.IN_RANGE
   const bonusApr = isPositionInRange && isUniswap ? position.pool.merklOpportunity?.apr || 0 : 0
 
+  //  %Yield = [(f₀ + f₁/P) / (t₀ + t₁/P)] × 100
+  const f0 = token0EarnedAmount
+  const f1 = token1EarnedAmount
+  const p = pool.price
+  const t0 = token0TotalProvide
+  const t1 = token1TotalProvide
+  const earningFeeYield = (100 * (f0 + f1 / p)) / (t0 + t1 / p)
+
   return {
     positionId: position.positionId?.toString() || position.id?.toString(),
     tokenId: tokenId,
@@ -262,6 +287,7 @@ export const parsePosition = ({
       isFarming,
       isFarmingLm,
       isUniv2,
+      isUniv4,
     },
     dex: {
       id: dex,
@@ -308,6 +334,7 @@ export const parsePosition = ({
       price: currentAmounts[0]?.amount?.priceUsd,
       isNative: isNativeToken(token0Address, chainId as keyof typeof WETH),
       totalProvide: token0TotalProvide,
+      currentAmount: token0CurrentAmount,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount0) : token0PendingEarned,
       unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance0) : Number(feePending0?.amount?.amount || 0),
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value0) : token0PendingQuote?.value || 0,
@@ -320,6 +347,7 @@ export const parsePosition = ({
       price: currentAmounts[1]?.amount?.priceUsd,
       isNative: isNativeToken(token1Address, chainId as keyof typeof WETH),
       totalProvide: token1TotalProvide,
+      currentAmount: token1CurrentAmount,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount1) : token1PendingEarned,
       unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance1) : Number(feePending1?.amount?.amount || 0),
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value1) : token1PendingQuote?.value || 0,
@@ -332,12 +360,14 @@ export const parsePosition = ({
     feeApr: calcAprInterval(lpApr),
     bonusApr,
     totalValue,
+    currentValue: position.valueInUSD,
     totalProvidedValue,
     unclaimedFees,
     status: parsedStatus,
     createdTime: createdTime,
     isUnfinalized,
     isValueUpdating: false,
+    earningFeeYield,
   }
 }
 

@@ -51,6 +51,7 @@ const initState = {
   onOpenZapMigration: undefined,
   onSuccess: undefined,
   onViewPosition: undefined,
+  onSetUpSmartExit: undefined,
   nativeToken: defaultToken,
   wrappedNativeToken: defaultToken,
   error: undefined,

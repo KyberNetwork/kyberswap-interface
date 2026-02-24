@@ -12,7 +12,7 @@ const PositionSkeleton = ({
   tooltip,
   tooltipWidth,
 }: {
-  width: number
+  width: number | string
   height: number
   style?: React.CSSProperties
   text?: string

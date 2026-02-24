@@ -67,6 +67,7 @@ const useZapOutWidget = (
     poolType: ZapOutDex
     poolAddress: string
     chainId: ZapOutChainId
+    mode?: 'zapOut' | 'withdrawOnly'
     dexId: Exchange
   } | null>(null)
   const locale = useActiveLocale()
@@ -198,7 +199,7 @@ const useZapOutWidget = (
     ],
   )
 
-  const handleOpenZapOut = ({ position }: ZapOutInfo) => {
+  const handleOpenZapOut = ({ position, mode }: ZapOutInfo & { mode?: 'zapOut' | 'withdrawOnly' }) => {
     const poolType = zapOutDexMapping[position.dex]
     if (!poolType) {
       notify(
@@ -216,6 +217,7 @@ const useZapOutWidget = (
       chainId: position.chainId as ZapOutChainId,
       poolAddress: position.poolAddress,
       positionId: position.id,
+      mode,
       dexId: position.dex,
     })
   }

@@ -2,13 +2,16 @@ import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
@@ -36,6 +39,7 @@ import {
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
+import { SmartExit } from 'pages/Earns/components/SmartExit'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -45,7 +49,7 @@ import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
-import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -74,11 +78,27 @@ export default function TableContent({
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const navigate = useNavigate()
   const theme = useTheme()
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
+  const [smartExitPosition, setSmartExitPosition] = useState<ParsedPosition | null>(null)
+
+  const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
+    {
+      userWallet: account || '',
+      positionIds: positions?.map(pos => pos.positionId) || [],
+      status: OrderStatus.OrderStatusOpen,
+      page: 1,
+      pageSize: positions?.length || 10,
+    },
+    {
+      skip: (positions?.length || 0) === 0,
+    },
+  )
+  const smartExitPosIds = smartExitOrders?.orders.map(order => order.positionId) || []
 
   const {
     claimModal: claimFeesModal,
@@ -310,6 +330,7 @@ export default function TableContent({
       {claimRewardsModal}
       {zapMigrationWidget}
       {migrationModal}
+      {smartExitPosition && <SmartExit position={smartExitPosition} onDismiss={() => setSmartExitPosition(null)} />}
 
       <div>
         {account && positions && positions.length > 0
@@ -348,8 +369,12 @@ export default function TableContent({
               const actions = (
                 <DropdownAction
                   position={position}
+                  hasActiveSmartExitOrder={smartExitPosIds.includes(position.positionId)}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
+                  onOpenSmartExit={(_e: React.MouseEvent, position: ParsedPosition) => {
+                    setSmartExitPosition(position)
+                  }}
                   onOpenReposition={handleReposition}
                   claimFees={{
                     onClaimFee: handleClaimFees,
@@ -389,6 +414,29 @@ export default function TableContent({
                         {token0.symbol}/{token1.symbol}
                       </Text>
                       <Badge>{pool.fee}%</Badge>
+                      {smartExitPosIds.includes(position.positionId) && (
+                        <MouseoverTooltipDesktopOnly
+                          text={t`Active Smart Exit Order`}
+                          width="fit-content"
+                          placement="bottom"
+                        >
+                          <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            sx={{ cursor: 'pointer', borderRadius: '30px' }}
+                            backgroundColor={rgba(theme.white, 0.04)}
+                            width={24}
+                            height={24}
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              navigate(APP_PATHS.EARN_SMART_EXIT)
+                            }}
+                          >
+                            <ListSmartExitIcon width={16} height={16} color={theme.primary} />
+                          </Flex>
+                        </MouseoverTooltipDesktopOnly>
+                      )}
                     </Flex>
                     <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
@@ -646,12 +694,12 @@ export default function TableContent({
                         sx={{ gap: 1.8 }}
                       >
                         <Flex alignItems="center" sx={{ gap: 1 }}>
-                          <Text>{formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text>{formatDisplayNumber(token0.currentAmount, { significantDigits: 4 })}</Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
                         </Flex>
                         {upToSmall && <Divider />}
                         <Flex alignItems="center" sx={{ gap: 1 }}>
-                          <Text>{formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text>{formatDisplayNumber(token1.currentAmount, { significantDigits: 4 })}</Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token1.symbol}</Text>
                         </Flex>
                       </Flex>

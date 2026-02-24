@@ -16,13 +16,14 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import { SmartExitParams } from 'pages/Earns/hooks/useSmartExitWidget'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
-import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
+import { DEFAULT_PARSED_POSITION, ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
 import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
@@ -71,11 +72,13 @@ const useZapInWidget = ({
   onRefreshPosition,
   triggerClose,
   setTriggerClose,
+  onOpenSmartExit,
 }: {
   onOpenZapMigration: (props: ZapMigrationInfo) => void
   onRefreshPosition?: () => void
   triggerClose?: boolean
   setTriggerClose?: (value: boolean) => void
+  onOpenSmartExit?: (params: SmartExitParams | ParsedPosition | undefined) => void
 }) => {
   const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
@@ -162,6 +165,19 @@ const useZapInWidget = ({
     [addLiquidityPureParams, onOpenZapMigration],
   )
 
+  // Check if smart exit is supported for current dex and chain
+  const isSmartExitSupported = useMemo(() => {
+    if (!addLiquidityPureParams) return false
+
+    const { chainId } = addLiquidityPureParams
+    const dex = addLiquidityPureParams.dexId
+
+    const dexSupportsSmartExit = !!EARN_DEXES[dex].smartExitDexType
+    const chainSupportsSmartExit = EARN_CHAINS[chainId as unknown as EarnChain]?.smartExitSupported
+
+    return dexSupportsSmartExit && chainSupportsSmartExit
+  }, [addLiquidityPureParams])
+
   const addLiquidityParams: AddLiquidityParams | null = useMemo(
     () =>
       addLiquidityPureParams
@@ -182,6 +198,23 @@ const useZapInWidget = ({
               handleCloseZapInWidget()
               handleNavigateToPosition(txHash, chainId, dexId, poolAddress)
             },
+            onSetUpSmartExit:
+              isSmartExitSupported && onOpenSmartExit
+                ? (params: { tokenId: string; chainId: ZapInChainId; poolType: ZapInPoolType } | undefined) => {
+                    if (!params) {
+                      onOpenSmartExit(undefined)
+                      return
+                    }
+
+                    // Pass SmartExitParams to open modal immediately with loading state
+                    onOpenSmartExit({
+                      tokenId: params.tokenId,
+                      chainId: params.chainId,
+                      poolType: params.poolType,
+                    })
+                    handleCloseZapInWidget()
+                  }
+                : undefined,
             connectedAccount: {
               address: account,
               chainId: chainId,
@@ -327,23 +360,25 @@ const useZapInWidget = ({
           }
         : null,
     [
-      addLiquidityPureParams,
-      zapInRpcUrl,
-      refCode,
-      txStatus,
-      originalToCurrentHash,
       account,
+      addLiquidityPureParams,
+      addTrackedTxHash,
+      addTransactionWithType,
       chainId,
-      toggleWalletModal,
-      handleOpenZapMigration,
+      changeNetwork,
       handleCloseZapInWidget,
       handleNavigateToPosition,
-      onRefreshPosition,
-      changeNetwork,
+      handleOpenZapMigration,
+      isSmartExitSupported,
       library,
-      addTransactionWithType,
       locale,
-      addTrackedTxHash,
+      onOpenSmartExit,
+      onRefreshPosition,
+      originalToCurrentHash,
+      refCode,
+      toggleWalletModal,
+      txStatus,
+      zapInRpcUrl,
     ],
   )
 

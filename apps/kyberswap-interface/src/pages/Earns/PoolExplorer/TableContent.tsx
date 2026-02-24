@@ -11,7 +11,7 @@ import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
 import { ProgressBarWrapper } from 'pages/Earns/PoolExplorer/styles'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
-import { EARN_DEXES_CONFIG } from 'pages/Earns/constants'
+import { EARN_DEXES } from 'pages/Earns/constants'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import Updater from 'state/customizeDexes/updater'
 import { useAppSelector } from 'state/hooks'
@@ -40,7 +40,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
     isFetching,
     isError,
   } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
-  const { handleFavorite, favoriteLoading } = useFavoritePool({ refetch })
+  const { handleFavorite, favoriteLoading, getFavoriteStatus } = useFavoritePool({ refetch })
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -68,11 +68,11 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
 
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => {
-      const poolChainId = pool.chain?.id ?? pool.chainId
+      const poolChainId = (pool.chain?.id ?? pool.chainId) as number
 
       const dexKey = dexKeyMapping[pool.exchange] || pool.exchange
 
-      const dexConfig = EARN_DEXES_CONFIG[pool.exchange]
+      const dexConfig = EARN_DEXES[pool.exchange]
 
       const dexInfo = dexConfig
         ? { logoURL: dexConfig.logo || '', name: dexConfig.name || '' }
@@ -84,9 +84,10 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
         ...pool,
         dexLogo: dexInfo?.logoURL || '',
         dexName: dexInfo?.name || pool.exchange,
+        favorite: { chainId: poolChainId, isFavorite: getFavoriteStatus(pool) },
       }
     })
-  }, [poolData?.data?.pools, dexLookupMap])
+  }, [poolData?.data?.pools, dexLookupMap, getFavoriteStatus])
 
   if (isLoading) {
     return <LocalLoader />
