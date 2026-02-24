@@ -15,7 +15,7 @@ export const API_URLS = {
   GO_PLUS_API: 'https://api.gopluslabs.io/api/v1/token_security',
   ZAP_EARN_API: 'https://earn-service.kyberswap.com/api',
   // ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
-  TOKEN_API: 'https://token-api.kyberswap.com/api',
+  TOKEN_API: 'https://pre-token-api.kyberengineering.io/api',
   DOCUMENT: {
     ZAP_FEE_MODEL: 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model',
   },
