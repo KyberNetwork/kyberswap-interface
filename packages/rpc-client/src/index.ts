@@ -1,9 +1,6 @@
 // Core client
 export { RpcClient, getRpcClient, clearRpcClients } from './client';
 
-// Provider for ethers.js compatibility
-export { RotatingJsonRpcProvider, createRotatingProvider } from './provider';
-
 // Fetch helpers
 export {
   rpcFetch,

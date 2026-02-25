@@ -25,12 +25,6 @@
       "require": "./dist/fetch.js",
       "default": "./dist/fetch.js"
     },
-    "./provider": {
-      "types": "./dist/provider.d.ts",
-      "import": "./dist/provider.js",
-      "require": "./dist/provider.js",
-      "default": "./dist/provider.js"
-    },
     "./endpoints": {
       "types": "./dist/endpoints.d.ts",
       "import": "./dist/endpoints.js",
@@ -53,13 +47,5 @@
   },
   "dependencies": {
     "@kyber/schema": "workspace:*"
-  },
-  "peerDependencies": {
-    "@ethersproject/providers": "^5.7.0"
-  },
-  "peerDependenciesMeta": {
-    "@ethersproject/providers": {
-      "optional": true
-    }
   }
 }
