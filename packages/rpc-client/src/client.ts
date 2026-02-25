@@ -1,3 +1,5 @@
+import { ChainId, NETWORKS_INFO } from '@kyber/schema';
+
 import { getKyberRpcEndpoint, getRpcEndpoints } from './endpoints';
 import {
   AllEndpointsFailedError,
@@ -34,6 +36,8 @@ export class RpcClient {
   private readonly chainId: number;
   private readonly endpoints: string[];
   private readonly kyberEndpoint: string | undefined;
+  private readonly defaultRpcEndpoint: string | undefined;
+  private readonly configRpcEndpoint: string | undefined;
   private readonly useKyberFallback: boolean;
   private readonly timeout: number;
   private readonly maxRetriesPerEndpoint: number;
@@ -41,14 +45,16 @@ export class RpcClient {
   private readonly headers: Record<string, string>;
   private readonly eventHandlers: RpcEventHandlers;
 
-  private currentIndex: number = 0;
+  private currentIndex = 0;
   private endpointHealth: Map<string, EndpointHealth> = new Map();
-  private requestId: number = 1;
+  private requestId = 1;
 
   constructor(config: RpcClientConfig) {
     this.chainId = config.chainId;
     this.endpoints = config.customEndpoints?.length ? config.customEndpoints : getRpcEndpoints(config.chainId);
     this.kyberEndpoint = getKyberRpcEndpoint(config.chainId);
+    this.defaultRpcEndpoint = NETWORKS_INFO[config.chainId as ChainId]?.defaultRpc;
+    this.configRpcEndpoint = config.configRpcEndpoint;
     this.useKyberFallback = config.useKyberFallback ?? true;
     this.timeout = config.timeout ?? DEFAULT_TIMEOUT;
     this.maxRetriesPerEndpoint = config.maxRetriesPerEndpoint ?? DEFAULT_MAX_RETRIES_PER_ENDPOINT;
@@ -134,6 +140,28 @@ export class RpcClient {
       }
     }
 
+    // Fallback to config RPC (from ks-setting API)
+    const configFallback = this.getConfigFallbackEndpoint();
+    if (configFallback) {
+      try {
+        const result = await this.fetchRpc<T>(configFallback, method, params);
+        return result.result;
+      } catch (error) {
+        errors.push({ endpoint: configFallback, error: error as Error });
+      }
+    }
+
+    // Final fallback to defaultRpc from NETWORKS_INFO
+    const defaultFallback = this.getDefaultFallbackEndpoint(configFallback);
+    if (defaultFallback) {
+      try {
+        const result = await this.fetchRpc<T>(defaultFallback, method, params);
+        return result.result;
+      } catch (error) {
+        errors.push({ endpoint: defaultFallback, error: error as Error });
+      }
+    }
+
     throw new AllEndpointsFailedError(this.chainId, errors);
   }
 
@@ -182,6 +210,26 @@ export class RpcClient {
       }
     }
 
+    // Fallback to config RPC (from ks-setting API)
+    const configFallback2 = this.getConfigFallbackEndpoint();
+    if (configFallback2) {
+      try {
+        return await this.fetchRpc<T>(configFallback2, method, params);
+      } catch (error) {
+        errors.push({ endpoint: configFallback2, error: error as Error });
+      }
+    }
+
+    // Final fallback to defaultRpc from NETWORKS_INFO
+    const defaultFallback2 = this.getDefaultFallbackEndpoint(configFallback2);
+    if (defaultFallback2) {
+      try {
+        return await this.fetchRpc<T>(defaultFallback2, method, params);
+      } catch (error) {
+        errors.push({ endpoint: defaultFallback2, error: error as Error });
+      }
+    }
+
     throw new AllEndpointsFailedError(this.chainId, errors);
   }
 
@@ -218,6 +266,26 @@ export class RpcClient {
         return await this.fetchBatchRpc<T>(this.kyberEndpoint, calls);
       } catch (error) {
         errors.push({ endpoint: this.kyberEndpoint, error: error as Error });
+      }
+    }
+
+    // Fallback to config RPC (from ks-setting API)
+    const configFallback3 = this.getConfigFallbackEndpoint();
+    if (configFallback3) {
+      try {
+        return await this.fetchBatchRpc<T>(configFallback3, calls);
+      } catch (error) {
+        errors.push({ endpoint: configFallback3, error: error as Error });
+      }
+    }
+
+    // Final fallback to defaultRpc from NETWORKS_INFO
+    const defaultFallback3 = this.getDefaultFallbackEndpoint(configFallback3);
+    if (defaultFallback3) {
+      try {
+        return await this.fetchBatchRpc<T>(defaultFallback3, calls);
+      } catch (error) {
+        errors.push({ endpoint: defaultFallback3, error: error as Error });
       }
     }
 
@@ -453,6 +521,27 @@ export class RpcClient {
       message.includes('econnreset') ||
       message.includes('econnrefused')
     );
+  }
+
+  /**
+   * Get config RPC endpoint if it's not already tried as public or Kyber endpoint.
+   */
+  private getConfigFallbackEndpoint(): string | undefined {
+    if (!this.configRpcEndpoint) return undefined;
+    if (this.configRpcEndpoint === this.kyberEndpoint) return undefined;
+    if (this.endpoints.includes(this.configRpcEndpoint)) return undefined;
+    return this.configRpcEndpoint;
+  }
+
+  /**
+   * Get default RPC endpoint if it's not already tried as public, Kyber, or config endpoint.
+   */
+  private getDefaultFallbackEndpoint(configFallback: string | undefined): string | undefined {
+    if (!this.defaultRpcEndpoint) return undefined;
+    if (this.defaultRpcEndpoint === this.kyberEndpoint) return undefined;
+    if (this.defaultRpcEndpoint === configFallback) return undefined;
+    if (this.endpoints.includes(this.defaultRpcEndpoint)) return undefined;
+    return this.defaultRpcEndpoint;
   }
 }
 

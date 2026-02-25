@@ -27,8 +27,8 @@ export class AppJsonRpcProvider extends StaticJsonRpcProvider {
     this._chainId = chainId
 
     // Get the shared RPC client for this chain
-    // The singleton pattern ensures health tracking is shared across all providers for the same chain
-    this.rpcClient = getRpcClient(chainId)
+    // Pass the config RPC URL (from ks-setting API) as fallback
+    this.rpcClient = getRpcClient(chainId, { configRpcEndpoint: url })
 
     // NB: Third-party providers (eg MetaMask) will have their own polling intervals,
     // which should be left as-is to allow operations (eg transaction confirmation) to resolve faster.

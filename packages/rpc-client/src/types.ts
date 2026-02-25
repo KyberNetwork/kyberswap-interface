@@ -75,6 +75,9 @@ export interface RpcClientConfig {
   /** Custom RPC endpoints to use instead of defaults */
   customEndpoints?: string[];
 
+  /** RPC endpoint from external config (e.g. ks-setting API). Used as final fallback. */
+  configRpcEndpoint?: string;
+
   /** Whether to use Kyber RPC as fallback (default: true) */
   useKyberFallback?: boolean;
 
