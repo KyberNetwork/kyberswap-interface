@@ -1,43 +1,62 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 
 import { ExternalLink } from 'theme'
 
-import { CampaignContent, FaqItem } from './types'
+import CampaignFaqSection from './CampaignFaqSection'
+import { CampaignContent, CampaignSectionComponent, FaqItem } from './types'
 
-const renderMayTradingTerms = () => (
+const MayTradingHowToSection = (): CampaignSectionComponent => (
   <>
+    <Trans>The campaign takes place entirely on Base chain.</Trans>
     <li>
       <Trans>
-        Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
-        rewards. Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
+        Go to <Link to="/swap/base">kyberswap.com/swap/base</Link>
       </Trans>
     </li>
     <li>
       <Trans>
-        KyberSwap reserves the right to disqualify any address found to engage in the following: wash trading, sybil
-        attacks, flashloan-based volume inflation, just-in-time liquidity attack and any other behavior deemed
-        manipulative or abusive by the KyberSwap team.
+        You may freely trade any pair composed of{' '}
+        <ExternalLink href="https://docs.google.com/spreadsheets/d/1WOTmuXgIGGYMagz9ziCK-Z_dm_WBSdjAkvz1nrADt2U/edit?gid=0#gid=0">
+          eligible tokens
+        </ExternalLink>
+        , excluding WETH-ETH, WETH-USDC, and ETH-USDC.
       </Trans>
+      <ul style={{ margin: 0 }}>
+        <li>
+          <Trans>Examples of eligible pairs: AIXBT-VVV, AIXBT-USDC…</Trans>
+        </li>
+      </ul>
     </li>
     <li>
-      <Trans>
-        KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice. All
-        decisions regarding rewards and disqualification are final and at the sole discretion of the KyberSwap team.
-      </Trans>
+      <Trans>For $1 in trading volume, you earn 1 point</Trans>
+      <ul style={{ margin: 0 }}>
+        <li>
+          {
+            <Trans>
+              Example: You trade $100 of AIXBT for USDC. If you receive $99 worth of USDC, then your trade volume is
+              counted as $99 ~ 99 points.
+            </Trans>
+          }
+        </li>
+      </ul>
     </li>
     <li>
-      <Trans>
-        KyberSwap does not endorse or promote any specific tokens in this campaign. All trading decisions are made at
-        the user&apos;s own risk.
-      </Trans>
+      {
+        <Trans>
+          Rewards are distributed based on the points leaderboard - the more points you earn, the higher your rank and
+          the bigger your reward.
+        </Trans>
+      }
     </li>
   </>
 )
 
-const mayTradingTimeline = <Trans>The campaign will start from 00h00, 27/05 - 23h59, 01/06 in UTC timezone</Trans>
+const MayTradingTimelineSection = (): CampaignSectionComponent => (
+  <Trans>The campaign will start from 00h00, 27/05 - 23h59, 01/06 in UTC timezone</Trans>
+)
 
-const mayTradingRewards = (
+const MayTradingRewardsSection = (): CampaignSectionComponent => (
   <>
     <li>
       <Trans>
@@ -92,79 +111,7 @@ const mayTradingRewards = (
   </>
 )
 
-const mayTradingFaq: FaqItem[] = [
-  {
-    q: <Trans>How can I be eligible for the campaign?</Trans>,
-    a: (
-      <span>
-        <Trans>
-          To be eligible, you must make a swap on <Link to="/swap/base">KyberSwap.com</Link> using trading pairs
-          composed of eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
-        </Trans>
-      </span>
-    ),
-  },
-  {
-    q: <Trans>How are points calculated?</Trans>,
-    a: (
-      <span>
-        <Trans>
-          Points are calculated based on the trading volume of eligible tokens — you earn 1 point for every $1 of
-          eligible trading volume.
-        </Trans>
-      </span>
-    ),
-  },
-  {
-    q: <Trans>Are there any activities that may lead to disqualification?</Trans>,
-    a: (
-      <span>
-        <Trans>
-          Any wallet engaging in cheating, such as wash trading, sybil attacks, flashloan-based volume inflation, and
-          any other behavior deemed manipulative or abusive by the KyberSwap team will be disqualified.
-        </Trans>
-      </span>
-    ),
-  },
-  {
-    q: <Trans>How can I claim my reward?</Trans>,
-    a: (
-      <span>
-        <Trans>
-          KNC rewards will be available to claim on the “My Dashboard” page starting from 00:00 UTC on June 9. Rewards
-          are claimable on Ethereum, and claiming will require a gas fee. Users must claim their rewards before 00:00
-          UTC on July 9; unclaimed rewards after this time will no longer be available.
-        </Trans>
-      </span>
-    ),
-  },
-  {
-    q: <Trans>How can I check my current rank?</Trans>,
-    a: (
-      <span>
-        <Trans>You can view your total points earned and current rank by going to the “Leaderboard” tab.</Trans>
-      </span>
-    ),
-  },
-  {
-    q: <Trans>How often is the data updated?</Trans>,
-    a: (
-      <span>
-        <Trans>The points data are updated hourly.</Trans>
-      </span>
-    ),
-  },
-  {
-    q: <Trans>Are there any minimum or maximum value (USD) requirements for each trade?</Trans>,
-    a: (
-      <span>
-        <Trans>There is no minimum nor maximum value requirement for a trade to earn points.</Trans>
-      </span>
-    ),
-  },
-]
-
-const mayTradingEligibility = (
+const MayTradingEligibilitySection = (): CampaignSectionComponent => (
   <>
     <li>
       <Trans>
@@ -188,41 +135,122 @@ const mayTradingEligibility = (
   </>
 )
 
+const MayTradingTermsSection = (): CampaignSectionComponent => (
+  <>
+    <li>
+      <Trans>
+        Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
+        rewards. Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
+      </Trans>
+    </li>
+    <li>
+      <Trans>
+        KyberSwap reserves the right to disqualify any address found to engage in the following: wash trading, sybil
+        attacks, flashloan-based volume inflation, just-in-time liquidity attack and any other behavior deemed
+        manipulative or abusive by the KyberSwap team.
+      </Trans>
+    </li>
+    <li>
+      <Trans>
+        KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice. All
+        decisions regarding rewards and disqualification are final and at the sole discretion of the KyberSwap team.
+      </Trans>
+    </li>
+    <li>
+      <Trans>
+        KyberSwap does not endorse or promote any specific tokens in this campaign. All trading decisions are made at
+        the user&apos;s own risk.
+      </Trans>
+    </li>
+  </>
+)
+
+const MayTradingFaqListSection = (): CampaignSectionComponent => {
+  const faqItems: FaqItem[] = [
+    {
+      q: <Trans>How can I be eligible for the campaign?</Trans>,
+      a: (
+        <span>
+          <Trans>
+            To be eligible, you must make a swap on <Link to="/swap/base">KyberSwap.com</Link> using trading pairs
+            composed of eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
+          </Trans>
+        </span>
+      ),
+    },
+    {
+      q: <Trans>How are points calculated?</Trans>,
+      a: (
+        <span>
+          <Trans>
+            Points are calculated based on the trading volume of eligible tokens — you earn 1 point for every $1 of
+            eligible trading volume.
+          </Trans>
+        </span>
+      ),
+    },
+    {
+      q: <Trans>Are there any activities that may lead to disqualification?</Trans>,
+      a: (
+        <span>
+          <Trans>
+            Any wallet engaging in cheating, such as wash trading, sybil attacks, flashloan-based volume inflation, and
+            any other behavior deemed manipulative or abusive by the KyberSwap team will be disqualified.
+          </Trans>
+        </span>
+      ),
+    },
+    {
+      q: <Trans>How can I claim my reward?</Trans>,
+      a: (
+        <span>
+          <Trans>
+            KNC rewards will be available to claim on the “My Dashboard” page starting from 00:00 UTC on June 9. Rewards
+            are claimable on Ethereum, and claiming will require a gas fee. Users must claim their rewards before 00:00
+            UTC on July 9; unclaimed rewards after this time will no longer be available.
+          </Trans>
+        </span>
+      ),
+    },
+    {
+      q: <Trans>How can I check my current rank?</Trans>,
+      a: (
+        <span>
+          <Trans>You can view your total points earned and current rank by going to the “Leaderboard” tab.</Trans>
+        </span>
+      ),
+    },
+    {
+      q: <Trans>How often is the data updated?</Trans>,
+      a: (
+        <span>
+          <Trans>The points data are updated hourly.</Trans>
+        </span>
+      ),
+    },
+    {
+      q: <Trans>Are there any minimum or maximum value (USD) requirements for each trade?</Trans>,
+      a: (
+        <span>
+          <Trans>There is no minimum nor maximum value requirement for a trade to earn points.</Trans>
+        </span>
+      ),
+    },
+  ]
+
+  return <CampaignFaqSection items={faqItems} />
+}
+
 export const mayTradingInfo: CampaignContent = {
-  getHowTo: (_week: number) => (
-    <>
-      <Trans>The campaign takes place entirely on Base chain.</Trans>
-      <li>
-        <Trans>
-          Go to <Link to="/swap/base">kyberswap.com/swap/base</Link>
-        </Trans>
-      </li>
-      <li>
-        <Trans>
-          You may freely trade any pair composed of{' '}
-          <ExternalLink href="https://docs.google.com/spreadsheets/d/1WOTmuXgIGGYMagz9ziCK-Z_dm_WBSdjAkvz1nrADt2U/edit?gid=0#gid=0">
-            eligible tokens
-          </ExternalLink>
-          , excluding WETH-ETH, WETH-USDC, and ETH-USDC.
-        </Trans>
-        <ul style={{ margin: 0 }}>
-          <li>{t`Examples of eligible pairs: AIXBT-VVV, AIXBT-USDC…`}</li>
-        </ul>
-      </li>
-      <li>
-        {t`For $1 in trading volume, you earn 1 point`}
-        <ul style={{ margin: 0 }}>
-          <li>{t`Example: You trade $100 of AIXBT for USDC. If you receive $99 worth of USDC, then your trade volume is counted as $99 ~ 99 points.`}</li>
-        </ul>
-      </li>
-      <li>
-        {t`Rewards are distributed based on the points leaderboard - the more points you earn, the higher your rank and the bigger your reward.`}
-      </li>
-    </>
-  ),
-  timeline: mayTradingTimeline,
-  getRewards: (_week: number) => mayTradingRewards,
-  faq: mayTradingFaq,
-  getTerms: (_week: number) => renderMayTradingTerms(),
-  eligibility: mayTradingEligibility,
+  HowTo: MayTradingHowToSection,
+  Timeline: MayTradingTimelineSection,
+  Rewards: MayTradingRewardsSection,
+  customSections: [
+    {
+      title: <Trans>☑️ Eligibility</Trans>,
+      Content: MayTradingEligibilitySection,
+    },
+  ],
+  Terms: MayTradingTermsSection,
+  Faq: MayTradingFaqListSection,
 }

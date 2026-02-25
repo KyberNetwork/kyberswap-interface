@@ -5,11 +5,23 @@ export type FaqItem = {
   a: ReactNode
 }
 
+export type CampaignSectionProps = {
+  week?: number
+}
+
+export type CampaignSectionComponent = ReactNode
+export type CampaignSectionRenderer = (props: CampaignSectionProps) => CampaignSectionComponent
+
+export type CampaignCustomSection = {
+  title: ReactNode
+  Content: CampaignSectionRenderer
+}
+
 export type CampaignContent = {
-  getHowTo: (week: number) => ReactNode
-  timeline: ReactNode
-  getRewards: (week: number) => ReactNode
-  faq: FaqItem[]
-  getTerms: (week: number) => ReactNode
-  eligibility?: ReactNode
+  HowTo: CampaignSectionRenderer
+  Timeline: CampaignSectionRenderer
+  Rewards: CampaignSectionRenderer
+  Terms: CampaignSectionRenderer
+  Faq: CampaignSectionRenderer
+  customSections?: CampaignCustomSection[]
 }

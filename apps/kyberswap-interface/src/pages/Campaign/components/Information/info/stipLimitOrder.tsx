@@ -1,19 +1,91 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 
 import { ExternalLink } from 'theme'
 
-import { CampaignContent, FaqItem } from './types'
+import CampaignFaqSection from './CampaignFaqSection'
+import { CampaignContent, CampaignSectionComponent, CampaignSectionProps, FaqItem } from './types'
 
-const limitOrderTimeline = (
+const LimitOrderHowToSection = ({ week = 0 }: CampaignSectionProps): CampaignSectionComponent => (
+  <>
+    <li>
+      <Trans>
+        Points are earned each time a Maker Order is filled on KyberSwap Limit-Order. Eligible tokens are indexed in 4
+        different categories, giving different amount of points per USD amount filled. Eligible tokens can be found on{' '}
+        <ExternalLink href="https://docs.google.com/spreadsheets/d/1pFDIh-11SPrNGVp6i-U_mRA5ulQ47jDjRk1eTOQCtD8/edit?gid=0#gid=0">
+          this list
+        </ExternalLink>
+      </Trans>
+    </li>
+    <li>
+      <Text as="span" fontStyle="bold" color="#ffffff">
+        <Trans>Category 1</Trans>
+      </Text>
+      :{' '}
+      <Trans>
+        ARB filled orders will give 10 Points per USD. It can be paired with any eligible tokens from the list, except
+        plsARB that falls in Category 3.
+      </Trans>{' '}
+      <ul style={{ margin: 0 }}>
+        <li>
+          <Trans>Ex: ARB &lt;&gt; USDC; ETH &lt;&gt; ARB; PENDLE &lt;&gt; ARB</Trans>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <Text as="span" fontStyle="bold" color="#ffffff">
+        <Trans>Category 2</Trans>
+      </Text>
+      :{' '}
+      <Trans>
+        Uncorrelated tokens filled orders will give 5 Points per USD. This section includes orders of any eligible token
+        to any eligible token that do not fall in category 1; 3 and 4.
+      </Trans>{' '}
+      <ul style={{ margin: 0 }}>
+        <li>
+          <Trans>Ex: ETH &lt;&gt; USDT; WBTC &lt;&gt; WSTETH; PENDLE &lt;&gt; KNC</Trans>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <Text as="span" fontStyle="bold" color="#ffffff">
+        <Trans>Category 3</Trans>
+      </Text>
+      : <Trans>ETH Derivatives filled orders will give 1 Point per USD.</Trans>
+      <ul style={{ margin: 0 }}>
+        <li>
+          <Trans>Ex: ETH &lt;&gt; WSTETH; EZETH &lt;&gt; RETH; WEETH &lt;&gt; ETH</Trans>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <Text as="span" fontStyle="bold" color="#ffffff">
+        <Trans>Category 4</Trans>
+      </Text>
+      :{' '}
+      {week > 28 ? (
+        <Trans>Stablecoins to Stablecoins filled orders will give 0.25 Points per USD.</Trans>
+      ) : (
+        <Trans>Stablecoins to Stablecoins filled orders will give 0.5 Points per USD.</Trans>
+      )}
+      <ul style={{ margin: 0 }}>
+        <li>
+          <Trans>Ex: USDC &lt;&gt; USDT; FRAX &lt;&gt; DAI; LUSD &lt;&gt; MIM</Trans>
+        </li>
+      </ul>
+    </li>
+  </>
+)
+
+const LimitOrderTimelineSection = (): CampaignSectionComponent => (
   <Trans>
     The Campaign will take place over 10 weeks, from 8th July to 16th September 2024. Points and Rewards are reset to 0
     each Monday at 0:00 UTC, after the end of each weekly event.
   </Trans>
 )
 
-const limitOrderRewards = (
+const LimitOrderRewardsSection = (): CampaignSectionComponent => (
   <>
     <li>
       <Trans>
@@ -51,110 +123,7 @@ const limitOrderRewards = (
   </>
 )
 
-const limitOrderFaq: FaqItem[] = [
-  {
-    q: <Trans>How can I be eligible to the Limit Order campaign?</Trans>,
-    a: (
-      <span>
-        <Trans>
-          In order to be eligible, you need to create a Limit Order with eligible tokens and get it filled on{' '}
-          <Link to="/limit/arbitrum">https://kyberswap.com/limit/arbitrum.</Link> Only filled orders will give you
-          points.
-        </Trans>
-      </span>
-    ),
-  },
-  {
-    q: <Trans>Which tokens can I trade to be eligible for the rewards?</Trans>,
-    a: (
-      <Text as="span">
-        <Trans>
-          You can find the full list of eligible tokens{' '}
-          <ExternalLink href="https://docs.google.com/spreadsheets/d/1pFDIh-11SPrNGVp6i-U_mRA5ulQ47jDjRk1eTOQCtD8/edit?gid=0#gid=0">
-            here
-          </ExternalLink>
-        </Trans>
-      </Text>
-    ),
-  },
-  {
-    q: <Trans>What are the different categories and how does it work?</Trans>,
-    a: (
-      <Trans>
-        There are 4 different categories that will reward each swap with a different amount of points. Refer to “How to
-        earn Points” section for a detailed explanation.
-      </Trans>
-    ),
-  },
-  {
-    q: <Trans>What are points and how do I convert it to ARB rewards?</Trans>,
-    a: (
-      <Trans>
-        Points are calculated based on the tokens and the amount you swap. It will automatically be converted to ARB
-        after a 7 days buffer period.
-      </Trans>
-    ),
-  },
-  {
-    q: <Trans>How do you calculate the rewards?</Trans>,
-    a: (
-      <Trans>
-        The distribution of ARB rewards are based on the points distributed to users. All users will grow a Points
-        portfolio for each week. Here’s the formula for the conversion of Points to ARB: User earned Points for the week
-        / Total Users Point for the week) X Amount of ARB allocation for the week.
-      </Trans>
-    ),
-  },
-  {
-    q: <Trans>When can I claim my rewards?</Trans>,
-    a: (
-      <span>
-        <Trans>
-          After your first week of Limit-Order activities (from Monday 0:00 UTC to Sunday 23h59 UTC) points and rewards
-          are locked 7 days. During this 7 days buffer period, the team will analyze the data and exclude potential
-          cheaters. Once this buffer period ends, ARB will be claimable on{' '}
-          <Link to="/campaigns/dashboard?tab=limit-order-farming">KyberSwap.com/campaigns/dashboard.</Link>
-        </Trans>
-      </span>
-    ),
-  },
-  {
-    q: <Trans>How often is the data updated?</Trans>,
-    a: (
-      <Trans>
-        My Earn Points and My Estimated Rewards data for Limit Order campaign are updated approximately hourly.
-      </Trans>
-    ),
-  },
-  {
-    q: <Trans>When is the deadline to claim the rewards?</Trans>,
-    a: (
-      <Trans>
-        There is no set deadline to claim your rewards; however, we recommend claiming them as soon as possible to make
-        the most of your benefits.
-      </Trans>
-    ),
-  },
-  {
-    q: <Trans>Do I have to pay any fee to claim the rewards?</Trans>,
-    a: (
-      <Trans>
-        KyberSwap doesn’t charge any fee on claiming rewards, user only needs to pay gas fee on Arbitrum for transaction
-        execution.
-      </Trans>
-    ),
-  },
-  {
-    q: <Trans>Are there any minimum or maximum value (USD) requirements for each trade?</Trans>,
-    a: <Trans>There is no minimum nor maximum value requirement for an order to earn points.</Trans>,
-  },
-  {
-    q: <Trans>Is there a maximum allocation limit for each wallet address?</Trans>,
-    a: <Trans>There is no maximum allocation for each eligible wallet.</Trans>,
-  },
-]
-
-const renderLimitOrderTerms = (week: number) => (
+const LimitOrderTermsSection = ({ week = 0 }: CampaignSectionProps): CampaignSectionComponent => (
   <>
     <li>
       <Trans>
@@ -211,63 +180,117 @@ const renderLimitOrderTerms = (week: number) => (
   </>
 )
 
-export const limitOrderInfo: CampaignContent = {
-  getHowTo: week => (
-    <>
-      <li>
+const LimitOrderFaqListSection = (): CampaignSectionComponent => {
+  const faqItems: FaqItem[] = [
+    {
+      q: <Trans>How can I be eligible to the Limit Order campaign?</Trans>,
+      a: (
+        <span>
+          <Trans>
+            In order to be eligible, you need to create a Limit Order with eligible tokens and get it filled on{' '}
+            <Link to="/limit/arbitrum">https://kyberswap.com/limit/arbitrum.</Link> Only filled orders will give you
+            points.
+          </Trans>
+        </span>
+      ),
+    },
+    {
+      q: <Trans>Which tokens can I trade to be eligible for the rewards?</Trans>,
+      a: (
+        <Text as="span">
+          <Trans>
+            You can find the full list of eligible tokens{' '}
+            <ExternalLink href="https://docs.google.com/spreadsheets/d/1pFDIh-11SPrNGVp6i-U_mRA5ulQ47jDjRk1eTOQCtD8/edit?gid=0#gid=0">
+              here
+            </ExternalLink>
+          </Trans>
+        </Text>
+      ),
+    },
+    {
+      q: <Trans>What are the different categories and how does it work?</Trans>,
+      a: (
         <Trans>
-          Points are earned each time a Maker Order is filled on KyberSwap Limit-Order. Eligible tokens are indexed in 4
-          different categories, giving different amount of points per USD amount filled. Eligible tokens can be found on{' '}
-          <ExternalLink href="https://docs.google.com/spreadsheets/d/1pFDIh-11SPrNGVp6i-U_mRA5ulQ47jDjRk1eTOQCtD8/edit?gid=0#gid=0">
-            this list
-          </ExternalLink>
+          There are 4 different categories that will reward each swap with a different amount of points. Refer to “How
+          to earn Points” section for a detailed explanation.
         </Trans>
-      </li>
-      <li>
-        <Text as="span" fontStyle="bold" color="#ffffff">
-          <Trans>Category 1</Trans>
-        </Text>
-        :{' '}
-        {t`ARB filled orders will give 10 Points per USD. It can be paired with any eligible tokens from the list, except plsARB that falls in Category 3.`}{' '}
-        <ul style={{ margin: 0 }}>
-          <li>{t`Ex: ARB <> USDC; ETH <> ARB; PENDLE <> ARB`}</li>
-        </ul>
-      </li>
-      <li>
-        <Text as="span" fontStyle="bold" color="#ffffff">
-          <Trans>Category 2</Trans>
-        </Text>
-        :{' '}
-        {t`Uncorrelated tokens filled orders will give 5 Points per USD. This section includes orders of any eligible token to any eligible token that do not fall in category 1; 3 and 4.`}{' '}
-        <ul style={{ margin: 0 }}>
-          <li>{t`Ex: ETH <> USDT; WBTC <> WSTETH; PENDLE <> KNC`}</li>
-        </ul>
-      </li>
-      <li>
-        <Text as="span" fontStyle="bold" color="#ffffff">
-          <Trans>Category 3</Trans>
-        </Text>
-        : {t`ETH Derivatives filled orders will give 1 Point per USD.`}
-        <ul style={{ margin: 0 }}>
-          <li>{t`Ex: ETH <> WSTETH; EZETH <> RETH; WEETH <> ETH`}</li>
-        </ul>
-      </li>
-      <li>
-        <Text as="span" fontStyle="bold" color="#ffffff">
-          <Trans>Category 4</Trans>
-        </Text>
-        :{' '}
-        {week > 28
-          ? t`Stablecoins to Stablecoins filled orders will give 0.25 Points per USD.`
-          : t`Stablecoins to Stablecoins filled orders will give 0.5 Points per USD.`}
-        <ul style={{ margin: 0 }}>
-          <li>{t`Ex: USDC <> USDT; FRAX <> DAI; LUSD <> MIM`}</li>
-        </ul>
-      </li>
-    </>
-  ),
-  timeline: limitOrderTimeline,
-  getRewards: (_week: number) => limitOrderRewards,
-  faq: limitOrderFaq,
-  getTerms: week => renderLimitOrderTerms(week),
+      ),
+    },
+    {
+      q: <Trans>What are points and how do I convert it to ARB rewards?</Trans>,
+      a: (
+        <Trans>
+          Points are calculated based on the tokens and the amount you swap. It will automatically be converted to ARB
+          after a 7 days buffer period.
+        </Trans>
+      ),
+    },
+    {
+      q: <Trans>How do you calculate the rewards?</Trans>,
+      a: (
+        <Trans>
+          The distribution of ARB rewards are based on the points distributed to users. All users will grow a Points
+          portfolio for each week. Here’s the formula for the conversion of Points to ARB: User earned Points for the
+          week / Total Users Point for the week) X Amount of ARB allocation for the week.
+        </Trans>
+      ),
+    },
+    {
+      q: <Trans>When can I claim my rewards?</Trans>,
+      a: (
+        <span>
+          <Trans>
+            After your first week of Limit-Order activities (from Monday 0:00 UTC to Sunday 23h59 UTC) points and
+            rewards are locked 7 days. During this 7 days buffer period, the team will analyze the data and exclude
+            potential cheaters. Once this buffer period ends, ARB will be claimable on{' '}
+            <Link to="/campaigns/dashboard?tab=limit-order-farming">KyberSwap.com/campaigns/dashboard.</Link>
+          </Trans>
+        </span>
+      ),
+    },
+    {
+      q: <Trans>How often is the data updated?</Trans>,
+      a: (
+        <Trans>
+          My Earn Points and My Estimated Rewards data for Limit Order campaign are updated approximately hourly.
+        </Trans>
+      ),
+    },
+    {
+      q: <Trans>When is the deadline to claim the rewards?</Trans>,
+      a: (
+        <Trans>
+          There is no set deadline to claim your rewards; however, we recommend claiming them as soon as possible to
+          make the most of your benefits.
+        </Trans>
+      ),
+    },
+    {
+      q: <Trans>Do I have to pay any fee to claim the rewards?</Trans>,
+      a: (
+        <Trans>
+          KyberSwap doesn’t charge any fee on claiming rewards, user only needs to pay gas fee on Arbitrum for
+          transaction execution.
+        </Trans>
+      ),
+    },
+    {
+      q: <Trans>Are there any minimum or maximum value (USD) requirements for each trade?</Trans>,
+      a: <Trans>There is no minimum nor maximum value requirement for an order to earn points.</Trans>,
+    },
+    {
+      q: <Trans>Is there a maximum allocation limit for each wallet address?</Trans>,
+      a: <Trans>There is no maximum allocation for each eligible wallet.</Trans>,
+    },
+  ]
+
+  return <CampaignFaqSection items={faqItems} />
+}
+
+export const limitOrderInfo: CampaignContent = {
+  HowTo: LimitOrderHowToSection,
+  Timeline: LimitOrderTimelineSection,
+  Rewards: LimitOrderRewardsSection,
+  Terms: LimitOrderTermsSection,
+  Faq: LimitOrderFaqListSection,
 }
