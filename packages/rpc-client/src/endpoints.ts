@@ -4,13 +4,15 @@ import { ChainId } from '@kyber/schema';
  * Additional chain IDs not in @kyber/schema
  */
 const HYPEREVM = 999;
+const PLASMA = 9745;
+const RONIN = 2020;
+const MONAD = 143;
 
 export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   [ChainId.Ethereum]: [
     'https://eth.llamarpc.com',
     'https://ethereum-rpc.publicnode.com',
     'https://1rpc.io/eth',
-    'https://rpc.mevblocker.io',
     'https://cloudflare-eth.com',
     'https://eth-mainnet.public.blastapi.io',
   ],
@@ -30,7 +32,6 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://polygon-bor-rpc.publicnode.com',
     'https://rpc.ankr.com/polygon',
     'https://polygon.drpc.org',
-    'https://polygon.api.onfinality.io/public',
     'https://polygon.gateway.tenderly.co',
     'https://polygon-public.nodies.app',
     'https://polygon.meowrpc.com',
@@ -51,7 +52,6 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://avalanche.drpc.org',
     'https://avalanche-public.nodies.app/ext/bc/C/rpc',
     'https://avax.meowrpc.com',
-    'https://avalanche.api.onfinality.io/public/ext/bc/C/rpc',
     'https://rpc.ankr.com/avalanche',
   ],
   [ChainId.Base]: [
@@ -78,7 +78,6 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://fantom-public.nodies.app',
     'https://rpc.fantom.network',
     'https://rpc2.fantom.network',
-    'https://fantom.api.onfinality.io/public',
   ],
   [ChainId.Linea]: [
     'https://rpc.linea.build',
@@ -91,7 +90,6 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://1rpc.io/zksync2-era',
     'https://zksync.drpc.org',
     'https://rpc.ankr.com/zksync_era',
-    'https://zksync.api.onfinality.io/public',
   ],
   [ChainId.Blast]: [
     'https://rpc.blast.io',
@@ -106,14 +104,12 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://1rpc.io/mantle',
     'https://mantle.drpc.org',
     'https://mantle-public.nodies.app',
-    'https://mantle.api.onfinality.io/public',
   ],
   [ChainId.Scroll]: [
     'https://rpc.scroll.io',
     'https://scroll-rpc.publicnode.com',
     'https://1rpc.io/scroll',
     'https://scroll.drpc.org',
-    'https://scroll.api.onfinality.io/public',
   ],
   [ChainId.Berachain]: [
     'https://rpc.berachain.com',
@@ -126,6 +122,27 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://rpc.hypurrscan.io',
     'https://1rpc.io/hyperliquid',
     'https://rpc.countzero.xyz/evm',
+  ],
+  [PLASMA]: [
+    'https://rpc.plasma.to',
+    'https://plasma-mainnet.gateway.tatum.io',
+    'https://plasma.drpc.org',
+    'https://9745.rpc.thirdweb.com',
+    'https://plasma.gateway.tenderly.co',
+  ],
+  [RONIN]: [
+    'https://ronin-mainnet.gateway.tatum.io',
+    'https://ronin.drpc.org',
+    'https://ronin.gateway.tenderly.co',
+    'https://ronin-saigon.gateway.tatum.io',
+    'https://ronin-testnet.gateway.tenderly.co',
+  ],
+  [MONAD]: [
+    'https://monad-mainnet.gateway.tatum.io',
+    'https://rpc1.monad.xyz',
+    'https://monad-mainnet.drpc.org',
+    'https://rpc-mainnet.monadinfra.com',
+    'https://rpc.monad.xyz',
   ],
 };
 
