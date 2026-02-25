@@ -8,7 +8,7 @@ export const NATIVE_TOKEN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const API_URLS = {
-  KYBERSWAP_SETTING_API: 'https://ks-setting.kyberswap.com/api',
+  KYBERSWAP_SETTING_API: 'https://pre-ks-setting.kyberengineering.io/api',
   ZAP_API: 'https://zap-api.kyberswap.com',
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
   COINGECKO_API_URL: 'https://api.coingecko.com/api/v3',
