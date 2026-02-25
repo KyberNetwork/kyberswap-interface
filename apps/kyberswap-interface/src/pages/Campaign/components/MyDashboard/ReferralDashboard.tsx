@@ -16,7 +16,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function MyReferralDashboard({ price, infor }: { price: number; infor: ReactNode }) {
+export default function ReferralDashboard({ price, infor }: { price: number; infor: ReactNode }) {
   const { account } = useWeb3React()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')

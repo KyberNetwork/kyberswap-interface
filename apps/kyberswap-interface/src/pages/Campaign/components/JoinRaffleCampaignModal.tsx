@@ -7,7 +7,7 @@ import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
-import { renderRaffleTerms } from './Information/campaignInfos/raffle'
+import { renderRaffleTerms } from './Information/info/raffle'
 
 const Wrapper = styled.div`
   padding: 24px;

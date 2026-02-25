@@ -58,24 +58,27 @@ export default function CampaignStats({ type, selectedWeek }: Props) {
       pageSize: 10,
       pageNumber: page,
     },
-    { skip: campaign === 'referral-program' },
+    { skip: isReferralCampaign },
   )
 
-  const { data: totalReferralData } = useGetDashboardQuery({ referralCode: '', page: 1 })
+  const { data: totalReferralData } = useGetDashboardQuery({ referralCode: '', page: 1 }, { skip: !isReferralCampaign })
   const totalParticipant = totalReferralData?.data.pagination.totalItems
 
-  const { data: userRefData } = useGetParticipantQuery({ wallet: account || '' }, { skip: !account })
+  const { data: userRefData } = useGetParticipantQuery(
+    { wallet: account || '' },
+    { skip: !account || !isReferralCampaign },
+  )
   const userRefCode = userRefData?.data?.participant?.referralCode
 
   const { data: userReferralData } = useGetDashboardQuery(
     { referralCode: userRefCode || '', page: 1 },
-    { skip: !userRefCode },
+    { skip: !userRefCode || !isReferralCampaign },
   )
   const myTotalRefer = userReferralData?.data?.pagination?.totalItems
 
   const { data: referralData } = useGetUserReferralTotalRewardQuery(
     { program, wallet: account || '' },
-    { skip: !account || campaign !== 'referral-program' },
+    { skip: !account || !isReferralCampaign },
   )
 
   const marketPriceMap = useTokenPrices([reward.address], reward.chainId)

@@ -10,7 +10,7 @@ import { CampaignType } from 'pages/Campaign/constants'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
-import { campaignInfos } from './campaignInfos'
+import { campaignInfos } from './info'
 
 export default function Information({ type, selectedWeek }: { type: CampaignType; selectedWeek: number }) {
   const theme = useTheme()

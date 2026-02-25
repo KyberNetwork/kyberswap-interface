@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -28,6 +28,16 @@ enum TabKey {
   YourTransactions = 'your-transactions',
 }
 
+const CAMPAIGN_TYPE_BY_PATHNAME: Record<string, CampaignType> = {
+  [APP_PATHS.SAFEPAL_CAMPAIGN]: CampaignType.SafePal,
+  [APP_PATHS.RAFFLE_CAMPAIGN]: CampaignType.Raffle,
+  [APP_PATHS.NEAR_INTENTS_CAMPAIGN]: CampaignType.NearIntents,
+  [APP_PATHS.MAY_TRADING_CAMPAIGN]: CampaignType.MayTrading,
+  [APP_PATHS.AGGREGATOR_CAMPAIGN]: CampaignType.Aggregator,
+  [APP_PATHS.LIMIT_ORDER_CAMPAIGN]: CampaignType.LimitOrder,
+  [APP_PATHS.REFFERAL_CAMPAIGN]: CampaignType.Referrals,
+}
+
 export default function CampaignPage() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -37,23 +47,19 @@ export default function CampaignPage() {
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
-  const type =
-    pathname === APP_PATHS.AGGREGATOR_CAMPAIGN
-      ? CampaignType.Aggregator
-      : pathname === APP_PATHS.LIMIT_ORDER_CAMPAIGN
-      ? CampaignType.LimitOrder
-      : pathname === APP_PATHS.MAY_TRADING_CAMPAIGN
-      ? CampaignType.MayTrading
-      : pathname === APP_PATHS.RAFFLE_CAMPAIGN
-      ? CampaignType.Raffle
-      : pathname === APP_PATHS.NEAR_INTENTS_CAMPAIGN
-      ? CampaignType.NearIntents
-      : CampaignType.Referrals
+  const type = CAMPAIGN_TYPE_BY_PATHNAME[pathname] ?? CampaignType.Referrals
+
+  const { campaign, ctaText, ctaLink, banner, title, weeks } = campaignConfig[type]
 
   const isRaffleCampaign = type === CampaignType.Raffle
-  const { campaign, ctaText, ctaLink, banner, title } = campaignConfig[type]
+  const isReferralCampaign = campaign === 'referral-program'
 
-  // Previously selected week was week number of campaign timelines, but Raffle campaign week is zero-based index
+  const isCampagainAvailable = useMemo(() => {
+    const now = Math.floor(Date.now() / 1000)
+    return weeks.some(week => now >= week.start && now <= week.end)
+  }, [weeks])
+
+  // Previously selected week was week number of campaign timelines, but NOW campaigns' week is zero-based index
   const [selectedWeek, setSelectedWeek] = useState(-1)
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false)
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false)
@@ -81,7 +87,7 @@ export default function CampaignPage() {
           {title}
         </Text>
 
-        {campaign === 'referral-program' && <JoinReferral />}
+        {isReferralCampaign && <JoinReferral />}
         {isRaffleNotEligible && (
           <StatCard style={{ padding: '8px 16px' }}>
             <Text fontSize={14} color="error" textAlign="right">
@@ -97,7 +103,7 @@ export default function CampaignPage() {
         )}
       </Flex>
 
-      {campaign !== 'referral-program' && (
+      {!isReferralCampaign && (
         <Flex
           justifyContent="space-between"
           marginTop="1rem"
@@ -111,7 +117,7 @@ export default function CampaignPage() {
             altDisabledStyle
             width={upToExtraSmall ? '100%' : '160px'}
             height="40px"
-            disabled={isRaffleCampaign}
+            disabled={isRaffleCampaign || !isCampagainAvailable}
             onClick={() => {
               if (isRaffleCampaign) {
                 setIsJoinModalOpen(true)

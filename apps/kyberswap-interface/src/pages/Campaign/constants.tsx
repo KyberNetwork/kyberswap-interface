@@ -1,8 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ReactNode } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Text } from 'rebass'
 
 import { KNC } from 'constants/tokens'
 
@@ -13,220 +11,9 @@ import nearIntentBannerMobile from './assets/near_intents_mobile.png'
 import raffleBanner from './assets/raffle_banner.png'
 import raffleBannerMobile from './assets/raffle_banner_mobile.png'
 import referralBanner from './assets/referral.png'
+import safepalBanner from './assets/safepal.png'
 import tradingBanner from './assets/trading.png'
-
-export type CampaignWeek = {
-  value: number
-  label?: ReactNode
-  start: number
-  end: number
-}
-
-const stipWeeks: CampaignWeek[] = [
-  {
-    value: 37,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 10
-          </Text>{' '}
-          Sep 09 - Sep 15
-        </Trans>
-      </Text>
-    ),
-    start: 1725840000,
-    end: 1726444800,
-  },
-  {
-    value: 36,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 9
-          </Text>{' '}
-          Sep 02 - Sep 08
-        </Trans>
-      </Text>
-    ),
-    start: 1725235200,
-    end: 1725840000,
-  },
-  {
-    value: 35,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 8
-          </Text>{' '}
-          Aug 26 - Sep 01
-        </Trans>
-      </Text>
-    ),
-    start: 1724630400,
-    end: 1725235200,
-  },
-  {
-    value: 34,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 7
-          </Text>{' '}
-          Aug 19 - Aug 25
-        </Trans>
-      </Text>
-    ),
-    start: 1724025600,
-    end: 1724630400,
-  },
-  {
-    value: 33,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 6
-          </Text>{' '}
-          Aug 12 - Aug 18
-        </Trans>
-      </Text>
-    ),
-    start: 1723420800,
-    end: 1724025600,
-  },
-  {
-    value: 32,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 5
-          </Text>{' '}
-          Aug 05 - Aug 11
-        </Trans>
-      </Text>
-    ),
-    start: 1722816000,
-    end: 1723420800,
-  },
-  {
-    value: 31,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 4
-          </Text>{' '}
-          July 29 - Aug 04
-        </Trans>
-      </Text>
-    ),
-    start: 1722211200,
-    end: 1722816000,
-  },
-  {
-    value: 30,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 3
-          </Text>{' '}
-          July 22 - July 28
-        </Trans>
-      </Text>
-    ),
-    start: 1721606400,
-    end: 1722211200,
-  },
-  {
-    value: 29,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 2
-          </Text>{' '}
-          July 15 - July 21
-        </Trans>
-      </Text>
-    ),
-    start: 1721001600,
-    end: 1721606400,
-  },
-  {
-    value: 28,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 1
-          </Text>{' '}
-          July 08 - July 14
-        </Trans>
-      </Text>
-    ),
-    start: 1720396800,
-    end: 1721001600,
-  },
-].reverse()
-
-const mayTradingWeeks: CampaignWeek[] = [
-  {
-    value: 22,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 1
-          </Text>{' '}
-          May 19 - May 25
-        </Trans>
-      </Text>
-    ),
-    start: 1748304000,
-    end: 1748822400,
-  },
-]
-
-const nearIntentWeeks: CampaignWeek[] = [
-  {
-    value: 31,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 2
-          </Text>{' '}
-          Jul 28 - Aug 03
-        </Trans>
-      </Text>
-    ),
-    start: 1753660800,
-    end: 1754265600,
-  },
-  {
-    value: 30,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 1
-          </Text>{' '}
-          Jul 21 - Jul 27
-        </Trans>
-      </Text>
-    ),
-    start: 1753056000,
-    end: 1753660800,
-  },
-].reverse()
-
-export const raffleWeeks: CampaignWeek[] = []
+import { type CampaignWeek, mayTradingWeeks, nearIntentWeeks, raffleWeeks, safepalWeeks, stipWeeks } from './timelines'
 
 const stipInfo = {
   year: 2024,
@@ -251,6 +38,7 @@ const rewardKNC = {
 }
 
 export enum CampaignType {
+  SafePal = 'SafePal',
   Raffle = 'Raffle',
   NearIntents = 'NearIntents',
   MayTrading = 'MayTrading',
@@ -283,6 +71,17 @@ type CampaignConfig = {
 }
 
 export const campaignConfig: Record<CampaignType, CampaignConfig> = {
+  [CampaignType.SafePal]: {
+    year: 2026,
+    baseWeek: 10,
+    reward: rewardKNC,
+    ctaLink: '/swap',
+    ctaText: <Trans>Join Now</Trans>,
+    type: CampaignType.SafePal,
+    weeks: safepalWeeks,
+    banner: safepalBanner,
+    title: <Trans>SafePal Campaign</Trans>,
+  },
   [CampaignType.Raffle]: {
     year: 2025,
     baseWeek: 45,
@@ -293,46 +92,6 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     weeks: raffleWeeks,
     banner: isMobile ? raffleBannerMobile : raffleBanner,
     title: <Trans>Weekly Rewards</Trans>,
-  },
-  [CampaignType.Aggregator]: {
-    ...stipInfo,
-    ctaLink: '/swap/arbitrum/eth-to-arb',
-    ctaText: <Trans>Trade Now</Trans>,
-    type: CampaignType.Aggregator,
-    campaign: 'trading-incentive' as const,
-    banner: tradingBanner,
-    title: <Trans>Aggregator Trading Campaign</Trans>,
-  },
-  [CampaignType.LimitOrder]: {
-    ...stipInfo,
-    ctaLink: '/limit/arbitrum',
-    ctaText: <Trans>Place order</Trans>,
-    type: CampaignType.LimitOrder,
-    campaign: 'limit-order-farming' as const,
-    banner: loBanner,
-    title: <Trans>Limit Order Campaign</Trans>,
-  },
-  [CampaignType.Referrals]: {
-    ...stipInfo,
-    ctaText: <Trans>Trade Now</Trans>,
-    ctaLink: '/swap/arbitrum/eth-to-arb',
-    type: CampaignType.Referrals,
-    campaign: 'referral-program' as const,
-    banner: referralBanner,
-    title: <Trans>Referral Program</Trans>,
-  },
-  [CampaignType.MayTrading]: {
-    ctaLink: '/swap/base',
-    baseWeek: 21,
-    year: 2025,
-    reward: rewardKNC,
-    ctaText: <Trans>Trade Now</Trans>,
-    type: CampaignType.MayTrading,
-    weeks: mayTradingWeeks,
-    program: 'grind/base' as const,
-    campaign: 'trading-incentive' as const,
-    banner: mayTradingBanner,
-    title: <Trans>May Trading Campaign</Trans>,
   },
   [CampaignType.NearIntents]: {
     year: 2025,
@@ -347,11 +106,49 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     type: CampaignType.NearIntents,
     ctaText: <Trans>Trade Now</Trans>,
     weeks: nearIntentWeeks,
-    program: 'grind/base' as const, // dummy value
-    campaign: 'trading-incentive' as const, // dummy value
     url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
     banner: isMobile ? nearIntentBannerMobile : nearIntentBanner,
     ctaLink: '/cross-chain',
     title: <Trans>Cross-Chain Race x NEAR Intents</Trans>,
+  },
+  [CampaignType.MayTrading]: {
+    ctaLink: '/swap/base',
+    baseWeek: 21,
+    year: 2025,
+    reward: rewardKNC,
+    ctaText: <Trans>Trade Now</Trans>,
+    type: CampaignType.MayTrading,
+    weeks: mayTradingWeeks,
+    program: 'grind/base',
+    campaign: 'trading-incentive',
+    banner: mayTradingBanner,
+    title: <Trans>May Trading Campaign</Trans>,
+  },
+  [CampaignType.Aggregator]: {
+    ...stipInfo,
+    ctaLink: '/swap/arbitrum/eth-to-arb',
+    ctaText: <Trans>Trade Now</Trans>,
+    type: CampaignType.Aggregator,
+    campaign: 'trading-incentive' as const,
+    banner: tradingBanner,
+    title: <Trans>Aggregator Trading Campaign</Trans>,
+  },
+  [CampaignType.LimitOrder]: {
+    ...stipInfo,
+    ctaLink: '/limit/arbitrum',
+    ctaText: <Trans>Place Order</Trans>,
+    type: CampaignType.LimitOrder,
+    campaign: 'limit-order-farming' as const,
+    banner: loBanner,
+    title: <Trans>Limit Order Campaign</Trans>,
+  },
+  [CampaignType.Referrals]: {
+    ...stipInfo,
+    ctaText: <Trans>Trade Now</Trans>,
+    ctaLink: '/swap/arbitrum/eth-to-arb',
+    type: CampaignType.Referrals,
+    campaign: 'referral-program' as const,
+    banner: referralBanner,
+    title: <Trans>Referral Program</Trans>,
   },
 }
