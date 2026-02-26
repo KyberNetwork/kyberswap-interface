@@ -24,7 +24,6 @@ export default function useActionButton() {
     source,
     referral,
     setWidgetError,
-    rpcUrl,
   } = useZapOutContext(s => s);
   const { fetchingRoute, setBuildData, route, degenMode, toggleSetting, ttl, mode } = useZapOutUserState();
   const { zapImpact } = useZapRoute();
@@ -119,7 +118,7 @@ export default function useActionButton() {
         data: buildData.callData,
         value: `0x${BigInt(buildData.value).toString(16)}`,
       };
-      const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
+      const { gasUsd, error } = await estimateGasForTx({ txData, chainId });
       setGasLoading(false);
 
       if (error || !gasUsd) {

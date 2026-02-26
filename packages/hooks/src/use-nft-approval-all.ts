@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { directRpcFetch, ethCall } from '@kyber/rpc-client/fetch';
 import { TxStatus } from '@kyber/schema';
 import { calculateGasMargin, estimateGas, getFunctionSelector, isTransactionSuccessful } from '@kyber/utils/crypto';
 
 import { ApprovalAdditionalInfo } from './use-approval';
 
 export function useNftApprovalAll({
+  chainId,
   rpcUrl,
   nftManagerContract,
   spender,
@@ -15,6 +17,7 @@ export function useNftApprovalAll({
   txHashMapping,
   dexName,
 }: {
+  chainId?: number;
   rpcUrl: string;
   nftManagerContract: string;
   spender?: string;
@@ -46,7 +49,7 @@ export function useNftApprovalAll({
       value: '0x0',
     };
 
-    const gasEstimation = await estimateGas(rpcUrl, txData);
+    const gasEstimation = await estimateGas(chainId ?? rpcUrl, txData);
     const txHash = await onSubmitTx(
       {
         ...txData,
@@ -59,7 +62,7 @@ export function useNftApprovalAll({
       },
     );
     setApprovePendingTx(txHash);
-  }, [dexName, nftManagerContract, onSubmitTx, rpcUrl, spender, userAddress]);
+  }, [chainId, dexName, nftManagerContract, onSubmitTx, rpcUrl, spender, userAddress]);
 
   // Get the current tx hash (might be different if tx was replaced/sped up)
   const currentApprovePendingTx = approvePendingTx ? (txHashMapping?.[approvePendingTx] ?? approvePendingTx) : '';
@@ -83,7 +86,7 @@ export function useNftApprovalAll({
     if (txStatus || !currentApprovePendingTx) return;
 
     const i = setInterval(() => {
-      isTransactionSuccessful(rpcUrl, currentApprovePendingTx).then(res => {
+      isTransactionSuccessful(chainId ?? rpcUrl, currentApprovePendingTx).then(res => {
         if (res) {
           setApprovePendingTx('');
           setIsApproved(res.status);
@@ -94,7 +97,7 @@ export function useNftApprovalAll({
     return () => {
       clearInterval(i);
     };
-  }, [currentApprovePendingTx, rpcUrl, txStatus]);
+  }, [chainId, currentApprovePendingTx, rpcUrl, txStatus]);
 
   const checkApprovalAll = useCallback(async () => {
     if (!spender || !userAddress || approvePendingTx) return;
@@ -105,38 +108,24 @@ export function useNftApprovalAll({
     const encodedOperator = spender.slice(2).padStart(64, '0');
     const data = `0x${methodSignature}${encodedOwner}${encodedOperator}`;
 
-    fetch(rpcUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'eth_call',
-        params: [
-          {
-            to: nftManagerContract,
-            data,
-          },
-          'latest',
-        ],
-      }),
-    })
-      .then(res => res.json())
-      .then(res => {
-        const raw = (res?.result || '0x0') as string;
-        try {
-          const isTrue = BigInt(raw) !== 0n;
-          setIsApproved(isTrue);
-        } catch {
-          setIsApproved(false);
+    const fetchApproval = async () => {
+      try {
+        let raw: string;
+        if (chainId !== undefined) {
+          raw = await ethCall(chainId, nftManagerContract, data);
+        } else {
+          raw = await directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: nftManagerContract, data }, 'latest']);
         }
-      })
-      .finally(() => {
+        const isTrue = BigInt(raw || '0x0') !== 0n;
+        setIsApproved(isTrue);
+      } catch {
+        setIsApproved(false);
+      } finally {
         setIsChecking(false);
-      });
-  }, [nftManagerContract, approvePendingTx, rpcUrl, spender, userAddress]);
+      }
+    };
+    fetchApproval();
+  }, [chainId, nftManagerContract, approvePendingTx, rpcUrl, spender, userAddress]);
 
   useEffect(() => {
     checkApprovalAll();

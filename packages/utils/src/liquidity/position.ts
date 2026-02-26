@@ -1,4 +1,4 @@
-import { NETWORKS_INFO } from '@kyber/schema';
+import { ethCall } from '@kyber/rpc-client/fetch';
 import { ChainId, PoolType, algebraTypes, univ4Types } from '@kyber/schema';
 
 import { getNftManagerContractAddress } from '.';
@@ -25,38 +25,13 @@ export const getUniv2PositionInfo = async ({
   const totalSupplySelector = getFunctionSelector('totalSupply()');
   const paddedAccount = positionId.replace('0x', '').padStart(64, '0');
 
-  const getPayload = (d: string) => {
-    return {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'eth_call',
-        params: [
-          {
-            to: poolAddress,
-            data: d,
-          },
-          'latest',
-        ],
-        id: 1,
-      }),
-    };
-  };
+  const [balanceResult, totalSupplyResult] = await Promise.all([
+    ethCall(chainId, poolAddress, `0x${balanceOfSelector}${paddedAccount}`),
+    ethCall(chainId, poolAddress, `0x${totalSupplySelector}`),
+  ]);
 
-  const balanceRes = await fetch(
-    NETWORKS_INFO[chainId].defaultRpc,
-    getPayload(`0x${balanceOfSelector}${paddedAccount}`),
-  ).then(res => res.json() as Promise<{ result: string }>);
-
-  const totalSupplyRes = await fetch(NETWORKS_INFO[chainId].defaultRpc, getPayload(`0x${totalSupplySelector}`)).then(
-    res => res.json() as Promise<{ result: string }>,
-  );
-
-  const userBalance = BigInt(balanceRes?.result || '0');
-  const totalSupply = BigInt(totalSupplyRes?.result || '0');
+  const userBalance = BigInt(balanceResult || '0');
+  const totalSupply = BigInt(totalSupplyResult || '0');
 
   const position = {
     liquidity: userBalance.toString(),
@@ -107,30 +82,13 @@ export const getUniv3PositionInfo = async ({
 
   const data = `0x${selector}${encodedTokenId}`;
 
-  // JSON-RPC payload
-  const payload = {
-    jsonrpc: '2.0',
-    method: 'eth_call',
-    params: [
-      {
-        to: nftContractAddress,
-        data: data,
-      },
-      'latest',
-    ],
-    id: 1,
-  };
-
-  // Send JSON-RPC request via fetch
-  const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const { result, error } = (await response.json()) as { result?: any; error?: any };
+  let result: string | undefined;
+  let error: any;
+  try {
+    result = await ethCall(chainId, nftContractAddress, data);
+  } catch (e) {
+    error = e;
+  }
 
   if (result && result !== '0x') {
     const decodedPosition = isUniv4
@@ -196,28 +154,12 @@ export const getUniv4PositionLiquidity = async ({
   const liquiditySelector = getFunctionSelector(liquidityFunctionSignature);
   const liquidityData = `0x${liquiditySelector}${encodedTokenId}`;
 
-  const payload = {
-    jsonrpc: '2.0',
-    method: 'eth_call',
-    params: [
-      {
-        to: nftContractAddress,
-        data: liquidityData,
-      },
-      'latest',
-    ],
-    id: 1,
-  };
-
-  const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const { result: liquidityResult } = (await response.json()) as { result: string };
+  let liquidityResult: string | undefined;
+  try {
+    liquidityResult = await ethCall(chainId, nftContractAddress, liquidityData);
+  } catch {
+    return null;
+  }
 
   if (liquidityResult && liquidityResult !== '0x') return BigInt(liquidityResult);
   return null;

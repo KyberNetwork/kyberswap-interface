@@ -85,6 +85,7 @@ export default function useApproval() {
     checkApproval: checkNftApproval,
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
+    chainId,
     tokenId: positionId ? +positionId : undefined,
     spender: route?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
@@ -104,6 +105,7 @@ export default function useApproval() {
     checkApprovalAll: checkNftApprovalAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
+    chainId,
     spender: route?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
     rpcUrl,
@@ -142,6 +144,7 @@ export default function useApproval() {
     amounts: amountsToApprove,
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
+    chainId,
     rpcUrl,
     spender:
       permitData?.permitData && route?.routerPermitAddress ? route.routerPermitAddress : route?.routerAddress || '',

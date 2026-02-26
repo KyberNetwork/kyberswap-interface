@@ -50,9 +50,8 @@ export function Preview({
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
 }) {
-  const { chainId, rpcUrl, connectedAccount, rePositionMode, onClose, sourceDexId, targetDexId } = useWidgetStore([
+  const { chainId, connectedAccount, rePositionMode, onClose, sourceDexId, targetDexId } = useWidgetStore([
     'chainId',
-    'rpcUrl',
     'connectedAccount',
     'rePositionMode',
     'onClose',
@@ -108,7 +107,7 @@ export function Preview({
 
     setError(undefined);
     setShowProcessing(true);
-    const gas = await estimateGas(rpcUrl, txData).catch(err => {
+    const gas = await estimateGas(chainId, txData).catch(err => {
       console.log(err.message);
       setError(err);
       return 0n;

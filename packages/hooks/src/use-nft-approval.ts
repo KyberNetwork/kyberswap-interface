@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { ethCall, rpcFetch } from '@kyber/rpc-client/fetch';
+import { directRpcFetch, ethCall } from '@kyber/rpc-client/fetch';
 import { TxStatus } from '@kyber/schema';
 import {
   calculateGasMargin,
@@ -124,7 +124,7 @@ export function useNftApproval({
         result = await ethCall(chainId, nftManagerContract, data);
       } else {
         // Fallback to direct rpcUrl
-        result = await rpcFetch<string>(1, 'eth_call', [{ to: nftManagerContract, data }, 'latest'], { rpcUrl });
+        result = await directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: nftManagerContract, data }, 'latest']);
       }
 
       setIsChecking(false);
