@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChainId } from '@kyber/schema';
 import { getTokenBalances } from '@kyber/utils/crypto';
@@ -6,6 +6,10 @@ import { getTokenBalances } from '@kyber/utils/crypto';
 export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], account?: string) => {
   const [balances, setBalances] = useState<{ [address: string]: bigint }>({});
   const [loading, setLoading] = useState(false);
+  const fetchIdRef = useRef(0);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const tokenAddressesKey = JSON.stringify(tokenAddresses);
 
   const fetchBalances = useCallback(async () => {
     if (!account) {
@@ -13,6 +17,7 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
       return;
     }
 
+    const currentFetchId = ++fetchIdRef.current;
     setLoading(true);
 
     try {
@@ -22,15 +27,20 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
         account,
       });
 
-      setBalances(balancesMap);
+      // Only update state if this is still the latest request
+      if (currentFetchId === fetchIdRef.current) {
+        setBalances(balancesMap);
+      }
     } catch (error) {
-      setBalances({});
+      // Don't clear balances on error — keep the previous valid data
       console.error('Failed to fetch balances:', error);
     } finally {
-      setLoading(false);
+      if (currentFetchId === fetchIdRef.current) {
+        setLoading(false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, account, JSON.stringify(tokenAddresses)]);
+  }, [chainId, account, tokenAddressesKey]);
 
   useEffect(() => {
     fetchBalances();
