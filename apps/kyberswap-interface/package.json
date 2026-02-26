@@ -94,7 +94,7 @@
     "@reach/dialog": "^0.17.0",
     "@reach/portal": "^0.17.0",
     "@reduxjs/toolkit": "1.9.3",
-    "@reservoir0x/relay-sdk": "^1.6.13",
+    "@relayprotocol/relay-sdk": "^5.1.0",
     "@reservoir0x/relay-solana-wallet-adapter": "^2.0.5",
     "@safe-global/safe-apps-sdk": "^9.1.0",
     "@sentry/react": "^8.34.0",

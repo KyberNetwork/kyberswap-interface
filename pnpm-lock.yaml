@@ -194,12 +194,12 @@ importers:
       '@reduxjs/toolkit':
         specifier: 1.9.3
         version: 1.9.3(react-redux@7.2.9)(react@18.3.1)
-      '@reservoir0x/relay-sdk':
-        specifier: ^1.6.13
-        version: 1.6.13(viem@2.43.1)
+      '@relayprotocol/relay-sdk':
+        specifier: ^5.1.0
+        version: 5.1.0(viem@2.43.1)
       '@reservoir0x/relay-solana-wallet-adapter':
         specifier: ^2.0.5
-        version: 2.0.5(@reservoir0x/relay-sdk@1.6.13)(@solana/web3.js@1.98.2)(viem@2.43.1)
+        version: 2.0.5(@reservoir0x/relay-sdk@1.4.5)(@solana/web3.js@1.98.2)(viem@2.43.1)
       '@safe-global/safe-apps-sdk':
         specifier: ^9.1.0
         version: 9.1.0(typescript@5.3.3)
@@ -14077,6 +14077,17 @@ packages:
       reselect: 4.1.8
     dev: false
 
+  /@relayprotocol/relay-sdk@5.1.0(viem@2.43.1):
+    resolution: {integrity: sha512-TZZgFDD2+3Z6W3ZL8BEFjyXMf7pPepirL5MmWr0oF4g4/0GVjyxj8GCf5UpUGkmsk9XoT2VbWrgnYnsusoKHhA==}
+    peerDependencies:
+      viem: '>=2.26.0'
+    dependencies:
+      axios: 1.10.0
+      viem: 2.43.1(typescript@5.3.3)(zod@3.22.4)
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@remix-run/router@1.1.0:
     resolution: {integrity: sha512-rGl+jH/7x1KBCQScz9p54p0dtPLNeKGb3e0wD2H5/oZj41bwQUnXdzbj2TbUAFhvD7cp9EyEQA4dEgpUFa1O7Q==}
     engines: {node: '>=14'}
@@ -14283,25 +14294,25 @@ packages:
       - zod
     dev: false
 
-  /@reservoir0x/relay-sdk@1.6.13(viem@2.43.1):
-    resolution: {integrity: sha512-bfceR2vIQI9FM+rh7NsI2K/WASJBl2DlBM1mlg91wVafz7psUvgbWmex/8jtNr3elCyuGU/nGTIJSHSnmdmM/Q==}
+  /@reservoir0x/relay-sdk@1.4.5(viem@2.43.1):
+    resolution: {integrity: sha512-8B8Jj7zuYSBfsO/4CuAIjUC8/rhC4FVnEUdzciJtY5TXTHxEBYAcLbFd8AVJ6iiXAE1POp5Qd0U/7yCZZYXFBw==}
     peerDependencies:
-      viem: ^2.21.55
+      viem: ^2.9.31
     dependencies:
-      axios: 1.8.2(debug@4.3.7)
+      axios: 1.10.0
       viem: 2.43.1(typescript@5.3.3)(zod@3.22.4)
     transitivePeerDependencies:
       - debug
     dev: false
 
-  /@reservoir0x/relay-solana-wallet-adapter@2.0.5(@reservoir0x/relay-sdk@1.6.13)(@solana/web3.js@1.98.2)(viem@2.43.1):
+  /@reservoir0x/relay-solana-wallet-adapter@2.0.5(@reservoir0x/relay-sdk@1.4.5)(@solana/web3.js@1.98.2)(viem@2.43.1):
     resolution: {integrity: sha512-GG34CLAtIHV2LZsHoFVWhOouqOQUiC1LrTLg+jQKw8b64L6a/u/nXwQeTYyq3QqDLtVFou2xvHzbFi4gGUNV3w==}
     peerDependencies:
       '@reservoir0x/relay-sdk': 1.4.5
       '@solana/web3.js': ^1.95.3
       viem: ^2.9.31
     dependencies:
-      '@reservoir0x/relay-sdk': 1.6.13(viem@2.43.1)
+      '@reservoir0x/relay-sdk': 1.4.5(viem@2.43.1)
       '@solana/web3.js': 1.98.2(typescript@5.3.3)
       '@types/node': 22.10.7
       axios: 1.10.0
