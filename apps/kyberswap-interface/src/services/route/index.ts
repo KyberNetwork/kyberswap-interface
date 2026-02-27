@@ -26,14 +26,17 @@ const routeApi = createApi({
         clientId?: string
       }
     >({
-      query: ({ params, url, authentication, clientId }) => {
+      query: ({ params, url, authentication, clientId: _ }) => {
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
         return {
           url,
-          params: rest,
+          params: {
+            ...rest,
+            source: 'aggregator_internal_test',
+          },
           authentication,
           headers: {
-            'x-client-id': clientId || 'kyberswap',
+            'x-client-id': 'aggregator_internal_test',
           },
         }
       },
@@ -104,11 +107,14 @@ const routeApi = createApi({
         return {
           url,
           method: 'POST',
-          body: rest,
+          body: {
+            ...rest,
+            source: 'aggregator_internal_test',
+          },
           signal,
           authentication,
           headers: {
-            'x-client-id': payload.source || 'kyberswap',
+            'x-client-id': 'aggregator_internal_test',
           },
         }
       },
