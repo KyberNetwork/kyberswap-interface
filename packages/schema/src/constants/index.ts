@@ -8,14 +8,14 @@ export const NATIVE_TOKEN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const API_URLS = {
-  KYBERSWAP_SETTING_API: 'https://ks-setting.kyberswap.com/api',
+  KYBERSWAP_SETTING_API: 'https://pre-ks-setting.kyberengineering.io/api',
   ZAP_API: 'https://zap-api.kyberswap.com',
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
   COINGECKO_API_URL: 'https://api.coingecko.com/api/v3',
   GO_PLUS_API: 'https://api.gopluslabs.io/api/v1/token_security',
   ZAP_EARN_API: 'https://earn-service.kyberswap.com/api',
   // ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
-  TOKEN_API: 'https://token-api.kyberswap.com/api',
+  TOKEN_API: 'https://pre-token-api.kyberengineering.io/api',
   DOCUMENT: {
     ZAP_FEE_MODEL: 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model',
   },
