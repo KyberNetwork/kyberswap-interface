@@ -130,13 +130,7 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://9745.rpc.thirdweb.com',
     'https://plasma.gateway.tenderly.co',
   ],
-  [RONIN]: [
-    'https://ronin-mainnet.gateway.tatum.io',
-    'https://ronin.drpc.org',
-    'https://ronin.gateway.tenderly.co',
-    'https://ronin-saigon.gateway.tatum.io',
-    'https://ronin-testnet.gateway.tenderly.co',
-  ],
+  [RONIN]: ['https://ronin-mainnet.gateway.tatum.io', 'https://ronin.drpc.org', 'https://ronin.gateway.tenderly.co'],
   [MONAD]: [
     'https://monad-mainnet.gateway.tatum.io',
     'https://rpc1.monad.xyz',

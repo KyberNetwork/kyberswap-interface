@@ -37,7 +37,7 @@ export class RpcClient {
   private readonly endpoints: string[];
   private readonly kyberEndpoint: string | undefined;
   private readonly defaultRpcEndpoint: string | undefined;
-  private readonly configRpcEndpoint: string | undefined;
+  private configRpcEndpoint: string | undefined;
   private readonly useKyberFallback: boolean;
   private readonly timeout: number;
   private readonly maxRetriesPerEndpoint: number;
@@ -553,6 +553,14 @@ export class RpcClient {
     if (this.endpoints.includes(this.defaultRpcEndpoint)) return undefined;
     return this.defaultRpcEndpoint;
   }
+
+  /**
+   * Update the config RPC endpoint on an existing instance.
+   * Used when ks-setting API returns a new RPC URL at runtime.
+   */
+  updateConfigEndpoint(configRpcEndpoint: string): void {
+    this.configRpcEndpoint = configRpcEndpoint;
+  }
 }
 
 // Singleton instances per chain - keyed by chainId only for proper health tracking sharing
@@ -579,6 +587,8 @@ export function getRpcClient(chainId: number, config?: Partial<RpcClientConfig>)
   if (!client) {
     client = new RpcClient({ chainId, ...config });
     clientInstances.set(chainId, client);
+  } else if (config?.configRpcEndpoint) {
+    client.updateConfigEndpoint(config.configRpcEndpoint);
   }
 
   return client;

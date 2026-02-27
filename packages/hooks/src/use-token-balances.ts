@@ -7,6 +7,13 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
   const [balances, setBalances] = useState<{ [address: string]: bigint }>({});
   const [loading, setLoading] = useState(false);
   const fetchIdRef = useRef(0);
+  const prevAccountRef = useRef(account);
+
+  // Clear stale balances immediately when account changes
+  if (prevAccountRef.current !== account) {
+    prevAccountRef.current = account;
+    setBalances({});
+  }
 
   const tokenAddressesKey = JSON.stringify(tokenAddresses);
 
