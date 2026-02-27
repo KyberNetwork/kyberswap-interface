@@ -1,3 +1,4 @@
+import { useFormo } from '@formo/analytics'
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
 import * as Sentry from '@sentry/react'
@@ -187,6 +188,14 @@ export default function App() {
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()
+
+  const analytics = useFormo()
+
+  useEffect(() => {
+    if (account && analytics) {
+      analytics.identify({ address: account })
+    }
+  }, [account, analytics])
 
   useEffect(() => {
     if (prevOnline === false && online && account) {

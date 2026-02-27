@@ -1,3 +1,5 @@
+import { FormoAnalyticsProvider } from '@formo/analytics'
+
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
 import * as Sentry from '@sentry/react'
@@ -23,7 +25,7 @@ import Web3Provider from 'components/Web3Provider'
 import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
 import NEARWalletProvider from 'components/Web3Provider/NearProvider'
 import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
-import { ENV_LEVEL, GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
+import { ENV_LEVEL, FORMO_WRITE_KEY, GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { useAffiliate } from 'hooks/useAffiliate'
 
@@ -120,26 +122,28 @@ const ReactApp = () => {
   useEffect(hideLoader, [])
   return (
     <StrictMode>
-      <FixedGlobalStyle />
-      <Provider store={store}>
-        <BrowserRouter>
-          <LanguageProvider>
-            <Web3Provider>
-              <BitcoinWalletProvider>
-                <NEARWalletProvider>
-                  <Updaters />
-                  <ThemeProvider>
-                    <ThemedGlobalStyle />
-                    <SolanaProvider>
-                      <App />
-                    </SolanaProvider>
-                  </ThemeProvider>
-                </NEARWalletProvider>
-              </BitcoinWalletProvider>
-            </Web3Provider>
-          </LanguageProvider>
-        </BrowserRouter>
-      </Provider>
+      <FormoAnalyticsProvider writeKey={FORMO_WRITE_KEY}>
+        <FixedGlobalStyle />
+        <Provider store={store}>
+          <BrowserRouter>
+            <LanguageProvider>
+              <Web3Provider>
+                <BitcoinWalletProvider>
+                  <NEARWalletProvider>
+                    <Updaters />
+                    <ThemeProvider>
+                      <ThemedGlobalStyle />
+                      <SolanaProvider>
+                        <App />
+                      </SolanaProvider>
+                    </ThemeProvider>
+                  </NEARWalletProvider>
+                </BitcoinWalletProvider>
+              </Web3Provider>
+            </LanguageProvider>
+          </BrowserRouter>
+        </Provider>
+      </FormoAnalyticsProvider>
     </StrictMode>
   )
 }
