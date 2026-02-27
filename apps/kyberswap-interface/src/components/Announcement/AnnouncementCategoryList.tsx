@@ -9,6 +9,7 @@ import { ReactComponent as SmartExitIcon } from 'assets/svg/kyber/smart_exit.svg
 import { Category } from 'components/Announcement/AnnoucementList'
 import { PoolPositionAnnouncement } from 'components/Announcement/type'
 import useTheme from 'hooks/useTheme'
+import { getTokenId } from 'pages/Earns/utils/position'
 
 const Wrapper = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
@@ -116,7 +117,7 @@ export default function AnnouncementCategoryList({
         title="Earn Position"
         counter={earnUnread}
         subLine1={previewPosition ? `${previewPosition.token0Symbol}/${previewPosition.token1Symbol}` : undefined}
-        subLine2={previewPosition?.positionId ? `#${previewPosition.positionId}` : undefined}
+        subLine2={previewPosition?.positionId ? `#${getTokenId(previewPosition.positionId)}` : undefined}
         icon={<FarmingIcon />}
         onClick={() => onSelectCategory?.(Category.EARN_POSITION)}
       />

@@ -36,6 +36,10 @@ export const getDexVersion = (exchange: Exchange) => {
   return dexStringSplit.length > 0 ? dexStringSplit.slice(1).join(' ') : ''
 }
 
+export const getTokenId = (positionId: string) => {
+  return positionId?.match(/^\w{42}-(\d+)$/)?.[1]
+}
+
 const convertToPoolAprInterval = (newFormat: TimeIntervalValues | any): PoolAprInterval | undefined => {
   if (!newFormat) return undefined
   return {

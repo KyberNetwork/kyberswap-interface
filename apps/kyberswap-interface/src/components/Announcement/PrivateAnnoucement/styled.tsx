@@ -62,9 +62,9 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   ${({ isRead }) =>
     !isRead
       ? css`
-          background-color: ${({ theme }) => rgba(theme.primary, 0.12)};
+          background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
           :hover {
-            background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
+            background-color: ${({ theme }) => rgba(theme.primary, 0.12)};
           }
         `
       : css`
@@ -83,10 +83,10 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   }
 `
 
-export const Title = styled.div<{ isRead: boolean }>`
+export const Title = styled.div<{ isRead?: boolean }>`
   font-size: 14px;
   font-weight: 500;
-  color: ${({ theme, isRead }) => (isRead ? theme.text : theme.primary)};
+  color: ${({ theme }) => theme.primary};
 `
 
 export const StatusTitle = styled(Title)<{ $color?: string }>`

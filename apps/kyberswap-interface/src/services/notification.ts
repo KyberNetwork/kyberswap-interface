@@ -18,7 +18,10 @@ const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcem
     notifications: (metaMessages ?? notifications ?? []).map((event: PrivateAnnouncement<any>) => {
       let templateBody = {}
       try {
-        const parsed = event.templateBody.replace(/"\{/g, '{').replace(/\}"/g, '}')
+        const parsed = event.templateBody
+          .replace(/\{\{\.\w+\}\}/, 'unknown')
+          .replace(/"\{/g, '{')
+          .replace(/\}"/g, '}')
         templateBody = JSON.parse(parsed)
       } catch (error) {}
       const templateType = getAnnouncementTemplateType(event.templateId)
