@@ -120,6 +120,12 @@ export class RpcClient {
             continue; // Retry same endpoint
           }
 
+          if (!this.isRetryableError(err)) {
+            // Deterministic error (e.g., execution reverted) — throw immediately,
+            // rotating to other endpoints won't help
+            throw err;
+          }
+
           this.markEndpointFailed(endpoint);
           errors.push({ endpoint, error: err });
           break; // Move to next endpoint
@@ -192,6 +198,10 @@ export class RpcClient {
 
           if (this.isRetryableError(err) && retry < this.maxRetriesPerEndpoint - 1) {
             continue;
+          }
+
+          if (!this.isRetryableError(err)) {
+            throw err;
           }
 
           this.markEndpointFailed(endpoint);
