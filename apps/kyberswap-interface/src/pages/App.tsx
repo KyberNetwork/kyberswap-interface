@@ -16,6 +16,7 @@ import { ButtonPrimary } from 'components/Button'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
+import Kai from 'components/Kai'
 import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
@@ -241,6 +242,7 @@ export default function App() {
         <ModalsGlobal />
         {!isPartnerSwap && <TopBanner />}
         <HeaderWrapper>
+          <Kai />
           <SupportButton />
           <Header />
         </HeaderWrapper>
