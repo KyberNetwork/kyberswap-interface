@@ -1,3 +1,5 @@
+import { FormoAnalyticsProvider } from '@formo/analytics'
+
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
 import * as Sentry from '@sentry/react'
@@ -120,26 +122,28 @@ const ReactApp = () => {
   useEffect(hideLoader, [])
   return (
     <StrictMode>
-      <FixedGlobalStyle />
-      <Provider store={store}>
-        <BrowserRouter>
-          <LanguageProvider>
-            <Web3Provider>
-              <BitcoinWalletProvider>
-                <NEARWalletProvider>
-                  <Updaters />
-                  <ThemeProvider>
-                    <ThemedGlobalStyle />
-                    <SolanaProvider>
-                      <App />
-                    </SolanaProvider>
-                  </ThemeProvider>
-                </NEARWalletProvider>
-              </BitcoinWalletProvider>
-            </Web3Provider>
-          </LanguageProvider>
-        </BrowserRouter>
-      </Provider>
+      <FormoAnalyticsProvider writeKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmlnaW4iOiJodHRwczovL2t5YmVyc3dhcC5jb20vIiwicHJvamVjdF9pZCI6IkY5aFpORTJkdnZ5MThCVzRxRHBWaCIsImlhdCI6MTc2OTA4MDU5NX0.J3L5Sri1eCv9fiGgoW7I-qf_KRuHIurYCXyqj1CtP3Q">
+        <FixedGlobalStyle />
+        <Provider store={store}>
+          <BrowserRouter>
+            <LanguageProvider>
+              <Web3Provider>
+                <BitcoinWalletProvider>
+                  <NEARWalletProvider>
+                    <Updaters />
+                    <ThemeProvider>
+                      <ThemedGlobalStyle />
+                      <SolanaProvider>
+                        <App />
+                      </SolanaProvider>
+                    </ThemeProvider>
+                  </NEARWalletProvider>
+                </BitcoinWalletProvider>
+              </Web3Provider>
+            </LanguageProvider>
+          </BrowserRouter>
+        </Provider>
+      </FormoAnalyticsProvider>
     </StrictMode>
   )
 }
