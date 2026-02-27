@@ -52,19 +52,20 @@ export function useReadingContract(
   ABI: ContractInterface | null,
   customChainId?: ChainId,
 ): Contract | null {
+  const { library } = useWeb3React()
   const { chainId: curChainId } = useActiveWeb3React()
   const chainId = customChainId || curChainId
   const { readProvider } = useKyberSwapConfig(chainId)
 
   return useMemo(() => {
-    if (!address || !readProvider || !ABI) return null
+    if (!address || !readProvider || !ABI || !library) return null
     try {
-      return getReadingContract(address, ABI, readProvider)
+      return getReadingContract(address, ABI, library || readProvider)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, readProvider])
+  }, [address, ABI, readProvider, library])
 }
 
 // returns null on errors
