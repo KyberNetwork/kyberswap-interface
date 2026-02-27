@@ -25,7 +25,7 @@ import Web3Provider from 'components/Web3Provider'
 import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
 import NEARWalletProvider from 'components/Web3Provider/NearProvider'
 import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
-import { ENV_LEVEL, GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
+import { ENV_LEVEL, FORMO_WRITE_KEY, GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { useAffiliate } from 'hooks/useAffiliate'
 
@@ -122,7 +122,7 @@ const ReactApp = () => {
   useEffect(hideLoader, [])
   return (
     <StrictMode>
-      <FormoAnalyticsProvider writeKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmlnaW4iOiJodHRwczovL2t5YmVyc3dhcC5jb20vIiwicHJvamVjdF9pZCI6IkY5aFpORTJkdnZ5MThCVzRxRHBWaCIsImlhdCI6MTc2OTA4MDU5NX0.J3L5Sri1eCv9fiGgoW7I-qf_KRuHIurYCXyqj1CtP3Q">
+      <FormoAnalyticsProvider writeKey={FORMO_WRITE_KEY}>
         <FixedGlobalStyle />
         <Provider store={store}>
           <BrowserRouter>

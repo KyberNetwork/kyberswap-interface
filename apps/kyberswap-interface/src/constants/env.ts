@@ -30,6 +30,7 @@ export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN = optional('MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN')
+export const FORMO_WRITE_KEY = required('FORMO_WRITE_KEY')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'
 export const ENV_LEVEL = !import.meta.env.VITE_TAG

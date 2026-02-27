@@ -198,11 +198,6 @@ export default function App() {
   }, [account, analytics])
 
   useEffect(() => {
-    // Track a custom event
-    analytics.track('custom_event', { points: 100 })
-  }, [analytics])
-
-  useEffect(() => {
     if (prevOnline === false && online && account) {
       // refresh page when network back to normal to prevent some issues: ex: stale data, ...
       window.location.reload()
