@@ -8,6 +8,10 @@ import { useUpdateProfileMutation } from 'services/identity'
 
 import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
+import DraggableNetworkButton from 'components/Header/web3/NetworkModal/components/DraggableNetworkButton'
+import DropzoneOverlay from 'components/Header/web3/NetworkModal/components/DropzoneOverlay'
+import { useDragAndDrop } from 'components/Header/web3/NetworkModal/hooks'
+import { NetworkList, Wrapper } from 'components/Header/web3/NetworkModal/styleds'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import SearchInput from 'components/SearchInput'
@@ -23,11 +27,6 @@ import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useFavoriteChains } from 'state/user/hooks'
 import { TYPE } from 'theme'
-
-import DraggableNetworkButton from './components/DraggableNetworkButton'
-import DropzoneOverlay from './components/DropzoneOverlay'
-import { useDragAndDrop } from './hooks'
-import { NetworkList, Wrapper } from './styleds'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -60,6 +59,7 @@ const l2Chains = [
   ChainId.MANTLE,
   ChainId.ETHERLINK,
   ChainId.MEGAETH,
+  ChainId.RISE,
 ]
 
 export default function NetworkModal({
