@@ -8,7 +8,6 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
   const [loading, setLoading] = useState(false);
   const fetchIdRef = useRef(0);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const tokenAddressesKey = JSON.stringify(tokenAddresses);
 
   const fetchBalances = useCallback(async () => {
