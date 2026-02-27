@@ -49,6 +49,7 @@
     "typescript": "5.3.2"
   },
   "dependencies": {
+    "@kyber/rpc-client": "workspace:*",
     "clsx": "^2.1.1",
     "js-sha3": "^0.9.3",
     "tailwind-merge": "^2.5.2",
