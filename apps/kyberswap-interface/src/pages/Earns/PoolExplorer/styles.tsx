@@ -40,7 +40,7 @@ export const TagContainer = styled.div`
   `}
 `
 
-export const Tag = styled.div<{ active: boolean }>`
+export const Tag = styled.div<{ active: boolean; height?: number }>`
   background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.2) : theme.background)};
   border: 1px solid ${({ theme, active }) => (active ? theme.primary : 'transparent')};
   border-radius: 12px;
@@ -54,7 +54,7 @@ export const Tag = styled.div<{ active: boolean }>`
   gap: 8px;
   flex: 0 0 auto;
   line-height: 28px;
-  height: 42px;
+  height: ${({ height }) => (height ? `${height}px` : '42px')};
   transition: background-color 200ms ease, border-color 200ms ease;
 
   &[role='button']:hover {
@@ -64,10 +64,6 @@ export const Tag = styled.div<{ active: boolean }>`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     height: 38px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 16px;
   `}
 `
 
@@ -116,7 +112,9 @@ export const TableWrapper = styled.div`
   border-radius: 16px;
   position: relative;
   overflow: hidden;
+`
 
+export const PoolTableWrapper = styled(TableWrapper)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin: 0 -16px;
     border-radius: 0;
@@ -133,7 +131,7 @@ export const ContentWrapper = styled.div``
 export const TableHeader = styled.div<{ expandColumn?: boolean }>`
   display: grid;
   grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
+    expandColumn ? '2fr 0.6fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 80px' : '2fr 0.6fr 0.9fr 0.9fr 1fr 1fr 80px'};
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
@@ -164,29 +162,47 @@ export const MigrateTableBody = styled.div`
   `}
 `
 
-export const TableRow = styled.div<{ expandColumn?: boolean }>`
-  display: grid;
-  grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
-  padding: 24px;
-  cursor: pointer;
+export const TableRow = styled(TableHeader)`
+  border-bottom: none;
 
   :hover {
+    cursor: pointer;
     background: #31cb9e1a;
   }
 `
 
-export const MigrateTableRow = styled(TableRow)`
-  grid-template-columns: 2.5fr 0.8fr 1fr 1fr 1fr !important;
+export const MigrateTableRow = styled(MigrateTableHeader)`
+  border-bottom: none;
+
+  :hover {
+    cursor: pointer;
+    background: #31cb9e1a;
+  }
 `
 
-export const FeeTier = styled.div`
+export const RowItem = styled(Flex)<{ justifyContent?: string; alignItems?: string }>`
+  height: 100%;
+  flex-direction: column;
+  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
+  align-items: ${({ alignItems }) => alignItems || 'flex-start'};
+  gap: 8px;
+`
+
+export const Badge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
   border-radius: 30px;
-  padding: 4px 8px;
+  padding: 4px 6px 4px 4px;
   font-size: 12px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
   color: ${({ theme }) => theme.subText};
   width: fit-content;
+`
+
+export const FeeTier = styled(Badge)`
+  padding: 4px 8px;
+  background: ${({ theme }) => rgba(theme.white, 0.04)};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 14px;
@@ -208,15 +224,16 @@ export const Apr = styled.div<{ value: number }>`
 `
 
 export const MobileTableRow = styled.div`
-  padding: 28px 24px 0;
+  padding: 28px 24px 24px;
   cursor: pointer;
+  border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
 `
-export const MobileTableBottomRow = styled.div<{ withoutBorder: boolean }>`
+
+export const MobileTableBottomRow = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 16px 0;
+  margin-top: 16px;
   gap: 12px;
-  border-bottom: ${({ withoutBorder, theme }) => (withoutBorder ? 'none' : `1px solid ${theme.tableHeader}`)};
 `
 
 export const Disclaimer = styled.div`

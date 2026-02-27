@@ -111,7 +111,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
     <>
       {isFetching && loadingProgress}
       <div>
-        {tablePoolData.map((pool, index) =>
+        {tablePoolData.map(pool =>
           upToMedium ? (
             <MobileTableRow
               key={pool.address}
@@ -119,7 +119,6 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
               filters={filters}
               onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
-              withoutBorder={index === tablePoolData.length - 1}
             />
           ) : (
             <DesktopTableRow
