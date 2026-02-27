@@ -13,5 +13,6 @@ export default {
     [ChainId.Base]: '0x7c5f5a4bbd8fd63184577525326123b519429bdc',
     [ChainId.Blast]: '0x4ad2f4cca2682cbb5b950d660dd458a1d3f1baad',
     [ChainId.Optimism]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
+    [ChainId.Monad]: '0x5b7ec4a94ff9bedb700fb82ab09d5846972f4016',
   },
 };
