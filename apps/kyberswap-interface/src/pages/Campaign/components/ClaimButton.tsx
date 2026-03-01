@@ -14,7 +14,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
-const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
+const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const [claiming, setIsClaiming] = useState(false)
@@ -118,4 +118,4 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
   )
 }
 
-export default ClaimBtn
+export default ClaimButton

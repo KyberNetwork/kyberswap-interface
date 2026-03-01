@@ -33,7 +33,7 @@ const NestedNavLink = styled(StyledNavLink)`
   gap: 12px;
 `
 
-const showCampaignNew = new Date() < new Date('2025-12-02T23:59:59Z')
+const showCampaignNew = new Date() < new Date('2026-04-30T23:59:59Z')
 
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
@@ -59,9 +59,14 @@ const CampaignNavGroup = () => {
         }
         dropdownContent={
           <Column>
+            <StyledNavLink to={APP_PATHS.SAFEPAL_CAMPAIGN}>
+              <Trans>SafePal Campaign</Trans>
+              {showCampaignNew ? <ELabel isNew>{t`New`}</ELabel> : <ELabel>{t`Ended`}</ELabel>}
+            </StyledNavLink>
+
             <StyledNavLink to={APP_PATHS.RAFFLE_CAMPAIGN}>
               <Trans>Weekly Rewards</Trans>
-              {showCampaignNew ? <ELabel isNew>{t`New`}</ELabel> : <ELabel>{t`Ended`}</ELabel>}
+              <ELabel>{t`Ended`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.NEAR_INTENTS_CAMPAIGN}>

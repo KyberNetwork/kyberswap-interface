@@ -5,9 +5,10 @@ import { Box, Text } from 'rebass'
 
 import InfoHelper from 'components/InfoHelper'
 import useTheme from 'hooks/useTheme'
-import { CampaignType, CampaignWeek, campaignConfig } from 'pages/Campaign/constants'
+import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { useRaffleCampaignJoin } from 'pages/Campaign/hooks/useRaffleCampaignJoin'
 import { StatCard } from 'pages/Campaign/styles'
+import { CampaignWeek } from 'pages/Campaign/timelines'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 

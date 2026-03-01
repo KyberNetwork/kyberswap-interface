@@ -11,7 +11,7 @@ import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function MyRaffleDashboard() {
+export default function RaffleDashboard() {
   const theme = useTheme()
   const { account } = useWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)

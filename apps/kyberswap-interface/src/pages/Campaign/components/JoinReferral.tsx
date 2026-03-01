@@ -108,12 +108,15 @@ export default function JoinReferal() {
       </Flex>
     )
 
-  if (error || (!isLoading && !data)) {
+  if (isLoading) return <Box height="40px" />
+
+  if (error || !data) {
     return (
       <>
-        <ButtonPrimary width="fit-content" padding="8px 16px" onClick={() => setShowRefModal(true)}>
+        <ButtonPrimary altDisabledStyle disabled width="160px" height="40px" onClick={() => setShowRefModal(true)}>
           <Trans>Confirm to join</Trans>
         </ButtonPrimary>
+
         <Modal isOpen={showRefModal} onDismiss={() => setShowRefModal(false)}>
           <Flex width="100%" padding="24px 32px 32px" flexDirection="column">
             <Flex justifyContent="space-between" alignItems="center">
@@ -157,7 +160,7 @@ export default function JoinReferal() {
   const domain = `${window.location.origin}/campaigns/referrals?code=${data?.data.participant.referralCode}`
   return (
     <>
-      <ButtonPrimary width="fit-content" padding="8px 16px" onClick={() => setShowInviteModal(true)}>
+      <ButtonPrimary altDisabledStyle disabled width="160px" height="40px" onClick={() => setShowInviteModal(true)}>
         <Trans>Invite your friends</Trans>
       </ButtonPrimary>
 

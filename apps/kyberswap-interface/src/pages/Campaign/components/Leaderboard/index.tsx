@@ -38,6 +38,7 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
   const page = +(searchParams.get('page') || '1')
 
   const { campaign, program, url, year, reward } = campaignConfig[type]
+  const isReferralCampaign = campaign === 'referral-program'
 
   const rewardAmount = (amount?: string): string => {
     const rewardAmount = CurrencyAmount.fromRawAmount(
@@ -57,13 +58,11 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
       pageNumber: page,
       url,
     },
-    {
-      skip: campaign === 'referral-program',
-    },
+    { skip: isReferralCampaign },
   )
 
   const { account } = useActiveWeb3React()
-  const { data: referralData } = useGetDashboardQuery({ referralCode: '', page })
+  const { data: referralData } = useGetDashboardQuery({ referralCode: '', page }, { skip: !isReferralCampaign })
 
   const { data: userData } = useGetUserRewardQuery(
     {
@@ -84,7 +83,7 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
 
   return (
     <Wrapper>
-      {campaign !== 'referral-program' && (
+      {!isReferralCampaign && (
         <>
           <Text fontSize={16} color={theme.subText} mb="1rem">
             <Trans>Your rank</Trans>{' '}
@@ -98,18 +97,18 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
       )}
 
       <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} fontSize={12} fontWeight="500" color={theme.subText}>
-        {campaign !== 'referral-program' && (
+        {!isReferralCampaign && (
           <Text width={upToSmall ? '30px' : '50px'} textAlign="center">
             {t`RANK`}
           </Text>
         )}
 
-        <Text flex={1} marginLeft={campaign === 'referral-program' ? 0 : '1.25rem'}>
+        <Text flex={1} marginLeft={isReferralCampaign ? 0 : '1.25rem'}>
           {t`WALLET`}
         </Text>
 
-        <Text width={campaign === 'referral-program' ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
-          {campaign === 'referral-program' ? t`NUMBER OF REFERRALS` : t`POINTS`}
+        <Text width={isReferralCampaign ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
+          {isReferralCampaign ? t`NUMBER OF REFERRALS` : t`POINTS`}
         </Text>
 
         {showReward && (
@@ -123,7 +122,7 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
 
       {isLoading ? (
         <LocalLoader />
-      ) : campaign !== 'referral-program' ? (
+      ) : !isReferralCampaign ? (
         data?.data?.leaderBoards.map((item, index) => (
           <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} key={item.wallet} fontSize={14} color={theme.text}>
             <Text width={upToSmall ? '30px' : '50px'} fontWeight="500" textAlign="center">
@@ -163,12 +162,11 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
         })
       )}
 
-      {!isLoading &&
-        (campaign === 'referral-program' ? !referralData?.data.referrals.length : !data?.data?.leaderBoards.length) && (
-          <Text color={theme.subText} textAlign="center" padding="24px" marginTop="24px">
-            {t`No data found`}
-          </Text>
-        )}
+      {!isLoading && (isReferralCampaign ? !referralData?.data.referrals.length : !data?.data?.leaderBoards.length) && (
+        <Text color={theme.subText} textAlign="center" padding="24px" marginTop="24px">
+          {t`No data found`}
+        </Text>
+      )}
 
       {!isLoading && (
         <Pagination
@@ -177,9 +175,7 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
             setSearchParams(searchParams)
           }}
           totalCount={
-            (campaign === 'referral-program'
-              ? referralData?.data.pagination.totalItems
-              : data?.data?.participantCount) || 0
+            (isReferralCampaign ? referralData?.data.pagination.totalItems : data?.data?.participantCount) || 0
           }
           currentPage={page}
           pageSize={10}
