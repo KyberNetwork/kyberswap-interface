@@ -13,7 +13,14 @@ import raffleBannerMobile from './assets/raffle_banner_mobile.png'
 import referralBanner from './assets/referral.png'
 import safepalBanner from './assets/safepal.png'
 import tradingBanner from './assets/trading.png'
-import { type CampaignWeek, mayTradingWeeks, nearIntentWeeks, raffleWeeks, safepalWeeks, stipWeeks } from './timelines'
+import {
+  type CampaignWeek,
+  mayTradingWeeks,
+  nearIntentWeeks,
+  raffleWeeks,
+  safepalTempWeeks,
+  stipWeeks,
+} from './timelines'
 
 const stipInfo = {
   year: 2024,
@@ -78,7 +85,7 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     ctaLink: '/swap',
     ctaText: <Trans>Join Now</Trans>,
     type: CampaignType.SafePal,
-    weeks: safepalWeeks,
+    weeks: safepalTempWeeks,
     banner: safepalBanner,
     title: <Trans>SafePal Campaign</Trans>,
   },

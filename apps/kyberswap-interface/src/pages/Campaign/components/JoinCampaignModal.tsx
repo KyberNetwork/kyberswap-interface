@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { ReactNode } from 'react'
 import { Flex, Link, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -6,8 +7,6 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
-
-import { renderRaffleTerms } from './Information/info/raffle'
 
 const Wrapper = styled.div`
   padding: 24px;
@@ -28,9 +27,10 @@ type Props = {
   isOpen: boolean
   onDismiss: () => void
   onConfirm: () => void
+  terms: ReactNode
 }
 
-export const JoinRaffleCampaignModal = ({ isOpen, onDismiss, onConfirm }: Props) => {
+export const JoinCampaignModal = ({ isOpen, onDismiss, onConfirm, terms }: Props) => {
   const theme = useTheme()
 
   return (
@@ -50,7 +50,7 @@ export const JoinRaffleCampaignModal = ({ isOpen, onDismiss, onConfirm }: Props)
               apply to all KyberSwap promotional activities ({'"Campaign"'}).
             </Trans>
           </li>
-          {renderRaffleTerms()}
+          {terms}
         </Text>
 
         <ActionRow marginTop="24px">
@@ -66,4 +66,4 @@ export const JoinRaffleCampaignModal = ({ isOpen, onDismiss, onConfirm }: Props)
   )
 }
 
-export default JoinRaffleCampaignModal
+export default JoinCampaignModal

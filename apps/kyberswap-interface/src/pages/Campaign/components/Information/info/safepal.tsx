@@ -48,7 +48,7 @@ const SafePalHowToSection = (): CampaignSectionComponent => {
     <>
       <li>
         <Trans>
-          Click <Link to="/campaigns/weekly-rewards">Join Now</Link> on{' '}
+          Click <Link to="/campaigns/safepal">Join Now</Link> on{' '}
           <ExternalLink href="https://kyberswap.com">kyberswap.com</ExternalLink> to participate. Rewards are subject to
           successful redemption via the reward website, with applicable shipping fees paid by participants.
         </Trans>
@@ -241,7 +241,7 @@ const SafePalClaimingAndShippingSection = (): CampaignSectionComponent => (
   </>
 )
 
-const SafePalTermsSection = (): CampaignSectionComponent => (
+export const SafePalTermsSection = (): CampaignSectionComponent => (
   <>
     <li>
       <Trans>

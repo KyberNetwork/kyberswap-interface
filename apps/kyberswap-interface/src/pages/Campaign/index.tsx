@@ -11,7 +11,9 @@ import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import CampaignStats from './components/CampaignStats'
 import RaffleCampaignStats from './components/CampaignStats/RaffleCampaignStats'
 import Information from './components/Information'
-import JoinRaffleCampaignModal from './components/JoinRaffleCampaignModal'
+import { RaffleTermsSection } from './components/Information/info/raffle'
+import { SafePalTermsSection } from './components/Information/info/safepal'
+import JoinCampaignModal from './components/JoinCampaignModal'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import RaffleLeaderboard from './components/Leaderboard/RaffleLeaderboard'
@@ -20,6 +22,7 @@ import WeekSelect from './components/WeekSelect'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
 import { useRaffleCampaignJoin } from './hooks/useRaffleCampaignJoin'
+import { useSafePalCampaignJoin } from './hooks/useSafePalCampaignJoin'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
 enum TabKey {
@@ -52,6 +55,7 @@ export default function CampaignPage() {
   const { campaign, ctaText, ctaLink, banner, title, weeks } = campaignConfig[type]
 
   const isRaffleCampaign = type === CampaignType.Raffle
+  const isSafePalCampaign = type === CampaignType.SafePal
   const isReferralCampaign = campaign === 'referral-program'
 
   const isCampagainAvailable = useMemo(() => {
@@ -70,6 +74,8 @@ export default function CampaignPage() {
     isNotEligible: isRaffleNotEligible,
     participant,
   } = useRaffleCampaignJoin({ selectedWeek })
+
+  const { onJoin: handleJoinSafePalCampaign, isJoined: isSafePalJoined } = useSafePalCampaignJoin()
 
   const params = useNearIntentSelectedWallet()
 
@@ -119,14 +125,14 @@ export default function CampaignPage() {
             height="40px"
             disabled={isRaffleCampaign || !isCampagainAvailable}
             onClick={() => {
-              if (isRaffleCampaign) {
+              if (isRaffleCampaign || isSafePalCampaign) {
                 setIsJoinModalOpen(true)
               } else {
                 navigate(ctaLink)
               }
             }}
           >
-            {isRaffleJoinedByWeek ? t`Joined` : ctaText}
+            {isRaffleJoinedByWeek || isSafePalJoined ? t`Joined` : ctaText}
           </ButtonPrimary>
         </Flex>
       )}
@@ -197,14 +203,20 @@ export default function CampaignPage() {
 
       {tab === TabKey.YourTransactions && <RaffleLeaderboard type="owner" selectedWeek={selectedWeek} />}
 
-      {isRaffleCampaign && (
-        <JoinRaffleCampaignModal
+      {(isRaffleCampaign || isSafePalCampaign) && (
+        <JoinCampaignModal
           isOpen={isJoinModalOpen}
           onDismiss={() => setIsJoinModalOpen(false)}
           onConfirm={() => {
             setIsJoinModalOpen(false)
-            void handleJoinRaffleCampaign()
+            if (isRaffleCampaign) {
+              void handleJoinRaffleCampaign()
+            }
+            if (isSafePalCampaign) {
+              void handleJoinSafePalCampaign()
+            }
           }}
+          terms={isSafePalCampaign ? <SafePalTermsSection /> : <RaffleTermsSection />}
         />
       )}
 

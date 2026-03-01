@@ -9,6 +9,62 @@ export type CampaignWeek = {
   end: number
 }
 
+const ONE_DAY_SECONDS = 24 * 60 * 60
+const ONE_WEEK_SECONDS = 7 * ONE_DAY_SECONDS
+
+const getStartOfCurrentMondayUtc = () => {
+  const now = new Date()
+  const currentDay = now.getUTCDay()
+  const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  monday.setUTCDate(monday.getUTCDate() + diffToMonday)
+  return Math.floor(monday.getTime() / 1000)
+}
+
+const formatShortDateUtc = (timestamp: number) =>
+  new Date(timestamp * 1000).toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    timeZone: 'UTC',
+  })
+
+const safepalTempStart = getStartOfCurrentMondayUtc()
+
+// TODO: Remove and use `safepalWeeks`
+export const safepalTempWeeks: CampaignWeek[] = [
+  {
+    value: 1,
+    label: (
+      <Text>
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 1
+          </Text>{' '}
+          {formatShortDateUtc(safepalTempStart)} - {formatShortDateUtc(safepalTempStart + ONE_WEEK_SECONDS)}
+        </Trans>
+      </Text>
+    ),
+    start: safepalTempStart,
+    end: safepalTempStart + ONE_WEEK_SECONDS,
+  },
+  {
+    value: 2,
+    label: (
+      <Text>
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 2
+          </Text>{' '}
+          {formatShortDateUtc(safepalTempStart + ONE_WEEK_SECONDS)} -{' '}
+          {formatShortDateUtc(safepalTempStart + ONE_WEEK_SECONDS * 2)}
+        </Trans>
+      </Text>
+    ),
+    start: safepalTempStart + ONE_WEEK_SECONDS,
+    end: safepalTempStart + ONE_WEEK_SECONDS * 2,
+  },
+]
+
 export const safepalWeeks: CampaignWeek[] = [
   {
     value: 11,

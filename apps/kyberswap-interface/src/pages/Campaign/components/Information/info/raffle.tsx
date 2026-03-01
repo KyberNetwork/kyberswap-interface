@@ -267,7 +267,7 @@ const RaffleRewardsSection = (): CampaignSectionComponent => (
   </>
 )
 
-const RaffleTermsSection = (): CampaignSectionComponent => (
+export const RaffleTermsSection = (): CampaignSectionComponent => (
   <>
     <li>
       <Trans>
@@ -301,8 +301,6 @@ const RaffleTermsSection = (): CampaignSectionComponent => (
     </li>
   </>
 )
-
-export const renderRaffleTerms = () => <RaffleTermsSection />
 
 const RaffleFaqListSection = (): CampaignSectionComponent => {
   const faqItems: FaqItem[] = [
