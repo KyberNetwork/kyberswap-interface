@@ -156,7 +156,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.SMART_EXIT]: '39,40,41,42,43',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '',
-    [PrivateAnnouncementType.POSITION_STATUS]: '32,33',
+    [PrivateAnnouncementType.POSITION_STATUS]: '38',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '',
   },
