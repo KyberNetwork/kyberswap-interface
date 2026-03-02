@@ -32,27 +32,17 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { parseTokensAndAmounts } from '@/utils';
 
 export default function Preview({ onDismiss }: { onDismiss: () => void }) {
-  const {
-    chainId,
-    rpcUrl,
-    poolType,
-    connectedAccount,
-    onSubmitTx,
-    onViewPosition,
-    positionId,
-    onClose,
-    onSetUpSmartExit,
-  } = useWidgetStore([
-    'chainId',
-    'rpcUrl',
-    'poolType',
-    'connectedAccount',
-    'onSubmitTx',
-    'onViewPosition',
-    'positionId',
-    'onClose',
-    'onSetUpSmartExit',
-  ]);
+  const { chainId, poolType, connectedAccount, onSubmitTx, onViewPosition, positionId, onClose, onSetUpSmartExit } =
+    useWidgetStore([
+      'chainId',
+      'poolType',
+      'connectedAccount',
+      'onSubmitTx',
+      'onViewPosition',
+      'positionId',
+      'onClose',
+      'onSetUpSmartExit',
+    ]);
   const { pool } = usePoolStore(['pool']);
   const { setSlippage, slippage, tokensIn, amountsIn, buildData } = useZapState();
   const { zapImpact, suggestedSlippage } = useZapRoute();
@@ -99,7 +89,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
     };
 
     try {
-      const gasEstimation = await estimateGas(rpcUrl, txData);
+      const gasEstimation = await estimateGas(chainId, txData);
       const txHash = await onSubmitTx(
         {
           ...txData,
@@ -141,7 +131,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
 
     setLoadingPosition(true);
     try {
-      const tokenId = await getTokenIdFromTxHash({ rpcUrl, txHash, poolType });
+      const tokenId = await getTokenIdFromTxHash({ chainId, txHash, poolType });
       if (tokenId) {
         onSetUpSmartExit({ tokenId, chainId, poolType });
       } else {

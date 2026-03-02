@@ -19,7 +19,6 @@ import { estimateGasForTx } from '@/utils';
 export default function useActionButton({ approval, deadline }: { approval: ApprovalState; deadline: number }) {
   const {
     chainId,
-    rpcUrl,
     poolType,
     connectedAccount,
     onConnectWallet,
@@ -30,7 +29,6 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     setError: setWidgetError,
   } = useWidgetStore([
     'chainId',
-    'rpcUrl',
     'poolType',
     'connectedAccount',
     'onConnectWallet',
@@ -185,7 +183,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
           value: `0x${BigInt(data.value).toString(16)}`,
         };
 
-        const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
+        const { gasUsd, error } = await estimateGasForTx({ txData, chainId });
 
         if (error || !gasUsd) {
           setWidgetError(error);
