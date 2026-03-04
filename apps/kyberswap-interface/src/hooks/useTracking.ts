@@ -182,6 +182,14 @@ export enum TRACKING_EVENT_TYPE {
   LO_CLICK_UPDATE_TYPE,
   LO_CLICK_GET_STARTED,
   LO_CLICK_WARNING_IN_SWAP,
+  LO_REVIEW_OPENED,
+  LO_ORDER_PLACED,
+  LO_ORDER_FAILED,
+  LO_ORDER_FILLED,
+  LO_ORDER_CANCELLED,
+  LO_SIDE_SELECTED,
+  LO_PRICE_SET,
+  LO_EXPIRY_CHANGED,
 
   // Wallet UI
   WUI_WALLET_CLICK,
@@ -1159,6 +1167,38 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.LO_CLICK_WARNING_IN_SWAP: {
           formoTrack('Limit Order - Warning in Swap Click', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO_REVIEW_OPENED: {
+          formoTrack('Limit Order Review Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO_ORDER_PLACED: {
+          formoTrack('Limit Order Placed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO_ORDER_FAILED: {
+          formoTrack('Limit Order Failed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO_ORDER_FILLED: {
+          formoTrack('Limit Order Filled', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED: {
+          formoTrack('Limit Order Cancelled', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO_SIDE_SELECTED: {
+          formoTrack('Limit Order Side Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO_PRICE_SET: {
+          formoTrack('Limit Price Set', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO_EXPIRY_CHANGED: {
+          formoTrack('Limit Order Expiry Changed', payload)
           break
         }
 

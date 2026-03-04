@@ -37,7 +37,13 @@ import {
 import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
-import { calcPercentFilledOrder, getPayloadTracking, isActiveStatus } from '../helpers'
+import {
+  calcPercentFilledOrder,
+  formatAmountOrder,
+  formatRateLimitOrder,
+  getPayloadTracking,
+  isActiveStatus,
+} from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
@@ -238,15 +244,50 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
       const orders: LimitOrder[] = data?.orders ?? []
       if (orders.length) refreshListOrder()
     }
-    const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, refreshListOrder)
+    const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
+      refreshListOrder()
+      const cancelledOrders: LimitOrder[] = data?.orders ?? []
+      cancelledOrders.forEach(order => {
+        trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED, {
+          order_id: order.id,
+          side: 'sell',
+          from_token: order.makerAssetSymbol,
+          to_token: order.takerAssetSymbol,
+          pair: `${order.makerAssetSymbol}/${order.takerAssetSymbol}`,
+          limit_price: formatRateLimitOrder(order, false),
+          amount_in: formatAmountOrder(order.makingAmount, order.makerAssetDecimals),
+          time_active_minutes: Math.round((Date.now() / 1000 - order.createdAt) / 60),
+          chain: networkInfo.name,
+        })
+      })
+    })
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, callback)
-    const unsubscribeFilled = subscribeNotificationOrderFilled(account, chainId, callback)
+    const unsubscribeFilled = subscribeNotificationOrderFilled(account, chainId, data => {
+      const filledOrders: LimitOrder[] = data?.orders ?? []
+      if (filledOrders.length) refreshListOrder()
+      filledOrders.forEach(order => {
+        const lastTx = order.transactions?.[order.transactions.length - 1]
+        trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FILLED, {
+          order_id: order.id,
+          side: 'sell',
+          from_token: order.makerAssetSymbol,
+          to_token: order.takerAssetSymbol,
+          pair: `${order.makerAssetSymbol}/${order.takerAssetSymbol}`,
+          limit_price: formatRateLimitOrder(order, false),
+          fill_price: formatRateLimitOrder(order, false),
+          amount_in: formatAmountOrder(order.makingAmount, order.makerAssetDecimals),
+          amount_out_actual: formatAmountOrder(order.filledTakingAmount, order.takerAssetDecimals),
+          tx_hash: lastTx?.txHash,
+          chain: networkInfo.name,
+        })
+      })
+    })
     return () => {
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
       unsubscribeFilled?.()
     }
-  }, [account, chainId, refreshListOrder])
+  }, [account, chainId, refreshListOrder, trackingHandler, networkInfo.name])
 
   const { flowState, setFlowState, onCancelOrder } = useRequestCancelOrder({
     orders,
