@@ -18,6 +18,7 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -259,6 +260,8 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyIn as any).id
             : fromChainId === NonEvmChain.Near
             ? (currencyIn as any).assetId
+            : (currencyIn as any)?.isNative
+            ? ETHER_ADDRESS
             : (currencyIn as any)?.address || (currencyIn as any)?.wrapped?.address || currencyIn?.symbol,
         from_token_symbol: currencyIn?.symbol,
         from_token_decimals: currencyIn?.decimals,
@@ -271,6 +274,8 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyOut as any).id
             : toChainId === NonEvmChain.Near
             ? (currencyOut as any).assetId
+            : (currencyOut as any)?.isNative
+            ? ETHER_ADDRESS
             : (currencyOut as any)?.address || (currencyOut as any)?.wrapped?.address || currencyOut?.symbol,
         to_token_symbol: currencyOut?.symbol,
         to_token_decimals: currencyOut?.decimals,
