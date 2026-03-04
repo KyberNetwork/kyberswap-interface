@@ -273,7 +273,17 @@ export default function Menu() {
     <StyledMenu>
       <MenuFlyout
         trigger={
-          <StyledMenuButton active={open} onClick={toggle} aria-label="Menu" id={TutorialIds.BUTTON_MENU_HEADER}>
+          <StyledMenuButton
+            active={open}
+            onClick={() => {
+              if (!open) {
+                trackingHandler(TRACKING_EVENT_TYPE.MENU_DROPDOWN_OPENED, {})
+              }
+              toggle()
+            }}
+            aria-label="Menu"
+            id={TutorialIds.BUTTON_MENU_HEADER}
+          >
             <MenuIcon width={18} height={18} />
           </StyledMenuButton>
         }
@@ -285,7 +295,16 @@ export default function Menu() {
       >
         {isSelectingLanguage ? (
           <AutoColumn gap="md">
-            <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
+            <LanguageSelector
+              setIsSelectingLanguage={setIsSelectingLanguage}
+              onLanguageChange={(prevLang, newLang) => {
+                trackingHandler(TRACKING_EVENT_TYPE.LANGUAGE_CHANGED, {
+                  previous_language: prevLang,
+                  new_language: newLang,
+                  source: 'menu_dropdown',
+                })
+              }}
+            />
           </AutoColumn>
         ) : (
           <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
@@ -432,6 +451,11 @@ export default function Menu() {
                 href="https://docs.kyberswap.com"
                 onClick={() => {
                   handleMenuClickMixpanel('Docs')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Docs',
+                    item_url: 'https://docs.kyberswap.com',
+                    is_external: true,
+                  })
                 }}
               >
                 <BookOpen />
@@ -445,6 +469,11 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   handleMenuClickMixpanel('Roadmap')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Roadmap',
+                    item_url: 'https://kyberswap.canny.io/',
+                    is_external: true,
+                  })
                 }}
               >
                 <RoadMapIcon />
@@ -458,6 +487,11 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   handleMenuClickMixpanel('Forum')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Forum',
+                    item_url: 'https://gov.kyber.org',
+                    is_external: true,
+                  })
                 }}
               >
                 <MessageCircle />
@@ -480,6 +514,11 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   handleMenuClickMixpanel('Terms')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Terms',
+                    item_url: TERM_FILES_PATH.KYBERSWAP_TERMS,
+                    is_external: true,
+                  })
                 }}
               >
                 <FileText />
@@ -492,6 +531,11 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   handleMenuClickMixpanel('Privacy Policy')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Privacy Policy',
+                    item_url: TERM_FILES_PATH.PRIVACY_POLICY,
+                    is_external: true,
+                  })
                 }}
               >
                 <FileText />
@@ -542,6 +586,9 @@ export default function Menu() {
               onClick={() => {
                 navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PREFERENCE}`)
                 trackingHandler(TRACKING_EVENT_TYPE.NOTIFICATION_CLICK_MENU)
+                trackingHandler(TRACKING_EVENT_TYPE.NOTIFICATION_CENTER_OPENED, {
+                  source: 'menu_dropdown',
+                })
                 handlePreferenceClickMixpanel('Notifications')
                 toggle()
               }}

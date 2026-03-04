@@ -322,6 +322,12 @@ export enum TRACKING_EVENT_TYPE {
   WALLET_TOKEN_CLICKED,
   WALLET_IMPORT_TOKENS_CLICKED,
   WALLET_TOKEN_IMPORTED,
+
+  // Top Right Menu
+  MENU_DROPDOWN_OPENED,
+  MENU_LINK_CLICKED,
+  NOTIFICATION_CENTER_OPENED,
+  LANGUAGE_CHANGED,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1742,6 +1748,24 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.WALLET_TOKEN_IMPORTED: {
           formoTrack('Wallet Token Imported', payload)
+          break
+        }
+
+        // Top Right Menu
+        case TRACKING_EVENT_TYPE.MENU_DROPDOWN_OPENED: {
+          formoTrack('Menu Dropdown Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.MENU_LINK_CLICKED: {
+          formoTrack('Menu Link Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.NOTIFICATION_CENTER_OPENED: {
+          formoTrack('Notification Center Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LANGUAGE_CHANGED: {
+          formoTrack('Language Changed', payload)
           break
         }
       }
