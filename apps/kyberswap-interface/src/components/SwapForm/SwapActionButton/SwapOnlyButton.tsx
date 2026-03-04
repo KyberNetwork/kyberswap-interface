@@ -4,12 +4,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import SwapModal from 'components/SwapForm/SwapModal'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
+import { useActiveWeb3React } from 'hooks'
 import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { usePaymentToken, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
-import { toCurrencyAmount } from 'utils/currencyAmount'
+import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
 
 const getFeeInfoForMixPanel = (routeSummary: DetailedRouteSummary | undefined) => {
   if (!routeSummary?.fee) {
@@ -66,6 +67,9 @@ const SwapOnlyButton: React.FC<Props> = ({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
   })
+  const { networkInfo } = useActiveWeb3React()
+  const [transactionTimeout] = useUserTransactionTTL()
+  const [paymentToken] = usePaymentToken()
   const [buildResult, setBuildResult] = useState<BuildRouteResult>()
   const [isBuildingRoute, setBuildingRoute] = useState(false)
   const { priceImpact } = routeSummary || {}
@@ -90,12 +94,36 @@ const SwapOnlyButton: React.FC<Props> = ({
     setBuildResult(result)
   }
 
-  const mixpanelSwapInit = () => {
+  const getTokenAddress = (currency: Currency | undefined) =>
+    currency?.isNative ? 'NATIVE' : currency?.wrapped?.address
+
+  const getRouteDexes = () => [...new Set(routeSummary?.route?.flat().map(r => r.exchange) || [])]
+
+  const trackingSwapInit = () => {
+    const minReceived = routeSummary?.parsedAmountOut
+      ? minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage)?.toSignificant(6)
+      : undefined
+
     trackingHandler(TRACKING_EVENT_TYPE.SWAP_INITIATED, {
       gasUsd: routeSummary?.gasUsd,
       inputAmount: routeSummary?.parsedAmountIn,
       priceImpact: routeSummary?.priceImpact,
       feeInfo: getFeeInfoForMixPanel(routeSummary),
+      from_token_address: getTokenAddress(currencyIn),
+      to_token_address: getTokenAddress(currencyOut),
+      pair: `${currencyIn?.symbol}/${currencyOut?.symbol}`,
+      amount_in_usd: routeSummary?.amountInUsd,
+      amount_out_estimated: routeSummary?.parsedAmountOut?.toSignificant(6),
+      amount_out_usd: routeSummary?.amountOutUsd,
+      minimum_received: minReceived,
+      rate: routeSummary?.executionPrice?.toSignificant(6),
+      transaction_time_limit: transactionTimeout / 60,
+      gas_token: paymentToken?.symbol || networkInfo.nativeToken.symbol,
+      trade_route_dexes: getRouteDexes(),
+      trade_route_steps: routeSummary?.route?.length,
+      route_split: (routeSummary?.route?.length || 0) > 1,
+      chain: networkInfo.name,
+      volume: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
     })
   }
 
@@ -107,7 +135,32 @@ const SwapOnlyButton: React.FC<Props> = ({
   }, [slippage])
 
   const handleClickSwapButton = () => {
-    mixpanelSwapInit()
+    trackingHandler(TRACKING_EVENT_TYPE.SWAP_REVIEW_OPENED, {
+      from_token: currencyIn?.symbol,
+      from_token_address: getTokenAddress(currencyIn),
+      to_token: currencyOut?.symbol,
+      to_token_address: getTokenAddress(currencyOut),
+      amount_in: routeSummary?.parsedAmountIn?.toSignificant(6),
+      amount_in_usd: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
+      amount_out: routeSummary?.parsedAmountOut?.toSignificant(6),
+      amount_out_usd: routeSummary?.amountOutUsd ? Number(routeSummary.amountOutUsd) : undefined,
+      rate: routeSummary?.executionPrice
+        ? `1 ${currencyIn?.symbol} = ${routeSummary.executionPrice.toSignificant(6)} ${currencyOut?.symbol}`
+        : undefined,
+      minimum_received: routeSummary?.parsedAmountOut
+        ? minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage)?.toSignificant(6)
+        : undefined,
+      price_impact: routeSummary?.priceImpact
+        ? routeSummary.priceImpact > 0.01
+          ? `${routeSummary.priceImpact.toFixed(2)}%`
+          : '<0.01%'
+        : undefined,
+      max_slippage: slippage ? slippage / 100 : 0,
+      trade_route_dexes: getRouteDexes(),
+      chain: networkInfo.name,
+    })
+
+    trackingSwapInit()
 
     setErrorWhileSwap('')
 

@@ -10,12 +10,14 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { TAB } from 'pages/SwapV3/index'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useDegenModeManager } from 'state/user/hooks'
+import { useDegenModeManager, usePaymentToken, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { formatSlippage } from 'utils/slippage'
 
 const ActionPanel = styled.div`
   display: flex;
@@ -54,6 +56,10 @@ export default function HeaderRightMenu({
     }
   }
   const [isDegenMode] = useDegenModeManager()
+  const [slippage] = useUserSlippageTolerance()
+  const [transactionTimeout] = useUserTransactionTTL()
+  const [paymentToken] = usePaymentToken()
+  const { networkInfo } = useActiveWeb3React()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   return (
@@ -73,7 +79,11 @@ export default function HeaderRightMenu({
           active={activeTab === TAB.SETTINGS}
           onClick={() => {
             onToggleActionTab(TAB.SETTINGS)
-            trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK)
+            trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK, {
+              current_max_slippage: formatSlippage(slippage, false),
+              current_transaction_time_limit: transactionTimeout / 60,
+              current_gas_token: paymentToken?.symbol || networkInfo.nativeToken.symbol,
+            })
           }}
           aria-label="Swap Settings"
         >

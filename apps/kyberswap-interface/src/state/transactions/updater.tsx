@@ -20,7 +20,12 @@ import {
   removeTx,
   replaceTx,
 } from 'state/transactions/actions'
-import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
+import {
+  SerializableTransactionReceipt,
+  TRANSACTION_TYPE,
+  TransactionDetails,
+  TransactionExtraInfo1Token,
+} from 'state/transactions/type'
 import { findTx } from 'utils'
 
 const appsSdk = new SafeAppsSDK()
@@ -58,7 +63,7 @@ function shouldCheck(
 }
 
 export default function Updater(): null {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const { connector } = useWeb3React()
   const { readProvider } = useKyberSwapConfig(chainId)
 
@@ -97,6 +102,8 @@ export default function Updater(): null {
 
   // Use refs to stabilize handleTransactionReceipt so it doesn't recreate
   // on every block or transaction state change, which would tear down the fast-polling interval
+  const networkInfoRef = useRef(networkInfo)
+  networkInfoRef.current = networkInfo
   const lastBlockNumberRef = useRef(lastBlockNumber)
   lastBlockNumberRef.current = lastBlockNumber
   const transactionsRef = useRef(transactions)
@@ -180,6 +187,17 @@ export default function Updater(): null {
               gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
               tx_hash: receipt.transactionHash,
               feeInfo: arbitrary.feeInfo,
+            })
+            break
+          }
+          case TRANSACTION_TYPE.APPROVE: {
+            const extraInfo = transaction.extraInfo as TransactionExtraInfo1Token | undefined
+            trackingHandler(TRACKING_EVENT_TYPE.TOKEN_APPROVAL_COMPLETED, {
+              token_symbol: extraInfo?.tokenSymbol,
+              token_address: extraInfo?.tokenAddress,
+              spender_address: extraInfo?.contract,
+              tx_hash: receipt.transactionHash,
+              chain: networkInfoRef.current?.name,
             })
             break
           }

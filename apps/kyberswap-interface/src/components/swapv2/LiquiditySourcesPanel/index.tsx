@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import Checkbox from 'components/CheckBox'
 import useDebounce from 'hooks/useDebounce'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
 import { LiquiditySourceGroup } from './Group'
@@ -85,6 +86,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
 
   const dexes = useAllDexes(chainId)
   const [excludeDexes, setExcludeDexes] = useExcludeDexes(chainId)
+  const { trackingHandler } = useTracking()
 
   const tagMap: { [key: number]: { name: string; id: number; logoURL: string } } = {}
   dexes?.forEach(item => {
@@ -114,11 +116,18 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
 
   const handleToggleDex = (id: string) => {
     const isExclude = excludeDexes.find(item => item === id)
+    const dex = dexes?.find(item => item.id === id)
     if (isExclude) {
       setExcludeDexes(excludeDexes.filter(item => item !== id))
     } else {
       setExcludeDexes([...excludeDexes, id])
     }
+    trackingHandler(TRACKING_EVENT_TYPE.LIQUIDITY_SOURCES_TOGGLED, {
+      source_name: dex?.name || id,
+      enabled: !!isExclude,
+      total_enabled: (dexes?.length || 0) - (isExclude ? excludeDexes.length - 1 : excludeDexes.length + 1),
+      total_available: dexes?.length || 0,
+    })
   }
 
   return (

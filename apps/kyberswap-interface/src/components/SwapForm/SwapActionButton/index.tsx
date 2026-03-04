@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -90,7 +90,7 @@ const SwapActionButton: React.FC<Props> = ({
 }) => {
   const theme = useTheme()
   const { changeNetwork } = useChangeNetwork()
-  const { account, walletKey, chainId } = useActiveWeb3React()
+  const { account, walletKey, chainId, networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
@@ -104,10 +104,25 @@ const SwapActionButton: React.FC<Props> = ({
     currencyIn && currencyOut && parsedAmountFromTypedValue && !parsedAmountFromTypedValue.equalTo(0),
   )
 
+  const handleApprovalError = useCallback(
+    (errorInfo: { message: string; tokenSymbol?: string; tokenAddress?: string; spender?: string }) => {
+      trackingHandler(TRACKING_EVENT_TYPE.TOKEN_APPROVAL_FAILED, {
+        token_symbol: errorInfo.tokenSymbol,
+        token_address: errorInfo.tokenAddress,
+        spender_address: errorInfo.spender,
+        error_message: errorInfo.message,
+        chain: networkInfo?.name,
+      })
+    },
+    [trackingHandler, networkInfo?.name],
+  )
+
   // check whether the user has approved the router on the input token
   const [approval, approveCallback, currentAllowance] = useApproveCallback(
     parsedAmountFromTypedValue,
     routeSummary?.routerAddress,
+    false,
+    handleApprovalError,
   )
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
@@ -147,6 +162,14 @@ const SwapActionButton: React.FC<Props> = ({
 
   const [approvalType, setApprovalType] = useState(AllowanceType.INFINITE)
   const handleApproveClick = () => {
+    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_APPROVAL_INITIATED, {
+      token_symbol: currencyIn?.symbol,
+      token_address: currencyIn?.isNative ? 'NATIVE' : currencyIn?.wrapped?.address,
+      spender_address: routeSummary?.routerAddress,
+      approval_type: approvalType === AllowanceType.EXACT ? 'approve' : 'approve',
+      approval_amount: approvalType === AllowanceType.EXACT ? parsedAmountFromTypedValue?.toExact() : 'unlimited',
+      chain: networkInfo?.name,
+    })
     setLoading(true)
     approveCallback(
       approvalType === AllowanceType.EXACT && parsedAmountFromTypedValue ? parsedAmountFromTypedValue : undefined,

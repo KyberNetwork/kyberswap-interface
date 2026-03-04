@@ -9,6 +9,7 @@ import Divider from 'components/Divider'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { GAS_TOKENS, NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalances, useNativeBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
@@ -19,6 +20,7 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
   const balances = useCurrencyBalances(GAS_TOKENS)
 
   const [paymentToken, setPaymentToken] = usePaymentToken()
+  const { trackingHandler } = useTracking()
 
   return (
     <>
@@ -52,6 +54,10 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
         marginX="-1rem"
         role="button"
         onClick={() => {
+          trackingHandler(TRACKING_EVENT_TYPE.GAS_TOKEN_CHANGED, {
+            previous_gas_token: paymentToken?.symbol || 'ETH',
+            new_gas_token: 'ETH',
+          })
           setPaymentToken(null)
           onBack()
         }}
@@ -109,6 +115,10 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
           key={item.address}
           role="button"
           onClick={() => {
+            trackingHandler(TRACKING_EVENT_TYPE.GAS_TOKEN_CHANGED, {
+              previous_gas_token: paymentToken?.symbol || 'ETH',
+              new_gas_token: item.symbol || '',
+            })
             setPaymentToken(item)
             onBack()
           }}

@@ -140,6 +140,7 @@ export type Props = {
 const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlippage, isWarning, isHighlight }) => {
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const previousSlippageRef = useRef(rawSlippage)
   const { trackingHandler } = useTracking()
   const [isDegenMode] = useDegenModeManager()
 
@@ -188,7 +189,12 @@ const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlip
   const handleCommitChange = () => {
     setTooltip('')
     setRawText(getSlippageText(rawSlippage, options))
-    trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, { new_slippage: Number(formatSlippage(rawSlippage, false)) })
+    trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, {
+      new_slippage: Number(formatSlippage(rawSlippage, false)),
+      previous_value: previousSlippageRef.current / 100,
+      input_method: 'custom',
+    })
+    previousSlippageRef.current = rawSlippage
   }
 
   useEffect(() => {

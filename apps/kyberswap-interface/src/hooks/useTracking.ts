@@ -233,6 +233,24 @@ export enum TRACKING_EVENT_TYPE {
   // earn banner
   EARN_BANNER_CLICK,
   EARN_BANNER_POOL_CLICK,
+
+  // Swap flow custom events
+  SWAP_REVIEW_OPENED,
+  TOKEN_APPROVAL_INITIATED,
+  TOKEN_APPROVAL_COMPLETED,
+  TOKEN_APPROVAL_FAILED,
+  SWAP_FAILED,
+
+  // Swap form interactions
+  TOKEN_SELECTED,
+  AMOUNT_ENTERED,
+  TOKEN_PAIR_REVERSED,
+  MAX_BALANCE_CLICKED,
+
+  // Swap settings interactions
+  TRANSACTION_TIME_LIMIT_CHANGED,
+  GAS_TOKEN_CHANGED,
+  LIQUIDITY_SOURCES_TOGGLED,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -350,20 +368,70 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Favourite Chain - Remove chain from favourite list success', payload)
           break
         case TRACKING_EVENT_TYPE.SWAP_INITIATED: {
-          const { gasUsd, inputAmount, priceImpact, feeInfo } = (payload || {}) as {
+          const {
+            gasUsd,
+            inputAmount,
+            priceImpact,
+            feeInfo,
+            from_token_address,
+            to_token_address,
+            pair,
+            amount_in_usd,
+            amount_out_estimated,
+            amount_out_usd,
+            minimum_received,
+            rate,
+            transaction_time_limit,
+            gas_token,
+            trade_route_dexes,
+            trade_route_steps,
+            route_split,
+            chain,
+            volume,
+          } = (payload || {}) as {
             gasUsd: number | string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
             priceImpact: number | undefined
             feeInfo?: FeeInfo
+            from_token_address?: string
+            to_token_address?: string
+            pair?: string
+            amount_in_usd?: string
+            amount_out_estimated?: string
+            amount_out_usd?: string
+            minimum_received?: string
+            rate?: string
+            transaction_time_limit?: number
+            gas_token?: string
+            trade_route_dexes?: string[]
+            trade_route_steps?: number
+            route_split?: boolean
+            chain?: string
+            volume?: number
           }
 
           const body: Record<string, any> = {
             input_token: inputSymbol,
             output_token: outputSymbol,
+            from_token_address,
+            to_token_address,
+            pair,
             estimated_gas: gasUsd ? Number(gasUsd).toFixed(4) : undefined,
             trade_qty: inputAmount?.toExact(),
+            amount_in_usd,
+            amount_out_estimated,
+            amount_out_usd,
+            minimum_received,
+            rate,
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
             price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
+            transaction_time_limit,
+            gas_token,
+            trade_route_dexes,
+            trade_route_steps,
+            route_split,
+            chain,
+            volume,
           }
 
           if (feeInfo) {
@@ -427,13 +495,24 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           const body: Record<string, any> = {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
+            from_token_address: arbitrary.inputAddress,
+            to_token_address: arbitrary.outputAddress,
+            pair:
+              arbitrary.inputSymbol && arbitrary.outputSymbol
+                ? `${arbitrary.inputSymbol}/${arbitrary.outputSymbol}`
+                : undefined,
             actual_gas: actual_gas.toNumber() * parseFloat(formattedGas),
             tx_hash: tx_hash,
             trade_qty: arbitrary.inputAmount,
+            amount_in_usd: arbitrary.amountInUsd,
+            amount_out_usd: arbitrary.amountOutUsd,
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
             gas_price: formattedGas,
             actual_gas_native: actual_gas?.toNumber(),
+            trade_route_dexes: arbitrary.tradeRouteDexes,
+            chain: arbitrary.chain,
+            volume: arbitrary.volume,
           }
 
           if (feeInfo) {
@@ -452,7 +531,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK: {
-          formoTrack('Swap - Swap settings')
+          formoTrack('Swap Settings Opened', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SWAP_TUTORIAL_CLICK: {
@@ -487,11 +566,13 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED: {
-          const { new_slippage } = payload
-          formoTrack('Slippage Changed', {
+          const { new_slippage, previous_value, input_method } = payload
+          formoTrack('Max Slippage Changed', {
             input_token: inputSymbol,
             output_token: outputSymbol,
-            new_slippage,
+            previous_value,
+            new_value: new_slippage,
+            input_method,
           })
           break
         }
@@ -1289,6 +1370,60 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
 
         case TRACKING_EVENT_TYPE.EARN_BANNER_POOL_CLICK: {
           formoTrack('Banner Click to Pool Details', payload)
+          break
+        }
+
+        // Swap flow custom events
+        case TRACKING_EVENT_TYPE.SWAP_REVIEW_OPENED: {
+          formoTrack('Swap Review Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TOKEN_APPROVAL_INITIATED: {
+          formoTrack('Token Approval Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TOKEN_APPROVAL_COMPLETED: {
+          formoTrack('Token Approval Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TOKEN_APPROVAL_FAILED: {
+          formoTrack('Token Approval Failed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SWAP_FAILED: {
+          formoTrack('Swap Failed', payload)
+          break
+        }
+
+        // Swap form interaction events
+        case TRACKING_EVENT_TYPE.TOKEN_SELECTED: {
+          formoTrack('Token Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.AMOUNT_ENTERED: {
+          formoTrack('Amount Entered', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED: {
+          formoTrack('Token Pair Reversed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.MAX_BALANCE_CLICKED: {
+          formoTrack('Max Balance Clicked', payload)
+          break
+        }
+
+        // Swap settings interaction events
+        case TRACKING_EVENT_TYPE.TRANSACTION_TIME_LIMIT_CHANGED: {
+          formoTrack('Transaction Time Limit Changed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.GAS_TOKEN_CHANGED: {
+          formoTrack('Gas Token Changed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQUIDITY_SOURCES_TOGGLED: {
+          formoTrack('Liquidity Sources Toggled', payload)
           break
         }
       }

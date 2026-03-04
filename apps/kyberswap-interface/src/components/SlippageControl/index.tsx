@@ -89,8 +89,12 @@ const SlippageControl: React.FC<Props> = props => {
         <DefaultSlippageOption
           key={slp}
           onClick={() => {
+            trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, {
+              new_slippage: slp / 100,
+              previous_value: rawSlippage / 100,
+              input_method: 'preset',
+            })
             setRawSlippage(slp)
-            trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, { new_slippage: slp / 100 })
           }}
           data-active={rawSlippage === slp}
           data-warning={rawSlippage === slp && isWarning}
