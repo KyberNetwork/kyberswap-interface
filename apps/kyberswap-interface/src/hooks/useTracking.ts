@@ -305,6 +305,23 @@ export enum TRACKING_EVENT_TYPE {
   CREATE_POOL_CLICKED,
   TRENDING_POOL_CLICKED,
   FARMING_POOL_CLICKED,
+
+  // Wallet In-App Modal
+  WALLET_MODAL_OPENED,
+  WALLET_MODAL_CLOSED,
+  WALLET_ADDRESS_COPIED,
+  WALLET_EXTERNAL_LINK_CLICKED,
+  WALLET_PINNED,
+  BALANCE_VISIBILITY_TOGGLED,
+  WALLET_BUY_CLICKED,
+  WALLET_RECEIVE_CLICKED,
+  WALLET_SEND_CLICKED,
+  WALLET_SEND_INITIATED,
+  WALLET_REWARDS_VIEWED,
+  WALLET_TAB_SWITCHED,
+  WALLET_TOKEN_CLICKED,
+  WALLET_IMPORT_TOKENS_CLICKED,
+  WALLET_TOKEN_IMPORTED,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1663,6 +1680,68 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.FARMING_POOL_CLICKED: {
           formoTrack('Farming Pool Clicked', payload)
+          break
+        }
+
+        // Wallet In-App Modal
+        case TRACKING_EVENT_TYPE.WALLET_MODAL_OPENED: {
+          formoTrack('Wallet Modal Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_MODAL_CLOSED: {
+          formoTrack('Wallet Modal Closed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_ADDRESS_COPIED: {
+          formoTrack('Wallet Address Copied', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_EXTERNAL_LINK_CLICKED: {
+          formoTrack('Wallet External Link Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_PINNED: {
+          formoTrack('Wallet Pinned', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.BALANCE_VISIBILITY_TOGGLED: {
+          formoTrack('Balance Visibility Toggled', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_BUY_CLICKED: {
+          formoTrack('Wallet Buy Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_RECEIVE_CLICKED: {
+          formoTrack('Wallet Receive Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_SEND_CLICKED: {
+          formoTrack('Wallet Send Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_SEND_INITIATED: {
+          formoTrack('Wallet Send Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_REWARDS_VIEWED: {
+          formoTrack('Wallet Rewards Viewed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_TAB_SWITCHED: {
+          formoTrack('Wallet Tab Switched', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_TOKEN_CLICKED: {
+          formoTrack('Wallet Token Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_IMPORT_TOKENS_CLICKED: {
+          formoTrack('Wallet Import Tokens Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.WALLET_TOKEN_IMPORTED: {
+          formoTrack('Wallet Token Imported', payload)
           break
         }
       }

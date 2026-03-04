@@ -147,6 +147,10 @@ function Web3StatusInner() {
         onClick={() => {
           toggleWalletModal()
           trackingHandler(TRACKING_EVENT_TYPE.WUI_WALLET_CLICK)
+          trackingHandler(TRACKING_EVENT_TYPE.WALLET_MODAL_OPENED, {
+            trigger: 'header_button',
+            wallet_address: account,
+          })
         }}
         pending={hasPendingTransactions}
       >

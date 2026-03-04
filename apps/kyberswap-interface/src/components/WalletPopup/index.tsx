@@ -7,6 +7,7 @@ import { createGlobalStyle } from 'styled-components'
 
 import Modal from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
+import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 import WalletView, { HANDLE_CLASS_NAME } from './WalletView'
@@ -33,6 +34,7 @@ type Props = {
 }
 const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, setPinned, onOpenModal }) => {
   const { trackingHandler } = useTracking()
+  const { account } = useActiveWeb3React()
   const rootNode = document.getElementById('app')
 
   const [showBalance, setShowBalance] = useState(true)
@@ -43,6 +45,10 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
   const shouldOpenPopup = (!isPinned && isModalOpen) || isPinned
 
   const handleClosePopup = () => {
+    trackingHandler(TRACKING_EVENT_TYPE.WALLET_MODAL_CLOSED, {
+      close_method: 'outside_click',
+      wallet_address: account,
+    })
     onDismissModal()
     setPinned(false)
   }
@@ -51,12 +57,20 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
     setPinned(true)
     onDismissModal()
     trackingHandler(TRACKING_EVENT_TYPE.WUI_PINNED_WALLET)
+    trackingHandler(TRACKING_EVENT_TYPE.WALLET_PINNED, {
+      action: 'pin',
+      wallet_address: account,
+    })
   }
 
   const handleUnpinPopup = () => {
     setPinned(false)
     onOpenModal()
     trackingHandler(TRACKING_EVENT_TYPE.WUI_UNPINNED_WALLET)
+    trackingHandler(TRACKING_EVENT_TYPE.WALLET_PINNED, {
+      action: 'unpin',
+      wallet_address: account,
+    })
   }
 
   const [key, setKey] = useState(0)
