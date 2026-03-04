@@ -51,8 +51,8 @@ import { FooterSocialLink } from 'components/Footer/Footer'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ExternalLink, StyledInternalLink } from 'theme'
 
 import {
@@ -116,7 +116,7 @@ function AboutKNC() {
   const above768 = useMedia('(min-width: 768px)')
   const above500 = useMedia('(min-width: 500px)')
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const DynamicTokenModel = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
@@ -274,7 +274,7 @@ function AboutKNC() {
               width="216px"
               as={Link}
               to={APP_PATHS.SWAP + '/' + networkInfo.route}
-              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
+              onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
             >
               <Repeat />
               <Text fontSize="16px" marginLeft="8px">
@@ -316,7 +316,7 @@ function AboutKNC() {
                 margin="40px 0 0"
                 as={Link}
                 to={APP_PATHS.KYBERDAO_STAKE}
-                onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_STAKE_KNC_CLICKED)}
+                onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_STAKE_KNC_CLICKED)}
               >
                 <Archive />
                 <Text fontSize="16px" marginLeft="8px">

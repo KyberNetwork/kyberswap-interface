@@ -38,8 +38,8 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback from 'hooks/useWrapCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
@@ -170,7 +170,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const notify = useNotify()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const {
     setCurrencyIn: updateCurrencyIn,
@@ -302,7 +302,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const setPriceRateMarket = useCallback(
     (autoFillInput = false) => {
       try {
-        !autoFillInput && mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
+        !autoFillInput && trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'set price')
         if ((loadingTrade && !autoFillInput) || !tradeInfo) return
         onSetRate(
           removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? '',
@@ -310,7 +310,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         )
       } catch (error) {}
     },
-    [loadingTrade, mixpanelHandler, onSetRate, tradeInfo],
+    [loadingTrade, trackingHandler, onSetRate, tradeInfo],
   )
 
   const onChangeRate = (val: string) => {
@@ -469,7 +469,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
     setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
     if (!isEdit)
-      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
+      trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
         from_token: currencyIn.symbol,
         to_token: currencyOut.symbol,
         from_network: chainId,
@@ -489,7 +489,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     if (typeof val === 'number') {
       setExpire(val)
       setCustomDateExpire(undefined)
-      mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'choose date')
+      trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'choose date')
     } else {
       setCustomDateExpire(val)
     }
@@ -647,15 +647,15 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }, [tradeInfo, setPriceRateMarket, loadingTrade, defaultRate?.rate])
 
   const trackingTouchInput = useCallback(() => {
-    mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
-  }, [mixpanelHandler])
+    trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
+  }, [trackingHandler])
 
   const trackingTouchSelectToken = useCallback(() => {
-    mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
-  }, [mixpanelHandler])
+    trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
+  }, [trackingHandler])
 
-  const trackingPlaceOrder = (type: MIXPANEL_TYPE, data = {}) => {
-    mixpanelHandler(type, {
+  const trackingPlaceOrder = (type: TRACKING_EVENT_TYPE, data = {}) => {
+    trackingHandler(type, {
       from_token: currencyIn?.symbol,
       to_token: currencyOut?.symbol,
       from_network: networkInfo.name,
@@ -665,7 +665,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }
 
   const onSubmitCreateOrderWithTracking = async () => {
-    trackingPlaceOrder(MIXPANEL_TYPE.LO_CLICK_PLACE_ORDER)
+    trackingPlaceOrder(TRACKING_EVENT_TYPE.LO_CLICK_PLACE_ORDER)
     const order_id = await onSubmitCreateOrder({
       currencyIn,
       currencyOut,
@@ -676,7 +676,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       expiredAt,
       nativeOutput: currencyOut?.isNative || false,
     })
-    if (order_id) trackingPlaceOrder(MIXPANEL_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
+    if (order_id) trackingPlaceOrder(TRACKING_EVENT_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
   }
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }

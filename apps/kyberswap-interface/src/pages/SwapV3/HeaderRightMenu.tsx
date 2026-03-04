@@ -10,8 +10,8 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { TAB } from 'pages/SwapV3/index'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -42,7 +42,7 @@ export default function HeaderRightMenu({
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
 
   const { currencies } = useCurrenciesByPage()
-  const { mixpanelHandler } = useMixpanel(currencies)
+  const { trackingHandler } = useTracking(currencies)
 
   const onToggleActionTab = (tab: TAB) => {
     if (activeTab === tab) {
@@ -63,7 +63,7 @@ export default function HeaderRightMenu({
           currencies={currencies}
           size={upToXXSmall ? 16 : 20}
           onClick={() => {
-            mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
+            trackingHandler(TRACKING_EVENT_TYPE.SWAP_TOKEN_INFO_CLICK)
             onToggleActionTab(TAB.INFO)
           }}
         />
@@ -73,7 +73,7 @@ export default function HeaderRightMenu({
           active={activeTab === TAB.SETTINGS}
           onClick={() => {
             onToggleActionTab(TAB.SETTINGS)
-            mixpanelHandler(MIXPANEL_TYPE.SWAP_SETTINGS_CLICK)
+            trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK)
           }}
           aria-label="Swap Settings"
         >

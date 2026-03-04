@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
 
 import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
@@ -71,7 +71,7 @@ type Props = CustomSlippageInputProps
 // slippage = 10 / 10_000 = 0.001 = 0.1%
 const SlippageControl: React.FC<Props> = props => {
   const { rawSlippage, setRawSlippage, isWarning, isHighlight } = props
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const cat = usePairCategory()
   const options = useMemo(
     () =>
@@ -90,7 +90,7 @@ const SlippageControl: React.FC<Props> = props => {
           key={slp}
           onClick={() => {
             setRawSlippage(slp)
-            mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: slp / 100 })
+            trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, { new_slippage: slp / 100 })
           }}
           data-active={rawSlippage === slp}
           data-warning={rawSlippage === slp && isWarning}

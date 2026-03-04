@@ -19,10 +19,10 @@ import TradePrice from 'components/swapv2/TradePrice'
 import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoWithAggregator } from 'hooks/useBaseTradeInfo'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification from 'hooks/useNotification'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
 import {
   ActionGroup,
@@ -138,7 +138,7 @@ export default function CreateAlert({
     if (!fillAllInput || !parsedAmount) return false
     return true
   }
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const onSubmitAlert = async () => {
     try {
       if (!isInputValid()) return
@@ -164,7 +164,7 @@ export default function CreateAlert({
       })
 
       resetForm()
-      mixpanelHandler(MIXPANEL_TYPE.PA_CREATE_SUCCESS, {
+      trackingHandler(TRACKING_EVENT_TYPE.PA_CREATE_SUCCESS, {
         input_token: currencyIn.symbol,
         output_token: currencyOut.symbol,
         goes: alertType,

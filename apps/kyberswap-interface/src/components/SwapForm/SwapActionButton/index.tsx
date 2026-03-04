@@ -15,9 +15,9 @@ import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { PermitState, usePermit } from 'hooks/usePermit'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -91,7 +91,7 @@ const SwapActionButton: React.FC<Props> = ({
   const theme = useTheme()
   const { changeNetwork } = useChangeNetwork()
   const { account, walletKey, chainId } = useActiveWeb3React()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
 
@@ -271,7 +271,7 @@ const SwapActionButton: React.FC<Props> = ({
               <ButtonConfirmed
                 disabled={loading || approval === ApprovalState.PENDING}
                 onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.PERMIT_CLICK)
+                  trackingHandler(TRACKING_EVENT_TYPE.PERMIT_CLICK)
                   setLoading(true)
                   permitCallback().finally(() => setLoading(false))
                 }}

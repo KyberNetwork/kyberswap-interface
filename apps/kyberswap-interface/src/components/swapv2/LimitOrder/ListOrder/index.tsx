@@ -21,10 +21,10 @@ import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useReq
 import { APP_PATHS, EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -156,7 +156,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
   const { ordersNeedCreated: ordersUpdating } = useLimitState()
 
   const { isOrderCancelling } = useCancellingOrders()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const { data: { orders = [], totalOrder = 0 } = {}, isFetching } = useGetListOrdersQuery(
     {
@@ -275,10 +275,10 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
       setIsOpenCancel(true)
       setIsCancelAll(false)
       if (order) {
-        mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkInfo.name))
+        trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkInfo.name))
       }
     },
-    [mixpanelHandler, setFlowState, networkInfo],
+    [trackingHandler, setFlowState, networkInfo],
   )
 
   const showEditOrderModal = useCallback(
@@ -287,9 +287,9 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
       setCurrentOrder(order)
       setIsOpenEdit(true)
       setIsCancelAll(false)
-      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_EDIT_ORDER, getPayloadTracking(order, networkInfo.name))
+      trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_EDIT_ORDER, getPayloadTracking(order, networkInfo.name))
     },
-    [mixpanelHandler, networkInfo.name, setFlowState],
+    [trackingHandler, networkInfo.name, setFlowState],
   )
 
   const totalOrderNotCancelling = useMemo(() => {

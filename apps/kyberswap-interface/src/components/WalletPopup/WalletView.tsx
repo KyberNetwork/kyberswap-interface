@@ -18,8 +18,8 @@ import SendToken from 'components/WalletPopup/SendToken'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { useTokensHasBalance } from 'state/wallet/hooks'
 import { ExternalLinkIcon } from 'theme'
@@ -127,7 +127,7 @@ export default function WalletView({
   const View = getView()
   const [view, setView] = useState<string>(storedView || View.ASSETS)
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const navigate = useNavigate()
   const nodeRef = useRef<HTMLDivElement>(null)
   const [isMinimal, setMinimal] = useState(false)
@@ -158,7 +158,7 @@ export default function WalletView({
       <TabItem
         active={view === View.TRANSACTIONS}
         onClick={() => {
-          mixpanelHandler(MIXPANEL_TYPE.WUI_TRANSACTION_CLICK)
+          trackingHandler(TRACKING_EVENT_TYPE.WUI_TRANSACTION_CLICK)
           setView(View.TRANSACTIONS)
         }}
       >
@@ -171,15 +171,15 @@ export default function WalletView({
     const handleClickBuy = () => {
       navigate(`${APP_PATHS.BUY_CRYPTO}?step=3`)
       onDismiss()
-      mixpanelHandler(MIXPANEL_TYPE.WUI_BUTTON_CLICK, { button_name: 'Buy' })
+      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Buy' })
     }
     const handleClickReceive = () => {
       setView(View.RECEIVE_TOKEN)
-      mixpanelHandler(MIXPANEL_TYPE.WUI_BUTTON_CLICK, { button_name: 'Receive' })
+      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Receive' })
     }
     const handleClickSend = () => {
       setView(View.SEND_TOKEN)
-      mixpanelHandler(MIXPANEL_TYPE.WUI_BUTTON_CLICK, { button_name: 'Send' })
+      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Send' })
     }
 
     return (

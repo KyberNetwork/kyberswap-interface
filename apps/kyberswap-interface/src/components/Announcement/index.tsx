@@ -16,7 +16,7 @@ import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { MEDIA_WIDTHS } from 'theme'
@@ -26,7 +26,7 @@ import { Badge, Container, StyledMenu, StyledMenuButton, Title, Wrapper, browser
 function AnnouncementComponent() {
   const [activeTab, setActiveTab] = useState(Tab.CATEGORY)
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const prevAccountRef = useRef<string | null | undefined>(account)
 
@@ -303,7 +303,7 @@ function AnnouncementComponent() {
       active={isOpenInbox || totalUnreadPrivate > 0}
       onClick={() => {
         toggleNotificationCenter()
-        if (!isOpenInbox) mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_BELL_ICON_OPEN_POPUP)
+        if (!isOpenInbox) trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_BELL_ICON_OPEN_POPUP)
       }}
     >
       <NotificationIcon />

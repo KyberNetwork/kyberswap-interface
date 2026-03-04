@@ -7,8 +7,8 @@ import styled, { css, keyframes } from 'styled-components'
 import CtaButton from 'components/Announcement/Popups/CtaButton'
 import { AnnouncementTemplatePopup, PopupType } from 'components/Announcement/type'
 import Announcement from 'components/Icons/Announcement'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useActivePopups, useRemoveAllPopupByType } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { useNavigateToUrl } from 'utils/redirect'
@@ -107,7 +107,7 @@ function TopBanner() {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { topPopups } = useActivePopups()
   const popupInfo = topPopups[topPopups.length - 1]
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const removeAllPopupByType = useRemoveAllPopupByType()
 
@@ -134,13 +134,13 @@ function TopBanner() {
 
   const hideBanner = () => {
     removeAllPopupByType(PopupType.TOP_BAR)
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: name })
+    trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: name })
   }
 
   const onClickCta = () => {
     navigate(ctaUrl)
     hideBanner()
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP, {
+    trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP, {
       announcement_type: PopupType.TOP_BAR,
       announcement_title: name,
     })

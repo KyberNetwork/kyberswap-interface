@@ -4,8 +4,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import SwapModal from 'components/SwapForm/SwapModal'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
@@ -62,7 +62,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   setErrorWhileSwap,
   buildRoute,
 }) => {
-  const { mixpanelHandler } = useMixpanel({
+  const { trackingHandler } = useTracking({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
   })
@@ -91,7 +91,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   }
 
   const mixpanelSwapInit = () => {
-    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED, {
+    trackingHandler(TRACKING_EVENT_TYPE.SWAP_INITIATED, {
       gasUsd: routeSummary?.gasUsd,
       inputAmount: routeSummary?.parsedAmountIn,
       priceImpact: routeSummary?.priceImpact,
@@ -151,7 +151,7 @@ const SwapOnlyButton: React.FC<Props> = ({
           currentPrice = `1 ${inputSymbol} = ${formattedPrice} ${outputSymbol}`
         }
 
-        mixpanelHandler(MIXPANEL_TYPE.SWAP_CONFIRMED, {
+        trackingHandler(TRACKING_EVENT_TYPE.SWAP_CONFIRMED, {
           gasUsd: routeSummary?.gasUsd,
           inputAmount: routeSummary?.parsedAmountIn,
           priceImpact: routeSummary?.priceImpact,
@@ -165,7 +165,7 @@ const SwapOnlyButton: React.FC<Props> = ({
     }
 
     return undefined
-  }, [buildResult?.data, mixpanelHandler, routeSummary, swapCallback])
+  }, [buildResult?.data, trackingHandler, routeSummary, swapCallback])
 
   const onDismissModal = useCallback(() => {
     setProcessingSwap(false)

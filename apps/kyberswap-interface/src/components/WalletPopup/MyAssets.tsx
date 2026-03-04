@@ -13,9 +13,9 @@ import Row from 'components/Row'
 import { CurrencyRow } from 'components/SearchModal/CurrencyList'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { currencyId } from 'utils/currencyId'
 
@@ -50,11 +50,11 @@ export default function MyAssets({
   hideBalance: boolean
 }) {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const [modalOpen, setModalOpen] = useState(false)
   const showModal = () => {
     setModalOpen(true)
-    mixpanelHandler(MIXPANEL_TYPE.WUI_IMPORT_TOKEN_CLICK)
+    trackingHandler(TRACKING_EVENT_TYPE.WUI_IMPORT_TOKEN_CLICK)
   }
   const hideModal = () => setModalOpen(false)
   const nativeBalance = useNativeBalance()
@@ -150,7 +150,7 @@ export default function MyAssets({
         onCurrencySelect={hideModal}
         showCommonBases
         onCurrencyImport={(token: Token) => {
-          mixpanelHandler(MIXPANEL_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK, { token_name: token.symbol })
+          trackingHandler(TRACKING_EVENT_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK, { token_name: token.symbol })
         }}
       />
     </Wrapper>

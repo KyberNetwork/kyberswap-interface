@@ -7,7 +7,7 @@ import { createGlobalStyle } from 'styled-components'
 
 import Modal from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 import WalletView, { HANDLE_CLASS_NAME } from './WalletView'
 
@@ -32,7 +32,7 @@ type Props = {
   onOpenModal: () => void
 }
 const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, setPinned, onOpenModal }) => {
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const rootNode = document.getElementById('app')
 
   const [showBalance, setShowBalance] = useState(true)
@@ -50,13 +50,13 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
   const handlePinPopup = () => {
     setPinned(true)
     onDismissModal()
-    mixpanelHandler(MIXPANEL_TYPE.WUI_PINNED_WALLET)
+    trackingHandler(TRACKING_EVENT_TYPE.WUI_PINNED_WALLET)
   }
 
   const handleUnpinPopup = () => {
     setPinned(false)
     onOpenModal()
-    mixpanelHandler(MIXPANEL_TYPE.WUI_UNPINNED_WALLET)
+    trackingHandler(TRACKING_EVENT_TYPE.WUI_UNPINNED_WALLET)
   }
 
   const [key, setKey] = useState(0)

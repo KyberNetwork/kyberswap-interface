@@ -33,8 +33,8 @@ import { FAUCET_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -217,13 +217,13 @@ export default function Menu() {
   const userLocale = useUserLocale()
   const location = useLocation()
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const navigate = useNavigate()
 
   const setShowTutorialSwapGuide = useTutorialSwapGuide()[1]
   const openTutorialSwapGuide = () => {
     setShowTutorialSwapGuide({ show: true, step: 0 })
-    mixpanelHandler(MIXPANEL_TYPE.TUTORIAL_CLICK_START)
+    trackingHandler(TRACKING_EVENT_TYPE.TUTORIAL_CLICK_START)
     toggle()
   }
 
@@ -241,10 +241,10 @@ export default function Menu() {
   }, [open])
 
   const handleMenuClickMixpanel = (name: string) => {
-    mixpanelHandler(MIXPANEL_TYPE.MENU_MENU_CLICK, { menu: name })
+    trackingHandler(TRACKING_EVENT_TYPE.MENU_MENU_CLICK, { menu: name })
   }
   const handlePreferenceClickMixpanel = (name: string) => {
-    mixpanelHandler(MIXPANEL_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
+    trackingHandler(TRACKING_EVENT_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
   }
 
   const [wrapperNode, setWrapperNode] = useState<HTMLDivElement | null>(null)
@@ -325,7 +325,7 @@ export default function Menu() {
               <MenuItem
                 onClick={() => {
                   toggleFaucetPopup()
-                  mixpanelHandler(MIXPANEL_TYPE.FAUCET_MENU_CLICKED)
+                  trackingHandler(TRACKING_EVENT_TYPE.FAUCET_MENU_CLICKED)
                   handleMenuClickMixpanel('Faucet')
                 }}
               >
@@ -541,7 +541,7 @@ export default function Menu() {
             <NavLinkBetween
               onClick={() => {
                 navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PREFERENCE}`)
-                mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
+                trackingHandler(TRACKING_EVENT_TYPE.NOTIFICATION_CLICK_MENU)
                 handlePreferenceClickMixpanel('Notifications')
                 toggle()
               }}
@@ -572,7 +572,7 @@ export default function Menu() {
               <ClaimRewardButton
                 disabled={!account || !networkInfo.classic.claimReward || pendingTx}
                 onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
+                  trackingHandler(TRACKING_EVENT_TYPE.CLAIM_REWARDS_INITIATED)
                   toggleClaimPopup()
                 }}
               >

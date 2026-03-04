@@ -1,4 +1,3 @@
-import { useFormo } from '@formo/analytics'
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
 import * as Sentry from '@sentry/react'
@@ -26,8 +25,8 @@ import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constant
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
-import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
+import { useGlobalTrackingEvents } from 'hooks/useTracking'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
@@ -189,14 +188,6 @@ export default function App() {
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()
 
-  const analytics = useFormo()
-
-  useEffect(() => {
-    if (account && analytics) {
-      analytics.identify({ address: account })
-    }
-  }, [account, analytics])
-
   useEffect(() => {
     if (prevOnline === false && online && account) {
       // refresh page when network back to normal to prevent some issues: ex: stale data, ...
@@ -223,7 +214,7 @@ export default function App() {
     }
   }, [chainId, networkInfo.name])
 
-  useGlobalMixpanelEvents()
+  useGlobalTrackingEvents()
   const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
   //const [holidayMode] = useHolidayMode()
