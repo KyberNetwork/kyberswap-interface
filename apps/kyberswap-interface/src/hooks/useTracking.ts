@@ -279,6 +279,23 @@ export enum TRACKING_EVENT_TYPE {
   CC_SLIPPAGE_CHANGED,
   CC_ROUTING_SOURCE_TOGGLED,
   CC_SETTINGS_SAVED,
+
+  // Earn: Add Liquidity
+  LIQ_POOL_SELECTED,
+  LIQ_PRICE_RANGE_PRESET_SELECTED,
+  LIQ_PRICE_RANGE_ADJUSTED,
+  LIQ_TOKEN_SELECTED,
+  LIQ_AMOUNT_ENTERED,
+  LIQ_MAX_CLICKED,
+  LIQ_HALF_CLICKED,
+  LIQ_EXISTING_POSITION_SELECTED,
+  LIQ_MAX_SLIPPAGE_CHANGED,
+  LIQ_ZAP_SUMMARY_VIEWED,
+  LIQ_PREVIEW_CLICKED,
+  LIQ_ADDED,
+  LIQ_ADD_COMPLETED,
+  LIQ_ADD_FAILED,
+  LIQ_ADD_CANCELLED,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1546,6 +1563,68 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED: {
           formoTrack('Cross-Chain Settings Saved', payload)
+          break
+        }
+
+        // Earn: Add Liquidity
+        case TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED: {
+          formoTrack('Liquidity Pool Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED: {
+          formoTrack('Price Range Preset Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_ADJUSTED: {
+          formoTrack('Price Range Adjusted', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED: {
+          formoTrack('Liquidity Token Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_AMOUNT_ENTERED: {
+          formoTrack('Liquidity Amount Entered', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_MAX_CLICKED: {
+          formoTrack('Liquidity Max Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_HALF_CLICKED: {
+          formoTrack('Liquidity Half Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_EXISTING_POSITION_SELECTED: {
+          formoTrack('Existing Position Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_MAX_SLIPPAGE_CHANGED: {
+          formoTrack('Liquidity Max Slippage Changed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_ZAP_SUMMARY_VIEWED: {
+          formoTrack('Zap Summary Viewed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_PREVIEW_CLICKED: {
+          formoTrack('Liquidity Preview Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_ADDED: {
+          formoTrack('Liquidity Added', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_ADD_COMPLETED: {
+          formoTrack('Liquidity Add Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_ADD_FAILED: {
+          formoTrack('Liquidity Add Failed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LIQ_ADD_CANCELLED: {
+          formoTrack('Liquidity Add Cancelled', payload)
           break
         }
       }
