@@ -12,6 +12,7 @@ import { formatUnits } from 'viem'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Pagination from 'components/Pagination'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
@@ -140,6 +141,8 @@ export const TransactionHistory = () => {
                           ? (tx.sourceToken as any).id
                           : tx.sourceChain === NonEvmChain.Near
                           ? (tx.sourceToken as any).assetId
+                          : (tx.sourceToken as any)?.isNative
+                          ? ETHER_ADDRESS
                           : (tx.sourceToken as any)?.address ||
                             (tx.sourceToken as any)?.wrapped?.address ||
                             tx.sourceToken?.symbol,
@@ -154,6 +157,8 @@ export const TransactionHistory = () => {
                           ? (tx.targetToken as any).id
                           : tx.targetChain === NonEvmChain.Near
                           ? (tx.targetToken as any).assetId
+                          : (tx.targetToken as any)?.isNative
+                          ? ETHER_ADDRESS
                           : (tx.targetToken as any)?.address ||
                             (tx.targetToken as any)?.wrapped?.address ||
                             tx.targetToken?.symbol,
