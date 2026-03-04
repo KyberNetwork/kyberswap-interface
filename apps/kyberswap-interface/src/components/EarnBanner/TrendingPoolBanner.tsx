@@ -45,6 +45,12 @@ export default function TrendingPoolBanner() {
       pool_pair: `${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
       destination_url: `/pools/${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
     })
+    trackingHandler(TRACKING_EVENT_TYPE.TRENDING_POOL_CLICKED, {
+      pool_pair: `${pool.tokens[0].symbol}/${pool.tokens[1].symbol}`,
+      pool_apr: pool.allApr,
+      pool_type: 'trending',
+      chain: pool.chain?.name || '',
+    })
     navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}&type=highlighted` })
   }
 

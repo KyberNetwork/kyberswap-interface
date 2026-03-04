@@ -296,6 +296,15 @@ export enum TRACKING_EVENT_TYPE {
   LIQ_ADD_COMPLETED,
   LIQ_ADD_FAILED,
   LIQ_ADD_CANCELLED,
+
+  // Earn: Pool Discovery
+  POOL_CATEGORY_SELECTED,
+  POOL_FILTER_APPLIED,
+  POOL_SEARCHED,
+  POOL_FAVORITED,
+  CREATE_POOL_CLICKED,
+  TRENDING_POOL_CLICKED,
+  FARMING_POOL_CLICKED,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1625,6 +1634,35 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.LIQ_ADD_CANCELLED: {
           formoTrack('Liquidity Add Cancelled', payload)
+          break
+        }
+
+        case TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED: {
+          formoTrack('Pool Category Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED: {
+          formoTrack('Pool Filter Applied', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.POOL_SEARCHED: {
+          formoTrack('Pool Searched', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.POOL_FAVORITED: {
+          formoTrack('Pool Favorited', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CREATE_POOL_CLICKED: {
+          formoTrack('Create Pool Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TRENDING_POOL_CLICKED: {
+          formoTrack('Trending Pool Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.FARMING_POOL_CLICKED: {
+          formoTrack('Farming Pool Clicked', payload)
           break
         }
       }

@@ -3,6 +3,7 @@ import { useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/zapE
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { EarnPool, ParsedEarnPool } from 'pages/Earns/types'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 
@@ -26,6 +27,7 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
   const [removeFavorite] = useRemoveFavoriteMutation()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
+  const { trackingHandler } = useTracking()
 
   const [favoriteLoading, setFavoriteLoading] = useState<string[]>([])
   const [delayFavorite, setDelayFavorite] = useState(false)
@@ -93,6 +95,16 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
       if ((result as any).error) {
         throw new Error((result as any).error.data.message || 'Something went wrong')
       }
+
+      trackingHandler(TRACKING_EVENT_TYPE.POOL_FAVORITED, {
+        action: isPoolFavorite ? 'remove' : 'add',
+        pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
+        pool_protocol: pool.dexName,
+        pool_apr: pool.allApr,
+        pool_tvl_usd: pool.tvl,
+        pool_fee_tier: `${pool.feeTier}%`,
+        chain: pool.chain?.name,
+      })
 
       refetch?.()
     } catch (error) {
