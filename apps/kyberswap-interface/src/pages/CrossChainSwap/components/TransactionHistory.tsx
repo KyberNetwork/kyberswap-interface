@@ -14,7 +14,7 @@ import Divider from 'components/Divider'
 import Pagination from 'components/Pagination'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
+import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
@@ -52,6 +52,7 @@ const TableRow = styled(TableHeader)`
 
 export const TransactionHistory = () => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
+  const { trackingHandler } = useTracking()
   const [transactions, setTransactions] = useCrossChainTransactions()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -174,8 +175,16 @@ export const TransactionHistory = () => {
                         ...swapDetails,
                         status: 'succeed',
                       })
+                      trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_COMPLETED, {
+                        ...swapDetails,
+                        status: 'succeed',
+                      })
                     } else if (status === 'Failed') {
                       crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, {
+                        ...swapDetails,
+                        status: 'failed',
+                      })
+                      trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_FAILED, {
                         ...swapDetails,
                         status: 'failed',
                       })
@@ -236,7 +245,7 @@ export const TransactionHistory = () => {
         intervalRef.current = null
       }
     }
-  }, [pendingTxs, transactions, setTransactions, crossChainMixpanelHandler])
+  }, [pendingTxs, transactions, setTransactions, crossChainMixpanelHandler, trackingHandler])
 
   const theme = useTheme()
 

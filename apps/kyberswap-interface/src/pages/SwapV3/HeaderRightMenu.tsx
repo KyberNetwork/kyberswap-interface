@@ -79,11 +79,17 @@ export default function HeaderRightMenu({
           active={activeTab === TAB.SETTINGS}
           onClick={() => {
             onToggleActionTab(TAB.SETTINGS)
-            trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK, {
-              current_max_slippage: formatSlippage(slippage, false),
-              current_transaction_time_limit: transactionTimeout / 60,
-              current_gas_token: paymentToken?.symbol || networkInfo.nativeToken.symbol,
-            })
+            if (isCrossChainPage) {
+              trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_OPENED, {
+                current_max_slippage: formatSlippage(slippage, false),
+              })
+            } else {
+              trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK, {
+                current_max_slippage: formatSlippage(slippage, false),
+                current_transaction_time_limit: transactionTimeout / 60,
+                current_gas_token: paymentToken?.symbol || networkInfo.nativeToken.symbol,
+              })
+            }
           }}
           aria-label="Swap Settings"
         >

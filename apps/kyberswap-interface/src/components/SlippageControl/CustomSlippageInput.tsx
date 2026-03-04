@@ -1,10 +1,11 @@
 import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
-import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
+import { APP_PATHS, MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDefaultSlippageByPair } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -142,6 +143,8 @@ const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlip
   const inputRef = useRef<HTMLInputElement>(null)
   const previousSlippageRef = useRef(rawSlippage)
   const { trackingHandler } = useTracking()
+  const { pathname } = useLocation()
+  const isCrossChain = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
   const [isDegenMode] = useDegenModeManager()
 
   const defaultRawSlippage = useDefaultSlippageByPair()
@@ -194,6 +197,13 @@ const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlip
       previous_value: previousSlippageRef.current / 100,
       input_method: 'custom',
     })
+    if (isCrossChain) {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_SLIPPAGE_CHANGED, {
+        new_slippage: Number(formatSlippage(rawSlippage, false)),
+        previous_value: previousSlippageRef.current / 100,
+        input_method: 'custom',
+      })
+    }
     previousSlippageRef.current = rawSlippage
   }
 

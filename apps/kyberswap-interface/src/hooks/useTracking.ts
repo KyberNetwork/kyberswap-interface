@@ -259,6 +259,26 @@ export enum TRACKING_EVENT_TYPE {
   TRANSACTION_TIME_LIMIT_CHANGED,
   GAS_TOKEN_CHANGED,
   LIQUIDITY_SOURCES_TOGGLED,
+
+  // Cross-chain execution flow
+  CC_ROUTE_VIEWED,
+  CC_REVIEW_OPENED,
+  CC_SWAP_INITIATED,
+  CC_SWAP_COMPLETED,
+  CC_SWAP_FAILED,
+
+  // Cross-chain form interactions
+  CC_TAB_SELECTED,
+  CC_SOURCE_CHAIN_SELECTED,
+  CC_DESTINATION_CHAIN_SELECTED,
+  CC_RECIPIENT_ADDRESS_ENTERED,
+  CC_WALLET_SELECTED,
+
+  // Cross-chain settings interactions
+  CC_SETTINGS_OPENED,
+  CC_SLIPPAGE_CHANGED,
+  CC_ROUTING_SOURCE_TOGGLED,
+  CC_SETTINGS_SAVED,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1464,6 +1484,68 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.LIQUIDITY_SOURCES_TOGGLED: {
           formoTrack('Liquidity Sources Toggled', payload)
+          break
+        }
+
+        // Cross-chain execution flow events
+        case TRACKING_EVENT_TYPE.CC_ROUTE_VIEWED: {
+          formoTrack('Cross-Chain Route Viewed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_REVIEW_OPENED: {
+          formoTrack('Cross-Chain Review Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_SWAP_INITIATED: {
+          formoTrack('Cross-Chain Swap Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_SWAP_COMPLETED: {
+          formoTrack('Cross-Chain Swap Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_SWAP_FAILED: {
+          formoTrack('Cross-Chain Swap Failed', payload)
+          break
+        }
+
+        // Cross-chain form interaction events
+        case TRACKING_EVENT_TYPE.CC_TAB_SELECTED: {
+          formoTrack('Cross-Chain Tab Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_SOURCE_CHAIN_SELECTED: {
+          formoTrack('Cross-Chain Source Chain Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_DESTINATION_CHAIN_SELECTED: {
+          formoTrack('Cross-Chain Destination Chain Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_RECIPIENT_ADDRESS_ENTERED: {
+          formoTrack('Cross-Chain Recipient Address Entered', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_WALLET_SELECTED: {
+          formoTrack('Cross-Chain Wallet Selected', payload)
+          break
+        }
+
+        // Cross-chain settings interaction events
+        case TRACKING_EVENT_TYPE.CC_SETTINGS_OPENED: {
+          formoTrack('Cross-Chain Settings Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_SLIPPAGE_CHANGED: {
+          formoTrack('Cross-Chain Slippage Changed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_ROUTING_SOURCE_TOGGLED: {
+          formoTrack('Cross-Chain Routing Source Toggled', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED: {
+          formoTrack('Cross-Chain Settings Saved', payload)
           break
         }
       }
