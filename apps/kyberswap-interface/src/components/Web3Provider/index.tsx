@@ -248,13 +248,6 @@ export const HardCodedConnectors = [
     url: 'https://web3.bitget.com/en/wallet-download',
     realId: 'com.bitget.web3',
   },
-  {
-    id: 'KSSafePal',
-    name: 'SafePal',
-    logo: SAFEPAL_ICON,
-    url: 'https://www.safepal.com/download',
-    realId: 'io.safepal',
-  },
 ] as const
 
 // hardcoded connector to display as a default option. will replace by the real one if user already installed real extension
@@ -276,6 +269,34 @@ const createPriorityConnector = ({ id, name, logo, url }: (typeof HardCodedConne
       connect() {
         window.open(url, '_blank')
         return Promise.reject()
+      },
+    }
+  })
+}
+
+function safepalConnector() {
+  return createConnector(config => {
+    const injectedConnector = injected({
+      target: () => ({ id: CONNECTION.SAFEPAL, name: 'SafePal', provider: window.safepalProvider }),
+    })(config)
+
+    return {
+      ...injectedConnector,
+      get icon() {
+        return SAFEPAL_ICON
+      },
+      get id() {
+        return CONNECTION.SAFEPAL as string
+      },
+      get name() {
+        return 'SafePal'
+      },
+      connect(...params: Parameters<typeof injectedConnector.connect>) {
+        if (!window.safepalProvider) {
+          window.open('https://www.safepal.com/download', '_blank')
+          return Promise.reject()
+        }
+        return injectedConnector.connect(...params)
       },
     }
   })
@@ -363,6 +384,7 @@ export const wagmiConfig = createConfig({
       reloadOnDisconnect: false,
       enableMobileWalletLink: true,
     }),
+    safepalConnector(),
     porto(),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
