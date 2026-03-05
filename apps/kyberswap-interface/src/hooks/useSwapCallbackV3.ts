@@ -18,7 +18,7 @@ import { ErrorName } from 'utils/sentry'
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
 const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library, connector, isSmartConnector } = useWeb3React()
   const walletKey = connector?.name
 
@@ -84,6 +84,11 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
                 feeAmount: routeSummary.fee.currencyAmount.toExact(),
               }
             : undefined,
+          amountInUsd: routeSummary?.amountInUsd,
+          amountOutUsd: routeSummary?.amountOutUsd,
+          tradeRouteDexes: [...new Set(routeSummary?.route?.flat().map(r => r.exchange) || [])],
+          chain: networkInfo.name,
+          volume: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
         },
       } as TransactionExtraInfo2Token,
     }
@@ -93,6 +98,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     chainId,
     inputAmount,
     isPermitSwap,
+    networkInfo.name,
     outputAmount,
     priceImpact,
     recipient,

@@ -7,6 +7,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { kemFarming, uniReward } from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import {
@@ -34,10 +35,20 @@ const MobileTableRow = ({
   withoutBorder: boolean
 }) => {
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
     e.stopPropagation()
+    trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
+      pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
+      pool_protocol: pool.dexName,
+      pool_fee_tier: `${pool.feeTier}%`,
+      pool_tvl_usd: pool.tvl,
+      pool_volume_24h_usd: pool.volume,
+      pool_apr: pool.allApr,
+      chain: pool.chain?.name,
+    })
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,

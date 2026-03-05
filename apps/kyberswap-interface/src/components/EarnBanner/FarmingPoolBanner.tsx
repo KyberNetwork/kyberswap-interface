@@ -20,6 +20,7 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout
@@ -27,6 +28,7 @@ let indexInterval: NodeJS.Timeout
 export default function FarmingPoolBanner() {
   const theme = useTheme()
   const navigate = useNavigate()
+  const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
 
@@ -61,9 +63,15 @@ export default function FarmingPoolBanner() {
     return result
   }, [totalPools, index, upToExtraSmall])
 
-  const handleClickBannerPool = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleClickBannerPool = (e: React.MouseEvent<HTMLDivElement>, pool: (typeof totalPools)[number]) => {
     if (!index && index !== 0) return
     e.stopPropagation()
+    trackingHandler(TRACKING_EVENT_TYPE.FARMING_POOL_CLICKED, {
+      pool_pair: `${pool.tokens[0].symbol}/${pool.tokens[1].symbol}`,
+      pool_apr: pool.allApr,
+      pool_type: 'farming',
+      chain: pool.chain?.name || '',
+    })
     navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}&type=farming` })
   }
 
@@ -117,7 +125,7 @@ export default function FarmingPoolBanner() {
                       key={`${pool.address}-${index}`}
                       className="farming-pool"
                       style={{ width: !upToExtraSmall ? containerWidth / 2 : containerWidth }}
-                      onClick={handleClickBannerPool}
+                      onClick={e => handleClickBannerPool(e, pool)}
                     >
                       <PoolPairText>
                         {pool.tokens[0].symbol}/{pool.tokens[1].symbol}

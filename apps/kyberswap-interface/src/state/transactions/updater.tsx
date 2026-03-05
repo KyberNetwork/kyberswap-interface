@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
+import useTracking, { NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/swap/actions'
@@ -20,7 +20,12 @@ import {
   removeTx,
   replaceTx,
 } from 'state/transactions/actions'
-import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
+import {
+  SerializableTransactionReceipt,
+  TRANSACTION_TYPE,
+  TransactionDetails,
+  TransactionExtraInfo1Token,
+} from 'state/transactions/type'
 import { findTx } from 'utils'
 
 const appsSdk = new SafeAppsSDK()
@@ -58,7 +63,7 @@ function shouldCheck(
 }
 
 export default function Updater(): null {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const { connector } = useWeb3React()
   const { readProvider } = useKyberSwapConfig(chainId)
 
@@ -92,11 +97,13 @@ export default function Updater(): null {
 
   // show popup on confirm
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const transactionNotify = useTransactionNotify()
 
   // Use refs to stabilize handleTransactionReceipt so it doesn't recreate
   // on every block or transaction state change, which would tear down the fast-polling interval
+  const networkInfoRef = useRef(networkInfo)
+  networkInfoRef.current = networkInfo
   const lastBlockNumberRef = useRef(lastBlockNumber)
   lastBlockNumberRef.current = lastBlockNumber
   const transactionsRef = useRef(transactions)
@@ -174,7 +181,7 @@ export default function Updater(): null {
             if (accountRef.current && arbitrary.isPermitSwap) {
               dispatch(revokePermit({ chainId, address: arbitrary.inputAddress, account: accountRef.current }))
             }
-            mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
+            trackingHandler(TRACKING_EVENT_TYPE.SWAP_COMPLETED, {
               arbitrary,
               actual_gas: receipt.gasUsed || BigNumber.from(0),
               gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
@@ -183,15 +190,26 @@ export default function Updater(): null {
             })
             break
           }
+          case TRANSACTION_TYPE.APPROVE: {
+            const extraInfo = transaction.extraInfo as TransactionExtraInfo1Token | undefined
+            trackingHandler(TRACKING_EVENT_TYPE.TOKEN_APPROVAL_COMPLETED, {
+              token_symbol: extraInfo?.tokenSymbol,
+              token_address: extraInfo?.tokenAddress,
+              spender_address: extraInfo?.contract,
+              tx_hash: receipt.transactionHash,
+              chain: networkInfoRef.current?.name,
+            })
+            break
+          }
           // case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
           //   if (arbitrary) {
-          //     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, arbitrary)
+          //     trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, arbitrary)
           //   }
           //   break
           // }
           case TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY: {
             if (arbitrary) {
-              mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
+              trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
                 ...arbitrary,
                 tx_hash: receipt.transactionHash,
               })
@@ -200,7 +218,7 @@ export default function Updater(): null {
           }
           case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER: {
             if (arbitrary) {
-              mixpanelHandler(MIXPANEL_TYPE.LO_CANCEL_ORDER_SUBMITTED, {
+              trackingHandler(TRACKING_EVENT_TYPE.LO_CANCEL_ORDER_SUBMITTED, {
                 ...arbitrary,
                 tx_hash: receipt.transactionHash,
               })
@@ -214,7 +232,7 @@ export default function Updater(): null {
     },
     // Stable deps only — mutable values accessed via refs
     // eslint-disable-next-line
-    [chainId, dispatch, mixpanelHandler, transactionNotify],
+    [chainId, dispatch, trackingHandler, transactionNotify],
   )
 
   useEffect(() => {

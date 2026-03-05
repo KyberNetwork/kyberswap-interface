@@ -9,7 +9,7 @@ import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDerivedBurnInfo } from 'state/burn/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
@@ -34,9 +34,9 @@ export default function RemoveLiquidity() {
   const oneCurrencyIsWETH = Boolean(chainId && (currencyA?.equals(WETH[chainId]) || currencyB?.equals(WETH[chainId])))
 
   const [activeTab, setActiveTab] = useState(0)
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   useEffect(() => {
-    mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED, {
+    trackingHandler(TRACKING_EVENT_TYPE.REMOVE_LIQUIDITY_INITIATED, {
       token_1: nativeA?.symbol,
       token_2: nativeB?.symbol,
       amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),

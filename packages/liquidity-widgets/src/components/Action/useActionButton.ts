@@ -4,7 +4,15 @@ import { t } from '@lingui/macro';
 
 import { PermitNftState, useDebounce, usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
+import {
+  API_URLS,
+  CHAIN_ID_TO_CHAIN,
+  DEXES_INFO,
+  NETWORKS_INFO,
+  PoolType,
+  univ3PoolNormalize,
+  univ4Types,
+} from '@kyber/schema';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 
 import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
@@ -26,6 +34,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     positionId,
     source,
     referral,
+    onEvent,
     setError: setWidgetError,
   } = useWidgetStore([
     'chainId',
@@ -36,6 +45,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     'positionId',
     'source',
     'referral',
+    'onEvent',
     'setError',
   ]);
   const { pool } = usePoolStore(['pool']);
@@ -236,6 +246,18 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
       if (!buildData) return;
 
       setBuildData(buildData);
+
+      if (pool) {
+        const dexNameObj = DEXES_INFO[poolType as PoolType]?.name;
+        const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+        onEvent?.('LIQ_PREVIEW_CLICKED', {
+          pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+          pool_protocol: dexName,
+          pool_fee_tier: `${pool.fee}%`,
+          is_existing_position: !!positionId,
+          chain: NETWORKS_INFO[chainId]?.name,
+        });
+      }
     }
   };
 
