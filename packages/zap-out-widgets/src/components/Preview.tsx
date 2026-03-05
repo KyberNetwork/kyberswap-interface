@@ -38,7 +38,6 @@ export const Preview = () => {
     connectedAccount,
     onSubmitTx,
     poolType,
-    rpcUrl,
     onExplorePools,
   } = useZapOutContext(s => s);
 
@@ -153,7 +152,7 @@ export const Preview = () => {
 
     setError(undefined);
     setShowProcessing(true);
-    const gas = await estimateGas(rpcUrl, txData).catch(err => {
+    const gas = await estimateGas(chainId, txData).catch(err => {
       console.log(err.message);
       setError(err);
       return 0n;

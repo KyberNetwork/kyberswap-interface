@@ -38,8 +38,8 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback from 'hooks/useWrapCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
@@ -170,7 +170,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const notify = useNotify()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const {
     setCurrencyIn: updateCurrencyIn,
@@ -302,15 +302,24 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const setPriceRateMarket = useCallback(
     (autoFillInput = false) => {
       try {
-        !autoFillInput && mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
+        !autoFillInput && trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'set price')
         if ((loadingTrade && !autoFillInput) || !tradeInfo) return
-        onSetRate(
-          removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? '',
-          removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '',
-        )
+        const marketRate = removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? ''
+        onSetRate(marketRate, removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '')
+        if (!autoFillInput) {
+          trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
+            side: rateInfo.invert ? 'buy' : 'sell',
+            limit_price: marketRate,
+            market_price: marketRate,
+            price_difference_pct: 0,
+            from_token: currencyIn?.symbol,
+            to_token: currencyOut?.symbol,
+            chain: networkInfo.name,
+          })
+        }
       } catch (error) {}
     },
-    [loadingTrade, mixpanelHandler, onSetRate, tradeInfo],
+    [loadingTrade, trackingHandler, onSetRate, tradeInfo, rateInfo.invert, currencyIn, currencyOut, networkInfo.name],
   )
 
   const onChangeRate = (val: string) => {
@@ -363,6 +372,12 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const [rotate, setRotate] = useState(false)
   const handleRotateClick = () => {
     if (isEdit) return
+    trackingHandler(TRACKING_EVENT_TYPE.LO_SIDE_SELECTED, {
+      side: rateInfo.invert ? 'sell' : 'buy',
+      from_token: currencyOut?.symbol,
+      to_token: currencyIn?.symbol,
+      chain: networkInfo.name,
+    })
     setRotate(prev => !prev)
     switchCurrency()
     setInputAmount(outputAmount)
@@ -465,16 +480,36 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : formatTimeDuration(expire)
 
+  const getTokenAddress = (currency: Currency | undefined) =>
+    currency?.isNative ? 'NATIVE' : currency?.wrapped?.address
+
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
     setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
-    if (!isEdit)
-      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
+    if (!isEdit) {
+      trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
         from_token: currencyIn.symbol,
         to_token: currencyOut.symbol,
         from_network: chainId,
         trade_qty: inputAmount,
       })
+      trackingHandler(TRACKING_EVENT_TYPE.LO_REVIEW_OPENED, {
+        side: rateInfo.invert ? 'buy' : 'sell',
+        from_token: currencyIn.symbol,
+        from_token_address: getTokenAddress(currencyIn),
+        to_token: currencyOut.symbol,
+        to_token_address: getTokenAddress(currencyOut),
+        pair: `${currencyIn.symbol}/${currencyOut.symbol}`,
+        limit_price: displayRate,
+        amount_in: inputAmount,
+        amount_in_usd: estimateUSD.rawInput || undefined,
+        amount_out_estimated: outputAmount,
+        expiry: displayTime,
+        market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+        price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
+        chain: networkInfo.name,
+      })
+    }
   }
 
   const hidePreview = useCallback(() => {
@@ -486,12 +521,25 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }
 
   const onChangeExpire = (val: Date | number) => {
+    const previousExpiry = displayTime
     if (typeof val === 'number') {
       setExpire(val)
       setCustomDateExpire(undefined)
-      mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'choose date')
+      trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'choose date')
+      trackingHandler(TRACKING_EVENT_TYPE.LO_EXPIRY_CHANGED, {
+        previous_expiry: previousExpiry,
+        new_expiry: formatTimeDuration(val),
+        custom_expiry_minutes: null,
+        chain: networkInfo.name,
+      })
     } else {
       setCustomDateExpire(val)
+      trackingHandler(TRACKING_EVENT_TYPE.LO_EXPIRY_CHANGED, {
+        previous_expiry: previousExpiry,
+        new_expiry: 'custom',
+        custom_expiry_minutes: Math.round((val.getTime() - Date.now()) / 60000),
+        chain: networkInfo.name,
+      })
     }
   }
 
@@ -506,13 +554,36 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const handleError = useCallback(
     (error: any) => {
+      const errorMessage = getErrorMessage(error)
+      const isUserRejected =
+        errorMessage.toLowerCase().includes('user denied') || errorMessage.toLowerCase().includes('user rejected')
+      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FAILED, {
+        side: rateInfo.invert ? 'buy' : 'sell',
+        from_token: currencyIn?.symbol,
+        to_token: currencyOut?.symbol,
+        pair: currencyIn && currencyOut ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+        limit_price: displayRate,
+        amount_in: inputAmount,
+        error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
+        error_message: errorMessage,
+        chain: networkInfo.name,
+      })
       setFlowState(state => ({
         ...state,
         attemptingTxn: false,
-        errorMessage: getErrorMessage(error),
+        errorMessage,
       }))
     },
-    [setFlowState],
+    [
+      setFlowState,
+      trackingHandler,
+      rateInfo.invert,
+      currencyIn,
+      currencyOut,
+      displayRate,
+      inputAmount,
+      networkInfo.name,
+    ],
   )
 
   const signOrder = useSignOrder(setFlowState)
@@ -647,15 +718,37 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }, [tradeInfo, setPriceRateMarket, loadingTrade, defaultRate?.rate])
 
   const trackingTouchInput = useCallback(() => {
-    mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
-  }, [mixpanelHandler])
+    trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
+  }, [trackingHandler])
+
+  const trackingPriceSetOnBlur = useCallback(() => {
+    if (!displayRate || !currencyIn || !currencyOut) return
+    trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
+      side: rateInfo.invert ? 'buy' : 'sell',
+      limit_price: displayRate,
+      market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+      price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
+      from_token: currencyIn.symbol,
+      to_token: currencyOut.symbol,
+      chain: networkInfo.name,
+    })
+  }, [
+    displayRate,
+    currencyIn,
+    currencyOut,
+    rateInfo.invert,
+    tradeInfo,
+    deltaRate.rawPercent,
+    networkInfo.name,
+    trackingHandler,
+  ])
 
   const trackingTouchSelectToken = useCallback(() => {
-    mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
-  }, [mixpanelHandler])
+    trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
+  }, [trackingHandler])
 
-  const trackingPlaceOrder = (type: MIXPANEL_TYPE, data = {}) => {
-    mixpanelHandler(type, {
+  const trackingPlaceOrder = (type: TRACKING_EVENT_TYPE, data = {}) => {
+    trackingHandler(type, {
       from_token: currencyIn?.symbol,
       to_token: currencyOut?.symbol,
       from_network: networkInfo.name,
@@ -665,7 +758,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }
 
   const onSubmitCreateOrderWithTracking = async () => {
-    trackingPlaceOrder(MIXPANEL_TYPE.LO_CLICK_PLACE_ORDER)
+    trackingPlaceOrder(TRACKING_EVENT_TYPE.LO_CLICK_PLACE_ORDER)
     const order_id = await onSubmitCreateOrder({
       currencyIn,
       currencyOut,
@@ -676,7 +769,27 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       expiredAt,
       nativeOutput: currencyOut?.isNative || false,
     })
-    if (order_id) trackingPlaceOrder(MIXPANEL_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
+    if (order_id) {
+      trackingPlaceOrder(TRACKING_EVENT_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
+      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_PLACED, {
+        side: rateInfo.invert ? 'buy' : 'sell',
+        from_token: currencyIn?.symbol,
+        from_token_address: getTokenAddress(currencyIn),
+        to_token: currencyOut?.symbol,
+        to_token_address: getTokenAddress(currencyOut),
+        pair: currencyIn && currencyOut ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+        limit_price: displayRate,
+        market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+        price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
+        amount_in: inputAmount,
+        amount_in_usd: estimateUSD.rawInput || undefined,
+        amount_out_estimated: outputAmount,
+        expiry: displayTime,
+        chain: networkInfo.name,
+        order_id,
+        volume: estimateUSD.rawInput || undefined,
+      })
+    }
   }
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
@@ -843,6 +956,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                 value={displayRate}
                 onUserInput={onChangeRate}
                 onFocus={trackingTouchInput}
+                onBlur={trackingPriceSetOnBlur}
               />
               {currencyIn && currencyOut && (
                 <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!rateInfo.invert)}>

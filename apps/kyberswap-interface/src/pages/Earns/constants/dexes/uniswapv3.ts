@@ -21,6 +21,7 @@ export default {
     [ChainId.MANTLE]: '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1',
     [ChainId.OPTIMISM]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
     [ChainId.SCROLL]: '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1',
+    [ChainId.MONAD]: '0x7197e214c0b767cfb76fb734ab638e2c192f4e53',
   },
   nftManagerContractAbi: Univ3NftManagerABI,
   unwrapWNativeTokenFuncName: 'unwrapWETH9',

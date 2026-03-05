@@ -12,9 +12,10 @@ import { formatUnits } from 'viem'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Pagination from 'components/Pagination'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
@@ -52,6 +53,7 @@ const TableRow = styled(TableHeader)`
 
 export const TransactionHistory = () => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
+  const { trackingHandler } = useTracking()
   const [transactions, setTransactions] = useCrossChainTransactions()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -139,6 +141,8 @@ export const TransactionHistory = () => {
                           ? (tx.sourceToken as any).id
                           : tx.sourceChain === NonEvmChain.Near
                           ? (tx.sourceToken as any).assetId
+                          : (tx.sourceToken as any)?.isNative
+                          ? ETHER_ADDRESS
                           : (tx.sourceToken as any)?.address ||
                             (tx.sourceToken as any)?.wrapped?.address ||
                             tx.sourceToken?.symbol,
@@ -153,6 +157,8 @@ export const TransactionHistory = () => {
                           ? (tx.targetToken as any).id
                           : tx.targetChain === NonEvmChain.Near
                           ? (tx.targetToken as any).assetId
+                          : (tx.targetToken as any)?.isNative
+                          ? ETHER_ADDRESS
                           : (tx.targetToken as any)?.address ||
                             (tx.targetToken as any)?.wrapped?.address ||
                             tx.targetToken?.symbol,
@@ -174,8 +180,16 @@ export const TransactionHistory = () => {
                         ...swapDetails,
                         status: 'succeed',
                       })
+                      trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_COMPLETED, {
+                        ...swapDetails,
+                        status: 'succeed',
+                      })
                     } else if (status === 'Failed') {
                       crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, {
+                        ...swapDetails,
+                        status: 'failed',
+                      })
+                      trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_FAILED, {
                         ...swapDetails,
                         status: 'failed',
                       })
@@ -236,7 +250,7 @@ export const TransactionHistory = () => {
         intervalRef.current = null
       }
     }
-  }, [pendingTxs, transactions, setTransactions, crossChainMixpanelHandler])
+  }, [pendingTxs, transactions, setTransactions, crossChainMixpanelHandler, trackingHandler])
 
   const theme = useTheme()
 

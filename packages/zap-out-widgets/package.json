@@ -30,6 +30,7 @@
     "i18n:extract": "lingui extract"
   },
   "dependencies": {
+    "@kyber/rpc-client": "workspace:*",
     "@lingui/core": "^4.6.0",
     "@lingui/react": "^4.6.0",
     "numeral": "^2.0.6",

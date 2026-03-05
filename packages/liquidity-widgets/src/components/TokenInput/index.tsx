@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { defaultToken } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken } from '@kyber/schema';
 import TokenSelectorModal, { MAX_TOKENS, TOKEN_SELECT_MODE } from '@kyber/token-selector';
 import { InfoHelper } from '@kyber/ui';
 
@@ -12,16 +12,27 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function TokenInput({ className }: { className?: string }) {
-  const { theme, chainId, poolAddress, connectedAccount, positionId, onConnectWallet, onOpenZapMigration } =
-    useWidgetStore([
-      'theme',
-      'chainId',
-      'poolAddress',
-      'connectedAccount',
-      'positionId',
-      'onConnectWallet',
-      'onOpenZapMigration',
-    ]);
+  const {
+    theme,
+    chainId,
+    poolAddress,
+    poolType,
+    connectedAccount,
+    positionId,
+    onConnectWallet,
+    onOpenZapMigration,
+    onEvent,
+  } = useWidgetStore([
+    'theme',
+    'chainId',
+    'poolAddress',
+    'poolType',
+    'connectedAccount',
+    'positionId',
+    'onConnectWallet',
+    'onOpenZapMigration',
+    'onEvent',
+  ]);
   const { pool } = usePoolStore(['pool']);
   const { tickLower, tickUpper, tokensIn, amountsIn, setTokensIn, setAmountsIn, slippage } = useZapState();
 
@@ -32,20 +43,56 @@ export default function TokenInput({ className }: { className?: string }) {
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const handleOpenZapMigration = useCallback(
-    (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) =>
-      onOpenZapMigration
-        ? onOpenZapMigration(
-            position,
-            tickLower !== null && tickUpper !== null
-              ? {
-                  tickLower,
-                  tickUpper,
-                }
-              : undefined,
-            initialSlippage,
-          )
-        : undefined,
-    [onOpenZapMigration, tickLower, tickUpper],
+    (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) => {
+      if (!onOpenZapMigration) return undefined;
+
+      const dexNameObj = DEXES_INFO[poolType as PoolType]?.name;
+      const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+      const poolPair = pool ? `${pool.token0.symbol}/${pool.token1.symbol}` : '';
+      onEvent?.('LIQ_EXISTING_POSITION_SELECTED', {
+        position_id: position.positionId?.toString(),
+        pool_pair: poolPair,
+        pool_protocol: dexName,
+        pool_fee_tier: pool ? `${pool.fee}%` : '',
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
+
+      return onOpenZapMigration(
+        position,
+        tickLower !== null && tickUpper !== null
+          ? {
+              tickLower,
+              tickUpper,
+            }
+          : undefined,
+        initialSlippage,
+      );
+    },
+    [onOpenZapMigration, tickLower, tickUpper, pool, poolType, chainId, onEvent],
+  );
+
+  const wrappedSetTokensIn = useCallback(
+    (newTokensIn: typeof tokensIn) => {
+      const prevAddresses = tokensIn.map(t => t.address.toLowerCase());
+      const newTokens = newTokensIn.filter(t => !prevAddresses.includes(t.address.toLowerCase()));
+      if (newTokens.length > 0 && pool) {
+        const poolPair = `${pool.token0.symbol}/${pool.token1.symbol}`;
+        newTokens.forEach(t => {
+          const isZap =
+            t.address.toLowerCase() !== pool.token0.address.toLowerCase() &&
+            t.address.toLowerCase() !== pool.token1.address.toLowerCase();
+          onEvent?.('LIQ_TOKEN_SELECTED', {
+            token_symbol: t.symbol,
+            token_address: t.address,
+            pool_pair: poolPair,
+            is_zap: isZap,
+            chain: NETWORKS_INFO[chainId]?.name,
+          });
+        });
+      }
+      setTokensIn(newTokensIn);
+    },
+    [tokensIn, pool, chainId, onEvent, setTokensIn],
   );
 
   const onCloseTokenSelectModal = useCallback(() => {
@@ -102,7 +149,7 @@ export default function TokenInput({ className }: { className?: string }) {
           tokenOptions={{
             tokensIn,
             amountsIn,
-            setTokensIn,
+            setTokensIn: wrappedSetTokensIn,
             setAmountsIn,
             mode: tokenAddressSelected ? TOKEN_SELECT_MODE.SELECT : TOKEN_SELECT_MODE.ADD,
             selectedTokenAddress: tokenAddressSelected,

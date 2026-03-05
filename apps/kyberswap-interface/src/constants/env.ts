@@ -30,6 +30,7 @@ export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN = optional('MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN')
+export const FORMO_WRITE_KEY = required('FORMO_WRITE_KEY')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'
 export const ENV_LEVEL = !import.meta.env.VITE_TAG
@@ -145,7 +146,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.SMART_EXIT]: '12,13,14,15,16',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '',
-    [PrivateAnnouncementType.POSITION_STATUS]: '1,2,11',
+    [PrivateAnnouncementType.POSITION_STATUS]: '11',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '',
   },
@@ -155,7 +156,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.SMART_EXIT]: '39,40,41,42,43',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '',
-    [PrivateAnnouncementType.POSITION_STATUS]: '32,33',
+    [PrivateAnnouncementType.POSITION_STATUS]: '38',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '',
   },

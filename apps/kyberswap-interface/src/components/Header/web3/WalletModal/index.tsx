@@ -13,8 +13,8 @@ import { RowBetween } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
 import { TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import {
   useCloseModal,
@@ -116,7 +116,7 @@ export default function WalletModal() {
 
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   useEffect(() => {
     if (isWrongNetwork) {
@@ -158,7 +158,7 @@ export default function WalletModal() {
           <TermAndCondition
             onClick={() => {
               if (!isAcceptedTerm) {
-                mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
+                trackingHandler(TRACKING_EVENT_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
               }
               setIsAcceptedTerm(!isAcceptedTerm)
             }}

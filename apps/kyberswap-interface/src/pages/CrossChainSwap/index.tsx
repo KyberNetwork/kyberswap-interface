@@ -1,7 +1,7 @@
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Repeat } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useSearchParams } from 'react-router-dom'
@@ -16,7 +16,9 @@ import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelecti
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
@@ -58,11 +60,51 @@ function CrossChainSwap() {
     warning,
   } = useCrossChainSwap()
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
   const [showBtcModal, setShowBtcConnect] = useState(false)
   const [showEvmRecipient, setShowEvmRecipient] = useState(false)
   const [revertPrice, setRevertPrice] = useState(false)
+
+  // Debounce recipient for tracking
+  const debouncedRecipient = useDebounce(recipient, 1000)
+  const prevRecipientRef = useRef(recipient)
+  useEffect(() => {
+    if (debouncedRecipient && debouncedRecipient !== prevRecipientRef.current && debouncedRecipient.length > 5) {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_RECIPIENT_ADDRESS_ENTERED, {
+        recipient_address: debouncedRecipient,
+        to_chain: toChainId,
+      })
+      prevRecipientRef.current = debouncedRecipient
+    }
+  }, [debouncedRecipient, toChainId, trackingHandler])
+
+  const handleSourceChainSelect = useCallback(
+    (chainId: number | string) => {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_SOURCE_CHAIN_SELECTED, {
+        previous_chain: fromChainId,
+        new_chain: chainId,
+      })
+      searchParams.set('from', chainId.toString())
+      searchParams.delete('tokenIn')
+      setSearchParams(searchParams)
+    },
+    [trackingHandler, fromChainId, searchParams, setSearchParams],
+  )
+
+  const handleDestinationChainSelect = useCallback(
+    (chainId: number | string) => {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_DESTINATION_CHAIN_SELECTED, {
+        previous_chain: toChainId,
+        new_chain: chainId,
+      })
+      searchParams.set('to', chainId.toString())
+      searchParams.delete('tokenOut')
+      setSearchParams(searchParams)
+    },
+    [trackingHandler, toChainId, searchParams, setSearchParams],
+  )
 
   const showConnect = searchParams.get('showConnect')
 
@@ -113,11 +155,7 @@ function CrossChainSwap() {
         setShowBtcConnect={setShowBtcConnect}
         selectedChain={fromChainId}
         selectedCurrency={currencyIn || undefined}
-        onSelectNetwork={chainId => {
-          searchParams.set('from', chainId.toString())
-          searchParams.delete('tokenIn')
-          setSearchParams(searchParams)
-        }}
+        onSelectNetwork={handleSourceChainSelect}
         value={amount}
         amountUsd={selectedQuote?.quote.inputUsd}
         onUserInput={value => {
@@ -226,11 +264,7 @@ function CrossChainSwap() {
         setShowBtcConnect={setShowBtcConnect}
         selectedChain={toChainId}
         selectedCurrency={currencyOut || undefined}
-        onSelectNetwork={chainId => {
-          searchParams.set('to', chainId.toString())
-          searchParams.delete('tokenOut')
-          setSearchParams(searchParams)
-        }}
+        onSelectNetwork={handleDestinationChainSelect}
         value={selectedQuote?.quote.formattedOutputAmount || ''}
         amountUsd={selectedQuote?.quote.outputUsd}
         onUserInput={() => {

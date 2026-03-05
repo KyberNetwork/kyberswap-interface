@@ -8,8 +8,10 @@ import Loader from 'components/Loader'
 import ActionButtonGroup from 'components/WalletPopup/AccountInfo/ActionButtonGroup'
 import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
 import MinimalActionButtonGroup from 'components/WalletPopup/AccountInfo/MinimalActionButtonGroup'
+import { useActiveWeb3React } from 'hooks'
 import { useRewards } from 'hooks/useRewards'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { formatNumberWithPrecisionRange } from 'utils'
 
 import { View } from '../type'
@@ -119,6 +121,8 @@ export default function AccountInfo({
   setView,
 }: Props) {
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
+  const { account } = useActiveWeb3React()
   const {
     totalReward: { usd },
   } = useRewards()
@@ -143,7 +147,18 @@ export default function AccountInfo({
                 gap: '4px',
               }}
             >
-              <Flex width="fit-content" sx={{ gap: '4px', cursor: 'pointer' }} onClick={toggleShowBalance}>
+              <Flex
+                width="fit-content"
+                sx={{ gap: '4px', cursor: 'pointer' }}
+                onClick={() => {
+                  trackingHandler(TRACKING_EVENT_TYPE.BALANCE_VISIBILITY_TOGGLED, {
+                    new_state: showBalance ? 'hidden' : 'visible',
+                    total_balance_usd: totalBalanceInUsd,
+                    wallet_address: account,
+                  })
+                  toggleShowBalance()
+                }}
+              >
                 <BalanceTitle>
                   <Trans>Total Balance</Trans>
                 </BalanceTitle>
@@ -188,7 +203,13 @@ export default function AccountInfo({
               <Flex
                 sx={{ gap: '4px', cursor: 'pointer' }}
                 alignItems="center"
-                onClick={() => setView(View().REWARD_CENTER)}
+                onClick={() => {
+                  trackingHandler(TRACKING_EVENT_TYPE.WALLET_REWARDS_VIEWED, {
+                    total_rewards_usd: usd,
+                    wallet_address: account,
+                  })
+                  setView(View().REWARD_CENTER)
+                }}
               >
                 <Text color={theme.text} fontSize={12} fontWeight={500} lineHeight="16px">
                   ${formatNumberWithPrecisionRange(usd, 0, 8)}

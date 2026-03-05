@@ -14,8 +14,8 @@ import Column from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import { Z_INDEXS } from 'constants/styles'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
 import { useNavigateToUrl, validateRedirectURL } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
@@ -149,7 +149,7 @@ export default function CenterPopup({
 }) {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const { templateBody = {} } = data.content
   const {
@@ -161,12 +161,13 @@ export default function CenterPopup({
   } = templateBody as AnnouncementTemplatePopup
 
   const navigate = useNavigateToUrl()
-  const trackingClose = () => mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: name })
+  const trackingClose = () =>
+    trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: name })
 
   const onClickCta = (ctaUrl?: string) => {
     onDismiss()
     ctaUrl && navigate(ctaUrl)
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP, {
+    trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP, {
       announcement_type: PopupType.CENTER,
       announcement_title: name,
     })

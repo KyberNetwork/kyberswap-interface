@@ -61,6 +61,7 @@ export interface WidgetProps {
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
   onSetUpSmartExit?: (params: { tokenId: string; chainId: ChainId; poolType: PoolType } | undefined) => void;
+  onEvent?: (eventName: string, data?: Record<string, any>) => void;
 }
 
 export interface OnSuccessProps {

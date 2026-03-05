@@ -15,7 +15,7 @@ import { NewLabel } from 'components/Menu'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-//import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+//import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
 
@@ -117,7 +117,7 @@ const SwapNavGroup = () => {
             id="buy-crypto-nav-link"
             to={APP_PATHS.BUY_CRYPTO}
             onClick={() => {
-              mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
+              trackingHandler(TRACKING_EVENT_TYPE.SWAP_BUY_CRYPTO_CLICKED)
             }}
             style={{ flexDirection: 'column', width: '100%' }}
           >

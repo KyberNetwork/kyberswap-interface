@@ -10,15 +10,15 @@ import { AprText, PoolApr, PoolAprWrapper, PoolWrapper, TrendingWrapper } from '
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 let indexInterval: NodeJS.Timeout
 
 export default function TrendingPoolBanner() {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
 
@@ -28,7 +28,7 @@ export default function TrendingPoolBanner() {
   const pool = useMemo(() => data?.data.highlightedPools[index] || null, [data, index])
 
   const handleClickBanner = () => {
-    mixpanelHandler(MIXPANEL_TYPE.EARN_BANNER_CLICK, {
+    trackingHandler(TRACKING_EVENT_TYPE.EARN_BANNER_CLICK, {
       banner_name: 'HomePage_Earn_Banner',
       page: 'HomePage',
       destination_url: '/earn',
@@ -39,11 +39,17 @@ export default function TrendingPoolBanner() {
   const handleClickBannerPool = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!pool) return
     e.stopPropagation()
-    mixpanelHandler(MIXPANEL_TYPE.EARN_BANNER_POOL_CLICK, {
+    trackingHandler(TRACKING_EVENT_TYPE.EARN_BANNER_POOL_CLICK, {
       banner_name: 'HomePage_Pool_Banner',
       page: 'HomePage',
       pool_pair: `${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
       destination_url: `/pools/${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
+    })
+    trackingHandler(TRACKING_EVENT_TYPE.TRENDING_POOL_CLICKED, {
+      pool_pair: `${pool.tokens[0].symbol}/${pool.tokens[1].symbol}`,
+      pool_apr: pool.allApr,
+      pool_type: 'trending',
+      chain: pool.chain?.name || '',
     })
     navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}&type=highlighted` })
   }
