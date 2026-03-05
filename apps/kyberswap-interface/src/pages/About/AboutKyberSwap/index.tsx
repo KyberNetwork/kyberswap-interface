@@ -23,8 +23,8 @@ import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import KyberSwapGeneralIntro from 'pages/About/KyberSwapGeneralIntro'
 import {
   AboutKNC,
@@ -143,7 +143,7 @@ function AboutKyberSwap() {
 
   const { data: aggregatorData } = aggregatorStatsApi.useGetAggregatorVolumeQuery({})
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const dataToShow = {
     totalTradingVolume: aggregatorData?.totalVolume,
@@ -249,7 +249,7 @@ function AboutKyberSwap() {
                   width="216px"
                   as={Link}
                   to={APP_PATHS.SWAP + '/' + networkInfo.route}
-                  onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
+                  onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
                 >
                   <Repeat size={20} />
                   <Text fontSize="16px" marginLeft="8px">
@@ -272,7 +272,7 @@ function AboutKyberSwap() {
                 margin="40px 0"
                 as={Link}
                 to={APP_PATHS.SWAP + '/' + networkInfo.route}
-                onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
+                onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
               >
                 <Repeat />
                 <Text fontSize={['16px', '20px']} marginLeft="8px">

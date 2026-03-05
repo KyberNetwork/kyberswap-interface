@@ -3,13 +3,13 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
 import { ethers } from 'ethers'
 import { TxValidationError, findReplacementTx } from 'find-replacement-tx'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
+import useTracking, { NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/swap/actions'
@@ -20,10 +20,25 @@ import {
   removeTx,
   replaceTx,
 } from 'state/transactions/actions'
-import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
+import {
+  SerializableTransactionReceipt,
+  TRANSACTION_TYPE,
+  TransactionDetails,
+  TransactionExtraInfo1Token,
+} from 'state/transactions/type'
 import { findTx } from 'utils'
 
 const appsSdk = new SafeAppsSDK()
+
+const toSafeReceipt = (hash: string, receipt: any) =>
+  receipt
+    ? {
+        ...receipt,
+        transactionHash: hash,
+        blockHash: '',
+        status: receipt.txStatus === SafeTransactionStatus.SUCCESS ? 1 : 0,
+      }
+    : undefined
 
 function shouldCheck(
   lastBlockNumber: number,
@@ -48,7 +63,7 @@ function shouldCheck(
 }
 
 export default function Updater(): null {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const { connector } = useWeb3React()
   const { readProvider } = useKyberSwapConfig(chainId)
 
@@ -60,121 +75,8 @@ export default function Updater(): null {
 
   const transactions = useMemo(() => transactionsState ?? {}, [transactionsState])
 
-  // show popup on confirm
-
-  const { mixpanelHandler } = useMixpanel()
-  const transactionNotify = useTransactionNotify()
-
-  const handleTransactionReceipt = (hash: string, receipt: any) => {
-    if (!lastBlockNumber) return
-    if (
-      !receipt ||
-      receipt?.txStatus === SafeTransactionStatus.AWAITING_EXECUTION ||
-      receipt?.txStatus === SafeTransactionStatus.AWAITING_CONFIRMATIONS
-    ) {
-      dispatch(checkedTransaction({ chainId, hash, blockNumber: lastBlockNumber }))
-      return
-    }
-
-    const transaction = findTx(transactions, receipt.transactionHash)
-    if (!transaction) return
-    dispatch(
-      finalizeTransaction({
-        chainId,
-        hash: receipt.transactionHash,
-        receipt: {
-          blockHash: receipt.blockHash,
-          status: receipt.status,
-        },
-        needCheckSubgraph: NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES.includes(transaction.type),
-      }),
-    )
-
-    transactionNotify({
-      hash: receipt.transactionHash,
-      type: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
-      account: account ?? '',
-    })
-    if (receipt.status === 1) {
-      // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
-      const swapEventTopic = ethers.utils.id('Swapped(address,address,address,address,uint256,uint256)')
-      const swapLogs = receipt.logs.filter((log: any) => log.topics[0] === swapEventTopic)
-      // take the last swap event
-      const lastSwapEvent = swapLogs.slice(-1)[0]
-
-      // decode the data
-      const swapInterface = new ethers.utils.Interface([
-        'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
-      ])
-      const parsed = swapInterface.parseLog(lastSwapEvent)
-
-      if (
-        (transaction.extraInfo as any)?.tokenAmountOut &&
-        transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
-      ) {
-        const extraInfo = { ...transaction.extraInfo }
-        ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
-          parsed.args.returnAmount.toString(),
-          transaction.extraInfo?.arbitrary?.outputDecimals,
-        )
-        dispatch(
-          modifyTransaction({
-            chainId: transaction.chainId,
-            hash: transaction.hash,
-            extraInfo,
-          }),
-        )
-      }
-
-      const arbitrary = transaction.extraInfo?.arbitrary
-      switch (transaction.type) {
-        case TRANSACTION_TYPE.SWAP: {
-          if (!arbitrary) return
-          if (account && arbitrary.isPermitSwap) {
-            dispatch(revokePermit({ chainId, address: arbitrary.inputAddress, account }))
-          }
-          mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-            arbitrary,
-            actual_gas: receipt.gasUsed || BigNumber.from(0),
-            gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
-            tx_hash: receipt.transactionHash,
-            feeInfo: arbitrary.feeInfo,
-          })
-          break
-        }
-        // case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
-        //   if (arbitrary) {
-        //     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, arbitrary)
-        //   }
-        //   break
-        // }
-        case TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY: {
-          if (arbitrary) {
-            mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
-              ...arbitrary,
-              tx_hash: receipt.transactionHash,
-            })
-          }
-          break
-        }
-        case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER: {
-          if (arbitrary) {
-            mixpanelHandler(MIXPANEL_TYPE.LO_CANCEL_ORDER_SUBMITTED, {
-              ...arbitrary,
-              tx_hash: receipt.transactionHash,
-            })
-          }
-          break
-        }
-        default:
-          break
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (!readProvider || !lastBlockNumber) return
-    const uniqueTransactions = [
+  const uniqueTransactions = useMemo(() => {
+    return [
       ...new Set(
         Object.values(transactions)
           .map((txs: TransactionDetails[] | TransactionDetails | undefined) =>
@@ -184,6 +86,157 @@ export default function Updater(): null {
           .filter(Boolean) as [string],
       ),
     ]
+  }, [transactions])
+
+  const pendingTxHashes = useMemo(() => {
+    return uniqueTransactions.filter(hash => {
+      const tx = findTx(transactions, hash)
+      return tx && !tx.receipt
+    })
+  }, [uniqueTransactions, transactions])
+
+  // show popup on confirm
+
+  const { trackingHandler } = useTracking()
+  const transactionNotify = useTransactionNotify()
+
+  // Use refs to stabilize handleTransactionReceipt so it doesn't recreate
+  // on every block or transaction state change, which would tear down the fast-polling interval
+  const networkInfoRef = useRef(networkInfo)
+  networkInfoRef.current = networkInfo
+  const lastBlockNumberRef = useRef(lastBlockNumber)
+  lastBlockNumberRef.current = lastBlockNumber
+  const transactionsRef = useRef(transactions)
+  transactionsRef.current = transactions
+  const accountRef = useRef(account)
+  accountRef.current = account
+
+  const handleTransactionReceipt = useCallback(
+    (hash: string, receipt: any) => {
+      const currentBlockNumber = lastBlockNumberRef.current
+      if (!currentBlockNumber) return
+      if (
+        !receipt ||
+        receipt?.txStatus === SafeTransactionStatus.AWAITING_EXECUTION ||
+        receipt?.txStatus === SafeTransactionStatus.AWAITING_CONFIRMATIONS
+      ) {
+        dispatch(checkedTransaction({ chainId, hash, blockNumber: currentBlockNumber }))
+        return
+      }
+
+      const transaction = findTx(transactionsRef.current, receipt.transactionHash)
+      if (!transaction) return
+      dispatch(
+        finalizeTransaction({
+          chainId,
+          hash: receipt.transactionHash,
+          receipt: {
+            blockHash: receipt.blockHash,
+            status: receipt.status,
+          },
+          needCheckSubgraph: NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES.includes(transaction.type),
+        }),
+      )
+
+      transactionNotify({
+        hash: receipt.transactionHash,
+        type: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
+        account: accountRef.current ?? '',
+      })
+      if (receipt.status === 1) {
+        // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
+        const swapEventTopic = ethers.utils.id('Swapped(address,address,address,address,uint256,uint256)')
+        const swapLogs = receipt.logs.filter((log: any) => log.topics[0] === swapEventTopic)
+        // take the last swap event
+        const lastSwapEvent = swapLogs.slice(-1)[0]
+
+        // decode the data
+        const swapInterface = new ethers.utils.Interface([
+          'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
+        ])
+        const parsed = swapInterface.parseLog(lastSwapEvent)
+
+        if (
+          (transaction.extraInfo as any)?.tokenAmountOut &&
+          transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
+        ) {
+          const extraInfo = { ...transaction.extraInfo }
+          ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
+            parsed.args.returnAmount.toString(),
+            transaction.extraInfo?.arbitrary?.outputDecimals,
+          )
+          dispatch(
+            modifyTransaction({
+              chainId: transaction.chainId,
+              hash: transaction.hash,
+              extraInfo,
+            }),
+          )
+        }
+
+        const arbitrary = transaction.extraInfo?.arbitrary
+        switch (transaction.type) {
+          case TRANSACTION_TYPE.SWAP: {
+            if (!arbitrary) return
+            if (accountRef.current && arbitrary.isPermitSwap) {
+              dispatch(revokePermit({ chainId, address: arbitrary.inputAddress, account: accountRef.current }))
+            }
+            trackingHandler(TRACKING_EVENT_TYPE.SWAP_COMPLETED, {
+              arbitrary,
+              actual_gas: receipt.gasUsed || BigNumber.from(0),
+              gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
+              tx_hash: receipt.transactionHash,
+              feeInfo: arbitrary.feeInfo,
+            })
+            break
+          }
+          case TRANSACTION_TYPE.APPROVE: {
+            const extraInfo = transaction.extraInfo as TransactionExtraInfo1Token | undefined
+            trackingHandler(TRACKING_EVENT_TYPE.TOKEN_APPROVAL_COMPLETED, {
+              token_symbol: extraInfo?.tokenSymbol,
+              token_address: extraInfo?.tokenAddress,
+              spender_address: extraInfo?.contract,
+              tx_hash: receipt.transactionHash,
+              chain: networkInfoRef.current?.name,
+            })
+            break
+          }
+          // case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
+          //   if (arbitrary) {
+          //     trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, arbitrary)
+          //   }
+          //   break
+          // }
+          case TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY: {
+            if (arbitrary) {
+              trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
+                ...arbitrary,
+                tx_hash: receipt.transactionHash,
+              })
+            }
+            break
+          }
+          case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER: {
+            if (arbitrary) {
+              trackingHandler(TRACKING_EVENT_TYPE.LO_CANCEL_ORDER_SUBMITTED, {
+                ...arbitrary,
+                tx_hash: receipt.transactionHash,
+              })
+            }
+            break
+          }
+          default:
+            break
+        }
+      }
+    },
+    // Stable deps only — mutable values accessed via refs
+    // eslint-disable-next-line
+    [chainId, dispatch, trackingHandler, transactionNotify],
+  )
+
+  useEffect(() => {
+    if (!readProvider || !lastBlockNumber) return
 
     uniqueTransactions
       .filter(hash => shouldCheck(lastBlockNumber, findTx(transactions, hash)))
@@ -241,17 +294,7 @@ export default function Updater(): null {
           appsSdk.txs
             .getBySafeTxHash(txHash)
             .then(receipt => {
-              handleTransactionReceipt(
-                txHash,
-                receipt
-                  ? {
-                      ...receipt,
-                      transactionHash: txHash,
-                      blockHash: '',
-                      status: receipt.txStatus === SafeTransactionStatus.SUCCESS ? 1 : 0,
-                    }
-                  : undefined,
-              )
+              handleTransactionReceipt(txHash, toSafeReceipt(txHash, receipt))
             })
             .catch((error: any) => {
               console.error(`failed to check transaction hash: ${txHash}`, error)
@@ -270,6 +313,45 @@ export default function Updater(): null {
 
     // eslint-disable-next-line
   }, [chainId, readProvider, transactions, lastBlockNumber, dispatch])
+
+  // Fast polling: poll every 2s only when there are pending transactions
+  // This is independent of block-based polling and provides faster tx status detection
+  const pendingTxHashesRef = useRef(pendingTxHashes)
+  pendingTxHashesRef.current = pendingTxHashes
+  const hasPendingTxs = pendingTxHashes.length > 0
+
+  useEffect(() => {
+    if (!readProvider || !hasPendingTxs) return
+
+    const isSafe = connector?.id === CONNECTION.SAFE_CONNECTOR_ID
+
+    const intervalId = setInterval(() => {
+      pendingTxHashesRef.current.forEach(hash => {
+        if (isSafe) {
+          appsSdk.txs
+            .getBySafeTxHash(hash)
+            .then(receipt => {
+              handleTransactionReceipt(hash, toSafeReceipt(hash, receipt))
+            })
+            .catch((error: any) => {
+              console.warn(`fast-poll: failed to check safe tx: ${hash}`, error)
+            })
+        } else {
+          readProvider
+            .getTransactionReceipt(hash)
+            .then(receipt => {
+              if (receipt) handleTransactionReceipt(hash, receipt)
+            })
+            .catch((error: any) => {
+              console.warn(`fast-poll: failed to check tx: ${hash}`, error)
+            })
+        }
+      })
+    }, 2_000)
+
+    return () => clearInterval(intervalId)
+    // eslint-disable-next-line
+  }, [readProvider, hasPendingTxs, connector?.id, handleTransactionReceipt])
 
   return null
 }

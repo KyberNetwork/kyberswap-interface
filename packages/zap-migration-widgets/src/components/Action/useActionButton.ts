@@ -77,7 +77,6 @@ interface ZapImpactLevel {
 export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionButtonProps) {
   const {
     chainId,
-    rpcUrl,
     connectedAccount,
     sourcePoolType,
     targetPoolType,
@@ -89,7 +88,6 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
     rePositionMode,
   } = useWidgetStore([
     'chainId',
-    'rpcUrl',
     'connectedAccount',
     'sourcePoolType',
     'targetPoolType',
@@ -350,7 +348,7 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
         data: buildData.callData,
         value: `0x${BigInt(buildData.value).toString(16)}`,
       };
-      const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
+      const { gasUsd, error } = await estimateGasForTx({ txData, chainId });
       setGasLoading(false);
 
       if (error || !gasUsd) {

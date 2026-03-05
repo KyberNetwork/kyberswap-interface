@@ -12,6 +12,7 @@ import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -91,7 +92,8 @@ export const QuoteSelector = ({
   onChange: (quote: Quote) => void
   tokenOut?: Currency
 }) => {
-  const { allLoading } = useCrossChainSwap()
+  const { allLoading, fromChainId, toChainId } = useCrossChainSwap()
+  const { trackingHandler } = useTracking()
   const [show, setShow] = useState(false)
   const theme = useTheme()
 
@@ -128,6 +130,14 @@ export const QuoteSelector = ({
                   if (quote.adapter.getName() !== selectedQuote.adapter.getName()) {
                     onChange(quote)
                     setShow(false)
+                    trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTE_VIEWED, {
+                      routing_source: quote.adapter.getName(),
+                      amount_out: quote.quote.formattedOutputAmount,
+                      amount_out_usd: quote.quote.outputUsd,
+                      time_estimate: quote.quote.timeEstimate,
+                      from_chain: fromChainId,
+                      to_chain: toChainId,
+                    })
                     return
                   }
                 }}

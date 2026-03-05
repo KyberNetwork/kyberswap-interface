@@ -34,7 +34,6 @@ import { parseTokensAndAmounts } from '@/utils';
 export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const {
     chainId,
-    rpcUrl,
     poolType,
     connectedAccount,
     onSubmitTx,
@@ -42,9 +41,9 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
     positionId,
     onClose,
     onSetUpSmartExit,
+    onEvent,
   } = useWidgetStore([
     'chainId',
-    'rpcUrl',
     'poolType',
     'connectedAccount',
     'onSubmitTx',
@@ -52,6 +51,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
     'positionId',
     'onClose',
     'onSetUpSmartExit',
+    'onEvent',
   ]);
   const { pool } = usePoolStore(['pool']);
   const { setSlippage, slippage, tokensIn, amountsIn, buildData } = useZapState();
@@ -99,7 +99,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
     };
 
     try {
-      const gasEstimation = await estimateGas(rpcUrl, txData);
+      const gasEstimation = await estimateGas(chainId, txData);
       const txHash = await onSubmitTx(
         {
           ...txData,
@@ -116,12 +116,30 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
     } catch (e) {
       setAttempTx(false);
       setTxError(e as Error);
+
+      const error = e as Error;
+      const errorMsg = friendlyError(error) || error.message || '';
+      const isUserRejected = errorMsg.toLowerCase().includes('reject') || errorMsg.toLowerCase().includes('denied');
+      onEvent?.('LIQ_ADD_FAILED', {
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_fee_tier: `${pool.fee}%`,
+        error_type: isUserRejected ? 'user_rejected' : 'transaction_error',
+        error_message: errorMsg,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
     } finally {
       setAttempTx(false);
     }
   };
 
   const onWrappedDismiss = () => {
+    if (!txHash && !txError && pool) {
+      onEvent?.('LIQ_ADD_CANCELLED', {
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_fee_tier: `${pool.fee}%`,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
+    }
     onDismiss();
     setTxHash('');
     setTxError(null);
@@ -141,7 +159,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
 
     setLoadingPosition(true);
     try {
-      const tokenId = await getTokenIdFromTxHash({ rpcUrl, txHash, poolType });
+      const tokenId = await getTokenIdFromTxHash({ chainId, txHash, poolType });
       if (tokenId) {
         onSetUpSmartExit({ tokenId, chainId, poolType });
       } else {

@@ -19,8 +19,8 @@ import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
@@ -82,7 +82,7 @@ export default function NetworkModal({
   const theme = useTheme()
   const { isWrongNetwork } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const [requestSaveProfile] = useUpdateProfileMutation()
   // const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
   const [favoriteChains, setFavoriteChains] = useFavoriteChains()
@@ -128,10 +128,10 @@ export default function NetworkModal({
 
     if (!chainInfo) return
     if (chains.includes(updatedChain) && !favoriteChains.includes(updatedChain)) {
-      mixpanelHandler(MIXPANEL_TYPE.ADD_FAVORITE_CHAIN, { fav_chain: chainInfo.name })
+      trackingHandler(TRACKING_EVENT_TYPE.ADD_FAVORITE_CHAIN, { fav_chain: chainInfo.name })
     }
     if (!chains.includes(updatedChain)) {
-      mixpanelHandler(MIXPANEL_TYPE.REMOVE_FAVORITE_CHAIN, { remove_chain: chainInfo.name })
+      trackingHandler(TRACKING_EVENT_TYPE.REMOVE_FAVORITE_CHAIN, { remove_chain: chainInfo.name })
     }
   }
 

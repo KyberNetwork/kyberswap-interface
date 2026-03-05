@@ -17,10 +17,10 @@ import { APP_PATHS } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
+import { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/MyPool'
 import { StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -71,7 +71,7 @@ const renderNotificationButton = (iconOnly: boolean) => {
           </Trans>
         </div>
       }
-      trackingEvent={MIXPANEL_TYPE.MYPOOLS_CLICK_SUBSCRIBE_BTN}
+      trackingEvent={TRACKING_EVENT_TYPE.MYPOOLS_CLICK_SUBSCRIBE_BTN}
     />
   )
 }

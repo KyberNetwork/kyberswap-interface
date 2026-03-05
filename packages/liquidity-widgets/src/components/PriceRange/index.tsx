@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { t } from '@lingui/macro';
 
 import { usePrevious } from '@kyber/hooks';
-import { POOL_CATEGORY, univ3PoolNormalize, univ3Types } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, POOL_CATEGORY, PoolType, univ3PoolNormalize, univ3Types } from '@kyber/schema';
 import { Button, Skeleton } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
@@ -22,7 +22,7 @@ interface PriceRange {
 const PriceRange = () => {
   const { setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
 
-  const { poolType, initialTick } = useWidgetStore(['poolType', 'initialTick']);
+  const { poolType, initialTick, chainId, onEvent } = useWidgetStore(['poolType', 'initialTick', 'chainId', 'onEvent']);
   const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
   const initializing = !pool;
@@ -107,13 +107,25 @@ const PriceRange = () => {
   }, [priceRanges, tickLower, tickUpper, lastSelected]);
   const previousRangeSelected = usePrevious(rangeSelected);
 
-  const handleSelectPriceRange = (range: string | number) => {
+  const handleSelectPriceRange = (range: string | number, isUserAction = false) => {
     if (!priceRanges.length) return;
     const priceRange = priceRanges.find(item => item?.range === range);
     if (priceRange?.tickLower === undefined || priceRange?.tickUpper === undefined) return;
     setLastSelected(range);
     setTickLower(priceRange.tickLower);
     setTickUpper(priceRange.tickUpper);
+
+    if (isUserAction && pool) {
+      const dexNameObj = DEXES_INFO[poolType as PoolType].name;
+      const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+      onEvent?.('PRICE_RANGE_PRESET_SELECTED', {
+        preset: range === FULL_PRICE_RANGE ? 'full_range' : `${Number(range) * 100}%`,
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_protocol: dexName,
+        pool_fee_tier: `${pool.fee}%`,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
+    }
   };
 
   useEffect(() => {
@@ -160,7 +172,7 @@ const PriceRange = () => {
             key={index}
             variant="outline"
             className={`flex-1 !border-none !text-icon ${rangeSelected === item.range ? ' !bg-[#ffffff14]' : ''}`}
-            onClick={() => handleSelectPriceRange(item.range)}
+            onClick={() => handleSelectPriceRange(item.range, true)}
           >
             {item.range === FULL_PRICE_RANGE ? t`Full Range` : `${Number(item.range) * 100}%`}
           </Button>

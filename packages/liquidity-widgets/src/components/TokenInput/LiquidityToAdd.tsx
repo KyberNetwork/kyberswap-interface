@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { Trans } from '@lingui/macro';
 
-import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatUnits } from '@kyber/utils/number';
 
@@ -10,6 +10,8 @@ import DropdownIcon from '@/assets/svg/dropdown.svg';
 import WalletIcon from '@/assets/svg/wallet.svg';
 import X from '@/assets/svg/x.svg';
 import { useZapState } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function LiquidityToAdd({
   tokenIndex,
@@ -21,6 +23,8 @@ export default function LiquidityToAdd({
   setTokenAddressSelected: (address: string) => void;
 }) {
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn, tokenBalances, tokenPrices } = useZapState();
+  const { pool } = usePoolStore(['pool']);
+  const { chainId, onEvent } = useWidgetStore(['chainId', 'onEvent']);
 
   const token = useMemo(() => tokensIn[tokenIndex], [tokensIn, tokenIndex]);
   const amount = useMemo(() => amountsIn.split(',')[tokenIndex] || '', [amountsIn, tokenIndex]);
@@ -77,7 +81,19 @@ export default function LiquidityToAdd({
           <button
             className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
             onClick={() => {
-              if (balanceInWei) onChangeTokenAmount(formatUnits(BigInt(balanceInWei).toString(), token?.decimals));
+              if (balanceInWei) {
+                const maxAmount = formatUnits(BigInt(balanceInWei).toString(), token?.decimals);
+                onChangeTokenAmount(maxAmount);
+                const poolPair = pool ? `${pool.token0.symbol}/${pool.token1.symbol}` : '';
+                onEvent?.('LIQ_MAX_CLICKED', {
+                  token_symbol: token.symbol,
+                  token_address: token.address,
+                  max_amount: maxAmount,
+                  max_amount_usd: tokenPrices[token.address.toLowerCase()] * parseFloat(maxAmount || '0'),
+                  pool_pair: poolPair,
+                  chain: NETWORKS_INFO[chainId]?.name,
+                });
+              }
             }}
           >
             <Trans>Max</Trans>
@@ -85,8 +101,19 @@ export default function LiquidityToAdd({
           <button
             className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
             onClick={() => {
-              if (balanceInWei)
-                onChangeTokenAmount(formatUnits((BigInt(balanceInWei) / 2n).toString(), token.decimals));
+              if (balanceInWei) {
+                const halfAmount = formatUnits((BigInt(balanceInWei) / 2n).toString(), token.decimals);
+                onChangeTokenAmount(halfAmount);
+                const poolPair = pool ? `${pool.token0.symbol}/${pool.token1.symbol}` : '';
+                onEvent?.('LIQ_HALF_CLICKED', {
+                  token_symbol: token.symbol,
+                  token_address: token.address,
+                  half_amount: halfAmount,
+                  half_amount_usd: tokenPrices[token.address.toLowerCase()] * parseFloat(halfAmount || '0'),
+                  pool_pair: poolPair,
+                  chain: NETWORKS_INFO[chainId]?.name,
+                });
+              }
             }}
           >
             <Trans>Half</Trans>
