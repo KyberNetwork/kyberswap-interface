@@ -29,6 +29,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { BitcoinToken, Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
@@ -73,6 +74,7 @@ export const TokenPanel = ({
   loading?: boolean
 }) => {
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
   const [modalOpen, setModalOpen] = useState(false)
   const isEvm = isEvmChain(selectedChain as Chain)
   const { nearTokens } = useNearTokens()
@@ -174,6 +176,19 @@ export const TokenPanel = ({
       toggleShowMenu()
       return
     }
+
+    const walletType =
+      selectedChain === NonEvmChain.Solana
+        ? 'Solana'
+        : selectedChain === NonEvmChain.Near
+        ? 'NEAR'
+        : selectedChain === NonEvmChain.Bitcoin
+        ? 'Bitcoin'
+        : 'EVM'
+    trackingHandler(TRACKING_EVENT_TYPE.CC_WALLET_SELECTED, {
+      wallet_type: walletType,
+      chain: selectedChain,
+    })
 
     if (selectedChain === NonEvmChain.Solana) {
       setIsOpen(true)

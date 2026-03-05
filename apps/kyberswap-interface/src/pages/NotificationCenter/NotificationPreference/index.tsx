@@ -14,9 +14,9 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import ActionButtons from 'pages/NotificationCenter/NotificationPreference/ActionButtons'
 import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -155,7 +155,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
   const [topicGroups, setTopicGroups] = useState<Topic[]>([])
 
   const notify = useNotify()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const [emailPendingVerified, setEmailPendingVerified] = useState('')
 
@@ -232,10 +232,10 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
     try {
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics(topicGroupsGlobal)
       if (subscribeNames.length) {
-        mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_SELECT_TOPIC, { topics: subscribeNames })
+        trackingHandler(TRACKING_EVENT_TYPE.NOTIFICATION_SELECT_TOPIC, { topics: subscribeNames })
       }
       if (unsubscribeNames.length) {
-        mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_DESELECT_TOPIC, { topics: unsubscribeNames })
+        trackingHandler(TRACKING_EVENT_TYPE.NOTIFICATION_DESELECT_TOPIC, { topics: unsubscribeNames })
       }
       if (inputEmail !== userInfo?.email) setEmailPendingVerified(inputEmail)
       await saveNotification({ subscribeIds, unsubscribeIds })

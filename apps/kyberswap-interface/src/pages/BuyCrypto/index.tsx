@@ -30,9 +30,9 @@ import Deposit from 'components/Icons/Deposit'
 import { TRANSAK_API_KEY, TRANSAK_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { KSStatistic } from 'pages/About/AboutKyberSwap'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
@@ -214,7 +214,7 @@ function BuyCrypto() {
     supportedNetworks[chainId] || supportedNetworks[ChainId.MAINNET]
   }&excludeFiatCurrencies=SGD&redirectURL=${redirectURL}`
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const handleStepClick = (value: number) => {
     switch (value) {
@@ -375,7 +375,7 @@ function BuyCrypto() {
                     width={upToSmall ? '100%' : '50%'}
                     padding="10px"
                     onClick={() => {
-                      mixpanelHandler(MIXPANEL_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED)
+                      trackingHandler(TRACKING_EVENT_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED)
                       toggleDownloadWalletModal()
                     }}
                   >
@@ -495,7 +495,7 @@ function BuyCrypto() {
                   target="popup"
                   href={transakUrl}
                   onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.TRANSAK_BUY_CRYPTO_CLICKED)
+                    trackingHandler(TRACKING_EVENT_TYPE.TRANSAK_BUY_CRYPTO_CLICKED)
                     const w = 500
                     const h = 625
                     const left = window.innerWidth / 2 - w / 2
@@ -578,7 +578,7 @@ function BuyCrypto() {
                   as={Link}
                   to={APP_PATHS.SWAP + '/' + networkInfo.route}
                   onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.TRANSAK_SWAP_NOW_CLICKED)
+                    trackingHandler(TRACKING_EVENT_TYPE.TRANSAK_SWAP_NOW_CLICKED)
                   }}
                 >
                   <Repeat size={24} />

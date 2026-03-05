@@ -17,7 +17,7 @@ import WelcomeImage from 'assets/images/tutorial_swap/welcome.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { ToggleItemType } from 'components/Collapse'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { ExternalLink } from 'theme'
 import { filterTruthy } from 'utils'
@@ -369,7 +369,7 @@ export default memo(function TutorialSwap() {
   const [{ show = false, step = 0 }, setShowTutorial] = useTutorialSwapGuide()
   const stopTutorial = () => setShowTutorial({ show: false })
   const { account } = useActiveWeb3React()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   useEffect(() => {
     if (!localStorage.getItem(TutorialKeys.SHOWED_SWAP_GUIDE)) {
@@ -404,13 +404,13 @@ export default memo(function TutorialSwap() {
 
   const onDismiss = (logic: WalktourLogic) => {
     const { stepNumber } = stepInfo
-    mixpanelHandler(MIXPANEL_TYPE.TUTORIAL_CLICK_DENY, stepNumber)
+    trackingHandler(TRACKING_EVENT_TYPE.TUTORIAL_CLICK_DENY, stepNumber)
     stopTutorial()
     logic.close()
   }
 
   const onFinished = () => {
-    mixpanelHandler(MIXPANEL_TYPE.TUTORIAL_CLICK_DONE)
+    trackingHandler(TRACKING_EVENT_TYPE.TUTORIAL_CLICK_DONE)
     stopTutorial()
   }
 

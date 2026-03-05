@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
+import { DEXES_INFO, NETWORKS_INFO, PoolType } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -25,7 +26,8 @@ const SlippageInput = ({
   const { slippage, setSlippage, route } = useZapState();
   const { suggestedSlippage } = useZapRoute();
   const { pool } = usePoolStore(['pool']);
-  const { chainId } = useWidgetStore(['chainId']);
+  const { chainId, poolType, onEvent } = useWidgetStore(['chainId', 'poolType', 'onEvent']);
+  const previousSlippageRef = useRef(slippage);
   const [v, setV] = useState(() => {
     if (!slippage) return '';
     if ([5, 10, 50, 100].includes(slippage)) return '';
@@ -39,13 +41,32 @@ const SlippageInput = ({
     suggestedSlippage,
   );
 
+  const fireSlippageEvent = (newSlippage: number) => {
+    if (pool && previousSlippageRef.current !== undefined && newSlippage !== previousSlippageRef.current) {
+      const dexNameObj = DEXES_INFO[poolType as PoolType]?.name;
+      const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+      onEvent?.('LIQ_MAX_SLIPPAGE_CHANGED', {
+        previous_slippage: (previousSlippageRef.current * 100) / 10_000,
+        new_slippage: (newSlippage * 100) / 10_000,
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_protocol: dexName,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
+      previousSlippageRef.current = newSlippage;
+    }
+  };
+
   const onCustomSlippageFocus = () => setIsFocus(true);
 
   const onCustomSlippageBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocus(false);
-    if (!e.currentTarget.value) setSlippage(10);
-    else if (isValid) {
-      setSlippage(parseSlippageInput(e.currentTarget.value));
+    if (!e.currentTarget.value) {
+      setSlippage(10);
+      fireSlippageEvent(10);
+    } else if (isValid) {
+      const parsed = parseSlippageInput(e.currentTarget.value);
+      setSlippage(parsed);
+      fireSlippageEvent(parsed);
     }
   };
 
@@ -99,6 +120,7 @@ const SlippageInput = ({
             onClick={() => {
               setSlippage(item);
               setV('');
+              fireSlippageEvent(item);
             }}
             key={item}
             style={{ flex: 2 }}
@@ -140,6 +162,7 @@ const SlippageInput = ({
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);
+              fireSlippageEvent(suggestedSlippage);
               if (![5, 10, 50, 100].includes(suggestedSlippage)) {
                 setV(((suggestedSlippage * 100) / 10_000).toString());
               } else setV('');

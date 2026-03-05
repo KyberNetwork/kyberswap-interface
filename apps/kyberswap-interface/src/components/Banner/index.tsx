@@ -9,8 +9,8 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import WorkYourAssetsDesktop from 'assets/banners/work_your_assets_desktop.png'
 import WorkYourAssetsMobile from 'assets/banners/work_your_assets_mobile.png'
 import WorkYourAssetsTablet from 'assets/banners/work_your_assets_tablet.png'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ExternalLink } from 'theme'
 
@@ -98,7 +98,7 @@ function Banner({
   const size = useWindowSize()
   const w = size?.width || 0
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const ALL_BANNERS = useMemo(
     () => [
@@ -150,7 +150,7 @@ function Banner({
               <ExternalLink
                 href={banner.link}
                 onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.BANNER_CLICK, {
+                  trackingHandler(TRACKING_EVENT_TYPE.BANNER_CLICK, {
                     banner_name: banner.name,
                     banner_url: banner.link,
                   })
@@ -162,7 +162,7 @@ function Banner({
                 color={theme.white}
                 role="button"
                 onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.CLOSE_BANNER_CLICK, {
+                  trackingHandler(TRACKING_EVENT_TYPE.CLOSE_BANNER_CLICK, {
                     banner_name: banner.name,
                     banner_url: banner.link,
                   })

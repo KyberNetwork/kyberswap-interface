@@ -10,6 +10,7 @@ import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { ConfirmationPopup } from 'pages/CrossChainSwap/components/ConfirmationPopup'
@@ -23,6 +24,7 @@ import { isEvmChain } from 'utils'
 
 export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {
   const { account, chainId } = useActiveWeb3React()
+  const { trackingHandler } = useTracking()
   const {
     showPreview,
     setShowPreview,
@@ -191,6 +193,15 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
       label: t`Review the Cross-chain Swap`,
       onClick: () => {
         setShowPreview(true)
+        trackingHandler(TRACKING_EVENT_TYPE.CC_REVIEW_OPENED, {
+          from_token: currencyIn?.symbol,
+          to_token: currencyOut?.symbol,
+          from_chain: fromChainId,
+          to_chain: toChainId,
+          amount_in: selectedQuote?.quote.inputUsd,
+          amount_out_estimated: selectedQuote?.quote.outputUsd,
+          routing_source: selectedQuote?.adapter.getName(),
+        })
       },
     }
   })()

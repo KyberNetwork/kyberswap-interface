@@ -14,8 +14,8 @@ import Loader from 'components/LocalLoader'
 import TradingViewChart from 'components/TradingViewChart'
 import { useActiveWeb3React } from 'hooks'
 import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
@@ -191,7 +191,7 @@ function LiveChart({
   const isProchartError = !commonPool
   const isBasicchartError = basicChartError && !basicChartLoading
   const bothChartError = isProchartError && isBasicchartError
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   useEffect(() => {
     if (hoverValue !== null) {
@@ -234,9 +234,9 @@ function LiveChart({
         toggle={(name: string) => {
           if (!bothChartError && name !== (isShowProChart ? 'pro' : 'basic')) {
             if (name === 'pro') {
-              mixpanelHandler(MIXPANEL_TYPE.PRO_CHART_CLICKED)
+              trackingHandler(TRACKING_EVENT_TYPE.PRO_CHART_CLICKED)
             } else {
-              mixpanelHandler(MIXPANEL_TYPE.BASIC_CHART_CLICKED)
+              trackingHandler(TRACKING_EVENT_TYPE.BASIC_CHART_CLICKED)
             }
             setIsManualChange(true)
             setIsShowProChart(prev => !prev)
@@ -248,7 +248,7 @@ function LiveChart({
         ]}
       />
     ) : null
-  }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, mixpanelHandler, enableProChart])
+  }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, trackingHandler, enableProChart])
 
   const isReverse =
     commonPool?.relationships?.base_token.data.id ===
