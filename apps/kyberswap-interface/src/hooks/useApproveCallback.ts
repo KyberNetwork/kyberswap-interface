@@ -36,6 +36,7 @@ export function useApproveCallback(
   amountToApprove?: CurrencyAmount<Currency>,
   spender?: string,
   forceApprove = false,
+  onApprovalError?: (error: { message: string; tokenSymbol?: string; tokenAddress?: string; spender?: string }) => void,
 ): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined] {
   const { account } = useActiveWeb3React()
   const token = amountToApprove?.currency.wrapped
@@ -169,6 +170,12 @@ export function useApproveCallback(
       } catch (error) {
         const message = friendlyError(error)
         console.error('Approve token error:', { message, error })
+        onApprovalError?.({
+          message,
+          tokenSymbol: token?.symbol,
+          tokenAddress: token?.address,
+          spender,
+        })
         notify(
           {
             title: t`Approve Error`,
@@ -190,6 +197,7 @@ export function useApproveCallback(
       forceApprove,
       notify,
       paymentToken?.address,
+      onApprovalError,
     ],
   )
 

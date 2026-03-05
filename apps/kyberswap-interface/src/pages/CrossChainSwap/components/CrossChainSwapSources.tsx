@@ -7,6 +7,7 @@ import { BackIconWrapper, LiquiditySourceHeader, SourceList } from 'components/s
 import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
 import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { updateExcludedSources } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
@@ -14,6 +15,7 @@ import { CrossChainSwapFactory } from '../factory'
 
 export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
   const [searchText, setSearchText] = useState('')
 
   const checkAllRef = useRef<HTMLInputElement | null>(null)
@@ -87,11 +89,20 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
                   checked={!excludedSources.includes(item.getName())}
                   onChange={() => {
                     const isExclude = excludedSources.find(i => i === item.getName())
+                    const enabled = !!isExclude
                     if (isExclude) {
                       dispatch(updateExcludedSources(excludedSources.filter(ex => ex !== item.getName())))
                     } else {
                       dispatch(updateExcludedSources([...excludedSources, item.getName()]))
                     }
+                    trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTING_SOURCE_TOGGLED, {
+                      source_name: item.getName(),
+                      enabled,
+                      total_enabled: enabled
+                        ? sources.length - excludedSources.length + 1
+                        : sources.length - excludedSources.length - 1,
+                      total_available: sources.length,
+                    })
                   }}
                 />
 

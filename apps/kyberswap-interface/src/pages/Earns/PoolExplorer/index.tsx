@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -13,6 +13,7 @@ import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import Filter from 'pages/Earns/PoolExplorer/Filter'
 import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import TableHeader from 'pages/Earns/PoolExplorer/TableHeader'
@@ -51,6 +52,7 @@ const PoolExplorer = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const notify = useNotify()
+  const { trackingHandler } = useTracking()
   const { filters, updateFilters } = useFilter(setSearch)
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
   const { onOpenSmartExit, smartExitWidget } = useSmartExitWidget()
@@ -63,6 +65,7 @@ const PoolExplorer = () => {
   const { widget: zapCreatePoolWidget, open: openZapCreatePoolWidget } = useZapCreatePoolWidget()
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const pendingSearchRef = useRef('')
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -137,9 +140,29 @@ const PoolExplorer = () => {
         updateFilters('sortBy', '')
         updateFilters('orderBy', '')
       }
+      if (deboundedSearch) {
+        pendingSearchRef.current = deboundedSearch
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deboundedSearch, filters.q, updateFilters])
+
+  useEffect(() => {
+    if (pendingSearchRef.current && poolData) {
+      trackingHandler(TRACKING_EVENT_TYPE.POOL_SEARCHED, {
+        search_query: pendingSearchRef.current,
+        results_count: poolData?.data?.pagination?.totalItems || 0,
+        active_category: filters.tag || 'all_pools',
+        active_filters: {
+          chain: filters.chainIds,
+          protocol: filters.protocol || 'all',
+          time_period: filters.interval,
+        },
+      })
+      pendingSearchRef.current = ''
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [poolData])
 
   useEffect(() => {
     const dex = searchParams.get('exchange')
@@ -194,6 +217,7 @@ const PoolExplorer = () => {
         search={search}
         setSearch={setSearch}
         onOpenCreatePool={() => setIsCreateModalOpen(true)}
+        totalItems={poolData?.data?.pagination?.totalItems}
       />
 
       {upToLarge && (

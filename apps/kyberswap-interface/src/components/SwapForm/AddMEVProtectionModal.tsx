@@ -15,8 +15,8 @@ import { CONNECTION } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -48,7 +48,7 @@ export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
 export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { addNewNetwork } = useChangeNetwork()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const { walletKey, chainId } = useActiveWeb3React()
   const notify = useNotify()
   const theme = useTheme()
@@ -65,7 +65,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
     if (!KYBER_SWAP_RPC[chainId]) return
 
     const name = 'Ethereum Mainnet (KyberSwap RPC)'
-    mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL, { type: name })
+    trackingHandler(TRACKING_EVENT_TYPE.MEV_ADD_CLICK_MODAL, { type: name })
     addNewNetwork(
       chainId,
       KYBER_SWAP_RPC[chainId] as string,
@@ -81,15 +81,15 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           summary: t`You have successfully turned on MEV Protection Mode. All transactions on ${chainName} will go through the custom RPC endpoint unless you change it`,
         })
         onClose?.()
-        mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_RESULT, { type: name, result: 'success' })
+        trackingHandler(TRACKING_EVENT_TYPE.MEV_ADD_RESULT, { type: name, result: 'success' })
       },
       (error: Error) => {
         const message = friendlyError(error)
-        mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_RESULT, { type: name, result: 'fail', reason: message })
+        trackingHandler(TRACKING_EVENT_TYPE.MEV_ADD_RESULT, { type: name, result: 'fail', reason: message })
         onClose?.()
       },
     )
-  }, [isUsingMetamask, onClose, mixpanelHandler, addNewNetwork, notify, chainId, chainName])
+  }, [isUsingMetamask, onClose, trackingHandler, addNewNetwork, notify, chainId, chainName])
 
   return (
     <Modal

@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 export const timePeriods = ['7D', '1M', '6M', '1Y'] as const
 export type TimePeriod = (typeof timePeriods)[number]
@@ -43,7 +43,7 @@ type Props = {
 }
 
 const TimePeriodSelect: React.FC<Props> = ({ period: selectedPeriod, setPeriod }) => {
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   return (
     <Wrapper>
@@ -53,7 +53,7 @@ const TimePeriodSelect: React.FC<Props> = ({ period: selectedPeriod, setPeriod }
             key={period}
             role="button"
             onClick={() => {
-              mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_CHANGE_TIMEFRAME_EARNING_CHART)
+              trackingHandler(TRACKING_EVENT_TYPE.EARNING_DASHBOARD_CLICK_CHANGE_TIMEFRAME_EARNING_CHART)
               setPeriod(period)
             }}
             active={period === selectedPeriod}

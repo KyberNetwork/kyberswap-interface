@@ -1,3 +1,4 @@
+import { rpcFetch } from '@kyber/rpc-client/fetch';
 import { ChainId, NETWORKS_INFO, PoolType, univ4Types } from '@kyber/schema';
 
 import { estimateGas, formatUnits, getCurrentGasPrice } from '.';
@@ -5,11 +6,9 @@ import { friendlyError } from '../error';
 import { fetchTokenPrice } from '../services';
 
 export const estimateGasForTx = async ({
-  rpcUrl,
   txData,
   chainId,
 }: {
-  rpcUrl: string;
   txData: {
     from: string;
     to: string;
@@ -21,13 +20,13 @@ export const estimateGasForTx = async ({
   try {
     const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
     const [gasEstimation, nativeTokenPrice, gasPrice] = await Promise.all([
-      estimateGas(rpcUrl, txData),
+      estimateGas(chainId, txData),
       fetchTokenPrice({ addresses: [wethAddress], chainId })
         .then((prices: { [x: string]: { PriceBuy: number } }) => {
           return prices[wethAddress]?.PriceBuy || 0;
         })
         .catch(() => 0),
-      getCurrentGasPrice(rpcUrl),
+      getCurrentGasPrice(chainId),
     ]);
 
     const gasUsd = +formatUnits(gasPrice.toString(), 18) * +gasEstimation.toString() * nativeTokenPrice;
@@ -49,34 +48,23 @@ export const estimateGasForTx = async ({
 
 /**
  * Get tokenId from transaction hash by parsing transaction receipt logs
- * @param rpcUrl - RPC URL to fetch transaction receipt
+ * @param chainId - Chain ID for automatic RPC rotation
  * @param txHash - Transaction hash
  * @param poolType - Pool type to determine which event to parse
  * @returns tokenId as string or null if not found
  */
 export const getTokenIdFromTxHash = async ({
-  rpcUrl,
+  chainId,
   txHash,
   poolType,
 }: {
-  rpcUrl: string;
+  chainId: number;
   txHash: string;
   poolType: PoolType;
 }): Promise<string | null> => {
   try {
-    // Get transaction receipt via RPC
-    const response = await fetch(rpcUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'eth_getTransactionReceipt',
-        params: [txHash],
-        id: 1,
-      }),
-    });
-    const data = (await response.json()) as { result?: { logs?: any[] } };
-    const receipt = data.result;
+    // Get transaction receipt via RPC with rotation
+    const receipt = await rpcFetch<{ logs?: any[] } | null>(chainId, 'eth_getTransactionReceipt', [txHash]);
     if (!receipt || !receipt.logs) return null;
 
     // Check if it's UniV4 (FairFlow) - use Transfer event

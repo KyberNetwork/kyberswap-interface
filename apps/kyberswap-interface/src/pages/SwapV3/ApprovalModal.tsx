@@ -15,8 +15,8 @@ import Modal from 'components/Modal'
 import Input from 'components/NumericalInput'
 import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen } from 'state/application/hooks'
 
@@ -103,7 +103,7 @@ const ApprovalModal = ({
 
   const isOpen = useModalOpen(ApplicationModal.SWAP_APPROVAL)
   const closeModal = useCloseModal(ApplicationModal.SWAP_APPROVAL)
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   useEffect(() => {
     setCustomValue(typedValue || '1')
   }, [typedValue])
@@ -116,8 +116,10 @@ const ApprovalModal = ({
   const handleApprove = () => {
     if (isValid) {
       onApprove?.(option === ApproveOptions.Infinite ? MaxUint256 : parseUnits(customValue, currencyInput?.decimals))
-      mixpanelHandler(
-        option === ApproveOptions.Infinite ? MIXPANEL_TYPE.INFINITE_APPROVE_CLICK : MIXPANEL_TYPE.CUSTOM_APPROVE_CLICK,
+      trackingHandler(
+        option === ApproveOptions.Infinite
+          ? TRACKING_EVENT_TYPE.INFINITE_APPROVE_CLICK
+          : TRACKING_EVENT_TYPE.CUSTOM_APPROVE_CLICK,
       )
       closeModal()
     }

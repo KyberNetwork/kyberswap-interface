@@ -17,8 +17,8 @@ import { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -51,7 +51,7 @@ export default function ProAmmFee({
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerReadingContract()
   const deadline = useTransactionDeadline() // custom from users settings
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -106,7 +106,7 @@ export default function ProAmmFee({
       return
     }
     // setCollecting(true)
-    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_INITIATED, {
+    trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_COLLECT_FEES_INITIATED, {
       token_1: token0Shown?.symbol,
       token_2: token1Shown?.symbol,
     })

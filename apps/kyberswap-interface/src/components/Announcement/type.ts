@@ -79,7 +79,6 @@ type LimitOrderAnnouncement = {
 export type PoolPositionAnnouncement = {
   positionId: string
   chainId: string
-  exchange: string
   token0Symbol: string
   token1Symbol: string
   token0LogoURL: string
@@ -88,7 +87,35 @@ export type PoolPositionAnnouncement = {
   minPrice: number
   maxPrice: number
   poolAddress: string
-  type: 'OUT_OF_RANGE' | 'IN_RANGE'
+  exchange: string
+}
+
+export type PoolPositionLiquidityAnnouncement<NumberOrString = string> = {
+  positionId: string
+  chainId: NumberOrString
+  chainName: string
+  token0Symbol: string
+  token1Symbol: string
+  token0Decimals: NumberOrString
+  token1Decimals: NumberOrString
+  token0LogoURL: string
+  token1LogoURL: string
+  currentPrice: NumberOrString
+  minPrice: NumberOrString
+  maxPrice: NumberOrString
+  poolAddress: string
+  exchange: string
+  kyberswapUrl: string
+  wallet: string
+  notificationType: 'CREATED' | 'LIQUIDITY_DECREASED' | 'LIQUIDITY_INCREASED'
+  oldLiquidity: NumberOrString
+  newLiquidity: NumberOrString
+  oldToken0Amount: NumberOrString
+  newToken0Amount: NumberOrString
+  oldToken1Amount: NumberOrString
+  newToken1Amount: NumberOrString
+  oldValueUsd: NumberOrString
+  newValueUsd: NumberOrString
 }
 
 export type AnnouncementTemplateLimitOrder = {
@@ -133,7 +160,7 @@ export type TokenInfoWatchlist = {
 }
 
 export type AnnouncementTemplatePoolPosition = {
-  position: PoolPositionAnnouncement
+  position: PoolPositionAnnouncement | PoolPositionLiquidityAnnouncement
   popupType: PopupType
 }
 

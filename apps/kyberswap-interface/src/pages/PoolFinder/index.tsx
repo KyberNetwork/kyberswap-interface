@@ -18,7 +18,7 @@ import { APP_PATHS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState, usePair } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import AppBody from 'pages/AppBody'
 import { Dots } from 'pages/MyPool/styleds'
 import { usePairAdderByTokens } from 'state/user/hooks'
@@ -106,9 +106,9 @@ export default function PoolFinder() {
   const native0 = useCurrencyConvertedToNative(currency0 || undefined)
   const native1 = useCurrencyConvertedToNative(currency1 || undefined)
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   useEffect(() => {
-    mixpanelHandler(MIXPANEL_TYPE.IMPORT_POOL_INITIATED)
+    trackingHandler(TRACKING_EVENT_TYPE.IMPORT_POOL_INITIATED)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
