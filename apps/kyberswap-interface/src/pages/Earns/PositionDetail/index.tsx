@@ -456,7 +456,6 @@ const PositionDetail = () => {
             tooltip={t`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
             options={timings.slice(0, 2)}
             value={aprInterval}
-            alignLeft
             onChange={value => setAprInterval(value as '24h')}
           />
         </Flex>

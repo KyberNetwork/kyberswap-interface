@@ -239,6 +239,9 @@ export default function TokenSelector({
   const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialTokensInAddress = useRef(
+    new Set(tokensIn.map((token) => token.address.toLowerCase())),
+  );
 
   const modalTokensInAddress = useMemo(
     () =>
@@ -305,8 +308,26 @@ export default function TokenSelector({
         };
       })
       .sort((a: CustomizeToken, b: CustomizeToken) => {
-        // Combined sort: selected > inPair > balance (descending)
-        if (b.selected !== a.selected) return b.selected - a.selected;
+        if (mode === TOKEN_SELECT_MODE.ADD) {
+          // In ADD mode, only the preselected tokens from the opening state should be bubbled up.
+          // Newly added or removed tokens should not reshuffle the list while the modal is open.
+          const aInitiallySelected = initialTokensInAddress.current.has(
+            a.address.toLowerCase(),
+          );
+          const bInitiallySelected = initialTokensInAddress.current.has(
+            b.address.toLowerCase(),
+          );
+
+          if (aInitiallySelected !== bInitiallySelected) {
+            return Number(bInitiallySelected) - Number(aInitiallySelected);
+          }
+
+          return 0;
+        }
+
+        if (b.selected !== a.selected) {
+          return b.selected - a.selected;
+        }
         if (b.inPair !== a.inPair) return b.inPair - a.inPair;
         return parseFloat(b.balance) - parseFloat(a.balance);
       });
@@ -589,6 +610,9 @@ export default function TokenSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokensIn, amountsIn]);
 
+  const showTabs =
+    showUserPositions && onSelectLiquiditySource && !positionsOnly;
+
   return (
     <div className="w-full mx-auto text-white overflow-hidden flex flex-col h-full">
       <div className="space-y-4 flex flex-col flex-1 min-h-0">
@@ -604,7 +628,7 @@ export default function TokenSelector({
           </div>
         </div>
 
-        {showUserPositions && onSelectLiquiditySource && !positionsOnly && (
+        {showTabs && (
           <div className="border rounded-full p-[2px] flex mx-6 text-sm gap-1 border-icon-200">
             <div
               className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
@@ -651,7 +675,7 @@ export default function TokenSelector({
         )}
 
         <div
-          className={`px-6 ${modalTabSelected === MODAL_TAB.POSITIONS ? "!mb-2" : ""}`}
+          className={`px-6 ${modalTabSelected === MODAL_TAB.POSITIONS ? "!mb-2" : ""} ${!showTabs ? "!mt-0" : ""}`}
         >
           <div className="relative border-0">
             <Input
