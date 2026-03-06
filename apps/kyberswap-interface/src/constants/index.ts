@@ -147,6 +147,7 @@ export const APP_PATHS = {
   PARTNER_SWAP: '/partner-swap',
   FIND_POOL: '/find',
   POOLS: '/pools',
+  ADD_LIQUIDITY: '/pools/add-liquidity',
   CLASSIC_CREATE_POOL: '/create',
   CLASSIC_ADD_LIQ: '/add',
   CLASSIC_REMOVE_POOL: '/remove',
