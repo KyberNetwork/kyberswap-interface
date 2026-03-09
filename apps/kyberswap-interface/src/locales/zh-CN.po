@@ -4960,7 +4960,7 @@ msgid "Eligible Transactions"
 msgstr "合格交易"
 
 #: src/pages/Campaign/constants.tsx
-msgid "Place order"
+msgid "Place Order"
 msgstr "下单"
 
 #: src/components/Toggle/LegacyToggle.tsx

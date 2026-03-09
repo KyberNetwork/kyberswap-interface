@@ -8,7 +8,7 @@ import { useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 import Select, { SelectOption } from 'components/Select'
 import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
-import { getCurrentWeek } from 'pages/Campaign/utils'
+import { getCurrentWeek, resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 type Props = {
@@ -36,19 +36,9 @@ const WeekSelect = ({ type, selectedWeek, setSelectedWeek }: Props) => {
   }, [type, configWeeks, raffleCampaignStats])
 
   useEffect(() => {
-    const now = dayjs().unix()
     setSelectedWeek(current => {
-      if (!weeks || weeks.length === 0) return current
-
-      const active = weeks.find(w => now >= w.start && now <= w.end)
-      if (active) return active.value
-
-      const first = weeks[0]
-      const last = weeks[weeks.length - 1]
-      if (now < first.start) return first.value
-      if (now > last.end) return last.value
-
-      return weeks.some(w => w.value === current) ? current : first.value
+      const resolvedWeek = resolveSelectedCampaignWeek(weeks, current, dayjs().unix())
+      return resolvedWeek ? resolvedWeek.value : current
     })
   }, [setSelectedWeek, weeks, type])
 
