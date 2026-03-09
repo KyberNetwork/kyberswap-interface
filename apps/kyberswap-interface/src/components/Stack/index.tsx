@@ -1,7 +1,9 @@
+import type { ComponentProps } from 'react'
 import { Box } from 'rebass/styled-components'
 import styled from 'styled-components'
 
 type StackSpacing = 'sm' | 'md' | 'lg' | number | string
+type StackLength = number | string
 
 type StackAlignItems = 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'stretch' | 'baseline'
 type StackJustify =
@@ -22,7 +24,14 @@ const getSpacing = (value?: StackSpacing) => {
   return (value === 'sm' && '8px') || (value === 'md' && '12px') || (value === 'lg' && '24px') || value
 }
 
-export type StackProps = {
+const getLength = (value?: StackLength) => {
+  if (typeof value === 'number') return `${value}px`
+  return value
+}
+
+type BoxProps = ComponentProps<typeof Box>
+
+export type StackProps = BoxProps & {
   direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
   gap?: StackSpacing
   spacing?: StackSpacing
@@ -33,6 +42,9 @@ export type StackProps = {
   justify?: StackJustify
   justifyContent?: StackJustify
   wrap?: 'wrap' | 'nowrap' | 'wrap-reverse'
+  background?: string
+  border?: string
+  borderRadius?: StackLength
 }
 
 export const Stack = styled(Box)<StackProps>`
@@ -44,6 +56,9 @@ export const Stack = styled(Box)<StackProps>`
   gap: ${({ gap, spacing }) => getSpacing(gap || spacing)};
   row-gap: ${({ rowGap }) => getSpacing(rowGap)};
   column-gap: ${({ columnGap }) => getSpacing(columnGap)};
+  background: ${({ background }) => background};
+  border: ${({ border }) => border};
+  border-radius: ${({ borderRadius }) => getLength(borderRadius)};
 `
 
 export const HStack = styled(Stack)`
