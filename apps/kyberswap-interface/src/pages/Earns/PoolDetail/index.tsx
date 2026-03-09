@@ -1,13 +1,12 @@
 import { useSearchParams } from 'react-router-dom'
 import { usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 
+import { NETWORKS_INFO } from 'constants/networks'
+import AddLiquidity from 'pages/Earns/PoolDetail/components/add-liquidity/AddLiquidity'
+import PoolHeader from 'pages/Earns/PoolDetail/components/pool/PoolHeader'
+import PoolInformation from 'pages/Earns/PoolDetail/components/pool/PoolInformation'
+import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
-
-import AddLiquidity from './components/AddLiquidity'
-import PoolHeader from './components/PoolHeader'
-import PoolInformation from './components/PoolInformation'
-import PoolLiquidityWidget from './components/PoolLiquidityWidget'
-import { PoolDetailWrapper } from './styled'
 
 const PoolDetail = () => {
   const [searchParams] = useSearchParams()
@@ -33,30 +32,24 @@ const PoolDetail = () => {
   )
 
   const pool = explorerData?.data?.pools?.find(item => item.address.toLowerCase() === poolAddress.toLowerCase())
-  const token0Symbol = pool?.tokens?.[0]?.symbol || poolDetail?.tokens?.[0]?.symbol
-  const token1Symbol = pool?.tokens?.[1]?.symbol || poolDetail?.tokens?.[1]?.symbol
-  const pairLabel = token0Symbol && token1Symbol ? `${token0Symbol}/${token1Symbol}` : undefined
+  const chainName = chainId ? NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name : undefined
   const protocol = exchange ? EARN_DEXES[exchange as Exchange]?.name || exchange : undefined
 
   return (
     <PoolDetailWrapper>
       <PoolHeader pool={pool} poolDetail={poolDetail} chainId={chainId} exchange={exchange} />
       <AddLiquidity
-        form={
-          <PoolLiquidityWidget
-            exchange={exchange}
-            poolAddress={poolAddress}
-            chainId={chainId}
-            tickLower={tickLower}
-            tickUpper={tickUpper}
-          />
-        }
-        token0Symbol={token0Symbol}
-        token1Symbol={token1Symbol}
-        protocol={protocol}
-        pairLabel={pairLabel}
+        pool={pool}
+        poolDetail={poolDetail}
+        route={{
+          exchange,
+          poolAddress,
+          chainId,
+          tickLower,
+          tickUpper,
+        }}
       >
-        <PoolInformation pool={pool} poolDetail={poolDetail} />
+        <PoolInformation pool={pool} poolDetail={poolDetail} chainName={chainName} dexName={protocol} />
       </AddLiquidity>
     </PoolDetailWrapper>
   )
