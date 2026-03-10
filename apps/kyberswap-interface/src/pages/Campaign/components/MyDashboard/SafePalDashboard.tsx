@@ -25,10 +25,11 @@ import {
   isSafePalCampaignWinner,
 } from 'pages/Campaign/utils/safepalUtils'
 import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1.6fr 1fr 120px;
+  grid-template-columns: 1.6fr 1fr 1fr 120px;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   padding: 1rem 0;
@@ -67,6 +68,10 @@ const formatClaimDeadline = (timestamp: number) =>
   dayjs(timestamp * 1000)
     .utc()
     .format('DD/MM/YYYY HH:mm') + ' UTC'
+
+const formatCountValue = (value?: number) => {
+  return value !== undefined ? formatDisplayNumber(value, { significantDigits: 6 }) : '--'
+}
 
 const formatWeekLabel = (item: SafePalCampaignWeekStats) => {
   const start = dayjs(item.cycle_start)
@@ -195,6 +200,9 @@ export default function SafePalDashboard() {
                   <Trans>WEEK</Trans>
                 </Text>
                 <Text textAlign="right">
+                  <Trans>ELIGIBLE TRANSACTIONS</Trans>
+                </Text>
+                <Text textAlign="right">
                   <Trans>POINTS</Trans>
                 </Text>
                 <Text textAlign="center">
@@ -222,6 +230,13 @@ export default function SafePalDashboard() {
 
                   <Flex justifyContent="space-between" alignItems="center" mt="1rem">
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                      <Trans>ELIGIBLE TRANSACTIONS</Trans>
+                    </Text>
+                    <Text>{formatCountValue(item.cycle_eligible_tx)}</Text>
+                  </Flex>
+
+                  <Flex justifyContent="space-between" alignItems="center" mt="0.75rem">
+                    <Text color={theme.subText} fontSize={12} fontWeight={500}>
                       <Trans>POINTS</Trans>
                     </Text>
                     <Text>{item.total_points}</Text>
@@ -248,6 +263,7 @@ export default function SafePalDashboard() {
               return (
                 <TableRow key={item.cycle}>
                   <Text color={theme.subText}>{formatWeekLabel(item)}</Text>
+                  <Text textAlign="right">{formatCountValue(item.cycle_eligible_tx)}</Text>
                   <Text textAlign="right">{item.total_points}</Text>
                   <Flex justifyContent="center">
                     {hasStatus ? (

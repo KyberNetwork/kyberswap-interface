@@ -35,6 +35,7 @@ export type SafePalCampaignWeekStats = {
   cycle: number
   cycle_start: string
   cycle_end: string
+  cycle_eligible_tx: number
   distinct_products?: string[]
   base_points: number
   bonus_points: number
