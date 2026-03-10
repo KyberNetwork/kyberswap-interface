@@ -42,7 +42,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
 
   const isJoinedByWeek = useMemo(() => {
     const week = userStats?.weeks.find(week => week.cycle === selectedWeek)
-    return week?.joined || false
+    return week?.joined ?? userStats?.joined ?? false
   }, [userStats, selectedWeek])
 
   const onJoin = useCallback(async () => {
