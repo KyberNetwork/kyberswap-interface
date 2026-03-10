@@ -121,6 +121,7 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
 
   const totalCount = isOwner ? transactionsData?.total_items || 0 : leaderboardData?.total_items || 0
   const hasLeaderboardPoints = (userStats?.total_points || 0) > 0
+  const emptyStateMessage = isOwner ? t`No transactions found for this week.` : t`No participants found for this week.`
 
   const renderLabel = (label: ReactNode) =>
     upToSmall ? (
@@ -264,7 +265,7 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
           })
         ) : (
           <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px" fontSize={14}>
-            {t`No transactions found for this week.`}
+            {emptyStateMessage}
           </Text>
         )
       ) : leaderboardData?.entries.length ? (
@@ -326,7 +327,7 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
         })
       ) : (
         <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px" fontSize={14}>
-          {t`No transactions found for this week.`}
+          {emptyStateMessage}
         </Text>
       )}
 
