@@ -7,7 +7,7 @@ import { createPortal } from 'react-dom'
 import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
-import TokenAmountInput from 'pages/Earns/PoolDetail/components/add-liquidity/TokenAmountInput'
+import TokenAmountInput from 'pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const AddTokenButton = styled.button`

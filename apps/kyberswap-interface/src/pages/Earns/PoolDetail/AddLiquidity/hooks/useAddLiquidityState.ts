@@ -1,10 +1,9 @@
 import { PoolType } from '@kyber/schema'
 
-import useAddLiquidityPriceRange from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquidityPriceRange'
-import useAddLiquidityRoute from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquidityRoute'
-import useAddLiquiditySlippage from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquiditySlippage'
-import useAddLiquidityTokens from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquidityTokens'
-import useAddLiquidityPositionApr from 'pages/Earns/PoolDetail/hooks/position-apr/useAddLiquidityPositionApr'
+import useAddLiquidityPriceRange from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityPriceRange'
+import useAddLiquidityRoute from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityRoute'
+import useAddLiquiditySlippage from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquiditySlippage'
+import useAddLiquidityTokens from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityTokens'
 
 interface UseAddLiquidityStateProps {
   chainId: number
@@ -57,11 +56,6 @@ export default function useAddLiquidityState({
     tickUpper: priceRangeState.tickUpper,
   })
 
-  const positionAprState = useAddLiquidityPositionApr({
-    amounts: tokenState.amountsIn,
-    route: routeState.route,
-  })
-
   return {
     pool: {
       data: tokenState.pool,
@@ -97,11 +91,6 @@ export default function useAddLiquidityState({
       data: routeState.route,
       error: routeState.routeError,
       loading: routeState.routeLoading,
-    },
-    positionApr: {
-      hasInput: positionAprState.hasInput,
-      positionLiquidity: positionAprState.positionLiquidity,
-      positionTvl: positionAprState.positionTvl,
     },
   }
 }

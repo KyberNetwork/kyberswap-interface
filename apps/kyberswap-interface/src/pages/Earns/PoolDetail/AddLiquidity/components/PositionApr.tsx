@@ -1,3 +1,4 @@
+import { ZapRouteDetail } from '@kyber/schema'
 import { MouseoverTooltip, Skeleton } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { Trans } from '@lingui/macro'
@@ -6,7 +7,7 @@ import styled from 'styled-components'
 
 import { HStack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
-import useEstimatedPositionApr from 'pages/Earns/PoolDetail/hooks/position-apr/useEstimatedPositionApr'
+import useAddLiquidityPositionApr from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityPositionApr'
 import { EarnPool, ProgramType } from 'pages/Earns/types'
 
 const TooltipContent = styled(Box)`
@@ -56,15 +57,14 @@ const AprValue = styled(Text)`
 `
 
 interface PositionAprProps {
-  chainId: number
-  poolAddress: string
+  chainId?: number
+  poolAddress?: string
   pool?: EarnPool
   isFarming?: boolean
   tickLower: number | null
   tickUpper: number | null
-  hasInput?: boolean
-  positionLiquidity?: string | number | null
-  positionTvl?: string | number | null
+  amounts: string
+  route?: ZapRouteDetail | null
 }
 
 export default function PositionApr({
@@ -74,9 +74,8 @@ export default function PositionApr({
   isFarming: isFarmingProp,
   tickLower,
   tickUpper,
-  hasInput = false,
-  positionLiquidity,
-  positionTvl,
+  amounts,
+  route,
 }: PositionAprProps) {
   const theme = useTheme()
   const isFarming =
@@ -87,13 +86,13 @@ export default function PositionApr({
         (pool && ((pool.kemEGApr || 0) > 0 || (pool.kemLMApr || 0) > 0)),
     )
 
-  const { data, loading } = useEstimatedPositionApr({
+  const { data, hasInput, loading } = useAddLiquidityPositionApr({
     chainId,
     poolAddress,
     tickLower,
     tickUpper,
-    positionLiquidity,
-    positionTvl,
+    amounts,
+    route,
     enabled: isFarming,
   })
 

@@ -1,10 +1,10 @@
 import { Pool, PoolType } from '@kyber/schema'
 
 import { HStack, Stack } from 'components/Stack'
-import LiquidityChart from 'pages/Earns/PoolDetail/components/price-range/LiquidityChart'
-import PriceInfo from 'pages/Earns/PoolDetail/components/price-range/PriceInfo'
-import PriceInput, { PriceInputType } from 'pages/Earns/PoolDetail/components/price-range/PriceInput'
-import RangePresetSelector from 'pages/Earns/PoolDetail/components/price-range/RangePresetSelector'
+import LiquidityChart from 'pages/Earns/PoolDetail/AddLiquidity/components/price-range/LiquidityChart'
+import PriceInfo from 'pages/Earns/PoolDetail/AddLiquidity/components/price-range/PriceInfo'
+import PriceInput, { PriceInputType } from 'pages/Earns/PoolDetail/AddLiquidity/components/price-range/PriceInput'
+import RangePresetSelector from 'pages/Earns/PoolDetail/AddLiquidity/components/price-range/RangePresetSelector'
 
 interface PriceSectionProps {
   context?: {

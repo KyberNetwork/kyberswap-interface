@@ -8,7 +8,7 @@ import useTheme from 'hooks/useTheme'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { EarnPool } from 'pages/Earns/types'
 
-import AddLiquidityWidget from './AddLiquidityWidget'
+import AddLiquidityWidget from './components/AddLiquidityWidget'
 
 const WidgetShell = styled(Stack)`
   width: 100%;

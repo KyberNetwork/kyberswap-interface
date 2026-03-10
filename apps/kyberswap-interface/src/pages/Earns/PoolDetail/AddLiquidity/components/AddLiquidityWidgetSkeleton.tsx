@@ -3,8 +3,8 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
-import AddLiquiditySettings from 'pages/Earns/PoolDetail/components/add-liquidity/AddLiquiditySettings'
-import { LiquidityChartSkeleton } from 'pages/Earns/PoolDetail/components/price-range/LiquidityChart'
+import AddLiquiditySettings from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings'
+import { LiquidityChartSkeleton } from 'pages/Earns/PoolDetail/AddLiquidity/components/price-range/LiquidityChart'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 
 const FormStack = styled(Stack)`

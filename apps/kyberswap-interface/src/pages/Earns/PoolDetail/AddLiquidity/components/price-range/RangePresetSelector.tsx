@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { HStack } from 'components/Stack'
-import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from 'pages/Earns/PoolDetail/constants'
+import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from 'pages/Earns/PoolDetail/AddLiquidity/constants'
 
 const RangeButton = styled.button<{ $active: boolean }>`
   flex: 1 1 0;

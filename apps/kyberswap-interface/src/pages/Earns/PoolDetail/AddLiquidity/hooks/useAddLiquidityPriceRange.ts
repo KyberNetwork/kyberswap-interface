@@ -20,7 +20,6 @@ export default function useAddLiquidityPriceRange({
   const [revertPrice, setRevertPrice] = useState(false)
   const [tickLower, setTickLower] = useState<number | null>(null)
   const [tickUpper, setTickUpper] = useState<number | null>(null)
-  const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
 
   const isUniV3 = useMemo(() => univ3Types.includes(poolType as any), [poolType])
   const normalizedPool = useMemo(() => {
@@ -31,34 +30,22 @@ export default function useAddLiquidityPriceRange({
   }, [isUniV3, pool])
 
   const wrappedNativeTokenAddress = (NETWORKS_INFO as any)[chainId]?.wrappedToken?.address?.toLowerCase()
-
-  useEffect(() => {
-    setRevertPrice(false)
-    setTickLower(null)
-    setTickUpper(null)
-    setDefaultRevertChecked(false)
-  }, [pool?.address])
-
-  useEffect(() => {
-    if (!pool || defaultRevertChecked) return
-
-    setDefaultRevertChecked(true)
+  const defaultRevertPrice = useMemo(() => {
+    if (!pool) return false
 
     const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeTokenAddress
     const isToken0Stable = pool.token0.isStable
     const isToken1Stable = pool.token1.isStable
 
-    if ((isToken0Stable || (isToken0Native && !isToken1Stable)) && !revertPrice) {
-      setRevertPrice(true)
-    }
-  }, [defaultRevertChecked, pool, revertPrice, wrappedNativeTokenAddress])
+    return Boolean(isToken0Stable || (isToken0Native && !isToken1Stable))
+  }, [pool, wrappedNativeTokenAddress])
 
+  // Reset the displayed quote direction and seeded ticks whenever the active pool changes.
   useEffect(() => {
-    if (!initialTick || tickLower !== null || tickUpper !== null) return
-
-    setTickLower(initialTick.tickLower)
-    setTickUpper(initialTick.tickUpper)
-  }, [initialTick, tickLower, tickUpper])
+    setRevertPrice(defaultRevertPrice)
+    setTickLower(initialTick?.tickLower ?? null)
+    setTickUpper(initialTick?.tickUpper ?? null)
+  }, [defaultRevertPrice, initialTick?.tickLower, initialTick?.tickUpper, pool?.address])
 
   const poolPrice = useMemo(() => {
     if (!pool) return null

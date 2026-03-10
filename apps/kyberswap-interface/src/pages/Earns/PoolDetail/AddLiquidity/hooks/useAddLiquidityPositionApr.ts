@@ -1,4 +1,6 @@
+import { ZapRouteDetail } from '@kyber/schema'
 import { skipToken } from '@reduxjs/toolkit/query'
+import { useMemo } from 'react'
 import { useEstimatePositionAprQuery } from 'services/zapInService'
 
 import useDebounce from 'hooks/useDebounce'
@@ -10,13 +12,13 @@ type AprData = {
   lmApr: number
 }
 
-interface UseEstimatedPositionAprProps {
-  chainId: number
-  poolAddress: string
+interface UseAddLiquidityPositionAprProps {
+  chainId?: number
+  poolAddress?: string
   tickLower: number | null
   tickUpper: number | null
-  positionLiquidity?: string | number | null
-  positionTvl?: string | number | null
+  amounts: string
+  route?: ZapRouteDetail | null
   enabled?: boolean
 }
 
@@ -28,19 +30,26 @@ const isMissingLiquidity = (value?: string | number | null) => {
   return !normalizedValue || Number(normalizedValue) <= 0
 }
 
-export default function useEstimatedPositionApr({
+export default function useAddLiquidityPositionApr({
   chainId,
   poolAddress,
   tickLower,
   tickUpper,
-  positionLiquidity,
-  positionTvl,
+  amounts,
+  route,
   enabled = true,
-}: UseEstimatedPositionAprProps) {
+}: UseAddLiquidityPositionAprProps) {
+  const hasInput = useMemo(
+    () => amounts.split(',').some(value => Number.isFinite(Number(value.trim())) && Number(value.trim()) > 0),
+    [amounts],
+  )
+  const positionLiquidity = route?.positionDetails?.addedLiquidity || null
+  const positionTvl = route?.positionDetails?.addedAmountUsd || null
   const debouncedLower = useDebounce(tickLower, 150)
   const debouncedUpper = useDebounce(tickUpper, 150)
   const shouldSkip =
     !enabled ||
+    !chainId ||
     !poolAddress ||
     debouncedLower === null ||
     debouncedUpper === null ||
@@ -59,8 +68,12 @@ export default function useEstimatedPositionApr({
         },
   )
 
-  return {
-    data: (data as AprData | undefined) || null,
-    loading: isFetching,
-  }
+  return useMemo(
+    () => ({
+      hasInput,
+      data: (data as AprData | undefined) || null,
+      loading: isFetching,
+    }),
+    [data, hasInput, isFetching],
+  )
 }

@@ -2,7 +2,7 @@ import { translateZapMessage } from '@kyber/ui'
 import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
-import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquidityReviewData'
+import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityReviewData'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 
 const WarningCard = styled(NoteCard)<{ $tone: 'info' | 'warning' | 'error' }>`
