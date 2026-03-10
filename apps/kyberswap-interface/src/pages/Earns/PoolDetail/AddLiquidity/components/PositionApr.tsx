@@ -65,6 +65,7 @@ interface PositionAprProps {
   tickUpper: number | null
   amounts: string
   route?: ZapRouteDetail | null
+  routeLoading?: boolean
 }
 
 export default function PositionApr({
@@ -76,6 +77,7 @@ export default function PositionApr({
   tickUpper,
   amounts,
   route,
+  routeLoading = false,
 }: PositionAprProps) {
   const theme = useTheme()
   const isFarming =
@@ -93,6 +95,7 @@ export default function PositionApr({
     tickUpper,
     amounts,
     route,
+    routeLoading,
     enabled: isFarming,
   })
 

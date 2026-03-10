@@ -203,6 +203,7 @@ export default function AddLiquidityWidgetView({
             tickUpper={state.priceRange.tickUpper}
             amounts={state.tokenInput.amounts}
             route={state.route.data}
+            routeLoading={state.route.loading}
           />
         </>
       )}

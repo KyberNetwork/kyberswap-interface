@@ -19,6 +19,7 @@ interface UseAddLiquidityPositionAprProps {
   tickUpper: number | null
   amounts: string
   route?: ZapRouteDetail | null
+  routeLoading?: boolean
   enabled?: boolean
 }
 
@@ -37,6 +38,7 @@ export default function useAddLiquidityPositionApr({
   tickUpper,
   amounts,
   route,
+  routeLoading = false,
   enabled = true,
 }: UseAddLiquidityPositionAprProps) {
   const hasInput = useMemo(
@@ -48,6 +50,7 @@ export default function useAddLiquidityPositionApr({
   const debouncedLower = useDebounce(tickLower, 150)
   const debouncedUpper = useDebounce(tickUpper, 150)
   const shouldSkip =
+    routeLoading ||
     !enabled ||
     !chainId ||
     !poolAddress ||
@@ -72,8 +75,8 @@ export default function useAddLiquidityPositionApr({
     () => ({
       hasInput,
       data: (data as AprData | undefined) || null,
-      loading: isFetching,
+      loading: routeLoading || isFetching,
     }),
-    [data, hasInput, isFetching],
+    [data, hasInput, isFetching, routeLoading],
   )
 }
