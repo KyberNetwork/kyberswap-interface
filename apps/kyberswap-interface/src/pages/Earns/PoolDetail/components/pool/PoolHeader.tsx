@@ -14,11 +14,11 @@ import { EarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const BackButton = styled.button`
-  width: 36px;
-  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 0;
   border-radius: 999px;
@@ -28,12 +28,12 @@ const BackButton = styled.button`
 `
 
 const HeaderRow = styled(HStack)`
-  width: 100%;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
   min-width: 0;
   padding: 0;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  width: 100%;
 `
 
 const PairTitle = styled(Text)`
@@ -53,9 +53,9 @@ const ProtocolBadge = styled(HStack)`
 `
 
 const AprBadge = styled(Text)`
-  margin: 0;
   display: flex;
   align-items: center;
+  margin: 0;
   min-height: 32px;
   padding: 6px 12px;
   border-radius: 12px;
@@ -64,10 +64,10 @@ const AprBadge = styled(Text)`
 `
 
 const ProtocolLogo = styled.img`
-  width: 14px;
+  flex: 0 0 auto;
   height: 14px;
   object-fit: contain;
-  flex: 0 0 auto;
+  width: 14px;
 `
 
 interface PoolHeaderProps {
@@ -97,11 +97,11 @@ const PoolHeader = ({ pool, poolDetail, chainId, exchange }: PoolHeaderProps) =>
 
   return (
     <HeaderRow>
-      <BackButton type="button" onClick={() => navigate(-1)} aria-label="Go back">
+      <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
         <IconArrowLeft />
       </BackButton>
 
-      <HStack align="flex-end" gap={0} flex="0 0 auto">
+      <HStack flex="0 0 auto" align="flex-end" gap={0}>
         <TokenLogo src={primaryToken && 'logoURI' in primaryToken ? primaryToken.logoURI : ''} size={28} />
         <TokenLogo
           src={secondaryToken && 'logoURI' in secondaryToken ? secondaryToken.logoURI : ''}
@@ -115,14 +115,14 @@ const PoolHeader = ({ pool, poolDetail, chainId, exchange }: PoolHeaderProps) =>
         <PairTitle color={theme.text}>{pairLabel}</PairTitle>
         {dexLabel || feeLabel ? (
           <ProtocolBadge align="center" gap={8}>
-            {dexInfo?.logo ? <ProtocolLogo src={dexInfo.logo} alt={dexLabel || 'Protocol'} /> : null}
+            {dexInfo?.logo ? <ProtocolLogo alt={dexLabel || 'Protocol'} src={dexInfo.logo} /> : null}
             {dexLabel ? (
-              <Text m={0} color={theme.text} fontSize={14} fontWeight={500} lineHeight="1">
+              <Text color={theme.text} fontSize={14} fontWeight={500} lineHeight="1" m={0}>
                 {dexLabel}
               </Text>
             ) : null}
             {feeLabel ? (
-              <Text m={0} color={theme.subText} fontSize={14} fontWeight={400} lineHeight="1">
+              <Text color={theme.subText} fontSize={14} fontWeight={400} lineHeight="1" m={0}>
                 | {feeLabel}
               </Text>
             ) : null}

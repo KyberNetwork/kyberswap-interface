@@ -13,22 +13,22 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled(Stack)`
   position: relative;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: linear-gradient(180deg, rgba(40, 40, 44, 0.92) 0%, rgba(31, 31, 35, 0.92) 100%);
   padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(40, 40, 44, 0.92) 0%, rgba(31, 31, 35, 0.92) 100%);
 `
 
 const QuickActionButton = styled.button`
+  padding: 4px 8px;
   border: none;
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
   color: ${({ theme }) => theme.subText};
-  border-radius: 999px;
-  padding: 4px 8px;
+  cursor: pointer;
   font-size: 12px;
   font-weight: 400;
   line-height: 1;
-  cursor: pointer;
 
   :hover {
     filter: brightness(1.15);
@@ -39,12 +39,12 @@ const BalanceButton = styled.button`
   display: flex;
   align-items: center;
   gap: 6px;
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  cursor: pointer;
   padding: 0;
+  background: transparent;
+  border: none;
+  color: ${({ theme }) => theme.subText};
+  cursor: pointer;
+  font-size: 12px;
 `
 
 const BalanceIcon = styled(WalletIcon)`
@@ -54,14 +54,14 @@ const BalanceIcon = styled(WalletIcon)`
 const AmountInput = styled.input`
   flex: 1 1 0;
   min-width: 0;
+  padding: 0;
   border: none;
-  outline: none;
   background: transparent;
   color: ${({ theme }) => theme.text};
   font-size: 30px;
   font-weight: 400;
   line-height: 1.1;
-  padding: 0;
+  outline: none;
 
   ::placeholder {
     color: ${({ theme }) => theme.subText};
@@ -82,11 +82,11 @@ const TokenButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: none;
-  background: rgba(255, 255, 255, 0.08);
-  color: ${({ theme }) => theme.text};
-  border-radius: 999px;
   padding: 7px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 999px;
+  color: ${({ theme }) => theme.text};
   cursor: pointer;
   white-space: nowrap;
 
@@ -106,16 +106,17 @@ const Chevron = styled(DropdownIcon)`
 
 const RemoveButton = styled.button`
   position: absolute;
-  top: -12px;
-  right: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  top: -2px;
+  right: -2px;
+  background: transparent;
   border: none;
   border-radius: 0;
-  background: transparent;
   color: ${({ theme }) => theme.subText};
   cursor: pointer;
 
@@ -201,7 +202,7 @@ const TokenAmountInput = ({
   }
 
   return (
-    <Card gap={12}>
+    <Card gap={12} style={{ borderTopRightRadius: tokensCount > 1 ? 0 : undefined }}>
       <HStack align="center" justify="space-between" gap={12}>
         <HStack align="center" gap={8} wrap="wrap">
           <QuickActionButton type="button" onClick={() => applyPercentage(25)}>
@@ -225,7 +226,7 @@ const TokenAmountInput = ({
       </HStack>
 
       <HStack align="center" gap={12}>
-        <AmountInput value={amount} onChange={handleAmountChange} placeholder="0.0" inputMode="decimal" />
+        <AmountInput inputMode="decimal" onChange={handleAmountChange} placeholder="0.0" value={amount} />
         {!!usdAmount && (
           <AmountMeta>
             ~
@@ -235,7 +236,7 @@ const TokenAmountInput = ({
             })}
           </AmountMeta>
         )}
-        <TokenButton type="button" onClick={() => onTokenSelectOpen?.(token.address)}>
+        <TokenButton onClick={() => onTokenSelectOpen?.(token.address)} type="button">
           <TokenLogo src={token.logo} size={20} />
           <TokenSymbol>{token.symbol}</TokenSymbol>
           <Chevron />

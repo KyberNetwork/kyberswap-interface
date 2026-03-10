@@ -9,17 +9,17 @@ import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const RevertButton = styled.button`
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid ${({ theme }) => theme.tabActive};
-  background: ${({ theme }) => theme.buttonBlack};
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: 1px solid ${({ theme }) => theme.tabActive};
+  border-radius: 999px;
+  background: ${({ theme }) => theme.buttonBlack};
+  color: ${({ theme }) => theme.subText};
+  cursor: pointer;
 
   :hover {
     filter: brightness(1.08);
@@ -62,9 +62,9 @@ export default function PriceInfo({ pool, poolPrice, revertPrice, onRevertPriceT
       borderRadius={12}
       background="rgba(255, 255, 255, 0.01)"
     >
-      <HStack align="center" justify="space-between" gap={12}>
-        <CurrentPriceRow align="center" gap={8} wrap="wrap" flex="1 1 auto">
-          <Text m={0} color={theme.subText}>
+      <HStack align="center" gap={12} justify="space-between">
+        <CurrentPriceRow flex="1 1 auto" align="center" gap={8} wrap="wrap">
+          <Text color={theme.subText} m={0}>
             Current Price
           </Text>
           {!pool ? (
@@ -80,7 +80,7 @@ export default function PriceInfo({ pool, poolPrice, revertPrice, onRevertPriceT
           )}
         </CurrentPriceRow>
 
-        <RevertButton type="button" onClick={onRevertPriceToggle} aria-label="Reverse price">
+        <RevertButton aria-label="Reverse price" onClick={onRevertPriceToggle} type="button">
           <RevertPriceIcon width={12} height={12} />
         </RevertButton>
       </HStack>

@@ -54,17 +54,17 @@ const getSlippageStorageKey = (token0Symbol: string, token1Symbol: string, chain
 }
 
 const SummaryButton = styled.button`
-  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
+  justify-content: space-between;
+  width: 100%;
   padding: 14px 16px;
   border: 1px solid ${({ theme }) => theme.tabActive};
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.02);
-  cursor: pointer;
   color: ${({ theme }) => theme.text};
+  cursor: pointer;
   font-size: 14px;
   font-weight: 400;
 `
@@ -96,8 +96,8 @@ const InputWrap = styled.div<{ $active: boolean; $error?: boolean; $warning?: bo
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   flex: 1 1 0;
+  gap: 4px;
   min-width: 0;
   padding: 0 10px;
   border-radius: 20px;
@@ -111,11 +111,11 @@ const InputWrap = styled.div<{ $active: boolean; $error?: boolean; $warning?: bo
 
 const Input = styled.input`
   width: 56px;
-  min-width: 0;
   border: none;
-  outline: none;
   background: transparent;
   color: inherit;
+  min-width: 0;
+  outline: none;
   text-align: center;
 `
 
@@ -124,17 +124,17 @@ const Suggestion = styled.button`
   border: none;
   background: transparent;
   color: ${({ theme }) => theme.primary};
-  font-size: 12px;
   cursor: pointer;
+  font-size: 12px;
   padding: 0;
 `
 
 const Message = styled.div<{ $warning?: boolean }>`
   padding: 10px 12px;
   border-radius: 12px;
-  font-size: 12px;
-  color: ${({ theme, $warning }) => ($warning ? theme.warning : theme.red)};
   background: ${({ theme, $warning }) => ($warning ? `${theme.warning}14` : `${theme.red}14`)};
+  color: ${({ theme, $warning }) => ($warning ? theme.warning : theme.red)};
+  font-size: 12px;
 `
 
 const Caret = styled(ChevronDown)<{ $open: boolean }>`
@@ -267,13 +267,13 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
           <Controls>
             {[5, 10, 50, 100].map(item => (
               <Option
-                type="button"
-                key={item}
                 $active={slippage === item}
+                key={item}
                 onClick={() => {
                   setCustomValue('')
                   applySlippage(item)
                 }}
+                type="button"
               >
                 {(item * 100) / 10_000}%
               </Option>
@@ -285,9 +285,6 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
               $warning={Boolean(message && isValid)}
             >
               <Input
-                value={customValue}
-                placeholder="Custom"
-                onFocus={() => setIsFocus(true)}
                 onBlur={event => {
                   setIsFocus(false)
 
@@ -317,6 +314,9 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
                     onSlippageChange?.(parseSlippageInput(nextValue))
                   }
                 }}
+                onFocus={() => setIsFocus(true)}
+                placeholder="Custom"
+                value={customValue}
               />
               <InputSuffix>%</InputSuffix>
             </InputWrap>

@@ -14,18 +14,18 @@ export enum PriceInputType {
 }
 
 const StepButton = styled.button`
-  width: 28px;
-  height: 28px;
   align-self: center;
-  border-radius: 999px;
+  align-items: center;
   border: none;
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   color: ${({ theme }) => theme.subText};
   cursor: pointer;
-  flex: 0 0 auto;
   display: flex;
-  align-items: center;
+  flex: 0 0 auto;
+  height: 28px;
   justify-content: center;
+  width: 28px;
 
   :disabled {
     cursor: not-allowed;
@@ -34,15 +34,15 @@ const StepButton = styled.button`
 `
 
 const Input = styled.input`
-  width: 100%;
-  min-width: 0;
   border: none;
   background: transparent;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
   font-weight: 500;
-  text-align: center;
+  min-width: 0;
   outline: none;
+  text-align: center;
+  width: 100%;
 `
 
 const Delta = styled.div<{ $positive?: boolean }>`
@@ -52,11 +52,11 @@ const Delta = styled.div<{ $positive?: boolean }>`
 `
 
 const InputShell = styled(HStack)`
-  width: 100%;
-  min-width: 0;
-  padding: 8px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
+  min-width: 0;
+  padding: 8px;
+  width: 100%;
 `
 
 const TypeBadge = styled(HStack)`

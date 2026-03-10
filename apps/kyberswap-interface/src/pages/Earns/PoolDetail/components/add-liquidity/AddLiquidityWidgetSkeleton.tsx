@@ -55,8 +55,8 @@ const SummaryCard = styled(GradientCard)`
 const SegmentedShell = styled(HStack)`
   min-height: 44px;
   padding: 4px;
-  border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.02);
 `
 
@@ -82,7 +82,7 @@ export default function AddLiquidityWidgetSkeleton({ showPriceRange = false }: A
         <Stack gap={16}>
           {[0, 1].map(index => (
             <TokenCard gap={12} key={index}>
-              <HStack justify="space-between" align="center">
+              <HStack align="center" justify="space-between">
                 <HStack align="center" gap={8}>
                   <PositionSkeleton width={16} height={16} style={{ borderRadius: '50%' }} />
                   <PositionSkeleton width={56} height={14} />
@@ -90,8 +90,8 @@ export default function AddLiquidityWidgetSkeleton({ showPriceRange = false }: A
                 <PositionSkeleton width={52} height={14} />
               </HStack>
 
-              <HStack justify="space-between" align="center" gap={12}>
-                <Stack gap={8} flex={1} minWidth={0}>
+              <HStack align="center" gap={12} justify="space-between">
+                <Stack flex={1} minWidth={0} gap={8}>
                   <PositionSkeleton width="56%" height={30} />
                   <PositionSkeleton width={80} height={12} />
                 </Stack>
@@ -120,7 +120,7 @@ export default function AddLiquidityWidgetSkeleton({ showPriceRange = false }: A
       {showPriceRange && (
         <>
           <PriceInfoCard>
-            <HStack justify="space-between" align="center">
+            <HStack align="center" justify="space-between">
               <PositionSkeleton width={188} height={16} />
               <PositionSkeleton width={28} height={28} style={{ borderRadius: '50%' }} />
             </HStack>
@@ -138,10 +138,10 @@ export default function AddLiquidityWidgetSkeleton({ showPriceRange = false }: A
 
           <HStack gap={12}>
             {[0, 1].map(item => (
-              <InputShell key={item} align="stretch" gap={8} width="100%" minWidth={0} p="8px">
+              <InputShell key={item} align="stretch" gap={8} minWidth={0} p="8px" width="100%">
                 <PositionSkeleton width={42} height={40} style={{ borderRadius: 8 }} />
                 <PositionSkeleton width={28} height={28} style={{ borderRadius: '50%', alignSelf: 'center' }} />
-                <Stack align="center" gap={4} flex={1}>
+                <Stack align="center" flex={1} gap={4}>
                   <Skeleton style={{ width: '100%', height: '20px' }} />
                   <PositionSkeleton width={72} height={12} />
                 </Stack>
@@ -161,7 +161,7 @@ export default function AddLiquidityWidgetSkeleton({ showPriceRange = false }: A
 
       <Stack gap={8}>
         <SummaryCard>
-          <HStack justify="space-between" align="center">
+          <HStack align="center" justify="space-between">
             <HStack align="center" gap={8}>
               <PositionSkeleton width={92} height={14} />
               <PositionSkeleton width={16} height={16} style={{ borderRadius: '50%' }} />

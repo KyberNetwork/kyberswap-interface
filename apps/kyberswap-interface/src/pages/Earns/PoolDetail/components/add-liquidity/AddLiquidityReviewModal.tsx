@@ -1,3 +1,4 @@
+import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -6,49 +7,26 @@ import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
+import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquidityReviewData'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CloseIcon } from 'theme/components'
 import { formatDisplayNumber } from 'utils/numbers'
 
-interface ReviewTokenItem {
-  token: {
-    address: string
-    symbol: string
-    logo?: string
-  }
-  amount: number
-  usdValue: number
-}
-
 interface AddLiquidityReviewModalProps {
   isOpen?: boolean
   exchange?: string
-  data?: {
-    header?: {
-      pairLabel: string
-      token0: { symbol: string; logo?: string }
-      token1: { symbol: string; logo?: string }
-      feeLabel?: string
-    } | null
-    totalInputUsd?: number
-    zapInItems?: ReviewTokenItem[]
-    priceInfo?: {
-      isUniV3?: boolean
-      currentPrice?: number | null
-      baseToken?: { symbol: string }
-      quoteToken?: { symbol: string }
-      minPrice?: string | null
-      maxPrice?: string | null
-    } | null
-    estimate?: {
-      totalUsd?: number
-      slippage?: number
-      items?: ReviewTokenItem[]
-    } | null
-  } | null
+  data?: AddLiquidityReviewData | null
+  confirmText?: string
+  confirmDisabled?: boolean
+  confirmLoading?: boolean
+  txHash?: string
+  txStatus?: 'success' | 'failed' | 'cancelled' | ''
+  txError?: string | null
+  transactionExplorerUrl?: string
   onDismiss?: () => void
   onConfirm?: () => void
   onRevertPriceToggle?: () => void
+  onViewPosition?: () => void
 }
 
 const ModalContent = styled(Stack)`
@@ -84,8 +62,8 @@ const PairText = styled(Text)`
 
 const LabelText = styled(Text)`
   margin: 0;
-  font-size: 12px;
   color: ${({ theme }) => theme.subText};
+  font-size: 12px;
   line-height: 1.4;
 `
 
@@ -125,56 +103,110 @@ const RangeBox = styled(Stack)`
 `
 
 const IconButton = styled.button`
-  width: 28px;
+  display: flex;
+  align-items: center;
   height: 28px;
+  justify-content: center;
+  width: 28px;
   padding: 0;
   border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   color: ${({ theme }) => theme.subText};
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
 `
 
 const ConfirmButton = styled.button`
   width: 100%;
   height: 44px;
+  font-size: 16px;
+  font-weight: 500;
   border: 0;
   border-radius: 14px;
   background: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.buttonBlack};
-  font-size: 16px;
-  font-weight: 500;
   cursor: pointer;
 `
 
 const ProtocolLogo = styled.img`
-  width: 14px;
   height: 14px;
   object-fit: contain;
+  width: 14px;
 `
 
-const EstimateMetaRow = styled(HStack)`
-  padding-top: 12px;
-  border-top: 1px solid ${({ theme }) => theme.tabActive};
+const WarningCard = styled(Stack)<{ $tone: 'info' | 'warning' | 'error' }>`
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid
+    ${({ theme, $tone }) =>
+      $tone === 'error' ? `${theme.red}40` : $tone === 'warning' ? `${theme.warning}40` : `${theme.primary}26`};
+  background: ${({ theme, $tone }) =>
+    $tone === 'error' ? `${theme.red}14` : $tone === 'warning' ? `${theme.warning}1f` : `${theme.primary}14`};
+  color: ${({ theme }) => theme.text};
+  font-size: 13px;
+  line-height: 1.5;
 `
 
 export default function AddLiquidityReviewModal({
   isOpen = false,
   exchange,
   data,
+  confirmText = 'Add Liquidity',
+  confirmDisabled = false,
+  confirmLoading = false,
+  txHash,
+  txStatus = '',
+  txError,
+  transactionExplorerUrl,
   onDismiss,
   onConfirm,
   onRevertPriceToggle,
+  onViewPosition,
 }: AddLiquidityReviewModalProps) {
   const theme = useTheme()
   const protocol = exchange ? EARN_DEXES[exchange as Exchange] : undefined
   const header = data?.header
   const zapInItems = data?.zapInItems || []
   const priceInfo = data?.priceInfo
-  const estimate = data?.estimate
+  const warnings = data?.warnings || []
+
+  if (confirmLoading || txHash || txError || txStatus) {
+    const translatedErrorMessage = txError ? translateFriendlyErrorMessage(txError) : undefined
+
+    return (
+      <StatusDialog
+        type={
+          txStatus === 'success'
+            ? StatusDialogType.SUCCESS
+            : txStatus === 'cancelled'
+            ? StatusDialogType.CANCELLED
+            : txStatus === 'failed' || txError
+            ? StatusDialogType.ERROR
+            : txHash
+            ? StatusDialogType.PROCESSING
+            : StatusDialogType.WAITING
+        }
+        description={
+          !txHash && !txError && txStatus !== 'success' ? 'Confirm this transaction in your wallet' : undefined
+        }
+        errorMessage={translatedErrorMessage}
+        transactionExplorerUrl={transactionExplorerUrl}
+        action={
+          <>
+            <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+              {txStatus === 'success' && onViewPosition ? 'Close' : 'Close'}
+            </button>
+            {txStatus === 'success' && onViewPosition ? (
+              <button className="ks-primary-btn flex-1" onClick={onViewPosition}>
+                View position
+              </button>
+            ) : null}
+          </>
+        }
+        onClose={onDismiss || (() => {})}
+      />
+    )
+  }
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={440} mobileFullWidth>
@@ -195,7 +227,7 @@ export default function AddLiquidityReviewModal({
               <HStack align="center" gap={8} wrap="wrap">
                 {protocol ? (
                   <HStack align="center" gap={6}>
-                    {protocol.logo ? <ProtocolLogo src={protocol.logo} alt={protocol.name} /> : null}
+                    {protocol.logo ? <ProtocolLogo alt={protocol.name} src={protocol.logo} /> : null}
                     <LabelText color={theme.subText}>{protocol.name}</LabelText>
                   </HStack>
                 ) : null}
@@ -218,7 +250,7 @@ export default function AddLiquidityReviewModal({
           </HStack>
           <Stack gap={8}>
             {zapInItems.map(item => (
-              <HStack key={item.token.address} align="center" justify="space-between" gap={12}>
+              <HStack key={item.token.address} align="center" gap={12} justify="space-between">
                 <HStack align="center" gap={8} minWidth={0}>
                   <TokenLogo src={item.token.logo} size={18} />
                   <BodyText color={theme.text}>
@@ -235,7 +267,7 @@ export default function AddLiquidityReviewModal({
 
         {priceInfo && (
           <Card gap={12}>
-            <HStack align="center" justify="space-between" gap={12}>
+            <HStack align="center" gap={12} justify="space-between">
               <HStack align="center" gap={6} wrap="wrap">
                 <BodyText color={theme.subText}>Current Price</BodyText>
                 <BodyText color={theme.text}>
@@ -264,42 +296,18 @@ export default function AddLiquidityReviewModal({
           </Card>
         )}
 
-        {estimate && (
-          <Card gap={12}>
-            <HStack align="center" justify="space-between">
-              <BodyText color={theme.subText}>Est. Liquidity Value</BodyText>
-              <TotalText color={theme.text}>
-                {formatDisplayNumber(estimate.totalUsd || 0, { style: 'currency', significantDigits: 6 })}
-              </TotalText>
-            </HStack>
+        {warnings.length ? (
+          <Stack gap={10}>
+            {warnings.map((warning, index) => (
+              <WarningCard key={`${warning.tone}-${index}`} $tone={warning.tone}>
+                {translateZapMessage(warning.message)}
+              </WarningCard>
+            ))}
+          </Stack>
+        ) : null}
 
-            <HStack align="flex-start" justify="space-between" gap={16}>
-              {(estimate.items || []).map(item => (
-                <Stack key={item.token.address} gap={4} flex="1 1 0" minWidth={0}>
-                  <HStack align="center" gap={6} minWidth={0}>
-                    <TokenLogo src={item.token.logo} size={18} />
-                    <BodyText color={theme.text}>
-                      {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}
-                    </BodyText>
-                  </HStack>
-                  <LabelText color={theme.subText}>
-                    ~{formatDisplayNumber(item.usdValue, { style: 'currency', significantDigits: 6 })}
-                  </LabelText>
-                </Stack>
-              ))}
-            </HStack>
-
-            <EstimateMetaRow align="center" justify="space-between">
-              <BodyText color={theme.subText}>Max Slippage</BodyText>
-              <ValueText color={theme.text}>
-                {formatDisplayNumber((estimate.slippage || 0) / 100, { style: 'percent', significantDigits: 2 })}
-              </ValueText>
-            </EstimateMetaRow>
-          </Card>
-        )}
-
-        <ConfirmButton type="button" onClick={onConfirm}>
-          Add Liquidity
+        <ConfirmButton disabled={confirmDisabled} onClick={onConfirm} type="button">
+          {confirmLoading ? 'Building...' : confirmText}
         </ConfirmButton>
       </ModalContent>
     </Modal>

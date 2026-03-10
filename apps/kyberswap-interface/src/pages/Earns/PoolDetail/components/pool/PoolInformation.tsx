@@ -12,17 +12,17 @@ import { EarnPool } from 'pages/Earns/types'
 const POOL_INFO_TABS = ['Pool Information', 'Earning', 'Analytics'] as const
 
 const SurfaceCardShell = styled(Stack)`
-  border-radius: 16px;
-  padding: 20px;
   border: 1px solid ${({ theme }) => theme.tabActive};
+  padding: 20px;
+  border-radius: 16px;
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
 `
 
 const MetricCardShell = styled(Stack)`
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
 `
 
 const SectionCaption = styled(Text)`
@@ -58,13 +58,13 @@ const WiringValueText = styled(Text)`
 
 const TabButton = styled.button<{ $active: boolean }>`
   border: 1px solid ${({ theme, $active }) => ($active ? theme.primary : theme.tabActive)};
-  color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
-  background: ${({ $active }) => ($active ? 'rgba(49, 203, 158, 0.2)' : 'rgba(255, 255, 255, 0.04)')};
-  border-radius: 999px;
+  cursor: pointer;
   padding: 6px 12px;
+  border-radius: 999px;
+  background: ${({ $active }) => ($active ? 'rgba(49, 203, 158, 0.2)' : 'rgba(255, 255, 255, 0.04)')};
+  color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
   font-size: 13px;
   font-weight: 500;
-  cursor: pointer;
   user-select: none;
 `
 
@@ -100,7 +100,7 @@ const MetricCard = ({ label, value, description, valueColor, flex = '1 1 180px',
         {value}
       </ValueText>
       {description ? (
-        <Text m={0} color={theme.subText} fontSize={12} lineHeight="1.4">
+        <Text color={theme.subText} fontSize={12} lineHeight="1.4" m={0}>
           {description}
         </Text>
       ) : null}
@@ -244,13 +244,13 @@ const PoolInformation = ({ pool, poolDetail, chainName, dexName }: PoolInformati
   return (
     <Stack gap={16} width="100%">
       <SurfaceCard>
-        <HStack justify="space-between" align="center" gap={12} wrap="wrap" width="100%">
-          <Text m={0} color={theme.text} fontSize={18} fontWeight={600}>
+        <HStack align="center" gap={12} justify="space-between" wrap="wrap" width="100%">
+          <Text color={theme.text} fontSize={18} fontWeight={600} m={0}>
             Pool Information
           </Text>
           <HStack align="center" gap={8} wrap="wrap">
             {POOL_INFO_TABS.map(tab => (
-              <TabButton key={tab} type="button" $active={tab === activeTab} onClick={() => setActiveTab(tab)}>
+              <TabButton $active={tab === activeTab} key={tab} onClick={() => setActiveTab(tab)} type="button">
                 {tab}
               </TabButton>
             ))}
@@ -259,10 +259,10 @@ const PoolInformation = ({ pool, poolDetail, chainName, dexName }: PoolInformati
       </SurfaceCard>
 
       <SurfaceCard>
-        <Text m={0} color={theme.text} fontSize={18} fontWeight={600} minWidth="100px">
+        <Text color={theme.text} fontSize={18} fontWeight={600} minWidth="100px" m={0}>
           {activeTab}
         </Text>
-        <Text m={0} color={theme.subText} fontSize={14} lineHeight="1.5">
+        <Text color={theme.subText} fontSize={14} lineHeight="1.5" m={0}>
           Three-tab detail surface for pool information, earning context, and analytics.
         </Text>
         {content}

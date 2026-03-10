@@ -40,9 +40,9 @@ const Wrapper = styled.div`
 
 const TooltipPanel = styled(Stack)`
   position: absolute;
+  z-index: 20;
   top: calc(100% + 12px);
   right: -4px;
-  z-index: 20;
   width: 320px;
   padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -83,11 +83,11 @@ const PanelTitle = styled(Text)`
 
 const SettingLabel = styled(Text)`
   margin: 0;
-  width: fit-content;
+  border-bottom: 1px dotted ${({ theme }) => rgba(theme.subText, 0.4)};
   color: ${({ theme }) => theme.subText};
   font-size: 14px;
   font-weight: 400;
-  border-bottom: 1px dotted ${({ theme }) => rgba(theme.subText, 0.4)};
+  width: fit-content;
 `
 
 const SettingDescription = styled(Text)`
@@ -131,7 +131,7 @@ export default function AddLiquiditySettings() {
         {isOpen && (
           <TooltipPanel gap={8}>
             <PanelTitle>Advanced Setting</PanelTitle>
-            <HStack align="center" justify="space-between" gap={12}>
+            <HStack align="center" gap={12} justify="space-between">
               <SettingLabel>
                 <Trans>Degen Mode</Trans>
               </SettingLabel>

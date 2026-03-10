@@ -1,7 +1,8 @@
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, PoolType, Token } from '@kyber/schema'
-import { fetchTokens, getPoolInfo } from '@kyber/utils'
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, Token } from '@kyber/schema'
 import { ChainId as AppChainId, Token as SDKToken } from '@kyberswap/ks-sdk-core'
+import { skipToken } from '@reduxjs/toolkit/query'
 import { useEffect, useMemo, useState } from 'react'
+import { useAddLiquidityPoolInfoQuery, useAddLiquidityTokensQuery } from 'services/zapInService'
 
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
@@ -45,13 +46,31 @@ export default function useAddLiquidityTokens({
   initDepositTokens,
   initAmounts,
 }: UseAddLiquidityTokensProps) {
-  const [pool, setPool] = useState<Pool | null>(null)
-  const [poolLoading, setPoolLoading] = useState(false)
-  const [poolError, setPoolError] = useState('')
   const [tokensIn, setTokensIn] = useState<Token[]>([])
   const [amountsIn, setAmountsIn] = useState('')
 
+  const { data: poolInfo, isLoading: poolLoading } = useAddLiquidityPoolInfoQuery(
+    chainId && poolAddress
+      ? {
+          chainId,
+          poolAddress,
+          poolType,
+        }
+      : skipToken,
+  )
+  const initAddresses = useMemo(() => initDepositTokens?.split(',').filter(Boolean) || [], [initDepositTokens])
+  const { data: initialTokens = [] } = useAddLiquidityTokensQuery(
+    chainId && initAddresses.length
+      ? {
+          chainId,
+          addresses: initAddresses,
+        }
+      : skipToken,
+  )
+
   const nativeToken = useMemo(() => getDefaultNativeToken(chainId), [chainId])
+  const pool = poolInfo?.pool || null
+  const poolError = poolInfo?.error || ''
   const nativeBalance = useNativeBalance(chainId as AppChainId)
   const pairBalanceTokens = useMemo(
     () =>
@@ -97,52 +116,15 @@ export default function useAddLiquidityTokens({
   useEffect(() => {
     let cancelled = false
 
-    const fetchPool = async () => {
-      setPoolLoading(true)
-      setPoolError('')
-
-      try {
-        const poolInfo = await getPoolInfo({ poolAddress, chainId: chainId as any, poolType })
-        if (cancelled) return
-
-        if (poolInfo.error) {
-          setPoolError(poolInfo.error)
-          setPool(null)
-          return
-        }
-
-        setPool((poolInfo.pool as Pool) || null)
-      } catch (error) {
-        if (!cancelled) {
-          setPool(null)
-          setPoolError(error instanceof Error ? error.message : 'Failed to load pool')
-        }
-      } finally {
-        if (!cancelled) setPoolLoading(false)
-      }
-    }
-
-    if (poolAddress) fetchPool()
-
-    return () => {
-      cancelled = true
-    }
-  }, [chainId, poolAddress, poolType])
-
-  useEffect(() => {
-    let cancelled = false
-
     const initTokens = async () => {
       if (!pool || tokensIn.length) return
 
-      if (initDepositTokens) {
-        const initTokens = (await fetchTokens(initDepositTokens.split(','), chainId)) as Token[]
+      if (initDepositTokens && initialTokens.length) {
         if (cancelled) return
-
-        if (initTokens.length) {
+        if (initialTokens.length) {
           const initialAmounts = (initAmounts?.split(',') || []).map(amount => amount || '')
-          setTokensIn(initTokens)
-          setAmountsIn(initialAmounts.slice(0, initTokens.length).join(','))
+          setTokensIn(initialTokens)
+          setAmountsIn(initialAmounts.slice(0, initialTokens.length).join(','))
           return
         }
       }
@@ -210,6 +192,7 @@ export default function useAddLiquidityTokens({
     chainId,
     initAmounts,
     initDepositTokens,
+    initialTokens,
     nativeBalance,
     nativeToken,
     pairTokenBalances,

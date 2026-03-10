@@ -26,12 +26,12 @@ const TooltipContent = styled(Box)`
 `
 
 const AprBanner = styled(HStack)`
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
   width: 100%;
   padding: 8px 14px;
   border-radius: 12px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
   background: linear-gradient(90deg, rgba(24, 71, 56, 0.9) 0%, rgba(23, 48, 44, 0.92) 100%);
 `
 
@@ -50,9 +50,9 @@ const ValueTrigger = styled(Box)`
 
 const AprValue = styled(Text)`
   margin: 0;
+  color: #37d1b6;
   font-size: 14px;
   font-weight: 600;
-  color: #37d1b6;
 `
 
 interface PositionAprProps {

@@ -1,6 +1,7 @@
 import { PoolType } from '@kyber/schema'
 
 import useAddLiquidityPriceRange from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquidityPriceRange'
+import useAddLiquidityRoute from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquidityRoute'
 import useAddLiquiditySlippage from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquiditySlippage'
 import useAddLiquidityTokens from 'pages/Earns/PoolDetail/hooks/add-liquidity/useAddLiquidityTokens'
 import useAddLiquidityPositionApr from 'pages/Earns/PoolDetail/hooks/position-apr/useAddLiquidityPositionApr'
@@ -10,6 +11,7 @@ interface UseAddLiquidityStateProps {
   poolAddress: string
   poolType: PoolType
   account?: string
+  positionId?: string
   initialTick?: { tickLower: number; tickUpper: number }
 }
 
@@ -18,6 +20,7 @@ export default function useAddLiquidityState({
   poolAddress,
   poolType,
   account,
+  positionId,
   initialTick,
 }: UseAddLiquidityStateProps) {
   const tokenState = useAddLiquidityTokens({
@@ -40,15 +43,23 @@ export default function useAddLiquidityState({
     tokensIn: tokenState.tokensIn,
   })
 
-  const positionAprState = useAddLiquidityPositionApr({
+  const routeState = useAddLiquidityRoute({
     chainId,
+    poolAddress,
     poolType,
     pool: tokenState.pool,
-    tokens: tokenState.tokensIn,
-    amounts: tokenState.amountsIn,
-    prices: tokenState.tokenPrices,
+    account,
+    positionId,
+    tokensIn: tokenState.tokensIn,
+    amountsIn: tokenState.amountsIn,
+    slippage: slippageState.slippage,
     tickLower: priceRangeState.tickLower,
     tickUpper: priceRangeState.tickUpper,
+  })
+
+  const positionAprState = useAddLiquidityPositionApr({
+    amounts: tokenState.amountsIn,
+    route: routeState.route,
   })
 
   return {
@@ -81,6 +92,11 @@ export default function useAddLiquidityState({
       value: slippageState.slippage,
       suggestedValue: slippageState.suggestedSlippage,
       setValue: slippageState.setSlippage,
+    },
+    route: {
+      data: routeState.route,
+      error: routeState.routeError,
+      loading: routeState.routeLoading,
     },
     positionApr: {
       hasInput: positionAprState.hasInput,

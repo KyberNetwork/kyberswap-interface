@@ -14,6 +14,7 @@ const PoolDetail = () => {
   const exchange = searchParams.get('exchange') || ''
   const poolAddress = searchParams.get('poolAddress') || ''
   const chainId = Number(searchParams.get('poolChainId') || 0)
+  const positionId = searchParams.get('positionId') || undefined
   const tickLower = searchParams.get('tickLower')
   const tickUpper = searchParams.get('tickUpper')
 
@@ -45,6 +46,7 @@ const PoolDetail = () => {
           exchange,
           poolAddress,
           chainId,
+          positionId,
           tickLower,
           tickUpper,
         }}

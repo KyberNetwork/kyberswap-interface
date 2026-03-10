@@ -11,16 +11,16 @@ import TokenAmountInput from 'pages/Earns/PoolDetail/components/add-liquidity/To
 import { formatDisplayNumber } from 'utils/numbers'
 
 const AddTokenButton = styled.button`
-  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  border: none;
   background: transparent;
+  border: none;
   color: ${({ theme }) => theme.primary};
+  cursor: pointer;
+  display: inline-flex;
   font-size: 14px;
   font-weight: 400;
+  gap: 8px;
   padding: 0;
-  cursor: pointer;
   width: fit-content;
 `
 
@@ -196,22 +196,22 @@ const AddLiquidityTokenInput = ({
     <Stack gap={16} width="100%">
       {currentTokens.map((token, tokenIndex) => (
         <TokenAmountInput
-          key={`${token.address}-${tokenIndex}`}
-          token={token}
           amount={currentAmounts.split(',')[tokenIndex] || ''}
-          tokenIndex={tokenIndex}
-          tokensCount={currentTokens.length}
           chainId={chainId}
+          key={`${token.address}-${tokenIndex}`}
+          tokenIndex={tokenIndex}
           pool={pool}
+          token={token}
           tokenBalances={currentBalances}
           tokenPrices={currentPrices}
-          onTrackEvent={onTrackEvent}
           onAmountChange={handleSetAmount}
-          onTokenRemove={handleRemoveToken}
+          onTrackEvent={onTrackEvent}
           onTokenSelectOpen={address => {
             setTokenAddressSelected(address)
             setOpenTokenSelectModal(true)
           }}
+          onTokenRemove={handleRemoveToken}
+          tokensCount={currentTokens.length}
         />
       ))}
 

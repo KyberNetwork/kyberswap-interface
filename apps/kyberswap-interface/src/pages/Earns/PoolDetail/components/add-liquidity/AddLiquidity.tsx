@@ -12,16 +12,16 @@ import AddLiquidityWidget from './AddLiquidityWidget'
 
 const WidgetShell = styled(Stack)`
   width: 100%;
-  border-radius: 20px;
   overflow: hidden;
   border: 1px solid ${({ theme }) => theme.tabActive};
+  border-radius: 20px;
   background: ${({ theme }) => theme.background};
 `
 
 const RouteSurface = styled(Stack)`
-  border-radius: 16px;
   padding: 20px;
   border: 1px solid ${({ theme }) => theme.tabActive};
+  border-radius: 16px;
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
 `
@@ -29,8 +29,8 @@ const RouteSurface = styled(Stack)`
 const RouteNodeShell = styled(Stack)`
   min-width: 0;
   padding: 12px 14px;
-  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.03);
 `
 
@@ -52,9 +52,9 @@ const RouteValue = styled(Text)`
 `
 
 const Connector = styled.div`
-  width: 24px;
-  height: 1px;
   flex: 0 0 auto;
+  height: 1px;
+  width: 24px;
   background: rgba(255, 255, 255, 0.16);
 `
 
@@ -66,6 +66,7 @@ interface AddLiquidityProps {
     exchange?: string
     poolAddress?: string
     chainId?: number
+    positionId?: string
     tickLower?: string | null
     tickUpper?: string | null
   }
@@ -98,21 +99,22 @@ const AddLiquidity = ({ children, pool, poolDetail, route }: AddLiquidityProps) 
   return (
     <Stack gap={16} width="100%">
       <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
-        <Stack width="100%" maxWidth="480px" flex="1 1 480px" minWidth={0}>
+        <Stack flex="1 1 480px" width="100%" maxWidth="480px" minWidth={0}>
           <WidgetShell>
             <AddLiquidityWidget
+              chainId={route?.chainId}
+              earnPool={pool}
               exchange={route?.exchange}
               poolAddress={route?.poolAddress}
-              chainId={route?.chainId}
+              positionId={route?.positionId}
               tickLower={route?.tickLower}
               tickUpper={route?.tickUpper}
-              earnPool={pool}
             />
           </WidgetShell>
         </Stack>
-        <Stack gap={16} flex="1 1 320px" minWidth={0}>
+        <Stack flex="1 1 320px" gap={16} minWidth={0}>
           <RouteSurface gap={20}>
-            <Text m={0} color={theme.text} fontSize={18} fontWeight={600}>
+            <Text color={theme.text} fontSize={18} fontWeight={600} m={0}>
               Route
             </Text>
             <Stack gap={12}>
@@ -123,7 +125,7 @@ const AddLiquidity = ({ children, pool, poolDetail, route }: AddLiquidityProps) 
               </HStack>
 
               <HStack align="center" gap={8}>
-                <Stack gap={10} flex="1 1 0" minWidth={0}>
+                <Stack flex="1 1 0" minWidth={0} gap={10}>
                   <RouteNode label="Output Token 0" value={token0Symbol || 'Token 0'} flex="1 1 auto" />
                   <RouteNode label="Output Token 1" value={token1Symbol || 'Token 1'} flex="1 1 auto" />
                 </Stack>

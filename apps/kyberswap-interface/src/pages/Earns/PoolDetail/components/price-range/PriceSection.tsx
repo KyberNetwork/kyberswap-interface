@@ -74,7 +74,7 @@ export default function PriceSection({
         />
       </Stack>
 
-      <HStack gap={12} wrap="wrap">
+      <HStack gap={12}>
         <PriceInput
           type={PriceInputType.MinPrice}
           chainId={context.chainId}
