@@ -33,18 +33,18 @@ const NestedNavLink = styled(StyledNavLink)`
   gap: 12px;
 `
 
-const showCampaignNew = new Date() < new Date('2025-12-02T23:59:59Z')
+const showCampaignNew = new Date() < new Date('2026-05-04T23:59:59Z')
 
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
   const isActiveMayTrading = pathname.includes('/campaigns/may-trading')
   const isActive = pathname.includes('/campaigns') && !isActiveMayTrading
-  const upTo420 = useMedia('(max-width: 420px)')
+  // const upTo420 = useMedia('(max-width: 420px)')
   const upTo500 = useMedia('(max-width: 500px)')
 
   const [showStip, setShowStip] = useState(false)
 
-  if (upTo420) return null
+  if (upTo500) return null
 
   return (
     <>
@@ -54,24 +54,29 @@ const CampaignNavGroup = () => {
         anchor={
           <DropdownTextAnchor style={{ display: 'flex', position: 'relative', width: 'max-content' }}>
             <Trans>Campaigns</Trans>
-            {showCampaignNew && <ELabel isNew>{t`NEW`}</ELabel>}
+            {showCampaignNew && <ELabel isNew>{t`New`}</ELabel>}
           </DropdownTextAnchor>
         }
         dropdownContent={
           <Column>
+            <StyledNavLink to={APP_PATHS.SAFEPAL_CAMPAIGN}>
+              <Trans>Wallet Campaign</Trans>
+              {showCampaignNew ? <ELabel isNew>{t`New`}</ELabel> : <ELabel>{t`Ended`}</ELabel>}
+            </StyledNavLink>
+
             <StyledNavLink to={APP_PATHS.RAFFLE_CAMPAIGN}>
               <Trans>Weekly Rewards</Trans>
-              <ELabel isNew>{t`NEW`}</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.NEAR_INTENTS_CAMPAIGN}>
               <Trans>Cross Chain Campaign</Trans>
-              <ELabel>{t`ENDED`}</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.MAY_TRADING_CAMPAIGN}>
               <Trans>May Trading</Trans>
-              <ELabel>{t`ENDED`}</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink
@@ -83,7 +88,7 @@ const CampaignNavGroup = () => {
               }}
             >
               Arbitrum STIP
-              <ELabel>{t`ENDED`}</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
               <DropdownIcon open={showStip} />
             </StyledNavLink>
 

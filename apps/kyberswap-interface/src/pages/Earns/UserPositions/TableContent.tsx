@@ -1,19 +1,23 @@
 import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
+import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
+import { APP_PATHS, ETHER_ADDRESS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
@@ -35,15 +39,17 @@ import {
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { SmartExit } from 'pages/Earns/components/SmartExit'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
-import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -72,40 +78,62 @@ export default function TableContent({
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const navigate = useNavigate()
   const theme = useTheme()
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
-  const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
+  const [smartExitPosition, setSmartExitPosition] = useState<ParsedPosition | null>(null)
+
+  const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
+    {
+      userWallet: account || '',
+      positionIds: positions?.map(pos => pos.positionId) || [],
+      status: OrderStatus.OrderStatusOpen,
+      page: 1,
+      pageSize: positions?.length || 10,
+    },
+    {
+      skip: (positions?.length || 0) === 0,
+    },
+  )
+  const smartExitPosIds = smartExitOrders?.orders.map(order => order.positionId) || []
 
   const {
     claimModal: claimFeesModal,
     onOpenClaim: onOpenClaimFees,
-    claiming: feesClaiming,
+    pendingClaimKeys: pendingFeeClaimKeys,
   } = useCollectFees({
-    refetchAfterCollect: () => {
-      handleFetchUnclaimedFee(positionThatClaimingFees)
-      setPositionThatClaimingFees(null)
+    refetchAfterCollect: claimKey => {
+      if (!claimKey) return
+      const [claimChainId, claimTokenId] = claimKey.split(':')
+      const position = positions.find(
+        item => item.chain.id === Number(claimChainId) && String(item.tokenId) === claimTokenId,
+      )
+      handleFetchUnclaimedFee(position || null)
     },
   })
 
   const {
     claimModal: claimRewardsModal,
     onOpenClaim: onOpenClaimRewards,
-    claiming: rewardsClaiming,
-  } = useKemRewards(refetchPositions)
+    pendingClaimKeys: pendingRewardClaimKeys,
+  } = useKemRewards({ refetchAfterCollect: refetchPositions })
+
+  const { rewardsByPosition } = useMerklRewards({ positions })
 
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
-  const uniqueChainIds = useMemo(() => {
+  const uniqueFarmingChainIds = useMemo(() => {
     if (!positions || positions.length === 0) return []
-    const chainIds = positions.map(position => position.chain.id)
+    const chainIds = positions
+      .map(position => position.chain.id)
+      .filter(chainId => !!EARN_CHAINS[chainId as EarnChain]?.farmingSupported)
     return [...new Set(chainIds)]
   }, [positions])
 
-  const farmingPoolsByChain = useFarmingStablePools({ chainIds: uniqueChainIds })
+  const farmingPoolsByChain = useFarmingStablePools({ chainIds: uniqueFarmingChainIds })
 
   const handleFetchUnclaimedFee = useCallback(
     async (position: ParsedPosition | null) => {
@@ -161,16 +189,14 @@ export default function TableContent({
   const handleClaimFees = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (position.pool.isUniv2 || feesClaiming || position.unclaimedFees === 0) return
-    setPositionThatClaimingFees(position)
+    if (position.pool.isUniv2 || position.unclaimedFees === 0) return
     onOpenClaimFees(position)
   }
 
   const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
-    setPositionThatClaimingRewards(position)
+    if (position.rewards.unclaimedUsdValue === 0) return
     onOpenClaimRewards(position)
   }
 
@@ -193,15 +219,33 @@ export default function TableContent({
     const targetToken0Decimals = targetPool.token0.decimals
     const targetToken1Decimals = targetPool.token1.decimals
 
-    const dontNeedRevert =
-      sourcePosition.token0.decimals === targetToken0Decimals && sourcePosition.token1.decimals === targetToken1Decimals
+    const isSameTokenAddress = (address1: string, address2: string, chainId: number): boolean => {
+      const addr1Lower = address1.toLowerCase()
+      const addr2Lower = address2.toLowerCase()
+
+      if (addr1Lower === addr2Lower) return true
+
+      const chainIdKey = chainId as keyof typeof WETH
+      const nativeAddress = ETHER_ADDRESS.toLowerCase()
+      const wrappedNativeAddress = WETH[chainIdKey].address.toLowerCase()
+      return (
+        (addr1Lower === nativeAddress && addr2Lower === wrappedNativeAddress) ||
+        (addr1Lower === wrappedNativeAddress && addr2Lower === nativeAddress)
+      )
+    }
+
+    // Check if tokens are in the same order by comparing addresses (considering WETH/ETH equivalence)
+    const chainId = sourcePosition.chain.id
+    const isTokenOrderSame =
+      isSameTokenAddress(sourcePosition.token0.address, targetPool.token0.address, chainId) &&
+      isSameTokenAddress(sourcePosition.token1.address, targetPool.token1.address, chainId)
 
     const isMinPrice = sourcePosition.priceRange.isMinPrice
     const isMaxPrice = sourcePosition.priceRange.isMaxPrice
 
     const tickLower = sourcePosition.pool.isUniv2
       ? undefined
-      : dontNeedRevert
+      : isTokenOrderSame
       ? isMinPrice
         ? MIN_TICK
         : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
@@ -211,7 +255,7 @@ export default function TableContent({
 
     const tickUpper = sourcePosition.pool.isUniv2
       ? undefined
-      : dontNeedRevert
+      : isTokenOrderSame
       ? isMaxPrice
         ? MAX_TICK
         : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
@@ -219,19 +263,23 @@ export default function TableContent({
       ? MIN_TICK
       : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
 
+    const isOutRange = sourcePosition.status === PositionStatus.OUT_RANGE
+
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
       from: {
         poolType: sourcePosition.dex.id,
         poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+        dexId: sourcePosition.dex.id,
       },
       to: {
-        poolType: targetPool.poolExchange,
+        poolType: targetPool.exchange,
         poolAddress: targetPool.address,
+        dexId: targetPool.exchange,
       },
       initialTick:
-        tickLower !== undefined && tickUpper !== undefined
+        tickLower !== undefined && tickUpper !== undefined && !isOutRange
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,
@@ -249,6 +297,7 @@ export default function TableContent({
         poolType: position.dex.id,
         poolAddress: position.pool.address,
         positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+        dexId: position.dex.id,
       },
       rePositionMode: true,
     })
@@ -281,12 +330,13 @@ export default function TableContent({
       {claimRewardsModal}
       {zapMigrationWidget}
       {migrationModal}
+      {smartExitPosition && <SmartExit position={smartExitPosition} onDismiss={() => setSmartExitPosition(null)} />}
 
       <div>
         {account && positions && positions.length > 0
           ? positions.map((position, index) => {
               const {
-                id,
+                positionId,
                 tokenId,
                 token0,
                 token1,
@@ -296,37 +346,45 @@ export default function TableContent({
                 totalValue,
                 priceRange,
                 apr,
+                bonusApr,
                 unclaimedFees,
                 status,
                 rewards,
                 isUnfinalized,
               } = position
-              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || feesClaiming
-              const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
+              const claimKey = `${chain.id}:${tokenId}`
+              const isFeeClaiming = pendingFeeClaimKeys.includes(claimKey)
+              const isRewardClaiming = pendingRewardClaimKeys.includes(claimKey)
+              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || isFeeClaiming
+              const rewardsClaimDisabled = position.rewards.claimableUsdValue === 0 || isRewardClaiming
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
+              const merklRewards = rewardsByPosition?.[positionId]?.rewards || []
+              const merklRewardsTotalUsd = rewardsByPosition?.[positionId]?.totalUsdValue || 0
               const suggestedProtocolName = position.suggestionPool
-                ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
+                ? EARN_DEXES[position.suggestionPool.exchange].name.replace('FairFlow', '').trim()
                 : ''
 
               const actions = (
                 <DropdownAction
                   position={position}
+                  hasActiveSmartExitOrder={smartExitPosIds.includes(position.positionId)}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
+                  onOpenSmartExit={(_e: React.MouseEvent, position: ParsedPosition) => {
+                    setSmartExitPosition(position)
+                  }}
                   onOpenReposition={handleReposition}
                   claimFees={{
                     onClaimFee: handleClaimFees,
                     feesClaimDisabled,
-                    feesClaiming,
-                    positionThatClaimingFees,
+                    feesClaiming: isFeeClaiming,
                   }}
                   claimRewards={{
                     onClaimRewards: handleClaimRewards,
                     rewardsClaimDisabled,
-                    rewardsClaiming,
-                    positionThatClaimingRewards,
+                    rewardsClaiming: isRewardClaiming,
                   }}
                 />
               )
@@ -334,9 +392,10 @@ export default function TableContent({
               return (
                 <PositionRow
                   key={`${tokenId}-${pool.address}-${index}`}
-                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
+                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? positionId : pool.address)
                     .replace(':chainId', chain.id.toString())
                     .replace(':exchange', dex.id)}
+                  $isUnfinalized={isUnfinalized}
                 >
                   {/* Overview info */}
                   <PositionOverview>
@@ -355,6 +414,29 @@ export default function TableContent({
                         {token0.symbol}/{token1.symbol}
                       </Text>
                       <Badge>{pool.fee}%</Badge>
+                      {smartExitPosIds.includes(position.positionId) && (
+                        <MouseoverTooltipDesktopOnly
+                          text={t`Active Smart Exit Order`}
+                          width="fit-content"
+                          placement="bottom"
+                        >
+                          <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            sx={{ cursor: 'pointer', borderRadius: '30px' }}
+                            backgroundColor={rgba(theme.white, 0.04)}
+                            width={24}
+                            height={24}
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              navigate(APP_PATHS.EARN_SMART_EXIT)
+                            }}
+                          >
+                            <ListSmartExitIcon width={16} height={16} color={theme.primary} />
+                          </Flex>
+                        </MouseoverTooltipDesktopOnly>
+                      )}
                     </Flex>
                     <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
@@ -416,7 +498,8 @@ export default function TableContent({
                   </PositionOverview>
 
                   {/* Actions for Tablet */}
-                  {upToCustomLarge && !isUnfinalized && <PositionActionWrapper>{actions}</PositionActionWrapper>}
+                  {upToCustomLarge &&
+                    (!isUnfinalized ? <PositionActionWrapper>{actions}</PositionActionWrapper> : <div />)}
 
                   {/* Value info */}
                   <PositionValueWrapper>
@@ -430,6 +513,11 @@ export default function TableContent({
                               {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
                             </Text>
                           ))}
+                          {merklRewards.map(token => (
+                            <Text key={`${token.address}-${token.symbol}`}>
+                              {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} {token.symbol}
+                            </Text>
+                          ))}
                         </>
                       }
                       width="fit-content"
@@ -437,7 +525,7 @@ export default function TableContent({
                     >
                       <Flex alignItems={'center'} sx={{ gap: '6px' }}>
                         <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
-                          {formatDisplayNumber(totalValue, {
+                          {formatDisplayNumber(totalValue + merklRewardsTotalUsd, {
                             style: 'currency',
                             significantDigits: 4,
                           })}
@@ -461,13 +549,14 @@ export default function TableContent({
                       <RewardSyncing width={70} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        {pool.isFarming ? (
+                        {pool.isFarming || bonusApr > 0 ? (
                           <AprDetailTooltip
                             feeApr={position.feeApr['24h']}
                             egApr={position.kemEGApr['24h']}
                             lmApr={position.kemLMApr['24h']}
+                            uniApr={bonusApr}
                           >
-                            <Text color={theme.primary}>{formatAprNumber(apr['24h'])}%</Text>
+                            <Text color={theme.primary}>{formatAprNumber(apr['24h'] + bonusApr)}%</Text>
                           </AprDetailTooltip>
                         ) : (
                           <Text color={theme.text}>{formatAprNumber(apr['24h'])}%</Text>
@@ -512,7 +601,7 @@ export default function TableContent({
 
                   {/* Unclaimed fees info */}
                   <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
-                    <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                    <PositionValueLabel>{t`Unclaimed fees`}</PositionValueLabel>
 
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
@@ -567,13 +656,22 @@ export default function TableContent({
                                   style: 'currency',
                                 })}
                               </Text>
+                              {merklRewardsTotalUsd > 0 && (
+                                <Text>
+                                  {t`Uniswap Bonus`}:{' '}
+                                  {formatDisplayNumber(merklRewardsTotalUsd, {
+                                    significantDigits: 4,
+                                    style: 'currency',
+                                  })}
+                                </Text>
+                              )}
                             </>
                           }
                           width="fit-content"
                           placement="bottom"
                         >
                           <Text>
-                            {formatDisplayNumber(rewards.unclaimedUsdValue, {
+                            {formatDisplayNumber(rewards.unclaimedUsdValue + merklRewardsTotalUsd, {
                               style: 'currency',
                               significantDigits: 4,
                             })}
@@ -596,12 +694,12 @@ export default function TableContent({
                         sx={{ gap: 1.8 }}
                       >
                         <Flex alignItems="center" sx={{ gap: 1 }}>
-                          <Text>{formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text>{formatDisplayNumber(token0.currentAmount, { significantDigits: 4 })}</Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
                         </Flex>
                         {upToSmall && <Divider />}
                         <Flex alignItems="center" sx={{ gap: 1 }}>
-                          <Text>{formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text>{formatDisplayNumber(token1.currentAmount, { significantDigits: 4 })}</Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token1.symbol}</Text>
                         </Flex>
                       </Flex>

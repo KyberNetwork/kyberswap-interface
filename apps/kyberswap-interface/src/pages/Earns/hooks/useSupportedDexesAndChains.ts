@@ -15,6 +15,7 @@ const CHAIN_PRIORITY_ORDER = [
   EarnChain.BSC,
   EarnChain.ARBITRUM,
   EarnChain.OPTIMISM,
+  EarnChain.MONAD,
   EarnChain.MATIC,
   EarnChain.AVAX,
   EarnChain.BERA,
@@ -33,6 +34,7 @@ const DEX_PRIORITY_ORDER = [
   Exchange.DEX_THENAFUSION,
   Exchange.DEX_KODIAK_V3,
   Exchange.DEX_UNISWAPV2,
+  Exchange.DEX_AERODROMECL,
 ]
 
 const useSupportedDexesAndChains = (

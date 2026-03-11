@@ -11,7 +11,8 @@ import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useTheme from 'hooks/useTheme'
-import { useShowTradeRoutes, useToggleTradeRoutes } from 'state/user/hooks'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { useShowTradeRoutes, useToggleTradeRoutes, useUserSlippageTolerance } from 'state/user/hooks'
 
 import { CrossChainSourceSetting } from './CrossChainSourceSetting'
 import DegenModeSetting from './DegenModeSetting'
@@ -43,6 +44,8 @@ const SettingsPanel: React.FC<Props> = ({
   onClickCrossChainSources,
 }) => {
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
+  const [slippage] = useUserSlippageTolerance()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
   const isShowTradeRoutes = useShowTradeRoutes()
@@ -52,7 +55,19 @@ const SettingsPanel: React.FC<Props> = ({
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
       <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
         <Flex alignItems="center" sx={{ gap: '4px' }}>
-          <ChevronLeft onClick={onBack} color={theme.subText} cursor={'pointer'} size={26} />
+          <ChevronLeft
+            onClick={() => {
+              if (isCrossChainPage) {
+                trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED, {
+                  current_max_slippage: slippage / 100,
+                })
+              }
+              onBack()
+            }}
+            color={theme.subText}
+            cursor={'pointer'}
+            size={26}
+          />
           <BackText>{t`Settings`}</BackText>
         </Flex>
 

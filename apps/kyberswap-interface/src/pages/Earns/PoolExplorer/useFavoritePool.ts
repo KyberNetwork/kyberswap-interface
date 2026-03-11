@@ -1,26 +1,37 @@
-import { useEffect, useState } from 'react'
-import { PoolQueryParams, useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/zapEarn'
+import { useCallback, useEffect, useState } from 'react'
+import { useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { ParsedEarnPool } from 'pages/Earns/types'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { EarnPool, ParsedEarnPool } from 'pages/Earns/types'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 
 const FAVORITE_DELAY_MS = 500
 const FAVORITE_EXPIRE_DAYS = 7
 const LOCAL_STORAGE_KEY_PREFIX = 'poolExplorer_'
+const SESSION_STORAGE_FAVORITE_KEY_PREFIX = 'poolExplorer_favorite_'
 const FAVORITE_MESSAGE_TEMPLATE = `Click sign to add favorite pools at Kyberswap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in ${FAVORITE_EXPIRE_DAYS} days. \n\nIssued at: {issuedAt}`
 
-const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refetch: () => void }) => {
+const getPoolKey = (pool: EarnPool) => {
+  const chainId = pool.chain?.id ?? pool.chainId
+  return `${chainId}:${pool.address}`
+}
+
+const getSessionStorageKey = (account: string) => `${SESSION_STORAGE_FAVORITE_KEY_PREFIX}${account.toLowerCase()}`
+
+const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
+  const { trackingHandler } = useTracking()
 
   const [favoriteLoading, setFavoriteLoading] = useState<string[]>([])
   const [delayFavorite, setDelayFavorite] = useState(false)
+  const [sessionFavorites, setSessionFavorites] = useState<Record<string, boolean>>({})
 
   const handleAddFavoriteLoading = (poolAddress: string) => {
     if (!favoriteLoading.includes(poolAddress)) setFavoriteLoading([...favoriteLoading, poolAddress])
@@ -28,10 +39,39 @@ const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refet
   const handleRemoveFavoriteLoading = (poolAddress: string) =>
     setFavoriteLoading(favoriteLoading.filter(address => address !== poolAddress))
 
+  const updateSessionFavorite = useCallback(
+    (pool: ParsedEarnPool, isFavorite: boolean) => {
+      if (!account) return
+      const poolKey = getPoolKey(pool)
+      setSessionFavorites(prev => {
+        const next = { ...prev, [poolKey]: isFavorite }
+        try {
+          sessionStorage.setItem(getSessionStorageKey(account), JSON.stringify(next))
+        } catch {
+          // Ignore storage errors and keep in-memory state.
+        }
+        return next
+      })
+    },
+    [account],
+  )
+
+  const getFavoriteStatus = useCallback(
+    (pool: EarnPool) => {
+      const poolKey = getPoolKey(pool)
+      if (Object.prototype.hasOwnProperty.call(sessionFavorites, poolKey)) {
+        return sessionFavorites[poolKey]
+      }
+      return !!pool.favorite?.isFavorite
+    },
+    [sessionFavorites],
+  )
+
   const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => {
     e.stopPropagation()
     if (favoriteLoading.includes(pool.address) || delayFavorite) return
 
+    const isPoolFavorite = !!pool.favorite?.isFavorite
     try {
       handleAddFavoriteLoading(pool.address)
 
@@ -42,11 +82,10 @@ const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refet
 
       const { signature, msg } = await getOrCreateSignature(account, library)
 
-      const isPoolFavorite = !!pool.favorite?.isFavorite
       setDelayFavorite(true)
 
       const result = await (isPoolFavorite ? removeFavorite : addFavorite)({
-        chainId: filters.chainId,
+        chainId: (pool.chain?.id || pool.chainId) as number,
         userAddress: account,
         poolAddress: pool.address,
         message: msg,
@@ -57,18 +96,30 @@ const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refet
         throw new Error((result as any).error.data.message || 'Something went wrong')
       }
 
-      await refetch()
+      trackingHandler(TRACKING_EVENT_TYPE.POOL_FAVORITED, {
+        action: isPoolFavorite ? 'remove' : 'add',
+        pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
+        pool_protocol: pool.dexName,
+        pool_apr: pool.allApr,
+        pool_tvl_usd: pool.tvl,
+        pool_fee_tier: `${pool.feeTier}%`,
+        chain: pool.chain?.name,
+      })
+
+      refetch?.()
     } catch (error) {
       const action = pool.favorite?.isFavorite ? 'Remove' : 'Add'
       notify(
         {
           title: `${action} failed`,
           summary: error?.message || 'Something went wrong',
-          type: NotificationType.ERROR,
+          type: NotificationType.WARNING,
         },
         8000,
       )
     } finally {
+      updateSessionFavorite(pool, !isPoolFavorite)
+
       handleRemoveFavoriteLoading(pool.address)
     }
   }
@@ -80,9 +131,32 @@ const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refet
       }, FAVORITE_DELAY_MS)
   }, [delayFavorite])
 
+  useEffect(() => {
+    if (!account) {
+      setSessionFavorites({})
+      return
+    }
+    try {
+      const stored = sessionStorage.getItem(getSessionStorageKey(account))
+      if (!stored) {
+        setSessionFavorites({})
+        return
+      }
+      const parsed = JSON.parse(stored)
+      if (parsed && typeof parsed === 'object') {
+        setSessionFavorites(parsed as Record<string, boolean>)
+      } else {
+        setSessionFavorites({})
+      }
+    } catch {
+      setSessionFavorites({})
+    }
+  }, [account])
+
   return {
     handleFavorite,
     favoriteLoading,
+    getFavoriteStatus,
   }
 }
 

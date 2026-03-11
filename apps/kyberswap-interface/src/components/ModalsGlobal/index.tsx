@@ -1,4 +1,5 @@
 import ModalConfirm from 'components/ConfirmModal'
+import RecapSection from 'components/Recap'
 import SwitchToEthereumModal from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 
 export default function ModalsGlobal() {
@@ -6,6 +7,7 @@ export default function ModalsGlobal() {
     <>
       <SwitchToEthereumModal />
       <ModalConfirm />
+      <RecapSection />
     </>
   )
 }

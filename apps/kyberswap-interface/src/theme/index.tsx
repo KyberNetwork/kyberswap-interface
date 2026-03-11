@@ -180,6 +180,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   * {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    outline: none;
   }
 
   html {

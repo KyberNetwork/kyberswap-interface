@@ -7,7 +7,8 @@ import { PoolQueryParams } from 'services/zapEarn'
 import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import { kemFarming } from 'pages/Earns/PoolExplorer/DesktopTableRow'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { kemFarming, uniReward } from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import {
   Apr,
@@ -34,14 +35,24 @@ const MobileTableRow = ({
   withoutBorder: boolean
 }) => {
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
     e.stopPropagation()
+    trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
+      pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
+      pool_protocol: pool.dexName,
+      pool_fee_tier: `${pool.feeTier}%`,
+      pool_tvl_usd: pool.tvl,
+      pool_volume_24h_usd: pool.volume,
+      pool_apr: pool.allApr,
+      chain: pool.chain?.name,
+    })
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: pool.chainId || filters.chainId,
+        chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
       initialTick:
@@ -64,6 +75,7 @@ const MobileTableRow = ({
           <Flex sx={{ position: 'relative', top: -1 }}>
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
             <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+            {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
           </Flex>
           <Flex flexDirection={'column'} sx={{ gap: 2 }}>
             <Flex sx={{ gap: 1 }}>
@@ -80,8 +92,9 @@ const MobileTableRow = ({
         </Flex>
         <Flex alignItems="center" sx={{ gap: '12px' }}>
           <Flex alignItems="center" sx={{ gap: '2px' }}>
-            <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
+            <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
             {kemFarming(pool)}
+            {uniReward(pool)}
           </Flex>
           <Star
             size={16}
@@ -101,9 +114,7 @@ const MobileTableRow = ({
             <Text>
               {pool.maxAprInfo
                 ? formatAprNumber(
-                    Number(pool.maxAprInfo.apr || 0) +
-                      Number(pool.maxAprInfo.kemEGApr || 0) +
-                      Number(pool.maxAprInfo.kemLMApr || 0),
+                    Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
                   ) + '%'
                 : '--'}
             </Text>

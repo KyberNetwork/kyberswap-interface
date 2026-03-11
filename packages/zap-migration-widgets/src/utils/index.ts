@@ -13,6 +13,7 @@ export const buildRouteData = async ({
   referral,
   chainId,
   deadline,
+  permits,
 }: {
   sender: string;
   route: string;
@@ -20,6 +21,9 @@ export const buildRouteData = async ({
   referral?: string;
   chainId: ChainId;
   deadline: number;
+  permits?: {
+    [key: string]: string;
+  };
 }): Promise<BuildRouteData | null> => {
   const buildData = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/migrate/route/build`, {
     method: 'POST',
@@ -30,6 +34,7 @@ export const buildRouteData = async ({
       source,
       referral,
       deadline,
+      permits,
     }),
   })
     .then(res => res.json())

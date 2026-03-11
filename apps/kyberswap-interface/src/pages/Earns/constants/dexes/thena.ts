@@ -17,4 +17,5 @@ export default {
   isForkFrom: CoreProtocol.AlgebraV1,
   showVersion: false,
   farmingSupported: false,
+  smartExitDexType: undefined,
 }

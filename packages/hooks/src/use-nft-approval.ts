@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { directRpcFetch, ethCall } from '@kyber/rpc-client/fetch';
+import { TxStatus } from '@kyber/schema';
 import {
   calculateGasMargin,
   decodeAddress,
@@ -8,24 +10,35 @@ import {
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
 
-let intervalCheckApproval: ReturnType<typeof setTimeout> | null;
+import { ApprovalAdditionalInfo } from './use-approval';
 
 export function useNftApproval({
+  chainId,
   rpcUrl,
   nftManagerContract,
   tokenId,
   spender,
   userAddress,
   onSubmitTx,
+  txStatus,
+  txHashMapping,
+  dexName,
 }: {
+  chainId?: number;
   rpcUrl: string;
   nftManagerContract: string;
   tokenId?: number;
   spender?: string;
   userAddress: string;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: ApprovalAdditionalInfo,
+  ) => Promise<string>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
+  dexName?: string;
 }) {
-  const [isChecking, setIsChecking] = useState(true);
+  const [isChecking, setIsChecking] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
   const [approvePendingTx, setApprovelPendingTx] = useState('');
 
@@ -44,30 +57,57 @@ export function useNftApproval({
       value: '0x0',
     };
 
-    const gasEstimation = await estimateGas(rpcUrl, txData);
-    const txHash = await onSubmitTx({
-      ...txData,
-      gasLimit: calculateGasMargin(gasEstimation),
-    });
+    // Use chainId for RPC rotation if available, otherwise use rpcUrl
+    const gasEstimation = await estimateGas(chainId ?? rpcUrl, txData);
+    const txHash = await onSubmitTx(
+      {
+        ...txData,
+        gasLimit: calculateGasMargin(gasEstimation),
+      },
+      {
+        type: 'nft_approval',
+        tokenAddress: nftManagerContract,
+        dexName,
+      },
+    );
     setApprovelPendingTx(txHash);
-  }, [nftManagerContract, onSubmitTx, rpcUrl, spender, tokenId, userAddress]);
+  }, [chainId, dexName, nftManagerContract, onSubmitTx, rpcUrl, spender, tokenId, userAddress]);
 
+  // Get the current tx hash (might be different if tx was replaced/sped up)
+  const currentApprovePendingTx = approvePendingTx ? (txHashMapping?.[approvePendingTx] ?? approvePendingTx) : '';
+
+  // When txStatus is provided (from app), use it directly
   useEffect(() => {
-    if (approvePendingTx) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, approvePendingTx).then(res => {
-          if (res) {
-            setApprovelPendingTx('');
-            setIsApproved(res.status);
-          }
-        });
-      }, 8_000);
+    if (!txStatus || !approvePendingTx) return;
 
-      return () => {
-        clearInterval(i);
-      };
+    const status = txStatus[approvePendingTx];
+    if (status === TxStatus.SUCCESS) {
+      setApprovelPendingTx('');
+      setIsApproved(true);
+    } else if (status === TxStatus.FAILED || status === TxStatus.CANCELLED) {
+      setApprovelPendingTx('');
+      setIsApproved(false);
     }
-  }, [approvePendingTx, rpcUrl]);
+  }, [txStatus, approvePendingTx]);
+
+  // Fallback: Poll RPC when txStatus is not provided (standalone widget usage)
+  useEffect(() => {
+    if (txStatus || !currentApprovePendingTx) return;
+
+    const i = setInterval(() => {
+      // Use chainId for RPC rotation if available
+      isTransactionSuccessful(chainId ?? rpcUrl, currentApprovePendingTx).then(res => {
+        if (res) {
+          setApprovelPendingTx('');
+          setIsApproved(res.status);
+        }
+      });
+    }, 8_000);
+
+    return () => {
+      clearInterval(i);
+    };
+  }, [chainId, currentApprovePendingTx, rpcUrl, txStatus]);
 
   const checkApproval = useCallback(async () => {
     if (!spender || !userAddress || !tokenId || approvePendingTx) return;
@@ -77,43 +117,32 @@ export function useNftApproval({
     const encodedTokenId = tokenId.toString(16).padStart(64, '0');
     const data = '0x' + methodSignature + encodedTokenId;
 
-    fetch(rpcUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'eth_call',
-        params: [
-          {
-            to: nftManagerContract,
-            data,
-          },
-          'latest',
-        ],
-      }),
-    })
-      .then(res => res.json())
-      .then(res => {
-        setIsChecking(false);
-        if (decodeAddress((res?.result || '').slice(2))?.toLowerCase() === spender.toLowerCase()) setIsApproved(true);
-        else setIsApproved(false);
-      })
-      .finally(() => {
-        setIsChecking(false);
-      });
-  }, [nftManagerContract, approvePendingTx, rpcUrl, spender, tokenId, userAddress]);
+    try {
+      let result: string;
+      if (chainId !== undefined) {
+        // Use RPC client with automatic rotation
+        result = await ethCall(chainId, nftManagerContract, data);
+      } else {
+        // Fallback to direct rpcUrl
+        result = await directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: nftManagerContract, data }, 'latest']);
+      }
+
+      setIsChecking(false);
+      if (decodeAddress((result || '').slice(2))?.toLowerCase() === spender.toLowerCase()) {
+        setIsApproved(true);
+      } else {
+        setIsApproved(false);
+      }
+    } catch (error) {
+      console.error('Failed to check NFT approval:', error);
+      setIsChecking(false);
+      setIsApproved(false);
+    }
+  }, [chainId, nftManagerContract, approvePendingTx, rpcUrl, spender, tokenId, userAddress]);
 
   useEffect(() => {
     checkApproval();
-    intervalCheckApproval = setInterval(checkApproval, 8_000);
-
-    return () => {
-      if (intervalCheckApproval) clearInterval(intervalCheckApproval);
-    };
   }, [checkApproval]);
 
-  return { isChecking, isApproved, approve, approvePendingTx, checkApproval };
+  return { isChecking, isApproved, approve, approvePendingTx, currentApprovePendingTx, checkApproval };
 }

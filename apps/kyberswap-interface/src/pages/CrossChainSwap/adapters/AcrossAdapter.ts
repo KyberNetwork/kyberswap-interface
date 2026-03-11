@@ -10,6 +10,7 @@ import {
   bsc,
   linea,
   mainnet,
+  monad,
   optimism,
   plasma,
   polygon,
@@ -46,7 +47,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     super()
     this.acrossClient = createAcrossClient({
       integratorId: `0x008a`,
-      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain, plasma],
+      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain, plasma, monad],
       rpcUrls: [
         ChainId.MAINNET,
         ChainId.ARBITRUM,
@@ -59,6 +60,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
         ChainId.SCROLL,
         ChainId.BLAST,
         ChainId.UNICHAIN,
+        ChainId.MONAD,
       ].reduce((acc, cur) => {
         return { ...acc, [cur]: NETWORKS_INFO[cur].defaultRpcUrl }
       }, {}),
@@ -107,6 +109,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       ChainId.UNICHAIN,
       ChainId.BSCMAINNET,
       ChainId.PLASMA,
+      ChainId.MONAD,
       // NonEvmChain.Solana,
     ]
   }

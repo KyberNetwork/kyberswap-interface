@@ -26,6 +26,7 @@ export const getTransactionStatus = (transaction: TransactionDetails) => {
 }
 
 export const formatSignature = (rawSignature: string) => {
+  if (rawSignature.length !== 65) return rawSignature
   const bytes = ethers.utils.arrayify(rawSignature)
   const lastByte = bytes[64]
   if (lastByte === 0 || lastByte === 1) {

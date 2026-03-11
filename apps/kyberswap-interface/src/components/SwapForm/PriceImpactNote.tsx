@@ -7,9 +7,9 @@ import styled from 'styled-components'
 
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { StyledInternalLink } from 'theme'
 import { isSupportLimitOrder } from 'utils'
@@ -41,10 +41,9 @@ type Props = {
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
-  const { isSmartConnector } = useWeb3React()
   const priceImpactResult = checkPriceImpact(priceImpact)
   const switchToLimitOrder = useSwitchPairToLimitOrder()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   if (typeof priceImpact !== 'number') {
     return null
@@ -54,7 +53,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
       sx={{ cursor: 'pointer', color: theme.primary }}
       as={'u'}
       onClick={() => {
-        mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
+        trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_WARNING_IN_SWAP)
         switchToLimitOrder()
       }}
     >
@@ -156,7 +155,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
   }
 
   // high
-  if (showLimitOrderLink && !!priceImpact && priceImpact > 1 && isSupportLimitOrder(chainId) && !isSmartConnector) {
+  if (showLimitOrderLink && !!priceImpact && priceImpact > 1 && isSupportLimitOrder(chainId)) {
     return (
       <WarningNote
         shortText={

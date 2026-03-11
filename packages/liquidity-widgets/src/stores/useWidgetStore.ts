@@ -19,9 +19,11 @@ interface WidgetState extends WidgetProps {
   nativeToken: Token;
   wrappedNativeToken: Token;
   rpcUrl: string;
+  error: string | undefined;
   reset: () => void;
   setPositionId: (positionId: string) => void;
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => void;
+  setError: (error: string | undefined) => void;
 }
 
 const initState = {
@@ -31,6 +33,7 @@ const initState = {
   poolAddress: '',
   positionId: undefined,
   poolType: PoolType.DEX_UNISWAPV3,
+  dexId: undefined,
   connectedAccount: {
     address: '',
     chainId: ChainId.Ethereum,
@@ -41,17 +44,22 @@ const initState = {
   aggregatorOptions: undefined,
   feeConfig: undefined,
   referral: undefined,
+  fromCreatePoolFlow: undefined,
   initialTick: undefined,
+  signTypedData: undefined,
   onClose: undefined,
+  onOpenZapMigration: undefined,
+  onSuccess: undefined,
+  onViewPosition: undefined,
+  onSetUpSmartExit: undefined,
+  nativeToken: defaultToken,
+  wrappedNativeToken: defaultToken,
+  error: undefined,
+  onEvent: undefined,
   onConnectWallet: () => {},
   onSwitchChain: () => {},
   onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
     Promise.resolve(''),
-  onOpenZapMigration: undefined,
-  onSuccess: undefined,
-  onViewPosition: undefined,
-  nativeToken: defaultToken,
-  wrappedNativeToken: defaultToken,
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -94,6 +102,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     });
   },
   setPositionId: (positionId: string) => set({ positionId }),
+  setError: (error: string | undefined) => set({ error }),
 }));
 
 type WidgetStoreKeys = keyof ReturnType<typeof useWidgetRawStore.getState>;

@@ -37,7 +37,7 @@ init({
       id: "0x1",
       token: "ETH",
       label: "Ethereum Mainnet",
-      rpcUrl: "https://ethereum.kyberengineering.io",
+      rpcUrl: "https://ethereum-rpc.kyberswap.com",
     },
     {
       id: "0x89",
@@ -296,7 +296,7 @@ export default function Home() {
           client="widget-nextjs-demo"
           theme={theme}
           tokenList={[]}
-          rpcUrl="https://ethereum.kyberengineering.io"
+          rpcUrl="https://ethereum-rpc.kyberswap.com"
           chainId={chainId}
           connectedAccount={{
             address: wallet?.accounts?.[0]?.address,

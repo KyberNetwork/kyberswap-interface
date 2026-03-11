@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { ChainId, DEXES_INFO, NETWORKS_INFO, PoolType } from '@kyber/schema';
+import { ethCall } from '@kyber/rpc-client/fetch';
+import { ChainId, DEXES_INFO, PoolType } from '@kyber/schema';
 import { decodeAddress, getFunctionSelector } from '@kyber/utils/crypto';
 
 export const usePositionOwner = ({
@@ -14,8 +15,6 @@ export const usePositionOwner = ({
 }) => {
   const [positionOwner, setPositionOwner] = useState<string | null>(null);
 
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
-
   const contract = poolType ? DEXES_INFO[poolType].nftManagerContract : undefined;
   const nftManagerContract = !contract ? undefined : typeof contract === 'string' ? contract : contract[chainId];
 
@@ -26,29 +25,12 @@ export const usePositionOwner = ({
     const encodedTokenId = (+positionId).toString(16).padStart(64, '0');
     const data = '0x' + methodSignature + encodedTokenId;
 
-    fetch(rpcUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'eth_call',
-        params: [
-          {
-            to: nftManagerContract,
-            data,
-          },
-          'latest',
-        ],
-      }),
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (res?.result) setPositionOwner(decodeAddress(res.result.slice(2))?.toLowerCase());
-      });
-  }, [positionId, nftManagerContract, rpcUrl]);
+    ethCall(chainId, nftManagerContract, data)
+      .then(result => {
+        if (result) setPositionOwner(decodeAddress(result.slice(2))?.toLowerCase());
+      })
+      .catch(console.error);
+  }, [positionId, nftManagerContract, chainId]);
 
   return positionOwner;
 };

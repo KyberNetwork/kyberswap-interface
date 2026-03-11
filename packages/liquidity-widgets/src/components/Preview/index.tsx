@@ -2,104 +2,85 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, univ2Types, univ3PoolNormalize } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogTitle,
-  InfoHelper,
   StatusDialog,
   StatusDialogType,
-  TokenSymbol,
   translateFriendlyErrorMessage,
-  translateZapMessage,
 } from '@kyber/ui';
-import { parseZapInfo } from '@kyber/utils';
-import { friendlyError } from '@kyber/utils';
-import { PI_LEVEL } from '@kyber/utils';
+import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
-import { formatCurrency, formatDisplayNumber } from '@kyber/utils/number';
+import { getTokenIdFromTxHash } from '@kyber/utils/crypto/transaction';
+import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import EstimatedRow from '@/components/Estimated/EstimatedRow';
+import Estimated from '@/components/Estimated';
 import Head from '@/components/Preview/Head';
-import PooledAmount from '@/components/Preview/PooledAmount';
 import PriceInfo from '@/components/Preview/PriceInfo';
 import Warning from '@/components/Preview/Warning';
 import ZapInAmount from '@/components/Preview/ZapInAmount';
 import useOnSuccess from '@/components/Preview/useOnSuccess';
 import useTxStatus from '@/components/Preview/useTxStatus';
-import { SlippageWarning } from '@/components/SlippageWarning';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
-import { usePositionStore } from '@/stores/usePositionStore';
+import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { ZapSnapshotState } from '@/types/index';
 import { parseTokensAndAmounts } from '@/utils';
 
-export interface PreviewProps {
-  zapState: ZapSnapshotState;
-  pool: Pool;
-  onDismiss: () => void;
-}
-
-export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool, onDismiss }: PreviewProps) {
+export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const {
     chainId,
-    rpcUrl,
     poolType,
     connectedAccount,
     onSubmitTx,
     onViewPosition,
-    referral,
-    source,
     positionId,
     onClose,
+    onSetUpSmartExit,
+    onEvent,
   } = useWidgetStore([
     'chainId',
-    'rpcUrl',
     'poolType',
     'connectedAccount',
     'onSubmitTx',
     'onViewPosition',
-    'referral',
-    'source',
     'positionId',
     'onClose',
+    'onSetUpSmartExit',
+    'onEvent',
   ]);
-  const { position } = usePositionStore(['position']);
-  const { setSlippage, slippage, tokensIn, amountsIn } = useZapState();
+  const { pool } = usePoolStore(['pool']);
+  const { setSlippage, slippage, tokensIn, amountsIn, buildData } = useZapState();
+  const { zapImpact, suggestedSlippage } = useZapRoute();
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const { txStatus } = useTxStatus({ txHash });
+  const [loadingPosition, setLoadingPosition] = useState(false);
+  const { txStatus, currentTxHash } = useTxStatus({ txHash });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
-  const { token0, token1 } = pool;
-  const { refundInfo, addedAmountInfo, feeInfo, positionAmountInfo, zapImpact, suggestedSlippage } = parseZapInfo({
-    zapInfo,
-    token0,
-    token1,
-    position,
-  });
-
   useOnSuccess({
-    pool,
-    txHash,
+    txHash: displayTxHash,
     txStatus,
-    positionAmountInfo,
-    addedAmountInfo,
-    zapInfo,
   });
 
   const handleClick = async () => {
+    if (!buildData || !pool) return;
     setAttempTx(true);
     setTxHash('');
     setTxError(null);
 
     const { address: account } = connectedAccount;
+    if (!account) return;
 
     const { tokensIn: validTokensIn, amountsIn: validAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
     const parsedTokensIn = validTokensIn.map((token, index) => ({
@@ -110,50 +91,89 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
       }),
     }));
 
-    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
-      method: 'POST',
-      body: JSON.stringify({
-        sender: account,
-        recipient: account,
-        route: zapInfo.route,
-        deadline,
-        source,
-        referral,
-      }),
-    })
-      .then(res => res.json())
-      .then(async res => {
-        const { data } = res || {};
-        if (data.callData && account) {
-          const txData = {
-            from: account,
-            to: data.routerAddress,
-            data: data.callData,
-            value: `0x${BigInt(data.value).toString(16)}`,
-          };
+    const txData = {
+      from: account,
+      to: buildData.routerAddress,
+      data: buildData.callData,
+      value: `0x${BigInt(buildData.value).toString(16)}`,
+    };
 
-          try {
-            const gasEstimation = await estimateGas(rpcUrl, txData);
-            const txHash = await onSubmitTx(
-              {
-                ...txData,
-                gasLimit: calculateGasMargin(gasEstimation),
-              },
-              {
-                tokensIn: parsedTokensIn,
-                pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
-                dexLogo: DEXES_INFO[poolType].icon,
-              },
-            );
-            setTxHash(txHash);
-          } catch (e) {
-            setAttempTx(false);
-            setTxError(e as Error);
-          }
-        }
-      })
-      .finally(() => setAttempTx(false));
+    try {
+      const gasEstimation = await estimateGas(chainId, txData);
+      const txHash = await onSubmitTx(
+        {
+          ...txData,
+          gasLimit: calculateGasMargin(gasEstimation),
+        },
+        {
+          type: 'zap',
+          tokensIn: parsedTokensIn,
+          pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
+          dexLogo: DEXES_INFO[poolType].icon,
+        },
+      );
+      setTxHash(txHash);
+    } catch (e) {
+      setAttempTx(false);
+      setTxError(e as Error);
+
+      const error = e as Error;
+      const errorMsg = friendlyError(error) || error.message || '';
+      const isUserRejected = errorMsg.toLowerCase().includes('reject') || errorMsg.toLowerCase().includes('denied');
+      onEvent?.('LIQ_ADD_FAILED', {
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_fee_tier: `${pool.fee}%`,
+        error_type: isUserRejected ? 'user_rejected' : 'transaction_error',
+        error_message: errorMsg,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
+    } finally {
+      setAttempTx(false);
+    }
   };
+
+  const onWrappedDismiss = () => {
+    if (!txHash && !txError && pool) {
+      onEvent?.('LIQ_ADD_CANCELLED', {
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_fee_tier: `${pool.fee}%`,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
+    }
+    onDismiss();
+    setTxHash('');
+    setTxError(null);
+    setAttempTx(false);
+    setLoadingPosition(false);
+  };
+
+  const handleSetUpSmartExit = async () => {
+    if (!txHash || !onSetUpSmartExit) return;
+
+    // UniV2 doesn't support smart exit
+    const isUniV2 = univ2Types.includes(poolType as any);
+    if (isUniV2) {
+      onSetUpSmartExit(undefined);
+      return;
+    }
+
+    setLoadingPosition(true);
+    try {
+      const tokenId = await getTokenIdFromTxHash({ chainId, txHash, poolType });
+      if (tokenId) {
+        onSetUpSmartExit({ tokenId, chainId, poolType });
+      } else {
+        onSetUpSmartExit(undefined);
+      }
+    } catch (error) {
+      console.error('Error getting tokenId for smart exit:', error);
+      onSetUpSmartExit(undefined);
+    } finally {
+      setLoadingPosition(false);
+    }
+  };
+
+  if (!buildData || !pool) return null;
 
   if (attempTx || txHash || txError) {
     const dexName =
@@ -163,7 +183,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
 
     const handleSlippage = () => {
       if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
-      onDismiss();
+      onWrappedDismiss();
     };
 
     return (
@@ -171,11 +191,13 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
-            : txStatus === 'failed' || txError
-              ? StatusDialogType.ERROR
-              : txHash
-                ? StatusDialogType.PROCESSING
-                : StatusDialogType.WAITING
+            : txStatus === 'cancelled'
+              ? StatusDialogType.CANCELLED
+              : txStatus === 'failed' || txError
+                ? StatusDialogType.ERROR
+                : txHash
+                  ? StatusDialogType.PROCESSING
+                  : StatusDialogType.WAITING
         }
         description={
           txStatus !== 'success' && txStatus !== 'failed' && !txError && !txHash
@@ -186,23 +208,41 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
                 : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`)
             : undefined
         }
+        subDescription={
+          onSetUpSmartExit ? (
+            <Trans>
+              Set up the <b>Smart Exit</b> to auto-remove your position based on price, time, or earnings conditions.
+            </Trans>
+          ) : undefined
+        }
         errorMessage={txError ? translatedErrorMessage : undefined}
-        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
           <>
             <button
               className="ks-outline-btn flex-1"
               onClick={() => {
-                if (txStatus === 'success' && onClose) onClose();
-                onDismiss();
+                if (txStatus === 'success') {
+                  if (onViewPosition && onSetUpSmartExit) onViewPosition(txHash);
+                  else if (onClose) onClose();
+                }
+                onWrappedDismiss();
               }}
             >
-              <Trans>Close</Trans>
+              {txStatus === 'success' && onViewPosition && onSetUpSmartExit ? (
+                <Trans>View position</Trans>
+              ) : (
+                <Trans>Close</Trans>
+              )}
             </button>
             {txStatus === 'success' ? (
-              onViewPosition ? (
-                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+              onViewPosition && !onSetUpSmartExit ? (
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                   <Trans>View position</Trans>
+                </button>
+              ) : onSetUpSmartExit ? (
+                <button className="ks-primary-btn flex-1" onClick={handleSetUpSmartExit} disabled={loadingPosition}>
+                  {loadingPosition ? <Trans>Loading position...</Trans> : <Trans>Set up smart exit</Trans>}
                 </button>
               ) : null
             ) : errorMessage.includes('slippage') ? (
@@ -212,142 +252,26 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             ) : null}
           </>
         }
-        onClose={onDismiss}
+        onClose={onWrappedDismiss}
       />
     );
   }
 
   return (
-    <Dialog open={true} onOpenChange={onDismiss}>
+    <Dialog open={true} onOpenChange={onWrappedDismiss}>
       <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
         <DialogTitle>
           {positionId ? <Trans>Increase Liquidity via Zap</Trans> : <Trans>Add Liquidity via Zap</Trans>}
         </DialogTitle>
-        <div>
-          <Head pool={pool} />
+        <div className="flex flex-col gap-4">
+          <Head />
 
-          <ZapInAmount zapInfo={zapInfo} />
-          <PriceInfo pool={pool} />
+          <ZapInAmount />
+          <PriceInfo />
 
-          <div className="flex flex-col items-center gap-3 mt-4">
-            <PooledAmount pool={pool} positionAmountInfo={positionAmountInfo} addedAmountInfo={addedAmountInfo} />
-            <EstimatedRow
-              initializing={false}
-              label={<Trans>Remaining Amount</Trans>}
-              labelTooltip={t`Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet.`}
-              value={
-                <div className="text-sm">
-                  {formatCurrency(refundInfo.refundUsd)}
-                  {refundInfo.refundAmount0 || refundInfo.refundAmount1 ? (
-                    <InfoHelper
-                      text={
-                        <div>
-                          <div>
-                            {refundInfo.refundAmount0} <TokenSymbol symbol={token0.symbol} maxWidth={80} />
-                          </div>
-                          <div>
-                            {refundInfo.refundAmount1} <TokenSymbol symbol={token1.symbol} maxWidth={80} />
-                          </div>
-                        </div>
-                      }
-                    />
-                  ) : null}
-                </div>
-              }
-              hasRoute
-              className="w-full mt-0"
-            />
+          <Estimated isPreview={true} />
 
-            <SlippageWarning
-              className="gap-4 w-full mt-0"
-              slippage={slippage || 0}
-              suggestedSlippage={zapInfo.zapDetails.suggestedSlippage}
-              showWarning
-            />
-
-            <EstimatedRow
-              initializing={false}
-              label={
-                <div
-                  className={cn(
-                    'text-subText mt-[2px] w-fit border-b border-dotted border-subText',
-                    zapInfo
-                      ? zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
-                        ? 'border-error text-error'
-                        : zapImpact.level === PI_LEVEL.HIGH
-                          ? 'border-warning text-warning'
-                          : 'border-subText'
-                      : '',
-                  )}
-                >
-                  <Trans>Zap Impact</Trans>
-                </div>
-              }
-              labelTooltip={t`The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!`}
-              value={
-                <div
-                  className={cn(
-                    'text-sm',
-                    zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
-                      ? 'text-error'
-                      : zapImpact.level === PI_LEVEL.HIGH
-                        ? 'text-warning'
-                        : 'text-text',
-                  )}
-                >
-                  {zapImpact.display}
-                </div>
-              }
-              hasRoute
-              className="w-full mt-0"
-            />
-
-            <EstimatedRow
-              initializing={false}
-              label={<Trans>Est. Gas Fee</Trans>}
-              labelTooltip={t`Estimated network fee for your transaction.`}
-              value={
-                <div className="text-sm">
-                  {gasUsd
-                    ? formatDisplayNumber(gasUsd, {
-                        significantDigits: 4,
-                        style: 'currency',
-                      })
-                    : '--'}
-                </div>
-              }
-              hasRoute
-              className="w-full mt-0"
-            />
-
-            <EstimatedRow
-              initializing={false}
-              label={<Trans>Zap Fee</Trans>}
-              labelTooltip={
-                <Trans>
-                  Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
-                  fees.{' '}
-                  <a
-                    className="text-accent"
-                    href={API_URLS.DOCUMENT.ZAP_FEE_MODEL}
-                    target="_blank"
-                    rel="noopener norefferer noreferrer"
-                  >
-                    More details.
-                  </a>
-                </Trans>
-              }
-              value={<div className="text-sm">{parseFloat(feeInfo.protocolFee.toFixed(3))}%</div>}
-              hasRoute
-              className="w-full mt-0"
-            />
-          </div>
-
-          <Warning
-            zapInfo={zapInfo}
-            slippage={slippage || 0}
-            zapImpact={{ ...zapImpact, msg: translateZapMessage(zapImpact.msg) }}
-          />
+          <Warning />
         </div>
         <DialogFooter>
           <button

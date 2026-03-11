@@ -22,6 +22,10 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     rpcUrl,
     referral,
     onClose,
+    onSubmitTx,
+    signTypedData,
+    txStatus,
+    txHashMapping,
   } = widgetProps;
 
   const [hasReseted, setHasReseted] = useState(false);
@@ -79,10 +83,16 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
       rePositionMode,
       sourcePoolType: from.poolType,
       targetPoolType: to?.poolType || from.poolType,
+      sourceDexId: from.dexId,
+      targetDexId: to?.dexId || from.dexId,
       connectedAccount,
       client,
       referral,
       onClose,
+      onSubmitTx,
+      signTypedData,
+      txStatus,
+      txHashMapping,
     });
   }, [
     themeProps,
@@ -93,10 +103,16 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     rePositionMode,
     from.poolType,
     to?.poolType,
+    from.dexId,
+    to?.dexId,
     connectedAccount,
     client,
     referral,
     onClose,
+    onSubmitTx,
+    signTypedData,
+    txStatus,
+    txHashMapping,
   ]);
 
   useEffect(() => {

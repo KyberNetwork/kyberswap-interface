@@ -4,6 +4,7 @@ import { Flex } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
+import InboxActions from 'components/Announcement/PrivateAnnoucement/InboxActions'
 import {
   Dot,
   InboxItemRow,
@@ -20,34 +21,36 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { useNavigateToUrl } from 'utils/redirect'
 
-function InboxItemBridge({
+/** @deprecated */
+function InboxItemPoolPosition({
   announcement,
   onRead,
   style,
   time,
   title,
+  onPin,
+  onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplatePoolPosition>) {
-  const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
+  const navigate = useNavigateToUrl()
 
+  const { templateBody, isRead, templateType } = announcement
   const {
-    currentPrice,
-    maxPrice,
-    minPrice,
-    token0LogoURL,
-    token0Symbol,
-    token1LogoURL,
-    token1Symbol,
-    poolAddress,
-    type,
     chainId: rawChain,
+    token0Symbol,
+    token1Symbol,
+    token0LogoURL,
+    token1LogoURL,
+    currentPrice,
+    minPrice,
+    maxPrice,
+    poolAddress,
   } = templateBody?.position || {}
 
   const chainId = Number(rawChain) as ChainId
-  const isInRange = type === 'IN_RANGE'
+  const isInRange = currentPrice >= minPrice && currentPrice <= maxPrice
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
 
-  const navigate = useNavigateToUrl()
   const onClick = () => {
     navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`, chainId)
     onRead(announcement, statusMessage)
@@ -55,10 +58,15 @@ function InboxItemBridge({
 
   return (
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
+      <InboxActions
+        isPinned={announcement.isPinned}
+        onPin={onPin ? () => onPin(announcement) : undefined}
+        onDelete={onDelete ? () => onDelete(announcement) : undefined}
+      />
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} chainId={chainId} />
-          <Title isRead={isRead}>{title}</Title>
+          <Title>{title}</Title>
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>
@@ -93,4 +101,4 @@ function InboxItemBridge({
     </InboxItemWrapper>
   )
 }
-export default InboxItemBridge
+export default InboxItemPoolPosition

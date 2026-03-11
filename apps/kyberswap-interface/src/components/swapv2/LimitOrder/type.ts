@@ -10,6 +10,7 @@ export enum LimitOrderStatus {
   ACTIVE = 'active',
   OPEN = 'open',
   PARTIALLY_FILLED = 'partially_filled',
+  INSUFFICIENT_FUNDS = 'insufficient_funds',
   FILLED = 'filled',
   CANCELLING = 'cancelling',
   CLOSED = 'closed',

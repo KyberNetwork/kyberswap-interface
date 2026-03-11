@@ -35,6 +35,7 @@ export enum ApplicationModal {
 
   SWAP_APPROVAL = 'SWAP_APPROVAL',
   TIME_DROPDOWN = 'TIME_DROPDOWN',
+  RECAP = 'RECAP',
 }
 
 type ImplementedModalParams = {

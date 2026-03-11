@@ -16,8 +16,8 @@ import {
 } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { Z_INDEXS } from 'constants/styles'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDetailAnnouncement, useRemovePopup } from 'state/application/hooks'
 import { useNavigateToUrl } from 'utils/redirect'
 
@@ -108,9 +108,9 @@ function SnippetPopupItem({
   const ctaInfo = ctas[0]
   const hasCta = Boolean(ctaInfo?.name && ctaInfo?.url)
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const trackingClickCta = () => {
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP, {
+    trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP, {
       announcement_type: PopupType.SNIPPET,
       announcement_title: name,
     })
@@ -223,9 +223,9 @@ export default function SnippetPopup({
     clearAll()
   }
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const trackingClose = () =>
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: 'snippet_popups' })
+    trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: 'snippet_popups' })
 
   return (
     <Wrapper>

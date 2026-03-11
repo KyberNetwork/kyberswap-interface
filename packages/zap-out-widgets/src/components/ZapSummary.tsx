@@ -53,8 +53,8 @@ export function ZapSummary() {
                 {token0?.symbol}
                 {removedAmount1 !== 0n
                   ? `+ ${formatTokenAmount(removedAmount1, token1?.decimals || 18)} ${token1?.symbol}`
-                  : ''}{' '}
-              </Trans>
+                  : ''}
+              </Trans>{' '}
               {earnedFee0 !== 0n || earnedFee1 !== 0n ? (
                 <Trans>
                   and claim fee {earnedFee0 !== 0n ? formatTokenAmount(earnedFee0, token0?.decimals || 18) : ''}{' '}

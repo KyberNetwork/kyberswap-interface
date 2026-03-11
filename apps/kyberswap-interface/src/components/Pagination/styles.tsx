@@ -56,4 +56,8 @@ export const PaginationButton = styled.div<{ active?: boolean; haveBg?: boolean 
       : rgba(theme.buttonBlack, 0.4)};
   padding: 0;
   border-radius: 50%;
+
+  &:hover {
+    background: ${({ theme, haveBg }) => (haveBg ? theme.buttonBlack : theme.background)};
+  }
 `

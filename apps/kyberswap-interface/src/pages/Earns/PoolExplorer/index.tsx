@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -8,10 +8,12 @@ import { usePoolsExplorerQuery } from 'services/zapEarn'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
+import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import Filter from 'pages/Earns/PoolExplorer/Filter'
 import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import TableHeader from 'pages/Earns/PoolExplorer/TableHeader'
@@ -25,6 +27,8 @@ import {
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Exchange } from 'pages/Earns/constants'
+import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
+import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { Direction } from 'pages/MarketOverview/SortIcon'
@@ -48,14 +52,20 @@ const PoolExplorer = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const notify = useNotify()
+  const { trackingHandler } = useTracking()
   const { filters, updateFilters } = useFilter(setSearch)
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
+  const { onOpenSmartExit, smartExitWidget } = useSmartExitWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
     triggerClose,
     setTriggerClose,
+    onOpenSmartExit,
   })
+  const { widget: zapCreatePoolWidget, open: openZapCreatePoolWidget } = useZapCreatePoolWidget()
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const pendingSearchRef = useRef('')
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -130,9 +140,29 @@ const PoolExplorer = () => {
         updateFilters('sortBy', '')
         updateFilters('orderBy', '')
       }
+      if (deboundedSearch) {
+        pendingSearchRef.current = deboundedSearch
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deboundedSearch, filters.q, updateFilters])
+
+  useEffect(() => {
+    if (pendingSearchRef.current && poolData) {
+      trackingHandler(TRACKING_EVENT_TYPE.POOL_SEARCHED, {
+        search_query: pendingSearchRef.current,
+        results_count: poolData?.data?.pagination?.totalItems || 0,
+        active_category: filters.tag || 'all_pools',
+        active_filters: {
+          chain: filters.chainIds,
+          protocol: filters.protocol || 'all',
+          time_period: filters.interval,
+        },
+      })
+      pendingSearchRef.current = ''
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [poolData])
 
   useEffect(() => {
     const dex = searchParams.get('exchange')
@@ -166,6 +196,8 @@ const PoolExplorer = () => {
     <PoolPageWrapper>
       {zapInWidget}
       {zapMigrationWidget}
+      {zapCreatePoolWidget}
+      {smartExitWidget}
 
       <div>
         <Flex alignItems="center" sx={{ gap: 3 }}>
@@ -175,11 +207,18 @@ const PoolExplorer = () => {
           </Text>
         </Flex>
         <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-          {t`Kyberswap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
+          {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </Text>
       </div>
 
-      <Filter filters={filters} updateFilters={updateFilters} search={search} setSearch={setSearch} />
+      <Filter
+        filters={filters}
+        updateFilters={updateFilters}
+        search={search}
+        setSearch={setSearch}
+        onOpenCreatePool={() => setIsCreateModalOpen(true)}
+        totalItems={poolData?.data?.pagination?.totalItems}
+      />
 
       {upToLarge && (
         <NavigateButton
@@ -204,6 +243,12 @@ const PoolExplorer = () => {
           />
         )}
       </TableWrapper>
+
+      <CreatePoolModal
+        isOpen={isCreateModalOpen}
+        onDismiss={() => setIsCreateModalOpen(false)}
+        onSubmit={openZapCreatePoolWidget}
+      />
 
       <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>
     </PoolPageWrapper>

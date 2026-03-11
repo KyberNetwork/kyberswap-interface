@@ -17,7 +17,7 @@ const PositionLiquidity = () => {
   const amount1 = positionNotExist ? '0' : formatTokenAmount(position.amount1, pool.token1.decimals, 6);
 
   return (
-    <div className="px-4 py-3 mt-4 border border-stroke rounded-md">
+    <div className="px-4 py-3 border border-stroke rounded-md">
       <p className="text-subText mb-4 text-sm">
         <Trans>Your Position Liquidity</Trans>
       </p>

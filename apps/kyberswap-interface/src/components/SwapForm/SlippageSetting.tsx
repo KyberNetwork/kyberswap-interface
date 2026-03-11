@@ -31,18 +31,18 @@ const highlight = keyframes`
 `
 
 //transition: transform 300ms;
-const DropdownIcon = styled.div`
+export const DropdownIcon = styled.div<{ size?: number }>`
   margin-left: 6px;
   border-radius: 50%;
-  width: 12px;
-  height: 12px;
+  width: ${({ size }) => size || 12}px;
+  height: ${({ size }) => size || 12}px;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2px;
 
   transition: all 0.2s ease-in-out;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme }) => theme.white2};
   &[data-flip='true'] {
     transform: rotate(180deg);
   }
@@ -50,6 +50,10 @@ const DropdownIcon = styled.div`
   &[data-highlight='true'] {
     background: ${({ theme }) => rgba(theme.primary, 0.6)};
     animation: ${highlight} 2s infinite alternate ease-in-out;
+  }
+
+  &[data-warning='true'] {
+    color: ${({ theme }) => rgba(theme.warning, 0.9)};
   }
 `
 

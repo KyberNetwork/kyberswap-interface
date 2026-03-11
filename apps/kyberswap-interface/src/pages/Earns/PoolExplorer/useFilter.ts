@@ -1,5 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo, useState } from 'react'
+import { ChainId } from '@kyber/schema'
+import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PoolQueryParams } from 'services/zapEarn'
 
@@ -12,18 +12,11 @@ import { Direction } from 'pages/MarketOverview/SortIcon'
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { account, chainId } = useActiveWeb3React()
-  const [defaultChainId] = useState(chainId && EARN_CHAINS[chainId as unknown as EarnChain] ? chainId : ChainId.MAINNET)
 
   const filters: PoolQueryParams = useMemo(() => {
+    const fallbackChainId = EARN_CHAINS[chainId as unknown as EarnChain] ? chainId : ChainId.Ethereum
     return {
-      chainId: +(
-        searchParams.get('chainId') ||
-        (searchParams.get('tag') === FilterTag.FARMING_POOL
-          ? EARN_CHAINS[defaultChainId as unknown as EarnChain]?.farmingSupported
-            ? defaultChainId
-            : ChainId.MAINNET
-          : defaultChainId)
-      ),
+      chainIds: searchParams.get('chainIds') ?? String(fallbackChainId),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),
@@ -34,35 +27,22 @@ export default function useFilter(setSearch?: (search: string) => void) {
       orderBy: searchParams.get('orderBy') || '',
       q: searchParams.get('q')?.trim() || '',
     }
-  }, [searchParams, defaultChainId, account])
+  }, [searchParams, account, chainId])
 
   const updateFilters = useCallback(
     (key: keyof PoolQueryParams, value: string) => {
-      if (!value) {
+      if (!value && key !== 'chainIds') {
         searchParams.delete(key)
       } else {
         searchParams.set(key, value)
-        if (key === 'chainId') searchParams.delete('protocol')
+        if (key === 'chainIds') searchParams.delete('protocol')
         if (key === 'tag') {
           searchParams.delete('sortBy')
           searchParams.delete('orderBy')
-          if (setSearch) setSearch('')
+          setSearch?.('')
           if (value === FilterTag.LOW_VOLATILITY) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
-          } else if (value === FilterTag.FARMING_POOL) {
-            const currentFilteredChainId = searchParams.get('chainId')
-
-            if (
-              currentFilteredChainId &&
-              !EARN_CHAINS[currentFilteredChainId as unknown as EarnChain]?.farmingSupported
-            ) {
-              if (EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
-                searchParams.set('chainId', chainId.toString())
-              else searchParams.set('chainId', ChainId.MAINNET.toString())
-            }
-
-            searchParams.delete('protocol')
           }
         }
       }
@@ -70,7 +50,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
       setSearchParams(searchParams)
     },
-    [setSearchParams, searchParams, setSearch, chainId],
+    [setSearchParams, searchParams, setSearch],
   )
 
   return {

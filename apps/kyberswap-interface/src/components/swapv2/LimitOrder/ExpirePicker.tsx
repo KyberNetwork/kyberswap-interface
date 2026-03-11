@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Calendar, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -69,12 +69,16 @@ export default function DateTimePicker({
   onSetDate,
   expire,
   defaultDate,
+  defaultOptions,
+  title,
 }: {
   isOpen: boolean
   onDismiss: () => void
   onSetDate: (val: Date | number) => void
   expire: number
   defaultDate?: Date
+  title?: ReactNode
+  defaultOptions?: { label: string; value: number }[]
 }) {
   const today = new Date()
   const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
@@ -103,8 +107,11 @@ export default function DateTimePicker({
   }
 
   const onSelectDefaultOption = useCallback((value: number) => {
-    setDefaultExpire(value)
-    const date = new Date(Date.now() + value * 1000)
+    // value can be either seconds (duration) or timestamp (absolute date in seconds)
+    // If value is greater than a reasonable duration threshold, treat it as a timestamp
+    const isTimestamp = value > 1000000000 // Timestamps in seconds (10+ digits, represents Sep 2001+)
+    if (!isTimestamp) setDefaultExpire(value)
+    const date = isTimestamp ? new Date(value) : new Date(Date.now() + value * 1000)
     setDate(date)
     setHour(date.getHours())
     setMin(date.getMinutes())
@@ -158,9 +165,7 @@ export default function DateTimePicker({
     <Modal maxWidth={'98vw'} width={'480px'} isOpen={isOpen} enableSwipeGesture={false}>
       <Container>
         <Flex justifyContent={'space-between'} alignItems="center">
-          <Text fontSize={14}>
-            <Trans>Customize the Expiry Time</Trans>
-          </Text>
+          <Text fontSize={14}>{title || <Trans>Customize the Expiry Time</Trans>}</Text>
           <X color={theme.text} onClick={onDismiss} cursor="pointer" />
         </Flex>
         <Flex style={{ gap: 16 }}>
@@ -168,7 +173,7 @@ export default function DateTimePicker({
             <Text color={theme.border}>
               <Trans>Default Options</Trans>
             </Text>
-            {getExpireOptions().map(opt => (
+            {(defaultOptions || getExpireOptions()).map(opt => (
               <Text
                 style={{ cursor: 'pointer' }}
                 color={opt.value === defaultExpire ? theme.primary : theme.subText}
@@ -218,11 +223,16 @@ export default function DateTimePicker({
             </Flex>
           </Flex>
         </Flex>
-        <ResultContainer>
+        <ResultContainer
+          style={{
+            backgroundColor: title ? 'transparent' : undefined,
+            border: title ? `1px solid ${theme.primary}` : undefined,
+          }}
+        >
           <Flex alignItems={'center'} color={theme.subText}>
-            <Calendar color={theme.warning} size={17} />
+            <Calendar color={title ? theme.primary : theme.warning} size={17} />
             <Text marginLeft={'5px'}>
-              <Trans>Order will Expire on</Trans>
+              {title ? <Trans>Order will trigger on</Trans> : <Trans>Order will Expire on</Trans>}
             </Text>
           </Flex>
           <Text color={theme.text}>{dayjs(expireResult).format('DD/MM/YYYY HH:mm')}</Text>

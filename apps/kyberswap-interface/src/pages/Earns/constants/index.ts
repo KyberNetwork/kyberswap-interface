@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ContractInterface } from 'ethers'
 
+import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import arbitrum from 'pages/Earns/constants/chains/arbitrum'
 import avax from 'pages/Earns/constants/chains/avax'
 import base from 'pages/Earns/constants/chains/base'
@@ -8,8 +9,10 @@ import bera from 'pages/Earns/constants/chains/bera'
 import bsc from 'pages/Earns/constants/chains/bsc'
 import ethereum from 'pages/Earns/constants/chains/ethereum'
 import matic from 'pages/Earns/constants/chains/matic'
+import monad from 'pages/Earns/constants/chains/monad'
 import optimism from 'pages/Earns/constants/chains/optimism'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
+import aerodrome from 'pages/Earns/constants/dexes/aerodrome'
 import camelotv3 from 'pages/Earns/constants/dexes/camelotv3'
 import kodiakv3 from 'pages/Earns/constants/dexes/kodiakv3'
 import pancakeinfinitycl from 'pages/Earns/constants/dexes/pancakeInfinityCl'
@@ -33,6 +36,7 @@ export interface EarnDexInfo {
   isForkFrom: CoreProtocol
   showVersion: boolean
   farmingSupported: boolean
+  smartExitDexType?: SmartExitDexType
 }
 
 export enum Exchange {
@@ -48,9 +52,14 @@ export enum Exchange {
   DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
   DEX_PANCAKE_INFINITY_CL = 'pancake-infinity-cl',
   DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'pancake-infinity-cl-fairflow',
+  DEX_PANCAKE_INFINITY_CL_DYNAMIC = 'pancake-infinity-cl-dynamic',
+  DEX_PANCAKE_INFINITY_CL_ALPHA = 'pancake-infinity-cl-alpha',
+  DEX_PANCAKE_INFINITY_CL_BREVIS = 'pancake-infinity-cl-brevis',
+  DEX_PANCAKE_INFINITY_CL_LO = 'pancake-infinity-cl-lo',
+  DEX_AERODROMECL = 'aerodromecl',
 }
 
-export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
+const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_UNISWAPV2]: uniswapv2,
   [Exchange.DEX_UNISWAPV3]: uniswapv3,
   [Exchange.DEX_PANCAKESWAPV3]: pancakeswapv3,
@@ -64,13 +73,36 @@ export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
     ...uniswapv4,
     name: 'Uniswap V4 FairFlow',
     farmingSupported: true,
+    smartExitDexType: SmartExitDexType.DexTypeUniswapV4FairFlow,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL]: pancakeinfinitycl,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL FairFlow',
     farmingSupported: true,
+    smartExitDexType: SmartExitDexType.DexTypePancakeInfinityCLFairFlow,
   },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Dynamic',
+    smartExitDexType: undefined,
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Alpha',
+    smartExitDexType: undefined,
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Brevis',
+    smartExitDexType: undefined,
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL LO',
+    smartExitDexType: undefined,
+  },
+  [Exchange.DEX_AERODROMECL]: aerodrome,
 }
 
 const defaultConfig = {
@@ -84,6 +116,7 @@ const defaultConfig = {
   isForkFrom: CoreProtocol.UniswapV3,
   showVersion: false,
   farmingSupported: false,
+  smartExitDexType: undefined,
 }
 
 // Proxy helps fallback undefined Exchange by default dex info
@@ -95,10 +128,18 @@ export const EARN_DEXES = new Proxy(EARN_DEXES_CONFIG as any, {
   },
 }) as typeof EARN_DEXES_CONFIG & Record<string, EarnDexInfo>
 
+export const SMART_EXIT_DEX_TYPE_TO_EXCHANGE = Object.entries(EARN_DEXES).reduce((acc, [exchange, dexInfo]) => {
+  if (dexInfo.smartExitDexType) {
+    acc[dexInfo.smartExitDexType] = exchange as Exchange
+  }
+  return acc
+}, {} as Record<SmartExitDexType, Exchange>)
+
 // Chain info
 export interface EarnChainInfo {
   nativeAddress: string
   farmingSupported: boolean
+  smartExitSupported: boolean
   univ4StateViewContract: string | null
   logo: string
 }
@@ -112,6 +153,7 @@ export enum EarnChain {
   OPTIMISM = ChainId.OPTIMISM,
   MATIC = ChainId.MATIC,
   BERA = ChainId.BERA,
+  MONAD = ChainId.MONAD,
 }
 
 export const EARN_CHAINS: Record<EarnChain, EarnChainInfo> = {
@@ -123,6 +165,7 @@ export const EARN_CHAINS: Record<EarnChain, EarnChainInfo> = {
   [EarnChain.OPTIMISM]: optimism,
   [EarnChain.MATIC]: matic,
   [EarnChain.BERA]: bera,
+  [EarnChain.MONAD]: monad,
 }
 
 export const LIMIT_TEXT_STYLES = {
@@ -130,3 +173,13 @@ export const LIMIT_TEXT_STYLES = {
   overflow: 'hidden',
   whiteSpace: 'nowrap',
 }
+
+// Get list of exchanges that support smart exit
+export const SMART_EXIT_SUPPORTED_EXCHANGES = Object.entries(EARN_DEXES_CONFIG)
+  .filter(([, config]) => config.smartExitDexType !== undefined)
+  .map(([exchange]) => exchange as Exchange)
+
+// Get list of chains that support smart exit
+export const SMART_EXIT_SUPPORTED_CHAINS = Object.entries(EARN_CHAINS)
+  .filter(([, config]) => config.smartExitSupported)
+  .map(([chain]) => Number(chain))

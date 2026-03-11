@@ -28,9 +28,9 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
-import { TxStatus, ZapMigrationProps } from '@/types/index';
+import { OnSuccessProps, TxStatus, ZapMigrationProps } from '@/types/index';
 
-export { ChainId, PoolType, TxStatus, type ZapMigrationProps };
+export { ChainId, PoolType, TxStatus, type OnSuccessProps, type ZapMigrationProps };
 export type { SupportedLocale } from '@/i18n';
 
 export const ZapMigration = (widgetProps: ZapMigrationProps) => {
@@ -182,13 +182,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
             </div>
           </div>
 
-          <Action
-            onConnectWallet={onConnectWallet}
-            onSwitchChain={onSwitchChain}
-            onClose={onClose}
-            onBack={onBack}
-            onSubmitTx={onSubmitTx}
-          />
+          <Action onConnectWallet={onConnectWallet} onSwitchChain={onSwitchChain} onClose={onClose} onBack={onBack} />
         </div>
 
         {buildData && (

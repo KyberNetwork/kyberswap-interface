@@ -256,16 +256,28 @@ export class MayanAdapter extends BaseSwapAdapter {
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
     const res = await fetch(`https://explorer-api.mayan.finance/v3/swap/trx/${p.id}`).then(r => r.json())
 
+    // Convert formatted toAmount back to raw amount using target token decimals
+    // Mayan returns human-readable amounts like "0.020115767"
+    let actualAmountOut: string | undefined
+    if (res.toAmount) {
+      try {
+        actualAmountOut = parseUnits(res.toAmount, p.targetToken.decimals).toString()
+      } catch {
+        // If conversion fails, leave as undefined
+      }
+    }
+
     return {
       txHash: res.fulfillTxHash || '',
       status:
-        res.status === 'ORDER_SETTLED'
+        res.clientStatus === 'COMPLETED' || res.status === 'ORDER_SETTLED' || res.status === 'ORDER_UNLOCKED'
           ? 'Success'
           : res.status === 'ORDER_REFUNDED'
           ? 'Refunded'
           : res.status === 'ORDER_CANCELED'
           ? 'Failed'
           : 'Processing',
+      amountOut: actualAmountOut,
     }
   }
 }

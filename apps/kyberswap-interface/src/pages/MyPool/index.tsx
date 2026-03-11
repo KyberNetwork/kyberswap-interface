@@ -23,9 +23,9 @@ import { VERSION } from 'constants/v2'
 import { usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
 import ProAmmPool from 'pages/ProAmmPool'
@@ -256,7 +256,7 @@ function MyPoolClassic() {
 
   const loading = v2IsLoading
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const upToSmall = useMedia('(max-width: 768px)')
 
@@ -277,7 +277,7 @@ function MyPoolClassic() {
                     active={!showStaked}
                     onClick={() => {
                       if (showStaked) {
-                        mixpanelHandler(MIXPANEL_TYPE.MYPOOLS_POOLS_VIEWED)
+                        trackingHandler(TRACKING_EVENT_TYPE.MYPOOLS_POOLS_VIEWED)
                       }
                       setShowStaked(false)
                     }}
@@ -289,7 +289,7 @@ function MyPoolClassic() {
                     active={showStaked}
                     onClick={() => {
                       if (!showStaked) {
-                        mixpanelHandler(MIXPANEL_TYPE.MYPOOLS_STAKED_VIEWED)
+                        trackingHandler(TRACKING_EVENT_TYPE.MYPOOLS_STAKED_VIEWED)
                       }
                       setShowStaked(true)
                     }}

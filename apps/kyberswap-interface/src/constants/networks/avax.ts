@@ -24,7 +24,7 @@ const avaxInfo: NetworkInfo = {
     logo: avalancheIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://avalanche.kyberengineering.io',
+  defaultRpcUrl: 'https://avalanche-rpc.kyberswap.com',
   multicall: '0xF2FD8219609E28C61A998cc534681f95D2740f61',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche',
