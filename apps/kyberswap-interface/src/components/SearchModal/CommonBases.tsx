@@ -73,7 +73,7 @@ export default function CommonBases({
   if (!tokens.length) return null
   return (
     <AutoColumn gap="md">
-      <AutoRow gap="4px">
+      <AutoRow gap="4px" style={{ maxHeight: '200px', overflowY: 'auto' }}>
         {(tokens as Token[]).map((token: Token) => {
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
           const { symbol } = getDisplayTokenInfo(token)
