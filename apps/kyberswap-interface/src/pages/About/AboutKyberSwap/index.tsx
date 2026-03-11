@@ -10,6 +10,7 @@ import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
 import megaEthIcon from 'assets/networks/megaeth.svg'
 import monadIcon from 'assets/networks/monad.svg'
+import riseIcon from 'assets/networks/rise.svg'
 import AboutAvalanche from 'assets/svg/about_icon_avalanche.svg'
 import BSC from 'assets/svg/about_icon_bsc.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
@@ -370,6 +371,9 @@ function AboutKyberSwap() {
               <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
                 <img src={megaEthIcon} alt="MegaETH" width="80px" />
                 <Text>MegaETH</Text>
+              </Flex>
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <img src={riseIcon} alt="RISE" width="140px" />
               </Flex>
             </Powered>
           </Text>
