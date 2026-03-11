@@ -214,6 +214,10 @@ export default function App() {
     }
   }, [chainId, networkInfo.name])
 
+  useEffect(() => {
+    console.log(123, window.location.hostname)
+  }, [])
+
   useGlobalTrackingEvents()
   const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
