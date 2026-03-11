@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import dayjs from 'dayjs'
 import { Text } from 'rebass'
 
-import { CampaignWeek } from 'pages/Campaign/constants'
+import { CampaignWeek } from 'pages/Campaign/timelines'
 
 type Response<T> = {
   success: boolean
