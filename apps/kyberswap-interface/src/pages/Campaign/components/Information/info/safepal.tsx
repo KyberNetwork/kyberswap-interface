@@ -183,11 +183,11 @@ const SafePalRewardsSection = (): CampaignSectionComponent => (
     </ul>
     <li>
       <Trans>
-        Within 48 hours after each week ends, KyberSwap will publish the claim portal links on{' '}
-        <ExternalLink href="https://x.com/KyberNetwork">KyberSwap&apos;s X</ExternalLink> and other channels for both
-        the top 667 and FCFS participants. Besides that, you can receive campaign updates and your eligibility status
-        via <ExternalLink href="https://t.me/KyberSwapNotifierBot">KyberSwap Notifier</ExternalLink> instructions will
-        be shared soon.
+        Within 48 hours after each week ends, KyberSwap will publish the claim portal links on KyberSwap&apos;s{' '}
+        <ExternalLink href="https://x.com/KyberNetwork">X</ExternalLink>,{' '}
+        <ExternalLink href="https://t.me/officialkybernetwork">Telegram</ExternalLink>, and{' '}
+        <ExternalLink href="https://discord.gg/kyberswap">Discord</ExternalLink> for both the top 667 and FCFS
+        participants. Participants should turn on notifications for these channels to receive the latest updates.
       </Trans>
     </li>
     <li>
