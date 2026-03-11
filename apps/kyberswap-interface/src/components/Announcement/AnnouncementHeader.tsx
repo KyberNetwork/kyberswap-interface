@@ -22,6 +22,7 @@ type Props = {
 const getHeaderTitle = (category: Category | null) => {
   if (category === Category.LIMIT_ORDER) return <Trans>Limit Orders</Trans>
   if (category === Category.EARN_POSITION) return <Trans>Earn Position</Trans>
+  if (category === Category.SMART_EXIT) return <Trans>Smart Exit</Trans>
   return <Trans>Announcements</Trans>
 }
 

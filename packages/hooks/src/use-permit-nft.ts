@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
+import { directRpcFetch, ethCall } from '@kyber/rpc-client/fetch';
 import { ZERO_ADDRESS } from '@kyber/schema';
 import { getFunctionSelector } from '@kyber/utils/crypto';
 
@@ -173,7 +174,7 @@ export const usePermitNft = ({
     !!tokenId &&
     !!spender &&
     spender !== ZERO_ADDRESS &&
-    !!rpcUrl &&
+    !!(rpcUrl || chainId) &&
     typeof signTypedData === 'function';
 
   const actualVersion = useMemo<'v3' | 'v4' | null>(() => {
@@ -195,31 +196,19 @@ export const usePermitNft = ({
 
     let nextVersion: 'v3' | 'v4' = 'v3';
 
-    if (rpcUrl && nftManagerContract && tokenId != null) {
+    if (nftManagerContract && tokenId != null) {
       try {
         const methodSignature = getFunctionSelector('getPositionLiquidity(uint256)');
         const encodedTokenId = encodeUint256(tokenId);
         const data = `0x${methodSignature}${encodedTokenId}` as HexString;
 
-        const res = await fetch(rpcUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 1,
-            method: 'eth_call',
-            params: [
-              {
-                to: nftManagerContract,
-                data,
-              },
-              'latest',
-            ],
-          }),
-        });
-
-        const json = await res.json();
-        if (json?.result) {
+        let result: string | undefined;
+        if (chainId != null) {
+          result = await ethCall(chainId, nftManagerContract, data);
+        } else if (rpcUrl) {
+          result = await directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: nftManagerContract, data }, 'latest']);
+        }
+        if (result) {
           nextVersion = 'v4';
         }
       } catch {
@@ -229,11 +218,11 @@ export const usePermitNft = ({
 
     setDetectedVersion(nextVersion);
     return nextVersion;
-  }, [nftManagerContract, detectedVersion, rpcUrl, tokenId, version]);
+  }, [chainId, nftManagerContract, detectedVersion, rpcUrl, tokenId, version]);
 
   const getNonce = useCallback(
     async (resolvedVersion: 'v3' | 'v4'): Promise<bigint> => {
-      if (!rpcUrl || !nftManagerContract || !account || !tokenId) {
+      if ((!rpcUrl && !chainId) || !nftManagerContract || !account || !tokenId) {
         throw new Error('Missing RPC configuration for get nonce');
       }
       if (resolvedVersion === 'v3') {
@@ -241,25 +230,12 @@ export const usePermitNft = ({
         const encodedTokenId = encodeUint256(tokenId);
         const data = `0x${methodSignature}${encodedTokenId}` as HexString;
 
-        const res = await fetch(rpcUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 1,
-            method: 'eth_call',
-            params: [
-              {
-                to: nftManagerContract,
-                data,
-              },
-              'latest',
-            ],
-          }),
-        });
-
-        const json = await res.json();
-        const raw: string | undefined = json?.result;
+        let raw: string | undefined;
+        if (chainId != null) {
+          raw = await ethCall(chainId, nftManagerContract, data);
+        } else if (rpcUrl) {
+          raw = await directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: nftManagerContract, data }, 'latest']);
+        }
 
         if (!raw || typeof raw !== 'string' || raw === '0x') {
           throw new Error('Failed to fetch V3 nonce from positions()');
@@ -276,24 +252,12 @@ export const usePermitNft = ({
       const encodedWord = encodeUint256(0);
       const data = `0x${methodSignature}${encodedOwner}${encodedWord}` as HexString;
 
-      const res = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'eth_call',
-          params: [
-            {
-              to: nftManagerContract,
-              data,
-            },
-            'latest',
-          ],
-        }),
-      });
-      const json = await res.json();
-      const raw: string | undefined = json?.result;
+      let raw: string | undefined;
+      if (chainId != null) {
+        raw = await ethCall(chainId, nftManagerContract, data);
+      } else if (rpcUrl) {
+        raw = await directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: nftManagerContract, data }, 'latest']);
+      }
       if (!raw || typeof raw !== 'string') {
         throw new Error('Failed to fetch V4 nonce from nonces()');
       }
@@ -304,7 +268,7 @@ export const usePermitNft = ({
       const finalNonce = needIncreaseNonce ? nonce + 1n : nonce;
       return finalNonce;
     },
-    [nftManagerContract, rpcUrl, tokenId, account, needIncreaseNonce],
+    [chainId, nftManagerContract, rpcUrl, tokenId, account, needIncreaseNonce],
   );
 
   const signPermitNft = useCallback(
@@ -324,32 +288,19 @@ export const usePermitNft = ({
       try {
         const resolvedVersion = await resolveVersion();
 
-        if (!rpcUrl) {
-          throw new Error('RPC URL is required to resolve contract name');
+        if (!rpcUrl && chainId == null) {
+          throw new Error('RPC URL or chainId is required to resolve contract name');
         }
 
         const methodSignature = getFunctionSelector('name()');
         const data = `0x${methodSignature}` as HexString;
 
-        const res = await fetch(rpcUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 1,
-            method: 'eth_call',
-            params: [
-              {
-                to: nftManagerContract,
-                data,
-              },
-              'latest',
-            ],
-          }),
-        });
-
-        const json = await res.json();
-        const raw: string | undefined = json?.result;
+        let raw: string | undefined;
+        if (chainId != null) {
+          raw = await ethCall(chainId, nftManagerContract, data);
+        } else if (rpcUrl) {
+          raw = await directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: nftManagerContract, data }, 'latest']);
+        }
 
         if (!raw || typeof raw !== 'string' || raw === '0x') {
           throw new Error('Failed to fetch NFT contract name');

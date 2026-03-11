@@ -7,9 +7,9 @@ import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useRewards } from 'hooks/useRewards'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { useNotify } from 'state/application/hooks'
 import { formatNumberWithPrecisionRange } from 'utils'
@@ -70,7 +70,7 @@ const RewardWrapper = styled.div`
 `
 
 export default function RewardCenter() {
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const TABS = [
     {
       title: t`Voting Rewards`,
@@ -95,7 +95,7 @@ export default function RewardCenter() {
       .then(async () => {
         try {
           setClaiming(true)
-          mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_CLAIM_CLICK, {
+          trackingHandler(TRACKING_EVENT_TYPE.GAS_REFUND_CLAIM_CLICK, {
             source: 'wallet UI',
             token_amount: currentReward.knc,
           })
@@ -116,7 +116,7 @@ export default function RewardCenter() {
         }
       })
       .catch()
-  }, [currentReward, mixpanelHandler, notify, switchToEthereum])
+  }, [currentReward, trackingHandler, notify, switchToEthereum])
 
   return (
     <Wrapper>

@@ -33,8 +33,8 @@ import { FAUCET_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -167,7 +167,7 @@ export const BetaLabel = styled.span`
   font-size: 10px;
   color: ${({ theme }) => theme.subText};
   height: calc(100% + 4px);
-  margin-left: 2px;
+  margin-left: -2px;
 `
 
 const Divider = styled.div`
@@ -217,13 +217,13 @@ export default function Menu() {
   const userLocale = useUserLocale()
   const location = useLocation()
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const navigate = useNavigate()
 
   const setShowTutorialSwapGuide = useTutorialSwapGuide()[1]
   const openTutorialSwapGuide = () => {
     setShowTutorialSwapGuide({ show: true, step: 0 })
-    mixpanelHandler(MIXPANEL_TYPE.TUTORIAL_CLICK_START)
+    trackingHandler(TRACKING_EVENT_TYPE.TUTORIAL_CLICK_START)
     toggle()
   }
 
@@ -241,10 +241,10 @@ export default function Menu() {
   }, [open])
 
   const handleMenuClickMixpanel = (name: string) => {
-    mixpanelHandler(MIXPANEL_TYPE.MENU_MENU_CLICK, { menu: name })
+    trackingHandler(TRACKING_EVENT_TYPE.MENU_MENU_CLICK, { menu: name })
   }
   const handlePreferenceClickMixpanel = (name: string) => {
-    mixpanelHandler(MIXPANEL_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
+    trackingHandler(TRACKING_EVENT_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
   }
 
   const [wrapperNode, setWrapperNode] = useState<HTMLDivElement | null>(null)
@@ -273,7 +273,17 @@ export default function Menu() {
     <StyledMenu>
       <MenuFlyout
         trigger={
-          <StyledMenuButton active={open} onClick={toggle} aria-label="Menu" id={TutorialIds.BUTTON_MENU_HEADER}>
+          <StyledMenuButton
+            active={open}
+            onClick={() => {
+              if (!open) {
+                trackingHandler(TRACKING_EVENT_TYPE.MENU_DROPDOWN_OPENED, {})
+              }
+              toggle()
+            }}
+            aria-label="Menu"
+            id={TutorialIds.BUTTON_MENU_HEADER}
+          >
             <MenuIcon width={18} height={18} />
           </StyledMenuButton>
         }
@@ -285,7 +295,16 @@ export default function Menu() {
       >
         {isSelectingLanguage ? (
           <AutoColumn gap="md">
-            <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
+            <LanguageSelector
+              setIsSelectingLanguage={setIsSelectingLanguage}
+              onLanguageChange={(prevLang, newLang) => {
+                trackingHandler(TRACKING_EVENT_TYPE.LANGUAGE_CHANGED, {
+                  previous_language: prevLang,
+                  new_language: newLang,
+                  source: 'menu_dropdown',
+                })
+              }}
+            />
           </AutoColumn>
         ) : (
           <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
@@ -325,7 +344,7 @@ export default function Menu() {
               <MenuItem
                 onClick={() => {
                   toggleFaucetPopup()
-                  mixpanelHandler(MIXPANEL_TYPE.FAUCET_MENU_CLICKED)
+                  trackingHandler(TRACKING_EVENT_TYPE.FAUCET_MENU_CLICKED)
                   handleMenuClickMixpanel('Faucet')
                 }}
               >
@@ -383,6 +402,7 @@ export default function Menu() {
                   }
                   link="/campaigns"
                   options={[
+                    { link: APP_PATHS.SAFEPAL_CAMPAIGN, label: t`SafePal Campaign` },
                     { link: APP_PATHS.RAFFLE_CAMPAIGN, label: t`Weekly Rewards` },
                     { link: APP_PATHS.NEAR_INTENTS_CAMPAIGN, label: t`Cross Chain Campaign` },
                     { link: APP_PATHS.MAY_TRADING_CAMPAIGN, label: t`May Trading` },
@@ -432,6 +452,11 @@ export default function Menu() {
                 href="https://docs.kyberswap.com"
                 onClick={() => {
                   handleMenuClickMixpanel('Docs')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Docs',
+                    item_url: 'https://docs.kyberswap.com',
+                    is_external: true,
+                  })
                 }}
               >
                 <BookOpen />
@@ -445,6 +470,11 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   handleMenuClickMixpanel('Roadmap')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Roadmap',
+                    item_url: 'https://kyberswap.canny.io/',
+                    is_external: true,
+                  })
                 }}
               >
                 <RoadMapIcon />
@@ -458,6 +488,11 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   handleMenuClickMixpanel('Forum')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Forum',
+                    item_url: 'https://gov.kyber.org',
+                    is_external: true,
+                  })
                 }}
               >
                 <MessageCircle />
@@ -480,6 +515,11 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   handleMenuClickMixpanel('Terms')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Terms',
+                    item_url: TERM_FILES_PATH.KYBERSWAP_TERMS,
+                    is_external: true,
+                  })
                 }}
               >
                 <FileText />
@@ -492,6 +532,11 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   handleMenuClickMixpanel('Privacy Policy')
+                  trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                    item_label: 'Privacy Policy',
+                    item_url: TERM_FILES_PATH.PRIVACY_POLICY,
+                    is_external: true,
+                  })
                 }}
               >
                 <FileText />
@@ -541,7 +586,10 @@ export default function Menu() {
             <NavLinkBetween
               onClick={() => {
                 navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PREFERENCE}`)
-                mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
+                trackingHandler(TRACKING_EVENT_TYPE.NOTIFICATION_CLICK_MENU)
+                trackingHandler(TRACKING_EVENT_TYPE.NOTIFICATION_CENTER_OPENED, {
+                  source: 'menu_dropdown',
+                })
                 handlePreferenceClickMixpanel('Notifications')
                 toggle()
               }}
@@ -550,7 +598,6 @@ export default function Menu() {
               <MailIcon size={17} color={theme.text} />
             </NavLinkBetween>
             <NavLinkBetween
-              style={{ display: 'none' }} // TODO: Enable later
               onClick={() => {
                 setIsSelectingLanguage(true)
                 handlePreferenceClickMixpanel('Language')
@@ -573,7 +620,7 @@ export default function Menu() {
               <ClaimRewardButton
                 disabled={!account || !networkInfo.classic.claimReward || pendingTx}
                 onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
+                  trackingHandler(TRACKING_EVENT_TYPE.CLAIM_REWARDS_INITIATED)
                   toggleClaimPopup()
                 }}
               >

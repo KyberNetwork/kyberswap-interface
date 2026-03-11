@@ -17,9 +17,10 @@ import PinButton from 'components/WalletPopup/PinButton'
 import SendToken from 'components/WalletPopup/SendToken'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { useTokensHasBalance } from 'state/wallet/hooks'
 import { ExternalLinkIcon } from 'theme'
@@ -127,7 +128,7 @@ export default function WalletView({
   const View = getView()
   const [view, setView] = useState<string>(storedView || View.ASSETS)
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const navigate = useNavigate()
   const nodeRef = useRef<HTMLDivElement>(null)
   const [isMinimal, setMinimal] = useState(false)
@@ -152,13 +153,28 @@ export default function WalletView({
 
   const underTab = (
     <Row gap="20px" style={{ borderBottom: `1px solid ${theme.border}` }}>
-      <TabItem active={view === View.ASSETS} onClick={() => setView(View.ASSETS)}>
+      <TabItem
+        active={view === View.ASSETS}
+        onClick={() => {
+          trackingHandler(TRACKING_EVENT_TYPE.WALLET_TAB_SWITCHED, {
+            previous_tab: view === View.TRANSACTIONS ? 'transactions' : 'assets',
+            new_tab: 'assets',
+            wallet_address: account,
+          })
+          setView(View.ASSETS)
+        }}
+      >
         <StopCircle size={16} /> <Trans>Assets</Trans>
       </TabItem>
       <TabItem
         active={view === View.TRANSACTIONS}
         onClick={() => {
-          mixpanelHandler(MIXPANEL_TYPE.WUI_TRANSACTION_CLICK)
+          trackingHandler(TRACKING_EVENT_TYPE.WUI_TRANSACTION_CLICK)
+          trackingHandler(TRACKING_EVENT_TYPE.WALLET_TAB_SWITCHED, {
+            previous_tab: view === View.ASSETS ? 'assets' : 'transactions',
+            new_tab: 'transactions',
+            wallet_address: account,
+          })
           setView(View.TRANSACTIONS)
         }}
       >
@@ -171,15 +187,30 @@ export default function WalletView({
     const handleClickBuy = () => {
       navigate(`${APP_PATHS.BUY_CRYPTO}?step=3`)
       onDismiss()
-      mixpanelHandler(MIXPANEL_TYPE.WUI_BUTTON_CLICK, { button_name: 'Buy' })
+      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Buy' })
+      trackingHandler(TRACKING_EVENT_TYPE.WALLET_BUY_CLICKED, {
+        total_balance_usd: totalBalanceInUsd,
+        wallet_address: account,
+        chain: NETWORKS_INFO[chainId]?.name,
+      })
     }
     const handleClickReceive = () => {
       setView(View.RECEIVE_TOKEN)
-      mixpanelHandler(MIXPANEL_TYPE.WUI_BUTTON_CLICK, { button_name: 'Receive' })
+      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Receive' })
+      trackingHandler(TRACKING_EVENT_TYPE.WALLET_RECEIVE_CLICKED, {
+        total_balance_usd: totalBalanceInUsd,
+        wallet_address: account,
+        chain: NETWORKS_INFO[chainId]?.name,
+      })
     }
     const handleClickSend = () => {
       setView(View.SEND_TOKEN)
-      mixpanelHandler(MIXPANEL_TYPE.WUI_BUTTON_CLICK, { button_name: 'Send' })
+      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Send' })
+      trackingHandler(TRACKING_EVENT_TYPE.WALLET_SEND_CLICKED, {
+        total_balance_usd: totalBalanceInUsd,
+        wallet_address: account,
+        chain: NETWORKS_INFO[chainId]?.name,
+      })
     }
 
     return (
@@ -338,10 +369,29 @@ export default function WalletView({
                   {shortenAddress(chainId, account, 5, false)}
                 </Text>
                 <MouseoverTooltip text={t`Copy wallet address`} width="fit-content" placement="top">
-                  <CopyHelper toCopy={account} />
+                  <span
+                    onClick={() =>
+                      trackingHandler(TRACKING_EVENT_TYPE.WALLET_ADDRESS_COPIED, {
+                        wallet_address: account,
+                        chain: NETWORKS_INFO[chainId]?.name,
+                      })
+                    }
+                  >
+                    <CopyHelper toCopy={account} />
+                  </span>
                 </MouseoverTooltip>
                 <MouseoverTooltip text={t`Open scan explorer`} width="fit-content" placement="top">
-                  <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} color={theme.subText} />
+                  <span
+                    onClick={() =>
+                      trackingHandler(TRACKING_EVENT_TYPE.WALLET_EXTERNAL_LINK_CLICKED, {
+                        wallet_address: account,
+                        explorer_url: getEtherscanLink(chainId, account, 'address'),
+                        chain: NETWORKS_INFO[chainId]?.name,
+                      })
+                    }
+                  >
+                    <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} color={theme.subText} />
+                  </span>
                 </MouseoverTooltip>
                 <MouseoverTooltip text={t`Disconnect wallet`} width="fit-content" placement="top">
                   <LogOutIcon size={16} onClick={disconnectWallet} />
@@ -350,7 +400,17 @@ export default function WalletView({
             )}
             <Flex style={{ gap: 20 }} alignItems="center">
               {onPin && onUnpin && <PinButton isActive={isPinned} onClick={isPinned ? onUnpin : onPin} />}
-              <X onClick={onDismiss} color={theme.subText} cursor="pointer" />
+              <X
+                onClick={() => {
+                  trackingHandler(TRACKING_EVENT_TYPE.WALLET_MODAL_CLOSED, {
+                    close_method: 'x_button',
+                    wallet_address: account,
+                  })
+                  onDismiss()
+                }}
+                color={theme.subText}
+                cursor="pointer"
+              />
             </Flex>
           </Flex>
         </Flex>

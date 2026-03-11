@@ -1,4 +1,13 @@
-import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, Token, univ3PoolNormalize } from '@kyber/schema';
+import {
+  ChainId,
+  NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
+  Pool,
+  PoolType,
+  Token,
+  dexMapping,
+  univ3PoolNormalize,
+} from '@kyber/schema';
 import { fetchTokenPrice, friendlyError } from '@kyber/utils';
 import { estimateGas, getCurrentGasPrice } from '@kyber/utils/crypto';
 import { formatUnits } from '@kyber/utils/number';
@@ -173,11 +182,9 @@ export const getPriceRangeToShow = ({
 };
 
 export const estimateGasForTx = async ({
-  rpcUrl,
   txData,
   chainId,
 }: {
-  rpcUrl: string;
   txData: {
     from: string;
     to: string;
@@ -189,13 +196,13 @@ export const estimateGasForTx = async ({
   try {
     const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
     const [gasEstimation, nativeTokenPrice, gasPrice] = await Promise.all([
-      estimateGas(rpcUrl, txData),
+      estimateGas(chainId, txData),
       fetchTokenPrice({ addresses: [wethAddress], chainId })
         .then((prices: { [x: string]: { PriceBuy: number } }) => {
           return prices[wethAddress]?.PriceBuy || 0;
         })
         .catch(() => 0),
-      getCurrentGasPrice(rpcUrl),
+      getCurrentGasPrice(chainId),
     ]);
 
     const gasUsd = +formatUnits(gasPrice.toString(), 18) * +gasEstimation.toString() * nativeTokenPrice;
@@ -213,4 +220,9 @@ export const estimateGasForTx = async ({
       error: friendlyError(message),
     };
   }
+};
+
+export const poolTypeToDex = (poolType: PoolType): string => {
+  const dexNames = dexMapping[poolType];
+  return dexNames?.[0] || String(poolType).toLowerCase();
 };

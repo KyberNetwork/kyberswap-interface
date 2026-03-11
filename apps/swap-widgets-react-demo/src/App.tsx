@@ -17,7 +17,7 @@ const walletConnect = walletConnectModule({
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
-  requiredChains: [1, 42161, 8453, 80094, 999],
+  requiredChains: [1, 42161, 8453, 80094, 999, 9745, 42793, 143, 4326],
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
@@ -88,6 +88,34 @@ init({
       token: "S",
       label: "Sonic",
       rpcUrl: "https://rpc.soniclabs.com",
+      namespace: "evm",
+    },
+    {
+      id: "0x2611",
+      token: "XPL",
+      label: "Plasma",
+      rpcUrl: "https://rpc.plasma.to",
+      namespace: "evm",
+    },
+    {
+      id: "0xa729",
+      token: "XTZ",
+      label: "Etherlink",
+      rpcUrl: "https://node.mainnet.etherlink.com",
+      namespace: "evm",
+    },
+    {
+      id: "0x8f",
+      token: "MON",
+      label: "Monad",
+      rpcUrl: "https://rpc.monad.xyz",
+      namespace: "evm",
+    },
+    {
+      id: "0x10e6",
+      token: "ETH",
+      label: "MegaETH",
+      rpcUrl: "https://mainnet.megaeth.com/rpc",
       namespace: "evm",
     },
   ],
@@ -197,6 +225,10 @@ function App() {
     8453: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
     80094: "0x549943e04f40284185054145c6e4e9568c1d3241",
     999: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+    9745: "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+    42793: "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9",
+    143: "0xe7cd86e13AC4309349F30B3435a9d337750fC82D",
+    4326: "0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7",
   };
 
   const [feeSetting, setFeeSetting] = useState({
@@ -290,6 +322,10 @@ function App() {
                 <option value={80094}>Bera</option>
                 <option value={146}>Sonic</option>
                 <option value={999}>HyperEvm</option>
+                <option value={9745}>Plasma</option>
+                <option value={42793}>Etherlink</option>
+                <option value={143}>Monad</option>
+                <option value={4326}>MegaETH</option>
               </select>
               <label>chainId</label>
             </div>

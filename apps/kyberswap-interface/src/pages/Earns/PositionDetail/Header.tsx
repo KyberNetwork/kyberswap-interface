@@ -1,10 +1,12 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconAlert } from 'assets/svg/earn/ic_alert.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -29,10 +31,18 @@ const PositionDetailHeader = ({
   position,
   isLoading,
   initialLoading,
+  showBackIcon = true,
+  style = {},
+  useFromSmartExit = false,
+  hasActiveSmartExitOrder = false,
 }: {
-  position?: ParsedPosition
+  position?: ParsedPosition | null
   isLoading: boolean
   initialLoading: boolean
+  showBackIcon?: boolean
+  style?: React.CSSProperties
+  useFromSmartExit?: boolean
+  hasActiveSmartExitOrder?: boolean
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -101,10 +111,11 @@ const PositionDetailHeader = ({
       alignItems="center"
       justifyContent="space-between"
       marginBottom={1}
+      style={style}
     >
       <PositionHeader>
         <Flex alignItems={'center'} sx={{ gap: 2 }}>
-          <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />
+          {showBackIcon && <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />}
 
           {initialLoading ? (
             <PositionSkeleton width={125} height={28} />
@@ -133,9 +144,36 @@ const PositionDetailHeader = ({
             <Badge type={BadgeType.ROUNDED}>
               <InfoHelperWithDelay
                 text={
-                  <Flex alignItems={'center'} sx={{ gap: 1 }} color={theme.blue2}>
-                    <Text fontSize={14}>{position ? shortenAddress(position?.pool.address || '', 6) : ''}</Text>
-                    <CopyHelper size={16} toCopy={position?.pool.address || ''} />
+                  <Flex flexDirection="column" sx={{ gap: 1 }} style={{ fontSize: 12 }} color={theme.subText}>
+                    <Flex alignItems="center" sx={{ gap: '8px' }}>
+                      <Text>{position?.token0.symbol}: </Text>
+                      <Text>
+                        {position?.token0.isNative ? (
+                          <Trans>Native token</Trans>
+                        ) : (
+                          shortenAddress(position?.token0.address || '', 4)
+                        )}
+                      </Text>
+                      {!position?.token0.isNative && <CopyHelper size={16} toCopy={position?.token0.address || ''} />}
+                    </Flex>
+                    <Flex alignItems="center" sx={{ gap: 1 }}>
+                      <Text>{position?.token1.symbol}: </Text>
+                      <Text>
+                        {position?.token1.isNative ? (
+                          <Trans>Native token</Trans>
+                        ) : (
+                          shortenAddress(position?.token1.address || '', 4)
+                        )}
+                      </Text>
+                      {!position?.token1.isNative && <CopyHelper size={16} toCopy={position?.token1.address || ''} />}
+                    </Flex>
+                    <Flex alignItems="center" sx={{ gap: 1 }}>
+                      <Text>
+                        <Trans>Pool Address:</Trans>{' '}
+                      </Text>
+                      <Text>{shortenAddress(position?.pool.address || '', 4)}</Text>
+                      <CopyHelper size={16} toCopy={position?.pool.address || ''} />
+                    </Flex>
                   </Flex>
                 }
                 size={16}
@@ -144,6 +182,42 @@ const PositionDetailHeader = ({
                 width="fit-content"
               />
             </Badge>
+          )}
+
+          {hasActiveSmartExitOrder && !useFromSmartExit && (
+            <MouseoverTooltipDesktopOnly
+              text={
+                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                  <Trans>This position has an active Smart Exit order.</Trans>
+                  <br />
+                  <Trans>
+                    View or manage it in{' '}
+                    <Link to={APP_PATHS.EARN_SMART_EXIT} style={{ color: theme.subText, textDecoration: 'underline' }}>
+                      View Smart Exit Orders
+                    </Link>
+                    .
+                  </Trans>
+                </Text>
+              }
+              width="fit-content"
+              placement="bottom"
+            >
+              <Flex
+                alignItems="center"
+                justifyContent="center"
+                sx={{ cursor: 'pointer', borderRadius: '30px' }}
+                backgroundColor={rgba(theme.white, 0.04)}
+                width={32}
+                height={32}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  navigate(APP_PATHS.EARN_SMART_EXIT)
+                }}
+              >
+                <ListSmartExitIcon width={16} height={16} />
+              </Flex>
+            </MouseoverTooltipDesktopOnly>
           )}
         </Flex>
         <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
@@ -185,28 +259,30 @@ const PositionDetailHeader = ({
         </Flex>
       </PositionHeader>
 
-      <Flex sx={{ gap: 3 }}>
-        <MouseoverTooltipDesktopOnly
-          text={t`Get notified via Telegram when this position moves out of range or back in range`}
-          width="300px"
-          placement="bottom"
-        >
-          <ButtonLight
-            width="36px"
-            height="36px"
-            style={{ padding: 0 }}
-            onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
+      {!useFromSmartExit && (
+        <Flex sx={{ gap: 3 }}>
+          <MouseoverTooltipDesktopOnly
+            text={t`Get notified via Telegram when this position moves out of range or back in range`}
+            width="300px"
+            placement="bottom"
           >
-            <IconAlert />
-          </ButtonLight>
-        </MouseoverTooltipDesktopOnly>
-        <NavigateButton
-          mobileFullWidth
-          icon={<IconUserEarnPosition />}
-          text={t`My Positions`}
-          to={APP_PATHS.EARN_POSITIONS}
-        />
-      </Flex>
+            <ButtonLight
+              width="36px"
+              height="36px"
+              style={{ padding: 0 }}
+              onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
+            >
+              <IconAlert />
+            </ButtonLight>
+          </MouseoverTooltipDesktopOnly>
+          <NavigateButton
+            mobileFullWidth
+            icon={<IconUserEarnPosition />}
+            text={t`My Positions`}
+            to={APP_PATHS.EARN_POSITIONS}
+          />
+        </Flex>
+      )}
     </Flex>
   )
 }

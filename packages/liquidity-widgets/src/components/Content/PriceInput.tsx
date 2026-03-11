@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Trans } from '@lingui/macro';
 
-import { univ3PoolNormalize } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, PoolType, univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { formatNumber } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
@@ -15,7 +15,7 @@ import { PriceType } from '@/types/index';
 export default function PriceInput({ type }: { type: PriceType }) {
   const { tickLower, tickUpper, setTickLower, setTickUpper, minPrice, maxPrice } = useZapState();
   const { pool: rawPool, revertPrice } = usePoolStore(['pool', 'revertPrice']);
-  const { positionId } = useWidgetStore(['positionId']);
+  const { positionId, chainId, poolType, onEvent } = useWidgetStore(['positionId', 'chainId', 'poolType', 'onEvent']);
 
   const [localValue, setLocalValue] = useState('');
 
@@ -75,6 +75,19 @@ export default function PriceInput({ type }: { type: PriceType }) {
       } else {
         revertPrice ? setTickLower(t) : setTickUpper(t);
       }
+
+      const dexNameObj = DEXES_INFO[poolType as PoolType].name;
+      const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+      onEvent?.('PRICE_RANGE_ADJUSTED', {
+        adjustment_type: type === PriceType.MinPrice ? 'min_price' : 'max_price',
+        new_value: value,
+        min_price: minPrice,
+        max_price: maxPrice,
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_protocol: dexName,
+        pool_fee_tier: `${pool.fee}%`,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
     }
   };
 

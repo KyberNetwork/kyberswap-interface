@@ -14,8 +14,8 @@ import { DOCS_LINKS } from 'components/swapv2/LimitOrder/const'
 import { getPayloadTracking } from 'components/swapv2/LimitOrder/helpers'
 import { CancelOrderType, LimitOrder } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -127,14 +127,14 @@ const CancelButtons = ({
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isTimeout = cancelStatus === CancelStatus.TIMEOUT
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const { networkInfo } = useActiveWeb3React()
 
   const onSetType = (type: CancelOrderType) => {
     setCancelType(type)
     if (!order) return
-    mixpanelHandler(
-      isEdit ? MIXPANEL_TYPE.LO_CLICK_UPDATE_TYPE : MIXPANEL_TYPE.LO_CLICK_CANCEL_TYPE,
+    trackingHandler(
+      isEdit ? TRACKING_EVENT_TYPE.LO_CLICK_UPDATE_TYPE : TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_TYPE,
       getPayloadTracking(order, networkInfo.name, {
         [isEdit ? 'edit_type' : 'cancel_type']: type === CancelOrderType.GAS_LESS_CANCEL ? 'Gasless' : 'Hard',
       }),

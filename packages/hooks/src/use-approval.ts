@@ -29,6 +29,7 @@ export const useErc20Approvals = ({
   addreses,
   owner,
   spender,
+  chainId,
   rpcUrl,
   onSubmitTx,
   txStatus,
@@ -40,6 +41,7 @@ export const useErc20Approvals = ({
   addreses: string[];
   owner: string;
   spender: string;
+  chainId?: number;
   rpcUrl: string;
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
@@ -85,7 +87,7 @@ export const useErc20Approvals = ({
     };
 
     try {
-      const gasEstimation = await estimateGas(rpcUrl, txData);
+      const gasEstimation = await estimateGas(chainId ?? rpcUrl, txData);
 
       // Find token symbol from the addresses array
       const tokenIndex = addreses.findIndex(addr => addr.toLowerCase() === address.toLowerCase());
@@ -143,7 +145,7 @@ export const useErc20Approvals = ({
     if (txStatus || !currentPendingTx || !addressToApprove) return;
 
     const i = setInterval(() => {
-      isTransactionSuccessful(rpcUrl, currentPendingTx).then(res => {
+      isTransactionSuccessful(chainId ?? rpcUrl, currentPendingTx).then(res => {
         if (res) {
           setPendingTx('');
           if (res.status) setAddressToApprove('');
@@ -158,7 +160,7 @@ export const useErc20Approvals = ({
     return () => {
       clearInterval(i);
     };
-  }, [currentPendingTx, rpcUrl, addressToApprove, txStatus]);
+  }, [chainId, currentPendingTx, rpcUrl, addressToApprove, txStatus]);
 
   useEffect(() => {
     if (owner && spender && addreses.length === amounts.length) {
@@ -169,6 +171,7 @@ export const useErc20Approvals = ({
 
           const amountToApprove = BigInt(amounts[index]);
           return await checkApproval({
+            chainId,
             rpcUrl,
             token: address,
             owner,
@@ -209,6 +212,7 @@ export const useErc20Approvals = ({
     JSON.stringify(addreses),
     // eslint-disable-next-line
     JSON.stringify(amounts),
+    chainId,
     rpcUrl,
   ]);
 

@@ -15,14 +15,16 @@ import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import { SmartExitParams } from 'pages/Earns/hooks/useSmartExitWidget'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
-import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
+import { DEFAULT_PARSED_POSITION, ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
 import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
@@ -71,13 +73,16 @@ const useZapInWidget = ({
   onRefreshPosition,
   triggerClose,
   setTriggerClose,
+  onOpenSmartExit,
 }: {
   onOpenZapMigration: (props: ZapMigrationInfo) => void
   onRefreshPosition?: () => void
   triggerClose?: boolean
   setTriggerClose?: (value: boolean) => void
+  onOpenSmartExit?: (params: SmartExitParams | ParsedPosition | undefined) => void
 }) => {
   const locale = useActiveLocale()
+  const { trackingHandler } = useTracking()
   const addTransactionWithType = useTransactionAdder()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
@@ -162,6 +167,19 @@ const useZapInWidget = ({
     [addLiquidityPureParams, onOpenZapMigration],
   )
 
+  // Check if smart exit is supported for current dex and chain
+  const isSmartExitSupported = useMemo(() => {
+    if (!addLiquidityPureParams) return false
+
+    const { chainId } = addLiquidityPureParams
+    const dex = addLiquidityPureParams.dexId
+
+    const dexSupportsSmartExit = !!EARN_DEXES[dex].smartExitDexType
+    const chainSupportsSmartExit = EARN_CHAINS[chainId as unknown as EarnChain]?.smartExitSupported
+
+    return dexSupportsSmartExit && chainSupportsSmartExit
+  }, [addLiquidityPureParams])
+
   const addLiquidityParams: AddLiquidityParams | null = useMemo(
     () =>
       addLiquidityPureParams
@@ -182,6 +200,23 @@ const useZapInWidget = ({
               handleCloseZapInWidget()
               handleNavigateToPosition(txHash, chainId, dexId, poolAddress)
             },
+            onSetUpSmartExit:
+              isSmartExitSupported && onOpenSmartExit
+                ? (params: { tokenId: string; chainId: ZapInChainId; poolType: ZapInPoolType } | undefined) => {
+                    if (!params) {
+                      onOpenSmartExit(undefined)
+                      return
+                    }
+
+                    // Pass SmartExitParams to open modal immediately with loading state
+                    onOpenSmartExit({
+                      tokenId: params.tokenId,
+                      chainId: params.chainId,
+                      poolType: params.poolType,
+                    })
+                    handleCloseZapInWidget()
+                  }
+                : undefined,
             connectedAccount: {
               address: account,
               chainId: chainId,
@@ -192,6 +227,26 @@ const useZapInWidget = ({
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
+            onEvent: (eventName: string, data?: Record<string, any>) => {
+              const eventMap: Record<string, TRACKING_EVENT_TYPE> = {
+                PRICE_RANGE_PRESET_SELECTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED,
+                PRICE_RANGE_ADJUSTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_ADJUSTED,
+                LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
+                LIQ_AMOUNT_ENTERED: TRACKING_EVENT_TYPE.LIQ_AMOUNT_ENTERED,
+                LIQ_MAX_CLICKED: TRACKING_EVENT_TYPE.LIQ_MAX_CLICKED,
+                LIQ_HALF_CLICKED: TRACKING_EVENT_TYPE.LIQ_HALF_CLICKED,
+                LIQ_EXISTING_POSITION_SELECTED: TRACKING_EVENT_TYPE.LIQ_EXISTING_POSITION_SELECTED,
+                LIQ_MAX_SLIPPAGE_CHANGED: TRACKING_EVENT_TYPE.LIQ_MAX_SLIPPAGE_CHANGED,
+                LIQ_ZAP_SUMMARY_VIEWED: TRACKING_EVENT_TYPE.LIQ_ZAP_SUMMARY_VIEWED,
+                LIQ_PREVIEW_CLICKED: TRACKING_EVENT_TYPE.LIQ_PREVIEW_CLICKED,
+                LIQ_ADD_FAILED: TRACKING_EVENT_TYPE.LIQ_ADD_FAILED,
+                LIQ_ADD_CANCELLED: TRACKING_EVENT_TYPE.LIQ_ADD_CANCELLED,
+              }
+              const trackingType = eventMap[eventName]
+              if (trackingType !== undefined) {
+                trackingHandler(trackingType, data)
+              }
+            },
             onOpenZapMigration: handleOpenZapMigration,
             onSuccess: async (data: OnSuccessProps) => {
               if (!library) return
@@ -263,6 +318,17 @@ const useZapInWidget = ({
                 },
                 account,
               )
+
+              trackingHandler(TRACKING_EVENT_TYPE.LIQ_ADD_COMPLETED, {
+                pool_pair: `${data.position.token0.symbol}/${data.position.token1.symbol}`,
+                pool_protocol: EARN_DEXES[dex]?.name,
+                pool_fee_tier: `${data.position.pool.fee}%`,
+                deposit_amount_usd: data.position.value,
+                tx_hash: data.txHash,
+                position_id: data.position.positionId,
+                chain: NETWORKS_INFO[chainId]?.name,
+                volume: data.position.value,
+              })
             },
             onSubmitTx: async (
               txData: { from: string; to: string; data: string; value: string; gasLimit: string },
@@ -300,6 +366,13 @@ const useZapInWidget = ({
                     dex,
                   },
                 })
+
+                trackingHandler(TRACKING_EVENT_TYPE.LIQ_ADDED, {
+                  pool_pair: additionalInfo.pool,
+                  pool_protocol: EARN_DEXES[dex]?.name,
+                  is_existing_position: !!addLiquidityPureParams.positionId,
+                  chain: NETWORKS_INFO[chainId]?.name,
+                })
               } else if (additionalInfo?.type === 'erc20_approval') {
                 addTransactionWithType({
                   hash: txHash,
@@ -327,23 +400,26 @@ const useZapInWidget = ({
           }
         : null,
     [
-      addLiquidityPureParams,
-      zapInRpcUrl,
-      refCode,
-      txStatus,
-      originalToCurrentHash,
       account,
+      addLiquidityPureParams,
+      addTrackedTxHash,
+      addTransactionWithType,
       chainId,
-      toggleWalletModal,
-      handleOpenZapMigration,
+      changeNetwork,
       handleCloseZapInWidget,
       handleNavigateToPosition,
-      onRefreshPosition,
-      changeNetwork,
+      handleOpenZapMigration,
+      isSmartExitSupported,
       library,
-      addTransactionWithType,
       locale,
-      addTrackedTxHash,
+      onOpenSmartExit,
+      onRefreshPosition,
+      originalToCurrentHash,
+      refCode,
+      toggleWalletModal,
+      trackingHandler,
+      txStatus,
+      zapInRpcUrl,
     ],
   )
 

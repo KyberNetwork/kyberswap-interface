@@ -12,6 +12,7 @@ import {
   TransactionSubmittedContent,
 } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { permitError } from 'state/swap/actions'
 import { captureSwapError } from 'utils/sentry'
 
@@ -29,7 +30,8 @@ type Props = {
 
 const SwapModal: React.FC<Props> = props => {
   const { isOpen, tokenAddToMetaMask, onDismiss, swapCallback, buildResult, isBuildingRoute } = props
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
+  const { trackingHandler } = useTracking()
 
   const dispatch = useDispatch()
   // modal and loading
@@ -82,6 +84,19 @@ const SwapModal: React.FC<Props> = props => {
   }
 
   const handleError = (error: string) => {
+    const isUserRejected = error.toLowerCase().includes('user rejected') || error.toLowerCase().includes('user denied')
+    trackingHandler(TRACKING_EVENT_TYPE.SWAP_FAILED, {
+      from_token: currencyIn?.symbol,
+      to_token: currencyOut?.symbol,
+      pair: currencyIn?.symbol && currencyOut?.symbol ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+      amount_in: routeSummary?.parsedAmountIn?.toSignificant(6),
+      amount_in_usd: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
+      error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
+      error_message: error,
+      max_slippage: routeSummary?.priceImpact,
+      chain: networkInfo.name,
+    })
+
     setSwapState({
       error,
       txHash: '',

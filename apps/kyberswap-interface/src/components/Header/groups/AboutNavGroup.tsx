@@ -5,7 +5,7 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
@@ -23,7 +23,7 @@ const AboutNavGroup = () => {
   const isActive = pathname.includes(APP_PATHS.ABOUT)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   if (upToSmall) return null
   return (
@@ -51,7 +51,7 @@ const AboutNavGroup = () => {
             </StyledNavLink>
             <StyledNavExternalLink
               onClick={() => {
-                mixpanelHandler(MIXPANEL_TYPE.BLOG_MENU_CLICKED)
+                trackingHandler(TRACKING_EVENT_TYPE.BLOG_MENU_CLICKED)
               }}
               target="_blank"
               href="https://blog.kyberswap.com"

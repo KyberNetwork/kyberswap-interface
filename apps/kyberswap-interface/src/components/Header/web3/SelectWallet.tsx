@@ -17,8 +17,8 @@ import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useLogin from 'hooks/useLogin'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
@@ -105,7 +105,7 @@ const AccountElement = styled.div`
 function Web3StatusInner() {
   const { chainId, account, walletKey, isWrongNetwork } = useActiveWeb3React()
   const { connector } = useWeb3React()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { signIn } = useLogin()
   const { ENSName } = useENSName(account ?? undefined)
@@ -146,7 +146,11 @@ function Web3StatusInner() {
         data-testid="web3-status-connected"
         onClick={() => {
           toggleWalletModal()
-          mixpanelHandler(MIXPANEL_TYPE.WUI_WALLET_CLICK)
+          trackingHandler(TRACKING_EVENT_TYPE.WUI_WALLET_CLICK)
+          trackingHandler(TRACKING_EVENT_TYPE.WALLET_MODAL_OPENED, {
+            trigger: 'header_button',
+            wallet_address: account,
+          })
         }}
         pending={hasPendingTransactions}
       >

@@ -29,27 +29,27 @@ export default function AnnouncementItem({
   announcement,
   title,
 }: PrivateAnnouncementPropCenter<AnnouncementTemplatePoolPosition>) {
-  const [expand, setExpand] = useState(false)
-  const { sentAt, templateType } = announcement
-  const { position } = announcement.templateBody || {}
-  const {
-    token0LogoURL,
-    token0Symbol,
-    token1LogoURL,
-    token1Symbol,
-    type,
-    chainId: rawChain,
-    maxPrice,
-    minPrice,
-    currentPrice,
-    poolAddress,
-  } = position || {}
-  const isInRange = type === 'IN_RANGE'
-  const statusMessage = isInRange ? t`Back in range` : t`Out of range`
-  const chainId = Number(rawChain) as ChainId
   const theme = useTheme()
-
   const navigate = useNavigateToUrl()
+  const [expand, setExpand] = useState(false)
+
+  const { sentAt, templateType, templateBody } = announcement
+  const {
+    chainId: rawChain,
+    token0Symbol,
+    token1Symbol,
+    token0LogoURL,
+    token1LogoURL,
+    currentPrice,
+    minPrice,
+    maxPrice,
+    poolAddress,
+  } = templateBody.position || {}
+
+  const chainId = Number(rawChain) as ChainId
+  const isInRange = currentPrice >= minPrice && currentPrice <= maxPrice
+  const statusMessage = isInRange ? t`Back in range` : t`Out of range`
+
   const onClick = () => {
     navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`, chainId)
   }

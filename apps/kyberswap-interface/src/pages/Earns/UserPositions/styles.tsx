@@ -113,7 +113,8 @@ export const Badge = styled.div<{ type?: BadgeType }>`
             `
       case BadgeType.SECONDARY:
         return `
-            color: ${theme.blue2};
+            background-color: ${rgba(theme.primary, 0.1)};
+            color: ${theme.subText};
             `
       case BadgeType.DISABLED:
         return ''

@@ -1,75 +1,40 @@
 # Code Review
 
-Perform a thorough code review of the specified file or changes.
+Perform a thorough code review.
+
+**Target**: $ARGUMENTS
+
+## Instructions
+
+- If a file path is specified, review that file
+- If no target is specified, review the current uncommitted changes (`git diff` and `git diff --staged`)
+- Focus on real issues, not style nitpicks
 
 ## Review Checklist
 
 ### Code Quality
+- TypeScript types are correct (no unjustified `any`)
+- Error handling is appropriate
+- Follows project conventions (see CLAUDE.md)
 
-- [ ] Follows project conventions (see CLAUDE.md)
-- [ ] TypeScript types are correct and complete
-- [ ] No `any` types without justification
-- [ ] Functions have appropriate return types
-- [ ] Error handling is comprehensive
-
-### React Best Practices
-
-- [ ] Components are functional (no class components)
-- [ ] Hooks follow rules of hooks
-- [ ] Dependencies arrays are correct
-- [ ] No unnecessary re-renders
-- [ ] Keys are stable and unique in lists
-
-### Performance
-
-- [ ] useMemo/useCallback used appropriately
-- [ ] No expensive computations in render
-- [ ] Large lists are virtualized if needed
-- [ ] Images/assets are optimized
+### React & Performance
+- Hooks follow rules of hooks with correct dependency arrays
+- No unnecessary re-renders (useMemo/useCallback used appropriately)
+- Components have single responsibility
 
 ### Security
-
-- [ ] No sensitive data exposed
-- [ ] User input is validated
-- [ ] No XSS vulnerabilities
-- [ ] Addresses are checksummed
+- No sensitive data exposed
+- User input is validated
+- No XSS vulnerabilities
 
 ### Web3 Specific
-
-- [ ] BigInt used for token amounts
-- [ ] Transaction errors handled
-- [ ] Loading/pending states shown
-- [ ] Gas estimation considered
-
-### Testing
-
-- [ ] Tests cover happy path
-- [ ] Tests cover edge cases
-- [ ] Mocks are appropriate
-- [ ] Tests are independent
+- BigInt used for token amounts (not floating point)
+- Transaction errors handled with appropriate user feedback
+- Loading/pending states shown during async operations
 
 ## Output Format
 
-```markdown
-## Code Review: [filename]
-
-### ✅ Good
-
-- Point 1
-- Point 2
-
-### ⚠️ Suggestions
-
-- Suggestion 1 (line X)
-- Suggestion 2 (line Y)
-
-### ❌ Issues
-
-- Issue 1 (line X) - [severity: high/medium/low]
-- Issue 2 (line Y) - [severity: high/medium/low]
-
-### 💡 Improvements
-
-- Optional improvement 1
-- Optional improvement 2
-```
+Organize findings by severity:
+1. **Issues** (must fix): Bugs, security problems, incorrect logic
+2. **Suggestions** (should fix): Improvements that meaningfully improve quality
+3. **Nits** (optional): Minor improvements, take-or-leave

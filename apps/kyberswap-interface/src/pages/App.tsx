@@ -1,3 +1,4 @@
+import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
@@ -24,8 +25,8 @@ import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constant
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
-import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
+import { useGlobalTrackingEvents } from 'hooks/useTracking'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
@@ -68,6 +69,7 @@ const Earns = lazy(() => import('pages/Earns/Landing'))
 const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
+const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
 
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
@@ -212,7 +214,7 @@ export default function App() {
     }
   }, [chainId, networkInfo.name])
 
-  useGlobalMixpanelEvents()
+  useGlobalTrackingEvents()
   const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
   //const [holidayMode] = useHolidayMode()
@@ -344,6 +346,7 @@ export default function App() {
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
+              <Route path={APP_PATHS.SAFEPAL_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.RAFFLE_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.NEAR_INTENTS_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.MAY_TRADING_CAMPAIGN} element={<Campaign />} />
@@ -356,6 +359,7 @@ export default function App() {
               <Route path={APP_PATHS.EARN_POOLS} element={<EarnPoolExplorer />} />
               <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
               <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
+              <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />

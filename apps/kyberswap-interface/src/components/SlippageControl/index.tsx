@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
-import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { APP_PATHS, DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
 
 import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
@@ -71,7 +72,9 @@ type Props = CustomSlippageInputProps
 // slippage = 10 / 10_000 = 0.001 = 0.1%
 const SlippageControl: React.FC<Props> = props => {
   const { rawSlippage, setRawSlippage, isWarning, isHighlight } = props
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
+  const { pathname } = useLocation()
+  const isCrossChain = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
   const cat = usePairCategory()
   const options = useMemo(
     () =>
@@ -89,8 +92,19 @@ const SlippageControl: React.FC<Props> = props => {
         <DefaultSlippageOption
           key={slp}
           onClick={() => {
+            trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, {
+              new_slippage: slp / 100,
+              previous_value: rawSlippage / 100,
+              input_method: 'preset',
+            })
+            if (isCrossChain) {
+              trackingHandler(TRACKING_EVENT_TYPE.CC_SLIPPAGE_CHANGED, {
+                new_slippage: slp / 100,
+                previous_value: rawSlippage / 100,
+                input_method: 'preset',
+              })
+            }
             setRawSlippage(slp)
-            mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: slp / 100 })
           }}
           data-active={rawSlippage === slp}
           data-warning={rawSlippage === slp && isWarning}

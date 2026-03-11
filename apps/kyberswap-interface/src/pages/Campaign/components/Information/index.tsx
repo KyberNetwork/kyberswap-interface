@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Minus, Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -10,7 +10,7 @@ import { CampaignType } from 'pages/Campaign/constants'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
-import { campaignInfos } from './campaignInfos'
+import { campaignInfos } from './info'
 
 export default function Information({ type, selectedWeek }: { type: CampaignType; selectedWeek: number }) {
   const theme = useTheme()
@@ -19,13 +19,20 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
   const [isShowReward, setIsShowReward] = useState(true)
   const [isShowFaq, setIsShowFaq] = useState(true)
   const [isShowTc, setIsShowTc] = useState(true)
-  const [isShowEligible, setIsShowEligible] = useState(true)
+  const [showCustomSections, setShowCustomSections] = useState<Record<number, boolean>>({})
 
   const upTo450 = useMedia(`(max-width: 450px)`)
   const upTo400 = useMedia(`(max-width: 400px)`)
 
   const info = campaignInfos[type]
   const isRaffleCampaign = type === CampaignType.Raffle
+
+  const HowToSection = info.HowTo
+  const TimelineSection = info.Timeline
+  const RewardsSection = info.Rewards
+  const TermsSection = info.Terms
+  const FaqSection = info.Faq
+  const customSections = info.customSections || []
 
   if (!info) {
     return null
@@ -66,7 +73,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
           overflow: 'hidden',
         }}
       >
-        {info.getHowTo(selectedWeek)}
+        {HowToSection({ week: selectedWeek })}
       </Box>
 
       <Divider style={{ marginTop: '20px' }} />
@@ -93,7 +100,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
           overflow: 'hidden',
         }}
       >
-        {info.timeline}
+        {TimelineSection({ week: selectedWeek })}
       </Box>
 
       <Divider style={{ marginTop: '20px' }} />
@@ -120,39 +127,51 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
           overflow: 'hidden',
         }}
       >
-        {info.getRewards(selectedWeek)}
+        {RewardsSection({ week: selectedWeek })}
       </Text>
 
-      {info.eligibility && (
-        <>
-          <Divider style={{ marginTop: '20px' }} />
+      {customSections.map((section, index) => {
+        const isShowSection = showCustomSections[index] ?? true
+        const CustomSectionContent = section.Content
 
-          <Flex justifyContent="space-between" marginTop="20px">
-            <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
-              {t`☑️ Eligibility`}
+        return (
+          <Fragment key={index}>
+            <Divider style={{ marginTop: '20px' }} />
+
+            <Flex justifyContent="space-between" marginTop="20px">
+              <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
+                {section.title}
+              </Flex>
+
+              <ButtonIcon
+                onClick={() =>
+                  setShowCustomSections(prev => ({
+                    ...prev,
+                    [index]: !(prev[index] ?? true),
+                  }))
+                }
+              >
+                {!isShowSection ? <Plus size={14} /> : <Minus size={14} />}
+              </ButtonIcon>
             </Flex>
 
-            <ButtonIcon onClick={() => setIsShowEligible(prev => !prev)}>
-              {!isShowEligible ? <Plus size={14} /> : <Minus size={14} />}
-            </ButtonIcon>
-          </Flex>
-
-          <Text
-            color={theme.subText}
-            lineHeight="28px"
-            paddingLeft="14px"
-            sx={{
-              maxHeight: isShowEligible ? '2000px' : 0,
-              opacity: isShowEligible ? 1 : 0,
-              marginTop: isShowEligible ? '1rem' : 0,
-              transition: 'all 0.3s ease',
-              overflow: 'hidden',
-            }}
-          >
-            {info.eligibility}
-          </Text>
-        </>
-      )}
+            <Text
+              color={theme.subText}
+              lineHeight="28px"
+              paddingLeft="14px"
+              sx={{
+                maxHeight: isShowSection ? '2000px' : 0,
+                opacity: isShowSection ? 1 : 0,
+                marginTop: isShowSection ? '1rem' : 0,
+                transition: 'all 0.3s ease',
+                overflow: 'hidden',
+              }}
+            >
+              {CustomSectionContent({ week: selectedWeek })}
+            </Text>
+          </Fragment>
+        )
+      })}
 
       <Divider style={{ marginTop: '20px' }} />
 
@@ -188,7 +207,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
             apply to all KyberSwap promotional activities ({'"Campaign"'}).
           </Trans>
         </li>
-        {info.getTerms(selectedWeek)}
+        {TermsSection({ week: selectedWeek })}
       </Text>
 
       <Divider style={{ marginTop: '20px' }} />
@@ -215,40 +234,8 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
           overflow: 'hidden',
         }}
       >
-        {info.faq.map((item, index) => (
-          <Faq q={item.q} a={item.a} key={index} />
-        ))}
+        {FaqSection({ week: selectedWeek })}
       </Box>
     </Box>
-  )
-}
-
-const Faq = ({ q, a }: { q: ReactNode; a: ReactNode }) => {
-  const [show, setShow] = useState(false)
-  const theme = useTheme()
-  return (
-    <>
-      <Flex justifyContent="space-between" marginTop="1rem">
-        <li style={{ flex: 1 }}>{q}</li>
-        <ButtonIcon onClick={() => setShow(prev => !prev)}>
-          {show ? <Minus size={14} /> : <Plus size={14} />}
-        </ButtonIcon>
-      </Flex>
-
-      <Text
-        color={theme.subText}
-        marginX="16px"
-        marginRight="32px"
-        fontStyle="italic"
-        sx={{
-          maxHeight: show ? '1000px' : 0,
-          opacity: show ? 1 : 0,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
-        }}
-      >
-        {a}
-      </Text>
-    </>
   )
 }
