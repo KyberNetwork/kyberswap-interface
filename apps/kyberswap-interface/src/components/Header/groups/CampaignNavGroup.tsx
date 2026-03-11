@@ -33,7 +33,7 @@ const NestedNavLink = styled(StyledNavLink)`
   gap: 12px;
 `
 
-const showCampaignNew = new Date() < new Date('2026-04-30T23:59:59Z')
+const showCampaignNew = new Date() < new Date('2026-05-04T23:59:59Z')
 
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
