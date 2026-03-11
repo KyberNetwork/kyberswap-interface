@@ -1,3 +1,5 @@
+import { CampaignWeek } from 'pages/Campaign/timelines'
+
 export const getCurrentWeek = () => {
   const currentDate: Date = new Date()
   const startOfYear: Date = new Date(Date.UTC(currentDate.getUTCFullYear(), 0, 1))
@@ -23,4 +25,25 @@ export const getCurrentWeek = () => {
   const currentYear = new Date().getFullYear()
 
   return { currentWeek: weekNumber, currentYear }
+}
+
+export const resolveSelectedCampaignWeek = (
+  weeks: CampaignWeek[],
+  selectedWeek: number,
+  now: number = Math.floor(Date.now() / 1000),
+) => {
+  if (!weeks.length) return undefined
+
+  const selected = weeks.find(week => week.value === selectedWeek)
+  if (selected) return selected
+
+  const active = weeks.find(week => now >= week.start && now < week.end)
+  if (active) return active
+
+  const first = weeks[0]
+  const last = weeks[weeks.length - 1]
+
+  if (now < first.start) return first
+  if (now >= last.end) return last
+  return first
 }

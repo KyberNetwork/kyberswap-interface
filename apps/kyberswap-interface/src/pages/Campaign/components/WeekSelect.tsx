@@ -1,4 +1,3 @@
-import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
@@ -8,7 +7,7 @@ import { useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 import Select, { SelectOption } from 'components/Select'
 import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
-import { getCurrentWeek } from 'pages/Campaign/utils'
+import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 type Props = {
@@ -21,8 +20,7 @@ const WeekSelect = ({ type, selectedWeek, setSelectedWeek }: Props) => {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
-  const { year, weeks: configWeeks } = campaignConfig[type]
-  const { currentWeek, currentYear } = getCurrentWeek()
+  const { weeks: configWeeks } = campaignConfig[type]
 
   const { data: raffleCampaignStats } = useGetRaffleCampaignStatsQuery(undefined, {
     skip: type !== CampaignType.Raffle,
@@ -35,26 +33,26 @@ const WeekSelect = ({ type, selectedWeek, setSelectedWeek }: Props) => {
     return configWeeks
   }, [type, configWeeks, raffleCampaignStats])
 
+  const weekOptions = useMemo<SelectOption[]>(
+    () =>
+      weeks.map((week, index) => ({
+        value: week.value,
+        label: week.label ?? `Week ${week.value}`,
+        disabled: index !== 0 && dayjs().unix() < week.start,
+      })),
+    [weeks],
+  )
+
   useEffect(() => {
-    const now = dayjs().unix()
     setSelectedWeek(current => {
-      if (!weeks || weeks.length === 0) return current
-
-      const active = weeks.find(w => now >= w.start && now <= w.end)
-      if (active) return active.value
-
-      const first = weeks[0]
-      const last = weeks[weeks.length - 1]
-      if (now < first.start) return first.value
-      if (now > last.end) return last.value
-
-      return weeks.some(w => w.value === current) ? current : first.value
+      const resolvedWeek = resolveSelectedCampaignWeek(weeks, current)
+      return resolvedWeek ? resolvedWeek.value : current
     })
   }, [setSelectedWeek, weeks, type])
 
   return (
     <Select
-      options={weeks as SelectOption[]}
+      options={weekOptions}
       placement="bottom-start"
       style={{
         fontSize: '16px',
@@ -69,15 +67,9 @@ const WeekSelect = ({ type, selectedWeek, setSelectedWeek }: Props) => {
       value={selectedWeek}
       optionRender={value => {
         const isSelected = value?.value === selectedWeek
-        const isActive = value?.value === currentWeek && year === currentYear
         return (
           <Text color={isSelected ? theme.primary : theme.subText} display="flex" alignItems="center">
-            {value?.label}{' '}
-            {isActive && (
-              <Text as="span" color={theme.red1} fontSize={12} ml="4px">
-                <Trans>Active</Trans>
-              </Text>
-            )}
+            {value?.label}
           </Text>
         )
       }}

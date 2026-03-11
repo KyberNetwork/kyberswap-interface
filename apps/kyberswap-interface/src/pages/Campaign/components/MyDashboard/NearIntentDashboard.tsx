@@ -42,7 +42,7 @@ const TableRow = styled(TableHeader)`
   align-items: center;
 `
 
-const MyNearIntentDashboard = () => {
+const NearIntentDashboard = () => {
   const theme = useTheme()
   const { reward } = campaignConfig[CampaignType.NearIntents]
 
@@ -317,4 +317,4 @@ const MyNearIntentDashboard = () => {
   )
 }
 
-export default MyNearIntentDashboard
+export default NearIntentDashboard
