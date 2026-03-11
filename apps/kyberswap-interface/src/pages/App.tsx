@@ -216,6 +216,7 @@ export default function App() {
 
   useEffect(() => {
     console.log(123, window.location.hostname)
+    console.log(456, window.location.hostname.endsWith('.pr.kyberengineering.io'))
   }, [])
 
   useGlobalTrackingEvents()
