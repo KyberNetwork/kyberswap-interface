@@ -1,16 +1,22 @@
-# Code Review
+# Review Pull Request
 
-Perform a thorough code review.
+Review a GitHub pull request thoroughly and provide actionable feedback.
 
-**Target**: $ARGUMENTS
+**PR**: $ARGUMENTS
 
 ## Instructions
 
-- If a file path is specified, review that file
-- If no target is specified, review the current uncommitted changes (`git diff` and `git diff --staged`)
+- Accept a PR number or GitHub PR URL
+- Use `gh pr diff` to get the changes and `gh pr view` to get PR description
+- Review the full diff, not just individual files in isolation
 - Focus on real issues, not style nitpicks
 
 ## Review Checklist
+
+### Logic & Correctness
+- Business logic is correct
+- Edge cases are handled
+- No regressions introduced
 
 ### Code Quality
 - TypeScript types are correct (no unjustified `any`)
@@ -19,18 +25,14 @@ Perform a thorough code review.
 
 ### React & Performance
 - Hooks follow rules of hooks with correct dependency arrays
-- No unnecessary re-renders (useMemo/useCallback used appropriately)
+- No unnecessary re-renders
 - Components have single responsibility
 
-### Security
+### Security & Web3
 - No sensitive data exposed
-- User input is validated
-- No XSS vulnerabilities
-
-### Web3 Specific
-- BigInt used for token amounts (not floating point)
-- Transaction errors handled with appropriate user feedback
-- Loading/pending states shown during async operations
+- User input validated, no XSS
+- BigInt used for token amounts
+- Transaction errors handled with user feedback
 
 ## Output Format
 
@@ -38,3 +40,5 @@ Organize findings by severity:
 1. **Issues** (must fix): Bugs, security problems, incorrect logic
 2. **Suggestions** (should fix): Improvements that meaningfully improve quality
 3. **Nits** (optional): Minor improvements, take-or-leave
+
+Include file paths and line numbers for each finding.
