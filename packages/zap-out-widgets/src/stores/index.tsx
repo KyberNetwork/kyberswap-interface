@@ -126,14 +126,16 @@ export function ZapOutProvider({ children, ...props }: ZapOutProviderState) {
     store.setState({
       ...props,
       rpcUrl: props.rpcUrl ?? NETWORKS_INFO[props.chainId].defaultRpc,
+      txHashMapping: props.txHashMapping,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
 
-  const { resetState } = useZapOutUserState();
+  const { resetState, setMode } = useZapOutUserState();
 
   useEffect(() => {
     resetState();
+    if (props.mode && props.mode !== 'zapOut') setMode(props.mode);
     // get Pool and position then update store here
     store.getState().getPool();
     // store.getState().getPosition();

@@ -1,18 +1,15 @@
-import { ChainId, Pool, PoolType, ZapRouteDetail } from '@kyber/schema';
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
+import { ChainId, Pool, PoolType, TxStatus, ZapRouteDetail } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
 
-export enum TxStatus {
-  INIT = 'init',
-  PENDING = 'pending',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-}
+export { TxStatus };
 
 export interface WidgetProps {
   poolAddress: string;
   positionId: string;
   poolType: PoolType;
+  dexId?: string;
   chainId: ChainId;
   rpcUrl?: string;
   connectedAccount: {
@@ -22,18 +19,22 @@ export interface WidgetProps {
   initDepositTokens?: string;
   initAmounts?: string;
   compoundType?: 'COMPOUND_TYPE_REWARD';
-  zapStatus?: Record<string, TxStatus>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    additionalInfo?: {
-      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
-      pool: string;
-      dexLogo: string;
-    },
+    additionalInfo?:
+      | {
+          type: 'zap';
+          tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+          pool: string;
+          dexLogo: string;
+        }
+      | ApprovalAdditionalInfo,
   ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
 }

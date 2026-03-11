@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { ZoomTransform } from 'd3';
 import { max, scaleLinear } from 'd3';
-import partition from 'lodash.partition';
 
 import Area from '@/components/Area';
 import AxisBottom from '@/components/AxisBottom';
@@ -76,28 +75,27 @@ export default function Chart({
   }, [zoom]);
 
   const [leftSeries, rightSeries] = useMemo(() => {
-    const isHighToLow = series[0]?.price > series[series.length - 1]?.price;
-    let [left, right] = partition(series, (d: ChartEntry) =>
-      isHighToLow ? Number(xAccessor(d)) < current : Number(xAccessor(d)) > current,
-    );
+    const sorted = [...series].sort((a, b) => a.price - b.price);
 
-    if (right.length && right[right.length - 1]) {
-      if (right[right.length - 1].price !== current) {
-        right = [
-          ...right,
-          {
-            activeLiquidity: right[right.length - 1].activeLiquidity,
-            price: current,
-          },
-        ];
+    // Split into left (price <= current) and right (price > current)
+    let left: ChartEntry[] = [];
+    let right: ChartEntry[] = [];
+
+    for (const d of sorted) {
+      if (d.price <= current) {
+        left.push(d);
+      } else {
+        right.push(d);
       }
-      left = [
-        {
-          activeLiquidity: right[right.length - 1].activeLiquidity,
-          price: current,
-        },
-        ...left,
-      ];
+    }
+
+    // Connect left and right at current price so there's no gap
+    if (left.length) {
+      const lastLeft = left[left.length - 1];
+      if (lastLeft.price !== current) {
+        left = [...left, { activeLiquidity: lastLeft.activeLiquidity, price: current }];
+      }
+      right = [{ activeLiquidity: lastLeft.activeLiquidity, price: current }, ...right];
     }
 
     return [left, right];
@@ -169,7 +167,16 @@ export default function Chart({
                 <Area
                   fill="#31cb9e"
                   opacity={1}
-                  series={series}
+                  series={leftSeries}
+                  xScale={xScale}
+                  xValue={xAccessor}
+                  yScale={yScale}
+                  yValue={yAccessor}
+                />
+                <Area
+                  fill="#31cb9e"
+                  opacity={1}
+                  series={rightSeries}
                   xScale={xScale}
                   xValue={xAccessor}
                   yScale={yScale}

@@ -1,62 +1,51 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { PAIR_CATEGORY } from 'constants/index'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { EarnPool } from 'pages/Earns/types'
 
+/**
+ * Hook to fetch farming stable pools for multiple chains
+ * @returns Record<chainId, { pools: EarnPool[] }>
+ */
 const useFarmingStablePools = ({ chainIds }: { chainIds: ChainId[] }) => {
   const chainIdsString = useMemo(() => chainIds.sort().join(','), [chainIds])
 
-  const [pools, setPools] = useState<Record<number, any>>({})
+  const { data } = usePoolsExplorerQuery(
+    {
+      chainIds: chainIdsString,
+      protocol: '',
+      interval: '7d',
+      tag: FilterTag.FARMING_POOL,
+      sortBy: 'apr',
+      orderBy: 'DESC',
+      page: 1,
+      limit: 100,
+    },
+    {
+      skip: chainIds.length === 0,
+    },
+  )
 
-  useEffect(() => {
-    const fetchPoolsForChains = async () => {
-      if (chainIds.length === 0) return
+  const poolsByChain = useMemo(() => {
+    const poolsData: Record<number, { pools: EarnPool[] }> = {}
 
-      const poolsData: Record<number, any> = {}
-      const baseUrl = import.meta.env.VITE_ZAP_EARN_URL
+    // Filter stable pools only
+    const allPools = data?.data?.pools?.filter((pool: EarnPool) => pool.category === PAIR_CATEGORY.STABLE) || []
 
-      for (const chainId of chainIds) {
-        try {
-          const params = new URLSearchParams({
-            chainId: chainId.toString(),
-            protocol: '',
-            interval: '7d',
-            tag: FilterTag.FARMING_POOL,
-            sortBy: 'apr',
-            orderBy: 'DESC',
-            page: '1',
-            limit: '100',
-          })
-
-          const response = await fetch(`${baseUrl}/v1/explorer/pools?${params.toString()}`)
-
-          if (response.ok) {
-            const data = await response.json()
-            poolsData[chainId] = {
-              chainId,
-              fetched: true,
-              pools: data?.data?.pools?.filter((pool: EarnPool) => pool.category === PAIR_CATEGORY.STABLE) || [],
-            }
-          } else {
-            poolsData[chainId] = { chainId, fetched: false, pools: [], error: 'Failed to fetch' }
-          }
-        } catch (error) {
-          console.error(`Error fetching pools for chain ${chainId}:`, error)
-          poolsData[chainId] = { chainId, fetched: false, pools: [], error: error.message }
-        }
+    // Group pools by chainId
+    chainIds.forEach(chainId => {
+      poolsData[chainId] = {
+        pools: allPools.filter((pool: EarnPool) => pool.chainId === chainId),
       }
+    })
 
-      setPools(poolsData)
-    }
+    return poolsData
+  }, [data, chainIds])
 
-    fetchPoolsForChains()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainIdsString])
-
-  return pools
+  return poolsByChain
 }
 
 export default useFarmingStablePools

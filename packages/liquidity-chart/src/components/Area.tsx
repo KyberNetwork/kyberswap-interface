@@ -4,6 +4,9 @@ import { area, curveStepAfter } from 'd3';
 
 import type { AreaProps, ChartEntry } from '@/types';
 
+// Max pixel coordinate to prevent SVG path overflow with extreme price values
+const MAX_SVG_COORD = 1e6;
+
 export default function Area({ series, xScale, yScale, xValue, yValue, fill, opacity }: AreaProps) {
   return useMemo(
     () => (
@@ -11,14 +14,9 @@ export default function Area({ series, xScale, yScale, xValue, yValue, fill, opa
         d={
           area()
             .curve(curveStepAfter)
-            .x((d: unknown) => xScale(xValue(d as ChartEntry)))
+            .x((d: unknown) => Math.min(Math.max(xScale(xValue(d as ChartEntry)), -MAX_SVG_COORD), MAX_SVG_COORD))
             .y1((d: unknown) => yScale(yValue(d as ChartEntry)))
-            .y0(yScale(0))(
-            series.filter(d => {
-              const value = xScale(xValue(d));
-              return value > 0 && value <= window.innerWidth;
-            }) as Iterable<[number, number]>,
-          ) ?? undefined
+            .y0(yScale(0))(series as Iterable<[number, number]>) ?? undefined
         }
         fill={fill}
         opacity={opacity || 1}

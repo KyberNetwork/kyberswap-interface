@@ -14,6 +14,7 @@ export function InfoHelper({
   width,
   noneMarginLeft,
   delay,
+  onClick,
 }: {
   text: string | ReactNode;
   size?: number;
@@ -24,6 +25,7 @@ export function InfoHelper({
   width?: string;
   noneMarginLeft?: boolean;
   delay?: number;
+  onClick?: (_e: React.MouseEvent<HTMLSpanElement>) => void;
 }) {
   return (
     <span
@@ -37,6 +39,7 @@ export function InfoHelper({
         verticalAlign: 'middle',
         ...style,
       }}
+      onClick={onClick}
     >
       <MouseoverTooltip text={text} placement={placement} size={size} width={width} delay={delay}>
         <div className="flex items-center justify-center border-none bg-none outline-none cursor-default rounded-full text-subText">

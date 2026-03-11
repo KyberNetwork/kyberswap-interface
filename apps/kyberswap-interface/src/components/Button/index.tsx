@@ -76,11 +76,11 @@ const disabledPrimary = css<{
 }>`
   background-color: ${({ theme, altDisabledStyle }) =>
     altDisabledStyle ? theme.primary : theme.buttonGray} !important;
-  color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.border)};
+  color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? theme.textReverse : theme.border)};
   box-shadow: none !important;
   border: 1px solid transparent;
   outline: none;
-  opacity: ${({ altDisabledStyle }) => (altDisabledStyle ? '0.7' : '1')};
+  opacity: ${({ altDisabledStyle }) => (altDisabledStyle ? '0.5' : '1')};
 `
 export const ButtonPrimary = styled(Base)`
   background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary};

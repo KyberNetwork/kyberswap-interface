@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -12,11 +12,10 @@ import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.sv
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import { NewLabel } from 'components/Menu'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-//import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useActiveWeb3React } from 'hooks'
+//import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
 
@@ -44,9 +43,8 @@ const IconWrapper = styled.div`
 
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
-  const { isSmartConnector } = useWeb3React()
   const { pathname } = useLocation()
-  const upToXXSmall = useMedia('(max-width: 420px)')
+  const upTo430 = useMedia('(max-width: 430px)')
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
 
@@ -56,7 +54,7 @@ const SwapNavGroup = () => {
 
   return (
     <NavGroup
-      dropdownAlign={upToXXSmall ? 'center' : 'left'}
+      dropdownAlign={upTo430 ? 'center' : 'left'}
       isActive={isActive}
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
@@ -65,7 +63,7 @@ const SwapNavGroup = () => {
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={upToXXSmall ? '230px' : '250px'}>
+        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={upTo430 ? '160px' : '250px'}>
           <StyledNavLink
             id={`swapv2-nav-link`}
             to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
@@ -80,23 +78,20 @@ const SwapNavGroup = () => {
           </StyledNavLink>
 
           {isSupportLimitOrder(chainId) && (
-            <MouseoverTooltip text={isSmartConnector ? t`Limit Order doesn't support your current wallet type` : ''}>
-              <StyledNavLink
-                id="limit-order-nav-link"
-                to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
-                style={{ flexDirection: 'column', width: '100%' }}
-                $disabled={isSmartConnector}
-              >
-                <Flex alignItems="center" sx={{ gap: '12px' }}>
-                  <IconWrapper>
-                    <LimitOrderIcon />
-                  </IconWrapper>
-                  <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                    <Trans>Limit Order</Trans>
-                  </Flex>
+            <StyledNavLink
+              id="limit-order-nav-link"
+              to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
+              style={{ flexDirection: 'column', width: '100%' }}
+            >
+              <Flex alignItems="center" sx={{ gap: '12px' }}>
+                <IconWrapper>
+                  <LimitOrderIcon />
+                </IconWrapper>
+                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                  <Trans>Limit Order</Trans>
                 </Flex>
-              </StyledNavLink>
-            </MouseoverTooltip>
+              </Flex>
+            </StyledNavLink>
           )}
 
           {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
@@ -122,7 +117,7 @@ const SwapNavGroup = () => {
             id="buy-crypto-nav-link"
             to={APP_PATHS.BUY_CRYPTO}
             onClick={() => {
-              mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
+              trackingHandler(TRACKING_EVENT_TYPE.SWAP_BUY_CRYPTO_CLICKED)
             }}
             style={{ flexDirection: 'column', width: '100%' }}
           >

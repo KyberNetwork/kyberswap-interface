@@ -30,8 +30,10 @@ const GridWrapper = styled.div`
 
 export default function LanguageSelector({
   setIsSelectingLanguage,
+  onLanguageChange,
 }: {
   setIsSelectingLanguage: (isSelectingLanguage: boolean) => void
+  onLanguageChange?: (previousLanguage: string, newLanguage: string) => void
 }) {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -45,6 +47,7 @@ export default function LanguageSelector({
       search: new URLSearchParams({ ...qs, lng: locale }).toString(),
     }
 
+    onLanguageChange?.(userLocale ?? '', locale)
     navigate(target)
     setIsSelectingLanguage(false)
   }

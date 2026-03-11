@@ -1,11 +1,12 @@
 import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
-import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { APP_PATHS, MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDefaultSlippageByPair } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { formatSlippage } from 'utils/slippage'
@@ -140,7 +141,10 @@ export type Props = {
 const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlippage, isWarning, isHighlight }) => {
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const { mixpanelHandler } = useMixpanel()
+  const previousSlippageRef = useRef(rawSlippage)
+  const { trackingHandler } = useTracking()
+  const { pathname } = useLocation()
+  const isCrossChain = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
   const [isDegenMode] = useDegenModeManager()
 
   const defaultRawSlippage = useDefaultSlippageByPair()
@@ -188,7 +192,19 @@ const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlip
   const handleCommitChange = () => {
     setTooltip('')
     setRawText(getSlippageText(rawSlippage, options))
-    mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: Number(formatSlippage(rawSlippage, false)) })
+    trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, {
+      new_slippage: Number(formatSlippage(rawSlippage, false)),
+      previous_value: previousSlippageRef.current / 100,
+      input_method: 'custom',
+    })
+    if (isCrossChain) {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_SLIPPAGE_CHANGED, {
+        new_slippage: Number(formatSlippage(rawSlippage, false)),
+        previous_value: previousSlippageRef.current / 100,
+        input_method: 'custom',
+      })
+    }
+    previousSlippageRef.current = rawSlippage
   }
 
   useEffect(() => {

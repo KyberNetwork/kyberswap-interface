@@ -8,6 +8,7 @@ import { toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import MigrationAccordion from '@/components/MigrationAccordion';
+import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -18,6 +19,7 @@ export default function AmountToMigrate() {
   const { sourcePool } = usePoolStore(['sourcePool']);
   const { sourcePosition, sourcePositionLoading } = usePositionStore(['sourcePosition', 'sourcePositionLoading']);
   const { setLiquidityOut } = useZapStore(['setLiquidityOut']);
+  const { earnedFee } = useZapRoute();
 
   const [percent, setPercent] = useState(100);
 
@@ -26,11 +28,14 @@ export default function AmountToMigrate() {
   const amount0 = +toRawString(sourcePosition?.amount0 || 0n, token0.decimals);
   const amount1 = +toRawString(sourcePosition?.amount1 || 0n, token1.decimals);
 
-  const amount0ToMigrate = amount0 * (percent / 100);
-  const amount1ToMigrate = amount1 * (percent / 100);
+  const fee0 = +toRawString(earnedFee.earnedFee0, token0.decimals);
+  const fee1 = +toRawString(earnedFee.earnedFee1, token1.decimals);
 
-  const amount0Remain = amount0 - amount0ToMigrate;
-  const amount1Remain = amount1 - amount1ToMigrate;
+  const amount0ToMigrate = amount0 * (percent / 100) + fee0;
+  const amount1ToMigrate = amount1 * (percent / 100) + fee1;
+
+  const amount0Remain = amount0 + fee0 - amount0ToMigrate;
+  const amount1Remain = amount1 + fee1 - amount1ToMigrate;
 
   useEffect(() => {
     if (!sourcePosition) return;

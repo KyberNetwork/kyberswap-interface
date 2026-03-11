@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
+import { DEXES_INFO, NETWORKS_INFO, PoolType } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import AlertIcon from '@/assets/svg/alert.svg';
 import { parseSlippageInput, validateSlippageInput } from '@/components/Setting/utils';
 import { getSlippageStorageKey } from '@/constants';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -21,16 +23,16 @@ const SlippageInput = ({
   inputClassName?: string;
   suggestionClassName?: string;
 }) => {
-  const { slippage, setSlippage, zapInfo } = useZapState();
+  const { slippage, setSlippage, route } = useZapState();
+  const { suggestedSlippage } = useZapRoute();
   const { pool } = usePoolStore(['pool']);
-  const { chainId } = useWidgetStore(['chainId']);
+  const { chainId, poolType, onEvent } = useWidgetStore(['chainId', 'poolType', 'onEvent']);
+  const previousSlippageRef = useRef(slippage);
   const [v, setV] = useState(() => {
     if (!slippage) return '';
     if ([5, 10, 50, 100].includes(slippage)) return '';
     return ((slippage * 100) / 10_000).toString();
   });
-
-  const suggestedSlippage = zapInfo?.zapDetails.suggestedSlippage || 0;
 
   const [isFocus, setIsFocus] = useState(false);
   const { isValid, message } = validateSlippageInput(v, suggestedSlippage);
@@ -39,13 +41,32 @@ const SlippageInput = ({
     suggestedSlippage,
   );
 
+  const fireSlippageEvent = (newSlippage: number) => {
+    if (pool && previousSlippageRef.current !== undefined && newSlippage !== previousSlippageRef.current) {
+      const dexNameObj = DEXES_INFO[poolType as PoolType]?.name;
+      const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+      onEvent?.('LIQ_MAX_SLIPPAGE_CHANGED', {
+        previous_slippage: (previousSlippageRef.current * 100) / 10_000,
+        new_slippage: (newSlippage * 100) / 10_000,
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_protocol: dexName,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
+      previousSlippageRef.current = newSlippage;
+    }
+  };
+
   const onCustomSlippageFocus = () => setIsFocus(true);
 
   const onCustomSlippageBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocus(false);
-    if (!e.currentTarget.value) setSlippage(10);
-    else if (isValid) {
-      setSlippage(parseSlippageInput(e.currentTarget.value));
+    if (!e.currentTarget.value) {
+      setSlippage(10);
+      fireSlippageEvent(10);
+    } else if (isValid) {
+      const parsed = parseSlippageInput(e.currentTarget.value);
+      setSlippage(parsed);
+      fireSlippageEvent(parsed);
     }
   };
 
@@ -99,6 +120,7 @@ const SlippageInput = ({
             onClick={() => {
               setSlippage(item);
               setV('');
+              fireSlippageEvent(item);
             }}
             key={item}
             style={{ flex: 2 }}
@@ -111,11 +133,11 @@ const SlippageInput = ({
           className="relative border w-[72px] rounded-full text-subText text-sm p-1 font-medium flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent data-[error='true']:border-error data-[warning='true']:border-warning data-[focus='true']:border-accent"
           data-active={slippage && ![5, 10, 50, 100].includes(slippage)}
           data-error={!!message && !isValid}
-          data-warning={zapInfo && !!message && isValid}
+          data-warning={route && !!message && isValid}
           data-focus={isFocus}
           style={{ flex: 3 }}
         >
-          {zapInfo && message && (
+          {route && message && (
             <AlertIcon className={`absolute top-[5px] left-1 w-4 h-4 ${isValid ? 'text-warning' : 'text-error'}`} />
           )}
           <input
@@ -140,6 +162,7 @@ const SlippageInput = ({
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);
+              fireSlippageEvent(suggestedSlippage);
               if (![5, 10, 50, 100].includes(suggestedSlippage)) {
                 setV(((suggestedSlippage * 100) / 10_000).toString());
               } else setV('');
@@ -154,7 +177,7 @@ const SlippageInput = ({
           <span>{((suggestedSlippage * 100) / 10_000).toFixed(2)}%</span>
         </div>
       )}
-      {zapInfo && (message || slpWarning) && (
+      {route && (message || slpWarning) && (
         <div
           className={`text-xs text-left w-full rounded-2xl px-3 py-2 mt-3 ${isValid ? 'text-warning bg-warning-200' : 'text-error bg-error-200'}`}
         >

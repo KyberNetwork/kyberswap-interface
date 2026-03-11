@@ -6,9 +6,9 @@ import styled, { CSSProperties, css } from 'styled-components'
 
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { APP_PATHS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 
 import { ButtonPrimary } from '../Button'
@@ -66,14 +66,14 @@ export default function SubscribeNotificationButton({
 }: {
   subscribeTooltip?: ReactNode
   iconOnly?: boolean
-  trackingEvent?: MIXPANEL_TYPE
+  trackingEvent?: TRACKING_EVENT_TYPE
   onClick?: () => void
   topicId?: string
   style?: CSSProperties
 }) {
   const theme = useTheme()
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const { topicGroups } = useNotification()
   const hasSubscribe = useMemo(() => {
     return topicId
@@ -93,7 +93,7 @@ export default function SubscribeNotificationButton({
     onClick?.()
     if (trackingEvent)
       setTimeout(() => {
-        mixpanelHandler(trackingEvent)
+        trackingHandler(trackingEvent)
       }, 100)
   }
 

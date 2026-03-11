@@ -18,9 +18,10 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, isEvmChain, shortenHash } from 'utils'
@@ -90,6 +91,7 @@ const TokenBoxInfo = ({
 
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
+  const { trackingHandler } = useTracking()
   const theme = useTheme()
   const {
     selectedQuote,
@@ -219,6 +221,16 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
         console.log(e)
         setTxError(e?.message)
         setSubmittingTx(false)
+        trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_FAILED, {
+          from_token: currencyIn?.symbol,
+          to_token: currencyOut?.symbol,
+          from_chain: fromChainId,
+          from_chain_name: getChainName(fromChainId),
+          to_chain: toChainId,
+          to_chain_name: getChainName(toChainId),
+          error_message: e?.message,
+          routing_source: selectedQuote.adapter.getName(),
+        })
       })
 
     if (
@@ -226,6 +238,16 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       res?.sourceTxHash === 'Rejected' ||
       res?.sourceTxHash?.includes('Not enough ETH for gas')
     ) {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_FAILED, {
+        from_token: currencyIn?.symbol,
+        to_token: currencyOut?.symbol,
+        from_chain: fromChainId,
+        from_chain_name: getChainName(fromChainId),
+        to_chain: toChainId,
+        to_chain_name: getChainName(toChainId),
+        error_message: res?.sourceTxHash,
+        routing_source: selectedQuote.adapter.getName(),
+      })
       setTxError(res?.sourceTxHash || '')
       setSubmittingTx(false)
       return
@@ -259,6 +281,8 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyIn as any).id
             : fromChainId === NonEvmChain.Near
             ? (currencyIn as any).assetId
+            : (currencyIn as any)?.isNative
+            ? ETHER_ADDRESS
             : (currencyIn as any)?.address || (currencyIn as any)?.wrapped?.address || currencyIn?.symbol,
         from_token_symbol: currencyIn?.symbol,
         from_token_decimals: currencyIn?.decimals,
@@ -271,6 +295,8 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyOut as any).id
             : toChainId === NonEvmChain.Near
             ? (currencyOut as any).assetId
+            : (currencyOut as any)?.isNative
+            ? ETHER_ADDRESS
             : (currencyOut as any)?.address || (currencyOut as any)?.wrapped?.address || currencyOut?.symbol,
         to_token_symbol: currencyOut?.symbol,
         to_token_decimals: currencyOut?.decimals,
@@ -285,6 +311,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
         timestamp: Date.now(),
       }
       crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT, swapDetails)
+      trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_INITIATED, swapDetails)
     }
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)

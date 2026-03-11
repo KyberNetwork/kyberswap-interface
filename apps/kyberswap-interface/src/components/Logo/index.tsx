@@ -41,10 +41,10 @@ export default function Logo({ srcs, alt, ...rest }: LogoProps) {
 }
 
 export function NetworkLogo({ chainId, style = {} }: { chainId: Chain; style?: CSSProperties }) {
-  const { icon } = isEvmChain(chainId) ? NETWORKS_INFO[chainId as ChainId] : NonEvmChainInfo[chainId as NonEvmChain]
+  const chainInfo = isEvmChain(chainId) ? NETWORKS_INFO[chainId as ChainId] : NonEvmChainInfo[chainId as NonEvmChain]
 
-  if (!icon) return null
-  return <img src={icon} alt="Switch Network" style={style} />
+  if (!chainInfo?.icon) return null
+  return <img src={chainInfo.icon} alt="Switch Network" style={style} />
 }
 
 export function TokenLogoWithChain(data: { tokenLogo: string; chainId: ChainId; size: number | string }): JSX.Element

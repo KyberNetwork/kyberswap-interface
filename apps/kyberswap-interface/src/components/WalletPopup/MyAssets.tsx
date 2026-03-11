@@ -12,14 +12,15 @@ import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { CurrencyRow } from 'components/SearchModal/CurrencyList'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { currencyId } from 'utils/currencyId'
 
-const tokenItemStyle = { paddingLeft: 0, paddingRight: 8 }
+const tokenItemStyle = { paddingLeft: 8, paddingRight: 8 }
 const Wrapper = styled.div`
   width: 100%;
   flex: 1 0 auto;
@@ -50,17 +51,22 @@ export default function MyAssets({
   hideBalance: boolean
 }) {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const [modalOpen, setModalOpen] = useState(false)
   const showModal = () => {
     setModalOpen(true)
-    mixpanelHandler(MIXPANEL_TYPE.WUI_IMPORT_TOKEN_CLICK)
+    trackingHandler(TRACKING_EVENT_TYPE.WUI_IMPORT_TOKEN_CLICK)
+    trackingHandler(TRACKING_EVENT_TYPE.WALLET_IMPORT_TOKENS_CLICKED, {
+      wallet_address: account,
+      visible_token_count: tokens.length,
+      chain: NETWORKS_INFO[chainId]?.name,
+    })
   }
   const hideModal = () => setModalOpen(false)
   const nativeBalance = useNativeBalance()
   const navigate = useNavigate()
   const qs = useParsedQueryString()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
 
   if (hasNetworkIssue)
     return (
@@ -97,6 +103,14 @@ export default function MyAssets({
               return (
                 <CurrencyRow
                   onSelect={() => {
+                    trackingHandler(TRACKING_EVENT_TYPE.WALLET_TOKEN_CLICKED, {
+                      token_symbol: token.symbol,
+                      token_address: address,
+                      token_balance: currencyBalance?.toExact(),
+                      token_balance_usd: usdBalance,
+                      chain: NETWORKS_INFO[chainId]?.name,
+                      wallet_address: account,
+                    })
                     navigate({
                       search: new URLSearchParams({ ...qs, inputCurrency: currencyId(token, chainId) }).toString(),
                     })
@@ -109,7 +123,7 @@ export default function MyAssets({
                   hideBalance={hideBalance}
                   showFavoriteIcon={false}
                   usdBalance={usdBalance}
-                  hoverColor="transparent"
+                  hoverColor={theme.bg3}
                 />
               )
             })}
@@ -150,7 +164,13 @@ export default function MyAssets({
         onCurrencySelect={hideModal}
         showCommonBases
         onCurrencyImport={(token: Token) => {
-          mixpanelHandler(MIXPANEL_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK, { token_name: token.symbol })
+          trackingHandler(TRACKING_EVENT_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK, { token_name: token.symbol })
+          trackingHandler(TRACKING_EVENT_TYPE.WALLET_TOKEN_IMPORTED, {
+            token_symbol: token.symbol,
+            token_address: token.address,
+            chain: NETWORKS_INFO[chainId]?.name,
+            wallet_address: account,
+          })
         }}
       />
     </Wrapper>

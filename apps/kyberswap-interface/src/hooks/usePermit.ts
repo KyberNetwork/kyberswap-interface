@@ -18,7 +18,7 @@ import { usePermitData } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
 
 import { useReadingContract } from './useContract'
-import useMixpanel, { MIXPANEL_TYPE } from './useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from './useTracking'
 
 // 24 hours
 const PERMIT_VALIDITY_BUFFER = 24 * 60 * 60
@@ -37,10 +37,11 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const notify = useNotify()
   const eipContract = useReadingContract(currency?.address, EIP_2612)
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
+  const tokenName = useSingleCallResult(eipContract, 'name')
 
   const permitData = usePermitData(currency?.address)
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const overwritedPermitData = useMemo(
     () =>
       currency instanceof WrappedTokenInfo && ['AMOUNT', 'SALT'].includes(currency.permitType) && currency.permitVersion
@@ -85,13 +86,13 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
         10000,
       )
       if (currency) {
-        mixpanelHandler(MIXPANEL_TYPE.PERMIT_FAILED_TOO_MANY_TIMES, {
+        trackingHandler(TRACKING_EVENT_TYPE.PERMIT_FAILED_TOO_MANY_TIMES, {
           symbol: currency.symbol,
           address: currency.address,
         })
       }
     }
-  }, [permitData?.errorCount, notify, mixpanelHandler, currency, prevErrorCount])
+  }, [permitData?.errorCount, notify, trackingHandler, currency, prevErrorCount])
   const signPermitCallback = useCallback(async (): Promise<void> => {
     if (!library || !routerAddress || !currency || !account || !overwritedPermitData || !tokenNonceState?.result?.[0]) {
       return
@@ -140,13 +141,13 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       domain:
         overwritedPermitData && overwritedPermitData.type === PermitType.SALT
           ? {
-              name: currency.name,
+              name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
               salt: hexZeroPad(hexlify(chainId), 32),
               version: overwritedPermitData.version,
             }
           : {
-              name: currency.name,
+              name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
               version: overwritedPermitData.version,
               chainId,
@@ -189,15 +190,16 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   }, [
     account,
     chainId,
-    library,
-    permitState,
-    routerAddress,
     currency,
     currencyAmount,
     dispatch,
-    tokenNonceState.result,
-    overwritedPermitData,
+    library,
     notify,
+    overwritedPermitData,
+    permitState,
+    routerAddress,
+    tokenName.result,
+    tokenNonceState.result,
   ])
 
   return { permitState, permitCallback: signPermitCallback, permitData }

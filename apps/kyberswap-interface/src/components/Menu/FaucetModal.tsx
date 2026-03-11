@@ -15,8 +15,8 @@ import { REWARD_SERVICE_API } from 'constants/env'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNotify, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
@@ -54,7 +54,7 @@ function FaucetModal() {
   const [rewardData, setRewardData] = useState<{ amount: BigNumber; tokenAddress: string; program: number }>()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const allTokens = useAllTokens()
   const token = useMemo(() => {
     if (!account) return
@@ -162,7 +162,7 @@ function FaucetModal() {
             disabled={!rewardData?.amount || rewardData?.amount.eq(0)}
             onClick={() => {
               claimRewardCallBack()
-              mixpanelHandler(MIXPANEL_TYPE.FAUCET_REQUEST_INITIATED)
+              trackingHandler(TRACKING_EVENT_TYPE.FAUCET_REQUEST_INITIATED)
               toggle()
             }}
             style={{ borderRadius: '24px', height: '44px' }}
@@ -185,7 +185,7 @@ function FaucetModal() {
     chainId,
     account,
     claimRewardCallBack,
-    mixpanelHandler,
+    trackingHandler,
     rewardData?.amount,
     theme,
     toggle,

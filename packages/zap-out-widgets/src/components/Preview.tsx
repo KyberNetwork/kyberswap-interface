@@ -38,7 +38,6 @@ export const Preview = () => {
     connectedAccount,
     onSubmitTx,
     poolType,
-    rpcUrl,
     onExplorePools,
   } = useZapOutContext(s => s);
 
@@ -52,7 +51,10 @@ export const Preview = () => {
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash: txHash || undefined });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   if (!pool || !position || !tokenOut || !route) return null;
 
@@ -90,24 +92,26 @@ export const Preview = () => {
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
-            : txStatus === 'failed' || error
-              ? StatusDialogType.ERROR
-              : txHash
-                ? StatusDialogType.PROCESSING
-                : StatusDialogType.WAITING
+            : txStatus === 'cancelled'
+              ? StatusDialogType.CANCELLED
+              : txStatus === 'failed' || error
+                ? StatusDialogType.ERROR
+                : displayTxHash
+                  ? StatusDialogType.PROCESSING
+                  : StatusDialogType.WAITING
         }
         title={
           txStatus === 'success' ? (mode === 'zapOut' ? t`Zap Out Success!` : t`Remove Liquidity Success!`) : undefined
         }
         description={
-          txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
+          txStatus !== 'success' && txStatus !== 'failed' && !error && !displayTxHash
             ? t`Confirm this transaction in your wallet`
             : txStatus === 'success'
               ? t`You have successfully removed your liquidity`
               : undefined
         }
         errorMessage={error ? translatedErrorMessage : undefined}
-        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
           <>
             <button className="ks-outline-btn flex-1" onClick={onCloseStatusDialog}>
@@ -148,7 +152,7 @@ export const Preview = () => {
 
     setError(undefined);
     setShowProcessing(true);
-    const gas = await estimateGas(rpcUrl, txData).catch(err => {
+    const gas = await estimateGas(chainId, txData).catch(err => {
       console.log(err.message);
       setError(err);
       return 0n;
@@ -163,6 +167,7 @@ export const Preview = () => {
           gasLimit: calculateGasMargin(gas),
         },
         {
+          type: 'zap',
           pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
           dexLogo: DEXES_INFO[poolType].icon,
           tokensOut:
@@ -214,8 +219,7 @@ export const Preview = () => {
       <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
         <DialogTitle>{mode === 'zapOut' ? t`Remove Liquidity via Zap` : t`Remove Liquidity`}</DialogTitle>
         <div>
-          {' '}
-          <div className="flex gap-3 items-center mt-4">
+          <div className="flex gap-3 items-center">
             <div className="flex items-end">
               <TokenLogo src={pool.token0.logo} size={36} alt={pool.token0.symbol} />
               <TokenLogo src={pool.token1.logo} size={36} alt={pool.token1.symbol} className="-ml-2" />
@@ -228,7 +232,7 @@ export const Preview = () => {
             </div>
 
             <div>
-              <div className="text-base flex items-center">
+              <div className="text-base flex items-center gap-1">
                 <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />/
                 <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} /> {isUniV3 ? `#${positionId}` : ''}
               </div>
@@ -368,7 +372,7 @@ export const Preview = () => {
                       <Trans>Zap Fee</Trans>
                     </div>
                   </MouseoverTooltip>
-                  <div>{parseFloat(zapFee.toFixed(3))}%</div>
+                  <div>{parseFloat(zapFee.protocolFee.toFixed(3))}%</div>
                 </div>
               </div>
 
@@ -432,7 +436,7 @@ export const Preview = () => {
         <DialogFooter>
           <button
             className={cn(
-              'ks-primary-btn w-full mt-4',
+              'ks-primary-btn w-full',
               pi.piVeryHigh
                 ? 'bg-error border-solid border-error text-white'
                 : pi.piHigh

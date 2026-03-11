@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { ChainId, NETWORKS_INFO, PoolType, Theme, defaultTheme } from '@kyber/schema';
 
-import { TxStatus } from '@/types/index';
+import { OnSuccessProps, TxStatus } from '@/types/index';
 
 interface WidgetProps {
   chainId: ChainId;
@@ -11,6 +11,8 @@ interface WidgetProps {
   theme: Theme;
   sourcePoolType?: PoolType;
   targetPoolType?: PoolType;
+  sourceDexId?: string;
+  targetDexId?: string;
   rePositionMode?: boolean;
   client: string;
   referral?: string;
@@ -18,8 +20,12 @@ interface WidgetProps {
     address: string | undefined;
     chainId: number;
   };
-  zapStatus?: Record<string, TxStatus>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   onClose: () => void;
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
+  onSuccess?: (props: OnSuccessProps) => void;
 }
 
 interface WidgetState extends WidgetProps {
@@ -36,6 +42,8 @@ const initState = {
   rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   sourcePoolType: undefined,
   targetPoolType: undefined,
+  sourceDexId: undefined,
+  targetDexId: undefined,
   rePositionMode: false,
   client: '',
   referral: undefined,
@@ -45,6 +53,9 @@ const initState = {
   },
   widgetError: '',
   onClose: () => {},
+  onSubmitTx: async () => '',
+  signTypedData: undefined,
+  onSuccess: undefined,
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -57,11 +68,17 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     rePositionMode,
     sourcePoolType,
     targetPoolType,
+    sourceDexId,
+    targetDexId,
     client,
     referral,
     connectedAccount,
-    zapStatus,
+    txStatus,
+    txHashMapping,
     onClose,
+    onSubmitTx,
+    signTypedData,
+    onSuccess,
   }: WidgetProps) => {
     const themeToApply =
       theme && typeof theme === 'object'
@@ -78,11 +95,17 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       rePositionMode,
       sourcePoolType,
       targetPoolType,
+      sourceDexId,
+      targetDexId,
       client,
       referral,
       connectedAccount,
-      zapStatus,
+      txStatus,
+      txHashMapping,
       onClose,
+      onSubmitTx,
+      signTypedData,
+      onSuccess,
     });
   },
   setWidgetError: (error: string) => set({ widgetError: error }),

@@ -23,7 +23,7 @@ export default function PositionPriceRange() {
   });
 
   return (
-    <div className="px-4 py-3 mt-4 text-sm border border-stroke rounded-md">
+    <div className="px-4 py-3 text-sm border border-stroke rounded-md">
       <p className="text-subText mb-3">
         <Trans>Your Position Price Ranges</Trans>
       </p>

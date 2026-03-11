@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { ChainId, UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
+import { ChainId, Token, UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
+import TokenSelectorModal from '@kyber/token-selector';
 import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { assertUnreachable } from '@kyber/utils';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
@@ -14,14 +15,13 @@ import DropdownIcon from '@/assets/svg/dropdown.svg';
 import HandIcon from '@/assets/svg/hand.svg';
 import ZapIcon from '@/assets/svg/zapout.svg';
 import { LiquidityToRemove } from '@/components/LiquidityToRemove';
-import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import useSlippageManager from '@/hooks/useSlippageManager';
 import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
-  const { theme, position, pool, poolType } = useZapOutContext(s => s);
+  const { theme, position, pool, poolType, connectedAccount, onConnectWallet } = useZapOutContext(s => s);
 
   const loading = !position || !pool;
   const [showTokenSelect, setShowTokenSelect] = useState(false);
@@ -62,7 +62,22 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
 
   return (
     <>
-      {showTokenSelect && <TokenSelectorModal onClose={() => setShowTokenSelect(false)} chainId={chainId} />}
+      {showTokenSelect && (
+        <TokenSelectorModal
+          chainId={chainId}
+          title="Select Token Out"
+          onClose={() => setShowTokenSelect(false)}
+          wallet={{
+            account: connectedAccount?.address,
+            onConnectWallet,
+          }}
+          tokenOptions={{
+            token0Address: pool?.token0.address,
+            token1Address: pool?.token1.address,
+            onTokenSelect: (token: Token) => setTokenOut(token),
+          }}
+        />
+      )}
       <LiquidityToRemove />
 
       <CircleChevronRight className="text-subText w-8 h-8 p-1 rotate-90 -mt-3 -mb-3 mx-auto" />
@@ -105,18 +120,26 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
         <div className="mt-2">{mode === 'zapOut' ? t`Zap to` : t`Remove Liquidity`}</div>
         {mode === 'zapOut' ? (
           <div className="flex justify-between items-center mt-2">
-            <button
-              className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
-              onClick={() => {
-                setShowTokenSelect(true);
-              }}
-            >
-              <TokenLogo src={tokenOut?.logo} size={20} className="rounded-full brightness-75" />
-              <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={80} />
-              <DropdownIcon />
-            </button>
+            {loading ? (
+              <Skeleton className="w-[100px] h-9" />
+            ) : (
+              <button
+                className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
+                onClick={() => {
+                  setShowTokenSelect(true);
+                }}
+              >
+                <TokenLogo src={tokenOut?.logo} size={20} className="rounded-full brightness-75" />
+                <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={80} />
+                <DropdownIcon />
+              </button>
+            )}
             <div className="text-text text-xl font-medium">
-              {formatDisplayNumber(refund.refunds[0]?.amount, { significantDigits: 8 })}
+              {loading || fetchingRoute ? (
+                <Skeleton className="w-28 h-6" />
+              ) : (
+                formatDisplayNumber(refund.refunds[0]?.amount, { significantDigits: 8 })
+              )}
             </div>
           </div>
         ) : (

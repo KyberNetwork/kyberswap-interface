@@ -14,6 +14,10 @@ const partnerCode = ethers.utils.formatBytes32String(projectName)
 
 const CUSTOM_PAYMASTER_ADDRESS = '0x069246dFEcb95A6409180b52C071003537B23c27'
 
+// encoded from bc_r7yhais5
+// https://www.base.dev/apps/6985b21e8dcaa0daf5755f6c/settings/builder-code
+const BASE_BUILDER_CODE = '62635f72377968616973350b0080218021802180218021802180218021'
+
 export const paymasterExecute = (
   paymentToken: string,
   populateTransaction: ethers.PopulatedTransaction,
@@ -37,6 +41,7 @@ export async function sendEVMTransaction({
   encodedData,
   value,
   sentryInfo,
+  isSmartConnector,
   chainId,
   paymentToken,
 }: {
@@ -49,6 +54,7 @@ export async function sendEVMTransaction({
     name: ErrorName
     wallet: string | undefined
   }
+  isSmartConnector: boolean
   chainId?: ChainId
   paymentToken?: string
 }): Promise<TransactionResponse | undefined> {
@@ -63,10 +69,12 @@ export async function sendEVMTransaction({
     }
   } catch {}
 
+  const callData = !isSmartConnector && chainId === ChainId.BASE ? `${encodedData}${BASE_BUILDER_CODE}` : encodedData
+
   const baseTx = {
     from: account,
     to: contractAddress,
-    data: encodedData,
+    data: callData,
     ...(value && !value.eq(0) ? { value: ethers.utils.hexlify(value) } : {}),
   }
   if (effectiveChainId && NETWORKS_INFO[effectiveChainId]?.accessListEnabled) {

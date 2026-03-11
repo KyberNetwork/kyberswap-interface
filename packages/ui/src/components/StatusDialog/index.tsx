@@ -15,12 +15,14 @@ export enum StatusDialogType {
   PROCESSING = 'PROCESSING',
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR',
+  CANCELLED = 'CANCELLED',
 }
 
 export interface StatusDialogProps {
   type: StatusDialogType;
   title?: string;
   description?: string;
+  subDescription?: string | React.ReactNode;
   transactionExplorerUrl?: string;
   errorMessage?: string;
   className?: string;
@@ -33,6 +35,7 @@ export default function StatusDialog({
   type,
   title,
   description,
+  subDescription,
   transactionExplorerUrl,
   errorMessage,
   className,
@@ -44,7 +47,7 @@ export default function StatusDialog({
   const statusIcon =
     type === StatusDialogType.SUCCESS ? (
       <SuccessIcon className="w-6 h-6" />
-    ) : type === StatusDialogType.ERROR ? (
+    ) : type === StatusDialogType.ERROR || type === StatusDialogType.CANCELLED ? (
       <ErrorIcon className="w-6 h-6" />
     ) : (
       <Loading className="w-6 h-6 text-accent" />
@@ -82,6 +85,10 @@ export default function StatusDialog({
                 <ArrowUpRightIcon className="w-4 h-4" />
               </a>
             </div>
+          ) : null}
+
+          {subDescription && type === StatusDialogType.SUCCESS ? (
+            <div className="text-sm text-subText text-center pb-1">{subDescription}</div>
           ) : null}
 
           {errorMessage && type === StatusDialogType.ERROR ? (

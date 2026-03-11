@@ -1,3 +1,4 @@
+import aerodrome from '@/constants/dexes/aerodrome';
 import camelotv3 from '@/constants/dexes/camelotv3';
 import kodiakv2 from '@/constants/dexes/kodiakv2';
 // import bladeswap from "@/constants/dexes/bladeswap";
@@ -59,14 +60,35 @@ export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_KODIAK_V3]: kodiakv3,
   [PoolType.DEX_SQUADSWAP_V3]: squadswapv3,
   [PoolType.DEX_SQUADSWAP_V2]: squadswapv2,
+  [PoolType.DEX_AERODROMECL]: aerodrome,
 };
 
 export const defaultDexInfo = { icon: '', name: '' };
 
-export const dexMapping: Record<PoolType, string[]> = {
+// Override display names for specific dex variants
+export const dexVariantNames: Record<string, string> = {
+  'pancake-infinity-cl-alpha': 'Pancake ∞ CL Alpha',
+  'pancake-infinity-cl-dynamic': 'Pancake ∞ CL Dynamic',
+  'pancake-infinity-cl-lo': 'Pancake ∞ CL LO',
+  'pancake-infinity-cl-brevis': 'Pancake ∞ CL Brevis',
+};
+
+export const getDexName = (poolType: PoolType, chainId: number, dexId?: string): string => {
+  if (dexId && dexVariantNames[dexId]) return dexVariantNames[dexId];
+  const rawName = DEXES_INFO[poolType]?.name ?? '';
+  return typeof rawName === 'string' ? rawName : rawName[chainId] ?? '';
+};
+
+export const dexMapping: Record<PoolType, readonly string[]> = {
   [PoolType.DEX_UNISWAP_V4]: ['uniswap-v4'],
   [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: ['uniswap-v4-fairflow'],
-  [PoolType.DEX_PANCAKE_INFINITY_CL]: ['pancake-infinity-cl'],
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: [
+    'pancake-infinity-cl',
+    'pancake-infinity-cl-lo',
+    'pancake-infinity-cl-alpha',
+    'pancake-infinity-cl-dynamic',
+    'pancake-infinity-cl-brevis',
+  ],
   [PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ['pancake-infinity-cl-fairflow'],
 
   [PoolType.DEX_UNISWAPV3]: ['uniswapv3'],
@@ -93,4 +115,5 @@ export const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_THENAFUSION]: ['thena-fusion'],
   [PoolType.DEX_CAMELOTV3]: ['camelot-v3'],
   [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ['quickswap-v3'],
+  [PoolType.DEX_AERODROMECL]: ['aerodrome-cl', 'aerodromecl'],
 } as const;

@@ -28,14 +28,14 @@ const MenuMoreAction = ({
   clearAll,
   toggleModal,
 }: {
-  clearAll: () => void
-  toggleModal: () => void
-  showClearAll: boolean
+  clearAll?: () => void
+  toggleModal?: () => void
+  showClearAll?: boolean
 }) => {
   const navigate = useNavigate()
   const showAllNotification = () => {
     navigate(APP_PATHS.PROFILE_MANAGE)
-    toggleModal()
+    toggleModal?.()
   }
   return (
     <MenuFlyout modalWhenMobile={false} trigger={<MoreHorizontal cursor="pointer" />} customStyle={customStyle}>

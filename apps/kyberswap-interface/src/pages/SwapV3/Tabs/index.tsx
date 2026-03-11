@@ -1,13 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
-import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { TAB } from 'pages/SwapV3'
 import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
 import { isSupportLimitOrder } from 'utils'
@@ -80,7 +80,7 @@ type Props = {
 export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) {
   const navigateFn = useNavigate()
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
-  const { isSmartConnector } = useWeb3React()
+  const { trackingHandler } = useTracking()
   const chainId = customChainId || walletChainId
 
   const { pathname } = useLocation()
@@ -99,6 +99,11 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
   const onClickTab = (tab: TAB) => {
     if (activeTab === tab) {
       return
+    }
+    if (tab === TAB.CROSS_CHAIN) {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_TAB_SELECTED, {
+        previous_tab: activeTab,
+      })
     }
     if (isParnerSwap) {
       setActiveTab(tab)
@@ -129,7 +134,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
         )}
         {show(TAB.LIMIT) && isSupportLimitOrder(chainId) && (
           <LimitTab
-            onClick={() => !isSmartConnector && onClickTab(TAB.LIMIT)}
+            onClick={() => onClickTab(TAB.LIMIT)}
             active={activeTab === TAB.LIMIT}
             customChainId={customChainId}
           />
@@ -139,10 +144,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
           isActive={activeTab === TAB.CROSS_CHAIN}
           data-testid="cross-chain-tab"
         >
-          <Flex fontWeight={500}>
-            <Trans>Cross-Chain</Trans>
-            <NewLabel>New</NewLabel>
-          </Flex>
+          <Trans>Cross-Chain</Trans>
         </Tab>
       </TabWrapper>
     </TabContainer>

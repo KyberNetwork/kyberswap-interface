@@ -51,7 +51,7 @@ const Desc = styled.div`
 `
 
 const Time = styled.span`
-  color: ${({ theme }) => theme.border};
+  color: ${({ theme }) => theme.subText};
   text-align: right;
   width: 100%;
 `

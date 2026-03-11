@@ -7,15 +7,17 @@ import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_farming.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
+import { BetaLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { MEDIA_WIDTHS } from 'theme'
 
 const EarnNavGroup = () => {
-  const upTo420 = useMedia('(max-width: 420px)')
+  const upTo430 = useMedia('(max-width: 430px)')
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { pathname, search } = useLocation()
@@ -24,11 +26,12 @@ const EarnNavGroup = () => {
     APP_PATHS.EARN_POOLS,
     APP_PATHS.EARN_POSITIONS,
     APP_PATHS.EARN_POSITION_DETAIL,
+    APP_PATHS.EARN_SMART_EXIT,
   ].some(path => pathname.includes(path))
 
   return (
     <NavGroup
-      dropdownAlign={upTo420 ? 'right' : 'left'}
+      dropdownAlign={upTo430 ? 'right' : 'left'}
       isActive={isActive}
       anchor={
         <DropdownTextAnchor>
@@ -96,6 +99,13 @@ const EarnNavGroup = () => {
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <PositionsIcon width={16} height={16} />
               {t`My Positions`}
+            </Flex>
+          </StyledNavLink>
+          <StyledNavLink data-testid="earn-positions-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
+            <Flex sx={{ gap: '12px' }} alignItems="center">
+              <ListSmartExitIcon width={16} height={16} />
+              {t`Smart Exit Orders`}
+              <BetaLabel>Beta</BetaLabel>
             </Flex>
           </StyledNavLink>
         </Flex>

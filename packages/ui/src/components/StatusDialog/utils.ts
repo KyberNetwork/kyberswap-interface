@@ -12,6 +12,8 @@ export const getStatusText = (i18n: I18n, type: StatusDialogType) => {
       return i18n._('Transaction successful');
     case StatusDialogType.ERROR:
       return i18n._('Transaction failed');
+    case StatusDialogType.CANCELLED:
+      return i18n._('Transaction cancelled');
     default:
       return '';
   }
@@ -27,6 +29,8 @@ export const getStatusDescription = (i18n: I18n, type: StatusDialogType) => {
       return i18n._('Your transaction has been successful');
     case StatusDialogType.ERROR:
       return i18n._('An error occurred while processing your transaction');
+    case StatusDialogType.CANCELLED:
+      return i18n._('Your transaction has been cancelled');
     default:
       return '';
   }

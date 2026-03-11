@@ -51,7 +51,7 @@ export const ANNOUNCEMENT_TAGS = [
   RTK_QUERY_TAGS.GET_ALERTS_HISTORY,
 ]
 
-const AnnouncementApi = createApi({
+const announcementApi = createApi({
   reducerPath: 'announcementApi',
   baseQuery: baseQueryOauth({ baseUrl: BFF_API }),
   tagTypes: ANNOUNCEMENT_TAGS,
@@ -173,7 +173,7 @@ const AnnouncementApi = createApi({
 })
 
 export const publicAnnouncementApi = createApi({
-  reducerPath: 'announcementApiV2',
+  reducerPath: 'publicAnnouncementApi',
   baseQuery: fetchBaseQuery({ baseUrl: NOTIFICATION_API }),
   endpoints: builder => ({
     getAnnouncements: builder.query<AnnouncementResponse<Announcement>, Params>({
@@ -199,6 +199,6 @@ export const {
   useClearSinglePriceAlertHistoryMutation,
   useClearAllPriceAlertHistoryMutation,
   useGetListPriceAlertHistoryQuery,
-} = AnnouncementApi
+} = announcementApi
 
-export default AnnouncementApi
+export default announcementApi

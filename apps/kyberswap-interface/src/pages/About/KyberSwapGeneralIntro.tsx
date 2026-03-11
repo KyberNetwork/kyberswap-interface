@@ -7,12 +7,12 @@ import { Box, Flex, Text } from 'rebass'
 import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 const KyberSwapGeneralIntro = () => {
   const { networkInfo } = useActiveWeb3React()
   const above768 = useMedia('(min-width: 768px)')
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const renderKyberSwapIntroDEX = () => {
     return (
@@ -36,7 +36,7 @@ const KyberSwapGeneralIntro = () => {
   const renderSwapNowButton = () => {
     return (
       <ButtonPrimary
-        onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
+        onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
         as={Link}
         to={`${APP_PATHS.SWAP}/${networkInfo.route}?highlightBox=true`}
         style={{

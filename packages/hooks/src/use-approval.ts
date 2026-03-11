@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
+import { NATIVE_TOKEN_ADDRESS, TxStatus } from '@kyber/schema';
 import {
   calculateGasMargin,
   checkApproval,
@@ -17,20 +17,40 @@ export enum APPROVAL_STATE {
   NOT_APPROVED = 'not_approved',
 }
 
+export interface ApprovalAdditionalInfo {
+  type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all';
+  tokenAddress: string;
+  tokenSymbol?: string;
+  dexName?: string;
+}
+
 export const useErc20Approvals = ({
   amounts,
   addreses,
   owner,
   spender,
+  chainId,
   rpcUrl,
   onSubmitTx,
+  txStatus,
+  txHashMapping,
+  tokenSymbols,
+  dexName,
 }: {
   amounts: string[];
   addreses: string[];
   owner: string;
   spender: string;
+  chainId?: number;
   rpcUrl: string;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: ApprovalAdditionalInfo,
+  ) => Promise<string>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
+  tokenSymbols?: string[];
+  dexName?: string;
 }) => {
   const [loading, setLoading] = useState(false);
   const [approvalStates, setApprovalStates] = useState<{
@@ -67,12 +87,24 @@ export const useErc20Approvals = ({
     };
 
     try {
-      const gasEstimation = await estimateGas(rpcUrl, txData);
+      const gasEstimation = await estimateGas(chainId ?? rpcUrl, txData);
 
-      const txHash = await onSubmitTx({
-        ...txData,
-        gasLimit: calculateGasMargin(gasEstimation),
-      });
+      // Find token symbol from the addresses array
+      const tokenIndex = addreses.findIndex(addr => addr.toLowerCase() === address.toLowerCase());
+      const tokenSymbol = tokenIndex >= 0 && tokenSymbols ? tokenSymbols[tokenIndex] : undefined;
+
+      const txHash = await onSubmitTx(
+        {
+          ...txData,
+          gasLimit: calculateGasMargin(gasEstimation),
+        },
+        {
+          type: 'erc20_approval',
+          tokenAddress: address,
+          tokenSymbol,
+          dexName,
+        },
+      );
       setApprovalStates({
         ...approvalStates,
         [address]: APPROVAL_STATE.PENDING,
@@ -84,26 +116,51 @@ export const useErc20Approvals = ({
     }
   };
 
-  useEffect(() => {
-    if (pendingTx) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, pendingTx).then(res => {
-          if (res) {
-            setPendingTx('');
-            if (res.status) setAddressToApprove('');
-            setApprovalStates({
-              ...approvalStates,
-              [addressToApprove]: res.status ? APPROVAL_STATE.APPROVED : APPROVAL_STATE.NOT_APPROVED,
-            });
-          }
-        });
-      }, 8_000);
+  // Get the current tx hash (might be different if tx was replaced/sped up)
+  const currentPendingTx = pendingTx ? (txHashMapping?.[pendingTx] ?? pendingTx) : '';
 
-      return () => {
-        clearInterval(i);
-      };
+  // When txStatus is provided (from app), use it directly
+  useEffect(() => {
+    if (!txStatus || !pendingTx || !addressToApprove) return;
+
+    const status = txStatus[pendingTx];
+    if (status === TxStatus.SUCCESS) {
+      setPendingTx('');
+      setAddressToApprove('');
+      setApprovalStates(prev => ({
+        ...prev,
+        [addressToApprove]: APPROVAL_STATE.APPROVED,
+      }));
+    } else if (status === TxStatus.FAILED || status === TxStatus.CANCELLED) {
+      setPendingTx('');
+      setApprovalStates(prev => ({
+        ...prev,
+        [addressToApprove]: APPROVAL_STATE.NOT_APPROVED,
+      }));
     }
-  }, [pendingTx, rpcUrl, addressToApprove, approvalStates]);
+  }, [txStatus, pendingTx, addressToApprove]);
+
+  // Fallback: Poll RPC when txStatus is not provided (standalone widget usage)
+  useEffect(() => {
+    if (txStatus || !currentPendingTx || !addressToApprove) return;
+
+    const i = setInterval(() => {
+      isTransactionSuccessful(chainId ?? rpcUrl, currentPendingTx).then(res => {
+        if (res) {
+          setPendingTx('');
+          if (res.status) setAddressToApprove('');
+          setApprovalStates(prev => ({
+            ...prev,
+            [addressToApprove]: res.status ? APPROVAL_STATE.APPROVED : APPROVAL_STATE.NOT_APPROVED,
+          }));
+        }
+      });
+    }, 8_000);
+
+    return () => {
+      clearInterval(i);
+    };
+  }, [chainId, currentPendingTx, rpcUrl, addressToApprove, txStatus]);
 
   useEffect(() => {
     if (owner && spender && addreses.length === amounts.length) {
@@ -114,6 +171,7 @@ export const useErc20Approvals = ({
 
           const amountToApprove = BigInt(amounts[index]);
           return await checkApproval({
+            chainId,
             rpcUrl,
             token: address,
             owner,
@@ -154,6 +212,7 @@ export const useErc20Approvals = ({
     JSON.stringify(addreses),
     // eslint-disable-next-line
     JSON.stringify(amounts),
+    chainId,
     rpcUrl,
   ]);
 
@@ -162,5 +221,7 @@ export const useErc20Approvals = ({
     addressToApprove,
     approve,
     loading,
+    pendingTx,
+    currentPendingTx,
   };
 };

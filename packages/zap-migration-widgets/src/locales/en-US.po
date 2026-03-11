@@ -66,6 +66,10 @@ msgstr "Migrate to increase position liquidity"
 msgid "Reposition Completed"
 msgstr "Reposition Completed"
 
+#: src/components/Action/index.tsx
+msgid "Signing..."
+msgstr "Signing..."
+
 #: src/components/PoolPriceWithRange/PriceRange.tsx
 msgid "Current Price: {0}"
 msgstr "Current Price: {0}"
@@ -116,6 +120,14 @@ msgstr "● Closed"
 msgid "Fee {0}%"
 msgstr "Fee {0}%"
 
+#: src/components/Action/useActionButton.ts
+msgid "Fetching Route..."
+msgstr "Fetching Route..."
+
+#: src/components/Action/useActionButton.ts
+msgid "Estimate gas failed"
+msgstr "Estimate gas failed"
+
 #: src/components/Setting/index.tsx
 #: src/components/Setting/index.tsx
 msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
@@ -159,6 +171,11 @@ msgid "Max Price"
 msgstr "Max Price"
 
 #: src/components/Action/useActionButton.ts
+msgid "Approve source NFT"
+msgstr "Approve source NFT"
+
+#: src/components/Action/useActionButton.ts
+#: src/components/Action/useActionButton.ts
 msgid "Approve source position"
 msgstr "Approve source position"
 
@@ -166,9 +183,22 @@ msgstr "Approve source position"
 msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
 msgstr "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
 
+#: src/components/Action/index.tsx
+msgid "Authorize this position for ZapRouter by signing off-chain. No gas fee."
+msgstr "Authorize this position for ZapRouter by signing off-chain. No gas fee."
+
 #: src/components/Preview/MigrationSummary.tsx
 msgid "Remove {0} {1} and {2} {3} from {4}"
 msgstr "Remove {0} {1} and {2} {3} from {4}"
+
+#: src/components/Action/useActionButton.ts
+msgid "Build route data failed"
+msgstr "Build route data failed"
+
+#: src/components/Action/index.tsx
+#: src/components/Action/index.tsx
+msgid "Approve this position"
+msgstr "Approve this position"
 
 #: src/index.tsx
 msgid "Failed to load pool"
@@ -225,6 +255,10 @@ msgstr "Native token"
 msgid "Updated position"
 msgstr "Updated position"
 
+#: src/components/Action/useActionButton.ts
+msgid "Approve target NFT"
+msgstr "Approve target NFT"
+
 #: src/components/Action/index.tsx
 msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
 msgstr "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
@@ -241,13 +275,15 @@ msgstr "Our security checks detected that {honeypotTokensNames} may be a honeypo
 msgid "Remaining amount"
 msgstr "Remaining amount"
 
+#: src/components/Action/useActionButton.ts
+#: src/components/Action/useActionButton.ts
+#: src/components/Action/useActionButton.ts
+msgid "Approving..."
+msgstr "Approving..."
+
 #: src/components/Setting/SlippageInput.tsx
 msgid "Suggestion"
 msgstr "Suggestion"
-
-#: src/components/Action/useActionButton.ts
-msgid "Fetching Route"
-msgstr "Fetching Route"
 
 #: src/components/Preview/index.tsx
 msgid "Migrated liquidity"
@@ -265,10 +301,6 @@ msgstr "Migrate liquidity via Zap"
 msgid "Pool Address"
 msgstr "Pool Address"
 
-#: src/components/Action/useActionButton.ts
-msgid "Estimate Gas Failed"
-msgstr "Estimate Gas Failed"
-
 #: src/components/Action/index.tsx
 #: src/components/Preview/index.tsx
 msgid "Cancel"
@@ -281,6 +313,11 @@ msgstr "Zap anyway"
 #: src/components/Preview/index.tsx
 msgid "Set Custom Slippage"
 msgstr "Set Custom Slippage"
+
+#: src/components/Action/index.tsx
+#: src/components/Action/index.tsx
+msgid "Approve for all"
+msgstr "Approve for all"
 
 #: src/components/Action/useActionButton.ts
 msgid "Invalid Price Range"
@@ -296,16 +333,12 @@ msgid "Migration Summary"
 msgstr "Migration Summary"
 
 #: src/components/Action/useActionButton.ts
+msgid "Estimating Gas..."
+msgstr "Estimating Gas..."
+
+#: src/components/Action/useActionButton.ts
 msgid "Approve target position"
 msgstr "Approve target position"
-
-#: src/components/Action/useActionButton.ts
-msgid "Checking Allowance"
-msgstr "Checking Allowance"
-
-#: src/components/Action/useActionButton.ts
-msgid "Approving"
-msgstr "Approving"
 
 #: src/components/Action/useActionButton.ts
 msgid "Select Price Range"
@@ -330,6 +363,10 @@ msgstr "Swap {0} {1} for {2} {3} via {poolElement}"
 #: src/components/AmountToMigrate.tsx
 msgid "<0>Amount to migrate</0><1>{percent}%</1>"
 msgstr "<0>Amount to migrate</0><1>{percent}%</1>"
+
+#: src/components/Action/useActionButton.ts
+msgid "Checking Allowance..."
+msgstr "Checking Allowance..."
 
 #: src/components/Warning/SlippageWarning.tsx
 msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
@@ -380,10 +417,6 @@ msgstr "View position"
 msgid "Confirm migration"
 msgstr "Confirm migration"
 
-#: src/components/Action/useActionButton.ts
-msgid "Estimating Gas"
-msgstr "Estimating Gas"
-
 #: src/components/Estimated/index.tsx
 #: src/components/Preview/Estimated.tsx
 msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
@@ -420,6 +453,10 @@ msgstr "Your slippage is set higher than usual, which may cause unexpected losse
 #: src/components/Preview/Estimated.tsx
 msgid "Max Slippage"
 msgstr "Max Slippage"
+
+#: src/components/Action/index.tsx
+msgid "Authorize ZapRouter through an on-chain approval. Choose whether to approve once or all positions."
+msgstr "Authorize ZapRouter through an on-chain approval. Choose whether to approve once or all positions."
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Enter a smaller slippage percentage"

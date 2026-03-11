@@ -586,7 +586,9 @@ const RouteNode = ({
                   target="_blank"
                   sx={{ gap: '4px', fontSize: '10px', color: theme.subText }}
                 >
-                  <img src={dex?.logoURL} alt="" width="12px" height="12px" style={{ borderRadius: '50%' }} />
+                  {dex?.logoURL ? (
+                    <img src={dex.logoURL} alt="" width="12px" height="12px" style={{ borderRadius: '50%' }} />
+                  ) : null}
                   <Text flex={1} sx={{}}>
                     {dex?.name || swap.exchange}
                   </Text>

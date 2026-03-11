@@ -25,7 +25,7 @@ const bnbInfo: NetworkInfo = {
     logo: BnbLogo,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://bsc.kyberengineering.io',
+  defaultRpcUrl: 'https://bsc-rpc.kyberswap.com',
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-bsc',

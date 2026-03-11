@@ -6,12 +6,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
+import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
@@ -45,7 +47,7 @@ import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getNftManagerContract } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
@@ -67,23 +69,38 @@ const PositionDetail = () => {
   const { reduceFetchInterval, setReduceFetchInterval } = useReduceFetchInterval()
 
   const {
-    data: userPositions,
+    data: userPositionsData,
     isLoading,
     isFetching,
     refetch,
   } = useUserPositionsQuery(
     {
-      addresses: account || '',
-      positionId: positionId?.toLowerCase(),
+      wallet: account || '',
+      positionIds: positionId?.toLowerCase(),
       chainIds: chainId || '',
       protocols: exchange || '',
+      useOnFly: true,
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
-  const { rewardInfo } = useKemRewards(refetch)
-  const rewardInfoThisPosition = !userPositions
-    ? undefined
-    : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
+  const { rewardInfo } = useKemRewards({ refetchAfterCollect: refetch })
+
+  const userPositions = useMemo(() => userPositionsData?.positions || [], [userPositionsData?.positions])
+  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === userPositions[0]?.tokenId.toString())
+
+  const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
+    {
+      userWallet: account || '',
+      positionIds: positionId ? [positionId] : [],
+      status: OrderStatus.OrderStatusOpen,
+      page: 1,
+      pageSize: 1,
+    },
+    {
+      skip: !positionId || !account,
+    },
+  )
+  const hasActiveSmartExitOrder = !!smartExitOrders?.orders?.length && smartExitOrders.orders.length > 0
 
   const currentWalletAddress = useRef(account)
   const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
@@ -98,15 +115,14 @@ const PositionDetail = () => {
   const position: ParsedPosition | undefined = useMemo(() => {
     const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
-      const unfinalizedPositions = getUnfinalizedPositions([])
+      // API has no data yet — show cached unfinalized position if available
+      const unfinalizedPositions = getUnfinalizedPositions([], account || undefined)
       if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
         return unfinalizedPositions[0]
       return
     }
 
-    const isClosedFromRpc = closedPositionsFromRpc.some(
-      (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPositions[0].tokenId,
-    )
+    const isClosedFromRpc = closedPositionsFromRpc.includes(userPositions[0].tokenId)
 
     const parsedPosition = parsePosition({
       position: userPositions[0],
@@ -115,13 +131,18 @@ const PositionDetail = () => {
       isClosedFromRpc,
     })
 
-    const unfinalizedPositions = getUnfinalizedPositions([parsedPosition])
+    const unfinalizedPositions = getUnfinalizedPositions([parsedPosition], account || undefined)
+    const matchedUnfinalized = unfinalizedPositions.find(p => Number(p.tokenId) === Number(tokenId))
 
-    if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
-      return unfinalizedPositions[0]
+    if (matchedUnfinalized) {
+      // For increase-liquidity (isValueUpdating), use API data with loading flag only
+      if (matchedUnfinalized.isValueUpdating) return { ...parsedPosition, isValueUpdating: true }
+      // For truly new positions not yet in API, use cached data
+      return matchedUnfinalized
+    }
 
     return parsedPosition
-  }, [feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
+  }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -153,15 +174,17 @@ const PositionDetail = () => {
     const targetToken0Decimals = targetPool.token0.decimals
     const targetToken1Decimals = targetPool.token1.decimals
 
-    const dontNeedRevert =
-      sourcePosition.token0.decimals === targetToken0Decimals && sourcePosition.token1.decimals === targetToken1Decimals
+    // Check if tokens are in the same order by comparing addresses
+    const isTokenOrderSame =
+      sourcePosition.token0.address.toLowerCase() === targetPool.token0.address.toLowerCase() &&
+      sourcePosition.token1.address.toLowerCase() === targetPool.token1.address.toLowerCase()
 
     const isMinPrice = sourcePosition.priceRange.isMinPrice
     const isMaxPrice = sourcePosition.priceRange.isMaxPrice
 
     const tickLower = sourcePosition.pool.isUniv2
       ? undefined
-      : dontNeedRevert
+      : isTokenOrderSame
       ? isMinPrice
         ? MIN_TICK
         : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
@@ -171,7 +194,7 @@ const PositionDetail = () => {
 
     const tickUpper = sourcePosition.pool.isUniv2
       ? undefined
-      : dontNeedRevert
+      : isTokenOrderSame
       ? isMaxPrice
         ? MAX_TICK
         : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
@@ -179,19 +202,23 @@ const PositionDetail = () => {
       ? MIN_TICK
       : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
 
+    const isOutRange = sourcePosition.status === PositionStatus.OUT_RANGE
+
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
       from: {
         poolType: sourcePosition.dex.id,
         poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+        dexId: sourcePosition.dex.id,
       },
       to: {
-        poolType: targetPool.poolExchange,
+        poolType: targetPool.exchange,
         poolAddress: targetPool.address,
+        dexId: targetPool.exchange,
       },
       initialTick:
-        tickLower !== undefined && tickUpper !== undefined
+        tickLower !== undefined && tickUpper !== undefined && !isOutRange
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,
@@ -210,6 +237,7 @@ const PositionDetail = () => {
           poolType: position.dex.id,
           poolAddress: position.pool.address,
           positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+          dexId: position.dex.id,
         },
         rePositionMode: true,
       })
@@ -229,7 +257,7 @@ const PositionDetail = () => {
 
   useEffect(() => {
     if (!position || !forceLoading) return
-    if (position.pool.isUniv2 ? position.id === positionId : position.tokenId === positionId?.split('-')[1]) {
+    if (position.pool.isUniv2 ? position.positionId === positionId : position.tokenId === positionId?.split('-')[1]) {
       removeForceLoading()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -312,7 +340,7 @@ const PositionDetail = () => {
         ) : (
           <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
             <TokenLogo src={position?.token0.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token0.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{formatDisplayNumber(position?.token0.currentAmount, { significantDigits: 4 })}</Text>
             <Text>{position?.token0.symbol}</Text>
           </Flex>
         )}
@@ -322,7 +350,7 @@ const PositionDetail = () => {
         ) : (
           <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
             <TokenLogo src={position?.token1.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token1.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{formatDisplayNumber(position?.token1.currentAmount, { significantDigits: 4 })}</Text>
             <Text>{position?.token1.symbol}</Text>
           </Flex>
         )}
@@ -360,7 +388,7 @@ const PositionDetail = () => {
             },
             position: {
               apr: {
-                total: position.apr[aprInterval],
+                total: position.apr[aprInterval] + position.bonusApr,
                 eg: position.kemEGApr[aprInterval],
                 lm: position.kemLMApr[aprInterval],
               },
@@ -384,9 +412,10 @@ const PositionDetail = () => {
         </Text>
         {position?.pool.isFarming && !isUnfinalized && (
           <AprDetailTooltip
-            feeApr={position?.feeApr[aprInterval] || 0}
-            egApr={position?.kemEGApr[aprInterval] || 0}
-            lmApr={position?.kemLMApr[aprInterval] || 0}
+            feeApr={position.feeApr[aprInterval] || 0}
+            egApr={position.kemEGApr[aprInterval] || 0}
+            lmApr={position.kemLMApr[aprInterval] || 0}
+            uniApr={position.bonusApr}
           >
             <Info color={theme.subText} size={16} />
           </AprDetailTooltip>
@@ -407,12 +436,13 @@ const PositionDetail = () => {
             ) : position?.pool.isFarming ? (
               <FarmingIcon width={20} height={20} />
             ) : null}
+            {position?.bonusApr ? <UniBonusIcon width={20} height={20} /> : null}
             <Text
               fontSize={20}
               marginRight={1}
               color={position?.apr && position.apr[aprInterval] > 0 ? theme.primary : theme.text}
             >
-              {formatAprNumber(position?.apr[aprInterval] || 0)}%
+              {formatAprNumber((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%
             </Text>
             {!initialLoading &&
               !isUnfinalized &&
@@ -444,9 +474,7 @@ const PositionDetail = () => {
         onClose={() => setPositionToMigrate(null)}
       />
     ) : null
-  const suggestedProtocolName = position?.suggestionPool
-    ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
-    : ''
+  const suggestedProtocolName = position?.suggestionPool ? EARN_DEXES[position.suggestionPool.exchange].name : ''
 
   return (
     <>
@@ -457,7 +485,12 @@ const PositionDetail = () => {
       <PositionPageWrapper>
         {!!position || initialLoading ? (
           <>
-            <PositionDetailHeader isLoading={loadingInterval} initialLoading={initialLoading} position={position} />
+            <PositionDetailHeader
+              isLoading={loadingInterval}
+              initialLoading={initialLoading}
+              position={position}
+              hasActiveSmartExitOrder={hasActiveSmartExitOrder}
+            />
 
             <Flex flexDirection={'column'} sx={{ gap: '12px' }}>
               {!position?.pool.isFarming &&
@@ -469,7 +502,7 @@ const PositionDetail = () => {
                       {!!position.suggestionPool
                         ? position.pool.fee === position.suggestionPool.feeTier
                           ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
-                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
+                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} to start earning farming rewards.`
                         : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                     </Text>
                     <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
@@ -511,6 +544,7 @@ const PositionDetail = () => {
                 setTriggerClose={setTriggerClose}
                 setReduceFetchInterval={setReduceFetchInterval}
                 onReposition={handleReposition}
+                hasActiveSmartExitOrder={hasActiveSmartExitOrder}
               />
             </PositionDetailWrapper>
           </>

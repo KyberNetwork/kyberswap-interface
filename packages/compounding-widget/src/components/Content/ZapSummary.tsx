@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
 
-import { Trans, t } from '@lingui/macro';
+import { Trans } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import {
   AddLiquidityAction,
-  DEXES_INFO,
   PoolType,
   RemoveLiquidityAction,
   ZapAction,
   defaultToken,
+  getDexName,
 } from '@kyber/schema';
 import { parseSwapActions } from '@kyber/utils';
 import { formatDisplayNumber, formatWei } from '@kyber/utils/number';
@@ -19,12 +19,13 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function ZapSummary() {
-  const { nativeToken, wrappedNativeToken, chainId, poolType } = useWidgetStore(
+  const { nativeToken, wrappedNativeToken, chainId, poolType, dexId } = useWidgetStore(
     useShallow(s => ({
       nativeToken: s.nativeToken,
       wrappedNativeToken: s.wrappedNativeToken,
       chainId: s.chainId,
       poolType: s.poolType,
+      dexId: s.dexId,
     })),
   );
   const { zapInfo, tokensIn } = useZapState();
@@ -36,8 +37,7 @@ export default function ZapSummary() {
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
-  const dexNameObj = DEXES_INFO[poolType as PoolType].name;
-  const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+  const dexName = getDexName(poolType as PoolType, chainId, dexId);
 
   const tokensToCheck = useMemo(
     () => [...tokensIn, token0, token1, wrappedNativeToken, nativeToken],
@@ -92,7 +92,7 @@ export default function ZapSummary() {
             Collect{' '}
             {collectFeesActions
               ?.map(item => `${formatDisplayNumber(item.amount, { significantDigits: 4 })} ${item.tokenName}`)
-              .join(t` and `)}{' '}
+              .join(' and ')}{' '}
             from <span className="font-medium text-text">{dexName}</span> via{' '}
             <span className="font-medium text-text">KyberSwap</span>
           </Trans>

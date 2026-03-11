@@ -6,8 +6,8 @@ import { Text } from 'rebass'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import WarningNote from 'components/WarningNote'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { checkPriceImpact } from 'utils/prices'
 
@@ -23,7 +23,7 @@ const GasFeeAndPriceImpactNote: FC<Props> = ({ gasUsd = 0, priceImpact, isDegenM
   const { chainId } = useActiveWeb3React()
   const switchToLimitOrder = useSwitchPairToLimitOrder()
   const { isHigh, isVeryHigh } = checkPriceImpact(priceImpact)
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   if (+gasUsd < GAS_USD_THRESHOLD || chainId !== ChainId.MAINNET)
     return <PriceImpactNote priceImpact={priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
@@ -37,7 +37,7 @@ const GasFeeAndPriceImpactNote: FC<Props> = ({ gasUsd = 0, priceImpact, isDegenM
           sx={{ cursor: 'pointer', fontWeight: 'bold' }}
           color={theme.primary}
           onClick={() => {
-            mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
+            trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_WARNING_IN_SWAP)
             switchToLimitOrder()
           }}
         >

@@ -7,7 +7,7 @@ export default {
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://etherscan.io',
   multiCall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
-  defaultRpc: 'https://ethereum.kyberengineering.io',
+  defaultRpc: 'https://ethereum-rpc.kyberswap.com',
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',
   wrappedToken: {

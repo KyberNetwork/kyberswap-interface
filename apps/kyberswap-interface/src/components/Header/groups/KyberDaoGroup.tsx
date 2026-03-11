@@ -10,7 +10,7 @@ import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
@@ -22,7 +22,7 @@ const KyberDaoWrapper = styled.span`
 const KyberDAONavGroup = () => {
   const { pathname } = useLocation()
   const isActive = pathname.includes(APP_PATHS.KYBERDAO_STAKE)
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const upToMedium = useMedia('(max-width: 992px)')
   if (upToMedium) return null
 
@@ -51,7 +51,7 @@ const KyberDAONavGroup = () => {
               to={APP_PATHS.KYBERDAO_KNC_UTILITY}
               style={{ gap: '12px' }}
               onClick={() => {
-                mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'KyberDAO_tab' })
+                trackingHandler(TRACKING_EVENT_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'KyberDAO_tab' })
               }}
             >
               <KyberLogo width={16} height={16} />
@@ -63,7 +63,7 @@ const KyberDAONavGroup = () => {
               target="_blank"
               style={{ gap: '12px' }}
               onClick={() => {
-                mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_FEATURE_REQUEST_CLICK)
+                trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_FEATURE_REQUEST_CLICK)
               }}
             >
               <LightBulb />

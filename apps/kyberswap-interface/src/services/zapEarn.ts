@@ -1,7 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { EarnPool, EarnPosition, PositionHistoryType } from 'pages/Earns/types'
+import {
+  EarnPool,
+  PositionHistoryType,
+  UserPosition,
+  UserPositionsApiResponse,
+  UserPositionsStats,
+} from 'pages/Earns/types'
 
 interface LandingResponse {
   data: {
@@ -28,7 +34,8 @@ interface SupportedProtocolsResponse {
 }
 
 export interface PoolQueryParams {
-  chainId: ChainId
+  chainId?: number
+  chainIds?: string
   page?: number
   limit?: number
   interval: string
@@ -53,11 +60,17 @@ interface PoolQueryResponse {
 }
 
 export interface PositionQueryParams {
-  addresses: string
-  chainIds: string
-  protocols: string
-  q?: string
-  positionId?: string
+  wallet: string
+  chainIds?: string
+  protocols?: string
+  keyword?: string
+  positionIds?: string
+  statuses?: string
+  sortBy?: string
+  orderBy?: string
+  page?: number
+  pageSize?: number
+  useOnFly?: boolean
 }
 
 interface PositionHistoryParams {
@@ -150,21 +163,20 @@ const zapEarnServiceApi = createApi({
         }
       },
     }),
-    userPositions: builder.query<Array<EarnPosition>, PositionQueryParams>({
+    userPositions: builder.query<{ positions: Array<UserPosition>; stats?: UserPositionsStats }, PositionQueryParams>({
       query: params => ({
-        url: `/v1/userPositions`,
+        url: `/v1/positions`,
         params,
       }),
-      transformResponse: (response: {
-        data: {
-          positions: Array<EarnPosition>
-        }
-      }) => response.data.positions,
+      transformResponse: (response: UserPositionsApiResponse) => ({
+        positions: response.data.positions,
+        stats: response.data.stats,
+      }),
       async onQueryStarted(agr, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
         } catch {
-          dispatch(zapEarnServiceApi.util.upsertQueryData('userPositions', agr, []))
+          dispatch(zapEarnServiceApi.util.upsertQueryData('userPositions', agr, { positions: [], stats: undefined }))
         }
       },
     }),
@@ -210,11 +222,13 @@ export const {
   useExplorerLandingQuery,
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
+  useLazyPoolsExplorerQuery,
   useUserPositionsQuery,
   usePositionHistoryQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
   usePoolDetailQuery,
+  useLazyPoolDetailQuery,
 } = zapEarnServiceApi
 
 export default zapEarnServiceApi

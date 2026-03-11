@@ -1,0 +1,77 @@
+import { useLingui } from "@lingui/react";
+
+import { ChainId } from "@kyber/schema";
+import { MouseoverTooltip } from "@kyber/ui";
+
+import CollapseInfoItem from "@/TokenInfo/CollapseInfoItem";
+import useSecurityTokenInfo from "@/TokenInfo/useSecurityTokenInfo";
+import LogoGoPlus from "@/assets/goplus.svg?react";
+import IconSecurityContract from "@/assets/security-contract.svg?react";
+import IconSecurityTrading from "@/assets/security-trading.svg?react";
+import IconSecurity from "@/assets/security.svg?react";
+
+const SecurityInfo = ({
+  tokenAddress,
+  chainId,
+}: {
+  tokenAddress: string;
+  chainId: ChainId;
+}) => {
+  const { i18n } = useLingui();
+
+  const { securityInfo, loading } = useSecurityTokenInfo({
+    tokenAddress,
+    chainId,
+    i18n,
+  });
+
+  return (
+    <>
+      <div className="flex items-center justify-between px-4 py-2 text-text bg-icon-200">
+        <div className="flex items-center gap-2">
+          <IconSecurity className="h-6 w-6" />
+          <MouseoverTooltip
+            text={i18n._(
+              "Token security info provided by Goplus. Please conduct your own research before trading",
+            )}
+            width="250px"
+          >
+            <span className="border-dashed border-b border-text">
+              {i18n._("Security Info")}
+            </span>
+          </MouseoverTooltip>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-subText text-[10px]">
+            {i18n._("Powered by")}
+          </span>{" "}
+          <LogoGoPlus className="h-4 w-14" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-[14px] p-[14px]">
+        <CollapseInfoItem
+          icon={<IconSecurityTrading />}
+          title={i18n._("Trading Security")}
+          warning={securityInfo.totalWarningTrading}
+          danger={securityInfo.totalRiskTrading}
+          loading={loading}
+          data={securityInfo.tradingData}
+          totalRisk={securityInfo.totalRiskTrading}
+          totalWarning={securityInfo.totalWarningTrading}
+        />
+        <CollapseInfoItem
+          icon={<IconSecurityContract />}
+          title={i18n._("Contract Security")}
+          warning={securityInfo.totalWarningContract}
+          danger={securityInfo.totalRiskContract}
+          loading={loading}
+          data={securityInfo.contractData}
+          totalRisk={securityInfo.totalRiskContract}
+          totalWarning={securityInfo.totalWarningContract}
+        />
+      </div>
+    </>
+  );
+};
+
+export default SecurityInfo;

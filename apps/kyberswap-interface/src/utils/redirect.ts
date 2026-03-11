@@ -65,7 +65,7 @@ export const useNavigateToUrl = () => {
       try {
         if (!actionURL) return
         if (chainId && chainId !== currentChain) {
-          changeNetwork(chainId, () => redirect(actionURL), undefined, true)
+          changeNetwork(chainId, () => redirect(actionURL))
         } else {
           redirect(actionURL)
         }

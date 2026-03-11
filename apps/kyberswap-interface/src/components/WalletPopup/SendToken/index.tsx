@@ -16,10 +16,12 @@ import CurrencyListHasBalance from 'components/WalletPopup/SendToken/CurrencyLis
 import WarningBrave from 'components/WalletPopup/SendToken/WarningBrave'
 import useSendToken from 'components/WalletPopup/SendToken/useSendToken'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -76,6 +78,7 @@ export default function SendToken({
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
   const balance = useCurrencyBalance(currencyIn)
   const maxAmountInput = maxAmountSpend(balance)
 
@@ -127,6 +130,15 @@ export default function SendToken({
         showConfirm: true,
         pendingText: t`Sending ${inputAmount} ${inSymbol} to ${recipient}`,
       }))
+      trackingHandler(TRACKING_EVENT_TYPE.WALLET_SEND_INITIATED, {
+        token_symbol: inSymbol,
+        token_address: currencyIn?.wrapped.address,
+        amount: inputAmount,
+        amount_usd: estimateUsd,
+        recipient_address: recipient,
+        chain: NETWORKS_INFO[chainId]?.name,
+        wallet_address: account,
+      })
       await sendToken()
       hideModalConfirm()
       setInputAmount('')

@@ -1,13 +1,9 @@
-import { ChainId, PoolType, Theme, ZapRouteDetail } from '@kyber/schema';
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
+import { ChainId, PoolType, Theme, TxStatus } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
 
-export enum TxStatus {
-  INIT = 'init',
-  PENDING = 'pending',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-}
+export { TxStatus };
 
 export interface WidgetProps {
   theme?: Theme;
@@ -16,6 +12,7 @@ export interface WidgetProps {
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
+  dexId?: string;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;
@@ -32,8 +29,10 @@ export interface WidgetProps {
     feeAddress: string;
   };
   referral?: string;
+  fromCreatePoolFlow?: boolean;
   initialTick?: { tickLower: number; tickUpper: number };
-  zapStatus?: Record<string, TxStatus>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   onClose?: () => void;
   onConnectWallet: () => void;
@@ -50,13 +49,19 @@ export interface WidgetProps {
   onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    additionalInfo?: {
-      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
-      pool: string;
-      dexLogo: string;
-    },
+    additionalInfo?:
+      | {
+          type: 'zap';
+          tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+          pool: string;
+          dexLogo: string;
+        }
+      | ApprovalAdditionalInfo,
   ) => Promise<string>;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
+  onSetUpSmartExit?: (params: { tokenId: string; chainId: ChainId; poolType: PoolType } | undefined) => void;
+  onEvent?: (eventName: string, data?: Record<string, any>) => void;
 }
 
 export interface OnSuccessProps {
@@ -64,7 +69,6 @@ export interface OnSuccessProps {
   position: {
     positionId?: string;
     chainId: number;
-    poolType: PoolType;
     dexLogo: string;
     token0: {
       address: string;
@@ -92,8 +96,9 @@ export enum PriceType {
   MaxPrice = 'MaxPrice',
 }
 
-export interface ZapSnapshotState {
-  zapInfo: ZapRouteDetail;
-  deadline: number;
+export interface BuildDataWithGas {
+  callData: string;
+  routerAddress: string;
+  value: string;
   gasUsd: number;
 }
