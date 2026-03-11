@@ -4960,8 +4960,8 @@ msgid "Eligible Transactions"
 msgstr "Eligible Transactions"
 
 #: src/pages/Campaign/constants.tsx
-msgid "Place order"
-msgstr "Place order"
+msgid "Place Order"
+msgstr "Place Order"
 
 #: src/components/Toggle/LegacyToggle.tsx
 msgid "Off"

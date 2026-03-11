@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
-import { CampaignWeek } from 'pages/Campaign/constants'
 import { StatCard } from 'pages/Campaign/styles'
+import { CampaignWeek } from 'pages/Campaign/timelines'
 
 const formatCountdown = (totalSeconds: number): string => {
   const totalDays = Math.floor(totalSeconds / 86400)
