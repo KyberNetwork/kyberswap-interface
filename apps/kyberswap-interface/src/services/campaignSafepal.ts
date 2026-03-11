@@ -117,7 +117,7 @@ export type SafePalCampaignTransactions = {
   items: SafePalCampaignTransaction[]
 }
 
-const SAFEPAL_CAMPAIGN_API_BASE_URL = 'https://common-service.kyberswap.com/api/v1/x7k2m9p4'
+const SAFEPAL_CAMPAIGN_API_BASE_URL = 'https://common-service.kyberswap.com/api/v1/safepal'
 
 const extractSafePalData = <T>(response: SafePalApiResponse<T>) => response.data
 
