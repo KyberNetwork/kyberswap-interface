@@ -214,11 +214,6 @@ export default function App() {
     }
   }, [chainId, networkInfo.name])
 
-  useEffect(() => {
-    console.log(123, window.location.hostname)
-    console.log(456, window.location.hostname.endsWith('.pr.kyberengineering.io'))
-  }, [])
-
   useGlobalTrackingEvents()
   const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
