@@ -19,27 +19,21 @@ const formatShortDateUtc = (timestamp: number) =>
   })
 
 export const safepalClaimWeeks = [
-  { value: 1, start: utcSeconds('2026-03-07T00:00:00.000Z'), end: utcSeconds('2026-03-10T00:00:00.000Z') },
-  { value: 2, start: utcSeconds('2026-03-10T00:00:00.000Z'), end: utcSeconds('2026-03-13T00:00:00.000Z') },
-  { value: 3, start: utcSeconds('2026-03-13T00:00:00.000Z'), end: utcSeconds('2026-03-16T00:00:00.000Z') },
-  // { value: 1, start: utcSeconds('2026-03-24T08:00:00.000Z'), end: utcSeconds('2026-03-30T08:00:00.000Z') },
-  // { value: 2, start: utcSeconds('2026-03-31T08:00:00.000Z'), end: utcSeconds('2026-04-06T08:00:00.000Z') },
-  // { value: 3, start: utcSeconds('2026-04-07T08:00:00.000Z'), end: utcSeconds('2026-04-13T08:00:00.000Z') },
-  // { value: 4, start: utcSeconds('2026-04-14T08:00:00.000Z'), end: utcSeconds('2026-04-20T08:00:00.000Z') },
-  // { value: 5, start: utcSeconds('2026-04-21T08:00:00.000Z'), end: utcSeconds('2026-04-27T08:00:00.000Z') },
-  // { value: 6, start: utcSeconds('2026-04-28T08:00:00.000Z'), end: utcSeconds('2026-05-04T08:00:00.000Z') },
+  { value: 1, start: utcSeconds('2026-03-24T08:00:00.000Z'), end: utcSeconds('2026-03-30T08:00:00.000Z') },
+  { value: 2, start: utcSeconds('2026-03-31T08:00:00.000Z'), end: utcSeconds('2026-04-06T08:00:00.000Z') },
+  { value: 3, start: utcSeconds('2026-04-07T08:00:00.000Z'), end: utcSeconds('2026-04-13T08:00:00.000Z') },
+  { value: 4, start: utcSeconds('2026-04-14T08:00:00.000Z'), end: utcSeconds('2026-04-20T08:00:00.000Z') },
+  { value: 5, start: utcSeconds('2026-04-21T08:00:00.000Z'), end: utcSeconds('2026-04-27T08:00:00.000Z') },
+  { value: 6, start: utcSeconds('2026-04-28T08:00:00.000Z'), end: utcSeconds('2026-05-04T08:00:00.000Z') },
 ]
 
 export const safepalWeeks: CampaignWeek[] = [
-  { value: 1, start: utcSeconds('2026-03-04T00:00:00.000Z'), end: utcSeconds('2026-03-07T00:00:00.000Z') - 1 },
-  { value: 2, start: utcSeconds('2026-03-07T00:00:00.000Z'), end: utcSeconds('2026-03-10T00:00:00.000Z') - 1 },
-  { value: 3, start: utcSeconds('2026-03-10T00:00:00.000Z'), end: utcSeconds('2026-03-13T00:00:00.000Z') - 1 },
-  // { value: 1, start: utcSeconds('2026-03-16T08:00:00.000Z'), end: utcSeconds('2026-03-23T08:00:00.000Z') },
-  // { value: 2, start: utcSeconds('2026-03-23T08:00:00.000Z'), end: utcSeconds('2026-03-30T08:00:00.000Z') },
-  // { value: 3, start: utcSeconds('2026-03-30T08:00:00.000Z'), end: utcSeconds('2026-04-06T08:00:00.000Z') },
-  // { value: 4, start: utcSeconds('2026-04-06T08:00:00.000Z'), end: utcSeconds('2026-04-13T08:00:00.000Z') },
-  // { value: 5, start: utcSeconds('2026-04-13T08:00:00.000Z'), end: utcSeconds('2026-04-20T08:00:00.000Z') },
-  // { value: 6, start: utcSeconds('2026-04-20T08:00:00.000Z'), end: utcSeconds('2026-04-27T08:00:00.000Z') },
+  { value: 1, start: utcSeconds('2026-03-16T08:00:00.000Z'), end: utcSeconds('2026-03-23T08:00:00.000Z') },
+  { value: 2, start: utcSeconds('2026-03-23T08:00:00.000Z'), end: utcSeconds('2026-03-30T08:00:00.000Z') },
+  { value: 3, start: utcSeconds('2026-03-30T08:00:00.000Z'), end: utcSeconds('2026-04-06T08:00:00.000Z') },
+  { value: 4, start: utcSeconds('2026-04-06T08:00:00.000Z'), end: utcSeconds('2026-04-13T08:00:00.000Z') },
+  { value: 5, start: utcSeconds('2026-04-13T08:00:00.000Z'), end: utcSeconds('2026-04-20T08:00:00.000Z') },
+  { value: 6, start: utcSeconds('2026-04-20T08:00:00.000Z'), end: utcSeconds('2026-04-27T08:00:00.000Z') },
 ].map(({ value, start, end }) => {
   return {
     value,
