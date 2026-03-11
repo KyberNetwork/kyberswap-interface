@@ -15,20 +15,19 @@ import InfoHelper from 'components/InfoHelper'
 import { TokenLogoWithChain } from 'components/Logo'
 import { NewLabel } from 'components/Menu'
 import Modal from 'components/Modal'
-import { APP_PATHS, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-import { useNavigateToUrl } from 'utils/redirect'
 
-import ClaimBtn from './components/ClaimBtn'
-import MyNearIntentDashboard from './components/MyDashboard/MyNearIntentDashboard'
-import MyRaffleDashboard from './components/MyDashboard/MyRaffleDashboard'
-import MyReferralDashboard from './components/MyDashboard/MyReferralDashboard'
+import ClaimButton from './components/ClaimButton'
+import NearIntentDashboard from './components/MyDashboard/NearIntentDashboard'
+import RaffleDashboard from './components/MyDashboard/RaffleDashboard'
+import ReferralDashboard from './components/MyDashboard/ReferralDashboard'
+import SafePalDashboard from './components/MyDashboard/SafePalDashboard'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentCampaignReward } from './hooks/useNearIntentCampaignReward'
 import { Tab, Tabs, Wrapper } from './styles'
@@ -61,22 +60,24 @@ export function getDateOfWeek(w: number, y: number) {
   return new Date(y, 0, d)
 }
 
-const NEW_CAMPAIGN = CampaignType.Raffle
+const NEW_CAMPAIGN = CampaignType.SafePal
 
 const MyDashboard = () => {
-  const { account } = useActiveWeb3React()
-  const navigate = useNavigateToUrl()
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const [searchParams, setSearchParams] = useSearchParams()
+
   const tab: CampaignType = (searchParams.get('tab') || NEW_CAMPAIGN) as CampaignType
-  const changeTab = (t: CampaignType) => {
-    searchParams.set('tab', t)
+
+  const changeTab = (tab: CampaignType) => {
+    searchParams.set('tab', tab)
     setSearchParams(searchParams)
   }
 
   const { reward, baseWeek, banner } = campaignConfig[tab]
 
   const campaignLabelMap: Record<CampaignType, string> = {
+    [CampaignType.SafePal]: t`SafePal`,
     [CampaignType.Raffle]: t`Weekly Rewards`,
     [CampaignType.NearIntents]: t`Cross Chain`,
     [CampaignType.MayTrading]: t`May Trading`,
@@ -103,9 +104,7 @@ const MyDashboard = () => {
       campaign: 'trading-incentive',
       wallet: account || '',
     },
-    {
-      skip: !account,
-    },
+    { skip: !account },
   )
 
   const { data: stipTrading } = useGetUserWeeklyRewardQuery(
@@ -114,9 +113,7 @@ const MyDashboard = () => {
       campaign: 'trading-incentive',
       wallet: account || '',
     },
-    {
-      skip: !account,
-    },
+    { skip: !account },
   )
 
   const { data: stipLoData } = useGetUserWeeklyRewardQuery(
@@ -125,9 +122,7 @@ const MyDashboard = () => {
       campaign: 'limit-order-farming',
       wallet: account || '',
     },
-    {
-      skip: !account,
-    },
+    { skip: !account },
   )
 
   const nearIntentCampaingReward = useNearIntentCampaignReward()
@@ -141,7 +136,14 @@ const MyDashboard = () => {
     totalNearCampaignReward.toString(),
   )
 
-  const data = tab === CampaignType.MayTrading ? mayTrading : tab === CampaignType.Aggregator ? stipTrading : stipLoData
+  const data =
+    tab === CampaignType.MayTrading
+      ? mayTrading
+      : tab === CampaignType.Aggregator
+      ? stipTrading
+      : tab === CampaignType.LimitOrder
+      ? stipLoData
+      : undefined
 
   const stipTradingRw = CurrencyAmount.fromRawAmount(mockToken, stipTrading?.data?.totalReward?.split('.')[0] || '0')
   const stipLoRw = CurrencyAmount.fromRawAmount(mockToken, stipLoData?.data?.totalReward?.split('.')[0] || '0')
@@ -227,6 +229,10 @@ const MyDashboard = () => {
 
   const endedCampaigns = [
     {
+      type: CampaignType.Raffle,
+      label: campaignLabelMap[CampaignType.Raffle],
+    },
+    {
       type: CampaignType.NearIntents,
       label: campaignLabelMap[CampaignType.NearIntents],
     },
@@ -289,10 +295,6 @@ const MyDashboard = () => {
     <Wrapper>
       <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
       <Flex marginTop="1.5rem" mb="1.5rem" sx={{ gap: '10px' }}>
-        <IconArrowLeft
-          style={{ cursor: 'pointer', position: 'relative', top: '7px' }}
-          onClick={() => navigate(APP_PATHS.NEAR_INTENTS_CAMPAIGN)}
-        />
         <Text fontSize={24} fontWeight="500">
           <Trans>My Dashboard</Trans>
         </Text>
@@ -447,16 +449,18 @@ const MyDashboard = () => {
         </Modal>
       </Tabs>
 
-      {tab === CampaignType.NearIntents ? (
-        <MyNearIntentDashboard />
-      ) : !account ? (
+      {!account ? (
         <Text marginTop="30px" textAlign="center" color={theme.subText}>
           <Trans>Please connect wallet to view your Dashboard</Trans>
         </Text>
-      ) : tab === CampaignType.Referrals ? (
-        <MyReferralDashboard price={stipRewardPrice} infor={infor} />
+      ) : tab === CampaignType.SafePal ? (
+        <SafePalDashboard />
       ) : tab === CampaignType.Raffle ? (
-        <MyRaffleDashboard />
+        <RaffleDashboard />
+      ) : tab === CampaignType.NearIntents ? (
+        <NearIntentDashboard />
+      ) : tab === CampaignType.Referrals ? (
+        <ReferralDashboard price={stipRewardPrice} infor={infor} />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
@@ -577,7 +581,7 @@ const MyDashboard = () => {
                         {item.isClaimed ? <Trans>Claimed</Trans> : <Trans>Claim</Trans>}
                       </ButtonOutlined>
                     ) : (
-                      <ClaimBtn info={item.claimInfo} />
+                      <ClaimButton info={item.claimInfo} />
                     )}
                   </Flex>
 
@@ -664,7 +668,7 @@ const MyDashboard = () => {
                       {item.isClaimed ? <Trans>Claimed</Trans> : <Trans>Claim</Trans>}
                     </ButtonOutlined>
                   ) : (
-                    <ClaimBtn info={item.claimInfo} />
+                    <ClaimButton info={item.claimInfo} />
                   )}
                 </Flex>
               </TableRow>

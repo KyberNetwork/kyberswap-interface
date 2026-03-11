@@ -5,6 +5,7 @@ import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
 import campaignApi from 'services/campaign'
 import raffleCampaignApi from 'services/campaignRaffle'
+import safepalCampaignApi from 'services/campaignSafepal'
 import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
@@ -118,6 +119,7 @@ const store = configureStore({
     [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [raffleCampaignApi.reducerPath]: raffleCampaignApi.reducer,
+    [safepalCampaignApi.reducerPath]: safepalCampaignApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
@@ -155,6 +157,7 @@ const store = configureStore({
       .concat(kyberdataServiceApi.middleware)
       .concat(referralApi.middleware)
       .concat(raffleCampaignApi.middleware)
+      .concat(safepalCampaignApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)
       .concat(blackjackApi.middleware)

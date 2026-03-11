@@ -1,26 +1,21 @@
 # Explore Codebase
 
-Analyze this codebase and provide a comprehensive overview:
+Analyze and explain the specified area of the codebase.
 
-## Tasks
+**Target**: $ARGUMENTS
 
-1. **Project Structure**: Map out the directory structure and explain the purpose of each major directory
+## Instructions
 
-2. **Tech Stack**: Identify all major technologies, frameworks, and libraries used
+- If no target is specified, provide a high-level overview of the project structure
+- If a directory or feature area is specified, dive deep into that area
+- Use the Explore agent for thorough analysis
 
-3. **Entry Points**: Find the main entry points for each app and package
-
-4. **Key Patterns**: Identify recurring code patterns, architectural decisions, and conventions
-
-5. **Dependencies**: List key internal and external dependencies
-
-6. **Build System**: Understand how the monorepo is structured and built
-
-## Output Format
+## Output
 
 Provide a structured summary with:
 
-- High-level architecture diagram (ASCII)
-- Key files and their purposes
-- Important conventions to follow
-- Potential areas of improvement or technical debt
+- Purpose and responsibility of the target area
+- Key files and their roles
+- Patterns and conventions used
+- How it connects to other parts of the codebase
+- Any notable technical debt or areas for improvement
