@@ -122,7 +122,10 @@ const ReactApp = () => {
   useEffect(hideLoader, [])
   return (
     <StrictMode>
-      <FormoAnalyticsProvider writeKey={FORMO_WRITE_KEY}>
+      <FormoAnalyticsProvider
+        writeKey={FORMO_WRITE_KEY}
+        disabled={window.location.hostname.endsWith('.pr.kyberengineering.io')}
+      >
         <FixedGlobalStyle />
         <Provider store={store}>
           <BrowserRouter>
