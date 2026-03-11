@@ -14,9 +14,10 @@ type AnnouncementResponse<T extends PrivateAnnouncement | Announcement = Announc
 }
 
 const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcement = Announcement>(data: any) => {
-  const { metaMessages, notifications, ...rest } = data.data || {}
+  const { metaMessages, notifications, numberOfUnread = 0, ...rest } = data.data || {}
   return {
     ...rest,
+    numberOfUnread,
     notifications: (metaMessages ?? notifications ?? []).map((e: any) => {
       let templateBody = {}
       try {
@@ -34,6 +35,7 @@ type Params = {
   page: number
   account?: string
   pageSize?: number
+  userId?: string
 }
 
 type ParamsPrivate = {
@@ -174,6 +176,7 @@ const announcementApi = createApi({
 
 export const publicAnnouncementApi = createApi({
   reducerPath: 'publicAnnouncementApi',
+  tagTypes: [RTK_QUERY_TAGS.GET_PUBLIC_ANN],
   baseQuery: fetchBaseQuery({ baseUrl: NOTIFICATION_API }),
   endpoints: builder => ({
     getAnnouncements: builder.query<AnnouncementResponse<Announcement>, Params>({
@@ -182,11 +185,33 @@ export const publicAnnouncementApi = createApi({
         params,
       }),
       transformResponse: transformResponseAnnouncement,
+      providesTags: [RTK_QUERY_TAGS.GET_PUBLIC_ANN],
+    }),
+    markAnnouncementAsRead: builder.mutation<Response, { userId: string; metaMessageId: number }>({
+      query: body => ({
+        url: `/v1/messages/announcements/mark-read`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_PUBLIC_ANN],
+    }),
+    markAllAnnouncementsAsRead: builder.mutation<Response, { userId: string }>({
+      query: body => ({
+        url: `/v1/messages/announcements/mark-all-read`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_PUBLIC_ANN],
     }),
   }),
 })
 
-export const { useGetAnnouncementsQuery, useLazyGetAnnouncementsQuery } = publicAnnouncementApi
+export const {
+  useGetAnnouncementsQuery,
+  useLazyGetAnnouncementsQuery,
+  useMarkAnnouncementAsReadMutation,
+  useMarkAllAnnouncementsAsReadMutation,
+} = publicAnnouncementApi
 
 export const {
   useLazyGetPrivateAnnouncementsQuery,
