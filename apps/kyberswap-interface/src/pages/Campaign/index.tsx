@@ -136,25 +136,38 @@ export default function CampaignPage() {
         >
           <WeekSelect type={type} selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
 
-          <ButtonPrimary
-            altDisabledStyle
-            width={upToExtraSmall ? '100%' : '160px'}
-            height="40px"
-            disabled={isJoinedCampaign || isRaffleNotEligible || !isJoinAvailable}
-            onClick={() => {
-              if (isRaffleCampaign || isSafePalCampaign) {
-                if (!account) {
-                  toggleWalletModal()
+          {isSafePalCampaign && isSafePalJoined ? (
+            <ButtonPrimary
+              altDisabledStyle
+              width={upToExtraSmall ? '100%' : '160px'}
+              height="40px"
+              onClick={() => {
+                navigate('/')
+              }}
+            >
+              {t`Trade Now`}
+            </ButtonPrimary>
+          ) : (
+            <ButtonPrimary
+              altDisabledStyle
+              width={upToExtraSmall ? '100%' : '160px'}
+              height="40px"
+              disabled={isJoinedCampaign || isRaffleNotEligible || !isJoinAvailable}
+              onClick={() => {
+                if (isRaffleCampaign || isSafePalCampaign) {
+                  if (!account) {
+                    toggleWalletModal()
+                  } else {
+                    setIsJoinModalOpen(true)
+                  }
                 } else {
-                  setIsJoinModalOpen(true)
+                  navigate(ctaLink)
                 }
-              } else {
-                navigate(ctaLink)
-              }
-            }}
-          >
-            {isRaffleJoinedByWeek || isSafePalJoined ? t`Joined` : ctaText}
-          </ButtonPrimary>
+              }}
+            >
+              {isRaffleJoinedByWeek || isSafePalJoined ? t`Joined` : ctaText}
+            </ButtonPrimary>
+          )}
         </Flex>
       )}
 
