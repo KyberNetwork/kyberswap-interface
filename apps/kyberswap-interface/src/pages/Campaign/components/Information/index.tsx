@@ -175,7 +175,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
 
       <Divider style={{ marginTop: '20px' }} />
 
-      <Flex justifyContent="space-between" marginTop="20px">
+      <Flex id="terms-and-conditions" justifyContent="space-between" marginTop="20px" sx={{ scrollMarginTop: 20 }}>
         <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
           {t`📄 Terms & Conditions`}
         </Flex>
