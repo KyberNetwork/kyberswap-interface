@@ -98,7 +98,7 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
   )
 }
 
-const SwapFee: React.FC = () => {
+const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
 
@@ -113,11 +113,13 @@ const SwapFee: React.FC = () => {
   }
 
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
+  const labelColor = isFeeTampered ? theme.warning : theme.subText
+  const valueColor = isFeeTampered ? theme.warning : theme.text
 
   return (
     <RowBetween>
       <RowFixed>
-        <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+        <TextDashed fontSize={12} fontWeight={400} color={labelColor}>
           <MouseoverTooltip
             text={
               isInSafeApp ? (
@@ -139,7 +141,7 @@ const SwapFee: React.FC = () => {
       </RowFixed>
 
       <RowFixed>
-        <TYPE.black color={theme.text} fontSize={12}>
+        <TYPE.black color={valueColor} fontSize={12}>
           {isInSafeApp ? '0.1%' : feeAmountUsd || feeAmountWithSymbol || '--'}
         </TYPE.black>
       </RowFixed>
@@ -285,7 +287,7 @@ const TradeSummary: React.FC<Props> = ({
           </TYPE.black>
         </RowBetween>
 
-        <SwapFee />
+        <SwapFee isFeeTampered={isFeeTampered} />
 
         {isFeeTampered && (
           <Flex
@@ -301,9 +303,9 @@ const TradeSummary: React.FC<Props> = ({
               <Trans>
                 <b>Third-party fee detected</b>
                 <br />
-                KyberSwap does not charge a flat swap fee on this trade. An extra fee has been added by a browser
-                extension or another third-party modification, not by KyberSwap. Please review your browser extensions
-                before proceeding.
+                An additional fee appears to have been added by a browser extension or other third-party modification,
+                not by KyberSwap. KyberSwap does not charge a flat fee for this trade by default. Please review your
+                browser extensions before proceeding.
               </Trans>
             </Text>
           </Flex>
