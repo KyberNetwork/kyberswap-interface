@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -6,6 +7,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import { AutoColumn } from 'components/Column'
+import WarningIcon from 'components/Icons/WarningIcon'
 import RefreshLoading from 'components/RefreshLoading'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
@@ -151,8 +153,16 @@ type Props = {
   disableRefresh: boolean
   routeLoading: boolean
   refreshCallback: () => void
+  isFeeTampered?: boolean
 }
-const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback, routeLoading }) => {
+const TradeSummary: React.FC<Props> = ({
+  routeSummary,
+  slippage,
+  disableRefresh,
+  refreshCallback,
+  routeLoading,
+  isFeeTampered,
+}) => {
   const theme = useTheme()
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact } = routeSummary || {}
@@ -276,6 +286,28 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
         </RowBetween>
 
         <SwapFee />
+
+        {isFeeTampered && (
+          <Flex
+            sx={{
+              borderRadius: '12px',
+              background: rgba(theme.warning, 0.3),
+              padding: '10px 12px',
+              gap: '8px',
+            }}
+          >
+            <WarningIcon color={theme.warning} size={16} />
+            <Text fontSize={12} flex={1}>
+              <Trans>
+                <b>Third-party fee detected</b>
+                <br />
+                KyberSwap does not charge a flat swap fee on this trade. An extra fee has been added by a browser
+                extension or another third-party modification, not by KyberSwap. Please review your browser extensions
+                before proceeding.
+              </Trans>
+            </Text>
+          </Flex>
+        )}
       </AutoColumn>
     </Wrapper>
   )
