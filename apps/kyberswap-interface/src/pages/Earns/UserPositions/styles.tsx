@@ -35,7 +35,18 @@ export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
   row-gap: 8px;
   text-decoration: none;
   color: inherit !important;
-  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : 'transparent')};
+  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : theme.background)};
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 28px;
+    right: 28px;
+    height: 1px;
+    background: ${({ theme }) => theme.tableHeader};
+  }
 
   @media (max-width: 1300px) {
     justify-content: flex-start;
@@ -45,6 +56,10 @@ export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
     background: ${({ theme, $isUnfinalized }) =>
       $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
     margin-bottom: 16px;
+
+    &::after {
+      display: none;
+    }
   }
 
   ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
@@ -55,15 +70,25 @@ export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
     background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
     position: relative;
     border-radius: 0;
+
+    &::after {
+      left: 16px;
+      right: 16px;
+      display: block;
+    }
   `}
 
   &:last-child {
     margin-bottom: 0;
+
+    &::after {
+      display: none;
+    }
   }
 
   &:hover {
     cursor: pointer;
-    background: #31cb9e1a;
+    background: ${({ theme }) => rgba(theme.primary, 0.1)};
   }
 `
 
@@ -340,7 +365,26 @@ export const PositionTableHeader = styled(TableHeader)`
     minmax(150px, 0.4fr) /* Balance */
     minmax(160px, 1.8fr) /* Price range */
     minmax(75px, auto); /* Actions */
-  overflow: hidden;
+  overflow: visible;
+  background: ${({ theme }) => theme.background};
+  border-radius: 20px 20px 0 0;
+  padding: 16px 28px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.subText};
+  border-bottom: none;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 28px;
+    right: 28px;
+    height: 1px;
+    background: ${({ theme }) => theme.tableHeader};
+  }
 `
 
 export const PositionTableHeaderItem = styled.div`
@@ -362,9 +406,12 @@ export const PositionTableHeaderFlexItem = styled(Flex)`
 
 export const PositionTableWrapper = styled(TableWrapper)`
   overflow: hidden;
+  background: ${({ theme }) => theme.background};
+  border-radius: 20px;
 
   @media (max-width: 1300px) {
     background: transparent;
+    border-radius: 0;
   }
 `
 

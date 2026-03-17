@@ -5,9 +5,11 @@ export const PaginationContainer = styled.ul`
   display: flex;
   justify-content: center;
   list-style-type: none;
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => rgba(theme.subText, 0.04)};
   margin: 0;
-  padding: 16px;
+  padding: 12px;
+  gap: 4px;
+  border-radius: 0 0 20px 20px;
 `
 
 export const PaginationItem = styled.li<{ $disabled?: boolean; $selected?: boolean }>`
@@ -42,22 +44,20 @@ export const PaginationButton = styled.div<{ active?: boolean; haveBg?: boolean 
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  background: ${({ theme, active, haveBg }) =>
-    !haveBg
-      ? active
-        ? theme.background
-        : rgba(theme.background, 0.4)
-      : active
-      ? theme.buttonBlack
-      : rgba(theme.buttonBlack, 0.4)};
   padding: 0;
   border-radius: 50%;
 
+  color: ${({ theme, active }) => (active ? theme.primary : rgba(theme.white, 0.6))};
+  background: ${({ theme, active, haveBg }) =>
+    !haveBg
+      ? active
+        ? rgba(theme.black, 0.48)
+        : rgba(theme.black, 0.2)
+      : active
+      ? theme.buttonBlack
+      : rgba(theme.buttonBlack, 0.4)};
+
   &:hover {
-    background: ${({ theme, haveBg }) => (haveBg ? theme.buttonBlack : theme.background)};
+    background: ${({ theme, haveBg }) => (haveBg ? theme.buttonBlack : rgba(theme.black, 0.4))};
   }
 `
