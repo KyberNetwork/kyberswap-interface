@@ -1,5 +1,5 @@
 import { formatAprNumber } from '@kyber/utils'
-import { shortenAddress } from '@kyber/utils/dist/crypto'
+import { shortenAddress } from '@kyber/utils/crypto'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -11,7 +11,7 @@ import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { Pool } from 'pages/Earns/PoolDetail/types'
+import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 
@@ -99,20 +99,15 @@ const TooltipAddress = styled(Text)`
   font-size: 14px;
 `
 
-interface PoolHeaderProps {
-  pool?: Pool
-  chainId?: number
-  exchange?: string
-}
-
-const PoolHeader = ({ pool, chainId, exchange }: PoolHeaderProps) => {
+const PoolHeader = () => {
+  const { pool, poolParams } = usePoolDetailContext()
   const navigate = useNavigate()
   const theme = useTheme()
 
   const primaryToken = pool?.tokens?.[0]
   const secondaryToken = pool?.tokens?.[1]
-  const dexInfo = exchange ? EARN_DEXES[exchange as Exchange] : undefined
-  const chainInfo = chainId ? NETWORKS_INFO[chainId as ChainId] : undefined
+  const dexInfo = poolParams.exchange ? EARN_DEXES[poolParams.exchange as Exchange] : undefined
+  const chainInfo = poolParams.poolChainId ? NETWORKS_INFO[poolParams.poolChainId as ChainId] : undefined
 
   const pairTooltip = (
     <TooltipContent>

@@ -1,287 +1,241 @@
-import { PoolType, univ3Types } from '@kyber/schema'
+import { NATIVE_TOKEN_ADDRESS, PoolType, Pool as ZapPool } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useBuildZapInRouteMutation } from 'services/zapInService'
+import { useEffect, useMemo, useState } from 'react'
+import { Text } from 'rebass'
+import { useGetHoneypotInfoQuery } from 'services/zapInService'
+import styled from 'styled-components'
 
-import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { AddLiquidityRoutePreviewProps } from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityRoutePreview'
-import AddLiquidityWidgetSkeleton from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetSkeleton'
-import AddLiquidityWidgetView from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetView'
-import useAddLiquidityApproval from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityApproval'
-import useAddLiquidityReviewData from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityReviewData'
-import useAddLiquiditySecurityWarnings from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquiditySecurityWarnings'
-import useAddLiquidityState from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityState'
-import useAddLiquidityValidation from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityValidation'
-import useAddLiquidityWidgetActions from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityWidgetActions'
+import { ButtonErrorStyle, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { HStack, Stack } from 'components/Stack'
+import AddLiquiditySettings from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings'
+import AddLiquidityTokenInput from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityTokenInput'
+import PositionApr from 'pages/Earns/PoolDetail/AddLiquidity/components/PositionApr'
+import PriceSection from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection'
+import SlippageControl from 'pages/Earns/PoolDetail/AddLiquidity/components/SlippageControl'
+import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
+import useApproval from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useApproval'
+import useZapActions from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapActions'
+import useZapState from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
+import { getSecurityWarnings } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
-import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
-import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
-import { submitTransaction } from 'pages/Earns/utils'
-import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useDegenModeManager } from 'state/user/hooks'
-import { getCookieValue } from 'utils'
 
-const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
-  LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
-  LIQ_MAX_CLICKED: TRACKING_EVENT_TYPE.LIQ_MAX_CLICKED,
-  LIQ_HALF_CLICKED: TRACKING_EVENT_TYPE.LIQ_HALF_CLICKED,
-  LIQ_EXISTING_POSITION_SELECTED: TRACKING_EVENT_TYPE.LIQ_EXISTING_POSITION_SELECTED,
-  PRICE_RANGE_PRESET_SELECTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED,
-  PRICE_RANGE_ADJUSTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_ADJUSTED,
-  LIQ_MAX_SLIPPAGE_CHANGED: TRACKING_EVENT_TYPE.LIQ_MAX_SLIPPAGE_CHANGED,
+const FormStack = styled(Stack)`
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  background: ${({ theme }) => theme.background};
+`
+
+const WidgetTitle = styled(Text)`
+  color: ${({ theme }) => theme.text};
+  font-weight: 500;
+  letter-spacing: 0.06em;
+`
+
+interface AddLiquidityWidgetContext {
+  chainId: ChainId
+  poolAddress: string
+  poolType: PoolType
+  pool: ZapPool
+}
+
+interface AddLiquidityWidgetPreview {
+  loading?: boolean
+  onPreview?: (permitData?: string) => Promise<void>
 }
 
 interface AddLiquidityWidgetProps {
-  exchange?: string
-  poolAddress?: string
-  chainId?: number
-  positionId?: string
-  tickLower?: string | null
-  tickUpper?: string | null
-  onRoutePreviewDataChange?: (data: AddLiquidityRoutePreviewProps | null) => void
+  context: AddLiquidityWidgetContext
+  state: ReturnType<typeof useZapState>
+  isZapImpactBlocked: boolean
+  preview?: AddLiquidityWidgetPreview
+  onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
+  onCancel?: () => void
 }
 
-const AddLiquidityWidget = ({
-  exchange,
-  poolAddress,
-  chainId,
-  positionId,
-  tickLower,
-  tickUpper,
-  onRoutePreviewDataChange,
-}: AddLiquidityWidgetProps) => {
-  const navigate = useNavigate()
-  const toggleWalletModal = useWalletModalToggle()
-  const { account } = useActiveWeb3React()
-  const { library, chainId: walletChainId } = useWeb3React()
-  const { trackingHandler } = useTracking()
-  const { changeNetwork } = useChangeNetwork()
-  const deadline = useTransactionDeadline()
-  const addTransactionWithType = useTransactionAdder()
-  const [isDegenMode] = useDegenModeManager()
-  const [buildZapInRoute, buildRouteState] = useBuildZapInRouteMutation()
-  const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
+export default function AddLiquidityWidget({
+  context,
+  state,
+  isZapImpactBlocked,
+  preview,
+  onTrackEvent,
+  onCancel,
+}: AddLiquidityWidgetProps) {
+  const { chainId: poolChainId, poolAddress, poolType, pool } = context
+  const { account, toggleWalletModal } = useAddLiquidityRuntimeContext()
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [highlightDegenMode, setHighlightDegenMode] = useState(false)
 
-  const normalizedExchange = exchange as Exchange | undefined
-  const normalizedChainId = chainId as ChainId | undefined
-  const { rpc: defaultRpcUrl } = useKyberSwapConfig(normalizedChainId)
-  const poolType = normalizedExchange ? (ZAPIN_DEX_MAPPING[normalizedExchange] as unknown as PoolType) : undefined
-  const parsedTickLower = tickLower && !Number.isNaN(Number(tickLower)) ? Number(tickLower) : null
-  const parsedTickUpper = tickUpper && !Number.isNaN(Number(tickUpper)) ? Number(tickUpper) : null
-  const referral = getCookieValue('refCode')
+  const route = state.route.data
+  const validationError = state.validation.error
 
-  const state = useAddLiquidityState({
-    chainId: normalizedChainId || ChainId.MAINNET,
-    poolAddress: poolAddress || '',
-    poolType: poolType || PoolType.DEX_UNISWAPV3,
-    account: account || undefined,
-    positionId,
-    initialTick:
-      parsedTickLower !== null && parsedTickUpper !== null
-        ? { tickLower: parsedTickLower, tickUpper: parsedTickUpper }
-        : undefined,
-  })
+  const tokensToCheck = useMemo(() => {
+    return [pool.token0, pool.token1].filter(
+      token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase(),
+    )
+  }, [pool])
 
-  const handleTrackEvent = (eventName: string, data?: Record<string, any>) => {
-    const trackingType = TRACKING_EVENT_MAP[eventName]
-    if (trackingType !== undefined) trackingHandler(trackingType, data)
-  }
-  const { hasPositiveInput, parsedTokensIn, validationError } = useAddLiquidityValidation({
-    tokens: state.tokenInput.tokens,
-    amounts: state.tokenInput.amounts,
-    balances: state.tokenInput.balances,
-    isUniV3: state.priceRange.isUniV3,
-    tickLower: state.priceRange.tickLower,
-    tickUpper: state.priceRange.tickUpper,
-  })
-
-  const reviewData = useAddLiquidityReviewData({
-    chainId: normalizedChainId,
-    exchange: normalizedExchange,
-    poolType,
-    pool: state.pool.data,
-    route: state.route.data,
-    tokens: state.tokenInput.tokens,
-    amounts: state.tokenInput.amounts,
-    prices: state.tokenInput.prices,
-    revertPrice: state.priceRange.revertPrice,
-    poolPrice: state.priceRange.poolPrice,
-    tickLower: state.priceRange.tickLower,
-    tickUpper: state.priceRange.tickUpper,
-    minPrice: state.priceRange.minPrice,
-    maxPrice: state.priceRange.maxPrice,
-    slippage: state.slippage.value,
-  })
-  const securityWarnings = useAddLiquiditySecurityWarnings({
-    chainId: normalizedChainId,
-    pool: state.pool.data,
-  })
-  const routePreviewData = useMemo<AddLiquidityRoutePreviewProps>(
-    () => ({
-      pool: state.pool.data,
-      reviewData,
-      inputTokens: state.tokenInput.tokens,
-    }),
-    [reviewData, state.pool.data, state.tokenInput.tokens],
+  const { data: honeypotInfoMap } = useGetHoneypotInfoQuery(
+    {
+      chainId: poolChainId || ChainId.MAINNET,
+      addresses: tokensToCheck.map(token => token.address),
+    },
+    {
+      skip: !tokensToCheck.length,
+    },
   )
-  const isZapImpactBlocked =
-    !isDegenMode &&
-    reviewData?.estimate?.zapImpact !== null &&
-    reviewData?.estimate?.zapImpact !== undefined &&
-    ['VERY_HIGH', 'INVALID'].includes(reviewData.estimate.zapImpact.level)
-  const approval = useAddLiquidityApproval({
-    account,
-    chainId: normalizedChainId,
-    exchange: normalizedExchange,
-    positionId,
+
+  const securityWarnings = useMemo(
+    () => getSecurityWarnings({ tokens: tokensToCheck, honeypotInfoMap }),
+    [honeypotInfoMap, tokensToCheck],
+  )
+
+  const approval = useApproval({
     tokensIn: state.tokenInput.tokens,
     amountsIn: state.tokenInput.amounts,
-    route: state.route.data,
-    deadline: deadline ? +deadline.toString() : undefined,
-    rpcUrl: defaultRpcUrl,
-    txStatus,
-    txHashMapping: originalToCurrentHash,
-    onSubmitTx: async (txData, additionalInfo) => {
-      if (!library) throw new Error('Wallet is not connected')
-
-      const { txHash, error } = await submitTransaction({ library, txData })
-      if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
-
-      addTrackedTxHash(txHash)
-      addTransactionWithType({
-        hash: txHash,
-        type: TRANSACTION_TYPE.APPROVE,
-        extraInfo: {
-          tokenAddress: additionalInfo?.tokenAddress || '',
-          summary:
-            additionalInfo?.type === 'erc20_approval'
-              ? additionalInfo.tokenSymbol
-              : additionalInfo?.dexName || (normalizedExchange ? EARN_DEXES[normalizedExchange].name : 'Zap Router'),
-        },
-      })
-
-      return txHash
-    },
-  })
-  const actionState = useAddLiquidityWidgetActions({
-    wallet: {
-      account,
-      chainId: normalizedChainId,
-      walletChainId,
-      library,
-      toggleWalletModal,
-      changeNetwork,
-    },
-    routeState: {
-      exchange: normalizedExchange,
-      poolAddress,
-      positionId,
-      deadline: deadline ? +deadline.toString() : undefined,
-      referral,
-      route: state.route.data,
-      routeLoading: state.route.loading,
-      pool: state.pool.data,
-      buildRouteLoading: buildRouteState.isLoading,
-      buildZapInRoute,
-    },
-    formState: {
-      approval,
-      hasPositiveInput,
-      validationError,
-      isZapImpactBlocked,
-      parsedTokensIn,
-    },
-    transactionState: {
-      originalToCurrentHash,
-      txStatusMap: txStatus,
-      clearTracking,
-      addTrackedTxHash,
-      addTransactionWithType,
-    },
-    navigate,
+    route,
   })
 
-  useEffect(() => {
-    onRoutePreviewDataChange?.(routePreviewData)
-  }, [onRoutePreviewDataChange, routePreviewData])
+  const shouldShowFeedback = Boolean(account)
+  const openDegenModeSetting = () => {
+    setIsSettingsOpen(true)
+    setHighlightDegenMode(true)
+  }
+
+  const actions = useZapActions({
+    state,
+    approval,
+    poolChainId,
+    isZapImpactBlocked,
+    onOpenSettings: openDegenModeSetting,
+    preview,
+  })
+
+  const PrimaryActionButton = actions.primaryActionVariant === 'error' ? ButtonErrorStyle : ButtonPrimary
 
   useEffect(() => {
+    if (!highlightDegenMode) return
+
+    document.getElementById('earn-add-liquidity-setting')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+    const timeoutId = window.setTimeout(() => {
+      setHighlightDegenMode(false)
+    }, 4000)
+
     return () => {
-      onRoutePreviewDataChange?.(null)
+      window.clearTimeout(timeoutId)
     }
-  }, [onRoutePreviewDataChange])
-
-  if (!normalizedExchange || !normalizedChainId || !poolAddress || !poolType) {
-    return (
-      <NoteCard $warning>
-        Missing or unsupported pool route params. This page needs `exchange`, `poolChainId`, and `poolAddress`.
-      </NoteCard>
-    )
-  }
-
-  if (state.pool.error) {
-    return <NoteCard $warning>{state.pool.error}</NoteCard>
-  }
-
-  if (state.pool.loading || !state.pool.data) {
-    return <AddLiquidityWidgetSkeleton showPriceRange={Boolean(poolType && univ3Types.includes(poolType as any))} />
-  }
+  }, [highlightDegenMode])
 
   return (
-    <AddLiquidityWidgetView
-      context={{
-        chainId: normalizedChainId,
-        exchange: normalizedExchange,
-        poolAddress,
-        poolType,
-        positionId,
-        account: account || undefined,
-      }}
-      state={state}
-      reviewData={reviewData}
-      initialTick={{
-        tickLower: parsedTickLower,
-        tickUpper: parsedTickUpper,
-      }}
-      feedback={{
-        validationError,
-        securityWarnings,
-        isZapImpactBlocked,
-      }}
-      action={{
-        isApprovalLoading: actionState.isApprovalLoading,
-        needsApprovalAction: actionState.needsApprovalAction,
-        hasPositiveInput,
-        primaryActionText: actionState.primaryActionText,
-        onPrimaryAction: actionState.handlePrimaryAction,
-      }}
-      reviewDialog={{
-        isOpen: actionState.isReviewOpen,
-        confirmDisabled: actionState.confirmDisabled,
-        confirmLoading: actionState.confirmLoading,
-        txHash: actionState.submittedTxHash,
-        txStatus: actionState.modalTxStatus,
-        txError: actionState.submitError,
-        transactionExplorerUrl:
-          actionState.currentTxHash && normalizedChainId
-            ? `${NETWORKS_INFO[normalizedChainId]?.etherscanUrl}/tx/${actionState.currentTxHash}`
-            : undefined,
-        onDismiss: actionState.handleDismissReview,
-        onConfirm: actionState.handleSubmit,
-        onViewPosition: actionState.modalTxStatus === 'success' ? actionState.handleViewPosition : undefined,
-      }}
-      onTrackEvent={handleTrackEvent}
-      onConnectWallet={toggleWalletModal}
-    />
+    <FormStack gap={16}>
+      <Stack gap={12}>
+        <HStack align="center" justify="space-between">
+          <WidgetTitle>ADD LIQUIDITY</WidgetTitle>
+          <AddLiquiditySettings
+            isOpen={isSettingsOpen}
+            onOpenChange={setIsSettingsOpen}
+            highlightDegenMode={highlightDegenMode}
+          />
+        </HStack>
+
+        <AddLiquidityTokenInput
+          context={{
+            chainId: poolChainId,
+            poolAddress,
+            poolType,
+            pool,
+          }}
+          wallet={{
+            address: account || undefined,
+            onConnect: toggleWalletModal,
+          }}
+          value={{
+            tokens: state.tokenInput.tokens,
+            amounts: state.tokenInput.amounts,
+            balances: state.tokenInput.balances,
+            prices: state.tokenInput.prices,
+            route,
+            slippage: state.slippage.value,
+            tickLower: state.priceRange.tickLower,
+            tickUpper: state.priceRange.tickUpper,
+          }}
+          onTrackEvent={onTrackEvent}
+          onTokensChange={state.tokenInput.setTokens}
+          onAmountsChange={state.tokenInput.setAmounts}
+        />
+      </Stack>
+
+      {state.priceRange.isUniV3 && (
+        <>
+          <PriceSection
+            context={{
+              chainId: poolChainId,
+              poolType,
+              pool,
+            }}
+            value={{
+              poolPrice: state.priceRange.poolPrice,
+              revertPrice: state.priceRange.revertPrice,
+              minPrice: state.priceRange.minPrice,
+              maxPrice: state.priceRange.maxPrice,
+              tickLower: state.priceRange.tickLower,
+              tickUpper: state.priceRange.tickUpper,
+            }}
+            onTrackEvent={onTrackEvent}
+            onRevertPriceToggle={state.priceRange.toggleRevertPrice}
+            onTickLowerChange={state.priceRange.setTickLower}
+            onTickUpperChange={state.priceRange.setTickUpper}
+          />
+
+          <PositionApr
+            chainId={poolChainId}
+            poolAddress={poolAddress}
+            isFarming={pool.isFarming}
+            tickLower={state.priceRange.tickLower}
+            tickUpper={state.priceRange.tickUpper}
+            route={route}
+          />
+        </>
+      )}
+
+      {shouldShowFeedback && validationError ? <NoteCard $warning>{validationError}</NoteCard> : null}
+      {shouldShowFeedback &&
+        securityWarnings.map(message => (
+          <NoteCard key={message} $warning>
+            {message}
+          </NoteCard>
+        ))}
+      {shouldShowFeedback && !validationError && state.route.error ? (
+        <NoteCard $warning>{state.route.error}</NoteCard>
+      ) : null}
+
+      <SlippageControl
+        context={{
+          chainId: poolChainId,
+          poolType,
+          pool,
+        }}
+        value={{
+          slippage: state.slippage.value,
+          suggestedSlippage: state.slippage.suggestedValue,
+        }}
+        onTrackEvent={onTrackEvent}
+        onSlippageChange={state.slippage.setValue}
+      />
+
+      <HStack gap={16}>
+        <ButtonOutlined onClick={onCancel}>Cancel</ButtonOutlined>
+        <PrimaryActionButton
+          disabled={actions.isPrimaryActionDisabled}
+          onClick={() => {
+            void actions.handlePrimaryAction()
+          }}
+          altDisabledStyle
+        >
+          {actions.primaryActionText}
+        </PrimaryActionButton>
+      </HStack>
+    </FormStack>
   )
 }
-
-export default AddLiquidityWidget

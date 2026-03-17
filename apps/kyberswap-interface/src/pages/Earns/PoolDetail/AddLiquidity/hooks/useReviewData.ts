@@ -2,6 +2,7 @@ import { formatUnits } from '@ethersproject/units'
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  DEXES_INFO,
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
   PartnerFeeAction,
@@ -13,32 +14,38 @@ import {
   Token,
   ZapAction,
   ZapRouteDetail,
+  getDexName,
   univ2PoolNormalize,
   univ2Types,
   univ3PoolNormalize,
   univ3Types,
 } from '@kyber/schema'
 import { PI_LEVEL, getPoolPrice, getZapImpact } from '@kyber/utils'
+import { useMemo } from 'react'
 
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export interface UseAddLiquidityReviewDataProps {
+export interface ReviewZapState {
   chainId?: number
-  exchange?: string
   poolType?: PoolType
-  pool?: Pool | null
-  route?: ZapRouteDetail | null
   tokens?: Token[]
   amounts?: string
   prices?: Record<string, number>
-  revertPrice?: boolean
-  poolPrice?: number | null
-  tickLower: number | null
-  tickUpper: number | null
-  minPrice?: string | null
-  maxPrice?: string | null
   slippage?: number
+  priceRange?: {
+    revertPrice?: boolean
+    poolPrice?: number | null
+    tickLower?: number | null
+    tickUpper?: number | null
+    minPrice?: string | null
+    maxPrice?: string | null
+  }
+}
+
+export interface UseReviewDataProps {
+  pool?: Pool | null
+  route?: ZapRouteDetail | null
+  zapState?: ReviewZapState
 }
 
 export interface ReviewTokenItem {
@@ -78,8 +85,9 @@ interface ReviewEstimate {
 export interface AddLiquidityReviewData {
   hasInput: boolean
   header: {
-    exchange?: string
     poolType?: PoolType
+    protocolName?: string
+    protocolLogo?: string
     token0: Token
     token1: Token
     feeLabel?: string
@@ -285,7 +293,6 @@ const buildWarnings = ({
   displayToken1,
 }: {
   route?: ZapRouteDetail | null
-  slippage?: number
   totalInputUsd: number
   remainingUsd: number
   tickLower: number | null
@@ -365,23 +372,19 @@ const buildWarnings = ({
   }
 }
 
-export const buildAddLiquidityReviewData = ({
-  chainId,
-  exchange,
-  poolType,
-  pool,
-  route,
-  tokens = [],
-  amounts = '',
-  prices = {},
-  revertPrice = false,
-  poolPrice = null,
-  tickLower = null,
-  tickUpper = null,
-  minPrice = null,
-  maxPrice = null,
-  slippage,
-}: UseAddLiquidityReviewDataProps): AddLiquidityReviewData => {
+export const buildAddLiquidityReviewData = ({ pool, route, zapState }: UseReviewDataProps): AddLiquidityReviewData => {
+  const chainId = zapState?.chainId
+  const poolType = zapState?.poolType
+  const tokens = zapState?.tokens || []
+  const amounts = zapState?.amounts || ''
+  const prices = zapState?.prices || {}
+  const slippage = zapState?.slippage
+  const revertPrice = zapState?.priceRange?.revertPrice || false
+  const poolPrice = zapState?.priceRange?.poolPrice ?? null
+  const tickLower = zapState?.priceRange?.tickLower ?? null
+  const tickUpper = zapState?.priceRange?.tickUpper ?? null
+  const minPrice = zapState?.priceRange?.minPrice ?? null
+  const maxPrice = zapState?.priceRange?.maxPrice ?? null
   const wrappedNativeAddress = chainId
     ? (NETWORKS_INFO as Record<number, any>)[chainId]?.wrappedToken?.address?.toLowerCase()
     : undefined
@@ -404,11 +407,8 @@ export const buildAddLiquidityReviewData = ({
   const displayToken0 = revertPrice ? pool.token1 : pool.token0
   const displayToken1 = revertPrice ? pool.token0 : pool.token1
   const feeLabel = pool.fee !== undefined ? `${pool.fee}%` : poolType ? `${poolType}` : undefined
-  const protocolName = exchange
-    ? EARN_DEXES[exchange as Exchange]?.name || exchange
-    : poolType
-    ? String(poolType)
-    : 'Pool'
+  const protocolName = poolType && chainId ? getDexName(poolType, chainId) : poolType ? String(poolType) : 'Pool'
+  const protocolLogo = poolType ? DEXES_INFO[poolType]?.icon : undefined
   const allTokens = Array.from(
     new Map([...tokens, pool.token0, pool.token1].map(token => [token.address, token])).values(),
   )
@@ -455,7 +455,6 @@ export const buildAddLiquidityReviewData = ({
   const estimatedPriceAfterZap = getEstimatedPriceAfterZap({ pool, poolType, route, revertPrice })
   const { warnings, zapImpact } = buildWarnings({
     route,
-    slippage,
     totalInputUsd,
     remainingUsd,
     tickLower,
@@ -470,8 +469,9 @@ export const buildAddLiquidityReviewData = ({
   return {
     hasInput,
     header: {
-      exchange,
       poolType,
+      protocolName,
+      protocolLogo,
       token0: pool.token0,
       token1: pool.token1,
       feeLabel,
@@ -523,4 +523,16 @@ export const buildAddLiquidityReviewData = ({
     },
     warnings,
   }
+}
+
+export default function useReviewData({ pool, route, zapState }: UseReviewDataProps) {
+  return useMemo(
+    () =>
+      buildAddLiquidityReviewData({
+        pool,
+        route,
+        zapState,
+      }),
+    [pool, route, zapState],
+  )
 }

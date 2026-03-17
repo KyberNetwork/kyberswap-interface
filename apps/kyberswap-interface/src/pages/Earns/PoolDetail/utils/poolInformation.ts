@@ -1,4 +1,4 @@
-import { formatAprNumber } from '@kyber/utils/dist/number'
+import { formatAprNumber } from '@kyber/utils'
 
 import { formatDisplayNumber } from 'utils/numbers'
 

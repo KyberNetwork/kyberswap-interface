@@ -1,13 +1,15 @@
 import { ZapRouteDetail } from '@kyber/schema'
 import { MouseoverTooltip, Skeleton } from '@kyber/ui'
-import { formatAprNumber } from '@kyber/utils/dist/number'
+import { formatAprNumber } from '@kyber/utils/number'
 import { Trans } from '@lingui/macro'
+import { skipToken } from '@reduxjs/toolkit/query'
 import { Box, Text } from 'rebass'
+import { useEstimatePositionAprQuery } from 'services/zapInService'
 import styled from 'styled-components'
 
 import { HStack } from 'components/Stack'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import useAddLiquidityPositionApr from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityPositionApr'
 
 const TooltipContent = styled(Box)`
   display: flex;
@@ -61,9 +63,14 @@ interface PositionAprProps {
   isFarming?: boolean
   tickLower: number | null
   tickUpper: number | null
-  amounts: string
   route?: ZapRouteDetail | null
-  routeLoading?: boolean
+}
+
+type AprData = {
+  totalApr: number
+  feeApr: number
+  egApr: number
+  lmApr: number
 }
 
 export default function PositionApr({
@@ -72,41 +79,55 @@ export default function PositionApr({
   isFarming,
   tickLower,
   tickUpper,
-  amounts,
   route,
-  routeLoading = false,
 }: PositionAprProps) {
   const theme = useTheme()
-
-  const { data, hasInput, loading } = useAddLiquidityPositionApr({
-    chainId,
-    poolAddress,
-    tickLower,
-    tickUpper,
-    amounts,
-    route,
-    routeLoading,
-    enabled: isFarming,
-  })
+  const hasInput = Boolean(route)
+  const positionLiquidity = route?.positionDetails?.addedLiquidity || null
+  const positionTvl = route?.positionDetails?.addedAmountUsd || null
+  const debouncedLower = useDebounce(tickLower, 150)
+  const debouncedUpper = useDebounce(tickUpper, 150)
+  const shouldSkip =
+    !isFarming ||
+    !chainId ||
+    !poolAddress ||
+    debouncedLower === null ||
+    debouncedUpper === null ||
+    debouncedLower === debouncedUpper ||
+    !positionLiquidity
+  const { data, isFetching } = useEstimatePositionAprQuery(
+    shouldSkip
+      ? skipToken
+      : {
+          chainId,
+          poolAddress,
+          tickLower: debouncedLower,
+          tickUpper: debouncedUpper,
+          positionLiquidity: String(positionLiquidity),
+          positionTvl: String(positionTvl ?? 0),
+        },
+  )
+  const aprData = (data as AprData | undefined) || null
+  const loading = isFetching
 
   if (!isFarming) return null
 
   const tooltipContent = !hasInput ? (
     <TooltipContent>Input an amount to calculate.</TooltipContent>
-  ) : !data?.totalApr ? (
+  ) : !aprData?.totalApr ? (
     <TooltipContent>
       <Trans>Fees and rewards accrue only when the market price is inside your chosen range.</Trans>
     </TooltipContent>
   ) : (
     <TooltipContent>
       <Text>
-        <Trans>LP Fees: {formatAprNumber(data?.feeApr || 0)}%</Trans>
+        <Trans>LP Fees: {formatAprNumber(aprData?.feeApr || 0)}%</Trans>
       </Text>
       <Text>
-        <Trans>EG Sharing Reward: {formatAprNumber(data?.egApr || 0)}%</Trans>
+        <Trans>EG Sharing Reward: {formatAprNumber(aprData?.egApr || 0)}%</Trans>
       </Text>
       <Text>
-        <Trans>LM Reward: {formatAprNumber(data?.lmApr || 0)}%</Trans>
+        <Trans>LM Reward: {formatAprNumber(aprData?.lmApr || 0)}%</Trans>
       </Text>
       <Text>
         <i>
@@ -133,12 +154,14 @@ export default function PositionApr({
   return (
     <AprBanner color={theme.text}>
       <AprLabel>Est. Position APR</AprLabel>
-      <MouseoverTooltip placement="top" width={!data ? 'fit-content' : '320px'} text={tooltipContent}>
+      <MouseoverTooltip placement="top" width={!aprData ? 'fit-content' : '320px'} text={tooltipContent}>
         <ValueTrigger>
-          {loading && !data ? (
+          {loading && !aprData ? (
             <Skeleton style={{ width: '64px', height: '20px' }} />
           ) : (
-            <AprValue>{!data ? '--' : data.totalApr === 0 ? '~0%' : `${formatAprNumber(data.totalApr)}%`}</AprValue>
+            <AprValue>
+              {!aprData ? '--' : aprData.totalApr === 0 ? '~0%' : `${formatAprNumber(aprData.totalApr)}%`}
+            </AprValue>
           )}
         </ValueTrigger>
       </MouseoverTooltip>

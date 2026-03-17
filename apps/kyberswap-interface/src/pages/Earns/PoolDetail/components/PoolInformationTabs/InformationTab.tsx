@@ -1,4 +1,4 @@
-import { shortenAddress } from '@kyber/utils/dist/crypto'
+import { shortenAddress } from '@kyber/utils/crypto'
 import { rgba } from 'polished'
 import { type ReactNode, useMemo, useState } from 'react'
 import { Text } from 'rebass'

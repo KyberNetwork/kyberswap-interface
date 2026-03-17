@@ -1,6 +1,6 @@
 import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, univ3PoolNormalize } from '@kyber/schema'
 import { Skeleton } from '@kyber/ui'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3'
 import { useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'

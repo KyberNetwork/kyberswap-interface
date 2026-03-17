@@ -1,5 +1,5 @@
 import { Pool, univ3PoolNormalize } from '@kyber/schema'
-import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
+import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3'
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
 import { useCallback, useMemo } from 'react'

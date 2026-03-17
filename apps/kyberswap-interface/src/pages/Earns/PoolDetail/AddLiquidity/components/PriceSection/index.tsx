@@ -19,7 +19,6 @@ interface PriceSectionProps {
     maxPrice: string | null
     tickLower: number | null
     tickUpper: number | null
-    hasInitialTick: boolean
   }
   onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
   onRevertPriceToggle?: () => void
@@ -67,7 +66,6 @@ export default function PriceSection({
           revertPrice={value.revertPrice}
           tickLower={value.tickLower}
           tickUpper={value.tickUpper}
-          hasInitialTick={value.hasInitialTick}
           onTrackEvent={onTrackEvent}
           onTickLowerChange={onTickLowerChange}
           onTickUpperChange={onTickUpperChange}

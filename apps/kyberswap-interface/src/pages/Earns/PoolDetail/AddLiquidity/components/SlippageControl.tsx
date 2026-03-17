@@ -9,9 +9,9 @@ import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
+import { getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { useDegenModeManager } from 'state/user/hooks'
 
-const STORAGE_KEY_PREFIX = 'kyber_liquidity_widget_slippage'
 const PRESET_SLIPPAGE_OPTIONS = [5, 10, 50, 100]
 
 const parseSlippageInput = (value: string): number => Math.round(Number.parseFloat(value) * 100)
@@ -51,11 +51,6 @@ const validateSlippageInput = (
   }
 
   return { isValid: true }
-}
-
-const getSlippageStorageKey = (token0Symbol: string, token1Symbol: string, chainId: number, feeTier: number) => {
-  const sortedSymbols = [token0Symbol, token1Symbol].sort()
-  return `${STORAGE_KEY_PREFIX}_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`
 }
 
 const SummaryButton = styled.button`

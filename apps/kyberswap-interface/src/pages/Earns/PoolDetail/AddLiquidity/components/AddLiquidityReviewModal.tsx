@@ -8,23 +8,19 @@ import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityReviewData'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useReviewData'
 import { CloseIcon } from 'theme/components'
 import { formatDisplayNumber } from 'utils/numbers'
 
 interface AddLiquidityReviewModalProps {
   isOpen?: boolean
-  exchange?: string
-  data?: AddLiquidityReviewData | null
+  review?: AddLiquidityReviewData
   confirmText?: string
   confirmDisabled?: boolean
   confirmLoading?: boolean
   txHash?: string
   txStatus?: 'success' | 'failed' | 'cancelled' | ''
   txError?: string | null
-  slippage?: number
-  suggestedSlippage?: number
   transactionExplorerUrl?: string
   onDismiss?: () => void
   onConfirm?: () => void
@@ -196,16 +192,13 @@ const formatBpsLabel = (value?: number) => {
 
 export default function AddLiquidityReviewModal({
   isOpen = false,
-  exchange,
-  data,
+  review,
   confirmText = 'Add Liquidity',
   confirmDisabled = false,
   confirmLoading = false,
   txHash,
   txStatus = '',
   txError,
-  slippage,
-  suggestedSlippage,
   transactionExplorerUrl,
   onDismiss,
   onConfirm,
@@ -214,12 +207,16 @@ export default function AddLiquidityReviewModal({
   onViewPosition,
 }: AddLiquidityReviewModalProps) {
   const theme = useTheme()
-  const protocol = exchange ? EARN_DEXES[exchange as Exchange] : undefined
-  const header = data?.header
-  const zapInItems = data?.zapInItems || []
-  const estimate = data?.estimate
-  const priceInfo = data?.priceInfo
-  const warnings = data?.warnings || []
+
+  const header = review?.header
+  const estimate = review?.estimate
+  const priceInfo = review?.priceInfo
+  const warnings = review?.warnings || []
+  const zapInItems = review?.zapInItems || []
+
+  const totalInputUsd = review?.totalInputUsd || 0
+  const slippage = estimate?.slippage
+  const suggestedSlippage = estimate?.suggestedSlippage
 
   if (confirmLoading || txHash || txError || txStatus) {
     const translatedErrorMessage = txError ? translateFriendlyErrorMessage(txError) : undefined
@@ -282,10 +279,10 @@ export default function AddLiquidityReviewModal({
             <Stack gap={4} minWidth={0}>
               <PairText color={theme.text}>{header.pairLabel}</PairText>
               <HStack align="center" gap={8} wrap="wrap">
-                {protocol ? (
+                {header.protocolName ? (
                   <HStack align="center" gap={6}>
-                    {protocol.logo ? <ProtocolLogo alt={protocol.name} src={protocol.logo} /> : null}
-                    <LabelText color={theme.subText}>{protocol.name}</LabelText>
+                    {header.protocolLogo ? <ProtocolLogo alt={header.protocolName} src={header.protocolLogo} /> : null}
+                    <LabelText color={theme.subText}>{header.protocolName}</LabelText>
                   </HStack>
                 ) : null}
                 {header.feeLabel ? (
@@ -302,7 +299,7 @@ export default function AddLiquidityReviewModal({
           <HStack align="center" justify="space-between">
             <BodyText color={theme.subText}>Zap-in Amount</BodyText>
             <TotalText color={theme.text}>
-              {formatDisplayNumber(data?.totalInputUsd || 0, { style: 'currency', significantDigits: 6 })}
+              {formatDisplayNumber(totalInputUsd, { style: 'currency', significantDigits: 6 })}
             </TotalText>
           </HStack>
           <Stack gap={8}>

@@ -5,7 +5,7 @@ import useTab from 'hooks/useTab'
 import AnalyticsTab from 'pages/Earns/PoolDetail/components/PoolInformationTabs/AnalyticsTab'
 import EarningsTab from 'pages/Earns/PoolDetail/components/PoolInformationTabs/EarningsTab'
 import InformationTab from 'pages/Earns/PoolDetail/components/PoolInformationTabs/InformationTab'
-import { Pool } from 'pages/Earns/PoolDetail/types'
+import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 
 const POOL_INFO_TABS = [
   { id: 'information', label: 'INFORMATION' },
@@ -57,11 +57,8 @@ const TabButton = styled.button<{ $active: boolean }>`
 
 type PoolInfoTab = (typeof POOL_INFO_TABS)[number]['id']
 
-interface PoolInformationProps {
-  pool?: Pool
-}
-
-const PoolInformation = ({ pool }: PoolInformationProps) => {
+const PoolInformation = () => {
+  const { pool } = usePoolDetailContext()
   const { activeTab, setActiveTab } = useTab<PoolInfoTab>({
     tabs: POOL_INFO_TABS.map(tab => tab.id),
     queryKey: 'tab',

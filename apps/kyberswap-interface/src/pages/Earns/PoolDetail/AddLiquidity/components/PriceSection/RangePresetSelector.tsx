@@ -1,5 +1,5 @@
 import { DEXES_INFO, NETWORKS_INFO, POOL_CATEGORY, Pool, PoolType, univ3PoolNormalize } from '@kyber/schema'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
@@ -43,7 +43,6 @@ interface RangePresetSelectorProps {
   revertPrice: boolean
   tickLower: number | null
   tickUpper: number | null
-  hasInitialTick: boolean
   onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
   onTickLowerChange?: (value: number) => void
   onTickUpperChange?: (value: number) => void
@@ -57,7 +56,6 @@ export default function RangePresetSelector({
   revertPrice,
   tickLower,
   tickUpper,
-  hasInitialTick,
   onTrackEvent,
   onTickLowerChange,
   onTickUpperChange,
@@ -188,14 +186,14 @@ export default function RangePresetSelector({
   }, [handleSelectPriceRange, rangeSelected, revertPrice])
 
   useEffect(() => {
-    if (!pool.category || !priceRanges.length || hasInitialTick) return
+    if (!pool.category || !priceRanges.length) return
     if (tickLower === null || tickUpper === null) {
       handleSelectPriceRange(
         DEFAULT_PRICE_RANGE[pool.category as keyof typeof DEFAULT_PRICE_RANGE] ||
           DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR],
       )
     }
-  }, [handleSelectPriceRange, hasInitialTick, pool.category, priceRanges, tickLower, tickUpper])
+  }, [handleSelectPriceRange, pool.category, priceRanges, tickLower, tickUpper])
 
   if (!priceRanges.length) return null
 
