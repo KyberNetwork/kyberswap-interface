@@ -7,6 +7,11 @@ import { useAddLiquidityPoolInfoQuery, useAddLiquidityTokensQuery } from 'servic
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 
+const getTokenBalanceKey = (address: string) =>
+  address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+    ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+    : address.toLowerCase()
+
 const formatAmountWithDecimals = (amount: string | number, decimals: number): string => {
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
   if (Number.isNaN(numAmount) || numAmount <= 0) return '0'
@@ -14,6 +19,21 @@ const formatAmountWithDecimals = (amount: string | number, decimals: number): st
   const factor = Math.pow(10, decimals)
   const truncated = Math.floor(numAmount * factor) / factor
   return truncated.toFixed(decimals).replace(/\.?0+$/, '') || '0'
+}
+
+const createTrackedBalanceConfig = (tokens: Token[], chainId: number) => {
+  const trackedTokens = tokens.filter(token => getTokenBalanceKey(token.address) !== NATIVE_TOKEN_ADDRESS.toLowerCase())
+  const sdkTokens = trackedTokens.map(
+    token => new SDKToken(chainId as AppChainId, token.address, token.decimals, token.symbol, token.name),
+  )
+
+  return {
+    sdkTokens,
+    addressMap: trackedTokens.reduce<Record<string, string>>((acc, token, index) => {
+      acc[getTokenBalanceKey(token.address)] = sdkTokens[index]?.address || token.address
+      return acc
+    }, {}),
+  }
 }
 
 interface UseAddLiquidityTokensProps {
@@ -72,40 +92,29 @@ export default function useAddLiquidityTokens({
   const pool = poolInfo?.pool || null
   const poolError = poolInfo?.error || ''
   const nativeBalance = useNativeBalance(chainId as AppChainId)
-  const pairBalanceTokens = useMemo(
-    () =>
-      pool
-        ? [pool.token0, pool.token1].map(
-            token => new SDKToken(chainId as AppChainId, token.address, token.decimals, token.symbol, token.name),
-          )
-        : [],
+  const pairBalanceConfig = useMemo(
+    () => createTrackedBalanceConfig(pool ? [pool.token0, pool.token1] : [], chainId),
     [chainId, pool],
   )
-  const pairTokenBalances = useTokenBalances(pairBalanceTokens, chainId as AppChainId)
-  const selectedBalanceTokens = useMemo(
-    () =>
-      tokensIn
-        .filter(token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase())
-        .map(token => new SDKToken(chainId as AppChainId, token.address, token.decimals, token.symbol, token.name)),
-    [chainId, tokensIn],
-  )
-  const selectedTokenBalances = useTokenBalances(selectedBalanceTokens, chainId as AppChainId)
-  const tokenPrices = useTokenPrices(
-    useMemo(() => tokensIn.map(token => token.address.toLowerCase()), [tokensIn]),
-    chainId as AppChainId,
-  )
+  const selectedBalanceConfig = useMemo(() => createTrackedBalanceConfig(tokensIn, chainId), [chainId, tokensIn])
+  const pairTokenBalances = useTokenBalances(pairBalanceConfig.sdkTokens, chainId as AppChainId)
+  const selectedTokenBalances = useTokenBalances(selectedBalanceConfig.sdkTokens, chainId as AppChainId)
+  const tokenPriceAddresses = useMemo(() => tokensIn.map(token => token.address.toLowerCase()), [tokensIn])
+  const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId as AppChainId)
   const tokenBalances = useMemo(
     () =>
       tokensIn.reduce<Record<string, bigint>>((acc, token) => {
-        if (token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()) {
-          acc[token.address.toLowerCase()] = BigInt(nativeBalance?.quotient?.toString() || '0')
+        const balanceKey = getTokenBalanceKey(token.address)
+        if (balanceKey === NATIVE_TOKEN_ADDRESS.toLowerCase()) {
+          acc[balanceKey] = BigInt(nativeBalance?.quotient?.toString() || '0')
           return acc
         }
 
-        acc[token.address.toLowerCase()] = BigInt(selectedTokenBalances[token.address]?.quotient?.toString() || '0')
+        const balanceAddress = selectedBalanceConfig.addressMap[balanceKey] || token.address
+        acc[balanceKey] = BigInt(selectedTokenBalances[balanceAddress]?.quotient?.toString() || '0')
         return acc
       }, {}),
-    [nativeBalance?.quotient, selectedTokenBalances, tokensIn],
+    [nativeBalance?.quotient, selectedBalanceConfig.addressMap, selectedTokenBalances, tokensIn],
   )
 
   useEffect(() => {
@@ -122,9 +131,14 @@ export default function useAddLiquidityTokens({
       if (initDepositTokens && initialTokens.length) {
         if (cancelled) return
         if (initialTokens.length) {
-          const initialAmounts = (initAmounts?.split(',') || []).map(amount => amount || '')
+          const listInitAmounts = initAmounts?.split(',') || []
+          const parseListAmountsIn: string[] = []
+          initialTokens.forEach((_, index: number) => {
+            parseListAmountsIn.push(listInitAmounts[index] || '')
+          })
+
           setTokensIn(initialTokens)
-          setAmountsIn(initialAmounts.slice(0, initialTokens.length).join(','))
+          setAmountsIn(parseListAmountsIn.join(','))
           return
         }
       }
@@ -141,8 +155,10 @@ export default function useAddLiquidityTokens({
       const tokensToSet: Token[] = []
       const amountsToSet: string[] = []
 
-      const token0Balance = pairTokenBalances[pool.token0.address]?.toExact() || '0'
-      const token1Balance = pairTokenBalances[pool.token1.address]?.toExact() || '0'
+      const token0BalanceAddress = pairBalanceConfig.addressMap[token0Address] || pool.token0.address
+      const token1BalanceAddress = pairBalanceConfig.addressMap[token1Address] || pool.token1.address
+      const token0Balance = pairTokenBalances[token0BalanceAddress]?.toExact() || '0'
+      const token1Balance = pairTokenBalances[token1BalanceAddress]?.toExact() || '0'
       const fallbackNativeBalance = nativeBalance?.toExact() || '0'
 
       if (parseFloat(token0Balance) > 0) {
@@ -195,6 +211,7 @@ export default function useAddLiquidityTokens({
     initialTokens,
     nativeBalance,
     nativeToken,
+    pairBalanceConfig.addressMap,
     pairTokenBalances,
     pool,
     tokensIn.length,

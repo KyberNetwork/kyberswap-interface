@@ -8,7 +8,6 @@ import styled from 'styled-components'
 import { HStack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import useAddLiquidityPositionApr from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityPositionApr'
-import { EarnPool, ProgramType } from 'pages/Earns/types'
 
 const TooltipContent = styled(Box)`
   display: flex;
@@ -31,7 +30,7 @@ const AprBanner = styled(HStack)`
   gap: 12px;
   justify-content: space-between;
   width: 100%;
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-radius: 12px;
   background: linear-gradient(90deg, rgba(24, 71, 56, 0.9) 0%, rgba(23, 48, 44, 0.92) 100%);
 `
@@ -59,7 +58,6 @@ const AprValue = styled(Text)`
 interface PositionAprProps {
   chainId?: number
   poolAddress?: string
-  pool?: EarnPool
   isFarming?: boolean
   tickLower: number | null
   tickUpper: number | null
@@ -71,8 +69,7 @@ interface PositionAprProps {
 export default function PositionApr({
   chainId,
   poolAddress,
-  pool,
-  isFarming: isFarmingProp,
+  isFarming,
   tickLower,
   tickUpper,
   amounts,
@@ -80,13 +77,6 @@ export default function PositionApr({
   routeLoading = false,
 }: PositionAprProps) {
   const theme = useTheme()
-  const isFarming =
-    isFarmingProp ??
-    Boolean(
-      pool?.programs?.includes(ProgramType.EG) ||
-        pool?.programs?.includes(ProgramType.LM) ||
-        (pool && ((pool.kemEGApr || 0) > 0 || (pool.kemLMApr || 0) > 0)),
-    )
 
   const { data, hasInput, loading } = useAddLiquidityPositionApr({
     chainId,
@@ -109,21 +99,21 @@ export default function PositionApr({
     </TooltipContent>
   ) : (
     <TooltipContent>
-      <Text m={0}>
+      <Text>
         <Trans>LP Fees: {formatAprNumber(data?.feeApr || 0)}%</Trans>
       </Text>
-      <Text m={0}>
+      <Text>
         <Trans>EG Sharing Reward: {formatAprNumber(data?.egApr || 0)}%</Trans>
       </Text>
-      <Text m={0}>
+      <Text>
         <Trans>LM Reward: {formatAprNumber(data?.lmApr || 0)}%</Trans>
       </Text>
-      <Text m={0}>
+      <Text>
         <i>
           <Trans>The APR estimation is not guaranteed and may differ from actual returns.</Trans>
         </i>
       </Text>
-      <Text m={0}>
+      <Text>
         <i>
           <Trans>
             <a

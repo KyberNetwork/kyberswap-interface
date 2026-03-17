@@ -14,7 +14,6 @@ export enum PriceInputType {
 }
 
 const StepButton = styled.button`
-  align-self: center;
   align-items: center;
   border: none;
   border-radius: 999px;
@@ -23,19 +22,24 @@ const StepButton = styled.button`
   cursor: pointer;
   display: flex;
   flex: 0 0 auto;
-  height: 28px;
+  height: 24px;
   justify-content: center;
-  width: 28px;
+  width: 24px;
 
   :disabled {
     cursor: not-allowed;
-    opacity: 0.35;
+    opacity: 0.8;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
   }
 `
 
 const Input = styled.input`
   border: none;
   background: transparent;
+  padding: 0;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
   font-weight: 500;
@@ -55,23 +59,19 @@ const InputShell = styled(HStack)`
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
   min-width: 0;
-  padding: 8px;
   width: 100%;
 `
 
 const TypeBadge = styled(HStack)`
-  flex: 0 0 42px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 8px;
+  border-radius: 12px 0px 0px 12px;
+  background: ${({ theme }) => theme.tabActive};
 `
 
 const TypeText = styled(Text)`
-  margin: 0;
   color: ${({ theme }) => theme.subText};
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 `
 
 const InputValueWrap = styled(Stack)`
@@ -299,44 +299,46 @@ export default function PriceInput({
   }, [activeTick, maxAllowedTick, normalizedPool])
 
   return (
-    <InputShell align="stretch" gap={8}>
+    <InputShell align="stretch">
       <TypeBadge justify="center" align="center">
         <TypeText>{type === PriceInputType.MinPrice ? 'MIN' : 'MAX'}</TypeText>
       </TypeBadge>
 
-      <StepButton type="button" onClick={handleDecreasePrice} disabled={!canDecrease}>
-        -
-      </StepButton>
+      <HStack alignItems="center" gap={8} p="4px 8px" flex={1}>
+        <StepButton type="button" onClick={handleDecreasePrice} disabled={!canDecrease}>
+          -
+        </StepButton>
 
-      <InputValueWrap align="center" justify="center" gap={4}>
-        {!normalizedPool ? (
-          <Skeleton style={{ width: '120px', height: '24px' }} />
-        ) : (
-          <Input
-            value={localValue}
-            onChange={event => {
-              const nextValue = event.target.value.replace(/,/g, '')
-              if (nextValue === '' || /^\d*\.?\d*$/.test(nextValue)) {
-                setLocalValue(nextValue)
-              }
-            }}
-            onBlur={event => wrappedCorrectPrice(event.target.value)}
-            inputMode="decimal"
-            autoComplete="off"
-            autoCorrect="off"
-            type="text"
-            pattern="^[0-9]*[.,]?[0-9]*$"
-            placeholder="0.0"
-            maxLength={79}
-            spellCheck={false}
-          />
-        )}
-        <Delta $positive={deltaText.startsWith('+')}>{deltaText || '\u00A0'}</Delta>
-      </InputValueWrap>
+        <InputValueWrap align="center">
+          {!normalizedPool ? (
+            <Skeleton style={{ width: '120px', height: '24px' }} />
+          ) : (
+            <Input
+              value={localValue}
+              onChange={event => {
+                const nextValue = event.target.value.replace(/,/g, '')
+                if (nextValue === '' || /^\d*\.?\d*$/.test(nextValue)) {
+                  setLocalValue(nextValue)
+                }
+              }}
+              onBlur={event => wrappedCorrectPrice(event.target.value)}
+              inputMode="decimal"
+              autoComplete="off"
+              autoCorrect="off"
+              type="text"
+              pattern="^[0-9]*[.,]?[0-9]*$"
+              placeholder="0.0"
+              maxLength={79}
+              spellCheck={false}
+            />
+          )}
+          <Delta $positive={deltaText.startsWith('+')}>{deltaText || '\u00A0'}</Delta>
+        </InputValueWrap>
 
-      <StepButton type="button" onClick={handleIncreasePrice} disabled={!canIncrease}>
-        +
-      </StepButton>
+        <StepButton type="button" onClick={handleIncreasePrice} disabled={!canIncrease}>
+          +
+        </StepButton>
+      </HStack>
     </InputShell>
   )
 }

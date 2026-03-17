@@ -14,9 +14,8 @@ import { formatDisplayNumber } from 'utils/numbers'
 const Card = styled(Stack)`
   position: relative;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(40, 40, 44, 0.92) 0%, rgba(31, 31, 35, 0.92) 100%);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
 `
 
 const QuickActionButton = styled.button`
@@ -31,7 +30,7 @@ const QuickActionButton = styled.button`
   line-height: 1;
 
   :hover {
-    filter: brightness(1.15);
+    background: rgba(255, 255, 255, 0.1);
   }
 `
 
@@ -45,6 +44,10 @@ const BalanceButton = styled.button`
   color: ${({ theme }) => theme.subText};
   cursor: pointer;
   font-size: 12px;
+
+  :hover {
+    filter: brightness(1.2);
+  }
 `
 
 const BalanceIcon = styled(WalletIcon)`
@@ -91,7 +94,7 @@ const TokenButton = styled.button`
   white-space: nowrap;
 
   :hover {
-    filter: brightness(1.08);
+    background: rgba(255, 255, 255, 0.1);
   }
 `
 
@@ -112,8 +115,8 @@ const RemoveButton = styled.button`
   width: 16px;
   height: 16px;
   padding: 0;
-  top: -2px;
-  right: -2px;
+  top: 0px;
+  right: 0px;
   background: transparent;
   border: none;
   border-radius: 0;
@@ -165,6 +168,7 @@ const TokenAmountInput = ({
     [amount, token.address, tokenPrices],
   )
 
+  const normalizeActionAmount = (nextAmount: string) => (parseFloat(nextAmount || '0') > 0 ? nextAmount : '')
   const updateAmount = (nextAmount: string) => onAmountChange?.(tokenIndex, nextAmount)
 
   const handleAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -183,17 +187,18 @@ const TokenAmountInput = ({
       percentage === 100
         ? formatUnits(rawBalance.toString(), token.decimals)
         : formatUnits(((rawBalance * BigInt(percentage)) / 100n).toString(), token.decimals)
+    const normalizedAmount = normalizeActionAmount(nextAmount)
 
-    updateAmount(nextAmount)
+    updateAmount(normalizedAmount)
 
     const poolPair = pool ? `${pool.token0.symbol}/${pool.token1.symbol}` : ''
-    const usdValue = (tokenPrices[token.address.toLowerCase()] || 0) * parseFloat(nextAmount || '0')
+    const usdValue = (tokenPrices[token.address.toLowerCase()] || 0) * parseFloat(normalizedAmount || '0')
 
     if (percentage === 100 || percentage === 50) {
       onTrackEvent?.(percentage === 100 ? 'LIQ_MAX_CLICKED' : 'LIQ_HALF_CLICKED', {
         token_symbol: token.symbol,
         token_address: token.address,
-        [percentage === 100 ? 'max_amount' : 'half_amount']: nextAmount,
+        [percentage === 100 ? 'max_amount' : 'half_amount']: normalizedAmount,
         [percentage === 100 ? 'max_amount_usd' : 'half_amount_usd']: usdValue,
         pool_pair: poolPair,
         chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
@@ -202,7 +207,7 @@ const TokenAmountInput = ({
   }
 
   return (
-    <Card gap={12} style={{ borderTopRightRadius: tokensCount > 1 ? 0 : undefined }}>
+    <Card gap={16} style={{ borderTopRightRadius: tokensCount > 1 ? 4 : 12 }}>
       <HStack align="center" justify="space-between" gap={12}>
         <HStack align="center" gap={8} wrap="wrap">
           <QuickActionButton type="button" onClick={() => applyPercentage(25)}>
@@ -219,7 +224,10 @@ const TokenAmountInput = ({
           </QuickActionButton>
         </HStack>
 
-        <BalanceButton type="button" onClick={() => updateAmount(formatUnits(balanceInWei, token.decimals))}>
+        <BalanceButton
+          type="button"
+          onClick={() => updateAmount(normalizeActionAmount(formatUnits(balanceInWei, token.decimals)))}
+        >
           <BalanceIcon width={14} height={14} />
           {formatDisplayNumber(formatUnits(balanceInWei, token.decimals), { significantDigits: 8 })}
         </BalanceButton>

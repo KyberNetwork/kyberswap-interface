@@ -1,22 +1,13 @@
 import { ReactNode } from 'react'
 import { Text } from 'rebass'
-import { PoolDetail as PoolDetailData } from 'services/zapEarn'
+import { PoolDetail } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
-import { EarnPool } from 'pages/Earns/types'
 
 import AddLiquidityWidget from './components/AddLiquidityWidget'
-
-const WidgetShell = styled(Stack)`
-  width: 100%;
-  overflow: hidden;
-  border: 1px solid ${({ theme }) => theme.tabActive};
-  border-radius: 20px;
-  background: ${({ theme }) => theme.background};
-`
 
 const RouteSurface = styled(Stack)`
   padding: 20px;
@@ -60,8 +51,7 @@ const Connector = styled.div`
 
 interface AddLiquidityProps {
   children?: ReactNode
-  pool?: EarnPool
-  poolDetail?: PoolDetailData
+  pool?: PoolDetail
   route?: {
     exchange?: string
     poolAddress?: string
@@ -89,55 +79,50 @@ const RouteNode = ({ label, value, flex = '1 1 0' }: RouteNodeProps) => {
   )
 }
 
-const AddLiquidity = ({ children, pool, poolDetail, route }: AddLiquidityProps) => {
+const AddLiquidity = ({ children, pool, route }: AddLiquidityProps) => {
   const theme = useTheme()
-  const token0Symbol = pool?.tokens?.[0]?.symbol || poolDetail?.tokens?.[0]?.symbol
-  const token1Symbol = pool?.tokens?.[1]?.symbol || poolDetail?.tokens?.[1]?.symbol
+  const token0Symbol = pool?.tokens?.[0]?.symbol
+  const token1Symbol = pool?.tokens?.[1]?.symbol
   const pairLabel = token0Symbol && token1Symbol ? `${token0Symbol}/${token1Symbol}` : undefined
   const protocol = route?.exchange ? EARN_DEXES[route.exchange as Exchange]?.name || route.exchange : undefined
 
   return (
-    <Stack gap={16} width="100%">
-      <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
-        <Stack flex="1 1 480px" width="100%" maxWidth="480px" minWidth={0}>
-          <WidgetShell>
-            <AddLiquidityWidget
-              chainId={route?.chainId}
-              earnPool={pool}
-              exchange={route?.exchange}
-              poolAddress={route?.poolAddress}
-              positionId={route?.positionId}
-              tickLower={route?.tickLower}
-              tickUpper={route?.tickUpper}
-            />
-          </WidgetShell>
-        </Stack>
-        <Stack flex="1 1 320px" gap={16} minWidth={0}>
-          <RouteSurface gap={20}>
-            <Text color={theme.text} fontSize={18} fontWeight={600} m={0}>
-              Route
-            </Text>
-            <Stack gap={12}>
-              <HStack align="center" gap={8}>
-                <RouteNode label="Input" value="Any supported token" />
-                <Connector />
-                <RouteNode label="Router" value={protocol || 'Best Route'} />
-              </HStack>
+    <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
+      <Stack flex="1 1 480px" width="100%" maxWidth="480px" minWidth={0}>
+        <AddLiquidityWidget
+          chainId={route?.chainId}
+          exchange={route?.exchange}
+          poolAddress={route?.poolAddress}
+          positionId={route?.positionId}
+          tickLower={route?.tickLower}
+          tickUpper={route?.tickUpper}
+        />
+      </Stack>
+      <Stack flex="1 1 320px" gap={16} minWidth={0}>
+        <RouteSurface gap={20}>
+          <Text color={theme.text} fontSize={18} fontWeight={600} m={0}>
+            Route
+          </Text>
+          <Stack gap={12}>
+            <HStack align="center" gap={8}>
+              <RouteNode label="Input" value="Any supported token" />
+              <Connector />
+              <RouteNode label="Router" value={protocol || 'Best Route'} />
+            </HStack>
 
-              <HStack align="center" gap={8}>
-                <Stack flex="1 1 0" minWidth={0} gap={10}>
-                  <RouteNode label="Output Token 0" value={token0Symbol || 'Token 0'} flex="1 1 auto" />
-                  <RouteNode label="Output Token 1" value={token1Symbol || 'Token 1'} flex="1 1 auto" />
-                </Stack>
-                <Connector />
-                <RouteNode label="LP Position" value={pairLabel || 'Pool Position'} />
-              </HStack>
-            </Stack>
-          </RouteSurface>
-          {children}
-        </Stack>
-      </HStack>
-    </Stack>
+            <HStack align="center" gap={8}>
+              <Stack flex="1 1 0" minWidth={0} gap={10}>
+                <RouteNode label="Output Token 0" value={token0Symbol || 'Token 0'} flex="1 1 auto" />
+                <RouteNode label="Output Token 1" value={token1Symbol || 'Token 1'} flex="1 1 auto" />
+              </Stack>
+              <Connector />
+              <RouteNode label="LP Position" value={pairLabel || 'Pool Position'} />
+            </HStack>
+          </Stack>
+        </RouteSurface>
+        {children}
+      </Stack>
+    </HStack>
   )
 }
 

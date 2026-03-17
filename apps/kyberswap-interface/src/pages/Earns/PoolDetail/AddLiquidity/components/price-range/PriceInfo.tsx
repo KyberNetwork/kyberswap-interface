@@ -1,5 +1,6 @@
 import { Pool, defaultToken } from '@kyber/schema'
 import { Skeleton } from '@kyber/ui'
+import { rgba } from 'polished'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -13,11 +14,11 @@ const RevertButton = styled.button`
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
-  border: 1px solid ${({ theme }) => theme.tabActive};
+  width: 24px;
+  height: 24px;
+  border: none;
   border-radius: 999px;
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.tabActive};
   color: ${({ theme }) => theme.subText};
   cursor: pointer;
 
@@ -28,9 +29,9 @@ const RevertButton = styled.button`
 
 const Warning = styled(Text)`
   margin: 0;
-  padding: 12px 16px;
-  border-radius: 12px;
-  background: ${({ theme }) => `${theme.warning}22`};
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: ${({ theme }) => rgba(theme.warning, 0.2)};
   color: ${({ theme }) => theme.text};
   font-size: 12px;
   font-style: italic;
@@ -57,7 +58,7 @@ export default function PriceInfo({ pool, poolPrice, revertPrice, onRevertPriceT
   return (
     <Stack
       gap={8}
-      p="8px 16px"
+      p="8px 12px"
       border={`1px solid ${theme.tabActive}`}
       borderRadius={12}
       background="rgba(255, 255, 255, 0.01)"

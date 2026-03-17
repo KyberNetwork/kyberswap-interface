@@ -5,17 +5,7 @@ import '@kyberswap/liquidity-chart/style.css'
 import { useCallback, useMemo } from 'react'
 import styled, { keyframes } from 'styled-components'
 
-import { Stack } from 'components/Stack'
 import { toString } from 'utils/numbers'
-
-const ChartShell = styled(Stack)`
-  width: 100%;
-  padding: 8px 0 0;
-
-  .ks-lc {
-    width: 100%;
-  }
-`
 
 const shimmer = keyframes`
   0% { transform: translateX(-100%); }
@@ -229,35 +219,33 @@ export default function LiquidityChart({
   }
 
   return (
-    <ChartShell>
-      <LiquidityChartRangeInput
-        id="pool-detail-add-liquidity-chart"
-        pool={{
-          fee: normalizedPool.fee,
-          tickCurrent: normalizedPool.tick,
-          tickSpacing: normalizedPool.tickSpacing,
-          ticks: normalizedPool.ticks,
-          liquidity: normalizedPool.liquidity,
-          token0: normalizedPool.token0,
-          token1: normalizedPool.token1,
-          category: normalizedPool.category,
-        }}
-        price={{
-          current: poolPrice ?? undefined,
-          lower: minPrice,
-          upper: maxPrice,
-        }}
-        ticksAtLimit={ticksAtLimit}
-        revertPrice={revertPrice}
-        onBrushDomainChange={onBrushDomainChange}
-        zoomPosition={{
-          top: '0px',
-          left: undefined,
-          right: '0px',
-          bottom: undefined,
-          gap: '8px',
-        }}
-      />
-    </ChartShell>
+    <LiquidityChartRangeInput
+      id="pool-detail-add-liquidity-chart"
+      pool={{
+        fee: normalizedPool.fee,
+        tickCurrent: normalizedPool.tick,
+        tickSpacing: normalizedPool.tickSpacing,
+        ticks: normalizedPool.ticks,
+        liquidity: normalizedPool.liquidity,
+        token0: normalizedPool.token0,
+        token1: normalizedPool.token1,
+        category: normalizedPool.category,
+      }}
+      price={{
+        current: poolPrice ?? undefined,
+        lower: minPrice,
+        upper: maxPrice,
+      }}
+      ticksAtLimit={ticksAtLimit}
+      revertPrice={revertPrice}
+      onBrushDomainChange={onBrushDomainChange}
+      zoomPosition={{
+        top: '0px',
+        left: undefined,
+        right: '0px',
+        bottom: undefined,
+        gap: '8px',
+      }}
+    />
   )
 }

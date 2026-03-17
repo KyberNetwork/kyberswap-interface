@@ -1,14 +1,13 @@
+import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
+import { PoolDetail, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 
-import { NETWORKS_INFO } from 'constants/networks'
 import AddLiquidity from 'pages/Earns/PoolDetail/AddLiquidity'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
 import PoolInformation from 'pages/Earns/PoolDetail/components/PoolInformation'
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 
-const PoolDetail = () => {
+const PoolDetailPage = () => {
   const [searchParams] = useSearchParams()
 
   const exchange = searchParams.get('exchange') || ''
@@ -18,30 +17,42 @@ const PoolDetail = () => {
   const tickLower = searchParams.get('tickLower')
   const tickUpper = searchParams.get('tickUpper')
 
-  const { data: poolDetail } = usePoolDetailQuery({ chainId, address: poolAddress }, { skip: !chainId || !poolAddress })
+  const { data: poolDetail } = usePoolDetailQuery(
+    {
+      chainId,
+      address: poolAddress,
+    },
+    { skip: !chainId || !poolAddress },
+  )
 
   const { data: explorerData } = usePoolsExplorerQuery(
     {
       chainId,
-      page: 1,
-      limit: 20,
-      interval: '24h',
       protocol: exchange,
       q: poolAddress,
     },
     { skip: !chainId || !poolAddress || !exchange },
   )
+  const explorerPool = explorerData?.data?.pools?.[0]
 
-  const pool = explorerData?.data?.pools?.find(item => item.address.toLowerCase() === poolAddress.toLowerCase())
-  const chainName = chainId ? NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name : undefined
-  const protocol = exchange ? EARN_DEXES[exchange as Exchange]?.name || exchange : undefined
+  const pool = useMemo<PoolDetail | undefined>(() => {
+    if (!poolDetail) return undefined
+    return {
+      ...poolDetail,
+      tokens: poolDetail.tokens.map((token, index) => {
+        return {
+          ...token,
+          logoURI: explorerPool?.tokens?.[index]?.logoURI,
+        }
+      }),
+    }
+  }, [poolDetail, explorerPool])
 
   return (
     <PoolDetailWrapper>
-      <PoolHeader pool={pool} poolDetail={poolDetail} chainId={chainId} exchange={exchange} />
+      <PoolHeader pool={pool} chainId={chainId} exchange={exchange} />
       <AddLiquidity
         pool={pool}
-        poolDetail={poolDetail}
         route={{
           exchange,
           poolAddress,
@@ -51,10 +62,10 @@ const PoolDetail = () => {
           tickUpper,
         }}
       >
-        <PoolInformation pool={pool} poolDetail={poolDetail} chainName={chainName} dexName={protocol} />
+        <PoolInformation pool={pool} />
       </AddLiquidity>
     </PoolDetailWrapper>
   )
 }
 
-export default PoolDetail
+export default PoolDetailPage

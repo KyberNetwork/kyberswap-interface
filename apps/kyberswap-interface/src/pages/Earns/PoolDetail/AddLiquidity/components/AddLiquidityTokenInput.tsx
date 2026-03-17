@@ -4,6 +4,7 @@ import { InfoHelper } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
@@ -18,8 +19,8 @@ const AddTokenButton = styled.button`
   cursor: pointer;
   display: inline-flex;
   font-size: 14px;
-  font-weight: 400;
-  gap: 8px;
+  font-weight: 500;
+  gap: 6px;
   padding: 0;
   width: fit-content;
 `
@@ -31,7 +32,7 @@ const ShareText = styled.div`
   text-align: right;
 
   b {
-    color: #2fd3c0;
+    color: #2c9ce4;
     font-style: normal;
     font-weight: 500;
   }
@@ -193,13 +194,13 @@ const AddLiquidityTokenInput = ({
   )
 
   return (
-    <Stack gap={16} width="100%">
-      {currentTokens.map((token, tokenIndex) => (
+    <Stack gap={12}>
+      {currentTokens.map((token, index) => (
         <TokenAmountInput
-          amount={currentAmounts.split(',')[tokenIndex] || ''}
+          amount={currentAmounts.split(',')[index] || ''}
           chainId={chainId}
-          key={`${token.address}-${tokenIndex}`}
-          tokenIndex={tokenIndex}
+          key={`${token.address}-${index}`}
+          tokenIndex={index}
           pool={pool}
           token={token}
           tokenBalances={currentBalances}
@@ -221,8 +222,9 @@ const AddLiquidityTokenInput = ({
       </ShareText>
 
       <AddTokenButton type="button" onClick={() => setOpenTokenSelectModal(true)}>
-        + Add Token(s) or Use Existing Position
+        <Text>+ Add Token(s) or Use Existing Position</Text>
         <InfoHelper
+          noneMarginLeft
           placement="bottom"
           text={t`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
           color="#31cb9e"

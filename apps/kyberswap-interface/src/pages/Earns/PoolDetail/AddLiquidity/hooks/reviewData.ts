@@ -274,7 +274,6 @@ const getEstimatedPriceAfterZap = ({
 
 const buildWarnings = ({
   route,
-  slippage,
   totalInputUsd,
   remainingUsd,
   tickLower,
@@ -299,20 +298,6 @@ const buildWarnings = ({
 }) => {
   const warnings: ReviewWarningItem[] = []
   const zapImpact = route ? getZapImpact(route.zapDetails.priceImpact, route.zapDetails.suggestedSlippage || 100) : null
-
-  if (route && slippage && route.zapDetails.suggestedSlippage > 0) {
-    if (slippage > 2 * route.zapDetails.suggestedSlippage) {
-      warnings.push({
-        tone: 'warning',
-        message: 'Your slippage is set higher than usual, which may cause unexpected losses.',
-      })
-    } else if (slippage < route.zapDetails.suggestedSlippage / 2) {
-      warnings.push({
-        tone: 'warning',
-        message: 'Your slippage is set lower than usual, increasing the risk of transaction failure.',
-      })
-    }
-  }
 
   if (route && totalInputUsd > 0 && route.zapDetails.suggestedSlippage > 0) {
     const remainingRatio = remainingUsd / totalInputUsd

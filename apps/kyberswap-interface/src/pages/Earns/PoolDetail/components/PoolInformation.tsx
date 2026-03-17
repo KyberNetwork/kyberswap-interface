@@ -1,13 +1,12 @@
 import { type CSSProperties, type ReactNode, useMemo, useState } from 'react'
 import { Text } from 'rebass'
-import { PoolDetail as PoolDetailData } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
+import { Pool } from 'pages/Earns/PoolDetail/types'
 import { formatPoolInfoCurrency, formatPoolInfoPercent } from 'pages/Earns/PoolDetail/utils/poolInformation'
-import { EarnPool } from 'pages/Earns/types'
 
 const POOL_INFO_TABS = ['Pool Information', 'Earning', 'Analytics'] as const
 
@@ -69,8 +68,7 @@ const TabButton = styled.button<{ $active: boolean }>`
 `
 
 interface PoolInformationProps {
-  pool?: EarnPool
-  poolDetail?: PoolDetailData
+  pool?: Pool
   chainName?: string
   dexName?: string
 }
@@ -124,9 +122,17 @@ const WiringCard = ({ label, value }: WiringCardProps) => {
   )
 }
 
-const PoolInformation = ({ pool, poolDetail, chainName, dexName }: PoolInformationProps) => {
+const PoolInformation = ({ pool, chainName, dexName }: PoolInformationProps) => {
   const theme = useTheme()
   const [activeTab, setActiveTab] = useState<(typeof POOL_INFO_TABS)[number]>(POOL_INFO_TABS[0])
+  const rewardApr = pool
+    ? (pool.kemEGApr || 0) +
+      (pool.kemLMApr || 0) +
+      (pool.bonusApr || 0) +
+      ((pool.kemEGApr || pool.kemLMApr || pool.bonusApr ? 0 : pool.poolStats?.kemEGApr24h || 0) +
+        (pool.poolStats?.kemLMApr24h || 0) +
+        (pool.poolStats?.bonusApr || 0))
+    : undefined
 
   const poolContent = useMemo(
     () => (
@@ -134,7 +140,7 @@ const PoolInformation = ({ pool, poolDetail, chainName, dexName }: PoolInformati
         <Stack gap={12}>
           <SectionCaption color={theme.text}>Pool Wiring</SectionCaption>
           <HStack align="stretch" gap={12} wrap="wrap">
-            <WiringCard label="Pool Address" value={pool?.address || poolDetail?.address || '--'} />
+            <WiringCard label="Pool Address" value={pool?.address || '--'} />
             <WiringCard label="Protocol And Chain" value={[dexName, chainName].filter(Boolean).join(' · ') || '--'} />
           </HStack>
         </Stack>
@@ -142,23 +148,20 @@ const PoolInformation = ({ pool, poolDetail, chainName, dexName }: PoolInformati
         <HStack align="stretch" gap={12} wrap="wrap">
           <MetricCard
             label="TVL"
-            value={formatPoolInfoCurrency(pool?.tvl || Number(poolDetail?.reserveUsd))}
-            description="Explorer TVL with detail fallback."
+            value={formatPoolInfoCurrency(pool?.tvl ?? pool?.poolStats?.tvl ?? Number(pool?.reserveUsd))}
+            description="Explorer TVL, with pool detail fallback."
           />
           <MetricCard
             label="24H Volume"
-            value={formatPoolInfoCurrency(pool?.volume)}
-            description="From explorer listing data."
+            value={formatPoolInfoCurrency(pool?.volume ?? pool?.poolStats?.volume24h)}
+            description="Explorer 24h volume, with pool detail fallback."
           />
-          <MetricCard label="Pool Type" value={poolDetail?.type || '--'} description="From `usePoolDetailQuery`." />
+          <MetricCard label="Exchange" value={pool?.exchange || '--'} description="Returned by pool detail endpoint." />
+          <MetricCard label="Pool Type" value={pool?.type || '--'} description="Returned by pool detail endpoint." />
           <MetricCard
             label="Swap Fee"
             value={
-              pool?.feeTier !== undefined
-                ? `${pool.feeTier}%`
-                : poolDetail?.swapFee !== undefined
-                ? `${poolDetail.swapFee}%`
-                : '--'
+              pool?.swapFee !== undefined ? `${pool.swapFee}%` : pool?.feeTier !== undefined ? `${pool.feeTier}%` : '--'
             }
             description="Displayed in the header and route summary."
           />
@@ -167,28 +170,28 @@ const PoolInformation = ({ pool, poolDetail, chainName, dexName }: PoolInformati
         <HStack align="stretch" gap={12} wrap="wrap">
           <MetricCard
             label="Tick Spacing"
-            value={poolDetail?.positionInfo?.tickSpacing ?? '--'}
+            value={pool?.positionInfo?.tickSpacing ?? '--'}
             description="Needed for concentrated liquidity price range controls."
           />
           <MetricCard
             label="Current Tick"
-            value={poolDetail?.positionInfo?.tick ?? '--'}
+            value={pool?.positionInfo?.tick ?? '--'}
             description="Used to determine in-range and price visualization."
           />
           <MetricCard
             label="Reserve USD"
-            value={formatPoolInfoCurrency(Number(poolDetail?.reserveUsd))}
+            value={formatPoolInfoCurrency(Number(pool?.reserveUsd))}
             description="Raw reserve value from pool detail endpoint."
           />
           <MetricCard
             label="Amplified TVL"
-            value={formatPoolInfoCurrency(Number(poolDetail?.amplifiedTvl))}
+            value={formatPoolInfoCurrency(Number(pool?.amplifiedTvl))}
             description="Useful for amplified pools when provided."
           />
         </HStack>
       </>
     ),
-    [chainName, dexName, pool, poolDetail, theme.text],
+    [chainName, dexName, pool, theme.text],
   )
 
   const earningContent = useMemo(
@@ -197,35 +200,41 @@ const PoolInformation = ({ pool, poolDetail, chainName, dexName }: PoolInformati
         <HStack align="stretch" gap={12} wrap="wrap">
           <MetricCard
             label="Est. Pool APR"
-            value={formatPoolInfoPercent(pool?.allApr)}
-            description="Total APR from pool explorer."
+            value={formatPoolInfoPercent(pool?.allApr ?? pool?.poolStats?.allApr24h)}
+            description="Explorer APR, with pool detail stats fallback."
             valueColor={theme.primary}
           />
           <MetricCard
             label="LP APR"
-            value={formatPoolInfoPercent(pool?.lpApr)}
-            description="Base LP fee APR."
+            value={formatPoolInfoPercent(pool?.lpApr ?? pool?.poolStats?.lpApr24h)}
+            description="Explorer LP APR, with pool detail stats fallback."
             valueColor={theme.primary}
           />
           <MetricCard
             label="Reward APR"
-            value={formatPoolInfoPercent((pool?.kemEGApr || 0) + (pool?.kemLMApr || 0) + (pool?.bonusApr || 0))}
-            description="EG, LM, and bonus APR combined."
+            value={formatPoolInfoPercent(rewardApr)}
+            description="Combined reward APR from both sources."
             valueColor={theme.primary}
           />
           <MetricCard
             label="24H Earn Fees"
-            value={formatPoolInfoCurrency(pool?.earnFee)}
-            description="Explorer-side earning fee snapshot."
+            value={formatPoolInfoCurrency(pool?.earnFee ?? pool?.poolStats?.fees24h)}
+            description="Explorer earn fees, with pool detail stats fallback."
           />
         </HStack>
-        <NoteCard>
-          Reward sections, distributions, and farming cycle progress still need to be connected if this page is intended
-          to match the full widget or position detail experience.
-        </NoteCard>
+        <NoteCard>Pool detail page now merges data from pool explorer and pool detail into one `pool` object.</NoteCard>
       </>
     ),
-    [pool, theme.primary],
+    [
+      pool?.allApr,
+      pool?.earnFee,
+      pool?.lpApr,
+      pool?.poolStats?.allApr24h,
+      pool?.poolStats?.fees24h,
+      pool?.poolStats?.lpApr24h,
+      rewardApr,
+      theme.primary,
+    ],
   )
 
   const analyticsContent = useMemo(

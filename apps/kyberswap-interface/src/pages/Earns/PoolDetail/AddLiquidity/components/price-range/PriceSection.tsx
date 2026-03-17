@@ -38,7 +38,7 @@ export default function PriceSection({
   if (!context || !value) return null
 
   return (
-    <Stack gap={14}>
+    <Stack gap={16}>
       <PriceInfo
         pool={context.pool}
         poolPrice={value.poolPrice}

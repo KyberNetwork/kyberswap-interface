@@ -252,7 +252,7 @@ const Filter = ({
             value={filters.protocol}
             onChange={value => onProtocolChange(value)}
           />
-          <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
+          <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
         </Flex>
         <Flex alignItems={upToMedium ? 'stretch' : 'center'} style={{ gap: '12px' }} flexWrap="wrap">
           <Search

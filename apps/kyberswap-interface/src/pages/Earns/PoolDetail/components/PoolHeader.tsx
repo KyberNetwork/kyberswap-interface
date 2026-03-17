@@ -1,17 +1,16 @@
+import { formatAprNumber } from '@kyber/utils'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import { PoolDetail as PoolDetailData } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { Pool } from 'pages/Earns/PoolDetail/types'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
-import { EarnPool } from 'pages/Earns/types'
-import { formatDisplayNumber } from 'utils/numbers'
 
 const BackButton = styled.button`
   display: flex;
@@ -25,6 +24,9 @@ const BackButton = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.text};
   cursor: pointer;
+  :hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
 `
 
 const HeaderRow = styled(HStack)`
@@ -39,8 +41,7 @@ const HeaderRow = styled(HStack)`
 const PairTitle = styled(Text)`
   margin: 0;
   font-size: 24px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-weight: 500;
   white-space: nowrap;
 `
 
@@ -57,7 +58,7 @@ const AprBadge = styled(Text)`
   align-items: center;
   margin: 0;
   min-height: 32px;
-  padding: 6px 12px;
+  padding: 4px 12px;
   border-radius: 12px;
   background: rgba(49, 203, 158, 0.18);
   white-space: nowrap;
@@ -71,29 +72,19 @@ const ProtocolLogo = styled.img`
 `
 
 interface PoolHeaderProps {
-  pool?: EarnPool
-  poolDetail?: PoolDetailData
+  pool?: Pool
   chainId?: number
   exchange?: string
 }
 
-const PoolHeader = ({ pool, poolDetail, chainId, exchange }: PoolHeaderProps) => {
+const PoolHeader = ({ pool, chainId, exchange }: PoolHeaderProps) => {
   const navigate = useNavigate()
   const theme = useTheme()
 
-  const primaryToken = pool?.tokens?.[0] || poolDetail?.tokens?.[0]
-  const secondaryToken = pool?.tokens?.[1] || poolDetail?.tokens?.[1]
-  const pairLabel = primaryToken && secondaryToken ? `${primaryToken.symbol}/${secondaryToken.symbol}` : 'Pool Detail'
+  const primaryToken = pool?.tokens?.[0]
+  const secondaryToken = pool?.tokens?.[1]
   const dexInfo = exchange ? EARN_DEXES[exchange as Exchange] : undefined
-  const chainLogo = chainId ? NETWORKS_INFO[chainId as ChainId]?.icon : undefined
-  const feeLabel =
-    pool?.feeTier !== undefined
-      ? `${pool.feeTier}%`
-      : poolDetail?.swapFee !== undefined
-      ? `${poolDetail.swapFee}%`
-      : undefined
-  const aprValue = pool?.allApr
-  const dexLabel = dexInfo?.name || poolDetail?.type
+  const chainInfo = chainId ? NETWORKS_INFO[chainId as ChainId] : undefined
 
   return (
     <HeaderRow>
@@ -102,37 +93,29 @@ const PoolHeader = ({ pool, poolDetail, chainId, exchange }: PoolHeaderProps) =>
       </BackButton>
 
       <HStack flex="0 0 auto" align="flex-end" gap={0}>
-        <TokenLogo src={primaryToken && 'logoURI' in primaryToken ? primaryToken.logoURI : ''} size={28} />
-        <TokenLogo
-          src={secondaryToken && 'logoURI' in secondaryToken ? secondaryToken.logoURI : ''}
-          size={28}
-          translateLeft
-        />
-        {chainLogo ? <TokenLogo src={chainLogo} size={16} translateLeft translateTop /> : null}
+        <TokenLogo src={primaryToken?.logoURI} size={28} />
+        <TokenLogo src={secondaryToken?.logoURI} size={28} translateLeft />
+        <TokenLogo src={chainInfo?.icon} size={16} translateLeft translateTop />
       </HStack>
 
       <HStack align="center" gap={8} wrap="wrap" minWidth={0}>
-        <PairTitle color={theme.text}>{pairLabel}</PairTitle>
-        {dexLabel || feeLabel ? (
-          <ProtocolBadge align="center" gap={8}>
-            {dexInfo?.logo ? <ProtocolLogo alt={dexLabel || 'Protocol'} src={dexInfo.logo} /> : null}
-            {dexLabel ? (
-              <Text color={theme.text} fontSize={14} fontWeight={500} lineHeight="1" m={0}>
-                {dexLabel}
-              </Text>
-            ) : null}
-            {feeLabel ? (
-              <Text color={theme.subText} fontSize={14} fontWeight={400} lineHeight="1" m={0}>
-                | {feeLabel}
-              </Text>
-            ) : null}
-          </ProtocolBadge>
-        ) : null}
-        {aprValue !== undefined ? (
-          <AprBadge color={theme.primary} fontSize={14} fontWeight={600} lineHeight="1">
-            {formatDisplayNumber(aprValue / 100, { style: 'percent', significantDigits: 4 })}
-          </AprBadge>
-        ) : null}
+        <PairTitle color={theme.text}>
+          {primaryToken?.symbol || '---'}/{secondaryToken?.symbol || '---'}
+        </PairTitle>
+
+        <ProtocolBadge align="center" gap={8}>
+          <ProtocolLogo src={dexInfo?.logo} />
+          <Text color={theme.text} fontSize={14} fontWeight={500}>
+            {dexInfo?.name}
+          </Text>
+          <Text color={theme.subText} fontSize={14} fontWeight={500}>
+            | {pool?.swapFee || pool?.feeTier}%
+          </Text>
+        </ProtocolBadge>
+
+        <AprBadge color={theme.primary} fontSize={20} fontWeight={600}>
+          {formatAprNumber(pool?.allApr ?? pool?.poolStats?.allApr24h ?? 0)}%
+        </AprBadge>
       </HStack>
     </HeaderRow>
   )

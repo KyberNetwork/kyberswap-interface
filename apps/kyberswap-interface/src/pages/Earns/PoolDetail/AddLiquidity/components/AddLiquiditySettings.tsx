@@ -29,7 +29,7 @@ const TriggerButton = styled.button`
   }
 
   :hover {
-    filter: brightness(1.08);
+    background: ${({ theme }) => theme.tabActive};
   }
 `
 
@@ -117,7 +117,6 @@ export default function AddLiquiditySettings() {
 
   return (
     <>
-      <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
       <Wrapper ref={wrapperRef}>
         <TriggerButton
           type="button"
@@ -146,6 +145,8 @@ export default function AddLiquiditySettings() {
           </TooltipPanel>
         )}
       </Wrapper>
+
+      <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
     </>
   )
 }

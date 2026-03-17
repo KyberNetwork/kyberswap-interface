@@ -20,7 +20,6 @@ import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
-import { EarnPool } from 'pages/Earns/types'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -45,7 +44,6 @@ interface AddLiquidityWidgetProps {
   positionId?: string
   tickLower?: string | null
   tickUpper?: string | null
-  earnPool?: EarnPool
 }
 
 const AddLiquidityWidget = ({
@@ -55,7 +53,6 @@ const AddLiquidityWidget = ({
   positionId,
   tickLower,
   tickUpper,
-  earnPool,
 }: AddLiquidityWidgetProps) => {
   const navigate = useNavigate()
   const toggleWalletModal = useWalletModalToggle()
@@ -224,7 +221,6 @@ const AddLiquidityWidget = ({
         poolAddress,
         poolType,
         positionId,
-        earnPool,
         account: account || undefined,
       }}
       state={state}

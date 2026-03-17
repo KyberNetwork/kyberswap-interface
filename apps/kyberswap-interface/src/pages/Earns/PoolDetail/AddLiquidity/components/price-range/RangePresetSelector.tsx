@@ -1,33 +1,32 @@
 import { DEXES_INFO, NETWORKS_INFO, POOL_CATEGORY, Pool, PoolType, univ3PoolNormalize } from '@kyber/schema'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
+import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { HStack } from 'components/Stack'
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from 'pages/Earns/PoolDetail/AddLiquidity/constants'
 
+const SegmentedShell = styled(HStack)`
+  border-radius: 20px;
+  border: 1px solid ${({ theme }) => theme.tabActive};
+`
+
 const RangeButton = styled.button<{ $active: boolean }>`
   flex: 1 1 0;
   min-width: 0;
   border: none;
   border-radius: 20px;
-  padding: 10px 12px;
   background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
   color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
   font-size: 14px;
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   cursor: pointer;
+  padding: 8px 12px;
 
   :hover {
-    color: ${({ theme }) => theme.text};
+    background: ${({ theme, $active }) => ($active ? rgba(theme.tabActive, 0.88) : 'rgba(255, 255, 255, 0.04)')};
   }
-`
-
-const SegmentedShell = styled(HStack)`
-  padding: 4px;
-  border-radius: 20px;
-  border: 1px solid ${({ theme }) => theme.tabActive};
-  background: rgba(255, 255, 255, 0.02);
 `
 
 interface RangeOption {

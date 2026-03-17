@@ -3,6 +3,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import AddLiquidityReviewModal from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityReviewModal'
 import AddLiquidityRouteInsights from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityRouteInsights'
@@ -15,43 +16,18 @@ import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hook
 import useAddLiquidityState from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityState'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { Exchange } from 'pages/Earns/constants'
-import { EarnPool } from 'pages/Earns/types'
 
 const FormStack = styled(Stack)`
   width: 100%;
-  padding: 20px;
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(16, 16, 18, 0.98) 100%);
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 16px;
-    border-radius: 18px;
-  `}
+  padding: 16px;
+  border-radius: 12px;
+  background: ${({ theme }) => theme.background};
 `
 
 const WidgetTitle = styled(Text)`
   color: ${({ theme }) => theme.text};
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  margin: 0;
-`
-
-const FooterButton = styled.button<{ $primary?: boolean }>`
-  flex: 1 1 0;
-  height: 44px;
-  border: 1px solid ${({ theme, $primary }) => ($primary ? theme.primary : theme.tabActive)};
-  cursor: pointer;
-  border-radius: 14px;
-  background: ${({ theme, $primary }) => ($primary ? theme.primary : 'transparent')};
-  color: ${({ theme, $primary }) => ($primary ? theme.buttonBlack : theme.subText)};
-  font-size: 16px;
   font-weight: 500;
-
-  :disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  letter-spacing: 0.06em;
 `
 
 interface AddLiquidityWidgetViewContext {
@@ -60,7 +36,6 @@ interface AddLiquidityWidgetViewContext {
   poolAddress: string
   poolType: PoolType
   positionId?: string
-  earnPool?: EarnPool
   account?: string
 }
 
@@ -123,7 +98,6 @@ export default function AddLiquidityWidgetView({
     poolAddress,
     poolType,
     positionId,
-    earnPool,
     account,
   } = context
   const validationError = feedback?.validationError || ''
@@ -138,7 +112,7 @@ export default function AddLiquidityWidgetView({
 
   return (
     <FormStack gap={16}>
-      <Stack gap={20}>
+      <Stack gap={12}>
         <HStack align="center" justify="space-between">
           <WidgetTitle>ADD LIQUIDITY</WidgetTitle>
           <AddLiquiditySettings />
@@ -197,7 +171,6 @@ export default function AddLiquidityWidgetView({
           <PositionApr
             chainId={normalizedChainId}
             poolAddress={poolAddress}
-            pool={earnPool}
             isFarming={pool.isFarming}
             tickLower={state.priceRange.tickLower}
             tickUpper={state.priceRange.tickUpper}
@@ -220,42 +193,39 @@ export default function AddLiquidityWidgetView({
         <AddLiquidityRouteInsights data={reviewData} degenModeBlocked={isZapImpactBlocked} />
       ) : null}
 
-      <Stack gap={8}>
-        <SlippageControl
-          context={{
-            chainId: normalizedChainId,
-            poolType,
-            pool,
-          }}
-          value={{
-            slippage: state.slippage.value,
-            suggestedSlippage: state.slippage.suggestedValue,
-          }}
-          onTrackEvent={onTrackEvent}
-          onSlippageChange={state.slippage.setValue}
-        />
+      <SlippageControl
+        context={{
+          chainId: normalizedChainId,
+          poolType,
+          pool,
+        }}
+        value={{
+          slippage: state.slippage.value,
+          suggestedSlippage: state.slippage.suggestedValue,
+        }}
+        onTrackEvent={onTrackEvent}
+        onSlippageChange={state.slippage.setValue}
+      />
 
-        <HStack gap={16}>
-          <FooterButton type="button">Cancel</FooterButton>
-          <FooterButton
-            $primary
-            disabled={
-              !!account &&
-              (!hasPositiveInput ||
-                !!validationError ||
-                !state.route.data ||
-                isApprovalLoading ||
-                (isZapImpactBlocked && !needsApprovalAction))
-            }
-            onClick={() => {
-              void action?.onPrimaryAction?.()
-            }}
-            type="button"
-          >
-            {primaryActionText}
-          </FooterButton>
-        </HStack>
-      </Stack>
+      <HStack gap={16}>
+        <ButtonOutlined>Cancel</ButtonOutlined>
+        <ButtonPrimary
+          disabled={
+            !!account &&
+            (!hasPositiveInput ||
+              !!validationError ||
+              !state.route.data ||
+              isApprovalLoading ||
+              (isZapImpactBlocked && !needsApprovalAction))
+          }
+          onClick={() => {
+            void action?.onPrimaryAction?.()
+          }}
+          altDisabledStyle
+        >
+          {primaryActionText}
+        </ButtonPrimary>
+      </HStack>
 
       <AddLiquidityReviewModal
         isOpen={reviewDialog?.isOpen}
