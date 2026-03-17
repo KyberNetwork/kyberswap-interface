@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -97,12 +97,38 @@ const SettingDescription = styled(Text)`
   line-height: 1.5;
 `
 
-export default function AddLiquiditySettings() {
+const DegenModeRow = styled(HStack)<{ $highlight?: boolean }>`
+  margin: ${({ $highlight }) => ($highlight ? '0 -8px' : '0')};
+  padding: ${({ $highlight }) => ($highlight ? '4px 8px' : '4px 0')};
+  border-radius: 12px;
+  background: ${({ theme, $highlight }) => ($highlight ? rgba(theme.warning, 0.12) : 'transparent')};
+  transition: background 0.2s ease, padding 0.2s ease, margin 0.2s ease;
+`
+
+interface AddLiquiditySettingsProps {
+  isOpen?: boolean
+  onOpenChange?: React.Dispatch<React.SetStateAction<boolean>>
+  highlightDegenMode?: boolean
+}
+
+export default function AddLiquiditySettings({
+  isOpen: controlledOpen,
+  onOpenChange,
+  highlightDegenMode = false,
+}: AddLiquiditySettingsProps) {
   const theme = useTheme()
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
-  const [isOpen, setIsOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const isOpen = controlledOpen ?? internalOpen
+  const setIsOpen = onOpenChange ?? setInternalOpen
+
+  useEffect(() => {
+    if (controlledOpen !== undefined) return
+    if (!highlightDegenMode) return
+    setInternalOpen(true)
+  }, [controlledOpen, highlightDegenMode])
 
   useOnClickOutside(wrapperRef, isOpen ? () => setIsOpen(false) : undefined)
 
@@ -119,6 +145,7 @@ export default function AddLiquiditySettings() {
     <>
       <Wrapper ref={wrapperRef}>
         <TriggerButton
+          id="earn-add-liquidity-setting"
           type="button"
           aria-label="Advanced settings"
           data-active={isOpen}
@@ -130,12 +157,12 @@ export default function AddLiquiditySettings() {
         {isOpen && (
           <TooltipPanel gap={8}>
             <PanelTitle>Advanced Setting</PanelTitle>
-            <HStack align="center" gap={12} justify="space-between">
+            <DegenModeRow align="center" gap={12} justify="space-between" $highlight={highlightDegenMode}>
               <SettingLabel>
                 <Trans>Degen Mode</Trans>
               </SettingLabel>
               <Toggle isActive={isDegenMode} toggle={handleToggleDegenMode} />
-            </HStack>
+            </DegenModeRow>
             <SettingDescription>
               <Trans>
                 Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can

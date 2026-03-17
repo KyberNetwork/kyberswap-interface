@@ -1,9 +1,10 @@
 import { PoolType } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonErrorStyle, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import AddLiquidityReviewModal from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityReviewModal'
 import AddLiquidityRouteInsights from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityRouteInsights'
@@ -109,14 +110,42 @@ export default function AddLiquidityWidgetView({
   const primaryActionText = action?.primaryActionText || 'Preview'
   const shouldShowFeedback = Boolean(account)
   const pool = state.pool.data
+  const PrimaryActionButton = isZapImpactBlocked && !needsApprovalAction ? ButtonErrorStyle : ButtonPrimary
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [highlightDegenMode, setHighlightDegenMode] = useState(false)
+
+  useEffect(() => {
+    if (!highlightDegenMode) return
+
+    const timeoutId = window.setTimeout(() => {
+      setHighlightDegenMode(false)
+    }, 4000)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [highlightDegenMode])
+
   if (!pool) return null
+
+  const openDegenModeSetting = () => {
+    setIsSettingsOpen(true)
+    setHighlightDegenMode(true)
+    window.setTimeout(() => {
+      document.getElementById('earn-add-liquidity-setting')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 0)
+  }
 
   return (
     <FormStack gap={16}>
       <Stack gap={12}>
         <HStack align="center" justify="space-between">
           <WidgetTitle>ADD LIQUIDITY</WidgetTitle>
-          <AddLiquiditySettings />
+          <AddLiquiditySettings
+            isOpen={isSettingsOpen}
+            onOpenChange={setIsSettingsOpen}
+            highlightDegenMode={highlightDegenMode}
+          />
         </HStack>
 
         <AddLiquidityTokenInput
@@ -214,22 +243,19 @@ export default function AddLiquidityWidgetView({
 
       <HStack gap={16}>
         <ButtonOutlined>Cancel</ButtonOutlined>
-        <ButtonPrimary
-          disabled={
-            !!account &&
-            (!hasPositiveInput ||
-              !!validationError ||
-              !state.route.data ||
-              isApprovalLoading ||
-              (isZapImpactBlocked && !needsApprovalAction))
-          }
+        <PrimaryActionButton
+          disabled={!!account && (!hasPositiveInput || !!validationError || !state.route.data || isApprovalLoading)}
           onClick={() => {
+            if (isZapImpactBlocked && !needsApprovalAction) {
+              openDegenModeSetting()
+              return
+            }
             void action?.onPrimaryAction?.()
           }}
           altDisabledStyle
         >
           {primaryActionText}
-        </ButtonPrimary>
+        </PrimaryActionButton>
       </HStack>
 
       <AddLiquidityReviewModal
@@ -241,10 +267,18 @@ export default function AddLiquidityWidgetView({
         txHash={reviewDialog?.txHash}
         txStatus={reviewDialog?.txStatus}
         txError={reviewDialog?.txError}
+        slippage={state.slippage.value}
+        suggestedSlippage={state.slippage.suggestedValue}
         transactionExplorerUrl={reviewDialog?.transactionExplorerUrl}
         onDismiss={reviewDialog?.onDismiss}
         onConfirm={() => {
           void reviewDialog?.onConfirm?.()
+        }}
+        onUseSuggestedSlippage={() => {
+          if (state.slippage.suggestedValue !== undefined && state.slippage.value !== state.slippage.suggestedValue) {
+            state.slippage.setValue(state.slippage.suggestedValue)
+          }
+          reviewDialog?.onDismiss?.()
         }}
         onRevertPriceToggle={state.priceRange.toggleRevertPrice}
         onViewPosition={reviewDialog?.onViewPosition}

@@ -137,6 +137,7 @@ export default function useAddLiquidityWidgetActions({
     if (approval.nftApprovalPending) return 'Approving NFT...'
     if (approval.nftApprovalChecking) return 'Checking NFT Approval...'
     if (approval.needsNftApproval) return 'Approve NFT'
+    if (isZapImpactBlocked) return 'Zap anyway'
     if (isPreviewLoading) return 'Building...'
     return 'Preview'
   }, [
@@ -149,6 +150,7 @@ export default function useAddLiquidityWidgetActions({
     approval.permitState,
     approval.tokenApprovalPending,
     chainId,
+    isZapImpactBlocked,
     isPreviewLoading,
     walletChainId,
   ])

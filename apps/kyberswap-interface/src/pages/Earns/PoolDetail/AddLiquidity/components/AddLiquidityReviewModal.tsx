@@ -1,4 +1,5 @@
 import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
+import { t } from '@lingui/macro'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -22,9 +23,12 @@ interface AddLiquidityReviewModalProps {
   txHash?: string
   txStatus?: 'success' | 'failed' | 'cancelled' | ''
   txError?: string | null
+  slippage?: number
+  suggestedSlippage?: number
   transactionExplorerUrl?: string
   onDismiss?: () => void
   onConfirm?: () => void
+  onUseSuggestedSlippage?: () => void
   onRevertPriceToggle?: () => void
   onViewPosition?: () => void
 }
@@ -102,6 +106,44 @@ const RangeBox = styled(Stack)`
   background: rgba(255, 255, 255, 0.05);
 `
 
+const EstimateTokenBox = styled(Stack)`
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 4px;
+`
+
+const Divider = styled.div`
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+`
+
+const MetricCard = styled(Stack)`
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+`
+
+const MetricTitle = styled(Text)`
+  margin: 0;
+  width: fit-content;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.22);
+  color: ${({ theme }) => theme.subText};
+  font-size: 12px;
+  line-height: 1.2;
+`
+
+const DisclaimerText = styled(Text)`
+  margin: 0;
+  color: ${({ theme }) => theme.subText};
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.5;
+`
+
 const IconButton = styled.button`
   display: flex;
   align-items: center;
@@ -147,6 +189,11 @@ const WarningCard = styled(Stack)<{ $tone: 'info' | 'warning' | 'error' }>`
   line-height: 1.5;
 `
 
+const formatBpsLabel = (value?: number) => {
+  if (value === undefined) return '--'
+  return `${parseFloat((((value || 0) * 100) / 10_000).toFixed(2)).toString()}%`
+}
+
 export default function AddLiquidityReviewModal({
   isOpen = false,
   exchange,
@@ -157,9 +204,12 @@ export default function AddLiquidityReviewModal({
   txHash,
   txStatus = '',
   txError,
+  slippage,
+  suggestedSlippage,
   transactionExplorerUrl,
   onDismiss,
   onConfirm,
+  onUseSuggestedSlippage,
   onRevertPriceToggle,
   onViewPosition,
 }: AddLiquidityReviewModalProps) {
@@ -167,11 +217,14 @@ export default function AddLiquidityReviewModal({
   const protocol = exchange ? EARN_DEXES[exchange as Exchange] : undefined
   const header = data?.header
   const zapInItems = data?.zapInItems || []
+  const estimate = data?.estimate
   const priceInfo = data?.priceInfo
   const warnings = data?.warnings || []
 
   if (confirmLoading || txHash || txError || txStatus) {
     const translatedErrorMessage = txError ? translateFriendlyErrorMessage(txError) : undefined
+    const errorMessage = txError?.toLowerCase() || ''
+    const isSlippageError = errorMessage.includes('slippage')
 
     return (
       <StatusDialog
@@ -199,6 +252,10 @@ export default function AddLiquidityReviewModal({
             {txStatus === 'success' && onViewPosition ? (
               <button className="ks-primary-btn flex-1" onClick={onViewPosition}>
                 View position
+              </button>
+            ) : isSlippageError ? (
+              <button className="ks-primary-btn flex-1" onClick={onUseSuggestedSlippage || onDismiss}>
+                {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
               </button>
             ) : null}
           </>
@@ -296,6 +353,61 @@ export default function AddLiquidityReviewModal({
           </Card>
         )}
 
+        {estimate && (
+          <Card gap={14}>
+            <HStack align="center" justify="space-between">
+              <BodyText color={theme.subText}>Est. Liquidity Value</BodyText>
+              <TotalText color={theme.text}>
+                {formatDisplayNumber(estimate.totalUsd || 0, { style: 'currency', significantDigits: 6 })}
+              </TotalText>
+            </HStack>
+
+            <HStack align="flex-start" gap={12}>
+              {estimate.items?.map(item => (
+                <EstimateTokenBox key={item.token.address}>
+                  <HStack align="center" gap={6} minWidth={0}>
+                    <TokenLogo src={item.token.logo} size={16} />
+                    <ValueText color={theme.text}>
+                      {formatDisplayNumber(item.amount, { significantDigits: 8 })} {item.token.symbol}
+                    </ValueText>
+                  </HStack>
+                  <LabelText color={theme.subText}>
+                    ~{formatDisplayNumber(item.usdValue, { style: 'currency', significantDigits: 6 })}
+                  </LabelText>
+                </EstimateTokenBox>
+              ))}
+            </HStack>
+
+            <Divider />
+
+            <HStack align="center" justify="space-between">
+              <BodyText color={theme.subText}>Max Slippage</BodyText>
+              <ValueText color={theme.text}>{formatBpsLabel(estimate.slippage)}</ValueText>
+            </HStack>
+
+            <HStack align="stretch" gap={10}>
+              <MetricCard>
+                <MetricTitle color={theme.subText}>Est. Remaining</MetricTitle>
+                <ValueText color={theme.text}>
+                  {formatDisplayNumber(estimate.remainingUsd || 0, { style: 'currency', significantDigits: 6 })}
+                </ValueText>
+              </MetricCard>
+              <MetricCard>
+                <MetricTitle color={theme.subText}>Zap Impact</MetricTitle>
+                <ValueText color={theme.text}>{estimate.zapImpact?.display || '--'}</ValueText>
+              </MetricCard>
+              <MetricCard>
+                <MetricTitle color={theme.subText}>Zap Fee</MetricTitle>
+                <ValueText color={theme.text}>
+                  {estimate.zapFeePercent !== undefined
+                    ? `${parseFloat(estimate.zapFeePercent.toFixed(2)).toString()}%`
+                    : '--'}
+                </ValueText>
+              </MetricCard>
+            </HStack>
+          </Card>
+        )}
+
         {warnings.length ? (
           <Stack gap={10}>
             {warnings.map((warning, index) => (
@@ -305,6 +417,11 @@ export default function AddLiquidityReviewModal({
             ))}
           </Stack>
         ) : null}
+
+        <DisclaimerText color={theme.subText}>
+          The information is intended solely for your reference at the time you are viewing. It is your responsibility
+          to verify all information before making decisions
+        </DisclaimerText>
 
         <ConfirmButton disabled={confirmDisabled} onClick={onConfirm} type="button">
           {confirmLoading ? 'Building...' : confirmText}
