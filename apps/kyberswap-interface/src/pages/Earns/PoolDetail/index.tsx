@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { PoolDetail, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
+import { usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import AddLiquidity from 'pages/Earns/PoolDetail/AddLiquidity'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
 import PoolInformation from 'pages/Earns/PoolDetail/components/PoolInformation'
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
+import { Pool } from 'pages/Earns/PoolDetail/types'
 
 const PoolDetailPage = () => {
   const [searchParams] = useSearchParams()
@@ -35,9 +36,10 @@ const PoolDetailPage = () => {
   )
   const explorerPool = explorerData?.data?.pools?.[0]
 
-  const pool = useMemo<PoolDetail | undefined>(() => {
+  const pool = useMemo<Pool | undefined>(() => {
     if (!poolDetail) return undefined
     return {
+      ...explorerPool,
       ...poolDetail,
       tokens: poolDetail.tokens.map((token, index) => {
         return {
@@ -52,7 +54,6 @@ const PoolDetailPage = () => {
     <PoolDetailWrapper>
       <PoolHeader pool={pool} chainId={chainId} exchange={exchange} />
       <AddLiquidity
-        pool={pool}
         route={{
           exchange,
           poolAddress,

@@ -41,7 +41,7 @@ const AddLiquidity = ({ children, route }: AddLiquidityProps) => {
           onRoutePreviewDataChange={handleRoutePreviewDataChange}
         />
       </Stack>
-      <Stack flex="1 1 320px" gap={16} minWidth={0}>
+      <Stack flex="1 1 320px" gap={24} minWidth={0}>
         <AddLiquidityRoutePreview pool={routePreviewData?.pool} reviewData={routePreviewData?.reviewData} />
         {children}
       </Stack>

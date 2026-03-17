@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import KNC from 'assets/images/KNC.svg'
+import { ReactComponent as KyberLogo } from 'assets/svg/kyber/kyber_logo.svg'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityReviewData'
@@ -241,7 +241,7 @@ export default function AddLiquidityRoutePreview({ pool, reviewData }: AddLiquid
         <TrackLine />
         <TrackStartDot />
         <StepPill>
-          <img src={KNC} alt="knc-logo" width="18px" height="18px" />
+          <KyberLogo width={18} height={18} />
           <StepText>Kyber Zap</StepText>
         </StepPill>
       </StepTrack>

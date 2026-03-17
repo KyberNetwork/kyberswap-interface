@@ -25,6 +25,7 @@ const DropdownMenu = ({
   width,
   tooltip,
   flatten,
+  background,
   fullWidth = false,
   alignLeft = false,
   mobileFullWidth = false,
@@ -37,6 +38,7 @@ const DropdownMenu = ({
   width?: number
   tooltip?: string
   flatten?: boolean
+  background?: string
   fullWidth?: boolean
   alignLeft?: boolean
   mobileFullWidth?: boolean
@@ -128,7 +130,12 @@ const DropdownMenu = ({
       ref={ref}
     >
       <MouseoverTooltipDesktopOnly text={!open && tooltip} placement="top" width="260px">
-        <DropdownTitleWrapper flatten={flatten} highlight={flatten && open} onClick={handleOpenChange}>
+        <DropdownTitleWrapper
+          flatten={flatten}
+          background={background}
+          highlight={flatten && open}
+          onClick={handleOpenChange}
+        >
           <DropdownTitle
             justifyContent={alignLeft ? 'flex-start' : 'center'}
             width={width}

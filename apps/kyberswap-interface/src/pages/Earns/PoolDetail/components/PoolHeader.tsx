@@ -1,11 +1,14 @@
 import { formatAprNumber } from '@kyber/utils'
+import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import CopyHelper from 'components/Copy'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { Pool } from 'pages/Earns/PoolDetail/types'
@@ -71,6 +74,31 @@ const ProtocolLogo = styled.img`
   width: 14px;
 `
 
+const PairInfoTrigger = styled(HStack)`
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+`
+
+const TooltipContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 240px;
+`
+
+const TooltipRow = styled(HStack)`
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+`
+
+const TooltipAddress = styled(Text)`
+  margin: 0;
+  color: ${({ theme }) => theme.subText};
+  font-size: 14px;
+`
+
 interface PoolHeaderProps {
   pool?: Pool
   chainId?: number
@@ -86,22 +114,66 @@ const PoolHeader = ({ pool, chainId, exchange }: PoolHeaderProps) => {
   const dexInfo = exchange ? EARN_DEXES[exchange as Exchange] : undefined
   const chainInfo = chainId ? NETWORKS_INFO[chainId as ChainId] : undefined
 
+  const pairTooltip = (
+    <TooltipContent>
+      {pool && (
+        <TooltipRow>
+          <HStack flex="0 0 auto" align="center" gap={0}>
+            <TokenLogo src={primaryToken?.logoURI} size={18} />
+            <TokenLogo src={secondaryToken?.logoURI} size={18} translateLeft />
+          </HStack>
+          <Text color={theme.text} fontSize={14} fontWeight={500}>
+            {primaryToken?.symbol}/{secondaryToken?.symbol}
+          </Text>
+          <TooltipAddress>{shortenAddress(pool.address, 4)}</TooltipAddress>
+          <CopyHelper size={14} margin="0" toCopy={pool.address} />
+        </TooltipRow>
+      )}
+
+      {primaryToken && (
+        <TooltipRow>
+          <TokenLogo src={primaryToken?.logoURI} size={18} />
+          <Text color={theme.text} fontSize={14} fontWeight={500}>
+            {primaryToken?.symbol}
+          </Text>
+          <TooltipAddress>{shortenAddress(primaryToken.address, 4)}</TooltipAddress>
+          <CopyHelper size={14} margin="0" toCopy={primaryToken.address} />
+        </TooltipRow>
+      )}
+
+      {secondaryToken && (
+        <TooltipRow>
+          <TokenLogo src={secondaryToken?.logoURI} size={18} />
+          <Text color={theme.text} fontSize={14} fontWeight={500}>
+            {secondaryToken?.symbol}
+          </Text>
+          <TooltipAddress>{shortenAddress(secondaryToken.address, 4)}</TooltipAddress>
+          <CopyHelper size={14} margin="0" toCopy={secondaryToken.address} />
+        </TooltipRow>
+      )}
+    </TooltipContent>
+  )
+
   return (
     <HeaderRow>
       <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
         <IconArrowLeft />
       </BackButton>
 
-      <HStack flex="0 0 auto" align="flex-end" gap={0}>
-        <TokenLogo src={primaryToken?.logoURI} size={28} />
-        <TokenLogo src={secondaryToken?.logoURI} size={28} translateLeft />
-        <TokenLogo src={chainInfo?.icon} size={16} translateLeft translateTop />
-      </HStack>
-
       <HStack align="center" gap={8} wrap="wrap" minWidth={0}>
-        <PairTitle color={theme.text}>
-          {primaryToken?.symbol || '---'}/{secondaryToken?.symbol || '---'}
-        </PairTitle>
+        <MouseoverTooltipDesktopOnly text={pairTooltip} width="fit-content" placement="bottom">
+          <PairInfoTrigger>
+            <HStack flex="0 0 auto" align="flex-end" gap={0}>
+              <TokenLogo src={primaryToken?.logoURI} size={28} />
+              <TokenLogo src={secondaryToken?.logoURI} size={28} translateLeft />
+              <TokenLogo src={chainInfo?.icon} size={16} translateLeft translateTop />
+            </HStack>
+
+            <PairTitle color={theme.text}>
+              {primaryToken?.symbol || '---'}/{secondaryToken?.symbol || '---'}
+            </PairTitle>
+          </PairInfoTrigger>
+        </MouseoverTooltipDesktopOnly>
 
         <ProtocolBadge align="center" gap={8}>
           <ProtocolLogo src={dexInfo?.logo} />

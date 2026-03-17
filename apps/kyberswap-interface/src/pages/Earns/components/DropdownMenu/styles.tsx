@@ -3,10 +3,10 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
-export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: boolean }>`
+export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: boolean; background?: string }>`
   width: 100%;
-  background: ${({ theme, highlight, flatten }) =>
-    highlight ? rgba(flatten ? theme.primary : theme.blue, 0.2) : theme.background};
+  background: ${({ theme, highlight, flatten, background }) =>
+    highlight ? rgba(flatten ? theme.primary : theme.blue, 0.2) : background || theme.background};
   border: ${({ theme, highlight, flatten }) =>
     flatten ? `1px solid ${highlight ? theme.primary : 'transparent'}` : 'none'};
   border-radius: 30px;
