@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import {
+  useGetSafePalCampaignJoinedStatsQuery,
   useGetSafePalCampaignTransactionsQuery,
   useGetSafePalCampaignUserStatsQuery,
   useGetSafePalCampaignWeeklyStatsQuery,
@@ -59,7 +60,15 @@ export default function SafePalCampaignStats({ selectedWeek }: { selectedWeek: n
       fromTs: selectedRange?.start || 0,
       toTs: selectedRange?.end || 0,
     },
-    { skip: !account || !selectedRange },
+    { skip: !account || !selectedRange, pollingInterval: 10_000 },
+  )
+
+  const { data: joinedStats } = useGetSafePalCampaignJoinedStatsQuery(
+    {
+      fromTs: selectedRange?.start || 0,
+      toTs: selectedRange?.end || 0,
+    },
+    { skip: !selectedRange, pollingInterval: 10_000 },
   )
 
   const { data: userStats } = useGetSafePalCampaignUserStatsQuery(
@@ -68,7 +77,7 @@ export default function SafePalCampaignStats({ selectedWeek }: { selectedWeek: n
       fromTs: selectedRange?.start || 0,
       toTs: selectedRange?.end || 0,
     },
-    { skip: !selectedRange || !account },
+    { skip: !selectedRange || !account, pollingInterval: 10_000 },
   )
 
   return (
@@ -87,7 +96,7 @@ export default function SafePalCampaignStats({ selectedWeek }: { selectedWeek: n
           <Trans>Participants</Trans>
         </Text>
         <Text marginTop="8px" fontSize={20} fontWeight="500">
-          {formatCountValue(userStats?.total_users)}
+          {formatCountValue(joinedStats?.user_joinned)}
         </Text>
       </StatCard>
 
