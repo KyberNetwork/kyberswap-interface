@@ -189,6 +189,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     fetcher: getRoute,
     result,
     isLoading: routeLoading,
+    intendedFeeConfig,
   } = useGetRoute({
     currencyIn,
     currencyOut,
@@ -208,6 +209,23 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
   const routeSummary = getRouteResponse?.routeSummary
+
+  // Detect if a browser extension tampered with the fee params in the API request
+  const isFeeTampered = useMemo(() => {
+    const responseExtraFee = getRouteRawResponse?.data?.routeSummary?.extraFee
+    if (!responseExtraFee) return false
+
+    const intended = intendedFeeConfig.current
+    const responseFeeReceiver = responseExtraFee.feeReceiver?.toLowerCase() || ''
+    const intendedFeeReceiver = intended.feeReceiver?.toLowerCase() || ''
+
+    // If API returned a feeReceiver that UI never intended to send
+    if (responseFeeReceiver && responseFeeReceiver !== intendedFeeReceiver) return true
+    // If API returned a feeAmount that UI never intended to send
+    if (responseExtraFee.feeAmount && responseExtraFee.feeAmount !== intended.feeAmount) return true
+
+    return false
+  }, [getRouteRawResponse?.data?.routeSummary?.extraFee, intendedFeeConfig])
 
   const buildRoute = useBuildRoute({
     recipient: isDegenMode && recipient ? recipient : '',
@@ -316,6 +334,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               slippage={slippage}
               disableRefresh={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
               refreshCallback={getRoute}
+              isFeeTampered={isFeeTampered}
             />
           )}
 
