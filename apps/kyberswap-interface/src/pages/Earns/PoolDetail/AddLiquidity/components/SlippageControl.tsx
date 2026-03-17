@@ -289,15 +289,14 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
   const handleCustomBlur = (value: string) => {
     setIsFocus(false)
 
-    if (!value) {
-      syncCustomState(suggestedSlippage || 10)
-      applySlippage(suggestedSlippage || 10)
+    if (!value || !isValid) {
+      const nextSlippage = slippage ?? (suggestedSlippage || 10)
+      syncCustomState(nextSlippage)
+      applySlippage(nextSlippage)
       return
     }
 
-    if (isValid) {
-      applySlippage(parseSlippageInput(value))
-    }
+    applySlippage(parseSlippageInput(value))
   }
 
   const handleCustomChange = (value: string) => {

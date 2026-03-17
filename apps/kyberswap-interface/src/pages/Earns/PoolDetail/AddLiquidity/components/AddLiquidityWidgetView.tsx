@@ -10,8 +10,8 @@ import AddLiquidityRouteInsights from 'pages/Earns/PoolDetail/AddLiquidity/compo
 import AddLiquiditySettings from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings'
 import AddLiquidityTokenInput from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityTokenInput'
 import PositionApr from 'pages/Earns/PoolDetail/AddLiquidity/components/PositionApr'
+import PriceSection from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection'
 import SlippageControl from 'pages/Earns/PoolDetail/AddLiquidity/components/SlippageControl'
-import PriceSection from 'pages/Earns/PoolDetail/AddLiquidity/components/price-range/PriceSection'
 import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/reviewData'
 import useAddLiquidityState from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityState'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
@@ -107,6 +107,7 @@ export default function AddLiquidityWidgetView({
   const needsApprovalAction = Boolean(action?.needsApprovalAction)
   const hasPositiveInput = Boolean(action?.hasPositiveInput)
   const primaryActionText = action?.primaryActionText || 'Preview'
+  const shouldShowFeedback = Boolean(account)
   const pool = state.pool.data
   if (!pool) return null
 
@@ -135,6 +136,7 @@ export default function AddLiquidityWidgetView({
             amounts: state.tokenInput.amounts,
             balances: state.tokenInput.balances,
             prices: state.tokenInput.prices,
+            route: state.route.data,
             slippage: state.slippage.value,
             tickLower: state.priceRange.tickLower,
             tickUpper: state.priceRange.tickUpper,
@@ -181,15 +183,18 @@ export default function AddLiquidityWidgetView({
         </>
       )}
 
-      {validationError ? <NoteCard $warning>{validationError}</NoteCard> : null}
-      {securityWarnings.map(message => (
-        <NoteCard key={message} $warning>
-          {message}
-        </NoteCard>
-      ))}
-      {!validationError && state.route.error ? <NoteCard $warning>{state.route.error}</NoteCard> : null}
+      {shouldShowFeedback && validationError ? <NoteCard $warning>{validationError}</NoteCard> : null}
+      {shouldShowFeedback &&
+        securityWarnings.map(message => (
+          <NoteCard key={message} $warning>
+            {message}
+          </NoteCard>
+        ))}
+      {shouldShowFeedback && !validationError && state.route.error ? (
+        <NoteCard $warning>{state.route.error}</NoteCard>
+      ) : null}
 
-      {!state.route.error ? (
+      {shouldShowFeedback && !state.route.error ? (
         <AddLiquidityRouteInsights data={reviewData} degenModeBlocked={isZapImpactBlocked} />
       ) : null}
 

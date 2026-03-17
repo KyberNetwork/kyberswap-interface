@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import AddLiquiditySettings from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings'
-import { LiquidityChartSkeleton } from 'pages/Earns/PoolDetail/AddLiquidity/components/price-range/LiquidityChart'
+import { LiquidityChartSkeleton } from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection/LiquidityChart'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 
 const FormStack = styled(Stack)`

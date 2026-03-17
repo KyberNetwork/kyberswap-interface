@@ -46,6 +46,17 @@ export default function useAddLiquidityRoute({
   const debouncedAmountsIn = useDebounce(amountsIn, 200)
   const debouncedTickLower = useDebounce(tickLower, 150)
   const debouncedTickUpper = useDebounce(tickUpper, 150)
+  const isRouteActive = useMemo(() => {
+    if (!pool || !slippage || !tokensIn.length || !hasPositiveAmount(amountsIn)) return false
+
+    if ('minTick' in pool && 'maxTick' in pool) {
+      if (tickLower == null || tickUpper == null || tickLower >= tickUpper) {
+        return false
+      }
+    }
+
+    return true
+  }, [amountsIn, pool, slippage, tickLower, tickUpper, tokensIn])
 
   const queryArgs = useMemo(() => {
     if (!pool || !slippage || !tokensIn.length || !hasPositiveAmount(debouncedAmountsIn)) return skipToken
@@ -89,8 +100,10 @@ export default function useAddLiquidityRoute({
   })
 
   return {
-    route: routeResult.data || null,
-    routeError: getErrorMessage(routeResult.error as FetchBaseQueryError | { error?: string } | undefined),
-    routeLoading: routeResult.isLoading || routeResult.isFetching,
+    route: isRouteActive ? routeResult.data || null : null,
+    routeError: isRouteActive
+      ? getErrorMessage(routeResult.error as FetchBaseQueryError | { error?: string } | undefined)
+      : '',
+    routeLoading: isRouteActive ? routeResult.isLoading || routeResult.isFetching : false,
   }
 }

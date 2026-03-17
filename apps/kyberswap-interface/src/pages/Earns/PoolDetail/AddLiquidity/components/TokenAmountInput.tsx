@@ -9,6 +9,7 @@ import { ReactComponent as CloseIcon } from 'assets/images/x.svg'
 import { ReactComponent as WalletIcon } from 'assets/svg/earn/ic_add_liquidity_wallet.svg'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled(Stack)`
@@ -261,3 +262,27 @@ const TokenAmountInput = ({
 }
 
 export default TokenAmountInput
+
+export const TokenAmountInputSkeleton = () => (
+  <Card gap={16}>
+    <HStack align="center" justify="space-between" gap={12}>
+      <HStack align="center" gap={8} wrap="wrap">
+        {[0, 1, 2, 3].map(item => (
+          <PositionSkeleton key={item} width={40} height={24} style={{ borderRadius: 999 }} />
+        ))}
+      </HStack>
+
+      <HStack align="center" gap={6}>
+        <BalanceIcon width={14} height={14} />
+        <PositionSkeleton width={52} height={14} />
+      </HStack>
+    </HStack>
+
+    <HStack align="center" gap={12}>
+      <Stack flex={1} minWidth={0} gap={8}>
+        <PositionSkeleton width="40%" height={30} />
+      </Stack>
+      <PositionSkeleton width={92} height={34} style={{ borderRadius: 999 }} />
+    </HStack>
+  </Card>
+)

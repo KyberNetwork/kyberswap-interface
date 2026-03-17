@@ -1,8 +1,10 @@
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, Token } from '@kyber/schema'
+import { formatUnits } from '@kyber/utils'
+import { getTokenBalances } from '@kyber/utils/dist/crypto'
 import { ChainId as AppChainId, Token as SDKToken } from '@kyberswap/ks-sdk-core'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useEffect, useMemo, useState } from 'react'
-import { useAddLiquidityPoolInfoQuery, useAddLiquidityTokensQuery } from 'services/zapInService'
+import { useAddLiquidityPoolInfoQuery } from 'services/zapInService'
 
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
@@ -41,8 +43,14 @@ interface UseAddLiquidityTokensProps {
   poolAddress: string
   poolType: PoolType
   account?: string
-  initDepositTokens?: string
-  initAmounts?: string
+}
+
+const getInitialAmountFromBalance = (balance: string, decimals: number, isNativeToken: boolean): string => {
+  const parsedBalance = parseFloat(balance)
+  if (!parsedBalance || Number.isNaN(parsedBalance) || parsedBalance <= 0) return ''
+
+  const amount = parsedBalance >= 1 ? 1 : isNativeToken ? parsedBalance * 0.95 : parsedBalance
+  return formatAmountWithDecimals(amount, decimals)
 }
 
 const getDefaultNativeToken = (chainId: number): Token => {
@@ -58,14 +66,7 @@ const getDefaultNativeToken = (chainId: number): Token => {
   }
 }
 
-export default function useAddLiquidityTokens({
-  chainId,
-  poolAddress,
-  poolType,
-  account,
-  initDepositTokens,
-  initAmounts,
-}: UseAddLiquidityTokensProps) {
+export default function useAddLiquidityTokens({ chainId, poolAddress, poolType, account }: UseAddLiquidityTokensProps) {
   const [tokensIn, setTokensIn] = useState<Token[]>([])
   const [amountsIn, setAmountsIn] = useState('')
 
@@ -78,26 +79,12 @@ export default function useAddLiquidityTokens({
         }
       : skipToken,
   )
-  const initAddresses = useMemo(() => initDepositTokens?.split(',').filter(Boolean) || [], [initDepositTokens])
-  const { data: initialTokens = [] } = useAddLiquidityTokensQuery(
-    chainId && initAddresses.length
-      ? {
-          chainId,
-          addresses: initAddresses,
-        }
-      : skipToken,
-  )
 
   const nativeToken = useMemo(() => getDefaultNativeToken(chainId), [chainId])
   const pool = poolInfo?.pool || null
   const poolError = poolInfo?.error || ''
   const nativeBalance = useNativeBalance(chainId as AppChainId)
-  const pairBalanceConfig = useMemo(
-    () => createTrackedBalanceConfig(pool ? [pool.token0, pool.token1] : [], chainId),
-    [chainId, pool],
-  )
   const selectedBalanceConfig = useMemo(() => createTrackedBalanceConfig(tokensIn, chainId), [chainId, tokensIn])
-  const pairTokenBalances = useTokenBalances(pairBalanceConfig.sdkTokens, chainId as AppChainId)
   const selectedTokenBalances = useTokenBalances(selectedBalanceConfig.sdkTokens, chainId as AppChainId)
   const tokenPriceAddresses = useMemo(() => tokensIn.map(token => token.address.toLowerCase()), [tokensIn])
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId as AppChainId)
@@ -128,73 +115,32 @@ export default function useAddLiquidityTokens({
     const initTokens = async () => {
       if (!pool || tokensIn.length) return
 
-      if (initDepositTokens && initialTokens.length) {
-        if (cancelled) return
-        if (initialTokens.length) {
-          const listInitAmounts = initAmounts?.split(',') || []
-          const parseListAmountsIn: string[] = []
-          initialTokens.forEach((_, index: number) => {
-            parseListAmountsIn.push(listInitAmounts[index] || '')
-          })
-
-          setTokensIn(initialTokens)
-          setAmountsIn(parseListAmountsIn.join(','))
-          return
-        }
-      }
+      const pairTokens = [pool.token0, pool.token1]
 
       if (!account) {
-        setTokensIn([nativeToken])
+        setTokensIn(pairTokens)
+        setAmountsIn(pairTokens.map(() => '').join(','))
         return
       }
 
       const token0Address = pool.token0.address.toLowerCase()
       const token1Address = pool.token1.address.toLowerCase()
-      const nativeTokenAddress = nativeToken.address.toLowerCase()
+      const pairBalance = await getTokenBalances({
+        tokenAddresses: Array.from(new Set([token0Address, token1Address, nativeToken.address])),
+        chainId,
+        account,
+      })
 
-      const tokensToSet: Token[] = []
-      const amountsToSet: string[] = []
+      if (cancelled) return
 
-      const token0BalanceAddress = pairBalanceConfig.addressMap[token0Address] || pool.token0.address
-      const token1BalanceAddress = pairBalanceConfig.addressMap[token1Address] || pool.token1.address
-      const token0Balance = pairTokenBalances[token0BalanceAddress]?.toExact() || '0'
-      const token1Balance = pairTokenBalances[token1BalanceAddress]?.toExact() || '0'
-      const fallbackNativeBalance = nativeBalance?.toExact() || '0'
+      const token0Balance = formatUnits(BigInt(pairBalance[token0Address]).toString(), pool.token0.decimals)
+      const token1Balance = formatUnits(BigInt(pairBalance[token1Address]).toString(), pool.token1.decimals)
+      const amountsToSet = [
+        getInitialAmountFromBalance(token0Balance, pool.token0.decimals, token0Address === nativeToken.address),
+        getInitialAmountFromBalance(token1Balance, pool.token1.decimals, token1Address === nativeToken.address),
+      ]
 
-      if (parseFloat(token0Balance) > 0) {
-        tokensToSet.push(pool.token0)
-        const amount =
-          parseFloat(token0Balance) >= 1
-            ? 1
-            : token0Address === nativeTokenAddress
-            ? parseFloat(token0Balance) * 0.95
-            : parseFloat(token0Balance)
-        amountsToSet.push(formatAmountWithDecimals(amount, pool.token0.decimals))
-      }
-
-      if (parseFloat(token1Balance) > 0) {
-        tokensToSet.push(pool.token1)
-        const amount =
-          parseFloat(token1Balance) >= 1
-            ? 1
-            : token1Address === nativeTokenAddress
-            ? parseFloat(token1Balance) * 0.95
-            : parseFloat(token1Balance)
-        amountsToSet.push(formatAmountWithDecimals(amount, pool.token1.decimals))
-      }
-
-      if (!tokensToSet.length) {
-        const amount =
-          parseFloat(fallbackNativeBalance) >= 1
-            ? 1
-            : parseFloat(fallbackNativeBalance) > 0
-            ? parseFloat(fallbackNativeBalance) * 0.95
-            : 1
-        tokensToSet.push(nativeToken)
-        amountsToSet.push(formatAmountWithDecimals(amount, nativeToken.decimals))
-      }
-
-      setTokensIn(tokensToSet)
+      setTokensIn(pairTokens)
       setAmountsIn(amountsToSet.join(','))
     }
 
@@ -203,19 +149,7 @@ export default function useAddLiquidityTokens({
     return () => {
       cancelled = true
     }
-  }, [
-    account,
-    chainId,
-    initAmounts,
-    initDepositTokens,
-    initialTokens,
-    nativeBalance,
-    nativeToken,
-    pairBalanceConfig.addressMap,
-    pairTokenBalances,
-    pool,
-    tokensIn.length,
-  ])
+  }, [account, chainId, nativeToken, pool, tokensIn.length])
 
   return {
     pool,

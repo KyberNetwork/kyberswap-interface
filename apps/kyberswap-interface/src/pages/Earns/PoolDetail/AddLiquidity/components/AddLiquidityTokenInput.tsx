@@ -1,4 +1,4 @@
-import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, Token, defaultToken } from '@kyber/schema'
+import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, Token, ZapRouteDetail, defaultToken } from '@kyber/schema'
 import TokenSelectorModal, { MAX_TOKENS, TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { InfoHelper } from '@kyber/ui'
 import { t } from '@lingui/macro'
@@ -8,7 +8,9 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
-import TokenAmountInput from 'pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput'
+import TokenAmountInput, {
+  TokenAmountInputSkeleton,
+} from 'pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const AddTokenButton = styled.button`
@@ -55,6 +57,7 @@ interface AddLiquidityTokenInputProps {
     amounts?: string
     balances?: Record<string, bigint>
     prices?: Record<string, number>
+    route?: ZapRouteDetail | null
     slippage?: number
     tickLower?: number | null
     tickUpper?: number | null
@@ -94,14 +97,35 @@ const AddLiquidityTokenInput = ({
   const currentAmounts = value?.amounts || ''
   const currentBalances = useMemo(() => value?.balances || {}, [value?.balances])
   const currentPrices = useMemo(() => value?.prices || {}, [value?.prices])
+  const currentRoute = value?.route
   const slippage = value?.slippage
   const tickLower = value?.tickLower
   const tickUpper = value?.tickUpper
   const { token0 = defaultToken, token1 = defaultToken } = pool || {}
+
   const share = useMemo(() => {
     if (!pool) return undefined
 
-    const reserveUsd = Number((pool as any).reserveUsd || 0)
+    if ('liquidity' in pool && currentRoute?.positionDetails?.addedLiquidity) {
+      try {
+        const currentLiquidity = BigInt(pool.liquidity)
+        const addedLiquidity = BigInt(currentRoute.positionDetails.addedLiquidity)
+        const totalLiquidity = currentLiquidity + addedLiquidity
+
+        if (addedLiquidity <= 0n || totalLiquidity <= 0n) return undefined
+
+        const shareScaled = (addedLiquidity * 1_000_000n) / totalLiquidity
+        return Number(shareScaled) / 1_000_000
+      } catch {
+        return undefined
+      }
+    }
+
+    const reserveUsd = Number((pool as any).reserveUsd || (pool as any).stats?.tvl || 0)
+    const routedAddedUsd = Number(currentRoute?.positionDetails?.addedAmountUsd || 0)
+    if (reserveUsd > 0 && routedAddedUsd > 0) {
+      return routedAddedUsd / (reserveUsd + routedAddedUsd)
+    }
     if (!reserveUsd) return undefined
 
     const totalUsdAmount = currentTokens.reduce((sum, token, index) => {
@@ -112,7 +136,7 @@ const AddLiquidityTokenInput = ({
 
     if (!totalUsdAmount) return undefined
     return totalUsdAmount / reserveUsd
-  }, [currentAmounts, currentPrices, currentTokens, pool])
+  }, [currentAmounts, currentPrices, currentRoute, currentTokens, pool])
 
   const onCloseTokenSelectModal = useCallback(() => {
     setOpenTokenSelectModal(false)
@@ -195,26 +219,30 @@ const AddLiquidityTokenInput = ({
 
   return (
     <Stack gap={12}>
-      {currentTokens.map((token, index) => (
-        <TokenAmountInput
-          amount={currentAmounts.split(',')[index] || ''}
-          chainId={chainId}
-          key={`${token.address}-${index}`}
-          tokenIndex={index}
-          pool={pool}
-          token={token}
-          tokenBalances={currentBalances}
-          tokenPrices={currentPrices}
-          onAmountChange={handleSetAmount}
-          onTrackEvent={onTrackEvent}
-          onTokenSelectOpen={address => {
-            setTokenAddressSelected(address)
-            setOpenTokenSelectModal(true)
-          }}
-          onTokenRemove={handleRemoveToken}
-          tokensCount={currentTokens.length}
-        />
-      ))}
+      {currentTokens.length ? (
+        currentTokens.map((token, index) => (
+          <TokenAmountInput
+            amount={currentAmounts.split(',')[index] || ''}
+            chainId={chainId}
+            key={`${token.address}-${index}`}
+            tokenIndex={index}
+            pool={pool}
+            token={token}
+            tokenBalances={currentBalances}
+            tokenPrices={currentPrices}
+            onAmountChange={handleSetAmount}
+            onTrackEvent={onTrackEvent}
+            onTokenSelectOpen={address => {
+              setTokenAddressSelected(address)
+              setOpenTokenSelectModal(true)
+            }}
+            onTokenRemove={handleRemoveToken}
+            tokensCount={currentTokens.length}
+          />
+        ))
+      ) : (
+        <TokenAmountInputSkeleton />
+      )}
 
       <ShareText>
         Your Share: <b>{share ? formatDisplayNumber(share, { style: 'percent', significantDigits: 3 }) : '--'}</b> of

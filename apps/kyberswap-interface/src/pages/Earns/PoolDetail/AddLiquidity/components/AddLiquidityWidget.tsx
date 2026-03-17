@@ -128,11 +128,9 @@ const AddLiquidityWidget = ({
     () => ({
       pool: state.pool.data,
       reviewData,
-      route: state.route.data,
-      routeLoading: state.route.loading,
-      routeError: state.route.error,
+      inputTokens: state.tokenInput.tokens,
     }),
-    [reviewData, state.pool.data, state.route.data, state.route.error, state.route.loading],
+    [reviewData, state.pool.data, state.tokenInput.tokens],
   )
   const isZapImpactBlocked =
     !isDegenMode &&

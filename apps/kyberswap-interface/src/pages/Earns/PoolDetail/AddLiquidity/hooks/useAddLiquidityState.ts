@@ -84,7 +84,7 @@ export default function useAddLiquidityState({
     },
     slippage: {
       value: slippageState.slippage,
-      suggestedValue: slippageState.suggestedSlippage,
+      suggestedValue: routeState.route?.zapDetails.suggestedSlippage,
       setValue: slippageState.setSlippage,
     },
     route: {

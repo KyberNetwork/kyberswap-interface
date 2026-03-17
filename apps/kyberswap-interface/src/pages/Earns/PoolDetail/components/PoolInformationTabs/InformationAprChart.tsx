@@ -293,12 +293,15 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
             dataKey="value"
             dot={({ cx, cy, payload }) => {
               const hasValidPosition = typeof cx === 'number' && typeof cy === 'number'
+              const dotKey =
+                payload?.position !== undefined ? `apr-dot-${payload.position}` : `apr-dot-${String(cx)}-${String(cy)}`
 
               return (
                 <circle
                   cx={hasValidPosition ? cx : 0}
                   cy={hasValidPosition ? cy : 0}
                   fill="#54AEFF"
+                  key={dotKey}
                   opacity={hasValidPosition ? (payload.periodKey === interval ? 1 : 0.65) : 0}
                   r={payload.periodKey === interval ? 6 : 3.5}
                   stroke={theme.buttonBlack}

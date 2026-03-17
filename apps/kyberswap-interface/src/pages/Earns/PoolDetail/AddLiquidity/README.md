@@ -81,7 +81,7 @@ Reason: PoolDetail uses page hooks + RTK Query + app transaction tracking instea
 | `src/components/Warning.tsx` and `src/components/Preview/Warning.tsx` | `AddLiquidity/hooks/useAddLiquidityReviewData.ts`, `AddLiquidity/hooks/reviewData.ts`, `AddLiquidity/components/AddLiquidityRouteInsights.tsx`, `AddLiquidity/components/AddLiquidityReviewModal.tsx` | Done |
 | `src/components/PositionApr.tsx` and `src/hooks/useEstimatedPositionApr.ts` | `AddLiquidity/components/PositionApr.tsx` and `AddLiquidity/hooks/useAddLiquidityPositionApr.ts` | Done |
 | `src/components/TokenInput/index.tsx` | `AddLiquidity/components/AddLiquidityTokenInput.tsx` | Partial |
-| `src/components/PriceRange/index.tsx` | `AddLiquidity/components/price-range/PriceSection.tsx` and related price-range components | Done |
+| `src/components/PriceRange/index.tsx` | `AddLiquidity/components/PriceSection/index.tsx` and related price-range components | Done |
 | `src/components/Preview/index.tsx` | `services/zapInService.ts`, `AddLiquidity/hooks/useAddLiquidityWidgetActions.ts`, `AddLiquidity/components/AddLiquidityReviewModal.tsx` | Partial |
 | `src/components/Estimated/index.tsx` and `src/components/Content/ZapSummary.tsx` | no direct page equivalent | ❌ Will not do |
 

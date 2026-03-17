@@ -185,10 +185,20 @@ export interface AddLiquidityRoutePreviewProps {
     token1: Token
   } | null
   reviewData?: AddLiquidityReviewData | null
+  inputTokens?: Token[]
 }
 
-const formatUsd = (value?: number | null) =>
-  value && value > 0 ? `~ ${formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })}` : '~ --'
+const formatUsd = (value?: number | null, fallbackZero = false) => {
+  if (value !== null && value !== undefined && value > 0) {
+    return `~ ${formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })}`
+  }
+
+  if (fallbackZero) {
+    return `~ ${formatDisplayNumber(0, { style: 'currency', significantDigits: 6 })}`
+  }
+
+  return '~ --'
+}
 
 const getTokenLogo = (token?: Token | null) => {
   if (!token) return ''
@@ -222,18 +232,28 @@ const renderAssetItems = (items: RouteTokenItem[], emptyText?: string) => {
   )
 }
 
-export default function AddLiquidityRoutePreview({ pool, reviewData }: AddLiquidityRoutePreviewProps) {
-  const inputItems = reviewData?.zapInItems || []
+export default function AddLiquidityRoutePreview({
+  pool,
+  reviewData,
+  inputTokens = [],
+}: AddLiquidityRoutePreviewProps) {
+  const inputItems: RouteTokenItem[] = reviewData?.zapInItems?.length
+    ? reviewData.zapInItems.map(item => ({ token: item.token, amount: item.amount }))
+    : inputTokens.map(token => ({
+        token,
+      }))
   const outputItems = (reviewData?.estimate?.items || []).filter(item => item.amount > 0)
   const fallbackOutputItems: RouteTokenItem[] =
     outputItems.length > 0 ? outputItems : pool ? [{ token: pool.token0 }, { token: pool.token1 }] : []
+  const showZeroInputUsd = Boolean(inputItems.length)
+  const showZeroOutputUsd = Boolean(fallbackOutputItems.length)
 
   return (
     <FlowRow>
       <AssetCard>
         <AssetMain>{renderAssetItems(inputItems.map(item => ({ token: item.token, amount: item.amount })))}</AssetMain>
         <AssetFooter>
-          <ValueText>{formatUsd(reviewData?.totalInputUsd)}</ValueText>
+          <ValueText>{formatUsd(reviewData?.totalInputUsd, showZeroInputUsd)}</ValueText>
         </AssetFooter>
       </AssetCard>
 
@@ -249,7 +269,7 @@ export default function AddLiquidityRoutePreview({ pool, reviewData }: AddLiquid
       <AssetCard>
         <AssetMain>{renderAssetItems(fallbackOutputItems)}</AssetMain>
         <AssetFooter>
-          <ValueText>{formatUsd(reviewData?.estimate?.totalUsd)}</ValueText>
+          <ValueText>{formatUsd(reviewData?.estimate?.totalUsd, showZeroOutputUsd)}</ValueText>
         </AssetFooter>
       </AssetCard>
     </FlowRow>
