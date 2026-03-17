@@ -1,5 +1,6 @@
 import { PoolType, univ3Types } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useBuildZapInRouteMutation } from 'services/zapInService'
 
@@ -8,6 +9,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { AddLiquidityRoutePreviewProps } from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityRoutePreview'
 import AddLiquidityWidgetSkeleton from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetSkeleton'
 import AddLiquidityWidgetView from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetView'
 import useAddLiquidityApproval from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAddLiquidityApproval'
@@ -44,6 +46,7 @@ interface AddLiquidityWidgetProps {
   positionId?: string
   tickLower?: string | null
   tickUpper?: string | null
+  onRoutePreviewDataChange?: (data: AddLiquidityRoutePreviewProps | null) => void
 }
 
 const AddLiquidityWidget = ({
@@ -53,6 +56,7 @@ const AddLiquidityWidget = ({
   positionId,
   tickLower,
   tickUpper,
+  onRoutePreviewDataChange,
 }: AddLiquidityWidgetProps) => {
   const navigate = useNavigate()
   const toggleWalletModal = useWalletModalToggle()
@@ -120,6 +124,16 @@ const AddLiquidityWidget = ({
     chainId: normalizedChainId,
     pool: state.pool.data,
   })
+  const routePreviewData = useMemo<AddLiquidityRoutePreviewProps>(
+    () => ({
+      pool: state.pool.data,
+      reviewData,
+      route: state.route.data,
+      routeLoading: state.route.loading,
+      routeError: state.route.error,
+    }),
+    [reviewData, state.pool.data, state.route.data, state.route.error, state.route.loading],
+  )
   const isZapImpactBlocked =
     !isDegenMode &&
     reviewData?.estimate?.zapImpact !== null &&
@@ -196,6 +210,16 @@ const AddLiquidityWidget = ({
     },
     navigate,
   })
+
+  useEffect(() => {
+    onRoutePreviewDataChange?.(routePreviewData)
+  }, [onRoutePreviewDataChange, routePreviewData])
+
+  useEffect(() => {
+    return () => {
+      onRoutePreviewDataChange?.(null)
+    }
+  }, [onRoutePreviewDataChange])
 
   if (!normalizedExchange || !normalizedChainId || !poolAddress || !poolType) {
     return (
