@@ -1,4 +1,5 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
+import { rgba } from 'polished'
 import { type ReactNode, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -7,6 +8,9 @@ import { ReactComponent as BagIcon } from 'assets/svg/kyber/ic_bag.svg'
 import CopyHelper from 'components/Copy'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
+import InformationAprChart, {
+  type AprPeriod,
+} from 'pages/Earns/PoolDetail/components/PoolInformationTabs/InformationAprChart'
 import { Pool } from 'pages/Earns/PoolDetail/types'
 import { formatPoolInfoCurrency, formatPoolInfoPercent } from 'pages/Earns/PoolDetail/utils/poolInformation'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
@@ -43,17 +47,14 @@ const MetricColumn = styled(Stack)`
 `
 
 const MetricLabel = styled(Text)`
-  margin: 0;
   color: ${({ theme }) => theme.subText};
   font-size: 14px;
-  line-height: 1.2;
 `
 
 const MetricValue = styled.div`
   color: ${({ theme }) => theme.text};
   font-size: 16px;
-  font-weight: 600;
-  line-height: 1.3;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -75,28 +76,18 @@ const AprSummaryRow = styled(HStack)`
 
 const AprSummaryItem = styled(HStack)`
   align-items: baseline;
-  gap: 10px;
-`
-
-const ActiveAprItem = styled(HStack)`
-  align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
 `
 
 const AprSummaryLabel = styled(Text)`
-  margin: 0;
   color: ${({ theme }) => theme.subText};
   font-size: 14px;
-  line-height: 1.2;
 `
 
 const AprSummaryValue = styled(Text)`
-  margin: 0;
   color: ${({ theme }) => theme.text};
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 14px;
+  font-weight: 500;
 `
 
 const SectionHeaderRow = styled(HStack)`
@@ -108,55 +99,60 @@ const SectionHeaderRow = styled(HStack)`
 
 const SectionTitleGroup = styled(HStack)`
   align-items: baseline;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 `
 
 const SectionTitle = styled(Text)`
-  margin: 0;
   color: ${({ theme }) => theme.text};
-  font-size: 22px;
   font-weight: 500;
-  line-height: 1.25;
 `
 
 const SectionSubtitle = styled(Text)`
-  margin: 0;
   color: ${({ theme }) => theme.subText};
-  font-size: 18px;
-  line-height: 1.25;
 `
 
-const IntervalSelector = styled(HStack)`
+const IntervalSelector = styled.div`
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  gap: 4px;
-  padding: 4px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
 `
 
-const IntervalButton = styled.button<{ $active: boolean }>`
-  border: 0;
-  min-width: 64px;
-  height: 40px;
-  padding: 0 16px;
+const IntervalActivePill = styled.div<{ $activeIndex: number }>`
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  left: 1px;
+  width: calc((100% - 2px) / 3);
   border-radius: 999px;
-  background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.08)' : 'transparent')};
-  color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    min-width: 56px;
-    height: 36px;
-    padding: 0 14px;
-    font-size: 14px;
-  `}
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(calc(100% * ${({ $activeIndex }) => $activeIndex}));
+  transition: transform 220ms ease, background 220ms ease;
+  pointer-events: none;
 `
 
-type AprPeriod = (typeof APR_PERIOD_OPTIONS)[number]['value']
+const IntervalButton = styled.button<{ $active: boolean }>`
+  position: relative;
+  z-index: 1;
+  border: 0;
+  min-width: 48px;
+  padding: 8px 8px;
+  border-radius: 999px;
+  background: transparent;
+  color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 180ms ease;
+
+  :hover {
+    background: ${({ $active }) => ($active ? rgba(255, 255, 255, 0.04) : 'rgba(255, 255, 255, 0.04)')};
+  }
+`
 
 interface InformationTabProps {
   pool?: Pool
@@ -179,6 +175,7 @@ const InformationTab = ({ pool }: InformationTabProps) => {
   const theme = useTheme()
   const [aprPeriod, setAprPeriod] = useState<AprPeriod>('7D')
   const [interval, setInterval] = useState<AprPeriod>('7D')
+  const intervalActiveIndex = APR_PERIOD_OPTIONS.findIndex(option => option.value === interval)
 
   const rewardApr =
     pool &&
@@ -218,7 +215,7 @@ const InformationTab = ({ pool }: InformationTabProps) => {
         label: 'Rewards',
         value: (
           <HStack align="center" gap={4}>
-            <Text as="span" color={theme.text} fontSize={16} fontWeight={600} lineHeight="1.3" m={0}>
+            <Text as="span" color={theme.text} fontWeight={500}>
               {pool?.egUsd ? formatPoolInfoCurrency(pool.egUsd) : formatPoolInfoPercent(rewardApr)}
             </Text>
             {pool?.programs?.length || rewardApr ? <BagIcon width={20} height={20} /> : null}
@@ -233,7 +230,7 @@ const InformationTab = ({ pool }: InformationTabProps) => {
         label: 'Pool Address',
         value: pool?.address ? (
           <HStack align="center" gap={4}>
-            <Text as="span" color={theme.text} fontSize={16} fontWeight={600} lineHeight="1.3" m={0}>
+            <Text as="span" color={theme.text} fontSize={16} fontWeight={600}>
               {shortenAddress(pool.address, 4)}
             </Text>
             <CopyHelper color={theme.subText} margin="0" size={14} toCopy={pool.address} />
@@ -274,20 +271,19 @@ const InformationTab = ({ pool }: InformationTabProps) => {
 
       <AprSummaryRow>
         <DropdownMenu
-          background="rgba(255, 255, 255, 0.05)"
           flatten
+          alignItems="stretch"
+          background="rgba(255, 255, 255, 0.05)"
           options={APR_PERIOD_MENU_OPTIONS}
           value={aprPeriod}
           width={42}
           onChange={value => setAprPeriod(value as AprPeriod)}
         />
-        <HStack align="center" gap={12}>
-          <ActiveAprItem>
-            <AprSummaryItem>
-              <AprSummaryLabel>Active APR</AprSummaryLabel>
-              <AprSummaryValue>{formatPoolInfoPercent(activeApr)}</AprSummaryValue>
-            </AprSummaryItem>
-          </ActiveAprItem>
+        <HStack align="center" gap={24}>
+          <AprSummaryItem>
+            <AprSummaryLabel>Active APR</AprSummaryLabel>
+            <AprSummaryValue>{formatPoolInfoPercent(activeApr)}</AprSummaryValue>
+          </AprSummaryItem>
           <AprSummaryItem>
             <AprSummaryLabel>Average APR</AprSummaryLabel>
             <AprSummaryValue>{formatPoolInfoPercent(averageApr)}</AprSummaryValue>
@@ -306,6 +302,7 @@ const InformationTab = ({ pool }: InformationTabProps) => {
         </SectionTitleGroup>
 
         <IntervalSelector>
+          <IntervalActivePill $activeIndex={Math.max(intervalActiveIndex, 0)} />
           {APR_PERIOD_OPTIONS.map(option => (
             <IntervalButton
               $active={interval === option.value}
@@ -318,6 +315,8 @@ const InformationTab = ({ pool }: InformationTabProps) => {
           ))}
         </IntervalSelector>
       </SectionHeaderRow>
+
+      <InformationAprChart interval={interval} pool={pool} />
     </Stack>
   )
 }

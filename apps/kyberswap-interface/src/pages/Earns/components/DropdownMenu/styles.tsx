@@ -1,4 +1,5 @@
 import { rgba } from 'polished'
+import { type CSSProperties } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -84,7 +85,7 @@ export const ItemIcon = styled.img`
   height: 18px;
 `
 
-export const DropdownContent = styled.div<{ flatten?: boolean; alignLeft: boolean }>`
+export const DropdownContent = styled.div<{ flatten?: boolean; alignItems?: CSSProperties['alignItems'] }>`
   position: absolute;
   top: ${({ flatten }) => (flatten ? '32px' : '42px')};
   left: 0;
@@ -96,7 +97,7 @@ export const DropdownContent = styled.div<{ flatten?: boolean; alignLeft: boolea
   width: max-content;
   display: flex;
   flex-direction: column;
-  align-items: ${({ alignLeft }) => (alignLeft ? 'flex-start' : 'center')};
+  align-items: ${({ alignItems }) => alignItems || 'center'};
   gap: 4px;
   z-index: 100;
   filter: brightness(1.2);

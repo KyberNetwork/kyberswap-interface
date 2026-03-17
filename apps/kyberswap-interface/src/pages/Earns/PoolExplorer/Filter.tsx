@@ -237,7 +237,7 @@ const Filter = ({
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
           <MultiSelectDropdownMenu
-            alignLeft
+            alignItems="flex-start"
             highlightOnSelect
             label={selectedChainsLabel}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
@@ -245,7 +245,7 @@ const Filter = ({
             onChange={value => onChainChange(value)}
           />
           <MultiSelectDropdownMenu
-            alignLeft
+            alignItems="flex-start"
             highlightOnSelect
             label={selectedProtocolsLabel}
             options={supportedDexes}

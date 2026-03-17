@@ -1,5 +1,5 @@
 import Portal from '@reach/portal'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import {
@@ -27,7 +27,7 @@ const DropdownMenu = ({
   flatten,
   background,
   fullWidth = false,
-  alignLeft = false,
+  alignItems = 'center',
   mobileFullWidth = false,
   mobileHalfWidth = false,
   usePortal = false,
@@ -40,7 +40,7 @@ const DropdownMenu = ({
   flatten?: boolean
   background?: string
   fullWidth?: boolean
-  alignLeft?: boolean
+  alignItems?: CSSProperties['alignItems']
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   usePortal?: boolean
@@ -100,13 +100,13 @@ const DropdownMenu = ({
       window.removeEventListener('resize', computePosition)
       window.removeEventListener('scroll', computePosition, true)
     }
-  }, [open, usePortal, alignLeft])
+  }, [open, usePortal, alignItems])
 
   const dropdownContent = (
     <DropdownContent
       ref={contentRef}
       flatten={flatten}
-      alignLeft={alignLeft}
+      alignItems={alignItems}
       style={usePortal ? { ...position } : undefined}
     >
       {options.map((option: MenuOption) => (
@@ -136,11 +136,7 @@ const DropdownMenu = ({
           highlight={flatten && open}
           onClick={handleOpenChange}
         >
-          <DropdownTitle
-            justifyContent={alignLeft ? 'flex-start' : 'center'}
-            width={width}
-            fullWidth={fullWidth && !width}
-          >
+          <DropdownTitle justifyContent={alignItems} width={width} fullWidth={fullWidth && !width}>
             {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
             <DropdownLabel>{optionValue?.label}</DropdownLabel>
           </DropdownTitle>
