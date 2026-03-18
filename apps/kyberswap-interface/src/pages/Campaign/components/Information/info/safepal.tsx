@@ -49,7 +49,9 @@ const SafePalHowToSection = (): CampaignSectionComponent => {
         <Trans>For every $100 volume, participants earn points based on the following distribution:</Trans>
       </li>
 
-      <img style={{ marginTop: 8 }} src={safePalPoints} width="100%" />
+      <div style={{ display: 'flex', justifyContent: 'center', marginBlock: 8 }}>
+        <img style={{ maxWidth: 600, borderRadius: 12 }} src={safePalPoints} width="100%" />
+      </div>
 
       <li>
         <Trans>
@@ -169,7 +171,7 @@ const SafePalRewardsSection = (): CampaignSectionComponent => (
       <li>
         <Trans>
           The FCFS round is open to eligible participants who were not in the Top 667, and rewards will be distributed
-          in the order of successful claims until fully redeemed.
+          in the order of successful claims until fully claimed or expired.
         </Trans>
       </li>
       <li>
@@ -177,7 +179,7 @@ const SafePalRewardsSection = (): CampaignSectionComponent => (
           For example, in Week 1, 667 participants are eligible to claim rewards. If only 400 wallets are claimed, the
           remaining 267 unclaimed wallets will move to the FCFS round in the following week. These 267 wallets will then
           be available for eligible participants who were not in the Top 667 of Week 1, distributed on a FCFS basis
-          until fully claimed.
+          until fully claimed or expired.
         </Trans>
       </li>
     </ul>
@@ -312,7 +314,7 @@ const SafePalFaqListSection = (): CampaignSectionComponent => {
       a: (
         <Trans>
           The FCFS round is open to eligible participants who were not in the Top 667 to claim the remaining rewards,
-          and rewards will be distributed in the order of successful claims until fully redeemed.
+          and rewards will be distributed in the order of successful claims until fully claimed or expired.
         </Trans>
       ),
     },
