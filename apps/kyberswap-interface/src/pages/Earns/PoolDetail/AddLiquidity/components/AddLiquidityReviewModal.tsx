@@ -221,42 +221,46 @@ export default function AddLiquidityReviewModal({
   if (confirmLoading || txHash || txError || txStatus) {
     const translatedErrorMessage = txError ? translateFriendlyErrorMessage(txError) : undefined
     const errorMessage = txError?.toLowerCase() || ''
+
     const isSlippageError = errorMessage.includes('slippage')
+    const canViewPosition = txStatus === 'success' && Boolean(onViewPosition)
+    const statusType =
+      txStatus === 'success'
+        ? StatusDialogType.SUCCESS
+        : txStatus === 'cancelled'
+        ? StatusDialogType.CANCELLED
+        : txStatus === 'failed' || txError
+        ? StatusDialogType.ERROR
+        : txHash
+        ? StatusDialogType.PROCESSING
+        : StatusDialogType.WAITING
+
+    const statusAction = (
+      <>
+        <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+          Close
+        </button>
+        {canViewPosition ? (
+          <button className="ks-primary-btn flex-1" onClick={onViewPosition}>
+            View position
+          </button>
+        ) : isSlippageError ? (
+          <button className="ks-primary-btn flex-1" onClick={onUseSuggestedSlippage || onDismiss}>
+            {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
+          </button>
+        ) : null}
+      </>
+    )
 
     return (
       <StatusDialog
-        type={
-          txStatus === 'success'
-            ? StatusDialogType.SUCCESS
-            : txStatus === 'cancelled'
-            ? StatusDialogType.CANCELLED
-            : txStatus === 'failed' || txError
-            ? StatusDialogType.ERROR
-            : txHash
-            ? StatusDialogType.PROCESSING
-            : StatusDialogType.WAITING
-        }
+        type={statusType}
         description={
           !txHash && !txError && txStatus !== 'success' ? 'Confirm this transaction in your wallet' : undefined
         }
         errorMessage={translatedErrorMessage}
         transactionExplorerUrl={transactionExplorerUrl}
-        action={
-          <>
-            <button className="ks-outline-btn flex-1" onClick={onDismiss}>
-              {txStatus === 'success' && onViewPosition ? 'Close' : 'Close'}
-            </button>
-            {txStatus === 'success' && onViewPosition ? (
-              <button className="ks-primary-btn flex-1" onClick={onViewPosition}>
-                View position
-              </button>
-            ) : isSlippageError ? (
-              <button className="ks-primary-btn flex-1" onClick={onUseSuggestedSlippage || onDismiss}>
-                {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
-              </button>
-            ) : null}
-          </>
-        }
+        action={statusAction}
         onClose={onDismiss || (() => {})}
       />
     )

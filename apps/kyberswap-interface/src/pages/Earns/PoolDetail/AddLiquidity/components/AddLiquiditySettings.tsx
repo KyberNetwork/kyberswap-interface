@@ -118,8 +118,10 @@ export default function AddLiquiditySettings({
 }: AddLiquiditySettingsProps) {
   const theme = useTheme()
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
+
   const [internalOpen, setInternalOpen] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
+
   const wrapperRef = useRef<HTMLDivElement>(null)
   const isOpen = controlledOpen ?? internalOpen
   const setIsOpen = onOpenChange ?? setInternalOpen
@@ -130,8 +132,6 @@ export default function AddLiquiditySettings({
     setInternalOpen(true)
   }, [controlledOpen, highlightDegenMode])
 
-  useOnClickOutside(wrapperRef, isOpen ? () => setIsOpen(false) : undefined)
-
   const handleToggleDegenMode = () => {
     if (isDegenMode) {
       toggleDegenMode()
@@ -141,6 +141,8 @@ export default function AddLiquiditySettings({
     setShowConfirmation(true)
   }
 
+  useOnClickOutside(wrapperRef, isOpen ? () => setIsOpen(false) : undefined)
+
   return (
     <>
       <Wrapper ref={wrapperRef}>
@@ -148,6 +150,7 @@ export default function AddLiquiditySettings({
           id="earn-add-liquidity-setting"
           type="button"
           aria-label="Advanced settings"
+          aria-expanded={isOpen}
           data-active={isOpen}
           onClick={() => setIsOpen(prev => !prev)}
         >
@@ -156,7 +159,7 @@ export default function AddLiquiditySettings({
 
         {isOpen && (
           <TooltipPanel gap={8}>
-            <PanelTitle>Advanced Setting</PanelTitle>
+            <PanelTitle>Advanced Settings</PanelTitle>
             <DegenModeRow align="center" gap={12} justify="space-between" $highlight={highlightDegenMode}>
               <SettingLabel>
                 <Trans>Degen Mode</Trans>

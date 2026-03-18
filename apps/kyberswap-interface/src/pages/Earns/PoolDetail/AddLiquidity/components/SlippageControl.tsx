@@ -13,6 +13,7 @@ import { getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils
 import { useDegenModeManager } from 'state/user/hooks'
 
 const PRESET_SLIPPAGE_OPTIONS = [5, 10, 50, 100]
+const SLIPPAGE_INPUT_REGEX = /^(\d+)\.?(\d{1,2})?$/
 
 const parseSlippageInput = (value: string): number => Math.round(Number.parseFloat(value) * 100)
 const formatSlippageInput = (value: number) => ((value * 100) / 10_000).toString()
@@ -25,24 +26,28 @@ const validateSlippageInput = (
   isDegenMode: boolean,
 ): { isValid: boolean; message?: string } => {
   const maxSlippage = isDegenMode ? MAX_DEGEN_SLIPPAGE_IN_BIPS : MAX_NORMAL_SLIPPAGE_IN_BIPS
+
   if (value === '') return { isValid: true }
 
-  const numberRegex = /^(\d+)\.?(\d{1,2})?$/
-  if (!value.match(numberRegex)) return { isValid: false, message: 'Enter a valid slippage percentage' }
+  if (!value.match(SLIPPAGE_INPUT_REGEX)) return { isValid: false, message: 'Enter a valid slippage percentage' }
 
   const rawSlippage = parseSlippageInput(value)
+
   if (Number.isNaN(rawSlippage) || rawSlippage < 0) {
     return { isValid: false, message: 'Enter a valid slippage percentage' }
   }
+
   if (suggestedSlippage > 0 && rawSlippage < suggestedSlippage / 2) {
     return {
       isValid: true,
       message: 'Your slippage is set lower than usual, increasing the risk of transaction failure.',
     }
   }
+
   if (rawSlippage > maxSlippage) {
     return { isValid: false, message: 'Enter a smaller slippage percentage' }
   }
+
   if (suggestedSlippage > 0 && rawSlippage > 2 * suggestedSlippage) {
     return {
       isValid: true,
@@ -195,7 +200,6 @@ interface SlippageControlProps {
 }
 
 export default function SlippageControl({ context, value, onTrackEvent, onSlippageChange }: SlippageControlProps) {
-  // Context and incoming value
   const chainId = context?.chainId || 0
   const poolType = context?.poolType || PoolType.DEX_UNISWAPV3
   const pool = context?.pool
@@ -203,23 +207,25 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
   const suggestedSlippage = value?.suggestedSlippage || 0
   const [isDegenMode] = useDegenModeManager()
 
-  // Local UI state
   const previousSlippageRef = useRef(slippage)
   const [customValue, setCustomValue] = useState('')
   const [isCustom, setIsCustom] = useState(Boolean(slippage && !isPresetSlippage(slippage)))
   const [isFocus, setIsFocus] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
 
-  // Pool metadata
   const token0Symbol = pool?.token0.symbol || ''
   const token1Symbol = pool?.token1.symbol || ''
   const feeTier = pool?.fee || 0
 
-  // Derived validation state
+  const dexNameObj = DEXES_INFO[poolType]?.name
+  const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]
+
   const { isValid, message } = validateSlippageInput(customValue, suggestedSlippage, isDegenMode)
+
   useEffect(() => {
     if (isFocus) return
     if (slippage === undefined) return
+
     if (isPresetSlippage(slippage) && !isCustom) {
       setCustomValue('')
       setIsCustom(false)
@@ -229,21 +235,17 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
     }
   }, [isCustom, isFocus, slippage])
 
-  const currentSlippageMessage = validateSlippageInput(
+  const appliedSlippageValidation = validateSlippageInput(
     slippage ? formatSlippageInput(slippage) : '',
     suggestedSlippage,
     isDegenMode,
   )
-  const messageToShow = message || currentSlippageMessage.message
-  const summaryValue = formatSlippageLabel(slippage)
-  const suggestionLabel = formatSlippageLabel(suggestedSlippage)
+
+  const messageToShow = message || appliedSlippageValidation.message
 
   const fireSlippageEvent = (nextSlippage: number) => {
     if (!pool) return
     if (previousSlippageRef.current === undefined || nextSlippage === previousSlippageRef.current) return
-
-    const dexNameObj = DEXES_INFO[poolType]?.name
-    const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]
 
     onTrackEvent?.('LIQ_MAX_SLIPPAGE_CHANGED', {
       previous_slippage: (previousSlippageRef.current * 100) / 10_000,
@@ -272,7 +274,7 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
     fireSlippageEvent(nextSlippage)
   }
 
-  const syncCustomState = (nextSlippage: number) => {
+  const syncCustomStateFromSlippage = (nextSlippage: number) => {
     if (isPresetSlippage(nextSlippage)) {
       setCustomValue('')
       setIsCustom(false)
@@ -286,6 +288,7 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
   const handlePresetClick = (nextSlippage: number) => {
     setCustomValue('')
     setIsCustom(false)
+
     applySlippage(nextSlippage)
   }
 
@@ -294,7 +297,7 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
 
     if (!value || !isValid) {
       const nextSlippage = slippage ?? (suggestedSlippage || 10)
-      syncCustomState(nextSlippage)
+      syncCustomStateFromSlippage(nextSlippage)
       applySlippage(nextSlippage)
       return
     }
@@ -309,7 +312,7 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
       return
     }
 
-    if (!/^(\d+)\.?(\d{1,2})?$/.test(value)) return
+    if (!SLIPPAGE_INPUT_REGEX.test(value)) return
 
     setCustomValue(value)
     setIsCustom(true)
@@ -322,7 +325,7 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
 
   const handleSuggestionClick = () => {
     applySlippage(suggestedSlippage)
-    syncCustomState(suggestedSlippage)
+    syncCustomStateFromSlippage(suggestedSlippage)
   }
 
   if (!context || !pool) return null
@@ -340,7 +343,7 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
           />
         </HStack>
         <SummaryValue as="span" align="center" gap={4}>
-          {summaryValue}
+          {formatSlippageLabel(slippage)}
           <Caret $open={isExpanded} />
         </SummaryValue>
       </SummaryButton>
@@ -376,7 +379,7 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
 
       {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
         <Suggestion type="button" onClick={handleSuggestionClick}>
-          <Trans>Suggestion</Trans>: {suggestionLabel}
+          <Trans>Suggestion</Trans>: {formatSlippageLabel(suggestedSlippage)}
         </Suggestion>
       )}
 

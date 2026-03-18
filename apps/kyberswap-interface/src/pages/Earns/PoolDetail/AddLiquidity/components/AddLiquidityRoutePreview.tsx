@@ -194,7 +194,7 @@ export interface AddLiquidityRoutePreviewProps {
   zapRoute?: ZapRouteDetail | null
 }
 
-const formatUsd = (value?: number | null, fallbackZero = false) => {
+const formatUsdAmount = (value?: number | null, fallbackZero = false) => {
   if (value !== null && value !== undefined && value > 0) {
     return `~ ${formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })}`
   }
@@ -332,6 +332,7 @@ export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiqui
     () => getPreviewAddresses(zapRoute),
     [zapRoute],
   )
+
   const tokenAddresses = useMemo(
     () =>
       Array.from(
@@ -339,6 +340,7 @@ export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiqui
       ),
     [previewInputs, previewOutputs],
   )
+
   const { data: routeTokens = [] } = useAddLiquidityTokensQuery(
     chainId && tokenAddresses.length
       ? {
@@ -347,6 +349,7 @@ export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiqui
         }
       : skipToken,
   )
+
   const routeTokenMap = useMemo(
     () =>
       new Map(
@@ -359,25 +362,27 @@ export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiqui
       ),
     [routeTokens],
   )
+
   const inputItems = useMemo(
     () => previewInputs.map(item => toRouteTokenItem(item, routeTokenMap)),
     [previewInputs, routeTokenMap],
   )
+
   const outputItems = useMemo(
     () => previewOutputs.map(item => toRouteTokenItem(item, routeTokenMap)),
     [previewOutputs, routeTokenMap],
   )
-  const showZeroInputUsd = Boolean(zapRoute)
-  const showZeroOutputUsd = Boolean(zapRoute)
+
+  const hasRoute = Boolean(zapRoute)
+  const inputUsd = zapRoute ? Number(zapRoute.zapDetails.initialAmountUsd || 0) : null
+  const outputUsd = zapRoute ? Number(zapRoute.positionDetails.addedAmountUsd || 0) : null
 
   return (
     <FlowRow>
       <AssetCard>
         <AssetMain>{renderAssetItems(inputItems, '--')}</AssetMain>
         <AssetFooter>
-          <ValueText>
-            {formatUsd(zapRoute ? Number(zapRoute.zapDetails.initialAmountUsd || 0) : null, showZeroInputUsd)}
-          </ValueText>
+          <ValueText>{formatUsdAmount(inputUsd, hasRoute)}</ValueText>
         </AssetFooter>
       </AssetCard>
 
@@ -393,9 +398,7 @@ export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiqui
       <AssetCard>
         <AssetMain>{renderAssetItems(outputItems, '--')}</AssetMain>
         <AssetFooter>
-          <ValueText>
-            {formatUsd(zapRoute ? Number(zapRoute.positionDetails.addedAmountUsd || 0) : null, showZeroOutputUsd)}
-          </ValueText>
+          <ValueText>{formatUsdAmount(outputUsd, hasRoute)}</ValueText>
         </AssetFooter>
       </AssetCard>
     </FlowRow>

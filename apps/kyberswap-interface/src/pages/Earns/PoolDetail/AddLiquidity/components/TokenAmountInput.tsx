@@ -129,6 +129,10 @@ const RemoveButton = styled.button`
   }
 `
 
+const INPUT_AMOUNT_REGEX = /^\d*(?:[.]\d*)?$/
+
+const normalizeActionAmount = (nextAmount: string) => (parseFloat(nextAmount || '0') > 0 ? nextAmount : '')
+
 interface TokenAmountInputProps {
   token: Token
   amount?: string
@@ -162,22 +166,21 @@ const TokenAmountInput = ({
     token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
       ? NATIVE_TOKEN_ADDRESS.toLowerCase()
       : token.address.toLowerCase()
-
   const balanceInWei = tokenBalances[balanceKey]?.toString() || '0'
+  const formattedBalance = formatUnits(balanceInWei, token.decimals)
+
   const usdAmount = useMemo(
     () => (tokenPrices[token.address.toLowerCase()] || 0) * parseFloat(amount || '0'),
     [amount, token.address, tokenPrices],
   )
 
-  const normalizeActionAmount = (nextAmount: string) => (parseFloat(nextAmount || '0') > 0 ? nextAmount : '')
   const updateAmount = (nextAmount: string) => onAmountChange?.(tokenIndex, nextAmount)
 
   const handleAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.replace(/,/g, '.')
     if (value === '.') return
 
-    const inputRegex = /^\d*(?:[.]\d*)?$/
-    if (value === '' || inputRegex.test(value)) updateAmount(value)
+    if (value === '' || INPUT_AMOUNT_REGEX.test(value)) updateAmount(value)
   }
 
   const applyPercentage = (percentage: number) => {
@@ -192,7 +195,6 @@ const TokenAmountInput = ({
 
     updateAmount(normalizedAmount)
 
-    const poolPair = pool ? `${pool.token0.symbol}/${pool.token1.symbol}` : ''
     const usdValue = (tokenPrices[token.address.toLowerCase()] || 0) * parseFloat(normalizedAmount || '0')
 
     if (percentage === 100 || percentage === 50) {
@@ -201,7 +203,7 @@ const TokenAmountInput = ({
         token_address: token.address,
         [percentage === 100 ? 'max_amount' : 'half_amount']: normalizedAmount,
         [percentage === 100 ? 'max_amount_usd' : 'half_amount_usd']: usdValue,
-        pool_pair: poolPair,
+        pool_pair: pool ? `${pool.token0.symbol}/${pool.token1.symbol}` : '',
         chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
       })
     }
@@ -225,12 +227,9 @@ const TokenAmountInput = ({
           </QuickActionButton>
         </HStack>
 
-        <BalanceButton
-          type="button"
-          onClick={() => updateAmount(normalizeActionAmount(formatUnits(balanceInWei, token.decimals)))}
-        >
+        <BalanceButton type="button" onClick={() => updateAmount(normalizeActionAmount(formattedBalance))}>
           <BalanceIcon width={14} height={14} />
-          {formatDisplayNumber(formatUnits(balanceInWei, token.decimals), { significantDigits: 8 })}
+          {formatDisplayNumber(formattedBalance, { significantDigits: 8 })}
         </BalanceButton>
       </HStack>
 

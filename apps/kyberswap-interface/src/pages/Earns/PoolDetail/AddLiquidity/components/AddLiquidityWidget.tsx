@@ -64,10 +64,12 @@ export default function AddLiquidityWidget({
 }: AddLiquidityWidgetProps) {
   const { chainId: poolChainId, poolAddress, poolType, pool } = context
   const { account, toggleWalletModal } = useAddLiquidityRuntimeContext()
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [highlightDegenMode, setHighlightDegenMode] = useState(false)
 
   const route = state.route.data
+  const isUniV3 = state.priceRange.isUniV3
 
   const approval = useApproval({
     tokensIn: state.tokenInput.tokens,
@@ -120,8 +122,6 @@ export default function AddLiquidityWidget({
         <AddLiquidityTokenInput
           context={{
             chainId: poolChainId,
-            poolAddress,
-            poolType,
             pool,
           }}
           wallet={{
@@ -134,7 +134,6 @@ export default function AddLiquidityWidget({
             balances: state.tokenInput.balances,
             prices: state.tokenInput.prices,
             route,
-            slippage: state.slippage.value,
           }}
           onTrackEvent={onTrackEvent}
           onTokensChange={state.tokenInput.setTokens}
@@ -142,7 +141,7 @@ export default function AddLiquidityWidget({
         />
       </Stack>
 
-      {state.priceRange.isUniV3 && (
+      {isUniV3 && (
         <>
           <PriceSection
             context={{
@@ -176,12 +175,15 @@ export default function AddLiquidityWidget({
       )}
 
       {feedback.validationWarning ? <NoteCard $warning>{feedback.validationWarning}</NoteCard> : null}
+
       {feedback.securityWarnings.map(message => (
         <NoteCard key={message} $warning>
           {message}
         </NoteCard>
       ))}
+
       {feedback.routeWarning ? <NoteCard $warning>{feedback.routeWarning}</NoteCard> : null}
+
       {feedback.blockingWarnings.map(warning => (
         <NoteCard key={warning.message} $tone={warning.tone}>
           {warning.message}
@@ -206,9 +208,7 @@ export default function AddLiquidityWidget({
         <ButtonOutlined onClick={onCancel}>Cancel</ButtonOutlined>
         <PrimaryActionButton
           disabled={actions.isPrimaryActionDisabled}
-          onClick={() => {
-            void actions.handlePrimaryAction()
-          }}
+          onClick={() => void actions.handlePrimaryAction()}
           altDisabledStyle
         >
           {actions.primaryActionText}

@@ -1,4 +1,4 @@
-import { NETWORKS_INFO, Pool, PoolType, Token, ZapRouteDetail, defaultToken } from '@kyber/schema'
+import { NETWORKS_INFO, Pool, Token, ZapRouteDetail, defaultToken } from '@kyber/schema'
 import TokenSelectorModal, { MAX_TOKENS, TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { InfoHelper } from '@kyber/ui'
 import { t } from '@lingui/macro'
@@ -44,11 +44,13 @@ const ShareText = styled.div`
   }
 `
 
+const EMPTY_TOKENS: Token[] = []
+const EMPTY_BALANCES: Record<string, bigint> = {}
+const EMPTY_PRICES: Record<string, number> = {}
+
 interface AddLiquidityTokenInputProps {
   context?: {
     chainId: number
-    poolAddress: string
-    poolType: PoolType
     pool?: Pool | null
   }
   wallet?: {
@@ -61,7 +63,6 @@ interface AddLiquidityTokenInputProps {
     balances?: Record<string, bigint>
     prices?: Record<string, number>
     route?: ZapRouteDetail | null
-    slippage?: number
   }
   onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
   onTokensChange?: (nextTokens: Token[]) => void
@@ -81,12 +82,14 @@ const AddLiquidityTokenInput = ({
 
   const chainId = context?.chainId || 0
   const pool = context?.pool || null
-  const currentTokens = useMemo(() => value?.tokens || [], [value?.tokens])
-  const currentAmounts = value?.amounts || ''
-  const currentBalances = useMemo(() => value?.balances || {}, [value?.balances])
-  const currentPrices = useMemo(() => value?.prices || {}, [value?.prices])
-  const currentRoute = value?.route
   const { token0 = defaultToken, token1 = defaultToken } = pool || {}
+
+  const currentTokens = value?.tokens ?? EMPTY_TOKENS
+  const currentAmounts = value?.amounts || ''
+  const currentBalances = value?.balances ?? EMPTY_BALANCES
+  const currentPrices = value?.prices ?? EMPTY_PRICES
+  const currentRoute = value?.route
+  const amountList = useMemo(() => currentAmounts.split(','), [currentAmounts])
 
   const share = useMemo(() => {
     if (!pool) return undefined
@@ -108,33 +111,42 @@ const AddLiquidityTokenInput = ({
 
     const reserveUsd = Number((pool as any).reserveUsd || (pool as any).stats?.tvl || 0)
     const routedAddedUsd = Number(currentRoute?.positionDetails?.addedAmountUsd || 0)
+
     if (reserveUsd > 0 && routedAddedUsd > 0) {
       return routedAddedUsd / (reserveUsd + routedAddedUsd)
     }
+
     if (!reserveUsd) return undefined
 
     const totalUsdAmount = currentTokens.reduce((sum, token, index) => {
-      const amount = Number(currentAmounts.split(',')[index] || 0)
+      const amount = Number(amountList[index] || 0)
       const price = currentPrices[token.address.toLowerCase()] || 0
+
       return sum + amount * price
     }, 0)
 
     if (!totalUsdAmount) return undefined
+
     return totalUsdAmount / reserveUsd
-  }, [currentAmounts, currentPrices, currentRoute, currentTokens, pool])
+  }, [amountList, currentPrices, currentRoute, currentTokens, pool])
 
   const onCloseTokenSelectModal = useCallback(() => {
     setOpenTokenSelectModal(false)
     setTokenAddressSelected(undefined)
   }, [])
 
+  const openTokenSelectModalForToken = useCallback((address?: string) => {
+    setTokenAddressSelected(address)
+    setOpenTokenSelectModal(true)
+  }, [])
+
   const handleSetAmount = useCallback(
     (tokenIndex: number, nextAmount: string) => {
-      const nextAmounts = currentAmounts.split(',')
+      const nextAmounts = [...amountList]
       nextAmounts[tokenIndex] = nextAmount
       onAmountsChange?.(nextAmounts.join(','))
     },
-    [currentAmounts, onAmountsChange],
+    [amountList, onAmountsChange],
   )
 
   const handleRemoveToken = useCallback(
@@ -143,11 +155,11 @@ const AddLiquidityTokenInput = ({
       nextTokens.splice(tokenIndex, 1)
       onTokensChange?.(nextTokens)
 
-      const nextAmounts = currentAmounts.split(',')
+      const nextAmounts = [...amountList]
       nextAmounts.splice(tokenIndex, 1)
       onAmountsChange?.(nextAmounts.join(','))
     },
-    [currentAmounts, currentTokens, onAmountsChange, onTokensChange],
+    [amountList, currentTokens, onAmountsChange, onTokensChange],
   )
 
   const handleWrappedSetTokensIn = useCallback(
@@ -182,7 +194,7 @@ const AddLiquidityTokenInput = ({
       {currentTokens.length ? (
         currentTokens.map((token, index) => (
           <TokenAmountInput
-            amount={currentAmounts.split(',')[index] || ''}
+            amount={amountList[index] || ''}
             chainId={chainId}
             key={`${token.address}-${index}`}
             tokenIndex={index}
@@ -192,10 +204,7 @@ const AddLiquidityTokenInput = ({
             tokenPrices={currentPrices}
             onAmountChange={handleSetAmount}
             onTrackEvent={onTrackEvent}
-            onTokenSelectOpen={address => {
-              setTokenAddressSelected(address)
-              setOpenTokenSelectModal(true)
-            }}
+            onTokenSelectOpen={openTokenSelectModalForToken}
             onTokenRemove={handleRemoveToken}
             tokensCount={currentTokens.length}
           />
@@ -209,7 +218,7 @@ const AddLiquidityTokenInput = ({
         Active Liquidity
       </ShareText>
 
-      <AddTokenButton type="button" onClick={() => setOpenTokenSelectModal(true)}>
+      <AddTokenButton type="button" onClick={() => openTokenSelectModalForToken()}>
         <Text>+ Add Token(s)</Text>
         <InfoHelper
           noneMarginLeft
