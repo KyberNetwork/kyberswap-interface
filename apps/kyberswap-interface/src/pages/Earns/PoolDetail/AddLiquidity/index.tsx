@@ -1,4 +1,4 @@
-import { PoolType, TxStatus, univ3Types } from '@kyber/schema'
+import { PoolType, TxStatus, ZapRouteDetail, univ3Types } from '@kyber/schema'
 import { translateZapMessage } from '@kyber/ui'
 import { friendlyError } from '@kyber/utils'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -58,6 +58,8 @@ const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_MAX_SLIPPAGE_CHANGED: TRACKING_EVENT_TYPE.LIQ_MAX_SLIPPAGE_CHANGED,
 }
 
+const ZAP_SOURCE = 'kyberswap-earn'
+
 const getModalTxStatus = (status?: TxStatus): '' | 'success' | 'failed' | 'cancelled' => {
   if (status === TxStatus.SUCCESS) return 'success'
   if (status === TxStatus.FAILED) return 'failed'
@@ -102,11 +104,16 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
     poolType: poolType || PoolType.DEX_UNISWAPV3,
     account,
     positionId,
+    source: ZAP_SOURCE,
   })
+
+  const [isReviewOpen, setIsReviewOpen] = useState(false)
+  const [previewRouteSnapshot, setPreviewRouteSnapshot] = useState<ZapRouteDetail | null>(null)
+  const reviewRoute = isReviewOpen && previewRouteSnapshot ? previewRouteSnapshot : state.route.data
 
   const review = useReviewData({
     pool: normalizedPool.data,
-    route: state.route.data,
+    route: reviewRoute,
     zapState: {
       chainId,
       poolType,
@@ -134,13 +141,13 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
   const feedback = useFeedback({
     account,
     poolChainId: chainId,
+    poolType,
     pool: normalizedPool.data,
+    positionId,
     state,
     review,
     isZapImpactBlocked,
   })
-
-  const [isReviewOpen, setIsReviewOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submittedTxHash, setSubmittedTxHash] = useState('')
@@ -153,9 +160,10 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
   const openReview = useCallback(() => {
     setSubmitError(null)
     setSubmittedTxHash('')
+    setPreviewRouteSnapshot(state.route.data || null)
     clearTracking()
     setIsReviewOpen(true)
-  }, [clearTracking])
+  }, [clearTracking, state.route.data])
 
   const handlePreview = useCallback(
     async (permitData?: string) => {
@@ -171,7 +179,7 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
           route: state.route.data.route,
           deadline,
           permits: permitData && positionId ? { [positionId]: permitData } : undefined,
-          source: 'kyberswap-earn',
+          source: ZAP_SOURCE,
           referral,
         }).unwrap()
 
@@ -190,6 +198,7 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
     setSubmitError(null)
     setSubmittedTxHash('')
     setBuildData(null)
+    setPreviewRouteSnapshot(null)
     clearTracking()
   }, [clearTracking])
 
@@ -318,7 +327,7 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
           {renderWidget()}
         </Stack>
         <Stack flex="1 1 320px" gap={24} minWidth={0}>
-          <AddLiquidityRoutePreview chainId={chainId} zapRoute={state.route.data} />
+          <AddLiquidityRoutePreview chainId={chainId} zapRoute={reviewRoute} />
           {children}
         </Stack>
       </HStack>

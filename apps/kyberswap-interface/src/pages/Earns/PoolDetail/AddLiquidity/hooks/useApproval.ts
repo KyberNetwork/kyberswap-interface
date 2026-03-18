@@ -4,6 +4,7 @@ import {
   PermitNftState,
   useErc20Approvals,
   useNftApproval,
+  useNftApprovalAll,
   usePermitNft,
 } from '@kyber/hooks'
 import { Token, ZapRouteDetail } from '@kyber/schema'
@@ -32,6 +33,12 @@ export interface ApprovalState {
     addressToApprove: string
   }
   nftApproval: {
+    pendingTx: string
+    isChecking: boolean
+    isApproved: boolean
+    approve: () => Promise<void>
+  }
+  nftApprovalAll: {
     pendingTx: string
     isChecking: boolean
     isApproved: boolean
@@ -135,6 +142,23 @@ export default function useApproval({ tokensIn, amountsIn, route }: UseApprovalP
     dexName,
   })
 
+  const {
+    isApproved: isNftApprovedAll,
+    approveAll: approveNftAll,
+    approvePendingTx: approveAllPendingTx,
+    isChecking: isNftApprovalAllChecking,
+  } = useNftApprovalAll({
+    chainId,
+    rpcUrl: rpcUrl || '',
+    nftManagerContract,
+    spender: route?.routerAddress || '',
+    userAddress: account || '',
+    onSubmitTx: submitApprovalTx,
+    txStatus: txStatusMap,
+    txHashMapping,
+    dexName,
+  })
+
   return {
     permit: {
       state: permitState,
@@ -152,6 +176,12 @@ export default function useApproval({ tokensIn, amountsIn, route }: UseApprovalP
       isChecking: isNftApprovalChecking,
       isApproved: isNftApproved,
       approve: approveNft,
+    },
+    nftApprovalAll: {
+      pendingTx: approveAllPendingTx,
+      isChecking: isNftApprovalAllChecking,
+      isApproved: isNftApprovedAll,
+      approve: approveNftAll,
     },
   }
 }

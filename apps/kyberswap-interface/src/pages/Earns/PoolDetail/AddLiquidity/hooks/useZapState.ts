@@ -77,6 +77,7 @@ export default function useZapState({
   poolType,
   account,
   positionId,
+  source,
 }: {
   chainId: number
   pool: ZapPool | null
@@ -84,6 +85,7 @@ export default function useZapState({
   poolType: PoolType
   account?: string
   positionId?: string
+  source?: string
 }) {
   const nativeToken = useMemo(() => getDefaultNativeToken(chainId), [chainId])
   const defaultRevertPrice = useMemo(() => getDefaultRevertPrice(pool, chainId), [chainId, pool])
@@ -223,6 +225,7 @@ export default function useZapState({
       tickUpper: tickPriceState.debouncedTickUpper,
       account,
       positionId,
+      source,
     }
   }, [
     account,
@@ -234,6 +237,7 @@ export default function useZapState({
     positionId,
     routeDisabled,
     slippageState.slippage,
+    source,
     tickPriceState.debouncedTickLower,
     tickPriceState.debouncedTickUpper,
     tokenInputState.debouncedAmountsIn,
