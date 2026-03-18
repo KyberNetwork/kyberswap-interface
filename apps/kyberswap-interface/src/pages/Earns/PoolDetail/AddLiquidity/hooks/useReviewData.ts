@@ -16,13 +16,12 @@ import {
   ZapRouteDetail,
   getDexName,
   univ2PoolNormalize,
-  univ2Types,
   univ3PoolNormalize,
-  univ3Types,
 } from '@kyber/schema'
 import { PI_LEVEL, getPoolPrice, getZapImpact } from '@kyber/utils'
 import { useMemo } from 'react'
 
+import { isUniV2PoolType, isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export interface ReviewZapState {
@@ -253,7 +252,7 @@ const getEstimatedPriceAfterZap = ({
 
   if (!route) return null
 
-  if (isUniV3Pool && univ3Types.includes(poolType as any)) {
+  if (isUniV3Pool && isUniV3PoolType(poolType)) {
     const nextPoolDetails = route.poolDetails.uniswapV3 || route.poolDetails.algebraV1
     if (!nextPoolDetails) return null
 
@@ -268,7 +267,7 @@ const getEstimatedPriceAfterZap = ({
     })
   }
 
-  if (isUniV2Pool && univ2Types.includes(poolType as any)) {
+  if (isUniV2Pool && isUniV2PoolType(poolType)) {
     return getPoolPrice({
       pool: {
         ...normalizedUniV2Pool,

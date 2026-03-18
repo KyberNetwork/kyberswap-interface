@@ -1,4 +1,4 @@
-import { PoolType, TxStatus, ZapRouteDetail, univ3Types } from '@kyber/schema'
+import { PoolType, TxStatus, ZapRouteDetail } from '@kyber/schema'
 import { translateZapMessage } from '@kyber/ui'
 import { friendlyError } from '@kyber/utils'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -45,7 +45,6 @@ interface AddLiquidityProps {
 
 interface AddLiquidityBodyProps extends AddLiquidityProps {
   onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
-  showPriceRangeSkeleton: boolean
 }
 
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
@@ -67,7 +66,7 @@ const getModalTxStatus = (status?: TxStatus): '' | 'success' | 'failed' | 'cance
   return ''
 }
 
-function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: AddLiquidityBodyProps) {
+function AddLiquidityBody({ children, onTrackEvent }: AddLiquidityBodyProps) {
   const { pool } = usePoolDetailContext()
   const {
     account,
@@ -274,7 +273,7 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
     }
 
     if (normalizedPool.loading || !normalizedPool.data) {
-      return <AddLiquidityWidgetSkeleton showPriceRange={showPriceRangeSkeleton} />
+      return <AddLiquidityWidgetSkeleton />
     }
 
     return (
@@ -313,7 +312,7 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
   return (
     <>
       <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
-        <Stack flex="1 1 480px" width="100%" maxWidth="480px" minWidth={0} gap={16}>
+        <Stack flex="1 1 480px" maxWidth="480px" minWidth={0} gap={16}>
           {renderWidget()}
         </Stack>
         <Stack flex="1 1 320px" gap={24} minWidth={0}>
@@ -382,8 +381,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const { rpc: rpcUrl } = useKyberSwapConfig(chainId)
   const poolType = exchange ? (ZAPIN_DEX_MAPPING[exchange] as unknown as PoolType) : undefined
   const referral = getCookieValue('refCode')
-
-  const showPriceRangeSkeleton = useMemo(() => Boolean(poolType && univ3Types.includes(poolType as any)), [poolType])
 
   const submitApprovalTx = useCallback(
     async (txData: AddLiquiditySubmitTxData, additionalInfo?: AddLiquidityApprovalInfo) => {
@@ -471,9 +468,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
 
   return (
     <AddLiquidityRuntimeProvider value={runtimeValue}>
-      <AddLiquidityBody showPriceRangeSkeleton={showPriceRangeSkeleton} onTrackEvent={handleTrackEvent}>
-        {children}
-      </AddLiquidityBody>
+      <AddLiquidityBody onTrackEvent={handleTrackEvent}>{children}</AddLiquidityBody>
     </AddLiquidityRuntimeProvider>
   )
 }

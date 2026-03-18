@@ -1,5 +1,13 @@
 import { formatUnits } from '@ethersproject/units'
-import { NATIVE_TOKEN_ADDRESS, Token, Pool as ZapPool } from '@kyber/schema'
+import {
+  NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
+  PoolType,
+  Token,
+  Pool as ZapPool,
+  univ2Types,
+  univ3Types,
+} from '@kyber/schema'
 
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -17,6 +25,14 @@ export const countDecimals = (value: string) => {
   if (!value.includes('.')) return 0
   return value.split('.')[1]?.length || 0
 }
+
+export const getNetworkInfo = (chainId: number) => NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]
+
+export const isUniV3PoolType = (poolType?: PoolType) =>
+  poolType !== undefined && univ3Types.some(type => type === poolType)
+
+export const isUniV2PoolType = (poolType?: PoolType) =>
+  poolType !== undefined && univ2Types.some(type => type === poolType)
 
 export const hasPositiveAmount = (amounts: string) =>
   amounts.split(',').some(amount => Number.isFinite(Number(amount.trim())) && Number(amount.trim()) > 0)

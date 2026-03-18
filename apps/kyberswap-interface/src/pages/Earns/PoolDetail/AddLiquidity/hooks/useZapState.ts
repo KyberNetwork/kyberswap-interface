@@ -1,4 +1,4 @@
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, Token, Pool as ZapPool, univ3Types } from '@kyber/schema'
+import { NATIVE_TOKEN_ADDRESS, PoolType, Token, Pool as ZapPool } from '@kyber/schema'
 import { getPoolPrice } from '@kyber/utils'
 import { ChainId as AppChainId, Token as SDKToken } from '@kyberswap/ks-sdk-core'
 import { skipToken } from '@reduxjs/toolkit/query'
@@ -11,9 +11,11 @@ import useSlippageManager from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useSli
 import useTickPrice from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useTickPrice'
 import {
   ADD_LIQUIDITY_ERROR,
+  getNetworkInfo,
   getParsedTokensIn,
   getPrimaryValidationError,
   hasPositiveAmount,
+  isUniV3PoolType,
   validateAddLiquidityInput,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -40,7 +42,7 @@ const createTrackedBalanceConfig = (tokens: Token[], chainId: number) => {
 }
 
 const getDefaultNativeToken = (chainId: number): Token => {
-  const network = (NETWORKS_INFO as any)[chainId]
+  const network = getNetworkInfo(chainId)
   const wrappedToken = network.wrappedToken
 
   return {
@@ -48,14 +50,14 @@ const getDefaultNativeToken = (chainId: number): Token => {
     address: NATIVE_TOKEN_ADDRESS.toLowerCase(),
     logo: network.nativeLogo,
     symbol: wrappedToken.symbol.slice(1) || wrappedToken.symbol,
-    name: network.label,
+    name: network.name,
   }
 }
 
 const getDefaultRevertPrice = (pool: ZapPool | null, chainId: number) => {
   if (!pool) return false
 
-  const wrappedNativeTokenAddress = (NETWORKS_INFO as any)[chainId]?.wrappedToken?.address?.toLowerCase()
+  const wrappedNativeTokenAddress = getNetworkInfo(chainId)?.wrappedToken?.address?.toLowerCase()
   const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeTokenAddress
   const isToken0Stable = pool.token0.isStable
   const isToken1Stable = pool.token1.isStable
@@ -101,7 +103,7 @@ export default function useZapState({
   })
 
   const nativeBalance = useNativeBalance(chainId as AppChainId)
-  const isUniV3 = useMemo(() => univ3Types.includes(poolType as any), [poolType])
+  const isUniV3 = useMemo(() => isUniV3PoolType(poolType), [poolType])
   const selectedBalanceConfig = useMemo(
     () => createTrackedBalanceConfig(tokenInputState.tokensIn, chainId),
     [chainId, tokenInputState.tokensIn],

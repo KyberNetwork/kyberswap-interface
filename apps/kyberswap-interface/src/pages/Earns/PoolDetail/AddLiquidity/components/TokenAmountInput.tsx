@@ -247,10 +247,9 @@ export const TokenAmountInputSkeleton = () => (
     <HStack align="center" justify="space-between" gap={12}>
       <HStack align="center" gap={8} wrap="wrap">
         {[0, 1, 2, 3].map(item => (
-          <PositionSkeleton key={item} width={40 + item} height={22} style={{ borderRadius: 999 }} />
+          <PositionSkeleton key={item} width={40 + item} height={22} />
         ))}
       </HStack>
-
       <PositionSkeleton width={80} height={16} />
     </HStack>
 
@@ -258,7 +257,7 @@ export const TokenAmountInputSkeleton = () => (
       <Stack flex={1} minWidth={0} gap={8}>
         <PositionSkeleton width="40%" height={30} />
       </Stack>
-      <PositionSkeleton width={96} height={34} style={{ borderRadius: 999 }} />
+      <PositionSkeleton width={96} height={34} />
     </HStack>
   </Card>
 )

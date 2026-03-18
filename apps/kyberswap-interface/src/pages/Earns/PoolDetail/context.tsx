@@ -117,7 +117,7 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   }
 
   if (!pool && isPoolLoading) {
-    return <PoolDetailPageSkeleton exchange={exchange} />
+    return <PoolDetailPageSkeleton />
   }
 
   if (!pool) {

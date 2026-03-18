@@ -1,98 +1,76 @@
-import { PoolType, univ3Types } from '@kyber/schema'
-import styled from 'styled-components'
-
 import { HStack, Stack } from 'components/Stack'
+import useTheme from 'hooks/useTheme'
 import AddLiquidityWidgetSkeleton from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetSkeleton'
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { Exchange } from 'pages/Earns/constants'
-import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 
-const HeaderRow = styled(HStack)`
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  width: 100%;
-`
-
-const HeaderGroup = styled(HStack)`
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  min-width: 0;
-`
-
-const SideCard = styled(Stack)`
-  width: 100%;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
-  background: ${({ theme }) => theme.background};
-`
-
-const TabRow = styled(HStack)`
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-`
-
-interface PoolDetailPageSkeletonProps {
-  exchange?: string
+const RoutePreviewSkeleton = () => {
+  return (
+    <HStack width="100%" alignItems="center" justifyContent="space-between">
+      <PositionSkeleton width={240} height={68} />
+      <PositionSkeleton width={120} height={36} />
+      <PositionSkeleton width={240} height={68} />
+    </HStack>
+  )
 }
 
-export default function PoolDetailPageSkeleton({ exchange }: PoolDetailPageSkeletonProps) {
-  const poolType = exchange
-    ? (ZAPIN_DEX_MAPPING[exchange as Exchange] as unknown as PoolType | undefined) ?? undefined
-    : undefined
-  const showPriceRange = Boolean(poolType && univ3Types.includes(poolType as any))
+const PoolInformationSkeleton = () => {
+  const theme = useTheme()
 
   return (
+    <Stack width="100%" gap={16} p={16} borderRadius={12} background={theme.background}>
+      <HStack gap={24} wrap="wrap">
+        <PositionSkeleton width={96} height={16} />
+        <PositionSkeleton width={96} height={16} />
+        <PositionSkeleton width={96} height={16} />
+      </HStack>
+
+      <HStack gap={16} wrap="wrap">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Stack key={index} flex="1 1 160px" gap={12} p={12} borderRadius={16} background={theme.buttonGray}>
+            <PositionSkeleton width={80} height={16} />
+            <PositionSkeleton width={120} height={16} />
+          </Stack>
+        ))}
+      </HStack>
+
+      <HStack align="center" justify="space-between" gap={16} wrap="wrap">
+        <PositionSkeleton width={120} height={24} />
+        <PositionSkeleton width={320} height={16} />
+      </HStack>
+
+      <HStack align="center" justify="space-between" gap={16} wrap="wrap">
+        <PositionSkeleton width={160} height={18} />
+        <PositionSkeleton width={120} height={36} />
+      </HStack>
+
+      <PositionSkeleton width="100%" height={360} />
+    </Stack>
+  )
+}
+
+export default function PoolDetailPageSkeleton() {
+  return (
     <PoolDetailWrapper>
-      <HeaderRow>
-        <PositionSkeleton width={36} height={36} style={{ borderRadius: '50%' }} />
-
-        <HeaderGroup>
-          <HStack align="center" gap={0}>
-            <PositionSkeleton width={28} height={28} style={{ borderRadius: '50%' }} />
-            <PositionSkeleton width={28} height={28} style={{ borderRadius: '50%', marginLeft: -8 }} />
-            <PositionSkeleton width={16} height={16} style={{ borderRadius: '50%', marginLeft: -8, marginTop: 12 }} />
-          </HStack>
-
-          <PositionSkeleton width={180} height={28} />
-          <PositionSkeleton width={148} height={32} />
-          <PositionSkeleton width={96} height={32} />
-        </HeaderGroup>
-      </HeaderRow>
+      <HStack align="center" gap={12} wrap="wrap" width="100%">
+        <PositionSkeleton width={34.5} height={34.5} />
+        <HStack align="center">
+          <PositionSkeleton width={28} height={28} />
+          <PositionSkeleton width={28} height={28} />
+        </HStack>
+        <PositionSkeleton width={160} height={28} />
+        <PositionSkeleton width={160} height={32} />
+        <PositionSkeleton width={60} height={32} />
+      </HStack>
 
       <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
-        <Stack flex="1 1 480px" width="100%" maxWidth="480px" minWidth={0}>
-          <AddLiquidityWidgetSkeleton showPriceRange={showPriceRange} />
+        <Stack flex="1 1 480px" maxWidth="480px" minWidth={0} gap={16}>
+          <AddLiquidityWidgetSkeleton />
         </Stack>
 
         <Stack flex="1 1 320px" gap={24} minWidth={0}>
-          <SideCard gap={16}>
-            <PositionSkeleton width={112} height={18} />
-            <PositionSkeleton width="100%" height={72} style={{ borderRadius: 12 }} />
-            <PositionSkeleton width={88} height={16} />
-            <PositionSkeleton width="100%" height={72} style={{ borderRadius: 12 }} />
-          </SideCard>
-
-          <SideCard gap={20}>
-            <TabRow>
-              <PositionSkeleton width={110} height={16} />
-              <PositionSkeleton width={12} height={16} />
-              <PositionSkeleton width={88} height={16} />
-              <PositionSkeleton width={12} height={16} />
-              <PositionSkeleton width={96} height={16} />
-            </TabRow>
-
-            {[0, 1, 2, 3].map(item => (
-              <HStack align="center" justify="space-between" key={item}>
-                <PositionSkeleton width={132} height={16} />
-                <PositionSkeleton width={88} height={16} />
-              </HStack>
-            ))}
-          </SideCard>
+          <RoutePreviewSkeleton />
+          <PoolInformationSkeleton />
         </Stack>
       </HStack>
     </PoolDetailWrapper>

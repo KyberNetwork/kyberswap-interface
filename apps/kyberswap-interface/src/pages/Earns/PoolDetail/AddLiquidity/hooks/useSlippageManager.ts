@@ -1,7 +1,7 @@
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, POOL_CATEGORY, Pool, Token } from '@kyber/schema'
+import { NATIVE_TOKEN_ADDRESS, POOL_CATEGORY, Pool, Token } from '@kyber/schema'
 import { useEffect, useState } from 'react'
 
-import { getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { getNetworkInfo, getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 
 export default function useSlippageManager({
   pool,
@@ -44,7 +44,7 @@ export default function useSlippageManager({
     const isTokensInPair = tokensIn.every(token => {
       const address =
         token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? (NETWORKS_INFO as any)[chainId].wrappedToken.address.toLowerCase()
+          ? getNetworkInfo(chainId).wrappedToken.address.toLowerCase()
           : token.address.toLowerCase()
 
       return pool.token0.address.toLowerCase() === address || pool.token1.address.toLowerCase() === address

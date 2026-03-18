@@ -1,17 +1,10 @@
-import {
-  POOL_CATEGORY,
-  PoolType,
-  Token,
-  Pool as ZapPool,
-  univ2PoolNormalize,
-  univ3PoolNormalize,
-  univ3Types,
-} from '@kyber/schema'
+import { POOL_CATEGORY, PoolType, Token, Pool as ZapPool, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema'
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
 import { useAddLiquidityTokensQuery } from 'services/zapInService'
 
+import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { Pool as PoolDetailPagePool } from 'pages/Earns/PoolDetail/types'
 
 const mapPoolCategory = (category?: string): POOL_CATEGORY => {
@@ -111,7 +104,7 @@ export default function useZapPool({
     const isFarmingLm = Boolean(rawPool.programs?.includes('lm'))
     const fee = typeof rawPool.swapFee === 'number' ? rawPool.swapFee : Number(rawPool.feeTier || 0)
 
-    if (univ3Types.includes(poolType as any)) {
+    if (isUniV3PoolType(poolType)) {
       if (!rawPool.positionInfo) return null
 
       const parsedPool = univ3PoolNormalize.safeParse({
