@@ -19,7 +19,7 @@ const MultiSelect = ({
   options,
   value,
   width,
-  alignItems = 'center',
+  alignItems = 'flex-start',
   mobileFullWidth = false,
   mobileHalfWidth = false,
   highlightOnSelect = false,
@@ -83,9 +83,7 @@ const MultiSelect = ({
   return (
     <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
       <DropdownTitleWrapper highlight={highlightOnSelect && value !== AllOptionValue} onClick={handleOpenChange}>
-        <DropdownTitle justifyContent="flex-start" width={width}>
-          {label}
-        </DropdownTitle>
+        <DropdownTitle width={width}>{label}</DropdownTitle>
         <DropdownIcon open={open} />
       </DropdownTitleWrapper>
       {open && (

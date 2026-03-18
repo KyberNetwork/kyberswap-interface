@@ -25,7 +25,6 @@ const AssetCard = styled(Stack)`
   z-index: 1;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
   background: ${({ theme }) => theme.buttonGray};
 `
@@ -110,7 +109,6 @@ const StepPill = styled(HStack)`
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
   background: ${({ theme }) => theme.buttonGray};
 `

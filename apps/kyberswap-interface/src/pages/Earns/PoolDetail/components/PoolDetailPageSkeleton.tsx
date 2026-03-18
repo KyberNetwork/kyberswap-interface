@@ -38,14 +38,11 @@ const PoolInformationSkeleton = () => {
       </HStack>
 
       <HStack align="center" justify="space-between" gap={16} wrap="wrap">
-        <PositionSkeleton width={120} height={24} />
+        <PositionSkeleton width={120} height={36} />
         <PositionSkeleton width={320} height={16} />
       </HStack>
 
-      <HStack align="center" justify="space-between" gap={16} wrap="wrap">
-        <PositionSkeleton width={160} height={18} />
-        <PositionSkeleton width={120} height={36} />
-      </HStack>
+      <PositionSkeleton width={180} height={18} />
 
       <PositionSkeleton width="100%" height={360} />
     </Stack>

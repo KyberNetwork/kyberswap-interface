@@ -27,7 +27,7 @@ const DropdownMenu = ({
   flatten,
   background,
   fullWidth = false,
-  alignItems = 'center',
+  alignItems = 'flex-start',
   mobileFullWidth = false,
   mobileHalfWidth = false,
   usePortal = false,

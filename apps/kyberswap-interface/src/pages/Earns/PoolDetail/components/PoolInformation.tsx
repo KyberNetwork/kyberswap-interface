@@ -1,27 +1,24 @@
-import { rgba } from 'polished'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import useTab from 'hooks/useTab'
 import useTheme from 'hooks/useTheme'
-import AnalyticsTab from 'pages/Earns/PoolDetail/components/PoolInformationTabs/AnalyticsTab'
-import EarningsTab from 'pages/Earns/PoolDetail/components/PoolInformationTabs/EarningsTab'
-import InformationTab from 'pages/Earns/PoolDetail/components/PoolInformationTabs/InformationTab'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import AnalyticsTab from 'pages/Earns/PoolDetail/tabs/AnalyticsTab'
+import EarningsTab from 'pages/Earns/PoolDetail/tabs/EarningsTab'
+import InformationTab from 'pages/Earns/PoolDetail/tabs/InformationTab'
 
 const POOL_INFO_TABS = [
   { id: 'information', label: 'INFORMATION' },
-  { id: 'Earnings', label: 'EARNING(S)' },
+  { id: 'earnings', label: 'EARNING(S)' },
   { id: 'analytics', label: 'ANALYTICS' },
 ] as const
 
 const Panel = styled(Stack)`
   padding: 16px;
-  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
   background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
 `
 
 const TabButton = styled.button<{ $active: boolean }>`
@@ -46,9 +43,7 @@ const PoolInformation = () => {
   const { pool } = usePoolDetailContext()
   const { activeTab, setActiveTab } = useTab<PoolInfoTab>({
     tabs: POOL_INFO_TABS.map(tab => tab.id),
-    queryKey: 'tab',
     defaultTab: 'information',
-    syncQuery: true,
   })
 
   const currentTab: PoolInfoTab = activeTab || 'information'
@@ -62,7 +57,7 @@ const PoolInformation = () => {
               {tab.label}
             </TabButton>
             {index < POOL_INFO_TABS.length - 1 ? (
-              <Text color={rgba(theme.border, 0.24)} fontSize={14} fontWeight={500}>
+              <Text color={theme.gray} fontSize={14} fontWeight={500}>
                 |
               </Text>
             ) : null}
@@ -71,7 +66,7 @@ const PoolInformation = () => {
       </HStack>
 
       {currentTab === 'information' && <InformationTab pool={pool} />}
-      {currentTab === 'Earnings' && <EarningsTab />}
+      {currentTab === 'earnings' && <EarningsTab />}
       {currentTab === 'analytics' && <AnalyticsTab />}
     </Panel>
   )

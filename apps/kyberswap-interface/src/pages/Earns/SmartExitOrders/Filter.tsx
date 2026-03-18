@@ -97,21 +97,13 @@ export default function Filter({
     >
       <Flex sx={{ gap: 2, width: upToSmall ? '100%' : 'auto' }} flexWrap={'wrap'}>
         <DropdownMenu
-          alignItems="flex-start"
           mobileHalfWidth
           value={filters.chainIds || ''}
           options={chainOptions}
           onChange={handleChainChange}
         />
+        <DropdownMenu mobileHalfWidth value={filters.dexTypes || ''} options={dexOptions} onChange={handleDexChange} />
         <DropdownMenu
-          alignItems="flex-start"
-          mobileHalfWidth
-          value={filters.dexTypes || ''}
-          options={dexOptions}
-          onChange={handleDexChange}
-        />
-        <DropdownMenu
-          alignItems="flex-start"
           mobileFullWidth
           options={ORDER_STATUS}
           value={filters.status || ''}

@@ -53,7 +53,7 @@ export const DropdownTitle = styled.div<{ width?: number; justifyContent?: strin
   flex: ${({ fullWidth }) => (fullWidth ? '1 1 auto' : '0 0 auto')};
   display: flex;
   align-items: center;
-  justify-content: ${({ justifyContent }) => justifyContent || 'center'};
+  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
   gap: 6px;
   text-transform: capitalize;
 
@@ -89,16 +89,17 @@ export const DropdownContent = styled.div<{ flatten?: boolean; alignItems?: CSSP
   position: absolute;
   top: ${({ flatten }) => (flatten ? '32px' : '42px')};
   left: 0;
-  background: ${({ theme }) => theme.background};
-  border-radius: 18px;
-  padding: 8px 8px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.text};
-  width: max-content;
   display: flex;
   flex-direction: column;
-  align-items: ${({ alignItems }) => alignItems || 'center'};
+  align-items: ${({ alignItems }) => alignItems || 'flex-start'};
   gap: 4px;
+  width: max-content;
+  padding: 8px;
+  border-radius: 18px;
+  background: ${({ theme }) => theme.background};
+  box-shadow: ${({ theme }) => `0 8px 12px ${theme.shadow}`};
+  color: ${({ theme }) => theme.text};
+  font-size: 14px;
   z-index: 100;
   filter: brightness(1.2);
 `

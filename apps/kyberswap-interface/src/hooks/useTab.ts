@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-interface UseTabProps<T extends string> {
+type UseTabProps<T extends string> = {
   tabs: readonly T[]
   queryKey?: string
   defaultTab?: T | ''
@@ -42,13 +42,15 @@ const useTab = <T extends string>({
 
     const queryValue = searchParams.get(queryKey)
     const validTab = getValidTab(queryValue)
-    if (queryValue === validTab || (!queryValue && !validTab)) return
+    const shouldSkipInitialDefaultSync = !queryValue && Boolean(validTab) && validTab === fallbackTab
+
+    if (queryValue === validTab || shouldSkipInitialDefaultSync || (!queryValue && !validTab)) return
 
     const nextSearchParams = new URLSearchParams(searchParams)
     if (validTab) nextSearchParams.set(queryKey, validTab)
     else nextSearchParams.delete(queryKey)
     setSearchParams(nextSearchParams, { replace: true })
-  }, [getValidTab, queryKey, searchParams, setSearchParams, syncQuery])
+  }, [fallbackTab, getValidTab, queryKey, searchParams, setSearchParams, syncQuery])
 
   const setActiveTab = useCallback(
     (tab: T) => {

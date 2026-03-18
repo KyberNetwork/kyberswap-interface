@@ -1,3 +1,4 @@
+import { formatAprNumber } from '@kyber/utils'
 import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -6,8 +7,8 @@ import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
-import { Pool } from 'pages/Earns/PoolDetail/types'
-import { formatPoolInfoCurrency, formatPoolInfoPercent } from 'pages/Earns/PoolDetail/utils'
+import { type Pool } from 'pages/Earns/PoolDetail/types'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export type AprPeriod = '24H' | '7D' | '30D'
 
@@ -22,7 +23,7 @@ export interface AprChartPoint {
 
 interface InformationAprChartProps {
   pool?: Pool
-  interval: AprPeriod
+  aprInterval: AprPeriod
 }
 
 interface ChartSeriesPoint extends Omit<AprChartPoint, 'value'> {
@@ -187,7 +188,7 @@ const buildSyntheticSeries = (points: AprChartPoint[]) => {
   return series
 }
 
-const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
+const InformationAprChart = ({ pool, aprInterval }: InformationAprChartProps) => {
   const theme = useTheme()
   const chartColor = theme.blue
 
@@ -235,7 +236,7 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
             orientation="right"
             tick={{ fill: theme.subText, fontSize: 12 }}
             tickCount={5}
-            tickFormatter={value => formatPoolInfoPercent(Number(value))}
+            tickFormatter={value => `${formatAprNumber(Number(value))}%`}
             tickLine={false}
             ticks={yAxisTicks}
             width={72}
@@ -252,32 +253,39 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
                     {label}
                   </Text>
                   <Text color={theme.text} fontWeight={500}>
-                    {formatPoolInfoPercent(Number(value))}
+                    {`${formatAprNumber(Number(value))}%`}
                   </Text>
                   <TooltipGrid>
                     <Text color={theme.subText} fontSize={12}>
                       LP APR
                     </Text>
                     <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-                      {formatPoolInfoPercent(payload?.[0]?.payload.lpApr)}
+                      {payload?.[0]?.payload.lpApr || payload?.[0]?.payload.lpApr === 0
+                        ? `${formatAprNumber(payload?.[0]?.payload.lpApr)}%`
+                        : '--'}
                     </Text>
                     <Text color={theme.subText} fontSize={12}>
                       Reward APR
                     </Text>
                     <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-                      {formatPoolInfoPercent(payload?.[0]?.payload.rewardApr)}
+                      {payload?.[0]?.payload.rewardApr || payload?.[0]?.payload.rewardApr === 0
+                        ? `${formatAprNumber(payload?.[0]?.payload.rewardApr)}%`
+                        : '--'}
                     </Text>
                     <Text color={theme.subText} fontSize={12}>
                       Volume
                     </Text>
                     <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-                      {formatPoolInfoCurrency(payload?.[0]?.payload.volumeUsd)}
+                      {formatDisplayNumber(payload?.[0]?.payload.volumeUsd, {
+                        style: 'currency',
+                        significantDigits: 6,
+                      })}
                     </Text>
                     <Text color={theme.subText} fontSize={12}>
                       Fees
                     </Text>
                     <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-                      {formatPoolInfoCurrency(payload?.[0]?.payload.lpFeeUsd)}
+                      {formatDisplayNumber(payload?.[0]?.payload.lpFeeUsd, { style: 'currency', significantDigits: 6 })}
                     </Text>
                   </TooltipGrid>
                 </TooltipCard>
@@ -299,10 +307,10 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
                   cy={hasValidPosition ? cy : 0}
                   fill={chartColor}
                   key={dotKey}
-                  opacity={hasValidPosition ? (payload.periodKey === interval ? 1 : 0.6) : 0}
-                  r={payload.periodKey === interval ? 6 : 3.5}
+                  opacity={hasValidPosition ? (payload.periodKey === aprInterval ? 1 : 0.6) : 0}
+                  r={payload.periodKey === aprInterval ? 6 : 3.5}
                   stroke={theme.buttonBlack}
-                  strokeWidth={payload.periodKey === interval ? 3 : 2}
+                  strokeWidth={payload.periodKey === aprInterval ? 3 : 2}
                 />
               )
             }}
