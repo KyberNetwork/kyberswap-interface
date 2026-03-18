@@ -26,7 +26,7 @@ const PRICE_RANGE = {
 const RangeButton = styled.button<{ $active: boolean }>`
   flex: 1 1 0;
   min-width: 0;
-  padding: 8px 12px;
+  padding: 8px 8px 8px 12px;
   border: none;
   border-radius: 20px;
   background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};

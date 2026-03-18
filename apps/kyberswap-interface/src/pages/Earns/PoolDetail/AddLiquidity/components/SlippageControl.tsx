@@ -90,7 +90,7 @@ const Option = styled.button<{ $active: boolean }>`
   flex: 1 1 0;
   min-width: 0;
   min-height: 32px;
-  padding: 0px 8px;
+  padding: 0px 8px 0px 12px;
   border: none;
   border-radius: 20px;
   background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
@@ -127,6 +127,7 @@ const Input = styled.input`
   background: transparent;
   color: inherit;
   min-width: 0;
+  padding: 0px;
   font-weight: 500;
   outline: none;
   text-align: right;
