@@ -1,16 +1,17 @@
 import { ZapRouteDetail } from '@kyber/schema'
-import { MouseoverTooltip, Skeleton } from '@kyber/ui'
+import { MouseoverTooltip } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/number'
 import { Trans } from '@lingui/macro'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { rgba } from 'polished'
-import { Text } from 'rebass'
+import { Box, Text } from 'rebass'
 import { useEstimatePositionAprQuery } from 'services/zapInService'
 import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 
 const TooltipContent = styled(Stack)`
   gap: 4px;
@@ -46,13 +47,6 @@ interface EstimatedPositionAprProps {
   route?: ZapRouteDetail | null
 }
 
-type AprData = {
-  totalApr: number
-  feeApr: number
-  egApr: number
-  lmApr: number
-}
-
 export default function EstimatedPositionApr({
   chainId,
   poolAddress,
@@ -78,7 +72,7 @@ export default function EstimatedPositionApr({
     debouncedLower === debouncedUpper ||
     !positionLiquidity
 
-  const { data, isFetching } = useEstimatePositionAprQuery(
+  const { data: aprData } = useEstimatePositionAprQuery(
     shouldSkip
       ? skipToken
       : {
@@ -91,11 +85,7 @@ export default function EstimatedPositionApr({
         },
   )
 
-  const aprData = (data as AprData | undefined) || null
-
   if (!isFarming) return null
-
-  const aprDisplay = !aprData ? '--' : aprData.totalApr === 0 ? '~0%' : `${formatAprNumber(aprData.totalApr)}%`
 
   const tooltipContent = !hasInput ? (
     <TooltipContent>Input an amount to calculate.</TooltipContent>
@@ -143,11 +133,13 @@ export default function EstimatedPositionApr({
       </Text>
       <MouseoverTooltip placement="top" width={!aprData ? 'fit-content' : '320px'} text={tooltipContent}>
         <HStack minWidth={64} justify="flex-end">
-          {isFetching && !aprData ? (
-            <Skeleton style={{ width: '64px', height: '20px' }} />
+          {!aprData ? (
+            <Box height={17}>
+              <PositionSkeleton width={48} height={16} />
+            </Box>
           ) : (
             <Text color={theme.primary} fontSize={14} fontWeight={500}>
-              {aprDisplay}
+              {aprData.totalApr === 0 ? '~0%' : `${formatAprNumber(aprData.totalApr)}%`}
             </Text>
           )}
         </HStack>

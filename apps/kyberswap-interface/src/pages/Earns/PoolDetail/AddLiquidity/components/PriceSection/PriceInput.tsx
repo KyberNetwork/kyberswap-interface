@@ -1,5 +1,4 @@
 import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, univ3PoolNormalize } from '@kyber/schema'
-import { Skeleton } from '@kyber/ui'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
@@ -286,7 +285,9 @@ export default function PriceInput({
 
         <Stack flex={1} minWidth={0} align="center">
           {!normalizedPool ? (
-            <Skeleton style={{ width: '120px', height: '24px' }} />
+            <Text fontSize={14} fontWeight={500}>
+              0.0
+            </Text>
           ) : (
             <Input
               value={localValue}
@@ -303,7 +304,7 @@ export default function PriceInput({
               type="text"
               pattern="^[0-9]*[.,]?[0-9]*$"
               placeholder="0.0"
-              maxLength={79}
+              maxLength={18}
               spellCheck={false}
             />
           )}

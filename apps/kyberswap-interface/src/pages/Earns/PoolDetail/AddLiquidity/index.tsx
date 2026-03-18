@@ -318,8 +318,8 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
         </Stack>
         <Stack flex="1 1 320px" gap={24} minWidth={0}>
           <AddLiquidityRoutePreview
-            chainId={chainId}
             inputTokens={state.tokenInput.tokens}
+            inputAmounts={state.tokenInput.amounts}
             pool={normalizedPool.data}
             zapRoute={reviewRoute}
           />

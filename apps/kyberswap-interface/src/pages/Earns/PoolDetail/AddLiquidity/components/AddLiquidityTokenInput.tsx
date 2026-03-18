@@ -1,4 +1,4 @@
-import { NETWORKS_INFO, Pool, Token, ZapRouteDetail } from '@kyber/schema'
+import { NETWORKS_INFO, Pool, PoolType, Token, UniV3Pool, ZapRouteDetail, univ3Types } from '@kyber/schema'
 import TokenSelectorModal, { MAX_TOKENS, TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { InfoHelper } from '@kyber/ui'
 import { t } from '@lingui/macro'
@@ -35,6 +35,36 @@ const AddTokenButton = styled.button`
 const EMPTY_TOKENS: Token[] = []
 const EMPTY_BALANCES: Record<string, bigint> = {}
 const EMPTY_PRICES: Record<string, number> = {}
+
+const isUniV3Pool = (pool: Pool): pool is UniV3Pool => univ3Types.includes(pool.poolType as PoolType.DEX_UNISWAPV3)
+
+const LiquidityShare = ({ pool, route }: { pool: Pool; route?: ZapRouteDetail | null }) => {
+  const theme = useTheme()
+
+  const share = useMemo(() => {
+    if (!isUniV3Pool(pool) || !route?.positionDetails?.addedLiquidity) return undefined
+    const previousLiquidity = Number(pool.liquidity)
+    const addedLiquidity = Number(route.positionDetails.addedLiquidity)
+    if (addedLiquidity <= 0) return undefined
+    return addedLiquidity / (previousLiquidity + addedLiquidity)
+  }, [pool, route])
+
+  const shareDisplay = useMemo(() => {
+    if (!share) return '--'
+    if (share < 1e-6) return '~0%'
+    return formatDisplayNumber(share, { style: 'percent', significantDigits: 2 })
+  }, [share])
+
+  return (
+    <Text color={theme.subText} fontSize={12} fontStyle="italic" textAlign="right">
+      Your Share:{' '}
+      <Text as="span" color={theme.blue} fontWeight={500}>
+        {shareDisplay}
+      </Text>{' '}
+      of Active Liquidity
+    </Text>
+  )
+}
 
 interface AddLiquidityTokenInputProps {
   context: {
@@ -78,43 +108,6 @@ const AddLiquidityTokenInput = ({
   const currentPrices = value?.prices ?? EMPTY_PRICES
   const currentRoute = value?.route
   const amountList = useMemo(() => currentAmounts.split(','), [currentAmounts])
-
-  const share = useMemo(() => {
-    if ('liquidity' in pool && currentRoute?.positionDetails?.addedLiquidity) {
-      try {
-        const currentLiquidity = BigInt(pool.liquidity)
-        const addedLiquidity = BigInt(currentRoute.positionDetails.addedLiquidity)
-        const totalLiquidity = currentLiquidity + addedLiquidity
-
-        if (addedLiquidity <= 0n || totalLiquidity <= 0n) return undefined
-
-        const shareScaled = (addedLiquidity * 1_000_000n) / totalLiquidity
-        return Number(shareScaled) / 1_000_000
-      } catch {
-        return undefined
-      }
-    }
-
-    const reserveUsd = Number((pool as any).reserveUsd || (pool as any).stats?.tvl || 0)
-    const routedAddedUsd = Number(currentRoute?.positionDetails?.addedAmountUsd || 0)
-
-    if (reserveUsd > 0 && routedAddedUsd > 0) {
-      return routedAddedUsd / (reserveUsd + routedAddedUsd)
-    }
-
-    if (!reserveUsd) return undefined
-
-    const totalUsdAmount = currentTokens.reduce((sum, token, index) => {
-      const amount = Number(amountList[index] || 0)
-      const price = currentPrices[token.address.toLowerCase()] || 0
-
-      return sum + amount * price
-    }, 0)
-
-    if (!totalUsdAmount) return undefined
-
-    return totalUsdAmount / reserveUsd
-  }, [amountList, currentPrices, currentRoute, currentTokens, pool])
 
   const onCloseTokenSelectModal = useCallback(() => {
     setOpenTokenSelectModal(false)
@@ -199,13 +192,7 @@ const AddLiquidityTokenInput = ({
         <TokenAmountInputSkeleton />
       )}
 
-      <Text color={theme.subText} fontSize={12} fontStyle="italic" textAlign="right">
-        Your Share:{' '}
-        <Text as="span" color={theme.blue} fontStyle="normal" fontWeight={500}>
-          {share ? formatDisplayNumber(share, { style: 'percent', significantDigits: 3 }) : '--'}
-        </Text>{' '}
-        of Active Liquidity
-      </Text>
+      <LiquidityShare pool={pool} route={currentRoute} />
 
       <AddTokenButton type="button" onClick={() => openTokenSelectModalForToken()}>
         + Add Token(s)
