@@ -1,5 +1,6 @@
 import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -31,75 +32,60 @@ interface AddLiquidityReviewModalProps {
 
 const ModalContent = styled(Stack)`
   width: 100%;
-  padding: 24px;
+  padding: 16px;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 20px;
+    padding: 16px;
   `}
 `
 
 const Card = styled(Stack)`
   padding: 16px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(34, 34, 38, 0.92) 0%, rgba(28, 28, 31, 0.92) 100%);
+  border-radius: 12px;
+  background: ${({ theme }) => theme.buttonGray};
 `
 
 const HeaderTitle = styled(Text)`
-  margin: 0;
-  font-size: 18px;
   font-weight: 500;
-  line-height: 1.2;
 `
 
 const PairText = styled(Text)`
-  margin: 0;
-  font-size: 16px;
   font-weight: 500;
-  line-height: 1.3;
 `
 
 const LabelText = styled(Text)`
-  margin: 0;
-  color: ${({ theme }) => theme.subText};
   font-size: 12px;
-  line-height: 1.4;
+  color: ${({ theme }) => theme.subText};
 `
 
 const BodyText = styled(Text)`
-  margin: 0;
   font-size: 14px;
-  line-height: 1.4;
 `
 
 const ValueText = styled(Text)`
-  margin: 0;
   font-size: 14px;
   font-weight: 500;
-  line-height: 1.4;
 `
 
 const TotalText = styled(Text)`
-  margin: 0;
-  font-size: 16px;
   font-weight: 500;
-  line-height: 1.2;
 `
 
 const Badge = styled(HStack)`
   min-height: 28px;
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: ${({ theme }) => theme.tabActive};
 `
 
 const RangeBox = styled(Stack)`
   flex: 1 1 0;
   min-width: 0;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: ${({ theme }) => theme.tabActive};
 `
 
 const EstimateTokenBox = styled(Stack)`
@@ -111,59 +97,62 @@ const EstimateTokenBox = styled(Stack)`
 const Divider = styled.div`
   width: 100%;
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: ${({ theme }) => theme.border};
 `
 
 const MetricCard = styled(Stack)`
   flex: 1 1 0;
   min-width: 0;
-  gap: 6px;
+  gap: 8px;
   padding: 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: ${({ theme }) => theme.tabActive};
 `
 
 const MetricTitle = styled(Text)`
-  margin: 0;
   width: fit-content;
-  border-bottom: 1px dotted rgba(255, 255, 255, 0.22);
   color: ${({ theme }) => theme.subText};
   font-size: 12px;
-  line-height: 1.2;
+  border-bottom: 1px dotted ${({ theme }) => rgba(theme.border, 0.24)};
 `
 
 const DisclaimerText = styled(Text)`
-  margin: 0;
-  color: ${({ theme }) => theme.subText};
   font-size: 12px;
   font-style: italic;
-  line-height: 1.5;
+  color: ${({ theme }) => theme.subText};
 `
 
 const IconButton = styled.button`
   display: flex;
   align-items: center;
-  height: 28px;
   justify-content: center;
   width: 28px;
+  height: 28px;
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: ${({ theme }) => theme.tabActive};
   color: ${({ theme }) => theme.subText};
   cursor: pointer;
+
+  :hover {
+    filter: brightness(1.12);
+  }
 `
 
 const ConfirmButton = styled.button`
   width: 100%;
   height: 44px;
-  font-size: 16px;
   font-weight: 500;
   border: 0;
   border-radius: 14px;
   background: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.buttonBlack};
   cursor: pointer;
+
+  :hover {
+    filter: brightness(1.12);
+  }
 `
 
 const ProtocolLogo = styled.img`
@@ -174,15 +163,22 @@ const ProtocolLogo = styled.img`
 
 const WarningCard = styled(Stack)<{ $tone: 'info' | 'warning' | 'error' }>`
   padding: 12px 14px;
-  border-radius: 14px;
   border: 1px solid
     ${({ theme, $tone }) =>
-      $tone === 'error' ? `${theme.red}40` : $tone === 'warning' ? `${theme.warning}40` : `${theme.primary}26`};
+      $tone === 'error'
+        ? rgba(theme.red, 0.24)
+        : $tone === 'warning'
+        ? rgba(theme.warning, 0.24)
+        : rgba(theme.primary, 0.24)};
+  border-radius: 12px;
   background: ${({ theme, $tone }) =>
-    $tone === 'error' ? `${theme.red}14` : $tone === 'warning' ? `${theme.warning}1f` : `${theme.primary}14`};
+    $tone === 'error'
+      ? rgba(theme.red, 0.12)
+      : $tone === 'warning'
+      ? rgba(theme.warning, 0.12)
+      : rgba(theme.primary, 0.12)};
   color: ${({ theme }) => theme.text};
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 14px;
 `
 
 const formatBpsLabel = (value?: number) => {
@@ -268,8 +264,8 @@ export default function AddLiquidityReviewModal({
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={440} mobileFullWidth>
-      <ModalContent gap={20}>
-        <HStack align="center" justify="space-between" width="100%">
+      <ModalContent gap={16}>
+        <HStack width="100%" align="center" justify="space-between">
           <HeaderTitle color={theme.text}>Add Liquidity via Zap</HeaderTitle>
           <CloseIcon color={theme.subText} onClick={onDismiss} />
         </HStack>
@@ -280,7 +276,7 @@ export default function AddLiquidityReviewModal({
               <TokenLogo src={header.token0.logo} size={32} />
               <TokenLogo src={header.token1.logo} size={32} translateLeft />
             </HStack>
-            <Stack gap={4} minWidth={0}>
+            <Stack minWidth={0} gap={4}>
               <PairText color={theme.text}>{header.pairLabel}</PairText>
               <HStack align="center" gap={8} wrap="wrap">
                 {header.protocolName ? (
@@ -308,8 +304,8 @@ export default function AddLiquidityReviewModal({
           </HStack>
           <Stack gap={8}>
             {zapInItems.map(item => (
-              <HStack key={item.token.address} align="center" gap={12} justify="space-between">
-                <HStack align="center" gap={8} minWidth={0}>
+              <HStack key={item.token.address} align="center" justify="space-between" gap={12}>
+                <HStack minWidth={0} align="center" gap={8}>
                   <TokenLogo src={item.token.logo} size={18} />
                   <BodyText color={theme.text}>
                     {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}
@@ -325,7 +321,7 @@ export default function AddLiquidityReviewModal({
 
         {priceInfo && (
           <Card gap={12}>
-            <HStack align="center" gap={12} justify="space-between">
+            <HStack align="center" justify="space-between" gap={12}>
               <HStack align="center" gap={6} wrap="wrap">
                 <BodyText color={theme.subText}>Current Price</BodyText>
                 <BodyText color={theme.text}>
@@ -355,7 +351,7 @@ export default function AddLiquidityReviewModal({
         )}
 
         {estimate && (
-          <Card gap={14}>
+          <Card gap={16}>
             <HStack align="center" justify="space-between">
               <BodyText color={theme.subText}>Est. Liquidity Value</BodyText>
               <TotalText color={theme.text}>
@@ -366,7 +362,7 @@ export default function AddLiquidityReviewModal({
             <HStack align="flex-start" gap={12}>
               {estimate.items?.map(item => (
                 <EstimateTokenBox key={item.token.address}>
-                  <HStack align="center" gap={6} minWidth={0}>
+                  <HStack minWidth={0} align="center" gap={6}>
                     <TokenLogo src={item.token.logo} size={16} />
                     <ValueText color={theme.text}>
                       {formatDisplayNumber(item.amount, { significantDigits: 8 })} {item.token.symbol}
@@ -386,7 +382,7 @@ export default function AddLiquidityReviewModal({
               <ValueText color={theme.text}>{formatBpsLabel(estimate.slippage)}</ValueText>
             </HStack>
 
-            <HStack align="stretch" gap={10}>
+            <HStack align="stretch" gap={12}>
               <MetricCard>
                 <MetricTitle color={theme.subText}>Est. Remaining</MetricTitle>
                 <ValueText color={theme.text}>
@@ -410,7 +406,7 @@ export default function AddLiquidityReviewModal({
         )}
 
         {warnings.length ? (
-          <Stack gap={10}>
+          <Stack gap={12}>
             {warnings.map((warning, index) => (
               <WarningCard key={`${warning.tone}-${index}`} $tone={warning.tone}>
                 {translateZapMessage(warning.message)}

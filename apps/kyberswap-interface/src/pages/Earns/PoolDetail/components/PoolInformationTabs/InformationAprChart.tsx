@@ -1,8 +1,10 @@
+import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
 
+import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { Pool } from 'pages/Earns/PoolDetail/types'
 import { formatPoolInfoCurrency, formatPoolInfoPercent } from 'pages/Earns/PoolDetail/utils/poolInformation'
@@ -40,34 +42,13 @@ const ChartWrapper = styled.div`
   `}
 `
 
-const EmptyState = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.02);
-`
-
 const TooltipCard = styled.div`
-  min-width: 180px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #2c2c2c;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-`
-
-const TooltipLabel = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 13px;
-`
-
-const TooltipValue = styled(Text)`
-  color: ${({ theme }) => theme.text};
-  font-size: 22px;
-  font-weight: 500;
+  min-width: 200px;
+  padding: 12px 16px;
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 12px;
+  background: ${({ theme }) => theme.tableHeader};
+  box-shadow: 0 12px 32px ${({ theme }) => theme.shadow};
 `
 
 const TooltipGrid = styled.div`
@@ -75,18 +56,6 @@ const TooltipGrid = styled.div`
   grid-template-columns: auto auto;
   gap: 8px 16px;
   margin-top: 12px;
-`
-
-const TooltipMetricLabel = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 13px;
-`
-
-const TooltipMetricValue = styled(Text)`
-  color: ${({ theme }) => theme.text};
-  font-size: 13px;
-  font-weight: 500;
-  text-align: right;
 `
 
 const getYAxisTicks = (maxValue: number) => {
@@ -220,6 +189,7 @@ const buildSyntheticSeries = (points: AprChartPoint[]) => {
 
 const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
   const theme = useTheme()
+  const chartColor = theme.blue
 
   const chartData = useMemo(() => buildSyntheticSeries(buildAnchorPoints(pool)), [pool])
   const xAxisTicks = useMemo(() => chartData.filter(item => item.isAnchor).map(item => item.position), [chartData])
@@ -229,11 +199,18 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
   if (!chartData.length) {
     return (
       <ChartWrapper>
-        <EmptyState>
-          <Text color="subText" fontSize={15}>
+        <Stack
+          align="center"
+          justify="center"
+          width="100%"
+          height="100%"
+          borderRadius={16}
+          background={theme.buttonGray}
+        >
+          <Text color={theme.subText} fontSize={14}>
             Historical APR data is not available yet.
           </Text>
-        </EmptyState>
+        </Stack>
       </ChartWrapper>
     )
   }
@@ -242,12 +219,12 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
     <ChartWrapper>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 16, right: 0, bottom: 8, left: 0 }}>
-          <CartesianGrid stroke="rgba(255, 255, 255, 0.08)" strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid stroke={rgba(theme.border, 0.24)} strokeDasharray="3 3" vertical={false} />
           <XAxis
             axisLine={false}
             dataKey="position"
             ticks={xAxisTicks}
-            tick={{ fill: theme.subText, fontSize: 13, fontWeight: 400 }}
+            tick={{ fill: theme.subText, fontSize: 12 }}
             tickFormatter={value => chartData.find(item => item.position === value)?.periodKey || ''}
             tickLine={false}
             type="number"
@@ -256,7 +233,7 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
             axisLine={false}
             domain={[0, yAxisTicks[yAxisTicks.length - 1] || 'auto']}
             orientation="right"
-            tick={{ fill: theme.subText, fontSize: 13, fontWeight: 400 }}
+            tick={{ fill: theme.subText, fontSize: 12 }}
             tickCount={5}
             tickFormatter={value => formatPoolInfoPercent(Number(value))}
             tickLine={false}
@@ -271,25 +248,45 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
 
               return (
                 <TooltipCard>
-                  <TooltipLabel>{label}</TooltipLabel>
-                  <TooltipValue>{formatPoolInfoPercent(Number(value))}</TooltipValue>
+                  <Text color={theme.subText} fontSize={12}>
+                    {label}
+                  </Text>
+                  <Text color={theme.text} fontWeight={500}>
+                    {formatPoolInfoPercent(Number(value))}
+                  </Text>
                   <TooltipGrid>
-                    <TooltipMetricLabel>LP APR</TooltipMetricLabel>
-                    <TooltipMetricValue>{formatPoolInfoPercent(payload?.[0]?.payload.lpApr)}</TooltipMetricValue>
-                    <TooltipMetricLabel>Reward APR</TooltipMetricLabel>
-                    <TooltipMetricValue>{formatPoolInfoPercent(payload?.[0]?.payload.rewardApr)}</TooltipMetricValue>
-                    <TooltipMetricLabel>Volume</TooltipMetricLabel>
-                    <TooltipMetricValue>{formatPoolInfoCurrency(payload?.[0]?.payload.volumeUsd)}</TooltipMetricValue>
-                    <TooltipMetricLabel>Fees</TooltipMetricLabel>
-                    <TooltipMetricValue>{formatPoolInfoCurrency(payload?.[0]?.payload.lpFeeUsd)}</TooltipMetricValue>
+                    <Text color={theme.subText} fontSize={12}>
+                      LP APR
+                    </Text>
+                    <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+                      {formatPoolInfoPercent(payload?.[0]?.payload.lpApr)}
+                    </Text>
+                    <Text color={theme.subText} fontSize={12}>
+                      Reward APR
+                    </Text>
+                    <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+                      {formatPoolInfoPercent(payload?.[0]?.payload.rewardApr)}
+                    </Text>
+                    <Text color={theme.subText} fontSize={12}>
+                      Volume
+                    </Text>
+                    <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+                      {formatPoolInfoCurrency(payload?.[0]?.payload.volumeUsd)}
+                    </Text>
+                    <Text color={theme.subText} fontSize={12}>
+                      Fees
+                    </Text>
+                    <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+                      {formatPoolInfoCurrency(payload?.[0]?.payload.lpFeeUsd)}
+                    </Text>
                   </TooltipGrid>
                 </TooltipCard>
               )
             }}
-            cursor={{ stroke: 'rgba(255, 255, 255, 0.16)', strokeDasharray: '4 4' }}
+            cursor={{ stroke: rgba(theme.border, 0.24), strokeDasharray: '4 4' }}
           />
           <Line
-            activeDot={{ r: 7, fill: '#54AEFF', stroke: theme.buttonBlack, strokeWidth: 3 }}
+            activeDot={{ r: 7, fill: chartColor, stroke: theme.buttonBlack, strokeWidth: 3 }}
             dataKey="value"
             dot={({ cx, cy, payload }) => {
               const hasValidPosition = typeof cx === 'number' && typeof cy === 'number'
@@ -300,16 +297,16 @@ const InformationAprChart = ({ pool, interval }: InformationAprChartProps) => {
                 <circle
                   cx={hasValidPosition ? cx : 0}
                   cy={hasValidPosition ? cy : 0}
-                  fill="#54AEFF"
+                  fill={chartColor}
                   key={dotKey}
-                  opacity={hasValidPosition ? (payload.periodKey === interval ? 1 : 0.65) : 0}
+                  opacity={hasValidPosition ? (payload.periodKey === interval ? 1 : 0.6) : 0}
                   r={payload.periodKey === interval ? 6 : 3.5}
                   stroke={theme.buttonBlack}
                   strokeWidth={payload.periodKey === interval ? 3 : 2}
                 />
               )
             }}
-            stroke="#54AEFF"
+            stroke={chartColor}
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={3}

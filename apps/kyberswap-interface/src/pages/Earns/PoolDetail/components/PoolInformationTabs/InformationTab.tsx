@@ -1,5 +1,4 @@
 import { shortenAddress } from '@kyber/utils/crypto'
-import { rgba } from 'polished'
 import { type ReactNode, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -25,10 +24,10 @@ const APR_PERIOD_OPTIONS = [
 const MetricsStrip = styled.div`
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 18px;
-  padding: 14px 18px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.05);
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: ${({ theme }) => theme.buttonGray};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -36,90 +35,46 @@ const MetricsStrip = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    padding: 14px 16px;
+    gap: 12px;
+    padding: 16px;
   `}
 `
 
 const MetricColumn = styled(Stack)`
   min-width: 0;
-  gap: 6px;
-`
-
-const MetricLabel = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
+  gap: 4px;
 `
 
 const MetricValue = styled.div`
-  color: ${({ theme }) => theme.text};
-  font-size: 16px;
-  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: ${({ theme }) => theme.text};
+  font-weight: 500;
 `
 
 const AprSummaryRow = styled(HStack)`
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
   min-width: 100%;
+  align-items: center;
   flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    justify-content: flex-start;
-    gap: 14px 20px;
     min-width: 100%;
+    justify-content: flex-start;
+    gap: 12px 16px;
   `}
 `
 
-const AprSummaryItem = styled(HStack)`
-  align-items: baseline;
-  gap: 8px;
-`
-
-const AprSummaryLabel = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-`
-
-const AprSummaryValue = styled(Text)`
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
-  font-weight: 500;
-`
-
-const SectionHeaderRow = styled(HStack)`
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-`
-
-const SectionTitleGroup = styled(HStack)`
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-`
-
-const SectionTitle = styled(Text)`
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
-
-const SectionSubtitle = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-`
-
 const IntervalSelector = styled.div`
-  position: relative;
   display: grid;
+  position: relative;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: ${({ theme }) => theme.buttonGray};
 `
 
 const IntervalActivePill = styled.div<{ $activeIndex: number }>`
@@ -129,28 +84,28 @@ const IntervalActivePill = styled.div<{ $activeIndex: number }>`
   left: 1px;
   width: calc((100% - 2px) / 3);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: ${({ theme }) => theme.tabActive};
   transform: translateX(calc(100% * ${({ $activeIndex }) => $activeIndex}));
-  transition: transform 220ms ease, background 220ms ease;
+  transition: transform 200ms ease, background 200ms ease;
   pointer-events: none;
 `
 
 const IntervalButton = styled.button<{ $active: boolean }>`
   position: relative;
   z-index: 1;
-  border: 0;
   min-width: 48px;
   padding: 8px 8px;
+  border: 0;
   border-radius: 999px;
   background: transparent;
   color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: color 180ms ease;
+  transition: color 200ms ease;
 
   :hover {
-    background: ${({ $active }) => ($active ? rgba(255, 255, 255, 0.04) : 'rgba(255, 255, 255, 0.04)')};
+    background: ${({ theme }) => theme.background};
   }
 `
 
@@ -230,7 +185,7 @@ const InformationTab = ({ pool }: InformationTabProps) => {
         label: 'Pool Address',
         value: pool?.address ? (
           <HStack align="center" gap={4}>
-            <Text as="span" color={theme.text} fontSize={16} fontWeight={600}>
+            <Text as="span" color={theme.text} fontWeight={500}>
               {shortenAddress(pool.address, 4)}
             </Text>
             <CopyHelper color={theme.subText} margin="0" size={14} toCopy={pool.address} />
@@ -263,7 +218,9 @@ const InformationTab = ({ pool }: InformationTabProps) => {
       <MetricsStrip>
         {topMetrics.map(metric => (
           <MetricColumn key={metric.label}>
-            <MetricLabel>{metric.label}</MetricLabel>
+            <Text color={theme.subText} fontSize={14}>
+              {metric.label}
+            </Text>
             <MetricValue>{metric.value}</MetricValue>
           </MetricColumn>
         ))}
@@ -271,35 +228,49 @@ const InformationTab = ({ pool }: InformationTabProps) => {
 
       <AprSummaryRow>
         <DropdownMenu
-          flatten
           alignItems="stretch"
-          background="rgba(255, 255, 255, 0.05)"
+          background={theme.buttonGray}
+          flatten
           options={APR_PERIOD_MENU_OPTIONS}
-          value={aprPeriod}
           width={42}
+          value={aprPeriod}
           onChange={value => setAprPeriod(value as AprPeriod)}
         />
         <HStack align="center" gap={24}>
-          <AprSummaryItem>
-            <AprSummaryLabel>Active APR</AprSummaryLabel>
-            <AprSummaryValue>{formatPoolInfoPercent(activeApr)}</AprSummaryValue>
-          </AprSummaryItem>
-          <AprSummaryItem>
-            <AprSummaryLabel>Average APR</AprSummaryLabel>
-            <AprSummaryValue>{formatPoolInfoPercent(averageApr)}</AprSummaryValue>
-          </AprSummaryItem>
-          <AprSummaryItem>
-            <AprSummaryLabel>Max APR</AprSummaryLabel>
-            <AprSummaryValue>{formatPoolInfoPercent(maxApr)}</AprSummaryValue>
-          </AprSummaryItem>
+          <HStack align="baseline" gap={8}>
+            <Text color={theme.subText} fontSize={14}>
+              Active APR
+            </Text>
+            <Text color={theme.text} fontSize={14} fontWeight={500}>
+              {formatPoolInfoPercent(activeApr)}
+            </Text>
+          </HStack>
+          <HStack align="baseline" gap={8}>
+            <Text color={theme.subText} fontSize={14}>
+              Average APR
+            </Text>
+            <Text color={theme.text} fontSize={14} fontWeight={500}>
+              {formatPoolInfoPercent(averageApr)}
+            </Text>
+          </HStack>
+          <HStack align="baseline" gap={8}>
+            <Text color={theme.subText} fontSize={14}>
+              Max APR
+            </Text>
+            <Text color={theme.text} fontSize={14} fontWeight={500}>
+              {formatPoolInfoPercent(maxApr)}
+            </Text>
+          </HStack>
         </HStack>
       </AprSummaryRow>
 
-      <SectionHeaderRow>
-        <SectionTitleGroup>
-          <SectionTitle>Earning / Active TVL</SectionTitle>
-          <SectionSubtitle>(Active APR)</SectionSubtitle>
-        </SectionTitleGroup>
+      <HStack align="center" justify="space-between" gap={16} wrap="wrap">
+        <HStack align="baseline" gap={8} wrap="wrap">
+          <Text color={theme.text} fontWeight={500}>
+            Earning / Active TVL
+          </Text>
+          <Text color={theme.subText}>(Active APR)</Text>
+        </HStack>
 
         <IntervalSelector>
           <IntervalActivePill $activeIndex={Math.max(intervalActiveIndex, 0)} />
@@ -314,7 +285,7 @@ const InformationTab = ({ pool }: InformationTabProps) => {
             </IntervalButton>
           ))}
         </IntervalSelector>
-      </SectionHeaderRow>
+      </HStack>
 
       <InformationAprChart interval={interval} pool={pool} />
     </Stack>
