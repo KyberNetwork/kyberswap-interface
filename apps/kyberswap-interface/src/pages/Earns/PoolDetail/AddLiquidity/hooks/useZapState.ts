@@ -76,7 +76,6 @@ export default function useZapState({
   poolAddress,
   poolType,
   account,
-  positionId,
   source,
 }: {
   chainId: number
@@ -84,7 +83,6 @@ export default function useZapState({
   poolAddress: string
   poolType: PoolType
   account?: string
-  positionId?: string
   source?: string
 }) {
   const nativeToken = useMemo(() => getDefaultNativeToken(chainId), [chainId])
@@ -224,7 +222,6 @@ export default function useZapState({
       tickLower: tickPriceState.debouncedTickLower,
       tickUpper: tickPriceState.debouncedTickUpper,
       account,
-      positionId,
       source,
     }
   }, [
@@ -234,7 +231,6 @@ export default function useZapState({
     pool,
     poolAddress,
     poolType,
-    positionId,
     routeDisabled,
     slippageState.slippage,
     source,

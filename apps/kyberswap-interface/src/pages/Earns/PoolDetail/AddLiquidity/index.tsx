@@ -3,7 +3,7 @@ import { translateZapMessage } from '@kyber/ui'
 import { friendlyError } from '@kyber/utils'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { BuildZapInData, useBuildZapInRouteMutation } from 'services/zapInService'
 
 import { HStack, Stack } from 'components/Stack'
@@ -52,7 +52,6 @@ const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
   LIQ_MAX_CLICKED: TRACKING_EVENT_TYPE.LIQ_MAX_CLICKED,
   LIQ_HALF_CLICKED: TRACKING_EVENT_TYPE.LIQ_HALF_CLICKED,
-  LIQ_EXISTING_POSITION_SELECTED: TRACKING_EVENT_TYPE.LIQ_EXISTING_POSITION_SELECTED,
   PRICE_RANGE_PRESET_SELECTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED,
   PRICE_RANGE_ADJUSTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_ADJUSTED,
   LIQ_MAX_SLIPPAGE_CHANGED: TRACKING_EVENT_TYPE.LIQ_MAX_SLIPPAGE_CHANGED,
@@ -76,7 +75,6 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
     exchange,
     poolAddress,
     poolType,
-    positionId,
     isDegenMode,
     library,
     deadline,
@@ -103,7 +101,6 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
     poolAddress: poolAddress || '',
     poolType: poolType || PoolType.DEX_UNISWAPV3,
     account,
-    positionId,
     source: ZAP_SOURCE,
   })
 
@@ -139,11 +136,8 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
     ['VERY_HIGH', 'INVALID'].includes(review.estimate.zapImpact.level)
 
   const feedback = useFeedback({
-    account,
     poolChainId: chainId,
-    poolType,
     pool: normalizedPool.data,
-    positionId,
     state,
     review,
     isZapImpactBlocked,
@@ -165,32 +159,28 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
     setIsReviewOpen(true)
   }, [clearTracking, state.route.data])
 
-  const handlePreview = useCallback(
-    async (permitData?: string) => {
-      if (!account || !chainId || !state.route.data || !deadline) return
+  const handlePreview = useCallback(async () => {
+    if (!account || !chainId || !state.route.data || !deadline) return
 
-      openReview()
+    openReview()
 
-      try {
-        const builtRoute = await buildZapInRoute({
-          chainId,
-          sender: account,
-          recipient: account,
-          route: state.route.data.route,
-          deadline,
-          permits: permitData && positionId ? { [positionId]: permitData } : undefined,
-          source: ZAP_SOURCE,
-          referral,
-        }).unwrap()
+    try {
+      const builtRoute = await buildZapInRoute({
+        chainId,
+        sender: account,
+        recipient: account,
+        route: state.route.data.route,
+        deadline,
+        source: ZAP_SOURCE,
+        referral,
+      }).unwrap()
 
-        setBuildData(builtRoute)
-      } catch (error) {
-        setBuildData(null)
-        setSubmitError(friendlyError(error as Error) || (error as Error)?.message || 'Failed to build zap transaction')
-      }
-    },
-    [account, buildZapInRoute, chainId, deadline, openReview, positionId, referral, state.route.data],
-  )
+      setBuildData(builtRoute)
+    } catch (error) {
+      setBuildData(null)
+      setSubmitError(friendlyError(error as Error) || (error as Error)?.message || 'Failed to build zap transaction')
+    }
+  }, [account, buildZapInRoute, chainId, deadline, openReview, referral, state.route.data])
 
   const handleDismissReview = useCallback(() => {
     setIsReviewOpen(false)
@@ -365,7 +355,6 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
 
 const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const { poolParams } = usePoolDetailContext()
-  const [searchParams] = useSearchParams()
 
   const navigate = useNavigate()
   const toggleWalletModal = useWalletModalToggle()
@@ -382,7 +371,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const [buildZapInRoute, buildRouteState] = useBuildZapInRouteMutation()
   const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
 
-  const positionId = searchParams.get('positionId') || undefined
   const exchange = poolParams.exchange as Exchange | undefined
   const chainId = poolParams.poolChainId as ChainId | undefined
 
@@ -425,7 +413,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
       exchange,
       poolAddress: poolParams.poolAddress || undefined,
       poolType,
-      positionId,
       deadline: deadline ? +deadline.toString() : undefined,
       referral,
       rpcUrl,
@@ -459,7 +446,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
       originalToCurrentHash,
       poolParams.poolAddress,
       poolType,
-      positionId,
       referral,
       rpcUrl,
       submitApprovalTx,

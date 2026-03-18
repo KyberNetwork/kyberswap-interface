@@ -1,5 +1,4 @@
-import { APPROVAL_STATE, PermitNftState, useDebounce, usePositionOwner } from '@kyber/hooks'
-import { univ4Types } from '@kyber/schema'
+import { APPROVAL_STATE, useDebounce } from '@kyber/hooks'
 import { useMemo } from 'react'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -16,7 +15,7 @@ interface UseZapActionsProps {
   onOpenSettings?: () => void
   preview?: {
     loading?: boolean
-    onPreview?: (permitData?: string) => Promise<void>
+    onPreview?: () => Promise<void>
   }
 }
 
@@ -28,13 +27,7 @@ export default function useZapActions({
   onOpenSettings,
   preview,
 }: UseZapActionsProps) {
-  const { account, walletChainId, positionId, poolType, toggleWalletModal, changeNetwork } =
-    useAddLiquidityRuntimeContext()
-  const positionOwner = usePositionOwner({
-    positionId: positionId || '',
-    chainId: poolChainId,
-    poolType,
-  })
+  const { account, walletChainId, toggleWalletModal, changeNetwork } = useAddLiquidityRuntimeContext()
 
   const route = state.route.data
   const routeLoading = state.route.loading
@@ -46,14 +39,6 @@ export default function useZapActions({
   )
 
   const previewLoading = Boolean(preview?.loading)
-  const isNotPositionOwner = Boolean(
-    positionId &&
-      account &&
-      poolType &&
-      univ4Types.includes(poolType as any) &&
-      positionOwner &&
-      positionOwner !== account.toLowerCase(),
-  )
 
   const nextTokenToApprove = useMemo(
     () =>
@@ -74,33 +59,8 @@ export default function useZapActions({
     [approval.tokenApproval.addressToApprove, approval.tokenApproval.states],
   )
 
-  const needsPermitSignature = Boolean(
-    positionId &&
-      route?.routerPermitAddress &&
-      (approval.permit.state === PermitNftState.READY_TO_SIGN ||
-        approval.permit.state === PermitNftState.ERROR ||
-        approval.permit.state === PermitNftState.SIGNING),
-  )
-
-  const needsNftApproval = Boolean(
-    positionId &&
-      route?.routerAddress &&
-      !needsPermitSignature &&
-      !approval.nftApproval.isApproved &&
-      !approval.nftApprovalAll.isApproved &&
-      approval.permit.state !== PermitNftState.SIGNED,
-  )
-
-  const isApprovalLoading =
-    approval.tokenApproval.loading ||
-    tokenApprovalPending ||
-    approval.nftApproval.isChecking ||
-    approval.nftApprovalAll.isChecking ||
-    Boolean(approval.nftApproval.pendingTx) ||
-    Boolean(approval.nftApprovalAll.pendingTx) ||
-    approval.permit.state === PermitNftState.SIGNING
-
-  const needsApprovalAction = Boolean(nextTokenToApprove || needsPermitSignature || needsNftApproval)
+  const isApprovalLoading = approval.tokenApproval.loading || tokenApprovalPending
+  const needsApprovalAction = Boolean(nextTokenToApprove)
 
   const primaryActionText = useMemo(() => {
     if (!account) return 'Connect Wallet'
@@ -110,15 +70,9 @@ export default function useZapActions({
 
     if (tokenApprovalPending) return 'Approving...'
     if (previewLoading) return 'Building...'
-    if (isNotPositionOwner) return 'Not the position owner'
     if (validationError) return validationError
 
     if (nextTokenToApprove) return `Approve ${nextTokenToApprove.symbol}`
-    if (approval.permit.state === PermitNftState.SIGNING) return 'Signing...'
-    if (needsPermitSignature) return 'Permit NFT'
-    if (approval.nftApproval.pendingTx || approval.nftApprovalAll.pendingTx) return 'Approving NFT...'
-    if (approval.nftApproval.isChecking || approval.nftApprovalAll.isChecking) return 'Checking NFT Approval...'
-    if (needsNftApproval) return 'Approve NFT'
     if (routeLoading) return 'Fetching Route...'
     if (!route && hasPositiveInput && !validationError && !routeLoading) return 'No route found'
     if (isZapImpactBlocked) return 'Zap anyway'
@@ -126,16 +80,8 @@ export default function useZapActions({
     return 'Preview'
   }, [
     account,
-    approval.nftApproval.isChecking,
-    approval.nftApprovalAll.isChecking,
-    approval.nftApprovalAll.pendingTx,
-    approval.nftApproval.pendingTx,
-    approval.permit.state,
     hasPositiveInput,
-    isNotPositionOwner,
     isZapImpactBlocked,
-    needsNftApproval,
-    needsPermitSignature,
     nextTokenToApprove,
     poolChainId,
     previewLoading,
@@ -150,7 +96,7 @@ export default function useZapActions({
   const isPrimaryActionDisabled =
     !!account &&
     walletChainId === poolChainId &&
-    (isNotPositionOwner || Boolean(validationError) || isApprovalLoading || previewLoading || (routeLoading && !route))
+    (Boolean(validationError) || isApprovalLoading || previewLoading || (routeLoading && !route))
 
   const runPrimaryAction = async () => {
     if (!account) {
@@ -158,20 +104,10 @@ export default function useZapActions({
       return
     }
 
-    if (!hasPositiveInput || isNotPositionOwner || validationError || !route || routeLoading) return
+    if (!hasPositiveInput || validationError || !route || routeLoading) return
 
     if (nextTokenToApprove) {
       await approval.tokenApproval.approve(nextTokenToApprove.address)
-      return
-    }
-
-    if (needsPermitSignature) {
-      await approval.permit.sign()
-      return
-    }
-
-    if (needsNftApproval) {
-      await approval.nftApproval.approve()
       return
     }
 
@@ -180,7 +116,7 @@ export default function useZapActions({
       return
     }
 
-    await preview?.onPreview?.(approval.permit.data?.permitData)
+    await preview?.onPreview?.()
   }
 
   const handlePrimaryAction = async () => {

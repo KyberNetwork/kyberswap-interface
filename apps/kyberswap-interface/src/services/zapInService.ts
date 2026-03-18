@@ -31,7 +31,6 @@ type RouteArgs = {
   tickLower?: number | null
   tickUpper?: number | null
   account?: string
-  positionId?: string | number
   source?: string
 }
 
@@ -304,13 +303,12 @@ const zapInServiceApi = createApi({
           args.tickLower !== null &&
           args.tickLower !== undefined &&
           args.tickUpper !== null &&
-          args.tickUpper !== undefined &&
-          !args.positionId
+          args.tickUpper !== undefined
         ) {
           params.set('position.tickLower', String(args.tickLower))
           params.set('position.tickUpper', String(args.tickUpper))
         } else {
-          params.set('position.id', String(args.positionId || args.account || ZERO_ADDRESS))
+          params.set('position.id', String(args.account || ZERO_ADDRESS))
         }
 
         const routeResult = (await baseQuery({

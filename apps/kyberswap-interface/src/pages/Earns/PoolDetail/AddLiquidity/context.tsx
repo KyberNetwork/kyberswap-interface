@@ -39,7 +39,6 @@ interface AddLiquidityRuntimeContextValue {
   exchange?: Exchange
   poolAddress?: string
   poolType?: PoolType
-  positionId?: string
   deadline?: number
   referral?: string
   rpcUrl?: string

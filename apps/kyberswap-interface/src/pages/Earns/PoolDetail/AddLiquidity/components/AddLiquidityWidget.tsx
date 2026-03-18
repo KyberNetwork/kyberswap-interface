@@ -40,7 +40,7 @@ interface AddLiquidityWidgetContext {
 
 interface AddLiquidityWidgetPreview {
   loading?: boolean
-  onPreview?: (permitData?: string) => Promise<void>
+  onPreview?: () => Promise<void>
 }
 
 interface AddLiquidityWidgetProps {
@@ -135,8 +135,6 @@ export default function AddLiquidityWidget({
             prices: state.tokenInput.prices,
             route,
             slippage: state.slippage.value,
-            tickLower: state.priceRange.tickLower,
-            tickUpper: state.priceRange.tickUpper,
           }}
           onTrackEvent={onTrackEvent}
           onTokensChange={state.tokenInput.setTokens}
