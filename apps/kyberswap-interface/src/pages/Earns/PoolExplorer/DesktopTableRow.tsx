@@ -141,46 +141,46 @@ const DesktopTableRow = ({
       </RowItem>
       {isFarmingFiltered && (
         <RowItem alignItems="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
-          <MouseoverTooltipDesktopOnly
-            text={
-              pool.maxAprInfo
-                ? t`Add liquidity with price range:` +
-                  ` ${
-                    pool.maxAprInfo.minPrice
-                      ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
-                      : '--'
-                  }` +
-                  ` - ${
-                    pool.maxAprInfo.tickUpper === MAX_TICK
-                      ? '∞'
-                      : pool.maxAprInfo.maxPrice
-                      ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
-                      : '--'
-                  }`
-                : ''
-            }
-            width="fit-content"
-            placement="bottom"
-          >
-            {pool.maxAprInfo
-              ? formatAprNumber(
-                  Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
-                ) + '%'
-              : ''}
-          </MouseoverTooltipDesktopOnly>
+          {!!pool.maxAprInfo && (
+            <MouseoverTooltipDesktopOnly
+              text={
+                t`Add liquidity with price range:` +
+                ` ${
+                  pool.maxAprInfo.minPrice
+                    ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
+                    : '--'
+                }` +
+                ` - ${
+                  pool.maxAprInfo.tickUpper === MAX_TICK
+                    ? '∞'
+                    : pool.maxAprInfo.maxPrice
+                    ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
+                    : '--'
+                }`
+              }
+              width="fit-content"
+              placement="bottom"
+            >
+              <Text>
+                {formatAprNumber(+pool.maxAprInfo.apr + +pool.maxAprInfo.kemEGApr + +pool.maxAprInfo.kemLMApr) + '%'}
+              </Text>
+            </MouseoverTooltipDesktopOnly>
+          )}
         </RowItem>
       )}
       <RowItem alignItems="flex-end">
-        {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
-          style: 'currency',
-          significantDigits: 6,
-        })}
+        <Text>
+          {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+            style: 'currency',
+            significantDigits: 6,
+          })}
+        </Text>
       </RowItem>
       <RowItem alignItems="flex-end">
-        {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
+        <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
       </RowItem>
       <RowItem alignItems="flex-end">
-        {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
+        <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
       </RowItem>
       <RowItem alignItems="flex-end">
         {favoriteLoading.includes(pool.address) ? (
