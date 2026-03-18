@@ -159,8 +159,6 @@ const AddLiquidityWidget = ({
         />
       )}
 
-      {feedback.validationWarning ? <NoteCard $warning>{feedback.validationWarning}</NoteCard> : null}
-
       {feedback.securityWarnings.map(message => (
         <NoteCard key={message} $warning>
           {message}

@@ -41,8 +41,7 @@ export const useFeedback = ({ poolChainId, pool, state, review, isZapImpactBlock
     return getSecurityWarnings({ tokens: tokensToCheck, honeypotInfoMap })
   }, [honeypotInfoMap, tokensToCheck])
 
-  const validationWarning = state.validation.error
-  const routeWarning = !validationWarning ? state.route.error : ''
+  const routeWarning = state.route.error
 
   const blockingWarnings = useMemo(() => {
     const warnings: { tone: 'warning' | 'error'; message: string }[] = []
@@ -65,7 +64,6 @@ export const useFeedback = ({ poolChainId, pool, state, review, isZapImpactBlock
 
   return {
     widget: {
-      validationWarning,
       securityWarnings,
       routeWarning,
       blockingWarnings,

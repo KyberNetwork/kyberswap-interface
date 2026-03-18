@@ -260,19 +260,7 @@ const AddLiquidityBody = ({ children, onTrackEvent }: AddLiquidityBodyProps) => 
   }, [chainId, currentTxHash, exchange, handleDismissReview, library, navigate, poolAddress])
 
   const renderWidget = () => {
-    if (!exchange || !chainId || !poolAddress || !poolType) {
-      return (
-        <NoteCard $warning>
-          Missing or unsupported pool route params. This page needs `exchange`, `poolChainId`, and `poolAddress`.
-        </NoteCard>
-      )
-    }
-
-    if (normalizedPool.error) {
-      return <NoteCard $warning>{normalizedPool.error}</NoteCard>
-    }
-
-    if (normalizedPool.loading || !normalizedPool.data) {
+    if (!normalizedPool.data) {
       return <AddLiquidityWidgetSkeleton />
     }
 
@@ -280,9 +268,9 @@ const AddLiquidityBody = ({ children, onTrackEvent }: AddLiquidityBodyProps) => 
       <>
         <AddLiquidityWidget
           context={{
-            chainId,
-            poolAddress,
-            poolType,
+            chainId: chainId || ChainId.MAINNET,
+            poolAddress: normalizedPool.data.address,
+            poolType: normalizedPool.data.poolType,
             pool: normalizedPool.data,
           }}
           state={state}

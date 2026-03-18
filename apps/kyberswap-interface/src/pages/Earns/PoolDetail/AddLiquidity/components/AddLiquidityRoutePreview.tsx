@@ -127,11 +127,6 @@ interface AddLiquidityRoutePreviewProps {
   zapRoute?: ZapRouteDetail | null
 }
 
-const formatUsdAmount = (value?: string) => {
-  const usdValue = Number(value || 0)
-  return `~${formatDisplayNumber(usdValue > 0 ? value || 0 : 0, { style: 'currency', significantDigits: 6 })}`
-}
-
 const parseInputAmount = (amount?: string) => {
   const parsedAmount = Number(amount || 0)
   return Number.isFinite(parsedAmount) ? parsedAmount : undefined
@@ -191,7 +186,9 @@ const PreviewAssetCard = ({ items, usdAmount }: { items: RouteTokenItem[]; usdAm
       </HStack>
       <Stack justify="center" background={theme.background} p="8px 16px">
         <Text color={theme.subText} fontSize={14} textAlign="center">
-          {formatUsdAmount(usdAmount)}
+          {usdAmount === undefined
+            ? '...'
+            : `~${formatDisplayNumber(Number(usdAmount), { style: 'currency', significantDigits: 6 })}`}
         </Text>
       </Stack>
     </AssetCard>
