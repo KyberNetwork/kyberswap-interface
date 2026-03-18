@@ -67,7 +67,7 @@ const PoolHeaderSkeleton = () => {
   )
 }
 
-export default function PoolDetailPageSkeleton() {
+const PoolDetailPageSkeleton = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   if (upToSmall) {
@@ -96,3 +96,5 @@ export default function PoolDetailPageSkeleton() {
     </PoolDetailWrapper>
   )
 }
+
+export default PoolDetailPageSkeleton

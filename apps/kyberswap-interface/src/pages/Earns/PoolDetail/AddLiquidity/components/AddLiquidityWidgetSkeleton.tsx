@@ -7,7 +7,7 @@ import { TokenAmountInputSkeleton } from 'pages/Earns/PoolDetail/AddLiquidity/co
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { MEDIA_WIDTHS } from 'theme'
 
-export default function AddLiquidityWidgetSkeleton() {
+const AddLiquidityWidgetSkeleton = () => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -51,3 +51,5 @@ export default function AddLiquidityWidgetSkeleton() {
     </Stack>
   )
 }
+
+export default AddLiquidityWidgetSkeleton

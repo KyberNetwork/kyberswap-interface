@@ -11,7 +11,7 @@ import InformationAprChart, {
   type AprPeriod,
 } from 'pages/Earns/PoolDetail/components/PoolInformationTabs/InformationAprChart'
 import { Pool } from 'pages/Earns/PoolDetail/types'
-import { formatPoolInfoCurrency, formatPoolInfoPercent } from 'pages/Earns/PoolDetail/utils/poolInformation'
+import { formatPoolInfoCurrency, formatPoolInfoPercent } from 'pages/Earns/PoolDetail/utils'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { formatDisplayNumber } from 'utils/numbers'
 

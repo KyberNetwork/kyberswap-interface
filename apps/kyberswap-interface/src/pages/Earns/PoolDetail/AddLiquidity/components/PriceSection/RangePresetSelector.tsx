@@ -6,7 +6,22 @@ import styled from 'styled-components'
 
 import { HStack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
-import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from 'pages/Earns/PoolDetail/AddLiquidity/constants'
+
+const FULL_PRICE_RANGE = 'Full Range'
+
+const DEFAULT_PRICE_RANGE = {
+  [POOL_CATEGORY.STABLE_PAIR]: 0.0005,
+  [POOL_CATEGORY.CORRELATED_PAIR]: 0.001,
+  [POOL_CATEGORY.COMMON_PAIR]: 0.1,
+  [POOL_CATEGORY.EXOTIC_PAIR]: 0.3,
+}
+
+const PRICE_RANGE = {
+  [POOL_CATEGORY.STABLE_PAIR]: [FULL_PRICE_RANGE, 0.01, 0.001, 0.0005],
+  [POOL_CATEGORY.CORRELATED_PAIR]: [FULL_PRICE_RANGE, 0.05, 0.01, 0.001],
+  [POOL_CATEGORY.COMMON_PAIR]: [FULL_PRICE_RANGE, 0.2, 0.1, 0.05],
+  [POOL_CATEGORY.EXOTIC_PAIR]: [FULL_PRICE_RANGE, 0.5, 0.3, 0.2],
+}
 
 const RangeButton = styled.button<{ $active: boolean }>`
   flex: 1 1 0;
@@ -44,7 +59,7 @@ interface RangePresetSelectorProps {
   onTickUpperChange?: (value: number) => void
 }
 
-export default function RangePresetSelector({
+const RangePresetSelector = ({
   chainId,
   poolType,
   pool,
@@ -55,7 +70,7 @@ export default function RangePresetSelector({
   onTrackEvent,
   onTickLowerChange,
   onTickUpperChange,
-}: RangePresetSelectorProps) {
+}: RangePresetSelectorProps) => {
   const theme = useTheme()
   const [lastSelected, setLastSelected] = useState<number | string>('')
   const previousRevertPrice = useRef(revertPrice)
@@ -208,3 +223,5 @@ export default function RangePresetSelector({
     </HStack>
   )
 }
+
+export default RangePresetSelector

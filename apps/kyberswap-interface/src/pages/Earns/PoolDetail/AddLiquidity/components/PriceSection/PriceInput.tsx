@@ -82,7 +82,7 @@ interface PriceInputProps {
   onTickUpperChange?: (value: number) => void
 }
 
-export default function PriceInput({
+const PriceInput = ({
   type,
   chainId,
   poolType,
@@ -96,7 +96,7 @@ export default function PriceInput({
   onTrackEvent,
   onTickLowerChange,
   onTickUpperChange,
-}: PriceInputProps) {
+}: PriceInputProps) => {
   const theme = useTheme()
   const [localValue, setLocalValue] = useState('')
 
@@ -320,3 +320,5 @@ export default function PriceInput({
     </HStack>
   )
 }
+
+export default PriceInput

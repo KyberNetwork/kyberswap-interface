@@ -33,7 +33,7 @@ interface PriceInfoProps {
   onRevertPriceToggle?: () => void
 }
 
-export default function PriceInfo({ pool, poolPrice, revertPrice, onRevertPriceToggle }: PriceInfoProps) {
+const PriceInfo = ({ pool, poolPrice, revertPrice, onRevertPriceToggle }: PriceInfoProps) => {
   const theme = useTheme()
   const token0 = revertPrice ? pool.token1 : pool.token0
   const token1 = revertPrice ? pool.token0 : pool.token1
@@ -69,3 +69,5 @@ export default function PriceInfo({ pool, poolPrice, revertPrice, onRevertPriceT
     </Stack>
   )
 }
+
+export default PriceInfo

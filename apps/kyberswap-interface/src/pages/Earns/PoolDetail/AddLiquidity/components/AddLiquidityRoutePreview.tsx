@@ -198,12 +198,7 @@ const PreviewAssetCard = ({ items, usdAmount }: { items: RouteTokenItem[]; usdAm
   )
 }
 
-export default function AddLiquidityRoutePreview({
-  inputTokens,
-  inputAmounts,
-  pool,
-  zapRoute,
-}: AddLiquidityRoutePreviewProps) {
+const AddLiquidityRoutePreview = ({ inputTokens, inputAmounts, pool, zapRoute }: AddLiquidityRoutePreviewProps) => {
   const theme = useTheme()
   const amountList = useMemo(() => inputAmounts?.split(',') ?? [], [inputAmounts])
 
@@ -251,3 +246,5 @@ export default function AddLiquidityRoutePreview({
     </FlowRow>
   )
 }
+
+export default AddLiquidityRoutePreview

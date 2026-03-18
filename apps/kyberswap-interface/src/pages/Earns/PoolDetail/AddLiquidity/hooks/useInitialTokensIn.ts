@@ -14,17 +14,14 @@ const getInitialAmountFromBalance = (balance: string, decimals: number, isNative
   return formatAmountWithDecimals(amount, decimals)
 }
 
-export default function useInitialTokensIn({
-  pool,
-  chainId,
-  account,
-  nativeToken,
-}: {
+type UseInitialTokensInProps = {
   pool: Pool | null
   chainId: number
   account?: string
   nativeToken: Token
-}) {
+}
+
+export const useInitialTokensIn = ({ pool, chainId, account, nativeToken }: UseInitialTokensInProps) => {
   const [tokensIn, setTokensIn] = useState<Token[]>([])
   const [amountsIn, setAmountsIn] = useState('')
   const [initialized, setInitialized] = useState(false)

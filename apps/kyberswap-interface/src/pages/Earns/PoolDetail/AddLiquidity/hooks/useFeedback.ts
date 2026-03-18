@@ -7,7 +7,7 @@ import { AddLiquidityReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hook
 import { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getSecurityWarnings } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 
-interface UseAddLiquidityFeedbackProps {
+type UseFeedbackProps = {
   poolChainId?: number
   pool?: ZapPool | null
   state: ZapState
@@ -18,13 +18,7 @@ interface UseAddLiquidityFeedbackProps {
 const ZAP_IMPACT_BLOCKED_MESSAGE =
   'To protect against very high zap impact, preview is disabled for this route. Turn on Degen Mode in settings if you still want to continue.'
 
-export default function useFeedback({
-  poolChainId,
-  pool,
-  state,
-  review,
-  isZapImpactBlocked,
-}: UseAddLiquidityFeedbackProps) {
+export const useFeedback = ({ poolChainId, pool, state, review, isZapImpactBlocked }: UseFeedbackProps) => {
   const tokensToCheck = useMemo(() => {
     if (!pool) return []
 

@@ -26,14 +26,14 @@ interface PriceSectionProps {
   onTickUpperChange?: (value: number) => void
 }
 
-export default function PriceSection({
+const PriceSection = ({
   context,
   value,
   onTrackEvent,
   onRevertPriceToggle,
   onTickLowerChange,
   onTickUpperChange,
-}: PriceSectionProps) {
+}: PriceSectionProps) => {
   return (
     <Stack gap={16}>
       <PriceInfo
@@ -105,3 +105,5 @@ export default function PriceSection({
     </Stack>
   )
 }
+
+export default PriceSection

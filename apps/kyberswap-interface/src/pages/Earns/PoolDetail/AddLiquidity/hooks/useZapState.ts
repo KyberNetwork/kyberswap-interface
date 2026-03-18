@@ -6,9 +6,9 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetZapInRouteQuery } from 'services/zapInService'
 
-import useInitialTokensIn from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useInitialTokensIn'
-import useSlippageManager from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useSlippageManager'
-import useTickPrice from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useTickPrice'
+import { useInitialTokensIn } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useInitialTokensIn'
+import { useSlippageManager } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useSlippageManager'
+import { useTickPrice } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useTickPrice'
 import {
   ADD_LIQUIDITY_ERROR,
   getNetworkInfo,
@@ -72,21 +72,16 @@ const getErrorMessage = (error?: FetchBaseQueryError | { error?: string }) => {
   return 'Failed to get zap route'
 }
 
-export default function useZapState({
-  chainId,
-  pool,
-  poolAddress,
-  poolType,
-  account,
-  source,
-}: {
+type UseZapStateProps = {
   chainId: number
   pool: ZapPool | null
   poolAddress: string
   poolType: PoolType
   account?: string
   source?: string
-}) {
+}
+
+export const useZapState = ({ chainId, pool, poolAddress, poolType, account, source }: UseZapStateProps) => {
   const nativeToken = useMemo(() => getDefaultNativeToken(chainId), [chainId])
   const defaultRevertPrice = useMemo(() => getDefaultRevertPrice(pool, chainId), [chainId, pool])
   const [revertPrice, setRevertPrice] = useState(defaultRevertPrice)

@@ -47,14 +47,14 @@ interface EstimatedPositionAprProps {
   route?: ZapRouteDetail | null
 }
 
-export default function EstimatedPositionApr({
+const EstimatedPositionApr = ({
   chainId,
   poolAddress,
   isFarming,
   tickLower,
   tickUpper,
   route,
-}: EstimatedPositionAprProps) {
+}: EstimatedPositionAprProps) => {
   const theme = useTheme()
   const hasInput = Boolean(route)
   const positionLiquidity = route?.positionDetails?.addedLiquidity || null
@@ -72,7 +72,7 @@ export default function EstimatedPositionApr({
     debouncedLower === debouncedUpper ||
     !positionLiquidity
 
-  const { data: aprData } = useEstimatePositionAprQuery(
+  const { data: aprData, isLoading } = useEstimatePositionAprQuery(
     shouldSkip
       ? skipToken
       : {
@@ -133,13 +133,13 @@ export default function EstimatedPositionApr({
       </Text>
       <MouseoverTooltip placement="top" width={!aprData ? 'fit-content' : '320px'} text={tooltipContent}>
         <HStack minWidth={64} justify="flex-end">
-          {!aprData ? (
+          {isLoading ? (
             <Box height={17}>
               <PositionSkeleton width={48} height={16} />
             </Box>
           ) : (
             <Text color={theme.primary} fontSize={14} fontWeight={500}>
-              {aprData.totalApr === 0 ? '~0%' : `${formatAprNumber(aprData.totalApr)}%`}
+              {!aprData ? '--' : aprData.totalApr === 0 ? '~0%' : `${formatAprNumber(aprData.totalApr)}%`}
             </Text>
           )}
         </HStack>
@@ -147,3 +147,5 @@ export default function EstimatedPositionApr({
     </AprBanner>
   )
 }
+
+export default EstimatedPositionApr

@@ -80,11 +80,11 @@ interface AddLiquiditySettingsProps {
   highlightDegenMode?: boolean
 }
 
-export default function AddLiquiditySettings({
+const AddLiquiditySettings = ({
   isOpen: controlledOpen,
   onOpenChange,
   highlightDegenMode = false,
-}: AddLiquiditySettingsProps) {
+}: AddLiquiditySettingsProps) => {
   const theme = useTheme()
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
 
@@ -151,3 +151,5 @@ export default function AddLiquiditySettings({
     </>
   )
 }
+
+export default AddLiquiditySettings

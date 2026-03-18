@@ -24,7 +24,7 @@ import { useMemo } from 'react'
 import { isUniV2PoolType, isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export interface ReviewZapState {
+export type ReviewZapState = {
   chainId?: number
   poolType?: PoolType
   tokens?: Token[]
@@ -41,29 +41,29 @@ export interface ReviewZapState {
   }
 }
 
-export interface UseReviewDataProps {
+export type UseReviewDataProps = {
   pool?: Pool | null
   route?: ZapRouteDetail | null
   zapState?: ReviewZapState
 }
 
-export interface ReviewTokenItem {
+export type ReviewTokenItem = {
   token: Token
   amount: number
   usdValue: number
 }
 
-export interface ReviewWarningItem {
+export type ReviewWarningItem = {
   kind: 'remaining' | 'zap_impact' | 'out_of_range' | 'full_range' | 'price_deviation'
   tone: 'info' | 'warning' | 'error'
   message: string
 }
 
-interface ReviewSummaryStep {
+type ReviewSummaryStep = {
   text: string
 }
 
-interface ReviewEstimate {
+type ReviewEstimate = {
   totalUsd?: number
   slippage?: number
   suggestedSlippage?: number
@@ -82,7 +82,7 @@ interface ReviewEstimate {
   summarySteps?: ReviewSummaryStep[]
 }
 
-export interface AddLiquidityReviewData {
+export type AddLiquidityReviewData = {
   hasInput: boolean
   header: {
     poolType?: PoolType
@@ -530,7 +530,7 @@ export const buildAddLiquidityReviewData = ({ pool, route, zapState }: UseReview
   }
 }
 
-export default function useReviewData({ pool, route, zapState }: UseReviewDataProps) {
+export const useReviewData = ({ pool, route, zapState }: UseReviewDataProps) => {
   return useMemo(
     () =>
       buildAddLiquidityReviewData({

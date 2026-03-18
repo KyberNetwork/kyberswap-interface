@@ -64,17 +64,17 @@ interface AddLiquidityRuntimeContextValue {
 
 const AddLiquidityRuntimeContext = createContext<AddLiquidityRuntimeContextValue | null>(null)
 
-export function AddLiquidityRuntimeProvider({
+export const AddLiquidityRuntimeProvider = ({
   value,
   children,
 }: {
   value: AddLiquidityRuntimeContextValue
   children: ReactNode
-}) {
+}) => {
   return <AddLiquidityRuntimeContext.Provider value={value}>{children}</AddLiquidityRuntimeContext.Provider>
 }
 
-export function useAddLiquidityRuntimeContext() {
+export const useAddLiquidityRuntimeContext = () => {
   const context = useContext(AddLiquidityRuntimeContext)
 
   if (!context) {

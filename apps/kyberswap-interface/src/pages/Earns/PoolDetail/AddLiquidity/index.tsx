@@ -22,10 +22,10 @@ import {
   AddLiquiditySubmitTxData,
   useAddLiquidityRuntimeContext,
 } from 'pages/Earns/PoolDetail/AddLiquidity/context'
-import useFeedback from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
-import useReviewData from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useReviewData'
-import useZapPool from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool'
-import useZapState from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
+import { useFeedback } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
+import { useReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useReviewData'
+import { useZapPool } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool'
+import { useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
@@ -66,7 +66,7 @@ const getModalTxStatus = (status?: TxStatus): '' | 'success' | 'failed' | 'cance
   return ''
 }
 
-function AddLiquidityBody({ children, onTrackEvent }: AddLiquidityBodyProps) {
+const AddLiquidityBody = ({ children, onTrackEvent }: AddLiquidityBodyProps) => {
   const { pool } = usePoolDetailContext()
   const {
     account,

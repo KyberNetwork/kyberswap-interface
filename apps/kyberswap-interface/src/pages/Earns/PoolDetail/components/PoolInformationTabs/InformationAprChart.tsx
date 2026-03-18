@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { Pool } from 'pages/Earns/PoolDetail/types'
-import { formatPoolInfoCurrency, formatPoolInfoPercent } from 'pages/Earns/PoolDetail/utils/poolInformation'
+import { formatPoolInfoCurrency, formatPoolInfoPercent } from 'pages/Earns/PoolDetail/utils'
 
 export type AprPeriod = '24H' | '7D' | '30D'
 

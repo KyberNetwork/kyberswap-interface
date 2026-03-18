@@ -47,7 +47,7 @@ interface LiquidityChartProps {
   onTickUpperChange?: (value: number) => void
 }
 
-export function LiquidityChartSkeleton() {
+export const LiquidityChartSkeleton = () => {
   const barHeights = [15, 20, 5, 10, 15, 30, 10, 15, 60, 70, 85, 90, 100, 70, 80, 40, 55, 60, 15, 20, 25, 15, 10, 5]
 
   return (
@@ -63,7 +63,7 @@ export function LiquidityChartSkeleton() {
   )
 }
 
-export default function LiquidityChart({
+const LiquidityChart = ({
   pool,
   poolPrice,
   minPrice,
@@ -73,7 +73,7 @@ export default function LiquidityChart({
   tickUpper,
   onTickLowerChange,
   onTickUpperChange,
-}: LiquidityChartProps) {
+}: LiquidityChartProps) => {
   const normalizedPool = useMemo(() => {
     const { success, data } = univ3PoolNormalize.safeParse(pool)
     return success ? data : null
@@ -233,3 +233,5 @@ export default function LiquidityChart({
     />
   )
 }
+
+export default LiquidityChart

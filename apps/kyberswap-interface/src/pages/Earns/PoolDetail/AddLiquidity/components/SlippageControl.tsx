@@ -168,7 +168,7 @@ interface SlippageControlProps {
   onSlippageChange?: (value: number) => void
 }
 
-export default function SlippageControl({ context, value, onTrackEvent, onSlippageChange }: SlippageControlProps) {
+const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: SlippageControlProps) => {
   const theme = useTheme()
   const { chainId, poolType, pool } = context
   const slippage = value?.slippage
@@ -360,3 +360,5 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
     </Stack>
   )
 }
+
+export default SlippageControl

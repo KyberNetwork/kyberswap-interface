@@ -4,19 +4,15 @@ import { formatNumber } from '@kyber/utils/number'
 import { tickToPrice } from '@kyber/utils/uniswapv3'
 import { useEffect, useMemo, useState } from 'react'
 
-export default function useTickPrice({
-  token0,
-  token1,
-  revertPrice,
-  initialTick,
-  position,
-}: {
+type UseTickPriceProps = {
   token0?: Token
   token1?: Token
   revertPrice: boolean
   initialTick?: { tickLower: number; tickUpper: number }
   position: Position | null
-}) {
+}
+
+export const useTickPrice = ({ token0, token1, revertPrice, initialTick, position }: UseTickPriceProps) => {
   const [tickLower, setTickLower] = useState<number | null>(null)
   const [tickUpper, setTickUpper] = useState<number | null>(null)
 

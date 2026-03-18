@@ -3,15 +3,13 @@ import { useEffect, useState } from 'react'
 
 import { getNetworkInfo, getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 
-export default function useSlippageManager({
-  pool,
-  tokensIn,
-  chainId,
-}: {
+type UseSlippageManagerProps = {
   pool: Pool | null
   tokensIn: Token[]
   chainId: number
-}) {
+}
+
+export const useSlippageManager = ({ pool, tokensIn, chainId }: UseSlippageManagerProps) => {
   const [slippage, setSlippage] = useState<number | undefined>(undefined)
 
   useEffect(() => {

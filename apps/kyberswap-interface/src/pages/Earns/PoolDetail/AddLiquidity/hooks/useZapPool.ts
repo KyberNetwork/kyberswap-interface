@@ -7,6 +7,12 @@ import { useAddLiquidityTokensQuery } from 'services/zapInService'
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { Pool as PoolDetailPagePool } from 'pages/Earns/PoolDetail/types'
 
+type UseZapPoolProps = {
+  chainId: number
+  pool: PoolDetailPagePool
+  poolType: PoolType
+}
+
 const mapPoolCategory = (category?: string): POOL_CATEGORY => {
   switch (category) {
     case POOL_CATEGORY.STABLE_PAIR:
@@ -57,15 +63,7 @@ const buildPoolToken = (
   }
 }
 
-export default function useZapPool({
-  chainId,
-  pool: rawPool,
-  poolType,
-}: {
-  chainId: number
-  pool: PoolDetailPagePool
-  poolType: PoolType
-}) {
+export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps) => {
   const tokenAddresses = useMemo(
     () => Array.from(new Set(rawPool.tokens.map(token => token.address.toLowerCase()).filter(Boolean))),
     [rawPool.tokens],

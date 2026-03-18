@@ -5,13 +5,13 @@ import { useMemo } from 'react'
 
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
 
-interface UseApprovalProps {
+type UseApprovalProps = {
   tokensIn: Token[]
   amountsIn: string
   route?: ZapRouteDetail | null
 }
 
-export interface ApprovalState {
+export type ApprovalState = {
   tokenApproval: {
     loading: boolean
     states: Record<string, APPROVAL_STATE>
@@ -20,7 +20,7 @@ export interface ApprovalState {
   }
 }
 
-export default function useApproval({ tokensIn, amountsIn, route }: UseApprovalProps): ApprovalState {
+export const useApproval = ({ tokensIn, amountsIn, route }: UseApprovalProps): ApprovalState => {
   const { account, chainId, exchange, rpcUrl, txStatusMap, txHashMapping, submitApprovalTx } =
     useAddLiquidityRuntimeContext()
 

@@ -186,7 +186,7 @@ const formatBpsLabel = (value?: number) => {
   return `${parseFloat((((value || 0) * 100) / 10_000).toFixed(2)).toString()}%`
 }
 
-export default function AddLiquidityReviewModal({
+const AddLiquidityReviewModal = ({
   isOpen = false,
   review,
   confirmText = 'Add Liquidity',
@@ -201,7 +201,7 @@ export default function AddLiquidityReviewModal({
   onUseSuggestedSlippage,
   onRevertPriceToggle,
   onViewPosition,
-}: AddLiquidityReviewModalProps) {
+}: AddLiquidityReviewModalProps) => {
   const theme = useTheme()
 
   const header = review?.header
@@ -427,3 +427,5 @@ export default function AddLiquidityReviewModal({
     </Modal>
   )
 }
+
+export default AddLiquidityReviewModal

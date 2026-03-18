@@ -12,10 +12,10 @@ import EstimatedPositionApr from 'pages/Earns/PoolDetail/AddLiquidity/components
 import PriceSection from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection'
 import SlippageControl from 'pages/Earns/PoolDetail/AddLiquidity/components/SlippageControl'
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
-import useApproval from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useApproval'
-import useFeedback from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
-import useZapActions from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapActions'
-import useZapState from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
+import { useApproval } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useApproval'
+import { useFeedback } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
+import { useZapActions } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapActions'
+import { useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 
 const FormStack = styled(Stack)`
@@ -47,7 +47,7 @@ interface AddLiquidityWidgetProps {
   onCancel?: () => void
 }
 
-export default function AddLiquidityWidget({
+const AddLiquidityWidget = ({
   context,
   state,
   preview,
@@ -55,7 +55,7 @@ export default function AddLiquidityWidget({
   isZapImpactBlocked,
   onTrackEvent,
   onCancel,
-}: AddLiquidityWidgetProps) {
+}: AddLiquidityWidgetProps) => {
   const { chainId: poolChainId, poolAddress, poolType, pool } = context
   const { account, toggleWalletModal } = useAddLiquidityRuntimeContext()
 
@@ -138,36 +138,25 @@ export default function AddLiquidityWidget({
       </Stack>
 
       {isUniV3 && (
-        <>
-          <PriceSection
-            context={{
-              chainId: poolChainId,
-              poolType,
-              pool,
-            }}
-            value={{
-              poolPrice: state.priceRange.poolPrice,
-              revertPrice: state.priceRange.revertPrice,
-              minPrice: state.priceRange.minPrice,
-              maxPrice: state.priceRange.maxPrice,
-              tickLower: state.priceRange.tickLower,
-              tickUpper: state.priceRange.tickUpper,
-            }}
-            onTrackEvent={onTrackEvent}
-            onRevertPriceToggle={state.priceRange.toggleRevertPrice}
-            onTickLowerChange={state.priceRange.setTickLower}
-            onTickUpperChange={state.priceRange.setTickUpper}
-          />
-
-          <EstimatedPositionApr
-            chainId={poolChainId}
-            poolAddress={poolAddress}
-            isFarming={pool.isFarming}
-            tickLower={state.priceRange.tickLower}
-            tickUpper={state.priceRange.tickUpper}
-            route={route}
-          />
-        </>
+        <PriceSection
+          context={{
+            chainId: poolChainId,
+            poolType,
+            pool,
+          }}
+          value={{
+            poolPrice: state.priceRange.poolPrice,
+            revertPrice: state.priceRange.revertPrice,
+            minPrice: state.priceRange.minPrice,
+            maxPrice: state.priceRange.maxPrice,
+            tickLower: state.priceRange.tickLower,
+            tickUpper: state.priceRange.tickUpper,
+          }}
+          onTrackEvent={onTrackEvent}
+          onRevertPriceToggle={state.priceRange.toggleRevertPrice}
+          onTickLowerChange={state.priceRange.setTickLower}
+          onTickUpperChange={state.priceRange.setTickUpper}
+        />
       )}
 
       {feedback.validationWarning ? <NoteCard $warning>{feedback.validationWarning}</NoteCard> : null}
@@ -185,6 +174,17 @@ export default function AddLiquidityWidget({
           {warning.message}
         </NoteCard>
       ))}
+
+      {isUniV3 && (
+        <EstimatedPositionApr
+          chainId={poolChainId}
+          poolAddress={poolAddress}
+          isFarming={pool.isFarming}
+          tickLower={state.priceRange.tickLower}
+          tickUpper={state.priceRange.tickUpper}
+          route={route}
+        />
+      )}
 
       <SlippageControl
         context={{
@@ -213,3 +213,5 @@ export default function AddLiquidityWidget({
     </FormStack>
   )
 }
+
+export default AddLiquidityWidget

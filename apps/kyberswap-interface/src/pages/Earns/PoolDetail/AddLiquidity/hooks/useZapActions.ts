@@ -7,7 +7,7 @@ import { ApprovalState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useAppr
 import { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getPrimaryValidationError } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 
-interface UseZapActionsProps {
+type UseZapActionsProps = {
   state: ZapState
   approval: ApprovalState
   poolChainId: number
@@ -19,14 +19,14 @@ interface UseZapActionsProps {
   }
 }
 
-export default function useZapActions({
+export const useZapActions = ({
   state,
   approval,
   poolChainId,
   isZapImpactBlocked,
   onOpenSettings,
   preview,
-}: UseZapActionsProps) {
+}: UseZapActionsProps) => {
   const { account, walletChainId, toggleWalletModal, changeNetwork } = useAddLiquidityRuntimeContext()
 
   const route = state.route.data
