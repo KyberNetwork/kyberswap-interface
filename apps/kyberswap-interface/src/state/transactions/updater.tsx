@@ -252,9 +252,26 @@ export default function Updater(): null {
             if (!transaction || !!res) return // !res this mean tx was drop (cancel/replace)
 
             const { sentAtBlock, from, to, nonce, data, addedTime } = transaction
-            const checkRemoveTxs = () => {
+            const checkRemoveTxs = async () => {
               // pending >1 days
-              if (Date.now() - addedTime > 86_400_000) dispatch(removeTx({ chainId, hash }))
+              if (Date.now() - addedTime > 86_400_000) {
+                dispatch(removeTx({ chainId, hash }))
+                return
+              }
+
+              // Nonce-based detection: if the account's current nonce has moved past
+              // this transaction's nonce, the tx is no longer valid (dropped, cancelled
+              // by wallet, or rejected by sequencer e.g. Base pre-validation).
+              if (from) {
+                try {
+                  const currentNonce = await readProvider.getTransactionCount(from, 'latest')
+                  if (nonce !== undefined && currentNonce > nonce) {
+                    dispatch(removeTx({ chainId, hash }))
+                  }
+                } catch {
+                  // RPC failure — skip, will retry on next block
+                }
+              }
             }
 
             if (sentAtBlock && from && to && nonce && data)
