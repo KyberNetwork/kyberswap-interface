@@ -71,6 +71,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
   const [debouncedSearchAddress, setDebouncedSearchAddress] = useState('')
 
   const { isJoinedByWeek, userStats, isLoadingUserStats } = useSafePalCampaignJoin({ selectedWeek, enabled: true })
+  const hasLeaderboardPoints = (userStats?.total_points || 0) > 0
 
   const isSelectedWeekAvailable = useMemo(() => isCampaignWeekActive(selectedRange), [selectedRange])
   const isSelectedWeekEnded = useMemo(() => isCampaignWeekEnded(selectedRange), [selectedRange])
@@ -95,7 +96,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
       userAddress: debouncedSearchAddress || undefined,
     },
     {
-      skip: isOwner || !selectedRange,
+      skip: isOwner || !selectedRange || !hasLeaderboardPoints,
       pollingInterval: 10_000,
     },
   )
@@ -108,15 +109,13 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
       page: currentPage,
     },
     {
-      skip: !isOwner || !selectedRange || !account,
+      skip: !isOwner || !selectedRange || !account || !hasLeaderboardPoints,
       pollingInterval: 10_000,
     },
   )
 
   const isLoading = isOwner ? isLoadingTransactions : isLoadingLeaderboard || (!!account && isLoadingUserStats)
-
   const totalCount = isOwner ? transactionsData?.total_items || 0 : leaderboardData?.total_items || 0
-  const hasLeaderboardPoints = (userStats?.total_points || 0) > 0
   const emptyStateMessage = isOwner ? t`No transactions found for this week.` : t`No participants found for this week.`
 
   const renderLabel = (label: ReactNode) =>
