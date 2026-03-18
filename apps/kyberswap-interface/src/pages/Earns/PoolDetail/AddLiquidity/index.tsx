@@ -150,18 +150,25 @@ const AddLiquidityBody = ({ children, onTrackEvent }: AddLiquidityBodyProps) => 
   const currentTxStatus = submittedTxHash ? txStatusMap[submittedTxHash] || txStatusMap[currentTxHash] : undefined
   const modalTxStatus = getModalTxStatus(currentTxStatus)
 
-  const openReview = useCallback(() => {
-    setSubmitError(null)
-    setSubmittedTxHash('')
-    setPreviewRouteSnapshot(state.route.data || null)
-    clearTracking()
-    setIsReviewOpen(true)
-  }, [clearTracking, state.route.data])
+  const openReview = useCallback(
+    (builtRoute: BuildZapInData) => {
+      setSubmitError(null)
+      setSubmittedTxHash('')
+      setBuildData(builtRoute)
+      setPreviewRouteSnapshot(state.route.data || null)
+      clearTracking()
+      setIsReviewOpen(true)
+    },
+    [clearTracking, state.route.data],
+  )
 
   const handlePreview = useCallback(async () => {
     if (!account || !chainId || !state.route.data || !deadline) return
 
-    openReview()
+    setSubmitError(null)
+    setSubmittedTxHash('')
+    setBuildData(null)
+    setPreviewRouteSnapshot(null)
 
     try {
       const builtRoute = await buildZapInRoute({
@@ -174,10 +181,11 @@ const AddLiquidityBody = ({ children, onTrackEvent }: AddLiquidityBodyProps) => 
         referral,
       }).unwrap()
 
-      setBuildData(builtRoute)
+      openReview(builtRoute)
     } catch (error) {
       setBuildData(null)
       setSubmitError(friendlyError(error as Error) || (error as Error)?.message || 'Failed to build zap transaction')
+      setIsReviewOpen(true)
     }
   }, [account, buildZapInRoute, chainId, deadline, openReview, referral, state.route.data])
 
@@ -317,8 +325,8 @@ const AddLiquidityBody = ({ children, onTrackEvent }: AddLiquidityBodyProps) => 
       <AddLiquidityReviewModal
         isOpen={isReviewOpen}
         review={review}
-        confirmDisabled={buildRouteLoading || isSubmitting || !buildData}
-        confirmLoading={buildRouteLoading || isSubmitting}
+        confirmDisabled={isSubmitting || !buildData}
+        confirmLoading={isSubmitting}
         txHash={submittedTxHash}
         txStatus={modalTxStatus}
         txError={submitError}

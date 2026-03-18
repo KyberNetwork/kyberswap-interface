@@ -214,6 +214,8 @@ const AddLiquidityReviewModal = ({
   const slippage = estimate?.slippage
   const suggestedSlippage = estimate?.suggestedSlippage
 
+  if (!isOpen) return null
+
   if (confirmLoading || txHash || txError || txStatus) {
     const translatedErrorMessage = txError ? translateFriendlyErrorMessage(txError) : undefined
     const errorMessage = txError?.toLowerCase() || ''
