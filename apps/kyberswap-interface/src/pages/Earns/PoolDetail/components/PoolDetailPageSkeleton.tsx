@@ -1,8 +1,11 @@
+import { useMedia } from 'react-use'
+
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import AddLiquidityWidgetSkeleton from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetSkeleton'
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import { MEDIA_WIDTHS } from 'theme'
 
 const RoutePreviewSkeleton = () => {
   return (
@@ -49,19 +52,36 @@ const PoolInformationSkeleton = () => {
   )
 }
 
+const PoolHeaderSkeleton = () => {
+  return (
+    <HStack align="center" gap={12} wrap="wrap" width="100%">
+      <PositionSkeleton width={34.5} height={34.5} />
+      <HStack align="center">
+        <PositionSkeleton width={28} height={28} />
+        <PositionSkeleton width={28} height={28} />
+      </HStack>
+      <PositionSkeleton width={160} height={28} />
+      <PositionSkeleton width={160} height={32} />
+      <PositionSkeleton width={60} height={32} />
+    </HStack>
+  )
+}
+
 export default function PoolDetailPageSkeleton() {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
+  if (upToSmall) {
+    return (
+      <PoolDetailWrapper>
+        <PoolHeaderSkeleton />
+        <AddLiquidityWidgetSkeleton />
+      </PoolDetailWrapper>
+    )
+  }
+
   return (
     <PoolDetailWrapper>
-      <HStack align="center" gap={12} wrap="wrap" width="100%">
-        <PositionSkeleton width={34.5} height={34.5} />
-        <HStack align="center">
-          <PositionSkeleton width={28} height={28} />
-          <PositionSkeleton width={28} height={28} />
-        </HStack>
-        <PositionSkeleton width={160} height={28} />
-        <PositionSkeleton width={160} height={32} />
-        <PositionSkeleton width={60} height={32} />
-      </HStack>
+      <PoolHeaderSkeleton />
 
       <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
         <Stack flex="1 1 480px" maxWidth="480px" minWidth={0} gap={16}>

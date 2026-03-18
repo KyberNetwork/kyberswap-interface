@@ -1,11 +1,15 @@
+import { useMedia } from 'react-use'
+
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { LiquidityChartSkeleton } from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection/LiquidityChart'
 import { TokenAmountInputSkeleton } from 'pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import { MEDIA_WIDTHS } from 'theme'
 
 export default function AddLiquidityWidgetSkeleton() {
   const theme = useTheme()
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
     <Stack width="100%" gap={16} p={16} borderRadius={12} background={theme.background}>
@@ -37,10 +41,12 @@ export default function AddLiquidityWidgetSkeleton() {
           <PositionSkeleton width="100%" height={40} />
         </Stack>
 
-        <HStack justify="space-between" gap={12} p={12} borderRadius={24} background={theme.buttonGray}>
-          <PositionSkeleton width={160} height={44} />
-          <PositionSkeleton width={160} height={44} />
-        </HStack>
+        {!upToSmall && (
+          <HStack justify="space-between" gap={12} p={12} borderRadius={24} background={theme.buttonGray}>
+            <PositionSkeleton width={160} height={44} />
+            <PositionSkeleton width={160} height={44} />
+          </HStack>
+        )}
       </Stack>
     </Stack>
   )
