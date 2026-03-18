@@ -21,6 +21,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),
       protocol: searchParams.get('protocol') || '',
+      rewardType: searchParams.get('rewardType') || undefined,
       userAddress: account,
       tag: searchParams.get('tag') || '',
       sortBy: searchParams.get('sortBy') || '',
@@ -31,6 +32,10 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
   const updateFilters = useCallback(
     (key: keyof PoolQueryParams, value: string) => {
+      if (key === 'tag' && value !== FilterTag.FARMING_POOL) {
+        searchParams.delete('rewardType')
+      }
+
       if (!value && key !== 'chainIds') {
         searchParams.delete(key)
       } else {
