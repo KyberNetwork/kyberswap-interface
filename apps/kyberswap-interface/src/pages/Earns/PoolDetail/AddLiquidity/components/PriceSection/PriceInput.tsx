@@ -1,11 +1,13 @@
 import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, univ3PoolNormalize } from '@kyber/schema'
 import { Skeleton } from '@kyber/ui'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3'
+import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
+import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export enum PriceInputType {
@@ -14,17 +16,17 @@ export enum PriceInputType {
 }
 
 const StepButton = styled.button`
+  display: flex;
   align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: ${({ theme }) => theme.tabActive};
   color: ${({ theme }) => theme.subText};
   cursor: pointer;
-  display: flex;
-  flex: 0 0 auto;
-  height: 24px;
-  justify-content: center;
-  width: 24px;
 
   :disabled {
     cursor: not-allowed;
@@ -32,51 +34,21 @@ const StepButton = styled.button`
   }
 
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.1);
+    filter: brightness(1.12);
   }
 `
 
 const Input = styled.input`
+  width: 100%;
+  min-width: 0;
+  padding: 0;
   border: none;
   background: transparent;
-  padding: 0;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
   font-weight: 500;
-  min-width: 0;
   outline: none;
   text-align: center;
-  width: 100%;
-`
-
-const Delta = styled.div<{ $positive?: boolean }>`
-  color: ${({ theme, $positive }) => ($positive ? theme.primary : theme.subText)};
-  font-size: 12px;
-  font-weight: 400;
-`
-
-const InputShell = styled(HStack)`
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  min-width: 0;
-  width: 100%;
-`
-
-const TypeBadge = styled(HStack)`
-  padding: 4px 8px;
-  border-radius: 12px 0px 0px 12px;
-  background: ${({ theme }) => theme.tabActive};
-`
-
-const TypeText = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  font-weight: 500;
-`
-
-const InputValueWrap = styled(Stack)`
-  flex: 1 1 0;
-  min-width: 0;
 `
 
 const formatDelta = (value: number, poolPrice: number) => {
@@ -126,6 +98,7 @@ export default function PriceInput({
   onTickLowerChange,
   onTickUpperChange,
 }: PriceInputProps) {
+  const theme = useTheme()
   const [localValue, setLocalValue] = useState('')
 
   const normalizedPool = useMemo(() => {
@@ -299,17 +272,19 @@ export default function PriceInput({
   }, [activeTick, maxAllowedTick, normalizedPool])
 
   return (
-    <InputShell align="stretch">
-      <TypeBadge justify="center" align="center">
-        <TypeText>{type === PriceInputType.MinPrice ? 'MIN' : 'MAX'}</TypeText>
-      </TypeBadge>
+    <HStack align="stretch" width="100%" minWidth={0} borderRadius={12} background={rgba(theme.buttonGray, 0.8)}>
+      <HStack align="center" justify="center" borderRadius="12px 0px 0px 12px" background={theme.tabActive} p="4px 8px">
+        <Text color={theme.subText} fontSize={12} fontWeight={500}>
+          {type === PriceInputType.MinPrice ? 'MIN' : 'MAX'}
+        </Text>
+      </HStack>
 
-      <HStack alignItems="center" gap={8} p="4px 8px" flex={1}>
-        <StepButton type="button" onClick={handleDecreasePrice} disabled={!canDecrease}>
+      <HStack flex={1} align="center" gap={8} p="4px 8px">
+        <StepButton type="button" disabled={!canDecrease} onClick={handleDecreasePrice}>
           -
         </StepButton>
 
-        <InputValueWrap align="center">
+        <Stack flex={1} minWidth={0} align="center">
           {!normalizedPool ? (
             <Skeleton style={{ width: '120px', height: '24px' }} />
           ) : (
@@ -332,13 +307,15 @@ export default function PriceInput({
               spellCheck={false}
             />
           )}
-          <Delta $positive={deltaText.startsWith('+')}>{deltaText || '\u00A0'}</Delta>
-        </InputValueWrap>
+          <Text color={theme.subText} fontSize={12}>
+            {deltaText || '\u00A0'}
+          </Text>
+        </Stack>
 
-        <StepButton type="button" onClick={handleIncreasePrice} disabled={!canIncrease}>
+        <StepButton type="button" disabled={!canIncrease} onClick={handleIncreasePrice}>
           +
         </StepButton>
       </HStack>
-    </InputShell>
+    </HStack>
   )
 }

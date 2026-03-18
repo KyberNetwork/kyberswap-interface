@@ -3,23 +3,22 @@ import { MouseoverTooltip, Skeleton } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/number'
 import { Trans } from '@lingui/macro'
 import { skipToken } from '@reduxjs/toolkit/query'
-import { Box, Text } from 'rebass'
+import { rgba } from 'polished'
+import { Text } from 'rebass'
 import { useEstimatePositionAprQuery } from 'services/zapInService'
 import styled from 'styled-components'
 
-import { HStack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 
-const TooltipContent = styled(Box)`
-  display: flex;
-  flex-direction: column;
+const TooltipContent = styled(Stack)`
   gap: 4px;
   font-size: 12px;
-  line-height: 1.4;
 
   a {
-    text-decoration: underline;
+    border-bottom: 1px dotted ${({ theme }) => theme.subText};
+    text-decoration: none;
   }
 
   a:hover {
@@ -34,30 +33,11 @@ const AprBanner = styled(HStack)`
   width: 100%;
   padding: 8px 12px;
   border-radius: 12px;
-  background: linear-gradient(90deg, rgba(24, 71, 56, 0.9) 0%, rgba(23, 48, 44, 0.92) 100%);
+  border: 1px solid ${({ theme }) => rgba(theme.primary, 0.24)};
+  background: ${({ theme }) => rgba(theme.primary, 0.12)};
 `
 
-const AprLabel = styled(Text)`
-  margin: 0;
-  font-size: 14px;
-  font-weight: 400;
-`
-
-const ValueTrigger = styled(Box)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 64px;
-`
-
-const AprValue = styled(Text)`
-  margin: 0;
-  color: #37d1b6;
-  font-size: 14px;
-  font-weight: 600;
-`
-
-interface PositionAprProps {
+interface EstimatedPositionAprProps {
   chainId?: number
   poolAddress?: string
   isFarming?: boolean
@@ -73,20 +53,22 @@ type AprData = {
   lmApr: number
 }
 
-export default function PositionApr({
+export default function EstimatedPositionApr({
   chainId,
   poolAddress,
   isFarming,
   tickLower,
   tickUpper,
   route,
-}: PositionAprProps) {
+}: EstimatedPositionAprProps) {
   const theme = useTheme()
   const hasInput = Boolean(route)
   const positionLiquidity = route?.positionDetails?.addedLiquidity || null
   const positionTvl = route?.positionDetails?.addedAmountUsd || null
+
   const debouncedLower = useDebounce(tickLower, 150)
   const debouncedUpper = useDebounce(tickUpper, 150)
+
   const shouldSkip =
     !isFarming ||
     !chainId ||
@@ -95,6 +77,7 @@ export default function PositionApr({
     debouncedUpper === null ||
     debouncedLower === debouncedUpper ||
     !positionLiquidity
+
   const { data, isFetching } = useEstimatePositionAprQuery(
     shouldSkip
       ? skipToken
@@ -107,10 +90,12 @@ export default function PositionApr({
           positionTvl: String(positionTvl ?? 0),
         },
   )
+
   const aprData = (data as AprData | undefined) || null
-  const loading = isFetching
 
   if (!isFarming) return null
+
+  const aprDisplay = !aprData ? '--' : aprData.totalApr === 0 ? '~0%' : `${formatAprNumber(aprData.totalApr)}%`
 
   const tooltipContent = !hasInput ? (
     <TooltipContent>Input an amount to calculate.</TooltipContent>
@@ -152,18 +137,20 @@ export default function PositionApr({
   )
 
   return (
-    <AprBanner color={theme.text}>
-      <AprLabel>Est. Position APR</AprLabel>
+    <AprBanner>
+      <Text color={theme.text} fontSize={14}>
+        Est. Position APR
+      </Text>
       <MouseoverTooltip placement="top" width={!aprData ? 'fit-content' : '320px'} text={tooltipContent}>
-        <ValueTrigger>
-          {loading && !aprData ? (
+        <HStack minWidth={64} justify="flex-end">
+          {isFetching && !aprData ? (
             <Skeleton style={{ width: '64px', height: '20px' }} />
           ) : (
-            <AprValue>
-              {!aprData ? '--' : aprData.totalApr === 0 ? '~0%' : `${formatAprNumber(aprData.totalApr)}%`}
-            </AprValue>
+            <Text color={theme.primary} fontSize={14} fontWeight={500}>
+              {aprDisplay}
+            </Text>
           )}
-        </ValueTrigger>
+        </HStack>
       </MouseoverTooltip>
     </AprBanner>
   )

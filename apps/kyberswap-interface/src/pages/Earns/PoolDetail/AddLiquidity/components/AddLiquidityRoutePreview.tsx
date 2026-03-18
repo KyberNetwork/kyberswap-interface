@@ -1,6 +1,7 @@
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  Pool,
   PoolSwapAction,
   Token,
   ZapAction,
@@ -16,6 +17,8 @@ import styled from 'styled-components'
 import { ReactComponent as KyberLogo } from 'assets/svg/kyber/kyber_logo.svg'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import useTheme from 'hooks/useTheme'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const FlowRow = styled(HStack)`
@@ -32,64 +35,9 @@ const AssetCard = styled(Stack)`
   z-index: 1;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
-  background: #171717;
-`
-
-const AmountText = styled(Text)`
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
-
-const ValueText = styled(Text)`
-  margin: 0;
-  font-size: 14px;
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-`
-
-const AssetMain = styled(HStack)`
-  align-items: center;
-  padding: 8px 16px;
-`
-
-const AssetFooter = styled(Stack)`
-  justify-content: center;
-  padding: 8px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
-`
-
-const AssetRow = styled(HStack)`
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  min-width: 0;
-  width: 100%;
-`
-
-const AssetToken = styled(HStack)`
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-`
-
-const Divider = styled(Text)`
-  margin: 0;
-  color: ${({ theme }) => theme.subText};
-`
-
-const MoreBadge = styled(HStack)`
-  align-items: center;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
+  background: ${({ theme }) => theme.buttonGray};
 `
 
 const StepTrack = styled(Stack)`
@@ -149,15 +97,15 @@ const TrackLine = styled.div`
 
 const TrackStartDot = styled.div`
   position: absolute;
+  z-index: 1;
   left: -4px;
   top: 50%;
-  z-index: 1;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  transform: translateY(-50%);
   background: ${({ theme }) => theme.border};
-  opacity: 0.85;
+  opacity: 0.8;
+  transform: translateY(-50%);
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     left: 50%;
@@ -173,14 +121,8 @@ const StepPill = styled(HStack)`
   gap: 8px;
   padding: 8px 16px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(21, 21, 24, 0.92);
-`
-
-const StepText = styled(Text)`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
+  border: 1px solid ${({ theme }) => theme.border};
+  background: ${({ theme }) => theme.buttonGray};
 `
 
 type RouteTokenItem = {
@@ -189,21 +131,19 @@ type RouteTokenItem = {
   amount?: number
 }
 
-export interface AddLiquidityRoutePreviewProps {
+interface AddLiquidityRoutePreviewProps {
   chainId?: number
+  inputTokens?: Token[]
+  pool?: Pool | null
   zapRoute?: ZapRouteDetail | null
 }
 
-const formatUsdAmount = (value?: number | null, fallbackZero = false) => {
-  if (value !== null && value !== undefined && value > 0) {
+const formatUsdAmount = (value?: string) => {
+  if (value !== null && value !== undefined && Number(value ?? 0) > 0) {
     return `~ ${formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })}`
   }
 
-  if (fallbackZero) {
-    return `~ ${formatDisplayNumber(0, { style: 'currency', significantDigits: 6 })}`
-  }
-
-  return '~ --'
+  return `~ ${formatDisplayNumber(0, { style: 'currency', significantDigits: 6 })}`
 }
 
 const getTokenLogo = (token?: Token | null) => {
@@ -230,11 +170,34 @@ const addAmountToMap = (map: Map<string, string>, address: string, amount?: stri
   map.set(normalizedAddress, (BigInt(currentAmount) + BigInt(amount)).toString())
 }
 
-const getPreviewAddresses = (zapRoute?: ZapRouteDetail | null) => {
+const getPreviewAddresses = ({
+  inputTokens,
+  pool,
+  zapRoute,
+}: {
+  inputTokens?: Token[]
+  pool?: Pool | null
+  zapRoute?: ZapRouteDetail | null
+}) => {
   if (!zapRoute)
     return {
-      inputItems: [] as Array<{ address: string; amount?: string }>,
-      outputItems: [] as Array<{ address: string; amount?: string }>,
+      inputItems:
+        inputTokens?.map(token => ({
+          address: token.address.toLowerCase(),
+          amount: '0',
+        })) || [],
+      outputItems: pool
+        ? [
+            {
+              address: pool.token0.address.toLowerCase(),
+              amount: '0',
+            },
+            {
+              address: pool.token1.address.toLowerCase(),
+              amount: '0',
+            },
+          ]
+        : [],
     }
 
   const addLiquidityAction = zapRoute.zapDetails.actions.find(item => item.type === ZapAction.ADD_LIQUIDITY) as
@@ -287,31 +250,6 @@ const getPreviewAddresses = (zapRoute?: ZapRouteDetail | null) => {
   }
 }
 
-const renderAssetItems = (items: RouteTokenItem[], emptyText?: string) => {
-  if (!items.length) return <AmountText>{emptyText}</AmountText>
-
-  const visibleItems = items.slice(0, 2)
-  const remainingCount = items.length - visibleItems.length
-
-  return (
-    <AssetRow>
-      {visibleItems.map((item, index) => (
-        <Fragment key={`${item.token.address}-${index}`}>
-          {index > 0 ? <Divider>|</Divider> : null}
-          <AssetToken>
-            <TokenLogo src={getTokenLogo(item.token)} size={16} />
-            <AmountText>
-              {item.amount && item.amount > 0 ? `${formatDisplayNumber(item.amount, { significantDigits: 6 })} ` : ''}
-              {item.token.symbol}
-            </AmountText>
-          </AssetToken>
-        </Fragment>
-      ))}
-      {remainingCount > 0 ? <MoreBadge>+{remainingCount} more</MoreBadge> : null}
-    </AssetRow>
-  )
-}
-
 const toRouteTokenItem = (
   item: { address: string; amount?: string },
   tokenMap: Map<string, Token & { logoURI?: string }>,
@@ -327,10 +265,16 @@ const toRouteTokenItem = (
   }
 }
 
-export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiquidityRoutePreviewProps) {
+export default function AddLiquidityRoutePreview({
+  chainId,
+  inputTokens,
+  pool,
+  zapRoute,
+}: AddLiquidityRoutePreviewProps) {
+  const theme = useTheme()
   const { inputItems: previewInputs, outputItems: previewOutputs } = useMemo(
-    () => getPreviewAddresses(zapRoute),
-    [zapRoute],
+    () => getPreviewAddresses({ inputTokens, pool, zapRoute }),
+    [inputTokens, pool, zapRoute],
   )
 
   const tokenAddresses = useMemo(
@@ -350,17 +294,22 @@ export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiqui
       : skipToken,
   )
 
+  const fallbackTokens = useMemo(
+    () => [...(inputTokens || []), ...(pool ? [pool.token0, pool.token1] : [])],
+    [inputTokens, pool],
+  )
+
   const routeTokenMap = useMemo(
     () =>
       new Map(
-        routeTokens.map(token => [
+        [...fallbackTokens, ...routeTokens].map(token => [
           token.address.toLowerCase(),
           token as Token & {
             logoURI?: string
           },
         ]),
       ),
-    [routeTokens],
+    [fallbackTokens, routeTokens],
   )
 
   const inputItems = useMemo(
@@ -373,17 +322,54 @@ export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiqui
     [previewOutputs, routeTokenMap],
   )
 
-  const hasRoute = Boolean(zapRoute)
-  const inputUsd = zapRoute ? Number(zapRoute.zapDetails.initialAmountUsd || 0) : null
-  const outputUsd = zapRoute ? Number(zapRoute.positionDetails.addedAmountUsd || 0) : null
-
   return (
     <FlowRow>
       <AssetCard>
-        <AssetMain>{renderAssetItems(inputItems, '--')}</AssetMain>
-        <AssetFooter>
-          <ValueText>{formatUsdAmount(inputUsd, hasRoute)}</ValueText>
-        </AssetFooter>
+        <HStack align="center" p="8px 16px">
+          {inputItems.length ? (
+            <HStack width="100%" minWidth={0} align="center" justify="center" gap={8} wrap="wrap">
+              {inputItems.slice(0, 2).map((item, index) => (
+                <Fragment key={`${item.token.address}-${index}`}>
+                  {index > 0 ? (
+                    <Text color={theme.subText} fontSize={14}>
+                      |
+                    </Text>
+                  ) : null}
+                  <HStack minWidth={0} align="center" gap={4}>
+                    <TokenLogo src={getTokenLogo(item.token)} size={16} />
+                    <Text color={theme.text} fontSize={14} fontWeight={500}>
+                      {item.amount !== undefined
+                        ? `${formatDisplayNumber(item.amount, {
+                            significantDigits: 6,
+                          })} `
+                        : ''}
+                      {item.token.symbol}
+                    </Text>
+                  </HStack>
+                </Fragment>
+              ))}
+              {inputItems.length > 2 ? (
+                <HStack align="center" borderRadius={999} background={theme.tabActive} p="4px 8px">
+                  <Text color={theme.subText} fontSize={12}>
+                    +{inputItems.length - 2} more
+                  </Text>
+                </HStack>
+              ) : null}
+            </HStack>
+          ) : (
+            <PositionSkeleton width={120} height={17} />
+          )}
+        </HStack>
+        <Stack
+          justify="center"
+          background={theme.background}
+          p="8px 16px"
+          style={{ borderTop: `1px solid ${theme.border}` }}
+        >
+          <Text color={theme.subText} fontSize={14} textAlign="center">
+            {formatUsdAmount(zapRoute?.zapDetails.initialAmountUsd)}
+          </Text>
+        </Stack>
       </AssetCard>
 
       <StepTrack>
@@ -391,15 +377,58 @@ export default function AddLiquidityRoutePreview({ chainId, zapRoute }: AddLiqui
         <TrackStartDot />
         <StepPill>
           <KyberLogo width={18} height={18} />
-          <StepText>Kyber Zap</StepText>
+          <Text color={theme.subText} fontSize={14} fontWeight={500}>
+            Kyber Zap
+          </Text>
         </StepPill>
       </StepTrack>
 
       <AssetCard>
-        <AssetMain>{renderAssetItems(outputItems, '--')}</AssetMain>
-        <AssetFooter>
-          <ValueText>{formatUsdAmount(outputUsd, hasRoute)}</ValueText>
-        </AssetFooter>
+        <HStack align="center" p="8px 16px">
+          {outputItems.length ? (
+            <HStack width="100%" minWidth={0} align="center" justify="center" gap={8} wrap="wrap">
+              {outputItems.slice(0, 2).map((item, index) => (
+                <Fragment key={`${item.token.address}-${index}`}>
+                  {index > 0 ? (
+                    <Text color={theme.subText} fontSize={14}>
+                      |
+                    </Text>
+                  ) : null}
+                  <HStack minWidth={0} align="center" gap={4}>
+                    <TokenLogo src={getTokenLogo(item.token)} size={16} />
+                    <Text color={theme.text} fontSize={14} fontWeight={500}>
+                      {item.amount !== undefined
+                        ? `${formatDisplayNumber(item.amount, {
+                            significantDigits: 6,
+                          })} `
+                        : ''}
+                      {item.token.symbol}
+                    </Text>
+                  </HStack>
+                </Fragment>
+              ))}
+              {outputItems.length > 2 ? (
+                <HStack align="center" borderRadius={999} background={theme.tabActive} p="4px 8px">
+                  <Text color={theme.subText} fontSize={12}>
+                    +{outputItems.length - 2} more
+                  </Text>
+                </HStack>
+              ) : null}
+            </HStack>
+          ) : (
+            <PositionSkeleton width={120} height={17} />
+          )}
+        </HStack>
+        <Stack
+          justify="center"
+          background={theme.background}
+          p="8px 16px"
+          style={{ borderTop: `1px solid ${theme.border}` }}
+        >
+          <Text color={theme.subText} fontSize={14} textAlign="center">
+            {formatUsdAmount(zapRoute?.positionDetails.addedAmountUsd)}
+          </Text>
+        </Stack>
       </AssetCard>
     </FlowRow>
   )

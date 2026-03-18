@@ -1,3 +1,4 @@
+import { rgba } from 'polished'
 import styled from 'styled-components'
 
 import { PoolPageWrapper } from 'pages/Earns/PoolExplorer/styles'
@@ -22,11 +23,19 @@ export const NoteCard = styled.div<{ $warning?: boolean; $tone?: NoteCardTone }>
   font-size: 14px;
   background: ${({ theme, $warning, $tone }) => {
     const tone = $tone || ($warning ? 'warning' : 'info')
-    return tone === 'error' ? `${theme.red}14` : tone === 'warning' ? `${theme.warning}1f` : `${theme.primary}14`
+    return tone === 'error'
+      ? rgba(theme.red, 0.12)
+      : tone === 'warning'
+      ? rgba(theme.warning, 0.12)
+      : rgba(theme.primary, 0.12)
   }};
   border: 1px solid
     ${({ theme, $warning, $tone }) => {
       const tone = $tone || ($warning ? 'warning' : 'info')
-      return tone === 'error' ? `${theme.red}40` : tone === 'warning' ? `${theme.warning}40` : `${theme.primary}26`
+      return tone === 'error'
+        ? rgba(theme.red, 0.24)
+        : tone === 'warning'
+        ? rgba(theme.warning, 0.24)
+        : rgba(theme.primary, 0.24)
     }};
 `

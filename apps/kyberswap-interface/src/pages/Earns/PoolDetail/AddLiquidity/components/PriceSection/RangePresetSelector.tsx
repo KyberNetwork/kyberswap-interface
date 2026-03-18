@@ -5,16 +5,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { HStack } from 'components/Stack'
+import useTheme from 'hooks/useTheme'
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from 'pages/Earns/PoolDetail/AddLiquidity/constants'
-
-const SegmentedShell = styled(HStack)`
-  border-radius: 20px;
-  border: 1px solid ${({ theme }) => theme.tabActive};
-`
 
 const RangeButton = styled.button<{ $active: boolean }>`
   flex: 1 1 0;
   min-width: 0;
+  padding: 8px 12px;
   border: none;
   border-radius: 20px;
   background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
@@ -22,10 +19,9 @@ const RangeButton = styled.button<{ $active: boolean }>`
   font-size: 14px;
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   cursor: pointer;
-  padding: 8px 12px;
 
   :hover {
-    background: ${({ theme, $active }) => ($active ? rgba(theme.tabActive, 0.88) : 'rgba(255, 255, 255, 0.04)')};
+    background: ${({ theme, $active }) => ($active ? rgba(theme.tabActive, 0.8) : theme.buttonGray)};
   }
 `
 
@@ -60,6 +56,7 @@ export default function RangePresetSelector({
   onTickLowerChange,
   onTickUpperChange,
 }: RangePresetSelectorProps) {
+  const theme = useTheme()
   const [lastSelected, setLastSelected] = useState<number | string>('')
   const previousRevertPrice = useRef(revertPrice)
   const previousRangeSelected = useRef<number | string | undefined>()
@@ -198,16 +195,16 @@ export default function RangePresetSelector({
   if (!priceRanges.length) return null
 
   return (
-    <SegmentedShell gap={0}>
+    <HStack border={`1px solid ${theme.border}`} borderRadius={20} gap={0}>
       {priceRanges.map(item => (
         <RangeButton
-          key={`${item.range}`}
           $active={rangeSelected === item.range}
+          key={`${item.range}`}
           onClick={() => handleSelectPriceRange(item.range, true)}
         >
           {item.range === FULL_PRICE_RANGE ? 'Full Range' : `${Number(item.range) * 100}%`}
         </RangeButton>
       ))}
-    </SegmentedShell>
+    </HStack>
   )
 }

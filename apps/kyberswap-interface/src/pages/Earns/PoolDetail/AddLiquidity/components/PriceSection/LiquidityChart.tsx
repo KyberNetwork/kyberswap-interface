@@ -2,33 +2,16 @@ import { Pool, univ3PoolNormalize } from '@kyber/schema'
 import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3'
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
+import { rgba } from 'polished'
 import { useCallback, useMemo } from 'react'
 import styled, { keyframes } from 'styled-components'
 
+import { HStack, Stack } from 'components/Stack'
 import { toString } from 'utils/numbers'
 
 const shimmer = keyframes`
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
-`
-
-const SkeletonWrapper = styled.div`
-  width: 100%;
-  height: 152px;
-  padding-top: 8px;
-  border-radius: 8px;
-  display: flex;
-  align-items: flex-end;
-  overflow: hidden;
-`
-
-const BarsContainer = styled.div`
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  width: 100%;
-  height: 100%;
-  padding: 0 8px 4px;
 `
 
 const Bar = styled.div<{ $height: number }>`
@@ -39,15 +22,16 @@ const Bar = styled.div<{ $height: number }>`
   height: ${({ $height }) => $height}%;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => theme.tabActive};
   overflow: hidden;
 `
 
 const Shimmer = styled.div`
   position: absolute;
   inset: 0;
+  background: ${({ theme }) =>
+    `linear-gradient(90deg, ${rgba(theme.text, 0)} 0%, ${rgba(theme.text, 0.12)} 50%, ${rgba(theme.text, 0)} 100%)`};
   opacity: 0.6;
-  background: linear-gradient(90deg, transparent 0%, #292929 50%, transparent 100%);
   animation: ${shimmer} 1.8s linear infinite;
 `
 
@@ -64,18 +48,18 @@ interface LiquidityChartProps {
 }
 
 export function LiquidityChartSkeleton() {
-  const barHeights = [5, 10, 15, 30, 45, 55, 60, 70, 85, 90, 100, 100, 80, 75, 55, 60, 30, 30, 25, 15, 10, 5]
+  const barHeights = [15, 20, 5, 10, 15, 30, 10, 15, 60, 70, 85, 90, 100, 70, 80, 40, 55, 60, 15, 20, 25, 15, 10, 5]
 
   return (
-    <SkeletonWrapper>
-      <BarsContainer>
+    <Stack height="224px">
+      <HStack align="flex-end" justify="center" width="100%" height="100%" gap={4} p="8px">
         {barHeights.map((height, index) => (
-          <Bar key={index} $height={height}>
+          <Bar $height={height * 0.8} key={index}>
             <Shimmer />
           </Bar>
         ))}
-      </BarsContainer>
-    </SkeletonWrapper>
+      </HStack>
+    </Stack>
   )
 }
 
@@ -232,7 +216,7 @@ export default function LiquidityChart({
         category: normalizedPool.category,
       }}
       price={{
-        current: poolPrice ?? undefined,
+        current: poolPrice,
         lower: minPrice,
         upper: maxPrice,
       }}

@@ -317,7 +317,12 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
           {renderWidget()}
         </Stack>
         <Stack flex="1 1 320px" gap={24} minWidth={0}>
-          <AddLiquidityRoutePreview chainId={chainId} zapRoute={reviewRoute} />
+          <AddLiquidityRoutePreview
+            chainId={chainId}
+            inputTokens={state.tokenInput.tokens}
+            pool={normalizedPool.data}
+            zapRoute={reviewRoute}
+          />
           {children}
         </Stack>
       </HStack>

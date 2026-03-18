@@ -1,7 +1,7 @@
 import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType } from '@kyber/schema'
 import { InfoHelper } from '@kyber/ui'
 import { Trans } from '@lingui/macro'
-import rgba from 'polished/lib/color/rgba'
+import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
@@ -9,6 +9,7 @@ import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 import { getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { useDegenModeManager } from 'state/user/hooks'
 
@@ -65,30 +66,30 @@ const SummaryButton = styled.button`
   justify-content: space-between;
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid ${({ theme }) => theme.tabActive};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 400;
 
   :hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: ${({ theme }) => theme.buttonGray};
   }
 `
 
 const Controls = styled.div`
   display: flex;
   align-items: stretch;
-  border: 1px solid ${({ theme }) => theme.tabActive};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.02);
+  background: ${({ theme }) => theme.background};
 `
 
 const Option = styled.button<{ $active: boolean }>`
   flex: 1 1 0;
   min-width: 0;
+  min-height: 32px;
+  padding: 0px 8px;
   border: none;
   border-radius: 20px;
   background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
@@ -96,11 +97,9 @@ const Option = styled.button<{ $active: boolean }>`
   font-size: 14px;
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   cursor: pointer;
-  padding: 0px 8px;
-  min-height: 32px;
 
   :hover {
-    background: ${({ theme, $active }) => ($active ? rgba(theme.tabActive, 0.88) : 'rgba(255, 255, 255, 0.04)')};
+    background: ${({ theme, $active }) => ($active ? rgba(theme.tabActive, 0.8) : theme.buttonGray)};
   }
 `
 
@@ -115,13 +114,9 @@ const InputWrap = styled.div<{ $active: boolean; $error?: boolean; $warning?: bo
   border-radius: 20px;
   background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
   color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
-  box-shadow: ${({ theme, $active, $error, $warning }) =>
-    $active || $error || $warning
-      ? `inset 0 0 0 1px ${$error ? theme.red : $warning ? theme.warning : theme.tabActive}`
-      : 'none'};
 
   :hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: ${({ theme, $active }) => ($active ? theme.tabActive : theme.background)};
   }
 `
 
@@ -131,6 +126,7 @@ const Input = styled.input`
   background: transparent;
   color: inherit;
   min-width: 0;
+  font-weight: 500;
   outline: none;
   text-align: right;
 `
@@ -141,21 +137,13 @@ const Suggestion = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.primary};
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   padding: 0;
   margin-left: 12px;
 
   :hover {
-    filter: brightness(1.2);
+    filter: brightness(1.12);
   }
-`
-
-const Message = styled.div<{ $warning?: boolean }>`
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: ${({ theme, $warning }) => ($warning ? `${theme.warning}14` : `${theme.red}14`)};
-  color: ${({ theme, $warning }) => ($warning ? theme.warning : theme.red)};
-  font-size: 12px;
 `
 
 const Caret = styled(ChevronDown)<{ $open: boolean }>`
@@ -166,27 +154,8 @@ const Caret = styled(ChevronDown)<{ $open: boolean }>`
   transition: transform 0.2s ease;
 `
 
-const SummaryLabel = styled(Text)`
-  margin: 0;
-  font-size: 14px;
-  font-weight: 400;
-`
-
-const SummaryValue = styled(HStack)`
-  color: inherit;
-  font-size: 14px;
-  font-weight: 500;
-`
-
-const InputSuffix = styled(Text)`
-  margin: 0;
-  color: inherit;
-  font-size: 14px;
-  line-height: 1;
-`
-
 interface SlippageControlProps {
-  context?: {
+  context: {
     chainId: number
     poolType: PoolType
     pool: Pool
@@ -200,9 +169,8 @@ interface SlippageControlProps {
 }
 
 export default function SlippageControl({ context, value, onTrackEvent, onSlippageChange }: SlippageControlProps) {
-  const chainId = context?.chainId || 0
-  const poolType = context?.poolType || PoolType.DEX_UNISWAPV3
-  const pool = context?.pool
+  const theme = useTheme()
+  const { chainId, poolType, pool } = context
   const slippage = value?.slippage
   const suggestedSlippage = value?.suggestedSlippage || 0
   const [isDegenMode] = useDegenModeManager()
@@ -213,14 +181,19 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
   const [isFocus, setIsFocus] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const token0Symbol = pool?.token0.symbol || ''
-  const token1Symbol = pool?.token1.symbol || ''
-  const feeTier = pool?.fee || 0
+  const token0Symbol = pool.token0.symbol
+  const token1Symbol = pool.token1.symbol
+  const feeTier = pool.fee || 0
 
   const dexNameObj = DEXES_INFO[poolType]?.name
   const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]
-
   const { isValid, message } = validateSlippageInput(customValue, suggestedSlippage, isDegenMode)
+  const appliedSlippageValidation = validateSlippageInput(
+    slippage ? formatSlippageInput(slippage) : '',
+    suggestedSlippage,
+    isDegenMode,
+  )
+  const messageToShow = message || appliedSlippageValidation.message
 
   useEffect(() => {
     if (isFocus) return
@@ -235,16 +208,7 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
     }
   }, [isCustom, isFocus, slippage])
 
-  const appliedSlippageValidation = validateSlippageInput(
-    slippage ? formatSlippageInput(slippage) : '',
-    suggestedSlippage,
-    isDegenMode,
-  )
-
-  const messageToShow = message || appliedSlippageValidation.message
-
   const fireSlippageEvent = (nextSlippage: number) => {
-    if (!pool) return
     if (previousSlippageRef.current === undefined || nextSlippage === previousSlippageRef.current) return
 
     onTrackEvent?.('LIQ_MAX_SLIPPAGE_CHANGED', {
@@ -259,7 +223,6 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
   }
 
   useEffect(() => {
-    if (!pool) return
     if (!slippage || suggestedSlippage <= 0 || slippage === suggestedSlippage) return
 
     try {
@@ -328,24 +291,26 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
     syncCustomStateFromSlippage(suggestedSlippage)
   }
 
-  if (!context || !pool) return null
-
   return (
     <Stack gap={8}>
-      <SummaryButton type="button" onClick={() => setIsExpanded(prev => !prev)}>
+      <SummaryButton type="button" aria-expanded={isExpanded} onClick={() => setIsExpanded(prev => !prev)}>
         <HStack align="center" gap={4}>
-          <SummaryLabel>Max Slippage</SummaryLabel>
+          <Text color={theme.text} fontSize={14}>
+            Max Slippage
+          </Text>
           <InfoHelper
             placement="bottom"
             text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
-            color="#31cb9e"
-            width="260px"
+            color={theme.primary}
+            width="280px"
           />
         </HStack>
-        <SummaryValue as="span" align="center" gap={4}>
-          {formatSlippageLabel(slippage)}
+        <HStack as="span" align="center" gap={4}>
+          <Text as="span" color={theme.text} fontSize={14} fontWeight={500}>
+            {formatSlippageLabel(slippage)}
+          </Text>
           <Caret $open={isExpanded} />
-        </SummaryValue>
+        </HStack>
       </SummaryButton>
 
       {isExpanded && (
@@ -372,7 +337,9 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
               placeholder="Custom"
               value={customValue}
             />
-            <InputSuffix>%</InputSuffix>
+            <Text as="span" fontSize={14}>
+              %
+            </Text>
           </InputWrap>
         </Controls>
       )}
@@ -383,7 +350,13 @@ export default function SlippageControl({ context, value, onTrackEvent, onSlippa
         </Suggestion>
       )}
 
-      {messageToShow && <Message $warning={isValid}>{messageToShow}</Message>}
+      {messageToShow && (
+        <Stack borderRadius={12} background={isValid ? rgba(theme.warning, 0.12) : rgba(theme.red, 0.12)} p="8px 12px">
+          <Text color={isValid ? theme.warning : theme.red} fontSize={14}>
+            {messageToShow}
+          </Text>
+        </Stack>
+      )}
     </Stack>
   )
 }

@@ -4,21 +4,17 @@ import PoolInformation from 'pages/Earns/PoolDetail/components/PoolInformation'
 import { PoolDetailProvider } from 'pages/Earns/PoolDetail/context'
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 
-const PoolDetailPageContent = () => {
+const PoolDetailPage = () => {
   return (
-    <PoolDetailWrapper>
-      <PoolHeader />
-      <AddLiquidity>
-        <PoolInformation />
-      </AddLiquidity>
-    </PoolDetailWrapper>
+    <PoolDetailProvider>
+      <PoolDetailWrapper>
+        <PoolHeader />
+        <AddLiquidity>
+          <PoolInformation />
+        </AddLiquidity>
+      </PoolDetailWrapper>
+    </PoolDetailProvider>
   )
 }
-
-const PoolDetailPage = () => (
-  <PoolDetailProvider>
-    <PoolDetailPageContent />
-  </PoolDetailProvider>
-)
 
 export default PoolDetailPage

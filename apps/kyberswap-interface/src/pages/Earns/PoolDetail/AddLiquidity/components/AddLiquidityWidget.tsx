@@ -8,7 +8,7 @@ import { ButtonErrorStyle, ButtonOutlined, ButtonPrimary } from 'components/Butt
 import { HStack, Stack } from 'components/Stack'
 import AddLiquiditySettings from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings'
 import AddLiquidityTokenInput from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityTokenInput'
-import PositionApr from 'pages/Earns/PoolDetail/AddLiquidity/components/PositionApr'
+import EstimatedPositionApr from 'pages/Earns/PoolDetail/AddLiquidity/components/EstimatedPositionApr'
 import PriceSection from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection'
 import SlippageControl from 'pages/Earns/PoolDetail/AddLiquidity/components/SlippageControl'
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
@@ -23,12 +23,6 @@ const FormStack = styled(Stack)`
   padding: 16px;
   border-radius: 12px;
   background: ${({ theme }) => theme.background};
-`
-
-const WidgetTitle = styled(Text)`
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-  letter-spacing: 0.06em;
 `
 
 interface AddLiquidityWidgetContext {
@@ -111,7 +105,9 @@ export default function AddLiquidityWidget({
     <FormStack gap={16}>
       <Stack gap={12}>
         <HStack align="center" justify="space-between">
-          <WidgetTitle>ADD LIQUIDITY</WidgetTitle>
+          <Text fontWeight={500} letterSpacing="0.06em">
+            ADD LIQUIDITY
+          </Text>
           <AddLiquiditySettings
             isOpen={isSettingsOpen}
             onOpenChange={setIsSettingsOpen}
@@ -163,7 +159,7 @@ export default function AddLiquidityWidget({
             onTickUpperChange={state.priceRange.setTickUpper}
           />
 
-          <PositionApr
+          <EstimatedPositionApr
             chainId={poolChainId}
             poolAddress={poolAddress}
             isFarming={pool.isFarming}

@@ -1,4 +1,4 @@
-import { NETWORKS_INFO, Pool, Token, ZapRouteDetail, defaultToken } from '@kyber/schema'
+import { NETWORKS_INFO, Pool, Token, ZapRouteDetail } from '@kyber/schema'
 import TokenSelectorModal, { MAX_TOKENS, TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { InfoHelper } from '@kyber/ui'
 import { t } from '@lingui/macro'
@@ -8,39 +8,27 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
+import useTheme from 'hooks/useTheme'
 import TokenAmountInput, {
   TokenAmountInputSkeleton,
 } from 'pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const AddTokenButton = styled.button`
+  display: inline-flex;
   align-items: center;
-  background: transparent;
+  gap: 6px;
+  width: fit-content;
+  padding: 0;
   border: none;
+  background: transparent;
   color: ${({ theme }) => theme.primary};
   cursor: pointer;
-  display: inline-flex;
   font-size: 14px;
   font-weight: 500;
-  gap: 6px;
-  padding: 0;
-  width: fit-content;
 
   :hover {
-    filter: brightness(1.2);
-  }
-`
-
-const ShareText = styled.div`
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  font-style: italic;
-  text-align: right;
-
-  b {
-    color: #2c9ce4;
-    font-style: normal;
-    font-weight: 500;
+    filter: brightness(1.12);
   }
 `
 
@@ -49,9 +37,9 @@ const EMPTY_BALANCES: Record<string, bigint> = {}
 const EMPTY_PRICES: Record<string, number> = {}
 
 interface AddLiquidityTokenInputProps {
-  context?: {
+  context: {
     chainId: number
-    pool?: Pool | null
+    pool: Pool
   }
   wallet?: {
     address?: string
@@ -77,12 +65,12 @@ const AddLiquidityTokenInput = ({
   onTokensChange,
   onAmountsChange,
 }: AddLiquidityTokenInputProps) => {
+  const theme = useTheme()
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false)
   const [tokenAddressSelected, setTokenAddressSelected] = useState<string>()
 
-  const chainId = context?.chainId || 0
-  const pool = context?.pool || null
-  const { token0 = defaultToken, token1 = defaultToken } = pool || {}
+  const { chainId, pool } = context
+  const { token0, token1 } = pool
 
   const currentTokens = value?.tokens ?? EMPTY_TOKENS
   const currentAmounts = value?.amounts || ''
@@ -92,8 +80,6 @@ const AddLiquidityTokenInput = ({
   const amountList = useMemo(() => currentAmounts.split(','), [currentAmounts])
 
   const share = useMemo(() => {
-    if (!pool) return undefined
-
     if ('liquidity' in pool && currentRoute?.positionDetails?.addedLiquidity) {
       try {
         const currentLiquidity = BigInt(pool.liquidity)
@@ -167,7 +153,7 @@ const AddLiquidityTokenInput = ({
       const previousAddresses = currentTokens.map(token => token.address.toLowerCase())
       const newTokens = nextTokens.filter(token => !previousAddresses.includes(token.address.toLowerCase()))
 
-      if (newTokens.length > 0 && pool) {
+      if (newTokens.length > 0) {
         const poolPair = `${pool.token0.symbol}/${pool.token1.symbol}`
         newTokens.forEach(token => {
           const isZap =
@@ -213,19 +199,22 @@ const AddLiquidityTokenInput = ({
         <TokenAmountInputSkeleton />
       )}
 
-      <ShareText>
-        Your Share: <b>{share ? formatDisplayNumber(share, { style: 'percent', significantDigits: 3 }) : '--'}</b> of
-        Active Liquidity
-      </ShareText>
+      <Text color={theme.subText} fontSize={12} fontStyle="italic" textAlign="right">
+        Your Share:{' '}
+        <Text as="span" color={theme.blue} fontStyle="normal" fontWeight={500}>
+          {share ? formatDisplayNumber(share, { style: 'percent', significantDigits: 3 }) : '--'}
+        </Text>{' '}
+        of Active Liquidity
+      </Text>
 
       <AddTokenButton type="button" onClick={() => openTokenSelectModalForToken()}>
-        <Text>+ Add Token(s)</Text>
+        + Add Token(s)
         <InfoHelper
           noneMarginLeft
           placement="bottom"
           text={t`You can zap in with up to ${MAX_TOKENS} tokens`}
-          color="#31cb9e"
-          width="300px"
+          color={theme.primary}
+          width="280px"
         />
       </AddTokenButton>
 

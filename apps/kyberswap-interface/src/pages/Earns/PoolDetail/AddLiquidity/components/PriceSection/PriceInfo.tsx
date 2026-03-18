@@ -1,5 +1,4 @@
-import { Pool, defaultToken } from '@kyber/schema'
-import { Skeleton } from '@kyber/ui'
+import { Pool } from '@kyber/schema'
 import { rgba } from 'polished'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -23,28 +22,12 @@ const RevertButton = styled.button`
   cursor: pointer;
 
   :hover {
-    filter: brightness(1.08);
+    filter: brightness(1.12);
   }
 `
 
-const Warning = styled(Text)`
-  margin: 0;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: ${({ theme }) => rgba(theme.warning, 0.2)};
-  color: ${({ theme }) => theme.text};
-  font-size: 12px;
-  font-style: italic;
-`
-
-const CurrentPriceRow = styled(HStack)`
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
-  font-weight: 400;
-`
-
 interface PriceInfoProps {
-  pool?: Pool | null
+  pool: Pool
   poolPrice: number | null
   revertPrice: boolean
   onRevertPriceToggle?: () => void
@@ -52,41 +35,37 @@ interface PriceInfoProps {
 
 export default function PriceInfo({ pool, poolPrice, revertPrice, onRevertPriceToggle }: PriceInfoProps) {
   const theme = useTheme()
-  const token0 = !pool ? defaultToken : revertPrice ? pool.token1 : pool.token0
-  const token1 = !pool ? defaultToken : revertPrice ? pool.token0 : pool.token1
+  const token0 = revertPrice ? pool.token1 : pool.token0
+  const token1 = revertPrice ? pool.token0 : pool.token1
 
   return (
-    <Stack
-      gap={8}
-      p="8px 12px"
-      border={`1px solid ${theme.tabActive}`}
-      borderRadius={12}
-      background="rgba(255, 255, 255, 0.01)"
-    >
-      <HStack align="center" gap={12} justify="space-between">
-        <CurrentPriceRow flex="1 1 auto" align="center" gap={8} wrap="wrap">
-          <Text color={theme.subText} m={0}>
+    <Stack border={`1px solid ${theme.border}`} borderRadius={12} gap={8} p="8px 12px">
+      <HStack align="center" justify="space-between" gap={12}>
+        <HStack flex="1 1 auto" align="center" gap={8} wrap="wrap">
+          <Text color={theme.subText} fontSize={14}>
             Current Price
           </Text>
-          {!pool ? (
-            <Skeleton style={{ width: '120px', height: '20px' }} />
-          ) : (
-            <HStack gap={4}>
-              <Text m={0}>1</Text>
-              <Text m={0}>{token0.symbol}</Text>
-              <Text m={0}>=</Text>
-              <Text m={0}>{formatDisplayNumber(poolPrice, { significantDigits: 8 })}</Text>
-              <Text m={0}>{token1.symbol}</Text>
-            </HStack>
-          )}
-        </CurrentPriceRow>
+          <HStack color={theme.text} gap={4} wrap="wrap" fontSize={14}>
+            <Text>1</Text>
+            <Text>{token0.symbol}</Text>
+            <Text>=</Text>
+            <Text>{formatDisplayNumber(poolPrice, { significantDigits: 8 })}</Text>
+            <Text>{token1.symbol}</Text>
+          </HStack>
+        </HStack>
 
         <RevertButton aria-label="Reverse price" onClick={onRevertPriceToggle} type="button">
           <RevertPriceIcon width={12} height={12} />
         </RevertButton>
       </HStack>
 
-      {poolPrice === null && pool && <Warning>Unable to get the market price. Please be cautious.</Warning>}
+      {poolPrice === null && (
+        <Stack borderRadius={8} background={rgba(theme.warning, 0.12)} p="8px 12px">
+          <Text color={theme.text} fontSize={12} fontStyle="italic">
+            Unable to get the market price. Please be cautious.
+          </Text>
+        </Stack>
+      )}
     </Stack>
   )
 }

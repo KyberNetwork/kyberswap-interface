@@ -7,12 +7,12 @@ import PriceInput, { PriceInputType } from 'pages/Earns/PoolDetail/AddLiquidity/
 import RangePresetSelector from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection/RangePresetSelector'
 
 interface PriceSectionProps {
-  context?: {
+  context: {
     chainId: number
     poolType: PoolType
     pool: Pool
   }
-  value?: {
+  value: {
     poolPrice: number | null
     revertPrice: boolean
     minPrice: string | null
@@ -34,8 +34,6 @@ export default function PriceSection({
   onTickLowerChange,
   onTickUpperChange,
 }: PriceSectionProps) {
-  if (!context || !value) return null
-
   return (
     <Stack gap={16}>
       <PriceInfo

@@ -1,12 +1,13 @@
 import { formatAprNumber } from '@kyber/utils'
 import { shortenAddress } from '@kyber/utils/crypto'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { rgba } from 'polished'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import CopyHelper from 'components/Copy'
-import { HStack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -27,22 +28,13 @@ const BackButton = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.text};
   cursor: pointer;
+
   :hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: ${({ theme }) => theme.tabActive};
   }
 `
 
-const HeaderRow = styled(HStack)`
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  min-width: 0;
-  padding: 0;
-  width: 100%;
-`
-
 const PairTitle = styled(Text)`
-  margin: 0;
   font-size: 24px;
   font-weight: 500;
   white-space: nowrap;
@@ -52,51 +44,25 @@ const ProtocolBadge = styled(HStack)`
   min-height: 32px;
   padding: 8px 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
+  background: ${({ theme }) => theme.buttonGray};
   white-space: nowrap;
 `
 
 const AprBadge = styled(Text)`
   display: flex;
   align-items: center;
-  margin: 0;
-  min-height: 32px;
+  min-height: 34px;
   padding: 4px 12px;
   border-radius: 12px;
-  background: rgba(49, 203, 158, 0.18);
+  background: ${({ theme }) => rgba(theme.primary, 0.12)};
+  color: ${({ theme }) => theme.primary};
   white-space: nowrap;
 `
 
 const ProtocolLogo = styled.img`
   flex: 0 0 auto;
-  height: 14px;
-  object-fit: contain;
-  width: 14px;
-`
-
-const PairInfoTrigger = styled(HStack)`
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-`
-
-const TooltipContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 240px;
-`
-
-const TooltipRow = styled(HStack)`
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-`
-
-const TooltipAddress = styled(Text)`
-  margin: 0;
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
+  height: 16px;
+  width: 16px;
 `
 
 const PoolHeader = () => {
@@ -110,9 +76,9 @@ const PoolHeader = () => {
   const chainInfo = poolParams.poolChainId ? NETWORKS_INFO[poolParams.poolChainId as ChainId] : undefined
 
   const pairTooltip = (
-    <TooltipContent>
+    <Stack minWidth={240} gap={12}>
       {pool && (
-        <TooltipRow>
+        <HStack align="center" gap={8} wrap="wrap">
           <HStack flex="0 0 auto" align="center" gap={0}>
             <TokenLogo src={primaryToken?.logoURI} size={18} />
             <TokenLogo src={secondaryToken?.logoURI} size={18} translateLeft />
@@ -120,45 +86,51 @@ const PoolHeader = () => {
           <Text color={theme.text} fontSize={14} fontWeight={500}>
             {primaryToken?.symbol}/{secondaryToken?.symbol}
           </Text>
-          <TooltipAddress>{shortenAddress(pool.address, 4)}</TooltipAddress>
+          <Text color={theme.subText} fontSize={14}>
+            {shortenAddress(pool.address, 4)}
+          </Text>
           <CopyHelper size={14} margin="0" toCopy={pool.address} />
-        </TooltipRow>
+        </HStack>
       )}
 
       {primaryToken && (
-        <TooltipRow>
+        <HStack align="center" gap={8} wrap="wrap">
           <TokenLogo src={primaryToken?.logoURI} size={18} />
           <Text color={theme.text} fontSize={14} fontWeight={500}>
             {primaryToken?.symbol}
           </Text>
-          <TooltipAddress>{shortenAddress(primaryToken.address, 4)}</TooltipAddress>
+          <Text color={theme.subText} fontSize={14}>
+            {shortenAddress(primaryToken.address, 4)}
+          </Text>
           <CopyHelper size={14} margin="0" toCopy={primaryToken.address} />
-        </TooltipRow>
+        </HStack>
       )}
 
       {secondaryToken && (
-        <TooltipRow>
+        <HStack align="center" gap={8} wrap="wrap">
           <TokenLogo src={secondaryToken?.logoURI} size={18} />
           <Text color={theme.text} fontSize={14} fontWeight={500}>
             {secondaryToken?.symbol}
           </Text>
-          <TooltipAddress>{shortenAddress(secondaryToken.address, 4)}</TooltipAddress>
+          <Text color={theme.subText} fontSize={14}>
+            {shortenAddress(secondaryToken.address, 4)}
+          </Text>
           <CopyHelper size={14} margin="0" toCopy={secondaryToken.address} />
-        </TooltipRow>
+        </HStack>
       )}
-    </TooltipContent>
+    </Stack>
   )
 
   return (
-    <HeaderRow>
+    <HStack align="center" gap={8} wrap="wrap">
       <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
         <IconArrowLeft />
       </BackButton>
 
-      <HStack align="center" gap={8} wrap="wrap" minWidth={0}>
-        <MouseoverTooltipDesktopOnly text={pairTooltip} width="fit-content" placement="bottom">
-          <PairInfoTrigger>
-            <HStack flex="0 0 auto" align="flex-end" gap={0}>
+      <HStack minWidth={0} align="center" gap={12} wrap="wrap">
+        <MouseoverTooltipDesktopOnly placement="bottom" text={pairTooltip} width="fit-content">
+          <HStack minWidth={0} align="center" gap={8}>
+            <HStack flex="0 0 auto" align="flex-end">
               <TokenLogo src={primaryToken?.logoURI} size={28} />
               <TokenLogo src={secondaryToken?.logoURI} size={28} translateLeft />
               <TokenLogo src={chainInfo?.icon} size={16} translateLeft translateTop />
@@ -167,7 +139,7 @@ const PoolHeader = () => {
             <PairTitle color={theme.text}>
               {primaryToken?.symbol || '---'}/{secondaryToken?.symbol || '---'}
             </PairTitle>
-          </PairInfoTrigger>
+          </HStack>
         </MouseoverTooltipDesktopOnly>
 
         <ProtocolBadge align="center" gap={8}>
@@ -180,11 +152,11 @@ const PoolHeader = () => {
           </Text>
         </ProtocolBadge>
 
-        <AprBadge color={theme.primary} fontSize={20} fontWeight={600}>
+        <AprBadge fontSize={20} fontWeight={500}>
           {formatAprNumber(pool?.allApr ?? pool?.poolStats?.allApr24h ?? 0)}%
         </AprBadge>
       </HStack>
-    </HeaderRow>
+    </HStack>
   )
 }
 
