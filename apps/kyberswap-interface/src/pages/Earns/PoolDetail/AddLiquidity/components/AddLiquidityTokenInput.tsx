@@ -25,6 +25,10 @@ const AddTokenButton = styled.button`
   gap: 6px;
   padding: 0;
   width: fit-content;
+
+  :hover {
+    filter: brightness(1.2);
+  }
 `
 
 const ShareText = styled.div`

@@ -55,6 +55,7 @@ export interface ReviewTokenItem {
 }
 
 export interface ReviewWarningItem {
+  kind: 'remaining' | 'zap_impact' | 'out_of_range' | 'full_range' | 'price_deviation'
   tone: 'info' | 'warning' | 'error'
   message: string
 }
@@ -310,6 +311,7 @@ const buildWarnings = ({
     const remainingRatio = remainingUsd / totalInputUsd
     if (remainingRatio >= route.zapDetails.suggestedSlippage / 10_000) {
       warnings.push({
+        kind: 'remaining',
         tone: 'warning',
         message: `${(remainingRatio * 100).toFixed(
           2,
@@ -320,6 +322,7 @@ const buildWarnings = ({
 
   if (zapImpact && zapImpact.level !== PI_LEVEL.NORMAL) {
     warnings.push({
+      kind: 'zap_impact',
       tone: zapImpact.level === PI_LEVEL.HIGH ? 'warning' : 'error',
       message: zapImpact.msg,
     })
@@ -331,6 +334,7 @@ const buildWarnings = ({
       const isOutOfRangeAfterZap = nextPoolDetails.newTick < tickLower || nextPoolDetails.newTick >= tickUpper
       if (isOutOfRangeAfterZap) {
         warnings.push({
+          kind: 'out_of_range',
           tone: 'info',
           message:
             'Your liquidity is outside the current market range and will not be used or earn fees until the market price enters your specified range.',
@@ -341,6 +345,7 @@ const buildWarnings = ({
 
   if ('minTick' in pool && 'maxTick' in pool && tickLower === pool.minTick && tickUpper === pool.maxTick) {
     warnings.push({
+      kind: 'full_range',
       tone: 'info',
       message:
         'Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity.',
@@ -349,6 +354,7 @@ const buildWarnings = ({
 
   if (isPoolPriceDeviated(poolPrice || null, estimatedPriceAfterZap)) {
     warnings.push({
+      kind: 'price_deviation',
       tone: 'warning',
       message: `The pool's estimated price after zapping of 1 ${displayToken0.symbol} = ${formatDisplayNumber(
         estimatedPriceAfterZap,

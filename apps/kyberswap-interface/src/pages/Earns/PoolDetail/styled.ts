@@ -2,6 +2,8 @@ import styled from 'styled-components'
 
 import { PoolPageWrapper } from 'pages/Earns/PoolExplorer/styles'
 
+type NoteCardTone = 'info' | 'warning' | 'error'
+
 export const PoolDetailWrapper = styled(PoolPageWrapper)`
   padding: 32px 24px 68px;
   margin: 0 auto;
@@ -13,12 +15,18 @@ export const PoolDetailWrapper = styled(PoolPageWrapper)`
   `}
 `
 
-export const NoteCard = styled.div<{ $warning?: boolean }>`
-  padding: 12px 14px;
-  border-radius: 14px;
+export const NoteCard = styled.div<{ $warning?: boolean; $tone?: NoteCardTone }>`
+  padding: 8px 12px;
+  border-radius: 12px;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
-  line-height: 1.6;
-  background: ${({ theme, $warning }) => ($warning ? `${theme.warning}1f` : `${theme.primary}14`)};
-  border: 1px solid ${({ theme, $warning }) => ($warning ? `${theme.warning}40` : `${theme.primary}26`)};
+  background: ${({ theme, $warning, $tone }) => {
+    const tone = $tone || ($warning ? 'warning' : 'info')
+    return tone === 'error' ? `${theme.red}14` : tone === 'warning' ? `${theme.warning}1f` : `${theme.primary}14`
+  }};
+  border: 1px solid
+    ${({ theme, $warning, $tone }) => {
+      const tone = $tone || ($warning ? 'warning' : 'info')
+      return tone === 'error' ? `${theme.red}40` : tone === 'warning' ? `${theme.warning}40` : `${theme.primary}26`
+    }};
 `

@@ -1,8 +1,7 @@
-import { NATIVE_TOKEN_ADDRESS, PoolType, Pool as ZapPool } from '@kyber/schema'
+import { PoolType, Pool as ZapPool } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Text } from 'rebass'
-import { useGetHoneypotInfoQuery } from 'services/zapInService'
 import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -14,9 +13,9 @@ import PriceSection from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSe
 import SlippageControl from 'pages/Earns/PoolDetail/AddLiquidity/components/SlippageControl'
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
 import useApproval from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useApproval'
+import useFeedback from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
 import useZapActions from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapActions'
 import useZapState from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
-import { getSecurityWarnings } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 
 const FormStack = styled(Stack)`
@@ -47,8 +46,9 @@ interface AddLiquidityWidgetPreview {
 interface AddLiquidityWidgetProps {
   context: AddLiquidityWidgetContext
   state: ReturnType<typeof useZapState>
-  isZapImpactBlocked: boolean
   preview?: AddLiquidityWidgetPreview
+  feedback: ReturnType<typeof useFeedback>['widget']
+  isZapImpactBlocked: boolean
   onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
   onCancel?: () => void
 }
@@ -56,8 +56,9 @@ interface AddLiquidityWidgetProps {
 export default function AddLiquidityWidget({
   context,
   state,
-  isZapImpactBlocked,
   preview,
+  feedback,
+  isZapImpactBlocked,
   onTrackEvent,
   onCancel,
 }: AddLiquidityWidgetProps) {
@@ -67,28 +68,6 @@ export default function AddLiquidityWidget({
   const [highlightDegenMode, setHighlightDegenMode] = useState(false)
 
   const route = state.route.data
-  const validationError = state.validation.error
-
-  const tokensToCheck = useMemo(() => {
-    return [pool.token0, pool.token1].filter(
-      token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase(),
-    )
-  }, [pool])
-
-  const { data: honeypotInfoMap } = useGetHoneypotInfoQuery(
-    {
-      chainId: poolChainId || ChainId.MAINNET,
-      addresses: tokensToCheck.map(token => token.address),
-    },
-    {
-      skip: !tokensToCheck.length,
-    },
-  )
-
-  const securityWarnings = useMemo(
-    () => getSecurityWarnings({ tokens: tokensToCheck, honeypotInfoMap }),
-    [honeypotInfoMap, tokensToCheck],
-  )
 
   const approval = useApproval({
     tokensIn: state.tokenInput.tokens,
@@ -96,7 +75,6 @@ export default function AddLiquidityWidget({
     route,
   })
 
-  const shouldShowFeedback = Boolean(account)
   const openDegenModeSetting = () => {
     setIsSettingsOpen(true)
     setHighlightDegenMode(true)
@@ -199,16 +177,18 @@ export default function AddLiquidityWidget({
         </>
       )}
 
-      {shouldShowFeedback && validationError ? <NoteCard $warning>{validationError}</NoteCard> : null}
-      {shouldShowFeedback &&
-        securityWarnings.map(message => (
-          <NoteCard key={message} $warning>
-            {message}
-          </NoteCard>
-        ))}
-      {shouldShowFeedback && !validationError && state.route.error ? (
-        <NoteCard $warning>{state.route.error}</NoteCard>
-      ) : null}
+      {feedback.validationWarning ? <NoteCard $warning>{feedback.validationWarning}</NoteCard> : null}
+      {feedback.securityWarnings.map(message => (
+        <NoteCard key={message} $warning>
+          {message}
+        </NoteCard>
+      ))}
+      {feedback.routeWarning ? <NoteCard $warning>{feedback.routeWarning}</NoteCard> : null}
+      {feedback.blockingWarnings.map(warning => (
+        <NoteCard key={warning.message} $tone={warning.tone}>
+          {warning.message}
+        </NoteCard>
+      ))}
 
       <SlippageControl
         context={{

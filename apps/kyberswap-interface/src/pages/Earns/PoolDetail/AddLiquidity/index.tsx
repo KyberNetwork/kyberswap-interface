@@ -5,7 +5,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { BuildZapInData, useBuildZapInRouteMutation } from 'services/zapInService'
-import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -23,6 +22,7 @@ import {
   AddLiquiditySubmitTxData,
   useAddLiquidityRuntimeContext,
 } from 'pages/Earns/PoolDetail/AddLiquidity/context'
+import useFeedback from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
 import useReviewData from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useReviewData'
 import useZapPool from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool'
 import useZapState from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
@@ -57,13 +57,6 @@ const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   PRICE_RANGE_ADJUSTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_ADJUSTED,
   LIQ_MAX_SLIPPAGE_CHANGED: TRACKING_EVENT_TYPE.LIQ_MAX_SLIPPAGE_CHANGED,
 }
-
-const WarningCard = styled(NoteCard)<{ $tone: 'info' | 'warning' | 'error' }>`
-  background: ${({ theme, $tone }) =>
-    $tone === 'error' ? `${theme.red}14` : $tone === 'warning' ? `${theme.warning}1f` : `${theme.primary}14`};
-  border-color: ${({ theme, $tone }) =>
-    $tone === 'error' ? `${theme.red}40` : $tone === 'warning' ? `${theme.warning}40` : `${theme.primary}26`};
-`
 
 const getModalTxStatus = (status?: TxStatus): '' | 'success' | 'failed' | 'cancelled' => {
   if (status === TxStatus.SUCCESS) return 'success'
@@ -137,6 +130,15 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
     review.estimate?.zapImpact !== null &&
     review.estimate?.zapImpact !== undefined &&
     ['VERY_HIGH', 'INVALID'].includes(review.estimate.zapImpact.level)
+
+  const feedback = useFeedback({
+    account,
+    poolChainId: chainId,
+    pool: normalizedPool.data,
+    state,
+    review,
+    isZapImpactBlocked,
+  })
 
   const [isReviewOpen, setIsReviewOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -286,28 +288,22 @@ function AddLiquidityBody({ children, onTrackEvent, showPriceRangeSkeleton }: Ad
             pool: normalizedPool.data,
           }}
           state={state}
-          isZapImpactBlocked={isZapImpactBlocked}
           preview={{
             loading: buildRouteLoading,
             onPreview: handlePreview,
           }}
+          feedback={feedback.widget}
+          isZapImpactBlocked={isZapImpactBlocked}
           onTrackEvent={onTrackEvent}
           onCancel={() => navigate(-1)}
         />
 
-        {account && !state.route.error ? (
+        {feedback.page.warnings.length ? (
           <Stack gap={12}>
-            {isZapImpactBlocked ? (
-              <WarningCard $tone="error">
-                To protect against very high zap impact, preview is disabled for this route. Turn on Degen Mode in
-                settings if you still want to continue.
-              </WarningCard>
-            ) : null}
-
-            {review.warnings.map((warning, index) => (
-              <WarningCard key={`${warning.tone}-${index}`} $tone={warning.tone}>
+            {feedback.page.warnings.map((warning, index) => (
+              <NoteCard key={`${warning.kind}-${index}`} $tone={warning.tone}>
                 {translateZapMessage(warning.message)}
-              </WarningCard>
+              </NoteCard>
             ))}
           </Stack>
         ) : null}

@@ -67,6 +67,10 @@ const SummaryButton = styled.button`
   cursor: pointer;
   font-size: 14px;
   font-weight: 400;
+
+  :hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
 `
 
 const Controls = styled.div`
@@ -135,6 +139,10 @@ const Suggestion = styled.button`
   font-size: 12px;
   padding: 0;
   margin-left: 12px;
+
+  :hover {
+    filter: brightness(1.2);
+  }
 `
 
 const Message = styled.div<{ $warning?: boolean }>`
