@@ -9,7 +9,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 const RoutePreviewSkeleton = () => {
   return (
-    <HStack width="100%" alignItems="center" justifyContent="space-between">
+    <HStack width="100%" align="center" justify="space-between" gap={24}>
       <PositionSkeleton width={240} height={68} />
       <PositionSkeleton width={120} height={36} />
       <PositionSkeleton width={240} height={68} />

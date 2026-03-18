@@ -137,6 +137,7 @@ const getMaxApr = (pool?: Pool) =>
 const InformationTab = ({ pool }: InformationTabProps) => {
   const theme = useTheme()
   const [aprInterval, setAprInterval] = useState<AprPeriod>('7D')
+
   const intervalActiveIndex = APR_PERIOD_OPTIONS.findIndex(option => option.value === aprInterval)
   const poolStats = pool?.poolStats
 

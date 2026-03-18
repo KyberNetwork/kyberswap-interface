@@ -11,6 +11,7 @@ import { HStack, Stack } from 'components/Stack'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { useDegenModeManager } from 'state/user/hooks'
 
 const PRESET_SLIPPAGE_OPTIONS = [5, 10, 50, 100]
@@ -154,7 +155,7 @@ const Caret = styled(ChevronDown)<{ $open: boolean }>`
   transition: transform 0.2s ease;
 `
 
-interface SlippageControlProps {
+type SlippageControlProps = {
   context: {
     chainId: number
     poolType: PoolType
@@ -185,8 +186,8 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
   const token1Symbol = pool.token1.symbol
   const feeTier = pool.fee || 0
 
-  const dexNameObj = DEXES_INFO[poolType]?.name
-  const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]
+  const dexNameInfo = DEXES_INFO[poolType]?.name
+  const dexName = !dexNameInfo ? '' : typeof dexNameInfo === 'string' ? dexNameInfo : dexNameInfo[chainId]
   const { isValid, message } = validateSlippageInput(customValue, suggestedSlippage, isDegenMode)
   const appliedSlippageValidation = validateSlippageInput(
     slippage ? formatSlippageInput(slippage) : '',
@@ -350,13 +351,7 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
         </Suggestion>
       )}
 
-      {messageToShow && (
-        <Stack borderRadius={12} background={isValid ? rgba(theme.warning, 0.12) : rgba(theme.red, 0.12)} p="8px 12px">
-          <Text color={isValid ? theme.warning : theme.red} fontSize={14}>
-            {messageToShow}
-          </Text>
-        </Stack>
-      )}
+      {messageToShow && <NoteCard $tone={isValid ? 'warning' : 'error'}>{messageToShow}</NoteCard>}
     </Stack>
   )
 }

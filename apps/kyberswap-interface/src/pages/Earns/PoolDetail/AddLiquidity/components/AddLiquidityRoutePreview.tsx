@@ -1,6 +1,6 @@
 import { AddLiquidityAction, Pool, Token, ZapAction, ZapRouteDetail } from '@kyber/schema'
 import { formatUnits } from '@kyber/utils'
-import { Fragment, useMemo } from 'react'
+import { Fragment } from 'react'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -118,7 +118,7 @@ type RouteTokenItem = {
   amount?: number
 }
 
-interface AddLiquidityRoutePreviewProps {
+type AddLiquidityRoutePreviewProps = {
   inputTokens?: Token[]
   inputAmounts?: string
   pool?: Pool | null
@@ -195,32 +195,28 @@ const PreviewAssetCard = ({ items, usdAmount }: { items: RouteTokenItem[]; usdAm
 
 const AddLiquidityRoutePreview = ({ inputTokens, inputAmounts, pool, zapRoute }: AddLiquidityRoutePreviewProps) => {
   const theme = useTheme()
-  const amountList = useMemo(() => inputAmounts?.split(',') ?? [], [inputAmounts])
+  const amountList = inputAmounts?.split(',') ?? []
+  const addLiquidityAction = zapRoute?.zapDetails.actions.find(
+    (item): item is AddLiquidityAction => item.type === ZapAction.ADD_LIQUIDITY,
+  )
 
-  const inputItems = useMemo(() => {
-    return (inputTokens ?? []).map((token, index) => ({
-      token,
-      amount: parseInputAmount(amountList[index]),
-    }))
-  }, [amountList, inputTokens])
+  const inputItems = (inputTokens ?? []).map((token, index) => ({
+    token,
+    amount: parseInputAmount(amountList[index]),
+  }))
 
-  const outputItems = useMemo(() => {
-    if (!pool) return []
-    const addLiquidityAction = zapRoute?.zapDetails.actions.find(
-      (item): item is AddLiquidityAction => item.type === ZapAction.ADD_LIQUIDITY,
-    )
-
-    return [
-      {
-        token: pool.token0,
-        amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token0.amount, pool.token0.decimals),
-      },
-      {
-        token: pool.token1,
-        amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token1.amount, pool.token1.decimals),
-      },
-    ]
-  }, [zapRoute, pool])
+  const outputItems = !pool
+    ? []
+    : [
+        {
+          token: pool.token0,
+          amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token0.amount, pool.token0.decimals),
+        },
+        {
+          token: pool.token1,
+          amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token1.amount, pool.token1.decimals),
+        },
+      ]
 
   return (
     <FlowRow>

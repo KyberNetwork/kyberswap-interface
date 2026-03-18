@@ -12,7 +12,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 export type AprPeriod = '24H' | '7D' | '30D'
 
-export interface AprChartPoint {
+export type AprChartPoint = {
   label: AprPeriod
   value?: number
   lpApr?: number
@@ -21,17 +21,22 @@ export interface AprChartPoint {
   lpFeeUsd?: number
 }
 
-interface InformationAprChartProps {
+type InformationAprChartProps = {
   pool?: Pool
   aprInterval: AprPeriod
 }
 
-interface ChartSeriesPoint extends Omit<AprChartPoint, 'value'> {
+type ChartSeriesPoint = Omit<AprChartPoint, 'value'> & {
   value: number
   periodLabel: string
   position: number
   isAnchor: boolean
   periodKey?: AprPeriod
+}
+
+type AprChartTooltipProps = {
+  active?: boolean
+  point?: ChartSeriesPoint
 }
 
 const ChartWrapper = styled.div`
@@ -58,6 +63,10 @@ const TooltipGrid = styled.div`
   gap: 8px 16px;
   margin-top: 12px;
 `
+
+const formatApr = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
+
+const formatCurrency = (value?: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
 const getYAxisTicks = (maxValue: number) => {
   const safeMax = maxValue > 0 ? maxValue : 1
@@ -188,13 +197,54 @@ const buildSyntheticSeries = (points: AprChartPoint[]) => {
   return series
 }
 
+const AprChartTooltip = ({ active, point }: AprChartTooltipProps) => {
+  const theme = useTheme()
+
+  if (!active || !point) return null
+
+  return (
+    <TooltipCard>
+      <Text color={theme.subText} fontSize={12}>
+        {point.periodLabel}
+      </Text>
+      <Text color={theme.text} fontWeight={500}>
+        {formatApr(point.value)}
+      </Text>
+      <TooltipGrid>
+        <Text color={theme.subText} fontSize={12}>
+          LP APR
+        </Text>
+        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+          {formatApr(point.lpApr)}
+        </Text>
+        <Text color={theme.subText} fontSize={12}>
+          Reward APR
+        </Text>
+        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+          {formatApr(point.rewardApr)}
+        </Text>
+        <Text color={theme.subText} fontSize={12}>
+          Volume
+        </Text>
+        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+          {formatCurrency(point.volumeUsd)}
+        </Text>
+        <Text color={theme.subText} fontSize={12}>
+          Fees
+        </Text>
+        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+          {formatCurrency(point.lpFeeUsd)}
+        </Text>
+      </TooltipGrid>
+    </TooltipCard>
+  )
+}
+
 const InformationAprChart = ({ pool, aprInterval }: InformationAprChartProps) => {
   const theme = useTheme()
-  const chartColor = theme.blue
 
   const chartData = useMemo(() => buildSyntheticSeries(buildAnchorPoints(pool)), [pool])
   const xAxisTicks = useMemo(() => chartData.filter(item => item.isAnchor).map(item => item.position), [chartData])
-
   const yAxisTicks = useMemo(() => getYAxisTicks(Math.max(...chartData.map(item => item.value), 0)), [chartData])
 
   if (!chartData.length) {
@@ -242,59 +292,11 @@ const InformationAprChart = ({ pool, aprInterval }: InformationAprChartProps) =>
             width={72}
           />
           <Tooltip
-            content={({ active, payload }) => {
-              const value = payload?.[0]?.value
-              const label = payload?.[0]?.payload?.periodLabel
-              if (!active || value === undefined || !label) return null
-
-              return (
-                <TooltipCard>
-                  <Text color={theme.subText} fontSize={12}>
-                    {label}
-                  </Text>
-                  <Text color={theme.text} fontWeight={500}>
-                    {`${formatAprNumber(Number(value))}%`}
-                  </Text>
-                  <TooltipGrid>
-                    <Text color={theme.subText} fontSize={12}>
-                      LP APR
-                    </Text>
-                    <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-                      {payload?.[0]?.payload.lpApr || payload?.[0]?.payload.lpApr === 0
-                        ? `${formatAprNumber(payload?.[0]?.payload.lpApr)}%`
-                        : '--'}
-                    </Text>
-                    <Text color={theme.subText} fontSize={12}>
-                      Reward APR
-                    </Text>
-                    <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-                      {payload?.[0]?.payload.rewardApr || payload?.[0]?.payload.rewardApr === 0
-                        ? `${formatAprNumber(payload?.[0]?.payload.rewardApr)}%`
-                        : '--'}
-                    </Text>
-                    <Text color={theme.subText} fontSize={12}>
-                      Volume
-                    </Text>
-                    <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-                      {formatDisplayNumber(payload?.[0]?.payload.volumeUsd, {
-                        style: 'currency',
-                        significantDigits: 6,
-                      })}
-                    </Text>
-                    <Text color={theme.subText} fontSize={12}>
-                      Fees
-                    </Text>
-                    <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-                      {formatDisplayNumber(payload?.[0]?.payload.lpFeeUsd, { style: 'currency', significantDigits: 6 })}
-                    </Text>
-                  </TooltipGrid>
-                </TooltipCard>
-              )
-            }}
+            content={({ active, payload }) => <AprChartTooltip active={active} point={payload?.[0]?.payload} />}
             cursor={{ stroke: rgba(theme.border, 0.24), strokeDasharray: '4 4' }}
           />
           <Line
-            activeDot={{ r: 7, fill: chartColor, stroke: theme.buttonBlack, strokeWidth: 3 }}
+            activeDot={{ r: 7, fill: theme.blue, stroke: theme.buttonBlack, strokeWidth: 3 }}
             dataKey="value"
             dot={({ cx, cy, payload }) => {
               const hasValidPosition = typeof cx === 'number' && typeof cy === 'number'
@@ -305,7 +307,7 @@ const InformationAprChart = ({ pool, aprInterval }: InformationAprChartProps) =>
                 <circle
                   cx={hasValidPosition ? cx : 0}
                   cy={hasValidPosition ? cy : 0}
-                  fill={chartColor}
+                  fill={theme.blue}
                   key={dotKey}
                   opacity={hasValidPosition ? (payload.periodKey === aprInterval ? 1 : 0.6) : 0}
                   r={payload.periodKey === aprInterval ? 6 : 3.5}
@@ -314,7 +316,7 @@ const InformationAprChart = ({ pool, aprInterval }: InformationAprChartProps) =>
                 />
               )
             }}
-            stroke={chartColor}
+            stroke={theme.blue}
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={3}

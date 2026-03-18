@@ -13,6 +13,7 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import { PoolToken } from 'pages/Earns/PoolDetail/types'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 
@@ -61,65 +62,35 @@ const AprBadge = styled(Text)`
 
 const ProtocolLogo = styled.img`
   flex: 0 0 auto;
-  height: 16px;
   width: 16px;
+  height: 16px;
 `
 
+const TooltipAddressRow = ({ token }: { token: PoolToken }) => {
+  return (
+    <HStack align="center" gap={8} wrap="wrap">
+      {token.logoURI ? <TokenLogo src={token.logoURI} size={18} /> : null}
+      <Text color="inherit" fontSize={14} fontWeight={500}>
+        {token.symbol}
+      </Text>
+      <Text color="inherit" fontSize={14}>
+        {shortenAddress(token.address, 4)}
+      </Text>
+      <CopyHelper margin="0" size={14} toCopy={token.address} />
+    </HStack>
+  )
+}
+
 const PoolHeader = () => {
-  const { pool, poolParams } = usePoolDetailContext()
   const navigate = useNavigate()
   const theme = useTheme()
+  const { pool, poolParams } = usePoolDetailContext()
 
-  const primaryToken = pool?.tokens?.[0]
-  const secondaryToken = pool?.tokens?.[1]
+  const primaryToken = pool.tokens[0]
+  const secondaryToken = pool.tokens[1]
+
   const dexInfo = poolParams.exchange ? EARN_DEXES[poolParams.exchange as Exchange] : undefined
   const chainInfo = poolParams.poolChainId ? NETWORKS_INFO[poolParams.poolChainId as ChainId] : undefined
-
-  const pairTooltip = (
-    <Stack minWidth={240} gap={12}>
-      {pool && (
-        <HStack align="center" gap={8} wrap="wrap">
-          <HStack flex="0 0 auto" align="center" gap={0}>
-            <TokenLogo src={primaryToken?.logoURI} size={18} />
-            <TokenLogo src={secondaryToken?.logoURI} size={18} translateLeft />
-          </HStack>
-          <Text color={theme.text} fontSize={14} fontWeight={500}>
-            {primaryToken?.symbol}/{secondaryToken?.symbol}
-          </Text>
-          <Text color={theme.subText} fontSize={14}>
-            {shortenAddress(pool.address, 4)}
-          </Text>
-          <CopyHelper size={14} margin="0" toCopy={pool.address} />
-        </HStack>
-      )}
-
-      {primaryToken && (
-        <HStack align="center" gap={8} wrap="wrap">
-          <TokenLogo src={primaryToken?.logoURI} size={18} />
-          <Text color={theme.text} fontSize={14} fontWeight={500}>
-            {primaryToken?.symbol}
-          </Text>
-          <Text color={theme.subText} fontSize={14}>
-            {shortenAddress(primaryToken.address, 4)}
-          </Text>
-          <CopyHelper size={14} margin="0" toCopy={primaryToken.address} />
-        </HStack>
-      )}
-
-      {secondaryToken && (
-        <HStack align="center" gap={8} wrap="wrap">
-          <TokenLogo src={secondaryToken?.logoURI} size={18} />
-          <Text color={theme.text} fontSize={14} fontWeight={500}>
-            {secondaryToken?.symbol}
-          </Text>
-          <Text color={theme.subText} fontSize={14}>
-            {shortenAddress(secondaryToken.address, 4)}
-          </Text>
-          <CopyHelper size={14} margin="0" toCopy={secondaryToken.address} />
-        </HStack>
-      )}
-    </Stack>
-  )
 
   return (
     <HStack align="center" gap={8} wrap="wrap">
@@ -128,7 +99,29 @@ const PoolHeader = () => {
       </BackButton>
 
       <HStack minWidth={0} align="center" gap={12} wrap="wrap">
-        <MouseoverTooltipDesktopOnly placement="bottom" text={pairTooltip} width="fit-content">
+        <MouseoverTooltipDesktopOnly
+          placement="bottom"
+          text={
+            <Stack minWidth={240} gap={12}>
+              <HStack align="center" gap={8} wrap="wrap">
+                <HStack flex="0 0 auto" align="center" gap={0}>
+                  <TokenLogo src={primaryToken.logoURI} size={18} />
+                  <TokenLogo src={secondaryToken.logoURI} size={18} translateLeft />
+                </HStack>
+                <Text color={theme.text} fontSize={14} fontWeight={500}>
+                  {primaryToken.symbol}/{secondaryToken.symbol}
+                </Text>
+                <Text color={theme.subText} fontSize={14}>
+                  {shortenAddress(pool.address, 4)}
+                </Text>
+                <CopyHelper size={14} margin="0" toCopy={pool.address} />
+              </HStack>
+              <TooltipAddressRow token={primaryToken} />
+              <TooltipAddressRow token={secondaryToken} />
+            </Stack>
+          }
+          width="fit-content"
+        >
           <HStack minWidth={0} align="center" gap={8}>
             <HStack flex="0 0 auto" align="flex-end">
               <TokenLogo src={primaryToken?.logoURI} size={28} />

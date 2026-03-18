@@ -38,7 +38,7 @@ const AprBanner = styled(HStack)`
   background: ${({ theme }) => rgba(theme.primary, 0.12)};
 `
 
-interface EstimatedPositionAprProps {
+type EstimatedPositionAprProps = {
   chainId?: number
   poolAddress?: string
   isFarming?: boolean
@@ -57,11 +57,11 @@ const EstimatedPositionApr = ({
 }: EstimatedPositionAprProps) => {
   const theme = useTheme()
   const hasInput = Boolean(route)
-  const positionLiquidity = route?.positionDetails?.addedLiquidity || null
-  const positionTvl = route?.positionDetails?.addedAmountUsd || null
-
   const debouncedLower = useDebounce(tickLower, 150)
   const debouncedUpper = useDebounce(tickUpper, 150)
+
+  const positionLiquidity = route?.positionDetails?.addedLiquidity || null
+  const positionTvl = route?.positionDetails?.addedAmountUsd || null
 
   const shouldSkip =
     !isFarming ||
@@ -131,7 +131,7 @@ const EstimatedPositionApr = ({
       <Text color={theme.text} fontSize={14}>
         Est. Position APR
       </Text>
-      <MouseoverTooltip placement="top" width={!aprData ? 'fit-content' : '320px'} text={tooltipContent}>
+      <MouseoverTooltip placement="top" width={aprData ? '320px' : 'fit-content'} text={tooltipContent}>
         <HStack minWidth={64} justify="flex-end">
           {isLoading ? (
             <Box height={17}>

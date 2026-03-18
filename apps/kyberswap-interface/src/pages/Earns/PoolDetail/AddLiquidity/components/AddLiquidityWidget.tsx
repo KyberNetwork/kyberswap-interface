@@ -25,19 +25,19 @@ const FormStack = styled(Stack)`
   background: ${({ theme }) => theme.background};
 `
 
-interface AddLiquidityWidgetContext {
+type AddLiquidityWidgetContext = {
   chainId: ChainId
   poolAddress: string
   poolType: PoolType
   pool: ZapPool
 }
 
-interface AddLiquidityWidgetPreview {
+type AddLiquidityWidgetPreview = {
   loading?: boolean
   onPreview?: () => Promise<void>
 }
 
-interface AddLiquidityWidgetProps {
+type AddLiquidityWidgetProps = {
   context: AddLiquidityWidgetContext
   state: ReturnType<typeof useZapState>
   preview?: AddLiquidityWidgetPreview
@@ -62,8 +62,8 @@ const AddLiquidityWidget = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [highlightDegenMode, setHighlightDegenMode] = useState(false)
 
-  const route = state.route.data
   const isUniV3 = state.priceRange.isUniV3
+  const route = state.route.data
 
   const approval = useApproval({
     tokensIn: state.tokenInput.tokens,
@@ -201,9 +201,9 @@ const AddLiquidityWidget = ({
       <HStack gap={16}>
         <ButtonOutlined onClick={onCancel}>Cancel</ButtonOutlined>
         <PrimaryActionButton
-          disabled={actions.isPrimaryActionDisabled}
-          onClick={() => void actions.handlePrimaryAction()}
           altDisabledStyle
+          onClick={() => void actions.handlePrimaryAction()}
+          disabled={actions.isPrimaryActionDisabled}
         >
           {actions.primaryActionText}
         </PrimaryActionButton>

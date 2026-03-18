@@ -41,11 +41,11 @@ type PoolInfoTab = (typeof POOL_INFO_TABS)[number]['id']
 const PoolInformation = () => {
   const theme = useTheme()
   const { pool } = usePoolDetailContext()
+
   const { activeTab, setActiveTab } = useTab<PoolInfoTab>({
     tabs: POOL_INFO_TABS.map(tab => tab.id),
     defaultTab: 'information',
   })
-
   const currentTab: PoolInfoTab = activeTab || 'information'
 
   return (

@@ -66,15 +66,15 @@ const TooltipPanel = styled(Stack)`
 `
 
 const DegenModeRow = styled(HStack)<{ $highlight?: boolean }>`
-  margin: 0px -6px;
+  margin: 0 -6px;
   padding: 4px 4px 4px 6px;
   border-radius: 999px;
-  background: ${({ theme, $highlight }) => ($highlight ? rgba(theme.warning, 0.12) : 'transparent')};
   border: 1px solid ${({ theme, $highlight }) => ($highlight ? rgba(theme.warning, 0.24) : 'transparent')};
+  background: ${({ theme, $highlight }) => ($highlight ? rgba(theme.warning, 0.12) : 'transparent')};
   transition: background 0.2s ease, padding 0.2s ease, margin 0.2s ease;
 `
 
-interface AddLiquiditySettingsProps {
+type AddLiquiditySettingsProps = {
   isOpen?: boolean
   onOpenChange?: React.Dispatch<React.SetStateAction<boolean>>
   highlightDegenMode?: boolean
@@ -132,7 +132,7 @@ const AddLiquiditySettings = ({
               Advanced Settings
             </Text>
             <DegenModeRow align="center" gap={12} justify="space-between" $highlight={highlightDegenMode}>
-              <Text color={theme.subText} fontSize={14} width="fit-content">
+              <Text color={theme.subText} fontSize={14}>
                 <Trans>Degen Mode</Trans>
               </Text>
               <Toggle isActive={isDegenMode} toggle={handleToggleDegenMode} />
