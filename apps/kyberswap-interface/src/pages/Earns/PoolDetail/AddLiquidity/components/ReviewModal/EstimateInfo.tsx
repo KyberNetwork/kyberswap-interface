@@ -1,5 +1,6 @@
 import { PartnerFeeAction, Pool, ProtocolFeeAction, RefundAction, ZapAction, ZapRouteDetail } from '@kyber/schema'
 import { getZapImpact } from '@kyber/utils'
+import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -31,9 +32,25 @@ const MetricCard = styled(Stack)`
   padding: 8px 12px;
 `
 
+const Suggestion = styled.button`
+  margin-left: auto;
+  width: fit-content;
+  border: none;
+  background: transparent;
+  color: ${({ theme }) => theme.primary};
+  font-size: 14px;
+  padding: 0;
+  cursor: pointer;
+
+  :hover {
+    filter: brightness(1.12);
+  }
+`
+
 type EstimateInfoProps = {
   pool: Pool
   route: ZapRouteDetail
+  onUseSuggestedSlippage?: (suggestedSlippage?: number) => void
   slippage?: number
 }
 
@@ -93,9 +110,12 @@ const buildEstimate = ({
   }
 }
 
-const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
+const EstimateInfo = ({ pool, route, onUseSuggestedSlippage, slippage }: EstimateInfoProps) => {
   const theme = useTheme()
   const estimate = useMemo(() => buildEstimate({ pool, route, slippage }), [pool, route, slippage])
+  const suggestedSlippage = route.zapDetails.suggestedSlippage
+  const showSuggestedSlippageAction =
+    suggestedSlippage !== undefined && suggestedSlippage > 0 && suggestedSlippage !== slippage
 
   return (
     <Card gap={8}>
@@ -128,12 +148,20 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
       <Divider />
 
       <Stack gap={8}>
-        <HStack align="center" justify="space-between">
-          <Text color={theme.subText}>Max Slippage</Text>
-          <Text color={theme.text} fontWeight={500}>
-            {formatBpsLabel(estimate.slippage)}
-          </Text>
-        </HStack>
+        <Stack gap={4}>
+          <HStack align="center" justify="space-between">
+            <Text color={theme.subText}>Max Slippage</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {formatBpsLabel(estimate.slippage)}
+            </Text>
+          </HStack>
+
+          {showSuggestedSlippageAction && (
+            <Suggestion onClick={() => onUseSuggestedSlippage?.(suggestedSlippage)} type="button">
+              <Trans>Suggestion</Trans>: {formatBpsLabel(suggestedSlippage)}
+            </Suggestion>
+          )}
+        </Stack>
 
         <HStack align="stretch" gap={8} wrap="wrap">
           <MetricCard>

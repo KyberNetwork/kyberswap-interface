@@ -1,10 +1,10 @@
 import { Pool, ZapRouteDetail } from '@kyber/schema'
-import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
-import { t } from '@lingui/macro'
+import { StatusDialog, StatusDialogType, translateZapMessage } from '@kyber/ui'
 import { Text } from 'rebass'
+import { BuildZapInData } from 'services/zapInService'
 import styled from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
@@ -17,7 +17,6 @@ import { CloseIcon } from 'theme/components'
 import EstimateInfo from './EstimateInfo'
 import PriceInfo from './PriceInfo'
 import ZapInfo from './ZapInfo'
-import { useReviewBuild } from './useReviewBuild'
 import { ReviewTransactionStatusPhase, useReviewTransaction } from './useReviewTransaction'
 
 type ReviewWarningItem = {
@@ -37,26 +36,19 @@ const ModalContent = styled(Stack)`
   `}
 `
 
-const DisclaimerText = styled.div`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  font-style: italic;
-`
-
 type AddLiquidityReviewModalProps = {
-  isOpen: boolean
   pool: Pool
-  route: ZapRouteDetail
-  routeLoading: boolean
-  refetchRoute?: () => Promise<unknown>
-  warnings: ReviewWarningItem[]
+  buildData: BuildZapInData
   chainId: number
-  tokenInput: ZapState['tokenInput']
+  error?: string | null
+  isRefreshing?: boolean
   priceRange: ZapState['priceRange']
+  route: ZapRouteDetail
   slippage?: number
+  tokenInput: ZapState['tokenInput']
+  warnings: ReviewWarningItem[]
   onDismiss?: () => void
   onUseSuggestedSlippage?: (suggestedSlippage?: number) => void
-  onClearTracking?: () => void
   onAddTrackedTxHash?: (hash: string) => void
   onAddTransactionWithType?: (transaction: any) => void
 }
@@ -79,45 +71,36 @@ const getStatusDialogType = (statusPhase: ReviewTransactionStatusPhase) => {
 
 const StatusContent = ({
   statusPhase,
-  slippage,
-  suggestedSlippage,
   txError,
   transactionExplorerUrl,
   onDismiss,
-  onUseSuggestedSlippage,
   onViewPosition,
 }: {
   statusPhase: ReviewTransactionStatusPhase
-  slippage?: number
-  suggestedSlippage?: number
   txError?: string | null
   transactionExplorerUrl?: string
   onDismiss?: () => void
-  onUseSuggestedSlippage?: () => void
   onViewPosition?: () => void
 }) => {
   const translatedErrorMessage = getStatusErrorMessage(txError)
-  const errorMessage = txError?.toLowerCase() || ''
-
-  const isSlippageError = errorMessage.includes('slippage')
+  const canDismiss = statusPhase !== 'waiting_wallet'
   const canViewPosition = statusPhase === 'success' && Boolean(onViewPosition)
 
-  const statusAction = (
-    <>
-      <button className="ks-outline-btn flex-1" onClick={onDismiss}>
-        Close
-      </button>
-      {canViewPosition ? (
-        <button className="ks-primary-btn flex-1" onClick={onViewPosition}>
-          View position
-        </button>
-      ) : isSlippageError ? (
-        <button className="ks-primary-btn flex-1" onClick={onUseSuggestedSlippage || onDismiss}>
-          {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
-        </button>
-      ) : null}
-    </>
-  )
+  const statusAction =
+    canDismiss || canViewPosition ? (
+      <>
+        {canDismiss ? (
+          <ButtonOutlined flex="1" height="36px" onClick={onDismiss}>
+            Close
+          </ButtonOutlined>
+        ) : null}
+        {canViewPosition ? (
+          <ButtonPrimary flex="1" height="36px" onClick={onViewPosition}>
+            View position
+          </ButtonPrimary>
+        ) : null}
+      </>
+    ) : undefined
 
   return (
     <StatusDialog
@@ -126,38 +109,31 @@ const StatusContent = ({
       description={statusPhase === 'waiting_wallet' ? 'Confirm this transaction in your wallet' : undefined}
       errorMessage={translatedErrorMessage}
       transactionExplorerUrl={transactionExplorerUrl}
-      onClose={onDismiss || (() => {})}
+      onClose={canDismiss ? onDismiss || (() => {}) : () => {}}
     />
   )
 }
 
 const AddLiquidityReviewModal = ({
-  isOpen,
   pool,
-  route,
-  routeLoading,
-  refetchRoute,
-  warnings,
+  buildData,
   chainId,
-  tokenInput,
+  error,
+  isRefreshing,
   priceRange,
+  route,
   slippage,
+  tokenInput,
+  warnings,
   onDismiss,
   onUseSuggestedSlippage,
-  onClearTracking,
   onAddTrackedTxHash,
   onAddTransactionWithType,
 }: AddLiquidityReviewModalProps) => {
   const theme = useTheme()
-  const { buildData, buildError, buildLoading, rebuildReview } = useReviewBuild({
-    isOpen,
-    route,
-    refetchRoute,
-    onClearTracking,
-  })
 
   const transaction = useReviewTransaction({
-    isOpen,
+    isOpen: true,
     buildData,
     pool,
     tokenInput,
@@ -166,54 +142,37 @@ const AddLiquidityReviewModal = ({
     onDismiss,
   })
 
-  const isWaitingForWallet = transaction.statusPhase === 'waiting_wallet'
-  const isProcessing = transaction.statusPhase === 'processing'
   const isSuccessful = transaction.statusPhase === 'success'
   const showStatusDialog = transaction.statusPhase !== 'idle'
 
-  const handleStatusClose = async () => {
-    if (isWaitingForWallet) {
-      transaction.resetTransactionState()
+  const handleStatusClose = () => {
+    if (transaction.statusPhase === 'waiting_wallet') {
       return
     }
 
-    if (isSuccessful || isProcessing) {
+    const shouldDismiss = transaction.statusPhase === 'processing' || transaction.statusPhase === 'success'
+
+    transaction.resetTransactionState()
+
+    if (shouldDismiss) {
       onDismiss?.()
-      return
     }
-
-    transaction.resetTransactionState()
-    await rebuildReview()
   }
-
-  const handleUseSuggestedSlippage = () => {
-    onUseSuggestedSlippage?.(route.zapDetails.suggestedSlippage)
-    transaction.resetTransactionState()
-  }
-
-  if (!isOpen) return null
 
   if (showStatusDialog) {
     return (
       <StatusContent
         statusPhase={transaction.statusPhase}
-        slippage={slippage}
-        suggestedSlippage={route.zapDetails.suggestedSlippage}
         txError={transaction.submitError}
         transactionExplorerUrl={transaction.transactionExplorerUrl}
-        onDismiss={() => {
-          void handleStatusClose()
-        }}
-        onUseSuggestedSlippage={() => {
-          handleUseSuggestedSlippage()
-        }}
+        onDismiss={handleStatusClose}
         onViewPosition={isSuccessful ? transaction.handleViewPosition : undefined}
       />
     )
   }
 
   return (
-    <Modal isOpen={isOpen} borderRadius="20px" maxWidth={480} mobileFullWidth onDismiss={onDismiss}>
+    <Modal isOpen borderRadius="20px" maxWidth={480} mobileFullWidth onDismiss={onDismiss}>
       <ModalContent gap={16}>
         <HStack align="center" justify="space-between" width="100%">
           <Text fontSize={24} fontWeight={500}>
@@ -228,11 +187,9 @@ const AddLiquidityReviewModal = ({
 
         <PriceInfo pool={pool} priceRange={priceRange} />
 
-        <EstimateInfo pool={pool} route={route} slippage={slippage} />
+        <EstimateInfo onUseSuggestedSlippage={onUseSuggestedSlippage} pool={pool} route={route} slippage={slippage} />
 
-        {buildError ? (
-          <NoteCard $tone="error">{translateFriendlyErrorMessage(buildError) || buildError}</NoteCard>
-        ) : null}
+        {error ? <NoteCard $tone="error">{translateZapMessage(error)}</NoteCard> : null}
 
         {warnings.length ? (
           <Stack gap={12}>
@@ -244,25 +201,21 @@ const AddLiquidityReviewModal = ({
           </Stack>
         ) : null}
 
-        <DisclaimerText>
+        <Text color={theme.subText} fontSize={14} fontStyle="italic">
           The information is intended solely for your reference at the time you are viewing. It is your responsibility
-          to verify all information before making decisions
-        </DisclaimerText>
+          to verify all information before making decisions.
+        </Text>
 
         <ButtonPrimary
           altDisabledStyle
           borderRadius="20px"
           color={theme.buttonBlack}
-          disabled={transaction.confirmDisabled || routeLoading || buildLoading || Boolean(buildError)}
+          disabled={transaction.confirmDisabled || isRefreshing || Boolean(error)}
           height="48px"
           onClick={() => void transaction.handleSubmit()}
           type="button"
         >
-          {transaction.confirmLoading
-            ? 'Adding Liquidity...'
-            : routeLoading || buildLoading
-            ? 'Refreshing Route...'
-            : 'Add Liquidity'}
+          {transaction.confirmLoading ? 'Adding Liquidity...' : isRefreshing ? 'Refreshing Route...' : 'Add Liquidity'}
         </ButtonPrimary>
       </ModalContent>
     </Modal>
