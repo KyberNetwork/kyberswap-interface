@@ -20,7 +20,6 @@ import {
   useAddLiquidityRuntimeContext,
 } from 'pages/Earns/PoolDetail/AddLiquidity/context'
 import { useFeedback } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
-import { useReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useReviewData'
 import { useZapPool } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool'
 import { type ZapState, useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
@@ -73,26 +72,12 @@ const AddLiquidityBody = ({ children, onTrackEvent, normalizedPool, state, track
   const reviewRoute = state.route.data
   const refetchReviewRoute = state.route.refetch
 
-  const widgetReview = useReviewData({
-    pool: normalizedPool,
-    route: state.route.data,
-    chainId,
-    poolType,
-    state,
-  })
-
-  const isZapImpactBlocked =
-    !isDegenMode &&
-    widgetReview.estimate?.zapImpact !== null &&
-    widgetReview.estimate?.zapImpact !== undefined &&
-    ['VERY_HIGH', 'INVALID'].includes(widgetReview.estimate.zapImpact.level)
-
   const feedback = useFeedback({
     poolChainId: chainId,
     pool: normalizedPool,
+    poolType,
     state,
-    review: widgetReview,
-    isZapImpactBlocked,
+    isDegenMode,
   })
 
   const handlePreview = useCallback(async () => {
@@ -121,7 +106,6 @@ const AddLiquidityBody = ({ children, onTrackEvent, normalizedPool, state, track
               onPreview: handlePreview,
             }}
             feedback={feedback.widget}
-            isZapImpactBlocked={isZapImpactBlocked}
             onTrackEvent={onTrackEvent}
             onCancel={() => navigate(-1)}
           />
@@ -152,24 +136,24 @@ const AddLiquidityBody = ({ children, onTrackEvent, normalizedPool, state, track
         <AddLiquidityReviewModal
           isOpen={isReviewOpen}
           pool={normalizedPool}
+          warnings={feedback.modal.warnings}
           route={reviewRoute}
+          routeLoading={state.route.loading}
           refetchRoute={refetchReviewRoute}
           chainId={chainId}
-          poolType={poolType}
-          state={state}
-          tokensIn={state.validation.parsedTokensIn}
+          tokenInput={state.tokenInput}
+          slippage={state.slippage.value}
+          priceRange={state.priceRange}
           confirmText="Add Liquidity"
           onClearTracking={tracking.clearTracking}
           onAddTrackedTxHash={tracking.addTrackedTxHash}
           onAddTransactionWithType={tracking.addTransactionWithType}
           onDismiss={handleDismissReview}
-          onUseSuggestedSlippage={() => {
-            if (widgetReview.estimate?.suggestedSlippage !== undefined) {
-              state.slippage.setValue(widgetReview.estimate.suggestedSlippage)
+          onUseSuggestedSlippage={suggestedSlippage => {
+            if (suggestedSlippage !== undefined) {
+              state.slippage.setValue(suggestedSlippage)
             }
-            handleDismissReview()
           }}
-          onRevertPriceToggle={state.priceRange.toggleRevertPrice}
         />
       ) : null}
     </>

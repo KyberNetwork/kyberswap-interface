@@ -43,20 +43,11 @@ type AddLiquidityWidgetProps = {
   state: ReturnType<typeof useZapState>
   preview?: AddLiquidityWidgetPreview
   feedback: ReturnType<typeof useFeedback>['widget']
-  isZapImpactBlocked: boolean
   onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
   onCancel?: () => void
 }
 
-const AddLiquidityWidget = ({
-  context,
-  state,
-  preview,
-  feedback,
-  isZapImpactBlocked,
-  onTrackEvent,
-  onCancel,
-}: AddLiquidityWidgetProps) => {
+const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent, onCancel }: AddLiquidityWidgetProps) => {
   const { chainId: poolChainId, poolAddress, poolType, pool } = context
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -81,7 +72,7 @@ const AddLiquidityWidget = ({
     state,
     approval,
     poolChainId,
-    isZapImpactBlocked,
+    isZapImpactBlocked: feedback.isZapImpactBlocked,
     onOpenSettings: openDegenModeSetting,
     preview,
   })

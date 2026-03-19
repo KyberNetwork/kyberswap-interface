@@ -52,7 +52,7 @@ When widget logic changes, audit the following areas:
    Update `hooks/useTickPrice.ts` and `components/PriceSection/*`, then recheck related review warnings.
 
 5. If the widget changes route-derived estimate, warning, preview, APR, or submit/review flow:
-   Update `hooks/useReviewData.ts`, `hooks/useFeedback.ts`, `components/AddLiquidityRoutePreview.tsx`, `components/EstimatedPositionApr.tsx`, `components/ReviewModal/*`, and the review-modal wiring in `index.tsx` as needed.
+   Update `hooks/useFeedback.ts`, `components/AddLiquidityRoutePreview.tsx`, `components/EstimatedPositionApr.tsx`, `components/ReviewModal/*`, and the review-modal wiring in `index.tsx` as needed.
 
 6. If the widget changes security-warning logic such as honeypot or FOT messaging:
    Update `hooks/useFeedback.ts` and shared helpers in `utils.ts`.

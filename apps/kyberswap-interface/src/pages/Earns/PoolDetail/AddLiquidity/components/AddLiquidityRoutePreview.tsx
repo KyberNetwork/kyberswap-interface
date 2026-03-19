@@ -1,5 +1,4 @@
-import { AddLiquidityAction, Pool, Token, ZapAction, ZapRouteDetail } from '@kyber/schema'
-import { formatUnits } from '@kyber/utils'
+import { Pool, Token, ZapRouteDetail } from '@kyber/schema'
 import { Fragment } from 'react'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
@@ -8,6 +7,7 @@ import { ReactComponent as KyberLogo } from 'assets/svg/kyber/kyber_logo.svg'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
+import { getInputTokenItems, getOutputTokenItems } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -125,16 +125,6 @@ type AddLiquidityRoutePreviewProps = {
   zapRoute?: ZapRouteDetail | null
 }
 
-const parseInputAmount = (amount?: string) => {
-  const parsedAmount = Number(amount || 0)
-  return Number.isFinite(parsedAmount) ? parsedAmount : undefined
-}
-
-const parseRouteAmount = (amount: string | undefined, decimals: number) => {
-  const parsedAmount = Number(formatUnits(BigInt(amount || '0').toString(), decimals))
-  return Number.isFinite(parsedAmount) ? parsedAmount : undefined
-}
-
 const PreviewAssetItems = ({ items }: { items: RouteTokenItem[] }) => {
   const theme = useTheme()
 
@@ -195,28 +185,9 @@ const PreviewAssetCard = ({ items, usdAmount }: { items: RouteTokenItem[]; usdAm
 
 const AddLiquidityRoutePreview = ({ inputTokens, inputAmounts, pool, zapRoute }: AddLiquidityRoutePreviewProps) => {
   const theme = useTheme()
-  const amountList = inputAmounts?.split(',') ?? []
-  const addLiquidityAction = zapRoute?.zapDetails.actions.find(
-    (item): item is AddLiquidityAction => item.type === ZapAction.ADD_LIQUIDITY,
-  )
 
-  const inputItems = (inputTokens ?? []).map((token, index) => ({
-    token,
-    amount: parseInputAmount(amountList[index]),
-  }))
-
-  const outputItems = !pool
-    ? []
-    : [
-        {
-          token: pool.token0,
-          amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token0.amount, pool.token0.decimals),
-        },
-        {
-          token: pool.token1,
-          amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token1.amount, pool.token1.decimals),
-        },
-      ]
+  const inputItems = getInputTokenItems(inputTokens ?? [], inputAmounts ?? '')
+  const outputItems = getOutputTokenItems(pool, zapRoute)
 
   return (
     <FlowRow>

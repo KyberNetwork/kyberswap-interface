@@ -35,12 +35,6 @@ const BackButton = styled.button`
   }
 `
 
-const PairTitle = styled(Text)`
-  font-size: 24px;
-  font-weight: 500;
-  white-space: nowrap;
-`
-
 const ProtocolBadge = styled(HStack)`
   min-height: 32px;
   padding: 8px 12px;
@@ -64,6 +58,13 @@ const ProtocolLogo = styled.img`
   flex: 0 0 auto;
   width: 16px;
   height: 16px;
+  object-fit: contain;
+`
+
+const FeeBadge = styled(Stack)`
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: ${({ theme }) => theme.background};
 `
 
 const TooltipAddressRow = ({ token }: { token: PoolToken }) => {
@@ -81,7 +82,7 @@ const TooltipAddressRow = ({ token }: { token: PoolToken }) => {
   )
 }
 
-const PoolHeader = () => {
+const PoolHeaderPage = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const { pool, poolParams } = usePoolDetailContext()
@@ -124,33 +125,83 @@ const PoolHeader = () => {
         >
           <HStack minWidth={0} align="center" gap={8}>
             <HStack flex="0 0 auto" align="flex-end">
-              <TokenLogo src={primaryToken?.logoURI} size={28} />
-              <TokenLogo src={secondaryToken?.logoURI} size={28} translateLeft />
+              <TokenLogo src={primaryToken.logoURI} size={28} />
+              <TokenLogo src={secondaryToken.logoURI} size={28} translateLeft />
               <TokenLogo src={chainInfo?.icon} size={16} translateLeft translateTop />
             </HStack>
 
-            <PairTitle color={theme.text}>
+            <Text color={theme.text} fontSize={24} fontWeight={500} sx={{ whiteSpace: 'nowrap' }}>
               {primaryToken?.symbol || '---'}/{secondaryToken?.symbol || '---'}
-            </PairTitle>
+            </Text>
           </HStack>
         </MouseoverTooltipDesktopOnly>
 
         <ProtocolBadge align="center" gap={8}>
-          <ProtocolLogo src={dexInfo?.logo} />
+          <ProtocolLogo alt={dexInfo?.name} src={dexInfo?.logo} />
           <Text color={theme.text} fontSize={14} fontWeight={500}>
             {dexInfo?.name}
           </Text>
           <Text color={theme.subText} fontSize={14} fontWeight={500}>
-            | {pool?.swapFee || pool?.feeTier}%
+            | {pool.swapFee || pool.feeTier}%
           </Text>
         </ProtocolBadge>
 
         <AprBadge fontSize={20} fontWeight={500}>
-          {formatAprNumber(pool?.allApr ?? pool?.poolStats?.allApr24h ?? 0)}%
+          {formatAprNumber(pool.allApr ?? pool.poolStats?.allApr24h ?? 0)}%
         </AprBadge>
       </HStack>
     </HStack>
   )
+}
+
+const PoolHeaderReview = () => {
+  const theme = useTheme()
+  const { pool, poolParams } = usePoolDetailContext()
+
+  const primaryToken = pool.tokens[0]
+  const secondaryToken = pool.tokens[1]
+
+  const dexInfo = poolParams.exchange ? EARN_DEXES[poolParams.exchange as Exchange] : undefined
+
+  return (
+    <HStack minWidth={0} align="center" gap={12}>
+      <HStack flex="0 0 auto" align="flex-end" gap={0}>
+        <TokenLogo src={primaryToken.logoURI} size={36} />
+        <TokenLogo src={secondaryToken.logoURI} size={36} translateLeft />
+      </HStack>
+
+      <Stack gap={4}>
+        <HStack minWidth={0} align="center" gap={8} wrap="wrap">
+          <Text color={theme.text} fontSize={16} fontWeight={500}>
+            {primaryToken.symbol}/{secondaryToken.symbol}
+          </Text>
+          <CopyHelper color={theme.subText} margin="0" size={16} toCopy={pool.address} />
+        </HStack>
+
+        <HStack align="center" gap={8} wrap="wrap">
+          <HStack align="center" gap={4}>
+            <ProtocolLogo alt={dexInfo?.name} src={dexInfo?.logo} />
+            <Text color={theme.subText} fontSize={14}>
+              {dexInfo?.name}
+            </Text>
+          </HStack>
+
+          <FeeBadge>
+            <Text color={theme.subText} fontSize={12} fontWeight={500}>
+              Fee {pool.swapFee || pool.feeTier}
+            </Text>
+          </FeeBadge>
+        </HStack>
+      </Stack>
+    </HStack>
+  )
+}
+
+const PoolHeader = ({ isReview }: { isReview?: boolean }) => {
+  if (isReview) {
+    return <PoolHeaderReview />
+  }
+  return <PoolHeaderPage />
 }
 
 export default PoolHeader

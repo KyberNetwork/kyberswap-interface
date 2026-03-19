@@ -1,10 +1,14 @@
 import { formatUnits } from '@ethersproject/units'
 import {
+  AddLiquidityAction,
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
+  Pool,
   PoolType,
   Token,
+  ZapAction,
   Pool as ZapPool,
+  ZapRouteDetail,
   univ2Types,
   univ3Types,
 } from '@kyber/schema'
@@ -36,6 +40,46 @@ export const isUniV2PoolType = (poolType?: PoolType) =>
 
 export const hasPositiveAmount = (amounts: string) =>
   amounts.split(',').some(amount => Number.isFinite(Number(amount.trim())) && Number(amount.trim()) > 0)
+
+export const parseInputAmount = (amount?: string) => {
+  const parsedAmount = Number(amount || 0)
+  return Number.isFinite(parsedAmount) ? parsedAmount : undefined
+}
+
+export const getInputTokenItems = (tokens: Token[], amounts: string) => {
+  const amountList = amounts.split(',')
+
+  return tokens.map((token, index) => ({
+    token,
+    amount: parseInputAmount(amountList[index]),
+  }))
+}
+
+export const parseRouteAmount = (amount: string | undefined, decimals: number) => {
+  const parsedAmount = Number(formatUnits(BigInt(amount || '0').toString(), decimals))
+  return Number.isFinite(parsedAmount) ? parsedAmount : undefined
+}
+
+export const getOutputTokenItems = (pool?: Pool | null, zapRoute?: ZapRouteDetail | null) => {
+  const addLiquidityAction = zapRoute?.zapDetails.actions.find(
+    (action): action is AddLiquidityAction => action.type === ZapAction.ADD_LIQUIDITY,
+  )
+
+  if (!pool) return []
+
+  return [
+    {
+      token: pool.token0,
+      amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token0.amount, pool.token0.decimals),
+      usdValue: Number(addLiquidityAction?.addLiquidity.token0.amountUsd || 0),
+    },
+    {
+      token: pool.token1,
+      amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token1.amount, pool.token1.decimals),
+      usdValue: Number(addLiquidityAction?.addLiquidity.token1.amountUsd || 0),
+    },
+  ]
+}
 
 export const parseTokensAndAmounts = (tokens: Token[], amounts: string) => {
   const amountList = amounts.split(',')

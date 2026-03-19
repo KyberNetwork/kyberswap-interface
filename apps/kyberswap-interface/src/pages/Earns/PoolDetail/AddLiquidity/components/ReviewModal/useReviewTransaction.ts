@@ -1,35 +1,31 @@
 import { Pool, TxStatus } from '@kyber/schema'
 import { friendlyError } from '@kyber/utils'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BuildZapInData } from 'services/zapInService'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
-import { type ResolvedAddLiquidityReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useReviewData'
+import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
+import { getParsedTokensIn } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
-type ReviewTokenIn = {
-  symbol: string
-  logoUrl?: string
-  amount: string
-}
-
 type UseReviewTransactionProps = {
   isOpen: boolean
   buildData?: BuildZapInData | null
   pool: Pool
-  review: ResolvedAddLiquidityReviewData
-  tokensIn: ReviewTokenIn[]
+  tokenInput: ZapState['tokenInput']
   onAddTrackedTxHash?: (hash: string) => void
   onAddTransactionWithType?: (transaction: any) => void
   onDismiss?: () => void
 }
+
+export type ReviewTransactionStatusPhase = 'idle' | 'waiting_wallet' | 'processing' | 'success' | 'failed' | 'cancelled'
 
 const getModalTxStatus = (status?: TxStatus): '' | 'success' | 'failed' | 'cancelled' => {
   if (status === TxStatus.SUCCESS) return 'success'
@@ -43,8 +39,7 @@ export const useReviewTransaction = ({
   isOpen,
   buildData,
   pool,
-  review,
-  tokensIn,
+  tokenInput,
   onAddTrackedTxHash,
   onAddTransactionWithType,
   onDismiss,
@@ -83,6 +78,22 @@ export const useReviewTransaction = ({
   const currentTxHash = submittedTxHash ? txHashMapping[submittedTxHash] || submittedTxHash : ''
   const currentTxStatus = submittedTxHash ? txStatusMap[submittedTxHash] || txStatusMap[currentTxHash] : undefined
   const txStatus = getModalTxStatus(currentTxStatus)
+  const tokensIn = useMemo(
+    () => getParsedTokensIn(tokenInput.tokens, tokenInput.amounts),
+    [tokenInput.amounts, tokenInput.tokens],
+  )
+  const statusPhase: ReviewTransactionStatusPhase =
+    isSubmitting && !submittedTxHash && !txStatus && !submitError
+      ? 'waiting_wallet'
+      : submittedTxHash && !txStatus && !submitError
+      ? 'processing'
+      : txStatus === 'success'
+      ? 'success'
+      : txStatus === 'failed' || submitError
+      ? 'failed'
+      : txStatus === 'cancelled'
+      ? 'cancelled'
+      : 'idle'
   const transactionExplorerUrl =
     currentTxHash && chainId
       ? `${NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.etherscanUrl}/tx/${currentTxHash}`
@@ -125,7 +136,7 @@ export const useReviewTransaction = ({
         hash: txHash,
         type: TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
         extraInfo: {
-          pool: review.header.pairLabel,
+          pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
           tokensIn,
           dexLogoUrl: exchange ? EARN_DEXES[exchange].logo : '',
           dex: exchange || '',
@@ -151,7 +162,7 @@ export const useReviewTransaction = ({
     onAddTrackedTxHash,
     onAddTransactionWithType,
     poolAddress,
-    review,
+    pool,
     tokensIn,
   ])
 
@@ -165,6 +176,7 @@ export const useReviewTransaction = ({
   return {
     confirmDisabled: isSubmitting || !buildData,
     confirmLoading: isSubmitting,
+    statusPhase,
     submitError,
     txHash: submittedTxHash,
     txStatus,

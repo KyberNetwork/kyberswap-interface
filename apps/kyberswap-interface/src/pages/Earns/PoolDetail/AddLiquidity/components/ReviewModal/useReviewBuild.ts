@@ -16,14 +16,12 @@ type UseReviewBuildProps = {
 }
 
 type ReviewBuildState = {
-  routeSnapshot: ZapRouteDetail | null
   buildData: BuildZapInData | null
   buildError: string | null
   isBuilding: boolean
 }
 
 const INITIAL_REVIEW_BUILD_STATE: ReviewBuildState = {
-  routeSnapshot: null,
   buildData: null,
   buildError: null,
   isBuilding: false,
@@ -43,7 +41,6 @@ export const useReviewBuild = ({ isOpen, route, refetchRoute, onClearTracking }:
 
   const [reviewBuild, setReviewBuild] = useState(INITIAL_REVIEW_BUILD_STATE)
   const buildAttemptIdRef = useRef(0)
-  const buildReviewRef = useRef<(refreshRoute?: boolean) => Promise<boolean>>()
 
   const chainId = poolParams.poolChainId
   const deadlineValue = deadline ? +deadline.toString() : undefined
@@ -58,24 +55,20 @@ export const useReviewBuild = ({ isOpen, route, refetchRoute, onClearTracking }:
       const buildAttemptId = buildAttemptIdRef.current + 1
       buildAttemptIdRef.current = buildAttemptId
 
-      onClearTracking?.()
-
       if (!account || !chainId || !deadlineValue) {
-        setReviewBuild(prev => ({
-          ...prev,
+        setReviewBuild({
           buildData: null,
           buildError: 'Build route is unavailable.',
           isBuilding: false,
-        }))
+        })
         return false
       }
 
-      setReviewBuild(prev => ({
-        ...prev,
+      setReviewBuild({
         buildData: null,
         buildError: null,
         isBuilding: true,
-      }))
+      })
 
       const refreshedRouteResult = refreshRoute ? await refetchRoute?.() : undefined
 
@@ -84,20 +77,13 @@ export const useReviewBuild = ({ isOpen, route, refetchRoute, onClearTracking }:
       const latestRoute = isRouteRefetchResult(refreshedRouteResult) ? refreshedRouteResult.data || route : route
 
       if (!latestRoute) {
-        setReviewBuild(prev => ({
-          ...prev,
-          routeSnapshot: null,
+        setReviewBuild({
           buildData: null,
           buildError: 'No route found.',
           isBuilding: false,
-        }))
+        })
         return false
       }
-
-      setReviewBuild(prev => ({
-        ...prev,
-        routeSnapshot: latestRoute,
-      }))
 
       try {
         const buildData = await buildZapInRoute({
@@ -111,29 +97,25 @@ export const useReviewBuild = ({ isOpen, route, refetchRoute, onClearTracking }:
 
         if (buildAttemptIdRef.current !== buildAttemptId) return false
 
-        setReviewBuild(prev => ({
-          ...prev,
+        setReviewBuild({
           buildData,
           buildError: null,
           isBuilding: false,
-        }))
+        })
         return true
       } catch (error) {
         if (buildAttemptIdRef.current !== buildAttemptId) return false
 
-        setReviewBuild(prev => ({
-          ...prev,
+        setReviewBuild({
           buildData: null,
           buildError: getBuildErrorMessage(error),
           isBuilding: false,
-        }))
+        })
         return false
       }
     },
-    [account, buildZapInRoute, chainId, deadlineValue, onClearTracking, refetchRoute, route],
+    [account, buildZapInRoute, chainId, deadlineValue, refetchRoute, route],
   )
-
-  buildReviewRef.current = buildReview
 
   useEffect(() => {
     if (!isOpen) {
@@ -141,11 +123,16 @@ export const useReviewBuild = ({ isOpen, route, refetchRoute, onClearTracking }:
       return
     }
 
-    void buildReviewRef.current?.(false)
-  }, [isOpen, resetReviewBuild])
+    onClearTracking?.()
+  }, [isOpen, onClearTracking, resetReviewBuild])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    void buildReview(false)
+  }, [buildReview, isOpen])
 
   return {
-    reviewRoute: reviewBuild.routeSnapshot || route,
     buildData: reviewBuild.buildData,
     buildError: reviewBuild.buildError,
     buildLoading: reviewBuild.isBuilding,
