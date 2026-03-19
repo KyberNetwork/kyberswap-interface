@@ -119,9 +119,9 @@ function Welcome() {
       <img src={WelcomeImage} alt="welcome to kyberswap" style={{ maxWidth: '100%', marginTop: 10 }} />
       <Desc>
         <Trans>
-          KyberSwap is a decentralized exchange (DEX) aggregator and an automated market maker (AMM). We provide our
-          traders with the <HighlightText>superior token prices</HighlightText> by analyzing rates across hundreds of
-          exchanges instantly! On the other hand, our liquidity providers can add liquidity to our pools to{' '}
+          KyberSwap is a decentralized platform and an automated market maker (AMM). We provide our traders with the{' '}
+          <HighlightText>superior token prices</HighlightText> by analyzing rates across hundreds of exchanges
+          instantly! On the other hand, our liquidity providers can add liquidity to our pools to{' '}
           <HighlightText>earn fees and rewards!</HighlightText>
         </Trans>
       </Desc>
