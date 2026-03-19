@@ -9,16 +9,17 @@ import { Box, Flex, Text } from 'rebass'
 import { useGetUserWeeklyRewardQuery } from 'services/campaign'
 import styled from 'styled-components'
 
-import { ButtonOutlined } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { TokenLogoWithChain } from 'components/Logo'
 import { NewLabel } from 'components/Menu'
-import Modal from 'components/Modal'
+import MenuFlyout from 'components/MenuFlyout'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -48,9 +49,33 @@ const TableRow = styled(TableHeader)`
   align-items: center;
 `
 
-const ELabel = styled.span`
-  font-size: 10px;
-  margin-left: 4px;
+const DropdownList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`
+
+const DropdownAnchor = styled.div`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+`
+
+const DropdownItem = styled.button<{ $active: boolean }>`
+  width: 100%;
+  border: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
+  color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
+
+  :hover {
+    background: ${({ theme }) => theme.tabActive};
+    color: ${({ theme }) => theme.text};
+  }
 `
 
 export function getDateOfWeek(w: number, y: number) {
@@ -70,6 +95,7 @@ const DASHBOARD_TABS: CampaignType[] = [
 const MyDashboard = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const searchTab = searchParams.get('tab') as CampaignType | null
@@ -149,7 +175,7 @@ const MyDashboard = () => {
     data?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
   const price = mayTradingRewardPrice
-  const [showModal, setShowModal] = useState(false)
+  const [isOpenMenu, setIsOpenMenu] = useState(false)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -167,19 +193,7 @@ const MyDashboard = () => {
       label: campaignLabelMap[CampaignType.MayTrading],
     },
   ]
-
-  const endedCampaignsHaveRewards = endedCampaigns.filter(item => {
-    if (item.type === tab) {
-      return true
-    }
-    if (item.type === CampaignType.NearIntents) {
-      return totalNearCampaignReward > 0n
-    }
-    if (item.type === CampaignType.MayTrading) {
-      return Number(mayTrading?.data?.totalClaimableReward || '0') > 0
-    }
-    return false
-  })
+  const selectedEndedCampaign = endedCampaigns.find(item => item.type === tab)
 
   const infor = (
     <InfoHelper
@@ -274,68 +288,77 @@ const MyDashboard = () => {
         <Tab role="button" active={tab === NEW_CAMPAIGN} onClick={() => changeTab(NEW_CAMPAIGN)}>
           <Flex>
             {campaignLabelMap[NEW_CAMPAIGN]}{' '}
-            <NewLabel>
+            <NewLabel isNew>
               <Trans>New</Trans>
             </NewLabel>
           </Flex>
         </Tab>
-        {endedCampaignsHaveRewards.slice(0, upToSmall ? 1 : undefined).map(campaign => (
+        {selectedEndedCampaign && (
           <Tab
-            key={campaign.type}
+            key={selectedEndedCampaign.type}
             role="button"
-            active={tab === campaign.type}
-            onClick={() => changeTab(campaign.type)}
+            active={true}
+            onClick={() => changeTab(selectedEndedCampaign.type)}
           >
             <Flex>
-              {campaign.label}
-              <ELabel>
+              {selectedEndedCampaign.label}
+              <Text as="span" fontSize={10} ml="4px">
                 <Trans>Ended</Trans>
-              </ELabel>
+              </Text>
             </Flex>
           </Tab>
-        ))}
-        <Flex justifyContent="flex-end" flex={1}>
-          <ButtonIcon onClick={() => setShowModal(true)}>
-            <MoreHorizontal size={16} />
-          </ButtonIcon>
-        </Flex>
-        <Modal
-          isOpen={showModal}
-          onDismiss={() => setShowModal(false)}
-          maxHeight={90}
-          maxWidth={600}
-          bypassScrollLock={true}
-          bypassFocusLock={true}
-          zindex={99999}
-          width="240px"
-        >
-          <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
-            {endedCampaigns.map(campaign => (
-              <Tab
-                key={campaign.type}
-                role="button"
-                active={tab === campaign.type}
-                onClick={() => {
-                  changeTab(campaign.type)
-                  setShowModal(false)
+        )}
+        {endedCampaigns.length > 0 && (
+          <Flex justifyContent="flex-end" flex={1}>
+            <DropdownAnchor>
+              <MenuFlyout
+                isOpen={isOpenMenu}
+                toggle={() => setIsOpenMenu(prev => !prev)}
+                modalWhenMobile={false}
+                hasArrow={false}
+                customStyle={{
+                  minWidth: '240px',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  padding: '8px',
+                  borderRadius: '16px',
+                  backgroundColor: theme.background,
                 }}
+                trigger={
+                  <ButtonIcon color={tab !== NEW_CAMPAIGN ? theme.primary : undefined}>
+                    <MoreHorizontal size={16} />
+                  </ButtonIcon>
+                }
               >
-                <Flex>
-                  {campaign.label}
-                  <ELabel>
-                    <Trans>Ended</Trans>
-                  </ELabel>
-                </Flex>
-              </Tab>
-            ))}
+                <DropdownList>
+                  {endedCampaigns.map(campaign => (
+                    <DropdownItem
+                      key={campaign.type}
+                      $active={tab === campaign.type}
+                      onClick={() => {
+                        changeTab(campaign.type)
+                        setIsOpenMenu(false)
+                      }}
+                    >
+                      <Text color="inherit">{campaign.label}</Text>
+                    </DropdownItem>
+                  ))}
+                </DropdownList>
+              </MenuFlyout>
+            </DropdownAnchor>
           </Flex>
-        </Modal>
+        )}
       </Tabs>
 
       {!account ? (
-        <Text marginTop="30px" textAlign="center" color={theme.subText}>
-          <Trans>Please connect wallet to view your Dashboard</Trans>
-        </Text>
+        <Flex marginTop="30px" alignItems="center" flexDirection="column" sx={{ gap: '16px' }}>
+          <Text textAlign="center" color={theme.subText}>
+            <Trans>Please connect wallet to view your Dashboard</Trans>
+          </Text>
+          <ButtonPrimary width="180px" onClick={toggleWalletModal}>
+            <Trans>Connect Wallet</Trans>
+          </ButtonPrimary>
+        </Flex>
       ) : tab === CampaignType.SafePal ? (
         <SafePalDashboard />
       ) : tab === CampaignType.Raffle ? (
