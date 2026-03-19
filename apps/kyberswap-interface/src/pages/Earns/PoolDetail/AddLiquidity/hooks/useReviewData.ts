@@ -41,10 +41,31 @@ export type ReviewZapState = {
   }
 }
 
+export type ReviewStateSource = {
+  tokenInput?: {
+    tokens?: Token[]
+    amounts?: string
+    prices?: Record<string, number>
+  }
+  slippage?: {
+    value?: number
+  }
+  priceRange?: {
+    revertPrice?: boolean
+    poolPrice?: number | null
+    tickLower?: number | null
+    tickUpper?: number | null
+    minPrice?: string | null
+    maxPrice?: string | null
+  }
+}
+
 export type UseReviewDataProps = {
   pool?: Pool | null
   route?: ZapRouteDetail | null
-  zapState?: ReviewZapState
+  chainId?: number
+  poolType?: PoolType
+  state?: ReviewStateSource
 }
 
 export type ReviewTokenItem = {
@@ -108,6 +129,20 @@ export type AddLiquidityReviewData = {
   warnings: ReviewWarningItem[]
 }
 
+export type ResolvedAddLiquidityReviewData = Omit<AddLiquidityReviewData, 'header' | 'priceInfo' | 'estimate'> & {
+  header: NonNullable<AddLiquidityReviewData['header']>
+  priceInfo: NonNullable<AddLiquidityReviewData['priceInfo']>
+  estimate: NonNullable<AddLiquidityReviewData['estimate']>
+}
+
+type ResolvedUseReviewDataProps = {
+  pool: Pool
+  route: ZapRouteDetail
+  chainId: number
+  poolType: PoolType
+  state: ReviewStateSource
+}
+
 const parseAmount = (value?: string) => {
   if (!value) return 0
 
@@ -164,6 +199,27 @@ const buildZapInItems = ({
       }
     })
     .filter(item => item.amount > 0)
+
+const getReviewZapState = ({
+  chainId,
+  poolType,
+  state,
+}: Pick<UseReviewDataProps, 'chainId' | 'poolType' | 'state'>): ReviewZapState => ({
+  chainId,
+  poolType,
+  tokens: state?.tokenInput?.tokens,
+  amounts: state?.tokenInput?.amounts,
+  prices: state?.tokenInput?.prices,
+  slippage: state?.slippage?.value,
+  priceRange: {
+    revertPrice: state?.priceRange?.revertPrice,
+    poolPrice: state?.priceRange?.poolPrice,
+    tickLower: state?.priceRange?.tickLower,
+    tickUpper: state?.priceRange?.tickUpper,
+    minPrice: state?.priceRange?.minPrice,
+    maxPrice: state?.priceRange?.maxPrice,
+  },
+})
 
 const buildSummarySteps = ({
   aggregatorSwapAction,
@@ -377,7 +433,15 @@ const buildWarnings = ({
   }
 }
 
-export const buildAddLiquidityReviewData = ({ pool, route, zapState }: UseReviewDataProps): AddLiquidityReviewData => {
+export const buildAddLiquidityReviewData = ({
+  pool,
+  route,
+  zapState,
+}: {
+  pool?: Pool | null
+  route?: ZapRouteDetail | null
+  zapState?: ReviewZapState
+}): AddLiquidityReviewData => {
   const chainId = zapState?.chainId
   const poolType = zapState?.poolType
   const tokens = zapState?.tokens || []
@@ -530,7 +594,60 @@ export const buildAddLiquidityReviewData = ({ pool, route, zapState }: UseReview
   }
 }
 
-export const useReviewData = ({ pool, route, zapState }: UseReviewDataProps) => {
+export function useReviewData(props: ResolvedUseReviewDataProps): ResolvedAddLiquidityReviewData
+export function useReviewData(props: UseReviewDataProps): AddLiquidityReviewData
+export function useReviewData({ pool, route, chainId, poolType, state }: UseReviewDataProps) {
+  const tokens = state?.tokenInput?.tokens
+  const amounts = state?.tokenInput?.amounts
+  const prices = state?.tokenInput?.prices
+  const slippage = state?.slippage?.value
+  const revertPrice = state?.priceRange?.revertPrice
+  const poolPrice = state?.priceRange?.poolPrice
+  const tickLower = state?.priceRange?.tickLower
+  const tickUpper = state?.priceRange?.tickUpper
+  const minPrice = state?.priceRange?.minPrice
+  const maxPrice = state?.priceRange?.maxPrice
+
+  const zapState = useMemo(
+    () =>
+      getReviewZapState({
+        chainId,
+        poolType,
+        state: {
+          tokenInput: {
+            tokens,
+            amounts,
+            prices,
+          },
+          slippage: {
+            value: slippage,
+          },
+          priceRange: {
+            revertPrice,
+            poolPrice,
+            tickLower,
+            tickUpper,
+            minPrice,
+            maxPrice,
+          },
+        },
+      }),
+    [
+      amounts,
+      chainId,
+      maxPrice,
+      minPrice,
+      poolType,
+      poolPrice,
+      prices,
+      revertPrice,
+      slippage,
+      tickLower,
+      tickUpper,
+      tokens,
+    ],
+  )
+
   return useMemo(
     () =>
       buildAddLiquidityReviewData({

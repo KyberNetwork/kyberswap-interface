@@ -248,6 +248,7 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
       ? ''
       : getErrorMessage(routeResult.error as FetchBaseQueryError | { error?: string } | undefined),
     loading: routeDisabled ? false : routeResult.isLoading || routeResult.isFetching,
+    refetch: routeDisabled ? undefined : routeResult.refetch,
   }
 
   return {

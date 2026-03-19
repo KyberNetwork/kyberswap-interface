@@ -2,10 +2,12 @@ import { APPROVAL_STATE, useDebounce } from '@kyber/hooks'
 import { useMemo } from 'react'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ApprovalState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useApproval'
 import { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getPrimaryValidationError } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 type UseZapActionsProps = {
   state: ZapState
@@ -27,7 +29,10 @@ export const useZapActions = ({
   onOpenSettings,
   preview,
 }: UseZapActionsProps) => {
-  const { account, walletChainId, toggleWalletModal, changeNetwork } = useAddLiquidityRuntimeContext()
+  const { account } = useActiveWeb3React()
+  const { chainId: walletChainId } = useWeb3React()
+  const { changeNetwork } = useChangeNetwork()
+  const toggleWalletModal = useWalletModalToggle()
 
   const route = state.route.data
   const routeLoading = state.route.loading

@@ -21,11 +21,13 @@ This README covers:
 - UniV3 tick and price-range handling.
 - Slippage management, route fetching, and route gating.
 - ERC20 approval and action-state handling.
-- Safety and review surfaces, including zap-impact protection, security warnings, review data, and route preview.
+- Safety and review surfaces, including zap-impact protection, security warnings, route preview, review data, and the page-owned review modal flow.
+- Review-modal-owned submit flow, including transaction submission, status dialog states, and success navigation.
 
 ## 🟡 Intentional Differences from the Widget
 
-- The page keeps its own page-specific modal and submit flow instead of embedding the widget preview/runtime directly.
+- The page keeps its own page-specific preview and review modal instead of embedding the widget preview/runtime directly.
+- Preview first builds zap transaction data on the CTA, then opens the page-owned review UI. `index.tsx` only prepares route/build data and opens the review surface; `components/ReviewModal/*` owns submit, transaction status, and post-success actions.
 - Existing-position support is intentionally excluded, including `positionId`, owner checks, CTA branching, and related UI wording.
 - NFT-related flows are intentionally excluded, including permit and approval paths.
 - Standalone-widget initialization patterns and store/runtime architecture are not reused here.
@@ -49,8 +51,8 @@ When widget logic changes, audit the following areas:
 4. If the widget changes UniV3 tick, price-range, or price inversion behavior:
    Update `hooks/useTickPrice.ts` and `components/PriceSection/*`, then recheck related review warnings.
 
-5. If the widget changes route-derived estimate, warning, preview, or APR logic:
-   Update `hooks/useReviewData.ts`, `hooks/useFeedback.ts`, `components/AddLiquidityRoutePreview.tsx`, and `components/EstimatedPositionApr.tsx` as needed.
+5. If the widget changes route-derived estimate, warning, preview, APR, or submit/review flow:
+   Update `hooks/useReviewData.ts`, `hooks/useFeedback.ts`, `components/AddLiquidityRoutePreview.tsx`, `components/EstimatedPositionApr.tsx`, `components/ReviewModal/*`, and the review-modal wiring in `index.tsx` as needed.
 
 6. If the widget changes security-warning logic such as honeypot or FOT messaging:
    Update `hooks/useFeedback.ts` and shared helpers in `utils.ts`.

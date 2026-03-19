@@ -1,23 +1,20 @@
-import { PoolType, TxStatus, ZapRouteDetail } from '@kyber/schema'
+import { type ApprovalAdditionalInfo } from '@kyber/hooks'
+import { PoolType, Pool as ZapPool } from '@kyber/schema'
 import { translateZapMessage } from '@kyber/ui'
-import { friendlyError } from '@kyber/utils'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BuildZapInData, useBuildZapInRouteMutation } from 'services/zapInService'
+import { useBuildZapInRouteMutation } from 'services/zapInService'
 
 import { HStack, Stack } from 'components/Stack'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import AddLiquidityReviewModal from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityReviewModal'
 import AddLiquidityRoutePreview from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityRoutePreview'
 import AddLiquidityWidget from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidget'
 import AddLiquidityWidgetSkeleton from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetSkeleton'
+import AddLiquidityReviewModal from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal'
 import {
-  AddLiquidityApprovalInfo,
+  AddLiquidityRuntimeContextValue,
   AddLiquidityRuntimeProvider,
   AddLiquiditySubmitTxData,
   useAddLiquidityRuntimeContext,
@@ -25,27 +22,35 @@ import {
 import { useFeedback } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
 import { useReviewData } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useReviewData'
 import { useZapPool } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool'
-import { useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
+import { type ZapState, useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
-import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager } from 'state/user/hooks'
-import { getCookieValue } from 'utils'
 
-interface AddLiquidityProps {
+type AddLiquidityProps = {
   children?: ReactNode
 }
 
-interface AddLiquidityBodyProps extends AddLiquidityProps {
+type AddLiquidityBodyProps = AddLiquidityProps & {
   onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
+  tracking: AddLiquidityTracking
+  normalizedPool: ZapPool
+  state: ZapState
 }
+
+type AddLiquidityTracking = {
+  clearTracking: () => void
+  addTrackedTxHash: (hash: string) => void
+  addTransactionWithType: (transaction: any) => void
+}
+
+const DEFAULT_CHAIN_ID = ChainId.MAINNET
 
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
@@ -56,330 +61,156 @@ const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_MAX_SLIPPAGE_CHANGED: TRACKING_EVENT_TYPE.LIQ_MAX_SLIPPAGE_CHANGED,
 }
 
-const ZAP_SOURCE = 'kyberswap-earn'
-
-const getModalTxStatus = (status?: TxStatus): '' | 'success' | 'failed' | 'cancelled' => {
-  if (status === TxStatus.SUCCESS) return 'success'
-  if (status === TxStatus.FAILED) return 'failed'
-  if (status === TxStatus.CANCELLED) return 'cancelled'
-
-  return ''
-}
-
-const AddLiquidityBody = ({ children, onTrackEvent }: AddLiquidityBodyProps) => {
-  const { pool } = usePoolDetailContext()
-  const {
-    account,
-    chainId,
-    exchange,
-    poolAddress,
-    poolType,
-    isDegenMode,
-    library,
-    deadline,
-    referral,
-    navigate,
-    buildRouteLoading,
-    buildZapInRoute,
-    txStatusMap,
-    txHashMapping,
-    clearTracking,
-    addTrackedTxHash,
-    addTransactionWithType,
-  } = useAddLiquidityRuntimeContext()
-
-  const normalizedPool = useZapPool({
-    chainId: chainId || ChainId.MAINNET,
-    pool,
-    poolType: poolType || PoolType.DEX_UNISWAPV3,
-  })
-
-  const state = useZapState({
-    chainId: chainId || ChainId.MAINNET,
-    pool: normalizedPool.data,
-    poolAddress: poolAddress || '',
-    poolType: poolType || PoolType.DEX_UNISWAPV3,
-    account,
-    source: ZAP_SOURCE,
-  })
-
+const AddLiquidityBody = ({ children, onTrackEvent, normalizedPool, state, tracking }: AddLiquidityBodyProps) => {
+  const navigate = useNavigate()
+  const [isDegenMode] = useDegenModeManager()
+  const { poolParams } = usePoolDetailContext()
+  const { buildRouteLoading } = useAddLiquidityRuntimeContext()
   const [isReviewOpen, setIsReviewOpen] = useState(false)
-  const [previewRouteSnapshot, setPreviewRouteSnapshot] = useState<ZapRouteDetail | null>(null)
-  const reviewRoute = isReviewOpen && previewRouteSnapshot ? previewRouteSnapshot : state.route.data
 
-  const review = useReviewData({
-    pool: normalizedPool.data,
-    route: reviewRoute,
-    zapState: {
-      chainId,
-      poolType,
-      tokens: state.tokenInput.tokens,
-      amounts: state.tokenInput.amounts,
-      prices: state.tokenInput.prices,
-      slippage: state.slippage.value,
-      priceRange: {
-        revertPrice: state.priceRange.revertPrice,
-        poolPrice: state.priceRange.poolPrice,
-        tickLower: state.priceRange.tickLower,
-        tickUpper: state.priceRange.tickUpper,
-        minPrice: state.priceRange.minPrice,
-        maxPrice: state.priceRange.maxPrice,
-      },
-    },
+  const chainId = poolParams.poolChainId || DEFAULT_CHAIN_ID
+  const poolType = normalizedPool.poolType
+  const reviewRoute = state.route.data
+  const refetchReviewRoute = state.route.refetch
+
+  const widgetReview = useReviewData({
+    pool: normalizedPool,
+    route: state.route.data,
+    chainId,
+    poolType,
+    state,
   })
 
   const isZapImpactBlocked =
     !isDegenMode &&
-    review.estimate?.zapImpact !== null &&
-    review.estimate?.zapImpact !== undefined &&
-    ['VERY_HIGH', 'INVALID'].includes(review.estimate.zapImpact.level)
+    widgetReview.estimate?.zapImpact !== null &&
+    widgetReview.estimate?.zapImpact !== undefined &&
+    ['VERY_HIGH', 'INVALID'].includes(widgetReview.estimate.zapImpact.level)
 
   const feedback = useFeedback({
     poolChainId: chainId,
-    pool: normalizedPool.data,
+    pool: normalizedPool,
     state,
-    review,
+    review: widgetReview,
     isZapImpactBlocked,
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
-  const [submittedTxHash, setSubmittedTxHash] = useState('')
-  const [buildData, setBuildData] = useState<BuildZapInData | null>(null)
-
-  const currentTxHash = submittedTxHash ? txHashMapping[submittedTxHash] || submittedTxHash : ''
-  const currentTxStatus = submittedTxHash ? txStatusMap[submittedTxHash] || txStatusMap[currentTxHash] : undefined
-  const modalTxStatus = getModalTxStatus(currentTxStatus)
-
-  const openReview = useCallback(
-    (builtRoute: BuildZapInData) => {
-      setSubmitError(null)
-      setSubmittedTxHash('')
-      setBuildData(builtRoute)
-      setPreviewRouteSnapshot(state.route.data || null)
-      clearTracking()
-      setIsReviewOpen(true)
-    },
-    [clearTracking, state.route.data],
-  )
 
   const handlePreview = useCallback(async () => {
-    if (!account || !chainId || !state.route.data || !deadline) return
-
-    setSubmitError(null)
-    setSubmittedTxHash('')
-    setBuildData(null)
-    setPreviewRouteSnapshot(null)
-
-    try {
-      const builtRoute = await buildZapInRoute({
-        chainId,
-        sender: account,
-        recipient: account,
-        route: state.route.data.route,
-        deadline,
-        source: ZAP_SOURCE,
-        referral,
-      }).unwrap()
-
-      openReview(builtRoute)
-    } catch (error) {
-      setBuildData(null)
-      setSubmitError(friendlyError(error as Error) || (error as Error)?.message || 'Failed to build zap transaction')
-      setIsReviewOpen(true)
-    }
-  }, [account, buildZapInRoute, chainId, deadline, openReview, referral, state.route.data])
+    setIsReviewOpen(true)
+  }, [])
 
   const handleDismissReview = useCallback(() => {
     setIsReviewOpen(false)
-    setIsSubmitting(false)
-    setSubmitError(null)
-    setSubmittedTxHash('')
-    setBuildData(null)
-    setPreviewRouteSnapshot(null)
-    clearTracking()
-  }, [clearTracking])
-
-  const handleSubmit = useCallback(async () => {
-    if (!account || !exchange || !chainId || !poolAddress || !state.route.data || !normalizedPool.data || !library)
-      return
-
-    setSubmitError(null)
-
-    if (!buildData) {
-      setSubmitError('Build route is unavailable.')
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      const { txHash, error } = await submitTransaction({
-        library,
-        txData: {
-          from: account,
-          to: buildData.routerAddress,
-          data: buildData.callData,
-          value: buildData.value,
-        },
-      })
-
-      if (!txHash || error) {
-        throw new Error(error?.message || 'Transaction failed')
-      }
-
-      setSubmittedTxHash(txHash)
-      addTrackedTxHash(txHash)
-      addTransactionWithType({
-        hash: txHash,
-        type: TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
-        extraInfo: {
-          pool: `${normalizedPool.data.token0.symbol}/${normalizedPool.data.token1.symbol}`,
-          tokensIn: state.validation.parsedTokensIn,
-          dexLogoUrl: EARN_DEXES[exchange].logo,
-          dex: exchange,
-        },
-      })
-    } catch (error) {
-      setSubmitError(
-        friendlyError(error as Error) || (error as Error)?.message || 'Failed to build or submit zap transaction',
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [
-    account,
-    addTrackedTxHash,
-    addTransactionWithType,
-    buildData,
-    chainId,
-    exchange,
-    library,
-    normalizedPool.data,
-    poolAddress,
-    state.route.data,
-    state.validation.parsedTokensIn,
-  ])
-
-  const handleViewPosition = useCallback(async () => {
-    if (!library || !currentTxHash || !exchange || !poolAddress || !chainId) return
-
-    await navigateToPositionAfterZap(library, currentTxHash, chainId, exchange, poolAddress, navigate)
-    handleDismissReview()
-  }, [chainId, currentTxHash, exchange, handleDismissReview, library, navigate, poolAddress])
-
-  const renderWidget = () => {
-    if (!normalizedPool.data) {
-      return <AddLiquidityWidgetSkeleton />
-    }
-
-    return (
-      <>
-        <AddLiquidityWidget
-          context={{
-            chainId: chainId || ChainId.MAINNET,
-            poolAddress: normalizedPool.data.address,
-            poolType: normalizedPool.data.poolType,
-            pool: normalizedPool.data,
-          }}
-          state={state}
-          preview={{
-            loading: buildRouteLoading,
-            onPreview: handlePreview,
-          }}
-          feedback={feedback.widget}
-          isZapImpactBlocked={isZapImpactBlocked}
-          onTrackEvent={onTrackEvent}
-          onCancel={() => navigate(-1)}
-        />
-
-        {feedback.page.warnings.length ? (
-          <Stack gap={12}>
-            {feedback.page.warnings.map((warning, index) => (
-              <NoteCard key={`${warning.kind}-${index}`} $tone={warning.tone}>
-                {translateZapMessage(warning.message)}
-              </NoteCard>
-            ))}
-          </Stack>
-        ) : null}
-      </>
-    )
-  }
+    tracking.clearTracking()
+  }, [tracking])
 
   return (
     <>
       <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
         <Stack flex="1 1 480px" maxWidth="480px" minWidth={0} gap={16}>
-          {renderWidget()}
+          <AddLiquidityWidget
+            context={{
+              chainId,
+              poolAddress: normalizedPool.address,
+              poolType: normalizedPool.poolType,
+              pool: normalizedPool,
+            }}
+            state={state}
+            preview={{
+              loading: buildRouteLoading,
+              onPreview: handlePreview,
+            }}
+            feedback={feedback.widget}
+            isZapImpactBlocked={isZapImpactBlocked}
+            onTrackEvent={onTrackEvent}
+            onCancel={() => navigate(-1)}
+          />
+
+          {feedback.page.warnings.length ? (
+            <Stack gap={12}>
+              {feedback.page.warnings.map((warning, index) => (
+                <NoteCard key={`${warning.kind}-${index}`} $tone={warning.tone}>
+                  {translateZapMessage(warning.message)}
+                </NoteCard>
+              ))}
+            </Stack>
+          ) : null}
         </Stack>
-        <Stack flex="1 1 320px" gap={24} minWidth={0}>
+
+        <Stack flex="1 1 480px" gap={24} minWidth={0}>
           <AddLiquidityRoutePreview
             inputTokens={state.tokenInput.tokens}
             inputAmounts={state.tokenInput.amounts}
-            pool={normalizedPool.data}
-            zapRoute={reviewRoute}
+            pool={normalizedPool}
+            zapRoute={state.route.data}
           />
           {children}
         </Stack>
       </HStack>
 
-      <AddLiquidityReviewModal
-        isOpen={isReviewOpen}
-        review={review}
-        confirmDisabled={isSubmitting || !buildData}
-        confirmLoading={isSubmitting}
-        txHash={submittedTxHash}
-        txStatus={modalTxStatus}
-        txError={submitError}
-        transactionExplorerUrl={
-          currentTxHash && chainId ? `${NETWORKS_INFO[chainId]?.etherscanUrl}/tx/${currentTxHash}` : undefined
-        }
-        onDismiss={handleDismissReview}
-        onConfirm={() => {
-          void handleSubmit()
-        }}
-        onUseSuggestedSlippage={() => {
-          if (
-            review.estimate?.suggestedSlippage !== undefined &&
-            review.estimate.slippage !== review.estimate.suggestedSlippage
-          ) {
-            state.slippage.setValue(review.estimate.suggestedSlippage)
-          }
-          handleDismissReview()
-        }}
-        onRevertPriceToggle={state.priceRange.toggleRevertPrice}
-        onViewPosition={modalTxStatus === 'success' ? handleViewPosition : undefined}
-      />
+      {reviewRoute ? (
+        <AddLiquidityReviewModal
+          isOpen={isReviewOpen}
+          pool={normalizedPool}
+          route={reviewRoute}
+          refetchRoute={refetchReviewRoute}
+          chainId={chainId}
+          poolType={poolType}
+          state={state}
+          tokensIn={state.validation.parsedTokensIn}
+          confirmText="Add Liquidity"
+          onClearTracking={tracking.clearTracking}
+          onAddTrackedTxHash={tracking.addTrackedTxHash}
+          onAddTransactionWithType={tracking.addTransactionWithType}
+          onDismiss={handleDismissReview}
+          onUseSuggestedSlippage={() => {
+            if (widgetReview.estimate?.suggestedSlippage !== undefined) {
+              state.slippage.setValue(widgetReview.estimate.suggestedSlippage)
+            }
+            handleDismissReview()
+          }}
+          onRevertPriceToggle={state.priceRange.toggleRevertPrice}
+        />
+      ) : null}
     </>
   )
 }
 
 const AddLiquidity = ({ children }: AddLiquidityProps) => {
-  const { poolParams } = usePoolDetailContext()
-
-  const navigate = useNavigate()
-  const toggleWalletModal = useWalletModalToggle()
-
+  const { pool, poolParams } = usePoolDetailContext()
   const { account } = useActiveWeb3React()
-  const { library, chainId: walletChainId } = useWeb3React()
+  const { library } = useWeb3React()
 
   const { trackingHandler } = useTracking()
-  const { changeNetwork } = useChangeNetwork()
-  const deadline = useTransactionDeadline()
 
   const addTransactionWithType = useTransactionAdder()
-  const [isDegenMode] = useDegenModeManager()
   const [buildZapInRoute, buildRouteState] = useBuildZapInRouteMutation()
   const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
 
   const exchange = poolParams.exchange as Exchange | undefined
-  const chainId = poolParams.poolChainId as ChainId | undefined
+  const chainId = poolParams.poolChainId || DEFAULT_CHAIN_ID
+  const poolAddress = poolParams.poolAddress
+  const poolType =
+    (poolParams.exchange ? (ZAPIN_DEX_MAPPING[poolParams.exchange as Exchange] as unknown as PoolType) : undefined) ||
+    PoolType.DEX_UNISWAPV3
 
-  const { rpc: rpcUrl } = useKyberSwapConfig(chainId)
-  const poolType = exchange ? (ZAPIN_DEX_MAPPING[exchange] as unknown as PoolType) : undefined
-  const referral = getCookieValue('refCode')
+  const normalizedPool = useZapPool({
+    chainId,
+    pool,
+    poolType,
+  })
+
+  const state = useZapState({
+    chainId,
+    pool: normalizedPool.data,
+    poolAddress,
+    poolType,
+    account,
+    source: 'kyberswap-earn',
+  })
 
   const submitApprovalTx = useCallback(
-    async (txData: AddLiquiditySubmitTxData, additionalInfo?: AddLiquidityApprovalInfo) => {
+    async (txData: AddLiquiditySubmitTxData, additionalInfo?: ApprovalAdditionalInfo) => {
       if (!library) throw new Error('Wallet is not connected')
 
       const { txHash, error } = await submitTransaction({ library, txData })
@@ -403,55 +234,24 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     [addTrackedTxHash, addTransactionWithType, exchange, library],
   )
 
-  const runtimeValue = useMemo(
+  const runtimeValue = useMemo<AddLiquidityRuntimeContextValue>(
     () => ({
-      account: account || undefined,
-      chainId,
-      walletChainId,
-      exchange,
-      poolAddress: poolParams.poolAddress || undefined,
-      poolType,
-      deadline: deadline ? +deadline.toString() : undefined,
-      referral,
-      rpcUrl,
-      isDegenMode,
-      library,
-      navigate,
       buildRouteLoading: buildRouteState.isLoading,
       buildZapInRoute,
-      toggleWalletModal,
-      changeNetwork,
       txStatusMap: txStatus,
       txHashMapping: originalToCurrentHash,
-      clearTracking,
-      addTrackedTxHash,
-      addTransactionWithType,
       submitApprovalTx,
     }),
-    [
-      account,
+    [buildRouteState.isLoading, buildZapInRoute, originalToCurrentHash, submitApprovalTx, txStatus],
+  )
+
+  const tracking = useMemo<AddLiquidityTracking>(
+    () => ({
+      clearTracking,
       addTrackedTxHash,
       addTransactionWithType,
-      buildRouteState.isLoading,
-      buildZapInRoute,
-      changeNetwork,
-      clearTracking,
-      deadline,
-      exchange,
-      isDegenMode,
-      library,
-      navigate,
-      originalToCurrentHash,
-      poolParams.poolAddress,
-      poolType,
-      referral,
-      rpcUrl,
-      submitApprovalTx,
-      toggleWalletModal,
-      txStatus,
-      walletChainId,
-      chainId,
-    ],
+    }),
+    [addTrackedTxHash, addTransactionWithType, clearTracking],
   )
 
   const handleTrackEvent = useCallback(
@@ -464,7 +264,32 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
 
   return (
     <AddLiquidityRuntimeProvider value={runtimeValue}>
-      <AddLiquidityBody onTrackEvent={handleTrackEvent}>{children}</AddLiquidityBody>
+      {!normalizedPool.data ? (
+        <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
+          <Stack flex="1 1 480px" maxWidth="480px" minWidth={0} gap={16}>
+            <AddLiquidityWidgetSkeleton />
+          </Stack>
+
+          <Stack flex="1 1 480px" gap={24} minWidth={0}>
+            <AddLiquidityRoutePreview
+              inputTokens={state.tokenInput.tokens}
+              inputAmounts={state.tokenInput.amounts}
+              pool={null}
+              zapRoute={state.route.data}
+            />
+            {children}
+          </Stack>
+        </HStack>
+      ) : (
+        <AddLiquidityBody
+          onTrackEvent={handleTrackEvent}
+          normalizedPool={normalizedPool.data}
+          state={state}
+          tracking={tracking}
+        >
+          {children}
+        </AddLiquidityBody>
+      )}
     </AddLiquidityRuntimeProvider>
   )
 }

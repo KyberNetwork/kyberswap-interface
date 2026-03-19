@@ -85,7 +85,7 @@ const PoolDetailPageSkeleton = () => {
           <AddLiquidityWidgetSkeleton />
         </Stack>
 
-        <Stack flex="1 1 320px" gap={24} minWidth={0}>
+        <Stack flex="1 1 480px" gap={24} minWidth={0}>
           <RoutePreviewSkeleton />
           <PoolInformationSkeleton />
         </Stack>

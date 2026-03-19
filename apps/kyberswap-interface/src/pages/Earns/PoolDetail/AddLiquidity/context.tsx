@@ -1,17 +1,7 @@
-import { PoolType, TxStatus } from '@kyber/schema'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { type ApprovalAdditionalInfo } from '@kyber/hooks'
+import { TxStatus } from '@kyber/schema'
 import { ReactNode, createContext, useContext } from 'react'
-import { NavigateFunction } from 'react-router-dom'
 import { BuildZapInData } from 'services/zapInService'
-
-import { Exchange } from 'pages/Earns/constants'
-
-export interface AddLiquidityApprovalInfo {
-  type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
-  tokenAddress: string
-  tokenSymbol?: string
-  dexName?: string
-}
 
 export interface AddLiquiditySubmitTxData {
   from: string
@@ -29,37 +19,14 @@ interface BuildZapInRouteParams {
   deadline: number
   permits?: Record<string, string>
   source: string
-  referral?: string
 }
 
 interface AddLiquidityRuntimeContextValue {
-  account?: string
-  chainId?: ChainId
-  walletChainId?: number
-  exchange?: Exchange
-  poolAddress?: string
-  poolType?: PoolType
-  deadline?: number
-  referral?: string
-  rpcUrl?: string
-  isDegenMode: boolean
-  library?: any
-  navigate: NavigateFunction
   buildRouteLoading: boolean
   buildZapInRoute: (args: BuildZapInRouteParams) => { unwrap: () => Promise<BuildZapInData> }
-  toggleWalletModal: () => void
-  changeNetwork: (
-    chainId: number,
-    callback?: (() => void) | undefined,
-    onError?: (() => void) | undefined,
-    request?: boolean | undefined,
-  ) => Promise<void>
   txStatusMap: Record<string, TxStatus>
   txHashMapping: Record<string, string>
-  clearTracking: () => void
-  addTrackedTxHash: (hash: string) => void
-  addTransactionWithType: (transaction: any) => void
-  submitApprovalTx: (txData: AddLiquiditySubmitTxData, additionalInfo?: AddLiquidityApprovalInfo) => Promise<string>
+  submitApprovalTx: (txData: AddLiquiditySubmitTxData, additionalInfo?: ApprovalAdditionalInfo) => Promise<string>
 }
 
 const AddLiquidityRuntimeContext = createContext<AddLiquidityRuntimeContextValue | null>(null)

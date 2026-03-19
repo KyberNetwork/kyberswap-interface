@@ -6,17 +6,18 @@ import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
+import { useActiveWeb3React } from 'hooks'
 import AddLiquiditySettings from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings'
 import AddLiquidityTokenInput from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityTokenInput'
 import EstimatedPositionApr from 'pages/Earns/PoolDetail/AddLiquidity/components/EstimatedPositionApr'
 import PriceSection from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection'
 import SlippageControl from 'pages/Earns/PoolDetail/AddLiquidity/components/SlippageControl'
-import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
 import { useApproval } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useApproval'
 import { useFeedback } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedback'
 import { useZapActions } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapActions'
 import { useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 const FormStack = styled(Stack)`
   width: 100%;
@@ -57,7 +58,8 @@ const AddLiquidityWidget = ({
   onCancel,
 }: AddLiquidityWidgetProps) => {
   const { chainId: poolChainId, poolAddress, poolType, pool } = context
-  const { account, toggleWalletModal } = useAddLiquidityRuntimeContext()
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [highlightDegenMode, setHighlightDegenMode] = useState(false)
@@ -75,7 +77,6 @@ const AddLiquidityWidget = ({
     setIsSettingsOpen(true)
     setHighlightDegenMode(true)
   }
-
   const actions = useZapActions({
     state,
     approval,
@@ -91,7 +92,6 @@ const AddLiquidityWidget = ({
     if (!highlightDegenMode) return
 
     document.getElementById('earn-add-liquidity-setting')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-
     const timeoutId = window.setTimeout(() => {
       setHighlightDegenMode(false)
     }, 4000)

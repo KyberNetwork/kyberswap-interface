@@ -1,9 +1,13 @@
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks'
 import { Token, ZapRouteDetail } from '@kyber/schema'
 import { parseUnits } from '@kyber/utils/crypto'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
+import { useActiveWeb3React } from 'hooks'
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
+import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import { useKyberSwapConfig } from 'state/application/hooks'
 
 type UseApprovalProps = {
   tokensIn: Token[]
@@ -21,8 +25,13 @@ export type ApprovalState = {
 }
 
 export const useApproval = ({ tokensIn, amountsIn, route }: UseApprovalProps): ApprovalState => {
-  const { account, chainId, exchange, rpcUrl, txStatusMap, txHashMapping, submitApprovalTx } =
-    useAddLiquidityRuntimeContext()
+  const { account } = useActiveWeb3React()
+  const { poolParams } = usePoolDetailContext()
+  const { rpc: rpcUrl } = useKyberSwapConfig(poolParams.poolChainId as ChainId)
+  const { txStatusMap, txHashMapping, submitApprovalTx } = useAddLiquidityRuntimeContext()
+
+  const chainId = poolParams.poolChainId
+  const exchange = poolParams.exchange || ''
 
   const amountsInWei = useMemo(() => {
     if (!amountsIn || tokensIn.length === 0) return []
@@ -53,13 +62,13 @@ export const useApproval = ({ tokensIn, amountsIn, route }: UseApprovalProps): A
     addreses: tokenAddressesToApprove,
     owner: account || '',
     chainId,
-    rpcUrl: rpcUrl || '',
+    rpcUrl,
     spender: route?.routerAddress || '',
     onSubmitTx: submitApprovalTx,
     txStatus: txStatusMap,
     txHashMapping,
     tokenSymbols: tokenSymbolsToApprove,
-    dexName: exchange || '',
+    dexName: exchange,
   })
 
   return {
