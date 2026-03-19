@@ -127,22 +127,24 @@ const AddLiquiditySettings = ({
         </TriggerButton>
 
         {isOpen && (
-          <TooltipPanel gap={8}>
-            <Text color={theme.text} fontSize={14} fontWeight={500}>
+          <TooltipPanel gap={4}>
+            <Text color={theme.text} fontWeight={500}>
               Advanced Settings
             </Text>
-            <DegenModeRow align="center" gap={12} justify="space-between" $highlight={highlightDegenMode}>
-              <Text color={theme.subText} fontSize={14}>
-                <Trans>Degen Mode</Trans>
+            <Stack>
+              <DegenModeRow align="center" justify="space-between" $highlight={highlightDegenMode}>
+                <Text color={theme.warning} fontSize={14} fontWeight={500}>
+                  <Trans>Degen Mode</Trans>
+                </Text>
+                <Toggle isActive={isDegenMode} toggle={handleToggleDegenMode} />
+              </DegenModeRow>
+              <Text color={theme.subText} fontSize={12} fontStyle="italic">
+                <Trans>
+                  Turn this on to make trades with very high price impact or to set very high slippage tolerance. This
+                  can result in bad rates and loss of funds. Be cautious.
+                </Trans>
               </Text>
-              <Toggle isActive={isDegenMode} toggle={handleToggleDegenMode} />
-            </DegenModeRow>
-            <Text color={theme.subText} fontSize={12}>
-              <Trans>
-                Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
-                result in bad rates and loss of funds. Be cautious.
-              </Trans>
-            </Text>
+            </Stack>
           </TooltipPanel>
         )}
       </Stack>
