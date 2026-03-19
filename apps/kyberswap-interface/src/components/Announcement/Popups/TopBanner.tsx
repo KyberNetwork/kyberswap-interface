@@ -106,6 +106,7 @@ function TopBanner() {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { topPopups } = useActivePopups()
+  console.log('topPopups ==== ', topPopups)
   const popupInfo = topPopups[topPopups.length - 1]
   const { trackingHandler } = useTracking()
 
