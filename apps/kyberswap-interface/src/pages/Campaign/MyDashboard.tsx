@@ -6,7 +6,7 @@ import { MoreHorizontal } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { useGetUserReferralTotalRewardQuery, useGetUserWeeklyRewardQuery } from 'services/campaign'
+import { useGetUserWeeklyRewardQuery } from 'services/campaign'
 import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
@@ -26,7 +26,6 @@ import { formatDisplayNumber } from 'utils/numbers'
 import ClaimButton from './components/ClaimButton'
 import NearIntentDashboard from './components/MyDashboard/NearIntentDashboard'
 import RaffleDashboard from './components/MyDashboard/RaffleDashboard'
-import ReferralDashboard from './components/MyDashboard/ReferralDashboard'
 import SafePalDashboard from './components/MyDashboard/SafePalDashboard'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentCampaignReward } from './hooks/useNearIntentCampaignReward'
@@ -61,13 +60,20 @@ export function getDateOfWeek(w: number, y: number) {
 }
 
 const NEW_CAMPAIGN = CampaignType.SafePal
+const DASHBOARD_TABS: CampaignType[] = [
+  CampaignType.SafePal,
+  CampaignType.Raffle,
+  CampaignType.NearIntents,
+  CampaignType.MayTrading,
+]
 
 const MyDashboard = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const tab: CampaignType = (searchParams.get('tab') || NEW_CAMPAIGN) as CampaignType
+  const searchTab = searchParams.get('tab') as CampaignType | null
+  const tab = searchTab && DASHBOARD_TABS.includes(searchTab) ? searchTab : NEW_CAMPAIGN
 
   const changeTab = (tab: CampaignType) => {
     searchParams.set('tab', tab)
@@ -88,13 +94,11 @@ const MyDashboard = () => {
 
   const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
 
-  const stipReward = campaignConfig[CampaignType.Aggregator].reward
   const mayTradingReward = campaignConfig[CampaignType.MayTrading].reward
 
   const rewardTokenLogo = reward.logo
   const rewardTokenSymbol = reward.symbol
 
-  const stipRewardPrice = useTokenPrices([stipReward.address], stipReward.chainId)?.[stipReward.address] || 0
   const mayTradingRewardPrice =
     useTokenPrices([mayTradingReward.address], mayTradingReward.chainId)?.[mayTradingReward.address] || 0
 
@@ -102,24 +106,6 @@ const MyDashboard = () => {
     {
       program: 'grind/base',
       campaign: 'trading-incentive',
-      wallet: account || '',
-    },
-    { skip: !account },
-  )
-
-  const { data: stipTrading } = useGetUserWeeklyRewardQuery(
-    {
-      program: 'stip',
-      campaign: 'trading-incentive',
-      wallet: account || '',
-    },
-    { skip: !account },
-  )
-
-  const { data: stipLoData } = useGetUserWeeklyRewardQuery(
-    {
-      program: 'stip',
-      campaign: 'limit-order-farming',
       wallet: account || '',
     },
     { skip: !account },
@@ -136,34 +122,9 @@ const MyDashboard = () => {
     totalNearCampaignReward.toString(),
   )
 
-  const data =
-    tab === CampaignType.MayTrading
-      ? mayTrading
-      : tab === CampaignType.Aggregator
-      ? stipTrading
-      : tab === CampaignType.LimitOrder
-      ? stipLoData
-      : undefined
-
-  const stipTradingRw = CurrencyAmount.fromRawAmount(mockToken, stipTrading?.data?.totalReward?.split('.')[0] || '0')
-  const stipLoRw = CurrencyAmount.fromRawAmount(mockToken, stipLoData?.data?.totalReward?.split('.')[0] || '0')
+  const data = tab === CampaignType.MayTrading ? mayTrading : undefined
 
   const mayTradingRw = CurrencyAmount.fromRawAmount(mockToken, mayTrading?.data?.totalReward?.split('.')[0] || '0')
-
-  const { data: referralData } = useGetUserReferralTotalRewardQuery(
-    { program: 'stip', wallet: account || '' },
-    {
-      skip: !account,
-    },
-  )
-  const referralReward = referralData?.data?.totalReward
-    ? CurrencyAmount.fromRawAmount(
-        new Token(1, ZERO_ADDRESS, 18, 'mock'),
-        referralData?.data?.totalReward.split('.')[0] || '0',
-      ).toExact()
-    : '0'
-
-  const referralRewardUsd = +referralReward * stipRewardPrice
 
   const totalMayTradingRw = formatDisplayNumber(+mayTradingRw.toExact(), { significantDigits: 6 })
   const totalMayTradingRwUsd = formatDisplayNumber(+mayTradingRw.toExact() * mayTradingRewardPrice, {
@@ -171,46 +132,11 @@ const MyDashboard = () => {
     style: 'currency',
   })
 
-  const totalStipRw = formatDisplayNumber(
-    (+stipTradingRw.toExact() + +stipLoRw.toExact() + +referralReward).toFixed(3),
-    {
-      significantDigits: 6,
-    },
-  )
-  const totalStipRwUsd = formatDisplayNumber(
-    (referralRewardUsd + (+stipTradingRw.toExact() + +stipLoRw.toExact()) * stipRewardPrice).toFixed(3),
-    {
-      significantDigits: 6,
-      style: 'currency',
-    },
-  )
-
-  const stipTradingClaimableRw = CurrencyAmount.fromRawAmount(
-    mockToken,
-    account ? stipTrading?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
-  )
-  const stipLoClaimableRw = CurrencyAmount.fromRawAmount(
-    mockToken,
-    account ? stipLoData?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
-  )
   const mayTradingClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
     account ? mayTrading?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
   )
 
-  const totalClaimableRw = formatDisplayNumber(
-    (+stipTradingClaimableRw.toExact() + +stipLoClaimableRw.toExact()).toFixed(3),
-    {
-      significantDigits: 6,
-    },
-  )
-  const totalClaimableRwUsd = formatDisplayNumber(
-    ((+stipTradingClaimableRw.toExact() + +stipLoClaimableRw.toExact()) * stipRewardPrice).toFixed(3),
-    {
-      significantDigits: 6,
-      style: 'currency',
-    },
-  )
   const totalMayTradingClaimableRw = formatDisplayNumber(+mayTradingClaimableRw.toExact(), { significantDigits: 6 })
   const toalMayTradingClaimableRwUsd = formatDisplayNumber(+mayTradingClaimableRw.toExact() * mayTradingRewardPrice, {
     significantDigits: 6,
@@ -222,7 +148,7 @@ const MyDashboard = () => {
     mockToken,
     data?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
-  const price = tab === CampaignType.MayTrading ? mayTradingRewardPrice : stipRewardPrice
+  const price = mayTradingRewardPrice
   const [showModal, setShowModal] = useState(false)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -240,18 +166,6 @@ const MyDashboard = () => {
       type: CampaignType.MayTrading,
       label: campaignLabelMap[CampaignType.MayTrading],
     },
-    {
-      type: CampaignType.Aggregator,
-      label: campaignLabelMap[CampaignType.Aggregator],
-    },
-    {
-      type: CampaignType.LimitOrder,
-      label: campaignLabelMap[CampaignType.LimitOrder],
-    },
-    {
-      type: CampaignType.Referrals,
-      label: campaignLabelMap[CampaignType.Referrals],
-    },
   ]
 
   const endedCampaignsHaveRewards = endedCampaigns.filter(item => {
@@ -263,15 +177,6 @@ const MyDashboard = () => {
     }
     if (item.type === CampaignType.MayTrading) {
       return Number(mayTrading?.data?.totalClaimableReward || '0') > 0
-    }
-    if (item.type === CampaignType.Aggregator) {
-      return Number(stipTrading?.data?.totalClaimableReward || '0') > 0
-    }
-    if (item.type === CampaignType.LimitOrder) {
-      return Number(stipLoData?.data?.totalClaimableReward || '0') > 0
-    }
-    if (item.type === CampaignType.Referrals) {
-      return Number(referralReward || '0') > 0
     }
     return false
   })
@@ -314,17 +219,6 @@ const MyDashboard = () => {
               <Trans>My Est. Rewards</Trans> {infor}
             </Text>
           </Flex>
-          {account && stipTradingRw?.greaterThan('0') && (
-            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-              <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
-              <Text fontWeight="500" ml="6px">
-                {totalStipRw} {stipReward.symbol}
-              </Text>
-              <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-                {totalStipRwUsd}
-              </Text>
-            </Flex>
-          )}
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
             <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
             <Text fontWeight="500" ml="6px">
@@ -360,17 +254,6 @@ const MyDashboard = () => {
             <Trans>My claim-able rewards</Trans>
           </Text>
 
-          {account && stipTradingRw?.greaterThan('0') && (
-            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-              <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
-              <Text fontWeight="500" ml="6px">
-                {totalClaimableRw} {stipReward.symbol}
-              </Text>
-              <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-                {totalClaimableRwUsd}
-              </Text>
-            </Flex>
-          )}
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
             <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
             <Text fontWeight="500" ml="6px">
@@ -459,8 +342,6 @@ const MyDashboard = () => {
         <RaffleDashboard />
       ) : tab === CampaignType.NearIntents ? (
         <NearIntentDashboard />
-      ) : tab === CampaignType.Referrals ? (
-        <ReferralDashboard price={stipRewardPrice} infor={infor} />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
