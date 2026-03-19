@@ -1,14 +1,17 @@
 import { Pool, ZapRouteDetail } from '@kyber/schema'
 import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
+import useTheme from 'hooks/useTheme'
 import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
+import { getStatusErrorMessage } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
+import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { CloseIcon } from 'theme/components'
 
 import EstimateInfo from './EstimateInfo'
@@ -24,36 +27,14 @@ type ReviewWarningItem = {
 }
 
 const ModalContent = styled(Stack)`
-  width: 100%;
-  padding: 24px;
+  align-self: flex-start;
   font-size: 14px;
+  padding: 24px;
+  width: 100%;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 16px;
   `}
-`
-
-const TitleText = styled(Text)`
-  font-size: 24px;
-  font-weight: 500;
-`
-
-const CloseButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-
-  :hover {
-    background: ${({ theme }) => theme.tabActive};
-  }
 `
 
 const DisclaimerText = styled.div`
@@ -62,64 +43,22 @@ const DisclaimerText = styled.div`
   font-style: italic;
 `
 
-const ConfirmButton = styled.button`
-  width: 100%;
-  height: 48px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 20px;
-  background: ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.buttonBlack};
-  font-weight: 500;
-  cursor: pointer;
-
-  :disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  :hover {
-    filter: brightness(1.12);
-  }
-`
-
-const WarningCard = styled(Stack)<{ $tone: 'info' | 'warning' | 'error' }>`
-  padding: 12px 14px;
-  border: 1px solid
-    ${({ theme, $tone }) =>
-      $tone === 'error'
-        ? rgba(theme.red, 0.24)
-        : $tone === 'warning'
-        ? rgba(theme.warning, 0.24)
-        : rgba(theme.primary, 0.24)};
-  border-radius: 12px;
-  background: ${({ theme, $tone }) =>
-    $tone === 'error'
-      ? rgba(theme.red, 0.12)
-      : $tone === 'warning'
-      ? rgba(theme.warning, 0.12)
-      : rgba(theme.primary, 0.12)};
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
-`
-
 type AddLiquidityReviewModalProps = {
   isOpen: boolean
   pool: Pool
-  warnings: ReviewWarningItem[]
   route: ZapRouteDetail
   routeLoading: boolean
   refetchRoute?: () => Promise<unknown>
+  warnings: ReviewWarningItem[]
   chainId: number
   tokenInput: ZapState['tokenInput']
-  slippage?: number
   priceRange: ZapState['priceRange']
-  confirmText: string
+  slippage?: number
+  onDismiss?: () => void
+  onUseSuggestedSlippage?: (suggestedSlippage?: number) => void
   onClearTracking?: () => void
   onAddTrackedTxHash?: (hash: string) => void
   onAddTransactionWithType?: (transaction: any) => void
-  onDismiss?: () => void
-  onUseSuggestedSlippage?: (suggestedSlippage?: number) => void
 }
 
 const getStatusDialogType = (statusPhase: ReviewTransactionStatusPhase) => {
@@ -157,7 +96,7 @@ const StatusContent = ({
   onUseSuggestedSlippage?: () => void
   onViewPosition?: () => void
 }) => {
-  const translatedErrorMessage = txError ? translateFriendlyErrorMessage(txError) : undefined
+  const translatedErrorMessage = getStatusErrorMessage(txError)
   const errorMessage = txError?.toLowerCase() || ''
 
   const isSlippageError = errorMessage.includes('slippage')
@@ -182,11 +121,11 @@ const StatusContent = ({
 
   return (
     <StatusDialog
+      action={statusAction}
       type={getStatusDialogType(statusPhase)}
       description={statusPhase === 'waiting_wallet' ? 'Confirm this transaction in your wallet' : undefined}
       errorMessage={translatedErrorMessage}
       transactionExplorerUrl={transactionExplorerUrl}
-      action={statusAction}
       onClose={onDismiss || (() => {})}
     />
   )
@@ -195,21 +134,21 @@ const StatusContent = ({
 const AddLiquidityReviewModal = ({
   isOpen,
   pool,
-  warnings,
   route,
   routeLoading,
   refetchRoute,
+  warnings,
   chainId,
   tokenInput,
-  slippage,
   priceRange,
-  confirmText,
+  slippage,
+  onDismiss,
+  onUseSuggestedSlippage,
   onClearTracking,
   onAddTrackedTxHash,
   onAddTransactionWithType,
-  onDismiss,
-  onUseSuggestedSlippage,
 }: AddLiquidityReviewModalProps) => {
+  const theme = useTheme()
   const { buildData, buildError, buildLoading, rebuildReview } = useReviewBuild({
     isOpen,
     route,
@@ -274,13 +213,13 @@ const AddLiquidityReviewModal = ({
   }
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} borderRadius="20px" mobileFullWidth>
+    <Modal isOpen={isOpen} borderRadius="20px" maxWidth={480} mobileFullWidth onDismiss={onDismiss}>
       <ModalContent gap={16}>
-        <HStack width="100%" align="center" justify="space-between">
-          <TitleText>Add Liquidity via Zap</TitleText>
-          <CloseButton aria-label="Close review" onClick={onDismiss} type="button">
-            <CloseIcon size={28} />
-          </CloseButton>
+        <HStack align="center" justify="space-between" width="100%">
+          <Text fontSize={24} fontWeight={500}>
+            Add Liquidity via Zap
+          </Text>
+          <CloseIcon color={theme.subText} onClick={onDismiss} size={28} />
         </HStack>
 
         <PoolHeader isReview />
@@ -292,15 +231,15 @@ const AddLiquidityReviewModal = ({
         <EstimateInfo pool={pool} route={route} slippage={slippage} />
 
         {buildError ? (
-          <WarningCard $tone="error">{translateFriendlyErrorMessage(buildError) || buildError}</WarningCard>
+          <NoteCard $tone="error">{translateFriendlyErrorMessage(buildError) || buildError}</NoteCard>
         ) : null}
 
         {warnings.length ? (
           <Stack gap={12}>
             {warnings.map((warning, index) => (
-              <WarningCard key={`${warning.tone}-${index}`} $tone={warning.tone}>
+              <NoteCard key={`${warning.tone}-${index}`} $tone={warning.tone}>
                 {translateZapMessage(warning.message)}
-              </WarningCard>
+              </NoteCard>
             ))}
           </Stack>
         ) : null}
@@ -310,8 +249,12 @@ const AddLiquidityReviewModal = ({
           to verify all information before making decisions
         </DisclaimerText>
 
-        <ConfirmButton
+        <ButtonPrimary
+          altDisabledStyle
+          borderRadius="20px"
+          color={theme.buttonBlack}
           disabled={transaction.confirmDisabled || routeLoading || buildLoading || Boolean(buildError)}
+          height="48px"
           onClick={() => void transaction.handleSubmit()}
           type="button"
         >
@@ -319,8 +262,8 @@ const AddLiquidityReviewModal = ({
             ? 'Adding Liquidity...'
             : routeLoading || buildLoading
             ? 'Refreshing Route...'
-            : confirmText}
-        </ConfirmButton>
+            : 'Add Liquidity'}
+        </ButtonPrimary>
       </ModalContent>
     </Modal>
   )

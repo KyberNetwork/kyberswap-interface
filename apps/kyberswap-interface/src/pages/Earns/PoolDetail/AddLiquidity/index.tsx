@@ -136,24 +136,23 @@ const AddLiquidityBody = ({ children, onTrackEvent, normalizedPool, state, track
         <AddLiquidityReviewModal
           isOpen={isReviewOpen}
           pool={normalizedPool}
-          warnings={feedback.modal.warnings}
           route={reviewRoute}
           routeLoading={state.route.loading}
           refetchRoute={refetchReviewRoute}
+          warnings={feedback.modal.warnings}
           chainId={chainId}
           tokenInput={state.tokenInput}
-          slippage={state.slippage.value}
           priceRange={state.priceRange}
-          confirmText="Add Liquidity"
-          onClearTracking={tracking.clearTracking}
-          onAddTrackedTxHash={tracking.addTrackedTxHash}
-          onAddTransactionWithType={tracking.addTransactionWithType}
+          slippage={state.slippage.value}
           onDismiss={handleDismissReview}
           onUseSuggestedSlippage={suggestedSlippage => {
             if (suggestedSlippage !== undefined) {
               state.slippage.setValue(suggestedSlippage)
             }
           }}
+          onClearTracking={tracking.clearTracking}
+          onAddTrackedTxHash={tracking.addTrackedTxHash}
+          onAddTransactionWithType={tracking.addTransactionWithType}
         />
       ) : null}
     </>

@@ -171,12 +171,9 @@ const PoolHeaderReview = () => {
       </HStack>
 
       <Stack gap={4}>
-        <HStack minWidth={0} align="center" gap={8} wrap="wrap">
-          <Text color={theme.text} fontSize={16} fontWeight={500}>
-            {primaryToken.symbol}/{secondaryToken.symbol}
-          </Text>
-          <CopyHelper color={theme.subText} margin="0" size={16} toCopy={pool.address} />
-        </HStack>
+        <Text color={theme.text} fontSize={16} fontWeight={500}>
+          {primaryToken.symbol}/{secondaryToken.symbol}
+        </Text>
 
         <HStack align="center" gap={8} wrap="wrap">
           <HStack align="center" gap={4}>

@@ -9,56 +9,42 @@ import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapS
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled(Stack)`
-  padding: 20px;
-  border-radius: 20px;
   background: ${({ theme }) => theme.buttonGray};
-`
-
-const SectionLabel = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-`
-
-const LabelText = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
+  border-radius: 12px;
+  padding: 12px 16px;
 `
 
 const RangeBox = styled(HStack)`
   flex: 1 1 0;
   min-width: 0;
   align-items: stretch;
-  gap: 0;
-  overflow: hidden;
-  border-radius: 16px;
+  border-radius: 12px;
   background: ${({ theme }) => theme.tabActive};
 `
 
 const RangeLabelBox = styled(Stack)`
   justify-content: center;
-  min-width: 72px;
   padding: 8px 12px;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
   background: ${({ theme }) => theme.background};
 `
 
-const RangeValue = styled(Text)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const RangeValueBox = styled(HStack)`
   flex: 1 1 0;
   min-width: 0;
+  justify-content: center;
   padding: 8px 12px;
-  font-weight: 500;
 `
 
-const IconButton = styled.button`
+const RevertButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border: none;
   border-radius: 999px;
   background: ${({ theme }) => theme.tabActive};
   color: ${({ theme }) => theme.subText};
@@ -81,38 +67,49 @@ const PriceInfo = ({ pool, priceRange }: PriceInfoProps) => {
   const isUniV3 = priceRange.minPrice !== null || priceRange.maxPrice !== null
 
   return (
-    <Card gap={16}>
+    <Card gap={12}>
       <HStack align="center" justify="space-between" gap={12}>
-        <HStack align="center" gap={6} wrap="wrap">
-          <SectionLabel>Current Price</SectionLabel>
-          <Text color={theme.text}>
-            1 {baseToken.symbol} = {formatDisplayNumber(priceRange.poolPrice, { significantDigits: 8 })}{' '}
-            {quoteToken.symbol}
-          </Text>
+        <HStack flex="1 1 auto" align="center" gap={8} wrap="wrap">
+          <Text color={theme.subText}>Current Price</Text>
+          <HStack gap={4} wrap="wrap">
+            <Text>1</Text>
+            <Text>{baseToken.symbol}</Text>
+            <Text>=</Text>
+            <Text>{formatDisplayNumber(priceRange.poolPrice, { significantDigits: 8 })}</Text>
+            <Text>{quoteToken.symbol}</Text>
+          </HStack>
         </HStack>
 
-        <IconButton type="button" onClick={priceRange.toggleRevertPrice}>
-          <RevertPriceIcon width={14} height={14} />
-        </IconButton>
+        <RevertButton aria-label="Reverse price" onClick={priceRange.toggleRevertPrice} type="button">
+          <RevertPriceIcon width={12} height={12} />
+        </RevertButton>
       </HStack>
 
-      {isUniV3 ? (
+      {isUniV3 && (
         <HStack gap={12}>
           <RangeBox>
             <RangeLabelBox>
-              <LabelText>MIN</LabelText>
+              <Text fontSize={12} color={theme.subText}>
+                MIN
+              </Text>
             </RangeLabelBox>
-            <RangeValue color={theme.text}>{priceRange.minPrice || '--'}</RangeValue>
+            <RangeValueBox>
+              <Text fontWeight={500}>{priceRange.minPrice}</Text>
+            </RangeValueBox>
           </RangeBox>
 
           <RangeBox>
             <RangeLabelBox>
-              <LabelText>MAX</LabelText>
+              <Text fontSize={12} color={theme.subText}>
+                MAX
+              </Text>
             </RangeLabelBox>
-            <RangeValue color={theme.text}>{priceRange.maxPrice || '--'}</RangeValue>
+            <RangeValueBox>
+              <Text fontWeight={500}>{priceRange.maxPrice}</Text>
+            </RangeValueBox>
           </RangeBox>
         </HStack>
-      ) : null}
+      )}
     </Card>
   )
 }

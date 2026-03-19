@@ -12,6 +12,7 @@ import {
   univ2Types,
   univ3Types,
 } from '@kyber/schema'
+import { translateFriendlyErrorMessage } from '@kyber/ui'
 
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -225,4 +226,18 @@ export const getSecurityWarnings = ({
 export const getSlippageStorageKey = (token0Symbol: string, token1Symbol: string, chainId: number, feeTier: number) => {
   const sortedSymbols = [token0Symbol, token1Symbol].sort()
   return `kyber_liquidity_widget_slippage_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`
+}
+
+export const getStatusErrorMessage = (message?: string | null) => {
+  if (!message) return undefined
+
+  const translatedMessage = translateFriendlyErrorMessage(message)
+    .replace(/^execution reverted:\s*/i, '')
+    .trim()
+  const shortenedMessage = translatedMessage
+    .replace(/:\s*0x[a-fA-F0-9]{32,}.*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return shortenedMessage || translatedMessage
 }

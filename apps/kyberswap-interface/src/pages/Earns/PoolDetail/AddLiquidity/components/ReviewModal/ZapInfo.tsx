@@ -11,18 +11,9 @@ import { getInputTokenItems, getNetworkInfo } from 'pages/Earns/PoolDetail/AddLi
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled(Stack)`
-  padding: 20px;
-  border-radius: 20px;
   background: ${({ theme }) => theme.buttonGray};
-`
-
-const SectionLabel = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-`
-
-const TotalText = styled(Text)`
-  font-weight: 500;
+  border-radius: 12px;
+  padding: 12px 16px;
 `
 
 type ZapInfoProps = {
@@ -90,27 +81,27 @@ const ZapInfo = ({ chainId, route, tokenInput }: ZapInfoProps) => {
   )
 
   return (
-    <Card gap={16}>
+    <Card gap={12}>
       <HStack align="center" justify="space-between">
-        <SectionLabel>Zap-in Amount</SectionLabel>
-        <TotalText color={theme.text}>
+        <Text color={theme.subText}>Zap-in Amount</Text>
+        <Text color={theme.text} fontWeight={500}>
           {formatDisplayNumber(totalInputUsd, { style: 'currency', significantDigits: 6 })}
-        </TotalText>
+        </Text>
       </HStack>
 
-      <Stack gap={12}>
+      <Stack gap={8}>
         {items.map(item => (
           <HStack key={item.token.address} align="center" gap={12} wrap="wrap">
-            <HStack minWidth={0} align="center" gap={8} wrap="wrap">
+            <HStack align="center" gap={8} minWidth={0} wrap="wrap">
               <TokenLogo src={item.token.logo} size={18} />
               <Text color={theme.text}>
                 {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}
               </Text>
             </HStack>
 
-            <SectionLabel>
+            <Text color={theme.subText}>
               ~{formatDisplayNumber(item.usdValue, { style: 'currency', significantDigits: 6 })}
-            </SectionLabel>
+            </Text>
           </HStack>
         ))}
       </Stack>

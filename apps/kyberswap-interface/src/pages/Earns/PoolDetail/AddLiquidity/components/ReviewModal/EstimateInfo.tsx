@@ -1,6 +1,5 @@
 import { PartnerFeeAction, Pool, ProtocolFeeAction, RefundAction, ZapAction, ZapRouteDetail } from '@kyber/schema'
 import { getZapImpact } from '@kyber/utils'
-import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -12,50 +11,24 @@ import { getOutputTokenItems } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled(Stack)`
-  padding: 20px;
-  border-radius: 20px;
   background: ${({ theme }) => theme.buttonGray};
-`
-
-const SectionLabel = styled(Text)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-`
-
-const ValueText = styled(Text)`
-  font-weight: 500;
-`
-
-const TotalText = styled(Text)`
-  font-weight: 500;
-`
-
-const EstimateTokenBox = styled(Stack)`
-  flex: 1 1 0;
-  min-width: 0;
-  gap: 4px;
+  border-radius: 12px;
+  padding: 12px 16px;
 `
 
 const Divider = styled.div`
-  width: 100%;
+  background: ${({ theme }) => theme.tabActive};
   height: 1px;
-  background: ${({ theme }) => theme.border};
+  width: 100%;
 `
 
 const MetricCard = styled(Stack)`
-  flex: 1 1 0;
-  min-width: 0;
-  gap: 8px;
-  padding: 12px;
-  border-radius: 12px;
   background: ${({ theme }) => theme.tabActive};
-`
-
-const MetricTitle = styled(Text)`
-  width: fit-content;
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  border-bottom: 1px dotted ${({ theme }) => rgba(theme.border, 0.24)};
+  border-radius: 12px;
+  flex: 1 1 0;
+  gap: 4px;
+  min-width: 0;
+  padding: 8px 12px;
 `
 
 type EstimateInfoProps = {
@@ -125,55 +98,64 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
   const estimate = useMemo(() => buildEstimate({ pool, route, slippage }), [pool, route, slippage])
 
   return (
-    <Card gap={16}>
-      <HStack align="center" justify="space-between">
-        <SectionLabel>Est. Liquidity Value</SectionLabel>
-        <TotalText color={theme.text}>
-          {formatDisplayNumber(estimate.totalUsd, { style: 'currency', significantDigits: 6 })}
-        </TotalText>
-      </HStack>
+    <Card gap={8}>
+      <Stack gap={12}>
+        <HStack align="center" justify="space-between">
+          <Text color={theme.subText}>Est. Liquidity Value</Text>
+          <Text color={theme.text} fontWeight={500}>
+            {formatDisplayNumber(estimate.totalUsd, { style: 'currency', significantDigits: 6 })}
+          </Text>
+        </HStack>
 
-      <HStack align="flex-start" gap={12} wrap="wrap">
-        {estimate.items.map(item => (
-          <EstimateTokenBox key={item.token.address}>
-            <HStack minWidth={0} align="center" gap={6}>
-              <TokenLogo src={item.token.logo} size={16} />
-              <ValueText color={theme.text}>
-                {formatDisplayNumber(item.amount, { significantDigits: 8 })} {item.token.symbol}
-              </ValueText>
-            </HStack>
-            <SectionLabel>
-              ~{formatDisplayNumber(item.usdValue, { style: 'currency', significantDigits: 6 })}
-            </SectionLabel>
-          </EstimateTokenBox>
-        ))}
-      </HStack>
+        <HStack align="flex-start" gap={12} wrap="wrap">
+          {estimate.items.map((item, index) => (
+            <Stack key={item.token.address} flex="1 1 0" gap={4} minWidth={0} align={index ? 'flex-end' : 'flex-start'}>
+              <HStack align="center" gap={4} minWidth={0} wrap="wrap">
+                <TokenLogo src={item.token.logo} size={16} />
+                <Text color={theme.text}>
+                  {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}
+                </Text>
+              </HStack>
+
+              <Text color={theme.subText}>
+                ~{formatDisplayNumber(item.usdValue, { style: 'currency', significantDigits: 6 })}
+              </Text>
+            </Stack>
+          ))}
+        </HStack>
+      </Stack>
 
       <Divider />
 
-      <HStack align="center" justify="space-between">
-        <MetricTitle as="div">Max Slippage</MetricTitle>
-        <ValueText color={theme.text}>{formatBpsLabel(estimate.slippage)}</ValueText>
-      </HStack>
+      <Stack gap={8}>
+        <HStack align="center" justify="space-between">
+          <Text color={theme.subText}>Max Slippage</Text>
+          <Text color={theme.text} fontWeight={500}>
+            {formatBpsLabel(estimate.slippage)}
+          </Text>
+        </HStack>
 
-      <HStack align="stretch" gap={12} wrap="wrap">
-        <MetricCard>
-          <MetricTitle>Est. Remaining</MetricTitle>
-          <ValueText color={theme.text}>
-            {formatDisplayNumber(estimate.remainingUsd, { style: 'currency', significantDigits: 6 })}
-          </ValueText>
-        </MetricCard>
-
-        <MetricCard>
-          <MetricTitle>Zap Impact</MetricTitle>
-          <ValueText color={theme.text}>{estimate.zapImpact?.display || '--'}</ValueText>
-        </MetricCard>
-
-        <MetricCard>
-          <MetricTitle>Zap Fee</MetricTitle>
-          <ValueText color={theme.text}>{formatPercent(estimate.zapFeePercent)}</ValueText>
-        </MetricCard>
-      </HStack>
+        <HStack align="stretch" gap={8} wrap="wrap">
+          <MetricCard>
+            <Text color={theme.subText}>Est. Remaining</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {formatDisplayNumber(estimate.remainingUsd, { style: 'currency', significantDigits: 6 })}
+            </Text>
+          </MetricCard>
+          <MetricCard>
+            <Text color={theme.subText}>Zap Impact</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {estimate.zapImpact?.display}
+            </Text>
+          </MetricCard>
+          <MetricCard>
+            <Text color={theme.subText}>Zap Fee</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {formatPercent(estimate.zapFeePercent)}
+            </Text>
+          </MetricCard>
+        </HStack>
+      </Stack>
     </Card>
   )
 }
