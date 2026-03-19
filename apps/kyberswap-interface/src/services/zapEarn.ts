@@ -171,6 +171,43 @@ export interface PoolDetail {
   poolStats?: PoolDetailStats
 }
 
+export type PoolAnalyticsWindow = '24h' | '7d' | '30d'
+
+interface PoolAnalyticsQueryParams {
+  chainId: number
+  address: string
+  window: PoolAnalyticsWindow
+}
+
+export interface PoolPriceCandle {
+  ts: number
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
+export interface PoolPriceAnalytics {
+  window: PoolAnalyticsWindow
+  candles: Array<PoolPriceCandle>
+  currentPrice: number
+  priceChange: number
+}
+
+export interface PoolLiquidityFlowBucket {
+  ts: number
+  addUsd: number
+  removeUsd: number
+  tvlUsd: number
+}
+
+export interface PoolLiquidityFlowsAnalytics {
+  window: PoolAnalyticsWindow
+  buckets: Array<PoolLiquidityFlowBucket>
+}
+
+const zapEarnAnalyticsBaseUrl = import.meta.env.VITE_ZAP_EARN_ANALYTICS_URL || import.meta.env.VITE_ZAP_EARN_URL
+
 const zapEarnServiceApi = createApi({
   reducerPath: 'zapEarnServiceApi',
   baseQuery: fetchBaseQuery({
@@ -218,6 +255,20 @@ const zapEarnServiceApi = createApi({
         params,
       }),
       transformResponse: (response: { data: PoolDetail }) => response.data,
+    }),
+    poolPrice: builder.query<PoolPriceAnalytics, PoolAnalyticsQueryParams>({
+      query: params => ({
+        url: `${zapEarnAnalyticsBaseUrl}/v1/pools/price`,
+        params,
+      }),
+      transformResponse: (response: { data: PoolPriceAnalytics }) => response.data,
+    }),
+    poolLiquidityFlows: builder.query<PoolLiquidityFlowsAnalytics, PoolAnalyticsQueryParams>({
+      query: params => ({
+        url: `${zapEarnAnalyticsBaseUrl}/v1/pools/liquidity-flows`,
+        params,
+      }),
+      transformResponse: (response: { data: PoolLiquidityFlowsAnalytics }) => response.data,
     }),
     userPositions: builder.query<{ positions: Array<UserPosition>; stats?: UserPositionsStats }, PositionQueryParams>({
       query: params => ({
@@ -277,6 +328,8 @@ export const {
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
   usePoolDetailQuery,
+  usePoolLiquidityFlowsQuery,
+  usePoolPriceQuery,
   useLazyPoolDetailQuery,
 } = zapEarnServiceApi
 
