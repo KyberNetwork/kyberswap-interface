@@ -38,7 +38,7 @@ export interface PoolQueryParams {
   chainIds?: string
   page?: number
   limit?: number
-  interval: string
+  interval?: string
   protocol: string
   userAddress?: string
   tag?: string
@@ -93,34 +93,120 @@ interface AddRemoveFavoriteParams {
   userAddress: string
 }
 
+type PoolStatsPeriod = '1d' | '7d' | '30d'
+
+type PoolStatsByPeriod = Partial<Record<PoolStatsPeriod, number>>
+
+interface PoolDetailToken {
+  address: string
+  name: string
+  symbol: string
+  logoURI?: string
+  decimals: number
+  weight: number
+  swappable: boolean
+}
+
+interface PoolDetailTick {
+  index: number
+  liquidityGross: string
+  liquidityNet: string
+}
+
+interface PoolDetailPositionInfo {
+  liquidity: string
+  sqrtPriceX96: string
+  tickSpacing: number
+  tick: number
+  ticks: Array<PoolDetailTick>
+}
+
+interface PoolAprStats {
+  all?: PoolStatsByPeriod
+  lp?: PoolStatsByPeriod
+  kemLM?: PoolStatsByPeriod
+  kemEG?: PoolStatsByPeriod
+}
+
+interface PoolDetailStats {
+  tvl?: number
+  volume24h?: number
+  fees24h?: number
+  apr24h?: number
+  allApr24h?: number
+  lpApr24h?: number
+  kemLMApr24h?: number
+  kemEGApr24h?: number
+  bonusApr?: number
+  apr?: number
+  kemEGApr?: number
+  allApr7d?: number
+  lpApr7d?: number
+  kemLMApr7d?: number
+  kemEGApr7d?: number
+  apr30d?: number
+  allApr30d?: number
+  lpApr30d?: number
+  kemLMApr30d?: number
+  kemEGApr30d?: number
+  aprStats?: PoolAprStats
+  volumeUsd?: PoolStatsByPeriod
+  lpFeeUsd?: PoolStatsByPeriod
+}
+
 export interface PoolDetail {
   address: string
   reserveUsd: string
   amplifiedTvl: string
   swapFee: number
   exchange: string
-  type: string
+  type?: string
+  programs?: string[]
+  timestamp?: number
+  staticExtra?: string
+  blockNumber?: number
   reserves: Array<string>
-  tokens: Array<{
-    address: string
-    name: string
-    symbol: string
-    decimals: number
-    weight: number
-    swappable: boolean
-  }>
-  positionInfo: {
-    liquidity: string
-    sqrtPriceX96: string
-    tickSpacing: number
-    tick: number
-    ticks: Array<{
-      index: number
-      liquidityGross: number
-      liquidityNet: number
-    }>
-  }
+  tokens: Array<PoolDetailToken>
+  positionInfo: PoolDetailPositionInfo
+  poolStats?: PoolDetailStats
 }
+
+export type PoolAnalyticsWindow = '24h' | '7d' | '30d'
+
+interface PoolAnalyticsQueryParams {
+  chainId: number
+  address: string
+  window: PoolAnalyticsWindow
+}
+
+export interface PoolPriceCandle {
+  ts: number
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
+export interface PoolPriceAnalytics {
+  window: PoolAnalyticsWindow
+  candles: Array<PoolPriceCandle>
+  currentPrice: number
+  priceChange: number
+}
+
+export interface PoolLiquidityFlowBucket {
+  ts: number
+  addUsd: number
+  removeUsd: number
+  tvlUsd: number
+}
+
+export interface PoolLiquidityFlowsAnalytics {
+  window: PoolAnalyticsWindow
+  buckets: Array<PoolLiquidityFlowBucket>
+}
+
+const zapEarnAnalyticsBaseUrl = import.meta.env.VITE_ZAP_EARN_ANALYTICS_URL || import.meta.env.VITE_ZAP_EARN_URL
 
 const zapEarnServiceApi = createApi({
   reducerPath: 'zapEarnServiceApi',
@@ -163,6 +249,27 @@ const zapEarnServiceApi = createApi({
         }
       },
     }),
+    poolDetail: builder.query<PoolDetail, { chainId: number; address: string }>({
+      query: params => ({
+        url: `/v1/pools`,
+        params,
+      }),
+      transformResponse: (response: { data: PoolDetail }) => response.data,
+    }),
+    poolPrice: builder.query<PoolPriceAnalytics, PoolAnalyticsQueryParams>({
+      query: params => ({
+        url: `${zapEarnAnalyticsBaseUrl}/v1/pools/price`,
+        params,
+      }),
+      transformResponse: (response: { data: PoolPriceAnalytics }) => response.data,
+    }),
+    poolLiquidityFlows: builder.query<PoolLiquidityFlowsAnalytics, PoolAnalyticsQueryParams>({
+      query: params => ({
+        url: `${zapEarnAnalyticsBaseUrl}/v1/pools/liquidity-flows`,
+        params,
+      }),
+      transformResponse: (response: { data: PoolLiquidityFlowsAnalytics }) => response.data,
+    }),
     userPositions: builder.query<{ positions: Array<UserPosition>; stats?: UserPositionsStats }, PositionQueryParams>({
       query: params => ({
         url: `/v1/positions`,
@@ -194,13 +301,6 @@ const zapEarnServiceApi = createApi({
         }
       },
     }),
-    poolDetail: builder.query<PoolDetail, { chainId: number; address: string }>({
-      query: params => ({
-        url: `/v1/pools`,
-        params,
-      }),
-      transformResponse: (response: { data: PoolDetail }) => response.data,
-    }),
     addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
       query: body => ({
         method: 'POST',
@@ -228,6 +328,8 @@ export const {
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
   usePoolDetailQuery,
+  usePoolLiquidityFlowsQuery,
+  usePoolPriceQuery,
   useLazyPoolDetailQuery,
 } = zapEarnServiceApi
 
