@@ -12,6 +12,8 @@ import { MEDIA_WIDTHS } from 'theme'
 import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
+const DEFAULT_ANIMATION_DURATION = 12
+const ICON_SIZE = 24
 const MARQUEE_GAP = 32
 
 const BannerWrapper = styled.div`
@@ -21,56 +23,63 @@ const BannerWrapper = styled.div`
 `
 
 const BannerInner = styled.div`
-  padding: 8px 24px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 12px;
+  padding: 8px 24px;
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: flex;
-    flex-direction: column;
     align-items: stretch;
-    padding: 8px 12px;
+    flex-direction: column;
     gap: 8px;
+    padding: 8px 12px;
   `}
 `
 
 const CloseButton = styled(X)`
-  justify-self: end;
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   flex-shrink: 0;
+  justify-self: end;
+
   :hover {
     color: rgba(255, 255, 255, 0.9);
   }
 `
 
 const DesktopSpacer = styled.div`
-  width: 24px;
-  height: 24px;
+  width: ${ICON_SIZE}px;
+  height: ${ICON_SIZE}px;
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: none;
   `}
 `
 
-const PrimaryRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-`
-
 const Content = styled.div`
   display: flex;
   align-items: center;
+  gap: 8px;
   justify-content: center;
+  justify-self: center;
+  min-width: 0;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+    justify-content: space-between;
+  `}
+`
+
+const MainRow = styled.div`
+  display: flex;
+  align-items: center;
   gap: 8px;
   min-width: 0;
-  justify-self: center;
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    justify-content: space-between;
-    width: 100%;
+    flex: 1;
   `}
 `
 
@@ -83,11 +92,11 @@ const LeadingIcon = styled.div`
 const TextWrapper = styled.div`
   display: flex;
   align-items: center;
+  color: rgba(255, 255, 255, 0.92);
   flex: 0 1 auto;
   max-width: min(860px, calc(100vw - 320px));
   min-width: 0;
   overflow: hidden;
-  color: rgba(255, 255, 255, 0.92);
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex: 1;
@@ -99,6 +108,7 @@ const marquee = keyframes`
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(calc(-1 * var(--marquee-shift, 0px)));
   }
@@ -107,13 +117,14 @@ const marquee = keyframes`
 const TextContent = styled.div<{ $isOverflow: boolean; $animationDuration: number }>`
   display: flex;
   align-items: center;
-  width: max-content;
   gap: ${({ $isOverflow }) => ($isOverflow ? `${MARQUEE_GAP}px` : '0')};
-  line-height: 24px;
   color: rgba(255, 255, 255, 0.92);
   font-size: 14px;
   font-weight: 400;
+  line-height: 24px;
   white-space: nowrap;
+  width: max-content;
+
   ${({ $isOverflow, $animationDuration }) =>
     $isOverflow &&
     css`
@@ -132,17 +143,18 @@ const TextLine = styled.div`
 `
 
 const JoinButton = styled(CtaButton)`
-  width: fit-content;
-  min-width: 108px;
-  height: 28px;
-  padding: 0 12px;
-  margin-left: 8px;
-  white-space: nowrap;
+  background: transparent;
+  border-color: rgba(29, 216, 164, 0.85);
+  color: #1dd8a4;
   font-size: 13px;
   font-weight: 500;
-  color: #1dd8a4;
-  border-color: rgba(29, 216, 164, 0.85);
-  background: transparent;
+  height: 28px;
+  margin-left: 8px;
+  min-width: 108px;
+  padding: 0 12px;
+  white-space: nowrap;
+  width: fit-content;
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-left: 0;
     width: 100%;
@@ -152,62 +164,77 @@ const JoinButton = styled(CtaButton)`
 function TopBanner() {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { topPopups } = useActivePopups()
-  const textWrapperRef = useRef<HTMLDivElement>(null)
-  const textLineRef = useRef<HTMLDivElement>(null)
-  const [isOverflow, setIsOverflow] = useState(false)
-  const [animationDuration, setAnimationDuration] = useState(12)
-  const [marqueeShift, setMarqueeShift] = useState(0)
-  const popupInfo = topPopups[topPopups.length - 1]
   const { trackingHandler } = useTracking()
 
   const removeAllPopupByType = useRemoveAllPopupByType()
-
   const navigate = useNavigateToUrl()
+
+  const textWrapperRef = useRef<HTMLDivElement>(null)
+  const textLineRef = useRef<HTMLDivElement>(null)
+
+  const [isOverflow, setIsOverflow] = useState(false)
+  const [animationDuration, setAnimationDuration] = useState(DEFAULT_ANIMATION_DURATION)
+  const [marqueeShift, setMarqueeShift] = useState(0)
+
+  const popupInfo = topPopups[topPopups.length - 1]
   const templateBody = popupInfo?.content.templateBody as AnnouncementTemplatePopup | undefined
+
   const content = templateBody?.content ?? ''
   const ctas = templateBody?.ctas ?? []
   const name = templateBody?.name ?? ''
-  const ctaUrl = ctas[0]?.url
-  const ctaName = ctas[0]?.name
+  const primaryCta = ctas[0]
+  const ctaName = primaryCta?.name
+  const ctaUrl = primaryCta?.url
+  const hasCta = Boolean(ctaName && ctaUrl)
+
   const sanitizedContent = useMemo(
     () => escapeScriptHtml(isMobile ? content.replace(/<br\/>/g, '&nbsp;') : content),
     [content, isMobile],
   )
 
+  const marqueeStyle = { ['--marquee-shift' as string]: `${marqueeShift}px` }
+
   useEffect(() => {
     const measure = () => {
-      const wrapperNode = textWrapperRef.current
+      const textWrapperNode = textWrapperRef.current
       const textLineNode = textLineRef.current
-      if (!wrapperNode || !textLineNode) return
 
-      const wrapperWidth = wrapperNode.clientWidth
+      if (!textWrapperNode || !textLineNode) return
+
+      const wrapperWidth = textWrapperNode.clientWidth
       const textWidth = textLineNode.scrollWidth
       const nextIsOverflow = textWidth > wrapperWidth
 
       setIsOverflow(nextIsOverflow)
+
       if (!nextIsOverflow) {
         setMarqueeShift(0)
-        setAnimationDuration(12)
+        setAnimationDuration(DEFAULT_ANIMATION_DURATION)
         return
       }
 
       const nextShift = textWidth + MARQUEE_GAP
+
       setMarqueeShift(nextShift)
       setAnimationDuration(Math.max(10, nextShift / 60))
     }
 
     measure()
 
-    const wrapperNode = textWrapperRef.current
+    const textWrapperNode = textWrapperRef.current
     const textLineNode = textLineRef.current
-    if (typeof ResizeObserver !== 'undefined' && wrapperNode && textLineNode) {
+
+    if (typeof ResizeObserver !== 'undefined' && textWrapperNode && textLineNode) {
       const observer = new ResizeObserver(measure)
-      observer.observe(wrapperNode)
+
+      observer.observe(textWrapperNode)
       observer.observe(textLineNode)
+
       return () => observer.disconnect()
     }
 
     window.addEventListener('resize', measure)
+
     return () => window.removeEventListener('resize', measure)
   }, [sanitizedContent])
 
@@ -215,91 +242,62 @@ function TopBanner() {
 
   const hideBanner = () => {
     removeAllPopupByType(PopupType.TOP_BAR)
+
     trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: name })
   }
 
   const onClickCta = () => {
     navigate(ctaUrl)
     hideBanner()
+
     trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP, {
-      announcement_type: PopupType.TOP_BAR,
       announcement_title: name,
+      announcement_type: PopupType.TOP_BAR,
     })
   }
 
-  if (!isMobile) {
-    return (
-      <BannerWrapper>
-        <BannerInner>
-          <DesktopSpacer />
-          <Content>
-            <LeadingIcon>
-              <Announcement style={{ minWidth: '24px' }} />
-            </LeadingIcon>
-            <TextWrapper ref={textWrapperRef}>
-              <TextContent
-                $animationDuration={animationDuration}
-                $isOverflow={isOverflow}
-                style={{ ['--marquee-shift' as string]: `${marqueeShift}px` }}
-              >
-                <TextLine
-                  ref={textLineRef}
-                  dangerouslySetInnerHTML={{
-                    __html: sanitizedContent,
-                  }}
-                />
-                {isOverflow && (
-                  <TextLine
-                    aria-hidden="true"
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizedContent,
-                    }}
-                  />
-                )}
-              </TextContent>
-            </TextWrapper>
-            {ctaName && ctaUrl && <JoinButton data={ctas[0]} color="outline" onClick={onClickCta} />}
-          </Content>
-          <CloseButton size={20} onClick={hideBanner} />
-        </BannerInner>
-      </BannerWrapper>
-    )
-  }
+  const marqueeText = (
+    <TextWrapper ref={textWrapperRef}>
+      <TextContent $animationDuration={animationDuration} $isOverflow={isOverflow} style={marqueeStyle}>
+        <TextLine
+          ref={textLineRef}
+          dangerouslySetInnerHTML={{
+            __html: sanitizedContent,
+          }}
+        />
+
+        {isOverflow && (
+          <TextLine
+            aria-hidden="true"
+            dangerouslySetInnerHTML={{
+              __html: sanitizedContent,
+            }}
+          />
+        )}
+      </TextContent>
+    </TextWrapper>
+  )
 
   return (
     <BannerWrapper>
       <BannerInner>
+        {!isMobile && <DesktopSpacer />}
+
         <Content>
-          <PrimaryRow>
+          <MainRow>
             <LeadingIcon>
-              <Announcement style={{ minWidth: '24px' }} />
+              <Announcement style={{ minWidth: ICON_SIZE }} />
             </LeadingIcon>
-            <TextWrapper ref={textWrapperRef}>
-              <TextContent
-                $animationDuration={animationDuration}
-                $isOverflow={isOverflow}
-                style={{ ['--marquee-shift' as string]: `${marqueeShift}px` }}
-              >
-                <TextLine
-                  ref={textLineRef}
-                  dangerouslySetInnerHTML={{
-                    __html: sanitizedContent,
-                  }}
-                />
-                {isOverflow && (
-                  <TextLine
-                    aria-hidden="true"
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizedContent,
-                    }}
-                  />
-                )}
-              </TextContent>
-            </TextWrapper>
-          </PrimaryRow>
-          <CloseButton size={20} onClick={hideBanner} />
+
+            {marqueeText}
+          </MainRow>
+
+          {!isMobile && hasCta && <JoinButton color="outline" data={primaryCta} onClick={onClickCta} />}
+          {isMobile && <CloseButton onClick={hideBanner} size={20} />}
         </Content>
-        {ctaName && ctaUrl && <JoinButton data={ctas[0]} color="outline" onClick={onClickCta} />}
+
+        {!isMobile && <CloseButton onClick={hideBanner} size={20} />}
+        {isMobile && hasCta && <JoinButton color="outline" data={primaryCta} onClick={onClickCta} />}
       </BannerInner>
     </BannerWrapper>
   )
