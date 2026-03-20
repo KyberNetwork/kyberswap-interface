@@ -253,8 +253,8 @@ const UserPositions = () => {
       noArrow
       placement="top-end"
       width="280px"
-      size={16}
-      style={{ position: 'relative', top: '2px', height: 16 }}
+      size={14}
+      style={{ position: 'relative', top: '1px', height: 12 }}
     />
   )
 
@@ -270,7 +270,7 @@ const UserPositions = () => {
         <Flex alignItems="center" sx={{ gap: 3 }}>
           <IconArrowLeft onClick={() => navigate(-1)} />
           <Text as="h1" fontSize={24} fontWeight="500">
-            {t`My Positions`}
+            {t`My Liquidity Positions`}
           </Text>
         </Flex>
 

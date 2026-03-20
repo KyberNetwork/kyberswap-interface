@@ -100,7 +100,7 @@ export default function PositionBanner({
         onClick={onOpenClaimAllRewards}
         style={{ position: 'relative', top: 2 }}
       >
-        <Text>{t`Claim`}</Text>
+        <Text>{t`Claim All`}</Text>
       </PositionAction>
     </MouseoverTooltipDesktopOnly>
   )

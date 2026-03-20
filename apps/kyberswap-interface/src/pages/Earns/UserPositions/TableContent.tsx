@@ -413,45 +413,6 @@ export default function TableContent({
                       >
                         {token0.symbol}/{token1.symbol}
                       </Text>
-                      <Badge>{pool.fee}%</Badge>
-                      {smartExitPosIds.includes(position.positionId) && (
-                        <MouseoverTooltipDesktopOnly
-                          text={t`Active Smart Exit Order`}
-                          width="fit-content"
-                          placement="bottom"
-                        >
-                          <Flex
-                            alignItems="center"
-                            justifyContent="center"
-                            sx={{ cursor: 'pointer', borderRadius: '30px' }}
-                            backgroundColor={rgba(theme.white, 0.04)}
-                            width={24}
-                            height={24}
-                            onClick={(e: React.MouseEvent) => {
-                              e.stopPropagation()
-                              e.preventDefault()
-                              navigate(APP_PATHS.EARN_SMART_EXIT)
-                            }}
-                          >
-                            <ListSmartExitIcon width={16} height={16} color={theme.primary} />
-                          </Flex>
-                        </MouseoverTooltipDesktopOnly>
-                      )}
-                    </Flex>
-                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
-                      <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        <MouseoverTooltipDesktopOnly text={dex.name} width="fit-content" placement="bottom">
-                          <TokenLogo src={dex.logo} size={16} />
-                        </MouseoverTooltipDesktopOnly>
-                        <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-                          {dex.version}
-                        </Text>
-                      </Flex>
-                      {pool.isUniv2 ? null : (
-                        <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-                          #{tokenId}
-                        </Text>
-                      )}
                       {!isUnfinalized && (
                         <Badge
                           type={
@@ -494,6 +455,40 @@ export default function TableContent({
                           ) : null}
                         </Badge>
                       )}
+                      {smartExitPosIds.includes(position.positionId) && (
+                        <MouseoverTooltipDesktopOnly
+                          text={t`Active Smart Exit Order`}
+                          width="fit-content"
+                          placement="bottom"
+                        >
+                          <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            sx={{ cursor: 'pointer', borderRadius: '30px' }}
+                            backgroundColor={rgba(theme.white, 0.04)}
+                            width={24}
+                            height={24}
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              navigate(APP_PATHS.EARN_SMART_EXIT)
+                            }}
+                          >
+                            <ListSmartExitIcon width={16} height={16} color={theme.primary} />
+                          </Flex>
+                        </MouseoverTooltipDesktopOnly>
+                      )}
+                    </Flex>
+                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
+                      <Badge style={{ backgroundColor: rgba(theme.white, 0.08) }}>
+                        <Flex alignItems={'center'} sx={{ gap: '4px' }}>
+                          <TokenLogo src={dex.logo} size={12} />
+                          <Text fontSize={12} color={theme.subText}>
+                            {dex.name} | {formatDisplayNumber(pool.fee, { significantDigits: 4 })}%
+                            {!pool.isUniv2 ? ` | #${tokenId}` : ''}
+                          </Text>
+                        </Flex>
+                      </Badge>
                     </Flex>
                   </PositionOverview>
 
