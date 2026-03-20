@@ -22,12 +22,12 @@ const TableHeader = ({
 
   return !upToMedium ? (
     <TableHeaderComponent expandColumn={isFarmingFiltered}>
-      <Text>{t`Protocol`}</Text>
       <Text>{t`Pair`}</Text>
       <SortableHeader role="button" onClick={() => onSortChange(SortBy.APR)}>
         {t`APR`}
         <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
       </SortableHeader>
+      <Text sx={{ justifySelf: 'end' }}>{t`Rewards`}</Text>
       {isFarmingFiltered && (
         <Flex justifyContent="flex-end" sx={{ gap: '4px', alignItems: 'center' }} role="button">
           {t`Max APR`}
@@ -51,7 +51,7 @@ const TableHeader = ({
         </Flex>
       ) : (
         <SortableHeader sx={{ justifySelf: 'end' }} role="button" onClick={() => onSortChange(SortBy.EARN_FEE)}>
-          {t`Earn Fees`}
+          {t`Fee`}
           <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
         </SortableHeader>
       )}
