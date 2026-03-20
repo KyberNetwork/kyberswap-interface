@@ -324,9 +324,12 @@ const useZapInWidget = ({
                 pool_protocol: EARN_DEXES[dex]?.name,
                 pool_fee_tier: `${data.position.pool.fee}%`,
                 deposit_amount_usd: data.position.value,
+                actual_added_token0: data.position.token0.amount,
+                actual_added_token1: data.position.token1.amount,
                 tx_hash: data.txHash,
                 position_id: data.position.positionId,
                 chain: NETWORKS_INFO[chainId]?.name,
+                pool: data.position.pool.address,
                 volume: data.position.value,
               })
             },
@@ -371,7 +374,10 @@ const useZapInWidget = ({
                   pool_pair: additionalInfo.pool,
                   pool_protocol: EARN_DEXES[dex]?.name,
                   is_existing_position: !!addLiquidityPureParams.positionId,
+                  position_id: addLiquidityPureParams.positionId,
                   chain: NETWORKS_INFO[chainId]?.name,
+                  pool: addLiquidityPureParams.poolAddress,
+                  tx_hash: txHash,
                 })
               } else if (additionalInfo?.type === 'erc20_approval') {
                 addTransactionWithType({
