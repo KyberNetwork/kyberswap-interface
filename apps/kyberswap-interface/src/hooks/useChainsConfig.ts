@@ -1,10 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import { useGetChainsConfigurationQuery } from 'services/ksSetting'
 
+// import { useGetChainsConfigurationQuery } from 'services/ksSetting'
 import { MAINNET_NETWORKS, NETWORKS_INFO as NETWORKS_INFO_HARDCODE } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
-import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
+
+// import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 
 export enum ChainState {
   NEW = 'new',
@@ -27,15 +28,14 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_HARDCODE, {
 const defaultData = MAINNET_NETWORKS.map(chainId => NETWORKS_INFO_HARDCODE[chainId])
 
 export default function useChainsConfig() {
-  const { data } = useGetChainsConfigurationQuery()
-  const globalConfig = useKyberswapGlobalConfig()
+  // const { data } = useGetChainsConfigurationQuery()
+  // const globalConfig = useKyberswapGlobalConfig()
 
   return useMemo(() => {
-    const hasBeConfig = !!data
-    // const chains: NetworkInfo[] = (data || defaultData).map(chain => {
+    // const hasConfig = !!data
     const chains: NetworkInfo[] = defaultData.map(chain => {
       const chainId = +chain.chainId as ChainId
-      const chainState = hasBeConfig ? globalConfig?.chainStates?.[chainId] : ChainState.ACTIVE
+      const chainState = ChainState.ACTIVE
       const info = {
         ...NETWORKS_INFO_HARDCODE[chainId],
         ...chain, // BE config
@@ -53,5 +53,5 @@ export default function useChainsConfig() {
       ),
       allChains: chains,
     }
-  }, [data, globalConfig])
+  }, [])
 }
