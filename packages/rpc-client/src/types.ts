@@ -95,6 +95,15 @@ export interface RpcClientConfig {
 
   /** Event handlers for telemetry and monitoring */
   eventHandlers?: RpcEventHandlers;
+
+  /** Number of endpoints to race in parallel (default: 3). Set to 1 to disable racing. */
+  raceConcurrency?: number;
+
+  /** Max block lag allowed before marking an endpoint as stale (default: 50) */
+  maxBlockLag?: number;
+
+  /** Interval in ms between background block freshness probes (default: 60000). Set to 0 to disable. */
+  probeIntervalMs?: number;
 }
 
 /**
