@@ -1,12 +1,14 @@
 import { POOL_CATEGORY, PoolType, Token, Pool as ZapPool, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema'
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
+import { NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
+import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 import { PoolDetailToken } from 'services/zapEarn'
-import { useAddLiquidityTokensQuery } from 'services/zapInService'
 
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { Pool as PoolDetailPagePool } from 'pages/Earns/PoolDetail/types'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type UseZapPoolProps = {
   chainId: number
@@ -44,10 +46,10 @@ const buildPoolStats = (stats?: PoolDetailPagePool['poolStats']) => ({
   kemEGApr30d: Number(stats?.kemEGApr30d || 0),
 })
 
-const getTokenLogo = (token?: (Token & { logoURI?: string }) | null, fallbackLogo?: string) =>
+const getTokenLogo = (token?: { logo?: string; logoURI?: string } | null, fallbackLogo?: string) =>
   token?.logo || token?.logoURI || fallbackLogo
 
-const buildPoolToken = (poolToken: PoolDetailToken, tokenMap: Map<string, Token & { logoURI?: string }>): Token => {
+const buildPoolToken = (poolToken: PoolDetailToken, tokenMap: Map<string, WrappedTokenInfo>): Token => {
   const metadata = tokenMap.get(poolToken.address.toLowerCase())
 
   return {
@@ -56,10 +58,11 @@ const buildPoolToken = (poolToken: PoolDetailToken, tokenMap: Map<string, Token 
     name: metadata?.name || poolToken.name || poolToken.symbol,
     decimals: metadata?.decimals ?? poolToken.decimals,
     logo: getTokenLogo(metadata, poolToken.logoURI),
-    price: metadata?.price,
     isStable: metadata?.isStable,
   }
 }
+
+const isWrappedTokenInfo = (token: WrappedTokenInfo | NativeCurrency): token is WrappedTokenInfo => 'address' in token
 
 export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps) => {
   const tokenAddresses = useMemo(
@@ -67,25 +70,17 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
     [rawPool.tokens],
   )
 
-  const { data: tokenMetadata = [], isLoading: tokenMetadataLoading } = useAddLiquidityTokensQuery(
+  const { data: tokenMetadata = [], isLoading: tokenMetadataLoading } = useGetTokenByAddressesQuery(
     chainId && tokenAddresses.length
       ? {
-          chainId,
+          chainId: chainId as any,
           addresses: tokenAddresses,
         }
       : skipToken,
   )
 
   const tokenMetadataMap = useMemo(
-    () =>
-      new Map(
-        tokenMetadata.map(token => [
-          token.address.toLowerCase(),
-          token as Token & {
-            logoURI?: string
-          },
-        ]),
-      ),
+    () => new Map(tokenMetadata.filter(isWrappedTokenInfo).map(token => [token.address.toLowerCase(), token] as const)),
     [tokenMetadata],
   )
 

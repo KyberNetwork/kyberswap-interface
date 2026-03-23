@@ -1,7 +1,6 @@
 import { type ApprovalAdditionalInfo } from '@kyber/hooks'
 import { TxStatus } from '@kyber/schema'
 import { ReactNode, createContext, useContext } from 'react'
-import { BuildZapInData } from 'services/zapInService'
 
 export interface AddLiquiditySubmitTxData {
   from: string
@@ -11,19 +10,8 @@ export interface AddLiquiditySubmitTxData {
   gasLimit: string
 }
 
-interface BuildZapInRouteParams {
-  chainId: number
-  sender: string
-  recipient: string
-  route: unknown
-  deadline: number
-  permits?: Record<string, string>
-  source: string
-}
-
 interface AddLiquidityRuntimeContextValue {
   buildRouteLoading: boolean
-  buildZapInRoute: (args: BuildZapInRouteParams) => { unwrap: () => Promise<BuildZapInData> }
   txStatusMap: Record<string, TxStatus>
   txHashMapping: Record<string, string>
   submitApprovalTx: (txData: AddLiquiditySubmitTxData, additionalInfo?: ApprovalAdditionalInfo) => Promise<string>
@@ -51,4 +39,4 @@ export const useAddLiquidityRuntimeContext = () => {
   return context
 }
 
-export type { AddLiquidityRuntimeContextValue, BuildZapInRouteParams }
+export type { AddLiquidityRuntimeContextValue }

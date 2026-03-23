@@ -174,6 +174,23 @@ export interface PoolDetail {
 
 export type PoolAnalyticsWindow = '24h' | '7d' | '30d'
 
+export type EstimatePositionAprParams = {
+  chainId: number
+  poolAddress: string
+  tickLower: number
+  tickUpper: number
+  positionLiquidity: string
+  positionTvl?: string
+}
+
+export type EstimatePositionAprResponse = {
+  data: {
+    feeApr: number
+    egApr: number
+    lmApr: number
+  }
+}
+
 interface PoolAnalyticsQueryParams {
   chainId: number
   address: string
@@ -257,6 +274,19 @@ const zapEarnServiceApi = createApi({
       }),
       transformResponse: (response: { data: PoolDetail }) => response.data,
     }),
+    estimatePositionApr: builder.query<EstimatePositionAprResponse, EstimatePositionAprParams>({
+      query: ({ chainId, poolAddress, tickLower, tickUpper, positionLiquidity, positionTvl }) => ({
+        url: `/v1/apr-estimation`,
+        params: {
+          poolAddress,
+          chainId,
+          tickLower,
+          tickUpper,
+          positionLiquidity,
+          positionTvl: positionTvl || '0',
+        },
+      }),
+    }),
     poolPrice: builder.query<PoolPriceAnalytics, PoolAnalyticsQueryParams>({
       query: params => ({
         url: `${zapEarnAnalyticsBaseUrl}/v1/pools/price`,
@@ -324,6 +354,7 @@ export const {
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
   useLazyPoolsExplorerQuery,
+  useEstimatePositionAprQuery,
   useUserPositionsQuery,
   usePositionHistoryQuery,
   useAddFavoriteMutation,

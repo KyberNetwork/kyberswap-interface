@@ -1,7 +1,7 @@
 import { Pool, ZapRouteDetail } from '@kyber/schema'
 import { StatusDialog, StatusDialogType, translateZapMessage } from '@kyber/ui'
 import { Text } from 'rebass'
-import { BuildZapInData } from 'services/zapInService'
+import { BuildZapInData } from 'services/zap'
 import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'

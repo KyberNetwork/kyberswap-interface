@@ -4,7 +4,7 @@ import { ChainId as AppChainId, Token as SDKToken } from '@kyberswap/ks-sdk-core
 import { skipToken } from '@reduxjs/toolkit/query'
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import { useEffect, useMemo, useState } from 'react'
-import { useGetZapInRouteQuery } from 'services/zapInService'
+import { GetZapInRouteApiArgs, prepareGetZapInRouteRequest, useGetZapInRouteQuery } from 'services/zap'
 
 import { useInitialTokensIn } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useInitialTokensIn'
 import { useSlippageManager } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useSlippageManager'
@@ -193,9 +193,12 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
     [pool, slippageState.slippage, validationErrors],
   )
 
-  const routeQueryArgs = useMemo(() => {
+  const routeQueryArgs = useMemo<{ request: GetZapInRouteApiArgs | typeof skipToken; error: string }>(() => {
     if (!pool || routeDisabled || !slippageState.slippage || !tokenInputState.tokensIn.length || !hasPositiveInput) {
-      return skipToken
+      return {
+        request: skipToken,
+        error: '',
+      }
     }
 
     if ('minTick' in pool && 'maxTick' in pool) {
@@ -204,11 +207,14 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
         tickPriceState.debouncedTickUpper == null ||
         tickPriceState.debouncedTickLower >= tickPriceState.debouncedTickUpper
       ) {
-        return skipToken
+        return {
+          request: skipToken,
+          error: '',
+        }
       }
     }
 
-    return {
+    const request = prepareGetZapInRouteRequest({
       chainId,
       poolAddress,
       poolType,
@@ -220,6 +226,11 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
       tickUpper: tickPriceState.debouncedTickUpper,
       account,
       source,
+    })
+
+    return {
+      request: request.data || skipToken,
+      error: request.error || '',
     }
   }, [
     account,
@@ -237,16 +248,19 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
     tokenInputState.tokensIn,
   ])
 
-  const routeResult = useGetZapInRouteQuery(routeQueryArgs, {
+  const routeResult = useGetZapInRouteQuery(routeQueryArgs.request, {
     pollingInterval: 10_000,
     refetchOnMountOrArgChange: true,
   })
+  const routeData = routeDisabled ? null : routeResult.data?.data || null
+  const routeError =
+    routeQueryArgs.error ||
+    routeResult.data?.message ||
+    getErrorMessage(routeResult.error as FetchBaseQueryError | { error?: string })
 
   const route = {
-    data: routeDisabled ? null : routeResult.data || null,
-    error: routeDisabled
-      ? ''
-      : getErrorMessage(routeResult.error as FetchBaseQueryError | { error?: string } | undefined),
+    data: routeData,
+    error: routeDisabled || routeData ? '' : routeError,
     loading: routeDisabled ? false : routeResult.isLoading || routeResult.isFetching,
     refetch: routeDisabled ? undefined : routeResult.refetch,
   }

@@ -22,11 +22,6 @@ type ZapInfoProps = {
   tokenInput: ZapState['tokenInput']
 }
 
-const getPoolTokenPrice = (token?: Token) => {
-  const poolToken = token as (Token & { price?: number }) | undefined
-  return poolToken?.price || 0
-}
-
 const getTokenPrice = ({
   token,
   prices,
@@ -44,7 +39,7 @@ const getTokenPrice = ({
     return prices[wrappedNativeAddress] || 0
   }
 
-  return getPoolTokenPrice(token)
+  return 0
 }
 
 const buildItems = ({

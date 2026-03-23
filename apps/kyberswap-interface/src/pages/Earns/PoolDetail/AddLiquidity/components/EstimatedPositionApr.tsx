@@ -5,7 +5,7 @@ import { Trans } from '@lingui/macro'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { rgba } from 'polished'
 import { Box, Text } from 'rebass'
-import { useEstimatePositionAprQuery } from 'services/zapInService'
+import { useEstimatePositionAprQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
@@ -84,25 +84,33 @@ const EstimatedPositionApr = ({
           positionTvl: String(positionTvl ?? 0),
         },
   )
+  const aprValues = aprData?.data
+    ? {
+        feeApr: aprData.data.feeApr * 100,
+        egApr: aprData.data.egApr * 100,
+        lmApr: aprData.data.lmApr * 100,
+        totalApr: (aprData.data.feeApr + aprData.data.egApr + aprData.data.lmApr) * 100,
+      }
+    : undefined
 
   if (!isFarming) return null
 
   const tooltipContent = !hasInput ? (
     <TooltipContent>Input an amount to calculate.</TooltipContent>
-  ) : !aprData?.totalApr ? (
+  ) : !aprValues?.totalApr ? (
     <TooltipContent>
       <Trans>Fees and rewards accrue only when the market price is inside your chosen range.</Trans>
     </TooltipContent>
   ) : (
     <TooltipContent>
       <Text>
-        <Trans>LP Fees: {formatAprNumber(aprData?.feeApr || 0)}%</Trans>
+        <Trans>LP Fees: {formatAprNumber(aprValues.feeApr || 0)}%</Trans>
       </Text>
       <Text>
-        <Trans>EG Sharing Reward: {formatAprNumber(aprData?.egApr || 0)}%</Trans>
+        <Trans>EG Sharing Reward: {formatAprNumber(aprValues.egApr || 0)}%</Trans>
       </Text>
       <Text>
-        <Trans>LM Reward: {formatAprNumber(aprData?.lmApr || 0)}%</Trans>
+        <Trans>LM Reward: {formatAprNumber(aprValues.lmApr || 0)}%</Trans>
       </Text>
       <Text>
         <i>
@@ -131,7 +139,7 @@ const EstimatedPositionApr = ({
       <Text color={theme.text} fontSize={14}>
         Est. Position APR
       </Text>
-      <MouseoverTooltip placement="top" width={aprData ? '320px' : 'fit-content'} text={tooltipContent}>
+      <MouseoverTooltip placement="top" width={aprValues ? '320px' : 'fit-content'} text={tooltipContent}>
         <HStack minWidth={64} justify="flex-end">
           {isLoading ? (
             <Box height={17}>
@@ -139,7 +147,7 @@ const EstimatedPositionApr = ({
             </Box>
           ) : (
             <Text color={theme.primary} fontSize={14} fontWeight={500}>
-              {!aprData ? '--' : aprData.totalApr === 0 ? '~0%' : `${formatAprNumber(aprData.totalApr)}%`}
+              {!aprValues ? '--' : aprValues.totalApr === 0 ? '~0%' : `${formatAprNumber(aprValues.totalApr)}%`}
             </Text>
           )}
         </HStack>

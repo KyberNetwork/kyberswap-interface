@@ -2,7 +2,7 @@ import { Pool, TxStatus } from '@kyber/schema'
 import { friendlyError } from '@kyber/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BuildZapInData } from 'services/zapInService'
+import { BuildZapInData } from 'services/zap'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
