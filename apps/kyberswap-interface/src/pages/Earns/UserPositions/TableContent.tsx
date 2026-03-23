@@ -44,10 +44,9 @@ import { EARN_CHAINS, EARN_DEXES, EarnChain, LIMIT_TEXT_STYLES } from 'pages/Ear
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
-import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
-import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
@@ -63,18 +62,21 @@ export interface FeeInfoFromRpc extends FeeInfo {
 
 export default function TableContent({
   positions,
-  feeInfoFromRpc,
   setFeeInfoFromRpc,
   onOpenZapInWidget,
   onOpenZapOut,
-  refetchPositions,
+  onOpenZapMigration,
+  kemRewards,
 }: {
   positions: Array<ParsedPosition>
-  feeInfoFromRpc: FeeInfoFromRpc[]
-  setFeeInfoFromRpc: (feeInfo: FeeInfoFromRpc[]) => void
+  setFeeInfoFromRpc: React.Dispatch<React.SetStateAction<FeeInfoFromRpc[]>>
   onOpenZapInWidget: ({ pool, positionId }: ZapInInfo) => void
   onOpenZapOut: ({ position }: ZapOutInfo) => void
-  refetchPositions: () => void
+  onOpenZapMigration: (params: ZapMigrationInfo) => void
+  kemRewards: {
+    onOpenClaim: (position?: ParsedPosition) => void
+    pendingClaimKeys: string[]
+  }
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -115,15 +117,9 @@ export default function TableContent({
     },
   })
 
-  const {
-    claimModal: claimRewardsModal,
-    onOpenClaim: onOpenClaimRewards,
-    pendingClaimKeys: pendingRewardClaimKeys,
-  } = useKemRewards({ refetchAfterCollect: refetchPositions })
+  const { onOpenClaim: onOpenClaimRewards, pendingClaimKeys: pendingRewardClaimKeys } = kemRewards
 
   const { rewardsByPosition } = useMerklRewards({ positions })
-
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
   const uniqueFarmingChainIds = useMemo(() => {
     if (!positions || positions.length === 0) return []
@@ -148,14 +144,17 @@ export default function TableContent({
         timeRemaining: 60 * 2,
       }
 
-      const feeInfoFromRpcClone = [...feeInfoFromRpc]
-      const index = feeInfoFromRpcClone.findIndex(feeInfo => feeInfo.id === tokenId)
-      if (index !== -1) feeInfoFromRpcClone[index] = feeInfoToAdd
-      else feeInfoFromRpcClone.push(feeInfoToAdd)
-
-      setFeeInfoFromRpc(feeInfoFromRpcClone)
+      setFeeInfoFromRpc(prev => {
+        const index = prev.findIndex(feeInfo => feeInfo.id === tokenId)
+        if (index !== -1) {
+          const updated = [...prev]
+          updated[index] = feeInfoToAdd
+          return updated
+        }
+        return [...prev, feeInfoToAdd]
+      })
     },
-    [feeInfoFromRpc, setFeeInfoFromRpc],
+    [setFeeInfoFromRpc],
   )
 
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: ParsedPosition) => {
@@ -265,7 +264,7 @@ export default function TableContent({
 
     const isOutRange = sourcePosition.status === PositionStatus.OUT_RANGE
 
-    handleOpenZapMigration({
+    onOpenZapMigration({
       chainId: sourcePosition.chain.id,
       from: {
         poolType: sourcePosition.dex.id,
@@ -291,7 +290,7 @@ export default function TableContent({
   const handleReposition = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    handleOpenZapMigration({
+    onOpenZapMigration({
       chainId: position.chain.id,
       from: {
         poolType: position.dex.id,
@@ -327,8 +326,6 @@ export default function TableContent({
   return (
     <>
       {claimFeesModal}
-      {claimRewardsModal}
-      {zapMigrationWidget}
       {migrationModal}
       {smartExitPosition && <SmartExit position={smartExitPosition} onDismiss={() => setSmartExitPosition(null)} />}
 

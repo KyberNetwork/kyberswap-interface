@@ -22,9 +22,8 @@ import {
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
-import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
-import { ParsedPosition, UserPositionsStats } from 'pages/Earns/types'
+import { RewardInfo, UserPositionsStats } from 'pages/Earns/types'
 import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
@@ -56,13 +55,17 @@ export const BannerSkeleton = ({
 export default function PositionBanner({
   positionsStats,
   initialLoading,
+  rewardInfo,
+  isLoadingRewardInfo,
+  onOpenClaimAllRewards,
 }: {
-  positions: Array<ParsedPosition>
   positionsStats?: UserPositionsStats
   initialLoading: boolean
+  rewardInfo: RewardInfo | null
+  isLoadingRewardInfo: boolean
+  onOpenClaimAllRewards: () => void
 }) {
   const theme = useTheme()
-  const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo, isLoadingRewardInfo } = useKemRewards()
   const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
@@ -127,7 +130,6 @@ export default function PositionBanner({
 
   return (
     <>
-      {claimAllRewardsModal}
       {shareModal}
 
       <Flex
