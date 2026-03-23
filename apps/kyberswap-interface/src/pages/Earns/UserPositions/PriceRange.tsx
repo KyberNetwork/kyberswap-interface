@@ -40,6 +40,17 @@ function formatPriceRangeLabel(price: number, otherPrice: number): string {
   return formatDisplayNumber(price, { significantDigits: sigDigits })
 }
 
+const GRADIENT_START = [9, 174, 125] // #09ae7d
+const GRADIENT_END = [99, 104, 241] // #6368f1
+
+function interpolateGradientColor(t: number): string {
+  const clamped = Math.max(0, Math.min(1, t))
+  const r = Math.round(GRADIENT_START[0] + (GRADIENT_END[0] - GRADIENT_START[0]) * clamped)
+  const g = Math.round(GRADIENT_START[1] + (GRADIENT_END[1] - GRADIENT_START[1]) * clamped)
+  const b = Math.round(GRADIENT_START[2] + (GRADIENT_END[2] - GRADIENT_START[2]) * clamped)
+  return `rgb(${r}, ${g}, ${b})`
+}
+
 function computeTicks(
   minPrice: number,
   maxPrice: number,
@@ -194,9 +205,7 @@ export default function PriceRange({
         {!outOfRange && (
           <CurrentPriceIndicator
             currentPrice={displayedCurrentPrice}
-            color={
-              isUniv2 || priceUpper - displayedCurrentPrice > (priceUpper - priceLower) / 2 ? '#09ae7d' : '#6368f1'
-            }
+            color={interpolateGradientColor(currentPricePosition ?? 0)}
             left={currentPricePosition}
           />
         )}
