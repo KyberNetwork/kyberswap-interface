@@ -21,6 +21,7 @@ import {
   RewardBannerDetailWrapper,
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { RewardInfo, UserPositionsStats } from 'pages/Earns/types'
@@ -150,7 +151,9 @@ export default function PositionBanner({
                   color={totalValueUsd && totalValueUsd > 0 ? theme.primary : theme.text}
                   sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
                 >
-                  {formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
+                  />
                 </Text>
               )}
             </BannerDataItem>
@@ -162,7 +165,9 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  />
                 </Text>
               )}
             </BannerDataItem>
@@ -174,7 +179,9 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  />
                 </Text>
               )}
             </BannerDataItem>
@@ -196,7 +203,9 @@ export default function PositionBanner({
                     <BannerSkeleton width={90} height={28} />
                   ) : (
                     <Text fontSize={24}>
-                      {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                      />
                     </Text>
                   )}
                 </Flex>
@@ -208,7 +217,9 @@ export default function PositionBanner({
                       <BannerSkeleton width={80} height={24} />
                     ) : (
                       <Text fontSize={20}>
-                        {formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                        <AnimatedNumber
+                          value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                        />
                       </Text>
                     )}
                   </BannerDataItem>
@@ -233,7 +244,9 @@ export default function PositionBanner({
                       <BannerSkeleton width={80} height={24} />
                     ) : (
                       <Text fontSize={20}>
-                        {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                        <AnimatedNumber
+                          value={formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                        />
                       </Text>
                     )}
                   </BannerDataItem>
@@ -246,7 +259,9 @@ export default function PositionBanner({
                         <BannerSkeleton width={80} height={24} />
                       ) : (
                         <Text fontSize={20}>
-                          {formatDisplayNumber(claimableUsdValue, { significantDigits: 4, style: 'currency' })}
+                          <AnimatedNumber
+                            value={formatDisplayNumber(claimableUsdValue, { significantDigits: 4, style: 'currency' })}
+                          />
                         </Text>
                       )}
                     </Flex>
@@ -272,7 +287,9 @@ export default function PositionBanner({
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: 1 }}>
                     <Text fontSize={upToSmall ? 20 : 24}>
-                      {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                      />
                     </Text>
                     <InfoHelper
                       text={totalRewardTooltip({
@@ -299,7 +316,9 @@ export default function PositionBanner({
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
-                      {formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                      />
                     </Text>
                   )}
                 </BannerDataItem>
@@ -324,7 +343,9 @@ export default function PositionBanner({
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
-                      {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                      />
                     </Text>
                   )}
                 </BannerDataItem>
@@ -336,7 +357,9 @@ export default function PositionBanner({
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
-                      {formatDisplayNumber(claimableUsdValue, { style: 'currency', significantDigits: 4 })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(claimableUsdValue, { style: 'currency', significantDigits: 4 })}
+                      />
                     </Text>
                   )}
                 </BannerDataItem>

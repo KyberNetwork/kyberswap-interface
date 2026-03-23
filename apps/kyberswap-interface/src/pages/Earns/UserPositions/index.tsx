@@ -24,6 +24,7 @@ import {
   PositionTableHeaderFlexItem,
   PositionTableHeaderItem,
   PositionTableWrapper,
+  RefetchIndicator,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
@@ -338,6 +339,7 @@ const UserPositions = () => {
         />
 
         <PositionTableWrapper>
+          <RefetchIndicator $visible={isFetching && !loading} />
           <ContentWrapper>
             {!upToCustomLarge && filteredPositions && filteredPositions.length > 0 && (
               <PositionTableHeader>

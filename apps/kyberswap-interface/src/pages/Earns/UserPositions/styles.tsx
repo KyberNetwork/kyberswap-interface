@@ -1,10 +1,63 @@
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`
+
+const progressSlide = keyframes`
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+`
+
+export const RefetchIndicator = styled.div<{ $visible: boolean }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  transition: opacity 0.3s ease;
+  z-index: 2;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 100%;
+    background: ${({ theme }) => theme.primary};
+    border-radius: 2px;
+    animation: ${({ $visible }) =>
+      $visible
+        ? css`
+            ${progressSlide} 1.2s ease-in-out infinite
+          `
+        : 'none'};
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+`
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
   padding: 24px 6rem 62px;
@@ -18,7 +71,7 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
   `}
 `
 
-export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
+export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean; $index?: number }>`
   display: grid;
   grid-template-columns:
     minmax(260px, 2.6fr) /* Position */
@@ -37,6 +90,12 @@ export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
   color: inherit !important;
   background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : theme.background)};
   position: relative;
+  animation: ${fadeIn} 0.3s ease-out both;
+  animation-delay: ${({ $index }) => Math.min(($index || 0) * 50, 300)}ms;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 
   &::after {
     content: '';
@@ -409,6 +468,7 @@ export const PositionTableWrapper = styled(TableWrapper)`
   overflow: hidden;
   background: ${({ theme }) => theme.background};
   border-radius: 20px;
+  position: relative;
 
   @media (max-width: 1300px) {
     background: transparent;

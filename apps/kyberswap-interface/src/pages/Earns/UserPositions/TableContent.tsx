@@ -36,6 +36,7 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
@@ -393,6 +394,7 @@ export default function TableContent({
                     .replace(':chainId', chain.id.toString())
                     .replace(':exchange', dex.id)}
                   $isUnfinalized={isUnfinalized}
+                  $index={index}
                 >
                   {/* Overview info */}
                   <PositionOverview>
@@ -534,10 +536,12 @@ export default function TableContent({
                     >
                       <Flex alignItems={'center'} sx={{ gap: '6px' }}>
                         <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
-                          {formatDisplayNumber(totalValue + merklRewardsTotalUsd, {
-                            style: 'currency',
-                            significantDigits: 4,
-                          })}
+                          <AnimatedNumber
+                            value={formatDisplayNumber(totalValue + merklRewardsTotalUsd, {
+                              style: 'currency',
+                              significantDigits: 4,
+                            })}
+                          />
                         </Text>
                         {position.isValueUpdating && (
                           <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
@@ -565,10 +569,14 @@ export default function TableContent({
                             lmApr={position.kemLMApr['24h']}
                             uniApr={bonusApr}
                           >
-                            <Text color={theme.primary}>{formatAprNumber(apr['24h'] + bonusApr)}%</Text>
+                            <Text color={theme.primary}>
+                              <AnimatedNumber value={`${formatAprNumber(apr['24h'] + bonusApr)}%`} />
+                            </Text>
                           </AprDetailTooltip>
                         ) : (
-                          <Text color={theme.text}>{formatAprNumber(apr['24h'])}%</Text>
+                          <Text color={theme.text}>
+                            <AnimatedNumber value={`${formatAprNumber(apr['24h'])}%`} />
+                          </Text>
                         )}
 
                         {!pool.isFarming &&
@@ -632,7 +640,9 @@ export default function TableContent({
                         placement="bottom"
                       >
                         <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
-                          {formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}
+                          <AnimatedNumber
+                            value={formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}
+                          />
                         </Text>
                       </MouseoverTooltipDesktopOnly>
                     )}
@@ -680,10 +690,12 @@ export default function TableContent({
                           placement="bottom"
                         >
                           <Text>
-                            {formatDisplayNumber(rewards.unclaimedUsdValue + merklRewardsTotalUsd, {
-                              style: 'currency',
-                              significantDigits: 4,
-                            })}
+                            <AnimatedNumber
+                              value={formatDisplayNumber(rewards.unclaimedUsdValue + merklRewardsTotalUsd, {
+                                style: 'currency',
+                                significantDigits: 4,
+                              })}
+                            />
                           </Text>
                         </MouseoverTooltipDesktopOnly>
                       </Flex>
