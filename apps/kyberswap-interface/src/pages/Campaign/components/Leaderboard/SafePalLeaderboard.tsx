@@ -97,7 +97,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
     },
     {
       skip: isOwner || !selectedRange || !hasLeaderboardPoints,
-      pollingInterval: 10_000,
+      pollingInterval: 30_000,
     },
   )
 
@@ -110,7 +110,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
     },
     {
       skip: !isOwner || !selectedRange || !account || !hasLeaderboardPoints,
-      pollingInterval: 10_000,
+      pollingInterval: 30_000,
     },
   )
 
