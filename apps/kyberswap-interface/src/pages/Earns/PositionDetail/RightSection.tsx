@@ -28,10 +28,10 @@ const RightSection = () => {
         </TabItem>
       </TabMenu>
 
-      {/* Tab Content */}
-      {activeTab === 'information' && <InformationTab />}
-      {activeTab === 'earnings' && <EarningsTab />}
-      {activeTab === 'history' && <HistoryTab />}
+      {/* Tab Content — key forces re-mount to trigger fade animation */}
+      {activeTab === 'information' && <InformationTab key="information" />}
+      {activeTab === 'earnings' && <EarningsTab key="earnings" />}
+      {activeTab === 'history' && <HistoryTab key="history" />}
     </RightColumn>
   )
 }

@@ -16,6 +16,7 @@ import useTheme from 'hooks/useTheme'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { CardDivider, ClaimButton, DarkCard, NextDistribution } from 'pages/Earns/PositionDetail/styles'
 import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -112,10 +113,12 @@ const RewardSection = () => {
             ) : (
               <>
                 <Text fontSize={20} fontWeight={500} color={theme.text}>
-                  {formatDisplayNumber((rewardInfoThisPosition?.totalUsdValue || 0) + merklRewardsTotalUsd, {
-                    significantDigits: 4,
-                    style: 'currency',
-                  })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber((rewardInfoThisPosition?.totalUsdValue || 0) + merklRewardsTotalUsd, {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
+                  />
                 </Text>
                 <InfoHelper
                   text={totalRewardTooltip({
@@ -148,10 +151,12 @@ const RewardSection = () => {
               <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
             ) : (
               <Text fontSize={20} color={theme.text}>
-                {formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
-                  significantDigits: 4,
-                  style: 'currency',
-                })}
+                <AnimatedNumber
+                  value={formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
+                    significantDigits: 4,
+                    style: 'currency',
+                  })}
+                />
               </Text>
             )}
           </Flex>
@@ -170,10 +175,12 @@ const RewardSection = () => {
             ) : (
               <Flex alignItems="center">
                 <Text fontSize={20} color={theme.text}>
-                  {formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
-                    significantDigits: 4,
-                    style: 'currency',
-                  })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
+                  />
                 </Text>
                 <InfoHelper
                   text={inProgressRewardTooltip({
@@ -224,25 +231,25 @@ const RewardSection = () => {
                 <RewardSyncing width={80} height={24} />
               ) : (
                 <Text fontSize={20} color={theme.text}>
-                  {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
-                    significantDigits: 4,
-                    style: 'currency',
-                  })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
+                  />
                 </Text>
               )}
             </Flex>
 
             <ClaimButton
               disabled={
-                initialLoading || isUnfinalized || !rewardInfoThisPosition?.claimableUsdValue || isRewardsClaiming
+                !position ||
+                initialLoading ||
+                isUnfinalized ||
+                !rewardInfoThisPosition?.claimableUsdValue ||
+                isRewardsClaiming
               }
-              onClick={() =>
-                !initialLoading &&
-                !isUnfinalized &&
-                rewardInfoThisPosition?.claimableUsdValue &&
-                !isRewardsClaiming &&
-                onOpenClaimRewards(position)
-              }
+              onClick={() => position && onOpenClaimRewards(position)}
             >
               {isRewardsClaiming ? (
                 <Flex alignItems="center" sx={{ gap: '4px' }}>

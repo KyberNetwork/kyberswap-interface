@@ -1,8 +1,31 @@
 import { rgba } from 'polished'
 import { Link } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import { ReactComponent as IconArrowLeftSvg } from 'assets/svg/ic_left_arrow.svg'
+
+// Shared animations
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`
+
+const slideDown = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`
 
 export const IconArrowLeft = styled(IconArrowLeftSvg)`
   cursor: pointer;
@@ -20,6 +43,7 @@ export const PositionDetailWrapper = styled.div`
   width: 100%;
   position: relative;
   align-items: flex-start;
+  animation: ${fadeIn} 0.3s ease-out;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
@@ -103,6 +127,7 @@ export const TabContentArea = styled.div`
   flex-direction: column;
   gap: 12px;
   flex: 1;
+  animation: ${fadeIn} 0.25s ease-out;
 `
 
 // Dex info badge in header
@@ -439,6 +464,19 @@ export const ChartWrapper = styled.div`
   `}
 `
 
+export const ChartFadeIn = styled.div<{ $visible?: boolean }>`
+  ${({ $visible }) =>
+    !$visible
+      ? css`
+          visibility: hidden;
+          height: 0;
+          overflow: hidden;
+        `
+      : css`
+          animation: ${fadeIn} 0.4s ease-out;
+        `}
+`
+
 export const ChartPlaceholder = styled.div`
   position: relative;
 `
@@ -456,6 +494,7 @@ export const ChartSkeletonWrapper = styled.div`
 export const PositionHeader = styled.div`
   display: flex;
   gap: 8px;
+  animation: ${fadeIn} 0.3s ease-out;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
@@ -473,6 +512,7 @@ export const MigrationLiquidityRecommend = styled.div`
   row-gap: 4px;
   border-radius: 16px;
   background: rgba(15, 170, 162, 0.2);
+  animation: ${slideDown} 0.3s ease-out;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     row-gap: 2px;
@@ -532,6 +572,7 @@ export const DropdownMenu = styled.div<{ isOpen: boolean }>`
   width: max-content;
   z-index: 1000;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+  animation: ${({ isOpen }) => (isOpen ? slideDown : 'none')} 0.2s ease-out;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     right: 50%;

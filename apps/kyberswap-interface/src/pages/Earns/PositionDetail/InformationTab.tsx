@@ -28,6 +28,7 @@ import LiquidityChart, { LiquidityChartSkeleton } from 'pages/Earns/PositionDeta
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import {
   AprSection,
+  ChartFadeIn,
   CompactPriceBox,
   CompactPriceLabel,
   CompactPriceValue,
@@ -44,6 +45,7 @@ import {
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import DropdownMenuComponent from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
@@ -200,7 +202,12 @@ const InformationTab = () => {
                 <PositionSkeleton width={95} height={24} />
               ) : (
                 <Text fontSize={20}>
-                  {formatDisplayNumber(position?.totalProvidedValue, { style: 'currency', significantDigits: 4 })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(position?.totalProvidedValue, {
+                      style: 'currency',
+                      significantDigits: 4,
+                    })}
+                  />
                 </Text>
               )}
             </Flex>
@@ -274,7 +281,9 @@ const InformationTab = () => {
                       color={position?.apr && position.apr[aprInterval] > 0 ? theme.primary : theme.text}
                       mr="8px"
                     >
-                      {formatAprNum((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%
+                      <AnimatedNumber
+                        value={`${formatAprNum((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%`}
+                      />
                     </Text>
                     {position?.status !== PositionStatus.CLOSED && shareBtn(12, [ShareOption.TOTAL_APR])}
                   </Flex>
@@ -325,7 +334,7 @@ const InformationTab = () => {
           <>
             {!isChartReady && <LiquidityChartSkeleton />}
             {!initialLoading && position && !isUnfinalized && (
-              <div style={{ display: isChartReady ? undefined : 'none' }}>
+              <ChartFadeIn $visible={isChartReady}>
                 <LiquidityChart
                   chainId={Number(chainId)}
                   poolAddress={position.pool.address}
@@ -335,7 +344,7 @@ const InformationTab = () => {
                   revertPrice={revert}
                   onReady={onChartReady}
                 />
-              </div>
+              </ChartFadeIn>
             )}
           </>
         )}

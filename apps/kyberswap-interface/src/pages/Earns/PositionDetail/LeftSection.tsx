@@ -9,6 +9,7 @@ import useTheme from 'hooks/useTheme'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { CardDivider, ClaimButton, DarkCard, LeftColumn } from 'pages/Earns/PositionDetail/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { EARN_DEXES, Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -58,9 +59,13 @@ const LeftSection = () => {
                 <PositionSkeleton width={80} height={24} />
               ) : (
                 <Text fontSize={16} color={theme.text}>
-                  {position?.earning.earned !== undefined && position.earning.earned >= 0
-                    ? formatDisplayNumber(position.earning.earned, { style: 'currency', significantDigits: 4 })
-                    : '--'}
+                  <AnimatedNumber
+                    value={
+                      position?.earning.earned !== undefined && position.earning.earned >= 0
+                        ? formatDisplayNumber(position.earning.earned, { style: 'currency', significantDigits: 4 })
+                        : '--'
+                    }
+                  />
                 </Text>
               )}
             </Flex>
@@ -76,9 +81,13 @@ const LeftSection = () => {
                 <PositionSkeleton width={80} height={24} />
               ) : (
                 <Text fontSize={20} fontWeight={500} color={theme.text}>
-                  {position?.unclaimedFees !== undefined
-                    ? formatDisplayNumber(position.unclaimedFees, { style: 'currency', significantDigits: 4 })
-                    : '--'}
+                  <AnimatedNumber
+                    value={
+                      position?.unclaimedFees !== undefined
+                        ? formatDisplayNumber(position.unclaimedFees, { style: 'currency', significantDigits: 4 })
+                        : '--'
+                    }
+                  />
                 </Text>
               )}
             </Flex>
@@ -124,20 +133,14 @@ const LeftSection = () => {
 
               <ClaimButton
                 disabled={
+                  !position ||
                   initialLoading ||
                   isNotAccountOwner ||
                   isUnfinalized ||
-                  position?.unclaimedFees === 0 ||
+                  position.unclaimedFees === 0 ||
                   isFeesClaiming
                 }
-                onClick={() =>
-                  !initialLoading &&
-                  !isUnfinalized &&
-                  position?.unclaimedFees &&
-                  position.unclaimedFees > 0 &&
-                  !isFeesClaiming &&
-                  onOpenClaimFees(position)
-                }
+                onClick={() => position && onOpenClaimFees(position)}
               >
                 {isFeesClaiming ? (
                   <Flex alignItems="center" sx={{ gap: '4px' }}>
