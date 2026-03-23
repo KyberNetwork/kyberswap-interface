@@ -11,6 +11,8 @@ export enum PositionStatus {
 
 export enum PositionHistoryType {
   DEPOSIT = 'DEPOSIT',
+  WITHDRAW = 'WITHDRAW',
+  COLLECT_FEE = 'COLLECT_FEE',
 }
 
 export interface PositionFilter {

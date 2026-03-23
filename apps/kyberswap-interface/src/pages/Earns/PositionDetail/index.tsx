@@ -1,9 +1,8 @@
 import { ShareModal, ShareModalProps, ShareOption, ShareType } from '@kyber/ui'
-import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info, Share2 } from 'react-feather'
+import { Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
@@ -11,36 +10,23 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
-import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
-import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
-import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
-import { Loader2 } from 'components/Loader'
-import TokenLogo from 'components/TokenLogo'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { timings } from 'pages/Earns/PoolExplorer/Filter'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
 import RightSection from 'pages/Earns/PositionDetail/RightSection'
 import {
-  AprSection,
   MigrationLiquidityRecommend,
   PositionDetailWrapper,
   ShareButtonWrapper,
-  TotalLiquiditySection,
-  VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
-import DropdownMenu from 'pages/Earns/components/DropdownMenu'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import { EARN_DEXES } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -52,7 +38,7 @@ import { getNftManagerContract } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
-import { formatDisplayNumber, toString } from 'utils/numbers'
+import { toString } from 'utils/numbers'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -115,7 +101,6 @@ const PositionDetail = () => {
   const position: ParsedPosition | undefined = useMemo(() => {
     const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
-      // API has no data yet — show cached unfinalized position if available
       const unfinalizedPositions = getUnfinalizedPositions([], account || undefined)
       if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
         return unfinalizedPositions[0]
@@ -135,9 +120,7 @@ const PositionDetail = () => {
     const matchedUnfinalized = unfinalizedPositions.find(p => Number(p.tokenId) === Number(tokenId))
 
     if (matchedUnfinalized) {
-      // For increase-liquidity (isValueUpdating), use API data with loading flag only
       if (matchedUnfinalized.isValueUpdating) return { ...parsedPosition, isValueUpdating: true }
-      // For truly new positions not yet in API, use cached data
       return matchedUnfinalized
     }
 
@@ -148,7 +131,6 @@ const PositionDetail = () => {
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!position) return
-
     const feeFromRpc = await getUnclaimedFeesInfo(position)
     setFeeInfoFromRpc(feeFromRpc)
     setTimeout(() => setFeeInfoFromRpc(undefined), 60_000)
@@ -174,7 +156,6 @@ const PositionDetail = () => {
     const targetToken0Decimals = targetPool.token0.decimals
     const targetToken1Decimals = targetPool.token1.decimals
 
-    // Check if tokens are in the same order by comparing addresses
     const isTokenOrderSame =
       sourcePosition.token0.address.toLowerCase() === targetPool.token0.address.toLowerCase() &&
       sourcePosition.token1.address.toLowerCase() === targetPool.token1.address.toLowerCase()
@@ -218,12 +199,7 @@ const PositionDetail = () => {
         dexId: targetPool.exchange,
       },
       initialTick:
-        tickLower !== undefined && tickUpper !== undefined && !isOutRange
-          ? {
-              tickLower: tickLower,
-              tickUpper: tickUpper,
-            }
-          : undefined,
+        tickLower !== undefined && tickUpper !== undefined && !isOutRange ? { tickLower, tickUpper } : undefined,
     })
   }
 
@@ -246,9 +222,7 @@ const PositionDetail = () => {
   )
 
   useEffect(() => {
-    if (!firstLoading.current && !isLoading) {
-      firstLoading.current = true
-    }
+    if (!firstLoading.current && !isLoading) firstLoading.current = true
   }, [isLoading])
 
   useEffect(() => {
@@ -290,6 +264,7 @@ const PositionDetail = () => {
 
   const isNotAccountOwner = !!positionOwnerAddress && !!account && positionOwnerAddress !== account
   const isUnfinalized = position?.isUnfinalized
+  const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
   const isEarlyPosition = !!position && checkEarlyPosition(position)
   const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
@@ -309,61 +284,11 @@ const PositionDetail = () => {
     </EmptyPositionText>
   )
 
-  const totalLiquiditySection = (
-    <TotalLiquiditySection>
-      <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
-        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Total Liquidity`}
-          </Text>
-          {position?.isValueUpdating && (
-            <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
-              <Loader2 size={12} />
-            </MouseoverTooltipDesktopOnly>
-          )}
-        </Flex>
-        {initialLoading ? (
-          <PositionSkeleton width={95} height={24} />
-        ) : (
-          <Text fontSize={20}>
-            {formatDisplayNumber(position?.totalProvidedValue, {
-              style: 'currency',
-              significantDigits: 4,
-            })}
-          </Text>
-        )}
-      </Flex>
-      <VerticalDivider />
-      <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
-        {initialLoading ? (
-          <PositionSkeleton width={120} height={19} />
-        ) : (
-          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
-            <TokenLogo src={position?.token0.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token0.currentAmount, { significantDigits: 4 })}</Text>
-            <Text>{position?.token0.symbol}</Text>
-          </Flex>
-        )}
-
-        {initialLoading ? (
-          <PositionSkeleton width={120} height={19} />
-        ) : (
-          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
-            <TokenLogo src={position?.token1.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token1.currentAmount, { significantDigits: 4 })}</Text>
-            <Text>{position?.token1.symbol}</Text>
-          </Flex>
-        )}
-      </Flex>
-    </TotalLiquiditySection>
-  )
-
   const shareBtn = useCallback(
     (size?: number, defaultOptions?: ShareOption[]) => (
       <ShareButtonWrapper
         onClick={() => {
           if (!position) return
-
           setShareInfo({
             isFarming: position.pool.isFarming,
             defaultOptions,
@@ -377,14 +302,8 @@ const PositionDetail = () => {
               dexLogo: position.dex.logo,
               dexName: position.dex.name,
               exchange: position.dex.id,
-              token0: {
-                symbol: position.token0.symbol,
-                logo: position.token0.logo,
-              },
-              token1: {
-                symbol: position.token1.symbol,
-                logo: position.token1.logo,
-              },
+              token0: { symbol: position.token0.symbol, logo: position.token0.logo },
+              token1: { symbol: position.token1.symbol, logo: position.token1.logo },
             },
             position: {
               apr: {
@@ -402,66 +321,6 @@ const PositionDetail = () => {
       </ShareButtonWrapper>
     ),
     [theme.primary, position, aprInterval],
-  )
-
-  const aprSection = (
-    <AprSection>
-      <Flex alignItems={'center'} sx={{ gap: '2px' }}>
-        <Text fontSize={14} color={theme.subText} marginRight={0.5}>
-          {t`Est. Position APR`}
-        </Text>
-        {position?.pool.isFarming && !isUnfinalized && (
-          <AprDetailTooltip
-            feeApr={position.feeApr[aprInterval] || 0}
-            egApr={position.kemEGApr[aprInterval] || 0}
-            lmApr={position.kemLMApr[aprInterval] || 0}
-            uniApr={position.bonusApr}
-          >
-            <Info color={theme.subText} size={16} />
-          </AprDetailTooltip>
-        )}
-      </Flex>
-
-      {initialLoading ? (
-        <PositionSkeleton width={70} height={24} />
-      ) : isUnfinalized ? (
-        <PositionSkeleton width={70} height={24} text={t`Finalizing...`} />
-      ) : isWaitingForRewards ? (
-        <RewardSyncing width={70} height={24} />
-      ) : (
-        <Flex alignItems={'center'} justifyContent={'space-between'}>
-          <Flex alignItems={'center'} sx={{ gap: 1 }}>
-            {position?.pool.isFarmingLm ? (
-              <FarmingLmIcon width={20} height={20} />
-            ) : position?.pool.isFarming ? (
-              <FarmingIcon width={20} height={20} />
-            ) : null}
-            {position?.bonusApr ? <UniBonusIcon width={20} height={20} /> : null}
-            <Text
-              fontSize={20}
-              marginRight={1}
-              color={position?.apr && position.apr[aprInterval] > 0 ? theme.primary : theme.text}
-            >
-              {formatAprNumber((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%
-            </Text>
-            {!initialLoading &&
-              !isUnfinalized &&
-              position?.status !== PositionStatus.CLOSED &&
-              shareBtn(12, [ShareOption.TOTAL_APR])}
-          </Flex>
-
-          <DropdownMenu
-            width={30}
-            flatten
-            tooltip={t`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
-            options={timings.slice(0, 2)}
-            value={aprInterval}
-            alignLeft
-            onChange={value => setAprInterval(value as '24h')}
-          />
-        </Flex>
-      )}
-    </AprSection>
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
@@ -492,7 +351,7 @@ const PositionDetail = () => {
               hasActiveSmartExitOrder={hasActiveSmartExitOrder}
             />
 
-            <Flex flexDirection={'column'} sx={{ gap: '12px' }}>
+            <Flex flexDirection="column" sx={{ gap: '12px' }}>
               {!position?.pool.isFarming &&
                 (!!position?.suggestionPool ||
                   (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
@@ -521,21 +380,19 @@ const PositionDetail = () => {
             </Flex>
 
             <PositionDetailWrapper>
-              <LeftSection
-                position={position}
-                onFetchUnclaimedFee={handleFetchUnclaimedFee}
-                totalLiquiditySection={totalLiquiditySection}
-                aprSection={aprSection}
-                initialLoading={initialLoading}
-                isNotAccountOwner={isNotAccountOwner}
-                shareBtn={shareBtn}
-                refetchPositions={refetch}
-              />
+              {!isUniv2 && (
+                <LeftSection
+                  position={position}
+                  onFetchUnclaimedFee={handleFetchUnclaimedFee}
+                  initialLoading={initialLoading}
+                  isNotAccountOwner={isNotAccountOwner}
+                  shareBtn={shareBtn}
+                  refetchPositions={refetch}
+                />
+              )}
               <RightSection
                 position={position}
                 onOpenZapMigration={handleOpenZapMigration}
-                totalLiquiditySection={totalLiquiditySection}
-                aprSection={aprSection}
                 initialLoading={initialLoading}
                 isNotAccountOwner={isNotAccountOwner}
                 positionOwnerAddress={positionOwnerAddress}
@@ -545,6 +402,11 @@ const PositionDetail = () => {
                 setReduceFetchInterval={setReduceFetchInterval}
                 onReposition={handleReposition}
                 hasActiveSmartExitOrder={hasActiveSmartExitOrder}
+                aprInterval={aprInterval}
+                setAprInterval={setAprInterval}
+                isUnfinalized={isUnfinalized}
+                isWaitingForRewards={isWaitingForRewards}
+                shareBtn={shareBtn}
               />
             </PositionDetailWrapper>
           </>

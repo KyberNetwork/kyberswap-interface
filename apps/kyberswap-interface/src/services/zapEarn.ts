@@ -80,9 +80,30 @@ interface PositionHistoryParams {
   userAddress?: string
 }
 
+export interface PositionHistoryTransaction {
+  tokenIndex: number
+  tokenWithValue: {
+    token: {
+      symbol: string
+      address: string
+      logo: string
+      decimals: number
+      name: string
+    }
+    balance: string
+    price: number
+    value: number
+  }
+}
+
 export interface PositionHistory {
   txHash: string
-  type: PositionHistoryType
+  type: PositionHistoryType | string
+  blockTime: number
+  emitContractAddress: string
+  gasFeeAmount: number
+  gasFeeValue: number
+  transactions: PositionHistoryTransaction[]
 }
 
 interface AddRemoveFavoriteParams {
