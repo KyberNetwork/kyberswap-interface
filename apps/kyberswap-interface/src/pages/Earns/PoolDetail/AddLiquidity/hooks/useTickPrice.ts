@@ -8,11 +8,10 @@ type UseTickPriceProps = {
   token0?: Token
   token1?: Token
   revertPrice: boolean
-  initialTick?: { tickLower: number; tickUpper: number }
   position: Position | null
 }
 
-export const useTickPrice = ({ token0, token1, revertPrice, initialTick, position }: UseTickPriceProps) => {
+export const useTickPrice = ({ token0, token1, revertPrice, position }: UseTickPriceProps) => {
   const [tickLower, setTickLower] = useState<number | null>(null)
   const [tickUpper, setTickUpper] = useState<number | null>(null)
 
@@ -47,13 +46,6 @@ export const useTickPrice = ({ token0, token1, revertPrice, initialTick, positio
       setTickUpper(data.tickUpper)
     }
   }, [position])
-
-  useEffect(() => {
-    if (initialTick && tickLower === null && tickUpper === null) {
-      setTickLower(initialTick.tickLower)
-      setTickUpper(initialTick.tickUpper)
-    }
-  }, [initialTick, tickLower, tickUpper])
 
   return {
     tickLower,

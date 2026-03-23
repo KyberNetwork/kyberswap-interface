@@ -1,21 +1,25 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, createContext, useContext, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
+import { PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 
+import { NETWORKS_INFO } from 'constants/networks'
+import { NetworkInfo } from 'constants/networks/type'
 import PoolDetailPageSkeleton from 'pages/Earns/PoolDetail/components/PoolDetailPageSkeleton'
 import { NoteCard, PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import { Pool } from 'pages/Earns/PoolDetail/types'
-import { Exchange } from 'pages/Earns/constants'
-
-export interface PoolDetailPoolParams {
-  poolChainId: number
-  exchange?: string
-  poolAddress: string
-}
+import { EARN_DEXES, EarnDexInfo, Exchange } from 'pages/Earns/constants'
 
 interface PoolDetailContextValue {
-  poolParams: PoolDetailPoolParams
   pool: Pool
+  poolAddress: string
+  chainId: number
+  exchange: Exchange
+  dexInfo: EarnDexInfo
+  chainInfo: NetworkInfo
+  primaryToken: PoolDetailToken
+  secondaryToken: PoolDetailToken
+  feeTier: number
 }
 
 const PoolDetailContext = createContext<PoolDetailContextValue | null>(null)
@@ -63,15 +67,6 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   const poolAddress = searchParams.get('poolAddress') || ''
   const poolChainId = Number(searchParams.get('poolChainId') || 0)
 
-  const poolParams = useMemo<PoolDetailPoolParams>(
-    () => ({
-      poolChainId,
-      exchange,
-      poolAddress,
-    }),
-    [exchange, poolAddress, poolChainId],
-  )
-
   const { data: poolDetail, isLoading: isPoolDetailLoading } = usePoolDetailQuery(
     {
       chainId: poolChainId,
@@ -101,9 +96,10 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
       ...explorerPool,
       ...poolDetail,
       exchange: explorerPool?.exchange || poolDetail.exchange || exchange,
+      chainId: explorerPool?.chainId || explorerPool?.chain?.id || poolChainId,
       tokens: mergePoolTokens(poolDetail, explorerPool),
     }
-  }, [exchange, explorerPool, poolDetail])
+  }, [exchange, explorerPool, poolChainId, poolDetail])
 
   const isPoolLoading =
     Boolean(poolChainId && poolAddress) && (isPoolDetailLoading || (Boolean(exchange) && isExplorerLoading))
@@ -128,9 +124,22 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
     )
   }
 
+  const chainId = pool.chainId || pool.chain?.id || poolChainId
+  const exchangeValue = pool.exchange as Exchange
+  const primaryToken = pool.tokens[0]
+  const secondaryToken = pool.tokens[1]
+  const feeTier = typeof pool.swapFee === 'number' ? pool.swapFee : Number(pool.feeTier || 0)
+
   const value = {
-    poolParams,
     pool,
+    poolAddress: pool.address,
+    chainId,
+    exchange: exchangeValue,
+    dexInfo: EARN_DEXES[exchangeValue],
+    chainInfo: NETWORKS_INFO[chainId as ChainId],
+    primaryToken,
+    secondaryToken,
+    feeTier,
   }
 
   return <PoolDetailContext.Provider value={value}>{children}</PoolDetailContext.Provider>

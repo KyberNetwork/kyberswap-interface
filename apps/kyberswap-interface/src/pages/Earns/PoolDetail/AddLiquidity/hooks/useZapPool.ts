@@ -2,6 +2,7 @@ import { POOL_CATEGORY, PoolType, Token, Pool as ZapPool, univ2PoolNormalize, un
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
+import { PoolDetailToken } from 'services/zapEarn'
 import { useAddLiquidityTokensQuery } from 'services/zapInService'
 
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
@@ -46,10 +47,7 @@ const buildPoolStats = (stats?: PoolDetailPagePool['poolStats']) => ({
 const getTokenLogo = (token?: (Token & { logoURI?: string }) | null, fallbackLogo?: string) =>
   token?.logo || token?.logoURI || fallbackLogo
 
-const buildPoolToken = (
-  poolToken: PoolDetailPagePool['tokens'][number],
-  tokenMap: Map<string, Token & { logoURI?: string }>,
-): Token => {
+const buildPoolToken = (poolToken: PoolDetailToken, tokenMap: Map<string, Token & { logoURI?: string }>): Token => {
   const metadata = tokenMap.get(poolToken.address.toLowerCase())
 
   return {
