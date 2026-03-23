@@ -4,7 +4,7 @@ import { univ3PoolNormalize } from '@kyber/schema';
 import { toString } from '@kyber/utils/number';
 import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
-import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart';
+import { Bound, LiquidityChartRangeInput, MIN_PRICE } from '@kyberswap/liquidity-chart';
 import '@kyberswap/liquidity-chart/style.css';
 
 import { useZapState } from '@/hooks/useZapState';
@@ -90,10 +90,13 @@ export default function LiquidityChart() {
       const rightPrice = parseFloat(!revertPrice ? maxPrice : minPrice.toString().replace(/,/g, ''));
 
       let leftRangeValue = Number(domain[0]);
-      const rightRangeValue = Number(domain[1]);
+      let rightRangeValue = Number(domain[1]);
 
       if (leftRangeValue <= 0) {
-        leftRangeValue = 1 / 10 ** 6;
+        leftRangeValue = MIN_PRICE;
+      }
+      if (rightRangeValue <= 0) {
+        rightRangeValue = MIN_PRICE;
       }
 
       const updateLeft =
