@@ -7,7 +7,6 @@ import {
   PoolType,
   Token,
   ZapAction,
-  Pool as ZapPool,
   ZapRouteDetail,
   univ2Types,
   univ3Types,
@@ -197,7 +196,7 @@ export const getSecurityWarnings = ({
   tokens,
   honeypotInfoMap,
 }: {
-  tokens: ZapPool['token0'][]
+  tokens: Token[]
   honeypotInfoMap?: Record<string, { isHoneypot?: boolean; isFOT?: boolean; tax: number }>
 }) =>
   tokens.flatMap(token => {

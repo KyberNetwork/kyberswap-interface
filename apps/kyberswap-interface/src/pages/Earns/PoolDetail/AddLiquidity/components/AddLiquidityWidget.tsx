@@ -156,7 +156,11 @@ const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent, o
         </NoteCard>
       ))}
 
-      {feedback.routeWarning ? <NoteCard $warning>{feedback.routeWarning}</NoteCard> : null}
+      {feedback.routeWarnings.map(message => (
+        <NoteCard key={message} $warning>
+          {message}
+        </NoteCard>
+      ))}
 
       {feedback.blockingWarnings.map(warning => (
         <NoteCard key={warning.message} $tone={warning.tone}>

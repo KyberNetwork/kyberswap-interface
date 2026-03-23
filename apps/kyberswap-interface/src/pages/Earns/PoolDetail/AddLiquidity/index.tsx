@@ -3,7 +3,7 @@ import { PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
 import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BuildZapInData, useBuildZapInRouteMutation } from 'services/zapInService'
+import { BuildZapInData, prepareBuildZapInRouteRequest, useBuildZapInRouteMutation } from 'services/zap'
 
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -167,6 +167,8 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const deadline = useTransactionDeadline()
+  const deadlineValue = deadline ? Number(deadline.toString()) : undefined
+
   const [isDegenMode] = useDegenModeManager()
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [isRefreshingReview, setIsRefreshingReview] = useState(false)
@@ -216,28 +218,35 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
         throw new Error('Wallet is not connected')
       }
 
-      const deadlineValue = deadline ? +deadline.toString() : undefined
       if (!deadlineValue) {
         throw new Error('Build route is unavailable.')
       }
 
-      const buildData = await buildZapInRoute({
+      const request = prepareBuildZapInRouteRequest({
         chainId,
         sender: account,
         recipient: account,
         route: route.route,
         deadline: deadlineValue,
         source: 'kyberswap-earn',
-      }).unwrap()
+      })
+      if (!request.data) {
+        throw new Error(request.error || 'Build route is unavailable.')
+      }
+
+      const response = await buildZapInRoute(request.data).unwrap()
+      if (!response.data?.callData || !response.data.routerAddress) {
+        throw new Error(response.message || 'Failed to build zap route')
+      }
 
       return {
-        buildData,
+        buildData: response.data,
         route,
         slippage,
         warnings,
       }
     },
-    [account, buildZapInRoute, chainId, deadline],
+    [account, buildZapInRoute, chainId, deadlineValue],
   )
 
   useEffect(() => {
@@ -322,12 +331,11 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const runtimeValue = useMemo<AddLiquidityRuntimeContextValue>(
     () => ({
       buildRouteLoading: buildRouteState.isLoading,
-      buildZapInRoute,
       txStatusMap: txStatus,
       txHashMapping: originalToCurrentHash,
       submitApprovalTx,
     }),
-    [buildRouteState.isLoading, buildZapInRoute, originalToCurrentHash, submitApprovalTx, txStatus],
+    [buildRouteState.isLoading, originalToCurrentHash, submitApprovalTx, txStatus],
   )
 
   const tracking = useMemo<AddLiquidityTracking>(

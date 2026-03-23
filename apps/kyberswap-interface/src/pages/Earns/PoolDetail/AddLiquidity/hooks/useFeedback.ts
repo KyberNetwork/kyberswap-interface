@@ -11,7 +11,7 @@ import {
 import { PI_LEVEL, getPoolPrice, getZapImpact } from '@kyber/utils'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import { useGetHoneypotInfoQuery } from 'services/zapInService'
+import { useGetHoneypotInfoQuery } from 'services/marketOverview'
 
 import { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getSecurityWarnings, isUniV2PoolType, isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
@@ -235,21 +235,42 @@ export const useFeedback = ({ poolChainId, pool, poolType, state, isDegenMode }:
     )
   }, [pool])
 
-  const { data: honeypotInfoMap } = useGetHoneypotInfoQuery(
+  const firstToken = tokensToCheck[0]
+  const secondToken = tokensToCheck[1]
+
+  const { data: firstHoneypotInfo } = useGetHoneypotInfoQuery(
     {
       chainId: poolChainId || ChainId.MAINNET,
-      addresses: tokensToCheck.map(token => token.address),
+      address: firstToken?.address || '',
     },
+    { skip: !firstToken },
+  )
+
+  const { data: secondHoneypotInfo } = useGetHoneypotInfoQuery(
     {
-      skip: !tokensToCheck.length,
+      chainId: poolChainId || ChainId.MAINNET,
+      address: secondToken?.address || '',
     },
+    { skip: !secondToken },
+  )
+
+  const honeypotInfoMap = useMemo(
+    () =>
+      Object.fromEntries(
+        [
+          [firstToken?.address.toLowerCase(), firstHoneypotInfo?.data],
+          [secondToken?.address.toLowerCase(), secondHoneypotInfo?.data],
+        ].filter(([address, info]) => Boolean(address && info)),
+      ),
+    [firstHoneypotInfo?.data, firstToken?.address, secondHoneypotInfo?.data, secondToken?.address],
   )
 
   const securityWarnings = useMemo(() => {
     return getSecurityWarnings({ tokens: tokensToCheck, honeypotInfoMap })
   }, [honeypotInfoMap, tokensToCheck])
 
-  const routeWarning = state.route.error
+  const routeWarnings = useMemo(() => (state.route.error ? [state.route.error] : []), [state.route.error])
+
   const reviewWarnings = useMemo(
     () =>
       buildReviewWarnings({
@@ -299,7 +320,7 @@ export const useFeedback = ({ poolChainId, pool, poolType, state, isDegenMode }:
   return {
     widget: {
       securityWarnings,
-      routeWarning,
+      routeWarnings,
       blockingWarnings,
       isZapImpactBlocked,
     },

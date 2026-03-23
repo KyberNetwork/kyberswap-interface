@@ -51,7 +51,7 @@ const LiquidityShare = ({ pool, route }: { pool: Pool; route?: ZapRouteDetail | 
 
   const shareDisplay = useMemo(() => {
     if (!share) return '--'
-    if (share < 1e-6) return '~0%'
+    if (share < 1e-4) return '<0.01%'
     return formatDisplayNumber(share, { style: 'percent', significantDigits: 2 })
   }, [share])
 
