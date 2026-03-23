@@ -26,12 +26,9 @@ export type ApprovalState = {
 
 export const useApproval = ({ tokensIn, amountsIn, route }: UseApprovalProps): ApprovalState => {
   const { account } = useActiveWeb3React()
-  const { poolParams } = usePoolDetailContext()
-  const { rpc: rpcUrl } = useKyberSwapConfig(poolParams.poolChainId as ChainId)
+  const { chainId, exchange } = usePoolDetailContext()
+  const { rpc: rpcUrl } = useKyberSwapConfig(chainId as ChainId)
   const { txStatusMap, txHashMapping, submitApprovalTx } = useAddLiquidityRuntimeContext()
-
-  const chainId = poolParams.poolChainId
-  const exchange = poolParams.exchange || ''
 
   const amountsInWei = useMemo(() => {
     if (!amountsIn || tokensIn.length === 0) return []

@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+import { Exchange } from 'pages/Earns/constants'
 import {
   EarnPool,
   PositionHistoryType,
@@ -97,7 +98,7 @@ type PoolStatsPeriod = '1d' | '7d' | '30d'
 
 type PoolStatsByPeriod = Partial<Record<PoolStatsPeriod, number>>
 
-interface PoolDetailToken {
+export interface PoolDetailToken {
   address: string
   name: string
   symbol: string
@@ -159,7 +160,7 @@ export interface PoolDetail {
   reserveUsd: string
   amplifiedTvl: string
   swapFee: number
-  exchange: string
+  exchange: Exchange
   type?: string
   programs?: string[]
   timestamp?: number

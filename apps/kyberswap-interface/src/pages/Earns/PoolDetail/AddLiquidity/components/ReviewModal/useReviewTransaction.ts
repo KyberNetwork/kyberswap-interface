@@ -4,13 +4,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BuildZapInData } from 'services/zapInService'
 
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
 import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getParsedTokensIn } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { EARN_DEXES } from 'pages/Earns/constants'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -47,12 +46,8 @@ export const useReviewTransaction = ({
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const navigate = useNavigate()
-  const { poolParams } = usePoolDetailContext()
+  const { chainId, chainInfo, exchange, poolAddress } = usePoolDetailContext()
   const { txStatusMap, txHashMapping } = useAddLiquidityRuntimeContext()
-
-  const chainId = poolParams.poolChainId
-  const exchange = poolParams.exchange as Exchange | undefined
-  const poolAddress = pool.address
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -67,11 +62,6 @@ export const useReviewTransaction = ({
   }, [])
 
   useEffect(() => {
-    if (!isOpen) {
-      resetTransactionState()
-      return
-    }
-
     resetTransactionState()
   }, [isOpen, resetTransactionState])
 
@@ -94,13 +84,10 @@ export const useReviewTransaction = ({
       : txStatus === 'cancelled'
       ? 'cancelled'
       : 'idle'
-  const transactionExplorerUrl =
-    currentTxHash && chainId
-      ? `${NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.etherscanUrl}/tx/${currentTxHash}`
-      : undefined
+  const transactionExplorerUrl = currentTxHash ? `${chainInfo.etherscanUrl}/tx/${currentTxHash}` : undefined
 
   const handleSubmit = useCallback(async () => {
-    if (!account || !exchange || !chainId || !poolAddress || !library) return
+    if (!account || !library) return
 
     setSubmitError(null)
 
@@ -138,8 +125,8 @@ export const useReviewTransaction = ({
         extraInfo: {
           pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
           tokensIn,
-          dexLogoUrl: exchange ? EARN_DEXES[exchange].logo : '',
-          dex: exchange || '',
+          dexLogoUrl: EARN_DEXES[exchange].logo,
+          dex: exchange,
         },
       })
     } catch (error) {
@@ -153,21 +140,10 @@ export const useReviewTransaction = ({
 
       setIsSubmitting(false)
     }
-  }, [
-    account,
-    buildData,
-    chainId,
-    exchange,
-    library,
-    onAddTrackedTxHash,
-    onAddTransactionWithType,
-    poolAddress,
-    pool,
-    tokensIn,
-  ])
+  }, [account, buildData, exchange, library, onAddTrackedTxHash, onAddTransactionWithType, pool, tokensIn])
 
   const handleViewPosition = useCallback(async () => {
-    if (!library || !currentTxHash || !exchange || !poolAddress || !chainId) return
+    if (!library || !currentTxHash) return
 
     await navigateToPositionAfterZap(library, currentTxHash, chainId, exchange, poolAddress, navigate)
     onDismiss?.()

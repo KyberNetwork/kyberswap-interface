@@ -1,21 +1,18 @@
 import { formatAprNumber } from '@kyber/utils'
 import { shortenAddress } from '@kyber/utils/crypto'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
+import { PoolDetailToken } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import CopyHelper from 'components/Copy'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import { PoolToken } from 'pages/Earns/PoolDetail/types'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 
 const BackButton = styled.button`
   display: flex;
@@ -67,7 +64,7 @@ const FeeBadge = styled(Stack)`
   background: ${({ theme }) => theme.background};
 `
 
-const TooltipAddressRow = ({ token }: { token: PoolToken }) => {
+const TooltipAddressRow = ({ token }: { token: PoolDetailToken }) => {
   return (
     <HStack align="center" gap={8} wrap="wrap">
       {token.logoURI ? <TokenLogo src={token.logoURI} size={18} /> : null}
@@ -85,13 +82,7 @@ const TooltipAddressRow = ({ token }: { token: PoolToken }) => {
 const PoolHeaderPage = () => {
   const navigate = useNavigate()
   const theme = useTheme()
-  const { pool, poolParams } = usePoolDetailContext()
-
-  const primaryToken = pool.tokens[0]
-  const secondaryToken = pool.tokens[1]
-
-  const dexInfo = poolParams.exchange ? EARN_DEXES[poolParams.exchange as Exchange] : undefined
-  const chainInfo = poolParams.poolChainId ? NETWORKS_INFO[poolParams.poolChainId as ChainId] : undefined
+  const { pool, chainInfo, dexInfo, primaryToken, secondaryToken, feeTier } = usePoolDetailContext()
 
   return (
     <HStack align="center" gap={8} wrap="wrap">
@@ -127,22 +118,22 @@ const PoolHeaderPage = () => {
             <HStack flex="0 0 auto" align="flex-end">
               <TokenLogo src={primaryToken.logoURI} size={28} />
               <TokenLogo src={secondaryToken.logoURI} size={28} translateLeft />
-              <TokenLogo src={chainInfo?.icon} size={16} translateLeft translateTop />
+              <TokenLogo src={chainInfo.icon} size={16} translateLeft translateTop />
             </HStack>
 
             <Text color={theme.text} fontSize={24} fontWeight={500} sx={{ whiteSpace: 'nowrap' }}>
-              {primaryToken?.symbol || '---'}/{secondaryToken?.symbol || '---'}
+              {primaryToken.symbol}/{secondaryToken.symbol}
             </Text>
           </HStack>
         </MouseoverTooltipDesktopOnly>
 
         <ProtocolBadge align="center" gap={8}>
-          <ProtocolLogo alt={dexInfo?.name} src={dexInfo?.logo} />
+          <ProtocolLogo alt={dexInfo.name} src={dexInfo.logo} />
           <Text color={theme.text} fontSize={14} fontWeight={500}>
-            {dexInfo?.name}
+            {dexInfo.name}
           </Text>
           <Text color={theme.subText} fontSize={14} fontWeight={500}>
-            | {pool.swapFee || pool.feeTier}%
+            | {feeTier}%
           </Text>
         </ProtocolBadge>
 
@@ -156,12 +147,7 @@ const PoolHeaderPage = () => {
 
 const PoolHeaderReview = () => {
   const theme = useTheme()
-  const { pool, poolParams } = usePoolDetailContext()
-
-  const primaryToken = pool.tokens[0]
-  const secondaryToken = pool.tokens[1]
-
-  const dexInfo = poolParams.exchange ? EARN_DEXES[poolParams.exchange as Exchange] : undefined
+  const { primaryToken, secondaryToken, dexInfo, feeTier } = usePoolDetailContext()
 
   return (
     <HStack minWidth={0} align="center" gap={12}>
@@ -177,15 +163,15 @@ const PoolHeaderReview = () => {
 
         <HStack align="center" gap={8} wrap="wrap">
           <HStack align="center" gap={4}>
-            <ProtocolLogo alt={dexInfo?.name} src={dexInfo?.logo} />
+            <ProtocolLogo alt={dexInfo.name} src={dexInfo.logo} />
             <Text color={theme.subText} fontSize={14}>
-              {dexInfo?.name}
+              {dexInfo.name}
             </Text>
           </HStack>
 
           <FeeBadge>
             <Text color={theme.subText} fontSize={12} fontWeight={500}>
-              Fee {pool.swapFee || pool.feeTier}
+              Fee {feeTier}
             </Text>
           </FeeBadge>
         </HStack>

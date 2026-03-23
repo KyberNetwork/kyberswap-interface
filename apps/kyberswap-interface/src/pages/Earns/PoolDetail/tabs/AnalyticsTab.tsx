@@ -11,7 +11,7 @@ import { MetricCard, MetricsStrip, formatNumber, formatUsd } from 'pages/Earns/P
 
 const AnalyticsTab = () => {
   const theme = useTheme()
-  const { pool, poolParams } = usePoolDetailContext()
+  const { pool, chainId, poolAddress, primaryToken, secondaryToken } = usePoolDetailContext()
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
 
   const {
@@ -19,8 +19,8 @@ const AnalyticsTab = () => {
     isError: isPriceError,
     isLoading: isPriceLoading,
   } = usePoolPriceQuery({
-    chainId: poolParams.poolChainId,
-    address: poolParams.poolAddress,
+    chainId,
+    address: poolAddress,
     window,
   })
 
@@ -29,28 +29,28 @@ const AnalyticsTab = () => {
     isError: isLiquidityFlowsError,
     isLoading: isLiquidityFlowsLoading,
   } = usePoolLiquidityFlowsQuery({
-    chainId: poolParams.poolChainId,
-    address: poolParams.poolAddress,
+    chainId,
+    address: poolAddress,
     window,
   })
 
   const currentLiquidityBucket = liquidityFlows?.buckets?.[liquidityFlows.buckets.length - 1]
 
   const totalTvl = useMemo(() => {
-    if (pool?.tvl !== undefined) return pool.tvl
-    if (pool?.poolStats?.tvl !== undefined) return pool.poolStats.tvl
-    if (pool?.reserveUsd !== undefined) {
+    if (pool.tvl !== undefined) return pool.tvl
+    if (pool.poolStats?.tvl !== undefined) return pool.poolStats.tvl
+    if (pool.reserveUsd !== undefined) {
       const parsedReserveUsd = Number(pool.reserveUsd)
       if (!Number.isNaN(parsedReserveUsd)) return parsedReserveUsd
     }
 
     return undefined
-  }, [pool?.poolStats?.tvl, pool?.reserveUsd, pool?.tvl])
+  }, [pool.poolStats?.tvl, pool.reserveUsd, pool.tvl])
 
   const metrics = [
     { label: 'TVL', value: formatUsd(totalTvl) },
     { label: 'Current TVL', value: formatUsd(currentLiquidityBucket?.tvlUsd ?? totalTvl) },
-    { label: 'Liquidity Provider', value: formatNumber(pool?.liquidity) },
+    { label: 'Liquidity Provider', value: formatNumber(pool.liquidity) },
   ]
 
   return (
@@ -70,11 +70,11 @@ const AnalyticsTab = () => {
 
       <PoolPriceChart
         analytics={priceAnalytics}
-        baseSymbol={pool.tokens[0]?.symbol}
+        baseSymbol={primaryToken.symbol}
         isError={isPriceError}
         isLoading={isPriceLoading}
         onSelectWindow={setWindow}
-        quoteSymbol={pool.tokens[1]?.symbol}
+        quoteSymbol={secondaryToken.symbol}
         window={window}
       />
 

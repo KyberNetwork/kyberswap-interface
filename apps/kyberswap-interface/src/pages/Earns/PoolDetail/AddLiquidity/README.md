@@ -23,6 +23,7 @@ This README covers:
 - ERC20 approval and action-state handling.
 - Safety and review surfaces, including zap-impact protection, security warnings, route preview, review data, and the page-owned review modal flow.
 - Review-modal-owned submit flow, including transaction submission, status dialog states, and success navigation.
+- Partial page-level tracking for basic input/range/slippage interactions.
 
 ## 🟡 Intentional Differences from the Widget
 
@@ -31,6 +32,7 @@ This README covers:
 - Existing-position support is intentionally excluded, including `positionId`, owner checks, CTA branching, and related UI wording.
 - NFT-related flows are intentionally excluded, including permit and approval paths.
 - Standalone-widget initialization patterns and store/runtime architecture are not reused here.
+- Preview/review/submit tracking parity with the widget is intentionally incomplete. Missing events currently include preview-clicked, add-submitted, add-completed, add-failed, and add-cancelled.
 - Syncing with the widget is a manual maintenance task. There is no automated drift detection layer.
 
 If existing-position support is needed later, it should be designed clearly from scratch. Old branches previously tied to `positionId` should not be revived incrementally.
@@ -62,3 +64,6 @@ When widget logic changes, audit the following areas:
 
 8. If the widget changes `positionId` or NFT-related logic:
    Ignore it unless the page officially reopens the existing-position scope.
+
+9. If the widget changes add-liquidity tracking around preview/review/submit:
+   The pool-detail page currently does not fully shadow that tracking. Audit the gap before assuming analytics parity.

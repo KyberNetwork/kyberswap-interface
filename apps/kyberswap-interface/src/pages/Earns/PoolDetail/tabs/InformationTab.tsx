@@ -92,7 +92,7 @@ const IntervalButton = styled.button<{ $active: boolean }>`
 `
 
 type InformationTabProps = {
-  pool?: Pool
+  pool: Pool
 }
 
 type TopMetricItem = {
@@ -112,25 +112,23 @@ const formatNumber = (value?: number) => formatDisplayNumber(value, { significan
 
 const formatApr = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
 
-const getRewardApr = (pool?: Pool) => {
-  if (!pool) return undefined
-
+const getRewardApr = (pool: Pool) => {
   const directRewardApr = (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + (pool.bonusApr || 0)
   if (directRewardApr) return directRewardApr
 
   return (pool.poolStats?.kemEGApr24h || 0) + (pool.poolStats?.kemLMApr24h || 0) + (pool.poolStats?.bonusApr || 0)
 }
 
-const getAverageApr = (pool: Pool | undefined, aprInterval: AprPeriod) => {
+const getAverageApr = (pool: Pool, aprInterval: AprPeriod) => {
   if (aprInterval === '24H') {
-    return pool?.poolStats?.allApr24h ?? pool?.allApr ?? pool?.poolStats?.apr24h ?? pool?.poolStats?.apr
+    return pool.poolStats?.allApr24h ?? pool.allApr ?? pool.poolStats?.apr24h ?? pool.poolStats?.apr
   }
 
-  return aprInterval === '7D' ? pool?.poolStats?.allApr7d : pool?.poolStats?.allApr30d
+  return aprInterval === '7D' ? pool.poolStats?.allApr7d : pool.poolStats?.allApr30d
 }
 
-const getMaxApr = (pool?: Pool) =>
-  pool?.maxAprInfo
+const getMaxApr = (pool: Pool) =>
+  pool.maxAprInfo
     ? Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr)
     : undefined
 
@@ -139,44 +137,44 @@ const InformationTab = ({ pool }: InformationTabProps) => {
   const [aprInterval, setAprInterval] = useState<AprPeriod>('7D')
 
   const intervalActiveIndex = APR_PERIOD_OPTIONS.findIndex(option => option.value === aprInterval)
-  const poolStats = pool?.poolStats
+  const poolStats = pool.poolStats
 
   const rewardApr = getRewardApr(pool)
-  const activeApr = pool?.allApr ?? poolStats?.allApr24h ?? poolStats?.apr24h ?? poolStats?.apr
+  const activeApr = pool.allApr ?? poolStats?.allApr24h ?? poolStats?.apr24h ?? poolStats?.apr
   const averageApr = getAverageApr(pool, aprInterval)
   const maxApr = getMaxApr(pool)
 
   const topMetrics: TopMetricItem[] = [
     {
       label: 'TVL',
-      value: formatCurrency(pool?.tvl ?? poolStats?.tvl ?? Number(pool?.reserveUsd)),
+      value: formatCurrency(pool.tvl ?? poolStats?.tvl ?? Number(pool.reserveUsd)),
     },
     {
       label: '24h Volume',
-      value: formatCurrency(pool?.volume ?? poolStats?.volume24h),
+      value: formatCurrency(pool.volume ?? poolStats?.volume24h),
     },
     {
       label: '24h Fees',
-      value: formatCurrency(pool?.earnFee ?? poolStats?.fees24h),
+      value: formatCurrency(pool.earnFee ?? poolStats?.fees24h),
     },
     {
       label: 'Rewards',
       value: (
         <HStack align="center" gap={4}>
           <Text as="span" color={theme.text} fontWeight={500}>
-            {pool?.egUsd ? formatCurrency(pool.egUsd) : formatApr(rewardApr)}
+            {pool.egUsd ? formatCurrency(pool.egUsd) : formatApr(rewardApr)}
           </Text>
-          {pool?.programs?.length || rewardApr ? <BagIcon width={20} height={20} /> : null}
+          {pool.programs?.length || rewardApr ? <BagIcon width={20} height={20} /> : null}
         </HStack>
       ),
     },
     {
       label: 'Liquidity Provider',
-      value: formatNumber(pool?.liquidity),
+      value: formatNumber(pool.liquidity),
     },
     {
       label: 'Pool Address',
-      value: pool?.address ? (
+      value: pool.address ? (
         <HStack align="center" gap={4}>
           <Text as="span" color={theme.text} fontWeight={500}>
             {shortenAddress(pool.address, 4)}

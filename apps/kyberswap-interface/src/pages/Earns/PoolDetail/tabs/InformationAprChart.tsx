@@ -22,7 +22,7 @@ export type AprChartPoint = {
 }
 
 type InformationAprChartProps = {
-  pool?: Pool
+  pool: Pool
   aprInterval: AprPeriod
 }
 
@@ -98,8 +98,8 @@ const formatSyntheticLabel = (dayValue: number) => {
   return `${Math.round(dayValue)}D`
 }
 
-const getRewardAprByPeriod = (pool: Pool | undefined, period: AprPeriod) => {
-  if (!pool?.poolStats) return undefined
+const getRewardAprByPeriod = (pool: Pool, period: AprPeriod) => {
+  if (!pool.poolStats) return undefined
 
   const totalApr =
     period === '24H'
@@ -119,31 +119,30 @@ const getRewardAprByPeriod = (pool: Pool | undefined, period: AprPeriod) => {
   return Math.max(totalApr - lpApr, 0)
 }
 
-const buildAnchorPoints = (pool: Pool | undefined): AprChartPoint[] => [
+const buildAnchorPoints = (pool: Pool): AprChartPoint[] => [
   {
     label: '24H',
-    value:
-      pool?.poolStats?.allApr24h ?? pool?.poolStats?.aprStats?.all?.['1d'] ?? pool?.allApr ?? pool?.poolStats?.apr24h,
-    lpApr: pool?.poolStats?.lpApr24h ?? pool?.poolStats?.aprStats?.lp?.['1d'],
+    value: pool.poolStats?.allApr24h ?? pool.poolStats?.aprStats?.all?.['1d'] ?? pool.allApr ?? pool.poolStats?.apr24h,
+    lpApr: pool.poolStats?.lpApr24h ?? pool.poolStats?.aprStats?.lp?.['1d'],
     rewardApr: getRewardAprByPeriod(pool, '24H'),
-    volumeUsd: pool?.poolStats?.volumeUsd?.['1d'] ?? pool?.poolStats?.volume24h,
-    lpFeeUsd: pool?.poolStats?.lpFeeUsd?.['1d'] ?? pool?.poolStats?.fees24h,
+    volumeUsd: pool.poolStats?.volumeUsd?.['1d'] ?? pool.poolStats?.volume24h,
+    lpFeeUsd: pool.poolStats?.lpFeeUsd?.['1d'] ?? pool.poolStats?.fees24h,
   },
   {
     label: '7D',
-    value: pool?.poolStats?.allApr7d ?? pool?.poolStats?.aprStats?.all?.['7d'],
-    lpApr: pool?.poolStats?.lpApr7d ?? pool?.poolStats?.aprStats?.lp?.['7d'],
+    value: pool.poolStats?.allApr7d ?? pool.poolStats?.aprStats?.all?.['7d'],
+    lpApr: pool.poolStats?.lpApr7d ?? pool.poolStats?.aprStats?.lp?.['7d'],
     rewardApr: getRewardAprByPeriod(pool, '7D'),
-    volumeUsd: pool?.poolStats?.volumeUsd?.['7d'],
-    lpFeeUsd: pool?.poolStats?.lpFeeUsd?.['7d'],
+    volumeUsd: pool.poolStats?.volumeUsd?.['7d'],
+    lpFeeUsd: pool.poolStats?.lpFeeUsd?.['7d'],
   },
   {
     label: '30D',
-    value: pool?.poolStats?.allApr30d ?? pool?.poolStats?.aprStats?.all?.['30d'],
-    lpApr: pool?.poolStats?.lpApr30d ?? pool?.poolStats?.aprStats?.lp?.['30d'],
+    value: pool.poolStats?.allApr30d ?? pool.poolStats?.aprStats?.all?.['30d'],
+    lpApr: pool.poolStats?.lpApr30d ?? pool.poolStats?.aprStats?.lp?.['30d'],
     rewardApr: getRewardAprByPeriod(pool, '30D'),
-    volumeUsd: pool?.poolStats?.volumeUsd?.['30d'],
-    lpFeeUsd: pool?.poolStats?.lpFeeUsd?.['30d'],
+    volumeUsd: pool.poolStats?.volumeUsd?.['30d'],
+    lpFeeUsd: pool.poolStats?.lpFeeUsd?.['30d'],
   },
 ]
 

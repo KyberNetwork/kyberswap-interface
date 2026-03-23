@@ -1,7 +1,6 @@
 import { type ApprovalAdditionalInfo } from '@kyber/hooks'
 import { PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
 import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BuildZapInData, useBuildZapInRouteMutation } from 'services/zapInService'
@@ -25,7 +24,7 @@ import { useZapPool } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool
 import { type ZapState, useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { EARN_DEXES } from 'pages/Earns/constants'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
@@ -66,8 +65,6 @@ type AddLiquidityTracking = {
   addTrackedTxHash: (hash: string) => void
   addTransactionWithType: (transaction: any) => void
 }
-
-const DEFAULT_CHAIN_ID = ChainId.MAINNET
 
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
@@ -166,7 +163,7 @@ const AddLiquidityBody = ({
 }
 
 const AddLiquidity = ({ children }: AddLiquidityProps) => {
-  const { pool, poolParams } = usePoolDetailContext()
+  const { pool, chainId, exchange, poolAddress } = usePoolDetailContext()
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const deadline = useTransactionDeadline()
@@ -182,12 +179,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const [buildZapInRoute, buildRouteState] = useBuildZapInRouteMutation()
   const { originalToCurrentHash, txStatus, addTrackedTxHash } = useTransactionReplacement()
 
-  const exchange = poolParams.exchange as Exchange | undefined
-  const chainId = poolParams.poolChainId || DEFAULT_CHAIN_ID
-  const poolAddress = poolParams.poolAddress
-  const poolType =
-    (poolParams.exchange ? (ZAPIN_DEX_MAPPING[poolParams.exchange as Exchange] as unknown as PoolType) : undefined) ||
-    PoolType.DEX_UNISWAPV3
+  const poolType = ZAPIN_DEX_MAPPING[exchange] || PoolType.DEX_UNISWAPV3
 
   const normalizedPool = useZapPool({
     chainId,
@@ -318,7 +310,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
           summary:
             additionalInfo?.type === 'erc20_approval'
               ? additionalInfo.tokenSymbol
-              : additionalInfo?.dexName || (exchange ? EARN_DEXES[exchange].name : 'Zap Router'),
+              : additionalInfo?.dexName || EARN_DEXES[exchange].name,
         },
       })
 
