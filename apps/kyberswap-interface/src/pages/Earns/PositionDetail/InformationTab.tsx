@@ -25,6 +25,7 @@ import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { timings } from 'pages/Earns/PoolExplorer/Filter'
 import LiquidityChart, { LiquidityChartSkeleton } from 'pages/Earns/PositionDetail/LiquidityChart'
+import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import {
   AprSection,
   CompactPriceBox,
@@ -52,48 +53,32 @@ import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/consta
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
-import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const InformationTab = ({
-  position,
-  initialLoading,
-  isNotAccountOwner,
-  positionOwnerAddress,
-  triggerClose,
-  hasActiveSmartExitOrder,
-  onOpenZapMigration,
-  onRefreshPosition,
-  setTriggerClose,
-  setReduceFetchInterval,
-  onReposition,
-  aprInterval,
-  setAprInterval,
-  isUnfinalized,
-  isWaitingForRewards,
-  shareBtn,
-}: {
-  position?: ParsedPosition
-  initialLoading: boolean
-  isNotAccountOwner: boolean
-  positionOwnerAddress?: string | null
-  triggerClose: boolean
-  hasActiveSmartExitOrder: boolean
-  onOpenZapMigration: (props: ZapMigrationInfo) => void
-  onRefreshPosition: (props: CheckClosedPositionParams) => void
-  setTriggerClose: (value: boolean) => void
-  setReduceFetchInterval: (value: boolean) => void
-  onReposition: (e: React.MouseEvent, position: ParsedPosition) => void
-  aprInterval: '24h' | '7d'
-  setAprInterval: (value: '24h' | '7d') => void
-  isUnfinalized?: boolean
-  isWaitingForRewards?: boolean
-  shareBtn?: (size?: number, defaultOptions?: ShareOption[]) => React.ReactNode
-}) => {
+const InformationTab = () => {
+  const {
+    position,
+    initialLoading,
+    isNotAccountOwner,
+    positionOwnerAddress,
+    triggerClose,
+    hasActiveSmartExitOrder,
+    onOpenZapMigration,
+    onRefreshPosition,
+    setTriggerClose,
+    setReduceFetchInterval,
+    onReposition,
+    aprInterval,
+    setAprInterval,
+    isUnfinalized,
+    isWaitingForRewards,
+    shareBtn,
+  } = usePositionDetailContext()
+
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const theme = useTheme()
   const navigate = useNavigate()
@@ -143,7 +128,7 @@ const InformationTab = ({
     return `${baseUrl}/nft/${nftManagerAddress}/${position.tokenId}`
   }, [account, chainId, isUniv2, position, positionId, positionOwnerAddress])
 
-  const onOpenIncreaseLiquidityWidget = () => {
+  const onOpenIncreaseLiquidityWidget = useCallback(() => {
     if (!position) return
     handleOpenZapIn({
       pool: {
@@ -153,7 +138,7 @@ const InformationTab = ({
       },
       positionId: isUniv2 ? account || '' : position.tokenId,
     })
-  }
+  }, [position, handleOpenZapIn, isUniv2, account])
 
   useEffect(() => {
     if (!pool || !chainId || !pool.tokens?.[0] || defaultRevertChecked || !stableCoins.length) return
@@ -267,7 +252,7 @@ const InformationTab = ({
                     options={timings.slice(0, 2)}
                     value={aprInterval}
                     alignLeft
-                    onChange={value => setAprInterval(value as '24h')}
+                    onChange={value => setAprInterval(value as '24h' | '7d')}
                   />
                 </Flex>
                 {initialLoading ? (
@@ -291,7 +276,7 @@ const InformationTab = ({
                     >
                       {formatAprNum((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%
                     </Text>
-                    {shareBtn && position?.status !== PositionStatus.CLOSED && shareBtn(12, [ShareOption.TOTAL_APR])}
+                    {position?.status !== PositionStatus.CLOSED && shareBtn(12, [ShareOption.TOTAL_APR])}
                   </Flex>
                 )}
               </Flex>

@@ -25,7 +25,6 @@ import {
   TimeSelector,
   TimeSelectorItem,
 } from 'pages/Earns/PositionDetail/styles'
-import { ParsedPosition } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type TimePeriod = '24H' | '7D' | '30D'
@@ -179,13 +178,7 @@ const BarTopLabel = (props: any) => {
   )
 }
 
-const EarningsTab = ({
-  position: _position,
-  initialLoading: _initialLoading,
-}: {
-  position?: ParsedPosition
-  initialLoading?: boolean
-}) => {
+const EarningsTab = () => {
   const theme = useTheme()
   const [earningPeriod, setEarningPeriod] = useState<TimePeriod>('7D')
   const [aprPeriod, setAprPeriod] = useState<TimePeriod>('7D')

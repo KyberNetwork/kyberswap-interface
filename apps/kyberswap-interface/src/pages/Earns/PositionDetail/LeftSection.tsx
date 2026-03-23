@@ -6,29 +6,17 @@ import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { CardDivider, ClaimButton, DarkCard, LeftColumn } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { EARN_DEXES, Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
-import { ParsedPosition } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const LeftSection = ({
-  position,
-  initialLoading,
-  isNotAccountOwner,
-  onFetchUnclaimedFee,
-  shareBtn,
-  refetchPositions,
-}: {
-  position?: ParsedPosition
-  initialLoading: boolean
-  isNotAccountOwner: boolean
-  onFetchUnclaimedFee: () => void
-  shareBtn: (size?: number) => React.ReactNode
-  refetchPositions: () => void
-}) => {
+const LeftSection = () => {
+  const { position, initialLoading, isNotAccountOwner, handleFetchUnclaimedFee } = usePositionDetailContext()
+
   const theme = useTheme()
   const { exchange, chainId } = useParams()
 
@@ -37,7 +25,7 @@ const LeftSection = ({
     onOpenClaim: onOpenClaimFees,
     pendingClaimKeys: pendingFeeClaimKeys,
   } = useCollectFees({
-    refetchAfterCollect: () => onFetchUnclaimedFee(),
+    refetchAfterCollect: () => handleFetchUnclaimedFee(),
   })
 
   const nativeToken = chainId ? NETWORKS_INFO[Number(chainId) as keyof typeof NETWORKS_INFO]?.nativeToken : undefined
@@ -165,14 +153,7 @@ const LeftSection = ({
         )}
 
         {/* Total Reward Card - using existing RewardSection component */}
-        {showRewards && (
-          <RewardSection
-            position={position}
-            initialLoading={initialLoading}
-            shareBtn={shareBtn}
-            refetchPositions={refetchPositions}
-          />
-        )}
+        {showRewards && <RewardSection />}
       </LeftColumn>
     </>
   )

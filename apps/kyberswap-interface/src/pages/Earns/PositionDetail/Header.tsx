@@ -17,13 +17,14 @@ import { TELEGRAM_BOT_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
+import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { DexInfoBadge, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
-import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
+import { PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 const TokenAddressRow = ({
@@ -52,17 +53,8 @@ const TokenAddressRow = ({
   )
 }
 
-const PositionDetailHeader = ({
-  position,
-  isLoading,
-  initialLoading,
-  hasActiveSmartExitOrder = false,
-}: {
-  position?: ParsedPosition | null
-  isLoading: boolean
-  initialLoading: boolean
-  hasActiveSmartExitOrder?: boolean
-}) => {
+const PositionDetailHeader = () => {
+  const { position, loadingInterval: isLoading, initialLoading, hasActiveSmartExitOrder } = usePositionDetailContext()
   const theme = useTheme()
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)

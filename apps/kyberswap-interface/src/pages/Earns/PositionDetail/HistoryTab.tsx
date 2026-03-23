@@ -9,11 +9,12 @@ import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { HistoryCard, HistorySectionHeader } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
-import { ParsedPosition, PositionHistoryType } from 'pages/Earns/types'
+import { PositionHistoryType } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const formatDateTime = (number: number) => (number < 10 ? `0${number}` : number)
@@ -47,7 +48,8 @@ const getActionTokensSummary = (entry: PositionHistory): Array<{ symbol: string;
 
 const shortenTxHash = (hash: string) => (hash ? `${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}` : '')
 
-const HistoryTab = ({ position, initialLoading }: { position?: ParsedPosition; initialLoading?: boolean }) => {
+const HistoryTab = () => {
+  const { position, initialLoading } = usePositionDetailContext()
   const theme = useTheme()
   const { account } = useActiveWeb3React()
 

@@ -13,14 +13,14 @@ import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { CardDivider, ClaimButton, DarkCard, NextDistribution } from 'pages/Earns/PositionDetail/styles'
 import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
-import { ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
-import { checkEarlyPosition } from 'pages/Earns/utils/position'
+import { PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const formatTimeRemaining = (seconds: number) => {
@@ -57,17 +57,8 @@ const CycleCountdown = ({ endTime, textColor }: { endTime: number; textColor: st
   )
 }
 
-const RewardSection = ({
-  position,
-  initialLoading,
-  shareBtn,
-  refetchPositions,
-}: {
-  position?: ParsedPosition
-  initialLoading: boolean
-  shareBtn: (size?: number) => React.ReactNode
-  refetchPositions: () => void
-}) => {
+const RewardSection = () => {
+  const { position, initialLoading, shareBtn, refetchPositions, isWaitingForRewards } = usePositionDetailContext()
   const theme = useTheme()
 
   const {
@@ -90,8 +81,6 @@ const RewardSection = ({
   )
 
   const isUnfinalized = position?.isUnfinalized
-  const isEarlyPosition = !!position && checkEarlyPosition(position)
-  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
   const claimKey = position ? `${position.chain.id}:${position.tokenId}` : ''
   const isRewardsClaiming = claimKey ? pendingRewardClaimKeys.includes(claimKey) : false
 
