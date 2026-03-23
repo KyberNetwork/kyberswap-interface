@@ -1,14 +1,16 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
+import { OnSuccessProps, ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
 import '@kyberswap/zap-out-widgets/dist/style.css'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
@@ -53,6 +55,7 @@ const useZapOutWidget = (
   onRefreshPosition?: (props: CheckClosedPositionParams) => void,
   explorePoolsEnabled?: boolean,
 ) => {
+  const { trackingHandler } = useTracking()
   const addTransactionWithType = useTransactionAdder()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
@@ -73,6 +76,35 @@ const useZapOutWidget = (
   const locale = useActiveLocale()
   const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
   const { rpc: zapOutRpcUrl } = useKyberSwapConfig(zapOutPureParams?.chainId as ChainId | undefined)
+
+  const handleZapOutSuccess = useCallback(
+    (data: OnSuccessProps) => {
+      if (!zapOutPureParams) return
+
+      const isManualRemove = data.mode === 'withdrawOnly'
+      const tokenPair = `${data.token0.symbol}/${data.token1.symbol}`
+      trackingHandler(
+        isManualRemove ? TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_COMPLETED : TRACKING_EVENT_TYPE.EARN_ZAP_OUT_COMPLETED,
+        {
+          position_id: data.positionId,
+          chain: NETWORKS_INFO[zapOutPureParams.chainId as unknown as ChainId]?.name,
+          pool: data.pool.address,
+          token_pair: tokenPair,
+          tx_hash: data.txHash,
+          completion_time_ms: Date.now(),
+          ...(isManualRemove
+            ? {
+                remove_amount_token0: data.tokensOut[0]?.amount,
+                remove_amount_token1: data.tokensOut[1]?.amount,
+              }
+            : {
+                output_token_symbol: data.tokensOut[0]?.symbol,
+              }),
+        },
+      )
+    },
+    [trackingHandler, zapOutPureParams],
+  )
 
   const zapOutParams = useMemo(
     () =>
@@ -130,9 +162,24 @@ const useZapOutWidget = (
                     dexName?: string
                   },
             ) => {
+              const isManualRemove = zapOutPureParams.mode === 'withdrawOnly'
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
-              if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+              if (!txHash || error) {
+                trackingHandler(
+                  isManualRemove
+                    ? TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_FAILED
+                    : TRACKING_EVENT_TYPE.EARN_ZAP_OUT_FAILED,
+                  {
+                    position_id: zapOutPureParams.positionId,
+                    chain: NETWORKS_INFO[zapOutPureParams.chainId as unknown as ChainId]?.name,
+                    pool: zapOutPureParams.poolAddress,
+                    failure_reason: error?.message || 'Transaction failed',
+                    completion_time_ms: Date.now(),
+                  },
+                )
+                throw new Error(error?.message || 'Transaction failed')
+              }
 
               const dex = zapOutPureParams.dexId
               if (additionalInfo?.type === 'zap' && dex) {
@@ -147,6 +194,27 @@ const useZapOutWidget = (
                     dex,
                   },
                 })
+
+                const tokensOut = additionalInfo.tokensOut || []
+                trackingHandler(
+                  isManualRemove
+                    ? TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_INITIATED
+                    : TRACKING_EVENT_TYPE.EARN_ZAP_OUT_INITIATED,
+                  {
+                    position_id: zapOutPureParams.positionId,
+                    chain: NETWORKS_INFO[zapOutPureParams.chainId as unknown as ChainId]?.name,
+                    pool: zapOutPureParams.poolAddress,
+                    tx_hash: txHash,
+                    ...(isManualRemove
+                      ? {
+                          remove_amount_token0: tokensOut[0]?.amount,
+                          remove_amount_token1: tokensOut[1]?.amount,
+                        }
+                      : {
+                          output_token_symbol: tokensOut[0]?.symbol,
+                        }),
+                  },
+                )
               } else if (additionalInfo?.type === 'erc20_approval') {
                 addTransactionWithType({
                   hash: txHash,
@@ -176,26 +244,29 @@ const useZapOutWidget = (
                   navigate(APP_PATHS.EARN_POOLS)
                 }
               : undefined,
+            onSuccess: handleZapOutSuccess,
           }
         : null,
     [
-      account,
-      chainId,
-      changeNetwork,
-      library,
-      toggleWalletModal,
       zapOutPureParams,
       zapOutRpcUrl,
+      library,
       refCode,
-      onRefreshPosition,
-      addTransactionWithType,
+      account,
+      chainId,
       txStatus,
       originalToCurrentHash,
       locale,
-      navigate,
+      toggleWalletModal,
       explorePoolsEnabled,
-      addTrackedTxHash,
       clearTracking,
+      onRefreshPosition,
+      changeNetwork,
+      addTrackedTxHash,
+      trackingHandler,
+      handleZapOutSuccess,
+      addTransactionWithType,
+      navigate,
     ],
   )
 

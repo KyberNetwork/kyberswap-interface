@@ -102,6 +102,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     }
     if (tab === TAB.CROSS_CHAIN) {
       trackingHandler(TRACKING_EVENT_TYPE.CC_TAB_SELECTED, {
+        tab_name: tab,
         previous_tab: activeTab,
       })
     }
