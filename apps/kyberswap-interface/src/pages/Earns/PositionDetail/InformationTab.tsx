@@ -2,7 +2,7 @@ import { ShareOption } from '@kyber/ui'
 import { formatAprNumber as formatAprNum } from '@kyber/utils/dist/number'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Info } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -109,6 +109,8 @@ const InformationTab = ({
   const [revert, setRevert] = useState(false)
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
   const [openSmartExit, setOpenSmartExit] = useState<boolean>(false)
+  const [isChartReady, setIsChartReady] = useState(false)
+  const onChartReady = useCallback(() => setIsChartReady(true), [])
 
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration,
@@ -332,19 +334,24 @@ const InformationTab = ({
           </Text>
         )}
 
-        {!isUniv2 &&
-          (initialLoading || !position || isUnfinalized ? (
-            <LiquidityChartSkeleton />
-          ) : (
-            <LiquidityChart
-              chainId={Number(chainId)}
-              poolAddress={position.pool.address}
-              price={price}
-              minPrice={position.priceRange.min}
-              maxPrice={position.priceRange.max}
-              revertPrice={revert}
-            />
-          ))}
+        {!isUniv2 && (
+          <>
+            {!isChartReady && <LiquidityChartSkeleton />}
+            {!initialLoading && position && !isUnfinalized && (
+              <div style={{ display: isChartReady ? undefined : 'none' }}>
+                <LiquidityChart
+                  chainId={Number(chainId)}
+                  poolAddress={position.pool.address}
+                  price={price}
+                  minPrice={position.priceRange.min}
+                  maxPrice={position.priceRange.max}
+                  revertPrice={revert}
+                  onReady={onChartReady}
+                />
+              </div>
+            )}
+          </>
+        )}
 
         {/* Current Price + MIN/MAX in one row */}
         {(price || initialLoading) && (
