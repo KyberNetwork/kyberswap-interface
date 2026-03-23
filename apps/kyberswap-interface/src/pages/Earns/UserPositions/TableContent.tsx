@@ -480,15 +480,32 @@ export default function TableContent({
                       )}
                     </Flex>
                     <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
-                      <Badge style={{ backgroundColor: rgba(theme.white, 0.08) }}>
-                        <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                          <TokenLogo src={dex.logo} size={12} />
-                          <Text fontSize={12} color={theme.subText}>
-                            {dex.name} | {formatDisplayNumber(pool.fee, { significantDigits: 4 })}%
-                            {!pool.isUniv2 ? ` | #${tokenId}` : ''}
-                          </Text>
-                        </Flex>
-                      </Badge>
+                      <MouseoverTooltipDesktopOnly
+                        text={`${dex.name} | ${formatDisplayNumber(pool.fee, { significantDigits: 4 })}%${
+                          !pool.isUniv2 ? ` | #${tokenId}` : ''
+                        }`}
+                        width="fit-content"
+                        placement="bottom"
+                      >
+                        <Badge
+                          style={{
+                            backgroundColor: rgba(theme.white, 0.08),
+                            maxWidth: '300px',
+                          }}
+                        >
+                          <Flex alignItems={'center'} sx={{ gap: '4px' }} style={{ overflow: 'hidden' }}>
+                            <TokenLogo src={dex.logo} size={12} />
+                            <Text
+                              fontSize={12}
+                              color={theme.subText}
+                              style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            >
+                              {dex.name} | {formatDisplayNumber(pool.fee, { significantDigits: 4 })}%
+                              {!pool.isUniv2 ? ` | #${tokenId}` : ''}
+                            </Text>
+                          </Flex>
+                        </Badge>
+                      </MouseoverTooltipDesktopOnly>
                     </Flex>
                   </PositionOverview>
 
