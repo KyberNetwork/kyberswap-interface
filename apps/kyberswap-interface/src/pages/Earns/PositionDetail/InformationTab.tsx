@@ -3,12 +3,13 @@ import { formatAprNumber as formatAprNum } from '@kyber/utils/dist/number'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDown, Info } from 'react-feather'
+import { ChevronDown, Info, PlusCircle } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolDetailQuery } from 'services/zapEarn'
 
+import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
@@ -172,6 +173,7 @@ const InformationTab = ({
   const repositionDisabled = initialLoading || !position || isClosed
   const increaseDisabled = initialLoading || (isUniV4 && isClosed)
   const removeDisabled = initialLoading || isNotAccountOwner || isClosed || !position
+  const subActionDisabled = isClosed || (!isOutRange ? repositionDisabled : increaseDisabled)
 
   const isSmartExitSupported =
     position &&
@@ -466,6 +468,29 @@ const InformationTab = ({
               </Flex>
             )}
           </Flex>
+        )}
+
+        {/* Sub-action: Reposition / Increase Liquidity link */}
+        {!isUniv2 && (
+          <PositionActionWrapper>
+            <Flex
+              color={!subActionDisabled ? theme.primary : theme.subText}
+              alignItems="center"
+              marginBottom={-3}
+              sx={{ gap: 1, cursor: !subActionDisabled ? 'pointer' : 'not-allowed' }}
+              onClick={e => {
+                if (!isOutRange ? repositionDisabled : increaseDisabled) return
+                if (!isOutRange) {
+                  onReposition(e, position as ParsedPosition)
+                } else {
+                  onOpenIncreaseLiquidityWidget()
+                }
+              }}
+            >
+              {!isOutRange ? <IconReposition width={16} /> : <PlusCircle width={16} />}
+              <Text fontSize={14}>{!isOutRange ? t`Reposition to new range` : t`Increase Liquidity`}</Text>
+            </Flex>
+          </PositionActionWrapper>
         )}
 
         {/* Actions */}
