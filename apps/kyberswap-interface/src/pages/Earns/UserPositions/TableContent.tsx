@@ -686,15 +686,19 @@ export default function TableContent({
                       <Flex
                         flexDirection={upToSmall ? 'row' : 'column'}
                         alignItems={upToSmall ? 'center' : 'flex-start'}
-                        sx={{ gap: 1.8 }}
+                        sx={{ gap: 1.8, overflow: 'hidden', width: '100%' }}
                       >
-                        <Flex alignItems="center" sx={{ gap: 1 }}>
-                          <Text>{formatDisplayNumber(token0.currentAmount, { significantDigits: 4 })}</Text>
+                        <Flex alignItems="center" sx={{ gap: 1, maxWidth: '100%' }}>
+                          <Text style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+                            {formatDisplayNumber(token0.currentAmount, { significantDigits: 4 })}
+                          </Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
                         </Flex>
                         {upToSmall && <Divider />}
-                        <Flex alignItems="center" sx={{ gap: 1 }}>
-                          <Text>{formatDisplayNumber(token1.currentAmount, { significantDigits: 4 })}</Text>
+                        <Flex alignItems="center" sx={{ gap: 1, maxWidth: '100%' }}>
+                          <Text style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+                            {formatDisplayNumber(token1.currentAmount, { significantDigits: 4 })}
+                          </Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token1.symbol}</Text>
                         </Flex>
                       </Flex>

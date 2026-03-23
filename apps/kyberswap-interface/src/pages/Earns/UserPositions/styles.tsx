@@ -163,6 +163,7 @@ export const PositionValueWrapper = styled.div<{ align?: string }>`
   justify-content: flex-start;
   gap: 8px;
   padding-top: 8px;
+  min-width: 0;
 
   ${({ align }) => (align ? `justify-content: ${align};` : '')}
 
@@ -429,15 +430,12 @@ export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
   `}
 `
 
-export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice: boolean; outOfRange: boolean }>`
+export const PriceRangeEl = styled.div<{ outOfRange: boolean }>`
   display: flex;
   position: absolute;
   justify-content: space-between;
   align-items: center;
   height: 100%;
-  width: ${({ isLowestPrice, isHighestPrice }) =>
-    isLowestPrice ? (isHighestPrice ? '100%' : '80%') : isHighestPrice ? '80%' : '60%'};
-  left: ${({ isLowestPrice }) => (isLowestPrice ? 0 : '20%')};
   border-radius: 4px;
   background: linear-gradient(90deg, #09ae7d 0%, #6368f1 100%);
 
@@ -463,16 +461,18 @@ export const UpperPriceIndicator = styled(PriceIndicator)<{ outOfRange: boolean 
   background: ${({ outOfRange }) => (outOfRange ? '#737373' : '#6368f1')};
 `
 
-export const IndicatorLabel = styled.div`
+export const IndicatorLabel = styled.div<{ align?: 'left' | 'right' }>`
   position: absolute;
   top: -20px;
-  transform: translateX(-42%);
   font-size: 12px;
   color: #fafafa;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  ${({ align }) =>
+    align === 'left'
+      ? 'left: 0; transform: translateX(-60%);'
+      : align === 'right'
+      ? 'left: 0; transform: translateX(-40%);'
+      : 'transform: translateX(-42%);'}
 `
 
 export const CurrentPriceWrapper = styled.div<{ lower?: boolean }>`
