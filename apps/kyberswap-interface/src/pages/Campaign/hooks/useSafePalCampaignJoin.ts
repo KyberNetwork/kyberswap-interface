@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { useGetSafePalCampaignUserStatsQuery, useJoinSafePalCampaignMutation } from 'services/campaignSafepal'
 import { SiweMessage } from 'siwe'
 
@@ -13,6 +13,7 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 const SAFEPAL_JOINED_SESSION_KEY = 'safepal_joined_weeks'
 
 type JoinedWeeksStore = Record<string, Record<number, boolean>>
+const joinedWeekListeners = new Set<() => void>()
 
 const readJoinedWeeksStore = (): JoinedWeeksStore => {
   if (typeof window === 'undefined') return {}
@@ -23,6 +24,15 @@ const readJoinedWeeksStore = (): JoinedWeeksStore => {
     console.warn('Failed to read SafePal session store', error)
     return {}
   }
+}
+
+const subscribeJoinedWeeksStore = (listener: () => void) => {
+  joinedWeekListeners.add(listener)
+  return () => joinedWeekListeners.delete(listener)
+}
+
+const emitJoinedWeeksStoreChange = () => {
+  joinedWeekListeners.forEach(listener => listener())
 }
 
 const hasJoinedWeekInSession = (address: string, weekValue: number) => {
@@ -46,6 +56,7 @@ const saveJoinedWeekInSession = (address: string, weekValue: number) => {
   }
   try {
     window.sessionStorage.setItem(SAFEPAL_JOINED_SESSION_KEY, JSON.stringify(nextStore))
+    emitJoinedWeeksStoreChange()
   } catch (error) {
     console.warn('Failed to save SafePal session store', error)
   }
@@ -82,13 +93,11 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
     { skip: !enabled || !account || !selectedRange },
   )
 
-  const [isSessionJoined, setIsSessionJoined] = useState(() =>
-    account ? hasJoinedWeekInSession(account, selectedWeekValue) : false,
+  const isSessionJoined = useSyncExternalStore(
+    subscribeJoinedWeeksStore,
+    () => (account ? hasJoinedWeekInSession(account, selectedWeekValue) : false),
+    () => false,
   )
-
-  useEffect(() => {
-    setIsSessionJoined(account ? hasJoinedWeekInSession(account, selectedWeekValue) : false)
-  }, [account, selectedWeekValue])
 
   const isJoinedByWeek = useMemo(() => {
     const week = userStats?.weeks.find(week => week.cycle === selectedWeekValue)
@@ -126,7 +135,6 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
       const signature = await library.getSigner().signMessage(message)
       await joinCampaign({ userAddress: account, message, signature }).unwrap()
       saveJoinedWeekInSession(account, selectedWeekValue)
-      setIsSessionJoined(true)
 
       notify({
         title: t`Joined SafePal Campaign`,
