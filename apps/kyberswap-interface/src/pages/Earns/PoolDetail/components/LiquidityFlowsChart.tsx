@@ -20,11 +20,11 @@ import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import {
-  ANALYTICS_WINDOW_OPTIONS,
-  formatAnalyticsAxisTimeLabel,
-  formatAnalyticsCompactCurrency,
-  formatAnalyticsTooltipTimeLabel,
-  formatAnalyticsUsd,
+  CHART_WINDOW_OPTIONS,
+  formatAxisTimeLabel,
+  formatCompactUsd,
+  formatTooltipTimeLabel,
+  formatUsd,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
@@ -90,32 +90,32 @@ const LiquidityFlowsTooltip = ({
   return (
     <TooltipCard>
       <Text color={theme.subText} fontSize={12}>
-        {formatAnalyticsTooltipTimeLabel(point.ts, window)}
+        {formatTooltipTimeLabel(point.ts, window)}
       </Text>
       <TooltipGrid>
         <Text color={theme.subText} fontSize={12}>
           Add Liquidity
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAnalyticsUsd(Math.abs(point.addUsd))}
+          {formatUsd(Math.abs(point.addUsd))}
         </Text>
         <Text color={theme.subText} fontSize={12}>
           Remove Liquidity
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAnalyticsUsd(Math.abs(point.removeUsd))}
+          {formatUsd(Math.abs(point.removeUsd))}
         </Text>
         <Text color={theme.subText} fontSize={12}>
           LP Volume
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAnalyticsUsd(Math.abs(point.lpVolumeUsd))}
+          {formatUsd(Math.abs(point.lpVolumeUsd))}
         </Text>
         <Text color={theme.subText} fontSize={12}>
           TVL
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAnalyticsUsd(point.tvlUsd)}
+          {formatUsd(point.tvlUsd)}
         </Text>
       </TooltipGrid>
     </TooltipCard>
@@ -166,7 +166,7 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: Liq
           Liquidity Flows
         </Text>
 
-        <SegmentedControl onChange={onSelectWindow} options={ANALYTICS_WINDOW_OPTIONS} value={window} />
+        <SegmentedControl onChange={onSelectWindow} options={CHART_WINDOW_OPTIONS} value={window} />
       </HStack>
 
       <PoolChartState
@@ -193,7 +193,7 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: Liq
                   minTickGap={24}
                   stroke={theme.subText}
                   tick={{ fill: theme.subText, fontSize: 12 }}
-                  tickFormatter={(value: number) => formatAnalyticsAxisTimeLabel(value, window)}
+                  tickFormatter={(value: number) => formatAxisTimeLabel(value, window)}
                   tickLine={false}
                 />
                 <YAxis
@@ -201,7 +201,7 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: Liq
                   orientation="left"
                   stroke={theme.subText}
                   tick={{ fill: theme.subText, fontSize: 12 }}
-                  tickFormatter={(value: number) => formatAnalyticsCompactCurrency(value)}
+                  tickFormatter={(value: number) => formatCompactUsd(value)}
                   tickLine={false}
                   width={72}
                   yAxisId="flow"
@@ -211,7 +211,7 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: Liq
                   orientation="right"
                   stroke={theme.subText}
                   tick={{ fill: theme.subText, fontSize: 12 }}
-                  tickFormatter={(value: number) => formatAnalyticsCompactCurrency(value)}
+                  tickFormatter={(value: number) => formatCompactUsd(value)}
                   tickLine={false}
                   width={72}
                   yAxisId="tvl"
