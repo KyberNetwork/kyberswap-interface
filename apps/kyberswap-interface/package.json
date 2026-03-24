@@ -39,7 +39,6 @@
     "ChromeAndroid >= 52"
   ],
   "dependencies": {
-    "@kyber/rpc-client": "workspace:*",
     "@across-protocol/app-sdk": "^0.4.4",
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
@@ -57,6 +56,7 @@
     "@ethersproject/units": "^5.8.0",
     "@formo/analytics": "^1.27.0",
     "@holdstation/paymaster-helper": "^2.0.20",
+    "@kyber/rpc-client": "workspace:*",
     "@kyberswap/compounding-widget": "workspace:*",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
     "@kyberswap/ks-sdk-core": "1.1.15",
@@ -180,6 +180,7 @@
     "wagmi": "^2.14.11",
     "walktour": "^5.2.0",
     "wcag-contrast": "^3.0.0",
+    "web-vitals": "^5.1.0",
     "workbox-core": "^6.5.4",
     "workbox-expiration": "^6.5.4",
     "workbox-precaching": "^6.5.4",

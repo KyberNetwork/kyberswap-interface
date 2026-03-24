@@ -27,6 +27,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
+import { useWebVitals } from 'hooks/useWebVitals'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
@@ -215,6 +216,7 @@ export default function App() {
   }, [chainId, networkInfo.name])
 
   useGlobalTrackingEvents()
+  useWebVitals()
   const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
   //const [holidayMode] = useHolidayMode()
