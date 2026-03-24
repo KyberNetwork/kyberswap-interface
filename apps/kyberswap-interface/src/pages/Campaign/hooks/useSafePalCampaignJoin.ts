@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useGetSafePalCampaignUserStatsQuery, useJoinSafePalCampaignMutation } from 'services/campaignSafepal'
 import { SiweMessage } from 'siwe'
 
@@ -82,13 +82,20 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
     { skip: !enabled || !account || !selectedRange },
   )
 
+  const [isSessionJoined, setIsSessionJoined] = useState(() =>
+    account ? hasJoinedWeekInSession(account, selectedWeekValue) : false,
+  )
+
+  useEffect(() => {
+    setIsSessionJoined(account ? hasJoinedWeekInSession(account, selectedWeekValue) : false)
+  }, [account, selectedWeekValue])
+
   const isJoinedByWeek = useMemo(() => {
     const week = userStats?.weeks.find(week => week.cycle === selectedWeekValue)
     const participantJoined = week?.joined ?? userStats?.joined ?? false
-    const sessionJoined = !!account && hasJoinedWeekInSession(account, selectedWeekValue)
 
-    return participantJoined || sessionJoined
-  }, [account, selectedWeekValue, userStats])
+    return participantJoined || isSessionJoined
+  }, [isSessionJoined, selectedWeekValue, userStats])
 
   const onJoin = useCallback(async () => {
     if (!account) {
@@ -119,6 +126,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
       const signature = await library.getSigner().signMessage(message)
       await joinCampaign({ userAddress: account, message, signature }).unwrap()
       saveJoinedWeekInSession(account, selectedWeekValue)
+      setIsSessionJoined(true)
 
       notify({
         title: t`Joined SafePal Campaign`,
