@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonErrorStyle, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import AddLiquiditySettings from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings'
@@ -44,10 +44,9 @@ type AddLiquidityWidgetProps = {
   preview?: AddLiquidityWidgetPreview
   feedback: ReturnType<typeof useFeedback>['widget']
   onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
-  onCancel?: () => void
 }
 
-const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent, onCancel }: AddLiquidityWidgetProps) => {
+const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent }: AddLiquidityWidgetProps) => {
   const { chainId: poolChainId, poolAddress, poolType, pool } = context
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -194,7 +193,6 @@ const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent, o
       />
 
       <HStack gap={16}>
-        <ButtonOutlined onClick={onCancel}>Cancel</ButtonOutlined>
         <PrimaryActionButton
           altDisabledStyle
           onClick={() => void actions.handlePrimaryAction()}

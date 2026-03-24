@@ -2,7 +2,6 @@ import { type ApprovalAdditionalInfo } from '@kyber/hooks'
 import { PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
 import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { BuildZapInData, prepareBuildZapInRouteRequest, useBuildZapInRouteMutation } from 'services/zap'
 
 import { HStack, Stack } from 'components/Stack'
@@ -90,7 +89,6 @@ const AddLiquidityBody = ({
   state,
   tracking,
 }: AddLiquidityBodyProps) => {
-  const navigate = useNavigate()
   const { buildRouteLoading } = useAddLiquidityRuntimeContext()
 
   return (
@@ -111,7 +109,6 @@ const AddLiquidityBody = ({
             }}
             feedback={feedback.widget}
             onTrackEvent={onTrackEvent}
-            onCancel={() => navigate(-1)}
           />
 
           {feedback.page.warnings.length || previewError ? (

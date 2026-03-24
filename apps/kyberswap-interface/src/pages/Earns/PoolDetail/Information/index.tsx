@@ -5,9 +5,10 @@ import { HStack, Stack } from 'components/Stack'
 import useTab from 'hooks/useTab'
 import useTheme from 'hooks/useTheme'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import AnalyticsTab from 'pages/Earns/PoolDetail/tabs/AnalyticsTab'
-import EarningsTab from 'pages/Earns/PoolDetail/tabs/EarningsTab'
-import InformationTab from 'pages/Earns/PoolDetail/tabs/InformationTab'
+
+import AnalyticsTab from './AnalyticsTab'
+import EarningsTab from './EarningsTab'
+import InformationTab from './InformationTab'
 
 const POOL_INFO_TABS = [
   { id: 'information', label: 'INFORMATION' },

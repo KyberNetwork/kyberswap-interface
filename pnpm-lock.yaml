@@ -80,6 +80,9 @@ importers:
       '@holdstation/paymaster-helper':
         specifier: ^2.0.20
         version: 2.0.24
+      '@kyber/rpc-client':
+        specifier: workspace:*
+        version: link:../../packages/rpc-client
       '@kyberswap/compounding-widget':
         specifier: workspace:*
         version: link:../../packages/compounding-widget
@@ -486,9 +489,6 @@ importers:
       '@kyber/hooks':
         specifier: workspace:^
         version: link:../../packages/hooks
-      '@kyber/rpc-client':
-        specifier: workspace:*
-        version: link:../../packages/rpc-client
       '@kyber/schema':
         specifier: workspace:^
         version: link:../../packages/schema

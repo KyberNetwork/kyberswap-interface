@@ -3,58 +3,41 @@ import { rgba } from 'polished'
 import { useEffect, useMemo, useRef } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import { type PoolAnalyticsWindow, type PoolPriceAnalytics } from 'services/zapEarn'
-import styled from 'styled-components'
+import { type PoolAnalyticsWindow, usePoolPriceQuery } from 'services/zapEarn'
 
-import { Stack } from 'components/Stack'
+import SegmentedControl from 'components/SegmentedControl'
+import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import {
-  ChartLoadingState,
-  ChartState,
-  ChartWrapper,
-  SectionCard,
-  SectionHeader,
-  WindowSelector,
-  formatPriceNumber,
-  formatSignedPercent,
-} from 'pages/Earns/PoolDetail/tabs/analytics/shared'
+  ANALYTICS_WINDOW_OPTIONS,
+  formatAnalyticsPrice,
+  formatAnalyticsSignedPercent,
+} from 'pages/Earns/PoolDetail/Information/utils'
+import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const PriceRow = styled.div`
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-`
-
-const PriceChange = styled(Text)<{ $positive: boolean }>`
-  color: ${({ theme, $positive }) => ($positive ? theme.primary : theme.red)};
-`
-
 type PoolPriceChartProps = {
-  analytics?: PoolPriceAnalytics
-  baseSymbol?: string
-  quoteSymbol?: string
-  isError: boolean
-  isLoading: boolean
   onSelectWindow: (value: PoolAnalyticsWindow) => void
   window: PoolAnalyticsWindow
 }
 
-const PoolPriceChart = ({
-  analytics,
-  baseSymbol,
-  quoteSymbol,
-  isError,
-  isLoading,
-  onSelectWindow,
-  window,
-}: PoolPriceChartProps) => {
+const PoolPriceChart = ({ onSelectWindow, window }: PoolPriceChartProps) => {
   const theme = useTheme()
+  const { chainId, poolAddress } = usePoolDetailContext()
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
+  const {
+    currentData: analytics,
+    isError,
+    isFetching,
+  } = usePoolPriceQuery({
+    chainId,
+    address: poolAddress,
+    window,
+  })
 
   const chartData = useMemo(
     () =>
@@ -141,42 +124,38 @@ const PoolPriceChart = ({
   }, [chartData, chartHeight, theme.border, theme.primary, theme.red, theme.subText, window])
 
   return (
-    <SectionCard gap={20}>
-      <SectionHeader>
-        <Stack gap={6}>
+    <Stack gap={16}>
+      <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
+        <Stack gap={8}>
           <Text color={theme.text} fontSize={18} fontWeight={500}>
             Pool Price
           </Text>
-          <PriceRow>
-            <Text color={theme.text} fontSize={upToSmall ? 26 : 32} fontWeight={500}>
-              {formatPriceNumber(analytics?.currentPrice)}
+          <HStack align="baseline" gap={8} wrap="wrap">
+            <Text color={theme.text} fontSize={18} fontWeight={500}>
+              {formatAnalyticsPrice(analytics?.currentPrice)}
             </Text>
             {analytics?.priceChange !== undefined ? (
-              <PriceChange $positive={analytics.priceChange >= 0} fontSize={16} fontWeight={500}>
-                {formatSignedPercent(analytics.priceChange)}
-              </PriceChange>
+              <Text color={analytics.priceChange >= 0 ? theme.primary : theme.red} fontSize={14} fontWeight={500}>
+                {formatAnalyticsSignedPercent(analytics.priceChange)}
+              </Text>
             ) : null}
-          </PriceRow>
-          {baseSymbol && quoteSymbol && analytics?.currentPrice !== undefined ? (
-            <Text color={theme.subText} fontSize={14}>
-              1 {baseSymbol} = {formatPriceNumber(analytics.currentPrice)} {quoteSymbol}
-            </Text>
-          ) : null}
+          </HStack>
         </Stack>
 
-        <WindowSelector onSelect={onSelectWindow} window={window} />
-      </SectionHeader>
+        <SegmentedControl onChange={onSelectWindow} options={ANALYTICS_WINDOW_OPTIONS} value={window} />
+      </HStack>
 
-      {isLoading && !chartData.length ? (
-        <ChartLoadingState height={chartHeight} />
-      ) : isError ? (
-        <ChartState height={chartHeight} message="Unable to load pool price." />
-      ) : !chartData.length ? (
-        <ChartState height={chartHeight} message="No price data available for this pool." />
-      ) : (
-        <ChartWrapper $height={chartHeight} ref={chartContainerRef} />
-      )}
-    </SectionCard>
+      <PoolChartState
+        emptyMessage="No price data available for this pool."
+        errorMessage="Unable to load pool price."
+        height={chartHeight}
+        isEmpty={!chartData.length}
+        isError={isError}
+        isLoading={isFetching && !analytics}
+      >
+        <PoolChartWrapper $height={chartHeight} ref={chartContainerRef} />
+      </PoolChartState>
+    </Stack>
   )
 }
 
