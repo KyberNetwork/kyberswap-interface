@@ -8,11 +8,7 @@ import { type PoolAnalyticsWindow, usePoolPriceQuery } from 'services/zapEarn'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
-import {
-  ANALYTICS_WINDOW_OPTIONS,
-  formatAnalyticsPrice,
-  formatAnalyticsSignedPercent,
-} from 'pages/Earns/PoolDetail/Information/utils'
+import { CHART_WINDOW_OPTIONS, formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { MEDIA_WIDTHS } from 'theme'
@@ -132,17 +128,17 @@ const PoolPriceChart = ({ onSelectWindow, window }: PoolPriceChartProps) => {
           </Text>
           <HStack align="baseline" gap={8} wrap="wrap">
             <Text color={theme.text} fontSize={18} fontWeight={500}>
-              {formatAnalyticsPrice(analytics?.currentPrice)}
+              {formatPrice(analytics?.currentPrice)}
             </Text>
             {analytics?.priceChange !== undefined ? (
               <Text color={analytics.priceChange >= 0 ? theme.primary : theme.red} fontSize={14} fontWeight={500}>
-                {formatAnalyticsSignedPercent(analytics.priceChange)}
+                {formatSignedPercent(analytics.priceChange)}
               </Text>
             ) : null}
           </HStack>
         </Stack>
 
-        <SegmentedControl onChange={onSelectWindow} options={ANALYTICS_WINDOW_OPTIONS} value={window} />
+        <SegmentedControl onChange={onSelectWindow} options={CHART_WINDOW_OPTIONS} value={window} />
       </HStack>
 
       <PoolChartState

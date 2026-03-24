@@ -5,11 +5,11 @@ import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
+import { formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetail/Information/utils'
 import LiquidityFlowsChart from 'pages/Earns/PoolDetail/components/LiquidityFlowsChart'
 import PoolPriceChart from 'pages/Earns/PoolDetail/components/PoolPriceChart'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-
-import { formatAnalyticsNumber, formatAnalyticsUsd } from './utils'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 
 const MetricsStrip = styled.div`
   display: grid;
@@ -38,6 +38,12 @@ const AnalyticsTab = () => {
   const [liquidityFlowsWindow, setLiquidityFlowsWindow] = useState<PoolAnalyticsWindow>('7d')
   const [currentTvl, setCurrentTvl] = useState<number | undefined>()
 
+  const tokenPrices = useTokenPrices(
+    pool.tokens.map(token => token.address),
+    pool.chainId,
+  )
+  const liquidityUsdValue = getPoolLiquidityUsd(pool, tokenPrices)
+
   const handleLiquidityFlowsWindowChange = (value: PoolAnalyticsWindow) => {
     setCurrentTvl(undefined)
     setLiquidityFlowsWindow(value)
@@ -52,9 +58,9 @@ const AnalyticsTab = () => {
   }
 
   const metrics = [
-    { label: 'TVL', value: formatAnalyticsUsd(totalTvl) },
-    { label: 'Current TVL', value: formatAnalyticsUsd(currentTvl ?? totalTvl) },
-    { label: 'Liquidity Provider', value: formatAnalyticsNumber(pool.liquidity) },
+    { label: 'TVL', value: formatUsd(totalTvl) },
+    { label: 'Current TVL', value: formatUsd(currentTvl ?? totalTvl) },
+    { label: 'Liquidity', value: formatUsd(liquidityUsdValue) },
   ]
 
   return (

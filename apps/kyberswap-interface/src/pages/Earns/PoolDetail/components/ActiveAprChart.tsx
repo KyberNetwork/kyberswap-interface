@@ -8,7 +8,7 @@ import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
-import { formatAnalyticsAxisTimeLabel, formatAnalyticsTooltipTimeLabel } from 'pages/Earns/PoolDetail/Information/utils'
+import { formatAxisTimeLabel, formatTooltipTimeLabel } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { MEDIA_WIDTHS } from 'theme'
@@ -50,7 +50,7 @@ const ActiveAprTooltip = ({
   return (
     <TooltipCard>
       <Text color={theme.subText} fontSize={12}>
-        {formatAnalyticsTooltipTimeLabel(point.ts, window)}
+        {formatTooltipTimeLabel(point.ts, window)}
       </Text>
       <Text color={theme.text} fontSize={14} fontWeight={500}>
         {formatAprNumber(point.activeApr)}%
@@ -98,7 +98,7 @@ const ActiveAprChart = ({ aprInterval }: ActiveAprChartProps) => {
               minTickGap={24}
               stroke={theme.subText}
               tick={{ fill: theme.subText, fontSize: 12 }}
-              tickFormatter={(value: number) => formatAnalyticsAxisTimeLabel(value, window)}
+              tickFormatter={(value: number) => formatAxisTimeLabel(value, window)}
               tickLine={false}
             />
             <YAxis

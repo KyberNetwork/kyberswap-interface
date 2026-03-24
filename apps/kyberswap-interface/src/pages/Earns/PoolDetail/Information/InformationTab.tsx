@@ -1,4 +1,3 @@
-import { formatAprNumber } from '@kyber/utils'
 import { shortenAddress } from '@kyber/utils/crypto'
 import { type ReactNode, useState } from 'react'
 import { Text } from 'rebass'
@@ -9,9 +8,10 @@ import CopyHelper from 'components/Copy'
 import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
+import { formatApr, formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetail/Information/utils'
 import ActiveAprChart, { type AprPeriod } from 'pages/Earns/PoolDetail/components/ActiveAprChart'
 import { type Pool } from 'pages/Earns/PoolDetail/types'
-import { formatDisplayNumber } from 'utils/numbers'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 
 const APR_PERIOD_OPTIONS: readonly SegmentedControlOption<AprPeriod>[] = [
   { label: '24H', value: '24H' },
@@ -65,12 +65,6 @@ type TopMetricItem = {
   value: ReactNode
 }
 
-const formatCurrency = (value?: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
-
-const formatNumber = (value?: number) => formatDisplayNumber(value, { significantDigits: 6 })
-
-const formatApr = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
-
 const getRewardApr = (pool: Pool) => {
   const directRewardApr = (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + (pool.bonusApr || 0)
   if (directRewardApr) return directRewardApr
@@ -95,22 +89,27 @@ const InformationTab = ({ pool }: InformationTabProps) => {
   const theme = useTheme()
   const [aprInterval, setAprInterval] = useState<AprPeriod>('7D')
 
-  const poolStats = pool.poolStats
+  const tokenPrices = useTokenPrices(
+    pool.tokens.map(token => token.address),
+    pool.chainId,
+  )
 
+  const poolStats = pool.poolStats
   const activeApr = pool.allApr ?? poolStats?.allApr24h ?? poolStats?.apr24h ?? poolStats?.apr
   const averageApr = getAverageApr(pool, aprInterval)
   const maxApr = getMaxApr(pool)
   const rewardApr = getRewardApr(pool)
+  const liquidityUsdValue = getPoolLiquidityUsd(pool, tokenPrices)
 
-  const tvlValue = formatCurrency(pool.tvl ?? poolStats?.tvl ?? Number(pool.reserveUsd))
-  const volumeValue = formatCurrency(pool.volume ?? poolStats?.volume24h)
-  const feesValue = formatCurrency(pool.earnFee ?? poolStats?.fees24h)
-  const liquidityProviderValue = formatNumber(pool.liquidity)
+  const tvlValue = formatUsd(pool.tvl ?? poolStats?.tvl ?? Number(pool.reserveUsd))
+  const volumeValue = formatUsd(pool.volume ?? poolStats?.volume24h)
+  const feesValue = formatUsd(pool.earnFee ?? poolStats?.fees24h)
+  const liquidityValue = formatUsd(liquidityUsdValue)
 
   const rewardsValue = (
     <HStack align="center" gap={4}>
       <Text as="span" color={theme.text} fontWeight={500}>
-        {pool.egUsd ? formatCurrency(pool.egUsd) : formatApr(rewardApr)}
+        {pool.egUsd ? formatUsd(pool.egUsd) : formatApr(rewardApr)}
       </Text>
       {pool.programs?.length || rewardApr ? <BagIcon height={20} width={20} /> : null}
     </HStack>
@@ -132,7 +131,7 @@ const InformationTab = ({ pool }: InformationTabProps) => {
     { label: '24h Volume', value: volumeValue },
     { label: '24h Fees', value: feesValue },
     { label: 'Rewards', value: rewardsValue },
-    { label: 'Liquidity Provider', value: liquidityProviderValue },
+    { label: 'Liquidity', value: liquidityValue },
     { label: 'Pool Address', value: poolAddressValue },
   ]
 
