@@ -1,6 +1,6 @@
 import AddLiquidity from 'pages/Earns/PoolDetail/AddLiquidity'
+import PoolInformation from 'pages/Earns/PoolDetail/Information'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
-import PoolInformation from 'pages/Earns/PoolDetail/components/PoolInformation'
 import { PoolDetailProvider } from 'pages/Earns/PoolDetail/context'
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 

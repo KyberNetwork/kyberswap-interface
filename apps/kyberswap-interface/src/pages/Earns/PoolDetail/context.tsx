@@ -1,14 +1,24 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ReactNode, createContext, useContext, useMemo } from 'react'
+import { ReactNode, createContext, useContext, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { Box } from 'rebass'
 import { PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
+import styled from 'styled-components'
 
+import { ButtonOutlined } from 'components/Button'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import PoolDetailPageSkeleton from 'pages/Earns/PoolDetail/components/PoolDetailPageSkeleton'
 import { NoteCard, PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import { Pool } from 'pages/Earns/PoolDetail/types'
 import { EARN_DEXES, EarnDexInfo, Exchange } from 'pages/Earns/constants'
+
+const TestSkeletonButton = styled(ButtonOutlined)`
+  position: fixed;
+  width: fit-content;
+  top: 80px;
+  right: 40px;
+`
 
 interface PoolDetailContextValue {
   pool: Pool
@@ -104,6 +114,16 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   const isPoolLoading =
     Boolean(poolChainId && poolAddress) && (isPoolDetailLoading || (Boolean(exchange) && isExplorerLoading))
 
+  const [checkSkeleton, setCheckSkeleton] = useState(false)
+
+  if (checkSkeleton)
+    return (
+      <Box width="100%">
+        <TestSkeletonButton onClick={() => setCheckSkeleton(false)}>Check Skeleton</TestSkeletonButton>
+        <PoolDetailPageSkeleton />
+      </Box>
+    )
+
   if (!poolChainId || !poolAddress) {
     return (
       <PoolDetailWrapper>
@@ -142,7 +162,12 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
     feeTier,
   }
 
-  return <PoolDetailContext.Provider value={value}>{children}</PoolDetailContext.Provider>
+  return (
+    <PoolDetailContext.Provider value={value}>
+      <TestSkeletonButton onClick={() => setCheckSkeleton(true)}>Check Skeleton</TestSkeletonButton>
+      {children}
+    </PoolDetailContext.Provider>
+  )
 }
 
 export const usePoolDetailContext = () => {

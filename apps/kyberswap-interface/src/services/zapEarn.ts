@@ -224,6 +224,16 @@ export interface PoolLiquidityFlowsAnalytics {
   buckets: Array<PoolLiquidityFlowBucket>
 }
 
+export interface PoolActiveAprBucket {
+  ts: number
+  activeApr: number
+}
+
+export interface PoolActiveAprAnalytics {
+  window: PoolAnalyticsWindow
+  buckets: Array<PoolActiveAprBucket>
+}
+
 const zapEarnAnalyticsBaseUrl = import.meta.env.VITE_ZAP_EARN_ANALYTICS_URL || import.meta.env.VITE_ZAP_EARN_URL
 
 const zapEarnServiceApi = createApi({
@@ -301,6 +311,22 @@ const zapEarnServiceApi = createApi({
       }),
       transformResponse: (response: { data: PoolLiquidityFlowsAnalytics }) => response.data,
     }),
+    poolActiveApr: builder.query<PoolActiveAprAnalytics, PoolAnalyticsQueryParams>({
+      query: params => ({
+        url: `${zapEarnAnalyticsBaseUrl}/v1/pools/liquidity-flows`,
+        params: {
+          ...params,
+          type: 'activeApr',
+        },
+      }),
+      transformResponse: (response: { data: PoolLiquidityFlowsAnalytics }) => ({
+        window: response.data.window,
+        buckets: response.data.buckets.map(bucket => ({
+          ts: bucket.ts,
+          activeApr: bucket.tvlUsd,
+        })),
+      }),
+    }),
     userPositions: builder.query<{ positions: Array<UserPosition>; stats?: UserPositionsStats }, PositionQueryParams>({
       query: params => ({
         url: `/v1/positions`,
@@ -360,6 +386,7 @@ export const {
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
   usePoolDetailQuery,
+  usePoolActiveAprQuery,
   usePoolLiquidityFlowsQuery,
   usePoolPriceQuery,
   useLazyPoolDetailQuery,
