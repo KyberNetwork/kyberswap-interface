@@ -150,28 +150,30 @@ export default function Updater(): null {
         // take the last swap event
         const lastSwapEvent = swapLogs.slice(-1)[0]
 
-        // decode the data
-        const swapInterface = new ethers.utils.Interface([
-          'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
-        ])
-        const parsed = swapInterface.parseLog(lastSwapEvent)
+        if (lastSwapEvent) {
+          // decode the data
+          const swapInterface = new ethers.utils.Interface([
+            'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
+          ])
+          const parsed = swapInterface.parseLog(lastSwapEvent)
 
-        if (
-          (transaction.extraInfo as any)?.tokenAmountOut &&
-          transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
-        ) {
-          const extraInfo = { ...transaction.extraInfo }
-          ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
-            parsed.args.returnAmount.toString(),
-            transaction.extraInfo?.arbitrary?.outputDecimals,
-          )
-          dispatch(
-            modifyTransaction({
-              chainId: transaction.chainId,
-              hash: transaction.hash,
-              extraInfo,
-            }),
-          )
+          if (
+            (transaction.extraInfo as any)?.tokenAmountOut &&
+            transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
+          ) {
+            const extraInfo = { ...transaction.extraInfo }
+            ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
+              parsed.args.returnAmount.toString(),
+              transaction.extraInfo?.arbitrary?.outputDecimals,
+            )
+            dispatch(
+              modifyTransaction({
+                chainId: transaction.chainId,
+                hash: transaction.hash,
+                extraInfo,
+              }),
+            )
+          }
         }
 
         const arbitrary = transaction.extraInfo?.arbitrary
