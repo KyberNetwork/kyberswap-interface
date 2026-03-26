@@ -128,6 +128,11 @@ export async function sendEVMTransaction({
       : library.getSigner().sendTransaction(sendTransactionOption))
     return response
   } catch (error) {
+    const txHash = (error as any)?.transactionHash as string | undefined
+    if (txHash) {
+      return { hash: txHash } as TransactionResponse
+    }
+
     throw new TransactionError(
       sentryInfo.name,
       'sendTransaction',
