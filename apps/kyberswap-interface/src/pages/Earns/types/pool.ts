@@ -56,6 +56,8 @@ export interface EarnPool {
     kemLMApr: string
   }
   egUsd?: number
+  sparkline?: number[]
+  sparklinePriceToken?: string
 }
 
 export interface ParsedEarnPool extends EarnPool {

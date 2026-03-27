@@ -14,7 +14,8 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
-import { Apr, FeeTier, RowItem, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
+import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
+import { Apr, FeeTier, SymbolText, TableCell, TableRow } from 'pages/Earns/PoolExplorer/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
 import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
@@ -100,7 +101,7 @@ const DesktopTableRow = ({
 
   return (
     <TableRow expandColumn={isFarmingFiltered} onClick={e => handleOpenZapInWidget(e)}>
-      <RowItem>
+      <TableCell alignItems="flex-start">
         <Flex alignItems="center" sx={{ gap: 2 }}>
           <Flex alignItems="flex-end" sx={{ position: 'relative' }}>
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
@@ -126,21 +127,21 @@ const DesktopTableRow = ({
           <TokenLogo src={pool.dexLogo} size={18} />
           <Text color={theme.subText}>{pool.dexName}</Text>
         </Flex>
-      </RowItem>
-      <RowItem>
+      </TableCell>
+      <TableCell alignItems="flex-start">
         <Apr value={pool.allApr}>
           {formatAprNumber(pool.allApr)}% {kemFarming(pool)}
         </Apr>
         <MerklAprInfo pool={pool} />
-      </RowItem>
-      <RowItem alignItems="flex-end">
+      </TableCell>
+      <TableCell alignItems="flex-start">
         <Text>
           {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
         </Text>
         <MerklRewardsRecord pool={pool} />
-      </RowItem>
+      </TableCell>
       {isFarmingFiltered && (
-        <RowItem alignItems="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
+        <TableCell alignItems="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
           {!!pool.maxAprInfo && (
             <MouseoverTooltipDesktopOnly
               text={
@@ -163,31 +164,34 @@ const DesktopTableRow = ({
             >
               <Text>
                 {formatAprNumber(
-                  +pool.maxAprInfo.apr +
-                    +pool.maxAprInfo.kemEGApr +
-                    +pool.maxAprInfo.kemLMApr +
-                    +(pool.bonusApr || 0),
+                  Number(pool.maxAprInfo.apr) +
+                    Number(pool.maxAprInfo.kemEGApr) +
+                    Number(pool.maxAprInfo.kemLMApr) +
+                    Number(pool.bonusApr || 0),
                 ) + '%'}
               </Text>
             </MouseoverTooltipDesktopOnly>
           )}
-        </RowItem>
+        </TableCell>
       )}
-      <RowItem alignItems="flex-end">
+      <TableCell alignItems="flex-end">
         <Text>
           {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
             style: 'currency',
             significantDigits: 6,
           })}
         </Text>
-      </RowItem>
-      <RowItem alignItems="flex-end">
+      </TableCell>
+      <TableCell alignItems="flex-end">
         <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
-      </RowItem>
-      <RowItem alignItems="flex-end">
+      </TableCell>
+      <TableCell alignItems="flex-end">
         <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
-      </RowItem>
-      <RowItem alignItems="flex-end">
+      </TableCell>
+      <TableCell alignItems="center">
+        <SparklineChart sparkline={pool.sparkline} shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address} />
+      </TableCell>
+      <TableCell alignItems="flex-end">
         {favoriteLoading.includes(pool.address) ? (
           <Loader />
         ) : (
@@ -200,7 +204,7 @@ const DesktopTableRow = ({
             onClick={e => handleFavorite(e, pool)}
           />
         )}
-      </RowItem>
+      </TableCell>
     </TableRow>
   )
 }

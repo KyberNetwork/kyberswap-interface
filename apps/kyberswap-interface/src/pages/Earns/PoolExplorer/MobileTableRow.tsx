@@ -10,10 +10,12 @@ import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { kemFarming } from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
+import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import {
   Apr,
   FeeTier,
   MobileTableBottomRow,
+  MobileTableCell,
   MobileTableRow as MobileTableRowComponent,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
@@ -70,7 +72,7 @@ const MobileTableRow = ({
 
   return (
     <MobileTableRowComponent onClick={e => handleOpenZapInWidget(e)}>
-      <Flex alignItems="flex-start" justifyContent="space-between">
+      <MobileTableCell alignItems="flex-start" justifyContent="space-between">
         <Flex sx={{ gap: 1 }}>
           <Flex sx={{ position: 'relative', top: -1 }}>
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
@@ -110,10 +112,10 @@ const MobileTableRow = ({
             />
           </Flex>
         </Flex>
-      </Flex>
+      </MobileTableCell>
       <MobileTableBottomRow>
         {isFarmingFiltered && (
-          <Flex justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
+          <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
             <Text color={theme.subText}>{t`Max APR`}</Text>
             <Text>
               {pool.maxAprInfo
@@ -125,9 +127,9 @@ const MobileTableRow = ({
                   ) + '%'
                 : '--'}
             </Text>
-          </Flex>
+          </MobileTableCell>
         )}
-        <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Fee`}</Text>
           <Text>
             {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
@@ -135,21 +137,28 @@ const MobileTableRow = ({
               significantDigits: 6,
             })}
           </Text>
-        </Flex>
-        <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+        </MobileTableCell>
+        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <Text color={theme.subText}>{t`Rewards`}</Text>
           <Text>
             {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
           </Text>
-        </Flex>
-        <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+        </MobileTableCell>
+        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <Text color={theme.subText}>{t`TVL`}</Text>
           <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
-        </Flex>
-        <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+        </MobileTableCell>
+        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <Text color={theme.subText}>{t`Volume`}</Text>
           <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
-        </Flex>
+        </MobileTableCell>
+        <MobileTableCell>
+          <SparklineChart
+            sparkline={pool.sparkline}
+            shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address}
+            height={48}
+          />
+        </MobileTableCell>
       </MobileTableBottomRow>
     </MobileTableRowComponent>
   )

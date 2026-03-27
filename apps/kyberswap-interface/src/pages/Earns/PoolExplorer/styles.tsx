@@ -131,11 +131,26 @@ export const ContentWrapper = styled.div``
 export const TableHeader = styled.div<{ expandColumn?: boolean }>`
   display: grid;
   grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '2fr 0.6fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 80px' : '2fr 0.6fr 0.9fr 0.9fr 1fr 1fr 80px'};
+    expandColumn
+      ? '1.7fr 0.8fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 156px 40px'
+      : '1.7fr 0.8fr 0.9fr 0.9fr 1fr 1fr 156px 40px'};
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
-  padding: 24px;
+  padding: 12px 12px;
+`
+
+export const TableCell = styled(Flex).withConfig({
+  shouldForwardProp: prop => !['justifyContent', 'alignItems', 'gap'].includes(prop),
+})<{ justifyContent?: string; alignItems?: string; gap?: string }>`
+  padding: 8px 12px;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 100%;
+  flex-direction: column;
+  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
+  align-items: ${({ alignItems }) => alignItems || 'center'};
+  gap: ${({ gap }) => gap || '8px'};
 `
 
 export const SortableHeader = styled(Flex)`
@@ -180,14 +195,6 @@ export const MigrateTableRow = styled(MigrateTableHeader)`
   }
 `
 
-export const RowItem = styled(Flex)<{ justifyContent?: string; alignItems?: string }>`
-  height: 100%;
-  flex-direction: column;
-  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
-  align-items: ${({ alignItems }) => alignItems || 'flex-start'};
-  gap: 8px;
-`
-
 export const Badge = styled.div`
   display: flex;
   align-items: center;
@@ -224,16 +231,22 @@ export const Apr = styled.div<{ value: number }>`
 `
 
 export const MobileTableRow = styled.div`
-  padding: 28px 24px 24px;
+  padding: 12px;
   cursor: pointer;
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
+`
+
+export const MobileTableCell = styled(Flex)`
+  width: 100%;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  min-width: 0;
 `
 
 export const MobileTableBottomRow = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 16px;
-  gap: 12px;
+  gap: 4px;
 `
 
 export const Disclaimer = styled.div`
