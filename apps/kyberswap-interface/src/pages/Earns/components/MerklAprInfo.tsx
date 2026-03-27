@@ -11,7 +11,7 @@ type Props = {
   pool: EarnPool
 }
 
-export default function MerklAprInfo({ pool }: Props) {
+const MerklAprInfo = ({ pool }: Props) => {
   const merklOpportunity = pool.merklOpportunity
   if (!merklOpportunity) return null
 
@@ -28,3 +28,5 @@ export default function MerklAprInfo({ pool }: Props) {
     </MouseoverTooltipDesktopOnly>
   )
 }
+
+export default MerklAprInfo

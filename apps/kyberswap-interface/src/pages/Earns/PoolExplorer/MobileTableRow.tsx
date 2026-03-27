@@ -4,7 +4,6 @@ import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
 
-import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -20,6 +19,7 @@ import {
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
 import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
+import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -73,47 +73,44 @@ const MobileTableRow = ({
   return (
     <MobileTableRowComponent onClick={e => handleOpenZapInWidget(e)}>
       <MobileTableCell alignItems="flex-start" justifyContent="space-between">
-        <Flex sx={{ gap: 1 }}>
-          <Flex sx={{ position: 'relative', top: -1 }}>
-            <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-            <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
-            {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
-          </Flex>
-          <Flex flexDirection="column" sx={{ gap: '8px' }}>
-            <Flex sx={{ gap: 1 }}>
-              <SymbolText>
-                {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
-              </SymbolText>
-              <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
+        <Flex flexDirection="column" alignItems="flex-start" sx={{ gap: 2 }}>
+          <Flex alignItems="center" sx={{ gap: 2 }}>
+            <Flex>
+              <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+              <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+              {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
             </Flex>
-            <Flex sx={{ gap: 2 }}>
-              <TokenLogo src={pool.dexLogo} size={22} />
-              <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
-            </Flex>
+            <SymbolText>
+              {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+            </SymbolText>
+            <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
           </Flex>
+          <FeeTier>
+            <TokenLogo src={pool.dexLogo} size={16} />
+            {pool.dexName}
+          </FeeTier>
         </Flex>
-        <Flex alignItems="flex-start" sx={{ gap: '12px' }}>
-          <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
+        <Star
+          size={16}
+          color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+          fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
+          role="button"
+          cursor="pointer"
+          onClick={e => handleFavorite(e, pool)}
+          aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
+        />
+      </MobileTableCell>
+      <MobileTableBottomRow>
+        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
+          <Text color={theme.subText}>{t`APR`}</Text>
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
             <Flex alignItems="center" sx={{ gap: '2px' }}>
               <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
               {kemFarming(pool)}
             </Flex>
             <MerklAprInfo pool={pool} />
           </Flex>
-          <Flex alignItems="center" height={24}>
-            <Star
-              size={16}
-              color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
-              fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
-              role="button"
-              cursor="pointer"
-              onClick={e => handleFavorite(e, pool)}
-              aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
-            />
-          </Flex>
-        </Flex>
-      </MobileTableCell>
-      <MobileTableBottomRow>
+        </MobileTableCell>
         {isFarmingFiltered && (
           <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
             <Text color={theme.subText}>{t`Max APR`}</Text>
@@ -129,6 +126,15 @@ const MobileTableRow = ({
             </Text>
           </MobileTableCell>
         )}
+        <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
+          <Text color={theme.subText}>{t`Rewards`}</Text>
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <Text>
+              {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
+            </Text>
+            <MerklRewardsRecord pool={pool} showEstimate={false} />
+          </Flex>
+        </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Fee`}</Text>
           <Text>
@@ -136,12 +142,6 @@ const MobileTableRow = ({
               style: 'currency',
               significantDigits: 6,
             })}
-          </Text>
-        </MobileTableCell>
-        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`Rewards`}</Text>
-          <Text>
-            {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
           </Text>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>

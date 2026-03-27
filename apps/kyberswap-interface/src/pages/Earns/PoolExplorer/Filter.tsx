@@ -129,8 +129,9 @@ const Filter = ({
   const selectedRewardTypeLabel = useMemo(() => {
     const arrValue = selectedRewardTypeValue.split(',').filter(Boolean)
     const selectedRewardTypes = rewardTypeOptions.filter(option => arrValue.includes(option.value))
-    if (selectedRewardTypes.length >= 2) return t`Rewards Type`
-    return selectedRewardTypes[0]?.label || t`Rewards Type`
+    if (selectedRewardTypes.length === 0) return t`Rewards Type`
+    if (selectedRewardTypes.length === 1) return selectedRewardTypes[0].label
+    return `${t`Rewards Type`} (${selectedRewardTypes.length})`
   }, [rewardTypeOptions, selectedRewardTypeValue])
 
   const filterTagOptions = useMemo(

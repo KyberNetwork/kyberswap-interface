@@ -116,8 +116,7 @@ export const TableWrapper = styled.div`
 
 export const PoolTableWrapper = styled(TableWrapper)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: 0 -16px;
-    border-radius: 0;
+    background: none;
   `}
 `
 
@@ -209,7 +208,7 @@ export const Badge = styled.div`
 
 export const FeeTier = styled(Badge)`
   padding: 4px 8px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 14px;
@@ -231,14 +230,19 @@ export const Apr = styled.div<{ value: number }>`
 `
 
 export const MobileTableRow = styled.div`
-  padding: 12px;
+  padding: 8px 8px;
   cursor: pointer;
-  border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
+  background: ${({ theme }) => theme.background};
+  border-radius: 12px;
+
+  :hover {
+    background: ${({ theme }) => theme.buttonGray};
+  }
 `
 
 export const MobileTableCell = styled(Flex)`
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px 8px;
   box-sizing: border-box;
   min-width: 0;
 `
@@ -246,7 +250,6 @@ export const MobileTableCell = styled(Flex)`
 export const MobileTableBottomRow = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
 `
 
 export const Disclaimer = styled.div`

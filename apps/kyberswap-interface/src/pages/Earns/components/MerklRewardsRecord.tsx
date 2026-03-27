@@ -13,10 +13,10 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   pool: EarnPool
-  iconSize?: number
+  showEstimate?: boolean
 }
 
-const MerklRewardsRecord = ({ pool, iconSize = 16 }: Props) => {
+const MerklRewardsRecord = ({ pool, showEstimate = true }: Props) => {
   const theme = useTheme()
 
   const rewardTokens = useMemo(() => {
@@ -24,7 +24,7 @@ const MerklRewardsRecord = ({ pool, iconSize = 16 }: Props) => {
     return breakdowns.map(reward => {
       return {
         ...reward.token,
-        amount: getFullDisplayBalance(BigNumber.from(reward.amount), reward.token.decimals),
+        amount: getFullDisplayBalance(BigNumber.from(reward.amount), reward.token.decimals, 2),
       }
     })
   }, [pool])
@@ -37,7 +37,7 @@ const MerklRewardsRecord = ({ pool, iconSize = 16 }: Props) => {
   if (!pool.merklOpportunity) return null
 
   return (
-    <Flex alignItems="center" sx={{ gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+    <Flex alignItems="center" sx={{ gap: 1, justifyContent: 'flex-end' }}>
       {rewardTokens.length > 0 && (
         <MouseoverTooltipDesktopOnly
           text={
@@ -56,16 +56,14 @@ const MerklRewardsRecord = ({ pool, iconSize = 16 }: Props) => {
           placement="bottom"
         >
           <Flex alignItems="center" sx={{ gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            {rewardTokens.map(token =>
-              token.icon ? (
-                <TokenLogo key={`${token.chainId}-${token.address}`} src={token.icon} size={iconSize} />
-              ) : null,
-            )}
+            {rewardTokens.map(token => (
+              <TokenLogo key={`${token.chainId}-${token.address}`} src={token.icon} size={16} />
+            ))}
           </Flex>
         </MouseoverTooltipDesktopOnly>
       )}
 
-      {weeklyRewards > 0 && (
+      {showEstimate && weeklyRewards > 0 && (
         <MouseoverTooltipDesktopOnly
           text={
             <Text>
@@ -80,7 +78,9 @@ const MerklRewardsRecord = ({ pool, iconSize = 16 }: Props) => {
         >
           <Badge style={{ padding: '4px 6px' }}>
             <RewardIcon width={16} height={16} />
-            {formatDisplayNumber(weeklyRewards, { style: 'currency', significantDigits: 4 })}/week
+            <Text sx={{ whiteSpace: 'nowrap' }}>
+              {formatDisplayNumber(weeklyRewards, { style: 'currency', significantDigits: 4 })}/week
+            </Text>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
