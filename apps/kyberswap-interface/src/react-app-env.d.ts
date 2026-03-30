@@ -19,6 +19,7 @@ interface Window {
     isKrystal?: boolean
     isKrystalWallet?: boolean
     isZerion?: boolean
+    isSafePal?: boolean
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void
     request: (params: { method: string; params?: any }) => Promise<any>
@@ -44,6 +45,7 @@ interface Window {
   phantom?: any
   rabby?: any
   coinbaseWalletExtension?: any
+  safepalProvider?: any
   dataLayer?: any[]
   chrome?: any
   opr?: any
