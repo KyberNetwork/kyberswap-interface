@@ -89,9 +89,9 @@ const PoolEarningApr = () => {
         </AprBadge>
       </Stack>
 
-      {!upToSmall && <Box width="1px" backgroundColor={rgba(theme.text, 0.08)} />}
+      {!upToSmall && <Box backgroundColor={rgba(theme.text, 0.08)} width="1px" />}
 
-      <Stack flex="1 1 320px" justify="flex-start" gap={8} px={12}>
+      <Stack flex="1 1 320px" gap={8} justify="flex-start" px={12}>
         <HStack align="baseline" gap="12px 24px" wrap="wrap">
           {hasActiveApr && (
             <BaselineRow>

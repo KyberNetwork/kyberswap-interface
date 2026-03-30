@@ -19,7 +19,7 @@ const EarningsTab = () => {
     <Stack gap={20}>
       <PoolEarningChart chainId={chainId} poolAddress={poolAddress} window={window} onWindowChange={setWindow} />
 
-      <Box height={1} backgroundColor={rgba(theme.text, 0.06)} />
+      <Box backgroundColor={rgba(theme.text, 0.06)} height={1} />
 
       <Stack gap={24}>
         <PoolEarningApr />

@@ -257,9 +257,9 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
           <PoolChartWrapper $height={chartHeight}>
             <ResponsiveContainer height="100%" width="100%">
               <ComposedChart
+                barCategoryGap={upToSmall ? '24%' : '18%'}
                 data={chartData}
                 margin={{ top: 16, right: 0, bottom: 8, left: 0 }}
-                barCategoryGap={upToSmall ? '24%' : '18%'}
               >
                 <CartesianGrid stroke={rgba(theme.subText, 0.12)} vertical={false} />
                 <XAxis
@@ -268,8 +268,8 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
                   minTickGap={24}
                   stroke={theme.subText}
                   tick={{ fill: theme.subText, fontSize: 12 }}
-                  tickFormatter={(value: number) => formatAxisTimeLabel(value, resolvedWindow)}
                   tickLine={false}
+                  tickFormatter={(value: number) => formatAxisTimeLabel(value, resolvedWindow)}
                 />
                 <YAxis
                   axisLine={false}
@@ -320,22 +320,22 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
             direction={upToSmall ? 'column' : 'row'}
             gap={upToSmall ? 12 : 20}
             justify="center"
-            width={upToSmall ? '100%' : 'fit-content'}
             sx={{ margin: '0 auto' }}
+            width={upToSmall ? '100%' : 'fit-content'}
           >
-            <Stack height={breakdownChartSize} position="relative" width={breakdownChartSize} sx={{ flexShrink: 0 }}>
+            <Stack height={breakdownChartSize} position="relative" sx={{ flexShrink: 0 }} width={breakdownChartSize}>
               <ResponsiveContainer height="100%" width="100%">
                 <PieChart>
                   <Pie
-                    data={pieData}
-                    dataKey="value"
+                    cornerRadius={4}
                     cx="50%"
                     cy="50%"
+                    data={pieData}
+                    dataKey="value"
                     innerRadius="60%"
                     outerRadius="100%"
                     paddingAngle={3}
                     stroke="transparent"
-                    cornerRadius={4}
                   >
                     {pieData.map(item => (
                       <Cell fill={item.color} key={item.key} />
@@ -346,10 +346,10 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
 
               <Stack
                 align="center"
-                position="absolute"
-                textAlign="center"
                 justify="center"
+                position="absolute"
                 sx={{ inset: 0, pointerEvents: 'none' }}
+                textAlign="center"
               >
                 <Text color={theme.subText} fontSize={14}>
                   Total Earn

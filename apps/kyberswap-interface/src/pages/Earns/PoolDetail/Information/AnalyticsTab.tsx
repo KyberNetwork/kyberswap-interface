@@ -28,11 +28,11 @@ const AnalyticsTab = () => {
 
   return (
     <Stack gap={20}>
-      <TopMetricsStrip items={metrics} split={true} />
+      <TopMetricsStrip items={metrics} split />
 
       <PoolPriceChart chainId={chainId} poolAddress={poolAddress} />
 
-      <LiquidityFlowsChart chainId={chainId} onCurrentTvlChange={setCurrentTvl} poolAddress={poolAddress} />
+      <LiquidityFlowsChart chainId={chainId} poolAddress={poolAddress} onCurrentTvlChange={setCurrentTvl} />
     </Stack>
   )
 }

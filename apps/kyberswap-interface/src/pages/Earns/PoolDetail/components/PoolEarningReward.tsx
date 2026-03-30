@@ -213,7 +213,7 @@ const RewardCardItem = ({ apr, chainIcon, chainName, from, icon, name, to, token
   return (
     <RewardCard>
       <HStack align="center" gap={8} wrap="wrap">
-        <HStack flex="0 0 auto" align="flex-end">
+        <HStack align="flex-end" flex="0 0 auto">
           <TokenLogo size={24} src={icon} />
           <TokenLogo size={16} src={chainIcon} translateLeft translateTop />
         </HStack>
@@ -259,11 +259,11 @@ const RewardCardItem = ({ apr, chainIcon, chainName, from, icon, name, to, token
 
       <Stack position="relative">
         <ProgressBar
+          backgroundColor={rgba(theme.white, 0.08)}
           color="#05966B"
           height="16px"
           percent={progressPercent}
           width="100%"
-          backgroundColor={rgba(theme.white, 0.08)}
         />
         <ProgressLabelWrapper $width={`${Math.max(progressPercent, 12)}%`}>
           <Text color={theme.white} fontSize={12} fontWeight={600}>
