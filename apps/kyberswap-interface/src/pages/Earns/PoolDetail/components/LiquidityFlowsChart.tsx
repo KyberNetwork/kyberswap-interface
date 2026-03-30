@@ -129,6 +129,14 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
 
+  const activeDotStroke = theme.buttonBlack
+  const addLiquidityColor = rgba(theme.darkGreen, 0.8)
+  const cursorColor = rgba(theme.text, 0.12)
+  const gridColor = rgba(theme.text, 0.06)
+  const lpVolumeLineColor = theme.primary
+  const referenceLineColor = rgba(theme.text, 0.12)
+  const removeLiquidityColor = rgba(theme.red, 0.5)
+
   const {
     currentData: liquidityFlowData,
     isError,
@@ -150,11 +158,6 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
   )
 
   const latestBucket = liquidityFlowData?.buckets.at(-1)
-
-  const addLiquidityColor = rgba(theme.darkGreen, 0.8)
-  const activeDotStroke = theme.buttonBlack
-  const lpVolumeLineColor = theme.primary
-  const removeLiquidityColor = rgba(theme.red1, 0.6)
 
   useEffect(() => {
     onCurrentTvlChange?.(latestBucket?.tvlUsd)
@@ -192,7 +195,7 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
                 margin={{ top: 8, right: 0, bottom: 8, left: 0 }}
                 stackOffset="sign"
               >
-                <CartesianGrid stroke={rgba(theme.subText, 0.12)} vertical={false} />
+                <CartesianGrid stroke={gridColor} vertical={false} />
                 <XAxis
                   axisLine={false}
                   dataKey="ts"
@@ -230,9 +233,9 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
                       window={window}
                     />
                   )}
-                  cursor={{ stroke: rgba(theme.primary, 0.28), strokeDasharray: '4 4' }}
+                  cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
                 />
-                <ReferenceLine stroke={rgba(theme.subText, 0.24)} y={0} yAxisId="flow" />
+                <ReferenceLine stroke={referenceLineColor} y={0} yAxisId="flow" />
                 <Bar
                   dataKey="addUsd"
                   fill={addLiquidityColor}
