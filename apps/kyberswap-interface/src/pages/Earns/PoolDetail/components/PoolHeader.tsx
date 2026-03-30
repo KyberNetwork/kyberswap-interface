@@ -138,7 +138,7 @@ const PoolHeaderPage = () => {
         </ProtocolBadge>
 
         <AprBadge fontSize={20} fontWeight={500}>
-          {formatAprNumber(pool.allApr ?? pool.poolStats?.allApr24h ?? 0)}%
+          {formatAprNumber(pool.poolStats?.apr ?? 0)}%
         </AprBadge>
       </HStack>
     </HStack>

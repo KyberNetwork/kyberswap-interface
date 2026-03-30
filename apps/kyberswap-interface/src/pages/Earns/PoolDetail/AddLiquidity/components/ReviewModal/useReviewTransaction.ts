@@ -12,7 +12,7 @@ import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { EARN_DEXES } from 'pages/Earns/constants'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionHistory } from 'state/transactions/type'
 
 type UseReviewTransactionProps = {
   isOpen: boolean
@@ -20,7 +20,7 @@ type UseReviewTransactionProps = {
   pool: Pool
   tokenInput: ZapState['tokenInput']
   onAddTrackedTxHash?: (hash: string) => void
-  onAddTransactionWithType?: (transaction: any) => void
+  onAddTransactionWithType?: (transaction: TransactionHistory) => void
   onDismiss?: () => void
 }
 

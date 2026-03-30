@@ -82,7 +82,7 @@ interface AddLiquidityTokenInputProps {
     prices?: Record<string, number>
     route?: ZapRouteDetail | null
   }
-  onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onTokensChange?: (nextTokens: Token[]) => void
   onAmountsChange?: (nextAmounts: string) => void
 }

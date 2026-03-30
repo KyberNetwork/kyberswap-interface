@@ -37,7 +37,18 @@ const BaselineRow = styled(HStack)`
   align-items: baseline;
 `
 
-const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
+export const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
+
+export const getLatestAprValues = (points?: PoolAprHistoryPoint[]) => {
+  const latestTotalApr = [...(points ?? [])].reverse().find(point => point.totalApr !== undefined)?.totalApr
+  const latestActiveApr = [...(points ?? [])].reverse().find(point => point.activeApr !== undefined)?.activeApr
+
+  return {
+    hasActiveApr: latestActiveApr !== undefined,
+    latestActiveApr,
+    latestTotalApr,
+  }
+}
 
 const AprHistoryTooltip = ({
   active,
@@ -148,15 +159,7 @@ const AprHistoryChart = ({ chainId, poolAddress }: AprHistoryChartProps) => {
     return values.length ? Math.max(...values) : undefined
   }, [chartData])
 
-  const latestTotalApr = useMemo(
-    () => [...chartData].reverse().find(point => point.totalApr !== undefined)?.totalApr,
-    [chartData],
-  )
-  const latestActiveApr = useMemo(
-    () => [...chartData].reverse().find(point => point.activeApr !== undefined)?.activeApr,
-    [chartData],
-  )
-  const hasActiveApr = latestActiveApr !== undefined
+  const { hasActiveApr, latestActiveApr, latestTotalApr } = useMemo(() => getLatestAprValues(chartData), [chartData])
 
   return (
     <Stack gap={16}>

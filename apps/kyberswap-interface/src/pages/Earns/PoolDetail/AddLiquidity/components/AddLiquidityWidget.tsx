@@ -43,7 +43,7 @@ type AddLiquidityWidgetProps = {
   state: ReturnType<typeof useZapState>
   preview?: AddLiquidityWidgetPreview
   feedback: ReturnType<typeof useFeedback>['widget']
-  onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
 }
 
 const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent }: AddLiquidityWidgetProps) => {

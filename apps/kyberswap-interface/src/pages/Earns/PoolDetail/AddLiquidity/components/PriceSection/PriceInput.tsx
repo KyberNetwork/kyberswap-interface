@@ -77,7 +77,7 @@ interface PriceInputProps {
   tickUpper: number | null
   minPrice: string | null
   maxPrice: string | null
-  onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onTickLowerChange?: (value: number) => void
   onTickUpperChange?: (value: number) => void
 }

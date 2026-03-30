@@ -28,7 +28,7 @@ import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionHistory } from 'state/transactions/type'
 import { useDegenModeManager } from 'state/user/hooks'
 
 type AddLiquidityProps = {
@@ -49,7 +49,7 @@ type AddLiquidityBodyProps = AddLiquidityProps & {
   chainId: number
   feedback: AddLiquidityFeedback
   isRefreshingReview: boolean
-  onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onDismissReview: () => void
   onPreview: () => Promise<void>
   previewError?: string | null
@@ -62,7 +62,7 @@ type AddLiquidityBodyProps = AddLiquidityProps & {
 
 type AddLiquidityTracking = {
   addTrackedTxHash: (hash: string) => void
-  addTransactionWithType: (transaction: any) => void
+  addTransactionWithType: (transaction: TransactionHistory) => void
 }
 
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
@@ -344,7 +344,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   )
 
   const handleTrackEvent = useCallback(
-    (eventName: string, data?: Record<string, any>) => {
+    (eventName: string, data?: Record<string, unknown>) => {
       const trackingType = TRACKING_EVENT_MAP[eventName]
       if (trackingType !== undefined) trackingHandler(trackingType, data)
     },

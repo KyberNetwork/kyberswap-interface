@@ -4,6 +4,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { Exchange } from 'pages/Earns/constants'
 import {
   EarnPool,
+  MerklOpportunity,
   PositionHistoryType,
   UserPosition,
   UserPositionsApiResponse,
@@ -99,6 +100,7 @@ interface PoolDetailStats {
   tvl?: number
   volume24h?: number
   fees24h?: number
+  activeApr?: number
   apr24h?: number
   allApr24h?: number
   lpApr24h?: number
@@ -106,6 +108,7 @@ interface PoolDetailStats {
   kemEGApr24h?: number
   bonusApr?: number
   apr?: number
+  kemLMApr?: number
   kemEGApr?: number
   allApr7d?: number
   lpApr7d?: number
@@ -136,6 +139,7 @@ export interface PoolDetail {
   tokens: Array<PoolDetailToken>
   positionInfo: PoolDetailPositionInfo
   poolStats?: PoolDetailStats
+  merklOpportunity?: MerklOpportunity
 }
 
 export type PoolAnalyticsWindow = '24h' | '7d' | '30d'

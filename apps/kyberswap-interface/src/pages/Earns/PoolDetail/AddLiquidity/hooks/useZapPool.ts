@@ -1,18 +1,27 @@
-import { POOL_CATEGORY, PoolType, Token, Pool as ZapPool, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema'
+import {
+  NATIVE_TOKEN_ADDRESS,
+  POOL_CATEGORY,
+  PoolType,
+  Token,
+  Pool as ZapPool,
+  univ2PoolNormalize,
+  univ3PoolNormalize,
+  univ4Types,
+} from '@kyber/schema'
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
-import { NativeCurrency } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
-import { PoolDetailToken } from 'services/zapEarn'
+import { useCheckPairQuery } from 'services/marketOverview'
+import { PoolDetail, PoolDetailToken } from 'services/zapEarn'
 
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
-import { Pool as PoolDetailPagePool } from 'pages/Earns/PoolDetail/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type UseZapPoolProps = {
   chainId: number
-  pool: PoolDetailPagePool
+  pool: PoolDetail
   poolType: PoolType
 }
 
@@ -32,7 +41,7 @@ const mapPoolCategory = (category?: string): POOL_CATEGORY => {
   }
 }
 
-const buildPoolStats = (stats?: PoolDetailPagePool['poolStats']) => ({
+const buildPoolStats = (stats?: PoolDetail['poolStats']) => ({
   tvl: Number(stats?.tvl || 0),
   volume24h: Number(stats?.volume24h || 0),
   fees24h: Number(stats?.fees24h || 0),
@@ -65,15 +74,39 @@ const buildPoolToken = (poolToken: PoolDetailToken, tokenMap: Map<string, Wrappe
 const isWrappedTokenInfo = (token: WrappedTokenInfo | NativeCurrency): token is WrappedTokenInfo => 'address' in token
 
 export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps) => {
+  const pairTokenAddresses = useMemo(() => {
+    if (rawPool.tokens.length < 2) return null
+
+    const isUniV4 = univ4Types.includes(poolType)
+    const staticExtra = rawPool.staticExtra ? JSON.parse(rawPool.staticExtra) : null
+    const isToken0Native = isUniV4 && staticExtra?.['0x0']?.[0]
+    const isToken1Native = isUniV4 && staticExtra?.['0x0']?.[1]
+
+    return {
+      token0Address: (isToken0Native ? NATIVE_TOKEN_ADDRESS : rawPool.tokens[0].address).toLowerCase(),
+      token1Address: (isToken1Native ? NATIVE_TOKEN_ADDRESS : rawPool.tokens[1].address).toLowerCase(),
+    }
+  }, [poolType, rawPool.staticExtra, rawPool.tokens])
+
   const tokenAddresses = useMemo(
     () => Array.from(new Set(rawPool.tokens.map(token => token.address.toLowerCase()).filter(Boolean))),
     [rawPool.tokens],
   )
 
+  const { data: pairCategoryData, isLoading: pairCategoryLoading } = useCheckPairQuery(
+    chainId && pairTokenAddresses
+      ? {
+          chainId,
+          tokenIn: pairTokenAddresses.token0Address,
+          tokenOut: pairTokenAddresses.token1Address,
+        }
+      : skipToken,
+  )
+
   const { data: tokenMetadata = [], isLoading: tokenMetadataLoading } = useGetTokenByAddressesQuery(
     chainId && tokenAddresses.length
       ? {
-          chainId: chainId as any,
+          chainId: chainId as ChainId,
           addresses: tokenAddresses,
         }
       : skipToken,
@@ -89,11 +122,11 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
 
     const token0 = buildPoolToken(rawPool.tokens[0], tokenMetadataMap)
     const token1 = buildPoolToken(rawPool.tokens[1], tokenMetadataMap)
-    const category = mapPoolCategory(rawPool.category)
+    const category = mapPoolCategory(pairCategoryData?.data?.category)
     const stats = buildPoolStats(rawPool.poolStats)
     const isFarming = Boolean(rawPool.programs?.includes('eg') || rawPool.programs?.includes('lm'))
     const isFarmingLm = Boolean(rawPool.programs?.includes('lm'))
-    const fee = typeof rawPool.swapFee === 'number' ? rawPool.swapFee : Number(rawPool.feeTier || 0)
+    const fee = Number(rawPool.swapFee || 0)
 
     if (isUniV3PoolType(poolType)) {
       if (!rawPool.positionInfo) return null
@@ -135,9 +168,9 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
     })
 
     return parsedPool.success ? parsedPool.data : null
-  }, [poolType, rawPool, tokenMetadataMap])
+  }, [pairCategoryData?.data?.category, poolType, rawPool, tokenMetadataMap])
 
-  const loading = Boolean(tokenAddresses.length) && tokenMetadataLoading
+  const loading = (Boolean(tokenAddresses.length) && tokenMetadataLoading) || pairCategoryLoading
   const error = !loading && !normalizedPool ? 'Failed to prepare pool data' : ''
 
   return {

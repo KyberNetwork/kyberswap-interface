@@ -118,7 +118,7 @@ interface TokenAmountInputProps {
   pool: Pool
   tokenBalances?: Record<string, bigint>
   tokenPrices?: Record<string, number>
-  onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onAmountChange?: (index: number, nextAmount: string) => void
   onTokenRemove?: (index: number) => void
   onTokenSelectOpen?: (address: string) => void
