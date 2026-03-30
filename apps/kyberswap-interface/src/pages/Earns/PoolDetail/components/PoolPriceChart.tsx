@@ -1,6 +1,6 @@
 import { type UTCTimestamp, createChart } from 'lightweight-charts'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { type PoolAnalyticsWindow, usePoolPriceQuery } from 'services/zapEarn'
@@ -14,19 +14,18 @@ import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-type PoolPriceChartProps = {
-  onSelectWindow: (value: PoolAnalyticsWindow) => void
-  window: PoolAnalyticsWindow
-}
-
-const PoolPriceChart = ({ onSelectWindow, window }: PoolPriceChartProps) => {
+const PoolPriceChart = () => {
   const theme = useTheme()
   const { chainId, poolAddress } = usePoolDetailContext()
+
   const chartContainerRef = useRef<HTMLDivElement>(null)
+  const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
+
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
+
   const {
-    currentData: analytics,
+    currentData: poolPriceData,
     isError,
     isFetching,
   } = usePoolPriceQuery({
@@ -37,15 +36,18 @@ const PoolPriceChart = ({ onSelectWindow, window }: PoolPriceChartProps) => {
 
   const chartData = useMemo(
     () =>
-      analytics?.candles.map(candle => ({
+      poolPriceData?.candles.map(candle => ({
         time: candle.ts as UTCTimestamp,
         open: candle.open,
         high: candle.high,
         low: candle.low,
         close: candle.close,
       })) || [],
-    [analytics?.candles],
+    [poolPriceData?.candles],
   )
+
+  const currentPrice = poolPriceData?.currentPrice
+  const priceChange = poolPriceData?.priceChange ?? 0
 
   useEffect(() => {
     const container = chartContainerRef.current
@@ -126,19 +128,19 @@ const PoolPriceChart = ({ onSelectWindow, window }: PoolPriceChartProps) => {
           <Text color={theme.text} fontSize={18} fontWeight={500}>
             Pool Price
           </Text>
+
           <HStack align="baseline" gap={8} wrap="wrap">
             <Text color={theme.text} fontSize={18} fontWeight={500}>
-              {formatPrice(analytics?.currentPrice)}
+              {formatPrice(currentPrice)}
             </Text>
-            {analytics?.priceChange !== undefined ? (
-              <Text color={analytics.priceChange >= 0 ? theme.primary : theme.red} fontSize={14} fontWeight={500}>
-                {formatSignedPercent(analytics.priceChange)}
-              </Text>
-            ) : null}
+
+            <Text color={priceChange >= 0 ? theme.primary : theme.red} fontSize={14} fontWeight={500}>
+              {formatSignedPercent(priceChange)}
+            </Text>
           </HStack>
         </Stack>
 
-        <SegmentedControl onChange={onSelectWindow} options={CHART_WINDOW_OPTIONS} value={window} />
+        <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />
       </HStack>
 
       <PoolChartState
@@ -147,7 +149,7 @@ const PoolPriceChart = ({ onSelectWindow, window }: PoolPriceChartProps) => {
         height={chartHeight}
         isEmpty={!chartData.length}
         isError={isError}
-        isLoading={isFetching && !analytics}
+        isLoading={isFetching && !poolPriceData}
       >
         <PoolChartWrapper $height={chartHeight} ref={chartContainerRef} />
       </PoolChartState>

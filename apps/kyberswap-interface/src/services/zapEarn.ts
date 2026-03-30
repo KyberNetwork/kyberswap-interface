@@ -60,40 +60,6 @@ interface PoolQueryResponse {
   requestId: string
 }
 
-export interface PositionQueryParams {
-  wallet: string
-  chainIds?: string
-  protocols?: string
-  keyword?: string
-  positionIds?: string
-  statuses?: string
-  sortBy?: string
-  orderBy?: string
-  page?: number
-  pageSize?: number
-  useOnFly?: boolean
-}
-
-interface PositionHistoryParams {
-  chainId: ChainId
-  tokenAddress: string
-  tokenId: string
-  userAddress?: string
-}
-
-export interface PositionHistory {
-  txHash: string
-  type: PositionHistoryType
-}
-
-interface AddRemoveFavoriteParams {
-  chainId: ChainId
-  message: string
-  signature: string
-  poolAddress: string
-  userAddress: string
-}
-
 type PoolStatsPeriod = '1d' | '7d' | '30d'
 
 type PoolStatsByPeriod = Partial<Record<PoolStatsPeriod, number>>
@@ -197,6 +163,23 @@ interface PoolAnalyticsQueryParams {
   window: PoolAnalyticsWindow
 }
 
+export interface PoolAprHistoryPoint {
+  ts: number
+  feeApr: number
+  lmApr: number
+  egApr: number
+  bonusApr: number
+  totalApr: number
+  activeApr?: number
+  tvlUsd?: number
+}
+
+export interface PoolAprHistoryAnalytics {
+  chainId: number
+  poolAddress: string
+  points: Array<PoolAprHistoryPoint>
+}
+
 export interface PoolPriceCandle {
   ts: number
   open: number
@@ -224,17 +207,39 @@ export interface PoolLiquidityFlowsAnalytics {
   buckets: Array<PoolLiquidityFlowBucket>
 }
 
-export interface PoolActiveAprBucket {
-  ts: number
-  activeApr: number
+export interface PositionQueryParams {
+  wallet: string
+  chainIds?: string
+  protocols?: string
+  keyword?: string
+  positionIds?: string
+  statuses?: string
+  sortBy?: string
+  orderBy?: string
+  page?: number
+  pageSize?: number
+  useOnFly?: boolean
 }
 
-export interface PoolActiveAprAnalytics {
-  window: PoolAnalyticsWindow
-  buckets: Array<PoolActiveAprBucket>
+interface PositionHistoryParams {
+  chainId: ChainId
+  tokenAddress: string
+  tokenId: string
+  userAddress?: string
 }
 
-const zapEarnAnalyticsBaseUrl = import.meta.env.VITE_ZAP_EARN_ANALYTICS_URL || import.meta.env.VITE_ZAP_EARN_URL
+export interface PositionHistory {
+  txHash: string
+  type: PositionHistoryType
+}
+
+interface AddRemoveFavoriteParams {
+  chainId: ChainId
+  message: string
+  signature: string
+  poolAddress: string
+  userAddress: string
+}
 
 const zapEarnServiceApi = createApi({
   reducerPath: 'zapEarnServiceApi',
@@ -297,35 +302,26 @@ const zapEarnServiceApi = createApi({
         },
       }),
     }),
+    poolAprHistory: builder.query<PoolAprHistoryAnalytics, PoolAnalyticsQueryParams>({
+      query: params => ({
+        url: `/v1/pools/apr-history`,
+        params,
+      }),
+      transformResponse: (response: { data: PoolAprHistoryAnalytics }) => response.data,
+    }),
     poolPrice: builder.query<PoolPriceAnalytics, PoolAnalyticsQueryParams>({
       query: params => ({
-        url: `${zapEarnAnalyticsBaseUrl}/v1/pools/price`,
+        url: `/v1/pools/price`,
         params,
       }),
       transformResponse: (response: { data: PoolPriceAnalytics }) => response.data,
     }),
     poolLiquidityFlows: builder.query<PoolLiquidityFlowsAnalytics, PoolAnalyticsQueryParams>({
       query: params => ({
-        url: `${zapEarnAnalyticsBaseUrl}/v1/pools/liquidity-flows`,
+        url: `/v1/pools/liquidity-flows`,
         params,
       }),
       transformResponse: (response: { data: PoolLiquidityFlowsAnalytics }) => response.data,
-    }),
-    poolActiveApr: builder.query<PoolActiveAprAnalytics, PoolAnalyticsQueryParams>({
-      query: params => ({
-        url: `${zapEarnAnalyticsBaseUrl}/v1/pools/liquidity-flows`,
-        params: {
-          ...params,
-          type: 'activeApr',
-        },
-      }),
-      transformResponse: (response: { data: PoolLiquidityFlowsAnalytics }) => ({
-        window: response.data.window,
-        buckets: response.data.buckets.map(bucket => ({
-          ts: bucket.ts,
-          activeApr: bucket.tvlUsd,
-        })),
-      }),
     }),
     userPositions: builder.query<{ positions: Array<UserPosition>; stats?: UserPositionsStats }, PositionQueryParams>({
       query: params => ({
@@ -380,16 +376,16 @@ export const {
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
   useLazyPoolsExplorerQuery,
+  usePoolDetailQuery,
+  useLazyPoolDetailQuery,
   useEstimatePositionAprQuery,
+  usePoolAprHistoryQuery,
+  usePoolPriceQuery,
+  usePoolLiquidityFlowsQuery,
   useUserPositionsQuery,
   usePositionHistoryQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
-  usePoolDetailQuery,
-  usePoolActiveAprQuery,
-  usePoolLiquidityFlowsQuery,
-  usePoolPriceQuery,
-  useLazyPoolDetailQuery,
 } = zapEarnServiceApi
 
 export default zapEarnServiceApi

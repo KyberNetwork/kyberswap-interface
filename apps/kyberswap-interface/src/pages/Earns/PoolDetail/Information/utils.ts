@@ -66,7 +66,9 @@ export const formatPrice = (value?: number) =>
     : '--'
 
 export const formatSignedPercent = (value?: number) =>
-  hasValue(value) ? `${value > 0 ? '+' : ''}${formatDisplayNumber(value, { significantDigits: 4 })}%` : '--'
+  hasValue(value)
+    ? `${value > 0 ? '+' : value < 0 ? '-' : ''}${formatDisplayNumber(Math.abs(value), { significantDigits: 4 })}%`
+    : '--'
 
 export const formatCompactUsd = (value?: number) => {
   if (!hasValue(value)) return '--'
