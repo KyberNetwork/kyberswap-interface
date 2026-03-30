@@ -3,6 +3,7 @@ import { PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
 import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BuildZapInData, prepareBuildZapInRouteRequest, useBuildZapInRouteMutation } from 'services/zap'
+import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -65,6 +66,30 @@ type AddLiquidityTracking = {
   addTransactionWithType: (transaction: TransactionHistory) => void
 }
 
+const PoolInformationColumn = styled(Stack)`
+  flex: 1 1 480px;
+  min-width: 0;
+  gap: 24px;
+  order: 1;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    order: 2;
+  `}
+`
+
+const AddLiquidityColumn = styled(Stack)`
+  flex: 1 1 480px;
+  max-width: 480px;
+  min-width: 0;
+  gap: 16px;
+  order: 2;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    order: 1;
+    max-width: none;
+  `}
+`
+
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
   LIQ_MAX_CLICKED: TRACKING_EVENT_TYPE.LIQ_MAX_CLICKED,
@@ -94,7 +119,17 @@ const AddLiquidityBody = ({
   return (
     <>
       <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
-        <Stack flex="1 1 480px" maxWidth="480px" minWidth={0} gap={16}>
+        <PoolInformationColumn>
+          <AddLiquidityRoutePreview
+            inputTokens={state.tokenInput.tokens}
+            inputAmounts={state.tokenInput.amounts}
+            pool={normalizedPool}
+            zapRoute={state.route.data}
+          />
+          {children}
+        </PoolInformationColumn>
+
+        <AddLiquidityColumn>
           <AddLiquidityWidget
             context={{
               chainId,
@@ -124,17 +159,7 @@ const AddLiquidityBody = ({
               ) : null}
             </Stack>
           ) : null}
-        </Stack>
-
-        <Stack flex="1 1 480px" gap={24} minWidth={0}>
-          <AddLiquidityRoutePreview
-            inputTokens={state.tokenInput.tokens}
-            inputAmounts={state.tokenInput.amounts}
-            pool={normalizedPool}
-            zapRoute={state.route.data}
-          />
-          {children}
-        </Stack>
+        </AddLiquidityColumn>
       </HStack>
 
       {reviewState ? (
