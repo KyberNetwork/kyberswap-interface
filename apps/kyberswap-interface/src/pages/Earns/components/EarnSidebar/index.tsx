@@ -25,6 +25,7 @@ const EarnSidebar = () => {
   const { pathname } = useLocation()
 
   const isActive = (path: string) => pathname === path
+  const isPositionsActive = pathname === APP_PATHS.EARN_POSITIONS || pathname.startsWith('/earn/position/')
 
   return (
     <SidebarContainer>
@@ -45,10 +46,7 @@ const EarnSidebar = () => {
             </Flex>
           </SidebarSubItem>
 
-          <SidebarSubItem
-            $active={isActive(APP_PATHS.EARN_POSITIONS)}
-            onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}
-          >
+          <SidebarSubItem $active={isPositionsActive} onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}>
             <SubItemLine />
             <Flex alignItems="center" style={{ gap: '4px' }}>
               <PositionsIcon width={16} height={16} color="currentColor" />
@@ -102,6 +100,7 @@ export const EarnMobileNav = () => {
   const { pathname } = useLocation()
 
   const isActive = (path: string) => pathname === path
+  const isPositionsActive = pathname === APP_PATHS.EARN_POSITIONS || pathname.startsWith('/earn/position/')
 
   return (
     <MobileNavContainer>
@@ -112,7 +111,7 @@ export const EarnMobileNav = () => {
       <MobileNavItem $active={isActive(APP_PATHS.EARN_POOLS)} onClick={() => navigate(APP_PATHS.EARN_POOLS)}>
         {t`Explore Pools`}
       </MobileNavItem>
-      <MobileNavItem $active={isActive(APP_PATHS.EARN_POSITIONS)} onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}>
+      <MobileNavItem $active={isPositionsActive} onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}>
         {t`My Positions`}
       </MobileNavItem>
       <MobileNavItem $active={isActive(APP_PATHS.EARN_SMART_EXIT)} onClick={() => navigate(APP_PATHS.EARN_SMART_EXIT)}>

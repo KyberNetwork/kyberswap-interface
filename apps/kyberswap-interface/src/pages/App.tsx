@@ -66,6 +66,7 @@ const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 const Campaign = lazy(() => import('pages/Campaign'))
 const CampaignMyDashboard = lazy(() => import('pages/Campaign/MyDashboard'))
 
+const EarnLayout = lazy(() => import('pages/Earns/components/EarnLayout'))
 const Earns = lazy(() => import('pages/Earns/Landing'))
 const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
@@ -359,13 +360,15 @@ export default function App() {
               <Route path={APP_PATHS.REFFERAL_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.MY_DASHBOARD} element={<CampaignMyDashboard />} />
 
-              <Route path={APP_PATHS.EARN} element={<Earns />} />
-              <Route path={APP_PATHS.EARN_POOLS} element={<EarnPoolExplorer />} />
-              <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
-              <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
-              <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
-              <Route path={APP_PATHS.EARN_VAULTS} element={<ExploreVaults />} />
-              <Route path={APP_PATHS.EARN_MY_VAULTS} element={<MyVaults />} />
+              <Route element={<EarnLayout />}>
+                <Route path={APP_PATHS.EARN} element={<Earns />} />
+                <Route path={APP_PATHS.EARN_POOLS} element={<EarnPoolExplorer />} />
+                <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
+                <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
+                <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
+                <Route path={APP_PATHS.EARN_VAULTS} element={<ExploreVaults />} />
+                <Route path={APP_PATHS.EARN_MY_VAULTS} element={<MyVaults />} />
+              </Route>
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />

@@ -31,7 +31,6 @@ import {
   RightColumnContainer,
 } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
-import EarnLayout from 'pages/Earns/components/EarnLayout'
 import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -83,7 +82,7 @@ const EarnLanding = () => {
   }, [handleOpenZapIn, searchParams, setSearchParams, farmingPools, highlightedPools])
 
   return (
-    <EarnLayout>
+    <>
       {zapInWidget}
       {zapMigrationWidget}
       {smartExitWidget}
@@ -213,7 +212,7 @@ const EarnLanding = () => {
           </ExplorePoolsButton>
         </GridSpan3>
       </PageGrid>
-    </EarnLayout>
+    </>
   )
 }
 

@@ -105,7 +105,7 @@ const EarnNavGroup = () => {
               {t`My Positions`}
             </Flex>
           </StyledNavLink>
-          <StyledNavLink data-testid="earn-positions-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
+          <StyledNavLink data-testid="earn-smart-exit-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <ListSmartExitIcon width={16} height={16} />
               <Flex>

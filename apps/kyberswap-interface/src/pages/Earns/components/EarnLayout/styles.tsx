@@ -14,8 +14,6 @@ export const EarnLayoutContainer = styled.div`
 export const EarnContentArea = styled.div`
   flex: 1;
   min-width: 0;
-  max-width: 1440px;
-  margin: 0 auto;
   padding: 32px 36px 60px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`

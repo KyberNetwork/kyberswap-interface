@@ -9,7 +9,7 @@ export const SidebarContainer = styled.div`
   padding: 24px 12px 12px;
   flex-shrink: 0;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     display: none;
   `}
 `
@@ -17,7 +17,7 @@ export const SidebarContainer = styled.div`
 export const MobileNavContainer = styled.div`
   display: none;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     display: flex;
     align-items: center;
     overflow-x: auto;

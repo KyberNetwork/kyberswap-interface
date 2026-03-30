@@ -4,16 +4,10 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 export const PoolPageWrapper = styled.div`
-  padding: 32px 24px 68px;
   width: 100%;
-  max-width: 1500px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 24px 16px 100px;
-  `}
 `
 
 export const LiquidityWidgetWrapper = styled.div`
