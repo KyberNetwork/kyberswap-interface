@@ -16,7 +16,6 @@ import {
   formatTooltipTimeLabel,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
-import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { MEDIA_WIDTHS } from 'theme'
 
 const TooltipCard = styled(Stack)`
@@ -34,21 +33,8 @@ const TooltipGrid = styled.div`
   grid-template-columns: auto auto;
 `
 
-const SummaryRow = styled(HStack)`
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-`
-
-const SummaryItem = styled(HStack)`
+const BaselineRow = styled(HStack)`
   align-items: baseline;
-  gap: 4px;
-`
-
-const HeadlineRow = styled(HStack)`
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px 8px;
 `
 
 const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
@@ -125,9 +111,13 @@ const AprHistoryTooltip = ({
   )
 }
 
-const AprHistoryChart = () => {
+type AprHistoryChartProps = {
+  chainId: number
+  poolAddress: string
+}
+
+const AprHistoryChart = ({ chainId, poolAddress }: AprHistoryChartProps) => {
   const theme = useTheme()
-  const { chainId, poolAddress } = usePoolDetailContext()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
 
@@ -167,29 +157,29 @@ const AprHistoryChart = () => {
     <Stack gap={16}>
       <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
         <Stack gap={12}>
-          <SummaryRow>
+          <HStack align="center" gap="12px 24px" wrap="wrap">
             {hasActiveApr && latestTotalApr !== undefined ? (
-              <SummaryItem>
+              <BaselineRow gap={4}>
                 <Text color={theme.subText} fontSize={14}>
                   APR
                 </Text>
                 <Text color={theme.text} fontSize={14} fontWeight={500}>
                   {formatAprValue(latestTotalApr)}
                 </Text>
-              </SummaryItem>
+              </BaselineRow>
             ) : null}
-            <SummaryItem>
+            <BaselineRow gap={4}>
               <Text color={theme.subText} fontSize={14}>
                 Max APR
               </Text>
               <Text color={theme.text} fontSize={14} fontWeight={500}>
                 {formatAprValue(intervalMaxApr)}
               </Text>
-            </SummaryItem>
-          </SummaryRow>
+            </BaselineRow>
+          </HStack>
 
           {hasActiveApr ? (
-            <HeadlineRow>
+            <BaselineRow gap={8} wrap="wrap">
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 Active APR
               </Text>
@@ -199,9 +189,9 @@ const AprHistoryChart = () => {
               <Text color={theme.subText} fontSize={14}>
                 (Earning Per Active TVL)
               </Text>
-            </HeadlineRow>
+            </BaselineRow>
           ) : (
-            <HeadlineRow>
+            <BaselineRow gap={8} wrap="wrap">
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 APR
               </Text>
@@ -211,7 +201,7 @@ const AprHistoryChart = () => {
               <Text color={theme.subText} fontSize={14}>
                 (Earning Per Total TVL)
               </Text>
-            </HeadlineRow>
+            </BaselineRow>
           )}
         </Stack>
 
@@ -252,10 +242,10 @@ const AprHistoryChart = () => {
                 content={({ active, payload }) => (
                   <AprHistoryTooltip active={active} point={payload?.[0]?.payload} window={window} />
                 )}
-                cursor={{ stroke: rgba(theme.subText, 0.24), strokeDasharray: '4 4' }}
+                cursor={{ stroke: rgba(theme.primary, 0.28), strokeDasharray: '4 4' }}
               />
               <Line
-                activeDot={{ r: 4, fill: theme.primary, stroke: theme.buttonBlack, strokeWidth: 2 }}
+                activeDot={{ fill: theme.primary, r: 4, stroke: theme.buttonBlack, strokeWidth: 2 }}
                 dataKey="totalApr"
                 dot={false}
                 stroke={theme.primary}

@@ -10,13 +10,16 @@ import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { CHART_WINDOW_OPTIONS, formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
-import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const PoolPriceChart = () => {
+type PoolPriceChartProps = {
+  chainId: number
+  poolAddress: string
+}
+
+const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
   const theme = useTheme()
-  const { chainId, poolAddress } = usePoolDetailContext()
 
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')

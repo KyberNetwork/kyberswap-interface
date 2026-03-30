@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import { HStack, Stack } from 'components/Stack'
 import useTab from 'hooks/useTab'
 import useTheme from 'hooks/useTheme'
-import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 
 import AnalyticsTab from './AnalyticsTab'
 import EarningsTab from './EarningsTab'
@@ -41,7 +40,6 @@ type PoolInfoTab = (typeof POOL_INFO_TABS)[number]['id']
 
 const PoolInformation = () => {
   const theme = useTheme()
-  const { pool } = usePoolDetailContext()
 
   const { activeTab, setActiveTab } = useTab<PoolInfoTab>({
     tabs: POOL_INFO_TABS.map(tab => tab.id),
@@ -66,7 +64,7 @@ const PoolInformation = () => {
         ))}
       </HStack>
 
-      {currentTab === 'information' && <InformationTab pool={pool} />}
+      {currentTab === 'information' && <InformationTab />}
       {currentTab === 'earnings' && <EarningsTab />}
       {currentTab === 'analytics' && <AnalyticsTab />}
     </Panel>

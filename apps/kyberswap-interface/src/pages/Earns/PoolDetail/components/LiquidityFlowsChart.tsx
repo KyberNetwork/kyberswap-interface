@@ -27,7 +27,6 @@ import {
   formatUsd,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
-import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { MEDIA_WIDTHS } from 'theme'
 
 const TooltipCard = styled(Stack)`
@@ -69,7 +68,9 @@ type LiquidityFlowPoint = {
 }
 
 type LiquidityFlowsChartProps = {
+  chainId: number
   onCurrentTvlChange?: (value?: number) => void
+  poolAddress: string
 }
 
 const LiquidityFlowsTooltip = ({
@@ -120,9 +121,8 @@ const LiquidityFlowsTooltip = ({
   )
 }
 
-const LiquidityFlowsChart = ({ onCurrentTvlChange }: LiquidityFlowsChartProps) => {
+const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: LiquidityFlowsChartProps) => {
   const theme = useTheme()
-  const { chainId, poolAddress } = usePoolDetailContext()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
 
@@ -151,9 +151,10 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange }: LiquidityFlowsChartProps) =
 
   const latestBucket = liquidityFlowData?.buckets.at(-1)
 
-  const addBarColor = rgba(theme.darkGreen, 0.8)
-  const removeBarColor = rgba(theme.red1, 0.6)
+  const addLiquidityColor = rgba(theme.darkGreen, 0.8)
+  const activeDotStroke = theme.buttonBlack
   const lpVolumeLineColor = theme.primary
+  const removeLiquidityColor = rgba(theme.red1, 0.6)
 
   useEffect(() => {
     onCurrentTvlChange?.(latestBucket?.tvlUsd)
@@ -229,45 +230,58 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange }: LiquidityFlowsChartProps) =
                       window={window}
                     />
                   )}
-                  cursor={{ fill: rgba(theme.white, 0.03) }}
+                  cursor={{ stroke: rgba(theme.primary, 0.28), strokeDasharray: '4 4' }}
                 />
                 <ReferenceLine stroke={rgba(theme.subText, 0.24)} y={0} yAxisId="flow" />
                 <Bar
                   dataKey="addUsd"
-                  fill={addBarColor}
+                  fill={addLiquidityColor}
                   radius={[4, 4, 0, 0]}
                   stackId="liquidity-flow"
                   yAxisId="flow"
                 />
                 <Bar
                   dataKey="removeUsd"
-                  fill={removeBarColor}
+                  fill={removeLiquidityColor}
                   radius={[4, 4, 0, 0]}
                   stackId="liquidity-flow"
                   yAxisId="flow"
                 />
                 <Line
+                  activeDot={{ fill: lpVolumeLineColor, r: 4, stroke: activeDotStroke, strokeWidth: 2 }}
                   dataKey="lpVolumeUsd"
                   dot={false}
                   stroke={lpVolumeLineColor}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   strokeWidth={2}
                   type="monotone"
                   yAxisId="flow"
                 />
-                <Line dataKey="tvlUsd" dot={false} stroke={theme.text} strokeWidth={2} type="monotone" yAxisId="tvl" />
+                <Line
+                  activeDot={{ fill: theme.text, r: 4, stroke: activeDotStroke, strokeWidth: 2 }}
+                  dataKey="tvlUsd"
+                  dot={false}
+                  stroke={theme.text}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  type="monotone"
+                  yAxisId="tvl"
+                />
               </ComposedChart>
             </ResponsiveContainer>
           </PoolChartWrapper>
 
           <HStack gap={16} justify="center" wrap="wrap">
             <HStack align="center" gap={8}>
-              <LegendBar $color={theme.darkGreen} />
+              <LegendBar $color={addLiquidityColor} />
               <Text color={theme.subText} fontSize={12}>
                 Add Liquidity
               </Text>
             </HStack>
             <HStack align="center" gap={8}>
-              <LegendBar $color={theme.red1} />
+              <LegendBar $color={removeLiquidityColor} />
               <Text color={theme.subText} fontSize={12}>
                 Remove Liquidity
               </Text>

@@ -207,6 +207,20 @@ export interface PoolLiquidityFlowsAnalytics {
   buckets: Array<PoolLiquidityFlowBucket>
 }
 
+export interface PoolEarningsBucket {
+  ts: number
+  lpFeeUsd: number
+  lmUsd: number
+  egUsd: number
+  bonusUsd: number
+  totalUsd: number
+}
+
+export interface PoolEarningsAnalytics {
+  window: PoolAnalyticsWindow
+  buckets: Array<PoolEarningsBucket>
+}
+
 export interface PositionQueryParams {
   wallet: string
   chainIds?: string
@@ -309,6 +323,13 @@ const zapEarnServiceApi = createApi({
       }),
       transformResponse: (response: { data: PoolAprHistoryAnalytics }) => response.data,
     }),
+    poolEarnings: builder.query<PoolEarningsAnalytics, PoolAnalyticsQueryParams>({
+      query: params => ({
+        url: `/v1/pools/earnings`,
+        params,
+      }),
+      transformResponse: (response: { data: PoolEarningsAnalytics }) => response.data,
+    }),
     poolPrice: builder.query<PoolPriceAnalytics, PoolAnalyticsQueryParams>({
       query: params => ({
         url: `/v1/pools/price`,
@@ -380,6 +401,7 @@ export const {
   useLazyPoolDetailQuery,
   useEstimatePositionAprQuery,
   usePoolAprHistoryQuery,
+  usePoolEarningsQuery,
   usePoolPriceQuery,
   usePoolLiquidityFlowsQuery,
   useUserPositionsQuery,
