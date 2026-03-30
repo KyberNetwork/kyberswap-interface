@@ -6,12 +6,9 @@ import useTheme from 'hooks/useTheme'
 import { formatApr, formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetail/Information/utils'
 import AprHistoryChart from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import TopMetricsStrip, { type TopMetricItem } from 'pages/Earns/PoolDetail/components/TopMetricsStrip'
+import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { type Pool } from 'pages/Earns/PoolDetail/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-
-type InformationTabProps = {
-  pool: Pool
-}
 
 const getRewardApr = (pool: Pool) => {
   const directRewardApr = (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + (pool.bonusApr || 0)
@@ -20,8 +17,9 @@ const getRewardApr = (pool: Pool) => {
   return (pool.poolStats?.kemEGApr24h || 0) + (pool.poolStats?.kemLMApr24h || 0) + (pool.poolStats?.bonusApr || 0)
 }
 
-const InformationTab = ({ pool }: InformationTabProps) => {
+const InformationTab = () => {
   const theme = useTheme()
+  const { chainId, pool, poolAddress } = usePoolDetailContext()
 
   const tokenPrices = useTokenPrices(
     pool.tokens.map(token => token.address),
@@ -58,7 +56,7 @@ const InformationTab = ({ pool }: InformationTabProps) => {
     <Stack gap={20}>
       <TopMetricsStrip items={topMetrics} />
 
-      <AprHistoryChart />
+      <AprHistoryChart chainId={chainId} poolAddress={poolAddress} />
     </Stack>
   )
 }

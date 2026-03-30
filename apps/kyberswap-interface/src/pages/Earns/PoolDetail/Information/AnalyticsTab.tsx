@@ -9,8 +9,7 @@ import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
 const AnalyticsTab = () => {
-  const { pool } = usePoolDetailContext()
-
+  const { chainId, pool, poolAddress } = usePoolDetailContext()
   const [currentTvl, setCurrentTvl] = useState<number | undefined>()
 
   const tokenPrices = useTokenPrices(
@@ -38,9 +37,9 @@ const AnalyticsTab = () => {
     <Stack gap={20}>
       <TopMetricsStrip items={metrics} split={true} />
 
-      <PoolPriceChart />
+      <PoolPriceChart chainId={chainId} poolAddress={poolAddress} />
 
-      <LiquidityFlowsChart onCurrentTvlChange={setCurrentTvl} />
+      <LiquidityFlowsChart chainId={chainId} onCurrentTvlChange={setCurrentTvl} poolAddress={poolAddress} />
     </Stack>
   )
 }

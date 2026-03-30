@@ -1,14 +1,17 @@
-import { Text } from 'rebass'
-
-import useTheme from 'hooks/useTheme'
+import { Stack } from 'components/Stack'
+import PoolEarningsChart from 'pages/Earns/PoolDetail/components/PoolEarningsChart'
+import PoolEarningsInsights from 'pages/Earns/PoolDetail/components/PoolEarningsInsights'
+import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 
 const EarningsTab = () => {
-  const theme = useTheme()
+  const { chainId, chainInfo, pool, poolAddress } = usePoolDetailContext()
 
   return (
-    <Text as="div" color={theme.subText} fontSize={14}>
-      Earnings content will be updated when the final data and design are ready.
-    </Text>
+    <Stack gap={20}>
+      <PoolEarningsChart chainId={chainId} poolAddress={poolAddress} />
+
+      <PoolEarningsInsights chainId={chainId} chainInfo={chainInfo} pool={pool} poolAddress={poolAddress} />
+    </Stack>
   )
 }
 
