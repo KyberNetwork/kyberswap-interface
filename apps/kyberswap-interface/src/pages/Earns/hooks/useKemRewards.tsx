@@ -135,8 +135,15 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   }, [account])
 
   const handleClaim = useCallback(async () => {
-    if (!account || !claimInfo || !claimInfo.dex || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
+    if (!EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) {
+      notify({
+        title: t`Error`,
+        type: NotificationType.ERROR,
+        summary: t`Farming is not supported on this chain`,
+      })
       return
+    }
+    if (!account || !claimInfo || !claimInfo.dex) return
 
     const positionManagerContract = getNftManagerContractAddress(claimInfo.dex, chainId)
     if (!positionManagerContract) return
