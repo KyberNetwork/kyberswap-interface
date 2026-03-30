@@ -9,6 +9,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import SegmentedControl from 'components/SegmentedControl'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
@@ -178,9 +179,9 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
   const volumeDownColor = rgba(theme.red, 0.6)
 
   const {
-    currentData: priceData,
+    data: priceData,
     isError,
-    isFetching,
+    isLoading,
   } = usePoolPriceQuery({
     chainId,
     address: poolAddress,
@@ -320,9 +321,28 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
       }
 
       const tooltipWidth = 220
-      const tooltipHeight = 250
-      const left = Math.min(Math.max(param.point.x + 16, 12), container.clientWidth - tooltipWidth - 12)
-      const top = Math.min(Math.max(param.point.y - tooltipHeight / 2, 12), chartHeight - tooltipHeight - 12)
+      const tooltipHeight = 200
+      const tooltipEdgePadding = 12
+      const tooltipLeftOffset = 12
+      const tooltipRightOffset = tooltipLeftOffset + 4 /* extra 4px for the cursor gap */
+      const tooltipTopOffset = 12
+      const chartInnerPaddingLeft = 24
+      const chartInnerPaddingRight = 12
+      const cursorLeft = param.point.x + chartInnerPaddingLeft
+      const frameWidth = container.clientWidth + chartInnerPaddingLeft + chartInnerPaddingRight
+      const isLeftHalf = param.point.x < container.clientWidth / 2
+
+      const left = Math.min(
+        Math.max(
+          isLeftHalf ? cursorLeft + tooltipRightOffset : cursorLeft - tooltipWidth - tooltipLeftOffset,
+          tooltipEdgePadding,
+        ),
+        frameWidth - tooltipWidth - tooltipEdgePadding,
+      )
+      const top = Math.min(
+        Math.max(param.point.y + tooltipTopOffset, tooltipEdgePadding),
+        chartHeight - tooltipHeight - tooltipEdgePadding,
+      )
 
       setTooltip({
         candle: hoveredCandle,
@@ -382,22 +402,26 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
             </RevertIconWrapper>
           </HeaderTitle>
 
-          <HStack align="baseline" gap={10} wrap="wrap">
-            <Text color={theme.text} fontSize={24} fontWeight={500}>
-              {formatPrice(lastCandle?.close)}
-            </Text>
+          {lastCandle && priceChange !== undefined ? (
+            <HStack align="baseline" gap={10} wrap="wrap">
+              <>
+                <Text color={theme.text} fontSize={24} fontWeight={500}>
+                  {formatPrice(lastCandle.close)}
+                </Text>
 
-            {priceChange !== undefined ? (
-              <HStack align="center" gap={6}>
-                <Text color={priceChangeColor} fontSize={16} fontWeight={500}>
-                  {formatSignedPercent(priceChange)}
-                </Text>
-                <Text color={priceChangeColor} fontSize={12}>
-                  {priceChange >= 0 ? '▲' : '▼'}
-                </Text>
-              </HStack>
-            ) : null}
-          </HStack>
+                <HStack align="center" gap={6}>
+                  <Text color={priceChangeColor} fontSize={16} fontWeight={500}>
+                    {formatSignedPercent(priceChange)}
+                  </Text>
+                  <Text color={priceChangeColor} fontSize={12}>
+                    {priceChange >= 0 ? '▲' : '▼'}
+                  </Text>
+                </HStack>
+              </>
+            </HStack>
+          ) : (
+            <Skeleton height={28.5} width={240} />
+          )}
         </Stack>
 
         <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />
@@ -409,7 +433,8 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
         height={chartHeight}
         isEmpty={!chartData.length}
         isError={isError}
-        isLoading={isFetching && !priceData}
+        isLoading={isLoading}
+        skeletonType="candle"
       >
         <ChartFrame $height={chartHeight}>
           {tooltip ? <PriceChartTooltip tooltip={tooltip} window={window} /> : null}

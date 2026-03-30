@@ -48,7 +48,7 @@ const PoolInformation = () => {
   const currentTab: PoolInfoTab = activeTab || 'information'
 
   return (
-    <Panel width="100%" gap={16}>
+    <Panel width="100%" gap={20}>
       <HStack align="center" gap={16} wrap="wrap">
         {POOL_INFO_TABS.map((tab, index) => (
           <HStack key={tab.id} align="center" gap={16}>
