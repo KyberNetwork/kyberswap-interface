@@ -124,6 +124,11 @@ const AprHistoryChart = ({ chainId, poolAddress }: AprHistoryChartProps) => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
 
+  const activeDotStroke = theme.buttonBlack
+  const aprLineColor = theme.primary
+  const cursorColor = rgba(theme.text, 0.12)
+  const gridColor = rgba(theme.text, 0.06)
+
   const {
     currentData: aprHistoryData,
     isError,
@@ -219,7 +224,7 @@ const AprHistoryChart = ({ chainId, poolAddress }: AprHistoryChartProps) => {
         <PoolChartWrapper $height={chartHeight}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 16, right: 0, bottom: 8, left: 0 }}>
-              <CartesianGrid stroke={rgba(theme.subText, 0.12)} strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid stroke={gridColor} strokeDasharray="3 3" vertical={false} />
               <XAxis
                 axisLine={false}
                 dataKey="ts"
@@ -242,13 +247,13 @@ const AprHistoryChart = ({ chainId, poolAddress }: AprHistoryChartProps) => {
                 content={({ active, payload }) => (
                   <AprHistoryTooltip active={active} point={payload?.[0]?.payload} window={window} />
                 )}
-                cursor={{ stroke: rgba(theme.primary, 0.28), strokeDasharray: '4 4' }}
+                cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
               />
               <Line
-                activeDot={{ fill: theme.primary, r: 4, stroke: theme.buttonBlack, strokeWidth: 2 }}
+                activeDot={{ fill: aprLineColor, r: 4, stroke: activeDotStroke, strokeWidth: 2 }}
                 dataKey="totalApr"
                 dot={false}
-                stroke={theme.primary}
+                stroke={aprLineColor}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
