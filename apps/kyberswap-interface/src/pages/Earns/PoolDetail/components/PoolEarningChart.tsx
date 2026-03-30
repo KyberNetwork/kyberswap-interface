@@ -183,6 +183,8 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
   const chartHeight = upToSmall ? 240 : 320
   const breakdownChartSize = upToSmall ? 160 : 180
   const resolvedWindow = window ?? internalWindow
+  const cursorColor = rgba(theme.text, 0.12)
+  const gridColor = rgba(theme.text, 0.06)
 
   const handleWindowChange = (nextWindow: PoolAnalyticsWindow) => {
     if (window === undefined) {
@@ -193,9 +195,9 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
   }
 
   const {
-    currentData: earningsData,
+    data: earningsData,
     isError,
-    isFetching,
+    isLoading,
   } = usePoolEarningsQuery({
     chainId,
     address: poolAddress,
@@ -248,10 +250,11 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
       <PoolChartState
         emptyMessage="No earnings data available for this pool."
         errorMessage="Unable to load pool earnings."
+        exclusiveType="earning-chart"
         height={chartHeight}
         isEmpty={!hasChartData}
         isError={isError}
-        isLoading={isFetching && !earningsData}
+        isLoading={isLoading}
       >
         <Stack gap={16}>
           <PoolChartWrapper $height={chartHeight}>
@@ -261,7 +264,7 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
                 data={chartData}
                 margin={{ top: 16, right: 0, bottom: 8, left: 0 }}
               >
-                <CartesianGrid stroke={rgba(theme.subText, 0.12)} vertical={false} />
+                <CartesianGrid stroke={gridColor} vertical={false} />
                 <XAxis
                   axisLine={false}
                   dataKey="ts"
@@ -289,14 +292,16 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
                       window={resolvedWindow}
                     />
                   )}
-                  cursor={{ stroke: rgba(theme.primary, 0.28), strokeDasharray: '4 4' }}
+                  cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
                 />
                 {breakdownConfig.map(item => (
                   <Bar
+                    animationBegin={0}
                     dataKey={item.key}
                     fill={item.color}
+                    isAnimationActive={true}
                     key={item.key}
-                    radius={item.key === 'bonusUsd' ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                    radius={0}
                     stackId="earnings"
                   >
                     <LabelList
@@ -327,12 +332,15 @@ const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: Pool
               <ResponsiveContainer height="100%" width="100%">
                 <PieChart>
                   <Pie
+                    animationBegin={0}
+                    animationDuration={800}
                     cornerRadius={4}
                     cx="50%"
                     cy="50%"
                     data={pieData}
                     dataKey="value"
                     innerRadius="60%"
+                    isAnimationActive={true}
                     outerRadius="100%"
                     paddingAngle={3}
                     stroke="transparent"

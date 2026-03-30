@@ -19,7 +19,8 @@ import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/compone
 import { MEDIA_WIDTHS } from 'theme'
 
 const TooltipCard = styled(Stack)`
-  gap: 8px;
+  gap: 12px;
+  min-width: 220px;
   padding: 12px 16px;
   border: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme }) => theme.tableHeader};
@@ -141,9 +142,9 @@ const AprHistoryChart = ({ chainId, poolAddress }: AprHistoryChartProps) => {
   const gridColor = rgba(theme.text, 0.06)
 
   const {
-    currentData: aprHistoryData,
+    data: aprHistoryData,
     isError,
-    isFetching,
+    isLoading,
   } = usePoolAprHistoryQuery({
     chainId,
     address: poolAddress,
@@ -222,7 +223,8 @@ const AprHistoryChart = ({ chainId, poolAddress }: AprHistoryChartProps) => {
         height={chartHeight}
         isEmpty={!chartData.length}
         isError={isError}
-        isLoading={isFetching && !aprHistoryData}
+        isLoading={isLoading}
+        skeletonType="line"
       >
         <PoolChartWrapper $height={chartHeight}>
           <ResponsiveContainer width="100%" height="100%">

@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import {
@@ -74,7 +74,6 @@ type TooltipContentProps = {
 
 type LiquidityFlowsChartProps = {
   chainId: number
-  onCurrentTvlChange?: (value?: number) => void
   poolAddress: string
 }
 
@@ -110,7 +109,7 @@ const LiquidityFlowsTooltip = ({
           {formatUsd(Math.abs(point.removeUsd))}
         </Text>
         <Text color={theme.subText} fontSize={12}>
-          Net Liquidity Flow
+          Net Flow
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
           {formatUsd(Math.abs(point.lpVolumeUsd))}
@@ -126,7 +125,7 @@ const LiquidityFlowsTooltip = ({
   )
 }
 
-const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: LiquidityFlowsChartProps) => {
+const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps) => {
   const theme = useTheme()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
@@ -143,9 +142,9 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
   const removeLiquidityColor = rgba(theme.red, 0.5)
 
   const {
-    currentData: liquidityFlowData,
+    data: liquidityFlowData,
     isError,
-    isFetching,
+    isLoading,
   } = usePoolLiquidityFlowsQuery({
     chainId,
     address: poolAddress,
@@ -162,14 +161,7 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
     [liquidityFlowData?.buckets],
   )
 
-  const latestBucket = liquidityFlowData?.buckets.at(-1)
-
-  useEffect(() => {
-    onCurrentTvlChange?.(latestBucket?.tvlUsd)
-  }, [latestBucket?.tvlUsd, onCurrentTvlChange])
-
   const handleSelectWindow = (value: PoolAnalyticsWindow) => {
-    onCurrentTvlChange?.(undefined)
     setWindow(value)
   }
 
@@ -186,10 +178,11 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
       <PoolChartState
         emptyMessage="No liquidity flow data available for this pool."
         errorMessage="Unable to load liquidity flows."
+        exclusiveType="liquidity-flow"
         height={chartHeight}
         isEmpty={!chartData.length}
         isError={isError}
-        isLoading={isFetching && !liquidityFlowData}
+        isLoading={isLoading}
       >
         <Stack gap={12}>
           <PoolChartWrapper $height={chartHeight}>
@@ -297,7 +290,7 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
             <HStack align="center" gap={8}>
               <LegendLine $color={theme.primary} />
               <Text color={theme.subText} fontSize={12}>
-                Net Liquidity Flow
+                Net Flow
               </Text>
             </HStack>
             <HStack align="center" gap={8}>

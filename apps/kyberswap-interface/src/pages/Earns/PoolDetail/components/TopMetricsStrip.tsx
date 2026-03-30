@@ -23,7 +23,7 @@ const getGridColumns = (columns: number) => `repeat(${columns}, minmax(0, 1fr))`
 const MetricsGrid = styled.div<MetricsGridProps>`
   display: grid;
   grid-template-columns: ${({ $columns }) => getGridColumns($columns)};
-  gap: 16px;
+  gap: 12px;
 
   ${({ $split, theme }) =>
     !$split &&

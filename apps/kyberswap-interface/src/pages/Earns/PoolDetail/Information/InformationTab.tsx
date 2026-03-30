@@ -46,7 +46,7 @@ const InformationTab = () => {
 
   return (
     <Stack gap={20}>
-      <TopMetricsStrip items={topMetrics} />
+      <TopMetricsStrip items={topMetrics} split={true} />
 
       <AprHistoryChart chainId={chainId} poolAddress={poolAddress} />
     </Stack>
