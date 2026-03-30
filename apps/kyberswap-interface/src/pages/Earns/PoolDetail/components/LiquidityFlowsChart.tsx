@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import {
@@ -70,8 +70,6 @@ type LiquidityFlowPoint = {
 
 type LiquidityFlowsChartProps = {
   onCurrentTvlChange?: (value?: number) => void
-  onSelectWindow: (value: PoolAnalyticsWindow) => void
-  window: PoolAnalyticsWindow
 }
 
 const LiquidityFlowsTooltip = ({
@@ -106,7 +104,7 @@ const LiquidityFlowsTooltip = ({
           {formatUsd(Math.abs(point.removeUsd))}
         </Text>
         <Text color={theme.subText} fontSize={12}>
-          LP Volume
+          Net Liquidity Flow
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
           {formatUsd(Math.abs(point.lpVolumeUsd))}
@@ -122,15 +120,17 @@ const LiquidityFlowsTooltip = ({
   )
 }
 
-const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: LiquidityFlowsChartProps) => {
+const LiquidityFlowsChart = ({ onCurrentTvlChange }: LiquidityFlowsChartProps) => {
   const theme = useTheme()
   const { chainId, poolAddress } = usePoolDetailContext()
+
+  const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
 
   const {
-    currentData: analytics,
+    currentData: liquidityFlowData,
     isError,
     isFetching,
   } = usePoolLiquidityFlowsQuery({
@@ -141,23 +141,28 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: Liq
 
   const chartData = useMemo<LiquidityFlowPoint[]>(
     () =>
-      (analytics?.buckets ?? []).map(bucket => ({
+      (liquidityFlowData?.buckets ?? []).map(bucket => ({
         ...bucket,
         lpVolumeUsd: bucket.addUsd - bucket.removeUsd,
         removeUsd: -bucket.removeUsd,
       })),
-    [analytics?.buckets],
+    [liquidityFlowData?.buckets],
   )
 
-  const latestBucket = analytics?.buckets.at(-1)
+  const latestBucket = liquidityFlowData?.buckets.at(-1)
+
+  const addBarColor = rgba(theme.darkGreen, 0.8)
+  const removeBarColor = rgba(theme.red1, 0.6)
+  const lpVolumeLineColor = theme.primary
 
   useEffect(() => {
     onCurrentTvlChange?.(latestBucket?.tvlUsd)
   }, [latestBucket?.tvlUsd, onCurrentTvlChange])
 
-  const addBarColor = rgba(theme.darkGreen, 0.8)
-  const lpVolumeLineColor = theme.primary
-  const removeBarColor = rgba(theme.red1, 0.6)
+  const handleSelectWindow = (value: PoolAnalyticsWindow) => {
+    onCurrentTvlChange?.(undefined)
+    setWindow(value)
+  }
 
   return (
     <Stack gap={16}>
@@ -166,7 +171,7 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: Liq
           Liquidity Flows
         </Text>
 
-        <SegmentedControl onChange={onSelectWindow} options={CHART_WINDOW_OPTIONS} value={window} />
+        <SegmentedControl onChange={handleSelectWindow} options={CHART_WINDOW_OPTIONS} value={window} />
       </HStack>
 
       <PoolChartState
@@ -175,7 +180,7 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: Liq
         height={chartHeight}
         isEmpty={!chartData.length}
         isError={isError}
-        isLoading={isFetching && !analytics}
+        isLoading={isFetching && !liquidityFlowData}
       >
         <Stack gap={12}>
           <PoolChartWrapper $height={chartHeight}>
@@ -270,7 +275,7 @@ const LiquidityFlowsChart = ({ onCurrentTvlChange, onSelectWindow, window }: Liq
             <HStack align="center" gap={8}>
               <LegendLine $color={theme.primary} />
               <Text color={theme.subText} fontSize={12}>
-                LP Volume
+                Net Liquidity Flow
               </Text>
             </HStack>
             <HStack align="center" gap={8}>
