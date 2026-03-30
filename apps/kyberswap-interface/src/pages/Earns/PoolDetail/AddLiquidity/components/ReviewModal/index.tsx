@@ -12,6 +12,7 @@ import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapS
 import { getStatusErrorMessage } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
+import { TransactionHistory } from 'state/transactions/type'
 import { CloseIcon } from 'theme/components'
 
 import EstimateInfo from './EstimateInfo'
@@ -50,7 +51,7 @@ type AddLiquidityReviewModalProps = {
   onDismiss?: () => void
   onUseSuggestedSlippage?: (suggestedSlippage?: number) => void
   onAddTrackedTxHash?: (hash: string) => void
-  onAddTransactionWithType?: (transaction: any) => void
+  onAddTransactionWithType?: (transaction: TransactionHistory) => void
 }
 
 const getStatusDialogType = (statusPhase: ReviewTransactionStatusPhase) => {

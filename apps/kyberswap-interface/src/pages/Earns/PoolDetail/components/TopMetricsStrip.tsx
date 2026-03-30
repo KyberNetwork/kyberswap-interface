@@ -66,7 +66,7 @@ const EllipsisText = styled(Text)`
 const MetricValue = ({ value }: { value: ReactNode }) => {
   if (typeof value === 'string' || typeof value === 'number') {
     return (
-      <EllipsisText color="text" fontWeight={500}>
+      <EllipsisText fontWeight={500} color="text">
         {value}
       </EllipsisText>
     )
@@ -80,7 +80,7 @@ const TopMetricsStrip = ({ items, split = false }: { items: TopMetricItem[]; spl
     <MetricsGrid $columns={items.length} $split={split}>
       {items.map(metric => (
         <MetricCard $split={split} key={metric.label}>
-          <EllipsisText color="subText" fontSize={14}>
+          <EllipsisText fontSize={14} color="subText">
             {metric.label}
           </EllipsisText>
           <MetricValue value={metric.value} />

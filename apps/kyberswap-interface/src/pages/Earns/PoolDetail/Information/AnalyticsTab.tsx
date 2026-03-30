@@ -14,16 +14,9 @@ const AnalyticsTab = () => {
 
   const tokenPrices = useTokenPrices(
     pool.tokens.map(token => token.address),
-    pool.chainId,
+    chainId,
   )
-
-  let totalTvl = pool.tvl ?? pool.poolStats?.tvl
-
-  if (totalTvl === undefined && pool.reserveUsd !== undefined) {
-    const parsedReserveUsd = Number(pool.reserveUsd)
-
-    totalTvl = Number.isNaN(parsedReserveUsd) ? undefined : parsedReserveUsd
-  }
+  const totalTvl = pool.poolStats?.tvl
 
   const liquidityUsdValue = getPoolLiquidityUsd(pool, tokenPrices)
 

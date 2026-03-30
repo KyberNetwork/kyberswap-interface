@@ -1,10 +1,9 @@
 import { formatAprNumber, formatUnits } from '@kyber/utils/number'
 import { getPositionAmounts } from '@kyber/utils/uniswapv3'
 import dayjs from 'dayjs'
-import { type PoolAnalyticsWindow } from 'services/zapEarn'
+import { type PoolAnalyticsWindow, type PoolDetail } from 'services/zapEarn'
 
 import { type SegmentedControlOption } from 'components/SegmentedControl'
-import { type Pool } from 'pages/Earns/PoolDetail/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const CHART_WINDOW_OPTIONS: readonly SegmentedControlOption<PoolAnalyticsWindow>[] = [
@@ -25,7 +24,7 @@ const getCurrentTickRange = (tick: number, tickSpacing: number) => {
   }
 }
 
-export const getPoolLiquidityUsd = (pool: Pool, tokenPrices: Record<string, number>) => {
+export const getPoolLiquidityUsd = (pool: PoolDetail, tokenPrices: Record<string, number>) => {
   const token0 = pool.tokens[0]
   const token1 = pool.tokens[1]
   const positionInfo = pool.positionInfo

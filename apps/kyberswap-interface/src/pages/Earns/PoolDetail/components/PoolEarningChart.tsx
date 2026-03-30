@@ -32,7 +32,6 @@ import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/compone
 import { MEDIA_WIDTHS } from 'theme'
 
 type EarningsSegmentKey = 'lpFeeUsd' | 'lmUsd' | 'egUsd' | 'bonusUsd'
-type EarningsChartValueKey = 'chartLpFeeUsd' | 'chartLmUsd' | 'chartEgUsd' | 'chartBonusUsd'
 
 type EarningsBreakdownConfigItem = {
   color: string
@@ -47,30 +46,13 @@ type EarningsBreakdownItem = {
   value: number
 }
 
-type EarningsChartPoint = PoolEarningsBucket & {
-  chartBonusUsd: number
-  chartEgUsd: number
-  chartLmUsd: number
-  chartLpFeeUsd: number
-  chartTotalUsd: number
-  showTotalLabel: boolean
-  topSegmentKey: EarningsSegmentKey | null
-}
+type EarningsChartPoint = PoolEarningsBucket & { showTotalLabel: boolean; topSegmentKey: EarningsSegmentKey | null }
 
-type EarningsPieDatum = EarningsBreakdownItem & {
-  chartValue: number
-}
-
-type PoolEarningsChartProps = {
+type PoolEarningChartProps = {
   chainId: number
+  onWindowChange?: (window: PoolAnalyticsWindow) => void
   poolAddress: string
-}
-
-const CHART_VALUE_KEY_MAP: Record<EarningsSegmentKey, EarningsChartValueKey> = {
-  lpFeeUsd: 'chartLpFeeUsd',
-  lmUsd: 'chartLmUsd',
-  egUsd: 'chartEgUsd',
-  bonusUsd: 'chartBonusUsd',
+  window?: PoolAnalyticsWindow
 }
 
 const TooltipCard = styled(Stack)`
@@ -105,14 +87,16 @@ const getVisibleLabelStep = (dataLength: number, upToSmall: boolean, window: Poo
   return upToSmall ? 6 : 4
 }
 
-const getFallbackChartValue = (seed: string) => {
-  let hash = 0
+const getTopSegmentKey = (bucket: PoolEarningsBucket, breakdownConfig: EarningsBreakdownConfigItem[]) => {
+  for (let i = breakdownConfig.length - 1; i >= 0; i--) {
+    const item = breakdownConfig[i]
 
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash * 31 + seed.charCodeAt(i)) % 91
+    if (item && bucket[item.key] > 0) {
+      return item.key
+    }
   }
 
-  return 10 + hash
+  return bucket.totalUsd > 0 ? breakdownConfig[0]?.key || null : null
 }
 
 const TotalBarLabel = ({
@@ -141,6 +125,14 @@ const TotalBarLabel = ({
   )
 }
 
+type TotalBarLabelContentProps = {
+  payload?: EarningsChartPoint
+  value?: number
+  width?: number
+  x?: number
+  y?: number
+}
+
 const EarningsTooltip = ({
   active,
   breakdownItems,
@@ -166,7 +158,7 @@ const EarningsTooltip = ({
           Total Earn
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatUsd(point.chartTotalUsd)}
+          {formatUsd(point.totalUsd)}
         </Text>
         {breakdownItems.map(item => (
           <Fragment key={item.key}>
@@ -174,7 +166,7 @@ const EarningsTooltip = ({
               {item.label}
             </Text>
             <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-              {formatUsd(point[CHART_VALUE_KEY_MAP[item.key]])}
+              {formatUsd(point[item.key])}
             </Text>
           </Fragment>
         ))}
@@ -183,13 +175,22 @@ const EarningsTooltip = ({
   )
 }
 
-const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => {
+const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: PoolEarningChartProps) => {
   const theme = useTheme()
-  const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
+  const [internalWindow, setInternalWindow] = useState<PoolAnalyticsWindow>('7d')
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 240 : 320
   const breakdownChartSize = upToSmall ? 160 : 180
+  const resolvedWindow = window ?? internalWindow
+
+  const handleWindowChange = (nextWindow: PoolAnalyticsWindow) => {
+    if (window === undefined) {
+      setInternalWindow(nextWindow)
+    }
+
+    onWindowChange?.(nextWindow)
+  }
 
   const {
     currentData: earningsData,
@@ -198,7 +199,7 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
   } = usePoolEarningsQuery({
     chainId,
     address: poolAddress,
-    window,
+    window: resolvedWindow,
   })
 
   const breakdownConfig = useMemo<EarningsBreakdownConfigItem[]>(
@@ -213,66 +214,25 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
 
   const chartData = useMemo<EarningsChartPoint[]>(() => {
     const buckets = earningsData?.buckets ?? []
-    const visibleLabelStep = getVisibleLabelStep(buckets.length, upToSmall, window)
+    const visibleLabelStep = getVisibleLabelStep(buckets.length, upToSmall, resolvedWindow)
 
-    return buckets.map((bucket, index) => {
-      let topSegmentKey: EarningsSegmentKey | null = null
-
-      for (let i = breakdownConfig.length - 1; i >= 0; i--) {
-        const item = breakdownConfig[i]
-
-        if (item && bucket[item.key] > 0) {
-          topSegmentKey = item.key
-          break
-        }
-      }
-
-      if (!topSegmentKey && bucket.totalUsd > 0) {
-        topSegmentKey = breakdownConfig[0]?.key || null
-      }
-
-      const chartValues = breakdownConfig.reduce(
-        (acc, item) => {
-          const chartKey = CHART_VALUE_KEY_MAP[item.key]
-          const actualValue = bucket[item.key]
-
-          acc[chartKey] =
-            actualValue > 0 ? actualValue : getFallbackChartValue(`${poolAddress}-${window}-${bucket.ts}-${item.key}`)
-
-          return acc
-        },
-        {
-          chartBonusUsd: 0,
-          chartEgUsd: 0,
-          chartLmUsd: 0,
-          chartLpFeeUsd: 0,
-        } as Record<EarningsChartValueKey, number>,
-      )
-
-      return {
-        ...bucket,
-        ...chartValues,
-        chartTotalUsd:
-          chartValues.chartLpFeeUsd + chartValues.chartLmUsd + chartValues.chartEgUsd + chartValues.chartBonusUsd,
-        showTotalLabel: index % visibleLabelStep === 0 || index === buckets.length - 1,
-        topSegmentKey,
-      }
-    })
-  }, [breakdownConfig, earningsData?.buckets, poolAddress, upToSmall, window])
+    return buckets.map((bucket, index) => ({
+      ...bucket,
+      showTotalLabel: index % visibleLabelStep === 0 || index === buckets.length - 1,
+      topSegmentKey: getTopSegmentKey(bucket, breakdownConfig),
+    }))
+  }, [breakdownConfig, earningsData?.buckets, resolvedWindow, upToSmall])
 
   const breakdownItems = useMemo<EarningsBreakdownItem[]>(() => {
     return breakdownConfig.map(item => ({
       ...item,
-      value: chartData.reduce((sum, point) => sum + point[CHART_VALUE_KEY_MAP[item.key]], 0),
+      value: chartData.reduce((sum, point) => sum + point[item.key], 0),
     }))
   }, [breakdownConfig, chartData])
 
-  const pieData = useMemo<EarningsPieDatum[]>(
-    () => breakdownItems.map(item => ({ ...item, chartValue: item.value })),
-    [breakdownItems],
-  )
+  const pieData = useMemo(() => breakdownItems.filter(item => item.value > 0), [breakdownItems])
 
-  const totalEarned = chartData.reduce((sum, point) => sum + point.chartTotalUsd, 0)
+  const totalEarned = chartData.reduce((sum, point) => sum + point.totalUsd, 0)
   const hasChartData = chartData.length > 0
 
   return (
@@ -282,7 +242,7 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
           Earning
         </Text>
 
-        <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />
+        <SegmentedControl onChange={handleWindowChange} options={CHART_WINDOW_OPTIONS} value={resolvedWindow} />
       </HStack>
 
       <PoolChartState
@@ -295,11 +255,11 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
       >
         <Stack gap={16}>
           <PoolChartWrapper $height={chartHeight}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer height="100%" width="100%">
               <ComposedChart
-                barCategoryGap={upToSmall ? '24%' : '18%'}
                 data={chartData}
                 margin={{ top: 16, right: 0, bottom: 8, left: 0 }}
+                barCategoryGap={upToSmall ? '24%' : '18%'}
               >
                 <CartesianGrid stroke={rgba(theme.subText, 0.12)} vertical={false} />
                 <XAxis
@@ -308,7 +268,7 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
                   minTickGap={24}
                   stroke={theme.subText}
                   tick={{ fill: theme.subText, fontSize: 12 }}
-                  tickFormatter={(value: number) => formatAxisTimeLabel(value, window)}
+                  tickFormatter={(value: number) => formatAxisTimeLabel(value, resolvedWindow)}
                   tickLine={false}
                 />
                 <YAxis
@@ -326,26 +286,28 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
                       active={active}
                       breakdownItems={breakdownItems}
                       point={payload?.[0]?.payload as EarningsChartPoint | undefined}
-                      window={window}
+                      window={resolvedWindow}
                     />
                   )}
                   cursor={{ stroke: rgba(theme.primary, 0.28), strokeDasharray: '4 4' }}
                 />
                 {breakdownConfig.map(item => (
                   <Bar
-                    dataKey={CHART_VALUE_KEY_MAP[item.key]}
+                    dataKey={item.key}
                     fill={item.color}
                     key={item.key}
                     radius={item.key === 'bonusUsd' ? [4, 4, 0, 0] : [0, 0, 0, 0]}
                     stackId="earnings"
                   >
                     <LabelList
-                      content={(props: any) =>
-                        props.payload?.topSegmentKey === item.key ? (
-                          <TotalBarLabel {...props} fill={theme.subText} />
+                      content={props => {
+                        const labelProps = props as TotalBarLabelContentProps
+
+                        return labelProps.payload?.topSegmentKey === item.key ? (
+                          <TotalBarLabel {...labelProps} fill={theme.subText} />
                         ) : null
-                      }
-                      dataKey="chartTotalUsd"
+                      }}
+                      dataKey="totalUsd"
                     />
                   </Bar>
                 ))}
@@ -358,22 +320,22 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
             direction={upToSmall ? 'column' : 'row'}
             gap={upToSmall ? 12 : 20}
             justify="center"
-            sx={{ margin: '0 auto' }}
             width={upToSmall ? '100%' : 'fit-content'}
+            sx={{ margin: '0 auto' }}
           >
-            <Stack height={breakdownChartSize} position="relative" sx={{ flexShrink: 0 }} width={breakdownChartSize}>
-              <ResponsiveContainer width="100%" height="100%">
+            <Stack height={breakdownChartSize} position="relative" width={breakdownChartSize} sx={{ flexShrink: 0 }}>
+              <ResponsiveContainer height="100%" width="100%">
                 <PieChart>
                   <Pie
+                    data={pieData}
+                    dataKey="value"
                     cx="50%"
                     cy="50%"
-                    data={pieData}
-                    dataKey="chartValue"
-                    cornerRadius={4}
                     innerRadius="60%"
                     outerRadius="100%"
                     paddingAngle={3}
                     stroke="transparent"
+                    cornerRadius={4}
                   >
                     {pieData.map(item => (
                       <Cell fill={item.color} key={item.key} />
@@ -384,10 +346,10 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
 
               <Stack
                 align="center"
-                justify="center"
                 position="absolute"
-                sx={{ inset: 0, pointerEvents: 'none' }}
                 textAlign="center"
+                justify="center"
+                sx={{ inset: 0, pointerEvents: 'none' }}
               >
                 <Text color={theme.subText} fontSize={14}>
                   Total Earn
@@ -420,4 +382,4 @@ const PoolEarningsChart = ({ chainId, poolAddress }: PoolEarningsChartProps) => 
   )
 }
 
-export default PoolEarningsChart
+export default PoolEarningChart

@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, createContext, useContext, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Box } from 'rebass'
-import { PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
+import { PoolDetail, PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
@@ -10,8 +10,8 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import PoolDetailPageSkeleton from 'pages/Earns/PoolDetail/components/PoolDetailPageSkeleton'
 import { NoteCard, PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
-import { Pool } from 'pages/Earns/PoolDetail/types'
 import { EARN_DEXES, EarnDexInfo, Exchange } from 'pages/Earns/constants'
+import { EarnPool } from 'pages/Earns/types'
 
 const TestSkeletonButton = styled(ButtonOutlined)`
   position: fixed;
@@ -21,7 +21,7 @@ const TestSkeletonButton = styled(ButtonOutlined)`
 `
 
 interface PoolDetailContextValue {
-  pool: Pool
+  pool: PoolDetail
   poolAddress: string
   chainId: number
   exchange: Exchange
@@ -34,7 +34,7 @@ interface PoolDetailContextValue {
 
 const PoolDetailContext = createContext<PoolDetailContextValue | null>(null)
 
-const getExplorerPoolMatch = (pools: Pool[] | undefined, poolAddress: string, exchange?: string) => {
+const getExplorerPoolMatch = (pools: EarnPool[] | undefined, poolAddress: string, exchange?: string) => {
   if (!pools?.length || !poolAddress) return undefined
 
   const normalizedAddress = poolAddress.toLowerCase()
@@ -48,7 +48,7 @@ const getExplorerPoolMatch = (pools: Pool[] | undefined, poolAddress: string, ex
   )
 }
 
-const mergePoolTokens = (poolDetail: Pool, explorerPool?: Pool) => {
+const mergePoolTokens = (poolDetail: PoolDetail, explorerPool?: EarnPool) => {
   const explorerTokens = explorerPool?.tokens || []
 
   return poolDetail.tokens.map((detailToken, index) => {
@@ -62,10 +62,7 @@ const mergePoolTokens = (poolDetail: Pool, explorerPool?: Pool) => {
       address: explorerToken.address || detailToken.address,
       symbol: explorerToken.symbol || detailToken.symbol,
       decimals: explorerToken.decimals ?? detailToken.decimals,
-      name: explorerToken.name || detailToken.name,
       logoURI: explorerToken.logoURI || detailToken.logoURI,
-      weight: explorerToken.weight ?? detailToken.weight,
-      swappable: explorerToken.swappable ?? detailToken.swappable,
     }
   })
 }
@@ -95,21 +92,19 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   )
 
   const explorerPool = useMemo(
-    () => getExplorerPoolMatch(explorerData?.data?.pools as Pool[] | undefined, poolAddress, exchange),
+    () => getExplorerPoolMatch(explorerData?.data?.pools as EarnPool[] | undefined, poolAddress, exchange),
     [exchange, explorerData?.data?.pools, poolAddress],
   )
 
-  const pool = useMemo<Pool | undefined>(() => {
+  const pool = useMemo<PoolDetail | undefined>(() => {
     if (!poolDetail) return undefined
 
     return {
-      ...explorerPool,
       ...poolDetail,
-      exchange: explorerPool?.exchange || poolDetail.exchange || exchange,
-      chainId: explorerPool?.chainId || explorerPool?.chain?.id || poolChainId,
+      exchange: poolDetail.exchange || exchange,
       tokens: mergePoolTokens(poolDetail, explorerPool),
     }
-  }, [exchange, explorerPool, poolChainId, poolDetail])
+  }, [exchange, explorerPool, poolDetail])
 
   const isPoolLoading =
     Boolean(poolChainId && poolAddress) && (isPoolDetailLoading || (Boolean(exchange) && isExplorerLoading))
@@ -144,11 +139,11 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
     )
   }
 
-  const chainId = pool.chainId || pool.chain?.id || poolChainId
+  const chainId = poolChainId
   const exchangeValue = pool.exchange as Exchange
   const primaryToken = pool.tokens[0]
   const secondaryToken = pool.tokens[1]
-  const feeTier = typeof pool.swapFee === 'number' ? pool.swapFee : Number(pool.feeTier || 0)
+  const feeTier = Number(pool.swapFee || 0)
 
   const value = {
     pool,

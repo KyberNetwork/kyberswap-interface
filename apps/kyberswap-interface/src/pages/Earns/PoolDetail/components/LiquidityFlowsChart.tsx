@@ -67,6 +67,11 @@ type LiquidityFlowPoint = {
   tvlUsd: number
 }
 
+type TooltipContentProps = {
+  active?: boolean
+  payload?: Array<{ payload?: LiquidityFlowPoint }>
+}
+
 type LiquidityFlowsChartProps = {
   chainId: number
   onCurrentTvlChange?: (value?: number) => void
@@ -226,7 +231,7 @@ const LiquidityFlowsChart = ({ chainId, onCurrentTvlChange, poolAddress }: Liqui
                   yAxisId="tvl"
                 />
                 <Tooltip
-                  content={(props: any) => (
+                  content={(props: TooltipContentProps) => (
                     <LiquidityFlowsTooltip
                       active={props.active}
                       point={props.payload?.[0]?.payload as LiquidityFlowPoint | undefined}

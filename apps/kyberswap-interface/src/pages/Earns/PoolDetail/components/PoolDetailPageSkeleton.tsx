@@ -22,7 +22,7 @@ const PoolInformationSkeleton = () => {
   const theme = useTheme()
 
   return (
-    <Stack width="100%" gap={24} p={16} borderRadius={12} background={theme.background}>
+    <Stack width="100%" gap={20} p={16} borderRadius={12} background={theme.background}>
       <Stack gap={12}>
         <HStack gap={24} wrap="wrap">
           <PositionSkeleton width={96} height={18} />
@@ -40,10 +40,10 @@ const PoolInformationSkeleton = () => {
         </HStack>
       </Stack>
 
-      <Stack gap={20}>
-        <Stack gap={16}>
+      <Stack gap={16}>
+        <Stack gap={12}>
           <PositionSkeleton width={320} height={16} />
-          <PositionSkeleton width={180} height={16} />
+          <PositionSkeleton width={180} height={18} />
         </Stack>
 
         <PoolChartSkeleton />

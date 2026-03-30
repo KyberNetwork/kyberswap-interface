@@ -166,7 +166,7 @@ type SlippageControlProps = {
     slippage?: number
     suggestedSlippage?: number
   }
-  onTrackEvent?: (eventName: string, data?: Record<string, any>) => void
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onSlippageChange?: (value: number) => void
 }
 

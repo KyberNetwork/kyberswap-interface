@@ -7,15 +7,7 @@ import { formatApr, formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetai
 import AprHistoryChart from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import TopMetricsStrip, { type TopMetricItem } from 'pages/Earns/PoolDetail/components/TopMetricsStrip'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import { type Pool } from 'pages/Earns/PoolDetail/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-
-const getRewardApr = (pool: Pool) => {
-  const directRewardApr = (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + (pool.bonusApr || 0)
-  if (directRewardApr) return directRewardApr
-
-  return (pool.poolStats?.kemEGApr24h || 0) + (pool.poolStats?.kemLMApr24h || 0) + (pool.poolStats?.bonusApr || 0)
-}
 
 const InformationTab = () => {
   const theme = useTheme()
@@ -23,24 +15,24 @@ const InformationTab = () => {
 
   const tokenPrices = useTokenPrices(
     pool.tokens.map(token => token.address),
-    pool.chainId,
+    chainId,
   )
 
   const poolStats = pool.poolStats
-  const rewardApr = getRewardApr(pool)
+  const rewardApr = (poolStats?.kemEGApr ?? 0) + (poolStats?.kemLMApr ?? 0) + (poolStats?.bonusApr ?? 0)
   const liquidityUsdValue = getPoolLiquidityUsd(pool, tokenPrices)
 
-  const tvlValue = formatUsd(pool.tvl ?? poolStats?.tvl ?? Number(pool.reserveUsd))
-  const volumeValue = formatUsd(pool.volume ?? poolStats?.volume24h)
-  const feesValue = formatUsd(pool.earnFee ?? poolStats?.fees24h)
+  const tvlValue = formatUsd(poolStats?.tvl)
+  const volumeValue = formatUsd(poolStats?.volume24h)
+  const feesValue = formatUsd(poolStats?.fees24h)
   const liquidityValue = formatUsd(liquidityUsdValue)
 
   const rewardsValue = (
     <HStack align="center" gap={4}>
       <Text as="span" color={theme.text} fontWeight={500}>
-        {pool.egUsd ? formatUsd(pool.egUsd) : formatApr(rewardApr)}
+        {formatApr(rewardApr)}
       </Text>
-      {pool.programs?.length || rewardApr ? <BagIcon height={20} width={20} /> : null}
+      {rewardApr > 0 ? <BagIcon height={20} width={20} /> : null}
     </HStack>
   )
 
