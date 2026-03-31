@@ -6,6 +6,10 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import { useEffect, useMemo, useState } from 'react'
 import { GetZapInRouteApiArgs, prepareGetZapInRouteRequest, useGetZapInRouteQuery } from 'services/zap'
 
+import {
+  getDefaultRangePreset,
+  getRangePresetOptions,
+} from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection/utils'
 import { useInitialTokensIn } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useInitialTokensIn'
 import { useSlippageManager } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useSlippageManager'
 import { useTickPrice } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useTickPrice'
@@ -140,6 +144,16 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
     return getPoolPrice({ pool, revertPrice })
   }, [pool, revertPrice])
 
+  const defaultRangeOptions = useMemo(() => {
+    if (!pool || !isUniV3) return []
+
+    return getRangePresetOptions({
+      pool,
+      poolPrice,
+      revertPrice,
+    })
+  }, [isUniV3, pool, poolPrice, revertPrice])
+
   const slippageState = useSlippageManager({
     chainId,
     pool,
@@ -150,6 +164,29 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
     setTickLower(null)
     setTickUpper(null)
   }, [pool?.address, setTickLower, setTickUpper])
+
+  useEffect(() => {
+    if (!isUniV3 || !pool) return
+    if (tickPriceState.tickLower !== null && tickPriceState.tickUpper !== null) return
+    if (!defaultRangeOptions.length) return
+
+    const defaultRangePreset = getDefaultRangePreset(pool.category)
+    const defaultRange =
+      defaultRangeOptions.find(option => option.range === defaultRangePreset) || defaultRangeOptions[0] || null
+
+    if (!defaultRange) return
+
+    setTickLower(defaultRange.tickLower)
+    setTickUpper(defaultRange.tickUpper)
+  }, [
+    defaultRangeOptions,
+    isUniV3,
+    pool,
+    setTickLower,
+    setTickUpper,
+    tickPriceState.tickLower,
+    tickPriceState.tickUpper,
+  ])
 
   const validationErrors = useMemo(
     () =>
