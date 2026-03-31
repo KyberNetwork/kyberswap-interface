@@ -1,4 +1,4 @@
-import { Pool, TxStatus } from '@kyber/schema'
+import { NETWORKS_INFO, Pool, TxStatus, ZapRouteDetail } from '@kyber/schema'
 import { friendlyError } from '@kyber/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -7,7 +7,7 @@ import { BuildZapInData } from 'services/zap'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAddLiquidityRuntimeContext } from 'pages/Earns/PoolDetail/AddLiquidity/context'
 import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
-import { getParsedTokensIn } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { getOutputTokenItems, getParsedTokensIn } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { EARN_DEXES } from 'pages/Earns/constants'
 import { submitTransaction } from 'pages/Earns/utils'
@@ -18,10 +18,12 @@ type UseReviewTransactionProps = {
   isOpen: boolean
   buildData?: BuildZapInData | null
   pool: Pool
+  route: ZapRouteDetail
   tokenInput: ZapState['tokenInput']
   onAddTrackedTxHash?: (hash: string) => void
   onAddTransactionWithType?: (transaction: TransactionHistory) => void
   onDismiss?: () => void
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
 }
 
 export type ReviewTransactionStatusPhase = 'idle' | 'waiting_wallet' | 'processing' | 'success' | 'failed' | 'cancelled'
@@ -38,10 +40,12 @@ export const useReviewTransaction = ({
   isOpen,
   buildData,
   pool,
+  route,
   tokenInput,
   onAddTrackedTxHash,
   onAddTransactionWithType,
   onDismiss,
+  onTrackEvent,
 }: UseReviewTransactionProps) => {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -53,6 +57,7 @@ export const useReviewTransaction = ({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submittedTxHash, setSubmittedTxHash] = useState('')
   const submitAttemptIdRef = useRef(0)
+  const hasTrackedCompletionRef = useRef(false)
 
   const resetTransactionState = useCallback(() => {
     submitAttemptIdRef.current += 1
@@ -63,6 +68,7 @@ export const useReviewTransaction = ({
 
   useEffect(() => {
     resetTransactionState()
+    hasTrackedCompletionRef.current = false
   }, [isOpen, resetTransactionState])
 
   const currentTxHash = submittedTxHash ? txHashMapping[submittedTxHash] || submittedTxHash : ''
@@ -72,6 +78,7 @@ export const useReviewTransaction = ({
     () => getParsedTokensIn(tokenInput.tokens, tokenInput.amounts),
     [tokenInput.amounts, tokenInput.tokens],
   )
+  const outputTokenItems = useMemo(() => getOutputTokenItems(pool, route), [pool, route])
   const statusPhase: ReviewTransactionStatusPhase =
     isSubmitting && !submittedTxHash && !txStatus && !submitError
       ? 'waiting_wallet'
@@ -85,6 +92,26 @@ export const useReviewTransaction = ({
       ? 'cancelled'
       : 'idle'
   const transactionExplorerUrl = currentTxHash ? `${chainInfo.etherscanUrl}/tx/${currentTxHash}` : undefined
+
+  useEffect(() => {
+    if (statusPhase !== 'success' || !currentTxHash || hasTrackedCompletionRef.current) return
+
+    const completedAmountUsd = Number(route.positionDetails.addedAmountUsd || route.zapDetails.initialAmountUsd || 0)
+
+    onTrackEvent?.('LIQ_ADD_COMPLETED', {
+      pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+      pool_protocol: EARN_DEXES[exchange]?.name,
+      pool_fee_tier: `${pool.fee}%`,
+      deposit_amount_usd: completedAmountUsd,
+      actual_added_token0: outputTokenItems[0]?.amount,
+      actual_added_token1: outputTokenItems[1]?.amount,
+      tx_hash: currentTxHash,
+      chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
+      pool: poolAddress,
+      volume: completedAmountUsd,
+    })
+    hasTrackedCompletionRef.current = true
+  }, [chainId, currentTxHash, exchange, onTrackEvent, outputTokenItems, pool, poolAddress, route, statusPhase])
 
   const handleSubmit = useCallback(async () => {
     if (!account || !library) return
@@ -129,18 +156,48 @@ export const useReviewTransaction = ({
           dex: exchange,
         },
       })
+      onTrackEvent?.('LIQ_ADDED', {
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_protocol: EARN_DEXES[exchange]?.name,
+        is_existing_position: false,
+        chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
+        pool: poolAddress,
+        tx_hash: txHash,
+      })
     } catch (error) {
       if (submitAttemptIdRef.current !== submitAttemptId) return
 
-      setSubmitError(
-        friendlyError(error as Error) || (error as Error)?.message || 'Failed to build or submit zap transaction',
-      )
+      const errorMessage =
+        friendlyError(error as Error) || (error as Error)?.message || 'Failed to build or submit zap transaction'
+      const normalizedError = errorMessage.toLowerCase()
+      const isUserRejected = normalizedError.includes('reject') || normalizedError.includes('denied')
+
+      setSubmitError(errorMessage)
+      onTrackEvent?.('LIQ_ADD_FAILED', {
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_fee_tier: `${pool.fee}%`,
+        error_type: isUserRejected ? 'user_rejected' : 'transaction_error',
+        error_message: errorMessage,
+        chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
+      })
     } finally {
       if (submitAttemptIdRef.current !== submitAttemptId) return
 
       setIsSubmitting(false)
     }
-  }, [account, buildData, exchange, library, onAddTrackedTxHash, onAddTransactionWithType, pool, tokensIn])
+  }, [
+    account,
+    buildData,
+    chainId,
+    exchange,
+    library,
+    onAddTrackedTxHash,
+    onAddTransactionWithType,
+    onTrackEvent,
+    pool,
+    poolAddress,
+    tokensIn,
+  ])
 
   const handleViewPosition = useCallback(async () => {
     if (!library || !currentTxHash) return

@@ -23,7 +23,7 @@ This README covers:
 - ERC20 approval flow and main CTA state transitions are shadowed for token approval before add liquidity.
 - Review behavior is page-owned, but the user still gets the same core flow: preview route, inspect warnings, submit, track pending state, and navigate on success.
 - Safety surfaces are present for zap impact, security warnings, and route warnings.
-- Basic page-level tracking for token input, range changes, and slippage changes is wired.
+- Regular deposit tracking is shadowed for token input, range changes, slippage changes, preview-clicked, zap-summary-viewed, add-submitted, add-completed, add-failed, and add-cancelled.
 
 ## 🟡 Intentional Differences from the Widget
 
@@ -37,9 +37,9 @@ This README covers:
 
 ## 🔴 Not Yet at Parity
 
-- Preview/review/submit tracking is still incomplete compared with the widget. Missing events currently include preview-clicked, add-submitted, add-completed, add-failed, and add-cancelled.
+- No additional regular-deposit tracking gaps are called out here today. Recheck widget-specific route options and any future preview/review UX changes explicitly when syncing.
 
-If existing-position support is needed later, it should be designed clearly from scratch. Old branches previously tied to `positionId` should not be revived incrementally.
+Existing-position behavior should still be reviewed explicitly when it changes. Do not assume parity there just because the regular deposit path is in sync.
 
 ## Rules for Syncing with the Widget
 

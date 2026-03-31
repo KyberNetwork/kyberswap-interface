@@ -1,5 +1,6 @@
-import { Pool, ZapRouteDetail } from '@kyber/schema'
+import { NETWORKS_INFO, Pool, ZapRouteDetail } from '@kyber/schema'
 import { StatusDialog, StatusDialogType, translateZapMessage } from '@kyber/ui'
+import { useEffect, useRef } from 'react'
 import { Text } from 'rebass'
 import { BuildZapInData } from 'services/zap'
 import styled from 'styled-components'
@@ -49,6 +50,7 @@ type AddLiquidityReviewModalProps = {
   tokenInput: ZapState['tokenInput']
   warnings: ReviewWarningItem[]
   onDismiss?: () => void
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onUseSuggestedSlippage?: (suggestedSlippage?: number) => void
   onAddTrackedTxHash?: (hash: string) => void
   onAddTransactionWithType?: (transaction: TransactionHistory) => void
@@ -127,24 +129,56 @@ const AddLiquidityReviewModal = ({
   tokenInput,
   warnings,
   onDismiss,
+  onTrackEvent,
   onUseSuggestedSlippage,
   onAddTrackedTxHash,
   onAddTransactionWithType,
 }: AddLiquidityReviewModalProps) => {
   const theme = useTheme()
+  const hasTrackedSummaryView = useRef(false)
+  const hasSubmitAttemptRef = useRef(false)
 
   const transaction = useReviewTransaction({
     isOpen: true,
     buildData,
     pool,
+    route,
     tokenInput,
     onAddTrackedTxHash,
     onAddTransactionWithType,
     onDismiss,
+    onTrackEvent,
   })
 
   const isSuccessful = transaction.statusPhase === 'success'
   const showStatusDialog = transaction.statusPhase !== 'idle'
+
+  useEffect(() => {
+    if (hasTrackedSummaryView.current) return
+
+    onTrackEvent?.('LIQ_ZAP_SUMMARY_VIEWED', {
+      pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+      chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
+    })
+    hasTrackedSummaryView.current = true
+  }, [chainId, onTrackEvent, pool])
+
+  useEffect(() => {
+    if (transaction.statusPhase !== 'idle') {
+      hasSubmitAttemptRef.current = true
+    }
+  }, [transaction.statusPhase])
+
+  const handleDismiss = () => {
+    if (!hasSubmitAttemptRef.current) {
+      onTrackEvent?.('LIQ_ADD_CANCELLED', {
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        pool_fee_tier: `${pool.fee}%`,
+        chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
+      })
+    }
+    onDismiss?.()
+  }
 
   const handleStatusClose = () => {
     if (transaction.statusPhase === 'waiting_wallet') {
@@ -173,13 +207,13 @@ const AddLiquidityReviewModal = ({
   }
 
   return (
-    <Modal isOpen borderRadius="20px" maxWidth={480} mobileFullWidth onDismiss={onDismiss}>
+    <Modal isOpen borderRadius="20px" maxWidth={480} mobileFullWidth onDismiss={handleDismiss}>
       <ModalContent gap={16}>
         <HStack align="center" justify="space-between" width="100%">
           <Text fontSize={24} fontWeight={500}>
             Add Liquidity via Zap
           </Text>
-          <CloseIcon color={theme.subText} onClick={onDismiss} size={28} />
+          <CloseIcon color={theme.subText} onClick={handleDismiss} size={28} />
         </HStack>
 
         <PoolHeader isReview />

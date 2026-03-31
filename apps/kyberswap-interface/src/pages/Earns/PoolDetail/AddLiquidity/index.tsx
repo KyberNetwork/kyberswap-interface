@@ -1,5 +1,5 @@
 import { type ApprovalAdditionalInfo } from '@kyber/hooks'
-import { PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
+import { NETWORKS_INFO, PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
 import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BuildZapInData, prepareBuildZapInRouteRequest, useBuildZapInRouteMutation } from 'services/zap'
@@ -104,6 +104,12 @@ const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   PRICE_RANGE_PRESET_SELECTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED,
   PRICE_RANGE_ADJUSTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_ADJUSTED,
   LIQ_MAX_SLIPPAGE_CHANGED: TRACKING_EVENT_TYPE.LIQ_MAX_SLIPPAGE_CHANGED,
+  LIQ_ZAP_SUMMARY_VIEWED: TRACKING_EVENT_TYPE.LIQ_ZAP_SUMMARY_VIEWED,
+  LIQ_PREVIEW_CLICKED: TRACKING_EVENT_TYPE.LIQ_PREVIEW_CLICKED,
+  LIQ_ADDED: TRACKING_EVENT_TYPE.LIQ_ADDED,
+  LIQ_ADD_COMPLETED: TRACKING_EVENT_TYPE.LIQ_ADD_COMPLETED,
+  LIQ_ADD_FAILED: TRACKING_EVENT_TYPE.LIQ_ADD_FAILED,
+  LIQ_ADD_CANCELLED: TRACKING_EVENT_TYPE.LIQ_ADD_CANCELLED,
 }
 
 const AddLiquidityBody = ({
@@ -184,6 +190,7 @@ const AddLiquidityBody = ({
           tokenInput={state.tokenInput}
           warnings={reviewState.warnings}
           onDismiss={onDismissReview}
+          onTrackEvent={onTrackEvent}
           onUseSuggestedSlippage={onUseSuggestedSlippage}
           onAddTrackedTxHash={tracking.addTrackedTxHash}
           onAddTransactionWithType={tracking.addTransactionWithType}
@@ -393,12 +400,28 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
 
     try {
       const nextReviewState = await buildReviewState(state.route.data, feedback.modal.warnings, state.slippage.value)
+      handleTrackEvent('LIQ_PREVIEW_CLICKED', {
+        pool_pair: `${normalizedPool.data?.token0.symbol}/${normalizedPool.data?.token1.symbol}`,
+        pool_protocol: EARN_DEXES[exchange]?.name,
+        pool_fee_tier: normalizedPool.data ? `${normalizedPool.data.fee}%` : '',
+        is_existing_position: false,
+        chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
+      })
       setReviewState(nextReviewState)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to build zap transaction'
       setPreviewError(message)
     }
-  }, [buildReviewState, feedback.modal.warnings, state.route.data, state.slippage.value])
+  }, [
+    buildReviewState,
+    chainId,
+    exchange,
+    feedback.modal.warnings,
+    handleTrackEvent,
+    normalizedPool.data,
+    state.route.data,
+    state.slippage.value,
+  ])
 
   const handleUseSuggestedSlippage = useCallback(
     (suggestedSlippage?: number) => {
