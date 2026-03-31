@@ -54,24 +54,27 @@ const saveJoinedWeekInSession = (address: string, weekIndex: number) => {
 
 type Props = {
   selectedWeek: number
+  enabled: boolean
 }
 
-export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
-  const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
+export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
   const notify = useNotify()
+  const toggleWalletModal = useWalletModalToggle()
+
+  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const [joinCampaign] = useJoinRaffleCampaignMutation()
 
   const { data: campaignStats, refetch: refetchCampaignStats } = useGetRaffleCampaignStatsQuery(undefined, {
+    skip: !enabled,
     pollingInterval: 10_000,
   })
 
   const { data: participant, refetch: refetchParticipant } = useGetRaffleCampaignParticipantQuery(
     { address: account ?? '' },
     {
-      skip: !account,
+      skip: !enabled || !account,
       pollingInterval: 10_000,
     },
   )
@@ -120,7 +123,6 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
         type: NotificationType.SUCCESS,
       })
     } catch (error) {
-      console.warn('Raffle campaign join error:', error)
       notify({
         title: t`Unable to join Weekly Rewards`,
         summary: error.message || error.data?.message || t`Something went wrong. Please try again.`,

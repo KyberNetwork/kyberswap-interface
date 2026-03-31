@@ -1,5 +1,6 @@
 import { ChainId, POOL_CATEGORY, Token as TokenSchema } from '@kyber/schema'
-import { TOKEN_SELECT_MODE, TokenLogo, TokenSelectorModal } from '@kyber/ui'
+import TokenSelectorModal, { TOKEN_SELECT_MODE } from '@kyber/token-selector'
+import { TokenLogo } from '@kyber/ui'
 import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
 import { useQuery } from '@tanstack/react-query'
@@ -367,20 +368,26 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
         <Portal>
           <TokenSelectorModal
             chainId={selectedChainId}
-            tokensIn={[]}
-            amountsIn=""
             title={t`Select a token`}
-            account={account}
-            mode={TOKEN_SELECT_MODE.SELECT}
-            selectedTokenAddress={selectedTokenAddress}
-            poolAddress=""
-            token0Address={token0?.address ?? ''}
-            token1Address={token1?.address ?? ''}
-            setTokensIn={() => undefined}
-            setAmountsIn={() => undefined}
-            onTokenSelect={handleSetTokenIn}
-            onConnectWallet={toggleWalletModal}
             onClose={() => setTokenSelectorTarget(null)}
+            wallet={{
+              account,
+              onConnectWallet: toggleWalletModal,
+            }}
+            tokenOptions={{
+              tokensIn: [],
+              amountsIn: '',
+              mode: TOKEN_SELECT_MODE.SELECT,
+              selectedTokenAddress,
+              token0Address: token0?.address ?? '',
+              token1Address: token1?.address ?? '',
+              setTokensIn: () => undefined,
+              setAmountsIn: () => undefined,
+              onTokenSelect: handleSetTokenIn,
+            }}
+            positionOptions={{
+              poolAddress: '',
+            }}
           />
         </Portal>
       )}

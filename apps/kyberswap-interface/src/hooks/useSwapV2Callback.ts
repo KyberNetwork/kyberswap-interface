@@ -27,7 +27,7 @@ export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId } = useActiveWeb3React()
-  const { library, connector } = useWeb3React()
+  const { library, connector, isSmartConnector } = useWeb3React()
 
   const { recipient: recipientAddressOrName } = useSwapState()
 
@@ -118,6 +118,7 @@ export function useSwapV2Callback(
         value,
         sentryInfo: { name: ErrorName.SwapError, wallet: connector?.name },
         chainId,
+        isSmartConnector,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
       onHandleSwapResponse(response)
@@ -139,5 +140,6 @@ export function useSwapV2Callback(
     addTransactionWithType,
     extractSwapData,
     connector?.name,
+    isSmartConnector,
   ])
 }

@@ -16,8 +16,8 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
 import { useClaimVotingRewards, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { StyledInternalLink } from 'theme'
@@ -110,7 +110,7 @@ enum REWARD_TAB {
 export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const {
     daoInfo,
     remainingCumulativeAmount,
@@ -164,10 +164,10 @@ export default function Vote() {
 
   const handleClaim = useCallback(() => {
     switchToEthereum(t`Claim reward`).then(() => {
-      mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_CLAIM_CLICK)
+      trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_CLAIM_CLICK)
       toggleClaimConfirmModal()
     })
-  }, [toggleClaimConfirmModal, mixpanelHandler, switchToEthereum])
+  }, [toggleClaimConfirmModal, trackingHandler, switchToEthereum])
 
   const handleConfirmClaim = useCallback(async () => {
     const amount = formatUnitsToFixed(remainingCumulativeAmount)

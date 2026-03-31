@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
+import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
@@ -46,7 +47,7 @@ import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getNftManagerContract } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
@@ -87,6 +88,20 @@ const PositionDetail = () => {
   const userPositions = useMemo(() => userPositionsData?.positions || [], [userPositionsData?.positions])
   const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === userPositions[0]?.tokenId.toString())
 
+  const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
+    {
+      userWallet: account || '',
+      positionIds: positionId ? [positionId] : [],
+      status: OrderStatus.OrderStatusOpen,
+      page: 1,
+      pageSize: 1,
+    },
+    {
+      skip: !positionId || !account,
+    },
+  )
+  const hasActiveSmartExitOrder = !!smartExitOrders?.orders?.length && smartExitOrders.orders.length > 0
+
   const currentWalletAddress = useRef(account)
   const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
@@ -100,6 +115,7 @@ const PositionDetail = () => {
   const position: ParsedPosition | undefined = useMemo(() => {
     const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
+      // API has no data yet — show cached unfinalized position if available
       const unfinalizedPositions = getUnfinalizedPositions([], account || undefined)
       if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
         return unfinalizedPositions[0]
@@ -116,9 +132,14 @@ const PositionDetail = () => {
     })
 
     const unfinalizedPositions = getUnfinalizedPositions([parsedPosition], account || undefined)
+    const matchedUnfinalized = unfinalizedPositions.find(p => Number(p.tokenId) === Number(tokenId))
 
-    if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
-      return unfinalizedPositions[0]
+    if (matchedUnfinalized) {
+      // For increase-liquidity (isValueUpdating), use API data with loading flag only
+      if (matchedUnfinalized.isValueUpdating) return { ...parsedPosition, isValueUpdating: true }
+      // For truly new positions not yet in API, use cached data
+      return matchedUnfinalized
+    }
 
     return parsedPosition
   }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
@@ -319,7 +340,7 @@ const PositionDetail = () => {
         ) : (
           <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
             <TokenLogo src={position?.token0.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token0.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{formatDisplayNumber(position?.token0.currentAmount, { significantDigits: 4 })}</Text>
             <Text>{position?.token0.symbol}</Text>
           </Flex>
         )}
@@ -329,7 +350,7 @@ const PositionDetail = () => {
         ) : (
           <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
             <TokenLogo src={position?.token1.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token1.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{formatDisplayNumber(position?.token1.currentAmount, { significantDigits: 4 })}</Text>
             <Text>{position?.token1.symbol}</Text>
           </Flex>
         )}
@@ -464,7 +485,12 @@ const PositionDetail = () => {
       <PositionPageWrapper>
         {!!position || initialLoading ? (
           <>
-            <PositionDetailHeader isLoading={loadingInterval} initialLoading={initialLoading} position={position} />
+            <PositionDetailHeader
+              isLoading={loadingInterval}
+              initialLoading={initialLoading}
+              position={position}
+              hasActiveSmartExitOrder={hasActiveSmartExitOrder}
+            />
 
             <Flex flexDirection={'column'} sx={{ gap: '12px' }}>
               {!position?.pool.isFarming &&
@@ -518,6 +544,7 @@ const PositionDetail = () => {
                 setTriggerClose={setTriggerClose}
                 setReduceFetchInterval={setReduceFetchInterval}
                 onReposition={handleReposition}
+                hasActiveSmartExitOrder={hasActiveSmartExitOrder}
               />
             </PositionDetailWrapper>
           </>

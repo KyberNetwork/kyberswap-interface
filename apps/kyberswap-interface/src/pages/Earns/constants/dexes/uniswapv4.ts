@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import uniswapLogo from 'assets/dexes/uniswap.svg'
 import Univ4NftManagerABI from 'constants/abis/earn/uniswapv4NftManagerContract.json'
+import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 
 export default {
@@ -16,6 +17,7 @@ export default {
     [ChainId.BASE]: '0x7c5f5a4bbd8fd63184577525326123b519429bdc',
     [ChainId.BLAST]: '0x4ad2f4cca2682cbb5b950d660dd458a1d3f1baad',
     [ChainId.OPTIMISM]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
+    [ChainId.MONAD]: '0x5b7ec4a94ff9bedb700fb82ab09d5846972f4016',
   },
   nftManagerContractAbi: Univ4NftManagerABI,
   unwrapWNativeTokenFuncName: null,
@@ -24,4 +26,5 @@ export default {
   isForkFrom: CoreProtocol.UniswapV4,
   showVersion: true,
   farmingSupported: false,
+  smartExitDexType: SmartExitDexType.DexTypeUniswapV4,
 }

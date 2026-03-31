@@ -43,6 +43,7 @@ export function useApproval() {
     addreses: isUniV2 ? [poolAddress] : [],
     owner: account || '',
     spender: route?.routerAddress || '',
+    chainId,
     rpcUrl,
     onSubmitTx,
     txStatus,
@@ -58,6 +59,7 @@ export function useApproval() {
     currentApprovePendingTx: nftCurrentPendingTx,
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
+    chainId,
     tokenId: positionId ? +positionId : undefined,
     spender: route?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
@@ -76,6 +78,7 @@ export function useApproval() {
     currentApprovePendingTx: nftCurrentPendingTxAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
+    chainId,
     spender: route?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
     rpcUrl,

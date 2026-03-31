@@ -29,8 +29,8 @@ import { Dots, StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { TOKEN_API_URL } from 'constants/env'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
@@ -325,10 +325,10 @@ export default function ConfirmSwapModalContent({
   const disableSwap =
     (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton || shouldDisableByPriceImpact
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const handleClickAcceptNewAmount = () => {
-    mixpanelHandler(MIXPANEL_TYPE.ACCEPT_NEW_AMOUNT)
+    trackingHandler(TRACKING_EVENT_TYPE.ACCEPT_NEW_AMOUNT)
     if (outputChangePercent > SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD) {
       setHasAcceptedNewAmount(true)
       return

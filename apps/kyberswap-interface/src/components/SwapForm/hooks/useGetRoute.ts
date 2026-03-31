@@ -83,12 +83,21 @@ export const useRouteApiDomain = () => {
   return authenticationSuccess ? aggregatorDomain : AGGREGATOR_API
 }
 
+export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'>
+
 const useGetRoute = (args: ArgsGetRoute) => {
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const { parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
   const [isLoading, setIsLoading] = useState(false)
+
+  const intendedFeeConfig = useRef<IntendedFeeConfig>({
+    feeAmount: '',
+    feeReceiver: '',
+    isInBps: '',
+    chargeFeeBy: ChargeFeeBy.NONE,
+  })
 
   const feeConfigFromUrl = useGetFeeConfig()
 
@@ -205,6 +214,13 @@ const useGetRoute = (args: ArgsGetRoute) => {
       ? safeAppFeeConfig
       : feeConfigFromUrl || getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
 
+    intendedFeeConfig.current = {
+      feeAmount: feeConfigParams.feeAmount || '',
+      feeReceiver: feeConfigParams.feeReceiver || '',
+      isInBps: feeConfigParams.isInBps || '',
+      chargeFeeBy: feeConfigParams.chargeFeeBy || ChargeFeeBy.NONE,
+    }
+
     const params: GetRouteParams = {
       tokenIn: tokenInAddress,
       tokenOut: tokenOutAddress,
@@ -248,7 +264,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     isProcessingSwap,
   ])
 
-  return { fetcher, result, isLoading }
+  return { fetcher, result, isLoading, intendedFeeConfig }
 }
 
 export default useGetRoute

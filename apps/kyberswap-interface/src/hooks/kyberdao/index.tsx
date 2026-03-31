@@ -539,7 +539,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
 
 export function useClaimGasRefundRewards() {
   const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const { claimableReward } = useGasRefundInfo({})
   const refetch = useRefetchGasRefundInfo()
@@ -577,6 +577,7 @@ export function useClaimGasRefundRewards() {
         account,
         library,
         contractAddress: rewardContractAddress,
+        isSmartConnector,
         encodedData,
         value: BigNumber.from(0),
         sentryInfo: {
@@ -607,7 +608,7 @@ export function useClaimGasRefundRewards() {
       })
       throw error
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, refetch, walletKey])
+  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, refetch, walletKey, isSmartConnector])
   return claimGasRefundRewards
 }
 

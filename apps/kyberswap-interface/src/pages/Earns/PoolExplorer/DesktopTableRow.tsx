@@ -12,6 +12,7 @@ import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
@@ -60,10 +61,20 @@ const DesktopTableRow = ({
   favoriteLoading: string[]
 }) => {
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
     e.stopPropagation()
+    trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
+      pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
+      pool_protocol: pool.dexName,
+      pool_fee_tier: `${pool.feeTier}%`,
+      pool_tvl_usd: pool.tvl,
+      pool_volume_24h_usd: pool.volume,
+      pool_apr: pool.allApr,
+      chain: pool.chain?.name,
+    })
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
@@ -128,7 +139,10 @@ const DesktopTableRow = ({
           >
             {pool.maxAprInfo
               ? formatAprNumber(
-                  Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
+                  Number(pool.maxAprInfo.apr) +
+                    Number(pool.maxAprInfo.kemEGApr) +
+                    Number(pool.maxAprInfo.kemLMApr) +
+                    Number(pool.bonusApr || 0),
                 ) + '%'
               : ''}
           </MouseoverTooltipDesktopOnly>

@@ -175,6 +175,7 @@ export const APP_PATHS = {
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
   MARKET_OVERVIEW: '/market-overview',
 
+  SAFEPAL_CAMPAIGN: '/campaigns/safepal',
   RAFFLE_CAMPAIGN: '/campaigns/weekly-rewards',
   NEAR_INTENTS_CAMPAIGN: '/campaigns/near-intents',
   MAY_TRADING_CAMPAIGN: '/campaigns/may-trading',
@@ -187,6 +188,7 @@ export const APP_PATHS = {
   EARN_POOLS: '/earn/pools',
   EARN_POSITIONS: '/earn/positions',
   EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:exchange',
+  EARN_SMART_EXIT: '/earn/smart-exit',
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',
@@ -235,6 +237,7 @@ export const RTK_QUERY_TAGS = {
   GET_PRIVATE_ANN_BY_ID: 'GET_PRIVATE_ANN_BY_ID',
   GET_ALL_PRIVATE_ANN: 'GET_ALL_PRIVATE_ANN',
   GET_TOTAL_UNREAD_PRIVATE_ANN: 'GET_TOTAL_UNREAD_PRIVATE_ANN',
+  GET_PUBLIC_ANN: 'GET_PUBLIC_ANN',
   GET_ALL_TOPICS_GROUP: 'GET_ALL_TOPICS_GROUP',
 
   // price alert
@@ -249,6 +252,9 @@ export const RTK_QUERY_TAGS = {
   // limit order
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
   GET_ORDERS_BY_TOKEN_PAIR: 'GET_ORDERS_BY_TOKEN_PAIR',
+
+  // smart exit
+  GET_SMART_EXIT_ORDERS: 'GET_SMART_EXIT_ORDERS',
 
   GET_FARM_V2: 'GET_FARM_V2',
 }

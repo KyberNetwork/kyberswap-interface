@@ -15,8 +15,8 @@ import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -45,12 +45,12 @@ export default function SlippageSettingGroup({
   const { chainId } = useActiveWeb3React()
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const addMevProtectionHandler = useCallback(() => {
     setShowMevModal(true)
-    mixpanelHandler(MIXPANEL_TYPE.MEV_CLICK_ADD_MEV)
-  }, [mixpanelHandler])
+    trackingHandler(TRACKING_EVENT_TYPE.MEV_CLICK_ADD_MEV)
+  }, [trackingHandler])
 
   const onClose = useCallback(() => {
     setShowMevModal(false)

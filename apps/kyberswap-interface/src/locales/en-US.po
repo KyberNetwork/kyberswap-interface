@@ -4199,8 +4199,8 @@ msgid "You Buy"
 msgstr "You Buy"
 
 #: src/pages/About/KyberSwapGeneralIntro.tsx
-msgid "KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with <0>superior token prices</0> by analyzing rates across thousands of exchanges instantly!"
-msgstr "KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with <0>superior token prices</0> by analyzing rates across thousands of exchanges instantly!"
+msgid "KyberSwap is a decentralized platform. We provide our traders with <0>superior token prices</0> by analyzing rates across thousands of exchanges instantly!"
+msgstr "KyberSwap is a decentralized platform. We provide our traders with <0>superior token prices</0> by analyzing rates across thousands of exchanges instantly!"
 
 #: src/pages/SwapV3/ApprovalModal.tsx
 msgid ""
@@ -4960,8 +4960,8 @@ msgid "Eligible Transactions"
 msgstr "Eligible Transactions"
 
 #: src/pages/Campaign/constants.tsx
-msgid "Place order"
-msgstr "Place order"
+msgid "Place Order"
+msgstr "Place Order"
 
 #: src/components/Toggle/LegacyToggle.tsx
 msgid "Off"
@@ -5642,6 +5642,9 @@ msgstr "KYBER DAO"
 #: src/components/LiveChart/index.tsx
 #: src/components/swapv2/TokenInfo/index.tsx
 #: src/components/swapv2/TokenInfo/index.tsx
+msgid "Powered by <0/>"
+msgstr "Powered by <0/>"
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Powered by"
 msgstr "Powered by"
@@ -7246,8 +7249,8 @@ msgid "You wish to give KyberSwap permission to use the selected token for trans
 msgstr "You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless you have revoked it. This approve transaction will cost a gas fee."
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
-msgid "KyberSwap is a decentralized exchange (DEX) aggregator and an automated market maker (AMM). We provide our traders with the <0>superior token prices</0> by analyzing rates across hundreds of exchanges instantly! On the other hand, our liquidity providers can add liquidity to our pools to <1>earn fees and rewards!</1>"
-msgstr "KyberSwap is a decentralized exchange (DEX) aggregator and an automated market maker (AMM). We provide our traders with the <0>superior token prices</0> by analyzing rates across hundreds of exchanges instantly! On the other hand, our liquidity providers can add liquidity to our pools to <1>earn fees and rewards!</1>"
+msgid "KyberSwap is a decentralized platform and an automated market maker (AMM). We provide our traders with the <0>superior token prices</0> by analyzing rates across hundreds of exchanges instantly! On the other hand, our liquidity providers can add liquidity to our pools to <1>earn fees and rewards!</1>"
+msgstr "KyberSwap is a decentralized platform and an automated market maker (AMM). We provide our traders with the <0>superior token prices</0> by analyzing rates across hundreds of exchanges instantly! On the other hand, our liquidity providers can add liquidity to our pools to <1>earn fees and rewards!</1>"
 
 #: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
 msgid "Detail"

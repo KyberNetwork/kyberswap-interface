@@ -20,9 +20,9 @@ import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -225,7 +225,7 @@ function PositionListItem({
   const removed = liquidity?.eq(0)
   const theme = useTheme()
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const [activeTab, setActiveTab] = useState(TAB.MY_LIQUIDITY)
   const now = Date.now() / 1000
@@ -367,7 +367,7 @@ function PositionListItem({
                   as={Link}
                   to={`/${networkInfo.route}${APP_PATHS.ELASTIC_REMOVE_POOL}/${positionDetails.tokenId}`}
                   onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
+                    trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
                       token_1: token0?.symbol || '',
                       token_2: token1?.symbol || '',
                       fee_tier: (pool?.fee as number) / 10000,
@@ -393,7 +393,7 @@ function PositionListItem({
                   chainId,
                 )}/${currencyId(currency1, chainId)}/${feeAmount}/${positionDetails.tokenId}`}
                 onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
+                  trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
                     token_1: token0?.symbol || '',
                     token_2: token1?.symbol || '',
                     fee_tier: (pool?.fee as number) / 10000,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 
 import { ChainId, PoolType, Theme } from '@kyber/schema';
+import '@kyber/token-selector/styles.css';
 import '@kyber/ui/styles.css';
 
 import Widget from '@/Widget';

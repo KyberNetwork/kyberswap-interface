@@ -2,15 +2,22 @@ import { t } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Minus, MoreVertical, Plus } from 'react-feather'
+import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as IconClaimRewards } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_fees.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
+import { ReactComponent as IconSmartExit } from 'assets/svg/earn/ic_smart_exit.svg'
 import Loader from 'components/Loader'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { EARN_CHAINS, EARN_DEXES, EarnChain } from 'pages/Earns/constants'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -114,13 +121,16 @@ const DropdownAction = ({
   position,
   onOpenIncreaseLiquidityWidget,
   onOpenZapOut,
+  onOpenSmartExit,
   onOpenReposition,
   claimFees: { onClaimFee, feesClaimDisabled, feesClaiming },
   claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming },
+  hasActiveSmartExitOrder,
 }: {
   position: ParsedPosition
   onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
   onOpenZapOut: (e: React.MouseEvent, position: ParsedPosition) => void
+  onOpenSmartExit: (e: React.MouseEvent, position: ParsedPosition) => void
   onOpenReposition: (e: React.MouseEvent, position: ParsedPosition) => void
   claimFees: {
     onClaimFee: (e: React.MouseEvent, position: ParsedPosition) => void
@@ -132,14 +142,18 @@ const DropdownAction = ({
     rewardsClaimDisabled: boolean
     rewardsClaiming: boolean
   }
+  hasActiveSmartExitOrder: boolean
 }) => {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const [open, setOpen] = useState(false)
   const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const tickingRef = useRef(false)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const navigate = useNavigate()
 
   const updatePortalPosition = useCallback(() => {
     if (!ref.current) return
@@ -223,71 +237,112 @@ const DropdownAction = ({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [ref])
 
-  const renderActionItems = () => (
-    <>
-      <DropdownContentItem
-        onClick={e => {
-          e.stopPropagation()
-          handleAction(e, onOpenIncreaseLiquidityWidget)
-        }}
-      >
-        <Plus size={16} />
-        <Text>{position.status === PositionStatus.CLOSED ? t`Add Liquidity` : t`Increase Liquidity`}</Text>
-      </DropdownContentItem>
-      <DropdownContentItem
-        disabled={position.status === PositionStatus.CLOSED}
-        onClick={e => {
-          e.stopPropagation()
-          if (position.status === PositionStatus.CLOSED) return
-          handleAction(e, onOpenZapOut)
-        }}
-      >
-        <Minus size={16} />
-        <Text>{t`Remove Liquidity`}</Text>
-      </DropdownContentItem>
-      <DropdownContentItem
-        disabled={feesClaimDisabled}
-        onClick={e => {
-          e.stopPropagation()
-          if (!feesClaimDisabled) {
-            handleAction(e, onClaimFee)
-          } else e.preventDefault()
-        }}
-      >
-        {feesClaiming ? <Loader size={'16px'} stroke={'#7a7a7a'} /> : <IconClaimFees width={16} />}
-        <Text>{t`Claim Fees`}</Text>
-      </DropdownContentItem>
-      <DropdownContentItem
-        disabled={rewardsClaimDisabled}
-        onClick={e => {
-          e.stopPropagation()
-          if (!rewardsClaimDisabled) {
-            handleAction(e, onClaimRewards)
-          } else e.preventDefault()
-        }}
-      >
-        {rewardsClaiming ? (
-          <Loader size={'16px'} stroke={'#7a7a7a'} />
-        ) : (
-          <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
-        )}
-        <Text>{t`Claim Rewards`}</Text>
-      </DropdownContentItem>
-      {!position.pool.isUniv2 ? (
-        <DropdownContentItem
-          disabled={position.status === PositionStatus.CLOSED}
-          onClick={e => {
-            e.stopPropagation()
-            if (position.status === PositionStatus.CLOSED) return
-            handleAction(e, onOpenReposition)
-          }}
-        >
-          <IconReposition width={16} />
-          <Text>{t`Reposition`}</Text>
+  const increaseDisabled = position.status === PositionStatus.CLOSED && position.pool.isUniv4
+  const removeDisabled = position.status === PositionStatus.CLOSED
+  const repositionDisabled = position.status === PositionStatus.CLOSED || position.pool.isUniv2
+  const smartExitDisabled =
+    !EARN_DEXES[position.dex.id].smartExitDexType ||
+    !EARN_CHAINS[position.chain.id as unknown as EarnChain].smartExitSupported ||
+    position.status === PositionStatus.CLOSED ||
+    (position.stakingOwner ? account !== position.stakingOwner : false)
+
+  const dexName = position.dex.name
+  const chainName = position.chain.name
+  const actionItems = [
+    {
+      label: t`Increase Liquidity`,
+      disabled: increaseDisabled,
+      icon: <Plus size={16} />,
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (increaseDisabled) return
+        handleAction(e, onOpenIncreaseLiquidityWidget)
+      },
+    },
+    {
+      label: hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`,
+      disabled: smartExitDisabled,
+      disabledTooltip: !EARN_DEXES[position.dex.id].smartExitDexType
+        ? t`Smart Exit is currently not supported on ${dexName}`
+        : !EARN_CHAINS[position.chain.id as unknown as EarnChain].smartExitSupported
+        ? t`Smart Exit is currently not supported on ${chainName}`
+        : position.stakingOwner && account !== position.stakingOwner
+        ? t`Position is in farming in another protocol`
+        : '',
+      icon: hasActiveSmartExitOrder ? <ListSmartExitIcon width={16} /> : <IconSmartExit width={16} />,
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        if (hasActiveSmartExitOrder) {
+          navigate(APP_PATHS.EARN_SMART_EXIT)
+          return
+        }
+        if (smartExitDisabled) return
+        handleAction(e, onOpenSmartExit)
+      },
+    },
+    {
+      label: t`Reposition`,
+      disabled: repositionDisabled,
+      icon: <IconReposition width={16} />,
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (repositionDisabled) return
+        handleAction(e, onOpenReposition)
+      },
+    },
+    {
+      label: t`Claim Fees`,
+      disabled: feesClaimDisabled,
+      icon: feesClaiming ? <Loader size={'16px'} stroke={'#7a7a7a'} /> : <IconClaimFees width={16} />,
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (!feesClaimDisabled) handleAction(e, onClaimFee)
+        else e.preventDefault()
+      },
+    },
+    {
+      label: t`Claim Rewards`,
+      disabled: rewardsClaimDisabled,
+      icon: rewardsClaiming ? (
+        <Loader size={'16px'} stroke={'#7a7a7a'} />
+      ) : (
+        <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
+      ),
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (!rewardsClaimDisabled) handleAction(e, onClaimRewards)
+        else e.preventDefault()
+      },
+    },
+    {
+      label: t`Remove Liquidity`,
+      disabled: removeDisabled,
+      icon: <Minus size={16} />,
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (removeDisabled) return
+        handleAction(e, onOpenZapOut)
+      },
+    },
+  ]
+
+  const renderActionItems = () =>
+    actionItems.map((item, index) =>
+      item.disabledTooltip ? (
+        <MouseoverTooltip key={index} text={item.disabledTooltip} width="fit-content" placement="left">
+          <DropdownContentItem disabled={item.disabled} onClick={item.onClick}>
+            {item.icon}
+            <Text>{item.label}</Text>
+          </DropdownContentItem>
+        </MouseoverTooltip>
+      ) : (
+        <DropdownContentItem key={index} disabled={item.disabled} onClick={item.onClick}>
+          {item.icon}
+          <Text>{item.label}</Text>
         </DropdownContentItem>
-      ) : null}
-    </>
-  )
+      ),
+    )
 
   return (
     <DropdownWrapper ref={ref}>

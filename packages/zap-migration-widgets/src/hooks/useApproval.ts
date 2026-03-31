@@ -76,6 +76,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     addreses: isFromUniV2 && pool ? [pool.address] : [],
     owner: account || '',
     spender: routerAddress,
+    chainId,
     rpcUrl,
     onSubmitTx,
     txStatus,
@@ -91,6 +92,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     currentApprovePendingTx: nftCurrentPendingTx,
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
+    chainId,
     tokenId: nftId,
     spender: routerAddress,
     userAddress: account || '',
@@ -109,6 +111,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     currentApprovePendingTx: nftCurrentPendingTxAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
+    chainId,
     spender: routerAddress,
     userAddress: connectedAccount?.address || '',
     rpcUrl,

@@ -2,6 +2,9 @@ import { POOL_CATEGORY } from '@kyber/schema';
 
 export const PRICE_FIXED_DIGITS = 8;
 
+// Minimum allowed price value to prevent negative/zero prices in the chart and brush
+export const MIN_PRICE = 1 / 10 ** 6;
+
 export const DEFAULT_DIMENSIONS = { width: 400, height: 200 };
 
 export const DEFAULT_MARGINS = {

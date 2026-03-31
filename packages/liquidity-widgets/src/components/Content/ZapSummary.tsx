@@ -11,7 +11,7 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function ZapSummary() {
-  const { chainId, poolType } = useWidgetStore(['chainId', 'poolType']);
+  const { chainId, poolType, onEvent } = useWidgetStore(['chainId', 'poolType', 'onEvent']);
   const { pool } = usePoolStore(['pool']);
   const { earnedFee, addedLiquidity, swapActions } = useZapRoute();
   const [expanded, setExpanded] = useState(false);
@@ -24,7 +24,15 @@ export default function ZapSummary() {
   const dexNameObj = DEXES_INFO[poolType as PoolType].name;
   const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
-  const onExpand = () => setExpanded(prev => !prev);
+  const onExpand = () => {
+    if (!expanded && pool) {
+      onEvent?.('LIQ_ZAP_SUMMARY_VIEWED', {
+        pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
+        chain: NETWORKS_INFO[chainId]?.name,
+      });
+    }
+    setExpanded(prev => !prev);
+  };
 
   const hasFee = earnedFee.earnedFee0 !== 0n || earnedFee.earnedFee1 !== 0n;
 

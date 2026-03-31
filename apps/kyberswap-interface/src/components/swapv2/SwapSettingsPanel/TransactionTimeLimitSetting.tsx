@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useUserTransactionTTL } from 'state/user/hooks'
 
 type Props = {
@@ -35,6 +36,7 @@ const validateDeadlineString = (str: string): boolean => {
 
 const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
 
   const [deadline /* in seconds */, setDeadline] = useUserTransactionTTL()
   const [deadlineInput, setDeadlineInput] = useState(String(Math.floor(deadline / 60)))
@@ -48,6 +50,12 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
     }
 
     const newDeadline /* in seconds */ = parseInt(deadlineInput, 10) * 60
+    if (newDeadline !== deadline) {
+      trackingHandler(TRACKING_EVENT_TYPE.TRANSACTION_TIME_LIMIT_CHANGED, {
+        previous_value: deadline / 60,
+        new_value: newDeadline / 60,
+      })
+    }
     setDeadline(newDeadline)
   }
 

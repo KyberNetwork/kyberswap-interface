@@ -6,29 +6,28 @@ import { MoreHorizontal } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { useGetUserReferralTotalRewardQuery, useGetUserWeeklyRewardQuery } from 'services/campaign'
+import { useGetUserWeeklyRewardQuery } from 'services/campaign'
 import styled from 'styled-components'
 
-import { ButtonOutlined } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { TokenLogoWithChain } from 'components/Logo'
 import { NewLabel } from 'components/Menu'
-import Modal from 'components/Modal'
-import { APP_PATHS, ZERO_ADDRESS } from 'constants/index'
+import MenuFlyout from 'components/MenuFlyout'
+import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { ButtonIcon } from 'pages/Pools/styleds'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-import { useNavigateToUrl } from 'utils/redirect'
 
-import ClaimBtn from './components/ClaimBtn'
-import MyNearIntentDashboard from './components/MyDashboard/MyNearIntentDashboard'
-import MyRaffleDashboard from './components/MyDashboard/MyRaffleDashboard'
-import MyReferralDashboard from './components/MyDashboard/MyReferralDashboard'
+import ClaimButton from './components/ClaimButton'
+import NearIntentDashboard from './components/MyDashboard/NearIntentDashboard'
+import RaffleDashboard from './components/MyDashboard/RaffleDashboard'
+import SafePalDashboard from './components/MyDashboard/SafePalDashboard'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentCampaignReward } from './hooks/useNearIntentCampaignReward'
 import { Tab, Tabs, Wrapper } from './styles'
@@ -50,9 +49,33 @@ const TableRow = styled(TableHeader)`
   align-items: center;
 `
 
-const ELabel = styled.span`
-  font-size: 10px;
-  margin-left: 4px;
+const DropdownList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`
+
+const DropdownAnchor = styled.div`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+`
+
+const DropdownItem = styled.button<{ $active: boolean }>`
+  width: 100%;
+  border: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
+  color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
+
+  :hover {
+    background: ${({ theme }) => theme.tabActive};
+    color: ${({ theme }) => theme.text};
+  }
 `
 
 export function getDateOfWeek(w: number, y: number) {
@@ -61,22 +84,32 @@ export function getDateOfWeek(w: number, y: number) {
   return new Date(y, 0, d)
 }
 
-const NEW_CAMPAIGN = CampaignType.Raffle
+const NEW_CAMPAIGN = CampaignType.SafePal
+const DASHBOARD_TABS: CampaignType[] = [
+  CampaignType.SafePal,
+  CampaignType.Raffle,
+  CampaignType.NearIntents,
+  CampaignType.MayTrading,
+]
 
 const MyDashboard = () => {
-  const { account } = useActiveWeb3React()
-  const navigate = useNavigateToUrl()
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab: CampaignType = (searchParams.get('tab') || NEW_CAMPAIGN) as CampaignType
-  const changeTab = (t: CampaignType) => {
-    searchParams.set('tab', t)
+
+  const searchTab = searchParams.get('tab') as CampaignType | null
+  const tab = searchTab && DASHBOARD_TABS.includes(searchTab) ? searchTab : NEW_CAMPAIGN
+
+  const changeTab = (tab: CampaignType) => {
+    searchParams.set('tab', tab)
     setSearchParams(searchParams)
   }
 
   const { reward, baseWeek, banner } = campaignConfig[tab]
 
   const campaignLabelMap: Record<CampaignType, string> = {
+    [CampaignType.SafePal]: t`SafePal`,
     [CampaignType.Raffle]: t`Weekly Rewards`,
     [CampaignType.NearIntents]: t`Cross Chain`,
     [CampaignType.MayTrading]: t`May Trading`,
@@ -87,13 +120,11 @@ const MyDashboard = () => {
 
   const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
 
-  const stipReward = campaignConfig[CampaignType.Aggregator].reward
   const mayTradingReward = campaignConfig[CampaignType.MayTrading].reward
 
   const rewardTokenLogo = reward.logo
   const rewardTokenSymbol = reward.symbol
 
-  const stipRewardPrice = useTokenPrices([stipReward.address], stipReward.chainId)?.[stipReward.address] || 0
   const mayTradingRewardPrice =
     useTokenPrices([mayTradingReward.address], mayTradingReward.chainId)?.[mayTradingReward.address] || 0
 
@@ -103,31 +134,7 @@ const MyDashboard = () => {
       campaign: 'trading-incentive',
       wallet: account || '',
     },
-    {
-      skip: !account,
-    },
-  )
-
-  const { data: stipTrading } = useGetUserWeeklyRewardQuery(
-    {
-      program: 'stip',
-      campaign: 'trading-incentive',
-      wallet: account || '',
-    },
-    {
-      skip: !account,
-    },
-  )
-
-  const { data: stipLoData } = useGetUserWeeklyRewardQuery(
-    {
-      program: 'stip',
-      campaign: 'limit-order-farming',
-      wallet: account || '',
-    },
-    {
-      skip: !account,
-    },
+    { skip: !account },
   )
 
   const nearIntentCampaingReward = useNearIntentCampaignReward()
@@ -141,27 +148,9 @@ const MyDashboard = () => {
     totalNearCampaignReward.toString(),
   )
 
-  const data = tab === CampaignType.MayTrading ? mayTrading : tab === CampaignType.Aggregator ? stipTrading : stipLoData
-
-  const stipTradingRw = CurrencyAmount.fromRawAmount(mockToken, stipTrading?.data?.totalReward?.split('.')[0] || '0')
-  const stipLoRw = CurrencyAmount.fromRawAmount(mockToken, stipLoData?.data?.totalReward?.split('.')[0] || '0')
+  const data = tab === CampaignType.MayTrading ? mayTrading : undefined
 
   const mayTradingRw = CurrencyAmount.fromRawAmount(mockToken, mayTrading?.data?.totalReward?.split('.')[0] || '0')
-
-  const { data: referralData } = useGetUserReferralTotalRewardQuery(
-    { program: 'stip', wallet: account || '' },
-    {
-      skip: !account,
-    },
-  )
-  const referralReward = referralData?.data?.totalReward
-    ? CurrencyAmount.fromRawAmount(
-        new Token(1, ZERO_ADDRESS, 18, 'mock'),
-        referralData?.data?.totalReward.split('.')[0] || '0',
-      ).toExact()
-    : '0'
-
-  const referralRewardUsd = +referralReward * stipRewardPrice
 
   const totalMayTradingRw = formatDisplayNumber(+mayTradingRw.toExact(), { significantDigits: 6 })
   const totalMayTradingRwUsd = formatDisplayNumber(+mayTradingRw.toExact() * mayTradingRewardPrice, {
@@ -169,46 +158,11 @@ const MyDashboard = () => {
     style: 'currency',
   })
 
-  const totalStipRw = formatDisplayNumber(
-    (+stipTradingRw.toExact() + +stipLoRw.toExact() + +referralReward).toFixed(3),
-    {
-      significantDigits: 6,
-    },
-  )
-  const totalStipRwUsd = formatDisplayNumber(
-    (referralRewardUsd + (+stipTradingRw.toExact() + +stipLoRw.toExact()) * stipRewardPrice).toFixed(3),
-    {
-      significantDigits: 6,
-      style: 'currency',
-    },
-  )
-
-  const stipTradingClaimableRw = CurrencyAmount.fromRawAmount(
-    mockToken,
-    account ? stipTrading?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
-  )
-  const stipLoClaimableRw = CurrencyAmount.fromRawAmount(
-    mockToken,
-    account ? stipLoData?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
-  )
   const mayTradingClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
     account ? mayTrading?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
   )
 
-  const totalClaimableRw = formatDisplayNumber(
-    (+stipTradingClaimableRw.toExact() + +stipLoClaimableRw.toExact()).toFixed(3),
-    {
-      significantDigits: 6,
-    },
-  )
-  const totalClaimableRwUsd = formatDisplayNumber(
-    ((+stipTradingClaimableRw.toExact() + +stipLoClaimableRw.toExact()) * stipRewardPrice).toFixed(3),
-    {
-      significantDigits: 6,
-      style: 'currency',
-    },
-  )
   const totalMayTradingClaimableRw = formatDisplayNumber(+mayTradingClaimableRw.toExact(), { significantDigits: 6 })
   const toalMayTradingClaimableRwUsd = formatDisplayNumber(+mayTradingClaimableRw.toExact() * mayTradingRewardPrice, {
     significantDigits: 6,
@@ -220,12 +174,16 @@ const MyDashboard = () => {
     mockToken,
     data?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
-  const price = tab === CampaignType.MayTrading ? mayTradingRewardPrice : stipRewardPrice
-  const [showModal, setShowModal] = useState(false)
+  const price = mayTradingRewardPrice
+  const [isOpenMenu, setIsOpenMenu] = useState(false)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const endedCampaigns = [
+    {
+      type: CampaignType.Raffle,
+      label: campaignLabelMap[CampaignType.Raffle],
+    },
     {
       type: CampaignType.NearIntents,
       label: campaignLabelMap[CampaignType.NearIntents],
@@ -234,41 +192,8 @@ const MyDashboard = () => {
       type: CampaignType.MayTrading,
       label: campaignLabelMap[CampaignType.MayTrading],
     },
-    {
-      type: CampaignType.Aggregator,
-      label: campaignLabelMap[CampaignType.Aggregator],
-    },
-    {
-      type: CampaignType.LimitOrder,
-      label: campaignLabelMap[CampaignType.LimitOrder],
-    },
-    {
-      type: CampaignType.Referrals,
-      label: campaignLabelMap[CampaignType.Referrals],
-    },
   ]
-
-  const endedCampaignsHaveRewards = endedCampaigns.filter(item => {
-    if (item.type === tab) {
-      return true
-    }
-    if (item.type === CampaignType.NearIntents) {
-      return totalNearCampaignReward > 0n
-    }
-    if (item.type === CampaignType.MayTrading) {
-      return Number(mayTrading?.data?.totalClaimableReward || '0') > 0
-    }
-    if (item.type === CampaignType.Aggregator) {
-      return Number(stipTrading?.data?.totalClaimableReward || '0') > 0
-    }
-    if (item.type === CampaignType.LimitOrder) {
-      return Number(stipLoData?.data?.totalClaimableReward || '0') > 0
-    }
-    if (item.type === CampaignType.Referrals) {
-      return Number(referralReward || '0') > 0
-    }
-    return false
-  })
+  const selectedEndedCampaign = endedCampaigns.find(item => item.type === tab)
 
   const infor = (
     <InfoHelper
@@ -289,10 +214,6 @@ const MyDashboard = () => {
     <Wrapper>
       <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
       <Flex marginTop="1.5rem" mb="1.5rem" sx={{ gap: '10px' }}>
-        <IconArrowLeft
-          style={{ cursor: 'pointer', position: 'relative', top: '7px' }}
-          onClick={() => navigate(APP_PATHS.NEAR_INTENTS_CAMPAIGN)}
-        />
         <Text fontSize={24} fontWeight="500">
           <Trans>My Dashboard</Trans>
         </Text>
@@ -312,17 +233,6 @@ const MyDashboard = () => {
               <Trans>My Est. Rewards</Trans> {infor}
             </Text>
           </Flex>
-          {account && stipTradingRw?.greaterThan('0') && (
-            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-              <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
-              <Text fontWeight="500" ml="6px">
-                {totalStipRw} {stipReward.symbol}
-              </Text>
-              <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-                {totalStipRwUsd}
-              </Text>
-            </Flex>
-          )}
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
             <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
             <Text fontWeight="500" ml="6px">
@@ -358,17 +268,6 @@ const MyDashboard = () => {
             <Trans>My claim-able rewards</Trans>
           </Text>
 
-          {account && stipTradingRw?.greaterThan('0') && (
-            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-              <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
-              <Text fontWeight="500" ml="6px">
-                {totalClaimableRw} {stipReward.symbol}
-              </Text>
-              <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-                {totalClaimableRwUsd}
-              </Text>
-            </Flex>
-          )}
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
             <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
             <Text fontWeight="500" ml="6px">
@@ -389,74 +288,83 @@ const MyDashboard = () => {
         <Tab role="button" active={tab === NEW_CAMPAIGN} onClick={() => changeTab(NEW_CAMPAIGN)}>
           <Flex>
             {campaignLabelMap[NEW_CAMPAIGN]}{' '}
-            <NewLabel>
+            <NewLabel isNew>
               <Trans>New</Trans>
             </NewLabel>
           </Flex>
         </Tab>
-        {endedCampaignsHaveRewards.slice(0, upToSmall ? 1 : undefined).map(campaign => (
+        {selectedEndedCampaign && (
           <Tab
-            key={campaign.type}
+            key={selectedEndedCampaign.type}
             role="button"
-            active={tab === campaign.type}
-            onClick={() => changeTab(campaign.type)}
+            active={true}
+            onClick={() => changeTab(selectedEndedCampaign.type)}
           >
             <Flex>
-              {campaign.label}
-              <ELabel>
+              {selectedEndedCampaign.label}
+              <Text as="span" fontSize={10} ml="4px">
                 <Trans>Ended</Trans>
-              </ELabel>
+              </Text>
             </Flex>
           </Tab>
-        ))}
-        <Flex justifyContent="flex-end" flex={1}>
-          <ButtonIcon onClick={() => setShowModal(true)}>
-            <MoreHorizontal size={16} />
-          </ButtonIcon>
-        </Flex>
-        <Modal
-          isOpen={showModal}
-          onDismiss={() => setShowModal(false)}
-          maxHeight={90}
-          maxWidth={600}
-          bypassScrollLock={true}
-          bypassFocusLock={true}
-          zindex={99999}
-          width="240px"
-        >
-          <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
-            {endedCampaigns.map(campaign => (
-              <Tab
-                key={campaign.type}
-                role="button"
-                active={tab === campaign.type}
-                onClick={() => {
-                  changeTab(campaign.type)
-                  setShowModal(false)
+        )}
+        {endedCampaigns.length > 0 && (
+          <Flex justifyContent="flex-end" flex={1}>
+            <DropdownAnchor>
+              <MenuFlyout
+                isOpen={isOpenMenu}
+                toggle={() => setIsOpenMenu(prev => !prev)}
+                modalWhenMobile={false}
+                hasArrow={false}
+                customStyle={{
+                  minWidth: '240px',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  padding: '8px',
+                  borderRadius: '16px',
+                  backgroundColor: theme.background,
                 }}
+                trigger={
+                  <ButtonIcon color={tab !== NEW_CAMPAIGN ? theme.primary : undefined}>
+                    <MoreHorizontal size={16} />
+                  </ButtonIcon>
+                }
               >
-                <Flex>
-                  {campaign.label}
-                  <ELabel>
-                    <Trans>Ended</Trans>
-                  </ELabel>
-                </Flex>
-              </Tab>
-            ))}
+                <DropdownList>
+                  {endedCampaigns.map(campaign => (
+                    <DropdownItem
+                      key={campaign.type}
+                      $active={tab === campaign.type}
+                      onClick={() => {
+                        changeTab(campaign.type)
+                        setIsOpenMenu(false)
+                      }}
+                    >
+                      <Text color="inherit">{campaign.label}</Text>
+                    </DropdownItem>
+                  ))}
+                </DropdownList>
+              </MenuFlyout>
+            </DropdownAnchor>
           </Flex>
-        </Modal>
+        )}
       </Tabs>
 
-      {tab === CampaignType.NearIntents ? (
-        <MyNearIntentDashboard />
-      ) : !account ? (
-        <Text marginTop="30px" textAlign="center" color={theme.subText}>
-          <Trans>Please connect wallet to view your Dashboard</Trans>
-        </Text>
-      ) : tab === CampaignType.Referrals ? (
-        <MyReferralDashboard price={stipRewardPrice} infor={infor} />
+      {!account ? (
+        <Flex marginTop="30px" alignItems="center" flexDirection="column" sx={{ gap: '16px' }}>
+          <Text textAlign="center" color={theme.subText}>
+            <Trans>Please connect wallet to view your Dashboard</Trans>
+          </Text>
+          <ButtonPrimary width="180px" onClick={toggleWalletModal}>
+            <Trans>Connect Wallet</Trans>
+          </ButtonPrimary>
+        </Flex>
+      ) : tab === CampaignType.SafePal ? (
+        <SafePalDashboard />
       ) : tab === CampaignType.Raffle ? (
-        <MyRaffleDashboard />
+        <RaffleDashboard />
+      ) : tab === CampaignType.NearIntents ? (
+        <NearIntentDashboard />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
@@ -577,7 +485,7 @@ const MyDashboard = () => {
                         {item.isClaimed ? <Trans>Claimed</Trans> : <Trans>Claim</Trans>}
                       </ButtonOutlined>
                     ) : (
-                      <ClaimBtn info={item.claimInfo} />
+                      <ClaimButton info={item.claimInfo} />
                     )}
                   </Flex>
 
@@ -664,7 +572,7 @@ const MyDashboard = () => {
                       {item.isClaimed ? <Trans>Claimed</Trans> : <Trans>Claim</Trans>}
                     </ButtonOutlined>
                   ) : (
-                    <ClaimBtn info={item.claimInfo} />
+                    <ClaimButton info={item.claimInfo} />
                   )}
                 </Flex>
               </TableRow>
