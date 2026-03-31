@@ -22,8 +22,8 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useGasRefundTier, useStakingInfo } from 'hooks/kyberdao'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
@@ -125,7 +125,7 @@ export default function StakeKNC() {
   const { switchToEthereum } = useSwitchToEthereum()
   const { totalMigratedKNC } = useStakingInfo()
   const navigate = useNavigate()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const handleMigrateClick = () => {
     switchToEthereum(t`Migrate`).then(() => {
       toggleMigrationModal()
@@ -185,7 +185,7 @@ export default function StakeKNC() {
             </CardInfo>
             <ButtonPrimary
               onClick={() => {
-                mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_VOTE_CLICK)
+                trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_VOTE_CLICK)
                 navigate('/kyberdao/vote')
               }}
               width="120px"
@@ -239,7 +239,9 @@ export default function StakeKNC() {
                     <NavLink
                       to={APP_PATHS.KYBERDAO_KNC_UTILITY}
                       onClick={() => {
-                        mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'StakeKNC_page_KNC_utility' })
+                        trackingHandler(TRACKING_EVENT_TYPE.GAS_REFUND_SOURCE_CLICK, {
+                          source: 'StakeKNC_page_KNC_utility',
+                        })
                       }}
                     >
                       here ↗
@@ -256,7 +258,7 @@ export default function StakeKNC() {
                   <NavLink
                     to={APP_PATHS.KYBERDAO_KNC_UTILITY}
                     onClick={() => {
-                      mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, {
+                      trackingHandler(TRACKING_EVENT_TYPE.GAS_REFUND_SOURCE_CLICK, {
                         source: 'StakeKNC_page_KNC_utility_tier',
                       })
                     }}

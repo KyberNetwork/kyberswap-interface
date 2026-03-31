@@ -30,8 +30,8 @@ import {
   useVotingInfo,
 } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { isAddress, shortenAddress } from 'utils'
@@ -270,7 +270,7 @@ export default function StakeKNCComponent() {
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const parsedAmount = useParsedAmount(
     new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18, 'KNC'),
     inputValue,
@@ -294,7 +294,7 @@ export default function StakeKNCComponent() {
         setPendingText(t`Staking ${inputValue} KNC to KyberDAO`)
         setShowConfirm(true)
         setAttemptingTxn(true)
-        mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK, { amount: inputValue })
+        trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_STAKE_CLICK, { amount: inputValue })
         stake(parseUnits(inputValue, 18), deltaVotingPower)
           .then(tx => {
             setAttemptingTxn(false)
@@ -316,7 +316,7 @@ export default function StakeKNCComponent() {
         setPendingText(t`Unstaking ${inputValue} KNC from KyberDAO`)
         setShowConfirm(true)
         setAttemptingTxn(true)
-        mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_UNSTAKE_CLICK, { amount: inputValue })
+        trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_UNSTAKE_CLICK, { amount: inputValue })
         unstake(parseUnits(inputValue, 18))
           .then(tx => {
             setAttemptingTxn(false)
@@ -374,7 +374,7 @@ export default function StakeKNCComponent() {
       setPendingText(t`You are delegating your voting power to ${delegateAddress}.`)
       setShowConfirm(true)
       setAttemptingTxn(true)
-      mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_DELEGATE_CLICK, { delegateAddress: delegateAddress })
+      trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_DELEGATE_CLICK, { delegateAddress: delegateAddress })
       delegate(delegateAddress)
         .then(tx => {
           setAttemptingTxn(false)
@@ -395,7 +395,7 @@ export default function StakeKNCComponent() {
     delegatedAddress,
     toggleDelegateConfirm,
     undelegate,
-    mixpanelHandler,
+    trackingHandler,
     refetchGasRefundInfo,
   ])
 

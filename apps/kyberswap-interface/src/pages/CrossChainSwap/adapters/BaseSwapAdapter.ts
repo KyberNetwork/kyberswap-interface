@@ -1,6 +1,6 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import { AdaptedWallet } from '@relayprotocol/relay-sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
 import { WalletClient } from 'viem'
@@ -119,11 +119,14 @@ export interface NormalizedTxResponse {
   amountOutUsd: number
   platformFeePercent: number
   recipient: string
+  // Debug field to store original estimated amount when actual amount is available
+  estimatedAmountOut?: string
 }
 
 export interface SwapStatus {
   txHash: string
   status: 'Processing' | 'Success' | 'Failed' | 'Refunded'
+  amountOut?: string // Actual output amount from the destination chain (raw amount, not formatted)
 }
 
 // Define a common interface for all swap providers

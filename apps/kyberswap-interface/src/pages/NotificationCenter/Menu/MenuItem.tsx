@@ -8,8 +8,8 @@ import { PrivateAnnouncementType } from 'components/Announcement/type'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Column from 'components/Column'
 import { APP_PATHS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MenuItemType, Unread } from 'pages/NotificationCenter/Menu'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 
@@ -88,7 +88,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
   )
   const canShowListChildren = expand && !isChildren
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const onClickMenu = (e: React.MouseEvent) => {
     e.stopPropagation()
     isChildren && onChildrenClick?.()
@@ -96,7 +96,8 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
       onClick()
       return
     }
-    if (path.includes(PROFILE_MANAGE_ROUTES.PRICE_ALERTS)) mixpanelHandler(MIXPANEL_TYPE.PA_CLICK_TAB_IN_NOTI_CENTER)
+    if (path.includes(PROFILE_MANAGE_ROUTES.PRICE_ALERTS))
+      trackingHandler(TRACKING_EVENT_TYPE.PA_CLICK_TAB_IN_NOTI_CENTER)
     canShowExpand && setIsExpand(v => !v)
   }
 

@@ -1,6 +1,8 @@
 import { ReactNode } from 'react'
 
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
+import { SmartExitCondition } from 'pages/Earns/types'
 import { HistoricalPriceAlert } from 'pages/NotificationCenter/const'
 
 export type Announcement = {
@@ -11,6 +13,7 @@ export type Announcement = {
 
 export enum PrivateAnnouncementType {
   LIMIT_ORDER = 'LIMIT_ORDER',
+  SMART_EXIT = 'SMART_EXIT',
   BRIDGE_ASSET = 'BRIDGE_ASSET',
   ELASTIC_POOLS = 'ELASTIC_POOLS',
   POSITION_STATUS = 'POSITION_STATUS',
@@ -18,8 +21,27 @@ export enum PrivateAnnouncementType {
   DIRECT_MESSAGE = 'DIRECT_MESSAGE',
 }
 
+export enum SmartExitReason {
+  CancelledByYou = 'CANCELLED_BY_YOU',
+  LiquidityChanged = 'LIQUIDITY_CHANGED',
+  ConditionNeverMet = 'CONDITION_NEVER_MET',
+  OwnerChanged = 'OWNER_CHANGED',
+  MaxGasFeeExceeded = 'MAX_GAS_EXCEEDED',
+  ExpiryReached = 'EXPIRY_REACHED',
+}
+
+export enum SmartExitStatus {
+  CREATED = 'CREATED',
+  EXECUTED = 'EXECUTED',
+  NOT_EXECUTED = 'NOT_EXECUTED',
+  EXPIRED = 'EXPIRED',
+  CANCELLED = 'CANCELLED',
+  UNKNOWN = 'UNKNOWN',
+}
+
 export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTemplate> = {
   id: number
+  /** This field in the API is deprecated, so the FE will override it by mapping templateId to templateType */
   templateType: PrivateAnnouncementType
   templateId: number
   templateBody: T
@@ -57,7 +79,6 @@ type LimitOrderAnnouncement = {
 export type PoolPositionAnnouncement = {
   positionId: string
   chainId: string
-  exchange: string
   token0Symbol: string
   token1Symbol: string
   token0LogoURL: string
@@ -66,13 +87,68 @@ export type PoolPositionAnnouncement = {
   minPrice: number
   maxPrice: number
   poolAddress: string
-  type: 'OUT_OF_RANGE' | 'IN_RANGE'
+  exchange: string
+}
+
+export type PoolPositionLiquidityAnnouncement<NumberOrString = string> = {
+  positionId: string
+  chainId: NumberOrString
+  chainName: string
+  token0Symbol: string
+  token1Symbol: string
+  token0Decimals: NumberOrString
+  token1Decimals: NumberOrString
+  token0LogoURL: string
+  token1LogoURL: string
+  currentPrice: NumberOrString
+  minPrice: NumberOrString
+  maxPrice: NumberOrString
+  poolAddress: string
+  exchange: string
+  kyberswapUrl: string
+  wallet: string
+  notificationType: 'CREATED' | 'LIQUIDITY_DECREASED' | 'LIQUIDITY_INCREASED'
+  oldLiquidity: NumberOrString
+  newLiquidity: NumberOrString
+  oldToken0Amount: NumberOrString
+  newToken0Amount: NumberOrString
+  oldToken1Amount: NumberOrString
+  newToken1Amount: NumberOrString
+  oldValueUsd: NumberOrString
+  newValueUsd: NumberOrString
 }
 
 export type AnnouncementTemplateLimitOrder = {
   order: LimitOrderAnnouncement
   popupType: PopupType
   isReorg: boolean
+}
+
+export type SmartExitOrder = {
+  id: string
+  condition?: SmartExitCondition
+  execution?: {
+    receivedAmount0?: string
+    receivedAmount1?: string
+  }
+}
+
+export type SmartExitPosition = {
+  id: string
+  tokenId: string
+  pool: {
+    token0: { symbol: string; logo: string }
+    token1: { symbol: string; logo: string }
+  }
+  chain: { id: string; logo: string; name: string }
+  dex: { logo: string; type: SmartExitDexType }
+}
+
+export type AnnouncementTemplateSmartExit = {
+  order: SmartExitOrder
+  position: SmartExitPosition
+  popupType: PopupType
+  reason?: SmartExitReason
 }
 
 export type TokenInfoWatchlist = {
@@ -84,7 +160,7 @@ export type TokenInfoWatchlist = {
 }
 
 export type AnnouncementTemplatePoolPosition = {
-  position: PoolPositionAnnouncement
+  position: PoolPositionAnnouncement | PoolPositionLiquidityAnnouncement
   popupType: PopupType
 }
 
@@ -114,6 +190,7 @@ export type AnnouncementTemplate =
   | AnnouncementTemplatePoolPosition
   | AnnouncementTemplatePopup
   | AnnouncementTemplatePriceAlert
+  | AnnouncementTemplateSmartExit
 
 export enum NotificationType {
   SUCCESS,

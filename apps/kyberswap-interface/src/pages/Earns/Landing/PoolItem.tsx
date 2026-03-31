@@ -9,6 +9,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
+import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { EarnPool, ProgramType } from 'pages/Earns/types'
@@ -17,10 +18,12 @@ import { formatDisplayNumber } from 'utils/numbers'
 const PoolItem = ({ pool }: { pool: EarnPool }) => {
   const theme = useTheme()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
+  const { onOpenSmartExit, smartExitWidget } = useSmartExitWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
     triggerClose,
     setTriggerClose,
+    onOpenSmartExit,
   })
 
   const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
@@ -44,6 +47,7 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
     >
       {zapInWidget}
       {zapMigrationWidget}
+      {smartExitWidget}
       <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
         <TokenLogo src={pool.tokens?.[0].logoURI} size={24} />
         <TokenLogo src={pool.tokens?.[1].logoURI} size={24} translateLeft />

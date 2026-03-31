@@ -5,6 +5,7 @@ import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
 import campaignApi from 'services/campaign'
 import raffleCampaignApi from 'services/campaignRaffle'
+import safepalCampaignApi from 'services/campaignSafepal'
 import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
@@ -23,6 +24,7 @@ import referralApi from 'services/referral'
 import rewardServiceApi from 'services/reward'
 import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
+import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
 import zapEarnServiceApi from 'services/zapEarn'
@@ -117,10 +119,12 @@ const store = configureStore({
     [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [raffleCampaignApi.reducerPath]: raffleCampaignApi.reducer,
+    [safepalCampaignApi.reducerPath]: safepalCampaignApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
+    [smartExitApi.reducerPath]: smartExitApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -153,10 +157,12 @@ const store = configureStore({
       .concat(kyberdataServiceApi.middleware)
       .concat(referralApi.middleware)
       .concat(raffleCampaignApi.middleware)
+      .concat(safepalCampaignApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)
       .concat(blackjackApi.middleware)
-      .concat(marketOverviewApi.middleware),
+      .concat(marketOverviewApi.middleware)
+      .concat(smartExitApi.middleware),
   preloadedState,
 })
 

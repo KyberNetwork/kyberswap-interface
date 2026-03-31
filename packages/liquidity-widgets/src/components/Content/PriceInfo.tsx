@@ -24,32 +24,30 @@ export default function PriceInfo() {
 
   return (
     <>
-      <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
-        <div className="flex justify-between">
-          <div className="flex items-center justify-start gap-1 text-sm flex-wrap">
-            <span className="text-subText">
-              <Trans>Current price</Trans>
-            </span>
-            {initializing ? (
-              <Skeleton className="w-20 h-5" />
-            ) : (
-              <>
-                <span>1</span>
-                <TokenSymbol symbol={token0.symbol} maxWidth={100} />
-                <span>=</span>
-                <span>{formatDisplayNumber(poolPrice, { significantDigits: 8 })}</span>
+      <div className="flex justify-between">
+        <div className="flex items-center justify-start gap-1 text-sm flex-wrap">
+          <span className="text-subText">
+            <Trans>Current price</Trans>
+          </span>
+          {initializing ? (
+            <Skeleton className="w-20 h-5" />
+          ) : (
+            <>
+              <span>1</span>
+              <TokenSymbol symbol={token0.symbol} maxWidth={100} />
+              <span>=</span>
+              <span>{formatDisplayNumber(poolPrice, { significantDigits: 8 })}</span>
 
-                <TokenSymbol symbol={token1.symbol} maxWidth={100} />
-              </>
-            )}
-          </div>
+              <TokenSymbol symbol={token1.symbol} maxWidth={100} />
+            </>
+          )}
+        </div>
 
-          <div
-            className="flex items-center justify-center rounded-full bg-[#ffffff14] w-6 h-6"
-            onClick={toggleRevertPrice}
-          >
-            <RevertPriceIcon className="cursor-pointer" role="button" />
-          </div>
+        <div
+          className="flex items-center justify-center rounded-full bg-[#ffffff14] w-6 h-6"
+          onClick={toggleRevertPrice}
+        >
+          <RevertPriceIcon className="cursor-pointer" role="button" />
         </div>
       </div>
 

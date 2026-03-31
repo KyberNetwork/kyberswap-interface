@@ -22,6 +22,7 @@ import {
 } from './BaseSwapAdapter'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
+const DEBRIDGE_STATS_API = 'https://stats-api.dln.trade/api'
 
 const mappingChainId: Record<string, number> = {
   [ChainId.SONIC]: 100000014,
@@ -295,10 +296,20 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const r = await fetch(`${DEBRIDGE_API}/${p.id}/status`).then(res => res.json())
+    const r = await fetch(`${DEBRIDGE_STATS_API}/Orders/${p.id}`).then(res => res.json())
+
+    // Extract actual output amount from takeOfferWithMetadata if available
+    const actualAmountOut = r?.takeOfferWithMetadata?.amount?.stringValue
+
     return {
-      status: r.status === 'Fulfilled' ? 'Success' : 'Processing',
+      status:
+        r.state === 'Fulfilled' || r.state === 'SentUnlock' || r.state === 'ClaimedUnlock'
+          ? 'Success'
+          : r.state === 'OrderCancelled'
+          ? 'Failed'
+          : 'Processing',
       txHash: p.id,
+      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
 }

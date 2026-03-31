@@ -46,7 +46,7 @@ export const PositionFee = () => {
   if (!hasFee || !feeToken0 || !feeToken1) return null;
 
   return (
-    <div className="px-4 py-3 mt-4 border border-stroke rounded-md">
+    <div className="px-4 py-3 border border-stroke rounded-md">
       <p className="text-subText mb-4 text-sm">
         <Trans>Your Position Fee</Trans>
       </p>

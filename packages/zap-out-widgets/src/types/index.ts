@@ -5,6 +5,27 @@ import { SupportedLocale } from '@/i18n';
 
 export { TxStatus };
 
+export interface OnSuccessProps {
+  txHash: string;
+  positionId: string;
+  pool: {
+    address: string;
+    fee: number;
+  };
+  token0: {
+    address: string;
+    symbol: string;
+    logo: string;
+  };
+  token1: {
+    address: string;
+    symbol: string;
+    logo: string;
+  };
+  mode: 'zapOut' | 'withdrawOnly';
+  tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+}
+
 export interface ZapOutProps {
   theme?: Theme;
   chainId: ChainId;
@@ -22,6 +43,7 @@ export interface ZapOutProps {
   txStatus?: Record<string, TxStatus>;
   txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
+  mode?: 'zapOut' | 'withdrawOnly';
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
@@ -37,5 +59,6 @@ export interface ZapOutProps {
       | ApprovalAdditionalInfo,
   ) => Promise<string>;
   onExplorePools?: () => void;
+  onSuccess?: (props: OnSuccessProps) => void;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
 }

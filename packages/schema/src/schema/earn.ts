@@ -51,6 +51,7 @@ export enum EarnChain {
   OPTIMISM = ChainId.Optimism,
   MATIC = ChainId.PolygonPos,
   BERA = ChainId.Berachain,
+  MONAD = ChainId.Monad,
 }
 
 const univ2Dexes = [Exchange.DEX_UNISWAPV2] as const;

@@ -5,7 +5,7 @@ import { fetchTokens } from '@kyber/utils';
 import { toRawString } from '@kyber/utils/number';
 
 const BLOCKS_PER_CYCLE = 2016;
-const DATA_SERVICE_BASE_URL = 'https://kd-market-service-api.kyberengineering.io';
+const DATA_SERVICE_BASE_URL = 'https://kd-market-service-api.kyberswap.com';
 
 interface RewardConfigItem {
   tokenAddress: string;

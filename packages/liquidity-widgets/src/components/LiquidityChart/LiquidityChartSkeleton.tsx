@@ -4,7 +4,7 @@ const barColors = ['bg-layer2', 'bg-layer2'];
 
 export default function LiquidityChartSkeleton() {
   return (
-    <div className="w-full h-[180px] pt-2 mt-4 relative rounded-md flex flex-col justify-end overflow-hidden">
+    <div className="w-full h-[180px] pt-2 relative rounded-md flex flex-col justify-end overflow-hidden">
       {/* Axis */}
       <div className="absolute bottom-0 left-0 w-full h-[2px] bg-layer2 z-[1]" />
       {/* Bars */}

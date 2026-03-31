@@ -1,3 +1,4 @@
+import { ChainId } from '@kyber/schema'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PoolQueryParams } from 'services/zapEarn'
@@ -5,6 +6,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 import { useActiveWeb3React } from 'hooks'
 import { SortBy } from 'pages/Earns/PoolExplorer'
 import { FilterTag, timings } from 'pages/Earns/PoolExplorer/Filter'
+import { EARN_CHAINS, EarnChain } from 'pages/Earns/constants'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export default function useFilter(setSearch?: (search: string) => void) {
@@ -12,8 +14,9 @@ export default function useFilter(setSearch?: (search: string) => void) {
   const { account, chainId } = useActiveWeb3React()
 
   const filters: PoolQueryParams = useMemo(() => {
+    const fallbackChainId = EARN_CHAINS[chainId as unknown as EarnChain] ? chainId : ChainId.Ethereum
     return {
-      chainIds: searchParams.get('chainIds') ?? String(chainId),
+      chainIds: searchParams.get('chainIds') ?? String(fallbackChainId),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),

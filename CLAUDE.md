@@ -1,32 +1,13 @@
 # KyberSwap Interface
 
-> The fastest and most efficient place to trade and earn on multi-chains
-
-## Overview
-
-KyberSwap Interface is the unified frontend monorepo for Kyber Network's DeFi products:
-
-- **Aggregator**: Routes trades through 100+ DEXs across 16 chains for optimal rates
-- **Limit Orders**: Gasless, slippage-free, zero-fee trades
-- **Zap Widgets**: One-click liquidity provision with single token
-- **Cross-Chain Swaps**: Swap tokens across different chains in one transaction
+Unified frontend monorepo for Kyber Network's DeFi products (Aggregator, Limit Orders, Zap Widgets, Cross-Chain Swaps).
 
 ## Quick Start
 
 ```bash
-# Install dependencies
-pnpm i
-
-# Build shared packages (REQUIRED before running apps)
-pnpm build-package
-
-# Run main interface
-cd apps/kyberswap-interface && pnpm dev
-
-# Run widget demos
-cd apps/zap-widgets-demo && pnpm dev
-cd apps/swap-widgets-react-demo && pnpm dev
-cd apps/swap-widgets-nextjs-demo && pnpm dev
+pnpm i                                    # Install dependencies
+pnpm build-package                        # Build shared packages (REQUIRED before running apps)
+cd apps/kyberswap-interface && pnpm dev    # Run main interface
 ```
 
 ## Development Commands
@@ -39,9 +20,7 @@ cd apps/swap-widgets-nextjs-demo && pnpm dev
 | `pnpm lint`          | Run ESLint across all packages |
 | `pnpm type-check`    | TypeScript validation          |
 
-## Verification Checklist
-
-Before committing, always run:
+## Before Committing
 
 ```bash
 pnpm lint
@@ -51,34 +30,28 @@ pnpm build
 
 ## Tech Stack
 
-- **Framework**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Package Manager**: pnpm (workspaces)
-- **Monorepo Tool**: Turborepo
-- **Styling**: styled-components
-- **State Management**: Redux Toolkit (RTK Query for API)
-- **Widget State**: zustand
-- **Web3**: ethers.js, wagmi, viem
+- React 18 + TypeScript + Vite
+- pnpm workspaces + Turborepo
+- styled-components (no CSS modules, no inline styles)
+- Redux Toolkit + RTK Query (app state), zustand (widget state)
+- ethers.js, wagmi, viem
 
 ## Code Conventions
 
-### Component Structure
-
 - Functional components with hooks only
-- TypeScript strict mode enabled
-- Styled-components for styling (no CSS modules)
+- TypeScript strict mode, no unjustified `any`
+- Components: `PascalCase.tsx`, Hooks: `useCamelCase.ts`, Utils: `camelCase.ts`
+- Import order: external libs → `@kyberswap/*` → local imports → types → styles
 
-### File Naming
+## Code Quality Rules (MUST follow)
 
-- Components: `PascalCase.tsx`
-- Hooks: `useCamelCase.ts`
-- Utils: `camelCase.ts`
-- Types: `types.ts` or `*.types.ts`
+When writing or modifying code, **always** ensure the result is free of:
 
-### Import Order
+1. **TypeScript errors/warnings** — no `any` unless absolutely necessary (and justified with a comment), no implicit `any`, no unused variables/imports, no type mismatches. Run mental type-checking on every change.
+2. **ESLint violations** — follow all project ESLint rules. Key rules include:
+   - No unused imports or variables (`unused-imports/no-unused-imports`)
+   - Proper React hooks dependency arrays (`react-hooks/exhaustive-deps`)
+   - Proper import ordering
+3. **Prettier formatting** — all code must match the project's Prettier config (single quotes, trailing commas, semicolons, print width). Format code consistently.
 
-1. External libraries (react, ethers, etc.)
-2. Internal packages (@kyberswap/\*)
-3. Local imports (relative paths)
-4. Types
-5. Styles
+**Workflow**: After making changes, mentally verify TypeScript correctness, ESLint compliance, and Prettier formatting. When in doubt, run `pnpm lint` and `pnpm type-check` on the affected package to confirm zero errors before considering the task done.

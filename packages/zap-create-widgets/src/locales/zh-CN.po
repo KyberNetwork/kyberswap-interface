@@ -15,23 +15,23 @@ msgstr ""
 
 #: src/components/Setting/index.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
-msgstr "请在下方输入 <0>Confirm</0> 以启用 Degen 模式"
+msgstr "请输入下方 <0>Confirm</0> 以开启 Degen 模式"
 
 #: src/components/Estimated/index.tsx
 msgid "Zap Impact"
-msgstr "Zap 影响"
+msgstr "Zap 价格影响"
 
 #: src/components/Setting/index.tsx
 msgid "No, Go back"
-msgstr "不，返回"
+msgstr "否，返回"
 
 #: src/components/Estimated/index.tsx
 msgid "Est. Liquidity Value"
-msgstr "预计流动性价值"
+msgstr "预估流动性价值"
 
 #: src/components/Preview/index.tsx
 msgid "Confirm this transaction in your wallet - Zapping {dexName} {0}/{1} {2}%"
-msgstr "在钱包中确认此笔交易 - 正在对 {dexName} {0}/{1} {2}% 进行 Zap"
+msgstr "请在钱包中确认交易 - Zapping {dexName} {0}/{1} {2}%"
 
 #: src/hooks/useZapState.tsx
 msgid "Zap Unavailable"
@@ -51,7 +51,7 @@ msgstr "分钟"
 
 #: src/components/Setting/index.tsx
 msgid "Transaction Time Limit"
-msgstr "交易时间限制"
+msgstr "交易时效限制"
 
 #: src/constants/index.ts
 msgid "Select token in"
@@ -63,11 +63,11 @@ msgstr "最高价格"
 
 #: src/components/Estimated/EstimatedTokenRow.tsx
 msgid "Est. Pooled"
-msgstr "预计注入"
+msgstr "预计池内金额"
 
 #: src/components/Setting/index.tsx
 msgid "Are you sure?"
-msgstr "确定吗？"
+msgstr "确认继续？"
 
 #: src/components/Setting/index.tsx
 msgid "Confirm"
@@ -75,7 +75,7 @@ msgstr "确认"
 
 #: src/components/PriceRange/index.tsx
 msgid "Full Range"
-msgstr "全范围"
+msgstr "全区间"
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Custom"
@@ -87,12 +87,12 @@ msgstr "手续费 {0}%"
 
 #: src/components/Header/index.tsx
 msgid "Create New Pool"
-msgstr "创建新池子"
+msgstr "创建新池"
 
 #: src/components/Setting/index.tsx
 #: src/components/Setting/index.tsx
 msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
-msgstr "开启此选项可在极高价格影响或滑点下完成交易，可能导致糟糕的价格和资金损失，请谨慎操作。"
+msgstr "开启后可执行高价格影响交易或设置极高滑点，可能导致成交价不佳甚至资金损失，请谨慎操作"
 
 #: src/components/Content/LiquidityToAdd.tsx
 #: src/components/Content/LiquidityToAdd.tsx
@@ -101,11 +101,11 @@ msgstr "最大"
 
 #: src/components/Setting/index.tsx
 msgid "Transaction will revert if it is pending for longer than the indicated time."
-msgstr "如果交易等待时间超过设定时限，将会回滚。"
+msgstr "若交易等待时间超过设定值，将自动回退"
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Dynamic entry based on trading pair."
-msgstr "根据交易对动态设定。"
+msgstr "根据交易对动态设定入场价"
 
 #: src/components/Content/PriceInput.tsx
 msgid "Min price"
@@ -121,23 +121,23 @@ msgstr "Zap 摘要"
 
 #: src/components/Estimated/index.tsx
 msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
-msgstr "根据你设置的价格区间，部分流动性会自动 Zap 入池，其余金额将保留在你的钱包中。"
+msgstr "根据您的价格区间设置，部分流动性将自动 Zap 进入资金池，其余资产将保留在您的钱包中"
 
 #: src/components/Content/ZapSummary.tsx
 msgid "Build LP using {0} {symbol0} and {1} {symbol1} on <0>{dexName}</0>"
-msgstr "在 <0>{dexName}</0> 上使用 {0} {symbol0} 和 {1} {symbol1} 构建 LP"
+msgstr "在 <0>{dexName}</0> 使用 {0} {symbol0} 与 {1} {symbol1} 构建 LP"
 
 #: src/components/Estimated/index.tsx
 msgid "{0}% Protocol Fee + {1}% Fee for {source}"
-msgstr "{0}% 协议费用 + {1}% {source} 费用"
+msgstr "{0}% 协议手续费 + {1}% {source} 手续费"
 
 #: src/constants/index.ts
 msgid "Enter amount"
-msgstr "输入金额"
+msgstr "输入数量"
 
 #: src/Widget.tsx
 msgid "Failed to load pool"
-msgstr "加载池失败"
+msgstr "加载资金池失败"
 
 #: src/Widget.tsx
 msgid "Close & Refresh"
@@ -145,19 +145,19 @@ msgstr "关闭并刷新"
 
 #: src/Widget.tsx
 msgid "+ Add Token(s)"
-msgstr "+ 添加代币"
+msgstr "添加代币"
 
 #: src/components/Estimated/index.tsx
 msgid "Zap Fee"
-msgstr "Zap 费用"
+msgstr "Zap 手续费"
 
 #: src/components/Content/ZapSummary.tsx
 msgid "Claim fee{0}{1}"
-msgstr "领取手续费{0}{1}"
+msgstr "领取手续费 {0}{1}"
 
 #: src/components/PriceControl/index.tsx
 msgid "Market Rate"
-msgstr "市场价格"
+msgstr "市场价"
 
 #: src/Widget.tsx
 msgid "Add Liquidity"
@@ -173,7 +173,7 @@ msgstr "使用建议滑点"
 
 #: src/Widget.tsx
 msgid "Failed to build zap route"
-msgstr "构建 Zap 路线失败"
+msgstr "构建 Zap 路由失败"
 
 #: src/components/PriceControl/index.tsx
 msgid "Zapping with {0} is not supported"
@@ -187,7 +187,7 @@ msgstr "请输入有效的滑点百分比"
 
 #: src/components/Preview/ZapInAmount.tsx
 msgid "Zap-in Amount"
-msgstr "Zap 金额"
+msgstr "Zap 注入数量"
 
 #: src/components/Header/index.tsx
 #: src/components/Header/index.tsx
@@ -200,7 +200,7 @@ msgstr "连接钱包"
 
 #: src/components/Action/index.tsx
 msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-msgstr "为确保你不会因为极高价格影响而损失资金，此笔交易的兑换已被禁用。如仍希望继续，可在设置中开启 Degen 模式。"
+msgstr "为避免因极高价格影响造成资金损失，本次交易已禁用 Swap。如仍需继续，请在设置中开启 Degen 模式"
 
 #: src/components/Content/ZapSummary.tsx
 msgid "Swap {0} {1} for {2} {3} via {4}"
@@ -212,11 +212,11 @@ msgstr "建议"
 
 #: src/components/Action/useActionButton.ts
 msgid "Fetching Route"
-msgstr "获取路线"
+msgstr "获取交易路径中"
 
 #: src/components/Preview/index.tsx
 msgid "You have successfully created your Pool."
-msgstr "你已成功创建池子。"
+msgstr "您的资金池已成功创建"
 
 #: src/constants/index.ts
 msgid "Enter max price"
@@ -228,7 +228,7 @@ msgstr "切换网络"
 
 #: src/components/PriceControl/index.tsx
 msgid "Set the initiate pool price"
-msgstr "设置池子初始价格"
+msgstr "设置初始池价格"
 
 #: src/components/Action/index.tsx
 msgid "Cancel"
@@ -248,15 +248,15 @@ msgstr "池地址："
 
 #: src/components/Action/useActionButton.ts
 msgid "Approve {0}"
-msgstr "批准 {0}"
+msgstr "授权 {0}"
 
 #: src/components/Action/useActionButton.ts
 msgid "Checking Allowance"
-msgstr "检查授权"
+msgstr "检查授权额度"
 
 #: src/components/Action/useActionButton.ts
 msgid "Approving"
-msgstr "正在批准"
+msgstr "授权中"
 
 #: src/components/Preview/PriceInfo.tsx
 msgid "Min Price"
@@ -276,38 +276,38 @@ msgstr "无效的价格区间"
 
 #: src/components/Estimated/index.tsx
 msgid "{0}% remains unused and will be returned to your wallet. Refresh or change your amount to get updated routes."
-msgstr "{0}% 将不会使用并会退回你的钱包。刷新或调整金额以获取最新路线。"
+msgstr "{0}% 未被使用，将返还至您的钱包。刷新或调整数量以获取最新路由"
 
 #: src/components/Content/PriceInfo.tsx
 msgid "Unable to get the market price. Please be cautious!"
-msgstr "无法获取市场价格，请务必谨慎！"
+msgstr "无法获取市场价格，请谨慎操作！"
 
 #: src/components/Content/ZapSummary.tsx
 msgid "The actual Zap Routes could be adjusted with on-chain states"
-msgstr "实际 Zap 路线可能会根据链上状态调整"
+msgstr "实际 Zap 路由可能会根据链上状态进行调整"
 
 #: src/components/Preview/Warning.tsx
 #: src/components/Setting/utils.ts
 #: src/components/SlippageWarning/index.tsx
 msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
-msgstr "你的滑点设置低于常规，增加了交易失败的风险。"
+msgstr "当前滑点设置过低，可能增加交易失败风险"
 
 #: src/components/Setting/index.tsx
 msgid "Slippage Tolerance"
-msgstr "滑点容差"
+msgstr "滑点容忍度"
 
 #: src/components/Action/useActionButton.ts
 msgid "Token not supported"
-msgstr "代币不支持"
+msgstr "不支持该代币"
 
 #: src/components/Estimated/index.tsx
 msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
-msgstr "输入金额与预计获得的流动性（含剩余金额）之间的差额。数值过高时请谨慎！"
+msgstr "输入金额与预估获得的流动性（含剩余资产）之间的差额，高额操作请务必留意！"
 
 #: src/hooks/useZapState.tsx
 #: src/hooks/useZapState.tsx
 msgid "Something went wrong"
-msgstr "出了点问题"
+msgstr "发生错误"
 
 #: src/components/Setting/index.tsx
 msgid "Advanced Setting"
@@ -315,15 +315,15 @@ msgstr "高级设置"
 
 #: src/components/Estimated/index.tsx
 msgid "Est. Remaining Value"
-msgstr "预计剩余价值"
+msgstr "预计剩余金额"
 
 #: src/components/Action/index.tsx
 msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
-msgstr "你已在设置中开启 Degen 模式，可执行高价格影响的交易"
+msgstr "您已在设置中开启 Degen 模式，可执行高价格影响的交易"
 
 #: src/components/Preview/Warning.tsx
 msgid "The information is intended solely for your reference at the time you are viewing. It is your responsibility to verify all information before making decisions"
-msgstr "此信息仅供你查看时参考。做出决策前请自行核实所有信息。"
+msgstr "相关信息仅供您当前参考，做出决策前请自行核实所有信息"
 
 #: src/components/Action/useActionButton.ts
 msgid "Preview"
@@ -335,15 +335,15 @@ msgstr "输入最低价格"
 
 #: src/components/Preview/index.tsx
 msgid "View position"
-msgstr "查看头寸"
+msgstr "查看仓位"
 
 #: src/components/Header/index.tsx
 msgid "This pool doesn't exist yet. You will initialize it."
-msgstr "该池尚不存在。你将初始化它。"
+msgstr "该资金池尚未创建，您将对其进行初始化"
 
 #: src/components/Action/useActionButton.ts
 msgid "Estimating Gas"
-msgstr "估算 Gas"
+msgstr "预估 Gas 中"
 
 #: src/components/Content/LiquidityToAdd.tsx
 #: src/components/Content/LiquidityToAdd.tsx
@@ -352,32 +352,32 @@ msgstr "一半"
 
 #: src/components/Estimated/index.tsx
 msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
-msgstr "自动 Zap 进池所收取的费用，你仍需支付标准 Gas 费。<0>了解更多。</0>"
+msgstr "自动 Zap 进入流动性池所收取的费用，仍需支付标准 Gas 费。<0>了解更多</0>"
 
 #: src/components/Estimated/SlippageRow.tsx
 #: src/components/Setting/index.tsx
 #: src/components/SlippageWarning/index.tsx
 msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-msgstr "应用于每一步 Zap。较高的滑点容差有助于交易成功，但可能带来较差价格，请谨慎使用！"
+msgstr "适用于每一步 Zap。提高滑点可提升交易成功率，但成交价格可能不理想，请谨慎使用"
 
 #: src/components/Preview/index.tsx
 #: src/components/Preview/index.tsx
 msgid "Create Pool with Zap"
-msgstr "使用 Zap 创建池子"
+msgstr "使用 Zap 创建资金池"
 
 #: src/components/Preview/Warning.tsx
 #: src/components/Setting/utils.ts
 #: src/components/SlippageWarning/index.tsx
 msgid "Your slippage is set higher than usual, which may cause unexpected losses."
-msgstr "你的滑点设置高于常规，可能导致意外损失。"
+msgstr "当前滑点设置过高，可能导致非预期损失"
 
 #: src/constants/index.ts
 msgid "Invalid input amount"
-msgstr "无效的输入金额"
+msgstr "输入数量无效"
 
 #: src/components/PriceControl/index.tsx
 msgid "Use Market Rate"
-msgstr "使用市场价格"
+msgstr "使用市场价"
 
 #: src/components/Estimated/SlippageRow.tsx
 #: src/components/SlippageWarning/index.tsx
@@ -386,7 +386,7 @@ msgstr "最大滑点"
 
 #: src/components/Setting/utils.ts
 msgid "Enter a smaller slippage percentage"
-msgstr "请输入更低的滑点百分比"
+msgstr "请输入更小的滑点百分比"
 
 #: src/components/Preview/index.tsx
 #: src/components/Preview/index.tsx

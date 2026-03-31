@@ -23,6 +23,7 @@ import PoolSection from 'pages/Earns/Landing/PoolSection'
 import RewardSection from 'pages/Earns/Landing/RewardSection'
 import { Container, OverviewWrapper, WrapperBg } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
+import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { MEDIA_WIDTHS } from 'theme'
@@ -34,10 +35,12 @@ const EarnLanding = () => {
   const { account } = useActiveWeb3React()
   const { isLoading, data } = useExplorerLandingQuery({ userAddress: account })
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
+  const { onOpenSmartExit, smartExitWidget } = useSmartExitWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
     triggerClose,
     setTriggerClose,
+    onOpenSmartExit,
   })
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -73,6 +76,7 @@ const EarnLanding = () => {
     <WrapperBg>
       {zapInWidget}
       {zapMigrationWidget}
+      {smartExitWidget}
 
       <Container>
         <Text fontSize={36} fontWeight="500">

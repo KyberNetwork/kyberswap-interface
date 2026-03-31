@@ -74,6 +74,14 @@ export const submitTransaction = async ({
       error: null,
     }
   } catch (error) {
+    const txHash = (error as any)?.transactionHash as string | undefined
+    if (txHash) {
+      return {
+        txHash,
+        error: null,
+      }
+    }
+
     console.error('Submit transaction error:', error)
     if (onError) onError(error as Error)
     return {

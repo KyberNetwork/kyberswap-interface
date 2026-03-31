@@ -167,9 +167,14 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
     const res = await fetch(`${SYMBIOSIS_API}/tx/${p.sourceChain}/${p.sourceTxHash}`).then(r => r.json())
+
+    // Extract actual output amount from tx.tokenAmount if available
+    const actualAmountOut = res?.tx?.tokenAmount?.amount
+
     return {
       txHash: res?.tx?.hash || '',
       status: res.status.code === 0 ? 'Success' : res.status.code === 3 ? 'Failed' : 'Processing',
+      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
 }

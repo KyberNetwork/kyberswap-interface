@@ -18,8 +18,8 @@ import {
   useGasRefundInfo,
   useGasRefundTier,
 } from 'hooks/kyberdao'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
@@ -72,7 +72,7 @@ const Tab = styled(Text)<{ active?: boolean }>`
 `
 
 export default function GasRefundBox() {
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
   const { account, chainId } = useActiveWeb3React()
   const [selectedTab, setSelectedTab] = useState<KNCUtilityTabs>(KNCUtilityTabs.Available)
   const theme = useTheme()
@@ -91,7 +91,7 @@ export default function GasRefundBox() {
   const handleClaimReward = useCallback(async () => {
     try {
       setClaiming(true)
-      mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_CLAIM_CLICK, {
+      trackingHandler(TRACKING_EVENT_TYPE.GAS_REFUND_CLAIM_CLICK, {
         source: 'KNC Utility page',
         token_amount: claimableReward?.knc,
       })
@@ -99,7 +99,7 @@ export default function GasRefundBox() {
     } finally {
       setClaiming(false)
     }
-  }, [claimReward, claimableReward?.knc, mixpanelHandler])
+  }, [claimReward, claimableReward?.knc, trackingHandler])
 
   return (
     <Wrapper>

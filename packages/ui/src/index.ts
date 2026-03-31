@@ -27,7 +27,8 @@ export { Portal } from '@/portal';
 export { default as Loader } from '@/components/loader';
 export { default as Toggle, type ToggleProps } from '@/components/ui/toggle';
 export { default as ShareModal, type ShareModalProps, ShareType, ShareOption } from '@/components/ShareModal';
-export { default as TokenSelectorModal, MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';
+// TokenSelectorModal has been moved to @kyber/token-selector package
+// For migration: import TokenSelectorModal from '@kyber/token-selector';
 export { default as LoadingCounter } from '@/components/LoadingCounter';
 export { default as Loading } from '@/components/loading';
 export { default as StatusDialog, StatusDialogType, type StatusDialogProps } from '@/components/StatusDialog';

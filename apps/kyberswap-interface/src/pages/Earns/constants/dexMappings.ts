@@ -1,6 +1,6 @@
 import { PoolType as ZapPoolType } from '@kyberswap/liquidity-widgets'
 
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 
 export const ZAPIN_DEX_MAPPING: Record<Exchange, ZapPoolType> = {
   [Exchange.DEX_UNISWAPV3]: ZapPoolType.DEX_UNISWAPV3,
@@ -20,13 +20,4 @@ export const ZAPIN_DEX_MAPPING: Record<Exchange, ZapPoolType> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: ZapPoolType.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: ZapPoolType.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_AERODROMECL]: ZapPoolType.DEX_AERODROMECL,
-}
-
-export const getDexFromPoolType = (poolType: ZapPoolType): Exchange | undefined => {
-  const entry = Object.entries(ZAPIN_DEX_MAPPING).find(
-    ([exchange, type]) => type === poolType && EARN_DEXES[exchange as Exchange],
-  )
-
-  if (!entry) return undefined
-  return entry[0] as Exchange
 }

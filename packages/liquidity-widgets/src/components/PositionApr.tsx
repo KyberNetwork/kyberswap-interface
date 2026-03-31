@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro';
 
-import { defaultTheme } from '@kyber/schema';
-import { InfoHelper, Skeleton } from '@kyber/ui';
+import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { formatAprNumber } from '@kyber/utils/number';
 
 import { useEstimatedPositionApr } from '@/hooks/useEstimatedPositionApr';
@@ -64,23 +63,19 @@ export const PositionApr = () => {
   if (!pool?.isFarming) return null;
 
   return (
-    <div className="flex items-center justify-end text-sm mt-2 gap-2">
-      <div className="text-subText">
-        <Trans>Est. Position APR</Trans>
-      </div>
-      {loading && !data ? (
-        <Skeleton className="w-16 h-5" />
-      ) : (
-        <div className="flex items-center" style={{ color: defaultTheme.blue }}>
-          {!data ? '--' : data.totalApr === 0 ? '~0%' : `${formatAprNumber(data.totalApr)}%`}
-          <InfoHelper
-            placement="top"
-            width={!data ? 'fit-content' : '320px'}
-            color={defaultTheme.blue}
-            text={tooltipContent}
-          />
+    <MouseoverTooltip placement="top" width={!data ? 'fit-content' : '320px'} text={tooltipContent}>
+      <div className="flex items-center justify-start text-sm gap-2 bg-accent-100 rounded-[12px] px-3.5 py-2 w-full">
+        <div className="text-text">
+          <Trans>Est. Position APR</Trans>
         </div>
-      )}
-    </div>
+        {loading && !data ? (
+          <Skeleton className="w-16 h-5" />
+        ) : (
+          <p className="text-accent">
+            {!data ? '--' : data.totalApr === 0 ? '~0%' : `${formatAprNumber(data.totalApr)}%`}
+          </p>
+        )}
+      </div>
+    </MouseoverTooltip>
   );
 };

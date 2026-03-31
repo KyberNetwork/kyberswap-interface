@@ -5,13 +5,13 @@ import { Trans, t } from '@lingui/macro';
 import { useCopy } from '@kyber/hooks';
 import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, UniV3Position, getDexName, univ3Types } from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
+import { shortenAddress } from '@kyber/utils/crypto';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import Setting from '@/components/Setting';
-import { shortenAddress } from '@/components/TokenSelector/TokenInfo/utils';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 

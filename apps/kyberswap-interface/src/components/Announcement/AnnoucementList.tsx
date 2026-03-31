@@ -23,12 +23,14 @@ export enum Tab {
 export enum Category {
   EARN_POSITION = 'EARN_POSITION',
   LIMIT_ORDER = 'LIMIT_ORDER',
+  SMART_EXIT = 'SMART_EXIT',
   ANNOUNCEMENTS = 'ANNOUNCEMENTS',
 }
 
 const getViewHeight = (category: Category | null) => {
   if (category === Category.EARN_POSITION) return 112
   if (category === Category.LIMIT_ORDER) return 150
+  if (category === Category.SMART_EXIT) return 120
   return 128
 }
 
@@ -39,6 +41,7 @@ type Props = {
   toggleNotificationCenter?: () => void
   showDetailAnnouncement?: (index: number) => void
   selectedCategory?: Category | null
+  onAnnouncementRead?: (announcement: Announcement) => void | Promise<void>
   onPrivateAnnouncementRead?: (announcement: PrivateAnnouncement, statusMessage: string) => void | Promise<void>
   onPrivateAnnouncementPin?: (announcement: PrivateAnnouncement) => void | Promise<void>
   onPrivateAnnouncementDelete?: (announcement: PrivateAnnouncement) => void | Promise<void>
@@ -51,6 +54,7 @@ export default function AnnoucementList({
   toggleNotificationCenter,
   showDetailAnnouncement,
   selectedCategory,
+  onAnnouncementRead,
   onPrivateAnnouncementRead,
   onPrivateAnnouncementPin,
   onPrivateAnnouncementDelete,
@@ -74,6 +78,7 @@ export default function AnnoucementList({
   }
 
   const onReadAnnouncement = (item: Announcement, index: number) => {
+    onAnnouncementRead?.(item)
     handleShowDetail(index)
     handleToggle()
   }

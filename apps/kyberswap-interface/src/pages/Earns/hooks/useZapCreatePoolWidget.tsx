@@ -10,7 +10,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Exchange } from 'pages/Earns/constants'
-import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
+import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
@@ -55,12 +55,9 @@ const useZapCreatePoolWidget = () => {
       if (!library || !config) return
       const poolAddress = await fetchExistingPoolAddress(config)
 
-      const poolType = ZAPIN_DEX_MAPPING[config.protocol]
-      const dex = getDexFromPoolType(poolType)
+      if (!poolAddress) return
 
-      if (!dex || !poolAddress) return
-
-      navigateToPositionAfterZap(library, txHash, config.chainId, dex, poolAddress, navigate)
+      navigateToPositionAfterZap(library, txHash, config.chainId, config.protocol, poolAddress, navigate)
     },
     [library, navigate],
   )

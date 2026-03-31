@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useMemo } from 'react';
 
 import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
+import '@kyber/token-selector/styles.css';
 import '@kyber/ui/styles.css';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -21,7 +22,7 @@ import { TokenListProvider } from '@/hooks/useTokenList';
 import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { ZapOutProvider, useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
-import { TxStatus, ZapOutProps } from '@/types/index';
+import { OnSuccessProps, TxStatus, ZapOutProps } from '@/types/index';
 
 import './Widget.scss';
 import './globals.css';
@@ -114,4 +115,4 @@ const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: nu
 
 export { ChainId, PoolType, ZapOut, TxStatus };
 
-export type { SupportedLocale };
+export type { OnSuccessProps, SupportedLocale };

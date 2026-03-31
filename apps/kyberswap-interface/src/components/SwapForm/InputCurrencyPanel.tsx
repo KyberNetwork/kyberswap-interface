@@ -2,6 +2,8 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { useActiveWeb3React } from 'hooks'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
 import { formattedNum } from 'utils'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
@@ -27,11 +29,20 @@ const InputCurrencyPanel: React.FC<Props> = ({
   customChainId,
 }) => {
   const { routeSummary } = useSwapFormContext()
+  const { networkInfo } = useActiveWeb3React()
+  const { trackingHandler } = useTracking()
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : routeSummary
 
   const handleMaxInput = () => {
     const max = maxAmountSpend(balanceIn)?.toExact()
+    trackingHandler(TRACKING_EVENT_TYPE.MAX_BALANCE_CLICKED, {
+      token_symbol: currencyIn?.symbol,
+      token_address: currencyIn?.isNative ? 'NATIVE' : currencyIn?.wrapped?.address,
+      max_balance: max,
+      max_balance_usd: trade?.amountInUsd,
+      chain: networkInfo.name,
+    })
     setTypedValue(max || '')
   }
 

@@ -23,8 +23,8 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
@@ -98,12 +98,12 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
 
-  const { mixpanelHandler } = useMixpanel()
+  const { trackingHandler } = useTracking()
 
   const addMevProtectionHandler = useCallback(() => {
     setShowMevModal(true)
-    mixpanelHandler(MIXPANEL_TYPE.MEV_CLICK_ADD_MEV)
-  }, [mixpanelHandler])
+    trackingHandler(TRACKING_EVENT_TYPE.MEV_CLICK_ADD_MEV)
+  }, [trackingHandler])
 
   const onClose = useCallback(() => {
     setShowMevModal(false)

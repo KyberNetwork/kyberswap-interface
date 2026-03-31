@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Column from 'components/Column'
+import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -22,18 +23,12 @@ const StyledNavGroup = styled(NavGroup)`
   `}
 `
 
-const ELabel = styled.span<{ isNew?: boolean }>`
-  font-size: 10px;
-  margin-left: 4px;
-  color: ${({ theme, isNew }) => (isNew ? theme.red : theme.subText)};
-`
-
 const NestedNavLink = styled(StyledNavLink)`
   font-size: 14px;
   gap: 12px;
 `
 
-const showCampaignNew = new Date() < new Date('2025-12-02T23:59:59Z')
+const showCampaignNew = new Date() < new Date('2026-05-04T23:59:59Z')
 
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
@@ -54,24 +49,29 @@ const CampaignNavGroup = () => {
         anchor={
           <DropdownTextAnchor style={{ display: 'flex', position: 'relative', width: 'max-content' }}>
             <Trans>Campaigns</Trans>
-            {showCampaignNew && <ELabel isNew>{t`New`}</ELabel>}
+            {showCampaignNew && <NewLabel isNew>{t`New`}</NewLabel>}
           </DropdownTextAnchor>
         }
         dropdownContent={
           <Column>
+            <StyledNavLink to={APP_PATHS.SAFEPAL_CAMPAIGN}>
+              <Trans>Wallet Campaign</Trans>
+              {showCampaignNew ? <NewLabel isNew>{t`New`}</NewLabel> : <NewLabel>{t`Ended`}</NewLabel>}
+            </StyledNavLink>
+
             <StyledNavLink to={APP_PATHS.RAFFLE_CAMPAIGN}>
               <Trans>Weekly Rewards</Trans>
-              {showCampaignNew ? <ELabel isNew>{t`New`}</ELabel> : <ELabel>{t`Ended`}</ELabel>}
+              <NewLabel>{t`Ended`}</NewLabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.NEAR_INTENTS_CAMPAIGN}>
               <Trans>Cross Chain Campaign</Trans>
-              <ELabel>{t`Ended`}</ELabel>
+              <NewLabel>{t`Ended`}</NewLabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.MAY_TRADING_CAMPAIGN}>
               <Trans>May Trading</Trans>
-              <ELabel>{t`Ended`}</ELabel>
+              <NewLabel>{t`Ended`}</NewLabel>
             </StyledNavLink>
 
             <StyledNavLink
@@ -83,7 +83,7 @@ const CampaignNavGroup = () => {
               }}
             >
               Arbitrum STIP
-              <ELabel>{t`Ended`}</ELabel>
+              <NewLabel>{t`Ended`}</NewLabel>
               <DropdownIcon open={showStip} />
             </StyledNavLink>
 

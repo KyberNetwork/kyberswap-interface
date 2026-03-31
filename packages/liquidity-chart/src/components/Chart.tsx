@@ -2,13 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { ZoomTransform } from 'd3';
 import { max, scaleLinear } from 'd3';
-import partition from 'lodash.partition';
 
 import Area from '@/components/Area';
 import AxisBottom from '@/components/AxisBottom';
 import Brush from '@/components/Brush';
 import Line from '@/components/Line';
 import Zoom from '@/components/Zoom';
+import { MIN_PRICE } from '@/constants';
 import type { ChartEntry, ChartProps } from '@/types';
 
 const xAccessor = (d: ChartEntry) => d.price;
@@ -52,7 +52,11 @@ export default function Chart({
 
     if (zoom) {
       const newXscale = zoom.rescaleX(scales.xScale);
-      scales.xScale.domain(newXscale.domain());
+      const domain = newXscale.domain();
+      // Clamp domain minimum to prevent negative prices
+      if (domain[0] < 0) domain[0] = 0;
+      if (domain[1] < MIN_PRICE) domain[1] = MIN_PRICE;
+      scales.xScale.domain(domain);
     }
 
     return scales;
@@ -76,28 +80,27 @@ export default function Chart({
   }, [zoom]);
 
   const [leftSeries, rightSeries] = useMemo(() => {
-    const isHighToLow = series[0]?.price > series[series.length - 1]?.price;
-    let [left, right] = partition(series, (d: ChartEntry) =>
-      isHighToLow ? Number(xAccessor(d)) < current : Number(xAccessor(d)) > current,
-    );
+    const sorted = [...series].sort((a, b) => a.price - b.price);
 
-    if (right.length && right[right.length - 1]) {
-      if (right[right.length - 1].price !== current) {
-        right = [
-          ...right,
-          {
-            activeLiquidity: right[right.length - 1].activeLiquidity,
-            price: current,
-          },
-        ];
+    // Split into left (price <= current) and right (price > current)
+    let left: ChartEntry[] = [];
+    let right: ChartEntry[] = [];
+
+    for (const d of sorted) {
+      if (d.price <= current) {
+        left.push(d);
+      } else {
+        right.push(d);
       }
-      left = [
-        {
-          activeLiquidity: right[right.length - 1].activeLiquidity,
-          price: current,
-        },
-        ...left,
-      ];
+    }
+
+    // Connect left and right at current price so there's no gap
+    if (left.length) {
+      const lastLeft = left[left.length - 1];
+      if (lastLeft.price !== current) {
+        left = [...left, { activeLiquidity: lastLeft.activeLiquidity, price: current }];
+      }
+      right = [{ activeLiquidity: lastLeft.activeLiquidity, price: current }, ...right];
     }
 
     return [left, right];
@@ -169,7 +172,16 @@ export default function Chart({
                 <Area
                   fill="#31cb9e"
                   opacity={1}
-                  series={series}
+                  series={leftSeries}
+                  xScale={xScale}
+                  xValue={xAccessor}
+                  yScale={yScale}
+                  yValue={yAccessor}
+                />
+                <Area
+                  fill="#31cb9e"
+                  opacity={1}
+                  series={rightSeries}
                   xScale={xScale}
                   xValue={xAccessor}
                   yScale={yScale}

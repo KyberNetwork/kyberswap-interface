@@ -5,7 +5,7 @@ import { Category } from 'components/Announcement/AnnoucementList'
 
 import { BackButton, ContentHeader, HeaderAction, HeaderTitle } from './styles'
 
-export type PrivateCategoryState = {
+export type SelectedCategoryState = {
   markAllAsRead?: () => void
   isMarkAllLoading?: boolean
   unread?: number
@@ -14,7 +14,7 @@ export type PrivateCategoryState = {
 type Props = {
   isCategoryTab: boolean
   selectedCategory: Category | null
-  selectedPrivateCategory?: PrivateCategoryState
+  selectedCategoryState?: SelectedCategoryState
   account?: string
   onBack: () => void
 }
@@ -22,13 +22,14 @@ type Props = {
 const getHeaderTitle = (category: Category | null) => {
   if (category === Category.LIMIT_ORDER) return <Trans>Limit Orders</Trans>
   if (category === Category.EARN_POSITION) return <Trans>Earn Position</Trans>
+  if (category === Category.SMART_EXIT) return <Trans>Smart Exit</Trans>
   return <Trans>Announcements</Trans>
 }
 
 export default function AnnouncementHeader({
   isCategoryTab,
   selectedCategory,
-  selectedPrivateCategory,
+  selectedCategoryState,
   account,
   onBack,
 }: Props) {
@@ -40,10 +41,10 @@ export default function AnnouncementHeader({
         <ChevronLeft size={16} />
       </BackButton>
       <HeaderTitle>{getHeaderTitle(selectedCategory)}</HeaderTitle>
-      {selectedPrivateCategory && selectedCategory !== Category.ANNOUNCEMENTS && (
+      {selectedCategoryState && (
         <HeaderAction
-          onClick={selectedPrivateCategory.markAllAsRead}
-          disabled={!account || selectedPrivateCategory.isMarkAllLoading || (selectedPrivateCategory.unread || 0) === 0}
+          onClick={selectedCategoryState.markAllAsRead}
+          disabled={!account || selectedCategoryState.isMarkAllLoading || (selectedCategoryState.unread || 0) === 0}
         >
           <Check size={16} />
           <Trans>Mark all read</Trans>
