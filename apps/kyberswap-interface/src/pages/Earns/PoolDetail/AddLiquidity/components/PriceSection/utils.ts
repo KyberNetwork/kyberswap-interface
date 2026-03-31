@@ -1,4 +1,5 @@
 import { POOL_CATEGORY, Pool, univ3PoolNormalize } from '@kyber/schema'
+import { toString } from '@kyber/utils/number'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3'
 
 export const FULL_PRICE_RANGE = 'Full Range'
@@ -52,13 +53,13 @@ export const getRangePresetOptions = ({
       const left = poolPrice * (1 - Number(item))
       const right = poolPrice * (1 + Number(item))
       const lower = priceToClosestTick(
-        !revertPrice ? `${left}` : `${right}`,
+        !revertPrice ? toString(Number(left)) : toString(Number(right)),
         pool.token0.decimals,
         pool.token1.decimals,
         revertPrice,
       )
       const upper = priceToClosestTick(
-        !revertPrice ? `${right}` : `${left}`,
+        !revertPrice ? toString(Number(right)) : toString(Number(left)),
         pool.token0.decimals,
         pool.token1.decimals,
         revertPrice,
@@ -98,5 +99,6 @@ export const getRangePresetOptions = ({
 
 export const getDefaultRangePreset = (category?: Pool['category']) =>
   category
-    ? DEFAULT_PRICE_RANGE[category as keyof typeof DEFAULT_PRICE_RANGE] || DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR]
+    ? DEFAULT_PRICE_RANGE[category as keyof typeof DEFAULT_PRICE_RANGE] ||
+      DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR]
     : undefined
