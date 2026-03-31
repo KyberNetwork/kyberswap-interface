@@ -629,7 +629,7 @@ export default function TokenSelector({
         </div>
 
         {showTabs && (
-          <div className="border rounded-full p-[2px] flex mx-6 text-sm gap-1 border-icon-200">
+          <div className="border rounded-full p-[2px] flex mx-6 !mt-0 text-sm gap-1 border-icon-200">
             <div
               className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
                 modalTabSelected === MODAL_TAB.TOKENS ? "bg-[#ffffff33]" : ""

@@ -24,9 +24,10 @@ import { useZapPool } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool
 import { type ZapState, useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
-import { EARN_DEXES } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionHistory } from 'state/transactions/type'
@@ -50,6 +51,11 @@ type AddLiquidityBodyProps = AddLiquidityProps & {
   chainId: number
   feedback: AddLiquidityFeedback
   isRefreshingReview: boolean
+  onOpenZapMigration?: (
+    position: { exchange: string; poolId: string; positionId: string | number },
+    initialTick?: { tickUpper: number; tickLower: number },
+    initialSlippage?: number,
+  ) => void
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onDismissReview: () => void
   onPreview: () => Promise<void>
@@ -92,6 +98,7 @@ const AddLiquidityColumn = styled(Stack)`
 
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
+  LIQ_EXISTING_POSITION_SELECTED: TRACKING_EVENT_TYPE.LIQ_EXISTING_POSITION_SELECTED,
   LIQ_MAX_CLICKED: TRACKING_EVENT_TYPE.LIQ_MAX_CLICKED,
   LIQ_HALF_CLICKED: TRACKING_EVENT_TYPE.LIQ_HALF_CLICKED,
   PRICE_RANGE_PRESET_SELECTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED,
@@ -104,6 +111,7 @@ const AddLiquidityBody = ({
   children,
   feedback,
   isRefreshingReview,
+  onOpenZapMigration,
   onTrackEvent,
   onDismissReview,
   onPreview,
@@ -143,6 +151,7 @@ const AddLiquidityBody = ({
               onPreview,
             }}
             feedback={feedback.widget}
+            onOpenZapMigration={onOpenZapMigration}
             onTrackEvent={onTrackEvent}
           />
 
@@ -197,6 +206,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const [reviewState, setReviewState] = useState<ReviewState | null>(null)
   const refreshSourceRouteRef = useRef<ZapRouteDetail | null>(null)
 
+  const { widget: zapMigrationWidget, handleOpenZapMigration: openZapMigrationWidget } = useZapMigrationWidget()
   const { trackingHandler } = useTracking()
 
   const addTransactionWithType = useTransactionAdder()
@@ -415,6 +425,32 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     setReviewState(null)
   }, [])
 
+  const handleOpenZapMigration = useCallback(
+    (
+      position: { exchange: string; poolId: string; positionId: string | number },
+      initialTick?: { tickUpper: number; tickLower: number },
+      initialSlippage?: number,
+    ) => {
+      openZapMigrationWidget({
+        from: {
+          poolType: position.exchange as Exchange,
+          poolAddress: position.poolId,
+          positionId: position.positionId.toString(),
+          dexId: position.exchange as Exchange,
+        },
+        to: {
+          poolType: exchange,
+          poolAddress,
+          dexId: exchange,
+        },
+        chainId,
+        initialTick,
+        initialSlippage,
+      })
+    },
+    [chainId, exchange, openZapMigrationWidget, poolAddress],
+  )
+
   return (
     <AddLiquidityRuntimeProvider value={runtimeValue}>
       {!normalizedPool.data ? (
@@ -438,6 +474,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
           chainId={chainId}
           feedback={feedback}
           isRefreshingReview={isRefreshingReview}
+          onOpenZapMigration={handleOpenZapMigration}
           onTrackEvent={handleTrackEvent}
           onDismissReview={handleDismissReview}
           onPreview={handlePreview}
@@ -451,6 +488,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
           {children}
         </AddLiquidityBody>
       )}
+      {zapMigrationWidget}
     </AddLiquidityRuntimeProvider>
   )
 }

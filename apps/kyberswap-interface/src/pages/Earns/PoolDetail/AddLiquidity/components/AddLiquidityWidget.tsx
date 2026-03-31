@@ -44,9 +44,21 @@ type AddLiquidityWidgetProps = {
   preview?: AddLiquidityWidgetPreview
   feedback: ReturnType<typeof useFeedback>['widget']
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
+  onOpenZapMigration?: (
+    position: { exchange: string; poolId: string; positionId: string | number },
+    initialTick?: { tickUpper: number; tickLower: number },
+    initialSlippage?: number,
+  ) => void
 }
 
-const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent }: AddLiquidityWidgetProps) => {
+const AddLiquidityWidget = ({
+  context,
+  state,
+  preview,
+  feedback,
+  onTrackEvent,
+  onOpenZapMigration,
+}: AddLiquidityWidgetProps) => {
   const { chainId: poolChainId, poolAddress, poolType, pool } = context
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -108,6 +120,8 @@ const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent }:
         <AddLiquidityTokenInput
           context={{
             chainId: poolChainId,
+            poolType,
+            poolAddress,
             pool,
           }}
           wallet={{
@@ -120,8 +134,12 @@ const AddLiquidityWidget = ({ context, state, preview, feedback, onTrackEvent }:
             balances: state.tokenInput.balances,
             prices: state.tokenInput.prices,
             route,
+            slippage: state.slippage.value,
+            tickLower: state.priceRange.tickLower,
+            tickUpper: state.priceRange.tickUpper,
           }}
           onTrackEvent={onTrackEvent}
+          onOpenZapMigration={onOpenZapMigration}
           onTokensChange={state.tokenInput.setTokens}
           onAmountsChange={state.tokenInput.setAmounts}
         />

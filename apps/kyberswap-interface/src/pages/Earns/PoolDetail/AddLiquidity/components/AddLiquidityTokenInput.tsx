@@ -1,7 +1,7 @@
-import { NETWORKS_INFO, Pool, PoolType, Token, UniV3Pool, ZapRouteDetail, univ3Types } from '@kyber/schema'
+import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, Token, UniV3Pool, ZapRouteDetail, univ3Types } from '@kyber/schema'
 import TokenSelectorModal, { MAX_TOKENS, TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { InfoHelper } from '@kyber/ui'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Text } from 'rebass'
@@ -69,6 +69,8 @@ const LiquidityShare = ({ pool, route }: { pool: Pool; route?: ZapRouteDetail | 
 interface AddLiquidityTokenInputProps {
   context: {
     chainId: number
+    poolType: PoolType
+    poolAddress: string
     pool: Pool
   }
   wallet?: {
@@ -81,8 +83,16 @@ interface AddLiquidityTokenInputProps {
     balances?: Record<string, bigint>
     prices?: Record<string, number>
     route?: ZapRouteDetail | null
+    slippage?: number
+    tickLower?: number | null
+    tickUpper?: number | null
   }
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
+  onOpenZapMigration?: (
+    position: { exchange: string; poolId: string; positionId: string | number },
+    initialTick?: { tickUpper: number; tickLower: number },
+    initialSlippage?: number,
+  ) => void
   onTokensChange?: (nextTokens: Token[]) => void
   onAmountsChange?: (nextAmounts: string) => void
 }
@@ -92,6 +102,7 @@ const AddLiquidityTokenInput = ({
   wallet,
   value,
   onTrackEvent,
+  onOpenZapMigration,
   onTokensChange,
   onAmountsChange,
 }: AddLiquidityTokenInputProps) => {
@@ -99,7 +110,7 @@ const AddLiquidityTokenInput = ({
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false)
   const [tokenAddressSelected, setTokenAddressSelected] = useState<string>()
 
-  const { chainId, pool } = context
+  const { chainId, poolType, poolAddress, pool } = context
   const { token0, token1 } = pool
 
   const currentTokens = value?.tokens ?? EMPTY_TOKENS
@@ -107,6 +118,9 @@ const AddLiquidityTokenInput = ({
   const currentBalances = value?.balances ?? EMPTY_BALANCES
   const currentPrices = value?.prices ?? EMPTY_PRICES
   const currentRoute = value?.route
+  const currentSlippage = value?.slippage
+  const tickLower = value?.tickLower
+  const tickUpper = value?.tickUpper
   const amountList = useMemo(() => currentAmounts.split(','), [currentAmounts])
 
   const onCloseTokenSelectModal = useCallback(() => {
@@ -168,6 +182,31 @@ const AddLiquidityTokenInput = ({
     [chainId, currentTokens, onTokensChange, onTrackEvent, pool],
   )
 
+  const handleOpenZapMigration = useCallback(
+    (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) => {
+      if (!onOpenZapMigration) return
+
+      const dexNameObj = DEXES_INFO[poolType]?.name
+      const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]
+      const poolPair = `${pool.token0.symbol}/${pool.token1.symbol}`
+
+      onTrackEvent?.('LIQ_EXISTING_POSITION_SELECTED', {
+        position_id: position.positionId?.toString(),
+        pool_pair: poolPair,
+        pool_protocol: dexName,
+        pool_fee_tier: `${pool.fee}%`,
+        chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
+      })
+
+      onOpenZapMigration(
+        position,
+        typeof tickLower === 'number' && typeof tickUpper === 'number' ? { tickLower, tickUpper } : undefined,
+        initialSlippage,
+      )
+    },
+    [chainId, onOpenZapMigration, onTrackEvent, pool, poolType, tickLower, tickUpper],
+  )
+
   return (
     <Stack gap={12}>
       {currentTokens.length ? (
@@ -195,13 +234,13 @@ const AddLiquidityTokenInput = ({
       <LiquidityShare pool={pool} route={currentRoute} />
 
       <AddTokenButton type="button" onClick={() => openTokenSelectModalForToken()}>
-        + Add Token(s)
+        <Trans>+ Add Token(s) or Use Existing Position</Trans>
         <InfoHelper
           noneMarginLeft
           placement="bottom"
-          text={t`You can zap in with up to ${MAX_TOKENS} tokens`}
+          text={t`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
           color={theme.primary}
-          width="280px"
+          width="300px"
         />
       </AddTokenButton>
 
@@ -224,6 +263,12 @@ const AddLiquidityTokenInput = ({
               selectedTokenAddress: tokenAddressSelected,
               token0Address: token0.address,
               token1Address: token1.address,
+            }}
+            positionOptions={{
+              showUserPositions: !!onOpenZapMigration,
+              poolAddress,
+              initialSlippage: currentSlippage,
+              onSelectLiquiditySource: onOpenZapMigration ? handleOpenZapMigration : undefined,
             }}
           />,
           document.body,
