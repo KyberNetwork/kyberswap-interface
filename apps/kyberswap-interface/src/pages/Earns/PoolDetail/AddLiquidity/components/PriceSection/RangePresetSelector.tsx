@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { HStack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 
-import { FULL_PRICE_RANGE, getRangePresetOptions } from './utils'
+import { FULL_PRICE_RANGE, getDefaultRangePreset, getRangePresetOptions } from './utils'
 
 const RangeButton = styled.button<{ $active: boolean }>`
   flex: 1 1 0;
@@ -117,6 +117,19 @@ const RangePresetSelector = ({
     previousRevertPrice.current = revertPrice
     previousRangeSelected.current = rangeSelected
   }, [handleSelectPriceRange, rangeSelected, revertPrice])
+
+  useEffect(() => {
+    if (lastSelected || tickLower === null || tickUpper === null) return
+
+    const matches = priceRanges.filter(item => item.tickLower === tickLower && item.tickUpper === tickUpper)
+    if (matches.length <= 1) return
+
+    const defaultRangePreset = getDefaultRangePreset(pool.category)
+    const matchedDefaultRange = matches.find(item => item.range === defaultRangePreset) || matches[0]
+    if (!matchedDefaultRange) return
+
+    setLastSelected(matchedDefaultRange.range)
+  }, [lastSelected, pool.category, priceRanges, tickLower, tickUpper])
 
   if (!priceRanges.length) return null
 

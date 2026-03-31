@@ -167,6 +167,7 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
 
   useEffect(() => {
     if (!isUniV3 || !pool) return
+    if (revertPrice !== defaultRevertPrice) return
     if (tickPriceState.tickLower !== null && tickPriceState.tickUpper !== null) return
     if (!defaultRangeOptions.length) return
 
@@ -180,8 +181,10 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
     setTickUpper(defaultRange.tickUpper)
   }, [
     defaultRangeOptions,
+    defaultRevertPrice,
     isUniV3,
     pool,
+    revertPrice,
     setTickLower,
     setTickUpper,
     tickPriceState.tickLower,

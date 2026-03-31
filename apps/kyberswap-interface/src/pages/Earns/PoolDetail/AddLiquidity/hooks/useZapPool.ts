@@ -122,7 +122,7 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
 
     const token0 = buildPoolToken(rawPool.tokens[0], tokenMetadataMap)
     const token1 = buildPoolToken(rawPool.tokens[1], tokenMetadataMap)
-    const category = mapPoolCategory(pairCategoryData?.data?.category)
+    const category = pairCategoryLoading ? undefined : mapPoolCategory(pairCategoryData?.data?.category)
     const stats = buildPoolStats(rawPool.poolStats)
     const isFarming = Boolean(rawPool.programs?.includes('eg') || rawPool.programs?.includes('lm'))
     const isFarmingLm = Boolean(rawPool.programs?.includes('lm'))
@@ -168,7 +168,7 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
     })
 
     return parsedPool.success ? parsedPool.data : null
-  }, [pairCategoryData?.data?.category, poolType, rawPool, tokenMetadataMap])
+  }, [pairCategoryData?.data?.category, pairCategoryLoading, poolType, rawPool, tokenMetadataMap])
 
   const loading = (Boolean(tokenAddresses.length) && tokenMetadataLoading) || pairCategoryLoading
   const error = !loading && !normalizedPool ? 'Failed to prepare pool data' : ''
