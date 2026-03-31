@@ -14,7 +14,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
-import { CardDivider, ClaimButton, DarkCard, NextDistribution } from 'pages/Earns/PositionDetail/styles'
+import { CardDivider, ClaimButton, DarkCard, NextDistribution, RewardLink } from 'pages/Earns/PositionDetail/styles'
 import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
@@ -357,9 +357,10 @@ const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: str
     {merklRewards.map(token => (
       <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
         <TokenLogo src={token.logo} size={16} />
-        <Text color={textColor}>
-          {formatDisplayNumber(token.totalAmount, { significantDigits: 4 })} {token.symbol}
-        </Text>
+        <RewardLink href="https://app.merkl.xyz/users" target="_blank">
+          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+          <Text color={textColor}>{token.symbol}</Text>
+        </RewardLink>
       </Flex>
     ))}
   </Flex>

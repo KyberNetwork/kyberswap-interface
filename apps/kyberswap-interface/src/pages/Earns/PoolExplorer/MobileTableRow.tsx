@@ -114,7 +114,10 @@ const MobileTableRow = ({
             <Text>
               {pool.maxAprInfo
                 ? formatAprNumber(
-                    Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
+                    Number(pool.maxAprInfo.apr) +
+                      Number(pool.maxAprInfo.kemEGApr) +
+                      Number(pool.maxAprInfo.kemLMApr) +
+                      Number(pool.bonusApr || 0),
                   ) + '%'
                 : '--'}
             </Text>

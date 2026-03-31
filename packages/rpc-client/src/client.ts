@@ -502,8 +502,11 @@ export class RpcClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        if (response.status === 429) {
+        if (response.status === 429 || response.status === 402) {
           throw new RpcError(429, 'Rate limit exceeded');
+        }
+        if (response.status === 502 || response.status === 503 || response.status === 504) {
+          throw new RpcError(response.status, `Provider unavailable: ${response.status} ${response.statusText}`);
         }
         throw new RpcError(response.status, `HTTP error: ${response.status} ${response.statusText}`);
       }
@@ -566,8 +569,11 @@ export class RpcClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        if (response.status === 429) {
+        if (response.status === 429 || response.status === 402) {
           throw new RpcError(429, 'Rate limit exceeded');
+        }
+        if (response.status === 502 || response.status === 503 || response.status === 504) {
+          throw new RpcError(response.status, `Provider unavailable: ${response.status} ${response.statusText}`);
         }
         throw new RpcError(response.status, `HTTP error: ${response.status} ${response.statusText}`);
       }
@@ -691,18 +697,45 @@ export class RpcClient {
   }
 
   private isRateLimitError(error: Error): boolean {
-    if (error instanceof RpcError && error.code === 429) {
-      return true;
+    if (error instanceof RpcError) {
+      // JSON-RPC error codes that indicate rate limiting / quota
+      const rateLimitCodes = [
+        429, // Non-standard but widely used (Alchemy, QuickNode, GetBlock)
+        -32001, // Quota exceeded (1RPC)
+        -32005, // EIP-1474 "Limit exceeded" (Infura, NodeReal, BSC/Geth)
+        -32097, // Rate limit reached (BlastAPI)
+      ];
+      if (rateLimitCodes.includes(error.code)) return true;
     }
 
     const message = error.message.toLowerCase();
-    return message.includes('rate limit') || message.includes('too many requests') || message.includes('429');
+    return (
+      message.includes('rate limit') ||
+      message.includes('too many requests') ||
+      message.includes('429') ||
+      message.includes('exceeded the quota') ||
+      message.includes('quota usage') ||
+      message.includes('compute units') || // Alchemy CU-based limits
+      message.includes('capacity limit') || // Alchemy monthly capacity
+      message.includes('request rate exceeded') || // Infura per-second
+      message.includes('daily request count') || // Infura daily quota
+      message.includes('requests per second') || // QuickNode, Ankr
+      message.includes('request limit') || // QuickNode
+      message.includes('over limit') // GetBlock
+    );
   }
 
   private isRetryableError(error: Error): boolean {
     if (error instanceof RpcError) {
-      // Retryable RPC error codes
-      const retryableCodes = [-32000, -32603, -1]; // Server error, internal error, timeout
+      // Retryable RPC error codes (non-deterministic server-side errors)
+      const retryableCodes = [
+        -32000, // Server error
+        -32603, // Internal error
+        -1, // Timeout
+        502, // Bad gateway
+        503, // Service unavailable
+        504, // Gateway timeout
+      ];
       return retryableCodes.includes(error.code);
     }
 
