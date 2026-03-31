@@ -161,9 +161,15 @@ export type EstimatePositionAprResponse = {
   }
 }
 
-interface PoolAnalyticsQueryParams {
+interface PoolChartQueryParams {
   chainId: number
   address: string
+  window: PoolAnalyticsWindow
+}
+
+interface PositionChartQueryParams {
+  chainId: number
+  positionId: string
   window: PoolAnalyticsWindow
 }
 
@@ -178,7 +184,7 @@ export interface PoolAprHistoryPoint {
   tvlUsd?: number
 }
 
-export interface PoolAprHistoryAnalytics {
+export interface PoolAprHistoryData {
   chainId: number
   poolAddress: string
   points: Array<PoolAprHistoryPoint>
@@ -193,7 +199,7 @@ export interface PoolPriceCandle {
   volume: number
 }
 
-export interface PoolPriceAnalytics {
+export interface PoolPriceData {
   window: PoolAnalyticsWindow
   candles: Array<PoolPriceCandle>
   currentPrice: number
@@ -207,7 +213,7 @@ export interface PoolLiquidityFlowBucket {
   tvlUsd: number
 }
 
-export interface PoolLiquidityFlowsAnalytics {
+export interface PoolLiquidityFlowsData {
   window: PoolAnalyticsWindow
   buckets: Array<PoolLiquidityFlowBucket>
 }
@@ -221,7 +227,7 @@ export interface PoolEarningsBucket {
   totalUsd: number
 }
 
-export interface PoolEarningsAnalytics {
+export interface PoolEarningsData {
   window: PoolAnalyticsWindow
   buckets: Array<PoolEarningsBucket>
 }
@@ -321,33 +327,47 @@ const zapEarnServiceApi = createApi({
         },
       }),
     }),
-    poolAprHistory: builder.query<PoolAprHistoryAnalytics, PoolAnalyticsQueryParams>({
+    poolAprHistory: builder.query<PoolAprHistoryData, PoolChartQueryParams>({
       query: params => ({
         url: `/v1/pools/apr-history`,
         params,
       }),
-      transformResponse: (response: { data: PoolAprHistoryAnalytics }) => response.data,
+      transformResponse: (response: { data: PoolAprHistoryData }) => response.data,
     }),
-    poolEarnings: builder.query<PoolEarningsAnalytics, PoolAnalyticsQueryParams>({
+    positionAprHistory: builder.query<PoolAprHistoryData, PositionChartQueryParams>({
+      query: ({ chainId, positionId, window }) => ({
+        url: `/v1/positions/${chainId}/${positionId}/apr-history`,
+        params: { window },
+      }),
+      transformResponse: (response: { data: PoolAprHistoryData }) => response.data,
+    }),
+    poolEarnings: builder.query<PoolEarningsData, PoolChartQueryParams>({
       query: params => ({
         url: `/v1/pools/earnings`,
         params,
       }),
-      transformResponse: (response: { data: PoolEarningsAnalytics }) => response.data,
+      transformResponse: (response: { data: PoolEarningsData }) => response.data,
     }),
-    poolPrice: builder.query<PoolPriceAnalytics, PoolAnalyticsQueryParams>({
+    positionEarnings: builder.query<PoolEarningsData, PositionChartQueryParams>({
+      query: ({ chainId, positionId, window }) => ({
+        url: `/v1/positions/${chainId}/${positionId}/earnings`,
+        params: { window },
+      }),
+      transformResponse: (response: { data: PoolEarningsData }) => response.data,
+    }),
+    poolPrice: builder.query<PoolPriceData, PoolChartQueryParams>({
       query: params => ({
         url: `/v1/pools/price`,
         params,
       }),
-      transformResponse: (response: { data: PoolPriceAnalytics }) => response.data,
+      transformResponse: (response: { data: PoolPriceData }) => response.data,
     }),
-    poolLiquidityFlows: builder.query<PoolLiquidityFlowsAnalytics, PoolAnalyticsQueryParams>({
+    poolLiquidityFlows: builder.query<PoolLiquidityFlowsData, PoolChartQueryParams>({
       query: params => ({
         url: `/v1/pools/liquidity-flows`,
         params,
       }),
-      transformResponse: (response: { data: PoolLiquidityFlowsAnalytics }) => response.data,
+      transformResponse: (response: { data: PoolLiquidityFlowsData }) => response.data,
     }),
     userPositions: builder.query<{ positions: Array<UserPosition>; stats?: UserPositionsStats }, PositionQueryParams>({
       query: params => ({
@@ -407,6 +427,8 @@ export const {
   useEstimatePositionAprQuery,
   usePoolAprHistoryQuery,
   usePoolEarningsQuery,
+  usePositionAprHistoryQuery,
+  usePositionEarningsQuery,
   usePoolPriceQuery,
   usePoolLiquidityFlowsQuery,
   useUserPositionsQuery,
