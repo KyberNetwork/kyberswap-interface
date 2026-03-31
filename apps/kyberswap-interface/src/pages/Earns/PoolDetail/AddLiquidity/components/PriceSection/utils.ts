@@ -24,6 +24,11 @@ export interface RangeOption {
   tickUpper: number
 }
 
+export const getDisplayedPriceTokens = (pool: Pool, revertPrice: boolean) => ({
+  baseToken: revertPrice ? pool.token1 : pool.token0,
+  quoteToken: revertPrice ? pool.token0 : pool.token1,
+})
+
 export const getRangePresetOptions = ({
   pool,
   poolPrice,
@@ -102,3 +107,51 @@ export const getDefaultRangePreset = (category?: Pool['category']) =>
     ? DEFAULT_PRICE_RANGE[category as keyof typeof DEFAULT_PRICE_RANGE] ||
       DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR]
     : undefined
+
+export const getPriceRangeToShow = ({
+  pool,
+  revertPrice,
+  tickLower,
+  tickUpper,
+  minPrice,
+  maxPrice,
+}: {
+  pool: Pool | null
+  revertPrice: boolean
+  tickLower: number | null
+  tickUpper: number | null
+  minPrice: string | null
+  maxPrice: string | null
+}) => {
+  if (!pool) return
+
+  const { success: isUniV3, data: uniV3Pool } = univ3PoolNormalize.safeParse(pool)
+
+  if (!isUniV3) {
+    return {
+      minPrice: '0',
+      maxPrice: '∞',
+    }
+  }
+
+  const isMinTick = uniV3Pool.minTick === tickLower
+  const isMaxTick = uniV3Pool.maxTick === tickUpper
+
+  let minPriceToShow = minPrice
+  let maxPriceToShow = maxPrice
+
+  if (isMinTick) {
+    if (!revertPrice) minPriceToShow = '0'
+    else maxPriceToShow = '∞'
+  }
+
+  if (isMaxTick) {
+    if (!revertPrice) maxPriceToShow = '∞'
+    else minPriceToShow = '0'
+  }
+
+  return {
+    minPrice: minPriceToShow,
+    maxPrice: maxPriceToShow,
+  }
+}

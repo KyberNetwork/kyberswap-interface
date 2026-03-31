@@ -61,7 +61,7 @@ const ProtocolLogo = styled.img`
 const FeeBadge = styled(Stack)`
   padding: 4px 12px;
   border-radius: 999px;
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => theme.darkText};
 `
 
 const TooltipAddressRow = ({ token }: { token: PoolDetailToken }) => {
