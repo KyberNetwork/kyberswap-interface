@@ -312,7 +312,6 @@ const Filter = ({
           />
           {isFarmingFiltered && (
             <MultiSelectDropdownMenu
-              alignLeft
               highlightOnSelect
               label={selectedRewardTypeLabel}
               options={rewardTypeOptions}
