@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import LocalLoader from 'components/LocalLoader'
@@ -110,29 +110,32 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
   return (
     <>
       {isFetching && loadingProgress}
-      <div>
-        {tablePoolData.map((pool, index) =>
-          upToMedium ? (
+
+      {upToMedium ? (
+        <Flex flexDirection="column" sx={{ gap: 3 }}>
+          {tablePoolData.map(pool => (
             <MobileTableRow
               key={pool.address}
               pool={pool}
               filters={filters}
               onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
-              withoutBorder={index === tablePoolData.length - 1}
             />
-          ) : (
-            <DesktopTableRow
-              key={pool.address}
-              pool={pool}
-              filters={filters}
-              onOpenZapInWidget={onOpenZapInWidget}
-              handleFavorite={handleFavorite}
-              favoriteLoading={favoriteLoading}
-            />
-          ),
-        )}
-      </div>
+          ))}
+        </Flex>
+      ) : (
+        tablePoolData.map(pool => (
+          <DesktopTableRow
+            key={pool.address}
+            pool={pool}
+            filters={filters}
+            onOpenZapInWidget={onOpenZapInWidget}
+            handleFavorite={handleFavorite}
+            favoriteLoading={favoriteLoading}
+          />
+        ))
+      )}
+
       {isFetching && upToMedium && loadingProgress}
 
       {/* Important to load dex info */}

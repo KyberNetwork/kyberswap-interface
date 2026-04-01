@@ -56,6 +56,8 @@ export interface EarnPool {
     kemLMApr: string
   }
   egUsd?: number
+  sparkline?: number[]
+  sparklinePriceToken?: string
 }
 
 export interface ParsedEarnPool extends EarnPool {
@@ -67,7 +69,7 @@ export interface MerklOpportunity {
   type: string
   chainId: number
   identifier: string
-  name?: string
+  name: string
   status: string
   action: string
   tvl: number
@@ -78,7 +80,7 @@ export interface MerklOpportunity {
   protocol: {
     id: string
     name: string
-    icon?: string
+    icon: string
   }
   rewardsRecord: {
     total: number
@@ -111,6 +113,10 @@ export interface MerklOpportunity {
     startTimestamp: number
     endTimestamp: number
     apr: number
-    dailyRewards?: number
+    dailyRewards: number
+    creator?: {
+      address: string
+      tags?: string[]
+    }
   }>
 }
