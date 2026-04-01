@@ -166,7 +166,7 @@ const PositionDetailHeader = () => {
             width="fit-content"
           >
             <Link
-              to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
+              to={`${APP_PATHS.ADD_LIQUIDITY}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
               style={{ textDecoration: 'none' }}
             >
               <Flex alignItems="center" sx={{ gap: '8px', cursor: 'pointer' }}>
