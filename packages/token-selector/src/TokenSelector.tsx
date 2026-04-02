@@ -308,9 +308,13 @@ export default function TokenSelector({
         };
       })
       .sort((a: CustomizeToken, b: CustomizeToken) => {
+        // Combined sort: selected > inPair > balance (descending).
+        // In ADD mode, treat the initial token set as "selected" for sorting,
+        // so toggling tokens in the modal does not reorder the list.
+        let aSelectedPriority = a.selected;
+        let bSelectedPriority = b.selected;
+
         if (mode === TOKEN_SELECT_MODE.ADD) {
-          // In ADD mode, only the preselected tokens from the opening state should be bubbled up.
-          // Newly added or removed tokens should not reshuffle the list while the modal is open.
           const aInitiallySelected = initialTokensInAddress.current.has(
             a.address.toLowerCase(),
           );
@@ -318,15 +322,12 @@ export default function TokenSelector({
             b.address.toLowerCase(),
           );
 
-          if (aInitiallySelected !== bInitiallySelected) {
-            return Number(bInitiallySelected) - Number(aInitiallySelected);
-          }
-
-          return 0;
+          aSelectedPriority = Number(aInitiallySelected);
+          bSelectedPriority = Number(bInitiallySelected);
         }
 
-        if (b.selected !== a.selected) {
-          return b.selected - a.selected;
+        if (bSelectedPriority !== aSelectedPriority) {
+          return bSelectedPriority - aSelectedPriority;
         }
         if (b.inPair !== a.inPair) return b.inPair - a.inPair;
         return parseFloat(b.balance) - parseFloat(a.balance);
