@@ -1,26 +1,13 @@
 import { rgba } from 'polished'
 import { useMemo } from 'react'
-import { useMedia } from 'react-use'
-import { Box, Text } from 'rebass'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
-import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import { formatAprValue } from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import { MEDIA_WIDTHS } from 'theme'
-
-type RewardProgram = {
-  icon?: string
-  label: string
-  value: number
-}
-
-const BaselineRow = styled(HStack)`
-  align-items: baseline;
-  gap: 6px;
-`
 
 const AprBadge = styled(Stack)`
   background: ${({ theme }) => rgba(theme.primary, 0.12)};
@@ -28,82 +15,74 @@ const AprBadge = styled(Stack)`
   padding: 4px 12px;
 `
 
-const RewardBadge = styled(HStack)`
+const ActiveAprBadge = styled(AprBadge)`
+  background: ${({ theme }) => rgba(theme.blue, 0.12)};
+`
+
+const AprSection = styled(HStack)`
   align-items: center;
-  background: ${({ theme }) => theme.tableHeader};
-  border-radius: 999px;
+  gap: 24px;
+  flex: 1 1 420px;
+`
+
+const SectionDivider = styled.div`
+  width: 1px;
+  align-self: stretch;
+  background: ${({ theme }) => rgba(theme.text, 0.08)};
+`
+
+const ValueColumn = styled(Stack)`
   gap: 8px;
-  padding: 6px 8px;
+`
+
+const BaselineRow = styled(HStack)`
+  align-items: baseline;
+  gap: 8px;
 `
 
 const PoolEarningApr = () => {
   const theme = useTheme()
-  const { dexInfo, pool } = usePoolDetailContext()
-
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const { pool } = usePoolDetailContext()
 
   const aprSummary = useMemo(() => {
     const totalApr = pool.poolStats?.apr ?? 0
-    const egApr = pool.poolStats?.kemEGApr ?? 0
-    const lmApr = pool.poolStats?.kemLMApr ?? 0
-    const bonusApr = pool.poolStats?.bonusApr ?? 0
-    const rewardApr = egApr + lmApr + bonusApr
-    const feeApr = pool.poolStats?.lpApr7d ?? totalApr - rewardApr
+    const feeApr = pool.poolStats?.lpApr7d ?? 0
+    const rewardApr = Math.max(totalApr - feeApr, 0)
+    const activeApr = pool.poolStats?.activeApr
+    const activeFeeApr = pool.poolStats?.activeFeeApr ?? 0
 
-    const rewardPrograms: RewardProgram[] = []
-    if (lmApr > 0) {
-      rewardPrograms.push({
-        icon: dexInfo.logo,
-        label: dexInfo.name,
-        value: lmApr,
-      })
-    }
-    if (bonusApr > 0 && pool.merklOpportunity) {
-      rewardPrograms.push({
-        icon: pool.merklOpportunity.protocol.icon,
-        label: pool.merklOpportunity.protocol.name,
-        value: pool.merklOpportunity.apr,
-      })
-    }
     return {
-      activeApr: pool.poolStats?.activeApr,
-      totalApr,
+      activeApr,
+      activeFeeApr,
+      activeRewardApr: activeApr !== undefined ? Math.max(activeApr - activeFeeApr, 0) : undefined,
       feeApr,
       rewardApr,
-      rewardPrograms,
+      totalApr,
     }
-  }, [dexInfo.logo, dexInfo.name, pool])
+  }, [pool])
 
   const hasActiveApr = aprSummary?.activeApr !== undefined
 
   return (
-    <HStack align="stretch" gap={12} wrap="wrap">
-      <Stack alignItems="center" flex="0 0 auto" gap={8} px={12}>
-        <Text color={theme.text} fontSize={14} fontWeight={500}>
-          {hasActiveApr ? 'Active APR' : 'APR'}
-        </Text>
-        <AprBadge>
-          <Text color={theme.primary} fontSize={24} fontWeight={600}>
-            {formatAprValue(hasActiveApr ? aprSummary.activeApr : aprSummary.totalApr)}
-          </Text>
-        </AprBadge>
-      </Stack>
+    <HStack align="stretch" gap={16} wrap="wrap">
+      <AprSection>
+        <Stack align="center" flex="0 0 auto" gap={8}>
+          <HStack align="center" gap={4}>
+            <Text color={theme.text} fontSize={14} fontWeight={500}>
+              APR
+            </Text>
+            <InfoHelper text="Earning Per Total TVL" size={14} placement="top" />
+          </HStack>
+          <AprBadge>
+            <Text color={theme.primary} fontSize={24} fontWeight={600}>
+              {formatAprValue(aprSummary.totalApr)}
+            </Text>
+          </AprBadge>
+        </Stack>
 
-      {!upToSmall && <Box backgroundColor={rgba(theme.text, 0.08)} width="1px" />}
+        <SectionDivider />
 
-      <Stack flex="1 1 320px" gap={8} justify="flex-start" px={12}>
-        <HStack align="baseline" gap="12px 24px" wrap="wrap">
-          {hasActiveApr && (
-            <BaselineRow>
-              <Text color={theme.subText} fontSize={14}>
-                APR
-              </Text>
-              <Text color={theme.text} fontWeight={500}>
-                {formatAprValue(aprSummary.totalApr)}
-              </Text>
-            </BaselineRow>
-          )}
-
+        <ValueColumn>
           <BaselineRow>
             <Text color={theme.subText} fontSize={14}>
               Fee
@@ -112,9 +91,6 @@ const PoolEarningApr = () => {
               {formatAprValue(aprSummary.feeApr)}
             </Text>
           </BaselineRow>
-        </HStack>
-
-        <HStack align="center" gap="12px 24px" wrap="wrap">
           <BaselineRow>
             <Text color={theme.subText} fontSize={14}>
               Rewards
@@ -123,24 +99,47 @@ const PoolEarningApr = () => {
               {formatAprValue(aprSummary.rewardApr)}
             </Text>
           </BaselineRow>
+        </ValueColumn>
+      </AprSection>
 
-          {aprSummary.rewardPrograms.length > 0 && (
-            <HStack gap={16} wrap="wrap">
-              {aprSummary.rewardPrograms.map((item, index) => (
-                <RewardBadge key={index}>
-                  {item.icon ? <TokenLogo size={16} src={item.icon} /> : null}
-                  <Text color={theme.subText} fontSize={14}>
-                    {item.label}
-                  </Text>
-                  <Text color={theme.text} fontSize={14} fontWeight={500}>
-                    {formatAprValue(item.value)}
-                  </Text>
-                </RewardBadge>
-              ))}
+      {hasActiveApr ? (
+        <AprSection>
+          <Stack align="center" flex="0 0 auto" gap={8}>
+            <HStack align="center" gap={4}>
+              <Text color={theme.text} fontSize={14} fontWeight={500}>
+                Active APR
+              </Text>
+              <InfoHelper text="Earning Per Active TVL" size={14} placement="top" />
             </HStack>
-          )}
-        </HStack>
-      </Stack>
+            <ActiveAprBadge>
+              <Text color={theme.blue} fontSize={24} fontWeight={600}>
+                {formatAprValue(aprSummary.activeApr)}
+              </Text>
+            </ActiveAprBadge>
+          </Stack>
+
+          <SectionDivider />
+
+          <ValueColumn>
+            <BaselineRow>
+              <Text color={theme.subText} fontSize={14}>
+                Fee
+              </Text>
+              <Text color={theme.text} fontWeight={500}>
+                {formatAprValue(aprSummary.activeFeeApr)}
+              </Text>
+            </BaselineRow>
+            <BaselineRow>
+              <Text color={theme.subText} fontSize={14}>
+                Rewards
+              </Text>
+              <Text color={theme.text} fontWeight={500}>
+                {formatAprValue(aprSummary.activeRewardApr)}
+              </Text>
+            </BaselineRow>
+          </ValueColumn>
+        </AprSection>
+      ) : null}
     </HStack>
   )
 }

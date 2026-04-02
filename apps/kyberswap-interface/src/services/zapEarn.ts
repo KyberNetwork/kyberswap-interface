@@ -101,46 +101,58 @@ interface PoolDetailStats {
   tvl?: number
   volume24h?: number
   fees24h?: number
-  activeApr?: number
-  apr24h?: number
-  allApr24h?: number
-  lpApr24h?: number
-  kemLMApr24h?: number
-  kemEGApr24h?: number
-  bonusApr?: number
-  apr?: number
-  kemLMApr?: number
-  kemEGApr?: number
-  allApr7d?: number
-  lpApr7d?: number
-  kemLMApr7d?: number
-  kemEGApr7d?: number
-  apr30d?: number
-  allApr30d?: number
-  lpApr30d?: number
-  kemLMApr30d?: number
-  kemEGApr30d?: number
-  aprStats?: PoolAprStats
   volumeUsd?: PoolStatsByPeriod
   lpFeeUsd?: PoolStatsByPeriod
+
+  apr?: number
+  apr24h?: number
+  apr30d?: number
+  activeApr?: number
+
+  bonusApr?: number
+  kemEGApr?: number
+  kemLMApr?: number
+  activeEgApr?: number
+  activeLmApr?: number
+  activeFeeApr?: number
+
+  allApr24h?: number
+  allApr7d?: number
+  allApr30d?: number
+
+  lpApr24h?: number
+  lpApr7d?: number
+  lpApr30d?: number
+
+  kemLMApr24h?: number
+  kemLMApr7d?: number
+  kemLMApr30d?: number
+
+  kemEGApr24h?: number
+  kemEGApr7d?: number
+  kemEGApr30d?: number
+
+  aprStats?: PoolAprStats
 }
 
 export interface PoolDetail {
   address: string
+  exchange: Exchange
+  swapFee: number
   reserveUsd: string
   amplifiedTvl: string
-  swapFee: number
-  exchange: Exchange
+
+  reserves: Array<string>
+  tokens: Array<PoolDetailToken>
+  poolStats?: PoolDetailStats
+  merklOpportunity?: MerklOpportunity
+  positionInfo: PoolDetailPositionInfo
+
   type?: string
   programs?: string[]
   timestamp?: number
-  staticExtra?: string
   blockNumber?: number
-  reserves: Array<string>
-  tokens: Array<PoolDetailToken>
-  positionInfo: PoolDetailPositionInfo
-  poolStats?: PoolDetailStats
-  merklOpportunity?: MerklOpportunity
+  staticExtra?: string
 }
 
 export type PoolAnalyticsWindow = '24h' | '7d' | '30d'

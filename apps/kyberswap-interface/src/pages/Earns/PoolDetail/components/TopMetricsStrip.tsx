@@ -1,3 +1,4 @@
+import { rgba } from 'polished'
 import { type ReactNode } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -30,7 +31,7 @@ const MetricsGrid = styled.div<MetricsGridProps>`
     css`
       padding: 16px;
       border-radius: 16px;
-      background: ${theme.buttonGray};
+      background: ${rgba(theme.buttonGray, 0.8)};
     `}
 
   ${({ theme, $columns }) => theme.mediaWidth.upToMedium`
@@ -53,7 +54,7 @@ const MetricCard = styled(Stack)<MetricCardProps>`
     css`
       padding: 16px;
       border-radius: 16px;
-      background: ${theme.buttonGray};
+      background: ${rgba(theme.buttonGray, 0.8)};
     `}
 `
 

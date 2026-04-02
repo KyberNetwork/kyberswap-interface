@@ -1,4 +1,3 @@
-import { formatAprNumber } from '@kyber/utils'
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
 import { useMemo } from 'react'
@@ -62,12 +61,6 @@ const RewardCard = styled(Stack)`
   border-radius: 12px;
   background: ${({ theme }) => theme.buttonGray};
   flex: 1 1 calc(50% - 8px);
-`
-
-const RewardAprBadge = styled(HStack)`
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-  border-radius: 999px;
-  padding: 4px 8px;
 `
 
 const ProgressLabelWrapper = styled(HStack)<{ $width: string }>`
@@ -205,7 +198,7 @@ const PoolEarningReward = () => {
   )
 }
 
-const RewardCardItem = ({ apr, chainIcon, chainName, from, icon, name, to, token }: RewardCardItemProps) => {
+const RewardCardItem = ({ chainIcon, chainName, from, icon, name, to, token }: RewardCardItemProps) => {
   const theme = useTheme()
   const progressPercent = getProgressPercent(from, to)
   const distributedAmount = token.totalAmount ? (token.totalAmount * progressPercent) / 100 : 0
@@ -218,18 +211,9 @@ const RewardCardItem = ({ apr, chainIcon, chainName, from, icon, name, to, token
           <TokenLogo size={16} src={chainIcon} translateLeft translateTop />
         </HStack>
 
-        <HStack align="center" gap={8} wrap="wrap">
-          <Text color={theme.text} fontSize={20} fontWeight={500}>
-            {name}
-          </Text>
-          {apr !== undefined ? (
-            <RewardAprBadge>
-              <Text color={theme.text} fontSize={14} fontWeight={500}>
-                {formatAprNumber(apr)}%
-              </Text>
-            </RewardAprBadge>
-          ) : null}
-        </HStack>
+        <Text color={theme.text} fontSize={20} fontWeight={500}>
+          {name}
+        </Text>
       </HStack>
 
       {token.dailyAmount !== undefined ? (
