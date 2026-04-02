@@ -49,6 +49,7 @@ export function colors() {
 
     // border colors
     border: '#505050',
+    darkBorder: '#373737',
 
     // shadows
     shadow: 'rgba(0, 0, 0, 0.2)',

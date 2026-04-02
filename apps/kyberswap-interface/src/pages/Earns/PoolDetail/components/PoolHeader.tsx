@@ -69,7 +69,7 @@ const TooltipAddressRow = ({ token }: { token: PoolDetailToken }) => {
 const PoolHeaderPage = () => {
   const navigate = useNavigate()
   const theme = useTheme()
-  const { pool, chainInfo, dexInfo, primaryToken, secondaryToken, feeTier } = usePoolDetailContext()
+  const { pool, chainInfo, dexInfo, primaryToken, secondaryToken } = usePoolDetailContext()
 
   return (
     <HStack align="center" gap={8} wrap="wrap">
@@ -120,7 +120,7 @@ const PoolHeaderPage = () => {
             {dexInfo.name}
           </Text>
           <Text color={theme.subText} fontSize={14} fontWeight={500}>
-            | {feeTier}%
+            | {pool.swapFee}%
           </Text>
         </ProtocolBadge>
       </HStack>
@@ -130,7 +130,7 @@ const PoolHeaderPage = () => {
 
 const PoolHeaderReview = () => {
   const theme = useTheme()
-  const { primaryToken, secondaryToken, dexInfo, feeTier } = usePoolDetailContext()
+  const { pool, primaryToken, secondaryToken, dexInfo } = usePoolDetailContext()
 
   return (
     <HStack minWidth={0} align="center" gap={12}>
@@ -154,7 +154,7 @@ const PoolHeaderReview = () => {
 
           <FeeBadge>
             <Text color={theme.subText} fontSize={12} fontWeight={500}>
-              Fee {feeTier}
+              Fee {pool.swapFee}
             </Text>
           </FeeBadge>
         </HStack>

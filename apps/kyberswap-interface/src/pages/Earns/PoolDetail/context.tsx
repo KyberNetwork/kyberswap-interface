@@ -19,7 +19,6 @@ interface PoolDetailContextValue {
   chainInfo: NetworkInfo
   primaryToken: PoolDetailToken
   secondaryToken: PoolDetailToken
-  feeTier: number
 }
 
 const PoolDetailContext = createContext<PoolDetailContextValue | null>(null)
@@ -123,7 +122,6 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   const exchangeValue = pool.exchange as Exchange
   const primaryToken = pool.tokens[0]
   const secondaryToken = pool.tokens[1]
-  const feeTier = Number(pool.swapFee || 0)
 
   const value = {
     pool,
@@ -134,7 +132,6 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
     chainInfo: NETWORKS_INFO[chainId as ChainId],
     primaryToken,
     secondaryToken,
-    feeTier,
   }
 
   return <PoolDetailContext.Provider value={value}>{children}</PoolDetailContext.Provider>
