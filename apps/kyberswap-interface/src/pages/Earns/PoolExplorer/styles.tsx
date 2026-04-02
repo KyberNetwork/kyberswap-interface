@@ -127,6 +127,24 @@ export const MigrateTableWrapper = styled(TableWrapper)`
 
 export const ContentWrapper = styled.div``
 
+export const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: ${({ theme }) => theme.text};
+  cursor: pointer;
+
+  :hover {
+    background: ${({ theme }) => theme.tabActive};
+  }
+`
+
 export const TableHeader = styled.div<{ expandColumn?: boolean }>`
   display: grid;
   grid-template-columns: ${({ expandColumn }) =>
@@ -148,7 +166,7 @@ export const TableCell = styled(Flex).withConfig({
   height: 100%;
   flex-direction: column;
   justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
-  align-items: ${({ alignItems }) => alignItems || 'center'};
+  align-items: ${({ alignItems }) => alignItems || 'flex-start'};
   gap: ${({ gap }) => gap || '8px'};
 `
 
@@ -157,10 +175,27 @@ export const SortableHeader = styled(Flex)`
   gap: 4px;
   width: fit-content;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
 
   &:hover svg path {
     stroke: ${({ theme }) => theme.text};
   }
+`
+
+export const HeaderText = styled(Text)`
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+`
+
+export const HeaderInfoWrapper = styled(Flex)`
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
 `
 
 export const MigrateTableHeader = styled(TableHeader)`

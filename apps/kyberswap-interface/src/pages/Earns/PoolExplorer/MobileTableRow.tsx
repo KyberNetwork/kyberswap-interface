@@ -1,18 +1,18 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
 
+import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { kemFarming } from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import {
-  Apr,
   FeeTier,
+  HeaderText,
   MobileTableBottomRow,
   MobileTableCell,
   MobileTableRow as MobileTableRowComponent,
@@ -20,6 +20,7 @@ import {
 } from 'pages/Earns/PoolExplorer/styles'
 import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
 import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
+import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -73,23 +74,23 @@ const MobileTableRow = ({
   return (
     <MobileTableRowComponent onClick={e => handleOpenZapInWidget(e)}>
       <MobileTableCell alignItems="flex-start" justifyContent="space-between">
-        <Flex flexDirection="column" alignItems="flex-start" sx={{ gap: 2 }}>
-          <Flex alignItems="center" sx={{ gap: 2 }}>
-            <Flex>
+        <Stack align="flex-start" gap={8}>
+          <HStack align="center" gap={8}>
+            <HStack>
               <TokenLogo src={pool.tokens?.[0]?.logoURI} />
               <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
               {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
-            </Flex>
+            </HStack>
             <SymbolText>
               {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
             </SymbolText>
             <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
-          </Flex>
+          </HStack>
           <FeeTier>
             <TokenLogo src={pool.dexLogo} size={16} />
             {pool.dexName}
           </FeeTier>
-        </Flex>
+        </Stack>
         <Star
           size={16}
           color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
@@ -101,19 +102,16 @@ const MobileTableRow = ({
         />
       </MobileTableCell>
       <MobileTableBottomRow>
-        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`APR`}</Text>
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
-            <Flex alignItems="center" sx={{ gap: '2px' }}>
-              <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
-              {kemFarming(pool)}
-            </Flex>
+        <MobileTableCell alignItems="baseline" justifyContent="space-between" sx={{ gap: 1 }}>
+          <HeaderText color={theme.subText}>{t`APR`}</HeaderText>
+          <HStack align="center" gap={4}>
+            <PoolAprInfo pool={pool} />
             <MerklAprInfo pool={pool} />
-          </Flex>
+          </HStack>
         </MobileTableCell>
         {isFarmingFiltered && (
           <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
-            <Text color={theme.subText}>{t`Max APR`}</Text>
+            <HeaderText color={theme.subText}>{t`Max APR`}</HeaderText>
             <Text>
               {pool.maxAprInfo
                 ? formatAprNumber(
@@ -126,17 +124,8 @@ const MobileTableRow = ({
             </Text>
           </MobileTableCell>
         )}
-        <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`Rewards`}</Text>
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
-            <Text>
-              {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
-            </Text>
-            <MerklRewardsRecord pool={pool} showEstimate={false} />
-          </Flex>
-        </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Fee`}</Text>
+          <HeaderText color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Fee`}</HeaderText>
           <Text>
             {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
               style: 'currency',
@@ -145,12 +134,21 @@ const MobileTableRow = ({
           </Text>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`TVL`}</Text>
+          <HeaderText color={theme.subText}>{t`TVL`}</HeaderText>
           <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`Volume`}</Text>
+          <HeaderText color={theme.subText}>{t`Volume`}</HeaderText>
           <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+        </MobileTableCell>
+        <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
+          <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
+          <HStack align="center" gap={4}>
+            <Text>
+              {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
+            </Text>
+            <MerklRewardsRecord pool={pool} showEstimate={false} />
+          </HStack>
         </MobileTableCell>
         <MobileTableCell>
           <SparklineChart

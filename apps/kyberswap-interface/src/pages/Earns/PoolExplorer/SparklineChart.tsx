@@ -41,9 +41,9 @@ const SparklineChart = ({
     }
   }, [data, height])
 
+  const firstValue = data[0]?.value
   const lastValue = data[data.length - 1]?.value
-  const previousValue = data[data.length - 2]?.value ?? data[0]?.value
-  const chartColor = lastValue < previousValue ? theme.red : theme.primary
+  const chartColor = lastValue < firstValue ? theme.red : theme.primary
 
   return (
     <Box height={`${height}px`} width="100%">

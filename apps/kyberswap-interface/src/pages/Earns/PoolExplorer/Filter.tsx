@@ -3,7 +3,6 @@ import { useLingui } from '@lingui/react'
 import { useMemo } from 'react'
 import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
 
 import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
@@ -14,6 +13,7 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { ButtonOutlined } from 'components/Button'
 import Search from 'components/Search'
+import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
@@ -82,14 +82,14 @@ const Filter = ({
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
     if (selectedChains.length >= 1) {
       return (
-        <Flex alignItems="center" sx={{ gap: '6px' }}>
-          <Flex>
+        <HStack align="center" gap={6}>
+          <HStack gap={0}>
             {selectedChains.map((chain, index) => (
               <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
             ))}
-          </Flex>
+          </HStack>
           {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
-        </Flex>
+        </HStack>
       )
     }
     return AllChainsOption.label
@@ -294,8 +294,8 @@ const Filter = ({
           <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
         )}
       </HeadSection>
-      <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
-        <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
+      <Stack direction={upToMedium ? 'column' : 'row'} justify="space-between" gap="1rem">
+        <HStack gap="1rem" wrap="wrap">
           <MultiSelectDropdownMenu
             highlightOnSelect
             label={selectedChainsLabel}
@@ -321,8 +321,8 @@ const Filter = ({
             />
           )}
           <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
-        </Flex>
-        <Flex alignItems={upToMedium ? 'stretch' : 'center'} style={{ gap: '12px' }} flexWrap="wrap">
+        </HStack>
+        <HStack align={upToMedium ? 'stretch' : 'center'} gap={12} wrap="wrap">
           <Search
             placeholder={t`Search by token symbol or pool/token address`}
             searchValue={search}
@@ -350,8 +350,8 @@ const Filter = ({
             <Plus size={16} />
             <Trans>Create Pool</Trans>
           </ButtonOutlined>
-        </Flex>
-      </Flex>
+        </HStack>
+      </Stack>
     </>
   )
 }

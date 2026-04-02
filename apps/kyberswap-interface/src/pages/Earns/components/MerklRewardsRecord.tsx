@@ -1,8 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { useMemo } from 'react'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 
 import { ReactComponent as RewardIcon } from 'assets/svg/earn/ic_bag.svg'
+import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -37,29 +38,29 @@ const MerklRewardsRecord = ({ pool, showEstimate = true }: Props) => {
   if (!pool.merklOpportunity) return null
 
   return (
-    <Flex alignItems="center" sx={{ gap: 1, justifyContent: 'flex-end' }}>
+    <HStack align="center" gap={4} justify="flex-end">
       {rewardTokens.length > 0 && (
         <MouseoverTooltipDesktopOnly
           text={
-            <Flex flexDirection="column" sx={{ gap: 1 }}>
+            <Stack gap={4}>
               {rewardTokens.map(token => (
-                <Flex alignItems="center" sx={{ gap: 1 }} key={`${token.chainId}-${token.address}`}>
+                <HStack align="center" gap={4} key={`${token.chainId}-${token.address}`}>
                   {token.icon ? <TokenLogo src={token.icon} size={16} /> : null}
                   <Text>
                     {token.amount} {token.symbol}
                   </Text>
-                </Flex>
+                </HStack>
               ))}
-            </Flex>
+            </Stack>
           }
           width="fit-content"
           placement="bottom"
         >
-          <Flex alignItems="center" sx={{ gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <HStack align="center" gap={4} wrap="wrap" justify="flex-end">
             {rewardTokens.map(token => (
               <TokenLogo key={`${token.chainId}-${token.address}`} src={token.icon} size={16} />
             ))}
-          </Flex>
+          </HStack>
         </MouseoverTooltipDesktopOnly>
       )}
 
@@ -84,7 +85,7 @@ const MerklRewardsRecord = ({ pool, showEstimate = true }: Props) => {
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
-    </Flex>
+    </HStack>
   )
 }
 

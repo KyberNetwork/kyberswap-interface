@@ -1,11 +1,12 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import LocalLoader from 'components/LocalLoader'
 import ProgressBar from 'components/ProgressBar'
+import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
@@ -112,7 +113,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
       {isFetching && loadingProgress}
 
       {upToMedium ? (
-        <Flex flexDirection="column" sx={{ gap: 3 }}>
+        <Stack gap={16}>
           {tablePoolData.map(pool => (
             <MobileTableRow
               key={pool.address}
@@ -122,7 +123,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
               handleFavorite={handleFavorite}
             />
           ))}
-        </Flex>
+        </Stack>
       ) : (
         tablePoolData.map(pool => (
           <DesktopTableRow
