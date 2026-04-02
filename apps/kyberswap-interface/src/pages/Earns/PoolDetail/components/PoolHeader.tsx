@@ -1,3 +1,4 @@
+import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
 import { shortenAddress } from '@kyber/utils/crypto'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -8,6 +9,7 @@ import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import { NetworkInfo } from 'constants/networks/type'
 import useTheme from 'hooks/useTheme'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
@@ -58,17 +60,21 @@ const FeeBadge = styled(Stack)`
   background: ${({ theme }) => theme.darkText};
 `
 
-const TooltipAddressRow = ({ token }: { token: PoolDetailToken }) => {
+const TooltipAddressRow = ({ token, chainInfo }: { token: PoolDetailToken; chainInfo: NetworkInfo }) => {
+  const isNativeToken = token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+  const tokenLogo = isNativeToken ? chainInfo.nativeToken.logo : token.logoURI
+  const tokenSymbol = isNativeToken ? chainInfo.nativeToken.symbol : token.symbol
+
   return (
     <HStack align="center" gap={8} wrap="wrap">
-      {token.logoURI ? <TokenLogo src={token.logoURI} size={18} /> : null}
+      {tokenLogo ? <TokenLogo src={tokenLogo} size={18} /> : null}
       <Text color="inherit" fontSize={14} fontWeight={500}>
-        {token.symbol}
+        {tokenSymbol}
       </Text>
       <Text color="inherit" fontSize={14}>
-        {shortenAddress(token.address, 4)}
+        {isNativeToken ? 'Native Token' : shortenAddress(token.address, 4)}
       </Text>
-      <CopyHelper margin="0" size={14} toCopy={token.address} />
+      {!isNativeToken ? <CopyHelper margin="0" size={14} toCopy={token.address} /> : null}
     </HStack>
   )
 }
@@ -92,8 +98,8 @@ const PoolHeaderPage = () => {
         </Text>
         <CopyHelper size={14} margin="0" toCopy={pool.address} />
       </HStack>
-      <TooltipAddressRow token={primaryToken} />
-      <TooltipAddressRow token={secondaryToken} />
+      <TooltipAddressRow token={primaryToken} chainInfo={chainInfo} />
+      <TooltipAddressRow token={secondaryToken} chainInfo={chainInfo} />
     </Stack>
   )
 
