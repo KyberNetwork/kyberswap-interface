@@ -175,8 +175,8 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
   const crosshairColor = rgba(theme.text, 0.12)
   const upCandleColor = theme.primary
   const downCandleColor = theme.red
-  const volumeUpColor = rgba(theme.primary, 0.6)
-  const volumeDownColor = rgba(theme.red, 0.6)
+  const volumeUpColor = rgba(theme.darkGreen, 0.8)
+  const volumeDownColor = rgba(theme.red, 0.5)
 
   const {
     data: priceData,
@@ -299,7 +299,7 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
     chart.priceScale('volume').applyOptions({
       borderVisible: false,
       scaleMargins: {
-        top: 0.82,
+        top: 0.8,
         bottom: 0,
       },
       visible: false,

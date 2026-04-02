@@ -182,6 +182,7 @@ export interface PoolAprHistoryPoint {
   bonusApr: number
   totalApr: number
   activeApr?: number
+  volume?: number
   tvlUsd?: number
 }
 

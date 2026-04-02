@@ -3,7 +3,7 @@ import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import {
   type PoolAnalyticsWindow,
   type PoolAprHistoryPoint,
@@ -22,6 +22,7 @@ import {
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const TooltipCard = styled(Stack)`
   gap: 12px;
@@ -75,51 +76,29 @@ const AprHistoryTooltip = ({
         {formatTooltipTimeLabel(point.ts, window)}
       </Text>
       <TooltipGrid>
-        <Text color={theme.subText} fontSize={12}>
-          APR
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAprNumber(point.totalApr)}%
-        </Text>
         {point.activeApr ? (
           <>
             <Text color={theme.subText} fontSize={12}>
               Active APR
             </Text>
-            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+            <Text color={theme.blue} fontSize={12} fontWeight={500} textAlign="right">
               {formatAprNumber(point.activeApr)}%
             </Text>
           </>
         ) : null}
         <Text color={theme.subText} fontSize={12}>
-          LP Fees
+          APR
         </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAprNumber(point.feeApr)}%
+        <Text color={theme.primary} fontSize={12} fontWeight={500} textAlign="right">
+          {formatAprNumber(point.totalApr)}%
         </Text>
-        <Text color={theme.subText} fontSize={12}>
-          EG Sharing Reward
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAprNumber(point.egApr)}%
-        </Text>
-        {point.lmApr ? (
+        {point.volume || point.volume === 0 ? (
           <>
             <Text color={theme.subText} fontSize={12}>
-              LM Reward
+              Vol
             </Text>
             <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-              {formatAprNumber(point.lmApr)}%
-            </Text>
-          </>
-        ) : null}
-        {point.bonusApr ? (
-          <>
-            <Text color={theme.subText} fontSize={12}>
-              Bonus Reward
-            </Text>
-            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-              {formatAprNumber(point.bonusApr)}%
+              {formatDisplayNumber(point.volume, { style: 'currency', significantDigits: 6 })}
             </Text>
           </>
         ) : null}
@@ -144,6 +123,9 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
 
   const activeDotStroke = theme.buttonBlack
   const aprLineColor = theme.primary
+  const activeAprLineColor = theme.blue
+  const volumeUpColor = rgba(theme.darkGreen, 0.8)
+  const volumeDownColor = rgba(theme.red, 0.5)
   const cursorColor = rgba(theme.text, 0.12)
   const gridColor = rgba(theme.text, 0.06)
 
@@ -161,7 +143,19 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
   const isError = isPositionChart ? positionAprHistoryQuery.isError : poolAprHistoryQuery.isError
   const isLoading = isPositionChart ? positionAprHistoryQuery.isLoading : poolAprHistoryQuery.isLoading
 
-  const chartData = useMemo(() => aprHistoryData?.points ?? [], [aprHistoryData?.points])
+  const chartData = useMemo(
+    () =>
+      (aprHistoryData?.points ?? []).map((point, index, points) => {
+        return {
+          ...point,
+          // TODO: remove volume fallback after backend returns volume in all cases
+          volume: point.volume ?? Math.round(Math.random() * 1_000_000),
+          volumeBarColor:
+            point.totalApr >= (points[index - 1]?.totalApr ?? point.totalApr) ? volumeUpColor : volumeDownColor,
+        }
+      }),
+    [aprHistoryData?.points, volumeDownColor, volumeUpColor],
+  )
 
   const intervalMaxApr = useMemo(() => {
     const values = chartData
@@ -238,7 +232,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
       >
         <PoolChartWrapper $height={chartHeight}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 16, right: 0, bottom: 8, left: 0 }}>
+            <ComposedChart data={chartData} margin={{ top: 16, right: 0, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridColor} strokeDasharray="3 3" vertical={false} />
               <XAxis
                 axisLine={false}
@@ -258,12 +252,35 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
                 tickLine={false}
                 width={72}
               />
+              <YAxis
+                dataKey="volume"
+                domain={[0, (dataMax: number) => (dataMax > 0 ? dataMax * 5 : 1)]}
+                hide
+                yAxisId="volume"
+              />
               <Tooltip
                 content={({ active, payload }) => (
                   <AprHistoryTooltip active={active} point={payload?.[0]?.payload} window={window} />
                 )}
                 cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
               />
+              <Bar barSize={8} dataKey="volume" radius={[2, 2, 0, 0]} yAxisId="volume">
+                {chartData.map(point => (
+                  <Cell key={`${point.ts}-volume`} fill={point.volumeBarColor} />
+                ))}
+              </Bar>
+              {hasActiveApr && (
+                <Line
+                  activeDot={{ fill: activeAprLineColor, r: 4, stroke: activeDotStroke, strokeWidth: 2 }}
+                  dataKey="activeApr"
+                  dot={false}
+                  stroke={activeAprLineColor}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  type="monotone"
+                />
+              )}
               <Line
                 activeDot={{ fill: aprLineColor, r: 4, stroke: activeDotStroke, strokeWidth: 2 }}
                 dataKey="totalApr"
@@ -274,7 +291,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
                 strokeWidth={2}
                 type="monotone"
               />
-            </LineChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </PoolChartWrapper>
       </PoolChartState>
