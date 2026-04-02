@@ -134,13 +134,13 @@ const AddLiquidityBody = ({
     <>
       <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
         <PoolInformationColumn>
+          {children}
           <AddLiquidityRoutePreview
             inputTokens={state.tokenInput.tokens}
             inputAmounts={state.tokenInput.amounts}
             pool={normalizedPool}
             zapRoute={state.route.data}
           />
-          {children}
         </PoolInformationColumn>
 
         <AddLiquidityColumn>
@@ -479,13 +479,13 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
       {!normalizedPool.data || normalizedPool.loading ? (
         <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
           <PoolInformationColumn>
+            {children}
             <AddLiquidityRoutePreview
               inputTokens={state.tokenInput.tokens}
               inputAmounts={state.tokenInput.amounts}
               pool={null}
               zapRoute={state.route.data}
             />
-            {children}
           </PoolInformationColumn>
 
           <AddLiquidityColumn>

@@ -61,8 +61,7 @@ const PoolHeaderSkeleton = () => {
         <PositionSkeleton width={28} height={28} />
       </HStack>
       <PositionSkeleton width={160} height={28} />
-      <PositionSkeleton width={160} height={32} />
-      <PositionSkeleton width={60} height={32} />
+      <PositionSkeleton width={160} height={28} />
     </HStack>
   )
 }
@@ -75,8 +74,8 @@ const PoolDetailPageSkeleton = () => {
       <PoolDetailWrapper>
         <PoolHeaderSkeleton />
         <AddLiquidityWidgetSkeleton />
-        <RoutePreviewSkeleton />
         <PoolInformationSkeleton />
+        <RoutePreviewSkeleton />
       </PoolDetailWrapper>
     )
   }
@@ -87,8 +86,8 @@ const PoolDetailPageSkeleton = () => {
 
       <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
         <Stack flex="1 1 480px" gap={24} minWidth={0}>
-          <RoutePreviewSkeleton />
           <PoolInformationSkeleton />
+          <RoutePreviewSkeleton />
         </Stack>
 
         <Stack flex="1 1 480px" gap={16} maxWidth="480px" minWidth={0}>

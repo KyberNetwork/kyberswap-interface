@@ -1,6 +1,4 @@
-import { formatAprNumber } from '@kyber/utils'
 import { shortenAddress } from '@kyber/utils/crypto'
-import { rgba } from 'polished'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { PoolDetailToken } from 'services/zapEarn'
@@ -37,17 +35,6 @@ const ProtocolBadge = styled(HStack)`
   padding: 8px 12px;
   border-radius: 12px;
   background: ${({ theme }) => theme.buttonGray};
-  white-space: nowrap;
-`
-
-const AprBadge = styled(Text)`
-  display: flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 4px 12px;
-  border-radius: 12px;
-  background: ${({ theme }) => rgba(theme.primary, 0.12)};
-  color: ${({ theme }) => theme.primary};
   white-space: nowrap;
 `
 
@@ -136,10 +123,6 @@ const PoolHeaderPage = () => {
             | {feeTier}%
           </Text>
         </ProtocolBadge>
-
-        <AprBadge fontSize={20} fontWeight={500}>
-          {formatAprNumber(pool.poolStats?.apr ?? 0)}%
-        </AprBadge>
       </HStack>
     </HStack>
   )
