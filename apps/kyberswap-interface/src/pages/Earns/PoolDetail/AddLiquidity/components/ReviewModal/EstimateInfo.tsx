@@ -1,14 +1,14 @@
 import { PartnerFeeAction, Pool, ProtocolFeeAction, RefundAction, ZapAction, ZapRouteDetail } from '@kyber/schema'
 import { getZapImpact } from '@kyber/utils'
-import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import { getOutputTokenItems } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { getOutputTokenItems, getSlippageNotice } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled(Stack)`
@@ -32,25 +32,9 @@ const MetricCard = styled(Stack)`
   padding: 8px 12px;
 `
 
-const Suggestion = styled.button`
-  margin-left: auto;
-  width: fit-content;
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.primary};
-  font-size: 14px;
-  padding: 0;
-  cursor: pointer;
-
-  :hover {
-    filter: brightness(1.12);
-  }
-`
-
 type EstimateInfoProps = {
   pool: Pool
   route: ZapRouteDetail
-  onUseSuggestedSlippage?: (suggestedSlippage?: number) => void
   slippage?: number
 }
 
@@ -110,12 +94,13 @@ const buildEstimate = ({
   }
 }
 
-const EstimateInfo = ({ pool, route, onUseSuggestedSlippage, slippage }: EstimateInfoProps) => {
+const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
   const theme = useTheme()
   const estimate = useMemo(() => buildEstimate({ pool, route, slippage }), [pool, route, slippage])
-  const suggestedSlippage = route.zapDetails.suggestedSlippage
-  const showSuggestedSlippageAction =
-    suggestedSlippage !== undefined && suggestedSlippage > 0 && suggestedSlippage !== slippage
+  const slippageNotice = useMemo(
+    () => getSlippageNotice(slippage, route.zapDetails.suggestedSlippage),
+    [route.zapDetails.suggestedSlippage, slippage],
+  )
 
   return (
     <Card gap={8}>
@@ -148,20 +133,23 @@ const EstimateInfo = ({ pool, route, onUseSuggestedSlippage, slippage }: Estimat
       <Divider />
 
       <Stack gap={8}>
-        <Stack gap={4}>
-          <HStack align="center" justify="space-between">
-            <Text color={theme.subText}>Max Slippage</Text>
-            <Text color={theme.text} fontWeight={500}>
+        <HStack align="center" justify="space-between">
+          <Text color={theme.subText}>Max Slippage</Text>
+          <HStack align="center" gap={4}>
+            <Text color={slippageNotice ? theme.warning : theme.text} fontWeight={500}>
               {formatBpsLabel(estimate.slippage)}
             </Text>
+            {slippageNotice ? (
+              <InfoHelper
+                margin={false}
+                placement="top"
+                size={12}
+                text={slippageNotice.message}
+                color={theme.warning}
+              />
+            ) : null}
           </HStack>
-
-          {showSuggestedSlippageAction && (
-            <Suggestion onClick={() => onUseSuggestedSlippage?.(suggestedSlippage)} type="button">
-              <Trans>Suggestion</Trans>: {formatBpsLabel(suggestedSlippage)}
-            </Suggestion>
-          )}
-        </Stack>
+        </HStack>
 
         <HStack align="stretch" gap={8} wrap="wrap">
           <MetricCard>

@@ -227,6 +227,28 @@ export const getSlippageStorageKey = (token0Symbol: string, token1Symbol: string
   return `kyber_liquidity_widget_slippage_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`
 }
 
+export type SlippageNotice = {
+  message: string
+}
+
+export const getSlippageNotice = (slippage?: number, suggestedSlippage?: number): SlippageNotice | null => {
+  if (slippage === undefined || !suggestedSlippage || suggestedSlippage <= 0) return null
+
+  if (slippage < suggestedSlippage / 2) {
+    return {
+      message: 'Your slippage is set lower than usual, increasing the risk of transaction failure.',
+    }
+  }
+
+  if (slippage > 2 * suggestedSlippage) {
+    return {
+      message: 'Your slippage is set higher than usual, which may cause unexpected losses.',
+    }
+  }
+
+  return null
+}
+
 export const getStatusErrorMessage = (message?: string | null) => {
   if (!message) return undefined
 

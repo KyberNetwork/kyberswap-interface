@@ -51,7 +51,6 @@ type AddLiquidityReviewModalProps = {
   warnings: ReviewWarningItem[]
   onDismiss?: () => void
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
-  onUseSuggestedSlippage?: (suggestedSlippage?: number) => void
   onAddTrackedTxHash?: (hash: string) => void
   onAddTransactionWithType?: (transaction: TransactionHistory) => void
 }
@@ -130,7 +129,6 @@ const AddLiquidityReviewModal = ({
   warnings,
   onDismiss,
   onTrackEvent,
-  onUseSuggestedSlippage,
   onAddTrackedTxHash,
   onAddTransactionWithType,
 }: AddLiquidityReviewModalProps) => {
@@ -222,7 +220,7 @@ const AddLiquidityReviewModal = ({
 
         <PriceInfo pool={pool} priceRange={priceRange} />
 
-        <EstimateInfo onUseSuggestedSlippage={onUseSuggestedSlippage} pool={pool} route={route} slippage={slippage} />
+        <EstimateInfo pool={pool} route={route} slippage={slippage} />
 
         {error ? <NoteCard $tone="error">{translateZapMessage(error)}</NoteCard> : null}
 

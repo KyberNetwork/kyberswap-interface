@@ -61,7 +61,6 @@ type AddLiquidityBodyProps = AddLiquidityProps & {
   onPreview: () => Promise<void>
   previewError?: string | null
   reviewState: ReviewState | null
-  onUseSuggestedSlippage: (suggestedSlippage?: number) => void
   tracking: AddLiquidityTracking
   normalizedPool: ZapPool
   state: ZapState
@@ -123,7 +122,6 @@ const AddLiquidityBody = ({
   onPreview,
   previewError,
   reviewState,
-  onUseSuggestedSlippage,
   normalizedPool,
   state,
   tracking,
@@ -191,7 +189,6 @@ const AddLiquidityBody = ({
           warnings={reviewState.warnings}
           onDismiss={onDismissReview}
           onTrackEvent={onTrackEvent}
-          onUseSuggestedSlippage={onUseSuggestedSlippage}
           onAddTrackedTxHash={tracking.addTrackedTxHash}
           onAddTransactionWithType={tracking.addTransactionWithType}
         />
@@ -423,25 +420,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     state.slippage.value,
   ])
 
-  const handleUseSuggestedSlippage = useCallback(
-    (suggestedSlippage?: number) => {
-      if (
-        suggestedSlippage === undefined ||
-        suggestedSlippage === reviewState?.slippage ||
-        isRefreshingReview ||
-        !reviewState
-      ) {
-        return
-      }
-
-      refreshSourceRouteRef.current = reviewState.route
-      setPreviewError(null)
-      setIsRefreshingReview(true)
-      state.slippage.setValue(suggestedSlippage)
-    },
-    [isRefreshingReview, reviewState, state.slippage],
-  )
-
   const handleDismissReview = useCallback(() => {
     refreshSourceRouteRef.current = null
     setIsRefreshingReview(false)
@@ -503,7 +481,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
           onPreview={handlePreview}
           previewError={previewError}
           reviewState={reviewState}
-          onUseSuggestedSlippage={handleUseSuggestedSlippage}
           normalizedPool={normalizedPool.data}
           state={state}
           tracking={tracking}

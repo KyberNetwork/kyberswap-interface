@@ -10,7 +10,7 @@ import styled from 'styled-components'
 import { HStack, Stack } from 'components/Stack'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { getSlippageNotice, getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { useDegenModeManager } from 'state/user/hooks'
 
@@ -39,23 +39,14 @@ const validateSlippageInput = (
     return { isValid: false, message: 'Enter a valid slippage percentage' }
   }
 
-  if (suggestedSlippage > 0 && rawSlippage < suggestedSlippage / 2) {
-    return {
-      isValid: true,
-      message: 'Your slippage is set lower than usual, increasing the risk of transaction failure.',
-    }
-  }
+  const notice = getSlippageNotice(rawSlippage, suggestedSlippage)
+  if (notice && rawSlippage < suggestedSlippage / 2) return { isValid: true, message: notice.message }
 
   if (rawSlippage > maxSlippage) {
     return { isValid: false, message: 'Enter a smaller slippage percentage' }
   }
 
-  if (suggestedSlippage > 0 && rawSlippage > 2 * suggestedSlippage) {
-    return {
-      isValid: true,
-      message: 'Your slippage is set higher than usual, which may cause unexpected losses.',
-    }
-  }
+  if (notice) return { isValid: true, message: notice.message }
 
   return { isValid: true }
 }
