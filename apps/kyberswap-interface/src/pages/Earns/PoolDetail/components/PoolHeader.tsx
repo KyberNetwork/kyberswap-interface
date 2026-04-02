@@ -5,9 +5,9 @@ import { PoolDetailToken } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import CopyHelper from 'components/Copy'
-import { HStack, Stack } from 'components/Stack'
+import InfoHelper from 'components/InfoHelper'
+import { Center, HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
@@ -45,6 +45,13 @@ const ProtocolLogo = styled.img`
   object-fit: contain;
 `
 
+const InfoButton = styled(Center)`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: ${({ theme }) => theme.buttonGray};
+`
+
 const FeeBadge = styled(Stack)`
   padding: 4px 12px;
   border-radius: 999px;
@@ -70,6 +77,25 @@ const PoolHeaderPage = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const { pool, chainInfo, dexInfo, primaryToken, secondaryToken } = usePoolDetailContext()
+  const tooltipContent = (
+    <Stack minWidth={240} gap={12}>
+      <HStack align="center" gap={8} wrap="wrap">
+        <HStack flex="0 0 auto" align="center" gap={0}>
+          <TokenLogo src={primaryToken.logoURI} size={18} />
+          <TokenLogo src={secondaryToken.logoURI} size={18} translateLeft />
+        </HStack>
+        <Text color={theme.text} fontSize={14} fontWeight={500}>
+          {primaryToken.symbol}/{secondaryToken.symbol}
+        </Text>
+        <Text color={theme.subText} fontSize={14}>
+          {shortenAddress(pool.address, 4)}
+        </Text>
+        <CopyHelper size={14} margin="0" toCopy={pool.address} />
+      </HStack>
+      <TooltipAddressRow token={primaryToken} />
+      <TooltipAddressRow token={secondaryToken} />
+    </Stack>
+  )
 
   return (
     <HStack align="center" gap={8} wrap="wrap">
@@ -78,41 +104,28 @@ const PoolHeaderPage = () => {
       </BackButton>
 
       <HStack minWidth={0} align="center" gap={12} wrap="wrap">
-        <MouseoverTooltipDesktopOnly
-          placement="bottom"
-          text={
-            <Stack minWidth={240} gap={12}>
-              <HStack align="center" gap={8} wrap="wrap">
-                <HStack flex="0 0 auto" align="center" gap={0}>
-                  <TokenLogo src={primaryToken.logoURI} size={18} />
-                  <TokenLogo src={secondaryToken.logoURI} size={18} translateLeft />
-                </HStack>
-                <Text color={theme.text} fontSize={14} fontWeight={500}>
-                  {primaryToken.symbol}/{secondaryToken.symbol}
-                </Text>
-                <Text color={theme.subText} fontSize={14}>
-                  {shortenAddress(pool.address, 4)}
-                </Text>
-                <CopyHelper size={14} margin="0" toCopy={pool.address} />
-              </HStack>
-              <TooltipAddressRow token={primaryToken} />
-              <TooltipAddressRow token={secondaryToken} />
-            </Stack>
-          }
-          width="fit-content"
-        >
-          <HStack minWidth={0} align="center" gap={8}>
-            <HStack flex="0 0 auto" align="flex-end">
-              <TokenLogo src={primaryToken.logoURI} size={28} />
-              <TokenLogo src={secondaryToken.logoURI} size={28} translateLeft />
-              <TokenLogo src={chainInfo.icon} size={16} translateLeft translateTop />
-            </HStack>
-
-            <Text color={theme.text} fontSize={24} fontWeight={500} sx={{ whiteSpace: 'nowrap' }}>
-              {primaryToken.symbol}/{secondaryToken.symbol}
-            </Text>
+        <HStack minWidth={0} align="center" gap={12}>
+          <HStack flex="0 0 auto" align="flex-end">
+            <TokenLogo src={primaryToken.logoURI} size={28} />
+            <TokenLogo src={secondaryToken.logoURI} size={28} translateLeft />
+            <TokenLogo src={chainInfo.icon} size={16} translateLeft translateTop />
           </HStack>
-        </MouseoverTooltipDesktopOnly>
+
+          <Text color={theme.text} fontSize={24} fontWeight={500} sx={{ whiteSpace: 'nowrap' }}>
+            {primaryToken.symbol}/{secondaryToken.symbol}
+          </Text>
+
+          <InfoButton>
+            <InfoHelper
+              text={tooltipContent}
+              size={18}
+              margin={false}
+              color={theme.blue}
+              placement="bottom"
+              width="fit-content"
+            />
+          </InfoButton>
+        </HStack>
 
         <ProtocolBadge align="center" gap={8}>
           <ProtocolLogo alt={dexInfo.name} src={dexInfo.logo} />

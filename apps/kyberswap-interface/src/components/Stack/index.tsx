@@ -58,3 +58,8 @@ export const Stack = styled(Box)<StackProps>`
 export const HStack = styled(Stack)`
   flex-direction: row;
 `
+
+export const Center = styled(Stack)`
+  align-items: center;
+  justify-content: center;
+`
