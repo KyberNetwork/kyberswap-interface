@@ -232,13 +232,7 @@ const AddLiquidityRoutePreview = ({
             <HStack align="center" justify="space-between" gap={16}>
               <TooltipText
                 tooltip={
-                  <Stack
-                    gap={4}
-                    align="flex-start"
-                    sx={{
-                      a: { color: 'primary', textDecoration: 'none' },
-                    }}
-                  >
+                  <Stack gap={4} align="flex-start" sx={{ a: { color: 'primary', textDecoration: 'none' } }}>
                     Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
                     fees.
                     <a href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener norefferer noreferrer">

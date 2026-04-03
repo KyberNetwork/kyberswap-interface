@@ -1,4 +1,4 @@
-import { Pool, RefundAction, ZapAction, ZapRouteDetail } from '@kyber/schema'
+import { API_URLS, Pool, RefundAction, ZapAction, ZapRouteDetail } from '@kyber/schema'
 import { getZapImpact } from '@kyber/utils'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -8,6 +8,7 @@ import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
+import TooltipText from 'pages/Earns/PoolDetail/AddLiquidity/components/TooltipText'
 import {
   formatBpsLabel,
   formatPercent,
@@ -30,6 +31,7 @@ const Divider = styled.div`
 `
 
 const MetricCard = styled(Stack)`
+  align-items: flex-start;
   background: ${({ theme }) => theme.tabActive};
   border-radius: 12px;
   flex: 1 1 0;
@@ -98,7 +100,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
   )
 
   return (
-    <Card gap={8}>
+    <Card gap={12}>
       <Stack gap={12}>
         <HStack align="center" justify="space-between">
           <Text color={theme.subText}>Est. Liquidity Value</Text>
@@ -127,9 +129,15 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
 
       <Divider />
 
-      <Stack gap={8}>
+      <Stack gap={12}>
         <HStack align="center" justify="space-between">
-          <Text color={theme.subText}>Max Slippage</Text>
+          <TooltipText
+            tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+            color={theme.subText}
+            fontSize={14}
+          >
+            Max Slippage
+          </TooltipText>
           <HStack align="center" gap={4}>
             <Text color={slippageNotice ? theme.warning : theme.text} fontWeight={500}>
               {formatBpsLabel(estimate.slippage)}
@@ -148,19 +156,45 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
 
         <HStack align="stretch" gap={8} wrap="wrap">
           <MetricCard>
-            <Text color={theme.subText}>Est. Remaining</Text>
+            <TooltipText
+              tooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+              color={theme.subText}
+              fontSize={14}
+            >
+              Est. Remaining
+            </TooltipText>
             <Text color={theme.text} fontWeight={500}>
               {formatDisplayNumber(estimate.remainingUsd, { style: 'currency', significantDigits: 6 })}
             </Text>
           </MetricCard>
           <MetricCard>
-            <Text color={theme.subText}>Zap Impact</Text>
+            <TooltipText
+              tooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+              color={theme.subText}
+              fontSize={14}
+            >
+              Zap Impact
+            </TooltipText>
             <Text color={theme.text} fontWeight={500}>
               {estimate.zapImpact?.display}
             </Text>
           </MetricCard>
           <MetricCard>
-            <Text color={theme.subText}>Zap Fee</Text>
+            <TooltipText
+              tooltip={
+                <Stack gap={4} align="flex-start" sx={{ a: { color: 'primary', textDecoration: 'none' } }}>
+                  Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
+                  fees.{' '}
+                  <a href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener norefferer noreferrer">
+                    {'>'} More details
+                  </a>
+                </Stack>
+              }
+              color={theme.subText}
+              fontSize={14}
+            >
+              Zap Fee
+            </TooltipText>
             <Text color={theme.text} fontWeight={500}>
               {formatPercent(estimate.zapFeePercent)}
             </Text>
