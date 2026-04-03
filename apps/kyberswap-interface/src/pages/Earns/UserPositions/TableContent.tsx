@@ -3,7 +3,7 @@ import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswa
 import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -55,6 +55,57 @@ import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
+
+function TruncatedBadge({
+  dexName,
+  dexLogo,
+  fee,
+  tokenId,
+  isUniv2,
+  theme,
+}: {
+  dexName: string
+  dexLogo: string
+  fee: number
+  tokenId: string | number
+  isUniv2: boolean
+  theme: ReturnType<typeof useTheme>
+}) {
+  const textRef = useRef<HTMLDivElement>(null)
+  const [isTruncated, setIsTruncated] = useState(false)
+
+  useEffect(() => {
+    const el = textRef.current
+    if (el) {
+      setIsTruncated(el.scrollWidth > el.clientWidth)
+    }
+  }, [dexName, fee, tokenId, isUniv2])
+
+  const label = `${dexName} | ${formatDisplayNumber(fee, { significantDigits: 4 })}%${!isUniv2 ? ` | #${tokenId}` : ''}`
+
+  return (
+    <MouseoverTooltipDesktopOnly text={label} width="fit-content" placement="bottom" disableTooltip={!isTruncated}>
+      <Badge
+        style={{
+          backgroundColor: rgba(theme.white, 0.08),
+          maxWidth: '300px',
+        }}
+      >
+        <Flex alignItems={'center'} sx={{ gap: '4px' }} style={{ overflow: 'hidden' }}>
+          <TokenLogo src={dexLogo} size={12} />
+          <Text
+            ref={textRef}
+            fontSize={12}
+            color={theme.subText}
+            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+          >
+            {label}
+          </Text>
+        </Flex>
+      </Badge>
+    </MouseoverTooltipDesktopOnly>
+  )
+}
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
@@ -479,32 +530,14 @@ export default function TableContent({
                       )}
                     </Flex>
                     <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
-                      <MouseoverTooltipDesktopOnly
-                        text={`${dex.name} | ${formatDisplayNumber(pool.fee, { significantDigits: 4 })}%${
-                          !pool.isUniv2 ? ` | #${tokenId}` : ''
-                        }`}
-                        width="fit-content"
-                        placement="bottom"
-                      >
-                        <Badge
-                          style={{
-                            backgroundColor: rgba(theme.white, 0.08),
-                            maxWidth: '300px',
-                          }}
-                        >
-                          <Flex alignItems={'center'} sx={{ gap: '4px' }} style={{ overflow: 'hidden' }}>
-                            <TokenLogo src={dex.logo} size={12} />
-                            <Text
-                              fontSize={12}
-                              color={theme.subText}
-                              style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                            >
-                              {dex.name} | {formatDisplayNumber(pool.fee, { significantDigits: 4 })}%
-                              {!pool.isUniv2 ? ` | #${tokenId}` : ''}
-                            </Text>
-                          </Flex>
-                        </Badge>
-                      </MouseoverTooltipDesktopOnly>
+                      <TruncatedBadge
+                        dexName={dex.name}
+                        dexLogo={dex.logo}
+                        fee={pool.fee}
+                        tokenId={tokenId}
+                        isUniv2={pool.isUniv2}
+                        theme={theme}
+                      />
                     </Flex>
                   </PositionOverview>
 
