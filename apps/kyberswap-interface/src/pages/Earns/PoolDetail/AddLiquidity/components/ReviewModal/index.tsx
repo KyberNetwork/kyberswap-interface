@@ -1,11 +1,11 @@
 import { NETWORKS_INFO, Pool, ZapRouteDetail } from '@kyber/schema'
-import { StatusDialog, StatusDialogType, translateZapMessage } from '@kyber/ui'
+import { Button, StatusDialog, StatusDialogType, translateZapMessage } from '@kyber/ui'
 import { useEffect, useRef } from 'react'
 import { Text } from 'rebass'
 import { BuildZapInData } from 'services/zap'
 import styled from 'styled-components'
 
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
@@ -91,16 +91,16 @@ const StatusContent = ({
   const statusAction =
     canDismiss || canViewPosition ? (
       <>
-        {canDismiss ? (
-          <ButtonOutlined flex="1" height="36px" onClick={onDismiss}>
+        {canDismiss && (
+          <Button className="flex-1 h-10" variant="outline" onClick={onDismiss}>
             Close
-          </ButtonOutlined>
-        ) : null}
-        {canViewPosition ? (
-          <ButtonPrimary flex="1" height="36px" onClick={onViewPosition}>
-            View position
-          </ButtonPrimary>
-        ) : null}
+          </Button>
+        )}
+        {canViewPosition && (
+          <Button className="flex-1 h-10" variant="default" onClick={onViewPosition}>
+            View Position
+          </Button>
+        )}
       </>
     ) : undefined
 
@@ -241,10 +241,8 @@ const AddLiquidityReviewModal = ({
 
         <ButtonPrimary
           altDisabledStyle
-          borderRadius="20px"
           color={theme.buttonBlack}
           disabled={transaction.confirmDisabled || isRefreshing || Boolean(error)}
-          height="48px"
           onClick={() => void transaction.handleSubmit()}
           type="button"
         >
