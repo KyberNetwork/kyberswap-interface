@@ -18,6 +18,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionHeader = ({
   position,
@@ -118,7 +119,11 @@ const PositionHeader = ({
             </Flex>
           )}
 
-          {initialLoading ? <PositionSkeleton width={80} height={22} /> : <Badge>Fee {position?.pool.fee}%</Badge>}
+          {initialLoading ? (
+            <PositionSkeleton width={80} height={22} />
+          ) : (
+            <Badge>Fee {formatDisplayNumber(position?.pool.fee, { significantDigits: 4 })}%</Badge>
+          )}
 
           {initialLoading ? (
             <PositionSkeleton width={32} height={32} />

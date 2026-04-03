@@ -26,6 +26,7 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const TokenAddressRow = ({
   logo,
@@ -205,7 +206,8 @@ const PositionDetailHeader = () => {
             >
               <TokenLogo src={position?.dex.logo} size={16} />
               <Text fontSize={14} color={rgba(theme.white, 0.7)} style={{ whiteSpace: 'nowrap' }}>
-                {position?.dex.name} | {position?.pool.fee}%{!isUniv2 && ` | #${position?.tokenId}`}
+                {position?.dex.name} | {formatDisplayNumber(position?.pool.fee, { significantDigits: 4 })}%
+                {!isUniv2 && ` | #${position?.tokenId}`}
               </Text>
             </DexInfoBadge>
           </MouseoverTooltipDesktopOnly>
