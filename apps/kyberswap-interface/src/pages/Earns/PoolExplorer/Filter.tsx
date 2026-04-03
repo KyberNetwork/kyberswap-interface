@@ -237,7 +237,6 @@ const Filter = ({
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
           <MultiSelectDropdownMenu
-            alignLeft
             highlightOnSelect
             label={selectedChainsLabel}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
@@ -245,14 +244,13 @@ const Filter = ({
             onChange={value => onChainChange(value)}
           />
           <MultiSelectDropdownMenu
-            alignLeft
             highlightOnSelect
             label={selectedProtocolsLabel}
             options={supportedDexes}
             value={filters.protocol}
             onChange={value => onProtocolChange(value)}
           />
-          <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
+          <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
         </Flex>
         <Flex alignItems={upToMedium ? 'stretch' : 'center'} style={{ gap: '12px' }} flexWrap="wrap">
           <Search

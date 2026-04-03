@@ -486,6 +486,9 @@ importers:
       '@cypress/grep':
         specifier: ^3.1.5
         version: 3.1.5(@babel/core@7.26.0)(cypress@15.7.0)
+      '@kyber/hooks':
+        specifier: workspace:^
+        version: link:../../packages/hooks
       '@kyber/schema':
         specifier: workspace:^
         version: link:../../packages/schema
