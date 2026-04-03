@@ -183,21 +183,24 @@ const HistoryTab = () => {
               )}
             </Flex>
             <Flex flexDirection="column" sx={{ gap: '4px' }}>
-              {/* KyberSwap LM Rewards */}
-              {(rewardInfoThisPosition?.lmTokens || []).length > 0 && (
+              {/* KyberSwap Rewards (EG + LM) */}
+              {((rewardInfoThisPosition?.egTokens || []).length > 0 ||
+                (rewardInfoThisPosition?.lmTokens || []).length > 0) && (
                 <Flex alignItems="flex-start" justifyContent="space-between" flexWrap="wrap">
                   <Text fontSize={14} color="#737373">
                     {t`KyberSwap Rewards`}
                   </Text>
-                  <Flex sx={{ gap: '12px' }} flexWrap="wrap">
-                    {(rewardInfoThisPosition?.lmTokens || []).map(token => (
-                      <Flex key={token.symbol} alignItems="center" sx={{ gap: '4px' }}>
-                        <TokenLogo src={token.logo} size={16} />
-                        <Text fontSize={14} color={theme.text}>
-                          {formatDisplayNumber(token.totalAmount, { significantDigits: 4 })} {token.symbol}
-                        </Text>
-                      </Flex>
-                    ))}
+                  <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
+                    {[...(rewardInfoThisPosition?.egTokens || []), ...(rewardInfoThisPosition?.lmTokens || [])].map(
+                      token => (
+                        <Flex key={token.symbol} alignItems="center" sx={{ gap: '4px' }}>
+                          <TokenLogo src={token.logo} size={16} />
+                          <Text fontSize={14} color={theme.text}>
+                            {formatDisplayNumber(token.totalAmount, { significantDigits: 4 })} {token.symbol}
+                          </Text>
+                        </Flex>
+                      ),
+                    )}
                   </Flex>
                 </Flex>
               )}
@@ -220,11 +223,13 @@ const HistoryTab = () => {
                 </Flex>
               )}
               {/* No rewards */}
-              {!(rewardInfoThisPosition?.lmTokens || []).length && !merklRewards.length && (
-                <Text fontSize={14} color="#737373">
-                  --
-                </Text>
-              )}
+              {!(rewardInfoThisPosition?.egTokens || []).length &&
+                !(rewardInfoThisPosition?.lmTokens || []).length &&
+                !merklRewards.length && (
+                  <Text fontSize={14} color="#737373">
+                    --
+                  </Text>
+                )}
             </Flex>
           </HistoryCard>
         </Flex>

@@ -258,7 +258,7 @@ export const HistoryCard = styled.div`
   padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   flex: 1;
 `
 
