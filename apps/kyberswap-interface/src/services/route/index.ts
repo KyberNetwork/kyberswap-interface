@@ -100,11 +100,14 @@ const routeApi = createApi({
               },
             }
           } catch (error) {
-            console.warn('[getRoute] Failed to fetch on-chain price, rawAmountInUsd/rawAmountOutUsd will be undefined', {
-              error,
-              apiAmountInUsd: routeSummary.amountInUsd,
-              apiAmountOutUsd: routeSummary.amountOutUsd,
-            })
+            console.warn(
+              '[getRoute] Failed to fetch on-chain price, rawAmountInUsd/rawAmountOutUsd will be undefined',
+              {
+                error,
+                apiAmountInUsd: routeSummary.amountInUsd,
+                apiAmountOutUsd: routeSummary.amountOutUsd,
+              },
+            )
           }
         } else {
           console.warn('[getRoute] Transform skipped - missing required data', {
