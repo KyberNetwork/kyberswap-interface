@@ -5,6 +5,7 @@ import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as KyberLogo } from 'assets/svg/kyber/kyber_logo.svg'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
@@ -16,7 +17,6 @@ import {
   getOutputTokenItems,
   getZapFeePercent,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const FlowRow = styled(HStack)`
@@ -116,6 +116,7 @@ const StepPill = styled(Stack)`
   position: relative;
   z-index: 1;
   gap: 0;
+  min-width: 160px;
   border-radius: 12px;
   overflow: hidden;
   background: ${({ theme }) => theme.background};
@@ -147,7 +148,7 @@ const PreviewAssetItems = ({ items }: { items: RouteTokenItem[] }) => {
   if (!items.length) {
     return (
       <Box height={17}>
-        <PositionSkeleton width={160} height={16} />
+        <Skeleton width={160} height={17} />
       </Box>
     )
   }
@@ -251,7 +252,7 @@ const AddLiquidityRoutePreview = ({
               >
                 Fee
               </TooltipText>
-              <Text color={theme.text} fontSize={14} fontWeight={500}>
+              <Text color={theme.text2} fontSize={14} fontWeight={500}>
                 {formatPercent(zapFeePercent)}
               </Text>
             </HStack>
@@ -266,7 +267,7 @@ const AddLiquidityRoutePreview = ({
               >
                 Max Slippage
               </TooltipText>
-              <Text color={theme.text} fontSize={14} fontWeight={500}>
+              <Text color={theme.text2} fontSize={14} fontWeight={500}>
                 {formatBpsLabel(slippage)}
               </Text>
             </HStack>

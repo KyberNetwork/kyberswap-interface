@@ -8,10 +8,10 @@ import { Box, Text } from 'rebass'
 import { useEstimatePositionAprQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 
 const TooltipContent = styled(Stack)`
   gap: 4px;
@@ -143,7 +143,7 @@ const EstimatedPositionApr = ({
         <HStack minWidth={64} justify="flex-end">
           {isLoading ? (
             <Box height={17}>
-              <PositionSkeleton width={48} height={16} />
+              <Skeleton width={48} height={17} />
             </Box>
           ) : (
             <Text color={theme.primary} fontSize={14} fontWeight={500}>

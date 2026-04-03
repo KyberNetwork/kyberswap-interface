@@ -8,10 +8,10 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownIcon } from 'assets/images/dropdown.svg'
 import { ReactComponent as CloseIcon } from 'assets/images/x.svg'
 import { ReactComponent as WalletIcon } from 'assets/svg/earn/ic_add_liquidity_wallet.svg'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled(Stack)<{ $isRemovable?: boolean }>`
@@ -247,17 +247,17 @@ export const TokenAmountInputSkeleton = () => (
     <HStack align="center" justify="space-between" gap={12}>
       <HStack align="center" gap={8} wrap="wrap">
         {[0, 1, 2, 3].map(item => (
-          <PositionSkeleton key={item} width={40 + item} height={22} />
+          <Skeleton key={item} width={40 + item} height={22.5} />
         ))}
       </HStack>
-      <PositionSkeleton width={80} height={16} />
+      <Skeleton width={80} height={14} />
     </HStack>
 
-    <HStack align="center" gap={12}>
+    <HStack align="flex-end" gap={12}>
       <Stack flex={1} minWidth={0} gap={8}>
-        <PositionSkeleton width="40%" height={30} />
+        <Skeleton width="40%" height={34} />
       </Stack>
-      <PositionSkeleton width={96} height={34} />
+      <Skeleton width={96} height={36} />
     </HStack>
   </Card>
 )

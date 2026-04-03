@@ -1,19 +1,19 @@
 import { useMedia } from 'react-use'
 
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import AddLiquidityWidgetSkeleton from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetSkeleton'
 import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { MEDIA_WIDTHS } from 'theme'
 
 const RoutePreviewSkeleton = () => {
   return (
     <HStack width="100%" align="center" justify="space-between" gap={24}>
-      <PositionSkeleton width={240} height={66} />
-      <PositionSkeleton width={120} height={36} />
-      <PositionSkeleton width={240} height={66} />
+      <Skeleton width={240} height={66} />
+      <Skeleton width={160} height={95} />
+      <Skeleton width={240} height={66} />
     </HStack>
   )
 }
@@ -23,18 +23,18 @@ const PoolInformationSkeleton = () => {
 
   return (
     <Stack width="100%" gap={20} p={16} borderRadius={12} background={theme.background}>
-      <Stack gap={16}>
+      <Stack gap={30}>
         <HStack gap={24} wrap="wrap">
-          <PositionSkeleton width={96} height={18} />
-          <PositionSkeleton width={96} height={18} />
-          <PositionSkeleton width={96} height={18} />
+          <Skeleton width={96} height={24} />
+          <Skeleton width={96} height={24} />
+          <Skeleton width={96} height={24} />
         </HStack>
 
-        <HStack gap={16} wrap="wrap">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Stack key={index} flex="1 1 160px" gap={10} p={12} borderRadius={16} background={theme.buttonGray}>
-              <PositionSkeleton width={80} height={16} />
-              <PositionSkeleton width={120} height={16} />
+        <HStack gap={12} wrap="wrap">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Stack key={index} flex="1 1 160px" gap={8} p={16} borderRadius={16} background={theme.buttonGray}>
+              <Skeleton width={80} height={16} />
+              <Skeleton width={120} height={17} />
             </Stack>
           ))}
         </HStack>
@@ -42,8 +42,8 @@ const PoolInformationSkeleton = () => {
 
       <Stack gap={16}>
         <Stack gap={12}>
-          <PositionSkeleton width={200} height={16} />
-          <PositionSkeleton width={320} height={18} />
+          <Skeleton width={200} height={18} />
+          <Skeleton width={320} height={20} />
         </Stack>
 
         <PoolChartSkeleton type="line" />
@@ -55,13 +55,13 @@ const PoolInformationSkeleton = () => {
 const PoolHeaderSkeleton = () => {
   return (
     <HStack align="center" gap={12} wrap="wrap" width="100%">
-      <PositionSkeleton width={34.5} height={34.5} />
+      <Skeleton width={36} height={36} circle />
       <HStack align="center">
-        <PositionSkeleton width={28} height={28} />
-        <PositionSkeleton width={28} height={28} />
+        <Skeleton width={28} height={28} circle />
+        <Skeleton width={28} height={28} circle />
       </HStack>
-      <PositionSkeleton width={160} height={28} />
-      <PositionSkeleton width={160} height={28} />
+      <Skeleton width={160} height={28} />
+      <Skeleton width={160} height={28} />
     </HStack>
   )
 }

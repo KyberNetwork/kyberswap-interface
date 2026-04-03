@@ -15,7 +15,7 @@ const SkeletonGlobalStyle = createGlobalStyle`
   }
 `
 
-const Skeleton = ({ baseColor, containerClassName, highlightColor, ...props }: SkeletonProps) => {
+const Skeleton = ({ baseColor, borderRadius, containerClassName, highlightColor, ...props }: SkeletonProps) => {
   const theme = useTheme()
   const mergedContainerClassName = containerClassName
     ? `${SKELETON_CONTAINER_CLASSNAME} ${containerClassName}`
@@ -27,6 +27,7 @@ const Skeleton = ({ baseColor, containerClassName, highlightColor, ...props }: S
       <LoadingSkeleton
         {...props}
         baseColor={baseColor ?? theme.background}
+        borderRadius={borderRadius ?? 12}
         containerClassName={mergedContainerClassName}
         highlightColor={highlightColor ?? theme.buttonGray}
       />
