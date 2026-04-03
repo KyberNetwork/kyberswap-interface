@@ -62,10 +62,26 @@ const useBuildRoute = (args: Args) => {
 
     const refCode = getCookieValue('refCode')
 
+    const rawAmountInUsd = routeSummary.rawAmountInUsd
+    const rawAmountOutUsd = routeSummary.rawAmountOutUsd
+
+    if (!rawAmountInUsd || !rawAmountOutUsd) {
+      console.warn('[useBuildRoute] Missing USD values before build route', {
+        amountInUsd: routeSummary.amountInUsd,
+        amountOutUsd: routeSummary.amountOutUsd,
+        rawAmountInUsd,
+        rawAmountOutUsd,
+        tokenIn: routeSummary.tokenIn,
+        tokenOut: routeSummary.tokenOut,
+        amountIn: routeSummary.amountIn,
+        amountOut: routeSummary.amountOut,
+      })
+    }
+
     const rawRouteSummary = {
       ...routeSummary,
-      amountInUsd: routeSummary.rawAmountInUsd as string,
-      amountOutUsd: routeSummary.rawAmountOutUsd as string,
+      amountInUsd: rawAmountInUsd as string,
+      amountOutUsd: rawAmountOutUsd as string,
     }
 
     delete rawRouteSummary.rawAmountInUsd
