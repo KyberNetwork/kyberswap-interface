@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -7,21 +6,30 @@ import { Box, Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
 import FireIcon from 'assets/svg/earn/fire.svg'
-import LiquidityPoolIcon from 'assets/svg/earn/liquidity-pools.svg'
-import LiquidityPosIcon from 'assets/svg/earn/liquidity-positions.svg'
+import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_partner_vault.svg'
+import { ReactComponent as LiquidityPoolIcon } from 'assets/svg/earn/liquidity-pools.svg'
+import { ReactComponent as LiquidityPosIcon } from 'assets/svg/earn/liquidity-positions.svg'
 import LowVolatilityIcon from 'assets/svg/earn/low-volatility.svg'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
 import SolidEarningIcon from 'assets/svg/earn/solid-earning.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
-import StakingIcon from 'assets/svg/staking.svg'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import Card from 'pages/Earns/Landing/Card'
+import FeaturedPartnerVaults from 'pages/Earns/Landing/FeaturedPartnerVaults'
 import PoolSection from 'pages/Earns/Landing/PoolSection'
 import RewardSection from 'pages/Earns/Landing/RewardSection'
-import { Container, OverviewWrapper, WrapperBg } from 'pages/Earns/Landing/styles'
+import {
+  CardsRow,
+  ExplorePoolsButton,
+  GridSpan2,
+  GridSpan3,
+  PageGrid,
+  PoolsRow,
+  RightColumnContainer,
+} from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
@@ -44,13 +52,14 @@ const EarnLanding = () => {
   })
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const farmingPools = (data?.data?.farmingPools || []).slice(0, upToSmall ? 5 : 9)
-  const highlightedPools = (data?.data?.highlightedPools || []).slice(0, upToSmall ? 5 : 9)
-  const highAprPool = (data?.data?.highAPR || []).slice(0, 5)
-  const lowVolatilityPool = [...(data?.data?.lowVolatility || [])].sort((a, b) => b.lpApr - a.lpApr).slice(0, 5)
-  const solidEarningPool = (data?.data?.solidEarning || []).slice(0, 5)
+  const poolCount = upToSmall ? 5 : upToLarge ? 4 : 8
+  const farmingPools = (data?.data?.farmingPools || []).slice(0, poolCount)
+  const highlightedPools = (data?.data?.highlightedPools || []).slice(0, poolCount)
+  const highAprPool = (data?.data?.highAPR || []).slice(0, 4)
+  const lowVolatilityPool = [...(data?.data?.lowVolatility || [])].sort((a, b) => b.lpApr - a.lpApr).slice(0, 4)
+  const solidEarningPool = (data?.data?.solidEarning || []).slice(0, 4)
 
   useEffect(() => {
     const openPool = searchParams.get('openPool')
@@ -73,34 +82,36 @@ const EarnLanding = () => {
   }, [handleOpenZapIn, searchParams, setSearchParams, farmingPools, highlightedPools])
 
   return (
-    <WrapperBg>
+    <>
       {zapInWidget}
       {zapMigrationWidget}
       {smartExitWidget}
 
-      <Container>
-        <Text fontSize={36} fontWeight="500">
-          {t`Maximize Your Earnings in DeFi`}
-        </Text>
-        <Text
-          marginTop="1rem"
-          marginBottom={'32px'}
-          maxWidth="800px"
-          fontSize={16}
-          color={theme.subText}
-          marginX="auto"
-          lineHeight="24px"
-        >
-          {t`Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap
-            technology—to help you maximize earnings from your liquidity across various DeFi protocols.`}
-        </Text>
+      <PageGrid>
+        {/* Row 1: Hero Section */}
+        <GridSpan2>
+          <Text fontSize={upToSmall ? 24 : 36} fontWeight="400" lineHeight={upToSmall ? '32px' : '48px'}>
+            {t`Maximize Your Earnings in DeFi`}
+          </Text>
+          <Text
+            marginTop="16px"
+            maxWidth="760px"
+            fontSize={upToSmall ? 14 : 16}
+            color={theme.subText}
+            lineHeight="24px"
+          >
+            {t`Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap technology—to help you maximize earnings from your liquidity across various DeFi protocols.`}
+          </Text>
+        </GridSpan2>
+        <Flex alignItems="flex-end" justifyContent={upToSmall ? 'center' : 'flex-start'} width="100%">
+          <RewardSection />
+        </Flex>
 
-        <RewardSection />
-
-        <OverviewWrapper>
+        {/* Row 2: Feature Cards */}
+        <CardsRow>
           <Card
             title={t`Liquidity Pools`}
-            icon={LiquidityPoolIcon}
+            icon={<LiquidityPoolIcon width={40} height={40} color="#a9a9a9" />}
             desc={t`Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology.`}
             action={{
               text: t`Explore Pools`,
@@ -109,112 +120,99 @@ const EarnLanding = () => {
           />
           <Card
             title={t`Enhance Your Liquidity Positions`}
-            icon={LiquidityPosIcon}
+            icon={<LiquidityPosIcon width={40} height={40} color="#a9a9a9" />}
             desc={t`Track, adjust, and optimize your positions to stay in control of your DeFi journey.`}
             action={{
-              text: t`My positions`,
+              text: t`My Positions`,
               onClick: () => navigate({ pathname: APP_PATHS.EARN_POSITIONS }),
             }}
           />
           <Card
-            title={t`Staking/Compounding Strategies`}
-            icon={StakingIcon}
-            desc={t`Coming soon...`}
+            title={t`Partner Vaults`}
+            icon={<VaultIcon width={40} height={40} color="#a9a9a9" />}
+            desc={t`Auto-compounding, single-asset strategies managed by trusted partners (starting with ether.fi).`}
             action={{
-              text: t`Coming Soon`,
-              onClick: () => {},
-              disabled: true,
+              text: t`Explore Partner Vaults`,
+              onClick: () => navigate({ pathname: APP_PATHS.EARN_VAULTS }),
             }}
           />
-        </OverviewWrapper>
+        </CardsRow>
 
-        <PoolSection
-          title={t`Farming Pools`}
-          tooltip={t`No staking is required to earn rewards in these pools`}
-          icon={<FarmingIcon width={28} height={28} />}
-          tag={FilterTag.FARMING_POOL}
-          isLoading={isLoading}
-          listPools={farmingPools}
-          size="large"
-          styles={{ marginTop: upToSmall ? '40px' : '64px' }}
-        />
+        {/* Row 3: Pool Sections */}
+        <PoolsRow>
+          <div>
+            <PoolSection
+              title={t`Farming Pools`}
+              tooltip={t`No staking is required to earn rewards in these pools`}
+              icon={<FarmingIcon width={28} height={28} />}
+              tag={FilterTag.FARMING_POOL}
+              isLoading={isLoading}
+              listPools={farmingPools}
+              size="large"
+              skeletonCount={poolCount}
+            />
 
-        <PoolSection
-          title={t`Highlighted Pools`}
-          tooltip={t`Pools matching your wallet tokens or top volume pools if no wallet is connected`}
-          icon={FireIcon}
-          tag={FilterTag.HIGHLIGHTED_POOL}
-          isLoading={isLoading}
-          listPools={highlightedPools}
-          size="large"
-          styles={{ marginTop: upToSmall ? '16px' : '40px' }}
-        />
+            <PoolSection
+              title={t`Highlighted Pools`}
+              tooltip={t`Pools matching your wallet tokens or top volume pools if no wallet is connected`}
+              icon={FireIcon}
+              tag={FilterTag.HIGHLIGHTED_POOL}
+              isLoading={isLoading}
+              listPools={highlightedPools}
+              size="large"
+              styles={{ marginTop: '20px' }}
+              skeletonCount={poolCount}
+            />
 
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)',
-            marginTop: upToXXSmall ? 16 : 40,
-            gap: upToXXSmall ? 16 : 20,
-          }}
-        >
-          <PoolSection
-            title={t`High APR`}
-            tooltip={t`Top 100 Pools with assets that offer exceptionally high APRs`}
-            icon={RocketIcon}
-            tag={FilterTag.HIGH_APR}
-            isLoading={isLoading}
-            listPools={highAprPool}
-          />
+            <Box sx={{ marginTop: '20px' }}>
+              <FeaturedPartnerVaults isLoading={isLoading} />
+            </Box>
+          </div>
 
-          <PoolSection
-            title={t`Low Volatility`}
-            tooltip={t`Top 100 highest TVL Pools consisting of stable coins or correlated pairs`}
-            icon={LowVolatilityIcon}
-            tag={FilterTag.LOW_VOLATILITY}
-            isLoading={isLoading}
-            listPools={lowVolatilityPool}
-          />
+          <RightColumnContainer>
+            <PoolSection
+              title={t`High APR`}
+              tooltip={t`Top 100 Pools with assets that offer exceptionally high APRs`}
+              icon={RocketIcon}
+              tag={FilterTag.HIGH_APR}
+              isLoading={isLoading}
+              listPools={highAprPool}
+              variant="grouped"
+            />
 
-          <PoolSection
-            title={t`Solid Earning`}
-            tooltip={t`Top 100 pools that have the high total earned fee in the last 7 days`}
-            icon={SolidEarningIcon}
-            tag={FilterTag.SOLID_EARNING}
-            isLoading={isLoading}
-            listPools={solidEarningPool}
-          />
-        </Box>
+            <PoolSection
+              title={t`Low Volatility`}
+              tooltip={t`Top 100 highest TVL Pools consisting of stable coins or correlated pairs`}
+              icon={LowVolatilityIcon}
+              tag={FilterTag.LOW_VOLATILITY}
+              isLoading={isLoading}
+              listPools={lowVolatilityPool}
+              variant="grouped"
+            />
 
-        <Flex
-          role="button"
-          onClick={() => {
-            navigate({
-              pathname: APP_PATHS.EARN_POOLS,
-            })
-          }}
-          sx={{
-            cursor: 'pointer',
-            border: `1px solid ${theme.primary}`,
-            margin: 'auto',
-            marginTop: '40px',
-            borderRadius: '999px',
-            height: '56px',
-            background: rgba(theme.primary, 0.2),
-            fontSize: '16px',
-            fontWeight: 500,
-            color: theme.primary,
-            alignItems: 'center',
-            padding: '1rem 2rem',
-            width: 'fit-content',
-            ':hover': { background: rgba(theme.primary, 0.25) },
-          }}
-        >
-          {t`EXPLORE POOLS`}
-          <img src={PlayIcon} alt="play" width="36px" />
-        </Flex>
-      </Container>
-    </WrapperBg>
+            <PoolSection
+              title={t`Solid Earning`}
+              tooltip={t`Top 100 pools that have the high total earned fee in the last 7 days`}
+              icon={SolidEarningIcon}
+              tag={FilterTag.SOLID_EARNING}
+              isLoading={isLoading}
+              listPools={solidEarningPool}
+              variant="grouped"
+            />
+          </RightColumnContainer>
+        </PoolsRow>
+
+        {/* Row 4: Explore Pools CTA */}
+        <GridSpan3 style={{ display: 'flex', justifyContent: 'center' }}>
+          <ExplorePoolsButton to={APP_PATHS.EARN_POOLS}>
+            <Text fontSize={16} color={theme.primary} fontWeight={500} sx={{ textTransform: 'uppercase' }}>
+              {t`Explore Pools`}
+            </Text>
+            <img src={PlayIcon} alt="play" width={36} height={36} />
+          </ExplorePoolsButton>
+        </GridSpan3>
+      </PageGrid>
+    </>
   )
 }
 
