@@ -407,7 +407,7 @@ const InformationTab = () => {
                             return (
                               <PricePercentage>
                                 {pct >= 0 ? '+' : ''}
-                                {pct.toFixed(2)}%
+                                {pct.toFixed(4)}%
                               </PricePercentage>
                             )
                           }
@@ -448,7 +448,7 @@ const InformationTab = () => {
                             return (
                               <PricePercentage>
                                 {pct >= 0 ? '+' : ''}
-                                {pct.toFixed(1)}%
+                                {pct.toFixed(4)}%
                               </PricePercentage>
                             )
                           }
