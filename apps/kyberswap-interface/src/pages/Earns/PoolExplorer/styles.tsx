@@ -40,7 +40,7 @@ export const TagContainer = styled.div`
   `}
 `
 
-export const Tag = styled.div<{ active: boolean }>`
+export const Tag = styled.div<{ active: boolean; height?: number }>`
   background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.2) : theme.background)};
   border: 1px solid ${({ theme, active }) => (active ? theme.primary : 'transparent')};
   border-radius: 12px;
@@ -54,7 +54,7 @@ export const Tag = styled.div<{ active: boolean }>`
   gap: 8px;
   flex: 0 0 auto;
   line-height: 28px;
-  height: 42px;
+  height: ${({ height }) => (height ? `${height}px` : '42px')};
   transition: background-color 200ms ease, border-color 200ms ease;
 
   &[role='button']:hover {
@@ -64,10 +64,6 @@ export const Tag = styled.div<{ active: boolean }>`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     height: 38px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 16px;
   `}
 `
 
@@ -116,10 +112,11 @@ export const TableWrapper = styled.div`
   border-radius: 16px;
   position: relative;
   overflow: hidden;
+`
 
+export const PoolTableWrapper = styled(TableWrapper)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: 0 -16px;
-    border-radius: 0;
+    background: none;
   `}
 `
 
@@ -130,14 +127,47 @@ export const MigrateTableWrapper = styled(TableWrapper)`
 
 export const ContentWrapper = styled.div``
 
+export const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: ${({ theme }) => theme.text};
+  cursor: pointer;
+
+  :hover {
+    background: ${({ theme }) => theme.tabActive};
+  }
+`
+
 export const TableHeader = styled.div<{ expandColumn?: boolean }>`
   display: grid;
   grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
+    expandColumn
+      ? '1.7fr 0.8fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 156px 40px'
+      : '1.7fr 0.8fr 0.9fr 0.9fr 1fr 1fr 156px 40px'};
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
-  padding: 24px;
+  padding: 12px 12px;
+`
+
+export const TableCell = styled(Flex).withConfig({
+  shouldForwardProp: prop => !['justifyContent', 'alignItems', 'gap'].includes(prop),
+})<{ justifyContent?: string; alignItems?: string; gap?: string }>`
+  padding: 8px 12px;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 100%;
+  flex-direction: column;
+  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
+  align-items: ${({ alignItems }) => alignItems || 'flex-start'};
+  gap: ${({ gap }) => gap || '8px'};
 `
 
 export const SortableHeader = styled(Flex)`
@@ -145,10 +175,27 @@ export const SortableHeader = styled(Flex)`
   gap: 4px;
   width: fit-content;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
 
   &:hover svg path {
     stroke: ${({ theme }) => theme.text};
   }
+`
+
+export const HeaderText = styled(Text)`
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+`
+
+export const HeaderInfoWrapper = styled(Flex)`
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
 `
 
 export const MigrateTableHeader = styled(TableHeader)`
@@ -164,29 +211,39 @@ export const MigrateTableBody = styled.div`
   `}
 `
 
-export const TableRow = styled.div<{ expandColumn?: boolean }>`
-  display: grid;
-  grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
-  padding: 24px;
-  cursor: pointer;
+export const TableRow = styled(TableHeader)`
+  border-bottom: none;
 
   :hover {
+    cursor: pointer;
     background: #31cb9e1a;
   }
 `
 
-export const MigrateTableRow = styled(TableRow)`
-  grid-template-columns: 2.5fr 0.8fr 1fr 1fr 1fr !important;
+export const MigrateTableRow = styled(MigrateTableHeader)`
+  border-bottom: none;
+
+  :hover {
+    cursor: pointer;
+    background: #31cb9e1a;
+  }
 `
 
-export const FeeTier = styled.div`
+export const Badge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
   border-radius: 30px;
-  padding: 4px 8px;
+  padding: 4px 6px 4px 4px;
   font-size: 12px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
   color: ${({ theme }) => theme.subText};
   width: fit-content;
+`
+
+export const FeeTier = styled(Badge)`
+  padding: 4px 8px;
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 14px;
@@ -208,15 +265,26 @@ export const Apr = styled.div<{ value: number }>`
 `
 
 export const MobileTableRow = styled.div`
-  padding: 28px 24px 0;
+  padding: 8px 8px;
   cursor: pointer;
+  background: ${({ theme }) => theme.background};
+  border-radius: 12px;
+
+  :hover {
+    background: ${({ theme }) => theme.buttonGray};
+  }
 `
-export const MobileTableBottomRow = styled.div<{ withoutBorder: boolean }>`
+
+export const MobileTableCell = styled(Flex)`
+  width: 100%;
+  padding: 8px 8px;
+  box-sizing: border-box;
+  min-width: 0;
+`
+
+export const MobileTableBottomRow = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 16px 0;
-  gap: 12px;
-  border-bottom: ${({ withoutBorder, theme }) => (withoutBorder ? 'none' : `1px solid ${theme.tableHeader}`)};
 `
 
 export const Disclaimer = styled.div`

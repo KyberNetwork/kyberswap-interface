@@ -3,7 +3,6 @@ import { useLingui } from '@lingui/react'
 import { useMemo } from 'react'
 import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
 
 import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
@@ -14,6 +13,7 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { ButtonOutlined } from 'components/Button'
 import Search from 'components/Search'
+import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
@@ -34,6 +34,12 @@ export enum FilterTag {
   HIGH_APR = 'high_apr',
   SOLID_EARNING = 'solid_earning',
   LOW_VOLATILITY = 'low_volatility',
+}
+
+enum RewardType {
+  ALL = 'all',
+  KYBERSWAP = 'kyberswap',
+  THIRD_PARTY = 'third_party',
 }
 
 export const timings: MenuOption[] = [
@@ -69,20 +75,21 @@ const Filter = ({
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
+  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
   const selectedChainsLabel = useMemo(() => {
     const arrValue = filters.chainIds?.split(',').filter(Boolean)
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
     if (selectedChains.length >= 1) {
       return (
-        <Flex alignItems="center" sx={{ gap: '6px' }}>
-          <Flex>
+        <HStack align="center" gap={6}>
+          <HStack gap={0}>
             {selectedChains.map((chain, index) => (
               <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
             ))}
-          </Flex>
+          </HStack>
           {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
-        </Flex>
+        </HStack>
       )
     }
     return AllChainsOption.label
@@ -97,6 +104,35 @@ const Filter = ({
     const option = selectedProtocols[0] || supportedDexes[0] || AllProtocolsOption
     return option?.label || t`All Protocols`
   }, [supportedDexes, filters.protocol])
+
+  const rewardTypeOptions = useMemo(
+    () => [
+      { label: t`By KyberSwap`, value: RewardType.KYBERSWAP },
+      { label: t`By 3rd party`, value: RewardType.THIRD_PARTY },
+    ],
+    [],
+  )
+
+  const selectedRewardTypeValue = useMemo(() => {
+    switch (filters.rewardType) {
+      case RewardType.ALL:
+        return rewardTypeOptions.map(option => option.value).join(',')
+      case RewardType.KYBERSWAP:
+        return RewardType.KYBERSWAP
+      case RewardType.THIRD_PARTY:
+        return RewardType.THIRD_PARTY
+      default:
+        return ''
+    }
+  }, [filters.rewardType, rewardTypeOptions])
+
+  const selectedRewardTypeLabel = useMemo(() => {
+    const arrValue = selectedRewardTypeValue.split(',').filter(Boolean)
+    const selectedRewardTypes = rewardTypeOptions.filter(option => arrValue.includes(option.value))
+    if (selectedRewardTypes.length === 0) return t`Rewards Type`
+    if (selectedRewardTypes.length === 1) return selectedRewardTypes[0].label
+    return `${t`Rewards Type`} (${selectedRewardTypes.length})`
+  }, [rewardTypeOptions, selectedRewardTypeValue])
 
   const filterTagOptions = useMemo(
     () => [
@@ -169,6 +205,30 @@ const Filter = ({
     updateFilters('interval', newInterval.toString())
   }
 
+  const onRewardTypeChange = (newRewardType: string | number) => {
+    const arrValue = newRewardType.toString().split(',').filter(Boolean)
+    const hasKyberSwap = arrValue.includes(RewardType.KYBERSWAP)
+    const hasThirdParty = arrValue.includes(RewardType.THIRD_PARTY)
+    const rewardType =
+      hasKyberSwap && hasThirdParty
+        ? RewardType.ALL
+        : hasKyberSwap
+        ? RewardType.KYBERSWAP
+        : hasThirdParty
+        ? RewardType.THIRD_PARTY
+        : undefined
+
+    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
+      filter_type: 'reward_type',
+      filter_value: rewardType || '',
+      previous_value: filters.rewardType || '',
+      results_count: totalItems || 0,
+      active_category: tagToCategoryName(filters.tag || ''),
+      chain: filters.chainIds,
+    })
+    updateFilters('rewardType', rewardType || '')
+  }
+
   return (
     <>
       <HeadSection>
@@ -234,10 +294,9 @@ const Filter = ({
           <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
         )}
       </HeadSection>
-      <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
-        <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
+      <Stack direction={upToMedium ? 'column' : 'row'} justify="space-between" gap="1rem">
+        <HStack gap="1rem" wrap="wrap">
           <MultiSelectDropdownMenu
-            alignLeft
             highlightOnSelect
             label={selectedChainsLabel}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
@@ -245,16 +304,25 @@ const Filter = ({
             onChange={value => onChainChange(value)}
           />
           <MultiSelectDropdownMenu
-            alignLeft
             highlightOnSelect
             label={selectedProtocolsLabel}
             options={supportedDexes}
             value={filters.protocol}
             onChange={value => onProtocolChange(value)}
           />
-          <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
-        </Flex>
-        <Flex alignItems={upToMedium ? 'stretch' : 'center'} style={{ gap: '12px' }} flexWrap="wrap">
+          {isFarmingFiltered && (
+            <MultiSelectDropdownMenu
+              highlightOnSelect
+              label={selectedRewardTypeLabel}
+              options={rewardTypeOptions}
+              value={selectedRewardTypeValue}
+              emptyValueOnClear=""
+              onChange={value => onRewardTypeChange(value)}
+            />
+          )}
+          <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
+        </HStack>
+        <HStack align={upToMedium ? 'stretch' : 'center'} gap={12} wrap="wrap">
           <Search
             placeholder={t`Search by token symbol or pool/token address`}
             searchValue={search}
@@ -282,8 +350,8 @@ const Filter = ({
             <Plus size={16} />
             <Trans>Create Pool</Trans>
           </ButtonOutlined>
-        </Flex>
-      </Flex>
+        </HStack>
+      </Stack>
     </>
   )
 }

@@ -6,6 +6,7 @@ import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import LocalLoader from 'components/LocalLoader'
 import ProgressBar from 'components/ProgressBar'
+import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
@@ -110,29 +111,32 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
   return (
     <>
       {isFetching && loadingProgress}
-      <div>
-        {tablePoolData.map((pool, index) =>
-          upToMedium ? (
+
+      {upToMedium ? (
+        <Stack gap={16}>
+          {tablePoolData.map(pool => (
             <MobileTableRow
               key={pool.address}
               pool={pool}
               filters={filters}
               onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
-              withoutBorder={index === tablePoolData.length - 1}
             />
-          ) : (
-            <DesktopTableRow
-              key={pool.address}
-              pool={pool}
-              filters={filters}
-              onOpenZapInWidget={onOpenZapInWidget}
-              handleFavorite={handleFavorite}
-              favoriteLoading={favoriteLoading}
-            />
-          ),
-        )}
-      </div>
+          ))}
+        </Stack>
+      ) : (
+        tablePoolData.map(pool => (
+          <DesktopTableRow
+            key={pool.address}
+            pool={pool}
+            filters={filters}
+            onOpenZapInWidget={onOpenZapInWidget}
+            handleFavorite={handleFavorite}
+            favoriteLoading={favoriteLoading}
+          />
+        ))
+      )}
+
       {isFetching && upToMedium && loadingProgress}
 
       {/* Important to load dex info */}
