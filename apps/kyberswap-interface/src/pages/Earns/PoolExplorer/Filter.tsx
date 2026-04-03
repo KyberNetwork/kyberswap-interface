@@ -36,6 +36,12 @@ export enum FilterTag {
   LOW_VOLATILITY = 'low_volatility',
 }
 
+enum RewardType {
+  ALL = 'all',
+  KYBERSWAP = 'kyberswap',
+  THIRD_PARTY = 'third_party',
+}
+
 export const timings: MenuOption[] = [
   { label: '24h', value: '24h' },
   { label: '7d', value: '7d' },
@@ -69,6 +75,7 @@ const Filter = ({
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
+  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
   const selectedChainsLabel = useMemo(() => {
     const arrValue = filters.chainIds?.split(',').filter(Boolean)
@@ -97,6 +104,35 @@ const Filter = ({
     const option = selectedProtocols[0] || supportedDexes[0] || AllProtocolsOption
     return option?.label || t`All Protocols`
   }, [supportedDexes, filters.protocol])
+
+  const rewardTypeOptions = useMemo(
+    () => [
+      { label: t`By KyberSwap`, value: RewardType.KYBERSWAP },
+      { label: t`By 3rd party`, value: RewardType.THIRD_PARTY },
+    ],
+    [],
+  )
+
+  const selectedRewardTypeValue = useMemo(() => {
+    switch (filters.rewardType) {
+      case RewardType.ALL:
+        return rewardTypeOptions.map(option => option.value).join(',')
+      case RewardType.KYBERSWAP:
+        return RewardType.KYBERSWAP
+      case RewardType.THIRD_PARTY:
+        return RewardType.THIRD_PARTY
+      default:
+        return ''
+    }
+  }, [filters.rewardType, rewardTypeOptions])
+
+  const selectedRewardTypeLabel = useMemo(() => {
+    const arrValue = selectedRewardTypeValue.split(',').filter(Boolean)
+    const selectedRewardTypes = rewardTypeOptions.filter(option => arrValue.includes(option.value))
+    if (selectedRewardTypes.length === 0) return t`Rewards Type`
+    if (selectedRewardTypes.length === 1) return selectedRewardTypes[0].label
+    return `${t`Rewards Type`} (${selectedRewardTypes.length})`
+  }, [rewardTypeOptions, selectedRewardTypeValue])
 
   const filterTagOptions = useMemo(
     () => [
@@ -167,6 +203,30 @@ const Filter = ({
       chain: filters.chainIds,
     })
     updateFilters('interval', newInterval.toString())
+  }
+
+  const onRewardTypeChange = (newRewardType: string | number) => {
+    const arrValue = newRewardType.toString().split(',').filter(Boolean)
+    const hasKyberSwap = arrValue.includes(RewardType.KYBERSWAP)
+    const hasThirdParty = arrValue.includes(RewardType.THIRD_PARTY)
+    const rewardType =
+      hasKyberSwap && hasThirdParty
+        ? RewardType.ALL
+        : hasKyberSwap
+        ? RewardType.KYBERSWAP
+        : hasThirdParty
+        ? RewardType.THIRD_PARTY
+        : undefined
+
+    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
+      filter_type: 'reward_type',
+      filter_value: rewardType || '',
+      previous_value: filters.rewardType || '',
+      results_count: totalItems || 0,
+      active_category: tagToCategoryName(filters.tag || ''),
+      chain: filters.chainIds,
+    })
+    updateFilters('rewardType', rewardType || '')
   }
 
   return (
@@ -252,6 +312,17 @@ const Filter = ({
             value={filters.protocol}
             onChange={value => onProtocolChange(value)}
           />
+          {isFarmingFiltered && (
+            <MultiSelectDropdownMenu
+              alignLeft
+              highlightOnSelect
+              label={selectedRewardTypeLabel}
+              options={rewardTypeOptions}
+              value={selectedRewardTypeValue}
+              emptyValueOnClear=""
+              onChange={value => onRewardTypeChange(value)}
+            />
+          )}
           <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
         </Flex>
         <Flex alignItems={upToMedium ? 'stretch' : 'center'} style={{ gap: '12px' }} flexWrap="wrap">

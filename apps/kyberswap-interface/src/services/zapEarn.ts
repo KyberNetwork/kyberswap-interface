@@ -40,6 +40,7 @@ export interface PoolQueryParams {
   limit?: number
   interval: string
   protocol: string
+  rewardType?: string
   userAddress?: string
   tag?: string
   sortBy?: string

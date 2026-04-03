@@ -23,6 +23,7 @@ const MultiSelect = ({
   mobileFullWidth = false,
   mobileHalfWidth = false,
   highlightOnSelect = false,
+  emptyValueOnClear,
   onChange,
 }: {
   label: ReactNode
@@ -33,6 +34,7 @@ const MultiSelect = ({
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   highlightOnSelect?: boolean
+  emptyValueOnClear?: string
   onChange: (value: string | number) => void
 }) => {
   const [open, setOpen] = useState(false)
@@ -56,6 +58,8 @@ const MultiSelect = ({
     if (arrValue.length === 0) {
       if (options.some(option => option.value === AllOptionValue)) {
         onChange(AllOptionValue)
+      } else if (emptyValueOnClear !== undefined) {
+        onChange(emptyValueOnClear)
       } else {
         onChange(options.map(option => option.value).join(','))
       }
