@@ -1,4 +1,5 @@
-import { Pool, Token, ZapRouteDetail } from '@kyber/schema'
+import { API_URLS, Pool, Token, ZapRouteDetail } from '@kyber/schema'
+import { rgba } from 'polished'
 import { Fragment } from 'react'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
@@ -7,12 +8,20 @@ import { ReactComponent as KyberLogo } from 'assets/svg/kyber/kyber_logo.svg'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import { getInputTokenItems, getOutputTokenItems } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import TooltipText from 'pages/Earns/PoolDetail/AddLiquidity/components/TooltipText'
+import {
+  formatBpsLabel,
+  formatPercent,
+  getInputTokenItems,
+  getOutputTokenItems,
+  getZapFeePercent,
+} from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const FlowRow = styled(HStack)`
   width: 100%;
+  align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
@@ -103,14 +112,20 @@ const TrackStartDot = styled.div`
   `}
 `
 
-const StepPill = styled(HStack)`
+const StepPill = styled(Stack)`
   position: relative;
   z-index: 1;
+  gap: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: ${({ theme }) => theme.background};
+`
+
+const StepPillTop = styled(HStack)`
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.buttonGray};
+  border-bottom: 1px solid ${({ theme }) => rgba(theme.border, 0.4)};
 `
 
 type RouteTokenItem = {
@@ -123,6 +138,7 @@ type AddLiquidityRoutePreviewProps = {
   inputAmounts?: string
   pool?: Pool | null
   zapRoute?: ZapRouteDetail | null
+  slippage?: number
 }
 
 const PreviewAssetItems = ({ items }: { items: RouteTokenItem[] }) => {
@@ -183,11 +199,18 @@ const PreviewAssetCard = ({ items, usdAmount }: { items: RouteTokenItem[]; usdAm
   )
 }
 
-const AddLiquidityRoutePreview = ({ inputTokens, inputAmounts, pool, zapRoute }: AddLiquidityRoutePreviewProps) => {
+const AddLiquidityRoutePreview = ({
+  inputTokens,
+  inputAmounts,
+  pool,
+  zapRoute,
+  slippage,
+}: AddLiquidityRoutePreviewProps) => {
   const theme = useTheme()
 
   const inputItems = getInputTokenItems(inputTokens ?? [], inputAmounts ?? '')
   const outputItems = getOutputTokenItems(pool, zapRoute)
+  const zapFeePercent = getZapFeePercent(zapRoute)
 
   return (
     <FlowRow>
@@ -197,10 +220,57 @@ const AddLiquidityRoutePreview = ({ inputTokens, inputAmounts, pool, zapRoute }:
         <TrackLine />
         <TrackStartDot />
         <StepPill>
-          <KyberLogo width={18} height={18} />
-          <Text color={theme.subText} fontSize={14} fontWeight={500}>
-            Kyber Zap
-          </Text>
+          <StepPillTop>
+            <KyberLogo width={18} height={18} />
+            <Text color={theme.subText} fontSize={14} fontWeight={500}>
+              Kyber Zap
+            </Text>
+          </StepPillTop>
+
+          <Stack gap={8} p="8px 12px">
+            <HStack align="center" justify="space-between" gap={16}>
+              <TooltipText
+                tooltip={
+                  <Stack
+                    gap={4}
+                    align="flex-start"
+                    sx={{
+                      a: { color: 'primary', textDecoration: 'none' },
+                    }}
+                  >
+                    Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
+                    fees.
+                    <a href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener norefferer noreferrer">
+                      {'>'} More details
+                    </a>
+                  </Stack>
+                }
+                placement="left"
+                color={theme.subText}
+                fontSize={14}
+              >
+                Fee
+              </TooltipText>
+              <Text color={theme.text} fontSize={14} fontWeight={500}>
+                {formatPercent(zapFeePercent)}
+              </Text>
+            </HStack>
+            <HStack align="center" justify="space-between" gap={16}>
+              <TooltipText
+                tooltip={
+                  'Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!'
+                }
+                placement="left"
+                color={theme.subText}
+                fontSize={14}
+              >
+                Max Slippage
+              </TooltipText>
+              <Text color={theme.text} fontSize={14} fontWeight={500}>
+                {formatBpsLabel(slippage)}
+              </Text>
+            </HStack>
+          </Stack>
         </StepPill>
       </StepTrack>
 

@@ -1,4 +1,4 @@
-import { PartnerFeeAction, Pool, ProtocolFeeAction, RefundAction, ZapAction, ZapRouteDetail } from '@kyber/schema'
+import { Pool, RefundAction, ZapAction, ZapRouteDetail } from '@kyber/schema'
 import { getZapImpact } from '@kyber/utils'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -8,7 +8,13 @@ import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import { getOutputTokenItems, getSlippageNotice } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import {
+  formatBpsLabel,
+  formatPercent,
+  getOutputTokenItems,
+  getSlippageNotice,
+  getZapFeePercent,
+} from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled(Stack)`
@@ -43,19 +49,11 @@ type Estimate = {
   slippage?: number
   items: ReturnType<typeof getOutputTokenItems>
   remainingUsd: number
-  zapFeePercent: number
+  zapFeePercent?: number
   zapImpact: {
     display: string
   } | null
 }
-
-const formatBpsLabel = (value?: number) => {
-  if (value === undefined) return '--'
-
-  return `${parseFloat((((value || 0) * 100) / 10_000).toFixed(2)).toString()}%`
-}
-
-const formatPercent = (value?: number) => (value !== undefined ? `${parseFloat(value.toFixed(2)).toString()}%` : '--')
 
 const getRouteAction = <T,>(route: ZapRouteDetail, type: ZapAction) =>
   route.zapDetails.actions.find(action => action.type === type) as T | undefined
@@ -73,8 +71,6 @@ const buildEstimate = ({
   slippage?: number
 }): Estimate => {
   const refundAction = getRouteAction<RefundAction>(route, ZapAction.REFUND)
-  const protocolFeeAction = getRouteAction<ProtocolFeeAction>(route, ZapAction.PROTOCOL_FEE)
-  const partnerFeeAction = getRouteAction<PartnerFeeAction>(route, ZapAction.PARTNET_FEE)
   const items = getOutputTokenItems(pool, route)
   const estimatedItemsUsd = items.reduce((total, item) => total + item.usdValue, 0)
   const zapImpact = getZapImpact(route.zapDetails.priceImpact, route.zapDetails.suggestedSlippage || 100)
@@ -84,8 +80,7 @@ const buildEstimate = ({
     slippage,
     items,
     remainingUsd: getRemainingUsd(refundAction),
-    zapFeePercent:
-      (((protocolFeeAction?.protocolFee.pcm || 0) + (partnerFeeAction?.partnerFee.pcm || 0)) / 100_000) * 100,
+    zapFeePercent: getZapFeePercent(route),
     zapImpact: zapImpact
       ? {
           display: zapImpact.display,

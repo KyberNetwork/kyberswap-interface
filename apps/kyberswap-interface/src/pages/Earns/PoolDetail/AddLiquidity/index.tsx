@@ -138,6 +138,7 @@ const AddLiquidityBody = ({
             inputAmounts={state.tokenInput.amounts}
             pool={normalizedPool}
             zapRoute={state.route.data}
+            slippage={state.slippage.value}
           />
         </PoolInformationColumn>
 
@@ -463,6 +464,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
               inputAmounts={state.tokenInput.amounts}
               pool={null}
               zapRoute={state.route.data}
+              slippage={state.slippage.value}
             />
           </PoolInformationColumn>
 

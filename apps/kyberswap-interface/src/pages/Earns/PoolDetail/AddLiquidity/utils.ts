@@ -3,8 +3,10 @@ import {
   AddLiquidityAction,
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
+  PartnerFeeAction,
   Pool,
   PoolType,
+  ProtocolFeeAction,
   Token,
   ZapAction,
   ZapRouteDetail,
@@ -58,6 +60,31 @@ export const getInputTokenItems = (tokens: Token[], amounts: string) => {
 export const parseRouteAmount = (amount: string | undefined, decimals: number) => {
   const parsedAmount = Number(formatUnits(BigInt(amount || '0').toString(), decimals))
   return Number.isFinite(parsedAmount) ? parsedAmount : undefined
+}
+
+export const formatBpsLabel = (value?: number) => {
+  if (value === undefined) return '--'
+
+  return `${parseFloat((((value || 0) * 100) / 10_000).toFixed(2)).toString()}%`
+}
+
+export const formatPercent = (value?: number) =>
+  value !== undefined ? `${parseFloat(value.toFixed(2)).toString()}%` : '--'
+
+export const getZapFeePercent = (route?: ZapRouteDetail | null) => {
+  const protocolFeeAction = route?.zapDetails.actions.find(
+    (action): action is ProtocolFeeAction => action.type === ZapAction.PROTOCOL_FEE,
+  )
+  const partnerFeeAction = route?.zapDetails.actions.find(
+    (action): action is PartnerFeeAction => action.type === ZapAction.PARTNET_FEE,
+  )
+
+  const protocolFeePcm = protocolFeeAction?.protocolFee.pcm
+  const partnerFeePcm = partnerFeeAction?.partnerFee.pcm
+
+  if (protocolFeePcm === undefined && partnerFeePcm === undefined) return undefined
+
+  return (((protocolFeePcm ?? 0) + (partnerFeePcm ?? 0)) / 100_000) * 100
 }
 
 export const getOutputTokenItems = (pool?: Pool | null, zapRoute?: ZapRouteDetail | null) => {
