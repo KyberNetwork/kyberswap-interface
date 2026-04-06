@@ -1,6 +1,6 @@
 import { Pool, univ3PoolNormalize } from '@kyber/schema'
 import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3'
-import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
+import { Bound, LiquidityChartRangeInput, MIN_PRICE } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
 import { rgba } from 'polished'
 import { useCallback, useMemo } from 'react'
@@ -8,6 +8,11 @@ import styled, { keyframes } from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import { toString } from 'utils/numbers'
+
+const parseChartPrice = (value: string | null) => {
+  if (!value) return NaN
+  return parseFloat(value.replace(/,/g, ''))
+}
 
 const shimmer = keyframes`
   0% { transform: translateX(-100%); }
@@ -109,10 +114,10 @@ const LiquidityChart = ({
       const nextTickLower = nearestUsableTick(Number(tickLowerFromPrice), normalizedPool.tickSpacing)
       const nextTickUpper = nearestUsableTick(Number(tickUpperFromPrice), normalizedPool.tickSpacing)
 
-      if (nextTickUpper) {
+      if (nextTickUpper !== undefined) {
         revertPrice ? onTickLowerChange?.(nextTickUpper) : onTickUpperChange?.(nextTickUpper)
       }
-      if (nextTickLower) {
+      if (nextTickLower !== undefined) {
         revertPrice ? onTickUpperChange?.(nextTickLower) : onTickLowerChange?.(nextTickLower)
       }
     },
@@ -133,7 +138,7 @@ const LiquidityChart = ({
       if (tickFromPrice === undefined) return
 
       const nextTick = nearestUsableTick(Number(tickFromPrice), normalizedPool.tickSpacing)
-      if (nextTick) revertPrice ? onTickUpperChange?.(nextTick) : onTickLowerChange?.(nextTick)
+      if (nextTick !== undefined) revertPrice ? onTickUpperChange?.(nextTick) : onTickLowerChange?.(nextTick)
     },
     [normalizedPool, onTickLowerChange, onTickUpperChange, revertPrice],
   )
@@ -152,7 +157,7 @@ const LiquidityChart = ({
       if (tickFromPrice === undefined) return
 
       const nextTick = nearestUsableTick(Number(tickFromPrice), normalizedPool.tickSpacing)
-      if (nextTick) revertPrice ? onTickLowerChange?.(nextTick) : onTickUpperChange?.(nextTick)
+      if (nextTick !== undefined) revertPrice ? onTickLowerChange?.(nextTick) : onTickUpperChange?.(nextTick)
     },
     [normalizedPool, onTickLowerChange, onTickUpperChange, revertPrice],
   )
@@ -161,17 +166,17 @@ const LiquidityChart = ({
     (domain: [number, number], mode: string | undefined) => {
       if (!minPrice || !maxPrice) return
 
-      const leftPrice = parseFloat((!revertPrice ? minPrice : maxPrice).replace(/,/g, ''))
-      const rightPrice = parseFloat((!revertPrice ? maxPrice : minPrice).replace(/,/g, ''))
+      const leftPrice = parseChartPrice(!revertPrice ? minPrice : maxPrice)
+      const rightPrice = parseChartPrice(!revertPrice ? maxPrice : minPrice)
       let leftRangeValue = Number(domain[0])
       const rightRangeValue = Number(domain[1])
 
       if (leftRangeValue <= 0) {
-        leftRangeValue = 1 / 10 ** 6
+        leftRangeValue = MIN_PRICE
       }
 
       const updateLeft =
-        (!ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER] || mode === 'handle' || mode === 'reset') &&
+        (!ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER] || mode === 'reset') &&
         leftRangeValue > 0 &&
         leftRangeValue !== leftPrice
 
