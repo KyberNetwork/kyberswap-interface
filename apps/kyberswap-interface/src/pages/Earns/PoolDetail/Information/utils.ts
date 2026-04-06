@@ -1,5 +1,5 @@
 import { formatAprNumber, formatUnits } from '@kyber/utils/number'
-import { getPositionAmounts } from '@kyber/utils/uniswapv3'
+import { MAX_TICK, MIN_TICK, getPositionAmounts, nearestUsableTick } from '@kyber/utils/uniswapv3'
 import dayjs from 'dayjs'
 import { type PoolAnalyticsWindow, type PoolDetail } from 'services/zapEarn'
 
@@ -16,7 +16,9 @@ const hasValue = (value?: number | null): value is number =>
   value !== undefined && value !== null && !Number.isNaN(value)
 
 const getCurrentTickRange = (tick: number, tickSpacing: number) => {
-  const tickLower = Math.floor(tick / tickSpacing) * tickSpacing
+  const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
+  const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
+  const tickLower = Math.min(Math.max(Math.floor(tick / tickSpacing) * tickSpacing, minTick), maxTick - tickSpacing)
 
   return {
     tickLower,
