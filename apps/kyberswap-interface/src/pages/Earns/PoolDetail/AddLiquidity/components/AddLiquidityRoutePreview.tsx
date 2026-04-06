@@ -46,7 +46,7 @@ const StepTrack = styled(Stack)`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     min-width: 100%;
-    min-height: 80px;
+    min-height: 140px;
   `}
 `
 
