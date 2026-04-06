@@ -3,7 +3,7 @@ import styled, { type DefaultTheme } from 'styled-components'
 
 import { PoolPageWrapper } from 'pages/Earns/PoolExplorer/styles'
 
-type NoteCardTone = 'info' | 'warning' | 'error'
+export type NoteCardTone = 'info' | 'warning' | 'error'
 
 const getNoteCardToneColor = (theme: DefaultTheme, tone: NoteCardTone) =>
   tone === 'error' ? theme.red : tone === 'warning' ? theme.warning : theme.primary

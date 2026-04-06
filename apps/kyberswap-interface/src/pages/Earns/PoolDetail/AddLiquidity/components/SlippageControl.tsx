@@ -1,5 +1,6 @@
-import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType } from '@kyber/schema'
-import { InfoHelper } from '@kyber/ui'
+import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, ZapRouteDetail } from '@kyber/schema'
+import { translateZapMessage } from '@kyber/ui'
+import { PI_LEVEL, getZapImpact } from '@kyber/utils'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
@@ -10,6 +11,7 @@ import styled from 'styled-components'
 import { HStack, Stack } from 'components/Stack'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import TooltipText from 'pages/Earns/PoolDetail/AddLiquidity/components/TooltipText'
 import { getSlippageNotice, getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -51,22 +53,30 @@ const validateSlippageInput = (
   return { isValid: true }
 }
 
-const SummaryButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: space-between;
+const SummaryCard = styled(Stack)`
   width: 100%;
   padding: 8px 12px;
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
-  cursor: pointer;
 
   :hover {
-    background: ${({ theme }) => theme.buttonGray};
+    background: ${({ theme }) => theme.darkText};
   }
+`
+
+const ExpandButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 `
 
 const Controls = styled.div`
@@ -132,7 +142,6 @@ const Suggestion = styled.button`
   cursor: pointer;
   font-size: 14px;
   padding: 0;
-  margin-left: 12px;
 
   :hover {
     filter: brightness(1.12);
@@ -156,6 +165,7 @@ type SlippageControlProps = {
   value?: {
     slippage?: number
     suggestedSlippage?: number
+    route?: ZapRouteDetail | null
   }
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onSlippageChange?: (value: number) => void
@@ -166,12 +176,13 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
   const { chainId, poolType, pool } = context
   const slippage = value?.slippage
   const suggestedSlippage = value?.suggestedSlippage || 0
-  const [isDegenMode] = useDegenModeManager()
+  const route = value?.route
 
-  const previousSlippageRef = useRef(slippage)
-  const [customValue, setCustomValue] = useState('')
+  const previousValueRef = useRef(slippage)
+  const [isDegenMode] = useDegenModeManager()
+  const [customInput, setCustomInput] = useState('')
   const [isCustom, setIsCustom] = useState(Boolean(slippage && !isPresetSlippage(slippage)))
-  const [isFocus, setIsFocus] = useState(false)
+  const [isInputFocused, setIsInputFocused] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
 
   const token0Symbol = pool.token0.symbol
@@ -180,39 +191,40 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
 
   const dexNameInfo = DEXES_INFO[poolType]?.name
   const dexName = !dexNameInfo ? '' : typeof dexNameInfo === 'string' ? dexNameInfo : dexNameInfo[chainId]
-  const { isValid, message } = validateSlippageInput(customValue, suggestedSlippage, isDegenMode)
+  const { isValid, message } = validateSlippageInput(customInput, suggestedSlippage, isDegenMode)
   const appliedSlippageValidation = validateSlippageInput(
     slippage ? formatSlippageInput(slippage) : '',
     suggestedSlippage,
     isDegenMode,
   )
-  const messageToShow = message || appliedSlippageValidation.message
+  const warningMessage = message || appliedSlippageValidation.message
+  const valueColor = warningMessage ? (isValid ? theme.warning : theme.red) : theme.text
 
   useEffect(() => {
-    if (isFocus) return
+    if (isInputFocused) return
     if (slippage === undefined) return
 
     if (isPresetSlippage(slippage) && !isCustom) {
-      setCustomValue('')
+      setCustomInput('')
       setIsCustom(false)
     } else {
-      setCustomValue(formatSlippageInput(slippage))
+      setCustomInput(formatSlippageInput(slippage))
       setIsCustom(true)
     }
-  }, [isCustom, isFocus, slippage])
+  }, [isCustom, isInputFocused, slippage])
 
   const fireSlippageEvent = (nextSlippage: number) => {
-    if (previousSlippageRef.current === undefined || nextSlippage === previousSlippageRef.current) return
+    if (previousValueRef.current === undefined || nextSlippage === previousValueRef.current) return
 
     onTrackEvent?.('LIQ_MAX_SLIPPAGE_CHANGED', {
-      previous_slippage: (previousSlippageRef.current * 100) / 10_000,
+      previous_slippage: (previousValueRef.current * 100) / 10_000,
       new_slippage: (nextSlippage * 100) / 10_000,
       pool_pair: `${pool.token0.symbol}/${pool.token1.symbol}`,
       pool_protocol: dexName,
       chain: NETWORKS_INFO[chainId as keyof typeof NETWORKS_INFO]?.name,
     })
 
-    previousSlippageRef.current = nextSlippage
+    previousValueRef.current = nextSlippage
   }
 
   useEffect(() => {
@@ -230,30 +242,30 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
     fireSlippageEvent(nextSlippage)
   }
 
-  const syncCustomStateFromSlippage = (nextSlippage: number) => {
+  const syncCustomState = (nextSlippage: number) => {
     if (isPresetSlippage(nextSlippage)) {
-      setCustomValue('')
+      setCustomInput('')
       setIsCustom(false)
       return
     }
 
-    setCustomValue(formatSlippageInput(nextSlippage))
+    setCustomInput(formatSlippageInput(nextSlippage))
     setIsCustom(true)
   }
 
   const handlePresetClick = (nextSlippage: number) => {
-    setCustomValue('')
+    setCustomInput('')
     setIsCustom(false)
 
     applySlippage(nextSlippage)
   }
 
-  const handleCustomBlur = (value: string) => {
-    setIsFocus(false)
+  const handleCustomInputBlur = (value: string) => {
+    setIsInputFocused(false)
 
     if (!value || !isValid) {
       const nextSlippage = slippage ?? (suggestedSlippage || 10)
-      syncCustomStateFromSlippage(nextSlippage)
+      syncCustomState(nextSlippage)
       applySlippage(nextSlippage)
       return
     }
@@ -261,16 +273,16 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
     applySlippage(parseSlippageInput(value))
   }
 
-  const handleCustomChange = (value: string) => {
+  const handleCustomInputChange = (value: string) => {
     if (value === '') {
-      setCustomValue('')
+      setCustomInput('')
       setIsCustom(false)
       return
     }
 
     if (!SLIPPAGE_INPUT_REGEX.test(value)) return
 
-    setCustomValue(value)
+    setCustomInput(value)
     setIsCustom(true)
 
     const validation = validateSlippageInput(value, suggestedSlippage, isDegenMode)
@@ -281,70 +293,119 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
 
   const handleSuggestionClick = () => {
     applySlippage(suggestedSlippage)
-    syncCustomStateFromSlippage(suggestedSlippage)
+    syncCustomState(suggestedSlippage)
   }
 
   return (
     <Stack gap={8}>
-      <SummaryButton type="button" aria-expanded={isExpanded} onClick={() => setIsExpanded(prev => !prev)}>
-        <HStack align="center" gap={4}>
-          <Text color={theme.text} fontSize={14}>
-            Max Slippage
-          </Text>
-          <InfoHelper
-            placement="bottom"
-            text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
-            color={theme.primary}
-            width="280px"
-          />
-        </HStack>
-        <HStack as="span" align="center" gap={4}>
-          <Text as="span" color={theme.text} fontSize={14} fontWeight={500}>
-            {formatSlippageLabel(slippage)}
-          </Text>
-          <Caret $open={isExpanded} />
-        </HStack>
-      </SummaryButton>
-
-      {isExpanded && (
-        <Controls>
-          {PRESET_SLIPPAGE_OPTIONS.map(item => (
-            <Option
-              $active={slippage === item && !isCustom}
-              key={item}
-              onClick={() => handlePresetClick(item)}
-              type="button"
+      <SummaryCard gap={8}>
+        <ExpandButton type="button" aria-expanded={isExpanded} onClick={() => setIsExpanded(prev => !prev)}>
+          <HStack align="center" justify="space-between" width="100%" gap={16}>
+            <TooltipText
+              tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
+              placement="bottom"
+              color={theme.subText}
+              fontSize={14}
+              width="fit-content"
             >
-              {formatSlippageInput(item)}%
-            </Option>
-          ))}
+              Max Slippage
+            </TooltipText>
+            <HStack as="span" align="center" gap={4}>
+              <Text as="span" color={valueColor} fontSize={14} fontWeight={500}>
+                {formatSlippageLabel(slippage)}
+              </Text>
+              <Caret $open={isExpanded} />
+            </HStack>
+          </HStack>
+        </ExpandButton>
 
-          <InputWrap $active={isCustom} $error={Boolean(message && !isValid)} $warning={Boolean(message && isValid)}>
-            <Input
-              onBlur={event => handleCustomBlur(event.currentTarget.value)}
-              onChange={event => handleCustomChange(event.target.value)}
-              onFocus={() => {
-                setIsFocus(true)
-                setIsCustom(true)
-              }}
-              placeholder="Custom"
-              value={customValue}
-            />
-            <Text as="span" fontSize={14}>
-              %
-            </Text>
-          </InputWrap>
-        </Controls>
-      )}
+        {isExpanded && (
+          <>
+            <Controls>
+              {PRESET_SLIPPAGE_OPTIONS.map(item => (
+                <Option
+                  $active={slippage === item && !isCustom}
+                  key={item}
+                  onClick={() => handlePresetClick(item)}
+                  type="button"
+                >
+                  {formatSlippageInput(item)}%
+                </Option>
+              ))}
 
-      {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
-        <Suggestion type="button" onClick={handleSuggestionClick}>
-          <Trans>Suggestion</Trans>: {formatSlippageLabel(suggestedSlippage)}
-        </Suggestion>
-      )}
+              <InputWrap
+                $active={isCustom}
+                $error={Boolean(message && !isValid)}
+                $warning={Boolean(message && isValid)}
+              >
+                <Input
+                  onBlur={event => handleCustomInputBlur(event.currentTarget.value)}
+                  onChange={event => handleCustomInputChange(event.target.value)}
+                  onFocus={() => {
+                    setIsInputFocused(true)
+                    setIsCustom(true)
+                  }}
+                  placeholder="Custom"
+                  value={customInput}
+                />
+                <Text as="span" fontSize={14}>
+                  %
+                </Text>
+              </InputWrap>
+            </Controls>
 
-      {messageToShow && <NoteCard $tone={isValid ? 'warning' : 'error'}>{messageToShow}</NoteCard>}
+            {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
+              <Suggestion type="button" onClick={handleSuggestionClick}>
+                <Trans>Suggestion</Trans>: {formatSlippageLabel(suggestedSlippage)}
+              </Suggestion>
+            )}
+
+            {warningMessage ? <NoteCard $tone={isValid ? 'warning' : 'error'}>{warningMessage}</NoteCard> : null}
+          </>
+        )}
+
+        <ZapImpact route={route} />
+      </SummaryCard>
     </Stack>
+  )
+}
+
+const ZapImpact = ({ route }: { route?: ZapRouteDetail | null }) => {
+  const theme = useTheme()
+  const impact = getZapImpact(route?.zapDetails.priceImpact, route?.zapDetails.suggestedSlippage || 100)
+  const [isDegenMode] = useDegenModeManager()
+
+  const isWarning = impact.level === PI_LEVEL.HIGH
+  const isError = impact.level === PI_LEVEL.VERY_HIGH || impact.level === PI_LEVEL.INVALID
+  const hasWarning = Boolean(route) && (isWarning || isError)
+
+  const warningMessage =
+    !isDegenMode && isError
+      ? 'To protect against very high zap impact, preview is disabled for this route. Turn on Degen Mode in settings if you still want to continue.'
+      : translateZapMessage(impact.msg)
+  const valueColor = isError ? theme.red : isWarning ? theme.warning : theme.text
+
+  return (
+    <>
+      <HStack align="center" justify="space-between" width="100%" gap={16}>
+        <TooltipText
+          tooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+          placement="bottom"
+          color={theme.subText}
+          fontSize={14}
+          width="fit-content"
+        >
+          Zap Impact
+        </TooltipText>
+        <Text as="span" color={valueColor} fontSize={14} fontWeight={500}>
+          {impact.display || '--'}
+        </Text>
+      </HStack>
+
+      {hasWarning && warningMessage ? (
+        <NoteCard $tone={isWarning ? 'warning' : 'error'}>{warningMessage}</NoteCard>
+      ) : null}
+    </>
   )
 }
 

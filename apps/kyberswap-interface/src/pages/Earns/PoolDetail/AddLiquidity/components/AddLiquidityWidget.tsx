@@ -179,12 +179,6 @@ const AddLiquidityWidget = ({
         </NoteCard>
       ))}
 
-      {feedback.blockingWarnings.map(warning => (
-        <NoteCard key={warning.message} $tone={warning.tone}>
-          {warning.message}
-        </NoteCard>
-      ))}
-
       {isUniV3 && (
         <EstimatedPositionApr
           chainId={poolChainId}
@@ -205,6 +199,7 @@ const AddLiquidityWidget = ({
         value={{
           slippage: state.slippage.value,
           suggestedSlippage: state.slippage.suggestedValue,
+          route,
         }}
         onTrackEvent={onTrackEvent}
         onSlippageChange={state.slippage.setValue}
