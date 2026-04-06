@@ -23,14 +23,9 @@ export const NoteCard = styled.div<{ $warning?: boolean; $tone?: NoteCardTone }>
   padding: 8px 12px;
   border-radius: 12px;
   font-size: 14px;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.white};
   background: ${({ theme, $warning, $tone }) => {
     const tone = $tone || ($warning ? 'warning' : 'info')
-    return rgba(getNoteCardToneColor(theme, tone), 0.12)
+    return rgba(getNoteCardToneColor(theme, tone), 0.2)
   }};
-  border: 1px solid
-    ${({ theme, $warning, $tone }) => {
-      const tone = $tone || ($warning ? 'warning' : 'info')
-      return rgba(getNoteCardToneColor(theme, tone), 0.24)
-    }};
 `
