@@ -43,8 +43,10 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, exchang
 }
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
-  EARN_CHAINS[chainId as EarnChain].nativeAddress === tokenAddress.toLowerCase() ||
-  (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase())
+  EARN_CHAINS[chainId as EarnChain].nativeAddress === tokenAddress.toLowerCase()
+
+export const isWrappedNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
+  WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase()
 
 export const isUniswapExchange = (dex: Exchange) =>
   dex === Exchange.DEX_UNISWAPV2 ||

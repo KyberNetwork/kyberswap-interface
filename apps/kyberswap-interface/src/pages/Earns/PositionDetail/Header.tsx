@@ -152,7 +152,7 @@ const PositionDetailHeader = () => {
                   logo={position?.token0.logo}
                   symbol={position?.token0.symbol}
                   address={position?.token0.address}
-                  isNative={position?.token0.isNative}
+                  isNative={position?.token0.isNative && !position?.token0.isWrapped}
                 />
 
                 {/* Token 1 address row */}
@@ -160,7 +160,7 @@ const PositionDetailHeader = () => {
                   logo={position?.token1.logo}
                   symbol={position?.token1.symbol}
                   address={position?.token1.address}
-                  isNative={position?.token1.isNative}
+                  isNative={position?.token1.isNative && !position?.token1.isWrapped}
                 />
               </Flex>
             }
