@@ -33,12 +33,20 @@ const AddLiquidityWidgetSkeleton = () => {
         <Skeleton width="100%" height={42} />
         <LiquidityChartSkeleton />
         <Skeleton width="100%" height={36} />
-        <Skeleton width="100%" height={40} />
+        <HStack gap={24} width="100%">
+          <Stack flex="1 1 0" minWidth={0}>
+            <Skeleton width="100%" height={40} />
+          </Stack>
+          <Stack flex="1 1 0" minWidth={0}>
+            <Skeleton width="100%" height={40} />
+          </Stack>
+        </HStack>
       </Stack>
 
-      <Stack gap={40}>
-        <Stack gap={12}>
-          <Skeleton width="100%" height={40} />
+      <Stack gap={18.5}>
+        <Stack gap={16}>
+          <Skeleton width="100%" height={36} />
+          <Skeleton width="100%" height={36} />
         </Stack>
 
         {!upToSmall && (
