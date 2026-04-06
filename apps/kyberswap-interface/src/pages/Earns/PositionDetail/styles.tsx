@@ -68,16 +68,14 @@ export const LeftColumn = styled.div`
 export const RightColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
   flex: 3 1 0%;
   min-width: 0;
   background: ${({ theme }) => rgba(theme.white, 0.04)};
   border-radius: 12px;
-  padding: 16px;
+  overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
-    padding: 12px;
   `}
 `
 
@@ -100,16 +98,25 @@ export const CardDivider = styled.div`
 export const TabMenu = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  border-bottom: 1px solid ${({ theme }) => rgba(theme.white, 0.04)};
 `
 
-export const TabItem = styled.span<{ active?: boolean }>`
-  font-size: 16px;
+export const TabItem = styled.div<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 24px;
   text-transform: uppercase;
   cursor: pointer;
+  white-space: nowrap;
   color: ${({ active, theme }) => (active ? theme.primary : theme.subText)};
-  transition: color 0.2s;
+  background: ${({ active, theme }) => (active ? rgba(theme.primary, 0.1) : 'transparent')};
+  border-bottom: 2px solid ${({ active, theme }) => (active ? theme.primary : 'transparent')};
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
 
   &:hover {
     color: ${({ active, theme }) => (active ? theme.primary : theme.text)};
@@ -118,8 +125,19 @@ export const TabItem = styled.span<{ active?: boolean }>`
 
 export const TabDivider = styled.div`
   width: 1px;
-  height: 12px;
-  background: ${({ theme }) => theme.tabActive};
+  height: 20px;
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
+`
+
+export const TabContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 12px;
+  `}
 `
 
 export const TabContentArea = styled.div`

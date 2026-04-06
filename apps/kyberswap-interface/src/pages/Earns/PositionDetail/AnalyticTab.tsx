@@ -48,7 +48,7 @@ const getActionTokensSummary = (entry: PositionHistory): Array<{ symbol: string;
 
 const shortenTxHash = (hash: string) => (hash ? `${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}` : '')
 
-const HistoryTab = () => {
+const AnalyticTab = () => {
   const { position, initialLoading } = usePositionDetailContext()
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -338,4 +338,4 @@ const HistoryTab = () => {
   )
 }
 
-export default HistoryTab
+export default AnalyticTab
