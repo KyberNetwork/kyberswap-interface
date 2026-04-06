@@ -127,11 +127,11 @@ const AddLiquiditySettings = ({
         </TriggerButton>
 
         {isOpen && (
-          <TooltipPanel gap={4}>
+          <TooltipPanel gap={8}>
             <Text color={theme.text} fontWeight={500}>
               Advanced Settings
             </Text>
-            <Stack>
+            <Stack gap={4}>
               <DegenModeRow align="center" justify="space-between" $highlight={highlightDegenMode}>
                 <Text color={theme.warning} fontSize={14} fontWeight={500}>
                   <Trans>Degen Mode</Trans>

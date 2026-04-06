@@ -1,4 +1,5 @@
 import { PoolType, Pool as ZapPool } from '@kyber/schema'
+import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useState } from 'react'
 import { Text } from 'rebass'
@@ -42,7 +43,8 @@ type AddLiquidityWidgetProps = {
   context: AddLiquidityWidgetContext
   state: ReturnType<typeof useZapState>
   preview?: AddLiquidityWidgetPreview
-  feedback: ReturnType<typeof useFeedback>['widget']
+  feedback: ReturnType<typeof useFeedback>
+  previewError?: string | null
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
@@ -56,6 +58,7 @@ const AddLiquidityWidget = ({
   state,
   preview,
   feedback,
+  previewError,
   onTrackEvent,
   onOpenZapMigration,
 }: AddLiquidityWidgetProps) => {
@@ -83,7 +86,8 @@ const AddLiquidityWidget = ({
     state,
     approval,
     poolChainId,
-    isZapImpactBlocked: feedback.isZapImpactBlocked,
+    isZapImpactBlocked: feedback.widget.isZapImpactBlocked,
+    isHighZapImpact: feedback.widget.isHighZapImpact,
     onOpenSettings: openDegenModeSetting,
     preview,
   })
@@ -167,14 +171,14 @@ const AddLiquidityWidget = ({
         />
       )}
 
-      {feedback.securityWarnings.map(message => (
+      {feedback.widget.securityWarnings.map(message => (
         <NoteCard key={message} $warning>
           {message}
         </NoteCard>
       ))}
 
-      {feedback.routeWarnings.map(message => (
-        <NoteCard key={message} $warning>
+      {feedback.widget.routeWarnings.map(message => (
+        <NoteCard key={message} $tone="error">
           {message}
         </NoteCard>
       ))}
@@ -204,6 +208,20 @@ const AddLiquidityWidget = ({
         onTrackEvent={onTrackEvent}
         onSlippageChange={state.slippage.setValue}
       />
+
+      {feedback.page.warnings.length || previewError ? (
+        <Stack gap={12}>
+          {feedback.page.warnings.map((warning, index) => (
+            <NoteCard key={`${warning.kind}-${index}`} $tone={warning.tone}>
+              {translateZapMessage(warning.message)}
+            </NoteCard>
+          ))}
+
+          {previewError ? (
+            <NoteCard $tone="error">{translateFriendlyErrorMessage(previewError) || previewError}</NoteCard>
+          ) : null}
+        </Stack>
+      ) : null}
 
       <HStack gap={16}>
         <PrimaryActionButton

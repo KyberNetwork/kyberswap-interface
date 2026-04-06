@@ -136,28 +136,32 @@ const RangePresetSelector = ({
 
   return (
     <HStack border={`1px solid ${theme.border}`} borderRadius={20} gap={0}>
-      {priceRanges.map(item => (
-        <RangeButton
-          $active={rangeSelected === item.range}
-          key={`${item.range}`}
-          onClick={() => handleSelectPriceRange(item.range, true)}
-        >
-          {item.range === FULL_PRICE_RANGE ? (
-            <HStack as="span" align="center" justify="center" gap={4}>
-              Full Range
-              <InfoHelper
-                color={rangeSelected === item.range ? theme.text : theme.subText}
-                margin={false}
-                placement="top"
-                size={12}
-                text="Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity."
-              />
-            </HStack>
-          ) : (
-            `${Number(item.range) * 100}%`
-          )}
-        </RangeButton>
-      ))}
+      {priceRanges.map(item => {
+        const isActive = rangeSelected === item.range
+
+        return (
+          <RangeButton
+            $active={isActive}
+            key={`${item.range}`}
+            onClick={() => handleSelectPriceRange(item.range, true)}
+          >
+            {item.range === FULL_PRICE_RANGE ? (
+              <HStack as="span" align="center" justify="center" gap={4}>
+                Full Range
+                <InfoHelper
+                  color={isActive ? theme.blue : theme.subText}
+                  margin={false}
+                  placement="top"
+                  size={12}
+                  text="Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity."
+                />
+              </HStack>
+            ) : (
+              `${Number(item.range) * 100}%`
+            )}
+          </RangeButton>
+        )
+      })}
     </HStack>
   )
 }

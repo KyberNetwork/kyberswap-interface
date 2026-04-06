@@ -82,10 +82,19 @@ type UseZapStateProps = {
   poolAddress: string
   poolType: PoolType
   account?: string
+  pauseAutoRefresh?: boolean
   source?: string
 }
 
-export const useZapState = ({ chainId, pool, poolAddress, poolType, account, source }: UseZapStateProps) => {
+export const useZapState = ({
+  chainId,
+  pool,
+  poolAddress,
+  poolType,
+  account,
+  pauseAutoRefresh,
+  source,
+}: UseZapStateProps) => {
   const nativeToken = useMemo(() => getDefaultNativeToken(chainId), [chainId])
   const defaultRevertPrice = useMemo(() => getDefaultRevertPrice(pool, chainId), [chainId, pool])
   const [revertPrice, setRevertPrice] = useState(defaultRevertPrice)
@@ -289,18 +298,20 @@ export const useZapState = ({ chainId, pool, poolAddress, poolType, account, sou
   ])
 
   const routeResult = useGetZapInRouteQuery(routeQueryArgs.request, {
-    pollingInterval: 10_000,
-    refetchOnMountOrArgChange: true,
+    pollingInterval: pauseAutoRefresh ? 0 : 10_000,
+    refetchOnMountOrArgChange: !pauseAutoRefresh,
   })
   const routeData = routeDisabled ? null : routeResult.data?.data || null
+  const routeMessage = routeResult.data?.message || ''
   const routeError =
     routeQueryArgs.error ||
-    routeResult.data?.message ||
+    (routeMessage && routeMessage !== 'OK' ? routeMessage : '') ||
     getErrorMessage(routeResult.error as FetchBaseQueryError | { error?: string })
+  const routeHasLatestFailure = Boolean(routeError)
 
   const route = {
-    data: routeData,
-    error: routeDisabled || routeData ? '' : routeError,
+    data: routeHasLatestFailure ? null : routeData,
+    error: routeDisabled ? '' : routeError,
     loading: routeDisabled ? false : routeResult.isLoading || routeResult.isFetching,
     refetch: routeDisabled ? undefined : routeResult.refetch,
   }

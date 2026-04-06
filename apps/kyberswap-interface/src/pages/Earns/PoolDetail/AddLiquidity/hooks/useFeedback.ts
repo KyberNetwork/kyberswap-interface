@@ -255,7 +255,21 @@ export const useFeedback = ({ poolChainId, pool, poolType, state, isDegenMode }:
     return getSecurityWarnings({ tokens: tokensToCheck, honeypotInfoMap })
   }, [honeypotInfoMap, tokensToCheck])
 
-  const routeWarnings = useMemo(() => (state.route.error ? [state.route.error] : []), [state.route.error])
+  const routeWarnings = useMemo(() => {
+    if (state.route.error) return [state.route.error]
+
+    if (state.validation.hasPositiveInput && !state.validation.error && !state.route.loading && !state.route.data) {
+      return ['No route found']
+    }
+
+    return []
+  }, [
+    state.route.data,
+    state.route.error,
+    state.route.loading,
+    state.validation.error,
+    state.validation.hasPositiveInput,
+  ])
 
   const reviewWarnings = useMemo(
     () =>
@@ -283,6 +297,7 @@ export const useFeedback = ({ poolChainId, pool, poolType, state, isDegenMode }:
     !isDegenMode &&
     reviewWarnings.zapImpact !== null &&
     ['VERY_HIGH', 'INVALID'].includes(reviewWarnings.zapImpact.level)
+  const isHighZapImpact = reviewWarnings.zapImpact?.level === PI_LEVEL.VERY_HIGH
 
   const blockingWarnings = useMemo(() => {
     const warnings: { tone: 'warning' | 'error'; message: string }[] = []
@@ -309,6 +324,7 @@ export const useFeedback = ({ poolChainId, pool, poolType, state, isDegenMode }:
       routeWarnings,
       blockingWarnings,
       isZapImpactBlocked,
+      isHighZapImpact,
     },
     page: {
       warnings: pageWarnings,

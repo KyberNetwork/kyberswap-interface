@@ -1,7 +1,6 @@
 import { type ApprovalAdditionalInfo } from '@kyber/hooks'
 import { NETWORKS_INFO, PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
-import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { BuildZapInData, prepareBuildZapInRouteRequest, useBuildZapInRouteMutation } from 'services/zap'
 import styled from 'styled-components'
 
@@ -23,7 +22,6 @@ import { useFeedback } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedba
 import { useZapPool } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool'
 import { type ZapState, useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
@@ -50,7 +48,6 @@ type ReviewState = {
 type AddLiquidityBodyProps = AddLiquidityProps & {
   chainId: number
   feedback: AddLiquidityFeedback
-  isRefreshingReview: boolean
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
     initialTick?: { tickUpper: number; tickLower: number },
@@ -115,7 +112,6 @@ const AddLiquidityBody = ({
   chainId,
   children,
   feedback,
-  isRefreshingReview,
   onOpenZapMigration,
   onTrackEvent,
   onDismissReview,
@@ -155,24 +151,11 @@ const AddLiquidityBody = ({
               loading: buildRouteLoading,
               onPreview,
             }}
-            feedback={feedback.widget}
+            feedback={feedback}
+            previewError={previewError}
             onOpenZapMigration={onOpenZapMigration}
             onTrackEvent={onTrackEvent}
           />
-
-          {feedback.page.warnings.length || previewError ? (
-            <Stack gap={12}>
-              {feedback.page.warnings.map((warning, index) => (
-                <NoteCard key={`${warning.kind}-${index}`} $tone={warning.tone}>
-                  {translateZapMessage(warning.message)}
-                </NoteCard>
-              ))}
-
-              {previewError ? (
-                <NoteCard $tone="error">{translateFriendlyErrorMessage(previewError) || previewError}</NoteCard>
-              ) : null}
-            </Stack>
-          ) : null}
         </AddLiquidityColumn>
       </HStack>
 
@@ -182,7 +165,6 @@ const AddLiquidityBody = ({
           buildData={reviewState.buildData}
           chainId={chainId}
           error={previewError}
-          isRefreshing={isRefreshingReview}
           priceRange={state.priceRange}
           route={reviewState.route}
           slippage={reviewState.slippage}
@@ -207,9 +189,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
 
   const [isDegenMode] = useDegenModeManager()
   const [previewError, setPreviewError] = useState<string | null>(null)
-  const [isRefreshingReview, setIsRefreshingReview] = useState(false)
   const [reviewState, setReviewState] = useState<ReviewState | null>(null)
-  const refreshSourceRouteRef = useRef<ZapRouteDetail | null>(null)
 
   const { widget: zapMigrationWidget, handleOpenZapMigration: openZapMigrationWidget } = useZapMigrationWidget()
   const { trackingHandler } = useTracking()
@@ -232,6 +212,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     poolAddress,
     poolType,
     account,
+    pauseAutoRefresh: Boolean(reviewState),
     source: 'kyberswap-earn',
   })
 
@@ -285,60 +266,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     },
     [account, buildZapInRoute, chainId, deadlineValue],
   )
-
-  useEffect(() => {
-    if (!isRefreshingReview || !reviewState) return
-    if (state.route.loading) return
-
-    if (state.route.error) {
-      setPreviewError(state.route.error)
-      setIsRefreshingReview(false)
-      refreshSourceRouteRef.current = null
-      return
-    }
-
-    if (!state.route.data || state.route.data === refreshSourceRouteRef.current) return
-
-    let cancelled = false
-
-    const rebuildReview = async () => {
-      try {
-        const nextReviewState = await buildReviewState(
-          state.route.data as ZapRouteDetail,
-          feedback.modal.warnings,
-          state.slippage.value,
-        )
-        if (cancelled) return
-
-        setPreviewError(null)
-        setReviewState(nextReviewState)
-      } catch (error) {
-        if (cancelled) return
-
-        setPreviewError(error instanceof Error ? error.message : 'Failed to build zap transaction')
-      } finally {
-        if (cancelled) return
-
-        setIsRefreshingReview(false)
-        refreshSourceRouteRef.current = null
-      }
-    }
-
-    void rebuildReview()
-
-    return () => {
-      cancelled = true
-    }
-  }, [
-    buildReviewState,
-    feedback.modal.warnings,
-    isRefreshingReview,
-    reviewState,
-    state.route.data,
-    state.route.error,
-    state.route.loading,
-    state.slippage.value,
-  ])
 
   const submitApprovalTx = useCallback(
     async (txData: AddLiquiditySubmitTxData, additionalInfo?: ApprovalAdditionalInfo) => {
@@ -422,8 +349,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   ])
 
   const handleDismissReview = useCallback(() => {
-    refreshSourceRouteRef.current = null
-    setIsRefreshingReview(false)
     setReviewState(null)
   }, [])
 
@@ -476,7 +401,6 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
         <AddLiquidityBody
           chainId={chainId}
           feedback={feedback}
-          isRefreshingReview={isRefreshingReview}
           onOpenZapMigration={handleOpenZapMigration}
           onTrackEvent={handleTrackEvent}
           onDismissReview={handleDismissReview}

@@ -383,7 +383,8 @@ const ZapImpact = ({ route }: { route?: ZapRouteDetail | null }) => {
     !isDegenMode && isError
       ? 'To protect against very high zap impact, preview is disabled for this route. Turn on Degen Mode in settings if you still want to continue.'
       : translateZapMessage(impact.msg)
-  const valueColor = isError ? theme.red : isWarning ? theme.warning : theme.text
+  const valueColor =
+    impact.display === '--' ? theme.subText : isError ? theme.red : isWarning ? theme.warning : theme.text
 
   return (
     <>

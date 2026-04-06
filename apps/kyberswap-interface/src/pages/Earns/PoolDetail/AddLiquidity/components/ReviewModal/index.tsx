@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 import { BuildZapInData } from 'services/zap'
 import styled from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
@@ -43,7 +43,6 @@ type AddLiquidityReviewModalProps = {
   buildData: BuildZapInData
   chainId: number
   error?: string | null
-  isRefreshing?: boolean
   priceRange: ZapState['priceRange']
   route: ZapRouteDetail
   slippage?: number
@@ -121,7 +120,6 @@ const AddLiquidityReviewModal = ({
   buildData,
   chainId,
   error,
-  isRefreshing,
   priceRange,
   route,
   slippage,
@@ -150,6 +148,8 @@ const AddLiquidityReviewModal = ({
 
   const isSuccessful = transaction.statusPhase === 'success'
   const showStatusDialog = transaction.statusPhase !== 'idle'
+  const isHighZapImpact = warnings.some(warning => warning.kind === 'zap_impact' && warning.tone === 'error')
+  const ConfirmButton = isHighZapImpact ? ButtonErrorStyle : ButtonPrimary
 
   useEffect(() => {
     if (hasTrackedSummaryView.current) return
@@ -239,15 +239,15 @@ const AddLiquidityReviewModal = ({
           to verify all information before making decisions.
         </Text>
 
-        <ButtonPrimary
+        <ConfirmButton
           altDisabledStyle
           color={theme.buttonBlack}
-          disabled={transaction.confirmDisabled || isRefreshing || Boolean(error)}
+          disabled={transaction.confirmDisabled || Boolean(error)}
           onClick={() => void transaction.handleSubmit()}
           type="button"
         >
-          {transaction.confirmLoading ? 'Adding Liquidity...' : isRefreshing ? 'Refreshing Route...' : 'Add Liquidity'}
-        </ButtonPrimary>
+          {transaction.confirmLoading ? 'Adding Liquidity...' : isHighZapImpact ? 'Zap Anyway' : 'Add Liquidity'}
+        </ConfirmButton>
       </ModalContent>
     </Modal>
   )

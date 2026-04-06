@@ -14,6 +14,7 @@ type UseZapActionsProps = {
   approval: ApprovalState
   poolChainId: number
   isZapImpactBlocked: boolean
+  isHighZapImpact?: boolean
   onOpenSettings?: () => void
   preview?: {
     loading?: boolean
@@ -26,6 +27,7 @@ export const useZapActions = ({
   approval,
   poolChainId,
   isZapImpactBlocked,
+  isHighZapImpact,
   onOpenSettings,
   preview,
 }: UseZapActionsProps) => {
@@ -35,6 +37,7 @@ export const useZapActions = ({
   const toggleWalletModal = useWalletModalToggle()
 
   const route = state.route.data
+  const routeError = state.route.error
   const routeLoading = state.route.loading
   const hasPositiveInput = state.validation.hasPositiveInput
   const debouncedValidationErrors = useDebounce(state.validation.errors, 200)
@@ -65,7 +68,6 @@ export const useZapActions = ({
   )
 
   const isApprovalLoading = approval.tokenApproval.loading || tokenApprovalPending
-  const needsApprovalAction = Boolean(nextTokenToApprove)
 
   const primaryActionText = useMemo(() => {
     if (!account) return 'Connect Wallet'
@@ -78,30 +80,39 @@ export const useZapActions = ({
     if (validationError) return validationError
 
     if (nextTokenToApprove) return `Approve ${nextTokenToApprove.symbol}`
-    if (routeLoading) return 'Fetching Route...'
+    if (isZapImpactBlocked) return 'Zap Anyway'
+    if (routeLoading && !route) return 'Fetching Route...'
+    if (routeError) return 'No route found'
     if (!route && hasPositiveInput && !validationError && !routeLoading) return 'No route found'
-    if (isZapImpactBlocked) return 'Zap anyway'
+    if (isHighZapImpact) return 'Zap Anyway'
 
     return 'Preview'
   }, [
     account,
     hasPositiveInput,
     isZapImpactBlocked,
+    isHighZapImpact,
     nextTokenToApprove,
     poolChainId,
     previewLoading,
     route,
+    routeError,
     routeLoading,
     tokenApprovalPending,
     validationError,
     walletChainId,
   ])
 
-  const primaryActionVariant = isZapImpactBlocked && !needsApprovalAction ? 'error' : 'primary'
+  const primaryActionVariant = !nextTokenToApprove && (isZapImpactBlocked || isHighZapImpact) ? 'error' : 'primary'
   const isPrimaryActionDisabled =
     !!account &&
     walletChainId === poolChainId &&
-    (Boolean(validationError) || isApprovalLoading || previewLoading || (routeLoading && !route))
+    (Boolean(validationError) ||
+      isApprovalLoading ||
+      previewLoading ||
+      (routeLoading && !route) ||
+      Boolean(routeError) ||
+      (!route && hasPositiveInput))
 
   const runPrimaryAction = async () => {
     if (!account) {
@@ -109,7 +120,7 @@ export const useZapActions = ({
       return
     }
 
-    if (!hasPositiveInput || validationError || !route || routeLoading) return
+    if (!hasPositiveInput || validationError || !route || routeError) return
 
     if (nextTokenToApprove) {
       await approval.tokenApproval.approve(nextTokenToApprove.address)
@@ -131,14 +142,7 @@ export const useZapActions = ({
     }
 
     if (walletChainId !== poolChainId) {
-      await changeNetwork(
-        poolChainId,
-        () => {
-          void runPrimaryAction()
-        },
-        undefined,
-        true,
-      )
+      await changeNetwork(poolChainId, undefined, undefined, true)
       return
     }
 
