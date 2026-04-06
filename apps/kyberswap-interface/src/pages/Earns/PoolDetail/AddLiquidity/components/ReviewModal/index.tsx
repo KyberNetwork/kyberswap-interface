@@ -22,7 +22,7 @@ import ZapInfo from './ZapInfo'
 import { ReviewTransactionStatusPhase, useReviewTransaction } from './useReviewTransaction'
 
 type ReviewWarningItem = {
-  kind: 'remaining' | 'zap_impact' | 'out_of_range' | 'full_range' | 'price_deviation'
+  kind: 'remaining' | 'zap_impact' | 'out_of_range' | 'price_deviation'
   tone: 'info' | 'warning' | 'error'
   message: string
 }

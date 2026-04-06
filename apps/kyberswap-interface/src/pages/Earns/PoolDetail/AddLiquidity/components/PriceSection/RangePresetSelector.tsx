@@ -3,6 +3,7 @@ import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
+import InfoHelper from 'components/InfoHelper'
 import { HStack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 
@@ -141,7 +142,20 @@ const RangePresetSelector = ({
           key={`${item.range}`}
           onClick={() => handleSelectPriceRange(item.range, true)}
         >
-          {item.range === FULL_PRICE_RANGE ? 'Full Range' : `${Number(item.range) * 100}%`}
+          {item.range === FULL_PRICE_RANGE ? (
+            <HStack as="span" align="center" justify="center" gap={4}>
+              Full Range
+              <InfoHelper
+                color={rangeSelected === item.range ? theme.text : theme.subText}
+                margin={false}
+                placement="top"
+                size={12}
+                text="Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity."
+              />
+            </HStack>
+          ) : (
+            `${Number(item.range) * 100}%`
+          )}
         </RangeButton>
       ))}
     </HStack>

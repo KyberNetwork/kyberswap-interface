@@ -26,7 +26,7 @@ type UseFeedbackProps = {
 }
 
 type ReviewWarningItem = {
-  kind: 'remaining' | 'zap_impact' | 'out_of_range' | 'full_range' | 'price_deviation'
+  kind: 'remaining' | 'zap_impact' | 'out_of_range' | 'price_deviation'
   tone: 'info' | 'warning' | 'error'
   message: string
 }
@@ -152,7 +152,6 @@ const buildReviewWarnings = ({
   })
   const displayToken0 = revertPrice ? pool.token1 : pool.token0
   const displayToken1 = revertPrice ? pool.token0 : pool.token1
-  const normalizedUniV3Pool = univ3PoolNormalize.safeParse(pool)
 
   if (route && totalInputUsd > 0 && route.zapDetails.suggestedSlippage > 0) {
     const remainingRatio = remainingUsd / totalInputUsd
@@ -191,19 +190,6 @@ const buildReviewWarnings = ({
         })
       }
     }
-  }
-
-  if (
-    normalizedUniV3Pool.success &&
-    tickLower === normalizedUniV3Pool.data.minTick &&
-    tickUpper === normalizedUniV3Pool.data.maxTick
-  ) {
-    warnings.push({
-      kind: 'full_range',
-      tone: 'info',
-      message:
-        'Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity.',
-    })
   }
 
   if (isPoolPriceDeviated(poolPrice, estimatedPriceAfterZap)) {
