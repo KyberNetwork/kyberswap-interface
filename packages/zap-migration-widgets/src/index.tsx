@@ -45,6 +45,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     connectedAccount,
     client,
     onViewPosition,
+    onCloseSuccess,
     rePositionMode,
     to,
     chainId,
@@ -186,7 +187,12 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
         </div>
 
         {buildData && (
-          <Preview onSubmitTx={onSubmitTx} onViewPosition={onViewPosition} onExplorePools={onExplorePools} />
+          <Preview
+            onSubmitTx={onSubmitTx}
+            onViewPosition={onViewPosition}
+            onCloseSuccess={onCloseSuccess}
+            onExplorePools={onExplorePools}
+          />
         )}
       </div>
     </WidgetI18nProvider>
