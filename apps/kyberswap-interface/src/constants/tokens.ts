@@ -130,7 +130,9 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb', // USDT0
     '0xcccc62962d17b8914c62d74ffb843d73b2a3cccc', // cUSD
   ],
-  [ChainId.RISE]: [],
+  [ChainId.RISE]: [
+    '0xe436820ba0C69702c1d3E601d421c0eF38262739', // USDC.e
+  ],
 }
 
 export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
@@ -467,6 +469,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.PLASMA]: new Token(ChainId.PLASMA, '0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb', 6, 'USDT0', 'USDT0'),
   [ChainId.MONAD]: new Token(ChainId.MONAD, '0x754704Bc059F8C67012fEd69BC8A327a5aafb603', 6, 'USDC', 'USDC'),
   [ChainId.MEGAETH]: new Token(ChainId.MEGAETH, '0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7', 6, 'USDm', 'USDm'),
+  [ChainId.RISE]: new Token(ChainId.RISE, '0xe436820ba0C69702c1d3E601d421c0eF38262739', 6, 'USDC.e', 'USDC.e'),
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
