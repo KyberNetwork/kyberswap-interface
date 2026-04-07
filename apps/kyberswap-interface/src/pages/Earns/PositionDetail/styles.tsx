@@ -27,6 +27,7 @@ const slideDown = keyframes`
   }
 `
 
+
 export const IconArrowLeft = styled(IconArrowLeftSvg)`
   cursor: pointer;
   color: rgba(250, 250, 250, 1);
@@ -72,7 +73,6 @@ export const RightColumn = styled.div`
   min-width: 0;
   background: ${({ theme }) => rgba(theme.white, 0.04)};
   border-radius: 12px;
-  overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
@@ -99,6 +99,8 @@ export const TabMenu = styled.div`
   display: flex;
   align-items: center;
   border-bottom: 1px solid ${({ theme }) => rgba(theme.white, 0.04)};
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
 `
 
 export const TabItem = styled.div<{ active?: boolean }>`
