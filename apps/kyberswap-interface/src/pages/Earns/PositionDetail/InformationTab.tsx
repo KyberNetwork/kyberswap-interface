@@ -394,6 +394,8 @@ const InformationTab = () => {
                             : ''}
                         </Text>
                         {(() => {
+                          const isFullRange = position?.priceRange.isMinPrice && position?.priceRange.isMaxPrice
+                          if (isFullRange) return null
                           const minVal =
                             (!revert && position?.priceRange.isMinPrice) || (revert && position?.priceRange.isMaxPrice)
                               ? 0
@@ -434,6 +436,8 @@ const InformationTab = () => {
                             : ''}
                         </Text>
                         {(() => {
+                          const isFullRange = position?.priceRange.isMinPrice && position?.priceRange.isMaxPrice
+                          if (isFullRange) return null
                           const isInfinity =
                             (!revert && position?.priceRange.isMaxPrice) || (revert && position?.priceRange.isMinPrice)
                           const maxVal = isInfinity
