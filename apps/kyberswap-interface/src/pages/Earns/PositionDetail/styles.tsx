@@ -27,7 +27,6 @@ const slideDown = keyframes`
   }
 `
 
-
 export const IconArrowLeft = styled(IconArrowLeftSvg)`
   cursor: pointer;
   color: rgba(250, 250, 250, 1);
