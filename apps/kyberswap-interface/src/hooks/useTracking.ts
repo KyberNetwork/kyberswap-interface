@@ -218,14 +218,6 @@ export enum TRACKING_EVENT_TYPE {
 
   ACCEPT_NEW_AMOUNT,
 
-  // cross chain
-  CROSS_CHAIN_CLICK_DISCLAIMER,
-  CROSS_CHAIN_SWAP_INIT,
-  CROSS_CHAIN_SWAP_CONFIRMED,
-  CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX,
-  CROSS_CHAIN_TXS_SUBMITTED,
-  CROSS_CHAIN_CLICK_SUBSCRIBE,
-
   // earning dashboard
   EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON,
   EARNING_DASHBOARD_SHARE_SUCCESSFULLY,
@@ -1413,31 +1405,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.ACCEPT_NEW_AMOUNT: {
           formoTrack('Accept New Amount Button Click', payload)
-          break
-        }
-
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER: {
-          mixpanel.track('Cross-chain - Disclaimer click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX: {
-          mixpanel.track('Cross chain - Disclaimer checkbox click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE: {
-          mixpanel.track('Cross chain - Subscribe click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_INIT: {
-          mixpanel.track('Cross chain - Swap Initiated', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_CONFIRMED: {
-          mixpanel.track('Cross chain - Swap Confirmed', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_TXS_SUBMITTED: {
-          mixpanel.track('Cross chain - Transaction Submitted', payload)
           break
         }
 

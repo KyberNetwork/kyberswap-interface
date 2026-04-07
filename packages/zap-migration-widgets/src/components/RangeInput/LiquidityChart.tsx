@@ -12,6 +12,11 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 
+const parseChartPrice = (value: string | null) => {
+  if (!value) return NaN;
+  return parseFloat(value.toString().replace(/,/g, ''));
+};
+
 export default function LiquidityChart() {
   const { targetPoolType } = useWidgetStore(['targetPoolType']);
   const { targetPool, targetPoolPrice, revertPrice } = usePoolStore(['targetPool', 'targetPoolPrice', 'revertPrice']);
@@ -52,10 +57,10 @@ export default function LiquidityChart() {
       const tickLower = nearestUsableTick(Number(tickLowerFromPrice), tickSpacing);
       const tickUpper = nearestUsableTick(Number(tickUpperFromPrice), tickSpacing);
 
-      if (tickUpper) {
+      if (tickUpper !== undefined) {
         revertPrice ? setTickLower(tickUpper) : setTickUpper(tickUpper);
       }
-      if (tickLower) {
+      if (tickLower !== undefined) {
         revertPrice ? setTickUpper(tickLower) : setTickLower(tickLower);
       }
     },
@@ -69,7 +74,7 @@ export default function LiquidityChart() {
 
       if (tickFromPrice === undefined) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
-      if (tick) revertPrice ? setTickUpper(tick) : setTickLower(tick);
+      if (tick !== undefined) revertPrice ? setTickUpper(tick) : setTickLower(tick);
     },
     [revertPrice, setTickLower, setTickUpper, tickSpacing, token0, token1],
   );
@@ -81,7 +86,7 @@ export default function LiquidityChart() {
 
       if (tickFromPrice === undefined) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
-      if (tick) revertPrice ? setTickLower(tick) : setTickUpper(tick);
+      if (tick !== undefined) revertPrice ? setTickLower(tick) : setTickUpper(tick);
     },
     [revertPrice, setTickLower, setTickUpper, tickSpacing, token0, token1],
   );
@@ -89,8 +94,8 @@ export default function LiquidityChart() {
   const onBrushDomainChange = useCallback(
     (domain: [number, number], mode: string | undefined) => {
       if (!minPrice || !maxPrice) return;
-      const leftPrice = parseFloat(!revertPrice ? minPrice : maxPrice.toString().replace(/,/g, ''));
-      const rightPrice = parseFloat(!revertPrice ? maxPrice : minPrice.toString().replace(/,/g, ''));
+      const leftPrice = parseChartPrice(!revertPrice ? minPrice : maxPrice);
+      const rightPrice = parseChartPrice(!revertPrice ? maxPrice : minPrice);
 
       let leftRangeValue = Number(domain[0]);
       let rightRangeValue = Number(domain[1]);
@@ -103,7 +108,7 @@ export default function LiquidityChart() {
       }
 
       const updateLeft =
-        (!ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER] || mode === 'handle' || mode === 'reset') &&
+        (!ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER] || mode === 'reset') &&
         leftRangeValue > 0 &&
         leftRangeValue !== leftPrice;
 
