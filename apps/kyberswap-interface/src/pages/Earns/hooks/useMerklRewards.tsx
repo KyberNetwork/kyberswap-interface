@@ -6,7 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
-import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
+import { ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
 
 type UseMerklRewardsProps = {
@@ -52,12 +52,16 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     [positionsFilter],
   )
 
-  const { data, isFetching } = useMerklRewardsQuery(
+  const {
+    data,
+    isFetching,
+    refetch: refetchMerklRewards,
+  } = useMerklRewardsQuery(
     {
       address: account || '',
       chainId: filters.chainIds || supportedChains.map(chain => chain.chainId).join(','),
     },
-    { skip: !account },
+    { skip: !account, pollingInterval: 60_000 },
   )
 
   const {
@@ -82,6 +86,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
           const resolvedPositions = resolvePositionsForBreakdown(item.reason)
           return resolvedPositions.length > 0
         })
+
         return {
           ...reward,
           amount: breakdowns.reduce((sum, item) => sum + +item.amount, 0).toString(),
@@ -234,14 +239,41 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     return result
   }, [rewardsByPosition, tokenLogos])
 
+  const chainRewards = useMemo<ChainRewardInfo[]>(() => {
+    if (!parsedRewards.length) return []
+
+    const grouped: Record<number, { tokens: TokenRewardInfo[]; claimableUsdValue: number }> = {}
+    parsedRewards.forEach(reward => {
+      if (!grouped[reward.chainId]) {
+        grouped[reward.chainId] = { tokens: [], claimableUsdValue: 0 }
+      }
+      grouped[reward.chainId].tokens.push(reward)
+      grouped[reward.chainId].claimableUsdValue += reward.claimableUsdValue
+    })
+
+    return Object.entries(grouped).map(([chainIdStr, info]) => {
+      const cId = Number(chainIdStr)
+      const chain = supportedChains.find(c => c.chainId === cId)
+      return {
+        chainId: cId,
+        chainName: chain?.name || `Chain ${cId}`,
+        chainLogo: chain?.icon || '',
+        claimableUsdValue: info.claimableUsdValue,
+        tokens: info.tokens,
+      }
+    })
+  }, [parsedRewards, supportedChains])
+
   return useMemo(
     () => ({
       rewardsByPosition: parsedRewardsByPosition,
       rewards: parsedRewards,
+      chainRewards,
       totalUsdValue,
       loading: isFetching,
+      refetch: refetchMerklRewards,
     }),
-    [parsedRewardsByPosition, parsedRewards, totalUsdValue, isFetching],
+    [parsedRewardsByPosition, parsedRewards, chainRewards, totalUsdValue, isFetching, refetchMerklRewards],
   )
 }
 
