@@ -303,8 +303,3 @@ export const Disclaimer = styled.div`
     bottom: 20px;
   `}
 `
-
-export const ProgressBarWrapper = styled.div`
-  position: absolute;
-  width: 100%;
-`

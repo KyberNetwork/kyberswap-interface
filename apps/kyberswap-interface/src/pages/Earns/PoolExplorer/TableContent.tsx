@@ -5,12 +5,11 @@ import { Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import LocalLoader from 'components/LocalLoader'
-import ProgressBar from 'components/ProgressBar'
 import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
-import { ProgressBarWrapper } from 'pages/Earns/PoolExplorer/styles'
+import RefetchIndicator from 'pages/Earns/PoolExplorer/RefetchIndicator'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { EARN_DEXES } from 'pages/Earns/constants'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
@@ -102,15 +101,9 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
     )
   }
 
-  const loadingProgress = (
-    <ProgressBarWrapper>
-      <ProgressBar loading height="3px" width="100%" />
-    </ProgressBarWrapper>
-  )
-
   return (
     <>
-      {isFetching && loadingProgress}
+      <RefetchIndicator visible={isFetching} />
 
       {upToMedium ? (
         <Stack gap={16}>
@@ -136,8 +129,6 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
           />
         ))
       )}
-
-      {isFetching && upToMedium && loadingProgress}
 
       {/* Important to load dex info */}
       {visibleChainIds.map(chainId => (
