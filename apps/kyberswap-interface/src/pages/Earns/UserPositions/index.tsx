@@ -24,11 +24,11 @@ import {
   PositionTableHeaderFlexItem,
   PositionTableHeaderItem,
   PositionTableWrapper,
-  RefetchIndicator,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
+import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -338,7 +338,7 @@ const UserPositions = () => {
         />
 
         <PositionTableWrapper>
-          <RefetchIndicator $visible={isFetching && !loading} />
+          <RefetchIndicator visible={isFetching && !loading} />
           <ContentWrapper>
             {!upToCustomLarge && filteredPositions && filteredPositions.length > 0 && (
               <PositionTableHeader>

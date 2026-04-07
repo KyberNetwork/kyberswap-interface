@@ -1,7 +1,7 @@
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
@@ -14,48 +14,6 @@ const fadeIn = keyframes`
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-`
-
-const progressSlide = keyframes`
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(400%);
-  }
-`
-
-export const RefetchIndicator = styled.div<{ $visible: boolean }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  overflow: hidden;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  transition: opacity 0.3s ease;
-  z-index: 2;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 25%;
-    height: 100%;
-    background: ${({ theme }) => theme.primary};
-    border-radius: 2px;
-    animation: ${({ $visible }) =>
-      $visible
-        ? css`
-            ${progressSlide} 1.2s ease-in-out infinite
-          `
-        : 'none'};
-
-    @media (prefers-reduced-motion: reduce) {
-      animation: none;
-    }
   }
 `
 
