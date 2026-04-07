@@ -4,15 +4,17 @@ import { PropsWithChildren } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 
 type Props = PropsWithChildren<{
+  chainId?: number
   feeApr?: number
   egApr?: number
   lmApr?: number
   uniApr?: number
 }>
 
-export default function AprDetailTooltip({ feeApr, egApr, lmApr, uniApr, children }: Props) {
+export default function AprDetailTooltip({ chainId, feeApr, egApr, lmApr, uniApr, children }: Props) {
   return (
     <MouseoverTooltipDesktopOnly
       placement="top"
@@ -36,7 +38,7 @@ export default function AprDetailTooltip({ feeApr, egApr, lmApr, uniApr, childre
           )}
           {!!uniApr && (
             <Text>
-              {t`Uniswap Bonus`}: {formatAprNumber(uniApr)}%
+              {getMerklBonusMeta(chainId).name}: {formatAprNumber(uniApr)}%
             </Text>
           )}
         </Flex>
