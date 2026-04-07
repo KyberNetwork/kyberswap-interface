@@ -17,6 +17,7 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
@@ -60,6 +61,7 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   }
   locale?: SupportedLocale
   onClose: () => void
+  onCloseSuccess?: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
@@ -115,6 +117,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
+  const { trackingHandler } = useTracking()
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
   const [triggerClose, setTriggerClose] = useState(false)
   const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
@@ -128,6 +131,18 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     },
     [library, navigate],
   )
+
+  const handleCloseMigration = useCallback(() => {
+    setTriggerClose(true)
+    setMigrateLiquidityPureParams(null)
+    clearTracking()
+    onRefreshPosition?.()
+  }, [clearTracking, onRefreshPosition])
+
+  const handleCloseMigrationSuccess = useCallback(() => {
+    handleCloseMigration()
+    navigate(APP_PATHS.EARN_POSITIONS)
+  }, [handleCloseMigration, navigate])
 
   const handleOpenZapMigration = ({
     from,
@@ -202,12 +217,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               clearTracking()
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
-            onClose: () => {
-              setTriggerClose(true)
-              setMigrateLiquidityPureParams(null)
-              clearTracking()
-              onRefreshPosition?.()
-            },
+            onClose: handleCloseMigration,
+            onCloseSuccess: handleCloseMigrationSuccess,
             onBack: () => {
               setMigrateLiquidityPureParams(null)
               clearTracking()
@@ -233,7 +244,20 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
-              if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+              if (!txHash || error) {
+                const isReposition = migrateLiquidityPureParams.rePositionMode
+                trackingHandler(
+                  isReposition ? TRACKING_EVENT_TYPE.EARN_REPOSITION_FAILED : TRACKING_EVENT_TYPE.EARN_MIGRATE_FAILED,
+                  {
+                    position_id: migrateLiquidityPureParams.from.positionId,
+                    chain: NETWORKS_INFO[migrateLiquidityPureParams.chainId]?.name,
+                    pool: migrateLiquidityPureParams.from.poolAddress,
+                    failure_reason: error?.message || 'Transaction failed',
+                    completion_time_ms: Date.now(),
+                  },
+                )
+                throw new Error(error?.message || 'Transaction failed')
+              }
 
               const sourceDex = migrateLiquidityPureParams.from.dexId
               const destinationDex = migrateLiquidityPureParams.to?.dexId || sourceDex
@@ -253,6 +277,25 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     positionId: migrateLiquidityPureParams.from.positionId,
                   },
                 })
+
+                const isReposition = migrateLiquidityPureParams.rePositionMode
+                trackingHandler(
+                  isReposition
+                    ? TRACKING_EVENT_TYPE.EARN_REPOSITION_INITIATED
+                    : TRACKING_EVENT_TYPE.EARN_MIGRATE_INITIATED,
+                  {
+                    position_id: migrateLiquidityPureParams.from.positionId,
+                    chain: NETWORKS_INFO[migrateLiquidityPureParams.chainId]?.name,
+                    pool: migrateLiquidityPureParams.from.poolAddress,
+                    tx_hash: txHash,
+                    ...(isReposition
+                      ? {}
+                      : {
+                          source_position_id: migrateLiquidityPureParams.from.positionId,
+                          source_pool_address: migrateLiquidityPureParams.from.poolAddress,
+                        }),
+                  },
+                )
               } else if (additionalInfo?.type === 'erc20_approval') {
                 addTransactionWithType({
                   hash: txHash,
@@ -281,6 +324,27 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             },
             onSuccess: async (data: OnSuccessProps) => {
               if (!library) return
+
+              const isReposition = migrateLiquidityPureParams.rePositionMode
+              const tokenPair = `${data.position.token0.symbol}/${data.position.token1.symbol}`
+              trackingHandler(
+                isReposition
+                  ? TRACKING_EVENT_TYPE.EARN_REPOSITION_COMPLETED
+                  : TRACKING_EVENT_TYPE.EARN_MIGRATE_COMPLETED,
+                {
+                  position_id: data.position.positionId || migrateLiquidityPureParams.from.positionId,
+                  chain: NETWORKS_INFO[migrateLiquidityPureParams.chainId]?.name,
+                  pool: data.position.pool.address,
+                  token_pair: tokenPair,
+                  tx_hash: data.txHash,
+                  ...(isReposition
+                    ? {}
+                    : {
+                        source_position_id: migrateLiquidityPureParams.from.positionId,
+                        source_pool_address: migrateLiquidityPureParams.from.poolAddress,
+                      }),
+                },
+              )
 
               const dex = migrateLiquidityPureParams.to?.dexId || migrateLiquidityPureParams.from.dexId
               const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
@@ -354,21 +418,23 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     [
       migrateLiquidityPureParams,
       zapMigrationRpcUrl,
-      refCode,
-      account,
-      chainId,
-      toggleWalletModal,
-      handleNavigateToPosition,
-      changeNetwork,
       library,
-      onRefreshPosition,
-      navigate,
-      addTransactionWithType,
+      refCode,
       txStatus,
       originalToCurrentHash,
       locale,
-      addTrackedTxHash,
+      account,
+      chainId,
+      toggleWalletModal,
       clearTracking,
+      handleCloseMigration,
+      handleCloseMigrationSuccess,
+      handleNavigateToPosition,
+      changeNetwork,
+      addTrackedTxHash,
+      trackingHandler,
+      addTransactionWithType,
+      navigate,
     ],
   )
 

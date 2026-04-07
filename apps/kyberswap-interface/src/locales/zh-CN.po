@@ -4199,8 +4199,8 @@ msgid "You Buy"
 msgstr "您买入"
 
 #: src/pages/About/KyberSwapGeneralIntro.tsx
-msgid "KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with <0>superior token prices</0> by analyzing rates across thousands of exchanges instantly!"
-msgstr "KyberSwap 是一个去中心化交易所（DEX）聚合器，通过即时分析数千个交易所的报价，为交易者提供 <0>更优价格</0>"
+msgid "KyberSwap is a decentralized platform. We provide our traders with <0>superior token prices</0> by analyzing rates across thousands of exchanges instantly!"
+msgstr "KyberSwap 是一个去中心化平台，通过即时分析数千个交易所的报价，为交易者提供 <0>更优的代币价格</0>！"
 
 #: src/pages/SwapV3/ApprovalModal.tsx
 msgid ""
@@ -7249,8 +7249,8 @@ msgid "You wish to give KyberSwap permission to use the selected token for trans
 msgstr "您将授权 KyberSwap 无上限使用所选代币，除非您主动撤销该授权，否则无需再次授权。该授权将产生 Gas 费用"
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
-msgid "KyberSwap is a decentralized exchange (DEX) aggregator and an automated market maker (AMM). We provide our traders with the <0>superior token prices</0> by analyzing rates across hundreds of exchanges instantly! On the other hand, our liquidity providers can add liquidity to our pools to <1>earn fees and rewards!</1>"
-msgstr "KyberSwap 是中心化交易所 DEX 聚合器与自动化做市商 AMM，通过分析数百家交易所为交易者提供 <0>最优价格</0>，流动性提供者LP 可通过添加流动性 <1>赚取手续费与奖励</1>"
+msgid "KyberSwap is a decentralized platform and an automated market maker (AMM). We provide our traders with the <0>superior token prices</0> by analyzing rates across hundreds of exchanges instantly! On the other hand, our liquidity providers can add liquidity to our pools to <1>earn fees and rewards!</1>"
+msgstr "KyberSwap 是一个去中心化平台，同时也是自动化做市商（AMM）。我们通过即时分析数百个交易所的报价，为交易者提供 <0>更优的代币价格</0>！另一方面，流动性提供者可以向我们的资金池添加流动性，以 <1>赚取手续费和奖励！</1>"
 
 #: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
 msgid "Detail"

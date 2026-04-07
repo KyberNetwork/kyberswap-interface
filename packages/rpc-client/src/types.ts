@@ -95,6 +95,12 @@ export interface RpcClientConfig {
 
   /** Event handlers for telemetry and monitoring */
   eventHandlers?: RpcEventHandlers;
+
+  /** Max block lag allowed before marking an endpoint as stale (default: 50) */
+  maxBlockLag?: number;
+
+  /** Interval in ms between background block freshness probes (default: 60000). Set to 0 to disable. */
+  probeIntervalMs?: number;
 }
 
 /**

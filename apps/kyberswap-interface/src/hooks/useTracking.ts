@@ -218,14 +218,6 @@ export enum TRACKING_EVENT_TYPE {
 
   ACCEPT_NEW_AMOUNT,
 
-  // cross chain
-  CROSS_CHAIN_CLICK_DISCLAIMER,
-  CROSS_CHAIN_SWAP_INIT,
-  CROSS_CHAIN_SWAP_CONFIRMED,
-  CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX,
-  CROSS_CHAIN_TXS_SUBMITTED,
-  CROSS_CHAIN_CLICK_SUBSCRIBE,
-
   // earning dashboard
   EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON,
   EARNING_DASHBOARD_SHARE_SUCCESSFULLY,
@@ -296,6 +288,32 @@ export enum TRACKING_EVENT_TYPE {
   LIQ_ADD_COMPLETED,
   LIQ_ADD_FAILED,
   LIQ_ADD_CANCELLED,
+
+  // Earn: Migrate
+  EARN_MIGRATE_INITIATED,
+  EARN_MIGRATE_COMPLETED,
+  EARN_MIGRATE_FAILED,
+
+  // Earn: Reposition
+  EARN_REPOSITION_INITIATED,
+  EARN_REPOSITION_COMPLETED,
+  EARN_REPOSITION_FAILED,
+
+  // Earn: Zap Out
+  EARN_ZAP_OUT_INITIATED,
+  EARN_ZAP_OUT_COMPLETED,
+  EARN_ZAP_OUT_FAILED,
+
+  // Earn: Manual Remove
+  EARN_MANUAL_REMOVE_INITIATED,
+  EARN_MANUAL_REMOVE_COMPLETED,
+  EARN_MANUAL_REMOVE_FAILED,
+
+  // Earn: Smart Exit
+  EARN_SMART_EXIT_CREATED,
+  EARN_SMART_EXIT_COMPLETED,
+  EARN_SMART_EXIT_FAILED,
+  EARN_SMART_EXIT_CANCELLED,
 
   // Earn: Pool Discovery
   POOL_CATEGORY_SELECTED,
@@ -1390,31 +1408,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           break
         }
 
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER: {
-          mixpanel.track('Cross-chain - Disclaimer click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX: {
-          mixpanel.track('Cross chain - Disclaimer checkbox click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE: {
-          mixpanel.track('Cross chain - Subscribe click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_INIT: {
-          mixpanel.track('Cross chain - Swap Initiated', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_CONFIRMED: {
-          mixpanel.track('Cross chain - Swap Confirmed', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_TXS_SUBMITTED: {
-          mixpanel.track('Cross chain - Transaction Submitted', payload)
-          break
-        }
-
         case TRACKING_EVENT_TYPE.EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON: {
           formoTrack('Earning Dashboard - Share button click')
           break
@@ -1657,6 +1650,80 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.LIQ_ADD_CANCELLED: {
           formoTrack('Liquidity Add Cancelled', payload)
+          break
+        }
+
+        // Earn: Migrate
+        case TRACKING_EVENT_TYPE.EARN_MIGRATE_INITIATED: {
+          formoTrack('Earn Migrate Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_MIGRATE_COMPLETED: {
+          formoTrack('Earn Migrate Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_MIGRATE_FAILED: {
+          formoTrack('Earn Migrate Failed', payload)
+          break
+        }
+
+        // Earn: Reposition
+        case TRACKING_EVENT_TYPE.EARN_REPOSITION_INITIATED: {
+          formoTrack('Earn Reposition Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_REPOSITION_COMPLETED: {
+          formoTrack('Earn Reposition Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_REPOSITION_FAILED: {
+          formoTrack('Earn Reposition Failed', payload)
+          break
+        }
+
+        // Earn: Zap Out
+        case TRACKING_EVENT_TYPE.EARN_ZAP_OUT_INITIATED: {
+          formoTrack('Earn Zap Out Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_ZAP_OUT_COMPLETED: {
+          formoTrack('Earn Zap Out Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_ZAP_OUT_FAILED: {
+          formoTrack('Earn Zap Out Failed', payload)
+          break
+        }
+
+        // Earn: Manual Remove
+        case TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_INITIATED: {
+          formoTrack('Earn Manual Remove Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_COMPLETED: {
+          formoTrack('Earn Manual Remove Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_FAILED: {
+          formoTrack('Earn Manual Remove Failed', payload)
+          break
+        }
+
+        // Earn: Smart Exit
+        case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_CREATED: {
+          formoTrack('Earn Smart Exit Created', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_COMPLETED: {
+          formoTrack('Earn Smart Exit Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_FAILED: {
+          formoTrack('Earn Smart Exit Failed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_CANCELLED: {
+          formoTrack('Earn Smart Exit Cancelled', payload)
           break
         }
 

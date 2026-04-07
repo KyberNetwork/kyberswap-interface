@@ -45,6 +45,7 @@ const StatusBadge = styled.div<{ $isWinner: boolean }>`
 type Props = {
   type?: 'leaderboard' | 'owner'
   selectedWeek: number
+  onRequestJoin?: () => void
 }
 
 const formatPointValue = (value?: number) => {
@@ -57,7 +58,7 @@ const getTransactionExplorerLink = (chainId: number, txHash: string) => {
   return getEtherscanLink(chainId, txHash, 'transaction')
 }
 
-export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
+export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }: Props) {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
@@ -69,12 +70,8 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
   const [searchAddressInput, setSearchAddressInput] = useState('')
   const [debouncedSearchAddress, setDebouncedSearchAddress] = useState('')
 
-  const {
-    onJoin: handleJoinCampaign,
-    isJoinedByWeek,
-    userStats,
-    isLoadingUserStats,
-  } = useSafePalCampaignJoin({ selectedWeek, enabled: true })
+  const { isJoinedByWeek, userStats, isLoadingUserStats } = useSafePalCampaignJoin({ selectedWeek, enabled: true })
+  const hasLeaderboardPoints = (userStats?.total_points || 0) > 0
 
   const isSelectedWeekAvailable = useMemo(() => isCampaignWeekActive(selectedRange), [selectedRange])
   const isSelectedWeekEnded = useMemo(() => isCampaignWeekEnded(selectedRange), [selectedRange])
@@ -99,8 +96,8 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
       userAddress: debouncedSearchAddress || undefined,
     },
     {
-      skip: isOwner || !selectedRange,
-      pollingInterval: 10_000,
+      skip: isOwner || !selectedRange || !hasLeaderboardPoints,
+      pollingInterval: 30_000,
     },
   )
 
@@ -112,15 +109,13 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
       page: currentPage,
     },
     {
-      skip: !isOwner || !selectedRange || !account,
-      pollingInterval: 10_000,
+      skip: !isOwner || !selectedRange || !account || !hasLeaderboardPoints,
+      pollingInterval: 30_000,
     },
   )
 
   const isLoading = isOwner ? isLoadingTransactions : isLoadingLeaderboard || (!!account && isLoadingUserStats)
-
   const totalCount = isOwner ? transactionsData?.total_items || 0 : leaderboardData?.total_items || 0
-  const hasLeaderboardPoints = (userStats?.total_points || 0) > 0
   const emptyStateMessage = isOwner ? t`No transactions found for this week.` : t`No participants found for this week.`
 
   const renderLabel = (label: ReactNode) =>
@@ -214,7 +209,7 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
             width={upToSmall ? '100%' : '160px'}
             height="40px"
             disabled={!isSelectedWeekAvailable}
-            onClick={() => void handleJoinCampaign()}
+            onClick={onRequestJoin}
           >
             <Trans>Join Now</Trans>
           </ButtonPrimary>

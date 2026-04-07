@@ -41,6 +41,7 @@ type Props = {
   toggleNotificationCenter?: () => void
   showDetailAnnouncement?: (index: number) => void
   selectedCategory?: Category | null
+  onAnnouncementRead?: (announcement: Announcement) => void | Promise<void>
   onPrivateAnnouncementRead?: (announcement: PrivateAnnouncement, statusMessage: string) => void | Promise<void>
   onPrivateAnnouncementPin?: (announcement: PrivateAnnouncement) => void | Promise<void>
   onPrivateAnnouncementDelete?: (announcement: PrivateAnnouncement) => void | Promise<void>
@@ -53,6 +54,7 @@ export default function AnnoucementList({
   toggleNotificationCenter,
   showDetailAnnouncement,
   selectedCategory,
+  onAnnouncementRead,
   onPrivateAnnouncementRead,
   onPrivateAnnouncementPin,
   onPrivateAnnouncementDelete,
@@ -76,6 +78,7 @@ export default function AnnoucementList({
   }
 
   const onReadAnnouncement = (item: Announcement, index: number) => {
+    onAnnouncementRead?.(item)
     handleShowDetail(index)
     handleToggle()
   }

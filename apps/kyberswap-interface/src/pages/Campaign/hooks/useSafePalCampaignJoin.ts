@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { useGetSafePalCampaignUserStatsQuery, useJoinSafePalCampaignMutation } from 'services/campaignSafepal'
 import { SiweMessage } from 'siwe'
 
@@ -9,6 +9,58 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+
+const SAFEPAL_JOINED_SESSION_KEY = 'safepal_joined_weeks'
+
+type JoinedWeeksStore = Record<string, Record<number, boolean>>
+const joinedWeekListeners = new Set<() => void>()
+
+const readJoinedWeeksStore = (): JoinedWeeksStore => {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = window.sessionStorage.getItem(SAFEPAL_JOINED_SESSION_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch (error) {
+    console.warn('Failed to read SafePal session store', error)
+    return {}
+  }
+}
+
+const subscribeJoinedWeeksStore = (listener: () => void) => {
+  joinedWeekListeners.add(listener)
+  return () => joinedWeekListeners.delete(listener)
+}
+
+const emitJoinedWeeksStoreChange = () => {
+  joinedWeekListeners.forEach(listener => listener())
+}
+
+const hasJoinedWeekInSession = (address: string, weekValue: number) => {
+  if (weekValue < 0) return false
+  const normalized = address.toLowerCase()
+  const store = readJoinedWeeksStore()
+  return !!store[normalized]?.[weekValue]
+}
+
+const saveJoinedWeekInSession = (address: string, weekValue: number) => {
+  if (typeof window === 'undefined' || weekValue < 0) return
+  const normalized = address.toLowerCase()
+  const store = readJoinedWeeksStore()
+  const accountStore = store[normalized] || {}
+  const nextStore = {
+    ...store,
+    [normalized]: {
+      ...accountStore,
+      [weekValue]: true,
+    },
+  }
+  try {
+    window.sessionStorage.setItem(SAFEPAL_JOINED_SESSION_KEY, JSON.stringify(nextStore))
+    emitJoinedWeeksStoreChange()
+  } catch (error) {
+    console.warn('Failed to save SafePal session store', error)
+  }
+}
 
 type Props = {
   selectedWeek: number
@@ -26,6 +78,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
   const [joinCampaign] = useJoinSafePalCampaignMutation()
 
   const selectedRange = useMemo(() => resolveSelectedCampaignWeek(weeks, selectedWeek), [selectedWeek, weeks])
+  const selectedWeekValue = selectedRange?.value ?? selectedWeek
 
   const {
     data: userStats,
@@ -40,10 +93,18 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
     { skip: !enabled || !account || !selectedRange },
   )
 
+  const isSessionJoined = useSyncExternalStore(
+    subscribeJoinedWeeksStore,
+    () => (account ? hasJoinedWeekInSession(account, selectedWeekValue) : false),
+    () => false,
+  )
+
   const isJoinedByWeek = useMemo(() => {
-    const week = userStats?.weeks.find(week => week.cycle === selectedWeek)
-    return week?.joined ?? userStats?.joined ?? false
-  }, [userStats, selectedWeek])
+    const week = userStats?.weeks.find(week => week.cycle === selectedWeekValue)
+    const participantJoined = week?.joined ?? userStats?.joined ?? false
+
+    return participantJoined || isSessionJoined
+  }, [isSessionJoined, selectedWeekValue, userStats])
 
   const onJoin = useCallback(async () => {
     if (!account) {
@@ -73,7 +134,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
 
       const signature = await library.getSigner().signMessage(message)
       await joinCampaign({ userAddress: account, message, signature }).unwrap()
-      await refetchUserStats()
+      saveJoinedWeekInSession(account, selectedWeekValue)
 
       notify({
         title: t`Joined SafePal Campaign`,
@@ -92,8 +153,10 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
           type: NotificationType.ERROR,
         })
       }
+    } finally {
+      void refetchUserStats()
     }
-  }, [account, chainId, joinCampaign, library, notify, refetchUserStats, toggleWalletModal])
+  }, [account, chainId, joinCampaign, library, notify, refetchUserStats, selectedWeekValue, toggleWalletModal])
 
   return {
     onJoin,

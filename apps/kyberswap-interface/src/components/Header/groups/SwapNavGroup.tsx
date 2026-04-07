@@ -106,7 +106,7 @@ const SwapNavGroup = () => {
                 </IconWrapper>
                 <Flex>
                   <Trans>Cross-Chain</Trans>
-                  <NewLabel>New</NewLabel>
+                  <NewLabel isNew>New</NewLabel>
                 </Flex>
               </Flex>
             </StyledNavLink>

@@ -452,6 +452,9 @@ importers:
       wcag-contrast:
         specifier: ^3.0.0
         version: 3.0.0
+      web-vitals:
+        specifier: ^5.1.0
+        version: 5.1.0
       workbox-core:
         specifier: ^6.5.4
         version: 6.6.1
@@ -40010,6 +40013,10 @@ packages:
     dependencies:
       defaults: 1.0.4
     dev: true
+
+  /web-vitals@5.1.0:
+    resolution: {integrity: sha512-ArI3kx5jI0atlTtmV0fWU3fjpLmq/nD3Zr1iFFlJLaqa5wLBkUSzINwBPySCX/8jRyjlmy1Volw1kz1g9XE4Jg==}
+    dev: false
 
   /webauthn-p256@0.0.10:
     resolution: {integrity: sha512-EeYD+gmIT80YkSIDb2iWq0lq2zbHo1CxHlQTeJ+KkCILWpVy3zASH3ByD4bopzfk0uCwXxLqKGLqp2W4O28VFA==}

@@ -33,6 +33,7 @@ import BINANCE_ICON from 'assets/wallets-connect/binance.svg'
 import COINBASE_ICON from 'assets/wallets-connect/coinbase.svg'
 import METAMASK_ICON from 'assets/wallets-connect/metamask.svg'
 import SAFE_ICON from 'assets/wallets-connect/safe.svg'
+import SAFEPAL_ICON from 'assets/wallets-connect/safepal.svg'
 import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
@@ -181,6 +182,7 @@ export const CONNECTION = {
   PORTO: 'xyz.ithaca.porto',
   BINANCE: 'com.binance.wallet',
   BITGET: 'com.bitget.web3',
+  SAFEPAL: 'io.safepal',
 } as const
 
 export const CONNECTION_ORDER = [
@@ -190,6 +192,7 @@ export const CONNECTION_ORDER = [
   CONNECTION.COINBASE_RDNS,
   CONNECTION.BINANCE,
   CONNECTION.BITGET,
+  CONNECTION.SAFEPAL,
   CONNECTION.PORTO,
   CONNECTION.WALLET_CONNECT_CONNECTOR_ID,
 ]
@@ -199,6 +202,7 @@ export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
   [CONNECTION.COINBASE_SDK_CONNECTOR_ID]: COINBASE_ICON,
   [CONNECTION.WALLET_CONNECT_CONNECTOR_ID]: WALLET_CONNECT_ICON,
   [CONNECTION.SAFE_CONNECTOR_ID]: SAFE_ICON,
+  [CONNECTION.SAFEPAL]: SAFEPAL_ICON,
 }
 
 export const SMART_WALLETS = [CONNECTION.PORTO, CONNECTION.SAFE_CONNECTOR_ID]
@@ -295,6 +299,34 @@ const createPriorityConnector = ({ id, name, logo, url }: (typeof HardCodedConne
   })
 }
 
+function safepalConnector() {
+  return createConnector(config => {
+    const injectedConnector = injected({
+      target: () => ({ id: CONNECTION.SAFEPAL, name: 'SafePal', provider: window.safepalProvider }),
+    })(config)
+
+    return {
+      ...injectedConnector,
+      get icon() {
+        return SAFEPAL_ICON
+      },
+      get id() {
+        return CONNECTION.SAFEPAL as string
+      },
+      get name() {
+        return 'SafePal'
+      },
+      connect(...params: Parameters<typeof injectedConnector.connect>) {
+        if (!window.safepalProvider) {
+          window.open('https://www.safepal.com/download', '_blank')
+          return Promise.reject()
+        }
+        return injectedConnector.connect(...params)
+      },
+    }
+  })
+}
+
 function injectedWithFallback() {
   return createConnector(config => {
     const injectedConnector = injected()(config)
@@ -378,6 +410,7 @@ export const wagmiConfig = createConfig({
       reloadOnDisconnect: false,
       enableMobileWalletLink: true,
     }),
+    safepalConnector(),
     porto(),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),

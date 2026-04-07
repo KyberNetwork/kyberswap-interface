@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { useGetAnnouncementsQuery } from 'services/announcement'
 
+import { useActiveWeb3React } from 'hooks'
 import AnnouncementItem from 'pages/NotificationCenter/GeneralAnnouncement/AnnouncementItem'
 import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
@@ -10,7 +11,9 @@ import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/styl
 
 export default function GeneralAnnouncement() {
   const [page, setPage] = useState(1)
-  const { data, isLoading } = useGetAnnouncementsQuery({ page, pageSize: ITEMS_PER_PAGE })
+  const { account } = useActiveWeb3React()
+
+  const { data, isLoading } = useGetAnnouncementsQuery({ userId: account, page, pageSize: ITEMS_PER_PAGE })
 
   return (
     <ShareWrapper>

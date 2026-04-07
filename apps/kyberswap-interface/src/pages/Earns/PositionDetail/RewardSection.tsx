@@ -352,7 +352,7 @@ const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: str
     {merklRewards.map(token => (
       <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${token.symbol}`}>
         <TokenLogo src={token.logo} size={16} />
-        <RewardLink href="https://app.uniswap.org/positions" target="_blank">
+        <RewardLink href="https://app.merkl.xyz/users" target="_blank">
           <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
           <Text color={textColor}>{token.symbol}</Text>
         </RewardLink>

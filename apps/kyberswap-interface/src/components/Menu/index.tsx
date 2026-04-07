@@ -156,18 +156,10 @@ const ClaimRewardButton = styled(ButtonPrimary)`
   `}
 `
 
-export const NewLabel = styled.span`
+export const NewLabel = styled.span<{ isNew?: boolean }>`
   font-size: 10px;
-  color: ${({ theme }) => theme.red};
-  height: calc(100% + 4px);
-  margin-left: 2px;
-`
-
-export const BetaLabel = styled.span`
-  font-size: 10px;
-  color: ${({ theme }) => theme.subText};
-  height: calc(100% + 4px);
-  margin-left: -2px;
+  margin-left: 4px;
+  color: ${({ theme, isNew }) => (isNew ? theme.red : theme.subText)};
 `
 
 const Divider = styled.div`
