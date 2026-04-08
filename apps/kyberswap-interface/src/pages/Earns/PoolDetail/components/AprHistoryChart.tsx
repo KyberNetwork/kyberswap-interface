@@ -194,7 +194,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
           {hasActiveApr ? (
             <BaselineRow gap={8} wrap="wrap">
               <Text color={theme.text} fontSize={16} fontWeight={500}>
-                Active APR
+                {positionId ? 'Position Active APR' : 'Active APR'}
               </Text>
               <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
                 {formatAprValue(latestActiveApr)}

@@ -14,6 +14,8 @@ export enum PriceInputType {
   MaxPrice = 'MaxPrice',
 }
 
+type BoundaryState = 'normal' | 'zero' | 'infinity'
+
 const StepButton = styled.button`
   display: flex;
   align-items: center;
@@ -127,14 +129,20 @@ const PriceInput = ({
       : normalizedPool.maxTick
     : null
 
-  const isZeroBoundary = type === PriceInputType.MinPrice && (!revertPrice ? isMinTick : isMaxTick)
-  const isInfinityBoundary = type === PriceInputType.MaxPrice && (!revertPrice ? isMaxTick : isMinTick)
-  const currentDisplayValue = useMemo(() => {
-    if (isZeroBoundary) return '0'
-    if (isInfinityBoundary) return '∞'
-    if (type === PriceInputType.MinPrice) return minPrice || ''
-    return maxPrice || ''
-  }, [isInfinityBoundary, isZeroBoundary, maxPrice, minPrice, type])
+  const rangeAtZeroBoundary = !revertPrice ? isMinTick : isMaxTick
+  const rangeAtInfinityBoundary = !revertPrice ? isMaxTick : isMinTick
+  const isFullRange = !!(rangeAtZeroBoundary && rangeAtInfinityBoundary)
+  const targetPrice = type === PriceInputType.MinPrice ? minPrice : maxPrice
+
+  const boundaryState = useMemo<BoundaryState>(() => {
+    if (type === PriceInputType.MinPrice && rangeAtZeroBoundary) return 'zero'
+    if (type === PriceInputType.MaxPrice && rangeAtInfinityBoundary) return 'infinity'
+    return 'normal'
+  }, [rangeAtInfinityBoundary, rangeAtZeroBoundary, type])
+
+  const currentDisplayValue = boundaryState === 'zero' ? '0' : boundaryState === 'infinity' ? '∞' : targetPrice || ''
+  const isZeroBoundary = boundaryState === 'zero'
+  const isInfiniteValue = boundaryState === 'infinity'
 
   const applyTick = (nextTick: number) => {
     if (!normalizedPool || minAllowedTick === null || maxAllowedTick === null) return
@@ -226,49 +234,37 @@ const PriceInput = ({
 
   useEffect(() => {
     if (!normalizedPool) return
-
-    if (type === PriceInputType.MinPrice && (!revertPrice ? isMinTick : isMaxTick)) {
-      setLocalValue('0')
-      return
-    }
-
-    if (type === PriceInputType.MaxPrice && (!revertPrice ? isMaxTick : isMinTick)) {
-      setLocalValue('∞')
-      return
-    }
-
-    if (type === PriceInputType.MinPrice && minPrice) {
-      setLocalValue(minPrice)
-    } else if (type === PriceInputType.MaxPrice && maxPrice) {
-      setLocalValue(maxPrice)
-    }
-  }, [currentDisplayValue, isMaxTick, isMinTick, maxPrice, minPrice, normalizedPool, revertPrice, type])
+    setLocalValue(currentDisplayValue)
+  }, [currentDisplayValue, normalizedPool])
 
   const numericValue = useMemo(() => {
-    if (isInfinityBoundary) return undefined
+    if (isInfiniteValue) return undefined
 
-    const targetValue = type === PriceInputType.MinPrice ? minPrice : maxPrice
-    if (!targetValue) return undefined
-    const parsedValue = Number(targetValue.replace(/,/g, ''))
+    if (!targetPrice) return undefined
+    const parsedValue = Number(targetPrice.replace(/,/g, ''))
     return Number.isFinite(parsedValue) ? parsedValue : undefined
-  }, [isInfinityBoundary, maxPrice, minPrice, type])
+  }, [isInfiniteValue, targetPrice])
 
   const deltaText = useMemo(() => {
-    if (isInfinityBoundary) return ''
+    if (isInfiniteValue) return ''
     if (isZeroBoundary) return poolPrice ? '-100%' : '--'
     if (!poolPrice || numericValue === undefined) return '--'
     return formatDelta(numericValue, poolPrice)
-  }, [isInfinityBoundary, isZeroBoundary, numericValue, poolPrice])
+  }, [isInfiniteValue, isZeroBoundary, numericValue, poolPrice])
 
   const canDecrease = useMemo(() => {
-    if (!normalizedPool || activeTick === null || minAllowedTick === null) return false
-    return activeTick - normalizedPool.tickSpacing >= minAllowedTick
-  }, [activeTick, minAllowedTick, normalizedPool])
+    if (!normalizedPool || activeTick === null) return false
+    if (isFullRange) return false
+    if (type === PriceInputType.MinPrice) return !isZeroBoundary
+    return true
+  }, [activeTick, isFullRange, isZeroBoundary, normalizedPool, type])
 
   const canIncrease = useMemo(() => {
-    if (!normalizedPool || activeTick === null || maxAllowedTick === null) return false
-    return activeTick + normalizedPool.tickSpacing <= maxAllowedTick
-  }, [activeTick, maxAllowedTick, normalizedPool])
+    if (!normalizedPool || activeTick === null) return false
+    if (isFullRange) return false
+    if (type === PriceInputType.MaxPrice) return !isInfiniteValue
+    return true
+  }, [activeTick, isFullRange, isInfiniteValue, normalizedPool, type])
 
   return (
     <HStack align="stretch" width="100%" minWidth={0} borderRadius={12} background={rgba(theme.buttonGray, 0.8)}>
@@ -290,6 +286,7 @@ const PriceInput = ({
             </Text>
           ) : (
             <Input
+              disabled={isFullRange}
               value={localValue}
               onChange={event => {
                 const nextValue = event.target.value.replace(/,/g, '')

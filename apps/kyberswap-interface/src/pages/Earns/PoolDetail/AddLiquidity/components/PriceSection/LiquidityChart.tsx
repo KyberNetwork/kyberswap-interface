@@ -40,6 +40,19 @@ const Shimmer = styled.div`
   animation: ${shimmer} 1.8s linear infinite;
 `
 
+const ChartWrapper = styled.div<{ $disableBrush?: boolean }>`
+  ${({ $disableBrush }) =>
+    $disableBrush
+      ? `
+      .overlay,
+      .selection,
+      .handle {
+        pointer-events: none;
+        cursor: default;
+      }`
+      : ''}
+`
+
 interface LiquidityChartProps {
   pool: Pool
   poolPrice: number | null
@@ -91,6 +104,7 @@ const LiquidityChart = ({
     }),
     [normalizedPool, tickLower, tickUpper],
   )
+  const isFullRange = Boolean(ticksAtLimit.LOWER && ticksAtLimit.UPPER)
 
   const onBothRangeInput = useCallback(
     (leftValue: string, rightValue: string) => {
@@ -208,34 +222,36 @@ const LiquidityChart = ({
   }
 
   return (
-    <LiquidityChartRangeInput
-      id="pool-detail-add-liquidity-chart"
-      pool={{
-        fee: normalizedPool.fee,
-        tickCurrent: normalizedPool.tick,
-        tickSpacing: normalizedPool.tickSpacing,
-        ticks: normalizedPool.ticks,
-        liquidity: normalizedPool.liquidity,
-        token0: normalizedPool.token0,
-        token1: normalizedPool.token1,
-        category: normalizedPool.category,
-      }}
-      price={{
-        current: poolPrice,
-        lower: minPrice,
-        upper: maxPrice,
-      }}
-      ticksAtLimit={ticksAtLimit}
-      revertPrice={revertPrice}
-      onBrushDomainChange={onBrushDomainChange}
-      zoomPosition={{
-        top: '0px',
-        left: undefined,
-        right: '0px',
-        bottom: undefined,
-        gap: '8px',
-      }}
-    />
+    <ChartWrapper $disableBrush={isFullRange}>
+      <LiquidityChartRangeInput
+        id="pool-detail-add-liquidity-chart"
+        pool={{
+          fee: normalizedPool.fee,
+          tickCurrent: normalizedPool.tick,
+          tickSpacing: normalizedPool.tickSpacing,
+          ticks: normalizedPool.ticks,
+          liquidity: normalizedPool.liquidity,
+          token0: normalizedPool.token0,
+          token1: normalizedPool.token1,
+          category: normalizedPool.category,
+        }}
+        price={{
+          current: poolPrice,
+          lower: minPrice,
+          upper: maxPrice,
+        }}
+        ticksAtLimit={ticksAtLimit}
+        revertPrice={revertPrice}
+        onBrushDomainChange={onBrushDomainChange}
+        zoomPosition={{
+          top: '0px',
+          left: undefined,
+          right: '0px',
+          bottom: undefined,
+          gap: '8px',
+        }}
+      />
+    </ChartWrapper>
   )
 }
 
