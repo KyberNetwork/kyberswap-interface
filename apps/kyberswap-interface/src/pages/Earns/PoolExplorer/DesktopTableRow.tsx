@@ -106,7 +106,7 @@ const DesktopTableRow = ({
       </TableCell>
       {isFarmingFiltered && (
         <TableCell onClick={e => handleOpenZapInWidget(e, true)}>
-          {!!pool.maxAprInfo && (
+          {!!pool.maxAprInfo ? (
             <MouseoverTooltipDesktopOnly
               text={
                 t`Add liquidity with price range:` +
@@ -134,6 +134,10 @@ const DesktopTableRow = ({
                     Number(pool.bonusApr || 0),
                 ) + '%'}
               </Text>
+            </MouseoverTooltipDesktopOnly>
+          ) : (
+            <MouseoverTooltipDesktopOnly text={t`Not available for this pool`} width="fit-content" placement="bottom">
+              <Text>-</Text>
             </MouseoverTooltipDesktopOnly>
           )}
         </TableCell>

@@ -6,6 +6,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
@@ -112,16 +113,20 @@ const MobileTableRow = ({
         {isFarmingFiltered && (
           <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
             <HeaderText color={theme.subText}>{t`Max APR`}</HeaderText>
-            <Text>
-              {pool.maxAprInfo
-                ? formatAprNumber(
-                    Number(pool.maxAprInfo.apr) +
-                      Number(pool.maxAprInfo.kemEGApr) +
-                      Number(pool.maxAprInfo.kemLMApr) +
-                      Number(pool.bonusApr || 0),
-                  ) + '%'
-                : '--'}
-            </Text>
+            {pool.maxAprInfo ? (
+              <Text>
+                {formatAprNumber(
+                  Number(pool.maxAprInfo.apr) +
+                    Number(pool.maxAprInfo.kemEGApr) +
+                    Number(pool.maxAprInfo.kemLMApr) +
+                    Number(pool.bonusApr || 0),
+                ) + '%'}
+              </Text>
+            ) : (
+              <MouseoverTooltipDesktopOnly text={t`Not available for this pool`} width="fit-content" placement="bottom">
+                <Text>-</Text>
+              </MouseoverTooltipDesktopOnly>
+            )}
           </MobileTableCell>
         )}
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
