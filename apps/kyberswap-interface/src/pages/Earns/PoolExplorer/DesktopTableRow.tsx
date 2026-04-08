@@ -41,7 +41,7 @@ export const uniReward = (pool: ParsedEarnPool) => {
   const hasReward = isUniswapExchange(pool.exchange) && pool.bonusApr && pool.bonusApr > 0
 
   return hasReward ? (
-    <AprDetailTooltip uniApr={pool.bonusApr}>
+    <AprDetailTooltip merklApr={pool.bonusApr}>
       <UniBonusIcon width={24} height={24} style={{ marginLeft: 4 }} />
     </AprDetailTooltip>
   ) : null

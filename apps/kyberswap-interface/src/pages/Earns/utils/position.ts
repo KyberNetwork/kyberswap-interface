@@ -26,7 +26,7 @@ import {
   UserPosition,
   UserPositionsStats,
 } from 'pages/Earns/types'
-import { getNftManagerContractAddress, isNativeToken, isUniswapExchange, isWrappedNativeToken } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, isNativeToken, isWrappedNativeToken } from 'pages/Earns/utils'
 
 export const getDexVersion = (exchange: Exchange) => {
   if (!EARN_DEXES[exchange].showVersion) return ''
@@ -187,7 +187,6 @@ export const parsePosition = ({
   const dex = (pool?.protocol?.type || '') as Exchange
   const isUniv2 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV2
   const isUniv4 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV4
-  const isUniswap = isUniswapExchange(dex)
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
@@ -269,7 +268,7 @@ export const parsePosition = ({
   const tokenAddress = position.tokenAddress ? position.tokenAddress : tmp.length > 0 ? tmp[0] : ''
 
   const isPositionInRange = parsedStatus === PositionStatus.IN_RANGE
-  const bonusApr = isPositionInRange && isUniswap ? position.pool.merklOpportunity?.apr || 0 : 0
+  const bonusApr = isPositionInRange ? position.pool.merklOpportunity?.apr || 0 : 0
 
   //  %Yield = [(f₀ + f₁/P) / (t₀ + t₁/P)] × 100
   const f0 = token0EarnedAmount

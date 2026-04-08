@@ -1,30 +1,32 @@
-import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
+import { ShareModal, ShareModalProps, ShareType, TokenLogo } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { inProgressRewardTooltip, totalRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
-import { PositionAction, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
+import { inProgressRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
+import { PositionAction, RewardLink, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import {
   BannerContainer,
   BannerDataItem,
   BannerDivider,
   BannerWrapper,
+  HorizontalDivider,
   RewardBannerDetailWrapper,
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
-import { RewardInfo, UserPositionsStats } from 'pages/Earns/types'
+import { CampaignRewardInfo, RewardInfo, TokenRewardInfo, UserPositionsStats } from 'pages/Earns/types'
+import { truncateSymbol } from 'pages/Earns/utils'
 import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
@@ -67,7 +69,7 @@ export default function PositionBanner({
   onOpenClaimAllRewards: () => void
 }) {
   const theme = useTheme()
-  const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
+  const { campaignRewards: merklCampaignRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
   const {
@@ -295,11 +297,11 @@ export default function PositionBanner({
                       text={totalRewardTooltip({
                         lmTokens,
                         egTokens,
-                        merklRewards,
+                        merklCampaignRewards,
                         textColor: theme.text,
                       })}
                       placement="bottom"
-                      width="160px"
+                      width="220px"
                       size={16}
                       fontSize={14}
                       style={{ marginRight: 12 }}
@@ -373,3 +375,78 @@ export default function PositionBanner({
     </>
   )
 }
+
+const merklRewardTooltip = (merklCampaignRewards: Array<CampaignRewardInfo>, textColor: string) => (
+  <Flex flexDirection="column" sx={{ gap: 1 }}>
+    <Text lineHeight="20px" fontSize={14} color={'#fafafa'}>
+      {t`3rd Party (Merkl) Incentives`}
+    </Text>
+    <Box sx={{ paddingLeft: '8px' }}>
+      {merklCampaignRewards.map((campaign, index) => (
+        <>
+          <Text lineHeight="16px" fontSize={12} mt={index > 0 ? '6px' : 0} mb="4px">
+            {campaign.protocolName} {t`Bonus`}
+          </Text>
+          {campaign.tokens.map(token => (
+            <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
+              <TokenLogo src={token.logo} size={16} />
+              <RewardLink href="https://app.merkl.xyz/users" target="_blank">
+                <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+                <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
+              </RewardLink>
+            </Flex>
+          ))}
+        </>
+      ))}
+    </Box>
+  </Flex>
+)
+
+const totalRewardTooltip = ({
+  lmTokens,
+  egTokens,
+  merklCampaignRewards,
+  textColor,
+}: {
+  lmTokens: Array<TokenRewardInfo>
+  egTokens: Array<TokenRewardInfo>
+  merklCampaignRewards?: Array<CampaignRewardInfo>
+  textColor: string
+}) => (
+  <Flex flexDirection="column" sx={{ gap: 1 }}>
+    <Text lineHeight="20px" fontSize={14} color={'#fafafa'}>
+      {t`KyberSwap Reward`}
+    </Text>
+    <Box sx={{ paddingLeft: '8px' }}>
+      <Text lineHeight="16px" fontSize={12} mb="2px">
+        {t`LM Reward:`}
+        {!lmTokens.length ? ' 0' : ''}
+      </Text>
+      {lmTokens.map(token => (
+        <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
+          <TokenLogo src={token.logo} size={16} />
+          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
+        </Flex>
+      ))}
+      <Text lineHeight="16px" fontSize={12} mt="4px" mb="2px">
+        {t`EG Sharing Reward:`}
+        {!egTokens.length ? ' 0' : ''}
+      </Text>
+      {egTokens.map(token => (
+        <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
+          <TokenLogo src={token.logo} size={16} />
+          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
+        </Flex>
+      ))}
+    </Box>
+
+    {!!merklCampaignRewards?.length && (
+      <>
+        <HorizontalDivider />
+        {merklRewardTooltip(merklCampaignRewards, textColor)}
+      </>
+    )}
+  </Flex>
+)

@@ -9,10 +9,10 @@ type Props = PropsWithChildren<{
   feeApr?: number
   egApr?: number
   lmApr?: number
-  uniApr?: number
+  merklApr?: number
 }>
 
-export default function AprDetailTooltip({ feeApr, egApr, lmApr, uniApr, children }: Props) {
+export default function AprDetailTooltip({ feeApr, egApr, lmApr, merklApr, children }: Props) {
   return (
     <MouseoverTooltipDesktopOnly
       placement="top"
@@ -34,9 +34,9 @@ export default function AprDetailTooltip({ feeApr, egApr, lmApr, uniApr, childre
               {t`LM Reward`}: {formatAprNumber(lmApr)}%
             </Text>
           )}
-          {!!uniApr && (
+          {!!merklApr && (
             <Text>
-              {t`Uniswap Bonus`}: {formatAprNumber(uniApr)}%
+              {t`Merkl Bonus`}: {formatAprNumber(merklApr)}%
             </Text>
           )}
         </Flex>

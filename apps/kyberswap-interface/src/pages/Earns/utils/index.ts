@@ -108,3 +108,6 @@ export const getNftManagerContract = (dex: Exchange, chainId: number) => {
 
   return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi, chainId as ChainId)
 }
+
+export const truncateSymbol = (symbol: string, maxLength = 10) =>
+  symbol.length > maxLength ? symbol.slice(0, maxLength) + '...' : symbol

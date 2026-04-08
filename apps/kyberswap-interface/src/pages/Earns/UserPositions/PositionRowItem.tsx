@@ -336,7 +336,7 @@ export default function PositionRowItem({
                 feeApr={position.feeApr['24h']}
                 egApr={position.kemEGApr['24h']}
                 lmApr={position.kemLMApr['24h']}
-                uniApr={bonusApr}
+                merklApr={bonusApr}
               >
                 <Text color={theme.primary}>
                   <AnimatedNumber value={`${formatAprNumber(apr['24h'] + bonusApr)}%`} />

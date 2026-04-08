@@ -202,6 +202,7 @@ export default function ClaimAllModal({
 
             <Flex flexDirection={'column'} sx={{ gap: 1 }}>
               {[...currentChains]
+                .filter(chain => chain.claimableUsdValue > 0)
                 .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
                 .map(chain => {
                   const isSelected = selectedChainId === chain.chainId

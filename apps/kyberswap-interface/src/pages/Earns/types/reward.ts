@@ -23,6 +23,11 @@ export interface ChainRewardInfo {
   tokens: Array<TokenRewardInfo>
 }
 
+export interface CampaignRewardInfo {
+  protocolName: string
+  tokens: Array<TokenRewardInfo>
+}
+
 export interface NftRewardInfo {
   nftId: string
   chainId: number
