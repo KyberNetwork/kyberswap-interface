@@ -6,6 +6,7 @@ import styled, { CSSProperties, DefaultTheme, css, keyframes } from 'styled-comp
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import { AutoColumn } from 'components/Column'
 import Modal, { ModalProps } from 'components/Modal'
+import { Stack } from 'components/Stack'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { friendlyError } from 'utils/errorMessage'
@@ -205,41 +206,18 @@ export const SwapFormWrapper = styled.div`
   `}
 `
 
-export const InfoComponentsWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
+export const InfoComponentsWrapper = styled(Stack)`
   flex-grow: 1;
   width: calc(100% - 472px);
+  gap: 20px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
   `};
-`
 
-export const LiveChartWrapper = styled.div`
-  width: 100%;
-  height: 510px;
-  margin-bottom: 24px;
-`
-
-export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
-  height: auto;
-`
-
-export const TokenInfoWrapper = styled(LiveChartWrapper)`
-  display: flex;
-  flex-direction: column;
-  row-gap: 16px;
-
-  @media screen and (min-width: 1100px) {
-    display: flex;
-  }
-
-  height: auto;
-  border-bottom: none;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
+    gap: 16px;
+  `};
 `
 
 export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props} zindex={Z_INDEXS.MODAL} />)<{
