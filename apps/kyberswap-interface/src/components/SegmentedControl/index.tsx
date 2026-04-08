@@ -16,7 +16,7 @@ type SegmentedControlProps<T extends string> = {
 
 const sizeStyles = {
   sm: css`
-    padding: 8px;
+    padding: 4px 8px;
   `,
   md: css`
     padding: 8px 12px;

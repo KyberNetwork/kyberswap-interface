@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import { highlight } from 'components/swapv2/styleds'
 import { BodyWrapper } from 'pages/AppBody'
 
@@ -21,19 +20,9 @@ export const SwitchLocaleLinkWrapper = styled.div`
 `}
 `
 
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 27px;
-  width: 27px;
-  margin-right: 10px;
-  path {
-    fill: ${({ theme }) => theme.subText} !important;
-  }
-`
-
 export const BannerWrapper = styled.div`
   width: 100%;
   gap: 20px;
-  margin-bottom: 20px;
   display: flex;
   align-items: center;
   overflow: hidden;
