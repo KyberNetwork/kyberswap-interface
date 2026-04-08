@@ -34,7 +34,6 @@ const TableHeader = styled.div`
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
   background: ${({ theme }) => theme.background};
-  margin-top: 10px;
   gap: 0.75rem;
   color: ${({ theme }) => theme.subText};
   font-size: 12px;

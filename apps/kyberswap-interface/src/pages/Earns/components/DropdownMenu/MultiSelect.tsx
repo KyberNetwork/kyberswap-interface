@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 
 import { MenuOption } from 'pages/Earns/components/DropdownMenu'
@@ -19,20 +19,22 @@ const MultiSelect = ({
   options,
   value,
   width,
-  alignLeft = false,
+  alignItems = 'flex-start',
   mobileFullWidth = false,
   mobileHalfWidth = false,
   highlightOnSelect = false,
+  emptyValueOnClear,
   onChange,
 }: {
   label: ReactNode
   options: MenuOption[]
   value: string
   width?: number
-  alignLeft?: boolean
+  alignItems?: CSSProperties['alignItems']
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   highlightOnSelect?: boolean
+  emptyValueOnClear?: string
   onChange: (value: string | number) => void
 }) => {
   const [open, setOpen] = useState(false)
@@ -56,6 +58,8 @@ const MultiSelect = ({
     if (arrValue.length === 0) {
       if (options.some(option => option.value === AllOptionValue)) {
         onChange(AllOptionValue)
+      } else if (emptyValueOnClear !== undefined) {
+        onChange(emptyValueOnClear)
       } else {
         onChange(options.map(option => option.value).join(','))
       }
@@ -83,13 +87,11 @@ const MultiSelect = ({
   return (
     <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
       <DropdownTitleWrapper highlight={highlightOnSelect && value !== AllOptionValue} onClick={handleOpenChange}>
-        <DropdownTitle justifyContent="flex-start" width={width}>
-          {label}
-        </DropdownTitle>
+        <DropdownTitle width={width}>{label}</DropdownTitle>
         <DropdownIcon open={open} />
       </DropdownTitleWrapper>
       {open && (
-        <DropdownContent alignLeft={alignLeft}>
+        <DropdownContent alignItems={alignItems}>
           {options.map((option: MenuOption) => (
             <MultiSelectDropdownContentItem key={option.value} onClick={() => handleSelectItem(option.value)}>
               {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
