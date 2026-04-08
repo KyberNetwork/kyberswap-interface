@@ -161,7 +161,7 @@ const DesktopTableRow = ({
       <TableCell>
         <SparklineChart sparkline={pool.sparkline} shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address} />
       </TableCell>
-      <TableCell justifyContent="flex-start" pb={16}>
+      <TableCell justifyContent="flex-start" pt={16}>
         {favoriteLoading.includes(pool.address) ? (
           <Loader />
         ) : (

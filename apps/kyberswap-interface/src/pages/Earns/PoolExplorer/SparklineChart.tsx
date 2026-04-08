@@ -41,6 +41,10 @@ const SparklineChart = ({
     }
   }, [data, height])
 
+  if (data.length === 0 || data.every(item => item.value === 0)) {
+    return null
+  }
+
   const firstValue = data[0]?.value
   const lastValue = data[data.length - 1]?.value
   const chartColor = lastValue < firstValue ? theme.red : theme.primary

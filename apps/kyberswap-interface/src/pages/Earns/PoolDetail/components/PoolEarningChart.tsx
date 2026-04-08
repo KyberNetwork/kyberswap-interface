@@ -367,7 +367,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
               </Stack>
             </Stack>
 
-            <Stack align={upToSmall ? 'center' : 'flex-start'} gap={12} width="fit-content">
+            <Stack align={upToSmall ? 'center' : 'flex-start'} gap={12} width="fit-content" minWidth={180}>
               {breakdownItems.map(item => (
                 <HStack align="center" gap={12} justify="flex-start" key={item.key} width="fit-content">
                   <LegendDot $color={item.color} />
