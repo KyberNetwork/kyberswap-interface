@@ -96,7 +96,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
       userAddress: debouncedSearchAddress || undefined,
     },
     {
-      skip: isOwner || !selectedRange || !hasLeaderboardPoints,
+      skip: isOwner || !selectedRange,
       pollingInterval: 30_000,
     },
   )
@@ -117,6 +117,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
   const isLoading = isOwner ? isLoadingTransactions : isLoadingLeaderboard || (!!account && isLoadingUserStats)
   const totalCount = isOwner ? transactionsData?.total_items || 0 : leaderboardData?.total_items || 0
   const emptyStateMessage = isOwner ? t`No transactions found for this week.` : t`No participants found for this week.`
+  const hasLeaderboardEntries = !isOwner && !!leaderboardData?.entries.length
 
   const renderLabel = (label: ReactNode) =>
     upToSmall ? (
@@ -131,7 +132,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
 
   return (
     <Wrapper>
-      {!isOwner && hasLeaderboardPoints && (
+      {!isOwner && (
         <>
           <Flex
             justifyContent="space-between"
@@ -190,6 +191,63 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
 
       {isLoading ? (
         <LocalLoader />
+      ) : !isOwner && hasLeaderboardEntries ? (
+        leaderboardData.entries.map((entry, index) => {
+          const rank = entry.rank || index + 1 + (currentPage - 1) * 10
+          const isWinner = isSelectedWeekEnded && isSafePalCampaignWinner({ rank, total_points: entry.total_points })
+
+          return (
+            <Box
+              display={upToSmall ? 'grid' : 'flex'}
+              key={entry.user_address}
+              padding={upToSmall ? '1rem 0' : '1rem 1.25rem'}
+              fontSize={14}
+              color={theme.text}
+              flexDirection={upToSmall ? 'column' : 'row'}
+              sx={{
+                gap: upToSmall ? '0.5rem' : '1.25rem',
+                gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
+              }}
+            >
+              <Flex
+                width={upToSmall ? '100%' : '50px'}
+                flexDirection="column"
+                textAlign={upToSmall ? 'left' : 'center'}
+                justifyContent="center"
+              >
+                {renderLabel(<Trans>RANK</Trans>)}
+                <Text fontWeight="500">{rank}</Text>
+              </Flex>
+              <Flex flex={1} flexDirection="column" justifyContent="center">
+                {renderLabel(<Trans>WALLET</Trans>)}
+                <Text fontWeight="500">{shortenHash(entry.user_address, 4)}</Text>
+              </Flex>
+              <Flex
+                width={upToSmall ? '100%' : '80px'}
+                flexDirection="column"
+                textAlign={upToSmall ? 'left' : 'right'}
+                justifyContent="center"
+              >
+                {renderLabel(<Trans>POINTS</Trans>)}
+                <Text>{formatPointValue(entry.total_points)}</Text>
+              </Flex>
+              <Flex
+                width={upToSmall ? '100%' : '120px'}
+                flexDirection="column"
+                alignItems={upToSmall ? 'flex-start' : 'flex-end'}
+              >
+                {renderLabel(<Trans>STATUS</Trans>)}
+                {isSelectedWeekEnded ? (
+                  <StatusBadge $isWinner={isWinner}>{isWinner ? t`Winner` : t`Not a winner`}</StatusBadge>
+                ) : (
+                  <Text width="100%" textAlign="center" color={theme.subText}>
+                    --
+                  </Text>
+                )}
+              </Flex>
+            </Box>
+          )
+        })
       ) : !isJoinedByWeek ? (
         <Flex
           flexDirection="column"
@@ -263,70 +321,13 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
             {emptyStateMessage}
           </Text>
         )
-      ) : leaderboardData?.entries.length ? (
-        leaderboardData.entries.map((entry, index) => {
-          const rank = entry.rank || index + 1 + (currentPage - 1) * 10
-          const isWinner = isSelectedWeekEnded && isSafePalCampaignWinner({ rank, total_points: entry.total_points })
-
-          return (
-            <Box
-              display={upToSmall ? 'grid' : 'flex'}
-              key={entry.user_address}
-              padding={upToSmall ? '1rem 0' : '1rem 1.25rem'}
-              fontSize={14}
-              color={theme.text}
-              flexDirection={upToSmall ? 'column' : 'row'}
-              sx={{
-                gap: upToSmall ? '0.5rem' : '1.25rem',
-                gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
-              }}
-            >
-              <Flex
-                width={upToSmall ? '100%' : '50px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'center'}
-                justifyContent="center"
-              >
-                {renderLabel(<Trans>RANK</Trans>)}
-                <Text fontWeight="500">{rank}</Text>
-              </Flex>
-              <Flex flex={1} flexDirection="column" justifyContent="center">
-                {renderLabel(<Trans>WALLET</Trans>)}
-                <Text fontWeight="500">{shortenHash(entry.user_address, 4)}</Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '80px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'right'}
-                justifyContent="center"
-              >
-                {renderLabel(<Trans>POINTS</Trans>)}
-                <Text>{formatPointValue(entry.total_points)}</Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '120px'}
-                flexDirection="column"
-                alignItems={upToSmall ? 'flex-start' : 'flex-end'}
-              >
-                {renderLabel(<Trans>STATUS</Trans>)}
-                {isSelectedWeekEnded ? (
-                  <StatusBadge $isWinner={isWinner}>{isWinner ? t`Winner` : t`Not a winner`}</StatusBadge>
-                ) : (
-                  <Text width="100%" textAlign="center" color={theme.subText}>
-                    --
-                  </Text>
-                )}
-              </Flex>
-            </Box>
-          )
-        })
       ) : (
         <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px" fontSize={14}>
           {emptyStateMessage}
         </Text>
       )}
 
-      {!isLoading && isJoinedByWeek && totalCount > 0 && (
+      {!isLoading && totalCount > 0 && (
         <Pagination
           onPageChange={handlePageChange}
           totalCount={totalCount}
