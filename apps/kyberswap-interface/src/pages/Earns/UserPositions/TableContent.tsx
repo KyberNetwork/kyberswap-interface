@@ -52,7 +52,6 @@ import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -552,7 +551,6 @@ export default function TableContent({
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {pool.isFarming || bonusApr > 0 ? (
                           <AprDetailTooltip
-                            chainId={position.chain.id}
                             feeApr={position.feeApr['24h']}
                             egApr={position.kemEGApr['24h']}
                             lmApr={position.kemLMApr['24h']}
@@ -660,7 +658,7 @@ export default function TableContent({
                               </Text>
                               {merklRewardsTotalUsd > 0 && (
                                 <Text>
-                                  {getMerklBonusMeta(position.chain.id).name}:{' '}
+                                  {t`Uniswap Bonus`}:{' '}
                                   {formatDisplayNumber(merklRewardsTotalUsd, {
                                     significantDigits: 4,
                                     style: 'currency',
