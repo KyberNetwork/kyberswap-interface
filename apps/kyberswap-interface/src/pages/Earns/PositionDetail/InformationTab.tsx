@@ -3,7 +3,7 @@ import { formatAprNumber as formatAprNum } from '@kyber/utils/dist/number'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDown, Info, PlusCircle } from 'react-feather'
+import { ChevronDown, PlusCircle } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -13,7 +13,6 @@ import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
-import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -25,6 +24,7 @@ import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { timings } from 'pages/Earns/PoolExplorer/Filter'
 import LiquidityChart, { LiquidityChartSkeleton } from 'pages/Earns/PositionDetail/LiquidityChart'
+import PositionAprTooltip from 'pages/Earns/PositionDetail/PositionAprTooltip'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import {
   AprSection,
@@ -46,7 +46,6 @@ import {
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
-import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import DropdownMenuComponent from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
@@ -242,16 +241,6 @@ const InformationTab = () => {
                   <Text fontSize={14} color={theme.subText} marginRight={0.5}>
                     {t`Total APR`}
                   </Text>
-                  {position?.pool.isFarming && !isUnfinalized && (
-                    <AprDetailTooltip
-                      feeApr={position.feeApr[aprInterval] || 0}
-                      egApr={position.kemEGApr[aprInterval] || 0}
-                      lmApr={position.kemLMApr[aprInterval] || 0}
-                      uniApr={position.bonusApr}
-                    >
-                      <Info color={theme.subText} size={16} />
-                    </AprDetailTooltip>
-                  )}
                   <DropdownMenuComponent
                     width={30}
                     flatten
@@ -274,7 +263,6 @@ const InformationTab = () => {
                     ) : position?.pool.isFarming ? (
                       <FarmingIcon width={20} height={20} />
                     ) : null}
-                    {position?.bonusApr ? <UniBonusIcon width={20} height={20} /> : null}
                     <Text
                       fontSize={20}
                       color={position?.apr && position.apr[aprInterval] > 0 ? theme.primary : theme.text}
@@ -290,34 +278,42 @@ const InformationTab = () => {
               </Flex>
 
               {/* Vertical divider */}
-              {position?.pool.isFarming && !isUnfinalized && <VerticalDivider height="40px" />}
+              <VerticalDivider height="40px" />
 
               {/* Right: Fee + Rewards breakdown */}
-              {position?.pool.isFarming && !isUnfinalized && (
-                <Flex flexDirection="column" sx={{ gap: '4px' }}>
-                  <Flex alignItems="center" sx={{ gap: '16px' }}>
-                    <Text fontSize={14} color={theme.subText}>
-                      {t`Fee`}
-                    </Text>
-                    <Text fontSize={14} color={theme.text}>
-                      {formatAprNum(position.feeApr[aprInterval] || 0)}%
-                    </Text>
-                  </Flex>
-                  <Flex alignItems="center" sx={{ gap: '16px' }}>
-                    <Text fontSize={14} color={theme.subText}>
-                      {t`Rewards`}
-                    </Text>
-                    <Text fontSize={14} color={theme.text}>
-                      {formatAprNum(
-                        (position.kemEGApr[aprInterval] || 0) +
-                          (position.kemLMApr[aprInterval] || 0) +
-                          (position.bonusApr || 0),
-                      )}
-                      %
-                    </Text>
-                  </Flex>
+              <Flex flexDirection="column" sx={{ gap: '4px' }}>
+                <Flex alignItems="center" sx={{ gap: '16px' }}>
+                  <Text fontSize={14} color={theme.subText}>
+                    {t`Fee`}
+                  </Text>
+                  <Text fontSize={14} color={theme.text}>
+                    {formatAprNum(position?.feeApr?.[aprInterval] || 0)}%
+                  </Text>
                 </Flex>
-              )}
+                {position && (position?.pool.isFarming || (position?.bonusApr || 0) > 0) && !isUnfinalized && (
+                  <PositionAprTooltip
+                    egApr={position.kemEGApr[aprInterval] || 0}
+                    lmApr={position.kemLMApr[aprInterval] || 0}
+                    dexLogo={position.dex.logo}
+                    dexName={position.dex.name}
+                    merklOpportunity={pool?.merklOpportunity}
+                  >
+                    <Flex alignItems="center" sx={{ gap: '16px', cursor: 'pointer' }}>
+                      <Text fontSize={14} color={theme.subText}>
+                        {t`Rewards`}
+                      </Text>
+                      <Text fontSize={14} color={theme.text}>
+                        {formatAprNum(
+                          (position.kemEGApr[aprInterval] || 0) +
+                            (position.kemLMApr[aprInterval] || 0) +
+                            (position.bonusApr || 0),
+                        )}
+                        %
+                      </Text>
+                    </Flex>
+                  </PositionAprTooltip>
+                )}
+              </Flex>
             </Flex>
           </AprSection>
         </Flex>

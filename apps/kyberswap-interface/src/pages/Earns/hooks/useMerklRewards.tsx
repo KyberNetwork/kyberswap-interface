@@ -310,27 +310,16 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     }))
   }, [data, positionsFilter, resolvePositionsForBreakdown, tokenLogos])
 
-  console.log('campaignRewards', campaignRewards)
-
   return useMemo(
     () => ({
       rewardsByPosition: parsedRewardsByPosition,
-      rewards: parsedRewards,
       chainRewards,
       campaignRewards,
       totalUsdValue,
       loading: isFetching,
       refetch: refetchMerklRewards,
     }),
-    [
-      parsedRewardsByPosition,
-      parsedRewards,
-      chainRewards,
-      campaignRewards,
-      totalUsdValue,
-      isFetching,
-      refetchMerklRewards,
-    ],
+    [parsedRewardsByPosition, chainRewards, campaignRewards, totalUsdValue, isFetching, refetchMerklRewards],
   )
 }
 
