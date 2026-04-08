@@ -219,12 +219,11 @@ export const InfoComponentsWrapper = styled.div`
 export const LiveChartWrapper = styled.div`
   width: 100%;
   height: 510px;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 `
 
 export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
   height: auto;
-  margin-top: 4px;
 `
 
 export const TokenInfoWrapper = styled(LiveChartWrapper)`
@@ -257,7 +256,8 @@ export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props
 export const StyledActionButtonSwapForm = styled.button<{ active?: boolean; hoverBg?: string }>`
   position: relative;
   border: none;
-  background-color: transparent;
+  cursor: pointer;
+  background-color: ${({ theme, active }) => (active ? theme.buttonGray : 'transparent')};
   margin: 0;
   padding: 0;
   height: 36px;
@@ -266,21 +266,11 @@ export const StyledActionButtonSwapForm = styled.button<{ active?: boolean; hove
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: none;
 
   :hover {
-    cursor: pointer;
-    outline: none;
     background-color: ${({ theme, hoverBg }) => hoverBg || theme.background};
   }
-
-  ${({ active }) =>
-    active
-      ? css`
-          cursor: pointer;
-          outline: none;
-          background-color: ${({ theme }) => theme.buttonBlack};
-        `
-      : ''}
 `
 
 export const IconButton = styled(StyledActionButtonSwapForm)<{ enableClickToRefresh: boolean }>`
