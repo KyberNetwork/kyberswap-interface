@@ -12,7 +12,13 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useShowTradeRoutes, useToggleTradeRoutes, useUserSlippageTolerance } from 'state/user/hooks'
+import {
+  useShowTradeRoutes,
+  useSuccessSoundEnabled,
+  useToggleSuccessSound,
+  useToggleTradeRoutes,
+  useUserSlippageTolerance,
+} from 'state/user/hooks'
 
 import { CrossChainSourceSetting } from './CrossChainSourceSetting'
 import DegenModeSetting from './DegenModeSetting'
@@ -49,7 +55,9 @@ const SettingsPanel: React.FC<Props> = ({
 
   const [showConfirmation, setShowConfirmation] = useState(false)
   const isShowTradeRoutes = useShowTradeRoutes()
+  const isSuccessSoundEnabled = useSuccessSoundEnabled()
   const toggleTradeRoutes = useToggleTradeRoutes()
+  const toggleSuccessSound = useToggleSuccessSound()
 
   return (
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
@@ -124,6 +132,16 @@ const SettingsPanel: React.FC<Props> = ({
                     <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} />
                   </RowBetween>
                 )}
+                <RowBetween>
+                  <RowFixed>
+                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                      <MouseoverTooltip text={<Trans>Turn on to play success sound.</Trans>} placement="right">
+                        <Trans>Sound</Trans>
+                      </MouseoverTooltip>
+                    </TextDashed>
+                  </RowFixed>
+                  <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} />
+                </RowBetween>
               </AutoColumn>
             </Flex>
           )}
