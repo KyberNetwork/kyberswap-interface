@@ -6,7 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
-import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
+import { CampaignRewardInfo, ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
 
 type UseMerklRewardsProps = {
@@ -25,7 +25,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   )
 
   const positionsFilter = useMemo(
-    () => options?.positions?.filter(position => position.pool.isFarming),
+    () => options?.positions,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [positionsKey],
   )
@@ -40,24 +40,26 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
         const positionTokenId = position.tokenId?.toLowerCase()
 
         const matchByPositionId = reasonTokenId && reasonTokenId === positionTokenId
-
-        const matchByPool = poolAddress && reasonPoolAddress === poolAddress
-
         if (matchByPositionId) return true
 
         // Only fall back to pool match when the reason lacks position id info
+        const matchByPool = poolAddress && reasonPoolAddress === poolAddress
         return !reasonTokenId && matchByPool && positionsFilter.length === 1
       })
     },
     [positionsFilter],
   )
 
-  const { data, isFetching } = useMerklRewardsQuery(
+  const {
+    data,
+    isFetching,
+    refetch: refetchMerklRewards,
+  } = useMerklRewardsQuery(
     {
       address: account || '',
       chainId: filters.chainIds || supportedChains.map(chain => chain.chainId).join(','),
     },
-    { skip: !account },
+    { skip: !account, pollingInterval: 60_000 },
   )
 
   const {
@@ -74,14 +76,12 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     const calculatedRewards = data.flatMap(chainRewards =>
       (chainRewards.rewards || []).map(reward => {
         const breakdowns = reward.breakdowns.filter(item => {
-          const [protocol] = item.reason.split('_')
-          if (!protocol.startsWith('Uniswap')) return false
-
           if (!positionsFilter?.length) return true
 
           const resolvedPositions = resolvePositionsForBreakdown(item.reason)
           return resolvedPositions.length > 0
         })
+
         return {
           ...reward,
           amount: breakdowns.reduce((sum, item) => sum + +item.amount, 0).toString(),
@@ -169,7 +169,10 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     return baseRewards
   }, [positionsFilter?.length, rewardsByPosition, baseRewards])
 
-  const totalUsdValue = baseRewardsForReturn.reduce((sum, reward) => sum + reward.claimableUsdValue, 0)
+  const totalUsdValue = baseRewardsForReturn.reduce(
+    (sum, reward) => sum + (isNaN(reward.claimableUsdValue) ? 0 : reward.claimableUsdValue),
+    0,
+  )
 
   useEffect(() => {
     if (!baseRewardsForReturn.length) return
@@ -234,14 +237,89 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     return result
   }, [rewardsByPosition, tokenLogos])
 
+  const chainRewards = useMemo<ChainRewardInfo[]>(() => {
+    if (!parsedRewards.length) return []
+
+    const grouped: Record<number, { tokens: TokenRewardInfo[]; claimableUsdValue: number }> = {}
+    parsedRewards.forEach(reward => {
+      if (!grouped[reward.chainId]) {
+        grouped[reward.chainId] = { tokens: [], claimableUsdValue: 0 }
+      }
+      grouped[reward.chainId].tokens.push(reward)
+      grouped[reward.chainId].claimableUsdValue += reward.claimableUsdValue
+    })
+
+    return Object.entries(grouped).map(([chainIdStr, info]) => {
+      const cId = Number(chainIdStr)
+      const chain = supportedChains.find(c => c.chainId === cId)
+      return {
+        chainId: cId,
+        chainName: chain?.name || `Chain ${cId}`,
+        chainLogo: chain?.icon || '',
+        claimableUsdValue: info.claimableUsdValue,
+        tokens: info.tokens,
+      }
+    })
+  }, [parsedRewards, supportedChains])
+
+  const campaignRewards = useMemo<CampaignRewardInfo[]>(() => {
+    if (!data) return []
+
+    const grouped: Record<string, Record<string, TokenRewardInfo>> = {}
+
+    data.forEach(chainRewards => {
+      ;(chainRewards.rewards || []).forEach(reward => {
+        reward.breakdowns.forEach(item => {
+          if (positionsFilter?.length) {
+            const resolvedPositions = resolvePositionsForBreakdown(item.reason)
+            if (!resolvedPositions.length) return
+          }
+
+          const [protocolName] = item.reason.split('_')
+          const decimalsPow = 10 ** reward.token.decimals
+          const amount = Number(item.amount) / decimalsPow
+          const claimed = Number(item.claimed) / decimalsPow
+          const claimable = Math.max(amount - claimed, 0)
+          const tokenKey = `${reward.token.chainId}-${reward.token.address.toLowerCase()}`
+          const existing = grouped[protocolName]?.[tokenKey]
+
+          grouped[protocolName] = grouped[protocolName] || {}
+          grouped[protocolName][tokenKey] = {
+            symbol: reward.token.symbol,
+            logo: existing?.logo || '',
+            address: reward.token.address,
+            chainId: reward.token.chainId,
+            totalAmount: (existing?.totalAmount || 0) + amount,
+            claimableAmount: (existing?.claimableAmount || 0) + claimable,
+            unclaimedAmount: (existing?.unclaimedAmount || 0) + claimable,
+            pendingAmount: (existing?.pendingAmount || 0) + Number(item.pending) / decimalsPow,
+            vestingAmount: 0,
+            waitingAmount: 0,
+            claimableUsdValue: ((existing?.claimableAmount || 0) + claimable) * reward.token.price,
+          }
+        })
+      })
+    })
+
+    return Object.entries(grouped).map(([protocolName, tokens]) => ({
+      protocolName,
+      tokens: Object.values(tokens).map(token => {
+        const logoKey = `${token.chainId}-${token.address.toLowerCase()}`
+        return { ...token, logo: tokenLogos[logoKey] || token.logo }
+      }),
+    }))
+  }, [data, positionsFilter, resolvePositionsForBreakdown, tokenLogos])
+
   return useMemo(
     () => ({
       rewardsByPosition: parsedRewardsByPosition,
-      rewards: parsedRewards,
+      chainRewards,
+      campaignRewards,
       totalUsdValue,
       loading: isFetching,
+      refetch: refetchMerklRewards,
     }),
-    [parsedRewardsByPosition, parsedRewards, totalUsdValue, isFetching],
+    [parsedRewardsByPosition, chainRewards, campaignRewards, totalUsdValue, isFetching, refetchMerklRewards],
   )
 }
 

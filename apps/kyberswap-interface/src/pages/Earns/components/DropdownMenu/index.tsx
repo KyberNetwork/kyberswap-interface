@@ -1,16 +1,19 @@
 import Portal from '@reach/portal'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'react-feather'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import {
   DropdownContent,
   DropdownContentItem,
+  DropdownContentWrapper,
   DropdownIcon,
   DropdownLabel,
   DropdownTitle,
   DropdownTitleWrapper,
   DropdownWrapper,
   ItemIcon,
+  ScrollIndicator,
 } from 'pages/Earns/components/DropdownMenu/styles'
 
 export interface MenuOption {
@@ -25,8 +28,9 @@ const DropdownMenu = ({
   width,
   tooltip,
   flatten,
+  background,
   fullWidth = false,
-  alignLeft = false,
+  alignItems = 'flex-start',
   mobileFullWidth = false,
   mobileHalfWidth = false,
   usePortal = false,
@@ -37,8 +41,9 @@ const DropdownMenu = ({
   width?: number
   tooltip?: string
   flatten?: boolean
+  background?: string
   fullWidth?: boolean
-  alignLeft?: boolean
+  alignItems?: CSSProperties['alignItems']
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   usePortal?: boolean
@@ -47,7 +52,10 @@ const DropdownMenu = ({
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState({ top: 0, left: 0, minWidth: 0 })
+  const [canScrollUp, setCanScrollUp] = useState(false)
+  const [canScrollDown, setCanScrollDown] = useState(false)
 
   const optionValue = useMemo(() => options.find(option => option.value === value), [options, value])
 
@@ -74,6 +82,19 @@ const DropdownMenu = ({
     }
   }, [ref])
 
+  const updateScrollIndicators = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    setCanScrollUp(el.scrollTop > 0)
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1)
+  }, [])
+
+  useEffect(() => {
+    if (!open) return
+    // Check after render so content height is measured
+    requestAnimationFrame(updateScrollIndicators)
+  }, [open, updateScrollIndicators])
+
   // compute dropdown position when rendered in portal
   useEffect(() => {
     if (!open || !usePortal) return
@@ -98,26 +119,35 @@ const DropdownMenu = ({
       window.removeEventListener('resize', computePosition)
       window.removeEventListener('scroll', computePosition, true)
     }
-  }, [open, usePortal, alignLeft])
+  }, [open, usePortal, alignItems])
+
+  const handleScrollClick = (direction: 'up' | 'down') => {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollBy({ top: direction === 'up' ? -100 : 100, behavior: 'smooth' })
+  }
 
   const dropdownContent = (
-    <DropdownContent
-      ref={contentRef}
-      flatten={flatten}
-      alignLeft={alignLeft}
-      style={usePortal ? { ...position } : undefined}
-    >
-      {options.map((option: MenuOption) => (
-        <DropdownContentItem
-          key={option.value}
-          onClick={() => handleSelectItem(option.value)}
-          className={option.value === value ? 'selected' : ''}
-        >
-          {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
-          {option.label}
-        </DropdownContentItem>
-      ))}
-    </DropdownContent>
+    <DropdownContentWrapper ref={contentRef} flatten={flatten} style={usePortal ? { ...position } : undefined}>
+      <ScrollIndicator $visible={canScrollUp} onClick={() => handleScrollClick('up')}>
+        <ChevronUp size={16} />
+      </ScrollIndicator>
+      <DropdownContent ref={scrollRef} alignItems={alignItems} onScroll={updateScrollIndicators}>
+        {options.map((option: MenuOption) => (
+          <DropdownContentItem
+            key={option.value}
+            onClick={() => handleSelectItem(option.value)}
+            className={option.value === value ? 'selected' : ''}
+          >
+            {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
+            {option.label}
+          </DropdownContentItem>
+        ))}
+      </DropdownContent>
+      <ScrollIndicator $visible={canScrollDown} onClick={() => handleScrollClick('down')}>
+        <ChevronDown size={16} />
+      </ScrollIndicator>
+    </DropdownContentWrapper>
   )
 
   return (
@@ -128,12 +158,13 @@ const DropdownMenu = ({
       ref={ref}
     >
       <MouseoverTooltipDesktopOnly text={!open && tooltip} placement="top" width="260px">
-        <DropdownTitleWrapper flatten={flatten} highlight={flatten && open} onClick={handleOpenChange}>
-          <DropdownTitle
-            justifyContent={alignLeft ? 'flex-start' : 'center'}
-            width={width}
-            fullWidth={fullWidth && !width}
-          >
+        <DropdownTitleWrapper
+          flatten={flatten}
+          background={background}
+          highlight={flatten && open}
+          onClick={handleOpenChange}
+        >
+          <DropdownTitle justifyContent={alignItems} width={width} fullWidth={fullWidth && !width}>
             {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
             <DropdownLabel>{optionValue?.label}</DropdownLabel>
           </DropdownTitle>

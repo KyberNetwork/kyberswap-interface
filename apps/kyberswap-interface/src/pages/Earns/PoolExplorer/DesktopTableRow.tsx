@@ -7,6 +7,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -18,7 +19,6 @@ import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { isUniswapExchange } from 'pages/Earns/utils'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const kemFarming = (pool: ParsedEarnPool) => {
@@ -39,11 +39,10 @@ export const kemFarming = (pool: ParsedEarnPool) => {
 
 export const uniReward = (pool: ParsedEarnPool) => {
   const hasReward = isUniswapExchange(pool.exchange) && pool.bonusApr && pool.bonusApr > 0
-  const merklBonus = getMerklBonusMeta(pool.chain?.id || pool.chainId)
 
   return hasReward ? (
-    <AprDetailTooltip chainId={pool.chain?.id || pool.chainId} uniApr={pool.bonusApr}>
-      <img src={merklBonus.icon} alt={merklBonus.name} width={24} height={24} style={{ marginLeft: 4 }} />
+    <AprDetailTooltip merklApr={pool.bonusApr}>
+      <UniBonusIcon width={24} height={24} style={{ marginLeft: 4 }} />
     </AprDetailTooltip>
   ) : null
 }

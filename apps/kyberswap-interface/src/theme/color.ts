@@ -44,13 +44,13 @@ export function colors() {
 
     radialGradient: 'radial-gradient(#095143, #06291d)',
 
-    //primary colors
+    // primary colors
     primary: '#31CB9E',
 
     // border colors
     border: '#505050',
 
-    //shadows
+    // shadows
     shadow: 'rgba(0, 0, 0, 0.2)',
     shadow1: '#000',
 
