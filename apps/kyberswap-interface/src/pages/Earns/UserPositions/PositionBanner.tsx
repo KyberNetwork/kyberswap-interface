@@ -384,12 +384,18 @@ const merklRewardTooltip = (merklCampaignRewards: Array<CampaignRewardInfo>, tex
     <Box sx={{ paddingLeft: '8px' }}>
       {merklCampaignRewards.map((campaign, index) => (
         <>
-          <Text lineHeight="16px" fontSize={12} mt={index > 0 ? '6px' : 0} mb="4px">
+          <Text lineHeight="16px" fontSize={12} mt={index > 0 ? '10px' : 0}>
             {campaign.protocolName} {t`Bonus`}
           </Text>
           {campaign.tokens.map(token => (
-            <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
-              <TokenLogo src={token.logo} size={16} />
+            <Flex
+              alignItems="center"
+              sx={{ gap: '6px' }}
+              flexWrap="wrap"
+              key={`${token.address}-${token.symbol}`}
+              mt="4px"
+            >
+              <TokenLogo src={token.logo} size={16} style={{ position: 'relative', top: 1 }} />
               <RewardLink href="https://app.merkl.xyz/users" target="_blank">
                 <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
                 <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
