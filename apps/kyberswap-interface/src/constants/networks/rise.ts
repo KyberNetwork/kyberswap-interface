@@ -53,7 +53,7 @@ const riseInfo: NetworkInfo = {
     routers: '',
     farms: [],
   },
-  limitOrder: '*',
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 1, // RISE has ~1 second block time
   coingeckoNetworkId: NOT_SUPPORT,
   coingeckoNativeTokenId: NOT_SUPPORT,
