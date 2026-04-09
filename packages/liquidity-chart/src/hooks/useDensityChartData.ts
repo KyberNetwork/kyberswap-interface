@@ -22,9 +22,7 @@ export default function useDensityChartData({ pool, revertPrice }: { pool: PoolI
         price: parseFloat(t.price),
       };
 
-      if (chartEntry.activeLiquidity > 0) {
-        newData.push(chartEntry);
-      }
+      newData.push(chartEntry);
     }
 
     return newData;
