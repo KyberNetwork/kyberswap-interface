@@ -56,7 +56,6 @@ const TableRow = styled.div`
   color: ${({ theme }) => theme.text};
   padding: 16px 0;
   gap: 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
   align-items: center;
 `
 
