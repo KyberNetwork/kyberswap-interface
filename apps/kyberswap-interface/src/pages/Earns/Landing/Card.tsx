@@ -13,7 +13,7 @@ const Card = ({
   action,
 }: {
   title: string
-  icon: string
+  icon: string | React.ReactNode
   desc: string
   action: { text: string; disabled?: boolean; onClick: () => void }
 }) => {
