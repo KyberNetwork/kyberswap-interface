@@ -194,8 +194,11 @@ export interface PoolAprHistoryPoint {
   bonusApr: number
   totalApr: number
   activeApr?: number
-  volume?: number
-  tvlUsd?: number
+  activeFeeApr?: number
+  activeLmApr?: number
+  activeEgApr?: number
+  volume: number
+  tvlUsd: number
 }
 
 export interface PoolAprHistoryData {
@@ -245,6 +248,15 @@ export interface PoolEarningsData {
   window: PoolAnalyticsWindow
   buckets: Array<PoolEarningsBucket>
 }
+
+const transformAprHistoryData = (data: PoolAprHistoryData): PoolAprHistoryData => ({
+  ...data,
+  points: data.points.map(point => ({
+    ...point,
+    activeApr: point.activeApr !== undefined ? point.activeApr + point.bonusApr : undefined,
+    volume: point.volume ?? 0,
+  })),
+})
 
 export interface PositionQueryParams {
   wallet: string
@@ -346,14 +358,14 @@ const zapEarnServiceApi = createApi({
         url: `/v1/pools/apr-history`,
         params,
       }),
-      transformResponse: (response: { data: PoolAprHistoryData }) => response.data,
+      transformResponse: (response: { data: PoolAprHistoryData }) => transformAprHistoryData(response.data),
     }),
     positionAprHistory: builder.query<PoolAprHistoryData, PositionChartQueryParams>({
       query: ({ chainId, positionId, window }) => ({
         url: `/v1/positions/${chainId}/${positionId}/apr-history`,
         params: { window },
       }),
-      transformResponse: (response: { data: PoolAprHistoryData }) => response.data,
+      transformResponse: (response: { data: PoolAprHistoryData }) => transformAprHistoryData(response.data),
     }),
     poolEarnings: builder.query<PoolEarningsData, PoolChartQueryParams>({
       query: params => ({

@@ -148,10 +148,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
       (aprHistoryData?.points ?? []).map((point, index, points) => {
         return {
           ...point,
-          // TODO: remove volume fallback after backend returns volume in all cases
-          volume: point.volume ?? Math.round(Math.random() * 1_000_000),
-          volumeBarColor:
-            point.totalApr >= (points[index - 1]?.totalApr ?? point.totalApr) ? volumeUpColor : volumeDownColor,
+          volumeBarColor: point.volume >= (points[index - 1]?.volume ?? point.volume) ? volumeUpColor : volumeDownColor,
         }
       }),
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],
@@ -196,7 +193,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 {positionId ? 'Position Active APR' : 'Active APR'}
               </Text>
-              <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
+              <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
                 {formatAprValue(latestActiveApr)}
               </Text>
               <Text color={theme.subText} fontSize={14}>
