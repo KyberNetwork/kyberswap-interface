@@ -208,7 +208,7 @@ export class MayanAdapter extends BaseSwapAdapter {
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
 
-    const res = getSwapFromEvmTxPayload(
+    const res = await getSwapFromEvmTxPayload(
       quote.rawQuote as MayanQuote,
       account,
       quote.quoteParams.recipient,
@@ -223,7 +223,7 @@ export class MayanAdapter extends BaseSwapAdapter {
       null,
     )
 
-    if (res.to && res.value && res.data) {
+    if (res.to && res.value != null && res.data) {
       const tx = await walletClient.sendTransaction({
         chain: undefined,
         account,
