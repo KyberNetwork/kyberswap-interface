@@ -85,63 +85,23 @@ export const ItemIcon = styled.img`
   height: 18px;
 `
 
-export const DropdownContentWrapper = styled.div<{ flatten?: boolean }>`
+export const DropdownContent = styled.div<{ flatten?: boolean; alignItems?: CSSProperties['alignItems'] }>`
   position: absolute;
   top: ${({ flatten }) => (flatten ? '32px' : '42px')};
   left: 0;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  border-radius: 18px;
-  background: ${({ theme }) => theme.background};
-  box-shadow: ${({ theme }) => `0 8px 12px ${theme.shadow}`};
-  filter: brightness(1.2);
-  padding: 4px 0;
-`
-
-export const ScrollIndicator = styled.div<{ $visible: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: ${({ $visible }) => ($visible ? '20px' : '0')};
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  overflow: hidden;
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: height 150ms ease, opacity 150ms ease;
-  pointer-events: ${({ $visible }) => ($visible ? 'auto' : 'none')};
-
-  &:hover {
-    color: ${({ theme }) => theme.text};
-  }
-`
-
-export const DropdownContent = styled.div<{ alignItems?: CSSProperties['alignItems']; standalone?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: ${({ alignItems }) => alignItems || 'flex-start'};
   gap: 4px;
   width: max-content;
-  max-height: 400px;
-  overflow-y: auto;
-  padding: 4px 8px;
+  padding: 8px;
+  border-radius: 18px;
+  background: ${({ theme }) => theme.background};
+  box-shadow: ${({ theme }) => `0 8px 12px ${theme.shadow}`};
   color: ${({ theme }) => theme.text};
   font-size: 14px;
-
-  ${({ standalone, theme }) =>
-    standalone &&
-    `
-    position: absolute;
-    top: 42px;
-    left: 0;
-    z-index: 100;
-    border-radius: 18px;
-    background: ${theme.background};
-    box-shadow: 0 8px 12px ${theme.shadow};
-    filter: brightness(1.2);
-    padding: 8px;
-  `}
+  z-index: 100;
+  filter: brightness(1.2);
 `
 
 export const DropdownContentItem = styled.div`

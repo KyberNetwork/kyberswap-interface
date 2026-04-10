@@ -87,7 +87,7 @@ const MultiSelect = ({
         <DropdownIcon open={open} />
       </DropdownTitleWrapper>
       {open && (
-        <DropdownContent alignItems={alignItems} standalone>
+        <DropdownContent alignItems={alignItems}>
           {options.map((option: MenuOption) => (
             <MultiSelectDropdownContentItem key={option.value} onClick={() => handleSelectItem(option.value)}>
               {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
