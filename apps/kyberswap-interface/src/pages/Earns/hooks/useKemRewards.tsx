@@ -9,12 +9,14 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
-import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
+import ClaimAllModal, { RewardTabType } from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { PositionStatus } from 'pages/Earns/components/PositionStatusControl'
 import { EARN_CHAINS, EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import useClaimMerklRewards from 'pages/Earns/hooks/useClaimMerklRewards'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
 import { parseReward } from 'pages/Earns/utils/reward'
@@ -61,6 +63,15 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
 
   const [claimEncodeData] = useClaimEncodeDataMutation()
   const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
+
+  // Merkl integration
+  const {
+    chainRewards: merklChainRewards,
+    totalUsdValue: merklTotalUsdValue,
+    refetch: refetchMerklRewards,
+  } = useMerklRewards()
+  const { claimMerklRewards } = useClaimMerklRewards()
+  const [rewardTab, setRewardTab] = useState<RewardTabType>('ks')
 
   const [tokens, setTokens] = useState<TokenInfo[]>([])
   const [claimInfo, setClaimInfo] = useState<ClaimInfo | null>(null)
@@ -311,7 +322,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   }
 
   const onOpenClaimAllRewards = () => {
-    if (!rewardInfo) {
+    if (!rewardInfo && !merklChainRewards.length) {
       console.log('reward is not ready!')
       return
     }
@@ -400,6 +411,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     const resolvedTxHashes: string[] = []
     let shouldCloseClaim = false
     let shouldCloseClaimAll = false
+    let shouldRefetchMerkl = false
 
     pendingClaims.forEach(claim => {
       const tx = allTransactions[claim.txHash]
@@ -413,7 +425,11 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         if (claim.claimKey.startsWith('all:')) {
           shouldCloseClaimAll = true
         }
-        refetchRewardInfo()
+        if (claim.claimKey.startsWith('merkl:')) {
+          shouldRefetchMerkl = true
+        } else {
+          refetchRewardInfo()
+        }
       }
     })
 
@@ -426,11 +442,14 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     if (shouldCloseClaimAll) {
       setOpenClaimAllModal(false)
     }
-  }, [allTransactions, claimInfo, onCloseClaim, pendingClaims, refetchRewardInfo])
+    if (shouldRefetchMerkl) {
+      refetchMerklRewards()
+    }
+  }, [allTransactions, claimInfo, onCloseClaim, pendingClaims, refetchRewardInfo, refetchMerklRewards])
 
   useEffect(() => {
-    if (!rewardInfo?.chains.length) setOpenClaimAllModal(false)
-  }, [rewardInfo?.chains.length])
+    if (!rewardInfo?.chains.length && !merklChainRewards.length) setOpenClaimAllModal(false)
+  }, [rewardInfo?.chains.length, merklChainRewards.length])
 
   useAccountChanged(() => {
     onCloseClaim()
@@ -454,18 +473,41 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       </>
     ) : null
 
+  const handleClaimMerkl = useCallback(
+    async (targetChainId: number) => {
+      const txHash = await claimMerklRewards(targetChainId)
+      if (txHash) {
+        setPendingClaims(prev => {
+          const claimKey = `merkl:${targetChainId}`
+          if (prev.some(item => item.txHash === txHash)) return prev
+          return [...prev, { txHash, claimKey }]
+        })
+      }
+      return txHash
+    },
+    [claimMerklRewards],
+  )
+
   const claimAllRewardsModal =
-    openClaimAllModal && rewardInfo && filteredRewardInfo ? (
+    openClaimAllModal && ((rewardInfo && filteredRewardInfo) || merklChainRewards.length > 0) ? (
       <ClaimAllModal
-        rewardInfo={rewardInfo}
-        filteredRewardInfo={filteredRewardInfo}
+        rewardInfo={rewardInfo ?? undefined}
+        filteredRewardInfo={filteredRewardInfo ?? undefined}
         onClaimAll={handleClaimAll}
-        onClose={() => setOpenClaimAllModal(false)}
+        onClose={() => {
+          setOpenClaimAllModal(false)
+          setRewardTab('ks')
+        }}
         isLoadingUserPositions={isLoadingUserPositions}
         thresholdValue={thresholdValue ?? undefined}
         onThresholdChange={setThresholdValue}
         positionStatus={positionStatus}
         onPositionStatusChange={setPositionStatus}
+        merklChainRewards={merklChainRewards}
+        merklTotalUsdValue={merklTotalUsdValue}
+        onClaimMerkl={handleClaimMerkl}
+        activeTab={rewardTab}
+        onTabChange={setRewardTab}
       />
     ) : null
 

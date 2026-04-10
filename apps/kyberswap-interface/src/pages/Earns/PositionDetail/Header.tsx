@@ -10,7 +10,6 @@ import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_sma
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
-import { InfoHelperWithDelay } from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -18,36 +17,48 @@ import { TELEGRAM_BOT_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
-import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
+import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
+import { DexInfoBadge, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
-import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
+import { PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
-const PositionDetailHeader = ({
-  position,
-  isLoading,
-  initialLoading,
-  showBackIcon = true,
-  style = {},
-  useFromSmartExit = false,
-  hasActiveSmartExitOrder = false,
+const TokenAddressRow = ({
+  logo,
+  symbol,
+  address,
+  isNative,
 }: {
-  position?: ParsedPosition | null
-  isLoading: boolean
-  initialLoading: boolean
-  showBackIcon?: boolean
-  style?: React.CSSProperties
-  useFromSmartExit?: boolean
-  hasActiveSmartExitOrder?: boolean
+  logo?: string
+  symbol?: string
+  address?: string
+  isNative?: boolean
 }) => {
+  const theme = useTheme()
+  return (
+    <Flex alignItems="center" sx={{ gap: '8px' }} flexWrap="wrap">
+      {logo && <TokenLogo src={logo} size={18} />}
+      <Text color={theme.text} fontSize={14} fontWeight={500}>
+        {symbol}
+      </Text>
+      <Text color={theme.subText} fontSize={14}>
+        {isNative ? <Trans>Native token</Trans> : shortenAddress(address || '', 4)}
+      </Text>
+      {!isNative && address && <CopyHelper size={14} margin="0" toCopy={address} />}
+    </Flex>
+  )
+}
+
+const PositionDetailHeader = () => {
+  const { position, loadingInterval: isLoading, initialLoading, hasActiveSmartExitOrder } = usePositionDetailContext()
   const theme = useTheme()
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const { exchange } = useParams()
   const { hadForceLoading } = useForceLoading()
@@ -55,11 +66,31 @@ const PositionDetailHeader = ({
   const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position?.status
 
+  const statusBadge = (
+    <Badge
+      type={
+        posStatus === PositionStatus.IN_RANGE
+          ? BadgeType.PRIMARY
+          : posStatus === PositionStatus.OUT_RANGE
+          ? BadgeType.WARNING
+          : BadgeType.DISABLED
+      }
+    >
+      ●{' '}
+      {posStatus === PositionStatus.IN_RANGE
+        ? t`In range`
+        : posStatus === PositionStatus.OUT_RANGE
+        ? t`Out of range`
+        : t`Closed`}
+    </Badge>
+  )
+
+  const isUnfinalized = position?.isUnfinalized
+
   const onOpenPositionInDexSite = () => {
     if (!position || !EARN_DEXES[position.dex.id]) return
 
     const positionDetailUrl = EARN_DEXES[position.dex.id].siteUrl
-
     if (!positionDetailUrl) return
 
     const protocolThatNeedParse = [
@@ -83,206 +114,170 @@ const PositionDetailHeader = ({
     window.open(parsedUrl)
   }
 
-  const statusBadge = (
-    <Badge
-      type={
-        posStatus === PositionStatus.IN_RANGE
-          ? BadgeType.PRIMARY
-          : posStatus === PositionStatus.OUT_RANGE
-          ? BadgeType.WARNING
-          : BadgeType.DISABLED
-      }
-    >
-      ●{' '}
-      {posStatus === PositionStatus.IN_RANGE
-        ? t`In range`
-        : posStatus === PositionStatus.OUT_RANGE
-        ? t`Out of range`
-        : t`Closed`}
-    </Badge>
-  )
-
-  const isUnfinalized = position?.isUnfinalized
-
   return (
     <Flex
       sx={{ gap: 3 }}
-      flexDirection={upToLarge ? 'column' : 'row'}
-      alignItems="center"
+      flexDirection={upToSmall ? 'column' : 'row'}
+      alignItems={upToSmall ? 'flex-start' : 'center'}
       justifyContent="space-between"
-      marginBottom={1}
-      style={style}
     >
-      <PositionHeader>
-        <Flex alignItems={'center'} sx={{ gap: 2 }}>
-          {showBackIcon && <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />}
+      <Flex alignItems="center" sx={{ gap: '12px' }} flexWrap="wrap">
+        <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />
 
-          {initialLoading ? (
-            <PositionSkeleton width={125} height={28} />
-          ) : (
-            <Flex alignItems={'center'} sx={{ gap: 2 }}>
-              <ImageContainer>
-                <TokenLogo src={position?.token0.logo} />
-                <TokenLogo src={position?.token1.logo} translateLeft />
-                <TokenLogo src={position?.chain.logo} size={12} translateLeft translateTop />
-              </ImageContainer>
-              <Link
-                to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
-              >
-                <Text color={theme.text} marginLeft={-2.5} fontSize={upToSmall ? 20 : 16}>
+        {/* Token pair logos + name with tooltip (matching PoolHeader pattern) */}
+        {initialLoading ? (
+          <PositionSkeleton width={180} height={28} />
+        ) : (
+          <MouseoverTooltipDesktopOnly
+            placement="bottom"
+            text={
+              <Flex flexDirection="column" sx={{ gap: '12px', minWidth: '240px' }}>
+                {/* Pool info row */}
+                <Flex alignItems="center" sx={{ gap: '8px' }} flexWrap="wrap">
+                  <Flex alignItems="center" sx={{ gap: 0 }} style={{ flex: '0 0 auto' }}>
+                    <TokenLogo src={position?.token0.logo} size={18} />
+                    <TokenLogo src={position?.token1.logo} size={18} translateLeft />
+                  </Flex>
+                  <Text color={theme.text} fontSize={14} fontWeight={500}>
+                    {position?.token0.symbol}/{position?.token1.symbol}
+                  </Text>
+                  <Text color={theme.subText} fontSize={14}>
+                    {shortenAddress(position?.pool.address || '', 4)}
+                  </Text>
+                  <CopyHelper size={14} margin="0" toCopy={position?.pool.address || ''} />
+                </Flex>
+
+                {/* Token 0 address row */}
+                <TokenAddressRow
+                  logo={position?.token0.logo}
+                  symbol={position?.token0.symbol}
+                  address={position?.token0.address}
+                  isNative={position?.token0.isNative && !position?.token0.isWrapped}
+                />
+
+                {/* Token 1 address row */}
+                <TokenAddressRow
+                  logo={position?.token1.logo}
+                  symbol={position?.token1.symbol}
+                  address={position?.token1.address}
+                  isNative={position?.token1.isNative && !position?.token1.isWrapped}
+                />
+              </Flex>
+            }
+            width="fit-content"
+          >
+            <Link
+              to={`${APP_PATHS.ADD_LIQUIDITY}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
+              style={{ textDecoration: 'none' }}
+            >
+              <Flex alignItems="center" sx={{ gap: '8px', cursor: 'pointer' }}>
+                <ImageContainer>
+                  <TokenLogo src={position?.token0.logo} size={28} />
+                  <TokenLogo src={position?.token1.logo} size={28} translateLeft />
+                  <TokenLogo src={position?.chain.logo} size={16} translateLeft translateTop />
+                </ImageContainer>
+                <Text
+                  color={theme.text}
+                  marginLeft={-2.5}
+                  fontSize={24}
+                  fontWeight={500}
+                  lineHeight="28px"
+                  sx={{ whiteSpace: 'nowrap' }}
+                >
                   {position?.token0.symbol}/{position?.token1.symbol}
                 </Text>
-              </Link>
-            </Flex>
-          )}
-
-          {initialLoading ? <PositionSkeleton width={80} height={22} /> : <Badge>Fee {position?.pool.fee}%</Badge>}
-
-          {initialLoading ? (
-            <PositionSkeleton width={32} height={32} />
-          ) : (
-            <Badge type={BadgeType.ROUNDED}>
-              <InfoHelperWithDelay
-                text={
-                  <Flex flexDirection="column" sx={{ gap: 1 }} style={{ fontSize: 12 }} color={theme.subText}>
-                    <Flex alignItems="center" sx={{ gap: '8px' }}>
-                      <Text>{position?.token0.symbol}: </Text>
-                      <Text>
-                        {position?.token0.isNative ? (
-                          <Trans>Native token</Trans>
-                        ) : (
-                          shortenAddress(position?.token0.address || '', 4)
-                        )}
-                      </Text>
-                      {!position?.token0.isNative && <CopyHelper size={16} toCopy={position?.token0.address || ''} />}
-                    </Flex>
-                    <Flex alignItems="center" sx={{ gap: 1 }}>
-                      <Text>{position?.token1.symbol}: </Text>
-                      <Text>
-                        {position?.token1.isNative ? (
-                          <Trans>Native token</Trans>
-                        ) : (
-                          shortenAddress(position?.token1.address || '', 4)
-                        )}
-                      </Text>
-                      {!position?.token1.isNative && <CopyHelper size={16} toCopy={position?.token1.address || ''} />}
-                    </Flex>
-                    <Flex alignItems="center" sx={{ gap: 1 }}>
-                      <Text>
-                        <Trans>Pool Address:</Trans>{' '}
-                      </Text>
-                      <Text>{shortenAddress(position?.pool.address || '', 4)}</Text>
-                      <CopyHelper size={16} toCopy={position?.pool.address || ''} />
-                    </Flex>
-                  </Flex>
-                }
-                size={16}
-                color={theme.blue2}
-                placement="top"
-                width="fit-content"
-              />
-            </Badge>
-          )}
-
-          {hasActiveSmartExitOrder && !useFromSmartExit && (
-            <MouseoverTooltipDesktopOnly
-              text={
-                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                  <Trans>This position has an active Smart Exit order.</Trans>
-                  <br />
-                  <Trans>
-                    View or manage it in{' '}
-                    <Link to={APP_PATHS.EARN_SMART_EXIT} style={{ color: theme.subText, textDecoration: 'underline' }}>
-                      View Smart Exit Orders
-                    </Link>
-                    .
-                  </Trans>
-                </Text>
-              }
-              width="fit-content"
-              placement="bottom"
-            >
-              <Flex
-                alignItems="center"
-                justifyContent="center"
-                sx={{ cursor: 'pointer', borderRadius: '30px' }}
-                backgroundColor={rgba(theme.white, 0.04)}
-                width={32}
-                height={32}
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation()
-                  e.preventDefault()
-                  navigate(APP_PATHS.EARN_SMART_EXIT)
-                }}
-              >
-                <ListSmartExitIcon width={16} height={16} />
               </Flex>
-            </MouseoverTooltipDesktopOnly>
-          )}
-        </Flex>
-        <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
-          {!upToSmall &&
-            (initialLoading ? <PositionSkeleton width={112} height={23} /> : isUnfinalized ? null : statusBadge)}
+            </Link>
+          </MouseoverTooltipDesktopOnly>
+        )}
 
-          {isUniv2 ? null : initialLoading ? (
-            <PositionSkeleton width={50} height={16} />
-          ) : (
-            <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-              #{position?.tokenId}
-            </Text>
-          )}
-
-          {upToSmall &&
-            (initialLoading ? <PositionSkeleton width={112} height={23} /> : isUnfinalized ? null : statusBadge)}
-
-          {initialLoading ? (
-            <PositionSkeleton width={150} height={16} />
-          ) : (
-            <MouseoverTooltipDesktopOnly
-              text={t`View this position on` + ` ${position?.dex?.name?.split(' ')?.[0] || ''}`}
-              width="fit-content"
-              placement="top"
-            >
-              <DexInfo
-                openable={EARN_DEXES[position?.dex.id as Exchange] ? true : false}
-                onClick={onOpenPositionInDexSite}
-              >
-                <TokenLogo src={position?.dex.logo} size={16} />
-                <Text fontSize={14} color={theme.subText}>
-                  {position?.dex.name}
-                </Text>
-              </DexInfo>
-            </MouseoverTooltipDesktopOnly>
-          )}
-
-          {isLoading && !initialLoading && <Loader />}
-        </Flex>
-      </PositionHeader>
-
-      {!useFromSmartExit && (
-        <Flex sx={{ gap: 3 }}>
+        {/* DEX info badge - clickable to open dex site */}
+        {initialLoading ? (
+          <PositionSkeleton width={200} height={36} />
+        ) : (
           <MouseoverTooltipDesktopOnly
-            text={t`Get notified via Telegram when this position moves out of range or back in range`}
-            width="300px"
+            text={t`View this position on` + ` ${position?.dex?.name?.split(' ')?.[0] || ''}`}
+            width="fit-content"
+            placement="top"
+          >
+            <DexInfoBadge
+              style={{ cursor: EARN_DEXES[position?.dex.id as Exchange]?.siteUrl ? 'pointer' : 'default' }}
+              onClick={onOpenPositionInDexSite}
+            >
+              <TokenLogo src={position?.dex.logo} size={16} />
+              <Text fontSize={14} color={rgba(theme.white, 0.7)} style={{ whiteSpace: 'nowrap' }}>
+                {position?.dex.name} | {formatDisplayNumber(position?.pool.fee, { significantDigits: 4 })}%
+                {!isUniv2 && ` | #${position?.tokenId}`}
+              </Text>
+            </DexInfoBadge>
+          </MouseoverTooltipDesktopOnly>
+        )}
+
+        {/* Status badge */}
+        {initialLoading ? <PositionSkeleton width={80} height={24} /> : isUnfinalized ? null : statusBadge}
+
+        {/* Smart exit indicator */}
+        {hasActiveSmartExitOrder && (
+          <MouseoverTooltipDesktopOnly
+            text={
+              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                <Trans>This position has an active Smart Exit order.</Trans>
+                <br />
+                <Trans>
+                  View or manage it in{' '}
+                  <Link to={APP_PATHS.EARN_SMART_EXIT} style={{ color: theme.subText, textDecoration: 'underline' }}>
+                    View Smart Exit Orders
+                  </Link>
+                  .
+                </Trans>
+              </Text>
+            }
+            width="fit-content"
             placement="bottom"
           >
-            <ButtonLight
-              width="36px"
-              height="36px"
-              style={{ padding: 0 }}
-              onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
+            <Flex
+              alignItems="center"
+              justifyContent="center"
+              sx={{ cursor: 'pointer', borderRadius: '30px' }}
+              backgroundColor={rgba(theme.white, 0.04)}
+              width={32}
+              height={32}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation()
+                e.preventDefault()
+                navigate(APP_PATHS.EARN_SMART_EXIT)
+              }}
             >
-              <IconAlert />
-            </ButtonLight>
+              <ListSmartExitIcon width={16} height={16} />
+            </Flex>
           </MouseoverTooltipDesktopOnly>
-          <NavigateButton
-            mobileFullWidth
-            icon={<IconUserEarnPosition />}
-            text={t`My Positions`}
-            to={APP_PATHS.EARN_POSITIONS}
-          />
-        </Flex>
-      )}
+        )}
+
+        {isLoading && !initialLoading && <Loader />}
+      </Flex>
+
+      <Flex sx={{ gap: 3 }}>
+        <MouseoverTooltipDesktopOnly
+          text={t`Get notified via Telegram when this position moves out of range or back in range`}
+          width="300px"
+          placement="bottom"
+        >
+          <ButtonLight
+            width="36px"
+            height="36px"
+            style={{ padding: 0 }}
+            onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
+          >
+            <IconAlert />
+          </ButtonLight>
+        </MouseoverTooltipDesktopOnly>
+        <NavigateButton
+          mobileFullWidth
+          icon={<IconUserEarnPosition />}
+          text={t`My Positions`}
+          to={APP_PATHS.EARN_POSITIONS}
+        />
+      </Flex>
     </Flex>
   )
 }

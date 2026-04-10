@@ -1,10 +1,21 @@
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
   padding: 24px 6rem 62px;
@@ -18,7 +29,7 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
   `}
 `
 
-export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
+export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean; $index?: number }>`
   display: grid;
   grid-template-columns:
     minmax(260px, 2.6fr) /* Position */
@@ -35,7 +46,24 @@ export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
   row-gap: 8px;
   text-decoration: none;
   color: inherit !important;
-  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : 'transparent')};
+  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : theme.background)};
+  position: relative;
+  animation: ${fadeIn} 0.3s ease-out both;
+  animation-delay: ${({ $index }) => Math.min(($index || 0) * 50, 300)}ms;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 28px;
+    right: 28px;
+    height: 1px;
+    background: ${({ theme }) => theme.tableHeader};
+  }
 
   @media (max-width: 1300px) {
     justify-content: flex-start;
@@ -45,6 +73,10 @@ export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
     background: ${({ theme, $isUnfinalized }) =>
       $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
     margin-bottom: 16px;
+
+    &::after {
+      display: none;
+    }
   }
 
   ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
@@ -55,15 +87,25 @@ export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
     background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
     position: relative;
     border-radius: 0;
+
+    &::after {
+      left: 16px;
+      right: 16px;
+      display: block;
+    }
   `}
 
   &:last-child {
     margin-bottom: 0;
+
+    &::after {
+      display: none;
+    }
   }
 
   &:hover {
     cursor: pointer;
-    background: #31cb9e1a;
+    background: ${({ theme }) => rgba(theme.primary, 0.1)};
   }
 `
 
@@ -138,6 +180,7 @@ export const PositionValueWrapper = styled.div<{ align?: string }>`
   justify-content: flex-start;
   gap: 8px;
   padding-top: 8px;
+  min-width: 0;
 
   ${({ align }) => (align ? `justify-content: ${align};` : '')}
 
@@ -329,7 +372,7 @@ export const BannerDataItem = styled.div`
     `}
 `
 
-export const PositionTableHeader = styled(TableHeader)`
+const HeaderGridTemplate = css`
   grid-template-columns:
     minmax(260px, 2.6fr) /* Position */
     minmax(80px, 0.8fr) /* Value */
@@ -340,7 +383,70 @@ export const PositionTableHeader = styled(TableHeader)`
     minmax(150px, 0.4fr) /* Balance */
     minmax(160px, 1.8fr) /* Price range */
     minmax(75px, auto); /* Actions */
-  overflow: hidden;
+  overflow: visible;
+  background: ${({ theme }) => theme.background};
+  border-radius: 20px 20px 0 0;
+  padding: 16px 28px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.subText};
+  border-bottom: none;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 28px;
+    right: 28px;
+    height: 1px;
+    background: ${({ theme }) => theme.tableHeader};
+  }
+`
+
+export const PositionTableHeader = styled(TableHeader)`
+  ${HeaderGridTemplate}
+`
+
+export const PositionTableRow = styled(Link)<{ $isUnfinalized?: boolean }>`
+  display: grid;
+  ${HeaderGridTemplate}
+  grid-template-rows: 1fr;
+  padding: 24px;
+  row-gap: 8px;
+  text-decoration: none;
+  color: inherit !important;
+  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : 'transparent')};
+
+  @media (max-width: 1300px) {
+    justify-content: flex-start;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    border-radius: 20px;
+    background: ${({ theme, $isUnfinalized }) =>
+      $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
+    margin-bottom: 16px;
+  }
+
+  ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
+    display: flex;
+    flex-direction: column;
+    row-gap: 16px;
+    padding: 16px;
+    background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
+    border-radius: 0px;
+    position: relative;
+  `}
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: #31cb9e1a;
+  }
 `
 
 export const PositionTableHeaderItem = styled.div`
@@ -362,10 +468,19 @@ export const PositionTableHeaderFlexItem = styled(Flex)`
 
 export const PositionTableWrapper = styled(TableWrapper)`
   overflow: hidden;
+  background: ${({ theme }) => theme.background};
+  border-radius: 20px;
+  position: relative;
 
   @media (max-width: 1300px) {
     background: transparent;
+    border-radius: 0;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin: 0 -16px;
+    border-radius: 0;
+  `}
 `
 
 export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
@@ -382,15 +497,12 @@ export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
   `}
 `
 
-export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice: boolean; outOfRange: boolean }>`
+export const PriceRangeEl = styled.div<{ outOfRange: boolean }>`
   display: flex;
   position: absolute;
   justify-content: space-between;
   align-items: center;
   height: 100%;
-  width: ${({ isLowestPrice, isHighestPrice }) =>
-    isLowestPrice ? (isHighestPrice ? '100%' : '80%') : isHighestPrice ? '80%' : '60%'};
-  left: ${({ isLowestPrice }) => (isLowestPrice ? 0 : '20%')};
   border-radius: 4px;
   background: linear-gradient(90deg, #09ae7d 0%, #6368f1 100%);
 
@@ -416,16 +528,18 @@ export const UpperPriceIndicator = styled(PriceIndicator)<{ outOfRange: boolean 
   background: ${({ outOfRange }) => (outOfRange ? '#737373' : '#6368f1')};
 `
 
-export const IndicatorLabel = styled.div`
+export const IndicatorLabel = styled.div<{ align?: 'left' | 'right' }>`
   position: absolute;
   top: -20px;
-  transform: translateX(-42%);
   font-size: 12px;
   color: #fafafa;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  ${({ align }) =>
+    align === 'left'
+      ? 'left: 0; transform: translateX(-60%);'
+      : align === 'right'
+      ? 'left: 0; transform: translateX(-40%);'
+      : 'transform: translateX(-42%);'}
 `
 
 export const CurrentPriceWrapper = styled.div<{ lower?: boolean }>`

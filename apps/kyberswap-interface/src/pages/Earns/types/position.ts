@@ -11,6 +11,8 @@ export enum PositionStatus {
 
 export enum PositionHistoryType {
   DEPOSIT = 'DEPOSIT',
+  WITHDRAW = 'WITHDRAW',
+  COLLECT_FEE = 'COLLECT_FEE',
 }
 
 export interface PositionFilter {
@@ -201,6 +203,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     logo: '',
     price: 0,
     isNative: false,
+    isWrapped: false,
     totalProvide: 0,
     currentAmount: 0,
     unclaimedAmount: 0,
@@ -214,6 +217,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     logo: '',
     price: 0,
     isNative: false,
+    isWrapped: false,
     totalProvide: 0,
     currentAmount: 0,
     unclaimedAmount: 0,
@@ -343,6 +347,7 @@ export interface Token {
   logo: string
   price: number
   isNative: boolean
+  isWrapped: boolean
   totalProvide: number
   unclaimedAmount: number
   unclaimedBalance: number
