@@ -15,12 +15,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import {
-  type PoolAnalyticsWindow,
-  type PoolEarningsBucket,
-  usePoolEarningsQuery,
-  usePositionEarningsQuery,
-} from 'services/zapEarn'
+import { type PoolAnalyticsWindow, type PoolEarningsBucket, usePoolEarningsQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import SegmentedControl from 'components/SegmentedControl'
@@ -55,8 +50,9 @@ type EarningsChartPoint = PoolEarningsBucket & { showTotalLabel: boolean; topSeg
 
 type PoolEarningChartProps = {
   chainId: number
-  poolAddress?: string
-  positionId?: string
+  onWindowChange?: (window: PoolAnalyticsWindow) => void
+  poolAddress: string
+  window?: PoolAnalyticsWindow
 }
 
 const TooltipCard = styled(Stack)`
@@ -179,29 +175,34 @@ const EarningsTooltip = ({
   )
 }
 
-const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChartProps) => {
+const PoolEarningChart = ({ chainId, onWindowChange, poolAddress, window }: PoolEarningChartProps) => {
   const theme = useTheme()
-  const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
+  const [internalWindow, setInternalWindow] = useState<PoolAnalyticsWindow>('7d')
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 240 : 320
   const breakdownChartSize = upToSmall ? 160 : 180
+  const resolvedWindow = window ?? internalWindow
   const cursorColor = rgba(theme.text, 0.12)
   const gridColor = rgba(theme.text, 0.06)
 
-  const poolEarningsQuery = usePoolEarningsQuery(
-    { chainId, address: poolAddress || '', window },
-    { skip: !poolAddress },
-  )
-  const positionEarningsQuery = usePositionEarningsQuery(
-    { chainId, positionId: positionId || '', window },
-    { skip: !positionId },
-  )
+  const handleWindowChange = (nextWindow: PoolAnalyticsWindow) => {
+    if (window === undefined) {
+      setInternalWindow(nextWindow)
+    }
 
-  const isPositionChart = !!positionId
-  const earningsData = isPositionChart ? positionEarningsQuery.data : poolEarningsQuery.data
-  const isError = isPositionChart ? positionEarningsQuery.isError : poolEarningsQuery.isError
-  const isLoading = isPositionChart ? positionEarningsQuery.isLoading : poolEarningsQuery.isLoading
+    onWindowChange?.(nextWindow)
+  }
+
+  const {
+    data: earningsData,
+    isError,
+    isLoading,
+  } = usePoolEarningsQuery({
+    chainId,
+    address: poolAddress,
+    window: resolvedWindow,
+  })
 
   const breakdownConfig = useMemo<EarningsBreakdownConfigItem[]>(
     () => [
@@ -215,14 +216,14 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
 
   const chartData = useMemo<EarningsChartPoint[]>(() => {
     const buckets = earningsData?.buckets ?? []
-    const visibleLabelStep = getVisibleLabelStep(buckets.length, upToSmall, window)
+    const visibleLabelStep = getVisibleLabelStep(buckets.length, upToSmall, resolvedWindow)
 
     return buckets.map((bucket, index) => ({
       ...bucket,
       showTotalLabel: index % visibleLabelStep === 0 || index === buckets.length - 1,
       topSegmentKey: getTopSegmentKey(bucket, breakdownConfig),
     }))
-  }, [breakdownConfig, earningsData?.buckets, upToSmall, window])
+  }, [breakdownConfig, earningsData?.buckets, resolvedWindow, upToSmall])
 
   const breakdownItems = useMemo<EarningsBreakdownItem[]>(() => {
     return breakdownConfig.map(item => ({
@@ -243,7 +244,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
           Earning
         </Text>
 
-        <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />
+        <SegmentedControl onChange={handleWindowChange} options={CHART_WINDOW_OPTIONS} value={resolvedWindow} />
       </HStack>
 
       <PoolChartState
@@ -271,7 +272,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                   stroke={theme.subText}
                   tick={{ fill: theme.subText, fontSize: 12 }}
                   tickLine={false}
-                  tickFormatter={(value: number) => formatAxisTimeLabel(value, window)}
+                  tickFormatter={(value: number) => formatAxisTimeLabel(value, resolvedWindow)}
                 />
                 <YAxis
                   axisLine={false}
@@ -288,7 +289,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                       active={active}
                       breakdownItems={breakdownItems}
                       point={payload?.[0]?.payload as EarningsChartPoint | undefined}
-                      window={window}
+                      window={resolvedWindow}
                     />
                   )}
                   cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}

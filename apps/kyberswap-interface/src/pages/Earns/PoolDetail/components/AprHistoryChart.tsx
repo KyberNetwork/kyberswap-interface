@@ -4,12 +4,7 @@ import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import {
-  type PoolAnalyticsWindow,
-  type PoolAprHistoryPoint,
-  usePoolAprHistoryQuery,
-  usePositionAprHistoryQuery,
-} from 'services/zapEarn'
+import { type PoolAnalyticsWindow, type PoolAprHistoryPoint, usePoolAprHistoryQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import SegmentedControl from 'components/SegmentedControl'
@@ -130,11 +125,10 @@ const AprHistoryTooltip = ({
 
 type AprHistoryChartProps = {
   chainId: number
-  poolAddress?: string
-  positionId?: string
+  poolAddress: string
 }
 
-const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartProps) => {
+const AprHistoryChart = ({ chainId, poolAddress }: AprHistoryChartProps) => {
   const theme = useTheme()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
@@ -147,19 +141,15 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
   const cursorColor = rgba(theme.text, 0.12)
   const gridColor = rgba(theme.text, 0.06)
 
-  const poolAprHistoryQuery = usePoolAprHistoryQuery(
-    { chainId, address: poolAddress || '', window },
-    { skip: !poolAddress },
-  )
-  const positionAprHistoryQuery = usePositionAprHistoryQuery(
-    { chainId, positionId: positionId || '', window },
-    { skip: !positionId },
-  )
-
-  const isPositionChart = !!positionId
-  const aprHistoryData = isPositionChart ? positionAprHistoryQuery.data : poolAprHistoryQuery.data
-  const isError = isPositionChart ? positionAprHistoryQuery.isError : poolAprHistoryQuery.isError
-  const isLoading = isPositionChart ? positionAprHistoryQuery.isLoading : poolAprHistoryQuery.isLoading
+  const {
+    data: aprHistoryData,
+    isError,
+    isLoading,
+  } = usePoolAprHistoryQuery({
+    chainId,
+    address: poolAddress,
+    window,
+  })
 
   const chartData = useMemo(() => aprHistoryData?.points ?? [], [aprHistoryData?.points])
 
