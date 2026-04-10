@@ -102,7 +102,7 @@ const useZapCreatePoolWidget = () => {
                 dexLogo: string
               }
             | {
-                type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
+                type: 'erc20_approval'
                 tokenAddress: string
                 tokenSymbol?: string
                 dexName?: string
@@ -127,11 +127,7 @@ const useZapCreatePoolWidget = () => {
                 dex: config.protocol,
               },
             })
-          } else if (
-            additionalInfo?.type === 'erc20_approval' ||
-            additionalInfo?.type === 'nft_approval' ||
-            additionalInfo?.type === 'nft_approval_all'
-          ) {
+          } else if (additionalInfo?.type === 'erc20_approval') {
             addTransactionWithType({
               hash: txHash,
               type: TRANSACTION_TYPE.APPROVE,

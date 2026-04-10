@@ -305,6 +305,7 @@ const UserPositions = () => {
           sx={{ gap: 2 }}
         >
           <MultiSelectDropdownMenu
+            alignLeft
             highlightOnSelect
             label={selectedChainsLabel || t`Select chains`}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}

@@ -27,7 +27,6 @@ import routeApi from 'services/route'
 import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
-import zapApi from 'services/zap'
 import zapEarnServiceApi from 'services/zapEarn'
 
 import application from './application/reducer'
@@ -112,7 +111,6 @@ const store = configureStore({
     customizeDexes,
     tokenPrices,
     topTokens,
-    [zapApi.reducerPath]: zapApi.reducer,
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
@@ -153,7 +151,6 @@ const store = configureStore({
       .concat(routeApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
-      .concat(zapApi.middleware)
       .concat(zapEarnServiceApi.middleware)
       .concat(rewardServiceApi.middleware)
       .concat(rewardMerklApi.middleware)

@@ -1,13 +1,12 @@
 import { rgba } from 'polished'
-import { type CSSProperties } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
-export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: boolean; background?: string }>`
+export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: boolean }>`
   width: 100%;
-  background: ${({ theme, highlight, flatten, background }) =>
-    highlight ? rgba(flatten ? theme.primary : theme.blue, 0.2) : background || theme.background};
+  background: ${({ theme, highlight, flatten }) =>
+    highlight ? rgba(flatten ? theme.primary : theme.blue, 0.2) : theme.background};
   border: ${({ theme, highlight, flatten }) =>
     flatten ? `1px solid ${highlight ? theme.primary : 'transparent'}` : 'none'};
   border-radius: 30px;
@@ -53,7 +52,7 @@ export const DropdownTitle = styled.div<{ width?: number; justifyContent?: strin
   flex: ${({ fullWidth }) => (fullWidth ? '1 1 auto' : '0 0 auto')};
   display: flex;
   align-items: center;
-  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
+  justify-content: ${({ justifyContent }) => justifyContent || 'center'};
   gap: 6px;
   text-transform: capitalize;
 
@@ -85,21 +84,20 @@ export const ItemIcon = styled.img`
   height: 18px;
 `
 
-export const DropdownContent = styled.div<{ flatten?: boolean; alignItems?: CSSProperties['alignItems'] }>`
+export const DropdownContent = styled.div<{ flatten?: boolean; alignLeft: boolean }>`
   position: absolute;
   top: ${({ flatten }) => (flatten ? '32px' : '42px')};
   left: 0;
+  background: ${({ theme }) => theme.background};
+  border-radius: 18px;
+  padding: 8px 8px;
+  font-size: 14px;
+  color: ${({ theme }) => theme.text};
+  width: max-content;
   display: flex;
   flex-direction: column;
-  align-items: ${({ alignItems }) => alignItems || 'flex-start'};
+  align-items: ${({ alignLeft }) => (alignLeft ? 'flex-start' : 'center')};
   gap: 4px;
-  width: max-content;
-  padding: 8px;
-  border-radius: 18px;
-  background: ${({ theme }) => theme.background};
-  box-shadow: ${({ theme }) => `0 8px 12px ${theme.shadow}`};
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
   z-index: 100;
   filter: brightness(1.2);
 `

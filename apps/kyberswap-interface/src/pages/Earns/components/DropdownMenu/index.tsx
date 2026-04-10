@@ -1,5 +1,5 @@
 import Portal from '@reach/portal'
-import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import {
@@ -25,9 +25,8 @@ const DropdownMenu = ({
   width,
   tooltip,
   flatten,
-  background,
   fullWidth = false,
-  alignItems = 'flex-start',
+  alignLeft = false,
   mobileFullWidth = false,
   mobileHalfWidth = false,
   usePortal = false,
@@ -38,9 +37,8 @@ const DropdownMenu = ({
   width?: number
   tooltip?: string
   flatten?: boolean
-  background?: string
   fullWidth?: boolean
-  alignItems?: CSSProperties['alignItems']
+  alignLeft?: boolean
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   usePortal?: boolean
@@ -100,13 +98,13 @@ const DropdownMenu = ({
       window.removeEventListener('resize', computePosition)
       window.removeEventListener('scroll', computePosition, true)
     }
-  }, [open, usePortal, alignItems])
+  }, [open, usePortal, alignLeft])
 
   const dropdownContent = (
     <DropdownContent
       ref={contentRef}
       flatten={flatten}
-      alignItems={alignItems}
+      alignLeft={alignLeft}
       style={usePortal ? { ...position } : undefined}
     >
       {options.map((option: MenuOption) => (
@@ -130,13 +128,12 @@ const DropdownMenu = ({
       ref={ref}
     >
       <MouseoverTooltipDesktopOnly text={!open && tooltip} placement="top" width="260px">
-        <DropdownTitleWrapper
-          flatten={flatten}
-          background={background}
-          highlight={flatten && open}
-          onClick={handleOpenChange}
-        >
-          <DropdownTitle justifyContent={alignItems} width={width} fullWidth={fullWidth && !width}>
+        <DropdownTitleWrapper flatten={flatten} highlight={flatten && open} onClick={handleOpenChange}>
+          <DropdownTitle
+            justifyContent={alignLeft ? 'flex-start' : 'center'}
+            width={width}
+            fullWidth={fullWidth && !width}
+          >
             {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
             <DropdownLabel>{optionValue?.label}</DropdownLabel>
           </DropdownTitle>

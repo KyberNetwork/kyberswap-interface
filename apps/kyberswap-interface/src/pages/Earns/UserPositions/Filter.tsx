@@ -68,12 +68,14 @@ export default function Filter({
     >
       <Flex sx={{ gap: 2, width: upToSmall ? '100%' : 'auto' }} flexWrap={'wrap'}>
         <DropdownMenu
+          alignLeft
           mobileFullWidth
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}
           value={filters.protocols || ''}
           onChange={value => value !== filters.protocols && updateFilters('protocols', value)}
         />
         <MultiSelectDropdownMenu
+          alignLeft
           mobileFullWidth
           label={t`Position status`}
           options={POSITION_STATUS as unknown as MenuOption[]}

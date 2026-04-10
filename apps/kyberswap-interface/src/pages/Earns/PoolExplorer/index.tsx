@@ -101,7 +101,6 @@ const PoolExplorer = () => {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleOpenZapInWithParams = useCallback(
     ({ pool, initialTick }: ZapInInfo) => {
       const { dex, chainId, address } = pool
@@ -112,20 +111,6 @@ const PoolExplorer = () => {
       handleOpenZapIn({ pool, initialTick })
     },
     [handleOpenZapIn, searchParams, setSearchParams],
-  )
-
-  const handleNavigateToAddLiquidity = useCallback(
-    ({ pool, initialTick }: ZapInInfo) => {
-      const params = new URLSearchParams()
-      params.set('exchange', pool.dex)
-      params.set('poolChainId', pool.chainId.toString())
-      params.set('poolAddress', pool.address)
-      if (initialTick?.tickLower !== undefined) params.set('tickLower', initialTick.tickLower.toString())
-      if (initialTick?.tickUpper !== undefined) params.set('tickUpper', initialTick.tickUpper.toString())
-
-      navigate({ pathname: APP_PATHS.ADD_LIQUIDITY, search: `?${params.toString()}` })
-    },
-    [navigate],
   )
 
   const handleRemoveUrlParams = useCallback(() => {
@@ -247,7 +232,7 @@ const PoolExplorer = () => {
       <TableWrapper>
         <ContentWrapper>
           <TableHeader onSortChange={onSortChange} filters={filters} />
-          <TableContent onOpenZapInWidget={handleNavigateToAddLiquidity} filters={filters} />
+          <TableContent onOpenZapInWidget={handleOpenZapInWithParams} filters={filters} />
         </ContentWrapper>
         {!isError && (
           <Pagination

@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 
 import { MenuOption } from 'pages/Earns/components/DropdownMenu'
@@ -19,7 +19,7 @@ const MultiSelect = ({
   options,
   value,
   width,
-  alignItems = 'flex-start',
+  alignLeft = false,
   mobileFullWidth = false,
   mobileHalfWidth = false,
   highlightOnSelect = false,
@@ -29,7 +29,7 @@ const MultiSelect = ({
   options: MenuOption[]
   value: string
   width?: number
-  alignItems?: CSSProperties['alignItems']
+  alignLeft?: boolean
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   highlightOnSelect?: boolean
@@ -83,11 +83,13 @@ const MultiSelect = ({
   return (
     <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
       <DropdownTitleWrapper highlight={highlightOnSelect && value !== AllOptionValue} onClick={handleOpenChange}>
-        <DropdownTitle width={width}>{label}</DropdownTitle>
+        <DropdownTitle justifyContent="flex-start" width={width}>
+          {label}
+        </DropdownTitle>
         <DropdownIcon open={open} />
       </DropdownTitleWrapper>
       {open && (
-        <DropdownContent alignItems={alignItems}>
+        <DropdownContent alignLeft={alignLeft}>
           {options.map((option: MenuOption) => (
             <MultiSelectDropdownContentItem key={option.value} onClick={() => handleSelectItem(option.value)}>
               {option.icon && <ItemIcon src={option.icon} alt={option.label} />}

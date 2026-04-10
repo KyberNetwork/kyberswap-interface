@@ -2,16 +2,6 @@
   "name": "@kyber/hooks",
   "version": "0.0.0",
   "private": true,
-  "types": "./src/index.ts",
-  "typesVersions": {
-    "*": {
-      "use-approval": ["src/use-approval.ts"],
-      "use-debounce": ["src/use-debounce.ts"],
-      "use-interval": ["src/use-interval.ts"],
-      "use-token-prices": ["src/use-token-prices.ts"],
-      "use-window-size": ["src/use-window-size.ts"]
-    }
-  },
   "exports": {
     "./use-debounce": "./src/use-debounce.ts",
     "./use-interval": "./src/use-interval.ts",
