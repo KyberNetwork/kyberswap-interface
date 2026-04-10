@@ -247,7 +247,6 @@ const InformationTab = () => {
                     tooltip={t`APR calculated based on last ${aprInterval} fees.`}
                     options={timings.slice(0, 2)}
                     value={aprInterval}
-                    alignLeft
                     onChange={value => setAprInterval(value as '24h' | '7d')}
                   />
                 </Flex>

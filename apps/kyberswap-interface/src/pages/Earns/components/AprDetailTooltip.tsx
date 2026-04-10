@@ -21,12 +21,12 @@ export default function AprDetailTooltip({ feeApr, egApr, lmApr, merklApr, child
         <Flex sx={{ flexDirection: 'column', gap: '2px' }}>
           {feeApr !== undefined && (
             <Text>
-              {t`LP Fees`}: {formatAprNumber(feeApr)}%
+              {t`LP Fee APR`}: {formatAprNumber(feeApr)}%
             </Text>
           )}
           {egApr !== undefined && (
             <Text>
-              {t`EG Sharing Reward`}: {formatAprNumber(egApr)}%
+              {t`FairFlow EG Reward`}: {formatAprNumber(egApr)}%
             </Text>
           )}
           {!!lmApr && (

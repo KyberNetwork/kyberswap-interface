@@ -1,7 +1,7 @@
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
-import styled, { keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
@@ -372,7 +372,7 @@ export const BannerDataItem = styled.div`
     `}
 `
 
-export const PositionTableHeader = styled(TableHeader)`
+const HeaderGridTemplate = css`
   grid-template-columns:
     minmax(260px, 2.6fr) /* Position */
     minmax(80px, 0.8fr) /* Value */
@@ -405,6 +405,50 @@ export const PositionTableHeader = styled(TableHeader)`
   }
 `
 
+export const PositionTableHeader = styled(TableHeader)`
+  ${HeaderGridTemplate}
+`
+
+export const PositionTableRow = styled(Link)<{ $isUnfinalized?: boolean }>`
+  display: grid;
+  ${HeaderGridTemplate}
+  grid-template-rows: 1fr;
+  padding: 24px;
+  row-gap: 8px;
+  text-decoration: none;
+  color: inherit !important;
+  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : 'transparent')};
+
+  @media (max-width: 1300px) {
+    justify-content: flex-start;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    border-radius: 20px;
+    background: ${({ theme, $isUnfinalized }) =>
+      $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
+    margin-bottom: 16px;
+  }
+
+  ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
+    display: flex;
+    flex-direction: column;
+    row-gap: 16px;
+    padding: 16px;
+    background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
+    border-radius: 0px;
+    position: relative;
+  `}
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: #31cb9e1a;
+  }
+`
+
 export const PositionTableHeaderItem = styled.div`
   height: 100%;
 `
@@ -432,6 +476,11 @@ export const PositionTableWrapper = styled(TableWrapper)`
     background: transparent;
     border-radius: 0;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin: 0 -16px;
+    border-radius: 0;
+  `}
 `
 
 export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`

@@ -2,50 +2,24 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
 
-import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
-import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
-import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import Loader from 'components/Loader'
+import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
-import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
-import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
+import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
+import { FeeTier, SymbolText, TableCell, TableRow } from 'pages/Earns/PoolExplorer/styles'
+import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
+import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
+import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
-import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
-import { isUniswapExchange } from 'pages/Earns/utils'
+import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
-
-export const kemFarming = (pool: ParsedEarnPool) => {
-  const programs = pool.programs || []
-  const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
-  const isFarmingLm = programs.includes(ProgramType.LM)
-
-  return isFarming ? (
-    <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
-      {isFarmingLm ? (
-        <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
-      ) : (
-        <FarmingIcon width={24} height={24} style={{ marginLeft: 4 }} />
-      )}
-    </AprDetailTooltip>
-  ) : null
-}
-
-export const uniReward = (pool: ParsedEarnPool) => {
-  const hasReward = isUniswapExchange(pool.exchange) && pool.bonusApr && pool.bonusApr > 0
-
-  return hasReward ? (
-    <AprDetailTooltip merklApr={pool.bonusApr}>
-      <UniBonusIcon width={24} height={24} style={{ marginLeft: 4 }} />
-    </AprDetailTooltip>
-  ) : null
-}
 
 const DesktopTableRow = ({
   pool,
@@ -63,6 +37,7 @@ const DesktopTableRow = ({
   const theme = useTheme()
   const { trackingHandler } = useTracking()
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+  const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
     e.stopPropagation()
@@ -96,71 +71,101 @@ const DesktopTableRow = ({
 
   return (
     <TableRow expandColumn={isFarmingFiltered} onClick={e => handleOpenZapInWidget(e)}>
-      <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
-        <TokenLogo src={pool.dexLogo} size={20} />
-        <Text color={theme.subText}>{pool.dexName}</Text>
-      </Flex>
-      <Flex alignItems="center" sx={{ gap: 2 }}>
-        <Flex alignItems="flex-end" sx={{ position: 'relative' }}>
-          <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-          <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
-          {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
-        </Flex>
-        <SymbolText>
-          {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
-        </SymbolText>
-        <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
-      </Flex>
-      <Apr value={pool.allApr}>
-        {formatAprNumber(pool.allApr)}% {kemFarming(pool)} {uniReward(pool)}
-      </Apr>
-      {isFarmingFiltered && (
-        <Flex justifyContent="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
+      <TableCell>
+        <HStack align="center" gap={8}>
+          <HStack align="flex-end" position="relative" gap={0}>
+            <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+            <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+            {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
+          </HStack>
+          <SymbolText>
+            {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+          </SymbolText>
           <MouseoverTooltipDesktopOnly
             text={
-              pool.maxAprInfo
-                ? t`Add liquidity with price range:` +
-                  ` ${
-                    pool.maxAprInfo.minPrice
-                      ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
-                      : '--'
-                  }` +
-                  ` - ${
-                    pool.maxAprInfo.tickUpper === MAX_TICK
-                      ? '∞'
-                      : pool.maxAprInfo.maxPrice
-                      ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
-                      : '--'
-                  }`
+              pool.merklOpportunity?.liveCampaigns
+                ? `${t`Active Incentive Campaigns:`} ${pool.merklOpportunity.liveCampaigns}`
                 : ''
             }
             width="fit-content"
             placement="bottom"
           >
-            {pool.maxAprInfo
-              ? formatAprNumber(
+            <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+          </MouseoverTooltipDesktopOnly>
+        </HStack>
+        <HStack align="center" gap={4}>
+          <TokenLogo src={pool.dexLogo} size={18} />
+          <Text color={theme.subText} fontSize={14}>
+            {pool.dexName}
+          </Text>
+        </HStack>
+      </TableCell>
+      <TableCell>
+        <PoolAprInfo pool={pool} />
+        <MerklAprInfo pool={pool} />
+      </TableCell>
+      {isFarmingFiltered && (
+        <TableCell onClick={e => handleOpenZapInWidget(e, true)}>
+          {!!pool.maxAprInfo ? (
+            <MouseoverTooltipDesktopOnly
+              text={
+                t`Add liquidity with price range:` +
+                ` ${
+                  pool.maxAprInfo.minPrice
+                    ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
+                    : '--'
+                }` +
+                ` - ${
+                  pool.maxAprInfo.tickUpper === MAX_TICK
+                    ? '∞'
+                    : pool.maxAprInfo.maxPrice
+                    ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
+                    : '--'
+                }`
+              }
+              width="fit-content"
+              placement="bottom"
+            >
+              <Text>
+                {formatAprNumber(
                   Number(pool.maxAprInfo.apr) +
                     Number(pool.maxAprInfo.kemEGApr) +
                     Number(pool.maxAprInfo.kemLMApr) +
                     Number(pool.bonusApr || 0),
-                ) + '%'
-              : ''}
-          </MouseoverTooltipDesktopOnly>
-        </Flex>
+                ) + '%'}
+              </Text>
+            </MouseoverTooltipDesktopOnly>
+          ) : (
+            <MouseoverTooltipDesktopOnly text={t`Not available for this pool`} width="fit-content" placement="bottom">
+              <Text>-</Text>
+            </MouseoverTooltipDesktopOnly>
+          )}
+        </TableCell>
       )}
-      <Flex justifyContent="flex-end">
-        {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
-          style: 'currency',
-          significantDigits: 6,
-        })}
-      </Flex>
-      <Flex justifyContent="flex-end">
-        {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
-      </Flex>
-      <Flex justifyContent="flex-end">
-        {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
-      </Flex>
-      <Flex justifyContent="center">
+      <TableCell>
+        <Text>
+          {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+            style: 'currency',
+            significantDigits: 6,
+          })}
+        </Text>
+      </TableCell>
+      <TableCell>
+        <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
+      </TableCell>
+      <TableCell>
+        <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+      </TableCell>
+      <TableCell>
+        <Text>
+          {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
+        </Text>
+        <MerklRewardsRecord pool={pool} />
+      </TableCell>
+      <TableCell>
+        <SparklineChart sparkline={pool.sparkline} shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address} />
+      </TableCell>
+      <TableCell justifyContent="flex-start" pt={16}>
         {favoriteLoading.includes(pool.address) ? (
           <Loader />
         ) : (
@@ -173,7 +178,7 @@ const DesktopTableRow = ({
             onClick={e => handleFavorite(e, pool)}
           />
         )}
-      </Flex>
+      </TableCell>
     </TableRow>
   )
 }

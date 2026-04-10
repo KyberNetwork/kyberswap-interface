@@ -193,6 +193,8 @@
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.4",
     "@cypress/grep": "^3.1.5",
+    "@kyber/hooks": "workspace:^",
+    "@kyber/rpc-client": "workspace:*",
     "@kyber/schema": "workspace:^",
     "@kyber/token-selector": "workspace:^",
     "@kyber/ui": "workspace:^",

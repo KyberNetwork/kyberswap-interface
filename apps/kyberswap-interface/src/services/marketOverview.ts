@@ -62,6 +62,12 @@ interface AddRemoveFavoriteParams {
   signature: string
 }
 
+export type HoneypotInfo = {
+  isHoneypot: boolean
+  isFOT: boolean
+  tax: number
+}
+
 const marketOverviewServiceApi = createApi({
   reducerPath: 'marketOverviewApi',
   baseQuery: fetchBaseQuery({
@@ -113,6 +119,15 @@ const marketOverviewServiceApi = createApi({
     >({
       query: () => ({ url: '/v1/public/tokens/config' }),
     }),
+    getHoneypotInfo: builder.query<{ data?: HoneypotInfo }, { chainId: number; address: string }>({
+      query: ({ chainId, address }) => ({
+        url: '/v1/public/tokens/honeypot-fot-info',
+        params: {
+          address,
+          chainId,
+        },
+      }),
+    }),
 
     checkPair: builder.query<
       { data: { category: PAIR_CATEGORY } },
@@ -136,6 +151,7 @@ export const {
   useRemoveFavoriteMutation,
   useGetPricesQuery,
   useGetQuoteByChainQuery,
+  useGetHoneypotInfoQuery,
   useCheckPairQuery,
 } = marketOverviewServiceApi
 

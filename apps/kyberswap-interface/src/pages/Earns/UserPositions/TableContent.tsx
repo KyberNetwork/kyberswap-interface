@@ -177,13 +177,14 @@ export default function TableContent({
     e.stopPropagation()
     e.preventDefault()
 
-    if (!!position.suggestionPool) {
+    if (position.suggestionPool) {
       handleOpenMigration(position, position.suggestionPool)
     } else if (
       position.pool.category === PAIR_CATEGORY.STABLE &&
       farmingPoolsByChain[position.chain.id]?.pools.length > 0
-    )
+    ) {
       setPositionToMigrate(position)
+    }
   }
 
   const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
