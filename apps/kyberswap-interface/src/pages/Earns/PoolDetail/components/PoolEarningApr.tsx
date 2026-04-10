@@ -22,7 +22,7 @@ const ActiveAprBadge = styled(AprBadge)`
 const AprSection = styled(HStack)`
   align-items: center;
   gap: 24px;
-  flex: 1 1 420px;
+  flex: 1 1 320px;
 `
 
 const SectionDivider = styled.div`
@@ -48,25 +48,28 @@ const PoolEarningApr = () => {
     const totalApr = pool.poolStats?.apr ?? 0
     const feeApr = pool.poolStats?.lpApr7d ?? 0
     const rewardApr = Math.max(totalApr - feeApr, 0)
-    const activeApr = pool.poolStats?.activeApr
+
+    const bonusApr = pool.poolStats?.bonusApr ?? 0
+    const activeApr = pool.poolStats?.activeApr !== undefined ? pool.poolStats.activeApr + bonusApr : undefined
     const activeFeeApr = pool.poolStats?.activeFeeApr ?? 0
+    const activeRewardApr = activeApr !== undefined ? Math.max(activeApr - activeFeeApr, 0) : undefined
 
     return {
-      activeApr,
-      activeFeeApr,
-      activeRewardApr: activeApr !== undefined ? Math.max(activeApr - activeFeeApr, 0) : undefined,
+      totalApr,
       feeApr,
       rewardApr,
-      totalApr,
+      activeApr,
+      activeFeeApr,
+      activeRewardApr,
     }
   }, [pool])
 
   const hasActiveApr = aprSummary?.activeApr !== undefined
 
   return (
-    <HStack align="stretch" gap={16} wrap="wrap">
+    <HStack align="stretch" gap={12} wrap="wrap">
       <AprSection>
-        <Stack align="center" flex="0 0 auto" gap={8}>
+        <Stack align="center" flex="0 0 128px" gap={8}>
           <HStack align="center" gap={4}>
             <Text color={theme.text} fontSize={14} fontWeight={500}>
               APR
@@ -104,7 +107,7 @@ const PoolEarningApr = () => {
 
       {hasActiveApr ? (
         <AprSection>
-          <Stack align="center" flex="0 0 auto" gap={8}>
+          <Stack align="center" flex="0 0 128px" gap={8}>
             <HStack align="center" gap={4}>
               <Text color={theme.text} fontSize={14} fontWeight={500}>
                 Active APR
