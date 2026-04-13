@@ -256,19 +256,6 @@ export class MayanAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const publicClient = getPublicClient(wagmiConfig, {
-      chainId: p.sourceChain as number,
-    })
-    const receipt = await publicClient?.getTransactionReceipt({
-      hash: p.sourceTxHash as `0x${string}`,
-    })
-    if (receipt?.status === 'reverted') {
-      return {
-        txHash: '',
-        status: 'Failed',
-      }
-    }
-
     const res = await fetch(`https://explorer-api.mayan.finance/v3/swap/trx/${p.id}`).then(r => r.json())
 
     console.log('=== Mayan transaction transaction_id:', p.id)
@@ -282,6 +269,21 @@ export class MayanAdapter extends BaseSwapAdapter {
         actualAmountOut = parseUnits(res.toAmount, p.targetToken.decimals).toString()
       } catch {
         // If conversion fails, leave as undefined
+      }
+    }
+
+    if (res.statusCode === 404) {
+      const publicClient = getPublicClient(wagmiConfig, {
+        chainId: p.sourceChain as number,
+      })
+      const receipt = await publicClient?.getTransactionReceipt({
+        hash: p.sourceTxHash as `0x${string}`,
+      })
+      if (receipt?.status === 'reverted') {
+        return {
+          txHash: '',
+          status: 'Failed',
+        }
       }
     }
 
