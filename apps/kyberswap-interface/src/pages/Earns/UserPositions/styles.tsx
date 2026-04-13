@@ -415,7 +415,6 @@ export const PositionTableHeaderFlexItem = styled(Flex)`
   align-self: flex-start;
   gap: 4px;
   width: fit-content;
-  cursor: pointer;
 
   &:hover svg path {
     stroke: ${({ theme }) => theme.text};
