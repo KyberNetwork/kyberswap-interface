@@ -197,7 +197,7 @@ export interface PoolAprHistoryPoint {
   activeFeeApr?: number
   activeLmApr?: number
   activeEgApr?: number
-  volume: number
+  volumeUsd: number
   tvlUsd: number
 }
 
@@ -254,7 +254,7 @@ const transformAprHistoryData = (data: PoolAprHistoryData): PoolAprHistoryData =
   points: data.points.map(point => ({
     ...point,
     activeApr: point.activeApr !== undefined ? point.activeApr + point.bonusApr : undefined,
-    volume: point.volume ?? 0,
+    volumeUsd: point.volumeUsd ?? 0,
   })),
 })
 

@@ -92,13 +92,13 @@ const AprHistoryTooltip = ({
         <Text color={theme.primary} fontSize={12} fontWeight={500} textAlign="right">
           {formatAprNumber(point.totalApr)}%
         </Text>
-        {point.volume || point.volume === 0 ? (
+        {point.volumeUsd || point.volumeUsd === 0 ? (
           <>
             <Text color={theme.subText} fontSize={12}>
               Vol
             </Text>
             <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-              {formatDisplayNumber(point.volume, { style: 'currency', significantDigits: 6 })}
+              {formatDisplayNumber(point.volumeUsd, { style: 'currency', significantDigits: 6 })}
             </Text>
           </>
         ) : null}
@@ -148,7 +148,8 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
       (aprHistoryData?.points ?? []).map((point, index, points) => {
         return {
           ...point,
-          volumeBarColor: point.volume >= (points[index - 1]?.volume ?? point.volume) ? volumeUpColor : volumeDownColor,
+          volumeBarColor:
+            point.volumeUsd >= (points[index - 1]?.volumeUsd ?? point.volumeUsd) ? volumeUpColor : volumeDownColor,
         }
       }),
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],
@@ -250,10 +251,10 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
                 width={72}
               />
               <YAxis
-                dataKey="volume"
+                dataKey="volumeUsd"
                 domain={[0, (dataMax: number) => (dataMax > 0 ? dataMax * 5 : 1)]}
                 hide
-                yAxisId="volume"
+                yAxisId="volumeUsd"
               />
               <Tooltip
                 content={({ active, payload }) => (
@@ -261,9 +262,9 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
                 )}
                 cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
               />
-              <Bar barSize={8} dataKey="volume" radius={[2, 2, 0, 0]} yAxisId="volume">
+              <Bar barSize={8} dataKey="volumeUsd" radius={[2, 2, 0, 0]} yAxisId="volumeUsd">
                 {chartData.map(point => (
-                  <Cell key={`${point.ts}-volume`} fill={point.volumeBarColor} />
+                  <Cell key={`${point.ts}-volumeUsd`} fill={point.volumeBarColor} />
                 ))}
               </Bar>
               {hasActiveApr && (
