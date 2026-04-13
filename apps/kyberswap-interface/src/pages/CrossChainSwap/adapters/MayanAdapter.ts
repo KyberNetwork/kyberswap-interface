@@ -271,6 +271,9 @@ export class MayanAdapter extends BaseSwapAdapter {
 
     const res = await fetch(`https://explorer-api.mayan.finance/v3/swap/trx/${p.id}`).then(r => r.json())
 
+    console.log('=== Mayan transaction transaction_id:', p.id)
+    console.log('=== Mayan transaction status response:', res)
+
     // Convert formatted toAmount back to raw amount using target token decimals
     // Mayan returns human-readable amounts like "0.020115767"
     let actualAmountOut: string | undefined
