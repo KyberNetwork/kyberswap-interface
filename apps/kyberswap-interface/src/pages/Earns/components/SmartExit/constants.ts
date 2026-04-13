@@ -7,6 +7,7 @@ export enum SmartExitDexType {
   DexTypePancakeV3 = 'DexTypePancakeV3',
   DexTypePancakeInfinityCL = 'DexTypePancakeInfinityCL',
   DexTypePancakeInfinityCLFairFlow = 'DexTypePancakeInfinityCLFairFlow',
+  DexTypeSushiSwapV3 = 'DexTypeSushiSwapV3',
 }
 
 export enum SmartExitState {
