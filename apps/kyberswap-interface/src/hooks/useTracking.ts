@@ -9,6 +9,7 @@ import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { sanitizeFormoPayload } from 'hooks/sanitizeFormoPayload'
 import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
@@ -408,7 +409,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
 
   const formoTrack = useCallback(
     (eventName: string, properties?: Record<string, any>) => {
-      analytics?.track(eventName, properties)
+      analytics?.track(eventName, sanitizeFormoPayload(properties))
     },
     [analytics],
   )
