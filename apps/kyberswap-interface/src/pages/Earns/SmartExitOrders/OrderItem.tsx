@@ -11,7 +11,7 @@ import TitleContent from 'pages/Earns/SmartExitOrders/components/TitleContent'
 import { ORDERS_TABLE_GRID_COLUMNS } from 'pages/Earns/SmartExitOrders/constants'
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { Badge, BadgeType } from 'pages/Earns/UserPositions/styles'
-import { OrderStatus, SmartExitOrder } from 'pages/Earns/types'
+import { ExecutionStatus, OrderStatus, SmartExitOrder } from 'pages/Earns/types'
 import { getEtherscanLink } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -56,7 +56,6 @@ const TableRow = styled.div`
   color: ${({ theme }) => theme.text};
   padding: 16px 0;
   gap: 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
   align-items: center;
 `
 
@@ -91,10 +90,18 @@ const StatusContent = ({ order }: { order: SmartExitOrder }) => (
         ? 'Expired'
         : order.status}
     </Badge>
-    {order.status === OrderStatus.OrderStatusDone && order.executions.length > 0 ? (
+    {order.status === OrderStatus.OrderStatusDone &&
+    order.executions.some(execution => execution.status === ExecutionStatus.Success) ? (
       <ExternalLinkWrapper
         onClick={() => {
-          window.open(`${getEtherscanLink(order.chainId, order.executions[0].hash, 'transaction')}`, '_blank')
+          window.open(
+            `${getEtherscanLink(
+              order.chainId,
+              order.executions.find(execution => execution.status === ExecutionStatus.Success)?.hash || '',
+              'transaction',
+            )}`,
+            '_blank',
+          )
         }}
       >
         <ExternalLink size={12} />

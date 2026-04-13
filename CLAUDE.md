@@ -55,7 +55,14 @@ When writing or modifying code, **always** ensure the result is free of:
    - Proper import ordering
 3. **Prettier formatting** — all code must match the project's Prettier config (single quotes, trailing commas, semicolons, print width). Format code consistently.
 
-**Workflow**: After making changes, mentally verify TypeScript correctness, ESLint compliance, and Prettier formatting. When in doubt, run `pnpm lint` and `pnpm type-check` on the affected package to confirm zero errors before considering the task done.
+**Workflow (MANDATORY)**: After making any code changes, you **MUST** run the following commands on the affected package(s) and fix all errors before considering the task done:
+
+```bash
+pnpm lint          # Fix all ESLint errors/warnings
+pnpm type-check    # Fix all TypeScript errors
+```
+
+Format all modified files with Prettier. Do **NOT** present code changes as complete until these checks pass with zero errors. If any check fails, fix the issues and re-run until clean.
 
 ## Color & Styling Rules
 

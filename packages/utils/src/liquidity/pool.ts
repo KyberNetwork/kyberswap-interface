@@ -4,6 +4,7 @@ import {
   API_URLS,
   ChainId,
   NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
   Pool,
   PoolType,
   Token,
@@ -180,13 +181,21 @@ const getPoolTokens = async ({
   token1Address: string;
   chainId: ChainId;
 }) => {
+  const wrappedAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
+  const priceToken0Address =
+    token0Address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() ? wrappedAddress : token0Address.toLowerCase();
+  const priceToken1Address =
+    token1Address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() ? wrappedAddress : token1Address.toLowerCase();
+
   const prices = await fetchTokenPrice({
-    addresses: [token0Address.toLowerCase(), token1Address.toLowerCase()],
+    addresses: [priceToken0Address, priceToken1Address],
     chainId,
   });
 
-  const token0Price = prices[token0Address.toLowerCase()]?.PriceBuy || 0;
-  const token1Price = prices[token1Address.toLowerCase()]?.PriceBuy || 0;
+  const token0PriceData = prices[priceToken0Address];
+  const token1PriceData = prices[priceToken1Address];
+  const token0Price = ((token0PriceData?.PriceBuy || 0) + (token0PriceData?.PriceSell || 0)) / 2;
+  const token1Price = ((token1PriceData?.PriceBuy || 0) + (token1PriceData?.PriceSell || 0)) / 2;
 
   const tokens: {
     address: string;
