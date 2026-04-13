@@ -10,8 +10,10 @@ import {
 } from '@mayanfinance/swap-sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
+import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits, parseUnits } from 'viem'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import {
   CROSS_CHAIN_FEE_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER_SOLANA,
@@ -264,6 +266,21 @@ export class MayanAdapter extends BaseSwapAdapter {
         actualAmountOut = parseUnits(res.toAmount, p.targetToken.decimals).toString()
       } catch {
         // If conversion fails, leave as undefined
+      }
+    }
+
+    if (res.statusCode === 404) {
+      const publicClient = getPublicClient(wagmiConfig, {
+        chainId: p.sourceChain as number,
+      })
+      const receipt = await publicClient?.getTransactionReceipt({
+        hash: p.sourceTxHash as `0x${string}`,
+      })
+      if (receipt?.status === 'reverted') {
+        return {
+          txHash: '',
+          status: 'Failed',
+        }
       }
     }
 
