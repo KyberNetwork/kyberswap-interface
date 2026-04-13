@@ -6,7 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
-import { CampaignRewardInfo, ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
+import { ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
 
 type UseMerklRewardsProps = {
@@ -92,9 +92,12 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
       }),
     )
 
-    const baseRewards = calculatedRewards
+    // Merge multiple Merkl entries for the same token (different campaigns/roots) into a single row
+    const mergedByToken: Record<string, TokenRewardInfo> = {}
+
+    calculatedRewards
       .filter(reward => Number(reward.amount) > 0)
-      .map(reward => {
+      .forEach(reward => {
         const decimalsPow = 10 ** reward.token.decimals
         const totalAmount = Number(reward.amount) / decimalsPow
         const claimedAmount = Number(reward.claimed) / decimalsPow
@@ -123,11 +126,11 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
                 chainId: reward.token.chainId,
                 totalAmount: (existing?.totalAmount || 0) + breakdownTotalAmount,
                 claimableAmount: (existing?.claimableAmount || 0) + breakdownClaimableAmount,
-                unclaimedAmount: (existing?.claimableAmount || 0) + breakdownClaimableAmount,
+                unclaimedAmount: (existing?.unclaimedAmount || 0) + breakdownClaimableAmount,
                 pendingAmount: (existing?.pendingAmount || 0) + breakdownPendingAmount,
                 vestingAmount: 0,
                 waitingAmount: 0,
-                claimableUsdValue: ((existing?.claimableAmount || 0) + breakdownClaimableAmount) * reward.token.price,
+                claimableUsdValue: (existing?.claimableUsdValue || 0) + breakdownClaimableAmount * reward.token.price,
               }
 
               perPositionRewards[key] = perPositionRewards[key] || {}
@@ -136,20 +139,24 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
           })
         }
 
-        return {
+        const tokenKey = `${reward.token.chainId}-${reward.token.address.toLowerCase()}`
+        const existing = mergedByToken[tokenKey]
+        mergedByToken[tokenKey] = {
           symbol: reward.token.symbol,
-          logo: '',
+          logo: existing?.logo || '',
           address: reward.token.address,
           chainId: reward.token.chainId,
-          totalAmount,
-          claimableAmount,
-          unclaimedAmount: claimableAmount,
-          pendingAmount,
+          totalAmount: (existing?.totalAmount || 0) + totalAmount,
+          claimableAmount: (existing?.claimableAmount || 0) + claimableAmount,
+          unclaimedAmount: (existing?.unclaimedAmount || 0) + claimableAmount,
+          pendingAmount: (existing?.pendingAmount || 0) + pendingAmount,
           vestingAmount: 0,
           waitingAmount: 0,
-          claimableUsdValue: claimableAmount * reward.token.price,
+          claimableUsdValue: (existing?.claimableUsdValue || 0) + claimableAmount * reward.token.price,
         }
       })
+
+    const baseRewards = Object.values(mergedByToken)
     const mappedRewardsByPosition: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }> = {}
     Object.entries(perPositionRewards).forEach(([positionId, tokens]) => {
       const rewardsList = Object.values(tokens)
@@ -164,7 +171,25 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
 
   const baseRewardsForReturn = useMemo(() => {
     if (positionsFilter?.length) {
-      return Object.values(rewardsByPosition).flatMap(item => item.rewards)
+      // Merge tokens across positions to avoid duplicate rows when the same token appears on multiple positions
+      const mergedAcrossPositions: Record<string, TokenRewardInfo> = {}
+      Object.values(rewardsByPosition).forEach(item => {
+        item.rewards.forEach(reward => {
+          const key = `${reward.chainId}-${reward.address.toLowerCase()}`
+          const existing = mergedAcrossPositions[key]
+          mergedAcrossPositions[key] = existing
+            ? {
+                ...existing,
+                totalAmount: existing.totalAmount + reward.totalAmount,
+                claimableAmount: existing.claimableAmount + reward.claimableAmount,
+                unclaimedAmount: existing.unclaimedAmount + reward.unclaimedAmount,
+                pendingAmount: existing.pendingAmount + reward.pendingAmount,
+                claimableUsdValue: existing.claimableUsdValue + reward.claimableUsdValue,
+              }
+            : reward
+        })
+      })
+      return Object.values(mergedAcrossPositions)
     }
     return baseRewards
   }, [positionsFilter?.length, rewardsByPosition, baseRewards])
@@ -262,64 +287,16 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     })
   }, [parsedRewards, supportedChains])
 
-  const campaignRewards = useMemo<CampaignRewardInfo[]>(() => {
-    if (!data) return []
-
-    const grouped: Record<string, Record<string, TokenRewardInfo>> = {}
-
-    data.forEach(chainRewards => {
-      ;(chainRewards.rewards || []).forEach(reward => {
-        reward.breakdowns.forEach(item => {
-          if (positionsFilter?.length) {
-            const resolvedPositions = resolvePositionsForBreakdown(item.reason)
-            if (!resolvedPositions.length) return
-          }
-
-          const [protocolName] = item.reason.split('_')
-          const decimalsPow = 10 ** reward.token.decimals
-          const amount = Number(item.amount) / decimalsPow
-          const claimed = Number(item.claimed) / decimalsPow
-          const claimable = Math.max(amount - claimed, 0)
-          const tokenKey = `${reward.token.chainId}-${reward.token.address.toLowerCase()}`
-          const existing = grouped[protocolName]?.[tokenKey]
-
-          grouped[protocolName] = grouped[protocolName] || {}
-          grouped[protocolName][tokenKey] = {
-            symbol: reward.token.symbol,
-            logo: existing?.logo || '',
-            address: reward.token.address,
-            chainId: reward.token.chainId,
-            totalAmount: (existing?.totalAmount || 0) + amount,
-            claimableAmount: (existing?.claimableAmount || 0) + claimable,
-            unclaimedAmount: (existing?.unclaimedAmount || 0) + claimable,
-            pendingAmount: (existing?.pendingAmount || 0) + Number(item.pending) / decimalsPow,
-            vestingAmount: 0,
-            waitingAmount: 0,
-            claimableUsdValue: ((existing?.claimableAmount || 0) + claimable) * reward.token.price,
-          }
-        })
-      })
-    })
-
-    return Object.entries(grouped).map(([protocolName, tokens]) => ({
-      protocolName,
-      tokens: Object.values(tokens).map(token => {
-        const logoKey = `${token.chainId}-${token.address.toLowerCase()}`
-        return { ...token, logo: tokenLogos[logoKey] || token.logo }
-      }),
-    }))
-  }, [data, positionsFilter, resolvePositionsForBreakdown, tokenLogos])
-
   return useMemo(
     () => ({
       rewardsByPosition: parsedRewardsByPosition,
+      rewards: parsedRewards,
       chainRewards,
-      campaignRewards,
       totalUsdValue,
       loading: isFetching,
       refetch: refetchMerklRewards,
     }),
-    [parsedRewardsByPosition, chainRewards, campaignRewards, totalUsdValue, isFetching, refetchMerklRewards],
+    [parsedRewardsByPosition, parsedRewards, chainRewards, totalUsdValue, isFetching, refetchMerklRewards],
   )
 }
 
