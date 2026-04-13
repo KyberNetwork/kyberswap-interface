@@ -378,9 +378,13 @@ export default function PositionBanner({
 
 const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string) => (
   <Flex flexDirection="column" sx={{ gap: 1 }}>
-    <Text lineHeight="20px" fontSize={14} color={'#fafafa'}>
+    <RewardLink
+      href="https://app.merkl.xyz/users"
+      target="_blank"
+      style={{ lineHeight: '20px', fontSize: 14, color: '#fafafa', width: 'fit-content' }}
+    >
       {t`3rd Party (Merkl) Incentives`}
-    </Text>
+    </RewardLink>
     <Box sx={{ paddingLeft: '8px' }}>
       {merklRewards.map(token => (
         <Flex
@@ -391,10 +395,8 @@ const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: str
           mt="4px"
         >
           <TokenLogo src={token.logo} size={16} style={{ position: 'relative', top: 1 }} />
-          <RewardLink href="https://app.merkl.xyz/users" target="_blank">
-            <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-            <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
-          </RewardLink>
+          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
         </Flex>
       ))}
     </Box>
