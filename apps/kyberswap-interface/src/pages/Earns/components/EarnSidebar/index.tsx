@@ -1,8 +1,7 @@
 import { t } from '@lingui/macro'
+import { ComponentType, Fragment, SVGProps, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 
-import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview.svg'
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'
 import { ReactComponent as FeaturedVaultIcon } from 'assets/svg/earn/ic_featured_vault.svg'
@@ -10,121 +9,197 @@ import { ReactComponent as SmartExitIcon } from 'assets/svg/earn/ic_list_smart_e
 import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_partner_vault.svg'
 import { APP_PATHS } from 'constants/index'
 import {
-  MobileNavContainer,
-  MobileNavDivider,
-  MobileNavItem,
+  BreadcrumbsContainer,
+  BreadcrumbsItem,
+  BreadcrumbsSeparator,
+  BreadcrumbsToggleButton,
+  BreadcrumbsTrail,
+  CollapseToggleButton,
+  GroupDivider,
   SidebarContainer,
+  SidebarGroup,
   SidebarGroupLabel,
-  SidebarItem,
-  SidebarSubItem,
-  SubItemLine,
+  SidebarHeader,
+  SidebarHeaderLabel,
+  SidebarNavItem,
 } from 'pages/Earns/components/EarnSidebar/styles'
 
-const EarnSidebar = () => {
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>
+
+type NavItem = {
+  label: string
+  path: string
+  icon: IconComponent
+  matchPath?: (pathname: string) => boolean
+}
+
+type NavGroup = {
+  label: string
+  items: NavItem[]
+}
+
+const useEarnNavGroups = (): NavGroup[] =>
+  useMemo(
+    () => [
+      {
+        label: t`Liquidity Pools`,
+        items: [
+          { label: t`Explore Pools`, path: APP_PATHS.EARN_POOLS, icon: PoolsIcon },
+          {
+            label: t`My Positions`,
+            path: APP_PATHS.EARN_POSITIONS,
+            icon: PositionsIcon,
+            matchPath: p => p === APP_PATHS.EARN_POSITIONS || p.startsWith('/earn/position/'),
+          },
+          { label: t`Smart Exit Orders`, path: APP_PATHS.EARN_SMART_EXIT, icon: SmartExitIcon },
+        ],
+      },
+      {
+        label: t`Partner Vaults`,
+        items: [
+          { label: t`Explore Vaults`, path: APP_PATHS.EARN_VAULTS, icon: VaultIcon },
+          { label: t`My Vaults`, path: APP_PATHS.EARN_MY_VAULTS, icon: FeaturedVaultIcon },
+        ],
+      },
+    ],
+    [],
+  )
+
+const isItemMatch = (item: NavItem, pathname: string) =>
+  item.matchPath ? item.matchPath(pathname) : pathname === item.path
+
+const SidebarToggleIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
+    <line x1="8" y1="3.5" x2="8" y2="16.5" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+)
+
+interface EarnSidebarProps {
+  collapsed: boolean
+  onToggle: () => void
+  onNavigate?: () => void
+  inDrawer?: boolean
+}
+
+const EarnSidebar = ({ collapsed, onToggle, onNavigate, inDrawer }: EarnSidebarProps) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const groups = useEarnNavGroups()
 
-  const isActive = (path: string) => pathname === path
-  const isPositionsActive = pathname === APP_PATHS.EARN_POSITIONS || pathname.startsWith('/earn/position/')
+  const handleNavigate = (path: string) => {
+    navigate(path)
+    onNavigate?.()
+  }
+
+  const isOverviewActive = pathname === APP_PATHS.EARN
 
   return (
-    <SidebarContainer>
-      <SidebarItem $active={isActive(APP_PATHS.EARN)} onClick={() => navigate(APP_PATHS.EARN)}>
-        <OverviewIcon width={16} height={16} color="currentColor" />
-        <Text>{t`Overview`}</Text>
-      </SidebarItem>
-
-      <Flex flexDirection="column" style={{ gap: '8px' }}>
-        <SidebarGroupLabel>{t`Liquidity Pools`}</SidebarGroupLabel>
-
-        <Flex flexDirection="column" style={{ gap: '8px' }}>
-          <SidebarSubItem $active={isActive(APP_PATHS.EARN_POOLS)} onClick={() => navigate(APP_PATHS.EARN_POOLS)}>
-            <SubItemLine />
-            <Flex alignItems="center" style={{ gap: '4px' }}>
-              <PoolsIcon width={16} height={16} color="currentColor" />
-              <Text>{t`Explore Pools`}</Text>
-            </Flex>
-          </SidebarSubItem>
-
-          <SidebarSubItem $active={isPositionsActive} onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}>
-            <SubItemLine />
-            <Flex alignItems="center" style={{ gap: '4px' }}>
-              <PositionsIcon width={16} height={16} color="currentColor" />
-              <Text>{t`My Positions`}</Text>
-            </Flex>
-          </SidebarSubItem>
-
-          <SidebarSubItem
-            $active={isActive(APP_PATHS.EARN_SMART_EXIT)}
-            onClick={() => navigate(APP_PATHS.EARN_SMART_EXIT)}
+    <SidebarContainer as="nav" $collapsed={collapsed} $inDrawer={inDrawer} aria-label={t`Earn navigation`}>
+      <SidebarHeader $collapsed={collapsed} $active={!collapsed && isOverviewActive}>
+        {!collapsed && (
+          <SidebarHeaderLabel
+            type="button"
+            $active={isOverviewActive}
+            aria-current={isOverviewActive ? 'page' : undefined}
+            onClick={() => handleNavigate(APP_PATHS.EARN)}
           >
-            <SubItemLine />
-            <Flex alignItems="center" style={{ gap: '4px' }}>
-              <SmartExitIcon width={16} height={16} color="currentColor" />
-              <Text>{t`Smart Exit Orders`}</Text>
-            </Flex>
-          </SidebarSubItem>
-        </Flex>
-      </Flex>
+            {t`Overview`}
+          </SidebarHeaderLabel>
+        )}
+        <CollapseToggleButton type="button" onClick={onToggle} aria-label={t`Toggle sidebar`}>
+          <SidebarToggleIcon />
+        </CollapseToggleButton>
+      </SidebarHeader>
 
-      <Flex flexDirection="column" style={{ gap: '8px' }}>
-        <SidebarGroupLabel>{t`Partner Vaults`}</SidebarGroupLabel>
-
-        <Flex flexDirection="column" style={{ gap: '8px' }}>
-          <SidebarSubItem $active={isActive(APP_PATHS.EARN_VAULTS)} onClick={() => navigate(APP_PATHS.EARN_VAULTS)}>
-            <SubItemLine />
-            <Flex alignItems="center" style={{ gap: '4px' }}>
-              <VaultIcon width={16} height={16} color="currentColor" />
-              <Text>{t`Explore Vaults`}</Text>
-            </Flex>
-          </SidebarSubItem>
-
-          <SidebarSubItem
-            $active={isActive(APP_PATHS.EARN_MY_VAULTS)}
-            onClick={() => navigate(APP_PATHS.EARN_MY_VAULTS)}
-          >
-            <SubItemLine />
-            <Flex alignItems="center" style={{ gap: '4px' }}>
-              <FeaturedVaultIcon width={16} height={16} color="currentColor" />
-              <Text>{t`My Vaults`}</Text>
-            </Flex>
-          </SidebarSubItem>
-        </Flex>
-      </Flex>
+      {groups.map((group, idx) => {
+        const isGroupActive = group.items.some(item => isItemMatch(item, pathname))
+        return (
+          <Fragment key={group.label}>
+            {collapsed && idx > 0 && <GroupDivider />}
+            <SidebarGroup>
+              {!collapsed && <SidebarGroupLabel $active={isGroupActive}>{group.label}</SidebarGroupLabel>}
+              {group.items.map(item => {
+                const Icon = item.icon
+                const active = isItemMatch(item, pathname)
+                return (
+                  <SidebarNavItem
+                    key={item.path}
+                    type="button"
+                    $active={active}
+                    $collapsed={collapsed}
+                    aria-current={active ? 'page' : undefined}
+                    aria-label={collapsed ? item.label : undefined}
+                    onClick={() => handleNavigate(item.path)}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <Icon width={18} height={18} color="currentColor" />
+                    {!collapsed && <span>{item.label}</span>}
+                  </SidebarNavItem>
+                )
+              })}
+            </SidebarGroup>
+          </Fragment>
+        )
+      })}
     </SidebarContainer>
   )
 }
 
-export const EarnMobileNav = () => {
+interface EarnBreadcrumbsProps {
+  onOpenDrawer: () => void
+}
+
+export const EarnBreadcrumbs = ({ onOpenDrawer }: EarnBreadcrumbsProps) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const groups = useEarnNavGroups()
 
-  const isActive = (path: string) => pathname === path
-  const isPositionsActive = pathname === APP_PATHS.EARN_POSITIONS || pathname.startsWith('/earn/position/')
+  const trail = useMemo(() => {
+    const earnRoot = { label: t`Earn`, path: APP_PATHS.EARN as string | undefined }
+
+    if (pathname === APP_PATHS.EARN) {
+      return [{ ...earnRoot, path: undefined }]
+    }
+
+    for (const group of groups) {
+      for (const item of group.items) {
+        if (isItemMatch(item, pathname)) {
+          return [earnRoot, { label: group.label, path: undefined }, { label: item.label, path: undefined }]
+        }
+      }
+    }
+
+    return [{ ...earnRoot, path: undefined }]
+  }, [pathname, groups])
 
   return (
-    <MobileNavContainer>
-      <MobileNavItem $active={isActive(APP_PATHS.EARN)} onClick={() => navigate(APP_PATHS.EARN)}>
-        {t`Overview`}
-      </MobileNavItem>
-      <MobileNavDivider />
-      <MobileNavItem $active={isActive(APP_PATHS.EARN_POOLS)} onClick={() => navigate(APP_PATHS.EARN_POOLS)}>
-        {t`Explore Pools`}
-      </MobileNavItem>
-      <MobileNavItem $active={isPositionsActive} onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}>
-        {t`My Positions`}
-      </MobileNavItem>
-      <MobileNavItem $active={isActive(APP_PATHS.EARN_SMART_EXIT)} onClick={() => navigate(APP_PATHS.EARN_SMART_EXIT)}>
-        {t`Smart Exit Orders`}
-      </MobileNavItem>
-      <MobileNavDivider />
-      <MobileNavItem $active={isActive(APP_PATHS.EARN_VAULTS)} onClick={() => navigate(APP_PATHS.EARN_VAULTS)}>
-        {t`Explore Vaults`}
-      </MobileNavItem>
-      <MobileNavItem $active={isActive(APP_PATHS.EARN_MY_VAULTS)} onClick={() => navigate(APP_PATHS.EARN_MY_VAULTS)}>
-        {t`My Vaults`}
-      </MobileNavItem>
-    </MobileNavContainer>
+    <BreadcrumbsContainer as="nav" aria-label={t`Earn breadcrumbs`}>
+      <BreadcrumbsToggleButton type="button" onClick={onOpenDrawer} aria-label={t`Open Earn menu`}>
+        <SidebarToggleIcon />
+      </BreadcrumbsToggleButton>
+      <BreadcrumbsTrail>
+        {trail.map((item, idx) => {
+          const isCurrent = idx === trail.length - 1
+          const clickable = !isCurrent && !!item.path
+          return (
+            <Fragment key={`${item.label}-${idx}`}>
+              {idx > 0 && <BreadcrumbsSeparator aria-hidden="true">{'›'}</BreadcrumbsSeparator>}
+              <BreadcrumbsItem
+                as={clickable ? 'button' : 'span'}
+                type={clickable ? 'button' : undefined}
+                $current={isCurrent}
+                $clickable={clickable}
+                aria-current={isCurrent ? 'page' : undefined}
+                onClick={clickable && item.path ? () => navigate(item.path as string) : undefined}
+              >
+                {item.label}
+              </BreadcrumbsItem>
+            </Fragment>
+          )
+        })}
+      </BreadcrumbsTrail>
+    </BreadcrumbsContainer>
   )
 }
 
