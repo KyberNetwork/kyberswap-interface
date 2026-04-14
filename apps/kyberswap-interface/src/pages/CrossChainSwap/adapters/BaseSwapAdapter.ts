@@ -5,6 +5,7 @@ import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
 import { WalletClient } from 'viem'
 
+import SolanaIcon from 'assets/networks/solana.svg'
 import { NearToken, SolanaToken } from 'state/crossChainSwap'
 
 import { Quote } from '../registry'
@@ -36,7 +37,7 @@ export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: stri
   },
   [NonEvmChain.Solana]: {
     name: 'Solana',
-    icon: 'https://solana.com/favicon.png',
+    icon: SolanaIcon,
   },
 }
 
