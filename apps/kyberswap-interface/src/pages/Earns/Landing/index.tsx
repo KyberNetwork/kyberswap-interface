@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
-import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_partner_vault.svg'
+import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as LiquidityPoolIcon } from 'assets/svg/earn/liquidity-pools.svg'
 import LowVolatilityIcon from 'assets/svg/earn/low-volatility.svg'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
@@ -121,7 +121,19 @@ const EarnLanding = () => {
 
         {/* Top Row: Liquidity Pools + Partner Vaults */}
         <TopSectionsRow>
-          <SectionContainer accentColor={theme.primary}>
+          <SectionContainer
+            accentColor={theme.primary}
+            role="button"
+            tabIndex={0}
+            clickable
+            onClick={() => navigate(APP_PATHS.EARN_POOLS)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                navigate(APP_PATHS.EARN_POOLS)
+              }
+            }}
+          >
             <SectionInner accentColor={theme.primary}>
               <SectionHeader>
                 <HeaderIconWrapper>

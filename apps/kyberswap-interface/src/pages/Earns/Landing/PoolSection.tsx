@@ -69,8 +69,9 @@ const PoolSection = ({
 }) => {
   const navigate = useNavigate()
 
-  const handleSectionClick = () => {
+  const handleSectionClick = (e?: React.MouseEvent) => {
     if (!tag) return
+    e?.stopPropagation()
     navigate({
       pathname: APP_PATHS.EARN_POOLS,
       search: `tag=${tag}`,
@@ -81,6 +82,7 @@ const PoolSection = ({
     if (!tag) return
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
+      e.stopPropagation()
       handleSectionClick()
     }
   }
