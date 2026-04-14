@@ -58,8 +58,6 @@ export default function Tooltip({
             width={width}
             maxWidth={maxWidth}
             size={size}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
             data-testid={dataTestId}
             onClick={e => e.stopPropagation()}
           >
@@ -68,6 +66,8 @@ export default function Tooltip({
         ) : null
       }
       show={!!text && show}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       {...rest}
     />
   )
@@ -75,8 +75,9 @@ export default function Tooltip({
 
 export function MouseoverTooltip({ children, disableTooltip, delay, ...rest }: Omit<TooltipProps, 'show'>) {
   const [show, setShow] = useState(false)
-  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null)
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const hovering = useRef(false)
+
   const open = useCallback(() => {
     if (!!rest.text) {
       hovering.current = true
@@ -84,22 +85,25 @@ export function MouseoverTooltip({ children, disableTooltip, delay, ...rest }: O
         if (hovering.current) setShow(true)
       }, 50)
 
-      if (closeTimeout) {
-        clearTimeout(closeTimeout)
-        setCloseTimeout(null)
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+        closeTimeoutRef.current = null
       }
     }
-  }, [rest.text, closeTimeout])
-  const close = useCallback(
-    () =>
-      setCloseTimeout(
-        setTimeout(() => {
-          hovering.current = false
-          setShow(false)
-        }, delay || 50),
-      ),
-    [delay],
-  )
+  }, [rest.text])
+
+  const close = useCallback(() => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+    }
+
+    closeTimeoutRef.current = setTimeout(() => {
+      hovering.current = false
+      setShow(false)
+      closeTimeoutRef.current = null
+    }, delay || 120)
+  }, [delay])
+
   if (disableTooltip) return <>{children}</>
   return (
     <Tooltip {...rest} show={show} onMouseEnter={open} onMouseLeave={close}>
