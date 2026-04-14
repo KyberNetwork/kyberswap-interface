@@ -45,8 +45,8 @@ const PoolEarningApr = () => {
   const { pool } = usePoolDetailContext()
 
   const aprSummary = useMemo(() => {
-    const totalApr = pool.poolStats?.apr ?? 0
-    const feeApr = pool.poolStats?.lpApr7d ?? 0
+    const totalApr = pool.poolStats?.allApr24h ?? 0
+    const feeApr = pool.poolStats?.lpApr24h ?? 0
     const rewardApr = Math.max(totalApr - feeApr, 0)
 
     const bonusApr = pool.poolStats?.bonusApr ?? 0
