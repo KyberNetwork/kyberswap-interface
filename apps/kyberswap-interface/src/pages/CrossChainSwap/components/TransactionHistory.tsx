@@ -79,9 +79,6 @@ export const TransactionHistory = () => {
       // Filter out transactions that are already being checked
       const txsToCheck = pendingTxs.filter(tx => !ongoingCallsRef.current.has(tx.id))
 
-      console.log('=== Pending transactions:', pendingTxs)
-      console.log('=== Transactions to check:', txsToCheck)
-
       if (txsToCheck.length === 0) return
 
       // Mark these transactions as being checked
