@@ -6,7 +6,7 @@ import PlayIcon from 'assets/svg/earn/play-icon.svg'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { RewardSectionContainer, RewardsNavigateButton } from 'pages/Earns/Landing/styles'
+import { HeroRewardRow, RewardsNavigateButton } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -39,15 +39,15 @@ const RewardSection = () => {
   }
 
   return (
-    <RewardSectionContainer>
-      <Flex flexDirection="column" style={{ gap: '8px' }} flexShrink={0}>
+    <HeroRewardRow>
+      <Flex alignItems="center" sx={{ gap: '20px' }}>
         <Text fontSize={16} color={theme.subText} sx={{ textTransform: 'uppercase' }}>
           {t`Total Rewards`}
         </Text>
         {isLoadingRewardInfo ? (
           <PositionSkeleton width={120} height={32} />
         ) : (
-          <Text fontSize={28}>
+          <Text fontSize={28} lineHeight="32px">
             {formatDisplayNumber(totalRewardUsdValue, { significantDigits: 6, style: 'currency' })}
           </Text>
         )}
@@ -56,9 +56,9 @@ const RewardSection = () => {
         <Text fontSize={14} color={theme.primary} fontWeight={500} sx={{ textTransform: 'uppercase' }}>
           {btnText}
         </Text>
-        <img src={PlayIcon} alt={t`Play icon`} width={upToSmall ? 28 : 36} height={upToSmall ? 28 : 36} />
+        <img src={PlayIcon} alt={t`Play icon`} width={upToSmall ? 24 : 28} height={upToSmall ? 24 : 28} />
       </RewardsNavigateButton>
-    </RewardSectionContainer>
+    </HeroRewardRow>
   )
 }
 

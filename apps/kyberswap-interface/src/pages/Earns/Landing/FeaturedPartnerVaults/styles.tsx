@@ -1,54 +1,22 @@
 import { rgba } from 'polished'
 import styled from 'styled-components'
 
-export const FeaturedVaultsContainer = styled.div`
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  border-radius: 12px;
-  padding-bottom: 24px;
-`
+export { PartnerVaultsList } from 'pages/Earns/Landing/styles'
 
-export const FeaturedVaultsHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 24px 0;
-  color: ${({ theme }) => theme.text};
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 16px 16px 0;
-  `}
-`
-
-export const VaultCardsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  padding: 16px 24px 0;
-
-  & > :last-child:nth-child(odd) {
-    grid-column: 1;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 16px 16px 0;
-  `}
-`
+const VAULT_CARD_BG = 'rgba(54, 39, 86, 0.2)'
+const VAULT_CARD_BG_HOVER = 'rgba(91, 58, 164, 0.32)'
 
 export const VaultCard = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  justify-content: center;
+  gap: 8px;
   padding: 16px;
   border-radius: 12px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  transition: background 0.2s ease, transform 0.2s ease;
+  background: ${VAULT_CARD_BG};
+  transition: background 0.2s ease;
 
   &:hover {
-    background: ${({ theme }) => rgba(theme.white, 0.06)};
-    transform: translateY(-1px);
+    background: ${VAULT_CARD_BG_HOVER};
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -64,10 +32,6 @@ export const VaultProtocolTag = styled.div`
   border-radius: 8px;
   background: ${({ theme }) => rgba(theme.white, 0.08)};
   white-space: nowrap;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `}
 `
 
 export const VaultDepositButton = styled.div<{ $disabled?: boolean }>`
@@ -80,12 +44,13 @@ export const VaultDepositButton = styled.div<{ $disabled?: boolean }>`
   color: ${({ theme }) => theme.primary};
   font-size: 12px;
   font-weight: 500;
+  line-height: 16px;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-  opacity: ${({ $disabled }) => ($disabled ? 0.3 : 1)};
+  opacity: ${({ $disabled }) => ($disabled ? 0.4 : 1)};
   transition: opacity 0.15s ease, background 0.15s ease;
 
   &:hover {
-    opacity: ${({ $disabled }) => ($disabled ? 0.3 : 0.8)};
+    opacity: ${({ $disabled }) => ($disabled ? 0.4 : 0.85)};
     background: ${({ $disabled, theme }) => ($disabled ? 'transparent' : `${theme.primary}10`)};
   }
 `

@@ -1,17 +1,23 @@
 import { useNavigate } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import PoolItem from 'pages/Earns/Landing/PoolItem'
-import { RightColumnSection, SectionContainer } from 'pages/Earns/Landing/styles'
+import {
+  FarmingPoolsList,
+  HighlightedPoolsGrid,
+  InnerListContainer,
+  InnerSectionTitle,
+  SimpleSectionHeader,
+} from 'pages/Earns/Landing/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { EarnPool } from 'pages/Earns/types'
-import { MEDIA_WIDTHS } from 'theme'
 
-const PoolItemSkeleton = () => (
-  <Flex alignItems="center" justifyContent="space-between" style={{ padding: '8px 16px' }}>
+type Variant = 'inner' | 'inner-stable' | 'highlighted' | 'farming'
+
+const SmallSkeleton = () => (
+  <Flex alignItems="center" justifyContent="space-between" sx={{ padding: '12px 16px' }}>
     <Flex alignItems="center" sx={{ gap: '4px' }}>
       <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
       <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%', marginLeft: '-8px' }} />
@@ -22,93 +28,144 @@ const PoolItemSkeleton = () => (
   </Flex>
 )
 
+const LargeSkeleton = () => (
+  <Box sx={{ padding: '16px', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.04)' }}>
+    <Flex alignItems="center" justifyContent="space-between" marginBottom="12px">
+      <Flex alignItems="center" sx={{ gap: '4px' }}>
+        <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
+        <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%', marginLeft: '-8px' }} />
+        <PositionSkeleton width={100} height={20} />
+        <PositionSkeleton width={40} height={20} />
+      </Flex>
+      <PositionSkeleton width={80} height={20} />
+    </Flex>
+    <Flex alignItems="center" justifyContent="space-between">
+      <PositionSkeleton width={80} height={20} />
+      <PositionSkeleton width={80} height={20} />
+    </Flex>
+  </Box>
+)
+
 const PoolSection = ({
   title,
   tooltip,
   icon,
   tag,
   isLoading,
-  size = 'small',
   listPools,
-  styles,
-  variant = 'default',
-  skeletonCount = 4,
+  variant,
+  skeletonCount,
+  onPoolClick,
 }: {
   title: string
-  tooltip: string
-  icon: string | React.ReactNode
-  tag: string
+  tooltip?: string
+  icon?: string | React.ReactNode
+  tag?: string
   isLoading: boolean
-  size?: 'small' | 'large'
   listPools: EarnPool[]
-  styles?: React.CSSProperties
-  variant?: 'default' | 'grouped'
+  variant: Variant
   skeletonCount?: number
+  onPoolClick: (pool: EarnPool) => void
 }) => {
   const navigate = useNavigate()
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const poolItemContainerStyles = {
-    ...(size === 'small'
-      ? {
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-        }
-      : {
-          display: 'grid',
-          gridTemplateColumns: upToSmall || upToLarge ? '1fr' : 'repeat(2, 1fr)',
-          gap: '1rem',
-        }),
-  }
-
-  const handleClick = () => {
+  const handleSectionClick = () => {
+    if (!tag) return
     navigate({
       pathname: APP_PATHS.EARN_POOLS,
       search: `tag=${tag}`,
     })
   }
 
-  const content = (
-    <>
-      <Flex alignItems="center" sx={{ gap: '8px', marginBottom: '16px' }}>
-        {typeof icon === 'string' ? <img src={icon} alt={title} width={24} height={24} /> : icon}
-        <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-          <Text fontSize={upToSmall ? 16 : 20} fontWeight={500}>
-            {title}
-          </Text>
-        </MouseoverTooltipDesktopOnly>
-      </Flex>
+  const handleSectionKeyDown = (e: React.KeyboardEvent) => {
+    if (!tag) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleSectionClick()
+    }
+  }
 
-      {isLoading ? (
-        <Box sx={poolItemContainerStyles}>
-          {Array.from({ length: skeletonCount }).map((_, i) => (
-            <PoolItemSkeleton key={i} />
-          ))}
-        </Box>
-      ) : (
-        <Box sx={poolItemContainerStyles}>
-          {listPools.map(pool => (
-            <PoolItem pool={pool} key={pool.address} />
-          ))}
-        </Box>
-      )}
-    </>
-  )
+  const renderIcon = () => {
+    if (!icon) return null
+    if (typeof icon === 'string') return <img src={icon} alt={title} width={20} height={20} />
+    return icon
+  }
 
-  if (variant === 'grouped') {
+  if (variant === 'highlighted' || variant === 'farming') {
+    const isFarming = variant === 'farming'
+    const ItemContainer = isFarming ? FarmingPoolsList : HighlightedPoolsGrid
+    const count = skeletonCount ?? (isFarming ? 3 : 6)
+
     return (
-      <RightColumnSection role="button" onClick={handleClick}>
-        {content}
-      </RightColumnSection>
+      <Box
+        role={tag ? 'button' : undefined}
+        tabIndex={tag ? 0 : undefined}
+        onClick={handleSectionClick}
+        onKeyDown={handleSectionKeyDown}
+        sx={{ cursor: tag ? 'pointer' : 'default' }}
+      >
+        <SimpleSectionHeader>
+          {renderIcon()}
+          {tooltip ? (
+            <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
+              <Text fontSize={20} fontWeight={500}>
+                {title}
+              </Text>
+            </MouseoverTooltipDesktopOnly>
+          ) : (
+            <Text fontSize={20} fontWeight={500}>
+              {title}
+            </Text>
+          )}
+        </SimpleSectionHeader>
+        <ItemContainer>
+          {isLoading
+            ? Array.from({ length: count }).map((_, i) => <LargeSkeleton key={i} />)
+            : listPools.map(pool => (
+                <PoolItem
+                  key={pool.address}
+                  pool={pool}
+                  variant={isFarming ? 'large-farming' : 'large'}
+                  onClick={onPoolClick}
+                />
+              ))}
+        </ItemContainer>
+      </Box>
     )
   }
 
+  const innerVariant = variant === 'inner-stable' ? 'small-stable' : 'small'
+  const count = skeletonCount ?? 4
+
   return (
-    <SectionContainer style={styles} role="button" onClick={handleClick}>
-      {content}
-    </SectionContainer>
+    <Box
+      role={tag ? 'button' : undefined}
+      tabIndex={tag ? 0 : undefined}
+      onClick={handleSectionClick}
+      onKeyDown={handleSectionKeyDown}
+      sx={{ cursor: tag ? 'pointer' : 'default' }}
+    >
+      <InnerSectionTitle>
+        {tooltip ? (
+          <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
+            <Text fontSize={20} fontWeight={500}>
+              {title}
+            </Text>
+          </MouseoverTooltipDesktopOnly>
+        ) : (
+          <Text fontSize={20} fontWeight={500}>
+            {title}
+          </Text>
+        )}
+      </InnerSectionTitle>
+      <InnerListContainer>
+        {isLoading
+          ? Array.from({ length: count }).map((_, i) => <SmallSkeleton key={i} />)
+          : listPools.map(pool => (
+              <PoolItem key={pool.address} pool={pool} variant={innerVariant} onClick={onPoolClick} />
+            ))}
+      </InnerListContainer>
+    </Box>
   )
 }
 
