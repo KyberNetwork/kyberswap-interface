@@ -145,11 +145,10 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
 
   const chartData = useMemo(
     () =>
-      (aprHistoryData?.points ?? []).map((point, index, points) => {
+      (aprHistoryData?.points ?? []).map(point => {
         return {
           ...point,
-          volumeBarColor:
-            point.volumeUsd >= (points[index - 1]?.volumeUsd ?? point.volumeUsd) ? volumeUpColor : volumeDownColor,
+          volumeBarColor: point.close >= point.open ? volumeUpColor : volumeDownColor,
         }
       }),
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],

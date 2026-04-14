@@ -147,7 +147,7 @@ const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window:
           Vol
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatDisplayNumber(candle.volume, { significantDigits: 4 })}
+          {formatDisplayNumber(candle.volume, { style: 'currency', significantDigits: 4 })}
         </Text>
       </TooltipGrid>
     </TooltipCard>

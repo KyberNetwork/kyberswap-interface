@@ -197,8 +197,12 @@ export interface PoolAprHistoryPoint {
   activeFeeApr?: number
   activeLmApr?: number
   activeEgApr?: number
-  volumeUsd: number
   tvlUsd: number
+  volumeUsd: number
+  open: number
+  high: number
+  low: number
+  close: number
 }
 
 export interface PoolAprHistoryData {
