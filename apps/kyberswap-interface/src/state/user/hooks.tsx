@@ -31,6 +31,7 @@ import {
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleMyEarningChart,
+  toggleSuccessSound,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
@@ -502,6 +503,18 @@ export function useToggleTradeRoutes(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }
+
+export function useSuccessSoundEnabled(): boolean {
+  return useSelector((state: AppState) =>
+    state.user.successSoundEnabled === undefined ? true : state.user.successSoundEnabled,
+  )
+}
+
+export function useToggleSuccessSound(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleSuccessSound()), [dispatch])
+}
+
 export function useFavoriteChains(): [string[], (val: string[]) => void] {
   const dispatch = useDispatch<AppDispatch>()
   const favoriteChains = useSelector<AppState, AppState['user']['favoriteChains']>(
