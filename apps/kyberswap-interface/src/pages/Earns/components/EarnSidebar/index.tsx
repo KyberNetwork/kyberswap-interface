@@ -2,11 +2,11 @@ import { t } from '@lingui/macro'
 import { ComponentType, Fragment, SVGProps, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
-import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'
+import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as FeaturedVaultIcon } from 'assets/svg/earn/ic_featured_vault.svg'
 import { ReactComponent as SmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
-import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_partner_vault.svg'
+import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as PoolIcon } from 'assets/svg/rocket.svg'
 import { APP_PATHS } from 'constants/index'
 import {
   BreadcrumbsContainer,
@@ -44,7 +44,7 @@ const useEarnNavGroups = (): NavGroup[] =>
       {
         label: t`Liquidity Pools`,
         items: [
-          { label: t`Explore Pools`, path: APP_PATHS.EARN_POOLS, icon: PoolsIcon },
+          { label: t`Explore Pools`, path: APP_PATHS.EARN_POOLS, icon: PoolIcon },
           {
             label: t`My Positions`,
             path: APP_PATHS.EARN_POSITIONS,
