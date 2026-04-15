@@ -89,6 +89,7 @@ export default function PositionBanner({
 
   const isLoadingKemRewards = initialLoading || isLoadingRewardInfo
   const totalUsdValue = totalKemUsdValue + totalMerklUsdValue
+  const totalClaimableUsdValue = claimableUsdValue + totalMerklUsdValue
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
@@ -262,7 +263,10 @@ export default function PositionBanner({
                       ) : (
                         <Text fontSize={20}>
                           <AnimatedNumber
-                            value={formatDisplayNumber(claimableUsdValue, { significantDigits: 4, style: 'currency' })}
+                            value={formatDisplayNumber(totalClaimableUsdValue, {
+                              significantDigits: 4,
+                              style: 'currency',
+                            })}
                           />
                         </Text>
                       )}
@@ -360,7 +364,10 @@ export default function PositionBanner({
                   ) : (
                     <Text fontSize={20}>
                       <AnimatedNumber
-                        value={formatDisplayNumber(claimableUsdValue, { style: 'currency', significantDigits: 4 })}
+                        value={formatDisplayNumber(totalClaimableUsdValue, {
+                          style: 'currency',
+                          significantDigits: 4,
+                        })}
                       />
                     </Text>
                   )}
