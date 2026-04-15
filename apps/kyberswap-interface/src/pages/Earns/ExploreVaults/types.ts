@@ -2,6 +2,16 @@ export interface ChartDataPoint {
   value: number
 }
 
+export enum VaultSortBy {
+  APY = 'apy',
+  TVL = 'tvl',
+}
+
+export enum VaultViewMode {
+  GRID = 'grid',
+  LIST = 'list',
+}
+
 export interface VaultInfo {
   id: string
   token: string

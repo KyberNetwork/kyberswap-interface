@@ -40,6 +40,71 @@ export const FilterRow = styled.div`
   `}
 `
 
+export const FilterControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
+`
+
+export const SortByLabel = styled.span`
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
+  white-space: nowrap;
+`
+
+export const SortByGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+export const ViewToggleGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => rgba(theme.subText, 0.2)};
+  background: ${({ theme }) => rgba(theme.white, 0.04)};
+
+  /* EarnLayout sidebar is 220px + 72px page padding, so at <= 1200px the
+     list row (~900px min) doesn't fit in the content area. Force gallery
+     instead — matches the gallery's own 3 -> 2 column transition at upToLarge. */
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    display: none;
+  `}
+`
+
+export const ViewToggleButton = styled.button<{ $active?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: ${({ $active, theme }) => ($active ? rgba(theme.white, 0.2) : 'transparent')};
+  color: ${({ $active, theme }) => ($active ? theme.text : theme.subText)};
+  box-shadow: ${({ $active }) => ($active ? '0 0 1px rgba(40, 41, 61, 0.08), 0 1px 2px rgba(0, 0, 0, 0.32)' : 'none')};
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.text};
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`
+
 export const VaultCardsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -319,4 +384,97 @@ export const TxLink = styled.span`
   &:hover {
     text-decoration: underline;
   }
+`
+
+export const VaultList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  & > * {
+    opacity: 0;
+    animation: ${fadeInUp} 0.4s ease-out forwards;
+  }
+
+  ${Array.from({ length: 12 }, (_, i) => `& > *:nth-child(${i + 1}) { animation-delay: ${i * 0.04}s; }`).join('\n  ')}
+
+  @media (prefers-reduced-motion: reduce) {
+    & > * {
+      opacity: 1;
+      animation: none;
+    }
+  }
+`
+
+export const VaultListRow = styled.div<{ $disabled?: boolean }>`
+  display: grid;
+  /* Flexible tracks (minmax) so the grid fits at 1201px viewport with the
+     EarnLayout sidebar expanded (≈909px of content area) up to the 1600px
+     max content width. Tracks track their min on tight screens and expand to
+     max on wide ones; justify-content: space-between distributes remaining
+     space evenly so columns align across rows at every size. */
+  grid-template-columns:
+    minmax(260px, 300px)
+    minmax(175px, 200px)
+    minmax(175px, 200px)
+    minmax(210px, 230px);
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 12px;
+  background: ${({ theme }) => theme.background};
+  opacity: ${({ $disabled }) => ($disabled ? 0.6 : 1)};
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    background: ${({ theme }) => rgba(theme.background, 0.85)};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+`
+
+export const VaultListRowMain = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+`
+
+export const VaultListMetric = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+`
+
+export const VaultListMetricText = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+`
+
+export const VaultListMetricLabel = styled.span`
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
+`
+
+export const VaultListMetricValue = styled.span`
+  font-size: 16px;
+  color: ${({ theme }) => theme.white2};
+`
+
+export const VaultListChartWrapper = styled.div`
+  width: 82px;
+  height: 28px;
+  flex-shrink: 0;
+`
+
+export const VaultListActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-shrink: 0;
 `
