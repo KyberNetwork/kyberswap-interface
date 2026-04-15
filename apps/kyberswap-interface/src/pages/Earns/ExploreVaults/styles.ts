@@ -136,18 +136,24 @@ export const VaultCardsGrid = styled.div`
   `}
 `
 
-export const VaultCard = styled.div`
+export const VaultCard = styled.div<{ $clickable?: boolean; $disabled?: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 16px;
   border-radius: 12px;
   background: ${({ theme }) => theme.background};
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: ${({ $clickable, $disabled }) => ($disabled ? 'not-allowed' : $clickable ? 'pointer' : 'default')};
 
   &:hover {
     background: ${({ theme }) => rgba(theme.background, 0.85)};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transform: ${({ $clickable, $disabled }) => ($clickable && !$disabled ? 'translateY(-1px)' : 'none')};
+    box-shadow: ${({ $clickable, $disabled }) => ($clickable && !$disabled ? '0 4px 16px rgba(0, 0, 0, 0.2)' : 'none')};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.primary};
+    outline-offset: 2px;
   }
 `
 
@@ -220,7 +226,7 @@ export const ChartWrapper = styled.div<{ $height?: number }>`
 `
 
 const buttonBase = css`
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 6px 12px;
@@ -228,20 +234,25 @@ const buttonBase = css`
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
+  font-family: inherit;
   cursor: pointer;
   transition: opacity 0.15s ease, background 0.15s ease;
   white-space: nowrap;
+  background: transparent;
 
   &:hover {
     opacity: 0.8;
   }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 `
 
-export const DepositButton = styled.div<{ $disabled?: boolean }>`
+export const DepositButton = styled.button<{ $disabled?: boolean }>`
   ${buttonBase}
   border: 1px solid ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.primary};
-  background: transparent;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ $disabled }) => ($disabled ? 0.3 : 1)};
 
@@ -251,22 +262,20 @@ export const DepositButton = styled.div<{ $disabled?: boolean }>`
   }
 `
 
-export const ViewPositionButton = styled.div`
+export const ViewPositionButton = styled.button`
   ${buttonBase}
   border: 1px solid ${({ theme }) => theme.blue3};
   color: ${({ theme }) => theme.blue3};
-  background: transparent;
 
   &:hover {
     background: ${({ theme }) => rgba(theme.blue3, 0.06)};
   }
 `
 
-export const WithdrawButton = styled.div<{ $disabled?: boolean }>`
+export const WithdrawButton = styled.button<{ $disabled?: boolean }>`
   ${buttonBase}
   border: 1px solid ${({ theme }) => theme.subText};
   color: ${({ theme }) => theme.subText};
-  background: transparent;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ $disabled }) => ($disabled ? 0.3 : 1)};
 

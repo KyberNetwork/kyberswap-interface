@@ -74,6 +74,7 @@ const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
 const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
 const ExploreVaults = lazy(() => import('pages/Earns/ExploreVaults'))
 const MyVaults = lazy(() => import('pages/Earns/MyVaults'))
+const VaultDetail = lazy(() => import('pages/Earns/VaultDetail'))
 
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
@@ -368,6 +369,7 @@ export default function App() {
                 <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
                 <Route path={APP_PATHS.EARN_VAULTS} element={<ExploreVaults />} />
                 <Route path={APP_PATHS.EARN_MY_VAULTS} element={<MyVaults />} />
+                <Route path={APP_PATHS.EARN_VAULT_DETAIL} element={<VaultDetail />} />
               </Route>
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />

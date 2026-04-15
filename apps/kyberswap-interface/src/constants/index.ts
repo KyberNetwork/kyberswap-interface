@@ -191,6 +191,7 @@ export const APP_PATHS = {
   EARN_SMART_EXIT: '/earn/smart-exit',
   EARN_VAULTS: '/earn/vaults',
   EARN_MY_VAULTS: '/earn/my-vaults',
+  EARN_VAULT_DETAIL: '/earn/vault/:vaultId',
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',

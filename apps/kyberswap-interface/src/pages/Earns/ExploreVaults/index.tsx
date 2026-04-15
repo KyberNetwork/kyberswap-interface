@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -7,6 +8,7 @@ import { ReactComponent as GridViewIcon } from 'assets/svg/grid_view.svg'
 import { ReactComponent as ListViewIcon } from 'assets/svg/list_view.svg'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import { SAMPLE_VAULTS, VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
@@ -63,10 +65,29 @@ const USER_DEPOSITED_VAULT_IDS = new Set(['eth-yield-mainnet'])
 
 const ExploreVaultCard = ({ vault }: { vault: VaultInfo }) => {
   const theme = useTheme()
+  const navigate = useNavigate()
   const hasPosition = USER_DEPOSITED_VAULT_IDS.has(vault.id)
 
+  const goToDetail = () => {
+    if (vault.disabled) return
+    navigate(APP_PATHS.EARN_VAULT_DETAIL.replace(':vaultId', vault.id))
+  }
+
   return (
-    <VaultCard>
+    <VaultCard
+      role="button"
+      tabIndex={vault.disabled ? -1 : 0}
+      aria-disabled={vault.disabled || undefined}
+      $clickable
+      $disabled={vault.disabled}
+      onClick={goToDetail}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          goToDetail()
+        }
+      }}
+    >
       <CardHeader>
         <Flex alignItems="center" style={{ gap: '4px' }}>
           <TokenIconWrapper>
@@ -87,8 +108,28 @@ const ExploreVaultCard = ({ vault }: { vault: VaultInfo }) => {
         </Flex>
 
         <Flex alignItems="center" style={{ gap: '12px' }}>
-          {hasPosition && <ViewPositionButton>{t`View Position`}</ViewPositionButton>}
-          <DepositButton $disabled={vault.disabled}>{t`+ Deposit`}</DepositButton>
+          {hasPosition && (
+            <ViewPositionButton
+              type="button"
+              onClick={e => {
+                e.stopPropagation()
+                goToDetail()
+              }}
+            >
+              {t`View Position`}
+            </ViewPositionButton>
+          )}
+          <DepositButton
+            type="button"
+            $disabled={vault.disabled}
+            disabled={vault.disabled}
+            onClick={e => {
+              e.stopPropagation()
+              goToDetail()
+            }}
+          >
+            {t`+ Deposit`}
+          </DepositButton>
         </Flex>
       </CardHeader>
 
@@ -116,7 +157,9 @@ const ExploreVaultCard = ({ vault }: { vault: VaultInfo }) => {
         <CardFooter>
           <ProtocolTag>
             <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
-            <span>{`managed by ${vault.partner}`}</span>
+            <span>
+              {t`managed by`} {vault.partner}
+            </span>
           </ProtocolTag>
         </CardFooter>
       </CardBody>

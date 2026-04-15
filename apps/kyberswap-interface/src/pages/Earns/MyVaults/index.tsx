@@ -1,11 +1,13 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { DefaultTheme } from 'styled-components'
 
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { SAMPLE_USER_VAULTS, VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
 import {
@@ -94,12 +96,26 @@ const isWithdrawDisabled = (status: WithdrawalStatus) =>
 
 const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
   const theme = useTheme()
+  const navigate = useNavigate()
   const countdown = useCountdown(vault.processingTimeSeconds)
   const statusConfig = getStatusConfig(theme)[vault.withdrawalStatus]
   const isCompleted = vault.withdrawalStatus === WithdrawalStatus.COMPLETED
 
+  const goToDetail = () => navigate(APP_PATHS.EARN_VAULT_DETAIL.replace(':vaultId', vault.id))
+
   return (
-    <VaultCard>
+    <VaultCard
+      role="button"
+      tabIndex={0}
+      $clickable
+      onClick={goToDetail}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          goToDetail()
+        }
+      }}
+    >
       <CardHeader>
         <Flex alignItems="center" style={{ gap: '4px' }}>
           <TokenIconWrapper>
@@ -108,7 +124,7 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
               src={vault.chainIcon}
               alt={vault.chainName}
               size={12}
-              style={{ position: 'absolute', bottom: -2, right: -4, borderRadius: 4, border: '1px solid #141414' }}
+              style={{ position: 'absolute', bottom: -2, right: -4, borderRadius: 4 }}
             />
           </TokenIconWrapper>
           <Text fontSize={16} color={theme.white2} style={{ marginLeft: '4px' }}>
@@ -120,8 +136,26 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
         </Flex>
 
         <Flex alignItems="center" style={{ gap: '12px' }}>
-          <WithdrawButton $disabled={isWithdrawDisabled(vault.withdrawalStatus)}>{t`Withdraw`}</WithdrawButton>
-          <DepositButton>{t`+ Deposit`}</DepositButton>
+          <WithdrawButton
+            type="button"
+            $disabled={isWithdrawDisabled(vault.withdrawalStatus)}
+            disabled={isWithdrawDisabled(vault.withdrawalStatus)}
+            onClick={e => {
+              e.stopPropagation()
+              goToDetail()
+            }}
+          >
+            {t`Withdraw`}
+          </WithdrawButton>
+          <DepositButton
+            type="button"
+            onClick={e => {
+              e.stopPropagation()
+              goToDetail()
+            }}
+          >
+            {t`+ Deposit`}
+          </DepositButton>
         </Flex>
       </CardHeader>
 
@@ -196,7 +230,9 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
         <CardFooterRow>
           <ProtocolTag>
             <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
-            <span>{`managed by ${vault.partner}`}</span>
+            <span>
+              {t`managed by`} {vault.partner}
+            </span>
           </ProtocolTag>
           {statusConfig && <StatusBadge $color={statusConfig.color}>{statusConfig.label}</StatusBadge>}
         </CardFooterRow>

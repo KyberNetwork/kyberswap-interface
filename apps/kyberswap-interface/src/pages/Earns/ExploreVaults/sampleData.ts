@@ -144,10 +144,7 @@ export const SAMPLE_USER_VAULTS: UserVaultPosition[] = [
     withdrawalStatus: WithdrawalStatus.REQUESTED,
   },
   {
-    ...SAMPLE_VAULTS[1],
-    id: 'usdc-yield-arb-user',
-    token: 'USDC',
-    tokenIcon: USDC_ICON,
+    ...SAMPLE_VAULTS[2],
     balance: 1200,
     balanceUsd: 1200,
     earned: 12,
@@ -156,10 +153,7 @@ export const SAMPLE_USER_VAULTS: UserVaultPosition[] = [
     withdrawalStatus: WithdrawalStatus.PENDING,
   },
   {
-    ...SAMPLE_VAULTS[2],
-    id: 'usdt-yield-arb-user',
-    token: 'USDT',
-    tokenIcon: USDT_ICON,
+    ...SAMPLE_VAULTS[4],
     balance: 3000,
     balanceUsd: 3000,
     earned: 32,

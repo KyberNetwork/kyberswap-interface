@@ -57,7 +57,12 @@ const useEarnNavGroups = (): NavGroup[] =>
       {
         label: t`Partner Vaults`,
         items: [
-          { label: t`Explore Vaults`, path: APP_PATHS.EARN_VAULTS, icon: VaultIcon },
+          {
+            label: t`Explore Vaults`,
+            path: APP_PATHS.EARN_VAULTS,
+            icon: VaultIcon,
+            matchPath: p => p === APP_PATHS.EARN_VAULTS || p.startsWith('/earn/vault/'),
+          },
           { label: t`My Vaults`, path: APP_PATHS.EARN_MY_VAULTS, icon: FeaturedVaultIcon },
         ],
       },
