@@ -16,23 +16,68 @@ import { getPriceCondition } from 'pages/Earns/components/SmartExit/utils/typeGu
 import { Metric, PAIR_CATEGORY, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
+type Comparator = 'gte' | 'lte'
+
+const flipComparator = (c: Comparator): Comparator => (c === 'gte' ? 'lte' : 'gte')
+
 export default function PriceInput({
   metric,
   setMetric,
   position,
   isHighlighted = false,
+  revertPrice = false,
 }: {
   metric: SelectedMetric
   setMetric: (value: SelectedMetric) => void
   position: ParsedPosition
   isHighlighted?: boolean
+  revertPrice?: boolean
 }) {
   const theme = useTheme()
   const priceCondition = useMemo(() => getPriceCondition(metric) || defaultPriceCondition, [metric])
 
+  // Stored condition (priceCondition) is always in forward (token0/token1) domain
+  // so the backend payload and Confirmation view stay consistent regardless of display inversion.
+  // The local `inputPrice` and `comparator` state are in DISPLAY domain and mirror what the user sees.
+
+  const toDisplayPrice = useCallback(
+    (forward: string | number | undefined): string => {
+      if (forward === undefined || forward === null || forward === '') return ''
+      const n = typeof forward === 'number' ? forward : parseFloat(forward)
+      if (!isFinite(n) || n <= 0) return ''
+      if (!revertPrice) return typeof forward === 'string' ? forward : toString(forward)
+      return toString(formatNumberBySignificantDigits(1 / n, 6))
+    },
+    [revertPrice],
+  )
+
+  const toForwardPrice = useCallback(
+    (display: string): string => {
+      if (!display) return ''
+      const n = parseFloat(display)
+      if (!isFinite(n) || n <= 0) return ''
+      return revertPrice ? toString(formatNumberBySignificantDigits(1 / n, 6)) : display
+    },
+    [revertPrice],
+  )
+
+  const toDisplayComparator = useCallback(
+    (stored: Comparator): Comparator => (revertPrice ? flipComparator(stored) : stored),
+    [revertPrice],
+  )
+
+  const toStoredComparator = useCallback(
+    (display: Comparator): Comparator => (revertPrice ? flipComparator(display) : display),
+    [revertPrice],
+  )
+
   const [tick, setTick] = useState<number>()
-  const [inputPrice, setInputPrice] = useState(priceCondition?.lte ?? priceCondition?.gte ?? '')
-  const [comparator, setComparator] = useState<'lte' | 'gte'>(priceCondition?.lte ? 'lte' : 'gte')
+  const [inputPrice, setInputPrice] = useState<string>(() =>
+    toDisplayPrice(priceCondition?.lte || priceCondition?.gte || ''),
+  )
+  const [comparator, setComparator] = useState<Comparator>(() =>
+    toDisplayComparator(priceCondition?.lte ? 'lte' : 'gte'),
+  )
 
   // Track change source to prevent circular updates
   const changeSourceRef = useRef<'input' | 'slider' | null>(null)
@@ -49,51 +94,66 @@ export default function PriceInput({
     [position.pool.tickSpacing, position.priceRange, position.token0.decimals, position.token1.decimals],
   )
 
-  const priceToTick = useCallback(
-    (price: string) => {
-      if (!price) return undefined
-      const priceNum = parseFloat(price)
+  // Forward price string → nearest usable tick
+  const forwardPriceToTick = useCallback(
+    (forwardPrice: string) => {
+      if (!forwardPrice) return undefined
+      const priceNum = parseFloat(forwardPrice)
       if (!priceNum || priceNum <= 0 || !isFinite(priceNum)) return undefined
       return nearestUsableTick(
-        priceToClosestTick(price, position.token0.decimals, position.token1.decimals) || 0,
+        priceToClosestTick(forwardPrice, position.token0.decimals, position.token1.decimals) || 0,
         position.pool.tickSpacing,
       )
     },
     [position.pool.tickSpacing, position.token0.decimals, position.token1.decimals],
   )
 
-  // Sync comparator/input when condition changes externally (not via slider)
+  // Display price string → nearest usable tick (converts through forward domain)
+  const displayPriceToTick = useCallback(
+    (displayPrice: string) => forwardPriceToTick(toForwardPrice(displayPrice)),
+    [forwardPriceToTick, toForwardPrice],
+  )
+
+  // Sync display state when condition changes externally (not via slider)
+  // Also re-syncs when revertPrice toggles: toDisplayPrice/toDisplayComparator change,
+  // so this effect re-runs and reformats the shown value/comparator.
   useEffect(() => {
     if (changeSourceRef.current === 'slider') return
     if (priceCondition) {
-      const nextComparator = priceCondition.lte ? 'lte' : 'gte'
-      setComparator(nextComparator)
-      const nextPrice = priceCondition.lte || priceCondition.gte || ''
-      setInputPrice(nextPrice)
+      const storedComparator: Comparator = priceCondition.lte ? 'lte' : 'gte'
+      setComparator(toDisplayComparator(storedComparator))
+      const storedPrice = priceCondition.lte || priceCondition.gte || ''
+      setInputPrice(toDisplayPrice(storedPrice))
     }
-  }, [priceCondition])
+  }, [priceCondition, toDisplayComparator, toDisplayPrice])
 
+  // Detects a crossing of `currentTick` and flips the stored/display comparators accordingly.
+  // Returns the STORED (forward) comparator after any flip.
   const updateComparatorOnCross = useCallback(
-    (t: number | undefined, priceString: string): 'gte' | 'lte' => {
-      if (t === undefined) return comparator
+    (t: number | undefined, forwardPriceString: string): Comparator => {
+      const storedNow = toStoredComparator(comparator)
+      if (t === undefined) return storedNow
 
       const side: 'below' | 'above' = t >= currentTick ? 'above' : 'below'
       const hasCrossed = lastSideRef.current !== null && lastSideRef.current !== side
       lastSideRef.current = side
 
       if (hasCrossed) {
-        const next = side === 'above' ? 'gte' : 'lte'
-        setComparator(next)
+        const nextStored: Comparator = side === 'above' ? 'gte' : 'lte'
+        setComparator(toDisplayComparator(nextStored))
         setMetric({
           metric: Metric.PoolPrice,
-          condition: { gte: next === 'gte' ? priceString : '', lte: next === 'lte' ? priceString : '' },
+          condition: {
+            gte: nextStored === 'gte' ? forwardPriceString : '',
+            lte: nextStored === 'lte' ? forwardPriceString : '',
+          },
         })
-        return next
+        return nextStored
       }
 
-      return comparator
+      return storedNow
     },
-    [comparator, currentTick, setMetric],
+    [comparator, currentTick, setMetric, toDisplayComparator, toStoredComparator],
   )
 
   // Keep side reference in sync with latest tick (without forcing comparator change)
@@ -104,41 +164,49 @@ export default function PriceInput({
   }, [tick, currentTick])
 
   // Debounce input price updates
+  // Latest-effect ref pattern: the timer body reads from this ref so it always sees fresh
+  // closures (important when revertPrice toggles mid-debounce), while the effect deps stay
+  // narrow — unstable parent identities like setMetric can't reset the debounce timer.
+  const commitInputRef = useRef<() => void>(() => {})
+  commitInputRef.current = () => {
+    const forwardInput = toForwardPrice(inputPrice)
+    const typedTick = forwardPriceToTick(forwardInput)
+    let storedComparator: Comparator = toStoredComparator(comparator)
+    if (typedTick !== undefined) {
+      const side: 'below' | 'above' = typedTick >= currentTick ? 'above' : 'below'
+      const hasCrossed = lastSideRef.current !== null && lastSideRef.current !== side
+      if (hasCrossed) {
+        storedComparator = side === 'above' ? 'gte' : 'lte'
+      }
+      lastSideRef.current = side
+    }
+
+    const nextDisplayComparator = toDisplayComparator(storedComparator)
+    if (nextDisplayComparator !== comparator) {
+      setComparator(nextDisplayComparator)
+    }
+
+    if (
+      (storedComparator === 'gte' && forwardInput !== priceCondition?.gte) ||
+      (storedComparator === 'lte' && forwardInput !== priceCondition?.lte)
+    ) {
+      setMetric({
+        metric: Metric.PoolPrice,
+        condition: {
+          gte: storedComparator === 'gte' ? forwardInput : '',
+          lte: storedComparator === 'lte' ? forwardInput : '',
+        },
+      })
+    }
+  }
+
   useEffect(() => {
     if (changeSourceRef.current === 'slider' || metric.metric !== Metric.PoolPrice) return
     const timer = setTimeout(() => {
-      // Detect crossing on debounced input value
-      const typedTick = priceToTick(inputPrice)
-      let nextComparator = comparator
-      if (typedTick !== undefined) {
-        const side: 'below' | 'above' = typedTick >= currentTick ? 'above' : 'below'
-        const hasCrossed = lastSideRef.current !== null && lastSideRef.current !== side
-        if (hasCrossed) {
-          nextComparator = side === 'above' ? 'gte' : 'lte'
-        }
-        lastSideRef.current = side
-      }
-
-      if (nextComparator !== comparator) {
-        setComparator(nextComparator)
-      }
-
-      if (
-        (nextComparator === 'gte' && inputPrice !== priceCondition?.gte) ||
-        (nextComparator === 'lte' && inputPrice !== priceCondition?.lte)
-      ) {
-        setMetric({
-          metric: Metric.PoolPrice,
-          condition: {
-            gte: nextComparator === 'gte' ? inputPrice : '',
-            lte: nextComparator === 'lte' ? inputPrice : '',
-          },
-        })
-      }
+      commitInputRef.current()
     }, 300)
     return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputPrice, comparator])
+  }, [inputPrice, comparator, metric.metric])
 
   // Debounce tick updates from input typing to avoid jitter on the slider
   useEffect(() => {
@@ -147,9 +215,8 @@ export default function PriceInput({
       clearTimeout(debounceTickFromInputRef.current)
     }
     debounceTickFromInputRef.current = setTimeout(() => {
-      const t = priceToTick(inputPrice)
+      const t = displayPriceToTick(inputPrice)
       if (t === undefined) {
-        // Reset tick when price is invalid (e.g., 0 or empty)
         setTick(undefined)
       } else if (t !== tick) {
         setTick(t)
@@ -164,114 +231,148 @@ export default function PriceInput({
         debounceTickFromInputRef.current = null
       }
     }
-  }, [currentTick, inputPrice, priceToTick, tick])
+  }, [currentTick, inputPrice, displayPriceToTick, tick])
 
   // Wrapper to set tick from slider (updates price)
   const setPriceTick = useCallback(
-    (tick: number | undefined) => {
+    (t: number | undefined) => {
       changeSourceRef.current = 'slider'
-      setTick(tick)
-      if (tick !== undefined) {
-        const price = toString(
-          formatNumberBySignificantDigits(
-            tickToPrice(tick, position.token0.decimals, position.token1.decimals, false),
-            6,
-          ),
+      setTick(t)
+      if (t !== undefined) {
+        const forwardPrice = toString(
+          formatNumberBySignificantDigits(tickToPrice(t, position.token0.decimals, position.token1.decimals, false), 6),
         )
-        const nextComparator = updateComparatorOnCross(tick, price)
+        const nextStored = updateComparatorOnCross(t, forwardPrice)
         setMetric({
           metric: Metric.PoolPrice,
           condition: {
-            gte: nextComparator === 'gte' ? price : '',
-            lte: nextComparator === 'lte' ? price : '',
+            gte: nextStored === 'gte' ? forwardPrice : '',
+            lte: nextStored === 'lte' ? forwardPrice : '',
           },
         })
-        setInputPrice(price)
+        setInputPrice(toDisplayPrice(forwardPrice))
       }
       // Reset source after React batch update
       setTimeout(() => {
         changeSourceRef.current = null
       }, 0)
     },
-    [position.token0.decimals, position.token1.decimals, setMetric, updateComparatorOnCross],
+    [position.token0.decimals, position.token1.decimals, setMetric, toDisplayPrice, updateComparatorOnCross],
   )
 
-  // Sync tick from price input (only when source is input, not slider)
+  // Sync tick from price condition (only when source is input, not slider)
   useEffect(() => {
     if (changeSourceRef.current === 'slider') return
     if (priceCondition) {
-      // Use || instead of ?? so empty strings fall through correctly
-      const priceTick = priceToTick(priceCondition.gte || priceCondition.lte || '')
+      const forwardPrice = priceCondition.gte || priceCondition.lte || ''
+      const priceTick = forwardPriceToTick(forwardPrice)
       if (priceTick === undefined) {
-        // Reset tick when price is invalid
         setTick(undefined)
       } else if (priceTick !== tick) {
         setTick(priceTick)
         // Update side reference but don't auto-switch comparator unless crossing
         lastSideRef.current = priceTick >= currentTick ? 'above' : 'below'
-        // Keep comparator from condition if provided; else keep current
-        const conditionComparator = priceCondition.lte ? 'lte' : priceCondition.gte ? 'gte' : comparator
-        if (conditionComparator !== comparator) {
-          setComparator(conditionComparator)
+        const storedComparator: Comparator = priceCondition.lte
+          ? 'lte'
+          : priceCondition.gte
+          ? 'gte'
+          : toStoredComparator(comparator)
+        const nextDisplayComparator = toDisplayComparator(storedComparator)
+        if (nextDisplayComparator !== comparator) {
+          setComparator(nextDisplayComparator)
         }
       }
     }
-  }, [comparator, currentTick, priceCondition, priceToTick, tick])
+  }, [comparator, currentTick, priceCondition, forwardPriceToTick, tick, toDisplayComparator, toStoredComparator])
 
-  const wrappedCorrectPrice = (value: string) => {
-    const tick = priceToClosestTick(value, position.token0.decimals, position.token1.decimals, false)
-    if (tick !== undefined) {
-      const correctedTick =
-        tick % position.pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, position.pool.tickSpacing)
-      const correctedPrice = tickToPrice(correctedTick, position.token0.decimals, position.token1.decimals, false)
-      const formatted = toString(formatNumberBySignificantDigits(correctedPrice, 6))
-      const nextComparator = updateComparatorOnCross(correctedTick, formatted)
-      setInputPrice(formatted)
-      setMetric({
-        metric: Metric.PoolPrice,
-        condition: { gte: nextComparator === 'gte' ? formatted : '', lte: nextComparator === 'lte' ? formatted : '' },
-      })
-      setTick(correctedTick)
-    }
-  }
+  const wrappedCorrectPrice = useCallback(
+    (value: string) => {
+      const forwardValue = toForwardPrice(value)
+      const correctedTick = priceToClosestTick(forwardValue, position.token0.decimals, position.token1.decimals, false)
+      if (correctedTick !== undefined) {
+        const nearestTick =
+          correctedTick % position.pool.tickSpacing === 0
+            ? correctedTick
+            : nearestUsableTick(correctedTick, position.pool.tickSpacing)
+        const correctedForwardPrice = tickToPrice(
+          nearestTick,
+          position.token0.decimals,
+          position.token1.decimals,
+          false,
+        )
+        const formattedForward = toString(formatNumberBySignificantDigits(correctedForwardPrice, 6))
+        const nextStored = updateComparatorOnCross(nearestTick, formattedForward)
+        setInputPrice(toDisplayPrice(formattedForward))
+        setMetric({
+          metric: Metric.PoolPrice,
+          condition: {
+            gte: nextStored === 'gte' ? formattedForward : '',
+            lte: nextStored === 'lte' ? formattedForward : '',
+          },
+        })
+        setTick(nearestTick)
+      }
+    },
+    [
+      position.token0.decimals,
+      position.token1.decimals,
+      position.pool.tickSpacing,
+      setMetric,
+      toDisplayPrice,
+      toForwardPrice,
+      updateComparatorOnCross,
+    ],
+  )
 
   const handleComparatorChange = useCallback(
-    (next: 'gte' | 'lte') => {
-      setComparator(next)
+    (nextDisplay: Comparator) => {
+      setComparator(nextDisplay)
+      const nextStored = toStoredComparator(nextDisplay)
 
-      // Calculate default price with gap based on pair category
+      // Calculate default price with gap based on pair category (in forward domain)
       const pairCategory = position.pool.category
       const gap =
         pairCategory === PAIR_CATEGORY.STABLE ? 0.0001 : pairCategory === PAIR_CATEGORY.CORRELATED ? 0.001 : 0.1
-      const defaultPrice = position.priceRange.current * (1 + (next === 'gte' ? gap : -gap))
-      const newTick = priceToClosestTick(toString(defaultPrice), position.token0.decimals, position.token1.decimals)
+      const defaultForwardPrice = position.priceRange.current * (1 + (nextStored === 'gte' ? gap : -gap))
+      const newTick = priceToClosestTick(
+        toString(defaultForwardPrice),
+        position.token0.decimals,
+        position.token1.decimals,
+      )
 
       if (newTick !== undefined) {
         const nearestTick = nearestUsableTick(newTick, position.pool.tickSpacing)
-        const correctedPrice = toString(
+        const correctedForwardPrice = toString(
           formatNumberBySignificantDigits(
             tickToPrice(nearestTick, position.token0.decimals, position.token1.decimals, false),
             6,
           ),
         )
 
-        setInputPrice(correctedPrice)
+        setInputPrice(toDisplayPrice(correctedForwardPrice))
         setTick(nearestTick)
         lastSideRef.current = nearestTick >= currentTick ? 'above' : 'below'
 
         setMetric({
           metric: Metric.PoolPrice,
-          condition: { gte: next === 'gte' ? correctedPrice : '', lte: next === 'lte' ? correctedPrice : '' },
+          condition: {
+            gte: nextStored === 'gte' ? correctedForwardPrice : '',
+            lte: nextStored === 'lte' ? correctedForwardPrice : '',
+          },
         })
       } else {
         // Fallback to current input price if tick calculation fails
+        const fallbackForward = toForwardPrice(inputPrice)
         setMetric({
           metric: Metric.PoolPrice,
-          condition: { gte: next === 'gte' ? inputPrice : '', lte: next === 'lte' ? inputPrice : '' },
+          condition: {
+            gte: nextStored === 'gte' ? fallbackForward : '',
+            lte: nextStored === 'lte' ? fallbackForward : '',
+          },
         })
       }
     },
-    [currentTick, inputPrice, position, setMetric],
+    [currentTick, inputPrice, position, setMetric, toDisplayPrice, toForwardPrice, toStoredComparator],
   )
 
   const expectedAmounts = useMemo(
@@ -296,12 +397,15 @@ export default function PriceInput({
     ],
   )
 
+  const baseSymbol = revertPrice ? position.token1.symbol : position.token0.symbol
+  const quoteSymbol = revertPrice ? position.token0.symbol : position.token1.symbol
+
   return (
     <>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>
           <Trans>
-            Exit when {position.token0.symbol}/{position.token1.symbol}
+            Exit when {baseSymbol}/{quoteSymbol}
           </Trans>
         </Text>
         <HighlightWrapper isHighlighted={isHighlighted}>
@@ -322,16 +426,16 @@ export default function PriceInput({
               </PriceInputIcon>
             </Flex>
             <PriceCustomInput
-              placeholder={`${position.token0.symbol}/${position.token1.symbol}`}
+              placeholder={`${baseSymbol}/${quoteSymbol}`}
               value={inputPrice}
               onChange={e => {
                 const value = e.target.value
                 // Only allow numbers and decimal point
                 if (/^\d*\.?\d*$/.test(value)) {
                   setInputPrice(value)
-                  const typedTick = priceToTick(value)
+                  const typedTick = displayPriceToTick(value)
                   if (typedTick !== undefined) {
-                    updateComparatorOnCross(typedTick, value) // change comparator immediately on cross
+                    updateComparatorOnCross(typedTick, toForwardPrice(value)) // change comparator immediately on cross
                   }
                 }
               }}
@@ -351,9 +455,10 @@ export default function PriceInput({
           }}
           tick={tick}
           setTick={setPriceTick}
-          comparator={comparator}
+          comparator={toStoredComparator(comparator)}
           mode="range-to-infinite"
           showStepButtons
+          invertPrice={revertPrice}
         />
       </Box>
 
