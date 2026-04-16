@@ -54,29 +54,35 @@ export const getPoolLiquidityUsd = (pool: PoolDetail, tokenPrices: Record<string
   return hasValue(liquidityUsd) && liquidityUsd > 0 ? liquidityUsd : undefined
 }
 
-export const formatUsd = (value?: number, options?: { allowDisplayNegative?: boolean }) =>
-  hasValue(value) ? formatDisplayNumber(value, { style: 'currency', significantDigits: 6, ...options }) : '--'
+export const formatUsd = (value?: number, options?: { allowDisplayNegative?: boolean }) => {
+  if (!hasValue(value)) return '--'
+  return formatDisplayNumber(value, {
+    style: 'currency',
+    significantDigits: 6,
+    ...options,
+  })
+}
 
 export const formatApr = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
 
-export const formatPrice = (value?: number) =>
-  hasValue(value)
-    ? formatDisplayNumber(value, {
-        significantDigits: value !== 0 && Math.abs(value) < 1 ? 8 : 6,
-      })
-    : '--'
+export const formatPrice = (value?: number) => {
+  if (!hasValue(value)) return '--'
+  return formatDisplayNumber(value, {
+    significantDigits: value !== 0 && Math.abs(value) < 1 ? 8 : 6,
+  })
+}
 
-export const formatSignedPercent = (value?: number) =>
-  hasValue(value)
-    ? `${value > 0 ? '+' : value < 0 ? '-' : ''}${formatDisplayNumber(Math.abs(value), { significantDigits: 4 })}%`
-    : '--'
+export const formatSignedPercent = (value?: number) => {
+  if (!hasValue(value)) return '--'
+  return `${value > 0 ? '+' : value < 0 ? '-' : ''}${formatDisplayNumber(Math.abs(value), { significantDigits: 4 })}%`
+}
 
 export const formatCompactUsd = (value?: number) => {
   if (!hasValue(value)) return '--'
   return formatDisplayNumber(value, {
-    allowDisplayNegative: true,
-    significantDigits: 4,
     style: 'currency',
+    significantDigits: 3,
+    allowDisplayNegative: true,
   })
 }
 

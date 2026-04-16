@@ -362,7 +362,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                   Total Earn
                 </Text>
                 <Text color={theme.text} fontSize={18} fontWeight={500}>
-                  {formatUsd(totalEarned)}
+                  {formatCompactUsd(totalEarned)}
                 </Text>
               </Stack>
             </Stack>
