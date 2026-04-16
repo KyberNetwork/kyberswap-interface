@@ -1,0 +1,16 @@
+# KyberSwap
+
+Site: https://kyberswap.com
+
+Preferred source pages:
+- https://kyberswap.com/about/kyberswap
+- https://kyberswap.com/swap/ethereum
+- https://kyberswap.com/earn
+- https://kyberswap.com/earn/pools
+
+Official documentation:
+- https://docs.kyberswap.com
+
+Policies:
+- https://kyberswap.com/files/Kyber%20-%20Terms%20of%20Use%20-%2017%20April%202025.pdf
+- https://kyberswap.com/files/Kyber%20-%20Privacy%20Policy%20-%2020%20November%202023.pdf
