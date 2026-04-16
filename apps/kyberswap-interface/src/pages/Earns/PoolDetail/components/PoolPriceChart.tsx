@@ -247,6 +247,7 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
       },
       rightPriceScale: {
         borderVisible: false,
+        drawTicks: false,
         entireTextOnly: true,
         scaleMargins: {
           top: 0.08,
