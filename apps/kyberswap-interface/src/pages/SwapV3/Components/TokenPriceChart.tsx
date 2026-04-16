@@ -1,16 +1,25 @@
 import { type Currency } from '@kyberswap/ks-sdk-core'
+import { skipToken } from '@reduxjs/toolkit/query'
 import dayjs from 'dayjs'
-import { CrosshairMode, LineStyle, type MouseEventParams, type UTCTimestamp, createChart } from 'lightweight-charts'
+import {
+  CrosshairMode,
+  LineStyle,
+  type MouseEventParams,
+  type Time,
+  type UTCTimestamp,
+  createChart,
+} from 'lightweight-charts'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import { type PoolPriceCandle, type PoolPriceData } from 'services/zapEarn'
+import { type TokenChartTimeFrame, useTokenPriceChartQuery } from 'services/tokenChart'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
+import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
@@ -31,8 +40,6 @@ type TooltipState = {
   left: number
   top: number
 }
-
-type SwapChartWindow = '1h' | '4h' | '1d' | '1w'
 
 const ChartPanel = styled(Stack)`
   overflow: hidden;
@@ -94,99 +101,52 @@ const TooltipGrid = styled.div`
   grid-template-columns: auto auto;
 `
 
-const CHART_WINDOW_OPTIONS = [
+const CHART_TIME_FRAME_OPTIONS = [
   { label: '1H', value: '1h' },
   { label: '4H', value: '4h' },
   { label: '1D', value: '1d' },
-  { label: '1W', value: '1w' },
+  { label: '1W', value: '7d' },
 ] as const
 
-const MOCK_WINDOW_CONFIG: Record<SwapChartWindow, { candleCount: number; stepMinutes: number }> = {
-  '1h': { candleCount: 60, stepMinutes: 1 },
-  '4h': { candleCount: 48, stepMinutes: 5 },
-  '1d': { candleCount: 48, stepMinutes: 30 },
-  '1w': { candleCount: 42, stepMinutes: 4 * 60 },
+const DEFAULT_TIME_FRAME: TokenChartTimeFrame = '1h'
+
+const DEFAULT_FROM_BUCKET_MS_BY_TIME_FRAME: Record<TokenChartTimeFrame, number> = {
+  '5m': 60 * 60 * 1000,
+  '15m': 4 * 60 * 60 * 1000,
+  '1h': 60 * 60 * 1000,
+  '4h': 7 * 24 * 60 * 60 * 1000,
+  '1d': 30 * 24 * 60 * 60 * 1000,
+  '7d': 180 * 24 * 60 * 60 * 1000,
 }
 
 type TokenTabId = 'tokenIn' | 'tokenOut'
 
-const hashString = (value: string) =>
-  value.split('').reduce((accumulator, char, index) => accumulator + char.charCodeAt(0) * (index + 1), 0)
-
-const createSeededRandom = (seed: number) => {
-  let current = seed
-
-  return () => {
-    const value = Math.sin(current++) * 10000
-    return value - Math.floor(value)
-  }
-}
-
-const getCurrencySeedKey = (currency?: Currency | null) => {
+const getCurrencyKey = (currency?: Currency | null) => {
   if (!currency) return 'unknown'
 
   return currency.isNative ? `${currency.chainId}-${currency.symbol}-native` : currency.wrapped.address.toLowerCase()
 }
 
-const formatAxisTimeLabel = (timestamp: number, window: SwapChartWindow) => {
-  if (window === '1h' || window === '4h') return dayjs.unix(timestamp).format('HH:mm')
-  if (window === '1d') return dayjs.unix(timestamp).format('MMM D, HH:mm')
+const getDefaultFromBucketMs = (timeFrame: TokenChartTimeFrame) =>
+  Date.now() - DEFAULT_FROM_BUCKET_MS_BY_TIME_FRAME[timeFrame]
+
+const formatAxisTimeLabel = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
+  if (timeFrame === '5m' || timeFrame === '15m' || timeFrame === '1h') return dayjs.unix(timestamp).format('HH:mm')
+  if (timeFrame === '4h') return dayjs.unix(timestamp).format('MMM D, HH:mm')
   return dayjs.unix(timestamp).format('MMM D')
 }
 
-const buildMockPriceData = ({ token, window }: { token: Currency; window: SwapChartWindow }): PoolPriceData => {
-  const { candleCount, stepMinutes } = MOCK_WINDOW_CONFIG[window]
-  const tokenSeed = hashString(`${getCurrencySeedKey(token)}-USDT-${window}`)
-  const random = createSeededRandom(tokenSeed)
-  const basePriceBuckets = [0.00042, 0.0048, 0.093, 1.28, 12.4, 88.7, 427.95, 4675.87]
-  const basePrice = basePriceBuckets[tokenSeed % basePriceBuckets.length] * (1 + ((tokenSeed >> 3) % 11) / 20)
-  const stepSeconds = stepMinutes * 60
-  const startTime = dayjs()
-    .startOf('minute')
-    .subtract((candleCount - 1) * stepMinutes, 'minute')
-    .unix()
-  const trendDirection = random() > 0.45 ? 1 : -1
+const formatTooltipDate = (timestamp: number, timeFrame: TokenChartTimeFrame) =>
+  dayjs.unix(timestamp).format(timeFrame === '7d' ? 'MMM D, YYYY' : 'MMM D, YYYY, HH:mm')
 
-  let currentPrice = basePrice
+const getUnixTimestampFromChartTime = (time: Time) => {
+  if (typeof time === 'number') return time
+  if (typeof time === 'string') return Math.floor(Date.parse(`${time}T00:00:00Z`) / 1000)
 
-  const candles: PoolPriceCandle[] = Array.from({ length: candleCount }, (_, index) => {
-    const trend = trendDirection * (index / candleCount) * 0.018
-    const cyclicalDrift = Math.sin((index + (tokenSeed % 13)) / 3.5) * 0.032
-    const noise = (random() - 0.5) * 0.048
-    const open = currentPrice
-    const close = Math.max(open * (1 + trend + cyclicalDrift + noise), Number.EPSILON)
-    const high = Math.max(open, close) * (1 + random() * 0.028)
-    const low = Math.max(Math.min(open, close) * (1 - random() * 0.028), Number.EPSILON)
-    const volume = Math.round(basePrice * 12000 * (0.7 + random() * 1.8) * (1 + Math.abs(close - open) / open))
-
-    currentPrice = close
-
-    return {
-      ts: startTime + index * stepSeconds,
-      open,
-      high,
-      low,
-      close,
-      volume,
-    }
-  })
-
-  const firstCandle = candles[0]
-  const lastCandle = candles.at(-1)
-  const priceChange = firstCandle && lastCandle ? ((lastCandle.close - firstCandle.open) / firstCandle.open) * 100 : 0
-
-  return {
-    window: '24h',
-    candles,
-    currentPrice: lastCandle?.close || 0,
-    priceChange,
-  }
+  return Math.floor(Date.UTC(time.year, time.month - 1, time.day) / 1000)
 }
 
-const formatTooltipDate = (timestamp: number, window: SwapChartWindow) =>
-  dayjs.unix(timestamp).format(window === '1w' ? 'MMM D, YYYY' : 'MMM D, YYYY, HH:mm')
-
-const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window: SwapChartWindow }) => {
+const PriceChartTooltip = ({ tooltip, timeFrame }: { tooltip: TooltipState; timeFrame: TokenChartTimeFrame }) => {
   const theme = useTheme()
 
   const { candle, left, top } = tooltip
@@ -196,7 +156,7 @@ const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window:
   return (
     <TooltipCard style={{ left, top }}>
       <Text color={theme.subText} fontSize={12}>
-        {formatTooltipDate(candle.time, window)}
+        {formatTooltipDate(candle.time, timeFrame)}
       </Text>
 
       <TooltipGrid>
@@ -253,20 +213,30 @@ const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window:
   )
 }
 
-type SwapPriceChartProps = {
+type TokenPriceChartProps = {
   tokenIn?: Currency | null
   tokenOut?: Currency | null
 }
 
-const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
+const TokenPriceChart = ({ tokenIn, tokenOut }: TokenPriceChartProps) => {
   const theme = useTheme()
-  const chartContainerRef = useRef<HTMLDivElement>(null)
-  const [window, setWindow] = useState<SwapChartWindow>('4h')
-  const [activeTab, setActiveTab] = useState<TokenTabId>('tokenIn')
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
+
+  const chartContainerRef = useRef<HTMLDivElement>(null)
+  const chartRef = useRef<ReturnType<typeof createChart> | null>(null)
+  const candlestickSeriesRef = useRef<any>(null)
+  const volumeSeriesRef = useRef<any>(null)
+  const fromBucketMsRef = useRef(getDefaultFromBucketMs(DEFAULT_TIME_FRAME))
+  const syncFromVisibleRangeTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
+  const suppressVisibleRangeSyncRef = useRef(false)
+  const shouldFitContentRef = useRef(true)
+
+  const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>(DEFAULT_TIME_FRAME)
+  const [activeTab, setActiveTab] = useState<TokenTabId>('tokenIn')
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+  const [fromBucketMs, setFromBucketMs] = useState(() => getDefaultFromBucketMs(DEFAULT_TIME_FRAME))
 
   const gridColor = rgba(theme.text, 0.06)
   const crosshairColor = rgba(theme.text, 0.12)
@@ -283,23 +253,54 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
 
     return tabs.filter(
       (tab, index, array) =>
-        array.findIndex(item => getCurrencySeedKey(item.token) === getCurrencySeedKey(tab.token)) === index,
+        array.findIndex(item => getCurrencyKey(item.token) === getCurrencyKey(tab.token)) === index,
     )
   }, [tokenIn, tokenOut])
 
   useEffect(() => {
     if (!tokenTabs.length) return
+
     if (!tokenTabs.some(tab => tab.id === activeTab)) {
       setActiveTab(tokenTabs[0].id)
     }
   }, [activeTab, tokenTabs])
 
   const activeToken = tokenTabs.find(tab => tab.id === activeTab)?.token || tokenTabs[0]?.token
+  const stableToken = activeToken ? DEFAULT_OUTPUT_TOKEN_BY_CHAIN[activeToken.chainId] : undefined
+  const quoteToken =
+    tokenTabs.find(tab => getCurrencyKey(tab.token) !== getCurrencyKey(activeToken))?.token || stableToken
 
-  const priceData = useMemo(
-    () => (activeToken ? buildMockPriceData({ token: activeToken, window }) : undefined),
-    [activeToken, window],
-  )
+  const activeTokenAddress = activeToken?.wrapped.address.toLowerCase()
+  const stableAddress = stableToken?.wrapped.address.toLowerCase()
+  const quoteAddress = quoteToken?.wrapped.address.toLowerCase()
+
+  const queryArgs =
+    activeToken && activeTokenAddress && stableAddress && quoteAddress
+      ? {
+          chainId: activeToken.chainId,
+          fromBucketMs,
+          stableAddress,
+          tokenAddress: activeTokenAddress,
+          quoteAddress,
+          timeFrame,
+        }
+      : skipToken
+
+  const { data: priceData, isError, isLoading } = useTokenPriceChartQuery(queryArgs)
+
+  useEffect(() => {
+    if (!activeTokenAddress || !stableAddress || !quoteAddress) return
+
+    const nextFromBucketMs = getDefaultFromBucketMs(timeFrame)
+    fromBucketMsRef.current = nextFromBucketMs
+    shouldFitContentRef.current = true
+    setTooltip(null)
+    setFromBucketMs(nextFromBucketMs)
+  }, [activeTokenAddress, quoteAddress, stableAddress, timeFrame])
+
+  useEffect(() => {
+    shouldFitContentRef.current = true
+  }, [timeFrame])
 
   const chartData = useMemo<DisplayCandle[]>(
     () =>
@@ -364,8 +365,8 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
       },
       timeScale: {
         borderVisible: false,
-        tickMarkFormatter: (time: number) => formatAxisTimeLabel(time, window),
-        timeVisible: window !== '1w',
+        tickMarkFormatter: (time: number) => formatAxisTimeLabel(time, timeFrame),
+        timeVisible: timeFrame !== '7d',
       },
       localization: {
         priceFormatter: (value: number) =>
@@ -375,6 +376,7 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
           }),
       },
     })
+    chartRef.current = chart
 
     const candlestickSeries = chart.addCandlestickSeries({
       upColor: upCandleColor,
@@ -395,15 +397,8 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
       },
       priceScaleId: 'volume',
     })
-
-    candlestickSeries.setData(chartData)
-    volumeSeries.setData(
-      chartData.map(candle => ({
-        time: candle.time,
-        value: candle.volume,
-        color: candle.close >= candle.open ? volumeUpColor : volumeDownColor,
-      })),
-    )
+    candlestickSeriesRef.current = candlestickSeries
+    volumeSeriesRef.current = volumeSeries
 
     chart.priceScale('volume').applyOptions({
       borderVisible: false,
@@ -413,8 +408,6 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
       },
       visible: false,
     })
-
-    chart.timeScale().fitContent()
 
     const handleCrosshairMove = (param: MouseEventParams) => {
       if (!param.point || !param.time) {
@@ -460,7 +453,26 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
       })
     }
 
+    const handleVisibleTimeRangeChange = (range: { from: Time; to: Time } | null) => {
+      if (!range || suppressVisibleRangeSyncRef.current) return
+
+      const nextFromBucketMs = getUnixTimestampFromChartTime(range.from) * 1000
+
+      if (!Number.isFinite(nextFromBucketMs) || nextFromBucketMs <= 0) return
+      if (Math.abs(nextFromBucketMs - fromBucketMsRef.current) < 30_000) return
+
+      if (syncFromVisibleRangeTimeoutRef.current) {
+        globalThis.clearTimeout(syncFromVisibleRangeTimeoutRef.current)
+      }
+
+      syncFromVisibleRangeTimeoutRef.current = globalThis.setTimeout(() => {
+        fromBucketMsRef.current = nextFromBucketMs
+        setFromBucketMs(nextFromBucketMs)
+      }, 250)
+    }
+
     chart.subscribeCrosshairMove(handleCrosshairMove)
+    chart.timeScale().subscribeVisibleTimeRangeChange(handleVisibleTimeRangeChange)
 
     const resizeObserver = new ResizeObserver(entries => {
       const entry = entries[0]
@@ -468,15 +480,21 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
       if (!entry) return
 
       chart.resize(entry.contentRect.width, chartHeight)
-      chart.timeScale().fitContent()
     })
 
     resizeObserver.observe(container)
 
     return () => {
       setTooltip(null)
+      if (syncFromVisibleRangeTimeoutRef.current) {
+        globalThis.clearTimeout(syncFromVisibleRangeTimeoutRef.current)
+      }
       resizeObserver.disconnect()
+      chart.timeScale().unsubscribeVisibleTimeRangeChange(handleVisibleTimeRangeChange)
       chart.unsubscribeCrosshairMove(handleCrosshairMove)
+      chartRef.current = null
+      candlestickSeriesRef.current = null
+      volumeSeriesRef.current = null
       chart.remove()
     }
   }, [
@@ -489,8 +507,32 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
     upCandleColor,
     volumeDownColor,
     volumeUpColor,
-    window,
+    timeFrame,
   ])
+
+  useEffect(() => {
+    if (!chartRef.current || !candlestickSeriesRef.current || !volumeSeriesRef.current) return
+
+    candlestickSeriesRef.current.setData(chartData)
+    volumeSeriesRef.current.setData(
+      chartData.map(candle => ({
+        time: candle.time,
+        value: candle.volume,
+        color: candle.close >= candle.open ? volumeUpColor : volumeDownColor,
+      })),
+    )
+
+    if (!chartData.length || !shouldFitContentRef.current) return
+
+    suppressVisibleRangeSyncRef.current = true
+    chartRef.current.timeScale().fitContent()
+
+    globalThis.requestAnimationFrame(() => {
+      suppressVisibleRangeSyncRef.current = false
+    })
+
+    shouldFitContentRef.current = false
+  }, [chartData, volumeDownColor, volumeUpColor])
 
   return (
     <ChartPanel gap={0}>
@@ -510,7 +552,7 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
               <Text color="inherit" fontSize={16} fontWeight={500}>
                 {tab.token.symbol}
                 <Text as="span" fontSize={14}>
-                  {'/USDT'}
+                  {`/${quoteToken?.symbol || stableToken?.symbol || 'USDT'}`}
                 </Text>
               </Text>
             </TabButton>
@@ -536,25 +578,32 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
                   </Text>
                 </HStack>
                 <Text color={theme.subText} fontSize={14}>
-                  ({window.toUpperCase()})
+                  ({timeFrame.toUpperCase()})
                 </Text>
               </HStack>
             ) : null}
           </Stack>
 
-          <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} size="sm" value={window} />
+          <SegmentedControl onChange={setTimeFrame} options={CHART_TIME_FRAME_OPTIONS} size="sm" value={timeFrame} />
         </HStack>
 
         <PoolChartState
           emptyMessage={
-            activeToken ? 'No price data available for this token.' : 'Select a token to view the price chart.'
+            activeToken
+              ? stableToken
+                ? 'No price data available for this token.'
+                : 'No price chart stable token configured for this chain.'
+              : 'Select a token to view the price chart.'
           }
+          errorMessage="Unable to load token price."
           height={chartHeight}
           isEmpty={!chartData.length}
+          isError={isError}
+          isLoading={isLoading}
           skeletonType="candle"
         >
           <ChartFrame $height={chartHeight}>
-            {tooltip ? <PriceChartTooltip tooltip={tooltip} window={window} /> : null}
+            {tooltip ? <PriceChartTooltip tooltip={tooltip} timeFrame={timeFrame} /> : null}
             <PoolChartWrapper $height={chartHeight - 12} ref={chartContainerRef} />
           </ChartFrame>
         </PoolChartState>
@@ -563,4 +612,4 @@ const SwapPriceChart = ({ tokenIn, tokenOut }: SwapPriceChartProps) => {
   )
 }
 
-export default SwapPriceChart
+export default TokenPriceChart

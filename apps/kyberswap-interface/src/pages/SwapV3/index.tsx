@@ -21,8 +21,8 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
-import SwapPriceChart from 'pages/SwapV3/Components/SwapPriceChart'
 import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
+import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
 import {
   AppBodyWrapped,
@@ -178,7 +178,7 @@ export default function Swap() {
                 </FarmingWrapper>
               </BannerWrapper>
             )}
-            {isSwapPage && <SwapPriceChart tokenIn={currencyIn} tokenOut={currencyOut} />}
+            {isSwapPage && <TokenPriceChart tokenIn={currencyIn} tokenOut={currencyOut} />}
             {isShowTradeRoutes && isSwapPage && (
               <SwapTradeRoute
                 tradeComposition={tradeRouteComposition}
