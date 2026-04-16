@@ -111,12 +111,12 @@ const CHART_TIME_FRAME_OPTIONS = [
 const DEFAULT_TIME_FRAME: TokenChartTimeFrame = '1h'
 
 const DEFAULT_FROM_BUCKET_MS_BY_TIME_FRAME: Record<TokenChartTimeFrame, number> = {
-  '5m': 60 * 60 * 1000,
-  '15m': 4 * 60 * 60 * 1000,
-  '1h': 60 * 60 * 1000,
-  '4h': 7 * 24 * 60 * 60 * 1000,
-  '1d': 30 * 24 * 60 * 60 * 1000,
-  '7d': 180 * 24 * 60 * 60 * 1000,
+  '5m': 60 * 60 * 1000, // 1h
+  '15m': 4 * 60 * 60 * 1000, // 4h
+  '1h': 7 * 24 * 60 * 60 * 1000, // 7d
+  '4h': 30 * 24 * 60 * 60 * 1000, // 30d
+  '1d': 90 * 24 * 60 * 60 * 1000, // 90d
+  '7d': 180 * 24 * 60 * 60 * 1000, // 180d
 }
 
 type TokenTabId = 'tokenIn' | 'tokenOut'
