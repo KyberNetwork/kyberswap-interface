@@ -36,21 +36,6 @@ This document turns the external AI Traffic Growth Initiative into an actionable
 
 ## Added Priority Tasks Not Explicitly Covered In The Original Plan
 
-- [ ] `P0` Allowlist search and AI bots in both `robots.txt` and edge security rules.
-  Assignee: `Engineer`
-  Touchpoints: `public/robots.txt`, CDN/WAF config outside repo.
-  Goal: make sure `OAI-SearchBot`, `Claude-SearchBot`, `Claude-User`, `PerplexityBot`, `Perplexity-User`, `Googlebot`, and `Bingbot` are not blocked.
-
-- [ ] `P0` Add `noindex` or crawl controls for thin, duplicate, filter, and utility URLs.
-  Assignee: `Engineer`
-  Touchpoints: route metadata, head management, router/stateful URLs, pages that generate low-value variants.
-  Goal: concentrate crawl/index effort on pages worth citing.
-
-- [ ] `P0` Fix canonicalization and duplicate URL handling.
-  Assignee: `Engineer`
-  Touchpoints: `index.html`, page head metadata, redirects, parameter handling.
-  Goal: prevent multiple URL versions from splitting signals.
-
 - [ ] `P1` Audit important internal links to ensure they resolve to crawlable HTML links.
   Assignee: `Engineer`
   Touchpoints: nav, footer, comparison links, chain hubs, learn hub, detail page links.
@@ -63,19 +48,38 @@ This document turns the external AI Traffic Growth Initiative into an actionable
 
 ## Recommended Initial Target Pages
 
-- [ ] `/`
-- [ ] `/about/kyberswap`
-- [ ] `/swap`
-- [ ] `/pools`
+- [x] `/`
+- [x] `/about/kyberswap`
+- [x] `/swap`
+- [x] `/earn/pools`
 - [ ] highest-intent comparison anchors on `/about/kyberswap`
 
 ## Phase 1 - Foundation
 
-- [ ] `P1` Add JSON-LD schema to home and about pages.
+- [x] `P0` Allowlist search and AI bots in both `robots.txt` and edge security rules.
+  Assignee: `Engineer`
+  Touchpoints: `public/robots.txt`, CDN/WAF config outside repo.
+  Goal: make sure `OAI-SearchBot`, `Claude-SearchBot`, `Claude-User`, `PerplexityBot`, `Perplexity-User`, `Googlebot`, and `Bingbot` are not blocked.
+  Status: *Repo-local portion completed in robots.txt. Edge/CDN allowlisting remains outside the scope of this repo.*
+
+- [x] `P0` Add `noindex` or crawl controls for thin, duplicate, filter, and utility URLs.
+  Assignee: `Engineer`
+  Touchpoints: route metadata, head management, router/stateful URLs, pages that generate low-value variants.
+  Goal: concentrate crawl/index effort on pages worth citing.
+  Status: *Implemented via RouteSeo runtime metadata and route/query-based noindex rules.*
+
+- [x] `P0` Fix canonicalization and duplicate URL handling.
+  Assignee: `Engineer`
+  Touchpoints: `index.html`, page head metadata, redirects, parameter handling.
+  Goal: prevent multiple URL versions from splitting signals.
+  Status: *Implemented via route-level canonical tags and duplicate URL handling in head metadata.*
+
+- [x] `P1` Add JSON-LD schema to home and about pages.
   Assignee: `Engineer`
   Source plan impact: `High`
   Local assessment: `High`
   Notes: add only schema that matches visible content; avoid speculative markup.
+  Status: *Implemented for home and about pages using Organization/WebSite/AboutPage structured data.*
 
 - [ ] `P1` Add a "How KyberSwap compares" table to `/about/kyberswap`.
   Assignee: `Content`
@@ -95,12 +99,13 @@ This document turns the external AI Traffic Growth Initiative into an actionable
   Local assessment: `Medium`
   Notes: footer links should point to crawlable comparison anchors.
 
-- [ ] `P3` Add `llms.txt` to the domain root.
+- [x] `P3` Add `llms.txt` to the domain root.
   Assignee: `Engineer + Content`
   Source plan impact: `High`
   Local assessment: `Low`
   Touchpoint: `public/llms.txt`
   Notes: treat as a low-cost experiment, not a core KPI driver.
+  Status: *Implemented as a lightweight root-domain experiment.*
 
 ## Phase 2 - Core Pages
 
@@ -136,11 +141,12 @@ This document turns the external AI Traffic Growth Initiative into an actionable
 
 ## Phase 3 - New Pages
 
-- [ ] `P2` Publish a refreshed `sitemap.xml` including all approved public pages.
+- [x] `P2` Publish a refreshed `sitemap.xml` including all approved public pages.
   Assignee: `Engineer`
   Source plan impact: `Medium`
   Local assessment: `Medium`
   Notes: sitemap updates should follow URL quality decisions, not lead them.
+  Status: *Implemented for the current approved public routes in scope.*
 
 - [ ] `P1` Expand `/about/kyberswap` with anchor-linked comparison sections.
   Assignee: `Engineer + Content`

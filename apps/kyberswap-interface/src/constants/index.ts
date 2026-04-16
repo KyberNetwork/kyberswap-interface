@@ -96,8 +96,9 @@ export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
+export const KYBER_NETWORK_TELEGRAM_URL = 'https://t.me/kybernetwork'
 export const KYBER_NETWORK_DISCORD_URL = 'https://discord.gg/kyberswap'
-export const KYBER_NETWORK_TWITTER_URL = 'https://twitter.com/KyberNetwork'
+export const KYBER_NETWORK_TWITTER_URL = 'https://x.com/KyberNetwork'
 
 export const DEFAULT_GAS_LIMIT_MARGIN = 20000
 
