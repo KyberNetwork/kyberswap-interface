@@ -112,13 +112,13 @@ const LiquidityFlowsTooltip = ({
           Net Flow
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatUsd(Math.abs(point.lpVolumeUsd))}
+          {formatUsd(point.lpVolumeUsd, { allowDisplayNegative: true })}
         </Text>
         <Text color={theme.subText} fontSize={12}>
           TVL
         </Text>
         <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatUsd(point.tvlUsd)}
+          {formatUsd(point.tvlUsd, { allowDisplayNegative: true })}
         </Text>
       </TooltipGrid>
     </TooltipCard>
