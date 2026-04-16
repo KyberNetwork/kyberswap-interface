@@ -198,6 +198,7 @@ export const SwapFormWrapper = styled.div`
   gap: 16px;
 
   @media only screen and (min-width: 1100px) {
+    position: sticky;
     top: 16px;
   }
 

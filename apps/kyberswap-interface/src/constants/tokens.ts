@@ -465,6 +465,20 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.MEGAETH]: new Token(ChainId.MEGAETH, '0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7', 6, 'USDm', 'USDm'),
 }
 
+export const PRICE_CHART_QUOTE_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+  [ChainId.BASE]: new Token(ChainId.BASE, '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA', 6, 'USDC', 'USD Coin'),
+  [ChainId.BSCMAINNET]: new Token(
+    ChainId.BSCMAINNET,
+    '0x55d398326f99059fF775485246999027B3197955',
+    18,
+    'USDT',
+    'Tether USD',
+  ),
+  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
+  [ChainId.MONAD]: new Token(ChainId.MONAD, '0x754704Bc059F8C67012fEd69BC8A327a5aafb603', 6, 'USDC', 'USDC'),
+}
+
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
 export const DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS = 10
 

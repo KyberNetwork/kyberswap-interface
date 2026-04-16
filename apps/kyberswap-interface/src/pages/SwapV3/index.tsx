@@ -14,6 +14,7 @@ import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
+import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -21,8 +22,8 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
-import SwapPriceChart from 'pages/SwapV3/Components/SwapPriceChart'
 import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
+import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
 import {
   AppBodyWrapped,
@@ -122,6 +123,8 @@ export default function Swap() {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
 
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId])
+
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
 
   return (
@@ -178,12 +181,13 @@ export default function Swap() {
                 </FarmingWrapper>
               </BannerWrapper>
             )}
-            {isSwapPage && <SwapPriceChart tokenIn={currencyIn} tokenOut={currencyOut} />}
+            {isSwapPage && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
             {isShowTradeRoutes && isSwapPage && (
               <SwapTradeRoute
                 tradeComposition={tradeRouteComposition}
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
+                defaultCollapsed={hasSupportedTokenPriceChart}
                 inputAmount={routeSummary?.parsedAmountIn}
                 outputAmount={routeSummary?.parsedAmountOut}
               />

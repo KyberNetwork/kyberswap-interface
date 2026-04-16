@@ -1,5 +1,5 @@
 import { type Currency, type CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Suspense, lazy, useMemo, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { Flex, Text } from 'rebass'
@@ -35,6 +35,18 @@ const PanelTitle = styled.div`
   align-items: center;
   gap: 10px;
   min-width: 0;
+`
+
+const RouteLabel = styled(Text)`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: none;
+  `}
+`
+
+const RouteTitleText = styled(Text)`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 14px;
+  `}
 `
 
 const ToggleButton = styled.button`
@@ -79,19 +91,29 @@ type SwapTradeRouteProps = {
   tradeComposition: SwapRouteV2[] | SwapRouteV3[] | undefined
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
+  defaultCollapsed?: boolean
   inputAmount: CurrencyAmount<Currency> | undefined
   outputAmount: CurrencyAmount<Currency> | undefined
+  scrollOnExpand?: boolean
 }
 
 const SwapTradeRoute = ({
   tradeComposition,
   currencyIn,
   currencyOut,
+  defaultCollapsed = false,
   inputAmount,
   outputAmount,
+  scrollOnExpand = true,
 }: SwapTradeRouteProps) => {
   const theme = useTheme()
-  const [isExpanded, setIsExpanded] = useState(true)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
+
+  useEffect(() => {
+    setIsExpanded(!defaultCollapsed)
+  }, [defaultCollapsed])
 
   const titleData = useMemo(
     () => ({
@@ -103,39 +125,52 @@ const SwapTradeRoute = ({
     [currencyIn?.symbol, currencyOut?.symbol, inputAmount, outputAmount],
   )
 
+  const handleToggle = () => {
+    const nextExpanded = !isExpanded
+    setIsExpanded(nextExpanded)
+
+    if (!nextExpanded || !scrollOnExpand) return
+
+    globalThis.requestAnimationFrame(() => {
+      globalThis.requestAnimationFrame(() => {
+        panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    })
+  }
+
   return (
-    <Panel>
+    <Panel ref={panelRef}>
       <PanelHeader $expanded={isExpanded}>
         <PanelTitle>
           <RoutingIconWrapper />
           <Flex alignItems="center" flexWrap="wrap" sx={{ gap: '8px' }}>
-            <Text color={theme.subText} fontSize={18} fontWeight={500}>
+            <RouteLabel color={theme.subText} fontSize={18} fontWeight={500}>
               Route:
-            </Text>
+            </RouteLabel>
 
             {currencyIn ? (
               <Flex alignItems="center" sx={{ gap: '6px' }}>
                 <CurrencyLogo currency={currencyIn} size="18px" />
-                <Text color={theme.subText} fontSize={16} fontWeight={500}>
+                <RouteTitleText color={theme.subText} fontSize={16} fontWeight={500}>
                   {titleData.amountIn ? `${titleData.amountIn} ` : ''}
                   {titleData.inputSymbol}
-                </Text>
+                </RouteTitleText>
               </Flex>
             ) : null}
 
             {(currencyIn || currencyOut) && (
-              <Text color={theme.subText} fontSize={16} fontWeight={500}>
+              <RouteTitleText color={theme.subText} fontSize={16} fontWeight={500}>
                 →
-              </Text>
+              </RouteTitleText>
             )}
 
             {currencyOut ? (
               <Flex alignItems="center" sx={{ gap: '6px' }}>
                 <CurrencyLogo currency={currencyOut} size="18px" />
-                <Text color={theme.subText} fontSize={16} fontWeight={500}>
+                <RouteTitleText color={theme.subText} fontSize={16} fontWeight={500}>
                   {titleData.amountOut ? `${titleData.amountOut} ` : ''}
                   {titleData.outputSymbol}
-                </Text>
+                </RouteTitleText>
               </Flex>
             ) : null}
           </Flex>
@@ -143,7 +178,7 @@ const SwapTradeRoute = ({
         <ToggleButton
           aria-expanded={isExpanded}
           aria-label={isExpanded ? 'Collapse trade route' : 'Expand trade route'}
-          onClick={() => setIsExpanded(prev => !prev)}
+          onClick={handleToggle}
           type="button"
         >
           <PanelChevron $expanded={isExpanded} size={18} />
