@@ -13,6 +13,7 @@ import { NetworkInfo } from 'constants/networks/type'
 import useTheme from 'hooks/useTheme'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const BackButton = styled.button`
   display: flex;
@@ -139,7 +140,7 @@ const PoolHeaderPage = () => {
             {dexInfo.name}
           </Text>
           <Text color={theme.subText} fontSize={14} fontWeight={500}>
-            | {pool.swapFee}%
+            | {formatDisplayNumber(pool.swapFee, { significantDigits: 4 })}%
           </Text>
         </ProtocolBadge>
       </HStack>
@@ -173,7 +174,7 @@ const PoolHeaderReview = () => {
 
           <FeeBadge>
             <Text color={theme.subText} fontSize={12} fontWeight={500}>
-              Fee {pool.swapFee}
+              Fee {formatDisplayNumber(pool.swapFee, { significantDigits: 4 })}%
             </Text>
           </FeeBadge>
         </HStack>
