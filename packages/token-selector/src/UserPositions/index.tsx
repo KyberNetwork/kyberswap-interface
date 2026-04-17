@@ -242,7 +242,10 @@ const PositionRow = memo(function PositionRow({
             </span>
             {position.pool.fees?.length > 0 && (
               <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
-                {position.pool.fees[0]}%
+                {formatDisplayNumber(position.pool.fees[0], {
+                  significantDigits: 4,
+                })}
+                %
               </div>
             )}
           </div>

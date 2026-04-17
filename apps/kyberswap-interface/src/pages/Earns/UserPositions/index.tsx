@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -28,6 +28,7 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
+import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -100,7 +101,15 @@ const UserPositions = () => {
     setLoading(true)
   })
 
-  const { rewardInfo } = useKemRewards()
+  const {
+    rewardInfo,
+    claimModal: claimRewardsModal,
+    onOpenClaim: onOpenClaimRewards,
+    pendingClaimKeys: pendingRewardClaimKeys,
+    claimAllRewardsModal,
+    onOpenClaimAllRewards,
+    isLoadingRewardInfo,
+  } = useKemRewards({ refetchAfterCollect: refetch })
 
   useAccountChanged(() => {
     refetch()
@@ -167,19 +176,22 @@ const UserPositions = () => {
     return [...unfinalizedPositions, ...mergedPositions]
   }, [account, filters.chainIds, filters.page, filters.protocols, filters.statuses, parsedPositions])
 
-  const onSortChange = (sortBy: string) => {
-    if (!filters.sortBy || filters.sortBy !== sortBy) {
-      updateFilters('sortBy', sortBy)
+  const onSortChange = useCallback(
+    (sortBy: string) => {
+      if (!filters.sortBy || filters.sortBy !== sortBy) {
+        updateFilters('sortBy', sortBy)
+        updateFilters('orderBy', Direction.DESC)
+        return
+      }
+      if (filters.orderBy === Direction.DESC) {
+        updateFilters('orderBy', Direction.ASC)
+        return
+      }
+      updateFilters('sortBy', SortBy.VALUE)
       updateFilters('orderBy', Direction.DESC)
-      return
-    }
-    if (filters.orderBy === Direction.DESC) {
-      updateFilters('orderBy', Direction.ASC)
-      return
-    }
-    updateFilters('sortBy', SortBy.VALUE)
-    updateFilters('orderBy', Direction.DESC)
-  }
+    },
+    [filters.sortBy, filters.orderBy, updateFilters],
+  )
 
   useEffect(() => {
     if (!isFetching) setLoading(false)
@@ -197,21 +209,31 @@ const UserPositions = () => {
   }, [account])
 
   useEffect(() => {
+    if (feeInfoFromRpc.length === 0) return
+
     const interval = setInterval(() => {
-      setFeeInfoFromRpc(prev =>
-        prev
+      setFeeInfoFromRpc(prev => {
+        const updated = prev
           .filter(feeInfo => feeInfo.timeRemaining > 0)
-          .map(feeInfo => {
-            return {
-              ...feeInfo,
-              timeRemaining: feeInfo.timeRemaining - 1,
-            }
-          }),
-      )
+          .map(feeInfo => ({
+            ...feeInfo,
+            timeRemaining: feeInfo.timeRemaining - 1,
+          }))
+        // Stop interval naturally when all items expire
+        return updated
+      })
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [feeInfoFromRpc.length])
+
+  const updateFiltersWithLoading = useCallback(
+    (...args: Parameters<typeof updateFilters>) => {
+      updateFilters(...args)
+      setLoading(true)
+    },
+    [updateFilters],
+  )
 
   const actionsInfoHelper = (
     <InfoHelper
@@ -253,8 +275,8 @@ const UserPositions = () => {
       noArrow
       placement="top-end"
       width="280px"
-      size={16}
-      style={{ position: 'relative', top: '2px', height: 16 }}
+      size={14}
+      style={{ position: 'relative', top: '1px', height: 12 }}
     />
   )
 
@@ -265,12 +287,14 @@ const UserPositions = () => {
       {zapInWidget}
       {zapMigrationWidget}
       {zapOutWidget}
+      {claimRewardsModal}
+      {claimAllRewardsModal}
 
       <PositionPageWrapper>
         <Flex alignItems="center" sx={{ gap: 3 }}>
           <IconArrowLeft onClick={() => navigate(-1)} />
           <Text as="h1" fontSize={24} fontWeight="500">
-            {t`My Positions`}
+            {t`My Liquidity Positions`}
           </Text>
         </Flex>
 
@@ -281,7 +305,6 @@ const UserPositions = () => {
           sx={{ gap: 2 }}
         >
           <MultiSelectDropdownMenu
-            alignLeft
             highlightOnSelect
             label={selectedChainsLabel || t`Select chains`}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
@@ -299,9 +322,11 @@ const UserPositions = () => {
 
         {account && (
           <PositionBanner
-            positions={filteredPositions}
             positionsStats={positionsStats}
             initialLoading={initialLoading}
+            rewardInfo={rewardInfo}
+            isLoadingRewardInfo={isLoadingRewardInfo}
+            onOpenClaimAllRewards={onOpenClaimAllRewards}
           />
         )}
 
@@ -309,13 +334,11 @@ const UserPositions = () => {
           supportedChains={supportedChains}
           supportedDexes={supportedDexes}
           filters={filters}
-          updateFilters={(...args) => {
-            updateFilters(...args)
-            setLoading(true)
-          }}
+          updateFilters={updateFiltersWithLoading}
         />
 
         <PositionTableWrapper>
+          <RefetchIndicator visible={isFetching && !loading} />
           <ContentWrapper>
             {!upToCustomLarge && filteredPositions && filteredPositions.length > 0 && (
               <PositionTableHeader>
@@ -375,11 +398,14 @@ const UserPositions = () => {
             ) : (
               <TableContent
                 positions={filteredPositions}
-                feeInfoFromRpc={feeInfoFromRpc}
                 setFeeInfoFromRpc={setFeeInfoFromRpc}
                 onOpenZapInWidget={handleOpenZapIn}
                 onOpenZapOut={handleOpenZapOut}
-                refetchPositions={refetch}
+                onOpenZapMigration={handleOpenZapMigration}
+                kemRewards={{
+                  onOpenClaim: onOpenClaimRewards,
+                  pendingClaimKeys: pendingRewardClaimKeys,
+                }}
               />
             )}
           </ContentWrapper>

@@ -5,7 +5,6 @@ import { Flex, Text } from 'rebass'
 
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
-import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
 import Confirmation from 'pages/Earns/components/SmartExit/Confirmation'
 import ExpireSetting from 'pages/Earns/components/SmartExit/ExpireSetting'
@@ -13,6 +12,7 @@ import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
 import { GuidedHighlightProvider } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import Metrics from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
+import PositionHeader from 'pages/Earns/components/SmartExit/PositionHeader'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
 import Warning, { OrTimeAlreadyMetWarning } from 'pages/Earns/components/SmartExit/Warning'
 import { FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
@@ -106,14 +106,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             </Flex>
 
             <Flex justifyContent="space-between" alignItems="center">
-              <PositionDetailHeader
-                style={{ flexDirection: 'row' }}
-                position={position}
-                showBackIcon={false}
-                isLoading={positionLoading}
-                initialLoading={positionLoading}
-                useFromSmartExit
-              />
+              <PositionHeader position={position} isLoading={positionLoading} initialLoading={positionLoading} />
               <ExpireSetting expireTime={expireTime} setExpireTime={setExpireTime} />
             </Flex>
 

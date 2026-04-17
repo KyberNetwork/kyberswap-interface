@@ -6,27 +6,22 @@ import { Flex, Text } from 'rebass'
 import { useCycleConfigQuery } from 'services/kyberdata'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import {
-  NextDistribution,
-  PositionAction,
-  RewardDetailInfo,
-  RewardLink,
-  RewardsSection,
-} from 'pages/Earns/PositionDetail/styles'
+import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
+import { CardDivider, ClaimButton, DarkCard, NextDistribution, RewardLink } from 'pages/Earns/PositionDetail/styles'
 import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
-import { ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
-import { checkEarlyPosition } from 'pages/Earns/utils/position'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
+import { PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const formatTimeRemaining = (seconds: number) => {
@@ -54,7 +49,7 @@ const CycleCountdown = ({ endTime, textColor }: { endTime: number; textColor: st
   }, [endTime])
 
   return (
-    <Flex alignItems={'center'} sx={{ gap: 1 }}>
+    <Flex alignItems="center" sx={{ gap: 1 }}>
       <Clock size={16} color={textColor} />
       <Text fontSize={14} color={textColor}>
         {timeRemaining}
@@ -63,17 +58,8 @@ const CycleCountdown = ({ endTime, textColor }: { endTime: number; textColor: st
   )
 }
 
-const RewardSection = ({
-  position,
-  initialLoading,
-  shareBtn,
-  refetchPositions,
-}: {
-  position?: ParsedPosition
-  initialLoading: boolean
-  shareBtn: (size?: number) => React.ReactNode
-  refetchPositions: () => void
-}) => {
+const RewardSection = () => {
+  const { position, initialLoading, shareBtn, refetchPositions, isWaitingForRewards } = usePositionDetailContext()
   const theme = useTheme()
 
   const {
@@ -96,96 +82,105 @@ const RewardSection = ({
   )
 
   const isUnfinalized = position?.isUnfinalized
-  const isEarlyPosition = !!position && checkEarlyPosition(position)
-  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
   const claimKey = position ? `${position.chain.id}:${position.tokenId}` : ''
   const isRewardsClaiming = claimKey ? pendingRewardClaimKeys.includes(claimKey) : false
-  const merklBonus = getMerklBonusMeta(position?.chain.id)
 
   return (
     <>
       {claimRewardsModal}
 
-      <RewardsSection>
-        <Flex alignItems={'center'} justifyContent={'space-between'} sx={{ gap: '20px' }}>
-          <Flex alignItems={'center'} sx={{ gap: 1 }}>
+      <DarkCard>
+        {/* Header: icon + TOTAL REWARD + share + value */}
+        <Flex alignItems="center" justifyContent="space-between">
+          <Flex alignItems="center" sx={{ gap: '8px' }}>
             <FarmingIcon width={20} height={20} />
             {merklRewards.length > 0 && (
-              <MouseoverTooltip
-                text={merklRewardTooltip(merklRewards, theme.text, position?.chain.id)}
-                placement="top"
-                width="160px"
-              >
-                <img src={merklBonus.icon} alt={merklBonus.name} width={20} height={20} />
+              <MouseoverTooltip text={merklRewardTooltip(merklRewards, theme.text)} placement="top" width="160px">
+                <UniBonusIcon width={20} height={20} />
               </MouseoverTooltip>
             )}
-            <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
-              {t`Total Rewards`}
+            <Text fontSize={16} color={theme.subText} style={{ textTransform: 'uppercase' }}>
+              {t`Total Reward`}
             </Text>
             {!initialLoading && !isUnfinalized && position?.status !== PositionStatus.CLOSED && shareBtn()}
           </Flex>
 
-          {initialLoading ? (
-            <PositionSkeleton width={110} height={24} />
-          ) : isUnfinalized ? (
-            <PositionSkeleton width={110} height={24} text={t`Finalizing...`} />
-          ) : (
-            <Flex alignItems={'center'} sx={{ gap: 1 }}>
-              <Text fontSize={20}>
-                {formatDisplayNumber((rewardInfoThisPosition?.totalUsdValue || 0) + merklRewardsTotalUsd, {
-                  significantDigits: 4,
-                  style: 'currency',
-                })}
-              </Text>
-              <InfoHelper
-                text={totalRewardTooltip({
-                  lmTokens: rewardInfoThisPosition?.lmTokens || [],
-                  egTokens: rewardInfoThisPosition?.egTokens || [],
-                  merklRewards,
-                  merklChainId: position?.chain.id,
-                  textColor: theme.text,
-                })}
-                placement="top"
-                width="160px"
-                size={14}
-              />
-            </Flex>
-          )}
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
+            {initialLoading ? (
+              <PositionSkeleton width={100} height={24} />
+            ) : isUnfinalized ? (
+              <PositionSkeleton width={100} height={24} text={t`Finalizing...`} />
+            ) : (
+              <>
+                <Text fontSize={20} fontWeight={500} color={theme.text}>
+                  <AnimatedNumber
+                    value={formatDisplayNumber((rewardInfoThisPosition?.totalUsdValue || 0) + merklRewardsTotalUsd, {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
+                  />
+                </Text>
+                <InfoHelper
+                  text={totalRewardTooltip({
+                    lmTokens: rewardInfoThisPosition?.lmTokens || [],
+                    egTokens: rewardInfoThisPosition?.egTokens || [],
+                    merklRewards,
+                    textColor: theme.text,
+                  })}
+                  placement="top"
+                  width="160px"
+                  size={14}
+                />
+              </>
+            )}
+          </Flex>
         </Flex>
 
-        <RewardDetailInfo>
-          <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
-            {initialLoading ? (
-              <PositionSkeleton width={90} height={24} />
-            ) : isUnfinalized ? (
-              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
-            ) : (
-              <Text fontSize={20}>
-                {formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
-                  significantDigits: 4,
-                  style: 'currency',
-                })}
-              </Text>
-            )}
+        <CardDivider />
+
+        {/* Reward breakdown */}
+        <Flex flexDirection="column" sx={{ gap: '12px' }}>
+          {/* Claimed */}
+          <Flex alignItems="center" justifyContent="space-between" style={{ padding: '0 16px' }}>
             <Text fontSize={14} color={theme.subText}>
               {t`Claimed`}
             </Text>
-          </Flex>
-
-          <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             {initialLoading ? (
-              <PositionSkeleton width={90} height={24} />
+              <PositionSkeleton width={80} height={24} />
             ) : isUnfinalized ? (
-              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
-            ) : isWaitingForRewards ? (
-              <RewardSyncing width={90} height={24} />
+              <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
             ) : (
-              <Flex alignItems={'center'}>
-                <Text fontSize={20}>
-                  {formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
+              <Text fontSize={20} color={theme.text}>
+                <AnimatedNumber
+                  value={formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
                     significantDigits: 4,
                     style: 'currency',
                   })}
+                />
+              </Text>
+            )}
+          </Flex>
+
+          {/* In-Progress */}
+          <Flex alignItems="center" justifyContent="space-between" width="100%" style={{ padding: '0 16px' }}>
+            <Text fontSize={14} color={theme.subText}>
+              {t`In-Progress`}
+            </Text>
+            {initialLoading ? (
+              <PositionSkeleton width={80} height={24} />
+            ) : isUnfinalized ? (
+              <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
+            ) : isWaitingForRewards ? (
+              <RewardSyncing width={80} height={24} />
+            ) : (
+              <Flex alignItems="center">
+                <Text fontSize={20} color={theme.text}>
+                  <AnimatedNumber
+                    value={formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
+                  />
                 </Text>
                 <InfoHelper
                   text={inProgressRewardTooltip({
@@ -200,14 +195,12 @@ const RewardSection = ({
                 />
               </Flex>
             )}
-            <Text fontSize={14} color={theme.subText}>
-              {t`In-Progress`}
-            </Text>
           </Flex>
 
+          {/* Cycle countdown */}
           {!!cycleConfig && (
             <NextDistribution>
-              <Flex alignItems={'center'}>
+              <Flex alignItems="center">
                 <Text fontSize={14} color={theme.subText}>
                   {t`Cycle ends in`}
                 </Text>
@@ -224,46 +217,52 @@ const RewardSection = ({
             </NextDistribution>
           )}
 
-          <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
-            {initialLoading ? (
-              <PositionSkeleton width={90} height={24} />
-            ) : isUnfinalized ? (
-              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
-            ) : isWaitingForRewards ? (
-              <RewardSyncing width={90} height={24} />
-            ) : (
-              <Text fontSize={20}>
-                {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
-                  significantDigits: 4,
-                  style: 'currency',
-                })}
+          {/* Claimable */}
+          <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
+            <Flex alignItems="center" justifyContent="space-between" width="100%" style={{ padding: '0 16px' }}>
+              <Text fontSize={14} color={theme.subText}>
+                {t`Claimable`}
               </Text>
-            )}
-            <Text fontSize={14} color={theme.subText}>
-              {t`Claimable`}
-            </Text>
-          </Flex>
+              {initialLoading ? (
+                <PositionSkeleton width={80} height={24} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
+              ) : isWaitingForRewards ? (
+                <RewardSyncing width={80} height={24} />
+              ) : (
+                <Text fontSize={20} color={theme.text}>
+                  <AnimatedNumber
+                    value={formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
+                  />
+                </Text>
+              )}
+            </Flex>
 
-          <PositionAction
-            small
-            outline
-            mobileAutoWidth
-            disabled={
-              initialLoading || isUnfinalized || !rewardInfoThisPosition?.claimableUsdValue || isRewardsClaiming
-            }
-            onClick={() =>
-              !initialLoading &&
-              !isUnfinalized &&
-              rewardInfoThisPosition?.claimableUsdValue &&
-              !isRewardsClaiming &&
-              onOpenClaimRewards(position)
-            }
-          >
-            {isRewardsClaiming && <Loader size="14px" />}
-            {isRewardsClaiming ? t`Claiming` : t`Claim`}
-          </PositionAction>
-        </RewardDetailInfo>
-      </RewardsSection>
+            <ClaimButton
+              disabled={
+                !position ||
+                initialLoading ||
+                isUnfinalized ||
+                !rewardInfoThisPosition?.claimableUsdValue ||
+                isRewardsClaiming
+              }
+              onClick={() => position && onOpenClaimRewards(position)}
+            >
+              {isRewardsClaiming ? (
+                <Flex alignItems="center" sx={{ gap: '4px' }}>
+                  <Loader size="12px" />
+                  {t`Claiming`}
+                </Flex>
+              ) : (
+                t`Claim`
+              )}
+            </ClaimButton>
+          </Flex>
+        </Flex>
+      </DarkCard>
     </>
   )
 }
@@ -320,7 +319,7 @@ export const inProgressRewardTooltip = ({
           })}
         </b>{' '}
         {pendingTokens}
-        {t`will move to “Vesting” when this cycle ends.`}
+        {t`will move to "Vesting" when this cycle ends.`}
       </li>
       <li style={{ marginTop: 4 }}>
         {t`Vesting`}:{' '}
@@ -350,13 +349,13 @@ export const inProgressRewardTooltip = ({
   )
 }
 
-const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string, chainId?: number) => (
-  <Flex flexDirection={'column'} sx={{ gap: 1 }}>
-    <Text lineHeight={'16px'} fontSize={12}>
-      {getMerklBonusMeta(chainId).name}:
+const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string) => (
+  <Flex flexDirection="column" sx={{ gap: 1 }}>
+    <Text lineHeight="16px" fontSize={12}>
+      {t`Uniswap Bonus:`}
     </Text>
     {merklRewards.map(token => (
-      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${token.symbol}`}>
+      <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
         <TokenLogo src={token.logo} size={16} />
         <RewardLink href="https://app.merkl.xyz/users" target="_blank">
           <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
@@ -371,22 +370,20 @@ export const totalRewardTooltip = ({
   lmTokens,
   egTokens,
   merklRewards,
-  merklChainId,
   textColor,
 }: {
   lmTokens: Array<TokenRewardInfo>
   egTokens: Array<TokenRewardInfo>
   merklRewards?: Array<TokenRewardInfo>
-  merklChainId?: number
   textColor: string
 }) => (
-  <Flex flexDirection={'column'} sx={{ gap: 1 }}>
-    <Text lineHeight={'16px'} fontSize={12}>
+  <Flex flexDirection="column" sx={{ gap: 1 }}>
+    <Text lineHeight="16px" fontSize={12}>
       {t`LM Reward:`}
       {!lmTokens.length ? ' 0' : ''}
     </Text>
     {lmTokens.map(token => (
-      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${token.symbol}`}>
+      <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
         <TokenLogo src={token.logo} size={16} />
         <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
         <Text color={textColor}>{token.symbol}</Text>
@@ -394,12 +391,12 @@ export const totalRewardTooltip = ({
     ))}
 
     <HorizontalDivider />
-    <Text lineHeight={'16px'} fontSize={12}>
+    <Text lineHeight="16px" fontSize={12}>
       {t`EG Sharing Reward:`}
       {!egTokens.length ? ' 0' : ''}
     </Text>
     {egTokens.map(token => (
-      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${token.symbol}`}>
+      <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
         <TokenLogo src={token.logo} size={16} />
         <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
         <Text color={textColor}>{token.symbol}</Text>
@@ -409,7 +406,7 @@ export const totalRewardTooltip = ({
     {!!merklRewards?.length && (
       <>
         <HorizontalDivider />
-        {merklRewardTooltip(merklRewards, textColor, merklChainId)}
+        {merklRewardTooltip(merklRewards, textColor)}
       </>
     )}
   </Flex>

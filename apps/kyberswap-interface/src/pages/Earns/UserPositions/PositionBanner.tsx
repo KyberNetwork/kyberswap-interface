@@ -1,30 +1,32 @@
-import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
+import { ShareModal, ShareModalProps, ShareType, TokenLogo } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { inProgressRewardTooltip, totalRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
-import { PositionAction, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
+import { inProgressRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
+import { PositionAction, RewardLink, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import {
   BannerContainer,
   BannerDataItem,
   BannerDivider,
   BannerWrapper,
+  HorizontalDivider,
   RewardBannerDetailWrapper,
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
-import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
-import { ParsedPosition, UserPositionsStats } from 'pages/Earns/types'
+import { RewardInfo, TokenRewardInfo, UserPositionsStats } from 'pages/Earns/types'
+import { truncateSymbol } from 'pages/Earns/utils'
 import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
@@ -56,13 +58,17 @@ export const BannerSkeleton = ({
 export default function PositionBanner({
   positionsStats,
   initialLoading,
+  rewardInfo,
+  isLoadingRewardInfo,
+  onOpenClaimAllRewards,
 }: {
-  positions: Array<ParsedPosition>
   positionsStats?: UserPositionsStats
   initialLoading: boolean
+  rewardInfo: RewardInfo | null
+  isLoadingRewardInfo: boolean
+  onOpenClaimAllRewards: () => void
 }) {
   const theme = useTheme()
-  const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo, isLoadingRewardInfo } = useKemRewards()
   const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
@@ -83,6 +89,7 @@ export default function PositionBanner({
 
   const isLoadingKemRewards = initialLoading || isLoadingRewardInfo
   const totalUsdValue = totalKemUsdValue + totalMerklUsdValue
+  const totalClaimableUsdValue = claimableUsdValue + totalMerklUsdValue
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
@@ -94,13 +101,13 @@ export default function PositionBanner({
   const claimRewardButton = (
     <MouseoverTooltipDesktopOnly text={t`Claim all available farming rewards`} width="fit-content" placement="bottom">
       <PositionAction
-        disabled={!claimableUsdValue || initialLoading || isLoadingRewardInfo}
+        disabled={(!claimableUsdValue && !totalMerklUsdValue) || initialLoading || isLoadingRewardInfo}
         mobileAutoWidth
         outline
         onClick={onOpenClaimAllRewards}
         style={{ position: 'relative', top: 2 }}
       >
-        <Text>{t`Claim`}</Text>
+        <Text>{t`Claim All`}</Text>
       </PositionAction>
     </MouseoverTooltipDesktopOnly>
   )
@@ -127,7 +134,6 @@ export default function PositionBanner({
 
   return (
     <>
-      {claimAllRewardsModal}
       {shareModal}
 
       <Flex
@@ -148,7 +154,9 @@ export default function PositionBanner({
                   color={totalValueUsd && totalValueUsd > 0 ? theme.primary : theme.text}
                   sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
                 >
-                  {formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
+                  />
                 </Text>
               )}
             </BannerDataItem>
@@ -160,7 +168,9 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  />
                 </Text>
               )}
             </BannerDataItem>
@@ -172,7 +182,9 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  />
                 </Text>
               )}
             </BannerDataItem>
@@ -194,7 +206,9 @@ export default function PositionBanner({
                     <BannerSkeleton width={90} height={28} />
                   ) : (
                     <Text fontSize={24}>
-                      {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                      />
                     </Text>
                   )}
                 </Flex>
@@ -206,7 +220,9 @@ export default function PositionBanner({
                       <BannerSkeleton width={80} height={24} />
                     ) : (
                       <Text fontSize={20}>
-                        {formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                        <AnimatedNumber
+                          value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                        />
                       </Text>
                     )}
                   </BannerDataItem>
@@ -231,7 +247,9 @@ export default function PositionBanner({
                       <BannerSkeleton width={80} height={24} />
                     ) : (
                       <Text fontSize={20}>
-                        {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                        <AnimatedNumber
+                          value={formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                        />
                       </Text>
                     )}
                   </BannerDataItem>
@@ -244,7 +262,12 @@ export default function PositionBanner({
                         <BannerSkeleton width={80} height={24} />
                       ) : (
                         <Text fontSize={20}>
-                          {formatDisplayNumber(claimableUsdValue, { significantDigits: 4, style: 'currency' })}
+                          <AnimatedNumber
+                            value={formatDisplayNumber(totalClaimableUsdValue, {
+                              significantDigits: 4,
+                              style: 'currency',
+                            })}
+                          />
                         </Text>
                       )}
                     </Flex>
@@ -270,7 +293,9 @@ export default function PositionBanner({
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: 1 }}>
                     <Text fontSize={upToSmall ? 20 : 24}>
-                      {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                      />
                     </Text>
                     <InfoHelper
                       text={totalRewardTooltip({
@@ -280,7 +305,7 @@ export default function PositionBanner({
                         textColor: theme.text,
                       })}
                       placement="bottom"
-                      width="160px"
+                      width="220px"
                       size={16}
                       fontSize={14}
                       style={{ marginRight: 12 }}
@@ -297,7 +322,9 @@ export default function PositionBanner({
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
-                      {formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                      />
                     </Text>
                   )}
                 </BannerDataItem>
@@ -322,7 +349,9 @@ export default function PositionBanner({
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
-                      {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                      />
                     </Text>
                   )}
                 </BannerDataItem>
@@ -334,7 +363,12 @@ export default function PositionBanner({
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
-                      {formatDisplayNumber(claimableUsdValue, { style: 'currency', significantDigits: 4 })}
+                      <AnimatedNumber
+                        value={formatDisplayNumber(totalClaimableUsdValue, {
+                          style: 'currency',
+                          significantDigits: 4,
+                        })}
+                      />
                     </Text>
                   )}
                 </BannerDataItem>
@@ -348,3 +382,79 @@ export default function PositionBanner({
     </>
   )
 }
+
+const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string) => (
+  <Flex flexDirection="column" sx={{ gap: 1 }}>
+    <RewardLink
+      href="https://app.merkl.xyz/users"
+      target="_blank"
+      style={{ lineHeight: '20px', fontSize: 14, color: '#fafafa', width: 'fit-content' }}
+    >
+      {t`3rd Party (Merkl) Incentives`}
+    </RewardLink>
+    <Box sx={{ paddingLeft: '8px' }}>
+      {merklRewards.map(token => (
+        <Flex
+          alignItems="center"
+          sx={{ gap: '6px' }}
+          flexWrap="wrap"
+          key={`${token.chainId}-${token.address}-${token.symbol}`}
+          mt="4px"
+        >
+          <TokenLogo src={token.logo} size={16} style={{ position: 'relative', top: 1 }} />
+          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
+        </Flex>
+      ))}
+    </Box>
+  </Flex>
+)
+
+const totalRewardTooltip = ({
+  lmTokens,
+  egTokens,
+  merklRewards,
+  textColor,
+}: {
+  lmTokens: Array<TokenRewardInfo>
+  egTokens: Array<TokenRewardInfo>
+  merklRewards?: Array<TokenRewardInfo>
+  textColor: string
+}) => (
+  <Flex flexDirection="column" sx={{ gap: 1 }}>
+    <Text lineHeight="20px" fontSize={14} color={'#fafafa'}>
+      {t`KyberSwap Reward`}
+    </Text>
+    <Box sx={{ paddingLeft: '8px' }}>
+      <Text lineHeight="16px" fontSize={12} mb="2px">
+        {t`LM Reward:`}
+        {!lmTokens.length ? ' 0' : ''}
+      </Text>
+      {lmTokens.map(token => (
+        <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
+          <TokenLogo src={token.logo} size={16} />
+          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
+        </Flex>
+      ))}
+      <Text lineHeight="16px" fontSize={12} mt="4px" mb="2px">
+        {t`EG Sharing Reward:`}
+        {!egTokens.length ? ' 0' : ''}
+      </Text>
+      {egTokens.map(token => (
+        <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
+          <TokenLogo src={token.logo} size={16} />
+          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
+        </Flex>
+      ))}
+    </Box>
+
+    {!!merklRewards?.length && (
+      <>
+        <HorizontalDivider />
+        {merklRewardTooltip(merklRewards, textColor)}
+      </>
+    )}
+  </Flex>
+)

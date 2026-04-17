@@ -1,7 +1,7 @@
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { usePoolDetailQuery } from 'services/zapEarn'
 import styled, { keyframes } from 'styled-components'
@@ -17,6 +17,7 @@ export default function LiquidityChart({
   minPrice,
   maxPrice,
   revertPrice,
+  onReady,
 }: {
   chainId: number
   poolAddress: string
@@ -24,6 +25,7 @@ export default function LiquidityChart({
   minPrice: number
   maxPrice: number
   revertPrice: boolean
+  onReady?: () => void
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -78,6 +80,14 @@ export default function LiquidityChart({
       [Bound.UPPER]: !revertPrice ? usableTickUpper === maxTick : usableTickLower === minTick,
     }
   }, [maxPrice, minPrice, revertPrice, tickSpacing, token0, token1])
+
+  const isReady = !!ticksAtLimit
+
+  useEffect(() => {
+    if (isReady) {
+      onReady?.()
+    }
+  }, [isReady, onReady])
 
   if (!ticksAtLimit) return null
 

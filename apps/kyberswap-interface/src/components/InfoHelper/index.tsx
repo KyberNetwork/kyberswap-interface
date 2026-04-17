@@ -23,11 +23,11 @@ const InfoWrapper = styled.div<{ isActive?: boolean }>`
   }
 `
 
-const InfoHelperWrapper = styled.span`
+const InfoHelperWrapper = styled.span<{ $margin: boolean }>`
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  margin-left: 0.25rem;
+  margin-left: ${({ $margin }) => ($margin ? '0.25rem' : '0')};
   line-height: 100%;
   vertical-align: middle;
 `
@@ -43,6 +43,7 @@ export default function InfoHelper({
   style,
   zIndexTooltip = Z_INDEXS.POPOVER_CONTAINER,
   noArrow = false,
+  margin = true,
 }: {
   text: string | ReactNode
   size?: number
@@ -54,6 +55,7 @@ export default function InfoHelper({
   style?: CSSProperties
   zIndexTooltip?: number
   noArrow?: boolean
+  margin?: boolean
 }) {
   const [show, setShow] = useState<boolean>(false)
 
@@ -62,6 +64,7 @@ export default function InfoHelper({
 
   return (
     <InfoHelperWrapper
+      $margin={margin}
       onClick={e => {
         e.stopPropagation()
         open()

@@ -1,9 +1,8 @@
 import { ShareModal, ShareModalProps, ShareOption, ShareType } from '@kyber/ui'
-import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info, Share2 } from 'react-feather'
+import { Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
@@ -11,35 +10,24 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
-import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
-import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
-import { Loader2 } from 'components/Loader'
-import TokenLogo from 'components/TokenLogo'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { timings } from 'pages/Earns/PoolExplorer/Filter'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
+import { PositionDetailProvider } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import RightSection from 'pages/Earns/PositionDetail/RightSection'
 import {
-  AprSection,
   MigrationLiquidityRecommend,
   PositionDetailWrapper,
   ShareButtonWrapper,
-  TotalLiquiditySection,
-  VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
-import DropdownMenu from 'pages/Earns/components/DropdownMenu'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import { EARN_DEXES } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -50,9 +38,8 @@ import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, Su
 import { getNftManagerContract } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
-import { formatDisplayNumber, toString } from 'utils/numbers'
+import { toString } from 'utils/numbers'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -86,7 +73,10 @@ const PositionDetail = () => {
   const { rewardInfo } = useKemRewards({ refetchAfterCollect: refetch })
 
   const userPositions = useMemo(() => userPositionsData?.positions || [], [userPositionsData?.positions])
-  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === userPositions[0]?.tokenId.toString())
+  const rewardInfoThisPosition = useMemo(
+    () => rewardInfo?.nfts.find(item => item.nftId === userPositions[0]?.tokenId.toString()),
+    [rewardInfo?.nfts, userPositions],
+  )
 
   const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
     {
@@ -115,7 +105,6 @@ const PositionDetail = () => {
   const position: ParsedPosition | undefined = useMemo(() => {
     const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
-      // API has no data yet — show cached unfinalized position if available
       const unfinalizedPositions = getUnfinalizedPositions([], account || undefined)
       if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
         return unfinalizedPositions[0]
@@ -135,98 +124,96 @@ const PositionDetail = () => {
     const matchedUnfinalized = unfinalizedPositions.find(p => Number(p.tokenId) === Number(tokenId))
 
     if (matchedUnfinalized) {
-      // For increase-liquidity (isValueUpdating), use API data with loading flag only
       if (matchedUnfinalized.isValueUpdating) return { ...parsedPosition, isValueUpdating: true }
-      // For truly new positions not yet in API, use cached data
       return matchedUnfinalized
     }
 
     return parsedPosition
   }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
-  const merklBonus = getMerklBonusMeta(position?.chain.id)
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
+  const positionRef = useRef(position)
+  positionRef.current = position
   const handleFetchUnclaimedFee = useCallback(async () => {
-    if (!position) return
-
-    const feeFromRpc = await getUnclaimedFeesInfo(position)
+    if (!positionRef.current) return
+    const feeFromRpc = await getUnclaimedFeesInfo(positionRef.current)
     setFeeInfoFromRpc(feeFromRpc)
     setTimeout(() => setFeeInfoFromRpc(undefined), 60_000)
-  }, [position])
+  }, [])
 
-  const handleMigrateToKem = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (!position) return
+  const handleOpenMigration = useCallback(
+    (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
+      const sourceMinPrice = sourcePosition.priceRange.min
+      const sourceMaxPrice = sourcePosition.priceRange.max
+      const targetToken0Decimals = targetPool.token0.decimals
+      const targetToken1Decimals = targetPool.token1.decimals
 
-    if (!!position.suggestionPool) {
-      handleOpenMigration(position, position.suggestionPool)
-    } else if (
-      position.pool.category === PAIR_CATEGORY.STABLE &&
-      farmingPoolsByChain[position.chain.id]?.pools.length > 0
-    )
-      setPositionToMigrate(position)
-  }
+      const isTokenOrderSame =
+        sourcePosition.token0.address.toLowerCase() === targetPool.token0.address.toLowerCase() &&
+        sourcePosition.token1.address.toLowerCase() === targetPool.token1.address.toLowerCase()
 
-  const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
-    const sourceMinPrice = sourcePosition.priceRange.min
-    const sourceMaxPrice = sourcePosition.priceRange.max
-    const targetToken0Decimals = targetPool.token0.decimals
-    const targetToken1Decimals = targetPool.token1.decimals
+      const isMinPrice = sourcePosition.priceRange.isMinPrice
+      const isMaxPrice = sourcePosition.priceRange.isMaxPrice
 
-    // Check if tokens are in the same order by comparing addresses
-    const isTokenOrderSame =
-      sourcePosition.token0.address.toLowerCase() === targetPool.token0.address.toLowerCase() &&
-      sourcePosition.token1.address.toLowerCase() === targetPool.token1.address.toLowerCase()
-
-    const isMinPrice = sourcePosition.priceRange.isMinPrice
-    const isMaxPrice = sourcePosition.priceRange.isMaxPrice
-
-    const tickLower = sourcePosition.pool.isUniv2
-      ? undefined
-      : isTokenOrderSame
-      ? isMinPrice
-        ? MIN_TICK
-        : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
-      : isMaxPrice
-      ? MAX_TICK
-      : priceToClosestTick(toString(1 / sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
-
-    const tickUpper = sourcePosition.pool.isUniv2
-      ? undefined
-      : isTokenOrderSame
-      ? isMaxPrice
+      const tickLower = sourcePosition.pool.isUniv2
+        ? undefined
+        : isTokenOrderSame
+        ? isMinPrice
+          ? MIN_TICK
+          : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
+        : isMaxPrice
         ? MAX_TICK
-        : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
-      : isMinPrice
-      ? MIN_TICK
-      : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
+        : priceToClosestTick(toString(1 / sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
 
-    const isOutRange = sourcePosition.status === PositionStatus.OUT_RANGE
+      const tickUpper = sourcePosition.pool.isUniv2
+        ? undefined
+        : isTokenOrderSame
+        ? isMaxPrice
+          ? MAX_TICK
+          : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
+        : isMinPrice
+        ? MIN_TICK
+        : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
 
-    handleOpenZapMigration({
-      chainId: sourcePosition.chain.id,
-      from: {
-        poolType: sourcePosition.dex.id,
-        poolAddress: sourcePosition.pool.address,
-        positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
-        dexId: sourcePosition.dex.id,
-      },
-      to: {
-        poolType: targetPool.exchange,
-        poolAddress: targetPool.address,
-        dexId: targetPool.exchange,
-      },
-      initialTick:
-        tickLower !== undefined && tickUpper !== undefined && !isOutRange
-          ? {
-              tickLower: tickLower,
-              tickUpper: tickUpper,
-            }
-          : undefined,
-    })
-  }
+      const isOutRange = sourcePosition.status === PositionStatus.OUT_RANGE
+
+      handleOpenZapMigration({
+        chainId: sourcePosition.chain.id,
+        from: {
+          poolType: sourcePosition.dex.id,
+          poolAddress: sourcePosition.pool.address,
+          positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+          dexId: sourcePosition.dex.id,
+        },
+        to: {
+          poolType: targetPool.exchange,
+          poolAddress: targetPool.address,
+          dexId: targetPool.exchange,
+        },
+        initialTick:
+          tickLower !== undefined && tickUpper !== undefined && !isOutRange ? { tickLower, tickUpper } : undefined,
+      })
+    },
+    [handleOpenZapMigration, account],
+  )
+
+  const handleMigrateToKem = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      if (!position) return
+
+      if (!!position.suggestionPool) {
+        handleOpenMigration(position, position.suggestionPool)
+      } else if (
+        position.pool.category === PAIR_CATEGORY.STABLE &&
+        farmingPoolsByChain[position.chain.id]?.pools.length > 0
+      )
+        setPositionToMigrate(position)
+    },
+    [position, farmingPoolsByChain, handleOpenMigration],
+  )
 
   const handleReposition = useCallback(
     (e: React.MouseEvent, position: ParsedPosition) => {
@@ -247,9 +234,7 @@ const PositionDetail = () => {
   )
 
   useEffect(() => {
-    if (!firstLoading.current && !isLoading) {
-      firstLoading.current = true
-    }
+    if (!firstLoading.current && !isLoading) firstLoading.current = true
   }, [isLoading])
 
   useEffect(() => {
@@ -272,13 +257,16 @@ const PositionDetail = () => {
     [checkClosedPosition, refetch],
   )
 
+  const positionDexId = position?.dex.id
+  const positionChainId = position?.chain.id
+  const positionTokenId = position?.tokenId
   useEffect(() => {
-    if (!position) return
+    if (!positionDexId || !positionChainId || !positionTokenId) return
     const fetchOwner = async () => {
       try {
-        const contract = getNftManagerContract(position.dex.id, position.chain.id)
+        const contract = getNftManagerContract(positionDexId, positionChainId)
         if (contract) {
-          const owner = await contract.ownerOf(position.tokenId)
+          const owner = await contract.ownerOf(positionTokenId)
           setPositionOwnerAddress(owner)
         }
       } catch (error) {
@@ -287,76 +275,31 @@ const PositionDetail = () => {
       }
     }
     fetchOwner()
-  }, [position])
+  }, [positionDexId, positionChainId, positionTokenId])
 
   const isNotAccountOwner = !!positionOwnerAddress && !!account && positionOwnerAddress !== account
   const isUnfinalized = position?.isUnfinalized
+  const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
   const isEarlyPosition = !!position && checkEarlyPosition(position)
   const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
 
-  const emptyPosition = (
-    <EmptyPositionText>
-      <IconEarnNotFound />
-      <Text>{t`No position found!`}</Text>
-      <Flex sx={{ gap: 2 }} marginTop={12}>
-        <NavigateButton
-          icon={<RocketIcon width={20} height={20} />}
-          text={t`Explorer Pools`}
-          to={APP_PATHS.EARN_POOLS}
-        />
-        <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
-      </Flex>
-    </EmptyPositionText>
-  )
-
-  const totalLiquiditySection = (
-    <TotalLiquiditySection>
-      <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
-        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Total Liquidity`}
-          </Text>
-          {position?.isValueUpdating && (
-            <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
-              <Loader2 size={12} />
-            </MouseoverTooltipDesktopOnly>
-          )}
+  const emptyPosition = useMemo(
+    () => (
+      <EmptyPositionText>
+        <IconEarnNotFound />
+        <Text>{t`No position found!`}</Text>
+        <Flex sx={{ gap: 2 }} marginTop={12}>
+          <NavigateButton
+            icon={<RocketIcon width={20} height={20} />}
+            text={t`Explorer Pools`}
+            to={APP_PATHS.EARN_POOLS}
+          />
+          <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
         </Flex>
-        {initialLoading ? (
-          <PositionSkeleton width={95} height={24} />
-        ) : (
-          <Text fontSize={20}>
-            {formatDisplayNumber(position?.totalProvidedValue, {
-              style: 'currency',
-              significantDigits: 4,
-            })}
-          </Text>
-        )}
-      </Flex>
-      <VerticalDivider />
-      <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
-        {initialLoading ? (
-          <PositionSkeleton width={120} height={19} />
-        ) : (
-          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
-            <TokenLogo src={position?.token0.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token0.currentAmount, { significantDigits: 4 })}</Text>
-            <Text>{position?.token0.symbol}</Text>
-          </Flex>
-        )}
-
-        {initialLoading ? (
-          <PositionSkeleton width={120} height={19} />
-        ) : (
-          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
-            <TokenLogo src={position?.token1.logo} size={16} />
-            <Text>{formatDisplayNumber(position?.token1.currentAmount, { significantDigits: 4 })}</Text>
-            <Text>{position?.token1.symbol}</Text>
-          </Flex>
-        )}
-      </Flex>
-    </TotalLiquiditySection>
+      </EmptyPositionText>
+    ),
+    [],
   )
 
   const shareBtn = useCallback(
@@ -364,7 +307,6 @@ const PositionDetail = () => {
       <ShareButtonWrapper
         onClick={() => {
           if (!position) return
-
           setShareInfo({
             isFarming: position.pool.isFarming,
             defaultOptions,
@@ -378,14 +320,8 @@ const PositionDetail = () => {
               dexLogo: position.dex.logo,
               dexName: position.dex.name,
               exchange: position.dex.id,
-              token0: {
-                symbol: position.token0.symbol,
-                logo: position.token0.logo,
-              },
-              token1: {
-                symbol: position.token1.symbol,
-                logo: position.token1.logo,
-              },
+              token0: { symbol: position.token0.symbol, logo: position.token0.logo },
+              token1: { symbol: position.token1.symbol, logo: position.token1.logo },
             },
             position: {
               apr: {
@@ -405,67 +341,6 @@ const PositionDetail = () => {
     [theme.primary, position, aprInterval],
   )
 
-  const aprSection = (
-    <AprSection>
-      <Flex alignItems={'center'} sx={{ gap: '2px' }}>
-        <Text fontSize={14} color={theme.subText} marginRight={0.5}>
-          {t`Est. Position APR`}
-        </Text>
-        {position?.pool.isFarming && !isUnfinalized && (
-          <AprDetailTooltip
-            chainId={position?.chain.id}
-            feeApr={position.feeApr[aprInterval] || 0}
-            egApr={position.kemEGApr[aprInterval] || 0}
-            lmApr={position.kemLMApr[aprInterval] || 0}
-            uniApr={position.bonusApr}
-          >
-            <Info color={theme.subText} size={16} />
-          </AprDetailTooltip>
-        )}
-      </Flex>
-
-      {initialLoading ? (
-        <PositionSkeleton width={70} height={24} />
-      ) : isUnfinalized ? (
-        <PositionSkeleton width={70} height={24} text={t`Finalizing...`} />
-      ) : isWaitingForRewards ? (
-        <RewardSyncing width={70} height={24} />
-      ) : (
-        <Flex alignItems={'center'} justifyContent={'space-between'}>
-          <Flex alignItems={'center'} sx={{ gap: 1 }}>
-            {position?.pool.isFarmingLm ? (
-              <FarmingLmIcon width={20} height={20} />
-            ) : position?.pool.isFarming ? (
-              <FarmingIcon width={20} height={20} />
-            ) : null}
-            {position?.bonusApr ? <img src={merklBonus.icon} alt={merklBonus.name} width={20} height={20} /> : null}
-            <Text
-              fontSize={20}
-              marginRight={1}
-              color={position?.apr && position.apr[aprInterval] > 0 ? theme.primary : theme.text}
-            >
-              {formatAprNumber((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%
-            </Text>
-            {!initialLoading &&
-              !isUnfinalized &&
-              position?.status !== PositionStatus.CLOSED &&
-              shareBtn(12, [ShareOption.TOTAL_APR])}
-          </Flex>
-
-          <DropdownMenu
-            width={30}
-            flatten
-            tooltip={t`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
-            options={timings.slice(0, 2)}
-            value={aprInterval}
-            alignLeft
-            onChange={value => setAprInterval(value as '24h')}
-          />
-        </Flex>
-      )}
-    </AprSection>
-  )
-
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
   const migrationModal =
     positionToMigrate && farmingPoolsByChain[positionToMigrate.chain.id]?.pools.length > 0 ? (
@@ -478,82 +353,100 @@ const PositionDetail = () => {
     ) : null
   const suggestedProtocolName = position?.suggestionPool ? EARN_DEXES[position.suggestionPool.exchange].name : ''
 
+  const contextValue = useMemo(
+    () => ({
+      position,
+      initialLoading,
+      isNotAccountOwner,
+      positionOwnerAddress,
+      hasActiveSmartExitOrder,
+      aprInterval,
+      setAprInterval,
+      isUnfinalized,
+      isWaitingForRewards,
+      loadingInterval,
+      onOpenZapMigration: handleOpenZapMigration,
+      onRefreshPosition,
+      onReposition: handleReposition,
+      handleFetchUnclaimedFee,
+      refetchPositions: refetch,
+      triggerClose,
+      setTriggerClose,
+      setReduceFetchInterval,
+      shareBtn,
+    }),
+    [
+      position,
+      initialLoading,
+      isNotAccountOwner,
+      positionOwnerAddress,
+      hasActiveSmartExitOrder,
+      aprInterval,
+      isUnfinalized,
+      isWaitingForRewards,
+      loadingInterval,
+      handleOpenZapMigration,
+      onRefreshPosition,
+      handleReposition,
+      handleFetchUnclaimedFee,
+      refetch,
+      triggerClose,
+      setTriggerClose,
+      setReduceFetchInterval,
+      shareBtn,
+    ],
+  )
+
   return (
     <>
       {zapMigrationWidget}
       {shareModal}
       {migrationModal}
 
-      <PositionPageWrapper>
-        {!!position || initialLoading ? (
-          <>
-            <PositionDetailHeader
-              isLoading={loadingInterval}
-              initialLoading={initialLoading}
-              position={position}
-              hasActiveSmartExitOrder={hasActiveSmartExitOrder}
-            />
+      <PositionDetailProvider value={contextValue}>
+        <PositionPageWrapper>
+          {!!position || initialLoading ? (
+            <>
+              <PositionDetailHeader />
 
-            <Flex flexDirection={'column'} sx={{ gap: '12px' }}>
-              {!position?.pool.isFarming &&
-                (!!position?.suggestionPool ||
-                  (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
-                position.status !== PositionStatus.CLOSED && (
+              <Flex flexDirection="column" sx={{ gap: '12px' }}>
+                {!position?.pool.isFarming &&
+                  (!!position?.suggestionPool ||
+                    (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
+                  position.status !== PositionStatus.CLOSED && (
+                    <MigrationLiquidityRecommend>
+                      <Text color={'#fafafa'} lineHeight={'18px'}>
+                        {!!position.suggestionPool
+                          ? position.pool.fee === position.suggestionPool.feeTier
+                            ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
+                            : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} to start earning farming rewards.`
+                          : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
+                      </Text>
+                      <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
+                        {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                      </Text>
+                    </MigrationLiquidityRecommend>
+                  )}
+
+                {isNotAccountOwner && (
                   <MigrationLiquidityRecommend>
                     <Text color={'#fafafa'} lineHeight={'18px'}>
-                      {!!position.suggestionPool
-                        ? position.pool.fee === position.suggestionPool.feeTier
-                          ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
-                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} to start earning farming rewards.`
-                        : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
-                    </Text>
-                    <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
-                      {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                      {t`This position is currently being used in another protocol. Fee claim and liquidity actions are unavailable.`}
                     </Text>
                   </MigrationLiquidityRecommend>
                 )}
+              </Flex>
 
-              {isNotAccountOwner && (
-                <MigrationLiquidityRecommend>
-                  <Text color={'#fafafa'} lineHeight={'18px'}>
-                    {t`This position is currently being used in another protocol. Fee claim and liquidity actions are unavailable.`}
-                  </Text>
-                </MigrationLiquidityRecommend>
-              )}
-            </Flex>
-
-            <PositionDetailWrapper>
-              <LeftSection
-                position={position}
-                onFetchUnclaimedFee={handleFetchUnclaimedFee}
-                totalLiquiditySection={totalLiquiditySection}
-                aprSection={aprSection}
-                initialLoading={initialLoading}
-                isNotAccountOwner={isNotAccountOwner}
-                shareBtn={shareBtn}
-                refetchPositions={refetch}
-              />
-              <RightSection
-                position={position}
-                onOpenZapMigration={handleOpenZapMigration}
-                totalLiquiditySection={totalLiquiditySection}
-                aprSection={aprSection}
-                initialLoading={initialLoading}
-                isNotAccountOwner={isNotAccountOwner}
-                positionOwnerAddress={positionOwnerAddress}
-                onRefreshPosition={onRefreshPosition}
-                triggerClose={triggerClose}
-                setTriggerClose={setTriggerClose}
-                setReduceFetchInterval={setReduceFetchInterval}
-                onReposition={handleReposition}
-                hasActiveSmartExitOrder={hasActiveSmartExitOrder}
-              />
-            </PositionDetailWrapper>
-          </>
-        ) : (
-          emptyPosition
-        )}
-      </PositionPageWrapper>
+              <PositionDetailWrapper>
+                {!isUniv2 && <LeftSection />}
+                <RightSection />
+              </PositionDetailWrapper>
+            </>
+          ) : (
+            emptyPosition
+          )}
+        </PositionPageWrapper>
+      </PositionDetailProvider>
     </>
   )
 }
