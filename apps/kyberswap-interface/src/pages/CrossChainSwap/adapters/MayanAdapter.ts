@@ -10,8 +10,10 @@ import {
 } from '@mayanfinance/swap-sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
+import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits, parseUnits } from 'viem'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import {
   CROSS_CHAIN_FEE_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER_SOLANA,
@@ -208,7 +210,7 @@ export class MayanAdapter extends BaseSwapAdapter {
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
 
-    const res = getSwapFromEvmTxPayload(
+    const res = await getSwapFromEvmTxPayload(
       quote.rawQuote as MayanQuote,
       account,
       quote.quoteParams.recipient,
@@ -223,7 +225,7 @@ export class MayanAdapter extends BaseSwapAdapter {
       null,
     )
 
-    if (res.to && res.value && res.data) {
+    if (res.to && res.value != null && res.data) {
       const tx = await walletClient.sendTransaction({
         chain: undefined,
         account,
@@ -264,6 +266,21 @@ export class MayanAdapter extends BaseSwapAdapter {
         actualAmountOut = parseUnits(res.toAmount, p.targetToken.decimals).toString()
       } catch {
         // If conversion fails, leave as undefined
+      }
+    }
+
+    if (res.statusCode === 404) {
+      const publicClient = getPublicClient(wagmiConfig, {
+        chainId: p.sourceChain as number,
+      })
+      const receipt = await publicClient?.getTransactionReceipt({
+        hash: p.sourceTxHash as `0x${string}`,
+      })
+      if (receipt?.status === 'reverted') {
+        return {
+          txHash: '',
+          status: 'Failed',
+        }
       }
     }
 
