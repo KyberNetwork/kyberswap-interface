@@ -137,23 +137,27 @@ export default function ClaimAllModal({
     }
   }
 
-  // Auto-select the first chain when none is selected yet
+  // Pick the chain with the highest claimable USD value
+  const pickTopChainId = (chains: ChainRewardInfo[]): number | null => {
+    if (!chains.length) return null
+    const top = [...chains].sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)[0]
+    return top.chainId
+  }
+
+  // Auto-select the top chain when none is selected yet
   useEffect(() => {
     if (selectedChainId) return
     const chains = activeTab === 'ks' ? effectiveFilteredRewardInfo.chains : merklChainRewards
-    if (chains.length > 0) {
-      setSelectedChainId(chains[0].chainId)
+    const topId = pickTopChainId(chains)
+    if (topId !== null) {
+      setSelectedChainId(topId)
     }
   }, [activeTab, effectiveFilteredRewardInfo.chains, merklChainRewards, selectedChainId])
 
   // Reset selected chain only when switching tabs
   useEffect(() => {
     const chains = activeTab === 'ks' ? effectiveFilteredRewardInfo.chains : merklChainRewards
-    if (chains.length > 0) {
-      setSelectedChainId(chains[0].chainId)
-    } else {
-      setSelectedChainId(null)
-    }
+    setSelectedChainId(pickTopChainId(chains))
     setSelectedChainExpanded(false)
     setAutoClaim(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
