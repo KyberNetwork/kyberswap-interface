@@ -30,7 +30,7 @@ const routeApi = createApi({
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
         return {
           url,
-          params: rest,
+          params: { ...rest, enableAlphaFee: true },
           authentication,
           headers: {
             'x-client-id': clientId || 'kyberswap',
@@ -73,6 +73,19 @@ const routeApi = createApi({
             const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
             const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
 
+            if (!tokenInMidPrice || !tokenOutMidPrice) {
+              console.warn('[getRoute] Mid-price missing', {
+                tokenIn,
+                tokenOut,
+                wrappedTokenIn,
+                wrappedTokenOut,
+                tokenInPrices,
+                tokenOutPrices,
+                rawAmountInUsd: routeSummary.amountInUsd,
+                rawAmountOutUsd: routeSummary.amountOutUsd,
+              })
+            }
+
             return {
               ...baseResponse,
               data: {
@@ -87,8 +100,22 @@ const routeApi = createApi({
               },
             }
           } catch (error) {
-            console.error('Failed to fetch on-chain price:', error)
+            console.warn(
+              '[getRoute] Failed to fetch on-chain price, rawAmountInUsd/rawAmountOutUsd will be undefined',
+              {
+                error,
+                apiAmountInUsd: routeSummary.amountInUsd,
+                apiAmountOutUsd: routeSummary.amountOutUsd,
+              },
+            )
           }
+        } else {
+          console.warn('[getRoute] Transform skipped - missing required data', {
+            hasRouteSummary: !!baseResponse?.data?.routeSummary,
+            chainId,
+            tokenInDecimals,
+            tokenOutDecimals,
+          })
         }
 
         // Return original response if conditions are not met or request fails
