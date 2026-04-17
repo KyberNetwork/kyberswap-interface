@@ -1,4 +1,3 @@
-import { formatNumberBySignificantDigits } from '@kyber/utils/dist/number'
 import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
 import PriceSlider from '@kyberswap/price-slider'
 import '@kyberswap/price-slider/style.css'
@@ -19,6 +18,12 @@ import { formatDisplayNumber, toString } from 'utils/numbers'
 type Comparator = 'gte' | 'lte'
 
 const flipComparator = (c: Comparator): Comparator => (c === 'gte' ? 'lte' : 'gte')
+
+const toSignificantDigitString = (n: number | string, digits: number): string => {
+  const num = typeof n === 'number' ? n : parseFloat(n)
+  if (!isFinite(num) || num === 0) return '0'
+  return toString(Number(num.toPrecision(digits)))
+}
 
 export default function PriceInput({
   metric,
@@ -46,7 +51,7 @@ export default function PriceInput({
       const n = typeof forward === 'number' ? forward : parseFloat(forward)
       if (!isFinite(n) || n <= 0) return ''
       if (!revertPrice) return typeof forward === 'string' ? forward : toString(forward)
-      return toString(formatNumberBySignificantDigits(1 / n, 6))
+      return toSignificantDigitString(1 / n, 6)
     },
     [revertPrice],
   )
@@ -56,7 +61,7 @@ export default function PriceInput({
       if (!display) return ''
       const n = parseFloat(display)
       if (!isFinite(n) || n <= 0) return ''
-      return revertPrice ? toString(formatNumberBySignificantDigits(1 / n, 6)) : display
+      return revertPrice ? toSignificantDigitString(1 / n, 6) : display
     },
     [revertPrice],
   )
@@ -239,8 +244,9 @@ export default function PriceInput({
       changeSourceRef.current = 'slider'
       setTick(t)
       if (t !== undefined) {
-        const forwardPrice = toString(
-          formatNumberBySignificantDigits(tickToPrice(t, position.token0.decimals, position.token1.decimals, false), 6),
+        const forwardPrice = toSignificantDigitString(
+          tickToPrice(t, position.token0.decimals, position.token1.decimals, false),
+          6,
         )
         const nextStored = updateComparatorOnCross(t, forwardPrice)
         setMetric({
@@ -300,7 +306,7 @@ export default function PriceInput({
           position.token1.decimals,
           false,
         )
-        const formattedForward = toString(formatNumberBySignificantDigits(correctedForwardPrice, 6))
+        const formattedForward = toSignificantDigitString(correctedForwardPrice, 6)
         const nextStored = updateComparatorOnCross(nearestTick, formattedForward)
         setInputPrice(toDisplayPrice(formattedForward))
         setMetric({
@@ -342,11 +348,9 @@ export default function PriceInput({
 
       if (newTick !== undefined) {
         const nearestTick = nearestUsableTick(newTick, position.pool.tickSpacing)
-        const correctedForwardPrice = toString(
-          formatNumberBySignificantDigits(
-            tickToPrice(nearestTick, position.token0.decimals, position.token1.decimals, false),
-            6,
-          ),
+        const correctedForwardPrice = toSignificantDigitString(
+          tickToPrice(nearestTick, position.token0.decimals, position.token1.decimals, false),
+          6,
         )
 
         setInputPrice(toDisplayPrice(correctedForwardPrice))
