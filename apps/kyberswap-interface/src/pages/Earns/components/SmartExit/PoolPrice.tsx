@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
@@ -17,11 +16,12 @@ import { formatDisplayNumber } from 'utils/numbers'
 interface PoolPriceProps {
   position: ParsedPosition | null
   isLoading?: boolean
+  revertPrice: boolean
+  setRevertPrice: (value: boolean) => void
 }
 
-export default function PoolPrice({ position, isLoading = false }: PoolPriceProps) {
+export default function PoolPrice({ position, isLoading = false, revertPrice, setRevertPrice }: PoolPriceProps) {
   const theme = useTheme()
-  const [revertPrice, setRevertPrice] = useState(false)
 
   if (isLoading || !position) {
     return (
