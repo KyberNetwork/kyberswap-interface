@@ -4,16 +4,11 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 export const PoolPageWrapper = styled.div`
-  padding: 32px 24px 68px;
   width: 100%;
-  max-width: 1500px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 24px 16px 100px;
-  `}
+  flex: 1;
 `
 
 export const LiquidityWidgetWrapper = styled.div`
@@ -222,18 +217,11 @@ export const MobileTableBottomRow = styled.div<{ withoutBorder: boolean }>`
 export const Disclaimer = styled.div`
   font-size: 14px;
   font-style: italic;
-  color: #737373;
+  color: ${({ theme }) => theme.gray};
   text-align: center;
   width: 100%;
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    bottom: 20px;
-  `}
+  margin-top: auto;
+  padding-top: 24px;
 `
 
 export const ProgressBarWrapper = styled.div`

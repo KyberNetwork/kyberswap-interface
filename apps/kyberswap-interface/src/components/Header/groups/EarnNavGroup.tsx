@@ -7,7 +7,9 @@ import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_farming.svg'
+import { ReactComponent as FeaturedVaultIcon } from 'assets/svg/earn/ic_featured_vault.svg'
 import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
+import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_partner_vault.svg'
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
@@ -27,6 +29,8 @@ const EarnNavGroup = () => {
     APP_PATHS.EARN_POSITIONS,
     APP_PATHS.EARN_POSITION_DETAIL,
     APP_PATHS.EARN_SMART_EXIT,
+    APP_PATHS.EARN_VAULTS,
+    APP_PATHS.EARN_MY_VAULTS,
   ].some(path => pathname.includes(path))
 
   return (
@@ -101,13 +105,35 @@ const EarnNavGroup = () => {
               {t`My Positions`}
             </Flex>
           </StyledNavLink>
-          <StyledNavLink data-testid="earn-positions-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
+          <StyledNavLink data-testid="earn-smart-exit-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <ListSmartExitIcon width={16} height={16} />
               <Flex>
                 {t`Smart Exit Orders`}
                 <NewLabel>Beta</NewLabel>
               </Flex>
+            </Flex>
+          </StyledNavLink>
+
+          <StyledNavLink
+            id="earn-vaults-nav-link"
+            data-testid="earn-vaults-nav-link"
+            to={{ pathname: `${APP_PATHS.EARN_VAULTS}` }}
+          >
+            <Flex sx={{ gap: '12px' }} alignItems="center">
+              <VaultIcon width={16} height={16} />
+              {t`Explore Vaults`}
+            </Flex>
+          </StyledNavLink>
+
+          <StyledNavLink
+            id="earn-my-vaults-nav-link"
+            data-testid="earn-my-vaults-nav-link"
+            to={{ pathname: `${APP_PATHS.EARN_MY_VAULTS}` }}
+          >
+            <Flex sx={{ gap: '12px' }} alignItems="center">
+              <FeaturedVaultIcon width={16} height={16} />
+              {t`My Vaults`}
             </Flex>
           </StyledNavLink>
         </Flex>
