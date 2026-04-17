@@ -786,6 +786,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
                 // Find the corresponding adapter
                 const adapter = registry.getAdapter(data.provider)
 
+                // Debug: Log full KyberAcross response
+                if (data.provider.toLowerCase() === 'kyberacross') {
+                  console.log('[KyberAcross Debug] Full response:', JSON.stringify(data, null, 2))
+                }
+
                 // Skip if this source is excluded (unless all sources are excluded)
                 if (
                   adapter &&
@@ -814,6 +819,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
                       toToken: params.toToken,
                       publicKey: params.publicKey,
                       walletClient: params.walletClient,
+                      sender: params.sender,
+                      recipient: params.recipient,
                     },
                     outputAmount: BigInt(data.outputAmount),
                     formattedOutputAmount: data.formattedOutputAmount,
