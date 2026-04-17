@@ -94,6 +94,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             createSmartExitOrder={smartExit.createSmartExitOrder}
             isCreating={smartExit.isCreating}
             isSuccess={smartExit.isSuccess}
+            revertPrice={revertPrice}
           />
         ) : (
           <GuidedHighlightProvider selectedMetrics={selectedMetrics}>
