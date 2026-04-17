@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
+import { useReloadMerklChainMutation } from 'services/rewardMerkl'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -71,6 +72,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     refetch: refetchMerklRewards,
   } = useMerklRewards()
   const { claimMerklRewards } = useClaimMerklRewards()
+  const [reloadMerklChain] = useReloadMerklChainMutation()
   const [rewardTab, setRewardTab] = useState<RewardTabType>('ks')
 
   const [tokens, setTokens] = useState<TokenInfo[]>([])
@@ -411,7 +413,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     const resolvedTxHashes: string[] = []
     let shouldCloseClaim = false
     let shouldCloseClaimAll = false
-    let shouldRefetchMerkl = false
+    const merklChainIdsToReload = new Set<number>()
 
     pendingClaims.forEach(claim => {
       const tx = allTransactions[claim.txHash]
@@ -426,7 +428,8 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           shouldCloseClaimAll = true
         }
         if (claim.claimKey.startsWith('merkl:')) {
-          shouldRefetchMerkl = true
+          const chainId = Number(claim.claimKey.split(':')[1])
+          if (chainId > 0 && !Number.isNaN(chainId)) merklChainIdsToReload.add(chainId)
         } else {
           refetchRewardInfo()
         }
@@ -442,10 +445,27 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     if (shouldCloseClaimAll) {
       setOpenClaimAllModal(false)
     }
-    if (shouldRefetchMerkl) {
-      refetchMerklRewards()
+    if (merklChainIdsToReload.size) {
+      // Ask Merkl backend to refresh its cache for the claimed chain(s), then refetch the list.
+      // The refetch fires regardless of account/reload state so the UI always reflects the latest data.
+      if (account) {
+        Promise.all(Array.from(merklChainIdsToReload).map(chainId => reloadMerklChain({ address: account, chainId })))
+          .then(() => refetchMerklRewards())
+          .catch(() => refetchMerklRewards())
+      } else {
+        refetchMerklRewards()
+      }
     }
-  }, [allTransactions, claimInfo, onCloseClaim, pendingClaims, refetchRewardInfo, refetchMerklRewards])
+  }, [
+    account,
+    allTransactions,
+    claimInfo,
+    onCloseClaim,
+    pendingClaims,
+    refetchRewardInfo,
+    refetchMerklRewards,
+    reloadMerklChain,
+  ])
 
   useEffect(() => {
     if (!rewardInfo?.chains.length && !merklChainRewards.length) setOpenClaimAllModal(false)

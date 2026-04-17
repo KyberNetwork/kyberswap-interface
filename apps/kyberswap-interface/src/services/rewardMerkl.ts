@@ -94,9 +94,30 @@ const rewardMerklApi = createApi({
         return { data: merged }
       },
     }),
+    // Force Merkl's backend to refresh its cache for a specific chain (used after a successful
+    // claim tx so the next `merklRewards` fetch returns up-to-date claimed amounts).
+    reloadMerklChain: builder.mutation<MerklRewardsResponse[], { address: string; chainId: number }>({
+      async queryFn({ address, chainId }) {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 15_000)
+        try {
+          const res = await fetch(
+            `${MERKL_API_BASE}/users/${address}/rewards?chainId=${chainId}&reloadChainId=${chainId}`,
+            { signal: controller.signal },
+          )
+          if (!res.ok) return { data: [] }
+          const data: MerklRewardsResponse[] = await res.json()
+          return { data }
+        } catch {
+          return { data: [] }
+        } finally {
+          clearTimeout(timeoutId)
+        }
+      },
+    }),
   }),
 })
 
-export const { useMerklRewardsQuery, useLazyMerklRewardsQuery } = rewardMerklApi
+export const { useMerklRewardsQuery, useLazyMerklRewardsQuery, useReloadMerklChainMutation } = rewardMerklApi
 
 export default rewardMerklApi
