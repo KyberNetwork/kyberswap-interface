@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import { useCycleConfigQuery } from 'services/kyberdata'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
@@ -26,7 +27,6 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const formatTimeRemaining = (seconds: number) => {
@@ -100,7 +100,6 @@ const RewardSection = ({
   const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
   const claimKey = position ? `${position.chain.id}:${position.tokenId}` : ''
   const isRewardsClaiming = claimKey ? pendingRewardClaimKeys.includes(claimKey) : false
-  const merklBonus = getMerklBonusMeta(position?.chain.id)
 
   return (
     <>
@@ -111,12 +110,8 @@ const RewardSection = ({
           <Flex alignItems={'center'} sx={{ gap: 1 }}>
             <FarmingIcon width={20} height={20} />
             {merklRewards.length > 0 && (
-              <MouseoverTooltip
-                text={merklRewardTooltip(merklRewards, theme.text, position?.chain.id)}
-                placement="top"
-                width="160px"
-              >
-                <img src={merklBonus.icon} alt={merklBonus.name} width={20} height={20} />
+              <MouseoverTooltip text={merklRewardTooltip(merklRewards, theme.text)} placement="top" width="160px">
+                <UniBonusIcon width={20} height={20} />
               </MouseoverTooltip>
             )}
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
@@ -142,7 +137,6 @@ const RewardSection = ({
                   lmTokens: rewardInfoThisPosition?.lmTokens || [],
                   egTokens: rewardInfoThisPosition?.egTokens || [],
                   merklRewards,
-                  merklChainId: position?.chain.id,
                   textColor: theme.text,
                 })}
                 placement="top"
@@ -350,10 +344,10 @@ export const inProgressRewardTooltip = ({
   )
 }
 
-const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string, chainId?: number) => (
+const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string) => (
   <Flex flexDirection={'column'} sx={{ gap: 1 }}>
     <Text lineHeight={'16px'} fontSize={12}>
-      {getMerklBonusMeta(chainId).name}:
+      {t`Uniswap Bonus:`}
     </Text>
     {merklRewards.map(token => (
       <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${token.symbol}`}>
@@ -371,13 +365,11 @@ export const totalRewardTooltip = ({
   lmTokens,
   egTokens,
   merklRewards,
-  merklChainId,
   textColor,
 }: {
   lmTokens: Array<TokenRewardInfo>
   egTokens: Array<TokenRewardInfo>
   merklRewards?: Array<TokenRewardInfo>
-  merklChainId?: number
   textColor: string
 }) => (
   <Flex flexDirection={'column'} sx={{ gap: 1 }}>
@@ -409,7 +401,7 @@ export const totalRewardTooltip = ({
     {!!merklRewards?.length && (
       <>
         <HorizontalDivider />
-        {merklRewardTooltip(merklRewards, textColor, merklChainId)}
+        {merklRewardTooltip(merklRewards, textColor)}
       </>
     )}
   </Flex>

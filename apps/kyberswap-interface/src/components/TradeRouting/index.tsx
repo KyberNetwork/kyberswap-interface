@@ -184,7 +184,10 @@ const Routing = ({
     handleScroll()
   }, [tradeComposition, maxHeight, handleScroll])
 
-  const isSwapRouteV3 = tradeComposition?.every(item => 'pool' in item)
+  const isSwapRouteV3 =
+    (tradeComposition as Array<SwapRouteV2 | SwapRouteV3> | undefined)?.every(
+      (item): item is SwapRouteV3 => 'pool' in item,
+    ) ?? false
 
   return (
     <Shadow ref={shadowRef}>

@@ -13,6 +13,7 @@ import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
@@ -50,7 +51,6 @@ import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, Su
 import { getNftManagerContract } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
@@ -143,7 +143,6 @@ const PositionDetail = () => {
 
     return parsedPosition
   }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
-  const merklBonus = getMerklBonusMeta(position?.chain.id)
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -413,7 +412,6 @@ const PositionDetail = () => {
         </Text>
         {position?.pool.isFarming && !isUnfinalized && (
           <AprDetailTooltip
-            chainId={position?.chain.id}
             feeApr={position.feeApr[aprInterval] || 0}
             egApr={position.kemEGApr[aprInterval] || 0}
             lmApr={position.kemLMApr[aprInterval] || 0}
@@ -438,7 +436,7 @@ const PositionDetail = () => {
             ) : position?.pool.isFarming ? (
               <FarmingIcon width={20} height={20} />
             ) : null}
-            {position?.bonusApr ? <img src={merklBonus.icon} alt={merklBonus.name} width={20} height={20} /> : null}
+            {position?.bonusApr ? <UniBonusIcon width={20} height={20} /> : null}
             <Text
               fontSize={20}
               marginRight={1}
@@ -458,7 +456,6 @@ const PositionDetail = () => {
             tooltip={t`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
             options={timings.slice(0, 2)}
             value={aprInterval}
-            alignLeft
             onChange={value => setAprInterval(value as '24h')}
           />
         </Flex>

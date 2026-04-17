@@ -4,17 +4,16 @@ import { PropsWithChildren } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 
 type Props = PropsWithChildren<{
-  chainId?: number
   feeApr?: number
   egApr?: number
   lmApr?: number
+  /** @deprecated TODO: Remove when completely integrate merklOpportunity */
   uniApr?: number
 }>
 
-export default function AprDetailTooltip({ chainId, feeApr, egApr, lmApr, uniApr, children }: Props) {
+export default function AprDetailTooltip({ feeApr, egApr, lmApr, uniApr, children }: Props) {
   return (
     <MouseoverTooltipDesktopOnly
       placement="top"
@@ -23,12 +22,12 @@ export default function AprDetailTooltip({ chainId, feeApr, egApr, lmApr, uniApr
         <Flex sx={{ flexDirection: 'column', gap: '2px' }}>
           {feeApr !== undefined && (
             <Text>
-              {t`LP Fees`}: {formatAprNumber(feeApr)}%
+              {t`LP Fee APR`}: {formatAprNumber(feeApr)}%
             </Text>
           )}
           {egApr !== undefined && (
             <Text>
-              {t`EG Sharing Reward`}: {formatAprNumber(egApr)}%
+              {t`FairFlow EG Reward`}: {formatAprNumber(egApr)}%
             </Text>
           )}
           {!!lmApr && (
@@ -38,7 +37,7 @@ export default function AprDetailTooltip({ chainId, feeApr, egApr, lmApr, uniApr
           )}
           {!!uniApr && (
             <Text>
-              {getMerklBonusMeta(chainId).name}: {formatAprNumber(uniApr)}%
+              {t`Uniswap Bonus`}: {formatAprNumber(uniApr)}%
             </Text>
           )}
         </Flex>

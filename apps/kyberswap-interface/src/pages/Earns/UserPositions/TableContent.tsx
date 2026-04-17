@@ -32,7 +32,7 @@ import {
   ImageContainer,
   PositionActionWrapper,
   PositionOverview,
-  PositionRow,
+  PositionTableRow,
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
@@ -52,7 +52,6 @@ import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -205,13 +204,14 @@ export default function TableContent({
     e.stopPropagation()
     e.preventDefault()
 
-    if (!!position.suggestionPool) {
+    if (position.suggestionPool) {
       handleOpenMigration(position, position.suggestionPool)
     } else if (
       position.pool.category === PAIR_CATEGORY.STABLE &&
       farmingPoolsByChain[position.chain.id]?.pools.length > 0
-    )
+    ) {
       setPositionToMigrate(position)
+    }
   }
 
   const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
@@ -391,7 +391,7 @@ export default function TableContent({
               )
 
               return (
-                <PositionRow
+                <PositionTableRow
                   key={`${tokenId}-${pool.address}-${index}`}
                   to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? positionId : pool.address)
                     .replace(':chainId', chain.id.toString())
@@ -552,7 +552,6 @@ export default function TableContent({
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {pool.isFarming || bonusApr > 0 ? (
                           <AprDetailTooltip
-                            chainId={position.chain.id}
                             feeApr={position.feeApr['24h']}
                             egApr={position.kemEGApr['24h']}
                             lmApr={position.kemLMApr['24h']}
@@ -660,7 +659,7 @@ export default function TableContent({
                               </Text>
                               {merklRewardsTotalUsd > 0 && (
                                 <Text>
-                                  {getMerklBonusMeta(position.chain.id).name}:{' '}
+                                  {t`Uniswap Bonus`}:{' '}
                                   {formatDisplayNumber(merklRewardsTotalUsd, {
                                     significantDigits: 4,
                                     style: 'currency',
@@ -745,7 +744,7 @@ export default function TableContent({
                       {isUnfinalized ? <PositionSkeleton width={80} height={19} text={t`Finalizing...`} /> : actions}
                     </PositionValueWrapper>
                   )}
-                </PositionRow>
+                </PositionTableRow>
               )
             })
           : emptyPosition}
