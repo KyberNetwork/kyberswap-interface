@@ -25,6 +25,7 @@ export default function Confirmation({
   createSmartExitOrder,
   isCreating,
   isSuccess,
+  revertPrice = false,
 }: {
   selectedMetrics: SelectedMetric[]
   position: ParsedPosition
@@ -36,6 +37,7 @@ export default function Confirmation({
   createSmartExitOrder: (opts: { maxGas: number; permitData: string }) => Promise<boolean>
   isCreating: boolean
   isSuccess: boolean
+  revertPrice?: boolean
 }) {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
@@ -62,7 +64,12 @@ export default function Confirmation({
         <X onClick={onDismiss} />
       </Flex>
 
-      <Condition position={position} selectedMetrics={selectedMetrics} conditionType={conditionType} />
+      <Condition
+        position={position}
+        selectedMetrics={selectedMetrics}
+        conditionType={conditionType}
+        revertPrice={revertPrice}
+      />
       <MoreInfo deadline={deadline} protocolFee={protocolFee} maxGas={maxGas} />
 
       <Text fontStyle="italic" fontSize={14} color={theme.subText} my="1rem">

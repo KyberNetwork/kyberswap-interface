@@ -11,17 +11,19 @@ import {
   getPriceCondition,
   getTimeCondition,
 } from 'pages/Earns/components/SmartExit/utils/typeGuards'
-import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { ConditionType, Metric, ParsedPosition, PriceCondition, SelectedMetric } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export default function Condition({
   position,
   selectedMetrics,
   conditionType,
+  revertPrice = false,
 }: {
   position: ParsedPosition
   selectedMetrics: SelectedMetric[]
   conditionType: ConditionType
+  revertPrice?: boolean
 }) {
   const theme = useTheme()
 
@@ -33,6 +35,25 @@ export default function Condition({
   const feeYieldCondition2 = metric2 ? getFeeYieldCondition(metric2) : null
   const priceCondition2 = metric2 ? getPriceCondition(metric2) : null
   const timeCondition2 = metric2 ? getTimeCondition(metric2) : null
+
+  const baseSymbol = revertPrice ? position.token1.symbol : position.token0.symbol
+  const quoteSymbol = revertPrice ? position.token0.symbol : position.token1.symbol
+
+  // Stored `priceCondition` is always in forward (token0/token1) domain.
+  // In revert mode we flip the comparator and invert the price value for display only.
+  const renderPricePhrase = (priceCondition: PriceCondition) => {
+    const storedIsLte = !!priceCondition.lte
+    const storedValue = priceCondition.lte || priceCondition.gte || ''
+    const displayIsLte = revertPrice ? !storedIsLte : storedIsLte
+    const forwardNum = parseFloat(storedValue)
+    const displayValue = revertPrice && isFinite(forwardNum) && forwardNum > 0 ? 1 / forwardNum : forwardNum
+    return (
+      <>
+        <Trans>Pool price is</Trans> {displayIsLte ? '≤' : '≥'}{' '}
+        {formatDisplayNumber(displayValue, { significantDigits: 6 })} {baseSymbol}/{quoteSymbol}
+      </>
+    )
+  }
 
   return (
     <>
@@ -73,13 +94,7 @@ export default function Condition({
             <Text>{dayjs(timeCondition1.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
           </>
         )}
-        {metric1.metric === Metric.PoolPrice && priceCondition1 && (
-          <Text>
-            <Trans>Pool price is</Trans> {priceCondition1.lte ? '≤' : '≥'}{' '}
-            {formatDisplayNumber(priceCondition1.lte || priceCondition1.gte, { significantDigits: 6 })}{' '}
-            {position.token0.symbol}/{position.token1.symbol}
-          </Text>
-        )}
+        {metric1.metric === Metric.PoolPrice && priceCondition1 && <Text>{renderPricePhrase(priceCondition1)}</Text>}
         {metric2 && (
           <>
             <Flex alignItems="center" sx={{ gap: '1rem' }} my="8px">
@@ -110,11 +125,7 @@ export default function Condition({
               </>
             )}
             {metric2.metric === Metric.PoolPrice && priceCondition2 && (
-              <Text mt="6px">
-                <Trans>Pool price is</Trans> {priceCondition2.lte ? '≤' : '≥'}{' '}
-                {formatDisplayNumber(priceCondition2.lte || priceCondition2.gte, { significantDigits: 6 })}{' '}
-                {position.token0.symbol}/{position.token1.symbol}
-              </Text>
+              <Text mt="6px">{renderPricePhrase(priceCondition2)}</Text>
             )}
           </>
         )}
