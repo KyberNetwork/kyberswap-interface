@@ -1,45 +1,28 @@
 import { type Currency } from '@kyberswap/ks-sdk-core'
 import { skipToken } from '@reduxjs/toolkit/query'
-import dayjs from 'dayjs'
-import {
-  CrosshairMode,
-  LineStyle,
-  type MouseEventParams,
-  type Time,
-  type UTCTimestamp,
-  createChart,
-} from 'lightweight-charts'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import { type TokenChartTimeFrame, useTokenPriceChartQuery } from 'services/tokenChart'
+import {
+  type TokenChartCandle,
+  type TokenChartData,
+  type TokenChartTimeFrame,
+  useTokenPriceChartQuery,
+} from 'services/tokenChart'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from 'constants/tokens'
+import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
-import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import PoolChartState from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { MEDIA_WIDTHS } from 'theme'
-import { formatDisplayNumber } from 'utils/numbers'
 
-type DisplayCandle = {
-  close: number
-  high: number
-  low: number
-  open: number
-  time: UTCTimestamp
-  volume: number
-}
-
-type TooltipState = {
-  candle: DisplayCandle
-  left: number
-  top: number
-}
+import TokenPriceChartCanvas, { type DisplayCandle } from './TokenPriceChartCanvas'
 
 const ChartPanel = styled(Stack)`
   overflow: hidden;
@@ -59,7 +42,7 @@ const TabButton = styled.button<{ $active: boolean; $isLast: boolean }>`
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   padding: 12px 16px;
   border: 0;
   border-right: ${({ theme, $isLast }) => ($isLast ? '0' : `1px solid ${theme.darkBorder}`)};
@@ -76,31 +59,6 @@ const TabButton = styled.button<{ $active: boolean; $isLast: boolean }>`
   }
 `
 
-const ChartFrame = styled.div<{ $height: number }>`
-  position: relative;
-  width: 100%;
-  height: ${({ $height }) => $height}px;
-`
-
-const TooltipCard = styled(Stack)`
-  position: absolute;
-  z-index: 2;
-  gap: 12px;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 12px;
-  background: ${({ theme }) => theme.tableHeader};
-  box-shadow: 0 12px 32px ${({ theme }) => theme.shadow};
-  pointer-events: none;
-`
-
-const TooltipGrid = styled.div`
-  display: grid;
-  gap: 8px 16px;
-  grid-template-columns: auto auto;
-`
-
 const CHART_TIME_FRAME_OPTIONS = [
   { label: '1H', value: '1h' },
   { label: '4H', value: '4h' },
@@ -108,18 +66,42 @@ const CHART_TIME_FRAME_OPTIONS = [
   { label: '1W', value: '7d' },
 ] as const
 
-const DEFAULT_TIME_FRAME: TokenChartTimeFrame = '1h'
+const DEFAULT_TIME_FRAME: TokenChartTimeFrame = '1d'
 
 const DEFAULT_FROM_BUCKET_MS_BY_TIME_FRAME: Record<TokenChartTimeFrame, number> = {
-  '5m': 60 * 60 * 1000, // 1h
-  '15m': 4 * 60 * 60 * 1000, // 4h
-  '1h': 7 * 24 * 60 * 60 * 1000, // 7d
-  '4h': 30 * 24 * 60 * 60 * 1000, // 30d
-  '1d': 90 * 24 * 60 * 60 * 1000, // 90d
-  '7d': 180 * 24 * 60 * 60 * 1000, // 180d
+  '5m': 60 * 60 * 1000,
+  '15m': 4 * 60 * 60 * 1000,
+  '1h': 7 * 24 * 60 * 60 * 1000,
+  '4h': 30 * 24 * 60 * 60 * 1000,
+  '1d': 90 * 24 * 60 * 60 * 1000,
+  '7d': 180 * 24 * 60 * 60 * 1000,
 }
 
+const BUCKET_SIZE_SECONDS_BY_TIME_FRAME: Record<TokenChartTimeFrame, number> = {
+  '5m': 5 * 60,
+  '15m': 15 * 60,
+  '1h': 60 * 60,
+  '4h': 4 * 60 * 60,
+  '1d': 24 * 60 * 60,
+  '7d': 7 * 24 * 60 * 60,
+}
+
+const PEGGED_PRICE = 1
+
 type TokenTabId = 'tokenIn' | 'tokenOut'
+type MarketMode = 'direct' | 'derived'
+type MarketData = {
+  chartData: DisplayCandle[]
+  currentPrice?: number
+  isError: boolean
+  isLoading: boolean
+  priceChange?: number
+}
+
+type TokenPriceChartProps = {
+  tokenIn?: Currency | null
+  tokenOut?: Currency | null
+}
 
 const getCurrencyKey = (currency?: Currency | null) => {
   if (!currency) return 'unknown'
@@ -130,112 +112,129 @@ const getCurrencyKey = (currency?: Currency | null) => {
 const getDefaultFromBucketMs = (timeFrame: TokenChartTimeFrame) =>
   Date.now() - DEFAULT_FROM_BUCKET_MS_BY_TIME_FRAME[timeFrame]
 
-const formatAxisTimeLabel = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
-  if (timeFrame === '5m' || timeFrame === '15m' || timeFrame === '1h') return dayjs.unix(timestamp).format('HH:mm')
-  if (timeFrame === '4h') return dayjs.unix(timestamp).format('MMM D, HH:mm')
-  return dayjs.unix(timestamp).format('MMM D')
+const getChartData = (candles?: TokenChartCandle[]) =>
+  (candles ?? []).map(
+    candle =>
+      ({
+        time: candle.ts,
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+        volume: candle.volume,
+      } as DisplayCandle),
+  )
+
+const getPreviousPriceFrom24hChange = (currentPrice: number, priceChange: number) => {
+  const changeMultiplier = 1 + priceChange / 100
+
+  if (changeMultiplier <= 0) return undefined
+
+  return currentPrice / changeMultiplier
 }
 
-const formatTooltipDate = (timestamp: number, timeFrame: TokenChartTimeFrame) =>
-  dayjs.unix(timestamp).format(timeFrame === '7d' ? 'MMM D, YYYY' : 'MMM D, YYYY, HH:mm')
+const getDerivedChartData = (baseCandles: TokenChartCandle[] = [], quoteCandles: TokenChartCandle[] = []) => {
+  const quoteCandlesByTimestamp = new Map(quoteCandles.map(candle => [candle.ts, candle]))
 
-const getUnixTimestampFromChartTime = (time: Time) => {
-  if (typeof time === 'number') return time
-  if (typeof time === 'string') return Math.floor(Date.parse(`${time}T00:00:00Z`) / 1000)
+  return getChartData(
+    baseCandles.reduce<TokenChartCandle[]>((result, candle) => {
+      const quoteCandle = quoteCandlesByTimestamp.get(candle.ts)
 
-  return Math.floor(Date.UTC(time.year, time.month - 1, time.day) / 1000)
-}
+      if (
+        !quoteCandle ||
+        quoteCandle.open <= 0 ||
+        quoteCandle.high <= 0 ||
+        quoteCandle.low <= 0 ||
+        quoteCandle.close <= 0
+      ) {
+        return result
+      }
 
-const PriceChartTooltip = ({ tooltip, timeFrame }: { tooltip: TooltipState; timeFrame: TokenChartTimeFrame }) => {
-  const theme = useTheme()
+      result.push({
+        ts: candle.ts,
+        open: candle.open / quoteCandle.open,
+        high: candle.high / quoteCandle.low,
+        low: candle.low / quoteCandle.high,
+        close: candle.close / quoteCandle.close,
+        volume: candle.volume,
+      })
 
-  const { candle, left, top } = tooltip
-  const priceChange = ((candle.close - candle.open) / candle.open) * 100
-  const priceRange = ((candle.high - candle.low) / candle.low) * 100
-
-  return (
-    <TooltipCard style={{ left, top }}>
-      <Text color={theme.subText} fontSize={12}>
-        {formatTooltipDate(candle.time, timeFrame)}
-      </Text>
-
-      <TooltipGrid>
-        <Text color={theme.subText} fontSize={12}>
-          Open
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.open)}
-        </Text>
-
-        <Text color={theme.subText} fontSize={12}>
-          High
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.high)}
-        </Text>
-
-        <Text color={theme.subText} fontSize={12}>
-          Low
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.low)}
-        </Text>
-
-        <Text color={theme.subText} fontSize={12}>
-          Close
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.close)}
-        </Text>
-
-        <Text color={theme.subText} fontSize={12}>
-          %Change
-        </Text>
-        <Text color={priceChange >= 0 ? theme.primary : theme.red} fontSize={12} fontWeight={500} textAlign="right">
-          {formatSignedPercent(priceChange)}
-        </Text>
-
-        <Text color={theme.subText} fontSize={12}>
-          Range
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatSignedPercent(priceRange).replace(/^\+/, '')}
-        </Text>
-
-        <Text color={theme.subText} fontSize={12}>
-          Vol
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatDisplayNumber(candle.volume, { significantDigits: 4 })}
-        </Text>
-      </TooltipGrid>
-    </TooltipCard>
+      return result
+    }, []),
   )
 }
 
-type TokenPriceChartProps = {
-  tokenIn?: Currency | null
-  tokenOut?: Currency | null
+const getDerivedCurrentPrice = (baseData: TokenChartData, quoteData: TokenChartData) =>
+  quoteData.currentPrice > 0 ? baseData.currentPrice / quoteData.currentPrice : undefined
+
+const getDerived24hPriceChange = (baseData: TokenChartData, quoteData: TokenChartData) => {
+  const currentPrice = getDerivedCurrentPrice(baseData, quoteData)
+  const previousBasePrice = getPreviousPriceFrom24hChange(baseData.currentPrice, baseData.priceChange)
+  const previousQuotePrice = getPreviousPriceFrom24hChange(quoteData.currentPrice, quoteData.priceChange)
+
+  if (
+    currentPrice === undefined ||
+    previousBasePrice === undefined ||
+    previousQuotePrice === undefined ||
+    previousQuotePrice <= 0
+  ) {
+    return undefined
+  }
+
+  const previousPrice = previousBasePrice / previousQuotePrice
+
+  if (previousPrice <= 0) return undefined
+
+  return ((currentPrice - previousPrice) / previousPrice) * 100
 }
+
+const getPeggedFallbackChartData = (fromBucketMs: number, timeFrame: TokenChartTimeFrame) => {
+  const step = BUCKET_SIZE_SECONDS_BY_TIME_FRAME[timeFrame]
+  const startTime = Math.floor(fromBucketMs / 1000 / step) * step
+  const now = Math.floor(Date.now() / 1000)
+  const data: DisplayCandle[] = []
+
+  for (let timestamp = startTime; timestamp <= now; timestamp += step) {
+    data.push({
+      time: timestamp,
+      open: PEGGED_PRICE,
+      high: PEGGED_PRICE,
+      low: PEGGED_PRICE,
+      close: PEGGED_PRICE,
+      volume: 0,
+    })
+  }
+
+  return data
+}
+
+const getPeggedChartData = (chartData: DisplayCandle[]) =>
+  chartData.map(candle => ({
+    ...candle,
+    open: PEGGED_PRICE,
+    high: PEGGED_PRICE,
+    low: PEGGED_PRICE,
+    close: PEGGED_PRICE,
+  }))
+
+const isStableCurrency = (currency: Currency | undefined, isStableCoin: (address: string | undefined) => boolean) => {
+  if (!currency) return false
+
+  const wrappedCurrency = currency.wrapped as typeof currency.wrapped & { isStable?: boolean }
+
+  return Boolean(wrappedCurrency.isStable) || isStableCoin(wrappedCurrency.address)
+}
+
+const getOtherToken = (token: Currency | undefined, tabs: Array<{ id: TokenTabId; token: Currency }>) =>
+  token ? tabs.find(tab => getCurrencyKey(tab.token) !== getCurrencyKey(token))?.token : undefined
 
 const TokenPriceChart = ({ tokenIn, tokenOut }: TokenPriceChartProps) => {
   const theme = useTheme()
-
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
 
-  const chartContainerRef = useRef<HTMLDivElement>(null)
-  const chartRef = useRef<ReturnType<typeof createChart> | null>(null)
-  const candlestickSeriesRef = useRef<any>(null)
-  const volumeSeriesRef = useRef<any>(null)
-  const fromBucketMsRef = useRef(getDefaultFromBucketMs(DEFAULT_TIME_FRAME))
-  const syncFromVisibleRangeTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
-  const suppressVisibleRangeSyncRef = useRef(false)
-  const shouldFitContentRef = useRef(true)
-
   const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>(DEFAULT_TIME_FRAME)
   const [activeTab, setActiveTab] = useState<TokenTabId>('tokenIn')
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [fromBucketMs, setFromBucketMs] = useState(() => getDefaultFromBucketMs(DEFAULT_TIME_FRAME))
 
   const gridColor = rgba(theme.text, 0.06)
@@ -245,7 +244,7 @@ const TokenPriceChart = ({ tokenIn, tokenOut }: TokenPriceChartProps) => {
   const volumeUpColor = rgba(theme.darkGreen, 0.8)
   const volumeDownColor = rgba(theme.red, 0.5)
 
-  const tokenTabs = useMemo(() => {
+  const dedupedTokenTabs = useMemo(() => {
     const tabs = [
       tokenIn ? { id: 'tokenIn' as const, token: tokenIn } : null,
       tokenOut ? { id: 'tokenOut' as const, token: tokenOut } : null,
@@ -257,6 +256,21 @@ const TokenPriceChart = ({ tokenIn, tokenOut }: TokenPriceChartProps) => {
     )
   }, [tokenIn, tokenOut])
 
+  const pairQuoteToken = dedupedTokenTabs[0]
+    ? DEFAULT_OUTPUT_TOKEN_BY_CHAIN[dedupedTokenTabs[0].token.chainId]
+    : undefined
+  const { isStableCoin } = useStableCoins(dedupedTokenTabs[0]?.token.chainId)
+  const pairQuoteTokenKey = getCurrencyKey(pairQuoteToken)
+  const hasQuoteStableInPair = dedupedTokenTabs.some(tab => getCurrencyKey(tab.token) === pairQuoteTokenKey)
+
+  const tokenTabs = useMemo(() => {
+    if (!hasQuoteStableInPair) return dedupedTokenTabs
+
+    const nonQuoteTabs = dedupedTokenTabs.filter(tab => getCurrencyKey(tab.token) !== pairQuoteTokenKey)
+
+    return nonQuoteTabs.length ? nonQuoteTabs : dedupedTokenTabs
+  }, [dedupedTokenTabs, hasQuoteStableInPair, pairQuoteTokenKey])
+
   useEffect(() => {
     if (!tokenTabs.length) return
 
@@ -266,16 +280,25 @@ const TokenPriceChart = ({ tokenIn, tokenOut }: TokenPriceChartProps) => {
   }, [activeTab, tokenTabs])
 
   const activeToken = tokenTabs.find(tab => tab.id === activeTab)?.token || tokenTabs[0]?.token
+  const otherToken = getOtherToken(activeToken, dedupedTokenTabs)
   const stableToken = activeToken ? DEFAULT_OUTPUT_TOKEN_BY_CHAIN[activeToken.chainId] : undefined
   const quoteToken =
-    tokenTabs.find(tab => getCurrencyKey(tab.token) !== getCurrencyKey(activeToken))?.token || stableToken
-
+    hasQuoteStableInPair && stableToken && getCurrencyKey(activeToken) !== getCurrencyKey(stableToken)
+      ? stableToken
+      : otherToken || stableToken
   const activeTokenAddress = activeToken?.wrapped.address.toLowerCase()
   const stableAddress = stableToken?.wrapped.address.toLowerCase()
   const quoteAddress = quoteToken?.wrapped.address.toLowerCase()
+  const isStablePair = isStableCurrency(activeToken, isStableCoin) && isStableCurrency(quoteToken, isStableCoin)
+  const marketMode: MarketMode | undefined =
+    activeToken && quoteToken && stableToken
+      ? getCurrencyKey(quoteToken) === getCurrencyKey(stableToken)
+        ? 'direct'
+        : 'derived'
+      : undefined
 
-  const queryArgs =
-    activeToken && activeTokenAddress && stableAddress && quoteAddress
+  const directQueryArgs =
+    activeToken && activeTokenAddress && stableAddress && quoteAddress && marketMode === 'direct'
       ? {
           chainId: activeToken.chainId,
           fromBucketMs,
@@ -286,287 +309,151 @@ const TokenPriceChart = ({ tokenIn, tokenOut }: TokenPriceChartProps) => {
         }
       : skipToken
 
-  const { data: priceData, isError, isLoading } = useTokenPriceChartQuery(queryArgs)
+  const baseToStableQueryArgs =
+    activeToken && activeTokenAddress && stableAddress && quoteToken && quoteAddress && marketMode === 'derived'
+      ? {
+          chainId: activeToken.chainId,
+          fromBucketMs,
+          stableAddress,
+          tokenAddress: activeTokenAddress,
+          quoteAddress: stableAddress,
+          timeFrame,
+        }
+      : skipToken
+
+  const quoteToStableQueryArgs =
+    quoteToken && quoteAddress && stableAddress && marketMode === 'derived'
+      ? {
+          chainId: quoteToken.chainId,
+          fromBucketMs,
+          stableAddress,
+          tokenAddress: quoteAddress,
+          quoteAddress: stableAddress,
+          timeFrame,
+        }
+      : skipToken
+
+  const {
+    data: directPriceData,
+    isError: isDirectError,
+    isLoading: isDirectLoading,
+  } = useTokenPriceChartQuery(directQueryArgs)
+  const {
+    data: baseToStablePriceData,
+    isError: isBaseToStableError,
+    isLoading: isBaseToStableLoading,
+  } = useTokenPriceChartQuery(baseToStableQueryArgs)
+  const {
+    data: quoteToStablePriceData,
+    isError: isQuoteToStableError,
+    isLoading: isQuoteToStableLoading,
+  } = useTokenPriceChartQuery(quoteToStableQueryArgs)
+
+  const marketData = useMemo<MarketData>(() => {
+    if (marketMode === 'derived') {
+      return {
+        chartData: getDerivedChartData(baseToStablePriceData?.candles, quoteToStablePriceData?.candles),
+        currentPrice:
+          baseToStablePriceData && quoteToStablePriceData
+            ? getDerivedCurrentPrice(baseToStablePriceData, quoteToStablePriceData)
+            : undefined,
+        isError: isBaseToStableError || isQuoteToStableError,
+        isLoading: isBaseToStableLoading || isQuoteToStableLoading,
+        priceChange:
+          baseToStablePriceData && quoteToStablePriceData
+            ? getDerived24hPriceChange(baseToStablePriceData, quoteToStablePriceData)
+            : undefined,
+      }
+    }
+
+    return {
+      chartData: getChartData(directPriceData?.candles),
+      currentPrice: directPriceData?.currentPrice,
+      isError: isDirectError,
+      isLoading: isDirectLoading,
+      priceChange: directPriceData?.priceChange,
+    }
+  }, [
+    baseToStablePriceData,
+    directPriceData,
+    isBaseToStableError,
+    isBaseToStableLoading,
+    isDirectError,
+    isDirectLoading,
+    isQuoteToStableError,
+    isQuoteToStableLoading,
+    marketMode,
+    quoteToStablePriceData,
+  ])
+
+  const chartData = useMemo(() => {
+    if (!isStablePair) return marketData.chartData
+
+    const sourceData = marketData.chartData.length
+      ? marketData.chartData
+      : getPeggedFallbackChartData(fromBucketMs, timeFrame)
+
+    return getPeggedChartData(sourceData)
+  }, [fromBucketMs, isStablePair, marketData.chartData, timeFrame])
+
+  const currentPrice = isStablePair ? PEGGED_PRICE : marketData.currentPrice
+  const priceChange = isStablePair ? 0 : marketData.priceChange
+  const lastCandle = chartData.at(-1)
+  const displayPrice = currentPrice ?? lastCandle?.close
+  const priceChangeColor = priceChange === undefined || priceChange >= 0 ? upCandleColor : downCandleColor
+  const isLoading = isStablePair ? false : marketData.isLoading
+  const isError = isStablePair ? false : marketData.isError
+
+  const getTabQuoteToken = (token: Currency) =>
+    hasQuoteStableInPair && pairQuoteToken && getCurrencyKey(token) !== pairQuoteTokenKey
+      ? pairQuoteToken
+      : dedupedTokenTabs.find(tab => getCurrencyKey(tab.token) !== getCurrencyKey(token))?.token ||
+        DEFAULT_OUTPUT_TOKEN_BY_CHAIN[token.chainId]
 
   useEffect(() => {
     if (!activeTokenAddress || !stableAddress || !quoteAddress) return
 
-    const nextFromBucketMs = getDefaultFromBucketMs(timeFrame)
-    fromBucketMsRef.current = nextFromBucketMs
-    shouldFitContentRef.current = true
-    setTooltip(null)
-    setFromBucketMs(nextFromBucketMs)
+    setFromBucketMs(getDefaultFromBucketMs(timeFrame))
   }, [activeTokenAddress, quoteAddress, stableAddress, timeFrame])
 
-  useEffect(() => {
-    shouldFitContentRef.current = true
-  }, [timeFrame])
-
-  const chartData = useMemo<DisplayCandle[]>(
-    () =>
-      (priceData?.candles ?? []).map(candle => ({
-        time: candle.ts as UTCTimestamp,
-        open: candle.open,
-        high: candle.high,
-        low: candle.low,
-        close: candle.close,
-        volume: candle.volume,
-      })),
-    [priceData?.candles],
-  )
-
-  const firstCandle = chartData[0]
-  const lastCandle = chartData.at(-1)
-  const priceChange =
-    firstCandle && lastCandle ? ((lastCandle.close - firstCandle.open) / firstCandle.open) * 100 : undefined
-  const priceChangeColor = priceChange === undefined || priceChange >= 0 ? upCandleColor : downCandleColor
-
-  useEffect(() => {
-    const container = chartContainerRef.current
-
-    if (!container || !chartData.length) return
-
-    const chart = createChart(container, {
-      width: container.clientWidth,
-      height: chartHeight,
-      layout: {
-        background: { color: 'transparent' },
-        fontFamily: "'Work Sans', 'Inter', sans-serif",
-        textColor: theme.subText,
-      },
-      grid: {
-        vertLines: {
-          color: gridColor,
-        },
-        horzLines: {
-          color: gridColor,
-        },
-      },
-      crosshair: {
-        mode: CrosshairMode.Normal,
-        vertLine: {
-          color: crosshairColor,
-          labelVisible: false,
-          style: LineStyle.Dashed,
-        },
-        horzLine: {
-          color: crosshairColor,
-          labelVisible: true,
-          style: LineStyle.Dashed,
-        },
-      },
-      rightPriceScale: {
-        borderVisible: false,
-        entireTextOnly: true,
-        scaleMargins: {
-          top: 0.08,
-          bottom: 0.22,
-        },
-      },
-      timeScale: {
-        borderVisible: false,
-        tickMarkFormatter: (time: number) => formatAxisTimeLabel(time, timeFrame),
-        timeVisible: timeFrame !== '7d',
-      },
-      localization: {
-        priceFormatter: (value: number) =>
-          formatDisplayNumber(value, {
-            allowDisplayNegative: true,
-            significantDigits: value !== 0 && Math.abs(value) < 1 ? 8 : 6,
-          }),
-      },
-    })
-    chartRef.current = chart
-
-    const candlestickSeries = chart.addCandlestickSeries({
-      upColor: upCandleColor,
-      downColor: downCandleColor,
-      borderUpColor: upCandleColor,
-      borderDownColor: downCandleColor,
-      wickUpColor: upCandleColor,
-      wickDownColor: downCandleColor,
-      priceLineColor: upCandleColor,
-      priceLineStyle: LineStyle.Dashed,
-      priceLineVisible: true,
-    })
-
-    const volumeSeries = chart.addHistogramSeries({
-      lastValueVisible: false,
-      priceFormat: {
-        type: 'volume',
-      },
-      priceScaleId: 'volume',
-    })
-    candlestickSeriesRef.current = candlestickSeries
-    volumeSeriesRef.current = volumeSeries
-
-    chart.priceScale('volume').applyOptions({
-      borderVisible: false,
-      scaleMargins: {
-        top: 0.8,
-        bottom: 0,
-      },
-      visible: false,
-    })
-
-    const handleCrosshairMove = (param: MouseEventParams) => {
-      if (!param.point || !param.time) {
-        setTooltip(null)
-        return
-      }
-
-      const hoveredCandle = chartData.find(candle => candle.time === param.time)
-
-      if (!hoveredCandle) {
-        setTooltip(null)
-        return
-      }
-
-      const tooltipWidth = 220
-      const tooltipHeight = 180
-      const tooltipEdgePadding = 12
-      const tooltipLeftOffset = 12
-      const tooltipRightOffset = tooltipLeftOffset + 4
-      const tooltipTopOffset = 12
-      const chartInnerPaddingLeft = 24
-      const chartInnerPaddingRight = 12
-      const cursorLeft = param.point.x + chartInnerPaddingLeft
-      const frameWidth = container.clientWidth + chartInnerPaddingLeft + chartInnerPaddingRight
-      const isLeftHalf = param.point.x < container.clientWidth / 2
-
-      const left = Math.min(
-        Math.max(
-          isLeftHalf ? cursorLeft + tooltipRightOffset : cursorLeft - tooltipWidth - tooltipLeftOffset,
-          tooltipEdgePadding,
-        ),
-        frameWidth - tooltipWidth - tooltipEdgePadding,
-      )
-      const top = Math.min(
-        Math.max(param.point.y + tooltipTopOffset, tooltipEdgePadding),
-        chartHeight - tooltipHeight - tooltipEdgePadding,
-      )
-
-      setTooltip({
-        candle: hoveredCandle,
-        left,
-        top,
-      })
-    }
-
-    const handleVisibleTimeRangeChange = (range: { from: Time; to: Time } | null) => {
-      if (!range || suppressVisibleRangeSyncRef.current) return
-
-      const nextFromBucketMs = getUnixTimestampFromChartTime(range.from) * 1000
-
-      if (!Number.isFinite(nextFromBucketMs) || nextFromBucketMs <= 0) return
-      if (Math.abs(nextFromBucketMs - fromBucketMsRef.current) < 30_000) return
-
-      if (syncFromVisibleRangeTimeoutRef.current) {
-        globalThis.clearTimeout(syncFromVisibleRangeTimeoutRef.current)
-      }
-
-      syncFromVisibleRangeTimeoutRef.current = globalThis.setTimeout(() => {
-        fromBucketMsRef.current = nextFromBucketMs
-        setFromBucketMs(nextFromBucketMs)
-      }, 250)
-    }
-
-    chart.subscribeCrosshairMove(handleCrosshairMove)
-    chart.timeScale().subscribeVisibleTimeRangeChange(handleVisibleTimeRangeChange)
-
-    const resizeObserver = new ResizeObserver(entries => {
-      const entry = entries[0]
-
-      if (!entry) return
-
-      chart.resize(entry.contentRect.width, chartHeight)
-    })
-
-    resizeObserver.observe(container)
-
-    return () => {
-      setTooltip(null)
-      if (syncFromVisibleRangeTimeoutRef.current) {
-        globalThis.clearTimeout(syncFromVisibleRangeTimeoutRef.current)
-      }
-      resizeObserver.disconnect()
-      chart.timeScale().unsubscribeVisibleTimeRangeChange(handleVisibleTimeRangeChange)
-      chart.unsubscribeCrosshairMove(handleCrosshairMove)
-      chartRef.current = null
-      candlestickSeriesRef.current = null
-      volumeSeriesRef.current = null
-      chart.remove()
-    }
-  }, [
-    chartData,
-    chartHeight,
-    crosshairColor,
-    downCandleColor,
-    gridColor,
-    theme.subText,
-    upCandleColor,
-    volumeDownColor,
-    volumeUpColor,
-    timeFrame,
-  ])
-
-  useEffect(() => {
-    if (!chartRef.current || !candlestickSeriesRef.current || !volumeSeriesRef.current) return
-
-    candlestickSeriesRef.current.setData(chartData)
-    volumeSeriesRef.current.setData(
-      chartData.map(candle => ({
-        time: candle.time,
-        value: candle.volume,
-        color: candle.close >= candle.open ? volumeUpColor : volumeDownColor,
-      })),
-    )
-
-    if (!chartData.length || !shouldFitContentRef.current) return
-
-    suppressVisibleRangeSyncRef.current = true
-    chartRef.current.timeScale().fitContent()
-
-    globalThis.requestAnimationFrame(() => {
-      suppressVisibleRangeSyncRef.current = false
-    })
-
-    shouldFitContentRef.current = false
-  }, [chartData, volumeDownColor, volumeUpColor])
+  const fitContentKey = `${activeTokenAddress || 'unknown'}:${quoteAddress || 'unknown'}:${timeFrame}:${
+    isStablePair ? 'pegged' : 'market'
+  }`
 
   return (
     <ChartPanel gap={0}>
       {tokenTabs.length ? (
         <PanelHeader role="tablist">
-          {tokenTabs.map((tab, index) => (
-            <TabButton
-              $active={tab.id === activeTab}
-              $isLast={index === tokenTabs.length - 1}
-              aria-selected={tab.id === activeTab}
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              role="tab"
-              type="button"
-            >
-              <CurrencyLogo currency={tab.token} size="20px" />
-              <Text color="inherit" fontSize={16} fontWeight={500}>
-                {tab.token.symbol}
-                <Text as="span" fontSize={14}>
-                  {`/${quoteToken?.symbol || stableToken?.symbol || 'USDT'}`}
+          {tokenTabs.map((tab, index) => {
+            const quoteSymbol = getTabQuoteToken(tab.token)?.symbol || 'USDT'
+
+            return (
+              <TabButton
+                $active={tab.id === activeTab}
+                $isLast={index === tokenTabs.length - 1}
+                aria-selected={tab.id === activeTab}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                role="tab"
+                type="button"
+              >
+                <CurrencyLogo currency={tab.token} size="20px" />
+                <Text color="inherit" fontSize={16} fontWeight={500}>
+                  {tab.token.symbol}/{quoteSymbol}
                 </Text>
-              </Text>
-            </TabButton>
-          ))}
+              </TabButton>
+            )
+          })}
         </PanelHeader>
       ) : null}
 
       <Stack p={16} gap={12}>
         <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
           <Stack>
-            {lastCandle && priceChange !== undefined ? (
+            {displayPrice !== undefined && priceChange !== undefined ? (
               <HStack align="baseline" gap={8} wrap="wrap">
                 <Text color={theme.text} fontSize={20} fontWeight={500}>
-                  {formatPrice(lastCandle.close)}
+                  {formatPrice(displayPrice)} {quoteToken?.symbol}
                 </Text>
 
                 <HStack align="center" gap={4}>
@@ -578,7 +465,7 @@ const TokenPriceChart = ({ tokenIn, tokenOut }: TokenPriceChartProps) => {
                   </Text>
                 </HStack>
                 <Text color={theme.subText} fontSize={14}>
-                  ({timeFrame.toUpperCase()})
+                  (24h)
                 </Text>
               </HStack>
             ) : null}
@@ -587,25 +474,41 @@ const TokenPriceChart = ({ tokenIn, tokenOut }: TokenPriceChartProps) => {
           <SegmentedControl onChange={setTimeFrame} options={CHART_TIME_FRAME_OPTIONS} size="sm" value={timeFrame} />
         </HStack>
 
+        {isStablePair ? (
+          <Text color={theme.subText} fontSize={12}>
+            Price is pegged.
+          </Text>
+        ) : null}
+
         <PoolChartState
           emptyMessage={
             activeToken
               ? stableToken
-                ? 'No price data available for this token.'
+                ? 'Chart unavailable for this pair.'
                 : 'No price chart stable token configured for this chain.'
               : 'Select a token to view the price chart.'
           }
           errorMessage="Unable to load token price."
           height={chartHeight}
-          isEmpty={!chartData.length}
+          isEmpty={!lastCandle}
           isError={isError}
           isLoading={isLoading}
           skeletonType="candle"
         >
-          <ChartFrame $height={chartHeight}>
-            {tooltip ? <PriceChartTooltip tooltip={tooltip} timeFrame={timeFrame} /> : null}
-            <PoolChartWrapper $height={chartHeight - 12} ref={chartContainerRef} />
-          </ChartFrame>
+          <TokenPriceChartCanvas
+            chartData={chartData}
+            chartHeight={chartHeight}
+            crosshairColor={crosshairColor}
+            downCandleColor={downCandleColor}
+            fitContentKey={fitContentKey}
+            gridColor={gridColor}
+            onFromBucketChange={setFromBucketMs}
+            subTextColor={theme.subText}
+            timeFrame={timeFrame}
+            upCandleColor={upCandleColor}
+            volumeDownColor={volumeDownColor}
+            volumeUpColor={volumeUpColor}
+          />
         </PoolChartState>
       </Stack>
     </ChartPanel>

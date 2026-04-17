@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 
 export type TokenChartTimeFrame = '5m' | '15m' | '1h' | '4h' | '1d' | '7d'
 
-const TOKEN_CHART_SERVICE_BASE_URL = 'https://pre-kd-api.kyberengineering.io'
+const TOKEN_CHART_SERVICE_BASE_URL = 'https://kd-api.kyberswap.com'
 
 export type TokenChartCandle = {
   ts: number
