@@ -10,19 +10,5 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "address", "name": "", "type": "address" }
-    ],
-    "name": "claimed",
-    "outputs": [
-      { "internalType": "uint208", "name": "amount", "type": "uint208" },
-      { "internalType": "uint48", "name": "timestamp", "type": "uint48" },
-      { "internalType": "bytes32", "name": "merkleRoot", "type": "bytes32" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   }
 ]

@@ -1,19 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLazySearchTokensBySymbolQuery } from 'services/ksSetting'
 import { useMerklRewardsQuery } from 'services/rewardMerkl'
 
-import MERKL_DISTRIBUTOR_ABI from 'constants/abis/merkl-distributor.json'
-import { MULTICALL_ABI } from 'constants/multicall'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
-import { MERKL_DISTRIBUTOR_ADDRESS } from 'pages/Earns/constants/merkl'
 import { ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
-import { getReadingContractWithCustomChain } from 'utils/getContract'
 import uriToHttp from 'utils/uriToHttp'
 
 // Module-level caches shared across all hook instances to avoid duplicate
@@ -31,7 +25,6 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const { filters } = useFilter()
   const { supportedChains } = useChainsConfig()
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
-  const [onChainClaimedByToken, setOnChainClaimedByToken] = useState<Record<string, bigint>>({})
   const [searchTokensBySymbol] = useLazySearchTokensBySymbolQuery()
 
   const positionsKey = useMemo(
@@ -209,117 +202,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     return baseRewards
   }, [positionsFilter?.length, rewardsByPosition, baseRewards])
 
-  // Token metadata (decimals, price) keyed by chainId-address, needed for on-chain override
-  const tokenMetaByKey = useMemo(() => {
-    const map: Record<string, { decimals: number; price: number }> = {}
-    if (!data) return map
-    data.forEach(chainRewards =>
-      chainRewards.rewards.forEach(r => {
-        const key = `${r.token.chainId}-${r.token.address.toLowerCase()}`
-        map[key] = { decimals: r.token.decimals, price: r.token.price }
-      }),
-    )
-    return map
-  }, [data])
-
-  // Reset on-chain cache when wallet/account changes
-  useEffect(() => {
-    setOnChainClaimedByToken({})
-  }, [account])
-
-  // Fetch on-chain `claimed(user, token)` from the Merkl distributor using Multicall2
-  // to override the API's `claimed` field (which may be stale).
-  useEffect(() => {
-    if (!data || !account) return
-    let cancelled = false
-
-    const pairsByChain: Record<number, Set<string>> = {}
-    data.forEach(chainRewards =>
-      chainRewards.rewards.forEach(r => {
-        pairsByChain[r.token.chainId] = pairsByChain[r.token.chainId] || new Set()
-        pairsByChain[r.token.chainId].add(r.token.address.toLowerCase())
-      }),
-    )
-    if (!Object.keys(pairsByChain).length) return
-
-    const distributorIface = new ethers.utils.Interface(MERKL_DISTRIBUTOR_ABI)
-
-    const fetchAll = async () => {
-      const results: Record<string, bigint> = {}
-
-      await Promise.all(
-        Object.entries(pairsByChain).map(async ([chainIdStr, tokensSet]) => {
-          const chainId = Number(chainIdStr) as ChainId
-          const tokens = Array.from(tokensSet)
-          if (!tokens.length) return
-
-          try {
-            const multicallAddr = NETWORKS_INFO[chainId]?.multicall
-            if (!multicallAddr) return
-            const multicall = getReadingContractWithCustomChain(multicallAddr, MULTICALL_ABI, chainId)
-
-            const calls = tokens.map(tokenAddr => ({
-              target: MERKL_DISTRIBUTOR_ADDRESS,
-              callData: distributorIface.encodeFunctionData('claimed', [account, tokenAddr]),
-            }))
-
-            const returnData: Array<{ success: boolean; returnData: string }> = await multicall.callStatic.tryAggregate(
-              false,
-              calls,
-            )
-
-            returnData.forEach((item, idx) => {
-              if (!item.success || !item.returnData || item.returnData === '0x') return
-              try {
-                const decoded = distributorIface.decodeFunctionResult('claimed', item.returnData)
-                const amount = BigInt(decoded[0].toString())
-                results[`${chainId}-${tokens[idx]}`] = amount
-              } catch {
-                // ignore malformed response
-              }
-            })
-          } catch {
-            // ignore chain-level errors; fall back to API `claimed`
-          }
-        }),
-      )
-
-      if (cancelled) return
-      if (Object.keys(results).length) {
-        setOnChainClaimedByToken(prev => ({ ...prev, ...results }))
-      }
-    }
-
-    fetchAll()
-    return () => {
-      cancelled = true
-    }
-  }, [data, account])
-
-  // Override claimable amounts using on-chain claimed state (source of truth, not the API field)
-  const adjustedBaseRewardsForReturn = useMemo(() => {
-    if (!Object.keys(onChainClaimedByToken).length) return baseRewardsForReturn
-    return baseRewardsForReturn.map(reward => {
-      const key = `${reward.chainId}-${reward.address.toLowerCase()}`
-      const onChainClaimed = onChainClaimedByToken[key]
-      const meta = tokenMetaByKey[key]
-      if (onChainClaimed === undefined || !meta) return reward
-
-      // Precision note: Number() loses precision for values > 2^53 raw. For 18-decimal tokens,
-      // that's >9e15 raw (~0.009 tokens). Acceptable for display since totalAmount has same drift.
-      const decimalsPow = 10 ** meta.decimals
-      const onChainClaimedDecimal = Number(onChainClaimed) / decimalsPow
-      const claimable = Math.max(reward.totalAmount - onChainClaimedDecimal, 0)
-      return {
-        ...reward,
-        claimableAmount: claimable,
-        unclaimedAmount: claimable,
-        claimableUsdValue: claimable * meta.price,
-      }
-    })
-  }, [baseRewardsForReturn, onChainClaimedByToken, tokenMetaByKey])
-
-  const totalUsdValue = adjustedBaseRewardsForReturn.reduce(
+  const totalUsdValue = baseRewardsForReturn.reduce(
     (sum, reward) => sum + (isNaN(reward.claimableUsdValue) ? 0 : reward.claimableUsdValue),
     0,
   )
@@ -436,80 +319,34 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   }, [baseRewardsForReturn, searchTokensBySymbol])
 
   const parsedRewards = useMemo<TokenRewardInfo[]>(() => {
-    if (!adjustedBaseRewardsForReturn.length) return []
+    if (!baseRewardsForReturn.length) return []
 
-    return adjustedBaseRewardsForReturn.map(reward => {
+    return baseRewardsForReturn.map(reward => {
       const logoKey = `${reward.chainId}-${reward.address.toLowerCase()}`
       return {
         ...reward,
         logo: tokenLogos[logoKey] || reward.logo,
       }
     })
-  }, [adjustedBaseRewardsForReturn, tokenLogos])
+  }, [baseRewardsForReturn, tokenLogos])
 
   const parsedRewardsByPosition = useMemo<Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }>>(() => {
     if (!Object.keys(rewardsByPosition).length) return {}
-
-    // For each token, aggregate the API's claimable across all positions, then compare
-    // with on-chain claimable. The ratio tells us what fraction of each position's
-    // claim is still truly unclaimed. Scale each per-position entry by that ratio.
-    const apiClaimableByToken: Record<string, number> = {}
-    Object.values(rewardsByPosition).forEach(value => {
-      value.rewards.forEach(r => {
-        const key = `${r.chainId}-${r.address.toLowerCase()}`
-        apiClaimableByToken[key] = (apiClaimableByToken[key] || 0) + r.claimableAmount
-      })
-    })
-
-    const scaleByToken: Record<string, number> = {}
-    Object.entries(apiClaimableByToken).forEach(([key, apiClaimable]) => {
-      const onChainClaimed = onChainClaimedByToken[key]
-      const meta = tokenMetaByKey[key]
-      if (onChainClaimed === undefined || !meta || apiClaimable <= 0) {
-        scaleByToken[key] = 1
-        return
-      }
-      // Find how much API thinks has been claimed (across all positions for this token)
-      const apiClaimedAcrossPositions = Object.values(rewardsByPosition).reduce((sum, v) => {
-        const match = v.rewards.find(r => `${r.chainId}-${r.address.toLowerCase()}` === key)
-        // total - claimable = API's notion of claimed for this position
-        return sum + Math.max((match?.totalAmount || 0) - (match?.claimableAmount || 0), 0)
-      }, 0)
-      const decimalsPow = 10 ** meta.decimals
-      const onChainClaimedDecimal = Number(onChainClaimed) / decimalsPow
-      // Extra amount claimed on-chain that the API hasn't reflected yet
-      const extraClaimedOnChain = Math.max(onChainClaimedDecimal - apiClaimedAcrossPositions, 0)
-      // Reduce API's claimable by the extra amount, proportionally
-      const trueClaimable = Math.max(apiClaimable - extraClaimedOnChain, 0)
-      scaleByToken[key] = trueClaimable / apiClaimable
-    })
-
     const result: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }> = {}
     Object.entries(rewardsByPosition).forEach(([positionId, value]) => {
-      const adjustedRewards = value.rewards.map(reward => {
-        const key = `${reward.chainId}-${reward.address.toLowerCase()}`
-        const logoKey = key
-        const scale = scaleByToken[key] ?? 1
-        const claimable = reward.claimableAmount * scale
-        const meta = tokenMetaByKey[key]
-        return {
-          ...reward,
-          logo: tokenLogos[logoKey] || reward.logo,
-          claimableAmount: claimable,
-          unclaimedAmount: claimable,
-          claimableUsdValue: meta ? claimable * meta.price : reward.claimableUsdValue * scale,
-        }
-      })
       result[positionId] = {
-        rewards: adjustedRewards,
-        totalUsdValue: adjustedRewards.reduce(
-          (sum, r) => sum + (isNaN(r.claimableUsdValue) ? 0 : r.claimableUsdValue),
-          0,
-        ),
+        totalUsdValue: value.totalUsdValue,
+        rewards: value.rewards.map(reward => {
+          const logoKey = `${reward.chainId}-${reward.address.toLowerCase()}`
+          return {
+            ...reward,
+            logo: tokenLogos[logoKey] || reward.logo,
+          }
+        }),
       }
     })
     return result
-  }, [rewardsByPosition, tokenLogos, onChainClaimedByToken, tokenMetaByKey])
+  }, [rewardsByPosition, tokenLogos])
 
   const chainRewards = useMemo<ChainRewardInfo[]>(() => {
     if (!parsedRewards.length) return []
