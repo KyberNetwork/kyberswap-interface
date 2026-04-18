@@ -47,7 +47,7 @@ import {
 import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
 import { isChristmasTime } from 'utils'
 
-const MAX_FAVORITE_LIMIT = 12
+const MAX_FAVORITE_LIMIT = 30
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
