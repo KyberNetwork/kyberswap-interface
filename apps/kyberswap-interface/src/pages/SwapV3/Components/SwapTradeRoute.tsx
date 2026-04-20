@@ -1,12 +1,13 @@
 import { type Currency, type CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
+import Skeleton from 'components/Skeleton'
+import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { type SwapRouteV2, type SwapRouteV3 } from 'utils/aggregationRouting'
 
@@ -86,6 +87,28 @@ const RoutingIconWrapper = styled(RoutingIcon)`
     fill: ${({ theme }) => theme.subText} !important;
   }
 `
+
+const TradeRouteSkeleton = () => {
+  const theme = useTheme()
+
+  return (
+    <Stack gap={40} py={12}>
+      <HStack align="center" justify="space-between" gap={16}>
+        <Skeleton height={24} variant="darkSubtle" width={108} />
+        <Skeleton height={24} variant="darkSubtle" width={108} />
+      </HStack>
+
+      <HStack justify="space-evenly" gap={12}>
+        {[0, 1].map(index => (
+          <Stack key={index} gap={12} width={180} p={12} border={`1px solid ${theme.darkBorder}`} borderRadius={12}>
+            <Skeleton height={20} variant="darkSubtle" width={96} />
+            <Skeleton height={28} variant="darkSubtle" width="100%" />
+          </Stack>
+        ))}
+      </HStack>
+    </Stack>
+  )
+}
 
 type SwapTradeRouteProps = {
   tradeComposition: SwapRouteV2[] | SwapRouteV3[] | undefined
@@ -187,16 +210,7 @@ const SwapTradeRoute = ({
 
       {isExpanded && (
         <PanelBody>
-          <Suspense
-            fallback={
-              <Skeleton
-                height="100px"
-                baseColor={theme.background}
-                highlightColor={theme.buttonGray}
-                borderRadius="1rem"
-              />
-            }
-          >
+          <Suspense fallback={<TradeRouteSkeleton />}>
             <TradeRouting
               tradeComposition={tradeComposition}
               currencyIn={currencyIn}
