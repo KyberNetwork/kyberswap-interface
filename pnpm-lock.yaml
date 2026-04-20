@@ -1347,6 +1347,9 @@ importers:
       '@kyber/hooks':
         specifier: workspace:*
         version: link:../hooks
+      '@kyber/rpc-client':
+        specifier: workspace:*
+        version: link:../rpc-client
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:^
         version: link:../svgr-esbuild-plugin
