@@ -149,10 +149,7 @@ const SwapActionButton: React.FC<Props> = ({
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non degen mode
-  const showApproveFlow =
-    !swapInputError &&
-    (approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) &&
-    permitState !== PermitState.SIGNED
+  const showApproveFlow = false
 
   const [loading, setLoading] = useState(false)
 

@@ -15,7 +15,7 @@ type Args = {
   balanceIn: CurrencyAmount<Currency> | undefined
 }
 const useGetInputError = (args: Args): string | undefined => {
-  const { typedValue, recipient, currencyIn, currencyOut, parsedAmountFromTypedValue: parsedAmount, balanceIn } = args
+  const { typedValue, recipient, currencyIn, currencyOut, parsedAmountFromTypedValue: parsedAmount } = args
   const { account, chainId } = useActiveWeb3React()
 
   const recipientLookup = useENS(recipient ?? undefined)
@@ -44,10 +44,10 @@ const useGetInputError = (args: Args): string | undefined => {
     }
   }
 
-  if (parsedAmount && ((balanceIn && balanceIn.lessThan(parsedAmount)) || !balanceIn)) {
-    const symbol = parsedAmount.currency.symbol
-    inputError = t`Insufficient ${symbol} balance`
-  }
+  // if (parsedAmount && ((balanceIn && balanceIn.lessThan(parsedAmount)) || !balanceIn)) {
+  //   const symbol = parsedAmount.currency.symbol
+  //   inputError = t`Insufficient ${symbol} balance`
+  // }
 
   return inputError
 }

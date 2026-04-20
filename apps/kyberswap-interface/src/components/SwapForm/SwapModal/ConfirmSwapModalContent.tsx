@@ -11,6 +11,7 @@ import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
@@ -101,6 +102,22 @@ const PriceUpdateWarning = styled.div<{ isAccepted: boolean; $level: 'warning' |
   color: ${({ theme, isAccepted }) => (isAccepted ? theme.subText : theme.text)};
 `
 
+const CalldataBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: ${({ theme }) => theme.buttonBlack};
+  font-size: 12px;
+`
+
+const CalldataRow = styled(Flex)`
+  align-items: flex-start;
+  gap: 8px;
+  word-break: break-all;
+`
+
 type Props = {
   buildResult: BuildRouteResult | undefined
   isBuildingRoute: boolean
@@ -131,7 +148,7 @@ export default function ConfirmSwapModalContent({
   const cat = usePairCategory()
   const { setRawSlippage } = useSlippageSettingByPage()
 
-  const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
+  const shouldDisableConfirmButton = true
 
   const { currency: currencyParam } = useParams()
   const { currencyIn } = useCurrenciesByPage()
@@ -521,6 +538,49 @@ export default function ConfirmSwapModalContent({
 
         <SwapDetails {...getSwapDetailsProps()} />
 
+        {buildResult?.data && (
+          <CalldataBox>
+            <Text fontWeight={500} color={theme.text}>
+              Build Output
+            </Text>
+            <CalldataRow>
+              <Text color={theme.subText} minWidth="90px">
+                Router
+              </Text>
+              <Text color={theme.text} flex={1}>
+                {buildResult.data.routerAddress}
+              </Text>
+              <CopyHelper size={14} toCopy={buildResult.data.routerAddress} />
+            </CalldataRow>
+            <CalldataRow>
+              <Text color={theme.subText} minWidth="90px">
+                Value (wei)
+              </Text>
+              <Text color={theme.text} flex={1}>
+                {routeSummary?.parsedAmountIn?.currency.isNative ? buildResult.data.amountIn : '0'}
+              </Text>
+              <CopyHelper
+                size={14}
+                toCopy={routeSummary?.parsedAmountIn?.currency.isNative ? buildResult.data.amountIn : '0'}
+              />
+            </CalldataRow>
+            <CalldataRow>
+              <Text color={theme.subText} minWidth="90px">
+                Calldata
+              </Text>
+              <Text
+                color={theme.text}
+                flex={1}
+                fontFamily="monospace"
+                style={{ maxHeight: '120px', overflowY: 'auto' }}
+              >
+                {buildResult.data.data}
+              </Text>
+              <CopyHelper size={14} toCopy={buildResult.data.data} />
+            </CalldataRow>
+          </CalldataBox>
+        )}
+
         <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
           <SlippageWarningNote rawSlippage={slippage} />
 
@@ -615,7 +675,7 @@ export default function ConfirmSwapModalContent({
               >
                 {shouldDisableConfirmButton ? (
                   <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
-                    <Trans>Swap</Trans>
+                    <Trans>Swap Disabled (Build Only)</Trans>
                   </Text>
                 ) : disableSwap ? (
                   <>
