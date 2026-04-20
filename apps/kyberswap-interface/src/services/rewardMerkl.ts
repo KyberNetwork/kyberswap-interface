@@ -105,11 +105,11 @@ const rewardMerklApi = createApi({
             `${MERKL_API_BASE}/users/${address}/rewards?chainId=${chainId}&reloadChainId=${chainId}`,
             { signal: controller.signal },
           )
-          if (!res.ok) return { data: [] }
+          if (!res.ok) return { error: { status: res.status, data: 'reload failed' } }
           const data: MerklRewardsResponse[] = await res.json()
           return { data }
-        } catch {
-          return { data: [] }
+        } catch (err) {
+          return { error: { status: 'CUSTOM_ERROR', error: (err as Error)?.message || 'reload failed' } }
         } finally {
           clearTimeout(timeoutId)
         }
