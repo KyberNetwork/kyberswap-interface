@@ -200,12 +200,12 @@ export const parsePosition = ({
           {
             address: token0Address,
             symbol: token0Data?.symbol || '',
-            amount: token0TotalProvide + token0EarnedAmount,
+            amount: token0CurrentAmount + token0EarnedAmount,
           },
           {
             address: token1Address,
             symbol: token1Data?.symbol || '',
-            amount: token1TotalProvide + token1EarnedAmount,
+            amount: token1CurrentAmount + token1EarnedAmount,
           },
         ]
       : []
