@@ -1,6 +1,6 @@
 {
   "name": "@kyberswap/pancake-liquidity-widgets",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@kyber/hooks": "workspace:*",
+    "@kyber/rpc-client": "workspace:*",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/ui": "workspace:*",
     "@kyber/utils": "workspace:^",
