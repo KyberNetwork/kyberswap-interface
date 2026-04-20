@@ -54,4 +54,24 @@ When writing or modifying code, **always** ensure the result is free of:
    - Proper import ordering
 3. **Prettier formatting** — all code must match the project's Prettier config (single quotes, trailing commas, semicolons, print width). Format code consistently.
 
-**Workflow**: After making changes, mentally verify TypeScript correctness, ESLint compliance, and Prettier formatting. When in doubt, run `pnpm lint` and `pnpm type-check` on the affected package to confirm zero errors before considering the task done.
+**Workflow (MANDATORY)**: After making any code changes, you **MUST** run the following commands on the affected package(s) and fix all errors before considering the task done:
+
+```bash
+pnpm lint          # Fix all ESLint errors/warnings
+pnpm type-check    # Fix all TypeScript errors
+```
+
+Format all modified files with Prettier. Do **NOT** present code changes as complete until these checks pass with zero errors. If any check fails, fix the issues and re-run until clean.
+
+## Color & Styling Rules
+
+- **Always use theme colors** — never hardcode hex/rgb values. Use `${({ theme }) => theme.colorName}` in styled-components. Check `src/theme/color.ts` for existing tokens before introducing new colors.
+- Key tokens: `primary`, `text`, `subText`, `background`, `border`, `red1`, `warning`, `buttonBlack`, `buttonGray`, `tableHeader`, etc.
+
+## Number Formatting Rules
+
+- **Always reuse existing formatters** — before writing any number formatting logic, check the existing utilities:
+  - `formatDisplayNumber()` from `utils/numbers.ts` (app-level, supports `decimal`/`currency`/`percent`)
+  - `formatDisplayNumber()`, `formatTokenAmount()`, `formatCurrency()`, `formatNumber()`, `formatWei()`, `formatAprNumber()` from `@kyberswap/utils`
+  - `formatTokenBalance()`, `formatBigLiquidity()`, `formatLongNumber()` from `utils/formatBalance.ts`
+- Do **not** use deprecated formatters (`formatDollarAmount`, `formattedNum`, `formatCurrencyAmount`).

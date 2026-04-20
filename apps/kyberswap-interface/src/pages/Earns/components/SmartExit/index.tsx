@@ -38,6 +38,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
   const [conditionType, setConditionType] = useState<ConditionType>(ConditionType.And)
   const [expireTime, setExpireTime] = useState(FOREVER_EXPIRE_TIME)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [revertPrice, setRevertPrice] = useState(false)
 
   const [multiplier, setMultiplier] = useState<number>(2)
   const [customGasPercent, setCustomGasPercent] = useState<string>('')
@@ -93,6 +94,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             createSmartExitOrder={smartExit.createSmartExitOrder}
             isCreating={smartExit.isCreating}
             isSuccess={smartExit.isSuccess}
+            revertPrice={revertPrice}
           />
         ) : (
           <GuidedHighlightProvider selectedMetrics={selectedMetrics}>
@@ -118,7 +120,12 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             <ContentWrapper>
               <Flex flexDirection="column" sx={{ gap: '1rem' }} flex={1}>
                 <PositionLiquidity position={position} isLoading={positionLoading} />
-                <PoolPrice position={position} isLoading={positionLoading} />
+                <PoolPrice
+                  position={position}
+                  isLoading={positionLoading}
+                  revertPrice={revertPrice}
+                  setRevertPrice={setRevertPrice}
+                />
                 {orWithTimeAlreadyMet && conditionTime && <OrTimeAlreadyMetWarning conditionTime={conditionTime} />}
               </Flex>
 
@@ -130,6 +137,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
                   conditionType={conditionType}
                   setConditionType={setConditionType}
                   isLoading={positionLoading}
+                  revertPrice={revertPrice}
                 />
                 <GasSetting
                   feeInfo={feeInfo}

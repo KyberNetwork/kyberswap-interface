@@ -76,7 +76,7 @@
     "@lingui/core": "^4.6.0",
     "@lingui/macro": "^4.6.0",
     "@lingui/react": "^4.6.0",
-    "@mayanfinance/swap-sdk": "^10.9.3",
+    "@mayanfinance/swap-sdk": "^13.2.0",
     "@near-wallet-selector/core": "^8.10.2",
     "@near-wallet-selector/ethereum-wallets": "^9.0.0",
     "@near-wallet-selector/here-wallet": "^8.10.2",

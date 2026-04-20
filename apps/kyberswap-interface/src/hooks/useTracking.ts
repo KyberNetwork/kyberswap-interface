@@ -9,6 +9,7 @@ import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { sanitizeFormoPayload } from 'hooks/sanitizeFormoPayload'
 import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
@@ -218,14 +219,6 @@ export enum TRACKING_EVENT_TYPE {
 
   ACCEPT_NEW_AMOUNT,
 
-  // cross chain
-  CROSS_CHAIN_CLICK_DISCLAIMER,
-  CROSS_CHAIN_SWAP_INIT,
-  CROSS_CHAIN_SWAP_CONFIRMED,
-  CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX,
-  CROSS_CHAIN_TXS_SUBMITTED,
-  CROSS_CHAIN_CLICK_SUBSCRIBE,
-
   // earning dashboard
   EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON,
   EARNING_DASHBOARD_SHARE_SUCCESSFULLY,
@@ -416,7 +409,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
 
   const formoTrack = useCallback(
     (eventName: string, properties?: Record<string, any>) => {
-      analytics?.track(eventName, properties)
+      analytics?.track(eventName, sanitizeFormoPayload(properties))
     },
     [analytics],
   )
@@ -1413,31 +1406,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.ACCEPT_NEW_AMOUNT: {
           formoTrack('Accept New Amount Button Click', payload)
-          break
-        }
-
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER: {
-          mixpanel.track('Cross-chain - Disclaimer click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX: {
-          mixpanel.track('Cross chain - Disclaimer checkbox click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE: {
-          mixpanel.track('Cross chain - Subscribe click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_INIT: {
-          mixpanel.track('Cross chain - Swap Initiated', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_CONFIRMED: {
-          mixpanel.track('Cross chain - Swap Confirmed', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_TXS_SUBMITTED: {
-          mixpanel.track('Cross chain - Transaction Submitted', payload)
           break
         }
 

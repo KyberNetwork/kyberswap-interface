@@ -61,6 +61,7 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   }
   locale?: SupportedLocale
   onClose: () => void
+  onCloseSuccess?: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
@@ -130,6 +131,18 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     },
     [library, navigate],
   )
+
+  const handleCloseMigration = useCallback(() => {
+    setTriggerClose(true)
+    setMigrateLiquidityPureParams(null)
+    clearTracking()
+    onRefreshPosition?.()
+  }, [clearTracking, onRefreshPosition])
+
+  const handleCloseMigrationSuccess = useCallback(() => {
+    handleCloseMigration()
+    navigate(APP_PATHS.EARN_POSITIONS)
+  }, [handleCloseMigration, navigate])
 
   const handleOpenZapMigration = ({
     from,
@@ -204,12 +217,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               clearTracking()
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
-            onClose: () => {
-              setTriggerClose(true)
-              setMigrateLiquidityPureParams(null)
-              clearTracking()
-              onRefreshPosition?.()
-            },
+            onClose: handleCloseMigration,
+            onCloseSuccess: handleCloseMigrationSuccess,
             onBack: () => {
               setMigrateLiquidityPureParams(null)
               clearTracking()
@@ -418,8 +427,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       chainId,
       toggleWalletModal,
       clearTracking,
+      handleCloseMigration,
+      handleCloseMigrationSuccess,
       handleNavigateToPosition,
-      onRefreshPosition,
       changeNetwork,
       addTrackedTxHash,
       trackingHandler,

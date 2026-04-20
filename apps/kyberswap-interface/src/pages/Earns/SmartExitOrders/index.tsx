@@ -49,6 +49,20 @@ const TableHeader = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 
+const OrderListWrapper = styled.div<{ $showLastBorder?: boolean }>`
+  & > * {
+    border-bottom: 1px solid ${({ theme }) => theme.border};
+  }
+
+  ${({ $showLastBorder }) =>
+    !$showLastBorder &&
+    `
+    & > :last-child {
+      border-bottom: none;
+    }
+  `}
+`
+
 const EmptyStateWrapper = styled(Flex)`
   flex-direction: column;
   align-items: center;
@@ -326,15 +340,17 @@ const SmartExit = () => {
             </Flex>
           </EmptyStateWrapper>
         ) : (
-          renderedOrders.map((order, index) => (
-            <OrderItem
-              key={order.id}
-              order={order}
-              index={(currentPage - 1) * SMART_EXIT_ORDERS_PAGE_SIZE + index + 1}
-              upToMedium={upToMedium}
-              onDelete={handleDeleteRequest}
-            />
-          ))
+          <OrderListWrapper $showLastBorder={totalItems > SMART_EXIT_ORDERS_PAGE_SIZE}>
+            {renderedOrders.map((order, index) => (
+              <OrderItem
+                key={order.id}
+                order={order}
+                index={(currentPage - 1) * SMART_EXIT_ORDERS_PAGE_SIZE + index + 1}
+                upToMedium={upToMedium}
+                onDelete={handleDeleteRequest}
+              />
+            ))}
+          </OrderListWrapper>
         )}
 
         <Flex justifyContent="center" alignItems="center" backgroundColor={overlayBackgroundColor} sx={overlayStyle}>

@@ -17,6 +17,7 @@ interface MetricsProps {
   conditionType: ConditionType
   setConditionType: (v: ConditionType) => void
   isLoading?: boolean
+  revertPrice?: boolean
 }
 
 export default function Metrics({
@@ -26,6 +27,7 @@ export default function Metrics({
   conditionType,
   setConditionType,
   isLoading = false,
+  revertPrice = false,
 }: MetricsProps) {
   const theme = useTheme()
   const [metric1, metric2] = selectedMetrics
@@ -92,6 +94,7 @@ export default function Metrics({
         position={position}
         isFirstMetric
         onRemove={metric2 !== undefined ? onRemoveMetric1 : undefined}
+        revertPrice={revertPrice}
       />
       {metric2 !== undefined ? (
         <>
@@ -116,6 +119,7 @@ export default function Metrics({
             selectedMetric={metric1}
             position={position}
             onRemove={onRemoveMetric2}
+            revertPrice={revertPrice}
           />
         </>
       ) : (

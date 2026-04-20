@@ -19,6 +19,7 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
+import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
@@ -230,6 +231,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
+      <RouteSeo />
       <AppWrapper>
         <ModalsGlobal />
         {!isPartnerSwap && <TopBanner />}

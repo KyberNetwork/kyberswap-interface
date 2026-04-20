@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans } from '@lingui/macro';
 
-import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken, dexMapping, univ2Types } from '@kyber/schema';
+import { ChainId, DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken, dexMapping, univ2Types } from '@kyber/schema';
 import { MouseoverTooltip, ShareModal, ShareType } from '@kyber/ui';
 import { Skeleton } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
@@ -190,14 +190,19 @@ export default function PoolStat() {
                     text={
                       <div className="flex flex-col gap-0.5">
                         <div>
-                          <Trans>Uniswap Bonus: {formatAprNumber(poolStat?.bonusApr || 0)}%</Trans>
+                          {chainId === ChainId.Monad ? <Trans>Monad Bonus</Trans> : <Trans>Uniswap Bonus</Trans>}:{' '}
+                          {formatAprNumber(poolStat?.bonusApr || 0)}%
                         </div>
                       </div>
                     }
                     placement="top"
                     width="fit-content"
                   >
-                    <UniBonusIcon width={20} height={20} />
+                    {chainId === ChainId.Monad ? (
+                      <img src={NETWORKS_INFO[chainId].logo} alt="Monad" width={20} height={20} />
+                    ) : (
+                      <UniBonusIcon width={20} height={20} />
+                    )}
                   </MouseoverTooltip>
                 )}
 
