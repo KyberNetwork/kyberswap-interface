@@ -141,8 +141,8 @@ importers:
         specifier: ^4.6.0
         version: 4.14.1(react@18.3.1)
       '@mayanfinance/swap-sdk':
-        specifier: ^10.9.3
-        version: 10.9.3(typescript@5.3.3)
+        specifier: ^13.2.0
+        version: 13.3.0(typescript@5.3.3)
       '@near-wallet-selector/core':
         specifier: ^8.10.2
         version: 8.10.2(near-api-js@5.1.1)
@@ -10373,16 +10373,16 @@ packages:
       '@lit-labs/ssr-dom-shim': 1.2.1
     dev: false
 
-  /@mayanfinance/swap-sdk@10.9.3(typescript@5.3.3):
-    resolution: {integrity: sha512-nw1gEXTQKVIrZaJl6SMPXkzjsBdP7RwhNTVa6WvG7xxp0gAherSXshlXXirO3SZblonz+E9FbqD6k5dPvfOdQQ==}
+  /@mayanfinance/swap-sdk@13.3.0(typescript@5.3.3):
+    resolution: {integrity: sha512-wBsyJB4tTsVEdBeebBykK9KUiLziQ4hLnXomqB8/JT8MjWTCpN50gimAXK/TrepcHkZznQlMarqNNmbGCL9TZw==}
     dependencies:
       '@mysten/sui': 1.45.0(typescript@5.3.3)
+      '@noble/hashes': 1.8.0
       '@solana/buffer-layout': 4.0.1
       '@solana/web3.js': 1.98.2(typescript@5.3.3)
       bs58: 6.0.0
       cross-fetch: 3.1.8
       ethers: 6.13.5
-      js-sha256: 0.9.0
       js-sha3: 0.8.0
     transitivePeerDependencies:
       - '@gql.tada/svelte-support'
