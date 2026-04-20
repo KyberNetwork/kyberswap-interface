@@ -128,7 +128,7 @@ const LiquidityFlowsTooltip = ({
 const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps) => {
   const theme = useTheme()
 
-  const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
+  const [window, setWindow] = useState<PoolAnalyticsWindow>('24h')
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
