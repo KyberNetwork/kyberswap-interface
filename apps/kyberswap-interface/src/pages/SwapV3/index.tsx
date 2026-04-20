@@ -25,13 +25,7 @@ import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionH
 import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
 import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
-import {
-  AppBodyWrapped,
-  BannerWrapper,
-  FarmingWrapper,
-  SwitchLocaleLinkWrapper,
-  TrendingWrapper,
-} from 'pages/SwapV3/styles'
+import { AppBodyWrapped, BannerWrapper, SwitchLocaleLinkWrapper } from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
@@ -173,12 +167,8 @@ export default function Swap() {
           <InfoComponents>
             {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && (
               <BannerWrapper>
-                <TrendingWrapper>
-                  <TrendingPoolBanner />
-                </TrendingWrapper>
-                <FarmingWrapper>
-                  <FarmingPoolBanner />
-                </FarmingWrapper>
+                <TrendingPoolBanner />
+                <FarmingPoolBanner />
               </BannerWrapper>
             )}
             {isSwapPage && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
