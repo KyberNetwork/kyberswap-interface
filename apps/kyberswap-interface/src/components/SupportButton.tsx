@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { ReactComponent as DiscordIcon } from 'assets/svg/discord_color.svg'
 import { ReactComponent as EmailIcon } from 'assets/svg/email_color.svg'
 import { ReactComponent as TeleIcon } from 'assets/svg/tele_color.svg'
+import { KYBER_NETWORK_TELEGRAM_URL } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
@@ -138,7 +139,7 @@ export default function SupportButton() {
               </Text>
             </Flex>
           </ExternalLink>
-          <ExternalLink href="https://t.me/kybernetwork" style={{ textDecoration: 'none' }}>
+          <ExternalLink href={KYBER_NETWORK_TELEGRAM_URL} style={{ textDecoration: 'none' }}>
             <Flex alignItems="center" sx={{ gap: '6px' }}>
               <TeleIcon />
               <Text fontSize="14px" fontWeight="500" color={theme.text}>
