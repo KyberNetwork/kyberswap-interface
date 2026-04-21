@@ -2,11 +2,11 @@ import { t } from '@lingui/macro'
 import { KeyboardEvent, useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
+import { VaultInterval, useVaultDetailQuery, useVaultMetricsQuery } from 'services/vault'
 
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
-import { SAMPLE_VAULTS } from 'pages/Earns/ExploreVaults/sampleData'
 import {
   ActionCard,
   ActionPlaceholder,
@@ -40,6 +40,7 @@ import {
   VaultName,
   VaultNameMuted,
 } from 'pages/Earns/VaultDetail/styles'
+import { toVaultInfoFromDetail } from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -47,26 +48,54 @@ type ActionTabKey = 'deposit' | 'withdraw'
 type PeriodKey = '24H' | '7D' | '30D'
 
 const PERIOD_OPTIONS: PeriodKey[] = ['24H', '7D', '30D']
-const PERIOD_POINTS: Record<PeriodKey, number> = { '24H': 8, '7D': 14, '30D': 30 }
+const PERIOD_TO_INTERVAL: Record<PeriodKey, VaultInterval> = {
+  '24H': '1d',
+  '7D': '7d',
+  '30D': '30d',
+}
 
 const formatApy = (value: number) => formatDisplayNumber(value, { style: 'decimal', fractionDigits: 2 })
 
 const VaultDetail = () => {
-  const { vaultId } = useParams<{ vaultId?: string }>()
+  const { chainId: chainIdParam, vaultId } = useParams<{ chainId?: string; vaultId?: string }>()
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
-  const vault = useMemo(() => SAMPLE_VAULTS.find(v => v.id === vaultId), [vaultId])
+  const chainId = Number(chainIdParam)
+  const hasValidParams = !!vaultId && Number.isFinite(chainId) && chainId > 0
+
+  const {
+    data: detail,
+    isLoading: isDetailLoading,
+    isError: isDetailError,
+  } = useVaultDetailQuery({ chainId, vaultId: vaultId as string }, { skip: !hasValidParams })
 
   const [activeTab, setActiveTab] = useState<ActionTabKey>('deposit')
   const [tvlPeriod, setTvlPeriod] = useState<PeriodKey>('7D')
   const [apyPeriod, setApyPeriod] = useState<PeriodKey>('7D')
 
+  const { data: tvlMetrics } = useVaultMetricsQuery(
+    { chainId, vaultId: vaultId as string, interval: PERIOD_TO_INTERVAL[tvlPeriod] },
+    { skip: !hasValidParams },
+  )
+  const { data: apyMetrics } = useVaultMetricsQuery(
+    { chainId, vaultId: vaultId as string, interval: PERIOD_TO_INTERVAL[apyPeriod] },
+    { skip: !hasValidParams },
+  )
+
+  const vault = useMemo(() => (detail ? toVaultInfoFromDetail(detail) : undefined), [detail])
+
   const chartHeight = upToXXSmall ? 170 : upToSmall ? 200 : 240
 
-  const tvlSeries = useMemo(() => (vault ? vault.tvlHistory.slice(-PERIOD_POINTS[tvlPeriod]) : []), [vault, tvlPeriod])
-  const apySeries = useMemo(() => (vault ? vault.apyHistory.slice(-PERIOD_POINTS[apyPeriod]) : []), [vault, apyPeriod])
+  const tvlSeries = useMemo(
+    () => (tvlMetrics?.tvl || []).map(p => ({ value: Number(p.value) || 0 })),
+    [tvlMetrics?.tvl],
+  )
+  const apySeries = useMemo(
+    () => (apyMetrics?.apy || []).map(p => ({ value: Number(p.value) || 0 })),
+    [apyMetrics?.apy],
+  )
 
   const handleBack = () => navigate(-1)
   const handleBackKey = (e: KeyboardEvent) => {
@@ -76,8 +105,25 @@ const VaultDetail = () => {
     }
   }
 
-  if (!vault) {
+  if (!hasValidParams || isDetailError) {
     return <Navigate to={APP_PATHS.EARN_VAULTS} replace />
+  }
+
+  if (isDetailLoading || !vault) {
+    return (
+      <PageWrapper>
+        <HeaderRow>
+          <BackArrow
+            role="button"
+            tabIndex={0}
+            aria-label={t`Go back`}
+            onClick={handleBack}
+            onKeyDown={handleBackKey}
+          />
+          <HeaderTitle>{t`Loading...`}</HeaderTitle>
+        </HeaderRow>
+      </PageWrapper>
+    )
   }
 
   return (

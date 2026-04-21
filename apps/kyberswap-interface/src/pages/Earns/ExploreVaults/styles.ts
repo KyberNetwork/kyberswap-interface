@@ -487,3 +487,55 @@ export const VaultListActions = styled.div`
   justify-content: flex-end;
   flex-shrink: 0;
 `
+
+export const EmptyStateWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 20px;
+  min-height: 400px;
+  color: ${({ theme }) => theme.subText};
+  border-radius: 20px;
+
+  svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.9;
+  }
+`
+
+export const EmptyStateTitle = styled.div`
+  font-size: 16px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.text};
+  text-align: center;
+`
+
+export const EmptyStateSubtitle = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  color: ${({ theme }) => theme.subText};
+  text-align: center;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    gap: 2px;
+  `}
+`
+
+export const EmptyStateLink = styled.a`
+  color: ${({ theme }) => theme.primary};
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`

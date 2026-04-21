@@ -145,6 +145,17 @@ export const SidebarNavItem = styled.button<{ $active?: boolean; $collapsed?: bo
 
   > svg {
     flex-shrink: 0;
+
+    /* Neutralize hardcoded fill/stroke colors in legacy icons so they inherit
+       the nav item's color (active = primary, inactive = gray). Icons that
+       already use currentColor are unaffected since these selectors only
+       target paths with explicit fill/stroke attributes. */
+    path[fill]:not([fill='none']):not([fill='currentColor']) {
+      fill: currentColor;
+    }
+    path[stroke]:not([stroke='none']):not([stroke='currentColor']) {
+      stroke: currentColor;
+    }
   }
 
   &:hover,

@@ -3,15 +3,18 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useVaultListQuery, useVaultPositionsQuery } from 'services/vault'
 
+import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as GridViewIcon } from 'assets/svg/grid_view.svg'
 import { ReactComponent as ListViewIcon } from 'assets/svg/list_view.svg'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
-import { SAMPLE_VAULTS, VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
+import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
 import {
   ApyValue,
   CardBody,
@@ -20,6 +23,9 @@ import {
   ChartWrapper,
   DepositButton,
   Disclaimer,
+  EmptyStateSubtitle,
+  EmptyStateTitle,
+  EmptyStateWrapper,
   FilterControls,
   FilterRow,
   MetricLabel,
@@ -50,6 +56,7 @@ import { VaultInfo, VaultSortBy, VaultViewMode } from 'pages/Earns/ExploreVaults
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import MultiSelectDropdownMenu from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import { toVaultInfo } from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -60,17 +67,21 @@ const SORT_BY_OPTIONS = [
   { label: 'TVL', value: VaultSortBy.TVL },
 ]
 
-/** IDs of vaults user has deposited into (mock) */
-const USER_DEPOSITED_VAULT_IDS = new Set(['eth-yield-mainnet'])
+const SORT_FIELD_BY_KEY: Record<VaultSortBy, string> = {
+  [VaultSortBy.APY]: 'apy7d',
+  [VaultSortBy.TVL]: 'tvlUsd',
+}
 
-const ExploreVaultCard = ({ vault }: { vault: VaultInfo }) => {
+const buildVaultDetailPath = (chainId: number, vaultId: string) =>
+  APP_PATHS.EARN_VAULT_DETAIL.replace(':chainId', String(chainId)).replace(':vaultId', vaultId)
+
+const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPosition: boolean }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const hasPosition = USER_DEPOSITED_VAULT_IDS.has(vault.id)
 
   const goToDetail = () => {
     if (vault.disabled) return
-    navigate(APP_PATHS.EARN_VAULT_DETAIL.replace(':vaultId', vault.id))
+    navigate(buildVaultDetailPath(vault.chainId, vault.id))
   }
 
   return (
@@ -167,9 +178,8 @@ const ExploreVaultCard = ({ vault }: { vault: VaultInfo }) => {
   )
 }
 
-const ExploreVaultListItem = ({ vault }: { vault: VaultInfo }) => {
+const ExploreVaultListItem = ({ vault, hasPosition }: { vault: VaultInfo; hasPosition: boolean }) => {
   const theme = useTheme()
-  const hasPosition = USER_DEPOSITED_VAULT_IDS.has(vault.id)
 
   return (
     <VaultListRow $disabled={vault.disabled}>
@@ -272,6 +282,7 @@ const ExploreVaultCardSkeleton = () => (
 )
 
 const ExploreVaults = () => {
+  const { account } = useActiveWeb3React()
   const [search, setSearch] = useState('')
   const [selectedChain, setSelectedChain] = useState('')
   const [sortBy, setSortBy] = useState<VaultSortBy>(VaultSortBy.APY)
@@ -281,33 +292,33 @@ const ExploreVaults = () => {
      (matches the gallery's own 3 -> 2 column transition at the same breakpoint) */
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const filteredVaults = useMemo(() => {
-    let result = SAMPLE_VAULTS
+  const { data: vaultListData, isLoading } = useVaultListQuery({
+    chainIds: selectedChain || undefined,
+    keyword: search.trim() || undefined,
+    sorts: `${SORT_FIELD_BY_KEY[sortBy]}:desc`,
+    pageSize: 100,
+  })
 
-    if (selectedChain) {
-      result = result.filter(v => v.chainId.toString() === selectedChain)
-    }
+  const { data: positionsData } = useVaultPositionsQuery(
+    { userAddress: (account || '').toLowerCase(), pageSize: 100 },
+    { skip: !account },
+  )
 
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      result = result.filter(
-        v =>
-          v.token.toLowerCase().includes(q) ||
-          v.partner.toLowerCase().includes(q) ||
-          v.chainName.toLowerCase().includes(q),
-      )
-    }
+  const vaults = useMemo<VaultInfo[]>(() => (vaultListData?.vaults || []).map(toVaultInfo), [vaultListData?.vaults])
 
-    const sortKey = sortBy === VaultSortBy.TVL ? 'tvl' : 'apy'
-    return [...result].sort((a, b) => b[sortKey] - a[sortKey])
-  }, [search, selectedChain, sortBy])
+  const userVaultIds = useMemo(() => {
+    const set = new Set<string>()
+    positionsData?.positions?.forEach(p => {
+      if (p.vault?.id) set.add(p.vault.id)
+    })
+    return set
+  }, [positionsData?.positions])
 
   const chainLabel = useMemo(() => {
     const selected = VAULT_CHAIN_OPTIONS.find(c => c.value === selectedChain)
     return selected?.label || VAULT_CHAIN_OPTIONS[0].label
   }, [selectedChain])
 
-  const isLoading = false
   const effectiveViewMode = upToLarge ? VaultViewMode.GRID : viewMode
 
   return (
@@ -366,17 +377,29 @@ const ExploreVaults = () => {
         />
       </FilterRow>
 
-      {effectiveViewMode === VaultViewMode.GRID ? (
+      {!isLoading && vaults.length === 0 ? (
+        <EmptyStateWrapper>
+          <IconEarnNotFound />
+          <EmptyStateTitle>{t`No vaults found`}</EmptyStateTitle>
+          <EmptyStateSubtitle>
+            <span>{t`Try adjusting your filters or search keyword.`}</span>
+          </EmptyStateSubtitle>
+        </EmptyStateWrapper>
+      ) : effectiveViewMode === VaultViewMode.GRID ? (
         <VaultCardsGrid>
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => <ExploreVaultCardSkeleton key={i} />)
-            : filteredVaults.map(vault => <ExploreVaultCard key={vault.id} vault={vault} />)}
+            : vaults.map(vault => (
+                <ExploreVaultCard key={vault.id} vault={vault} hasPosition={userVaultIds.has(vault.id)} />
+              ))}
         </VaultCardsGrid>
       ) : (
         <VaultList>
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => <ExploreVaultListItemSkeleton key={i} />)
-            : filteredVaults.map(vault => <ExploreVaultListItem key={vault.id} vault={vault} />)}
+            : vaults.map(vault => (
+                <ExploreVaultListItem key={vault.id} vault={vault} hasPosition={userVaultIds.has(vault.id)} />
+              ))}
         </VaultList>
       )}
 

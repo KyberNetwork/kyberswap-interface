@@ -1,21 +1,28 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useVaultPositionsQuery } from 'services/vault'
 import { DefaultTheme } from 'styled-components'
 
+import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { SAMPLE_USER_VAULTS, VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
+import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
 import {
   ApyTvlRow,
   CardFooterRow,
   CardHeader,
   DepositButton,
   Disclaimer,
+  EmptyStateLink,
+  EmptyStateSubtitle,
+  EmptyStateTitle,
+  EmptyStateWrapper,
   FilterRow,
   FooterMetric,
   FooterMetricLabel,
@@ -37,8 +44,11 @@ import {
   WithdrawButton,
 } from 'pages/Earns/ExploreVaults/styles'
 import { UserVaultPosition, WithdrawalStatus } from 'pages/Earns/ExploreVaults/types'
+import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import MultiSelectDropdownMenu from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import { toUserVaultPosition } from 'pages/Earns/utils/vault'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -101,7 +111,8 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
   const statusConfig = getStatusConfig(theme)[vault.withdrawalStatus]
   const isCompleted = vault.withdrawalStatus === WithdrawalStatus.COMPLETED
 
-  const goToDetail = () => navigate(APP_PATHS.EARN_VAULT_DETAIL.replace(':vaultId', vault.id))
+  const goToDetail = () =>
+    navigate(APP_PATHS.EARN_VAULT_DETAIL.replace(':chainId', String(vault.chainId)).replace(':vaultId', vault.id))
 
   return (
     <VaultCard
@@ -279,36 +290,33 @@ const MyVaultCardSkeleton = () => (
 )
 
 const MyVaults = () => {
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
   const [search, setSearch] = useState('')
   const [selectedChain, setSelectedChain] = useState('')
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const filteredVaults = useMemo(() => {
-    let result = SAMPLE_USER_VAULTS
+  const { data, isLoading } = useVaultPositionsQuery(
+    {
+      userAddress: (account || '').toLowerCase(),
+      chainIds: selectedChain || undefined,
+      keyword: search.trim() || undefined,
+      pageSize: 100,
+    },
+    { skip: !account },
+  )
 
-    if (selectedChain) {
-      result = result.filter(v => v.chainId.toString() === selectedChain)
-    }
-
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      result = result.filter(
-        v =>
-          v.token.toLowerCase().includes(q) ||
-          v.partner.toLowerCase().includes(q) ||
-          v.chainName.toLowerCase().includes(q),
-      )
-    }
-
-    return result
-  }, [search, selectedChain])
+  const filteredVaults = useMemo<UserVaultPosition[]>(
+    () => (data?.positions || []).map(toUserVaultPosition),
+    [data?.positions],
+  )
 
   const chainLabel = useMemo(() => {
     const selected = VAULT_CHAIN_OPTIONS.find(c => c.value === selectedChain)
     return selected?.label || VAULT_CHAIN_OPTIONS[0].label
   }, [selectedChain])
 
-  const isLoading = false
+  const showEmptyState = !account || (!isLoading && filteredVaults.length === 0)
 
   return (
     <VaultPageWrapper>
@@ -332,11 +340,24 @@ const MyVaults = () => {
         />
       </FilterRow>
 
-      <VaultCardsGrid>
-        {isLoading
-          ? Array.from({ length: 3 }).map((_, i) => <MyVaultCardSkeleton key={i} />)
-          : filteredVaults.map(vault => <MyVaultCard key={vault.id} vault={vault} />)}
-      </VaultCardsGrid>
+      {showEmptyState ? (
+        <EmptyStateWrapper>
+          <IconEarnNotFound />
+          <EmptyStateTitle>{t`You don't have any vault positions yet`}</EmptyStateTitle>
+          <EmptyStateSubtitle>
+            <EmptyStateLink as={Link} to={APP_PATHS.EARN_VAULTS}>
+              {t`Explore Vaults to get started`}
+            </EmptyStateLink>
+          </EmptyStateSubtitle>
+          {!account && <PositionActionBtn onClick={toggleWalletModal}>{t`Connect Wallet`}</PositionActionBtn>}
+        </EmptyStateWrapper>
+      ) : (
+        <VaultCardsGrid>
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, i) => <MyVaultCardSkeleton key={i} />)
+            : filteredVaults.map(vault => <MyVaultCard key={vault.id} vault={vault} />)}
+        </VaultCardsGrid>
+      )}
 
       <Disclaimer>{t`Partner-managed vaults. Auto-compounding. Native withdrawals are not instant.`}</Disclaimer>
     </VaultPageWrapper>
