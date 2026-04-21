@@ -12,7 +12,7 @@ import Discord from 'components/Icons/Discord'
 import PoweredByIconDark from 'components/Icons/PoweredByIconDark'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import InfoHelper from 'components/InfoHelper'
-import { KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TWITTER_URL } from 'constants/index'
+import { KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TELEGRAM_URL, KYBER_NETWORK_TWITTER_URL } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, ExternalLinkNoLineHeight } from 'theme'
 
@@ -85,7 +85,7 @@ export const FooterSocialLink = () => {
   const theme = useTheme()
   return (
     <Flex alignItems="center" justifyContent="center" sx={{ gap: '24px' }}>
-      <ExternalLinkNoLineHeight href="https://t.me/kybernetwork">
+      <ExternalLinkNoLineHeight href={KYBER_NETWORK_TELEGRAM_URL}>
         <Telegram size={16} color={theme.subText} />
       </ExternalLinkNoLineHeight>
       <ExternalLinkNoLineHeight href={KYBER_NETWORK_TWITTER_URL}>
