@@ -136,7 +136,7 @@ const resolveSeoConfig = (pathname: string, search: string): SeoConfig => {
   if (swapPairMatch) {
     const network = swapPairMatch.params.network || 'ethereum'
     return {
-      title: 'Swap | KyberSwap',
+      title: 'KyberSwap - Swap, Trade & Earn Tokens at the Best Rate Across Chains',
       description: SWAP_DESCRIPTION,
       canonicalPath: `${APP_PATHS.SWAP}/${network}`,
       robots: NOINDEX_ROBOTS,
@@ -149,7 +149,7 @@ const resolveSeoConfig = (pathname: string, search: string): SeoConfig => {
     const network = swapMatch.params.network || 'ethereum'
     const canonicalPath = `${APP_PATHS.SWAP}/${network}`
     return {
-      title: 'Swap | KyberSwap',
+      title: 'KyberSwap - Swap, Trade & Earn Tokens at the Best Rate Across Chains',
       description: SWAP_DESCRIPTION,
       canonicalPath,
       robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
