@@ -1,5 +1,8 @@
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
+import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { shortenAddress } from '@kyber/utils/crypto'
+import { useState } from 'react'
+import { Share2 } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { PoolDetailToken } from 'services/zapEarn'
@@ -12,7 +15,7 @@ import TokenLogo from 'components/TokenLogo'
 import { NetworkInfo } from 'constants/networks/type'
 import useTheme from 'hooks/useTheme'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import { IconArrowLeft, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const BackButton = styled.button`
@@ -83,7 +86,36 @@ const TooltipAddressRow = ({ token, chainInfo }: { token: PoolDetailToken; chain
 const PoolHeaderPage = () => {
   const navigate = useNavigate()
   const theme = useTheme()
-  const { pool, chainInfo, dexInfo, primaryToken, secondaryToken } = usePoolDetailContext()
+  const { pool, chainInfo, dexInfo, exchange, chainId, primaryToken, secondaryToken } = usePoolDetailContext()
+  const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
+
+  const isFarming = Boolean(pool.programs?.includes('eg') || pool.programs?.includes('lm'))
+  const poolStats = pool.poolStats
+
+  const handleOpenShare = () => {
+    setShareInfo({
+      isFarming,
+      type: ShareType.POOL_INFO,
+      onClose: () => setShareInfo(undefined),
+      pool: {
+        feeTier: pool.swapFee,
+        address: pool.address,
+        chainId,
+        chainLogo: chainInfo.icon,
+        dexLogo: dexInfo.logo,
+        dexName: dexInfo.name,
+        exchange,
+        token0: { symbol: primaryToken.symbol, logo: primaryToken.logoURI || '' },
+        token1: { symbol: secondaryToken.symbol, logo: secondaryToken.logoURI || '' },
+        apr: {
+          fees: (poolStats?.apr24h || 0) + (poolStats?.bonusApr || 0),
+          eg: poolStats?.kemEGApr24h || 0,
+          lm: poolStats?.kemLMApr24h || 0,
+        },
+      },
+    })
+  }
+
   const tooltipContent = (
     <Stack minWidth={240} gap={12}>
       <HStack align="center" gap={8} wrap="wrap">
@@ -105,46 +137,55 @@ const PoolHeaderPage = () => {
   )
 
   return (
-    <HStack align="center" gap={8} wrap="wrap">
-      <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
-        <IconArrowLeft />
-      </BackButton>
+    <>
+      {shareInfo && <ShareModal {...shareInfo} />}
+      <HStack align="center" gap={8} wrap="wrap">
+        <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
+          <IconArrowLeft />
+        </BackButton>
 
-      <HStack minWidth={0} align="center" gap={12} wrap="wrap">
-        <HStack minWidth={0} align="center" gap={12}>
-          <HStack flex="0 0 auto" align="flex-end">
-            <TokenLogo src={primaryToken.logoURI} size={28} />
-            <TokenLogo src={secondaryToken.logoURI} size={28} translateLeft />
-            <TokenLogo src={chainInfo.icon} size={16} translateLeft translateTop />
+        <HStack minWidth={0} align="center" gap={12} wrap="wrap">
+          <HStack minWidth={0} align="center" gap={12}>
+            <HStack flex="0 0 auto" align="flex-end">
+              <TokenLogo src={primaryToken.logoURI} size={28} />
+              <TokenLogo src={secondaryToken.logoURI} size={28} translateLeft />
+              <TokenLogo src={chainInfo.icon} size={16} translateLeft translateTop />
+            </HStack>
+
+            <Text color={theme.text} fontSize={24} fontWeight={500} sx={{ whiteSpace: 'nowrap' }}>
+              {primaryToken.symbol}/{secondaryToken.symbol}
+            </Text>
+
+            <InfoButton>
+              <InfoHelper
+                text={tooltipContent}
+                size={18}
+                margin={false}
+                color={theme.blue}
+                placement="bottom"
+                width="fit-content"
+              />
+            </InfoButton>
           </HStack>
 
-          <Text color={theme.text} fontSize={24} fontWeight={500} sx={{ whiteSpace: 'nowrap' }}>
-            {primaryToken.symbol}/{secondaryToken.symbol}
-          </Text>
+          <HStack align="center" gap={8}>
+            <ProtocolBadge align="center" gap={8}>
+              <ProtocolLogo alt={dexInfo.name} src={dexInfo.logo} />
+              <Text color={theme.text} fontSize={14} fontWeight={500}>
+                {dexInfo.name}
+              </Text>
+              <Text color={theme.subText} fontSize={14} fontWeight={500}>
+                | {formatDisplayNumber(pool.swapFee, { significantDigits: 4 })}%
+              </Text>
+            </ProtocolBadge>
 
-          <InfoButton>
-            <InfoHelper
-              text={tooltipContent}
-              size={18}
-              margin={false}
-              color={theme.blue}
-              placement="bottom"
-              width="fit-content"
-            />
-          </InfoButton>
+            <ShareButtonWrapper aria-label="Share pool" onClick={handleOpenShare}>
+              <Share2 size={16} color={theme.primary} />
+            </ShareButtonWrapper>
+          </HStack>
         </HStack>
-
-        <ProtocolBadge align="center" gap={8}>
-          <ProtocolLogo alt={dexInfo.name} src={dexInfo.logo} />
-          <Text color={theme.text} fontSize={14} fontWeight={500}>
-            {dexInfo.name}
-          </Text>
-          <Text color={theme.subText} fontSize={14} fontWeight={500}>
-            | {formatDisplayNumber(pool.swapFee, { significantDigits: 4 })}%
-          </Text>
-        </ProtocolBadge>
       </HStack>
-    </HStack>
+    </>
   )
 }
 
