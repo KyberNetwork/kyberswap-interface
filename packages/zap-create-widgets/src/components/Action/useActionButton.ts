@@ -5,7 +5,7 @@ import { t } from '@lingui/macro';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN } from '@kyber/schema';
 import { translateZapImpact } from '@kyber/ui';
-import { PI_LEVEL, friendlyError } from '@kyber/utils';
+import { PI_LEVEL } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
@@ -130,45 +130,77 @@ export default function useActionButton({
   const getGasEstimation = async ({ deadline }: { deadline: number }) => {
     if (!zapInfo) return;
     setGasLoading(true);
-    const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/create/route/build`, {
-      method: 'POST',
-      body: JSON.stringify({
-        sender: account,
-        recipient: account,
-        route: zapInfo.route,
-        deadline,
-        source,
-      }),
-    })
-      .then(res => res.json())
-      .then(async res => {
-        const { data } = res || {};
-        if (data?.callData && account) {
-          const txData = {
-            from: account,
-            to: data.routerAddress,
-            data: data.callData,
-            value: `0x${BigInt(data.value).toString(16)}`,
-          };
 
-          const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
-
-          if (error) {
-            setWidgetError(error);
-            return;
-          }
-          return gasUsd;
-        }
-      })
-      .catch(err => {
-        setWidgetError(friendlyError(err as Error));
-        console.error(err);
-      })
-      .finally(() => {
-        setGasLoading(false);
+    let data: { callData: string; routerAddress: string; value: string } | undefined;
+    try {
+      const response = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/create/route/build`, {
+        method: 'POST',
+        body: JSON.stringify({
+          sender: account,
+          recipient: account,
+          route: zapInfo.route,
+          deadline,
+          source,
+        }),
       });
 
-    return res;
+      let body: {
+        data?: { callData: string; routerAddress: string; value: string };
+        message?: string;
+        error?: string;
+      } | null = null;
+      try {
+        body = await response.json();
+      } catch {
+        // Handled below based on HTTP status.
+      }
+
+      if (!response.ok) {
+        const apiMsg = body?.message || body?.error;
+        throw new Error(
+          `Build route step: build API returned HTTP ${response.status} ${response.statusText}${apiMsg ? ` — ${apiMsg}` : ''}`,
+        );
+      }
+
+      data = body?.data;
+      if (!data?.callData) {
+        const apiMsg = body?.message || body?.error;
+        throw new Error(`Build route step: build API returned no data${apiMsg ? ` — ${apiMsg}` : ''}`);
+      }
+    } catch (err) {
+      const msg = (err as Error)?.message || 'unknown error';
+      setWidgetError(msg.startsWith('Build route step:') ? msg : `Build route step: ${msg}`);
+      console.error(err);
+      setGasLoading(false);
+      return;
+    }
+
+    if (!account) {
+      setGasLoading(false);
+      return;
+    }
+
+    try {
+      const txData = {
+        from: account,
+        to: data.routerAddress,
+        data: data.callData,
+        value: `0x${BigInt(data.value).toString(16)}`,
+      };
+
+      const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
+
+      if (error) {
+        setWidgetError(error);
+        return;
+      }
+      return gasUsd;
+    } catch (err) {
+      setWidgetError(`Estimate gas step: ${(err as Error)?.message || 'unknown error'}`);
+      console.error(err);
+    } finally {
+      setGasLoading(false);
+    }
   };
 
   const hanldeClick = async () => {
