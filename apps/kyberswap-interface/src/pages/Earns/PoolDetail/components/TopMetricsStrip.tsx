@@ -4,6 +4,7 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { Stack } from 'components/Stack'
+import useTheme from 'hooks/useTheme'
 
 type TopMetricItem = {
   label: string
@@ -58,30 +59,32 @@ const MetricCard = styled(Stack)<MetricCardProps>`
     `}
 `
 
-const EllipsisText = styled(Text)`
+const EllipsisText = styled(Text)<{ color?: string }>`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: ${({ color }) => color};
 `
 
 const MetricValue = ({ value }: { value: ReactNode }) => {
+  const theme = useTheme()
   if (typeof value === 'string' || typeof value === 'number') {
     return (
-      <EllipsisText color="text" fontWeight={500}>
+      <EllipsisText color={theme.text} fontWeight={500}>
         {value}
       </EllipsisText>
     )
   }
-
   return <>{value}</>
 }
 
 const TopMetricsStrip = ({ items, split = false }: { items: TopMetricItem[]; split?: boolean }) => {
+  const theme = useTheme()
   return (
     <MetricsGrid $columns={items.length} $split={split}>
       {items.map(metric => (
         <MetricCard $split={split} key={metric.label}>
-          <EllipsisText color="subText" fontSize={14}>
+          <EllipsisText color={theme.subText} fontSize={14}>
             {metric.label}
           </EllipsisText>
           <MetricValue value={metric.value} />
