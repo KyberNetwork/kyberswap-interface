@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { CrosshairMode, LineStyle, type MouseEventParams, type Time, createChart } from 'lightweight-charts'
 import { rgba } from 'polished'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { type TokenChartTimeFrame } from 'services/tokenChart'
@@ -15,11 +15,15 @@ import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export type DisplayCandle = {
+  bucket: string
+  changePercent?: number
   close: number
   high: number
   low: number
   open: number
+  rangePercent?: number
   time: number
+  transactions?: number
   volume: number
 }
 
@@ -31,23 +35,22 @@ type TooltipState = {
 
 type TokenPriceChartCanvasProps = {
   chartData: DisplayCandle[]
+  canLoadMore?: boolean
+  onLoadMore?: () => void
   timeFrame: TokenChartTimeFrame
 }
 
-type RuntimeConfig = {
-  chartHeight: number
-  crosshairColor: string
-  downCandleColor: string
-  gridColor: string
-  subTextColor: string
-  timeFrame: TokenChartTimeFrame
-  upCandleColor: string
-}
+const DEFAULT_VISIBLE_CANDLES = 60
+const LOAD_MORE_THRESHOLD = 20
 
 const ChartFrame = styled.div<{ $height: number }>`
   position: relative;
   width: 100%;
   height: ${({ $height }) => $height}px;
+`
+
+const ChartCanvas = styled(PoolChartWrapper)<{ $ready: boolean }>`
+  visibility: ${({ $ready }) => ($ready ? 'visible' : 'hidden')};
 `
 
 const TooltipCard = styled(Stack)`
@@ -70,13 +73,45 @@ const TooltipGrid = styled.div`
 `
 
 const formatAxisTimeLabel = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
-  if (timeFrame === '5m' || timeFrame === '15m' || timeFrame === '1h') return dayjs.unix(timestamp).format('HH:mm')
-  if (timeFrame === '4h') return dayjs.unix(timestamp).format('MMM D, HH:mm')
-  return dayjs.unix(timestamp).format('MMM D')
+  if (timeFrame === '1d' || timeFrame === '7d') {
+    return dayjs.unix(timestamp).format('MMM D')
+  }
+  return dayjs.unix(timestamp).format('MMM D, HH:mm')
 }
 
-const formatTooltipDate = (timestamp: number, timeFrame: TokenChartTimeFrame) =>
-  dayjs.unix(timestamp).format(timeFrame === '7d' ? 'MMM D, YYYY' : 'MMM D, YYYY, HH:mm')
+const formatTooltipDate = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
+  if (timeFrame === '7d') {
+    return dayjs.unix(timestamp).format('MMM D, YYYY')
+  }
+  return dayjs.unix(timestamp).format('MMM D, YYYY, HH:mm')
+}
+
+const scheduleAfterNextPaint = (callback: () => void) => {
+  let frameId = 0
+  let nestedFrameId = 0
+
+  frameId = globalThis.requestAnimationFrame(() => {
+    nestedFrameId = globalThis.requestAnimationFrame(callback)
+  })
+
+  return () => {
+    globalThis.cancelAnimationFrame(frameId)
+    globalThis.cancelAnimationFrame(nestedFrameId)
+  }
+}
+
+const getPriceScaleConfig = (chartData: DisplayCandle[]) => {
+  const minPrice = Math.min(...chartData.map(candle => candle.open)) || 0.1
+
+  const precision =
+    minPrice < 1e-8 ? 12 : minPrice < 1e-6 ? 10 : minPrice < 1e-4 ? 8 : minPrice < 1e-2 ? 6 : minPrice < 1 ? 4 : 2
+  const minMove = 10 ** -precision
+
+  return {
+    minMove,
+    precision,
+  }
+}
 
 const getUnixTimestampFromChartTime = (time: Time) => {
   if (typeof time === 'number') return time
@@ -91,7 +126,13 @@ const getChartOptions = ({
   gridColor,
   subTextColor,
   timeFrame,
-}: Pick<RuntimeConfig, 'chartHeight' | 'crosshairColor' | 'gridColor' | 'subTextColor' | 'timeFrame'>) => ({
+}: {
+  chartHeight: number
+  crosshairColor: string
+  gridColor: string
+  subTextColor: string
+  timeFrame: TokenChartTimeFrame
+}) => ({
   height: chartHeight,
   layout: {
     background: { color: 'transparent' },
@@ -117,6 +158,7 @@ const getChartOptions = ({
   },
   rightPriceScale: {
     borderVisible: false,
+    drawTicks: false,
     entireTextOnly: true,
     scaleMargins: {
       top: 0.08,
@@ -129,24 +171,32 @@ const getChartOptions = ({
     timeVisible: timeFrame !== '7d',
   },
   localization: {
-    priceFormatter: (value: number) =>
-      formatDisplayNumber(value, {
-        allowDisplayNegative: true,
-        significantDigits: value !== 0 && Math.abs(value) < 1 ? 8 : 6,
-      }),
+    priceFormatter: (value: number) => formatDisplayNumber(value, { fractionDigits: 4 }),
   },
 })
 
 const getCandlestickSeriesOptions = ({
   downCandleColor,
+  priceMinMove,
+  pricePrecision,
   upCandleColor,
-}: Pick<RuntimeConfig, 'downCandleColor' | 'upCandleColor'>) => ({
+}: {
+  downCandleColor: string
+  priceMinMove: number
+  pricePrecision: number
+  upCandleColor: string
+}) => ({
   upColor: upCandleColor,
   downColor: downCandleColor,
   borderUpColor: upCandleColor,
   borderDownColor: downCandleColor,
   wickUpColor: upCandleColor,
   wickDownColor: downCandleColor,
+  priceFormat: {
+    type: 'price' as const,
+    minMove: priceMinMove,
+    precision: pricePrecision,
+  },
   priceLineColor: upCandleColor,
   priceLineStyle: LineStyle.Dashed,
   priceLineVisible: true,
@@ -164,7 +214,7 @@ const getTooltipPosition = ({
   pointY: number
 }) => {
   const tooltipWidth = 220
-  const tooltipHeight = 200
+  const tooltipHeight = 210
   const tooltipEdgePadding = 12
   const tooltipLeftOffset = 12
   const tooltipRightOffset = tooltipLeftOffset + 4
@@ -192,8 +242,8 @@ const getTooltipPosition = ({
 const PriceChartTooltip = ({ timeFrame, tooltip }: { timeFrame: TokenChartTimeFrame; tooltip: TooltipState }) => {
   const theme = useTheme()
   const { candle, left, top } = tooltip
-  const priceChange = ((candle.close - candle.open) / candle.open) * 100
-  const priceRange = ((candle.high - candle.low) / candle.low) * 100
+  const priceChange = candle.changePercent ?? (candle.open ? ((candle.close - candle.open) / candle.open) * 100 : 0)
+  const priceRange = candle.rangePercent ?? (candle.low ? ((candle.high - candle.low) / candle.low) * 100 : 0)
 
   return (
     <TooltipCard style={{ left, top }}>
@@ -244,18 +294,38 @@ const PriceChartTooltip = ({ timeFrame, tooltip }: { timeFrame: TokenChartTimeFr
           {formatSignedPercent(priceRange).replace(/^\+/, '')}
         </Text>
 
-        <Text color={theme.subText} fontSize={12}>
-          Vol
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatDisplayNumber(candle.volume, { significantDigits: 4 })}
-        </Text>
+        {candle.volume > 0 && (
+          <>
+            <Text color={theme.subText} fontSize={12}>
+              Vol
+            </Text>
+            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+              {formatDisplayNumber(candle.volume, { significantDigits: 4 })}
+            </Text>
+          </>
+        )}
+
+        {candle.transactions !== undefined ? (
+          <>
+            <Text color={theme.subText} fontSize={12}>
+              Transactions
+            </Text>
+            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+              {formatDisplayNumber(candle.transactions, { significantDigits: 4 })}
+            </Text>
+          </>
+        ) : null}
       </TooltipGrid>
     </TooltipCard>
   )
 }
 
-const TokenPriceChartCanvas = ({ chartData, timeFrame }: TokenPriceChartCanvasProps) => {
+const TokenPriceChartCanvas = ({
+  chartData,
+  canLoadMore = false,
+  onLoadMore,
+  timeFrame,
+}: TokenPriceChartCanvasProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -265,63 +335,63 @@ const TokenPriceChartCanvas = ({ chartData, timeFrame }: TokenPriceChartCanvasPr
   const downCandleColor = theme.red
   const volumeUpColor = rgba(theme.darkGreen, 0.8)
   const volumeDownColor = rgba(theme.red, 0.5)
+  const priceScaleConfig = useMemo(() => getPriceScaleConfig(chartData), [chartData])
   const subTextColor = theme.subText
+  const chartOptions = useMemo(
+    () =>
+      getChartOptions({
+        chartHeight,
+        crosshairColor,
+        gridColor,
+        subTextColor,
+        timeFrame,
+      }),
+    [chartHeight, crosshairColor, gridColor, subTextColor, timeFrame],
+  )
+  const candlestickSeriesOptions = useMemo(
+    () =>
+      getCandlestickSeriesOptions({
+        downCandleColor,
+        priceMinMove: priceScaleConfig.minMove,
+        pricePrecision: priceScaleConfig.precision,
+        upCandleColor,
+      }),
+    [downCandleColor, priceScaleConfig.minMove, priceScaleConfig.precision, upCandleColor],
+  )
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<ReturnType<typeof createChart> | null>(null)
   const candlestickSeriesRef = useRef<any>(null)
   const volumeSeriesRef = useRef<any>(null)
   const chartDataByTimeRef = useRef<Map<number, DisplayCandle>>(new Map())
-  const runtimeConfigRef = useRef<RuntimeConfig>({
-    chartHeight,
-    crosshairColor,
-    downCandleColor,
-    gridColor,
-    subTextColor,
-    timeFrame,
-    upCandleColor,
-  })
-  const shouldFitContentRef = useRef(true)
+  const chartHeightRef = useRef(chartHeight)
+  const initialChartOptionsRef = useRef(chartOptions)
+  const initialCandlestickSeriesOptionsRef = useRef(candlestickSeriesOptions)
+  const hasInitializedViewRef = useRef(false)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+  const [isViewportReady, setIsViewportReady] = useState(false)
 
   /** Keep crosshair tooltip lookup in sync with the latest candle set. */
   useEffect(() => {
     chartDataByTimeRef.current = new Map(chartData.map(candle => [candle.time, candle]))
   }, [chartData])
 
-  /** Mirror visual runtime values so chart callbacks can read fresh config without re-subscribing. */
   useEffect(() => {
-    runtimeConfigRef.current = {
-      chartHeight,
-      crosshairColor,
-      downCandleColor,
-      gridColor,
-      subTextColor,
-      timeFrame,
-      upCandleColor,
-    }
-  }, [chartHeight, crosshairColor, downCandleColor, gridColor, subTextColor, timeFrame, upCandleColor])
+    chartHeightRef.current = chartHeight
+  }, [chartHeight])
 
-  /** Reset one-time viewport fitting and clear tooltip when the selected timeframe changes. */
-  useEffect(() => {
-    shouldFitContentRef.current = true
-    setTooltip(null)
-  }, [timeFrame])
-
-  /** Create the chart instance once and wire imperative subscriptions/cleanup around it. */
+  /** Create the chart instance once and wire imperative subscriptions around it. */
   useEffect(() => {
     const container = chartContainerRef.current
 
     if (!container) return
 
-    const initialConfig = runtimeConfigRef.current
-
     const chart = createChart(container, {
       width: container.clientWidth,
-      ...getChartOptions(initialConfig),
+      ...initialChartOptionsRef.current,
     })
     chartRef.current = chart
 
-    const candlestickSeries = chart.addCandlestickSeries(getCandlestickSeriesOptions(initialConfig))
+    const candlestickSeries = chart.addCandlestickSeries(initialCandlestickSeriesOptionsRef.current)
 
     const volumeSeries = chart.addHistogramSeries({
       lastValueVisible: false,
@@ -357,7 +427,7 @@ const TokenPriceChartCanvas = ({ chartData, timeFrame }: TokenPriceChartCanvasPr
       setTooltip({
         candle: hoveredCandle,
         ...getTooltipPosition({
-          chartHeight: runtimeConfigRef.current.chartHeight,
+          chartHeight: chartHeightRef.current,
           containerWidth: container.clientWidth,
           pointX: param.point.x,
           pointY: param.point.y,
@@ -372,7 +442,7 @@ const TokenPriceChartCanvas = ({ chartData, timeFrame }: TokenPriceChartCanvasPr
 
       if (!entry) return
 
-      chart.resize(entry.contentRect.width, runtimeConfigRef.current.chartHeight)
+      chart.resize(entry.contentRect.width, chartHeightRef.current)
     })
 
     resizeObserver.observe(container)
@@ -388,11 +458,33 @@ const TokenPriceChartCanvas = ({ chartData, timeFrame }: TokenPriceChartCanvasPr
     }
   }, [])
 
-  /** Apply non-data chart option updates after mount without recreating the chart instance. */
+  useEffect(() => {
+    if (!chartRef.current || !candlestickSeriesRef.current || !canLoadMore || !onLoadMore) return
+
+    const timeScale = chartRef.current.timeScale()
+    const candlestickSeries = candlestickSeriesRef.current
+
+    const handleVisibleLogicalRangeChange = (range: { from: number; to: number } | null) => {
+      if (!range) return
+
+      const barsInfo = candlestickSeries.barsInLogicalRange(range)
+      if (!barsInfo || barsInfo.barsBefore == null || barsInfo.barsBefore > LOAD_MORE_THRESHOLD) return
+
+      onLoadMore()
+    }
+
+    timeScale.subscribeVisibleLogicalRangeChange(handleVisibleLogicalRangeChange)
+
+    return () => {
+      timeScale.unsubscribeVisibleLogicalRangeChange(handleVisibleLogicalRangeChange)
+    }
+  }, [canLoadMore, onLoadMore])
+
+  /** Apply visual option updates without recreating the chart instance. */
   useEffect(() => {
     if (!chartRef.current) return
 
-    chartRef.current.applyOptions(getChartOptions(runtimeConfigRef.current))
+    chartRef.current.applyOptions(chartOptions)
     chartRef.current.priceScale('volume').applyOptions({
       borderVisible: false,
       scaleMargins: {
@@ -401,10 +493,10 @@ const TokenPriceChartCanvas = ({ chartData, timeFrame }: TokenPriceChartCanvasPr
       },
       visible: false,
     })
-    candlestickSeriesRef.current?.applyOptions(getCandlestickSeriesOptions(runtimeConfigRef.current))
-  }, [chartHeight, crosshairColor, downCandleColor, gridColor, subTextColor, timeFrame, upCandleColor])
+    candlestickSeriesRef.current?.applyOptions(candlestickSeriesOptions)
+  }, [candlestickSeriesOptions, chartOptions])
 
-  /** Push candle and volume data into the existing series and refit once per timeframe. */
+  /** Push data into the existing series and initialize the first viewport once. */
   useEffect(() => {
     if (!chartRef.current || !candlestickSeriesRef.current || !volumeSeriesRef.current) return
 
@@ -417,16 +509,25 @@ const TokenPriceChartCanvas = ({ chartData, timeFrame }: TokenPriceChartCanvasPr
       })),
     )
 
-    if (!chartData.length || !shouldFitContentRef.current) return
+    if (!chartData.length || hasInitializedViewRef.current) return
 
-    chartRef.current.timeScale().fitContent()
-    shouldFitContentRef.current = false
+    return scheduleAfterNextPaint(() => {
+      if (!chartRef.current || hasInitializedViewRef.current) return
+
+      const lastCandleIndex = chartData.length - 1
+      chartRef.current.timeScale().setVisibleLogicalRange({
+        from: Math.max(lastCandleIndex - (DEFAULT_VISIBLE_CANDLES - 1), 0),
+        to: lastCandleIndex + 0.5,
+      })
+      hasInitializedViewRef.current = true
+      setIsViewportReady(true)
+    })
   }, [chartData, volumeDownColor, volumeUpColor])
 
   return (
     <ChartFrame $height={chartHeight}>
-      {tooltip ? <PriceChartTooltip timeFrame={timeFrame} tooltip={tooltip} /> : null}
-      <PoolChartWrapper $height={chartHeight} ref={chartContainerRef} />
+      {tooltip && isViewportReady ? <PriceChartTooltip timeFrame={timeFrame} tooltip={tooltip} /> : null}
+      <ChartCanvas $height={chartHeight} $ready={isViewportReady} ref={chartContainerRef} />
     </ChartFrame>
   )
 }

@@ -1,9 +1,19 @@
-import { type Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, type Currency } from '@kyberswap/ks-sdk-core'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import { type TokenChartTimeFrame, useTokenPriceChartQuery } from 'services/tokenChart'
+import {
+  TOKEN_CHART_CANDLE_INTERVAL_MS,
+  type TokenChartCandle,
+  type TokenChartQueryParams,
+  type TokenChartTimeFrame,
+  getTokenChartFromBucketMs,
+  useLazyTokenPriceChartQuery,
+} from 'services/tokenChart'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -23,11 +33,12 @@ const ChartPanel = styled(Stack)`
   border-radius: 12px;
 `
 
-const PanelHeader = styled.div`
+const TokenTabsList = styled.div`
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
   overflow-x: auto;
-  border-bottom: 1px solid ${({ theme }) => theme.darkBorder};
 `
 
 const TabButton = styled.button<{ $active: boolean; $isLast: boolean }>`
@@ -52,21 +63,38 @@ const TabButton = styled.button<{ $active: boolean; $isLast: boolean }>`
   }
 `
 
+const ToggleIconWrapper = styled.button`
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  transition: background 150ms ease-in-out;
+  cursor: pointer;
+
+  :hover {
+    background: ${({ theme }) => theme.tableHeader};
+  }
+`
+
+const PanelChevron = styled(ChevronDown)<{ $expanded: boolean }>`
+  color: ${({ theme }) => theme.subText};
+  transform: rotate(${({ $expanded }) => ($expanded ? '180deg' : '0deg')});
+  transition: transform 150ms ease-in-out;
+`
+
 const CHART_TIME_FRAME_OPTIONS = [
-  { label: '1H', value: '1h' },
-  { label: '4H', value: '4h' },
-  { label: '1D', value: '1d' },
+  { label: '15m', value: '15m' },
+  { label: '1h', value: '1h' },
+  { label: '4h', value: '4h' },
+  { label: '24h', value: '1d' },
   { label: '1W', value: '7d' },
 ] as const
-
-const DEFAULT_WINDOW_BY_TIME_FRAME: Record<TokenChartTimeFrame, number> = {
-  '5m': 60 * 60 * 1000, // 1 hour
-  '15m': 4 * 60 * 60 * 1000, // 4 hours
-  '1h': 7 * 24 * 60 * 60 * 1000, // 7 days
-  '4h': 30 * 24 * 60 * 60 * 1000, // 30 days
-  '1d': 90 * 24 * 60 * 60 * 1000, // 90 days
-  '7d': 180 * 24 * 60 * 60 * 1000, // 180 days
-}
 
 const getCurrencyKey = (currency: Currency) => {
   if (currency.isNative) {
@@ -74,6 +102,11 @@ const getCurrencyKey = (currency: Currency) => {
   }
   return currency.wrapped.address.toLowerCase()
 }
+
+const mergeTokenChartCandles = (candles: TokenChartCandle[]) =>
+  [...candles]
+    .sort((a, b) => dayjs(a.bucket).valueOf() - dayjs(b.bucket).valueOf())
+    .filter((candle, index, array) => index === 0 || candle.bucket !== array[index - 1]?.bucket)
 
 type TokenPriceChartProps = {
   tokens?: Array<Currency | undefined>
@@ -84,11 +117,10 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
 
-  const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>('1d')
-  const [activeTokenKey, setActiveTokenKey] = useState('')
+  const chainId = tokens?.find(Boolean)?.chainId || ChainId.MAINNET
 
-  const tokenTabs = useMemo(() => {
-    return (tokens ?? []).reduce<Array<{ key: string; token: Currency }>>((result, token) => {
+  const filteredTokens = useMemo(() => {
+    return (tokens ?? []).reduce<Currency[]>((result, token) => {
       if (!token) return result
 
       const currencyKey = getCurrencyKey(token)
@@ -96,115 +128,184 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
       const quoteStableTokenKey = quoteStableToken ? getCurrencyKey(quoteStableToken) : ''
       if (currencyKey === quoteStableTokenKey) return result
 
-      return result.concat({ key: currencyKey, token })
+      return result.concat(token)
     }, [])
   }, [tokens])
 
-  const resolvedActiveTokenKey = tokenTabs.find(tab => tab.key === activeTokenKey)?.key ?? tokenTabs[0]?.key
+  const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>('1d')
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
+  const [isExpanded, setIsExpanded] = useState(!upToSmall)
 
-  const activeToken = useMemo(
-    () => tokenTabs.find(tab => tab.key === resolvedActiveTokenKey)?.token || tokenTabs[0]?.token,
-    [resolvedActiveTokenKey, tokenTabs],
-  )
+  const resolvedActiveTabIndex = activeTabIndex < filteredTokens.length ? activeTabIndex : 0
+  const activeToken = filteredTokens[resolvedActiveTabIndex] ?? filteredTokens[0]
   const activeTokenAddress = activeToken?.wrapped.address.toLowerCase()
 
-  const chainId = activeToken?.chainId
-  const isChartSupported = chainId ? Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId]) : false
-  const stableToken = isChartSupported ? PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId] : undefined
+  const stableToken = PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId]
   const stableAddress = stableToken?.wrapped.address.toLowerCase()
-  const fromBucketMs = useMemo(() => Date.now() - DEFAULT_WINDOW_BY_TIME_FRAME[timeFrame], [timeFrame])
+  const fromBucketMs = useMemo(() => getTokenChartFromBucketMs({ timeFrame }), [timeFrame])
+  const chartRequestKey = `${chainId}:${activeTokenAddress}:${stableAddress}:${timeFrame}`
+
+  useEffect(() => {
+    setActiveTabIndex(0)
+  }, [filteredTokens.length])
+
+  useEffect(() => {
+    setIsExpanded(!upToSmall)
+  }, [upToSmall])
+
+  const [fetchTokenChart] = useLazyTokenPriceChartQuery()
+
+  const initialQueryParams: TokenChartQueryParams = {
+    chainId,
+    tokenAddress: activeTokenAddress as string,
+    stableAddress,
+    quoteAddress: stableAddress,
+    timeFrame,
+    fromBucketMs,
+  }
 
   const {
-    data: priceData,
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
     isError,
+    isFetchingNextPage,
     isLoading,
-  } = useTokenPriceChartQuery(
-    {
-      chainId,
-      tokenAddress: activeTokenAddress,
-      stableAddress,
-      quoteAddress: stableAddress,
-      timeFrame,
-      fromBucketMs,
+  } = useInfiniteQuery({
+    queryKey: ['token-price-chart', chartRequestKey, fromBucketMs],
+    enabled: Boolean(activeTokenAddress && stableAddress),
+    initialPageParam: initialQueryParams,
+    queryFn: async ({ pageParam }) => fetchTokenChart(pageParam).unwrap(),
+    getNextPageParam: lastPage => {
+      if (!lastPage.candles.length) return undefined
+
+      const lastPagePeriodStartMs = lastPage.summary?.periodStartMs
+      if (!lastPagePeriodStartMs) return undefined
+
+      const toBucketMs = lastPagePeriodStartMs - TOKEN_CHART_CANDLE_INTERVAL_MS[timeFrame]
+
+      return {
+        ...initialQueryParams,
+        fromBucketMs: getTokenChartFromBucketMs({ toBucketMs, timeFrame }),
+        toBucketMs,
+      }
     },
-    { skip: !(isChartSupported && activeToken && stableToken) },
-  )
+  })
 
+  const handleLoadMore = async () => {
+    if (!hasNextPage || isFetchingNextPage) return
+    await fetchNextPage()
+  }
+
+  const accumulatedCandles = useMemo(
+    () => mergeTokenChartCandles(infiniteData?.pages.flatMap(page => page.candles) ?? []),
+    [infiniteData?.pages],
+  )
   const chartData = useMemo<DisplayCandle[]>(
-    () => (priceData?.candles ?? []).map(candle => ({ time: candle.ts, ...candle })),
-    [priceData?.candles],
+    () =>
+      accumulatedCandles.map(candle => ({
+        ...candle,
+        time: dayjs(candle.bucket).unix(),
+        volume: candle.volume ?? 0,
+      })),
+    [accumulatedCandles],
   )
 
-  const currentPrice = priceData?.currentPrice
-  const priceChange = priceData?.priceChange
-  const priceChangeColor = priceChange === undefined || priceChange >= 0 ? theme.primary : theme.red
+  const latestPageData = infiniteData?.pages[0]
+  const currentPrice = latestPageData?.latestPrice ?? 0
+  const priceChange = latestPageData?.change24h ?? 0
+  const priceChangeColor = priceChange >= 0 ? theme.primary : theme.red
 
-  if (!isChartSupported || !tokenTabs?.length) return null
+  if (!activeToken || !stableToken) return null
 
   return (
     <ChartPanel gap={0}>
-      <PanelHeader role="tablist">
-        {tokenTabs.map((tab, index) => {
-          const isActive = tab.key === resolvedActiveTokenKey
-          return (
-            <TabButton
-              $active={isActive}
-              $isLast={index === tokenTabs.length - 1}
-              key={tab.key}
-              onClick={() => setActiveTokenKey(tab.key)}
+      <HStack align="center" pr={16}>
+        <TokenTabsList role="tablist">
+          {filteredTokens.map((token, index) => {
+            const isActive = index === resolvedActiveTabIndex
+            return (
+              <TabButton
+                $active={isActive}
+                $isLast={index === filteredTokens.length - 1}
+                key={getCurrencyKey(token)}
+                onClick={() => {
+                  setActiveTabIndex(index)
+                  setIsExpanded(true)
+                }}
+              >
+                <CurrencyLogo currency={token} size="20px" />
+                <Text color="inherit" fontSize={16} fontWeight={500}>
+                  {token.symbol}/{stableToken?.symbol}
+                </Text>
+              </TabButton>
+            )
+          })}
+        </TokenTabsList>
+
+        {upToSmall && (
+          <ToggleIconWrapper onClick={() => setIsExpanded(expanded => !expanded)} type="button">
+            <PanelChevron $expanded={isExpanded} size={18} />
+          </ToggleIconWrapper>
+        )}
+      </HStack>
+
+      {isExpanded && (
+        <Stack p={16} sx={{ borderTop: `1px solid ${theme.darkBorder}` }}>
+          <Stack gap={12}>
+            <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
+              <Stack>
+                {currentPrice !== undefined && (
+                  <HStack align="baseline" gap={8} wrap="wrap">
+                    <Text color={theme.text} fontSize={20} fontWeight={500}>
+                      {formatPrice(currentPrice)}
+                    </Text>
+
+                    <HStack align="center" gap={4}>
+                      <Text color={priceChangeColor} fontSize={14} fontWeight={500}>
+                        {formatSignedPercent(priceChange)}
+                      </Text>
+                      <Text color={priceChangeColor} fontSize={10}>
+                        {priceChange >= 0 ? '▲' : '▼'}
+                      </Text>
+                    </HStack>
+                    <Text color={theme.subText} fontSize={14}>
+                      (24h)
+                    </Text>
+                  </HStack>
+                )}
+              </Stack>
+
+              <SegmentedControl
+                onChange={setTimeFrame}
+                options={CHART_TIME_FRAME_OPTIONS}
+                size="sm"
+                value={timeFrame}
+              />
+            </HStack>
+
+            <PoolChartState
+              emptyMessage={
+                activeToken ? 'Chart unavailable for this pair.' : 'Select a token to view the price chart.'
+              }
+              errorMessage="Unable to load token price."
+              height={chartHeight}
+              isEmpty={chartData.length === 0}
+              isError={isError}
+              isLoading={isLoading}
+              skeletonType="candle"
             >
-              <CurrencyLogo currency={tab.token} size="20px" />
-              <Text color="inherit" fontSize={16} fontWeight={500}>
-                {tab.token.symbol}/{stableToken?.symbol}
-              </Text>
-            </TabButton>
-          )
-        })}
-      </PanelHeader>
-
-      <Stack p={16} gap={12}>
-        <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
-          <Stack>
-            {currentPrice !== undefined && (
-              <HStack align="baseline" gap={8} wrap="wrap">
-                <Text color={theme.text} fontSize={20} fontWeight={500}>
-                  {formatPrice(currentPrice)}
-                </Text>
-
-                <HStack align="center" gap={4}>
-                  <Text color={priceChangeColor} fontSize={14} fontWeight={500}>
-                    {formatSignedPercent(priceChange)}
-                  </Text>
-                  <Text color={priceChangeColor} fontSize={10}>
-                    {priceChange === undefined || priceChange >= 0 ? '▲' : '▼'}
-                  </Text>
-                </HStack>
-                <Text color={theme.subText} fontSize={14}>
-                  (24h)
-                </Text>
-              </HStack>
-            )}
+              <TokenPriceChartCanvas
+                key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
+                chartData={chartData}
+                canLoadMore={hasNextPage}
+                onLoadMore={handleLoadMore}
+                timeFrame={timeFrame}
+              />
+            </PoolChartState>
           </Stack>
-
-          <SegmentedControl onChange={setTimeFrame} options={CHART_TIME_FRAME_OPTIONS} size="sm" value={timeFrame} />
-        </HStack>
-
-        <PoolChartState
-          emptyMessage={activeToken ? 'Chart unavailable for this pair.' : 'Select a token to view the price chart.'}
-          errorMessage="Unable to load token price."
-          height={chartHeight}
-          isEmpty={chartData.length === 0}
-          isError={isError}
-          isLoading={isLoading}
-          skeletonType="candle"
-        >
-          <TokenPriceChartCanvas
-            key={`${activeTokenAddress}:${stableAddress}`}
-            chartData={chartData}
-            timeFrame={timeFrame}
-          />
-        </PoolChartState>
-      </Stack>
+        </Stack>
+      )}
     </ChartPanel>
   )
 }

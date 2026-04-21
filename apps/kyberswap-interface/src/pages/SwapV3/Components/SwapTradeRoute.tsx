@@ -19,16 +19,18 @@ const Panel = styled.div`
   border-radius: 12px;
 `
 
-const PanelHeader = styled.div<{ $expanded: boolean }>`
+const PanelHeader = styled.button<{ $expanded: boolean }>`
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border: 0;
   background: ${({ theme }) => theme.background};
   gap: 12px;
-  padding: 8px 16px;
+  padding: 6px 16px;
   color: ${({ theme }) => theme.subText};
   text-align: left;
+  cursor: pointer;
 `
 
 const PanelTitle = styled.div`
@@ -50,20 +52,18 @@ const RouteTitleText = styled(Text)`
   `}
 `
 
-const ToggleButton = styled.button`
+const ToggleIconWrapper = styled.div`
   flex: 0 0 auto;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 0;
   border-radius: 999px;
   background: transparent;
-  cursor: pointer;
   transition: background 150ms ease-in-out;
 
-  :hover {
+  ${PanelHeader}:hover & {
     background: ${({ theme }) => theme.tableHeader};
   }
 `
@@ -163,7 +163,7 @@ const SwapTradeRoute = ({
 
   return (
     <Panel ref={panelRef}>
-      <PanelHeader $expanded={isExpanded}>
+      <PanelHeader $expanded={isExpanded} onClick={handleToggle} type="button">
         <PanelTitle>
           <RoutingIconWrapper />
           <Flex alignItems="center" flexWrap="wrap" sx={{ gap: '8px' }}>
@@ -198,14 +198,9 @@ const SwapTradeRoute = ({
             ) : null}
           </Flex>
         </PanelTitle>
-        <ToggleButton
-          aria-expanded={isExpanded}
-          aria-label={isExpanded ? 'Collapse trade route' : 'Expand trade route'}
-          onClick={handleToggle}
-          type="button"
-        >
+        <ToggleIconWrapper>
           <PanelChevron $expanded={isExpanded} size={18} />
-        </ToggleButton>
+        </ToggleIconWrapper>
       </PanelHeader>
 
       {isExpanded && (
