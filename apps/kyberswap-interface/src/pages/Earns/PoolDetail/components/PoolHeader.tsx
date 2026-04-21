@@ -91,10 +91,14 @@ const PoolHeaderPage = () => {
 
   const isFarming = Boolean(pool.programs?.includes('eg') || pool.programs?.includes('lm'))
   const poolStats = pool.poolStats
+  const hasActiveApr = poolStats?.activeApr !== undefined
+  const bonusApr = poolStats?.bonusApr || 0
+  const activeTotal = hasActiveApr ? (poolStats?.activeApr || 0) + bonusApr : undefined
 
   const handleOpenShare = () => {
     setShareInfo({
       isFarming,
+      hasActiveApr,
       type: ShareType.POOL_INFO,
       onClose: () => setShareInfo(undefined),
       pool: {
@@ -108,9 +112,12 @@ const PoolHeaderPage = () => {
         token0: { symbol: primaryToken.symbol, logo: primaryToken.logoURI || '' },
         token1: { symbol: secondaryToken.symbol, logo: secondaryToken.logoURI || '' },
         apr: {
-          fees: (poolStats?.apr24h || 0) + (poolStats?.bonusApr || 0),
+          fees: (poolStats?.apr24h || 0) + bonusApr,
           eg: poolStats?.kemEGApr24h || 0,
           lm: poolStats?.kemLMApr24h || 0,
+          activeTotal,
+          activeEg: poolStats?.activeEgApr,
+          activeLm: poolStats?.activeLmApr,
         },
       },
     })

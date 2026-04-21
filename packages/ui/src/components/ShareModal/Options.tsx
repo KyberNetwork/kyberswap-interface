@@ -16,9 +16,10 @@ interface OptionsProps {
   selectedOptions: Set<ShareOption>;
   setSelectedOptions: (options: Set<ShareOption>) => void;
   isFarming?: boolean;
+  hasActiveApr?: boolean;
 }
 
-export default function Options({ type, selectedOptions, setSelectedOptions, isFarming }: OptionsProps) {
+export default function Options({ type, selectedOptions, setSelectedOptions, isFarming, hasActiveApr }: OptionsProps) {
   const { i18n } = useLingui();
 
   const handleOptionChange = (option: ShareOption, checked: boolean) => {
@@ -47,9 +48,11 @@ export default function Options({ type, selectedOptions, setSelectedOptions, isF
     setSelectedOptions(sortedOptions);
   };
 
+  const visibleOptions = shareOptions[type].filter(option => option !== ShareOption.ACTIVE_APR || hasActiveApr);
+
   return (
     <div className="flex items-center justify-center flex-wrap gap-6 py-3">
-      {shareOptions[type].map(option => {
+      {visibleOptions.map(option => {
         const isExcluded = !isFarming && NON_FARMING_EXCLUDED_OPTIONS.includes(option);
         const isMaxSelected = selectedOptions.size === MAX_SELECTED_OPTIONS && !selectedOptions.has(option);
         const isConflict = conflictOptions[type][option]?.some(o => selectedOptions.has(o));
