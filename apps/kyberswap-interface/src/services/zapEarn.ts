@@ -222,7 +222,6 @@ export const {
   useExplorerLandingQuery,
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
-  useLazyPoolsExplorerQuery,
   useUserPositionsQuery,
   usePositionHistoryQuery,
   useAddFavoriteMutation,

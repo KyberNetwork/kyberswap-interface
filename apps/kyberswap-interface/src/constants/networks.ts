@@ -104,10 +104,6 @@ export const MAINNET_NETWORKS = [
 // But most wallets not respecting `optionalChains`, causing some inconveniences that we can only use Ethereum through Walletconnect
 // Note: this const is use for wallets connecting through walletconnect, not directly through injected method
 export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [ChainId.MAINNET]
-export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS = MAINNET_NETWORKS
-export const WALLET_CONNECT_OPTIONAL_CHAIN_IDS = WALLET_CONNECT_SUPPORTED_CHAIN_IDS.filter(
-  chain => !WALLET_CONNECT_REQUIRED_CHAIN_IDS.includes(chain),
-)
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {
   if (!chainId) return false
@@ -116,59 +112,12 @@ export function isSupportedChainId(chainId?: number): chainId is ChainId {
 
 export const FAUCET_NETWORKS = []
 
-// Fee options instead of dynamic fee
-export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
-  [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.MAINNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.MATIC]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.FANTOM]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.BSCMAINNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.GÖRLI]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.LINEA]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.BASE]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.SCROLL]: [8, 10, 50, 300, 500, 1000],
-}
-
-export const ONLY_STATIC_FEE_CHAINS = [
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.GÖRLI,
-  ChainId.ZKSYNC,
-  ChainId.LINEA,
-  ChainId.BASE,
-  ChainId.SCROLL,
-]
-
 export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
   [ChainId.AVAXMAINNET]:
     'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
   [ChainId.MATIC]:
     'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/latest_merkle_data.json',
 }
-
-export const DEFAULT_REWARDS: { [key: string]: string[] } = {
-  [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511'],
-}
-
-export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
-  ChainId.MAINNET,
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.MATIC,
-  ChainId.LINEA,
-  ChainId.BASE,
-  ChainId.ZKSYNC,
-  ChainId.SCROLL,
-  ChainId.BSCMAINNET,
-  ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
-]
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = []
 
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,

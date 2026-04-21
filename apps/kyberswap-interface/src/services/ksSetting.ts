@@ -204,10 +204,6 @@ export const {
   useLazyGetKyberswapConfigurationQuery,
   useGetKyberswapGlobalConfigurationQuery,
   useLazyGetTokenListQuery,
-  useGetDexListQuery,
-  useGetTokenListQuery,
-  useImportTokenMutation,
-  useLazyGetTopTokensQuery,
   useGetChainsConfigurationQuery,
   useGetTokenByAddressesQuery,
 } = ksSettingApi

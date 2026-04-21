@@ -7,8 +7,6 @@ import {
   ARGENT_WALLET_DETECTOR_ABI,
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
 } from 'constants/abis/argent-wallet-detector'
-import RouterSwapAction from 'constants/abis/bridge/RouterSwapAction.json'
-import swapETHABI from 'constants/abis/bridge/swapETHABI.json'
 import FACTORY_ABI from 'constants/abis/dmm-factory.json'
 import ENS_PUBLIC_RESOLVER_ABI from 'constants/abis/ens-public-resolver.json'
 import ENS_ABI from 'constants/abis/ens-registrar.json'
@@ -16,7 +14,6 @@ import { ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import ERC20_ABI from 'constants/abis/erc20.json'
 import KS_STATIC_FEE_FACTORY_ABI from 'constants/abis/ks-factory.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
-import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
@@ -65,49 +62,6 @@ export function useReadingContract(
       return null
     }
   }, [address, ABI, readProvider])
-}
-
-// returns null on errors
-export function useMultipleContracts(
-  addresses: string[] | undefined,
-  ABI: ContractInterface,
-  withSignerIfPossible = true,
-): {
-  [key: string]: Contract
-} | null {
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
-  const { readProvider } = useKyberSwapConfig()
-
-  return useMemo(() => {
-    const lib = withSignerIfPossible ? library : readProvider
-
-    if (!addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !lib) return null
-
-    const result: {
-      [key: string]: Contract
-    } = {}
-
-    try {
-      addresses.forEach(address => {
-        if (address) {
-          result[address] = withSignerIfPossible
-            ? getSigningContract(address, ABI, lib as any, withSignerIfPossible && account ? account : undefined)
-            : getReadingContract(address, ABI, lib)
-        }
-      })
-
-      if (Object.keys(result).length > 0) {
-        return result
-      }
-
-      return null
-    } catch (error) {
-      console.error('Failed to get contract', error)
-
-      return null
-    }
-  }, [addresses, ABI, library, withSignerIfPossible, account, readProvider])
 }
 
 export function useTokenSigningContract(tokenAddress?: string): Contract | null {
@@ -200,25 +154,7 @@ export function useProMMFarmSigningContract(address: string): Contract | null {
   return useSigningContract(address, PROMM_FARM_ABI)
 }
 
-export function useProMMFarmReadingContract(address: string): Contract | null {
-  return useReadingContract(address, PROMM_FARM_ABI)
-}
-
 export function useProAmmNFTPositionManagerReadingContract(customContract?: string): Contract | null {
   const { networkInfo } = useActiveWeb3React()
   return useReadingContract(customContract || networkInfo.elastic.nonfungiblePositionManager, NFTPositionManagerABI.abi)
-}
-
-export function useProAmmTickReader(): Contract | null {
-  const { networkInfo } = useActiveWeb3React()
-  return useReadingContract(networkInfo.elastic.tickReader, TickReaderABI.abi)
-}
-
-// bridge
-export function useSwapETHContract(tokenAddress?: string): Contract | null {
-  return useSigningContract(tokenAddress, swapETHABI)
-}
-
-export function useBridgeContract(routerToken?: any): Contract | null {
-  return useSigningContract(routerToken ? routerToken : undefined, RouterSwapAction)
 }

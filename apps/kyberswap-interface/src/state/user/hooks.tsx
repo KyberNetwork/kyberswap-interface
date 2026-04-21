@@ -26,25 +26,21 @@ import {
   changeViewMode,
   pinSlippageControl,
   removeSerializedToken,
-  setCrossChainSetting,
   setPaymentToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
-  toggleMyEarningChart,
   toggleSuccessSound,
-  toggleTopTrendingTokens,
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updateFavoriteChains,
   updatePoolDegenMode,
-  updateTokenAnalysisSettings,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
-import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
+import { VIEW_MODE } from 'state/user/reducer'
 import { isChristmasTime } from 'utils'
 
 const MAX_FAVORITE_LIMIT = 12
@@ -190,21 +186,6 @@ export function useSwapSlippageTolerance(): [number, (slippage: number) => void]
   return [userSlippageTolerance, setUserSlippageTolerance]
 }
 
-export function usePoolSlippageTolerance(): [number, (slippage: number) => void] {
-  //const dispatch = useDispatch<AppDispatch>()
-  //const poolSlippageTolerance = useSelector<AppState, AppState['user']['poolSlippageTolerance']>(state => {
-  //  return state.user.poolSlippageTolerance || INITIAL_ALLOWED_SLIPPAGE
-  //})
-  //const setPoolSlippageTolerance = useCallback(
-  //  (poolSlippageTolerance: number) => {
-  //    dispatch(updatePoolSlippageTolerance({ poolSlippageTolerance }))
-  //  },
-  //  [dispatch],
-  //)
-  //return [poolSlippageTolerance, setPoolSlippageTolerance]
-  return useSwapSlippageTolerance()
-}
-
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {
   const dispatch = useDispatch<AppDispatch>()
   const userDeadline = useSelector<AppState, AppState['user']['userDeadline']>(state => {
@@ -343,16 +324,6 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
   }, [userPairs])
 }
 
-export function useUpdateTokenAnalysisSettings(): (payload: string) => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback((payload: string) => dispatch(updateTokenAnalysisSettings(payload)), [dispatch])
-}
-
-export function useToggleTopTrendingTokens(): () => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleTopTrendingTokens()), [dispatch])
-}
-
 export const useUserFavoriteTokens = (customChain?: ChainId) => {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
@@ -423,36 +394,6 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   return [isChristmasTime() ? holidayMode : false, toggle]
 }
 
-export const useCrossChainSetting = () => {
-  const dispatch = useAppDispatch()
-  const setting = useAppSelector(state => state.user.crossChain) || CROSS_CHAIN_SETTING_DEFAULT
-  const setSetting = useCallback(
-    (data: CrossChainSetting) => {
-      dispatch(setCrossChainSetting(data))
-    },
-    [dispatch],
-  )
-  const setExpressExecutionMode = useCallback(
-    (enableExpressExecution: boolean) => {
-      setSetting({ ...setting, enableExpressExecution })
-    },
-    [setSetting, setting],
-  )
-
-  const setRawSlippage = useCallback(
-    (slippageTolerance: number) => {
-      setSetting({ ...setting, slippageTolerance })
-    },
-    [setSetting, setting],
-  )
-
-  const toggleSlippageControlPinned = useCallback(() => {
-    setSetting({ ...setting, isSlippageControlPinned: !setting.isSlippageControlPinned })
-  }, [setSetting, setting])
-
-  return { setting, setExpressExecutionMode, setRawSlippage, toggleSlippageControlPinned }
-}
-
 export const useSlippageSettingByPage = () => {
   const dispatch = useDispatch()
   // const { isCrossChain } = usePageLocation()
@@ -480,18 +421,6 @@ export const useSlippageSettingByPage = () => {
     isSlippageControlPinned,
     togglePinSlippage,
   }
-}
-
-export const useShowMyEarningChart: () => [boolean, () => void] = () => {
-  const dispatch = useAppDispatch()
-
-  const isShowMyEarningChart = useAppSelector(state =>
-    state.user.myEarningChart === undefined ? true : state.user.myEarningChart,
-  )
-  const toggle = useCallback(() => {
-    dispatch(toggleMyEarningChart())
-  }, [dispatch])
-  return [isShowMyEarningChart, toggle]
 }
 
 export function useShowTradeRoutes(): boolean {

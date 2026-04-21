@@ -5,8 +5,6 @@ import styled, { CSSProperties, DefaultTheme, css, keyframes } from 'styled-comp
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import { AutoColumn } from 'components/Column'
-import Modal, { ModalProps } from 'components/Modal'
-import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { friendlyError } from 'utils/errorMessage'
 
@@ -51,8 +49,6 @@ export const Wrapper = styled.div`
   background: ${({ theme }) => theme.background};
 `
 
-export const BottomGrouping = styled.div``
-
 export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
   height: 22px;
   width: 22px;
@@ -79,13 +75,6 @@ export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
         outline: none;
       }
     `}
-`
-
-export const TruncatedText = styled(Text)`
-  text-overflow: ellipsis;
-  overflow: hidden;
-  font-size: 24px;
-  font-weight: 500;
 `
 
 // styles
@@ -164,28 +153,6 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
   )
 }
 
-export const GroupButtonReturnTypes = styled.div`
-  display: flex;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.tabBackground};
-  padding: 2px;
-`
-
-export const ButtonReturnType = styled.div<{ active?: boolean }>`
-  border-radius: 999px;
-  flex: 1;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: ${({ theme, active }) => (active ? theme.tabActive : theme.tabBackground)};
-  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 300ms;
-`
-
 export const SwapFormWrapper = styled.div`
   z-index: 1;
   width: 425px;
@@ -227,33 +194,6 @@ export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
   margin-top: 4px;
 `
 
-export const TokenInfoWrapper = styled(LiveChartWrapper)`
-  display: flex;
-  flex-direction: column;
-  row-gap: 16px;
-
-  @media screen and (min-width: 1100px) {
-    display: flex;
-  }
-
-  height: auto;
-  border-bottom: none;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
-`
-
-export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props} zindex={Z_INDEXS.MODAL} />)<{
-  height?: string
-}>`
-  &[data-reach-dialog-content] {
-    width: 100vw;
-    max-width: 100vw;
-    ${({ height }) => height && `height: ${height};`}
-    min-height: 70vh;
-  }
-`
-
 export const StyledActionButtonSwapForm = styled.button<{ active?: boolean; hoverBg?: string }>`
   position: relative;
   border: none;
@@ -281,16 +221,6 @@ export const StyledActionButtonSwapForm = styled.button<{ active?: boolean; hove
           background-color: ${({ theme }) => theme.buttonBlack};
         `
       : ''}
-`
-
-export const IconButton = styled(StyledActionButtonSwapForm)<{ enableClickToRefresh: boolean }>`
-  transition: background 0.2s;
-
-  // off click
-  &:hover {
-    cursor: default;
-    background-color: transparent;
-  }
 `
 
 export const highlight = (theme: DefaultTheme) => keyframes`

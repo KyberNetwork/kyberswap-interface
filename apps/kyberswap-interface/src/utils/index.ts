@@ -99,12 +99,6 @@ export const toK = (num: string) => {
   return Numeral(num).format('0.[00]a')
 }
 
-export const toKInChart = (num: string, unit?: string) => {
-  if (parseFloat(num) < 0.0000001) return `< ${unit ?? ''}0.0000001`
-  if (parseFloat(num) >= 0.1) return (unit ?? '') + Numeral(num).format('0.[00]a')
-  return (unit ?? '') + Numeral(num).format('0.[0000000]a')
-}
-
 // using a currency library here in case we want to add more in future
 const formatDollarFractionAmount = (num: number, digits: number) => {
   const formatter = new Intl.NumberFormat(['en-US'], {
@@ -255,20 +249,6 @@ export const pushUnique = <T>(array: T[] | undefined, element: T): T[] => {
   return [...array, element]
 }
 
-// delete unique
-// return original instance if no change
-export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
-  if (!array) return []
-
-  const set = new Set<T>(array)
-
-  if (set.has(element)) {
-    set.delete(element)
-    return [...set]
-  }
-  return array
-}
-
 export const filterTruthy = <T>(array: (T | undefined | null | false)[]): T[] => {
   return array.filter(Boolean) as T[]
 }
@@ -291,35 +271,6 @@ export const isSupportLimitOrder = (chainId: ChainId): boolean => {
   if (!SUPPORTED_NETWORKS.includes(chainId)) return false
   const limitOrder = NETWORKS_INFO[chainId]?.limitOrder
   return limitOrder === '*' || (limitOrder || []).includes(ENV_KEY)
-}
-
-export function openFullscreen(elem: any) {
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen()
-  } else if (elem.webkitRequestFullScreen) {
-    /* Old webkit */
-    elem.webkitRequestFullScreen()
-  } else if (elem.webkitRequestFullscreen) {
-    /* New webkit */
-    elem.webkitRequestFullscreen()
-  } else if (elem.mozRequestFullScreen) {
-    elem.mozRequestFullScreen()
-  } else if (elem.msRequestFullscreen) {
-    /* IE11 */
-    elem.msRequestFullscreen()
-  }
-}
-
-export const downloadImage = (data: Blob | string | undefined, filename: string) => {
-  if (!data) return
-  const link = document.createElement('a')
-  link.download = filename
-  link.href = typeof data === 'string' ? data : URL.createObjectURL(data)
-  document.body.appendChild(link)
-  link.click()
-  if (link && document.body.contains(link)) {
-    document.body.removeChild(link)
-  }
 }
 
 export function buildFlagsForFarmV21({

@@ -41,16 +41,3 @@ export const ButtonIcon = styled(ButtonEmpty)<{ color?: string }>`
     background: ${({ theme, color }) => lighten(0.4, rgba(color || theme.subText, 0.2))};
   }
 `
-
-export const Tab = styled.div<{ active?: boolean }>`
-  padding: 6px 12px;
-  background: ${({ theme, active }) => (active ? theme.tabActive : 'transparent')};
-  border-radius: 999px;
-  cursor: pointer;
-  color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
-  font-weight: 500;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`

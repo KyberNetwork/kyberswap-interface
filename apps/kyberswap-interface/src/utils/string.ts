@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import DOMPurify from 'dompurify'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -15,9 +15,6 @@ export function convertToSlug(text: string) {
     .replace(/ +/g, '-')
     .replace(/[^\w-.]+/g, '')
 }
-
-export const getSymbolSlug = (token: Currency | Token | undefined) =>
-  token ? (token?.symbol || token?.wrapped?.symbol || '').toLowerCase() : ''
 
 export const queryStringToObject = (queryString: string) => {
   return Object.fromEntries(new URLSearchParams(queryString).entries())

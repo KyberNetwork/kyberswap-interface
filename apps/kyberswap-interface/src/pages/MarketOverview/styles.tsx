@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import { Box, Flex } from 'rebass'
+import { Flex } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
 export const TableWrapper = styled.div`
@@ -57,13 +57,6 @@ export const SubHeaderRow = styled(TableRow)`
   &:hover {
     background: none;
   }
-`
-
-export const InnerGrid = styled(Box)`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  font-size: 14px;
-  color: ${({ theme }) => theme.subText};
 `
 
 export const Tabs = styled.div`

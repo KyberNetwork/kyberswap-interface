@@ -10,7 +10,6 @@ import { usePrevious } from 'react-use'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { sanitizeFormoPayload } from 'hooks/sanitizeFormoPayload'
-import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -25,8 +24,6 @@ export enum TRACKING_EVENT_TYPE {
   SWAP_INITIATED,
   SWAP_CONFIRMED,
   SWAP_COMPLETED,
-  SWAP_TYPED_ON_THE_TEXT_BOX,
-  SWAP_INPUT_AMOUNT,
   SWAP_SETTINGS_CLICK,
   SWAP_TUTORIAL_CLICK,
   SWAP_TOKEN_INFO_CLICK,
@@ -204,8 +201,6 @@ export enum TRACKING_EVENT_TYPE {
   // Menu header
   MENU_MENU_CLICK,
   MENU_PREFERENCE_CLICK,
-  MENU_CLAIM_REWARDS_CLICK,
-  SUPPORT_CLICK,
 
   // price alert
   PA_CLICK_TAB_IN_NOTI_CENTER,
@@ -1346,7 +1341,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           const { token_1, token_2, range } = payload as {
             token_1: string
             token_2: string
-            range: RANGE
+            range: string
           }
           formoTrack('Elastic - Add Liquidity page - Select range for pool', {
             token_1,

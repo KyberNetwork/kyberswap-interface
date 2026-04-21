@@ -175,41 +175,6 @@ export const PositionValueLabel = styled.p`
   `}
 `
 
-export const PositionAction = styled.div<{ primary?: boolean; disabled?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 12px;
-  background-color: ${({ theme, primary }) => (primary ? rgba(theme.primary, 0.2) : theme.tabActive)};
-  color: ${({ theme, primary }) => (primary ? theme.primary : theme.subText)};
-
-  &:hover {
-    cursor: pointer;
-    filter: brightness(1.2);
-  }
-
-  &:active {
-    filter: brightness(1.05);
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 36px;
-    height: 36px;
-  `}
-
-  ${({ disabled }) =>
-    disabled &&
-    `
-      filter: brightness(0.6) !important;
-    `}
-
-  :hover {
-    ${({ disabled }) => disabled && 'cursor: not-allowed;'}
-  }
-`
-
 export const Divider = styled.div`
   height: 16px;
   width: 1px;

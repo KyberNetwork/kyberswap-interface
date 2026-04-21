@@ -26,8 +26,6 @@ export const COMMON_SERVICE_API = required('COMMON_SERVICE_API')
 export const BLACKJACK_API = required('BLACKJACK_API')
 export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
-export const TRANSAK_URL = required('TRANSAK_URL')
-export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN = optional('MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN')
 export const FORMO_WRITE_KEY = required('FORMO_WRITE_KEY')
@@ -182,11 +180,3 @@ export const getAnnouncementTemplateType = (templateId?: number) => {
 
 const mock = localStorage.getItem('mock')?.split(',') ?? []
 export const MOCK_ACCOUNT_EVM = isAddressString(mock[0]?.trim())
-
-const isSupportTestNet = ENV_LEVEL < ENV_TYPE.PROD && new URLSearchParams(window.location.search).get('test')
-export const CROSS_CHAIN_CONFIG = {
-  AXELAR_SCAN_URL: isSupportTestNet ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/',
-  API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://apiplus.squidrouter.com',
-  INTEGRATOR_ID: 'kyberswap-api',
-  GAS_REFUND: 25, // %
-}

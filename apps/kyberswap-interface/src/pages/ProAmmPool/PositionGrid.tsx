@@ -33,21 +33,6 @@ const FixedSizeGrid = styled(FixedSizeGridRW)`
     border-radius: 999px;
   }
 `
-export const PositionCardGrid = styled.div`
-  display: grid;
-  grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
-  gap: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1fr;
-    max-width: 832px;
-  `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1fr;
-    max-width: 392px;
-  `};
-`
-
 function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?: React.MutableRefObject<any> }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)

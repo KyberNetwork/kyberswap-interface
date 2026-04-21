@@ -170,5 +170,3 @@ const routeApi = createApi({
 })
 
 export default routeApi
-
-export const { useLazyGetRouteQuery, useBuildRouteMutation } = routeApi

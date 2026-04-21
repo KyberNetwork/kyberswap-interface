@@ -36,7 +36,7 @@ export type FlowStatus = {
 const getCsrfToken = (loginFlow: LoginFlow | undefined) =>
   loginFlow?.ui?.nodes?.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? ''
 
-export function Login() {
+function Login() {
   const { account, chainId } = useActiveWeb3React()
   const { library: provider } = useWeb3React()
 

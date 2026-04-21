@@ -79,7 +79,6 @@ export const {
   useJoinCampaignMutation,
   useGetDashboardQuery,
   useCreateShareMutation,
-  useGetShareQuery,
 } = referralApi
 
 export default referralApi

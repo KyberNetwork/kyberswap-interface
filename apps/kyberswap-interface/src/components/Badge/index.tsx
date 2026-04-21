@@ -5,7 +5,6 @@ import styled, { DefaultTheme } from 'styled-components'
 import { Color } from 'theme/styled'
 
 export enum BadgeVariant {
-  DEFAULT = 'DEFAULT',
   NEGATIVE = 'NEGATIVE',
   POSITIVE = 'POSITIVE',
   PRIMARY = 'PRIMARY',

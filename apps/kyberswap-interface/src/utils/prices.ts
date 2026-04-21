@@ -52,19 +52,6 @@ export function warningSeverity(priceImpact: Percent | undefined): 0 | 1 | 2 | 3
   return 0
 }
 
-export function formatExecutionPrice(trade?: AnyTrade | Aggregator, inverted?: boolean): string {
-  if (!trade) {
-    return ''
-  }
-  const nativeInput = trade.inputAmount.currency
-
-  const nativeOutput = trade.outputAmount.currency
-
-  return inverted
-    ? `1 ${nativeOutput?.symbol} = ${trade.executionPrice.invert().toSignificant(6)} ${nativeInput?.symbol}`
-    : `1 ${nativeInput?.symbol} = ${trade.executionPrice.toSignificant(6)} ${nativeOutput.symbol}`
-}
-
 export function computePriceImpactWithoutFee(pairs: Pair[], priceImpact?: Percent): Percent | undefined {
   const realizedLPFee: Fraction = computeFee(pairs)
 

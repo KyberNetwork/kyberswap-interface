@@ -40,6 +40,6 @@ const blackjackApi = createApi({
   }),
 })
 
-export const { useCheckBlackjackQuery, useLazyCheckBlackjackQuery } = blackjackApi
+export const { useLazyCheckBlackjackQuery } = blackjackApi
 
 export default blackjackApi
