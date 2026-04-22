@@ -37,7 +37,6 @@ export enum FilterTag {
 }
 
 enum RewardType {
-  ALL = 'all',
   KYBERSWAP = 'kyberswap',
   THIRD_PARTY = 'third_party',
 }
@@ -107,6 +106,7 @@ const Filter = ({
 
   const rewardTypeOptions = useMemo(
     () => [
+      { label: t`All rewards`, value: '' },
       { label: t`By KyberSwap`, value: RewardType.KYBERSWAP },
       { label: t`By 3rd party`, value: RewardType.THIRD_PARTY },
     ],
@@ -114,25 +114,8 @@ const Filter = ({
   )
 
   const selectedRewardTypeValue = useMemo(() => {
-    switch (filters.rewardType) {
-      case RewardType.ALL:
-        return rewardTypeOptions.map(option => option.value).join(',')
-      case RewardType.KYBERSWAP:
-        return RewardType.KYBERSWAP
-      case RewardType.THIRD_PARTY:
-        return RewardType.THIRD_PARTY
-      default:
-        return ''
-    }
-  }, [filters.rewardType, rewardTypeOptions])
-
-  const selectedRewardTypeLabel = useMemo(() => {
-    const arrValue = selectedRewardTypeValue.split(',').filter(Boolean)
-    const selectedRewardTypes = rewardTypeOptions.filter(option => arrValue.includes(option.value))
-    if (selectedRewardTypes.length === 0) return t`Rewards Type`
-    if (selectedRewardTypes.length === 1) return selectedRewardTypes[0].label
-    return `${t`Rewards Type`} (${selectedRewardTypes.length})`
-  }, [rewardTypeOptions, selectedRewardTypeValue])
+    return filters.rewardType || ''
+  }, [filters.rewardType])
 
   const filterTagOptions = useMemo(
     () => [
@@ -182,6 +165,7 @@ const Filter = ({
     })
     updateFilters('chainIds', value.toString())
   }
+
   const onProtocolChange = (newProtocol: string | number) => {
     trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
       filter_type: 'protocol',
@@ -193,6 +177,7 @@ const Filter = ({
     })
     updateFilters('protocol', newProtocol.toString())
   }
+
   const onIntervalChange = (newInterval: string | number) => {
     trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
       filter_type: 'time_period',
@@ -206,27 +191,17 @@ const Filter = ({
   }
 
   const onRewardTypeChange = (newRewardType: string | number) => {
-    const arrValue = newRewardType.toString().split(',').filter(Boolean)
-    const hasKyberSwap = arrValue.includes(RewardType.KYBERSWAP)
-    const hasThirdParty = arrValue.includes(RewardType.THIRD_PARTY)
-    const rewardType =
-      hasKyberSwap && hasThirdParty
-        ? RewardType.ALL
-        : hasKyberSwap
-        ? RewardType.KYBERSWAP
-        : hasThirdParty
-        ? RewardType.THIRD_PARTY
-        : undefined
+    const rewardType = newRewardType.toString()
 
     trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
       filter_type: 'reward_type',
-      filter_value: rewardType || '',
-      previous_value: filters.rewardType || '',
+      filter_value: rewardType || 'all',
+      previous_value: selectedRewardTypeValue || 'all',
       results_count: totalItems || 0,
       active_category: tagToCategoryName(filters.tag || ''),
       chain: filters.chainIds,
     })
-    updateFilters('rewardType', rewardType || '')
+    updateFilters('rewardType', rewardType)
   }
 
   return (
@@ -311,14 +286,7 @@ const Filter = ({
             onChange={value => onProtocolChange(value)}
           />
           {isFarmingFiltered && (
-            <MultiSelectDropdownMenu
-              highlightOnSelect
-              label={selectedRewardTypeLabel}
-              options={rewardTypeOptions}
-              value={selectedRewardTypeValue}
-              emptyValueOnClear=""
-              onChange={value => onRewardTypeChange(value)}
-            />
+            <DropdownMenu options={rewardTypeOptions} value={selectedRewardTypeValue} onChange={onRewardTypeChange} />
           )}
           <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
         </HStack>
