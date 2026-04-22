@@ -72,6 +72,7 @@ export interface PoolDetailToken {
   symbol: string
   logoURI?: string
   decimals: number
+  isStable?: boolean
   weight: number
   swappable: boolean
 }
