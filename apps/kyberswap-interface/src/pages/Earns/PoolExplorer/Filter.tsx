@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useLingui } from '@lingui/react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { PoolQueryParams } from 'services/zapEarn'
@@ -53,6 +53,12 @@ const tagToCategoryName = (tag: string) => {
   return tag
 }
 
+type PendingFilterTrack = {
+  eventType: TRACKING_EVENT_TYPE
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: Record<string, any>
+}
+
 const Filter = ({
   filters,
   updateFilters,
@@ -60,6 +66,7 @@ const Filter = ({
   setSearch,
   onOpenCreatePool,
   totalItems,
+  isFetching,
 }: {
   filters: PoolQueryParams
   updateFilters: (key: keyof PoolQueryParams, value: string) => void
@@ -67,6 +74,7 @@ const Filter = ({
   setSearch: (value: string) => void
   onOpenCreatePool?: () => void
   totalItems?: number
+  isFetching?: boolean
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
@@ -75,6 +83,22 @@ const Filter = ({
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+
+  // Rapid successive clicks overwrite the ref — only the latest filter change is tracked.
+  const pendingFilterTrackRef = useRef<PendingFilterTrack | null>(null)
+  const prevIsFetchingRef = useRef<boolean>(Boolean(isFetching))
+
+  useEffect(() => {
+    if (prevIsFetchingRef.current && !isFetching && pendingFilterTrackRef.current) {
+      const { eventType, payload } = pendingFilterTrackRef.current
+      trackingHandler(eventType, {
+        ...payload,
+        results_count: totalItems ?? 0,
+      })
+      pendingFilterTrackRef.current = null
+    }
+    prevIsFetchingRef.current = Boolean(isFetching)
+  }, [isFetching, totalItems, trackingHandler])
 
   const selectedChainsLabel = useMemo(() => {
     const arrValue = filters.chainIds?.split(',').filter(Boolean)
@@ -155,52 +179,60 @@ const Filter = ({
   )
 
   const onChainChange = (value: string | number) => {
-    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
-      filter_type: 'chain',
-      filter_value: value.toString(),
-      previous_value: filters.chainIds || 'all',
-      results_count: totalItems || 0,
-      active_category: tagToCategoryName(filters.tag || ''),
-      chain: value.toString(),
-    })
+    pendingFilterTrackRef.current = {
+      eventType: TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED,
+      payload: {
+        filter_type: 'chain',
+        filter_value: value.toString(),
+        previous_value: filters.chainIds || 'all',
+        active_category: tagToCategoryName(filters.tag || ''),
+        chain: value.toString(),
+      },
+    }
     updateFilters('chainIds', value.toString())
   }
 
   const onProtocolChange = (newProtocol: string | number) => {
-    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
-      filter_type: 'protocol',
-      filter_value: newProtocol.toString(),
-      previous_value: filters.protocol || 'all',
-      results_count: totalItems || 0,
-      active_category: tagToCategoryName(filters.tag || ''),
-      chain: filters.chainIds,
-    })
+    pendingFilterTrackRef.current = {
+      eventType: TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED,
+      payload: {
+        filter_type: 'protocol',
+        filter_value: newProtocol.toString(),
+        previous_value: filters.protocol || 'all',
+        active_category: tagToCategoryName(filters.tag || ''),
+        chain: filters.chainIds,
+      },
+    }
     updateFilters('protocol', newProtocol.toString())
   }
 
   const onIntervalChange = (newInterval: string | number) => {
-    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
-      filter_type: 'time_period',
-      filter_value: newInterval.toString(),
-      previous_value: filters.interval || '24h',
-      results_count: totalItems || 0,
-      active_category: tagToCategoryName(filters.tag || ''),
-      chain: filters.chainIds,
-    })
+    pendingFilterTrackRef.current = {
+      eventType: TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED,
+      payload: {
+        filter_type: 'time_period',
+        filter_value: newInterval.toString(),
+        previous_value: filters.interval || '24h',
+        active_category: tagToCategoryName(filters.tag || ''),
+        chain: filters.chainIds,
+      },
+    }
     updateFilters('interval', newInterval.toString())
   }
 
   const onRewardTypeChange = (newRewardType: string | number) => {
     const rewardType = newRewardType.toString()
 
-    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
-      filter_type: 'reward_type',
-      filter_value: rewardType || 'all',
-      previous_value: selectedRewardTypeValue || 'all',
-      results_count: totalItems || 0,
-      active_category: tagToCategoryName(filters.tag || ''),
-      chain: filters.chainIds,
-    })
+    pendingFilterTrackRef.current = {
+      eventType: TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED,
+      payload: {
+        filter_type: 'reward_type',
+        filter_value: rewardType || 'all',
+        previous_value: selectedRewardTypeValue || 'all',
+        active_category: tagToCategoryName(filters.tag || ''),
+        chain: filters.chainIds,
+      },
+    }
     updateFilters('rewardType', rewardType)
   }
 
@@ -212,12 +244,14 @@ const Filter = ({
             active={!filters.tag}
             role="button"
             onClick={() => {
-              trackingHandler(TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED, {
-                category: 'all_pools',
-                previous_category: tagToCategoryName(filters.tag || ''),
-                results_count: totalItems || 0,
-                chain: filters.chainIds,
-              })
+              pendingFilterTrackRef.current = {
+                eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
+                payload: {
+                  category: 'all_pools',
+                  previous_category: tagToCategoryName(filters.tag || ''),
+                  chain: filters.chainIds,
+                },
+              }
               updateFilters('tag', '')
             }}
           >
@@ -228,12 +262,14 @@ const Filter = ({
               active={filters.tag === 'favorite'}
               role="button"
               onClick={() => {
-                trackingHandler(TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED, {
-                  category: 'favorites',
-                  previous_category: tagToCategoryName(filters.tag || ''),
-                  results_count: totalItems || 0,
-                  chain: filters.chainIds,
-                })
+                pendingFilterTrackRef.current = {
+                  eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
+                  payload: {
+                    category: 'favorites',
+                    previous_category: tagToCategoryName(filters.tag || ''),
+                    chain: filters.chainIds,
+                  },
+                }
                 updateFilters('tag', 'favorite')
               }}
             >
@@ -242,12 +278,14 @@ const Filter = ({
           </MouseoverTooltip>
           {filterTagOptions.map((item, index) => {
             const handleTagClick = () => {
-              trackingHandler(TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED, {
-                category: tagToCategoryName(item.value),
-                previous_category: tagToCategoryName(filters.tag || ''),
-                results_count: totalItems || 0,
-                chain: filters.chainIds,
-              })
+              pendingFilterTrackRef.current = {
+                eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
+                payload: {
+                  category: tagToCategoryName(item.value),
+                  previous_category: tagToCategoryName(filters.tag || ''),
+                  chain: filters.chainIds,
+                },
+              }
               updateFilters('tag', item.value)
             }
             return !upToMedium ? (

@@ -65,7 +65,7 @@ const PoolExplorer = () => {
     onOpenSmartExit,
   })
   const { widget: zapCreatePoolWidget, open: openZapCreatePoolWidget } = useZapCreatePoolWidget()
-  const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
+  const { data: poolData, isError, isFetching } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const pendingSearchRef = useRef('')
 
@@ -237,6 +237,7 @@ const PoolExplorer = () => {
         setSearch={setSearch}
         onOpenCreatePool={() => setIsCreateModalOpen(true)}
         totalItems={poolData?.data?.pagination?.totalItems}
+        isFetching={isFetching}
       />
 
       {upToLarge && (
