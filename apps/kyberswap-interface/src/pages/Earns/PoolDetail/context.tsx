@@ -36,6 +36,7 @@ const mergePoolTokens = (poolDetail: PoolDetail, tokenMetadata: WrappedTokenInfo
       name: metadata.name ?? detailToken.name,
       symbol: metadata.symbol ?? detailToken.symbol,
       decimals: metadata.decimals ?? detailToken.decimals,
+      logo: metadata.logoURI ?? detailToken.logoURI,
       logoURI: metadata.logoURI ?? detailToken.logoURI,
       isStable: detailToken.isStable ?? metadata.isStable,
     }

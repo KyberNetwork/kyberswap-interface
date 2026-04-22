@@ -11,7 +11,7 @@ import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
 import { useCheckPairQuery } from 'services/marketOverview'
-import { PoolDetail, PoolDetailToken } from 'services/zapEarn'
+import { PoolDetail } from 'services/zapEarn'
 
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 
@@ -51,11 +51,6 @@ const buildPoolStats = (stats?: PoolDetail['poolStats']) => ({
   kemEGApr30d: Number(stats?.kemEGApr30d || 0),
 })
 
-const buildPoolToken = ({ logoURI, ...token }: PoolDetailToken) => ({
-  ...token,
-  logo: logoURI,
-})
-
 export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps) => {
   const pairTokenAddresses = useMemo(() => {
     if (rawPool.tokens.length < 2) return null
@@ -83,8 +78,7 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
 
   const normalizedPool = useMemo<ZapPool | null>(() => {
     if (rawPool.tokens.length < 2) return null
-    const token0 = buildPoolToken(rawPool.tokens[0])
-    const token1 = buildPoolToken(rawPool.tokens[1])
+    const [token0, token1] = rawPool.tokens
 
     const category = pairCategoryLoading ? undefined : mapPoolCategory(pairCategoryData?.data?.category)
     const stats = buildPoolStats(rawPool.poolStats)
