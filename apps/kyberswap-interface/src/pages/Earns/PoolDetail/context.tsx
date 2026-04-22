@@ -1,6 +1,7 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { ReactNode, createContext, useContext, useMemo } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
+import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 import { PoolDetail, PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { APP_PATHS } from 'constants/index'
@@ -10,6 +11,7 @@ import PoolDetailPageSkeleton from 'pages/Earns/PoolDetail/components/PoolDetail
 import { NoteCard, PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, EarnDexInfo, Exchange } from 'pages/Earns/constants'
 import { EarnPool } from 'pages/Earns/types'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 interface PoolDetailContextValue {
   pool: PoolDetail
@@ -24,17 +26,27 @@ interface PoolDetailContextValue {
 
 const PoolDetailContext = createContext<PoolDetailContextValue | null>(null)
 
-const mergePoolTokens = (poolDetail: PoolDetail, explorerPool?: EarnPool) => {
-  return poolDetail.tokens.map((detailToken, index) => {
-    const explorerToken = explorerPool?.tokens[index]
-    if (!explorerToken) return detailToken
+const mergePoolTokens = (
+  poolDetail: PoolDetail,
+  poolExplorer: EarnPool | undefined,
+  tokenMetadata: (WrappedTokenInfo | NativeCurrency)[] = [],
+): PoolDetailToken[] => {
+  const tokenMap = new Map(
+    tokenMetadata
+      .filter((token): token is WrappedTokenInfo => token && 'address' in token)
+      .map(token => [token.address.toLowerCase(), token]),
+  )
+  return poolDetail.tokens.map((tokenDetail, index) => {
+    const tokenExplorer = poolExplorer?.tokens[index]
+    const metadata = tokenMap.get(tokenDetail.address.toLowerCase())
     return {
-      ...detailToken,
-      ...explorerToken,
-      address: detailToken.address || explorerToken.address,
-      symbol: detailToken.symbol || explorerToken.symbol,
-      decimals: detailToken.decimals || explorerToken.decimals,
-      logoURI: detailToken.logoURI || explorerToken.logoURI,
+      ...tokenDetail,
+      address: tokenExplorer?.address || tokenDetail.address,
+      symbol: tokenExplorer?.symbol ?? tokenDetail.symbol,
+      name: metadata?.name ?? '',
+      logo: tokenExplorer?.logoURI ?? metadata?.logoURI,
+      logoURI: tokenExplorer?.logoURI ?? metadata?.logoURI,
+      isStable: metadata?.isStable,
     }
   })
 }
@@ -42,7 +54,7 @@ const mergePoolTokens = (poolDetail: PoolDetail, explorerPool?: EarnPool) => {
 export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   const [searchParams] = useSearchParams()
 
-  const exchange = searchParams.get('exchange') || undefined
+  const exchange = searchParams.get('exchange') || ''
   const poolAddress = searchParams.get('poolAddress') || ''
   const poolChainId = Number(searchParams.get('poolChainId') || 0)
 
@@ -57,19 +69,27 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   const { data: explorerData } = usePoolsExplorerQuery(
     {
       chainId: poolChainId,
-      protocol: exchange || '',
+      protocol: exchange,
       q: poolAddress,
     },
     { skip: !poolChainId || !poolAddress || !exchange },
+  )
+
+  const { data: tokenMetadata } = useGetTokenByAddressesQuery(
+    {
+      chainId: poolChainId as ChainId,
+      addresses: poolDetail?.tokens.map(token => token.address) as string[],
+    },
+    { skip: !poolDetail },
   )
 
   const pool = useMemo<PoolDetail | undefined>(() => {
     if (!poolDetail) return undefined
     return {
       ...poolDetail,
-      tokens: mergePoolTokens(poolDetail, explorerData?.data.pools[0]),
+      tokens: mergePoolTokens(poolDetail, explorerData?.data.pools[0], tokenMetadata),
     }
-  }, [poolDetail, explorerData])
+  }, [poolDetail, explorerData, tokenMetadata])
 
   if (!poolChainId || !poolAddress) {
     return <Navigate to={APP_PATHS.EARN_POOLS} replace />

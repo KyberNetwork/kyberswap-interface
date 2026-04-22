@@ -71,7 +71,7 @@ const TooltipAddressRow = ({ token, chainInfo }: { token: PoolDetailToken; chain
 
   return (
     <HStack align="center" gap={8} wrap="wrap">
-      {tokenLogo ? <TokenLogo src={tokenLogo} size={18} /> : null}
+      <TokenLogo src={tokenLogo} size={20} />
       <Text color="inherit" fontSize={14} fontWeight={500}>
         {tokenSymbol}
       </Text>
@@ -124,11 +124,11 @@ const PoolHeaderPage = () => {
   }
 
   const tooltipContent = (
-    <Stack minWidth={240} gap={12}>
+    <Stack minWidth={240} gap={4}>
       <HStack align="center" gap={8} wrap="wrap">
         <HStack flex="0 0 auto" align="center" gap={0}>
-          <TokenLogo src={primaryToken.logoURI} size={18} />
-          <TokenLogo src={secondaryToken.logoURI} size={18} translateLeft />
+          <TokenLogo src={primaryToken.logoURI} size={20} />
+          <TokenLogo src={secondaryToken.logoURI} size={20} translateLeft />
         </HStack>
         <Text color={theme.text} fontSize={14} fontWeight={500}>
           {primaryToken.symbol}/{secondaryToken.symbol}

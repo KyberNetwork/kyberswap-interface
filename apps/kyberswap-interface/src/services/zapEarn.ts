@@ -74,6 +74,7 @@ export interface PoolDetailToken {
   decimals: number
   weight: number
   swappable: boolean
+  isStable?: boolean
 }
 
 interface PoolDetailTick {

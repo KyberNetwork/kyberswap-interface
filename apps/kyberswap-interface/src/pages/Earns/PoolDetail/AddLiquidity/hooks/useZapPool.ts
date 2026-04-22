@@ -2,22 +2,18 @@ import {
   NATIVE_TOKEN_ADDRESS,
   POOL_CATEGORY,
   PoolType,
-  Token,
   Pool as ZapPool,
   univ2PoolNormalize,
   univ3PoolNormalize,
   univ4Types,
 } from '@kyber/schema'
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
-import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
-import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 import { useCheckPairQuery } from 'services/marketOverview'
-import { PoolDetail, PoolDetailToken } from 'services/zapEarn'
+import { PoolDetail } from 'services/zapEarn'
 
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type UseZapPoolProps = {
   chainId: number
@@ -55,29 +51,6 @@ const buildPoolStats = (stats?: PoolDetail['poolStats']) => ({
   kemEGApr30d: Number(stats?.kemEGApr30d || 0),
 })
 
-const buildPoolTokens = (
-  poolTokens: PoolDetailToken[],
-  metadataTokens: Array<WrappedTokenInfo | NativeCurrency> = [],
-): Token[] => {
-  const tokenMap = new Map(
-    metadataTokens
-      .filter((token): token is WrappedTokenInfo => token && 'address' in token)
-      .map(token => [token.address.toLowerCase(), token]),
-  )
-  return poolTokens.map(poolToken => {
-    const metadata = tokenMap.get(poolToken.address.toLowerCase())
-    if (!metadata) return poolToken
-    return {
-      address: poolToken.address,
-      symbol: metadata.symbol || poolToken.symbol,
-      name: metadata.name || poolToken.name || poolToken.symbol,
-      decimals: metadata.decimals ?? poolToken.decimals,
-      logo: metadata.logoURI || poolToken.logoURI,
-      isStable: metadata.isStable,
-    }
-  })
-}
-
 export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps) => {
   const pairTokenAddresses = useMemo(() => {
     if (rawPool.tokens.length < 2) return null
@@ -103,13 +76,8 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
       : skipToken,
   )
 
-  const { data: tokenMetadata, isLoading: tokenMetadataLoading } = useGetTokenByAddressesQuery({
-    chainId: chainId as ChainId,
-    addresses: rawPool.tokens.map(token => token.address),
-  })
-
   const normalizedPool = useMemo<ZapPool | null>(() => {
-    const [token0, token1] = buildPoolTokens(rawPool.tokens, tokenMetadata)
+    const [token0, token1] = rawPool.tokens
 
     const category = pairCategoryLoading ? undefined : mapPoolCategory(pairCategoryData?.data?.category)
     const stats = buildPoolStats(rawPool.poolStats)
@@ -157,9 +125,9 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
     })
 
     return parsedPool.success ? parsedPool.data : null
-  }, [pairCategoryData?.data?.category, pairCategoryLoading, poolType, rawPool, tokenMetadata])
+  }, [pairCategoryData?.data?.category, pairCategoryLoading, poolType, rawPool])
 
-  const loading = tokenMetadataLoading || pairCategoryLoading
+  const loading = pairCategoryLoading
   const error = !loading && !normalizedPool ? 'Failed to prepare pool data' : ''
 
   return {
