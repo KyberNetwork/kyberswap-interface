@@ -39,6 +39,7 @@ const NodePoolList = styled.div`
 `
 
 type Edge = { source: Token; target: Token; swaps: SwapRouteV3[] }
+type PathPoint = { x: number; y: number }
 
 // find the non overlap between the source rect and middle rects
 function findNonOverlapRanges(mainLine: [number, number], overlappingLines: [number, number][]): [number, number][] {
@@ -79,6 +80,43 @@ function findNonOverlapRanges(mainLine: [number, number], overlappingLines: [num
   }
 
   return availableRanges
+}
+
+const getPathPoints = (path: string): PathPoint[] => {
+  const matches = [...path.matchAll(/[ML]\s*([-\d.]+)\s+([-\d.]+)/g)]
+  return matches.map(([, x, y]) => ({ x: Number(x), y: Number(y) }))
+}
+
+const getDistanceBetweenPoints = (start: PathPoint, end: PathPoint) => Math.hypot(end.x - start.x, end.y - start.y)
+
+const getPointOnPathAtRatio = (path: string, ratio: number): PathPoint | null => {
+  const points = getPathPoints(path)
+  if (points.length < 2) return null
+
+  const segmentLengths = points.slice(1).map((point, index) => getDistanceBetweenPoints(points[index], point))
+  const totalLength = segmentLengths.reduce((sum, segmentLength) => sum + segmentLength, 0)
+  if (!totalLength) return null
+
+  const targetLength = totalLength * ratio
+  let traversedLength = 0
+
+  for (let index = 0; index < segmentLengths.length; index++) {
+    const segmentLength = segmentLengths[index]
+    const segmentStart = points[index]
+    const segmentEnd = points[index + 1]
+
+    if (traversedLength + segmentLength >= targetLength) {
+      const segmentRatio = (targetLength - traversedLength) / segmentLength
+      return {
+        x: segmentStart.x + (segmentEnd.x - segmentStart.x) * segmentRatio,
+        y: segmentStart.y + (segmentEnd.y - segmentStart.y) * segmentRatio,
+      }
+    }
+
+    traversedLength += segmentLength
+  }
+
+  return points[points.length - 1] ?? null
 }
 
 const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn }) => {
@@ -470,9 +508,13 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                 <line x1={10} x2={10} y1={lowestYForStartNode} y2={10} stroke={routePathColor} strokeWidth="1.5" />
               )}
               {finalEdges.map((item: any, index) => {
+                const labelPoint = isStartNode ? getPointOnPathAtRatio(item.path, 0.3) : null
+                const labelX = (labelPoint?.x ?? item.startX) + 4
+                const labelY = (labelPoint?.y ?? item.startY) + 3
+
                 return (
                   <React.Fragment key={index}>
-                    <text x={item.startX + 4} y={item.startY + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
+                    <text x={labelX} y={labelY} fontSize="10" fontWeight="500" fill={theme.primary}>
                       {item.percent}%
                     </text>
                     <path
