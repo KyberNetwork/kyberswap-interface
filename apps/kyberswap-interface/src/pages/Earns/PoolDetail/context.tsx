@@ -1,8 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, createContext, useContext, useMemo } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
-import { useGetTokenByAddressesQuery } from 'services/ksSetting'
-import { PoolDetail, PoolDetailToken, usePoolDetailQuery } from 'services/zapEarn'
+import { PoolDetail, PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -10,7 +9,7 @@ import { NetworkInfo } from 'constants/networks/type'
 import PoolDetailPageSkeleton from 'pages/Earns/PoolDetail/components/PoolDetailPageSkeleton'
 import { NoteCard, PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, EarnDexInfo, Exchange } from 'pages/Earns/constants'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { EarnPool } from 'pages/Earns/types'
 
 interface PoolDetailContextValue {
   pool: PoolDetail
@@ -25,22 +24,20 @@ interface PoolDetailContextValue {
 
 const PoolDetailContext = createContext<PoolDetailContextValue | null>(null)
 
-const mergePoolTokens = (poolDetail: PoolDetail, tokenMetadata: WrappedTokenInfo[]): PoolDetailToken[] =>
-  poolDetail.tokens.map(detailToken => {
-    const metadata = tokenMetadata.find(token => token.address?.toLowerCase() === detailToken.address.toLowerCase())
-    if (!metadata) return detailToken
-
+const mergePoolTokens = (poolDetail: PoolDetail, explorerPool?: EarnPool) => {
+  return poolDetail.tokens.map((detailToken, index) => {
+    const explorerToken = explorerPool?.tokens[index]
+    if (!explorerToken) return detailToken
     return {
       ...detailToken,
-      address: metadata.address ?? detailToken.address,
-      name: metadata.name ?? detailToken.name,
-      symbol: metadata.symbol ?? detailToken.symbol,
-      decimals: metadata.decimals ?? detailToken.decimals,
-      logo: metadata.logoURI ?? detailToken.logoURI,
-      logoURI: metadata.logoURI ?? detailToken.logoURI,
-      isStable: detailToken.isStable ?? metadata.isStable,
+      ...explorerToken,
+      address: detailToken.address || explorerToken.address,
+      symbol: detailToken.symbol || explorerToken.symbol,
+      decimals: detailToken.decimals || explorerToken.decimals,
+      logoURI: detailToken.logoURI || explorerToken.logoURI,
     }
   })
+}
 
 export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   const [searchParams] = useSearchParams()
@@ -49,7 +46,7 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
   const poolAddress = searchParams.get('poolAddress') || ''
   const poolChainId = Number(searchParams.get('poolChainId') || 0)
 
-  const { data: poolDetail, isLoading: isPoolDetailLoading } = usePoolDetailQuery(
+  const { data: poolDetail, isLoading: isPoolLoading } = usePoolDetailQuery(
     {
       chainId: poolChainId,
       address: poolAddress,
@@ -57,24 +54,22 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
     { skip: !poolChainId || !poolAddress },
   )
 
-  const { data: tokenMetadata = [], isLoading: isTokenMetadataLoading } = useGetTokenByAddressesQuery(
+  const { data: explorerData } = usePoolsExplorerQuery(
     {
-      chainId: poolChainId as ChainId,
-      addresses: poolDetail?.tokens.map(token => token.address) as string[],
+      chainId: poolChainId,
+      protocol: exchange || '',
+      q: poolAddress,
     },
-    { skip: !poolDetail },
+    { skip: !poolChainId || !poolAddress || !exchange },
   )
 
   const pool = useMemo<PoolDetail | undefined>(() => {
     if (!poolDetail) return undefined
     return {
       ...poolDetail,
-      exchange: poolDetail.exchange || exchange,
-      tokens: mergePoolTokens(poolDetail, tokenMetadata as WrappedTokenInfo[]),
+      tokens: mergePoolTokens(poolDetail, explorerData?.data.pools[0]),
     }
-  }, [exchange, poolDetail, tokenMetadata])
-
-  const isPoolLoading = Boolean(poolChainId && poolAddress) && (isPoolDetailLoading || isTokenMetadataLoading)
+  }, [poolDetail, explorerData])
 
   if (!poolChainId || !poolAddress) {
     return <Navigate to={APP_PATHS.EARN_POOLS} replace />
