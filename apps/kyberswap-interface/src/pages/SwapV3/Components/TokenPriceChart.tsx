@@ -237,8 +237,8 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   if (!activeToken || !stableToken) return null
 
   const settlementPriceTooltip = (
-    <Stack gap={8} align="flex-start">
-      <Text color={theme.subText} fontSize={14}>
+    <Stack gap={4} align="flex-start">
+      <Text color={theme.subText} fontSize={12}>
         <Trans>
           Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from
           actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data.
