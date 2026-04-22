@@ -2,22 +2,18 @@ import {
   NATIVE_TOKEN_ADDRESS,
   POOL_CATEGORY,
   PoolType,
-  Token,
   Pool as ZapPool,
   univ2PoolNormalize,
   univ3PoolNormalize,
   univ4Types,
 } from '@kyber/schema'
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
-import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
-import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 import { useCheckPairQuery } from 'services/marketOverview'
 import { PoolDetail, PoolDetailToken } from 'services/zapEarn'
 
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type UseZapPoolProps = {
   chainId: number
@@ -55,24 +51,10 @@ const buildPoolStats = (stats?: PoolDetail['poolStats']) => ({
   kemEGApr30d: Number(stats?.kemEGApr30d || 0),
 })
 
-const getTokenLogo = (token?: { logo?: string; logoURI?: string } | null, fallbackLogo?: string) =>
-  token?.logo || token?.logoURI || fallbackLogo
-
-const buildPoolToken = (poolToken: PoolDetailToken, tokenMap: Map<string, WrappedTokenInfo>): Token => {
-  const metadata = tokenMap.get(poolToken.address.toLowerCase())
-
-  return {
-    address: poolToken.address,
-    symbol: metadata?.symbol || poolToken.symbol,
-    name: metadata?.name || poolToken.name || poolToken.symbol,
-    decimals: metadata?.decimals ?? poolToken.decimals,
-    logo: getTokenLogo(metadata, poolToken.logoURI),
-    isStable: metadata?.isStable,
-  }
-}
-
-const isWrappedTokenInfo = (token: WrappedTokenInfo | NativeCurrency): token is WrappedTokenInfo =>
-  token && 'address' in token
+const buildPoolToken = ({ logoURI, ...token }: PoolDetailToken) => ({
+  ...token,
+  logo: logoURI,
+})
 
 export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps) => {
   const pairTokenAddresses = useMemo(() => {
@@ -89,11 +71,6 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
     }
   }, [poolType, rawPool.staticExtra, rawPool.tokens])
 
-  const tokenAddresses = useMemo(
-    () => Array.from(new Set(rawPool.tokens.map(token => token.address.toLowerCase()).filter(Boolean))),
-    [rawPool.tokens],
-  )
-
   const { data: pairCategoryData, isLoading: pairCategoryLoading } = useCheckPairQuery(
     chainId && pairTokenAddresses
       ? {
@@ -104,25 +81,11 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
       : skipToken,
   )
 
-  const { data: tokenMetadata = [], isLoading: tokenMetadataLoading } = useGetTokenByAddressesQuery(
-    chainId && tokenAddresses.length
-      ? {
-          chainId: chainId as ChainId,
-          addresses: tokenAddresses,
-        }
-      : skipToken,
-  )
-
-  const tokenMetadataMap = useMemo(
-    () => new Map(tokenMetadata.filter(isWrappedTokenInfo).map(token => [token.address.toLowerCase(), token] as const)),
-    [tokenMetadata],
-  )
-
   const normalizedPool = useMemo<ZapPool | null>(() => {
     if (rawPool.tokens.length < 2) return null
+    const token0 = buildPoolToken(rawPool.tokens[0])
+    const token1 = buildPoolToken(rawPool.tokens[1])
 
-    const token0 = buildPoolToken(rawPool.tokens[0], tokenMetadataMap)
-    const token1 = buildPoolToken(rawPool.tokens[1], tokenMetadataMap)
     const category = pairCategoryLoading ? undefined : mapPoolCategory(pairCategoryData?.data?.category)
     const stats = buildPoolStats(rawPool.poolStats)
     const isFarming = Boolean(rawPool.programs?.includes('eg') || rawPool.programs?.includes('lm'))
@@ -169,9 +132,9 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
     })
 
     return parsedPool.success ? parsedPool.data : null
-  }, [pairCategoryData?.data?.category, pairCategoryLoading, poolType, rawPool, tokenMetadataMap])
+  }, [pairCategoryData?.data?.category, pairCategoryLoading, poolType, rawPool])
 
-  const loading = (Boolean(tokenAddresses.length) && tokenMetadataLoading) || pairCategoryLoading
+  const loading = pairCategoryLoading
   const error = !loading && !normalizedPool ? 'Failed to prepare pool data' : ''
 
   return {
