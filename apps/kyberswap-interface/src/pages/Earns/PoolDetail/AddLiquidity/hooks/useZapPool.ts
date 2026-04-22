@@ -71,7 +71,8 @@ const buildPoolToken = (poolToken: PoolDetailToken, tokenMap: Map<string, Wrappe
   }
 }
 
-const isWrappedTokenInfo = (token: WrappedTokenInfo | NativeCurrency): token is WrappedTokenInfo => 'address' in token
+const isWrappedTokenInfo = (token: WrappedTokenInfo | NativeCurrency): token is WrappedTokenInfo =>
+  token && 'address' in token
 
 export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps) => {
   const pairTokenAddresses = useMemo(() => {

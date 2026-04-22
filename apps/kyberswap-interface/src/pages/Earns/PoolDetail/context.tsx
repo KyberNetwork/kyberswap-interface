@@ -49,10 +49,10 @@ const mergePoolTokens = (poolDetail: PoolDetail, explorerPool?: EarnPool) => {
     return {
       ...detailToken,
       ...explorerToken,
-      address: explorerToken.address || detailToken.address,
-      symbol: explorerToken.symbol || detailToken.symbol,
-      decimals: explorerToken.decimals ?? detailToken.decimals,
-      logoURI: explorerToken.logoURI || detailToken.logoURI,
+      address: detailToken.address || explorerToken.address,
+      symbol: detailToken.symbol || explorerToken.symbol,
+      decimals: detailToken.decimals || explorerToken.decimals,
+      logoURI: detailToken.logoURI || explorerToken.logoURI,
     }
   })
 }
