@@ -235,6 +235,7 @@ export default function ClaimAllModal({
                         showBackground
                       >
                         {[...chain.tokens]
+                          .filter(token => token.claimableUsdValue > 0)
                           .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
                           .map(token => (
                             <TokenRewardRow
@@ -297,6 +298,7 @@ export default function ClaimAllModal({
                 showBackground
               >
                 {[...selectedRewardChain.tokens]
+                  .filter(token => token.claimableUsdValue > 0)
                   .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
                   .map(token => (
                     <TokenRewardRow
