@@ -1,4 +1,5 @@
 import { ChainId, type Currency } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
@@ -19,11 +20,12 @@ import styled from 'styled-components'
 import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState from 'pages/Earns/PoolDetail/components/PoolChartState'
-import { MEDIA_WIDTHS } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 import TokenPriceChartCanvas, { type DisplayCandle } from './TokenPriceChartCanvas'
 
@@ -39,6 +41,22 @@ const TokenTabsList = styled.div`
   flex: 1;
   min-width: 0;
   overflow-x: auto;
+`
+
+const HeaderMetaText = styled(Text)`
+  flex: 0 1 auto;
+  min-width: 0;
+  color: ${({ theme }) => theme.subText};
+  font-size: 14px;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 150ms ease-in-out;
+
+  :hover {
+    color: ${({ theme }) => theme.text};
+  }
 `
 
 const TabButton = styled.button<{ $active: boolean; $isLast: boolean }>`
@@ -218,9 +236,24 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
 
   if (!activeToken || !stableToken) return null
 
+  const settlementPriceTooltip = (
+    <Stack gap={8} align="flex-start">
+      <Text color={theme.subText} fontSize={14}>
+        <Trans>
+          Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from
+          actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data.
+          Values may differ from prices on other platforms.
+        </Trans>
+      </Text>
+      <ExternalLink href="https://docs.kyberswap.com">
+        <Trans>Learn more about KyberSwap Settlement Prices</Trans>
+      </ExternalLink>
+    </Stack>
+  )
+
   return (
     <ChartPanel gap={0}>
-      <HStack align="center" pr={16}>
+      <HStack align="center" gap={12} pr={16}>
         <TokenTabsList role="tablist">
           {filteredTokens.map((token, index) => {
             const isActive = index === resolvedActiveTabIndex
@@ -242,6 +275,12 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
             )
           })}
         </TokenTabsList>
+
+        {!upToSmall && (
+          <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="360px">
+            <HeaderMetaText>{t`Powered by KyberSwap Settlement Prices`}</HeaderMetaText>
+          </MouseoverTooltip>
+        )}
 
         {upToSmall && (
           <ToggleIconWrapper onClick={() => setIsExpanded(expanded => !expanded)} type="button">
@@ -303,6 +342,12 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                 timeFrame={timeFrame}
               />
             </PoolChartState>
+
+            {upToSmall && (
+              <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="280px">
+                <HeaderMetaText>{t`Settlement Prices`}</HeaderMetaText>
+              </MouseoverTooltip>
+            )}
           </Stack>
         </Stack>
       )}
