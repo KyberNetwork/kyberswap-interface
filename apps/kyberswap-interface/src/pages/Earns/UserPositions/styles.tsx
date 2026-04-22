@@ -6,17 +6,7 @@ import styled from 'styled-components'
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
-export const PositionPageWrapper = styled(PoolPageWrapper)`
-  padding: 24px 6rem 62px;
-
-  @media (max-width: 1300px) {
-    padding: 24px 6rem 60px;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 24px 16px 100px;
-  `}
-`
+export { PoolPageWrapper as PositionPageWrapper }
 
 export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
   display: grid;
