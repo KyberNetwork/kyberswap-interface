@@ -57,10 +57,10 @@ const buildPoolStats = (stats?: PoolDetail['poolStats']) => ({
 
 const buildPoolTokens = (
   poolTokens: PoolDetailToken[],
-  metadataTokens?: Array<WrappedTokenInfo | NativeCurrency>,
+  metadataTokens: Array<WrappedTokenInfo | NativeCurrency> = [],
 ): Token[] => {
   const tokenMap = new Map(
-    (metadataTokens ?? [])
+    metadataTokens
       .filter((token): token is WrappedTokenInfo => token && 'address' in token)
       .map(token => [token.address.toLowerCase(), token]),
   )
