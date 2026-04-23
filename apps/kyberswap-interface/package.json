@@ -125,6 +125,7 @@
     "html5-qrcode": "^2.3.8",
     "inter-ui": "^3.19.3",
     "jsbi": "^3.2.5",
+    "lightweight-charts": "^3.3.0",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "memoize-one": "^6.0.0",

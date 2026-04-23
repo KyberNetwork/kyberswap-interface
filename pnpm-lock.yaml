@@ -290,6 +290,9 @@ importers:
       jsbi:
         specifier: ^3.2.5
         version: 3.2.5
+      lightweight-charts:
+        specifier: ^3.3.0
+        version: 3.8.0
       lodash.debounce:
         specifier: ^4.0.8
         version: 4.0.8
@@ -29183,6 +29186,10 @@ packages:
     engines: {node: '> 0.1.90'}
     dev: false
 
+  /fancy-canvas@0.2.2:
+    resolution: {integrity: sha512-50qi8xA0QkHbjmb8h7XQ6k2fvD7y/yMfiUw9YTarJ7rWrq6o5/3CCXPouYk+XSLASvvxtjyiQLRBFt3qkE3oyA==}
+    dev: false
+
   /fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
@@ -31915,6 +31922,12 @@ packages:
       marky: 1.3.0
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /lightweight-charts@3.8.0:
+    resolution: {integrity: sha512-7yFGnYuE1RjRJG9RwUTBz5wvF1QtjBOSW4FFlikr8Dh+/TDNt4ci+HsWSYmStgQUpawpvkCJ3j5/W25GppGj9Q==}
+    dependencies:
+      fancy-canvas: 0.2.2
     dev: false
 
   /lilconfig@2.1.0:
