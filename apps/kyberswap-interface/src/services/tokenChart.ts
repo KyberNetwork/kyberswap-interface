@@ -159,7 +159,7 @@ const tokenChartApi = createApi({
       transformResponse: (response: TokenChartApiResponse) => {
         return {
           ...response.data,
-          candles: sanitizeTokenChartCandles(response.data.candles),
+          candles: sanitizeTokenChartCandles(response.data?.candles ?? []),
         }
       },
     }),

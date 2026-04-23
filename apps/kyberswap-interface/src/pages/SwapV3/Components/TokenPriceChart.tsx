@@ -216,7 +216,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   }
 
   const accumulatedCandles = useMemo(
-    () => mergeTokenChartCandles(infiniteData?.pages.flatMap(page => page.candles) ?? []),
+    () => mergeTokenChartCandles(infiniteData?.pages.flatMap(page => page?.candles ?? []) ?? []),
     [infiniteData?.pages],
   )
   const chartData = useMemo<DisplayCandle[]>(
