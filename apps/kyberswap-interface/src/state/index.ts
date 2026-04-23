@@ -27,6 +27,7 @@ import routeApi from 'services/route'
 import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
+import tokenChartApi from 'services/tokenChart'
 import zapApi from 'services/zap'
 import zapEarnServiceApi from 'services/zapEarn'
 
@@ -127,6 +128,7 @@ const store = configureStore({
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
     [smartExitApi.reducerPath]: smartExitApi.reducer,
+    [tokenChartApi.reducerPath]: tokenChartApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -165,7 +167,8 @@ const store = configureStore({
       .concat(commonServiceApi.middleware)
       .concat(blackjackApi.middleware)
       .concat(marketOverviewApi.middleware)
-      .concat(smartExitApi.middleware),
+      .concat(smartExitApi.middleware)
+      .concat(tokenChartApi.middleware),
   preloadedState,
 })
 

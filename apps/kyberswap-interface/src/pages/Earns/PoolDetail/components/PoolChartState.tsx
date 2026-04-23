@@ -3,6 +3,8 @@ import { type ReactNode } from 'react'
 import { Box, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
+import { ReactComponent as PriceChartEmptyIcon } from 'assets/svg/price-chart-empty.svg'
+import ProgressBar from 'components/ProgressBar'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
@@ -48,6 +50,9 @@ type PoolChartSkeletonProps = {
 type PoolChartMessageProps = {
   height?: number
   message: string
+  showIcon?: boolean
+  textColor?: string
+  textWeight?: number
 }
 
 type PoolChartStateProps = {
@@ -58,9 +63,20 @@ type PoolChartStateProps = {
   height?: number
   isEmpty?: boolean
   isError?: boolean
+  isFetching?: boolean
   isLoading?: boolean
   skeletonType?: PoolChartSkeletonProps['type']
 }
+
+const ChartFetchingOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding-top: 4px;
+  background: ${({ theme }) => rgba(theme.background, 0.06)};
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+`
 
 const PoolChartStateLayout = ({
   children,
@@ -270,12 +286,19 @@ const EarningChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: PoolChartSkelet
   )
 }
 
-const PoolChartMessage = ({ height = DEFAULT_CHART_HEIGHT, message }: PoolChartMessageProps) => {
+const PoolChartEmptyState = ({
+  height = DEFAULT_CHART_HEIGHT,
+  message,
+  showIcon = false,
+  textColor,
+  textWeight,
+}: PoolChartMessageProps) => {
   const theme = useTheme()
 
   return (
-    <PoolChartStateLayout gap={8} height={height}>
-      <Text color={theme.text} fontSize={14} fontWeight={500}>
+    <PoolChartStateLayout gap={12} height={height}>
+      {showIcon ? <PriceChartEmptyIcon height={128} width={128} /> : null}
+      <Text fontSize={14} color={textColor ?? theme.subText} fontWeight={textWeight ?? 500}>
         {message}
       </Text>
     </PoolChartStateLayout>
@@ -290,6 +313,7 @@ const PoolChartState = ({
   height = DEFAULT_CHART_HEIGHT,
   isEmpty,
   isError,
+  isFetching,
   isLoading,
   skeletonType,
 }: PoolChartStateProps) => {
@@ -306,11 +330,22 @@ const PoolChartState = ({
   }
 
   if (isError && errorMessage) {
-    return <PoolChartMessage height={height} message={errorMessage} />
+    return <PoolChartEmptyState height={height} message={errorMessage} />
   }
 
   if (isEmpty && emptyMessage) {
-    return <PoolChartMessage height={height} message={emptyMessage} />
+    return <PoolChartEmptyState height={height} message={emptyMessage} showIcon />
+  }
+
+  if (isFetching) {
+    return (
+      <Box width="100%" sx={{ position: 'relative' }}>
+        {children}
+        <ChartFetchingOverlay>
+          <ProgressBar loading height="3px" width="100%" />
+        </ChartFetchingOverlay>
+      </Box>
+    )
   }
 
   return children

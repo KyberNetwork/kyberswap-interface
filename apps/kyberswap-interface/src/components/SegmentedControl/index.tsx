@@ -16,7 +16,7 @@ type SegmentedControlProps<T extends string> = {
 
 const sizeStyles = {
   sm: css`
-    padding: 8px;
+    padding: 4px 8px;
   `,
   md: css`
     padding: 8px 12px;
@@ -74,7 +74,7 @@ const OptionButton = styled.button<{ $active: boolean; $size: 'sm' | 'md' }>`
 const SegmentedControl = <T extends string>({
   onChange,
   options = [],
-  size = 'sm',
+  size = 'md',
   value,
 }: SegmentedControlProps<T>) => {
   if (!options.length) return null
