@@ -4,16 +4,45 @@ import styled from 'styled-components'
 
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 
+export const RewardTabGroup = styled(Flex)`
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid ${({ theme }) => rgba(theme.white, 0.08)};
+  width: 100%;
+`
+
+export const RewardTab = styled.div<{ active?: boolean }>`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
+  background: ${({ active, theme }) => (active ? rgba(theme.primary, 0.2) : 'transparent')};
+  border: 1px solid ${({ active, theme }) => (active ? theme.primary : 'transparent')};
+  border-radius: 20px;
+
+  &:hover {
+    color: ${({ theme }) => theme.text};
+  }
+`
+
 export const ChainRewardItem = styled.div<{ isSelected: boolean }>`
   position: relative;
   padding: 0 16px;
   transition: all 0.2s ease-in-out;
   border-radius: 12px;
   overflow: hidden;
-  background-color: ${({ theme, isSelected }) => (isSelected ? rgba(49, 203, 158, 0.1) : rgba(theme.white, 0.04))};
-  border: 1px solid ${({ theme, isSelected }) => (isSelected ? '#047855' : rgba(theme.white, 0.04))};
+  background-color: ${({ theme, isSelected }) => (isSelected ? rgba(theme.primary, 0.1) : rgba(theme.white, 0.04))};
+  border: 1px solid ${({ theme, isSelected }) => (isSelected ? rgba(theme.primary, 0.4) : rgba(theme.white, 0.04))};
   :hover {
-    background-color: ${({ theme, isSelected }) => (isSelected ? rgba(49, 203, 158, 0.15) : rgba(theme.white, 0.08))};
+    background-color: ${({ theme, isSelected }) => (isSelected ? rgba(theme.primary, 0.15) : rgba(theme.white, 0.08))};
   }
 `
 
@@ -21,7 +50,7 @@ export const CustomRadio = styled.input<{ isSelected: boolean }>`
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid #bdbdbd;
+  border: 2px solid ${({ theme }) => theme.border};
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
@@ -37,7 +66,7 @@ export const CustomRadio = styled.input<{ isSelected: boolean }>`
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: ${({ isSelected }) => (isSelected ? '#1ecb98' : 'transparent')};
+    background: ${({ isSelected, theme }) => (isSelected ? theme.primary : 'transparent')};
     position: absolute;
     top: 2px;
     left: 2px;
@@ -66,7 +95,7 @@ export const ChainRewardTokens = styled(ScrollableWithSignal)`
     padding-block: 12px;
     max-height: 170px;
     overflow: auto;
-    border-top-color: rgba(49, 203, 158, 0.2);
+    border-top-color: ${({ theme }) => rgba(theme.primary, 0.2)};
   }
 `
 

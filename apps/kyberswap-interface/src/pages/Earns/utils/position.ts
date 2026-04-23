@@ -26,7 +26,7 @@ import {
   UserPosition,
   UserPositionsStats,
 } from 'pages/Earns/types'
-import { getNftManagerContractAddress, isNativeToken, isUniswapExchange } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, isNativeToken, isWrappedNativeToken } from 'pages/Earns/utils'
 
 export const getDexVersion = (exchange: Exchange) => {
   if (!EARN_DEXES[exchange].showVersion) return ''
@@ -187,7 +187,6 @@ export const parsePosition = ({
   const dex = (pool?.protocol?.type || '') as Exchange
   const isUniv2 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV2
   const isUniv4 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV4
-  const isUniswap = isUniswapExchange(dex)
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
@@ -269,7 +268,7 @@ export const parsePosition = ({
   const tokenAddress = position.tokenAddress ? position.tokenAddress : tmp.length > 0 ? tmp[0] : ''
 
   const isPositionInRange = parsedStatus === PositionStatus.IN_RANGE
-  const bonusApr = isPositionInRange && isUniswap ? position.pool.merklOpportunity?.apr || 0 : 0
+  const bonusApr = isPositionInRange ? position.pool.merklOpportunity?.apr || 0 : 0
 
   //  %Yield = [(f₀ + f₁/P) / (t₀ + t₁/P)] × 100
   const f0 = token0EarnedAmount
@@ -336,7 +335,10 @@ export const parsePosition = ({
       symbol: token0Data?.symbol || '',
       decimals: token0Data?.decimals,
       price: currentAmounts[0]?.amount?.priceUsd,
-      isNative: isNativeToken(token0Address, chainId as keyof typeof WETH),
+      isNative:
+        isNativeToken(token0Address, chainId as keyof typeof WETH) ||
+        isWrappedNativeToken(token0Address, chainId as keyof typeof WETH),
+      isWrapped: isWrappedNativeToken(token0Address, chainId as keyof typeof WETH),
       totalProvide: token0TotalProvide,
       currentAmount: token0CurrentAmount,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount0) : token0PendingEarned,
@@ -349,7 +351,10 @@ export const parsePosition = ({
       symbol: token1Data?.symbol || '',
       decimals: token1Data?.decimals,
       price: currentAmounts[1]?.amount?.priceUsd,
-      isNative: isNativeToken(token1Address, chainId as keyof typeof WETH),
+      isNative:
+        isNativeToken(token1Address, chainId as keyof typeof WETH) ||
+        isWrappedNativeToken(token1Address, chainId as keyof typeof WETH),
+      isWrapped: isWrappedNativeToken(token1Address, chainId as keyof typeof WETH),
       totalProvide: token1TotalProvide,
       currentAmount: token1CurrentAmount,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount1) : token1PendingEarned,

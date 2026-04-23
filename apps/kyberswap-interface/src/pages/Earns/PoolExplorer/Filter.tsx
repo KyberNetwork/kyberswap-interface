@@ -1,9 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import { useLingui } from '@lingui/react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
 
 import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
@@ -14,6 +13,7 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { ButtonOutlined } from 'components/Button'
 import Search from 'components/Search'
+import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
@@ -36,6 +36,11 @@ export enum FilterTag {
   LOW_VOLATILITY = 'low_volatility',
 }
 
+enum RewardType {
+  KYBERSWAP = 'kyberswap',
+  THIRD_PARTY = 'third_party',
+}
+
 export const timings: MenuOption[] = [
   { label: '24h', value: '24h' },
   { label: '7d', value: '7d' },
@@ -48,6 +53,12 @@ const tagToCategoryName = (tag: string) => {
   return tag
 }
 
+type PendingFilterTrack = {
+  eventType: TRACKING_EVENT_TYPE
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: Record<string, any>
+}
+
 const Filter = ({
   filters,
   updateFilters,
@@ -55,6 +66,7 @@ const Filter = ({
   setSearch,
   onOpenCreatePool,
   totalItems,
+  isFetching,
 }: {
   filters: PoolQueryParams
   updateFilters: (key: keyof PoolQueryParams, value: string) => void
@@ -62,6 +74,7 @@ const Filter = ({
   setSearch: (value: string) => void
   onOpenCreatePool?: () => void
   totalItems?: number
+  isFetching?: boolean
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
@@ -69,20 +82,37 @@ const Filter = ({
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
+  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+
+  // Rapid successive clicks overwrite the ref — only the latest filter change is tracked.
+  const pendingFilterTrackRef = useRef<PendingFilterTrack | null>(null)
+  const prevIsFetchingRef = useRef<boolean>(Boolean(isFetching))
+
+  useEffect(() => {
+    if (prevIsFetchingRef.current && !isFetching && pendingFilterTrackRef.current) {
+      const { eventType, payload } = pendingFilterTrackRef.current
+      trackingHandler(eventType, {
+        ...payload,
+        results_count: totalItems ?? 0,
+      })
+      pendingFilterTrackRef.current = null
+    }
+    prevIsFetchingRef.current = Boolean(isFetching)
+  }, [isFetching, totalItems, trackingHandler])
 
   const selectedChainsLabel = useMemo(() => {
     const arrValue = filters.chainIds?.split(',').filter(Boolean)
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
     if (selectedChains.length >= 1) {
       return (
-        <Flex alignItems="center" sx={{ gap: '6px' }}>
-          <Flex>
+        <HStack align="center" gap={6}>
+          <HStack gap={0}>
             {selectedChains.map((chain, index) => (
               <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
             ))}
-          </Flex>
+          </HStack>
           {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
-        </Flex>
+        </HStack>
       )
     }
     return AllChainsOption.label
@@ -97,6 +127,19 @@ const Filter = ({
     const option = selectedProtocols[0] || supportedDexes[0] || AllProtocolsOption
     return option?.label || t`All Protocols`
   }, [supportedDexes, filters.protocol])
+
+  const rewardTypeOptions = useMemo(
+    () => [
+      { label: t`All rewards`, value: '' },
+      { label: t`By KyberSwap`, value: RewardType.KYBERSWAP },
+      { label: t`By 3rd party`, value: RewardType.THIRD_PARTY },
+    ],
+    [],
+  )
+
+  const selectedRewardTypeValue = useMemo(() => {
+    return filters.rewardType || ''
+  }, [filters.rewardType])
 
   const filterTagOptions = useMemo(
     () => [
@@ -136,37 +179,61 @@ const Filter = ({
   )
 
   const onChainChange = (value: string | number) => {
-    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
-      filter_type: 'chain',
-      filter_value: value.toString(),
-      previous_value: filters.chainIds || 'all',
-      results_count: totalItems || 0,
-      active_category: tagToCategoryName(filters.tag || ''),
-      chain: value.toString(),
-    })
+    pendingFilterTrackRef.current = {
+      eventType: TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED,
+      payload: {
+        filter_type: 'chain',
+        filter_value: value.toString(),
+        previous_value: filters.chainIds || 'all',
+        active_category: tagToCategoryName(filters.tag || ''),
+        chain: value.toString(),
+      },
+    }
     updateFilters('chainIds', value.toString())
   }
+
   const onProtocolChange = (newProtocol: string | number) => {
-    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
-      filter_type: 'protocol',
-      filter_value: newProtocol.toString(),
-      previous_value: filters.protocol || 'all',
-      results_count: totalItems || 0,
-      active_category: tagToCategoryName(filters.tag || ''),
-      chain: filters.chainIds,
-    })
+    pendingFilterTrackRef.current = {
+      eventType: TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED,
+      payload: {
+        filter_type: 'protocol',
+        filter_value: newProtocol.toString(),
+        previous_value: filters.protocol || 'all',
+        active_category: tagToCategoryName(filters.tag || ''),
+        chain: filters.chainIds,
+      },
+    }
     updateFilters('protocol', newProtocol.toString())
   }
+
   const onIntervalChange = (newInterval: string | number) => {
-    trackingHandler(TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED, {
-      filter_type: 'time_period',
-      filter_value: newInterval.toString(),
-      previous_value: filters.interval || '24h',
-      results_count: totalItems || 0,
-      active_category: tagToCategoryName(filters.tag || ''),
-      chain: filters.chainIds,
-    })
+    pendingFilterTrackRef.current = {
+      eventType: TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED,
+      payload: {
+        filter_type: 'time_period',
+        filter_value: newInterval.toString(),
+        previous_value: filters.interval || '24h',
+        active_category: tagToCategoryName(filters.tag || ''),
+        chain: filters.chainIds,
+      },
+    }
     updateFilters('interval', newInterval.toString())
+  }
+
+  const onRewardTypeChange = (newRewardType: string | number) => {
+    const rewardType = newRewardType.toString()
+
+    pendingFilterTrackRef.current = {
+      eventType: TRACKING_EVENT_TYPE.POOL_FILTER_APPLIED,
+      payload: {
+        filter_type: 'reward_type',
+        filter_value: rewardType || 'all',
+        previous_value: selectedRewardTypeValue || 'all',
+        active_category: tagToCategoryName(filters.tag || ''),
+        chain: filters.chainIds,
+      },
+    }
+    updateFilters('rewardType', rewardType)
   }
 
   return (
@@ -177,12 +244,14 @@ const Filter = ({
             active={!filters.tag}
             role="button"
             onClick={() => {
-              trackingHandler(TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED, {
-                category: 'all_pools',
-                previous_category: tagToCategoryName(filters.tag || ''),
-                results_count: totalItems || 0,
-                chain: filters.chainIds,
-              })
+              pendingFilterTrackRef.current = {
+                eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
+                payload: {
+                  category: 'all_pools',
+                  previous_category: tagToCategoryName(filters.tag || ''),
+                  chain: filters.chainIds,
+                },
+              }
               updateFilters('tag', '')
             }}
           >
@@ -193,12 +262,14 @@ const Filter = ({
               active={filters.tag === 'favorite'}
               role="button"
               onClick={() => {
-                trackingHandler(TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED, {
-                  category: 'favorites',
-                  previous_category: tagToCategoryName(filters.tag || ''),
-                  results_count: totalItems || 0,
-                  chain: filters.chainIds,
-                })
+                pendingFilterTrackRef.current = {
+                  eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
+                  payload: {
+                    category: 'favorites',
+                    previous_category: tagToCategoryName(filters.tag || ''),
+                    chain: filters.chainIds,
+                  },
+                }
                 updateFilters('tag', 'favorite')
               }}
             >
@@ -207,12 +278,14 @@ const Filter = ({
           </MouseoverTooltip>
           {filterTagOptions.map((item, index) => {
             const handleTagClick = () => {
-              trackingHandler(TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED, {
-                category: tagToCategoryName(item.value),
-                previous_category: tagToCategoryName(filters.tag || ''),
-                results_count: totalItems || 0,
-                chain: filters.chainIds,
-              })
+              pendingFilterTrackRef.current = {
+                eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
+                payload: {
+                  category: tagToCategoryName(item.value),
+                  previous_category: tagToCategoryName(filters.tag || ''),
+                  chain: filters.chainIds,
+                },
+              }
               updateFilters('tag', item.value)
             }
             return !upToMedium ? (
@@ -234,10 +307,9 @@ const Filter = ({
           <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
         )}
       </HeadSection>
-      <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
-        <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
+      <Stack direction={upToMedium ? 'column' : 'row'} justify="space-between" gap="1rem">
+        <HStack gap="1rem" wrap="wrap">
           <MultiSelectDropdownMenu
-            alignLeft
             highlightOnSelect
             label={selectedChainsLabel}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
@@ -245,16 +317,18 @@ const Filter = ({
             onChange={value => onChainChange(value)}
           />
           <MultiSelectDropdownMenu
-            alignLeft
             highlightOnSelect
             label={selectedProtocolsLabel}
             options={supportedDexes}
             value={filters.protocol}
             onChange={value => onProtocolChange(value)}
           />
-          <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
-        </Flex>
-        <Flex alignItems={upToMedium ? 'stretch' : 'center'} style={{ gap: '12px' }} flexWrap="wrap">
+          {isFarmingFiltered && (
+            <DropdownMenu options={rewardTypeOptions} value={selectedRewardTypeValue} onChange={onRewardTypeChange} />
+          )}
+          <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
+        </HStack>
+        <HStack align={upToMedium ? 'stretch' : 'center'} gap={12} wrap="wrap">
           <Search
             placeholder={t`Search by token symbol or pool/token address`}
             searchValue={search}
@@ -282,8 +356,8 @@ const Filter = ({
             <Plus size={16} />
             <Trans>Create Pool</Trans>
           </ButtonOutlined>
-        </Flex>
-      </Flex>
+        </HStack>
+      </Stack>
     </>
   )
 }

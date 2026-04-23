@@ -19,6 +19,40 @@ const PopoverContainer = styled.div<{ show: boolean; opacity?: number }>`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
   color: ${({ theme }) => theme.text2};
   border-radius: 8px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    background: transparent;
+  }
+
+  &[data-popper-placement^='bottom']::after {
+    top: -12px;
+    right: 0;
+    left: 0;
+    height: 12px;
+  }
+
+  &[data-popper-placement^='top']::after {
+    right: 0;
+    bottom: -12px;
+    left: 0;
+    height: 12px;
+  }
+
+  &[data-popper-placement^='left']::after {
+    top: 0;
+    right: -12px;
+    bottom: 0;
+    width: 12px;
+  }
+
+  &[data-popper-placement^='right']::after {
+    top: 0;
+    bottom: 0;
+    left: -12px;
+    width: 12px;
+  }
 `
 
 const ReferenceElement = styled.div`
@@ -86,6 +120,8 @@ export interface PopoverProps {
   style?: React.CSSProperties
   containerStyle?: React.CSSProperties
   offset?: [number, number]
+  onMouseEnter?: React.MouseEventHandler<HTMLDivElement>
+  onMouseLeave?: React.MouseEventHandler<HTMLDivElement>
 }
 
 // Reference https://popper.js.org/docs/v2/modifiers/offset/#skidding
@@ -101,6 +137,8 @@ export default function Popover({
   style = {},
   containerStyle = {},
   offset = defaultOffset,
+  onMouseEnter,
+  onMouseLeave,
 }: PopoverProps) {
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
@@ -130,6 +168,9 @@ export default function Popover({
             ref={setPopperElement as any}
             opacity={opacity}
             style={{ ...styles.popper, ...style }}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            {...attributes.popper}
           >
             {content}
             {noArrow || (

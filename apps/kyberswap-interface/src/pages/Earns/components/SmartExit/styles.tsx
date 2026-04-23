@@ -121,3 +121,24 @@ export const SettingButton = styled.button`
     background-color: ${({ theme }) => rgba(theme.text, 0.12)};
   }
 `
+
+export const PositionHeader = styled.div`
+  display: flex;
+  gap: 8px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 12px;
+  `}
+`
+
+export const DexInfo = styled.div<{ openable: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: ${({ theme }) => theme.text};
+
+  ${({ openable }) => openable && 'cursor: pointer;'}
+  :hover {
+    ${({ openable }) => openable && 'filter: brightness(1.2);'}
+  }
+`
