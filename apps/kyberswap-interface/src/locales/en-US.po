@@ -2538,6 +2538,10 @@ msgstr "Yes. Pairs of the same native asset - POL, ETH, or BNB - and their offic
 msgid "Assets"
 msgstr "Assets"
 
+#: src/pages/Earns/components/SmartExit/Metrics/PriceInput.tsx
+msgid "Exit when {baseSymbol}/{quoteSymbol}"
+msgstr "Exit when {baseSymbol}/{quoteSymbol}"
+
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Anti Whale"
 msgstr "Anti Whale"
@@ -6742,8 +6746,8 @@ msgid "Delegate is only available on Ethereum chain"
 msgstr "Delegate is only available on Ethereum chain"
 
 #: src/pages/Earns/components/SmartExit/Metrics/PriceInput.tsx
-msgid "Exit when {0}/{1}"
-msgstr "Exit when {0}/{1}"
+#~ msgid "Exit when {0}/{1}"
+#~ msgstr "Exit when {0}/{1}"
 
 #: src/components/Button/index.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
@@ -7867,7 +7871,6 @@ msgid "Users are solely responsible for accessing the SafePal's platform to clai
 msgstr "Users are solely responsible for accessing the SafePal's platform to claim and receive rewards and must comply with all its applicable terms and policies."
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
-#: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
 #: src/pages/MarketOverview/DetailModal.tsx
 msgid "Buy"
 msgstr "Buy"
@@ -8771,7 +8774,6 @@ msgstr "User Points: Points earned within the $100,000 volume cap"
 msgid "Copy Txn Hash"
 msgstr "Copy Txn Hash"
 
-#: src/pages/Earns/components/SmartExit/Confirmation/Condition.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/Condition.tsx
 msgid "Pool price is"
 msgstr "Pool price is"

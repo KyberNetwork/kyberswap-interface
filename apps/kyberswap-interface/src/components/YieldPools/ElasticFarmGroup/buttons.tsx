@@ -3,13 +3,6 @@ import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 
-export enum ButtonColorScheme {
-  Red = 'Red',
-  Gray = 'Gray',
-  Green = 'Green',
-  APR = 'APR',
-}
-
 const BtnLight = styled(ButtonLight)`
   padding: 8px 12px;
   width: fit-content;

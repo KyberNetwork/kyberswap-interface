@@ -92,19 +92,6 @@ export const MAINNET_NETWORKS = [
   ChainId.MEGAETH,
 ] as const
 
-// These option of walletconnect is not support by wallets properly
-// E.g:
-// - Zerion ios only enable those chains which we pass to `chains` option, completely ignoring `optionalChains`
-// - Metamask android only accept [1], ignore `optionalChains`
-// - Metamask ios not live yet as 24/6/23
-// - Alpha wallet behaves like Zerion ios, but is able to edit chains list on wallet after connected.
-// - Zerion android enable some chains in `optionalChains`
-// - Rainbow wallet: ??
-// Ideally, we would have to pass {chains: [1], optionalChains: [...rest]} to walletconnect
-// But most wallets not respecting `optionalChains`, causing some inconveniences that we can only use Ethereum through Walletconnect
-// Note: this const is use for wallets connecting through walletconnect, not directly through injected method
-export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [ChainId.MAINNET]
-
 export function isSupportedChainId(chainId?: number): chainId is ChainId {
   if (!chainId) return false
   return !!(NETWORKS_INFO_CONFIG as any)[chainId]

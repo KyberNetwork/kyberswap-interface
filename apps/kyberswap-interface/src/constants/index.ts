@@ -113,7 +113,6 @@ export const MAX_FEE_IN_BIPS = 1500
 
 export const DEFAULT_SLIPPAGE = 50
 export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 1
-export const DEFAULT_SLIPPAGE_CORRELATED_PAIR = 5
 
 export const APP_PATHS = {
   ABOUT: '/about',
@@ -130,7 +129,6 @@ export const APP_PATHS = {
   FARMS: '/farms',
   MY_POOLS: '/myPools',
   DISCOVER: '/discover',
-  BUY_CRYPTO: '/buy-crypto',
   CROSS_CHAIN: '/cross-chain',
   KYBERDAO: '/kyberdao',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',

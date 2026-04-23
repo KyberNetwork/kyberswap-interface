@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Fraction, Price } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
 /** @deprecated use formatDisplayNumber instead */
@@ -16,14 +16,4 @@ export function formatCurrencyAmount(amount: CurrencyAmount<Currency> | undefine
   }
 
   return amount.toSignificant(sigFigs)
-}
-
-/** @deprecated use formatDisplayNumber instead */
-export function toSignificantOrMaxIntegerPart(price: Price<Currency, Currency> | undefined, sigFigs: number): string {
-  if (!price) return ''
-
-  const n = price.toSignificant(18).split('.')[0].length
-  if (n > sigFigs) return price.toSignificant(n)
-
-  return price.toSignificant(sigFigs)
 }

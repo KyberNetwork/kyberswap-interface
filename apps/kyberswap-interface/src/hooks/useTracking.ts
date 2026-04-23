@@ -112,10 +112,6 @@ export enum TRACKING_EVENT_TYPE {
   DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON,
   DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS,
   DISCOVER_UNSUBSCRIBE_TRENDING_SOON_SUCCESS,
-  TRANSAK_BUY_CRYPTO_CLICKED,
-  TRANSAK_DOWNLOAD_WALLET_CLICKED,
-  TRANSAK_SWAP_NOW_CLICKED,
-  SWAP_BUY_CRYPTO_CLICKED,
 
   // for tutorial swap
   TUTORIAL_CLICK_START,
@@ -327,7 +323,6 @@ export enum TRACKING_EVENT_TYPE {
   WALLET_EXTERNAL_LINK_CLICKED,
   WALLET_PINNED,
   BALANCE_VISIBILITY_TOGGLED,
-  WALLET_BUY_CLICKED,
   WALLET_RECEIVE_CLICKED,
   WALLET_SEND_CLICKED,
   WALLET_SEND_INITIATED,
@@ -1028,22 +1023,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.FAUCET_REQUEST_COMPLETED: {
           formoTrack('Faucet feature - Request faucet Completed')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED: {
-          formoTrack('Buy Crypto - Download a wallet "Download Wallet”')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_BUY_CRYPTO_CLICKED: {
-          formoTrack('Buy Crypto - To purchase crypto on Transak "Buy Now”')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_SWAP_NOW_CLICKED: {
-          formoTrack('Buy Crypto - Swap token on KyberSwap "Swap" button')
-          break
-        }
-        case TRACKING_EVENT_TYPE.SWAP_BUY_CRYPTO_CLICKED: {
-          formoTrack('Buy Crypto - Click on Buy Crypto on KyberSwap')
           break
         }
         case TRACKING_EVENT_TYPE.TUTORIAL_CLICK_START: {
@@ -1777,10 +1756,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Balance Visibility Toggled', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.WALLET_BUY_CLICKED: {
-          formoTrack('Wallet Buy Clicked', payload)
-          break
-        }
         case TRACKING_EVENT_TYPE.WALLET_RECEIVE_CLICKED: {
           formoTrack('Wallet Receive Clicked', payload)
           break
@@ -1929,7 +1904,6 @@ export const useGlobalTrackingEvents = () => {
         'elastic/remove': 'Elastic - Remove Liquidity',
         'elastic/add': 'Elastic - Add Liquidity',
         'elastic/increase': 'Elastic - Increase Liquidity',
-        'buy-crypto': 'Buy Crypto',
         bridge: 'Bridge',
         '/kyberdao/stake-knc': 'KyberDAO Stake',
         '/kyberdao/vote': 'KyberDAO Vote',

@@ -2538,6 +2538,10 @@ msgstr "是的，同一原生资产（如 POL、ETH 或 BNB）及其官方包裹
 msgid "Assets"
 msgstr "资产"
 
+#: src/pages/Earns/components/SmartExit/Metrics/PriceInput.tsx
+msgid "Exit when {baseSymbol}/{quoteSymbol}"
+msgstr ""
+
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Anti Whale"
 msgstr "防鲸鱼机制"
@@ -6742,8 +6746,8 @@ msgid "Delegate is only available on Ethereum chain"
 msgstr "委托仅支持以太坊链"
 
 #: src/pages/Earns/components/SmartExit/Metrics/PriceInput.tsx
-msgid "Exit when {0}/{1}"
-msgstr ""
+#~ msgid "Exit when {0}/{1}"
+#~ msgstr ""
 
 #: src/components/Button/index.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
@@ -7867,7 +7871,6 @@ msgid "Users are solely responsible for accessing the SafePal's platform to clai
 msgstr ""
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
-#: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
 #: src/pages/MarketOverview/DetailModal.tsx
 msgid "Buy"
 msgstr "买入"
@@ -8771,7 +8774,6 @@ msgstr "用户积分：在 10 万美元交易量上限内获得的积分"
 msgid "Copy Txn Hash"
 msgstr "复制交易哈希"
 
-#: src/pages/Earns/components/SmartExit/Confirmation/Condition.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/Condition.tsx
 msgid "Pool price is"
 msgstr ""

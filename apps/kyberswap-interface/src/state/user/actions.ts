@@ -43,8 +43,6 @@ export const addSerializedPair = createAction<{ serializedPair: SerializedPair }
 export const removeSerializedPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
   'user/removeSerializedPair',
 )
-export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendingTokens')
-
 export type ToggleFavoriteTokenPayload = {
   chainId: ChainId
   address: string
@@ -52,7 +50,6 @@ export type ToggleFavoriteTokenPayload = {
 }
 export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('user/toggleFavoriteToken')
 export const updateChainId = createAction<ChainId>('user/updateChainId')
-export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
 export const updateSafeAppAcceptedTermOfUse = createAction<boolean>('user/updateSafeAppAcceptedTermOfUse')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')

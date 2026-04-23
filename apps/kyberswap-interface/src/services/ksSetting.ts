@@ -201,7 +201,6 @@ const ksSettingApi = createApi({
 
 export const {
   useGetKyberswapConfigurationQuery,
-  useLazyGetKyberswapConfigurationQuery,
   useGetKyberswapGlobalConfigurationQuery,
   useLazyGetTokenListQuery,
   useGetChainsConfigurationQuery,
