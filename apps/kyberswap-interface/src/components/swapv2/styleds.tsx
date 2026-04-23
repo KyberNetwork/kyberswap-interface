@@ -5,6 +5,7 @@ import styled, { CSSProperties, DefaultTheme, css, keyframes } from 'styled-comp
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import { AutoColumn } from 'components/Column'
+import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { friendlyError } from 'utils/errorMessage'
 
@@ -164,6 +165,7 @@ export const SwapFormWrapper = styled.div`
   gap: 16px;
 
   @media only screen and (min-width: 1100px) {
+    position: sticky;
     top: 16px;
   }
 
@@ -172,32 +174,21 @@ export const SwapFormWrapper = styled.div`
   `}
 `
 
-export const InfoComponentsWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
+export const InfoComponentsWrapper = styled(Stack)`
   flex-grow: 1;
   width: calc(100% - 472px);
+  gap: 20px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
   `};
 `
 
-export const LiveChartWrapper = styled.div`
-  width: 100%;
-  height: 510px;
-  margin-bottom: 30px;
-`
-
-export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
-  height: auto;
-  margin-top: 4px;
-`
-
 export const StyledActionButtonSwapForm = styled.button<{ active?: boolean; hoverBg?: string }>`
   position: relative;
   border: none;
-  background-color: transparent;
+  cursor: pointer;
+  background-color: ${({ theme, active }) => (active ? theme.buttonGray : 'transparent')};
   margin: 0;
   padding: 0;
   height: 36px;
@@ -206,21 +197,11 @@ export const StyledActionButtonSwapForm = styled.button<{ active?: boolean; hove
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: none;
 
   :hover {
-    cursor: pointer;
-    outline: none;
     background-color: ${({ theme, hoverBg }) => hoverBg || theme.background};
   }
-
-  ${({ active }) =>
-    active
-      ? css`
-          cursor: pointer;
-          outline: none;
-          background-color: ${({ theme }) => theme.buttonBlack};
-        `
-      : ''}
 `
 
 export const highlight = (theme: DefaultTheme) => keyframes`

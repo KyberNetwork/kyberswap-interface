@@ -37,27 +37,33 @@ const TabWrapper = styled.div`
 export const Tab = styled(ButtonEmpty)<{ isActive: boolean; isDisabled?: boolean }>`
   width: fit-content;
   font-weight: 500;
-  padding: 0px 0.5rem;
+  padding: 0px;
+  margin-right: 6px;
   margin-bottom: 4px;
   color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
   position: relative;
   border-radius: 0;
   font-size: 18px;
-  border-left: 2px solid ${({ theme }) => theme.border};
-  :first-child {
-    border: none;
-    padding-left: 0;
+
+  :before {
+    content: '';
+    width: 2px;
+    height: 22px;
+    margin-right: 8px;
+    background-color: ${({ theme }) => theme.border};
+    border-radius: 1px;
   }
+
+  :first-child::before {
+    display: none;
+  }
+
   &:hover {
     text-decoration: none;
   }
 
   &:focus {
     text-decoration: none;
-  }
-
-  &:last-child {
-    margin-right: 0;
   }
 
   ${({ theme, isDisabled }) =>

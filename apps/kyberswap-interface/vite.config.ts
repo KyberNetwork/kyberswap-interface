@@ -56,7 +56,7 @@ export default defineConfig({
       'react-dom/client': 'react-dom/profiling',
       '@walletconnect/ethereum-provider': resolve(
         __dirname,
-        'node_modules/@walletconnect/ethereum-provider/dist/index.umd.js',
+        'node_modules/@walletconnect/ethereum-provider/dist/index.es.js',
       ),
 
       //'@web3-react/core': path.resolve(__dirname, 'src/connection/web3reactShim.ts'),

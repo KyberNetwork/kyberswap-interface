@@ -1,8 +1,6 @@
-import { Trans } from '@lingui/macro'
-import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
-import Skeleton from 'react-loading-skeleton'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 
 import Banner from 'components/Banner'
 import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
@@ -14,39 +12,26 @@ import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
-import {
-  Container,
-  InfoComponentsWrapper,
-  PageWrapper,
-  RoutesWrapper,
-  SwapFormWrapper,
-} from 'components/swapv2/styleds'
+import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
+import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import useTheme from 'hooks/useTheme'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
+import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
+import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
-import {
-  AppBodyWrapped,
-  BannerWrapper,
-  FarmingWrapper,
-  RoutingIconWrapper,
-  SwitchLocaleLinkWrapper,
-  TrendingWrapper,
-} from 'pages/SwapV3/styles'
+import { AppBodyWrapped, BannerWrapper, SwitchLocaleLinkWrapper } from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
 import PopulatedSwapForm from './PopulatedSwapForm'
-
-const TradeRouting = lazy(() => import('components/TradeRouting'))
 
 const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -69,7 +54,6 @@ export default function Swap() {
   const { chainId } = useActiveWeb3React()
   const isShowTradeRoutes = useShowTradeRoutes()
   const defaultTokens = useAllTokens()
-  const theme = useTheme()
   const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
@@ -133,6 +117,8 @@ export default function Swap() {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
 
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId])
+
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
 
   return (
@@ -181,43 +167,20 @@ export default function Swap() {
           <InfoComponents>
             {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && (
               <BannerWrapper>
-                <TrendingWrapper>
-                  <TrendingPoolBanner />
-                </TrendingWrapper>
-                <FarmingWrapper>
-                  <FarmingPoolBanner />
-                </FarmingWrapper>
+                <TrendingPoolBanner />
+                <FarmingPoolBanner />
               </BannerWrapper>
             )}
+            {isSwapPage && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
             {isShowTradeRoutes && isSwapPage && (
-              <RoutesWrapper isOpenChart={false}>
-                <Flex flexDirection="column" width="100%">
-                  <Flex alignItems={'center'}>
-                    <RoutingIconWrapper />
-                    <Text fontSize={20} fontWeight={500} color={theme.subText}>
-                      <Trans>Your trade route</Trans>
-                    </Text>
-                  </Flex>
-                  <Suspense
-                    fallback={
-                      <Skeleton
-                        height="100px"
-                        baseColor={theme.background}
-                        highlightColor={theme.buttonGray}
-                        borderRadius="1rem"
-                      />
-                    }
-                  >
-                    <TradeRouting
-                      tradeComposition={tradeRouteComposition}
-                      currencyIn={currencyIn}
-                      currencyOut={currencyOut}
-                      inputAmount={routeSummary?.parsedAmountIn}
-                      outputAmount={routeSummary?.parsedAmountOut}
-                    />
-                  </Suspense>
-                </Flex>
-              </RoutesWrapper>
+              <SwapTradeRoute
+                tradeComposition={tradeRouteComposition}
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+                defaultCollapsed={hasSupportedTokenPriceChart}
+                inputAmount={routeSummary?.parsedAmountIn}
+                outputAmount={routeSummary?.parsedAmountOut}
+              />
             )}
 
             {isLimitPage && <ListLimitOrder />}

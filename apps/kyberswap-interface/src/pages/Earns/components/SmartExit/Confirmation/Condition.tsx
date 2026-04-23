@@ -72,7 +72,7 @@ export default function Condition({
           <Text>
             {position.token0.symbol}/{position.token1.symbol}
           </Text>
-          <Badge>Fee {position?.pool.fee}%</Badge>
+          <Badge>Fee {formatDisplayNumber(position?.pool.fee, { significantDigits: 4 })}%</Badge>
         </Flex>
         <Trans>When</Trans>
       </Flex>
