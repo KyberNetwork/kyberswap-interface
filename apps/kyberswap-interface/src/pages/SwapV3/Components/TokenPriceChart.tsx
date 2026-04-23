@@ -245,7 +245,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
           Values may differ from prices on other platforms.
         </Trans>
       </Text>
-      <ExternalLink href="https://docs.kyberswap.com">
+      <ExternalLink href="https://docs.kyberswap.com/developer-guide/start-here/foundational-solutions/token-settlement-price">
         <Trans>Learn more about KyberSwap Settlement Prices</Trans>
       </ExternalLink>
     </Stack>
