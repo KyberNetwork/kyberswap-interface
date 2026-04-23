@@ -164,7 +164,7 @@
     "react-window": "^1.8.9",
     "react-window-infinite-loader": "^1.0.8",
     "rebass": "^4.0.7",
-    "recharts": "2.6.0",
+    "recharts": "2.15.4",
     "redux-localstorage-simple": "^2.5.1",
     "siwe": "^2.3.2",
     "stream-browserify": "^3.0.0",
