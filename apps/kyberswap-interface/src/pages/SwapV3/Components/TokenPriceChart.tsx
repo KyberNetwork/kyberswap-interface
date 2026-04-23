@@ -195,7 +195,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
     initialPageParam: initialQueryParams,
     queryFn: async ({ pageParam }) => fetchTokenChart(pageParam).unwrap(),
     getNextPageParam: lastPage => {
-      if (!lastPage.candles.length) return undefined
+      if (!lastPage?.candles.length) return undefined
 
       const lastPagePeriodStartMs = lastPage.summary?.periodStartMs
       if (!lastPagePeriodStartMs) return undefined

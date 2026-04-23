@@ -40,8 +40,6 @@ export const getTokenChartFromBucketMs = ({
   return alignedEndBucketMs - bucketIntervalMs * Math.max(candleCount, 0)
 }
 
-const TOKEN_CHART_SERVICE_BASE_URL = 'https://kd-api.kyberswap.com'
-
 export type TokenChartCandle = {
   bucket: string
   changePercent?: number
@@ -143,7 +141,7 @@ export const sanitizeTokenChartCandles = (candles: TokenChartCandle[]) => {
 const tokenChartApi = createApi({
   reducerPath: 'tokenChartApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: TOKEN_CHART_SERVICE_BASE_URL + '/api/v1',
+    baseUrl: import.meta.env.VITE_KYBER_AI_API_URL + '/v1',
   }),
   keepUnusedDataFor: 1,
   endpoints: builder => ({
