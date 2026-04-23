@@ -352,7 +352,7 @@ export const inProgressRewardTooltip = ({
 const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string) => (
   <Flex flexDirection="column" sx={{ gap: 1 }}>
     <Text lineHeight="16px" fontSize={12}>
-      {t`Uniswap Bonus:`}
+      {t`Merkl Bonus:`}
     </Text>
     {merklRewards.map(token => (
       <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>

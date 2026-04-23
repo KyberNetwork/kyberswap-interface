@@ -66,7 +66,7 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
       )}
       {bonusApr !== undefined && (
         <Text>
-          {t`Uniswap Bonus`}: {formatAprNumber(bonusApr)}%
+          {t`Bonus APR`}: {formatAprNumber(bonusApr)}%
         </Text>
       )}
     </Stack>

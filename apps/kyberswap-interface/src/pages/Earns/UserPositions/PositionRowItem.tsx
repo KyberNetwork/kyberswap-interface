@@ -435,7 +435,7 @@ export default function PositionRowItem({
                   </Text>
                   {merklRewardsTotalUsd > 0 && (
                     <Text>
-                      {t`Uniswap Bonus`}:{' '}
+                      {t`Merkl Bonus`}:{' '}
                       {formatDisplayNumber(merklRewardsTotalUsd, {
                         significantDigits: 4,
                         style: 'currency',
