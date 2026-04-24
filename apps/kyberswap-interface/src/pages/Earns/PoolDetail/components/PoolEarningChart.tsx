@@ -331,6 +331,18 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
               <ResponsiveContainer height="100%" width="100%">
                 <PieChart>
                   <Pie
+                    cx="50%"
+                    cy="50%"
+                    data={[{ value: 1 }]}
+                    dataKey="value"
+                    innerRadius="60%"
+                    isAnimationActive={false}
+                    outerRadius="100%"
+                    stroke="transparent"
+                  >
+                    <Cell fill={theme.darkText} />
+                  </Pie>
+                  <Pie
                     animationBegin={0}
                     animationDuration={800}
                     cornerRadius={4}
