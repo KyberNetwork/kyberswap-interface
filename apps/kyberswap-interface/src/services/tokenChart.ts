@@ -123,9 +123,12 @@ export const sanitizeTokenChartCandles = (candles: TokenChartCandle[]) => {
       const neighborCandles = getNeighborCandles(candles, index)
       const averageNeighborHigh = getAverage(neighborCandles.map(neighbor => neighbor.high))
       const averageNeighborLow = getAverage(neighborCandles.map(neighbor => neighbor.low))
-
-      const nextHigh = candle.high > averageNeighborHigh * 3 ? averageNeighborHigh * 2 : candle.high
-      const nextLow = candle.low > averageNeighborLow * 3 ? averageNeighborLow * 2 : candle.low
+      const bodyHigh = Math.max(candle.open, candle.close)
+      const bodyLow = Math.min(candle.open, candle.close)
+      const maxReasonableHigh = Math.max(averageNeighborHigh * 1.35, bodyHigh * 1.25)
+      const minReasonableLow = Math.min(averageNeighborLow * 0.78, bodyLow * 0.82)
+      const nextHigh = candle.high > maxReasonableHigh ? Math.max(averageNeighborHigh * 1.18, bodyHigh) : candle.high
+      const nextLow = candle.low < minReasonableLow ? Math.min(averageNeighborLow * 0.86, bodyLow) : candle.low
 
       if (nextHigh === candle.high && nextLow === candle.low) return candle
 
