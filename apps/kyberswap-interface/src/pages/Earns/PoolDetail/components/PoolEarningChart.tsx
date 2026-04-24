@@ -247,8 +247,8 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
       </HStack>
 
       <PoolChartState
-        emptyMessage="No earnings data available for this pool."
-        errorMessage="Unable to load pool earnings."
+        emptyMessage="No earnings data available."
+        errorMessage="Unable to load earnings data."
         exclusiveType="earning-chart"
         height={chartHeight}
         isEmpty={!hasChartData}
