@@ -21,13 +21,15 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
+import QuoteSteps from 'pages/CrossChainSwap/components/QuoteSteps'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
+import { Quote } from 'pages/CrossChainSwap/registry'
 import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
 import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
 import { AppBodyWrapped, BannerWrapper, SwitchLocaleLinkWrapper } from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useShowTradeRoutes } from 'state/user/hooks'
+import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
@@ -52,6 +54,7 @@ export const isSettingTab = (tab: TAB) => [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY
 
 export default function Swap() {
   const { chainId } = useActiveWeb3React()
+  const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const defaultTokens = useAllTokens()
   const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
@@ -89,6 +92,7 @@ export default function Swap() {
   )
 
   const [activeTab, setActiveTab] = useState<TAB>(getDefaultTab())
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
 
   useEffect(() => {
     if (enableDegenMode && activeTab !== TAB.SETTINGS) {
@@ -157,7 +161,7 @@ export default function Swap() {
               )}
               {activeTab === TAB.LIMIT && <LimitOrder />}
               {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} />}
-              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
+              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
               {activeTab === TAB.CROSS_CHAIN_SOURCES && (
                 <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
@@ -171,20 +175,25 @@ export default function Swap() {
                 <FarmingPoolBanner />
               </BannerWrapper>
             )}
-            {isSwapPage && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
+            {isSwapPage && isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
             {isShowTradeRoutes && isSwapPage && (
               <SwapTradeRoute
                 tradeComposition={tradeRouteComposition}
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
-                defaultCollapsed={hasSupportedTokenPriceChart}
+                defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
                 inputAmount={routeSummary?.parsedAmountIn}
                 outputAmount={routeSummary?.parsedAmountOut}
               />
             )}
 
             {isLimitPage && <ListLimitOrder />}
-            {isCrossChainPage && <TransactionHistory />}
+            {isCrossChainPage && (
+              <Flex flexDirection="column" sx={{ gap: '16px' }}>
+                <QuoteSteps quote={selectedQuote} />
+                <TransactionHistory />
+              </Flex>
+            )}
           </InfoComponents>
         </Container>
         <Flex justifyContent="center">

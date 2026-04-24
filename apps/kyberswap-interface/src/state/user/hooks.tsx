@@ -29,6 +29,7 @@ import {
   setPaymentToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
+  togglePricingChart,
   toggleSuccessSound,
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
@@ -421,6 +422,17 @@ export const useSlippageSettingByPage = () => {
     isSlippageControlPinned,
     togglePinSlippage,
   }
+}
+
+export function useShowPricingChart(): boolean {
+  return useSelector((state: AppState) =>
+    state.user.showPricingChart === undefined ? true : state.user.showPricingChart,
+  )
+}
+
+export function useTogglePricingChart(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(togglePricingChart()), [dispatch])
 }
 
 export function useShowTradeRoutes(): boolean {
