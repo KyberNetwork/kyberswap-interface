@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useState } from 'react'
 import { Clock, X } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -11,11 +10,12 @@ import { ReactComponent as RouteIcon } from 'assets/svg/route_icon.svg'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
+import Skeleton from 'components/Skeleton'
+import { Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
-// import { GasStation } from 'components/Icons'
 import { Currency } from 'pages/CrossChainSwap/adapters'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { formatTime } from 'pages/CrossChainSwap/components/Summary'
@@ -62,7 +62,7 @@ const ListRoute = styled(ScrollableWithSignal)`
   }
 `
 
-const Row = styled.div<{ selected: boolean }>`
+const Row = styled.div<{ selected?: boolean }>`
   padding: 12px;
   background-color: ${({ selected, theme }) => (selected ? rgba(theme.primary, 0.1) : 'transparent')};
   border-radius: 16px;
@@ -114,9 +114,9 @@ export const QuoteSelector = ({
                 selected={selectedQuote.adapter.getName() === quote.adapter.getName()}
                 role="button"
                 onClick={() => {
+                  onChange(quote)
+                  setShow(false)
                   if (quote.adapter.getName() !== selectedQuote.adapter.getName()) {
-                    onChange(quote)
-                    setShow(false)
                     trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTE_VIEWED, {
                       routing_source: quote.adapter.getName(),
                       amount_out: quote.quote.formattedOutputAmount,
@@ -125,7 +125,6 @@ export const QuoteSelector = ({
                       from_chain: fromChainId,
                       to_chain: toChainId,
                     })
-                    return
                   }
                 }}
               >
@@ -224,26 +223,12 @@ export const QuoteSelector = ({
               .fill(0)
               .map((_, index) => {
                 return (
-                  <React.Fragment key={index}>
-                    <Row selected={false}>
-                      <Skeleton
-                        height="20px"
-                        width="200px"
-                        baseColor={theme.disableText}
-                        highlightColor={theme.buttonGray}
-                        borderRadius="1rem"
-                      />
-
-                      <Skeleton
-                        style={{ marginTop: '8px' }}
-                        height="16px"
-                        width="134px"
-                        baseColor={theme.disableText}
-                        highlightColor={theme.buttonGray}
-                        borderRadius="1rem"
-                      />
-                    </Row>
-                  </React.Fragment>
+                  <Row key={index}>
+                    <Stack gap={12}>
+                      <Skeleton height="20px" width="200px" />
+                      <Skeleton height="17px" width="160px" />
+                    </Stack>
+                  </Row>
                 )
               })}
         </ListRoute>
