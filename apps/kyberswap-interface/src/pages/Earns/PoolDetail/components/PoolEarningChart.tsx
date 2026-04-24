@@ -247,8 +247,8 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
       </HStack>
 
       <PoolChartState
-        emptyMessage="No earnings data available for this pool."
-        errorMessage="Unable to load pool earnings."
+        emptyMessage="No earnings data available."
+        errorMessage="Unable to load earnings data."
         exclusiveType="earning-chart"
         height={chartHeight}
         isEmpty={!hasChartData}
@@ -330,6 +330,18 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
             <Stack height={breakdownChartSize} position="relative" sx={{ flexShrink: 0 }} width={breakdownChartSize}>
               <ResponsiveContainer height="100%" width="100%">
                 <PieChart>
+                  <Pie
+                    cx="50%"
+                    cy="50%"
+                    data={[{ value: 1 }]}
+                    dataKey="value"
+                    innerRadius="60%"
+                    isAnimationActive={false}
+                    outerRadius="100%"
+                    stroke="transparent"
+                  >
+                    <Cell fill={theme.darkText} />
+                  </Pie>
                   <Pie
                     animationBegin={0}
                     animationDuration={800}

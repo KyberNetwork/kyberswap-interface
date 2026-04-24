@@ -27,7 +27,7 @@ import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
 import { AppBodyWrapped, BannerWrapper, SwitchLocaleLinkWrapper } from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useShowTradeRoutes } from 'state/user/hooks'
+import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
@@ -52,6 +52,7 @@ export const isSettingTab = (tab: TAB) => [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY
 
 export default function Swap() {
   const { chainId } = useActiveWeb3React()
+  const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const defaultTokens = useAllTokens()
   const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
@@ -171,13 +172,13 @@ export default function Swap() {
                 <FarmingPoolBanner />
               </BannerWrapper>
             )}
-            {isSwapPage && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
+            {isSwapPage && isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
             {isShowTradeRoutes && isSwapPage && (
               <SwapTradeRoute
                 tradeComposition={tradeRouteComposition}
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
-                defaultCollapsed={hasSupportedTokenPriceChart}
+                defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
                 inputAmount={routeSummary?.parsedAmountIn}
                 outputAmount={routeSummary?.parsedAmountOut}
               />

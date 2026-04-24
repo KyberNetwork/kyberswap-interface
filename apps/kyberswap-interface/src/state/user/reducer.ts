@@ -25,6 +25,7 @@ import {
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleMyEarningChart,
+  togglePricingChart,
   toggleSuccessSound,
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
@@ -113,6 +114,7 @@ export interface UserState {
 
   crossChain: CrossChainSetting
   myEarningChart: boolean
+  showPricingChart: boolean
   showTradeRoutes: boolean
   successSoundEnabled: boolean
   favoriteChains: string[]
@@ -152,6 +154,7 @@ const initialState: UserState = {
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
   myEarningChart: true,
   paymentToken: null,
+  showPricingChart: true,
   showTradeRoutes: true,
   successSoundEnabled: true,
   favoriteChains: [],
@@ -174,6 +177,10 @@ export default createReducer(initialState, builder =>
       // noinspection SuspiciousTypeOfGuard
       if (typeof state.userDeadline !== 'number') {
         state.userDeadline = DEFAULT_DEADLINE_FROM_NOW
+      }
+
+      if (typeof state.showPricingChart !== 'boolean') {
+        state.showPricingChart = initialState.showPricingChart
       }
 
       if (typeof state.successSoundEnabled !== 'boolean') {
@@ -313,6 +320,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(setPaymentToken, (state, { payload }) => {
       state.paymentToken = payload
+    })
+    .addCase(togglePricingChart, state => {
+      state.showPricingChart = !state.showPricingChart
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes

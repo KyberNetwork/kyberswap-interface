@@ -100,7 +100,9 @@ const TableHeader = ({
           <HeaderText>{t`Rewards`}</HeaderText>
         </TableCell>
       ) : null}
-      <TableCell />
+      <TableCell flexDirection="row">
+        <HeaderText>{t`Pool Price`}</HeaderText>
+      </TableCell>
       <TableCell />
     </TableHeaderComponent>
   ) : null
