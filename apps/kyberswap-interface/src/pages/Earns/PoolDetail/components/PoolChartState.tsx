@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import { type ReactNode } from 'react'
+import { Component, type ReactNode } from 'react'
 import { Box, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -77,6 +77,28 @@ const ChartFetchingOverlay = styled.div`
   pointer-events: none;
   backdrop-filter: blur(4px);
 `
+
+class PoolChartRenderBoundary extends Component<
+  {
+    children: ReactNode
+    fallback: (error: Error) => ReactNode
+  },
+  { error: Error | null }
+> {
+  state = { error: null }
+
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+
+  render() {
+    if (this.state.error) {
+      return this.props.fallback(this.state.error)
+    }
+
+    return this.props.children
+  }
+}
 
 const PoolChartStateLayout = ({
   children,
@@ -337,18 +359,22 @@ const PoolChartState = ({
     return <PoolChartEmptyState height={height} message={emptyMessage} showIcon />
   }
 
-  if (isFetching) {
-    return (
-      <Box width="100%" sx={{ position: 'relative' }}>
-        {children}
-        <ChartFetchingOverlay>
-          <ProgressBar loading height="3px" width="100%" />
-        </ChartFetchingOverlay>
-      </Box>
-    )
-  }
+  const content = isFetching ? (
+    <Box width="100%" sx={{ position: 'relative' }}>
+      {children}
+      <ChartFetchingOverlay>
+        <ProgressBar loading height="3px" width="100%" />
+      </ChartFetchingOverlay>
+    </Box>
+  ) : (
+    children
+  )
 
-  return children
+  return (
+    <PoolChartRenderBoundary fallback={error => <PoolChartEmptyState height={height} message={error.message} />}>
+      {content}
+    </PoolChartRenderBoundary>
+  )
 }
 
 export default PoolChartState

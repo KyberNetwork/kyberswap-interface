@@ -21,7 +21,9 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
+import QuoteSteps from 'pages/CrossChainSwap/components/QuoteSteps'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
+import { Quote } from 'pages/CrossChainSwap/registry'
 import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
 import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
@@ -90,6 +92,7 @@ export default function Swap() {
   )
 
   const [activeTab, setActiveTab] = useState<TAB>(getDefaultTab())
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
 
   useEffect(() => {
     if (enableDegenMode && activeTab !== TAB.SETTINGS) {
@@ -158,7 +161,7 @@ export default function Swap() {
               )}
               {activeTab === TAB.LIMIT && <LimitOrder />}
               {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} />}
-              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
+              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
               {activeTab === TAB.CROSS_CHAIN_SOURCES && (
                 <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
@@ -185,7 +188,12 @@ export default function Swap() {
             )}
 
             {isLimitPage && <ListLimitOrder />}
-            {isCrossChainPage && <TransactionHistory />}
+            {isCrossChainPage && (
+              <Flex flexDirection="column" sx={{ gap: '16px' }}>
+                <QuoteSteps quote={selectedQuote} />
+                <TransactionHistory />
+              </Flex>
+            )}
           </InfoComponents>
         </Container>
         <Flex justifyContent="center">

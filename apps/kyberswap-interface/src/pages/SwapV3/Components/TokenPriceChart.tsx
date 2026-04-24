@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -24,10 +24,12 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
-import PoolChartState from 'pages/Earns/PoolDetail/components/PoolChartState'
+import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
-import TokenPriceChartCanvas, { type DisplayCandle } from './TokenPriceChartCanvas'
+import type { DisplayCandle } from './TokenPriceChartCanvas'
+
+const TokenPriceChartCanvas = lazy(() => import('./TokenPriceChartCanvas'))
 
 const ChartPanel = styled(Stack)`
   overflow: hidden;
@@ -324,6 +326,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
             </HStack>
 
             <PoolChartState
+              key={chartRequestKey}
               emptyMessage={
                 activeToken ? 'Chart unavailable for this pair.' : 'Select a token to view the price chart.'
               }
@@ -334,13 +337,15 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
               isLoading={isLoading}
               skeletonType="candle"
             >
-              <TokenPriceChartCanvas
-                key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
-                chartData={chartData}
-                canLoadMore={hasNextPage}
-                onLoadMore={handleLoadMore}
-                timeFrame={timeFrame}
-              />
+              <Suspense fallback={<PoolChartSkeleton height={chartHeight} type="candle" />}>
+                <TokenPriceChartCanvas
+                  key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
+                  chartData={chartData}
+                  canLoadMore={hasNextPage}
+                  onLoadMore={handleLoadMore}
+                  timeFrame={timeFrame}
+                />
+              </Suspense>
             </PoolChartState>
 
             {upToSmall && (
