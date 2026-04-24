@@ -106,7 +106,7 @@
     "@tanstack/react-query": "^5.52.1",
     "@use-gesture/react": "^10.2.27",
     "@wagmi/core": "^2.16.5",
-    "@walletconnect/ethereum-provider": "^2.19.0",
+    "@walletconnect/ethereum-provider": "2.19.0",
     "@zkmelabs/widget": "^0.1.3",
     "aos": "^2.3.4",
     "axios": "1.2.1",
