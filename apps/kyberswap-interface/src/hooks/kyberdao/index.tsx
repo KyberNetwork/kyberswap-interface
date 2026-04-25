@@ -36,7 +36,7 @@ import { aggregateValue } from 'utils/array'
 import { friendlyError } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
-import { ErrorName } from 'utils/sentry'
+import { ErrorName } from 'utils/transactionError'
 
 import { DaoInfo, EligibleTxsInfo } from './types'
 
@@ -580,7 +580,7 @@ export function useClaimGasRefundRewards() {
         isSmartConnector,
         encodedData,
         value: BigNumber.from(0),
-        sentryInfo: {
+        errorInfo: {
           name: ErrorName.GasRefundClaimError,
           wallet: walletKey,
         },

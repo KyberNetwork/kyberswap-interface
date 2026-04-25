@@ -14,7 +14,6 @@ import {
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { permitError } from 'state/swap/actions'
-import { captureSwapError } from 'utils/sentry'
 
 import ConfirmSwapModalContent from './ConfirmSwapModalContent'
 
@@ -126,7 +125,6 @@ const SwapModal: React.FC<Props> = props => {
       const hash = await swapCallback()
       handleTxSubmitted(hash)
     } catch (e) {
-      captureSwapError(e)
       handleError(e.message)
     }
   }

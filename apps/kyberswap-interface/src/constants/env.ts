@@ -19,7 +19,6 @@ const optional = (envKey: string): string | undefined => {
 }
 
 export const AGGREGATOR_API = required('AGGREGATOR_API')
-export const SENTRY_DNS = required('SENTRY_DNS')
 export const REWARD_SERVICE_API = required('REWARD_SERVICE_API')
 export const KS_SETTING_API = required('KS_SETTING_API')
 export const COMMON_SERVICE_API = required('COMMON_SERVICE_API')

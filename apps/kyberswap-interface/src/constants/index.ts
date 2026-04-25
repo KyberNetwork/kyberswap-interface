@@ -90,7 +90,7 @@ export const DEFAULT_GAS_LIMIT_MARGIN = 20000
 
 export const RESERVE_USD_DECIMALS = 100
 
-export const sentryRequestId = uuid()
+export const requestId = uuid()
 
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'

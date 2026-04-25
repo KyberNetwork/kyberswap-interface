@@ -1,6 +1,5 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
@@ -183,7 +182,7 @@ const RoutesWithNetworkPrefix = () => {
 }
 
 export default function App() {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   useAutoLogin()
   const { online } = useNetwork()
@@ -200,21 +199,6 @@ export default function App() {
   useEffect(() => {
     preloadImages()
   }, [])
-
-  useEffect(() => {
-    if (account) {
-      Sentry.setUser({ id: account })
-    }
-  }, [account])
-
-  useEffect(() => {
-    if (chainId) {
-      Sentry.setTags({
-        chainId: chainId,
-        network: networkInfo.name,
-      })
-    }
-  }, [chainId, networkInfo.name])
 
   useGlobalTrackingEvents()
   useWebVitals()
