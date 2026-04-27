@@ -9,7 +9,6 @@ module.exports = {
     },
   },
   ignorePatterns: [
-    'cypress',
     'src/locales/**/*.js',
     'src/locales/**/en-US.po',
     'node_modules',

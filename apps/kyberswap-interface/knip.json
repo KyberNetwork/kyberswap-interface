@@ -12,8 +12,7 @@
     "src/locales/**",
     "src/**/*.test.{ts,tsx}",
     "src/**/*.spec.{ts,tsx}",
-    "src/**/*.stories.{ts,tsx}",
-    "cypress/**"
+    "src/**/*.stories.{ts,tsx}"
   ],
   "ignoreDependencies": [],
   "ignoreBinaries": [],
