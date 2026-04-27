@@ -958,7 +958,6 @@ msgid "Are you sure you want to remove this Smart Exit?"
 msgstr "Are you sure you want to remove this Smart Exit?"
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
-#: src/pages/Earns/PositionDetail/PositionHistory.tsx
 msgid "Created Time"
 msgstr "Created Time"
 
@@ -5366,7 +5365,6 @@ msgid "Open settings"
 msgstr "Open settings"
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
-#: src/pages/Earns/PositionDetail/PositionHistory.tsx
 msgid "Position History"
 msgstr "Position History"
 
@@ -8034,7 +8032,6 @@ msgid "Click on <0>Route Options</0> and select <1>NEAR Intents.</1>"
 msgstr "Click on <0>Route Options</0> and select <1>NEAR Intents.</1>"
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
-#: src/pages/Earns/PositionDetail/PositionHistory.tsx
 msgid "Tnx Hash"
 msgstr "Tnx Hash"
 

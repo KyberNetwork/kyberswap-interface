@@ -48,12 +48,6 @@ export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) 
 export const isWrappedNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase()
 
-export const isUniswapExchange = (dex: Exchange) =>
-  dex === Exchange.DEX_UNISWAPV2 ||
-  dex === Exchange.DEX_UNISWAPV3 ||
-  dex === Exchange.DEX_UNISWAP_V4 ||
-  dex === Exchange.DEX_UNISWAP_V4_FAIRFLOW
-
 export const submitTransaction = async ({
   library,
   txData,

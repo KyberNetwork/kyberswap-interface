@@ -374,46 +374,6 @@ export const PositionTableHeader = styled(TableHeader)`
   ${HeaderGridTemplate}
 `
 
-export const PositionTableRow = styled(Link)<{ $isUnfinalized?: boolean }>`
-  display: grid;
-  ${HeaderGridTemplate}
-  grid-template-rows: 1fr;
-  padding: 24px;
-  row-gap: 8px;
-  text-decoration: none;
-  color: inherit !important;
-  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : 'transparent')};
-
-  @media (max-width: 1300px) {
-    justify-content: flex-start;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1fr 1fr;
-    border-radius: 20px;
-    background: ${({ theme, $isUnfinalized }) =>
-      $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
-    margin-bottom: 16px;
-  }
-
-  ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
-    display: flex;
-    flex-direction: column;
-    row-gap: 16px;
-    padding: 16px;
-    background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
-    border-radius: 0px;
-    position: relative;
-  `}
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  &:hover {
-    cursor: pointer;
-    background: #31cb9e1a;
-  }
-`
-
 export const PositionTableHeaderItem = styled.div`
   height: 100%;
 `

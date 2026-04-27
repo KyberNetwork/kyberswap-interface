@@ -193,74 +193,6 @@ export const EarningChartContainer = styled.div`
   width: 100%;
 `
 
-export const TimeSelector = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  border: 1px solid ${({ theme }) => rgba(theme.white, 0.08)};
-  border-radius: 20px;
-  padding: 2px;
-`
-
-export const TimeSelectorItem = styled.div<{ active?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px;
-  height: 24px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
-  background: ${({ active, theme }) => (active ? rgba(theme.white, 0.08) : 'transparent')};
-  transition: all 0.2s;
-`
-
-export const BarChartContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 240px;
-`
-
-export const DonutChartContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 48px;
-  width: 100%;
-  padding: 16px 0;
-`
-
-export const DonutCenter = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`
-
-export const LegendItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`
-
-export const LegendDot = styled.div<{ color: string }>`
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: ${({ color }) => color};
-`
-
-export const AprChartContainer = styled.div`
-  width: 100%;
-  height: 320px;
-  position: relative;
-`
-
 // History tab styles
 export const HistorySectionHeader = styled.div`
   display: flex;
@@ -281,36 +213,6 @@ export const HistoryCard = styled.div`
   flex: 1;
 `
 
-export const InfoColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`
-
-export const InfoLeftColumn = styled(InfoColumn)<{ halfWidth?: boolean }>`
-  flex: ${({ halfWidth }) => (!halfWidth ? '1 1 35%' : '1 1 50%')};
-`
-
-export const InfoRightColumn = styled(InfoColumn)<{ halfWidth?: boolean }>`
-  flex: ${({ halfWidth }) => (!halfWidth ? '1 1 65%' : '1 1 50%')};
-`
-
-export const InfoSection = styled.div`
-  border-radius: 16px;
-  padding: 16px 24px;
-  border: 1px solid ${({ theme }) => theme.tabActive};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 16px;
-  `}
-`
-
-export const RewardsSection = styled(InfoSection)`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`
-
 export const NextDistribution = styled.div`
   width: 100%;
   display: flex;
@@ -321,17 +223,6 @@ export const NextDistribution = styled.div`
   padding: 8px 12px;
   flex-wrap: wrap;
   gap: 8px;
-`
-
-export const RewardDetailInfo = styled.div`
-  display: flex;
-  padding: 16px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  align-self: stretch;
-  border-radius: 16px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
 `
 
 export const TotalLiquiditySection = styled.div`
@@ -374,23 +265,6 @@ export const AprSection = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 12px;
   `}
-`
-
-const PriceRangeSection = styled(InfoSection)`
-  flex: 1 1 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 24px;
-`
-
-export const MinPriceSection = styled(PriceRangeSection)`
-  border-color: rgba(49, 203, 158, 0.4);
-`
-
-export const MaxPriceSection = styled(PriceRangeSection)`
-  border-color: rgba(143, 146, 255, 0.6);
 `
 
 export const VerticalDivider = styled.div<{ height?: string }>`
@@ -494,31 +368,6 @@ export const ChartFadeIn = styled.div<{ $visible?: boolean }>`
       : css`
           animation: ${fadeIn} 0.4s ease-out;
         `}
-`
-
-export const ChartPlaceholder = styled.div`
-  position: relative;
-`
-
-export const ChartSkeletonWrapper = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
-  z-index: -1;
-`
-
-export const PositionHeader = styled.div`
-  display: flex;
-  gap: 8px;
-  animation: ${fadeIn} 0.3s ease-out;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    gap: 12px;
-  `}
 `
 
 export const MigrationLiquidityRecommend = styled.div`
