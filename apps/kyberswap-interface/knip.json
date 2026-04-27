@@ -11,8 +11,7 @@
   "ignore": [
     "src/locales/**",
     "src/**/*.test.{ts,tsx}",
-    "src/**/*.spec.{ts,tsx}",
-    "src/**/*.stories.{ts,tsx}"
+    "src/**/*.spec.{ts,tsx}"
   ],
   "ignoreDependencies": [],
   "ignoreBinaries": [],
