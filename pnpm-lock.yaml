@@ -422,9 +422,6 @@ importers:
       workbox-core:
         specifier: ^6.5.4
         version: 6.6.1
-      workbox-expiration:
-        specifier: ^6.5.4
-        version: 6.6.1
       workbox-precaching:
         specifier: ^6.5.4
         version: 6.6.1
@@ -28932,14 +28929,6 @@ packages:
 
   /workbox-core@7.3.0:
     resolution: {integrity: sha512-Z+mYrErfh4t3zi7NVTvOuACB0A/jA3bgxUN3PwtAVHvfEsZxV9Iju580VEETug3zYJRc0Dmii/aixI/Uxj8fmw==}
-    dev: false
-
-  /workbox-expiration@6.6.1:
-    resolution: {integrity: sha512-qFiNeeINndiOxaCrd2DeL1Xh1RFug3JonzjxUHc5WkvkD2u5abY3gZL1xSUNt3vZKsFFGGORItSjVTVnWAZO4A==}
-    deprecated: this package has been deprecated
-    dependencies:
-      idb: 7.1.1
-      workbox-core: 6.6.1
     dev: false
 
   /workbox-precaching@6.6.1:
