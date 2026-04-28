@@ -134,19 +134,47 @@ const rewardMerklApi = createApi({
           return { data: [] }
         }
 
-        // If any chain was recently refreshed via `reloadMerklChain`, force per-chain so we
-        // hit the URL pattern that Merkl's backend just refreshed. Marks are read without
-        // consuming so every fetch in the freshness window (poll, tab-resume, explicit
-        // refetch) goes per-chain — avoids a race where one fetch consumes the mark and
-        // a later refetch ends up on a potentially-stale batched URL.
-        const forcePerChain = chainIds.length > 1 && chainIds.some(isChainRecentlyReloaded)
-
-        // Single chain: no batching benefit, just fetch directly
-        if (chainIds.length === 1 || batchedSupportState === 'unsupported' || forcePerChain) {
+        // Per-chain for everything: single chain, or batched known broken
+        if (chainIds.length === 1 || batchedSupportState === 'unsupported') {
           return { data: await fetchRewardsPerChain(address, chainIds) }
         }
 
-        // Try the batched (multi-chain) endpoint first to collapse N requests into 1.
+        const reloadedChains = chainIds.filter(isChainRecentlyReloaded)
+
+        // Hybrid path: batched for everyone + per-chain ONLY for chains whose backend cache
+        // was just refreshed by `reloadMerklChain` (e.g., post-claim flow). The per-chain
+        // results are guaranteed fresh — they hit the same URL pattern Merkl just refreshed —
+        // and replace the corresponding entries from the batched response. Cost: 2 requests
+        // instead of N. Only the just-claimed chain pays the targeted refresh; other chains
+        // reuse the batched response.
+        if (reloadedChains.length > 0) {
+          // Every requested chain is reloaded — batched would be fully discarded by the merge,
+          // so skip it and just per-chain everything.
+          if (reloadedChains.length === chainIds.length) {
+            return { data: await fetchRewardsPerChain(address, chainIds) }
+          }
+
+          const [batchedResult, freshPerChain] = await Promise.all([
+            fetchRewardsBatched(address, chainIds),
+            fetchRewardsPerChain(address, reloadedChains),
+          ])
+          if (batchedResult.ok) {
+            batchedSupportState = 'supported'
+            const refreshedIds = new Set(freshPerChain.map(item => item.chain.id))
+            const merged = batchedResult.data.filter(item => !refreshedIds.has(item.chain.id)).concat(freshPerChain)
+            return { data: merged }
+          }
+
+          if (batchedResult.permanent) batchedSupportState = 'unsupported'
+          // Batched failed — fetch the remaining (non-reloaded) chains per-chain and merge
+          // with the already-in-hand `freshPerChain` so we don't re-request reloaded chains.
+          const reloadedSet = new Set(reloadedChains)
+          const remainingChains = chainIds.filter(id => !reloadedSet.has(id))
+          const remainingPerChain = remainingChains.length ? await fetchRewardsPerChain(address, remainingChains) : []
+          return { data: remainingPerChain.concat(freshPerChain) }
+        }
+
+        // Normal poll: try the batched (multi-chain) endpoint to collapse N requests into 1.
         const batched = await fetchRewardsBatched(address, chainIds)
         if (batched.ok) {
           batchedSupportState = 'supported'

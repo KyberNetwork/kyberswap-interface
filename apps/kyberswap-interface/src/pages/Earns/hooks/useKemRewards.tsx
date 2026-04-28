@@ -461,12 +461,17 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           // Treating an errored response as "indexer caught up" would exit the loop prematurely.
           if ('data' in res) {
             const chainData = res.data?.find(c => c.chain.id === chainId)
-            const currentClaimableUsd = computeChainClaimableUsd(chainData)
-
-            if (currentClaimableUsd < baselineClaimableUsd) {
-              // Indexer has caught up — sync the main query and stop
-              refetchMerklRewards()
-              return
+            // Require chainData to actually be present before deciding the indexer caught up.
+            // Merkl can return an empty array transiently while its cache is rebuilding after
+            // `reloadChainId` — that would otherwise read as claimable=0 and trigger a false-
+            // positive early exit, leaving the UI to wait for the next polling cycle.
+            if (chainData) {
+              const currentClaimableUsd = computeChainClaimableUsd(chainData)
+              if (currentClaimableUsd < baselineClaimableUsd) {
+                // Indexer has caught up — sync the main query and stop
+                refetchMerklRewards()
+                return
+              }
             }
           }
 
