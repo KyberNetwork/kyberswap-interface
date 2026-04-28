@@ -5,10 +5,10 @@ import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import Divider from 'components/Divider'
+import { ButtonIcon } from 'components/PageWrappers'
 import { TERM_FILES_PATH } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { CampaignType } from 'pages/Campaign/constants'
-import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
 import { campaignInfos } from './info'
