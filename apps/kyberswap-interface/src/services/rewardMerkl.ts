@@ -63,6 +63,24 @@ const MERKL_API_BASE = 'https://api.merkl.xyz/v4'
 // so a transient network blip or 5xx doesn't permanently downgrade the session to per-chain.
 let batchedSupportState: 'unknown' | 'supported' | 'unsupported' = 'unknown'
 
+// Map of chainId → timestamp at which `reloadMerklChain` last refreshed Merkl's backend cache
+// for that chain. While a chain's mark is still within RELOAD_FRESHNESS_MS, every `merklRewards`
+// fetch covering that chain is forced down the per-chain path — the only URL pattern we know
+// was refreshed (Merkl may cache the batched URL separately). Mark is read without consuming so
+// concurrent fetches in the window (poll, tab-resume, explicit refetch) all see fresh data.
+const recentlyReloadedChainIds = new Map<string, number>()
+const RELOAD_FRESHNESS_MS = 60_000
+
+const isChainRecentlyReloaded = (chainId: string): boolean => {
+  const ts = recentlyReloadedChainIds.get(chainId)
+  if (ts === undefined) return false
+  if (Date.now() - ts > RELOAD_FRESHNESS_MS) {
+    recentlyReloadedChainIds.delete(chainId)
+    return false
+  }
+  return true
+}
+
 type BatchedResult = { ok: true; data: MerklRewardsResponse[] } | { ok: false; permanent: boolean }
 
 const fetchRewardsPerChain = async (address: string, chainIds: string[]): Promise<MerklRewardsResponse[]> => {
@@ -116,8 +134,15 @@ const rewardMerklApi = createApi({
           return { data: [] }
         }
 
+        // If any chain was recently refreshed via `reloadMerklChain`, force per-chain so we
+        // hit the URL pattern that Merkl's backend just refreshed. Marks are read without
+        // consuming so every fetch in the freshness window (poll, tab-resume, explicit
+        // refetch) goes per-chain — avoids a race where one fetch consumes the mark and
+        // a later refetch ends up on a potentially-stale batched URL.
+        const forcePerChain = chainIds.length > 1 && chainIds.some(isChainRecentlyReloaded)
+
         // Single chain: no batching benefit, just fetch directly
-        if (chainIds.length === 1 || batchedSupportState === 'unsupported') {
+        if (chainIds.length === 1 || batchedSupportState === 'unsupported' || forcePerChain) {
           return { data: await fetchRewardsPerChain(address, chainIds) }
         }
 
@@ -150,6 +175,9 @@ const rewardMerklApi = createApi({
           )
           if (!res.ok) return { error: { status: res.status, data: 'reload failed' } }
           const data: MerklRewardsResponse[] = await res.json()
+          // Mark this chain so any `merklRewards` fetch within RELOAD_FRESHNESS_MS uses
+          // the per-chain URL pattern that we just told Merkl to refresh.
+          recentlyReloadedChainIds.set(String(chainId), Date.now())
           return { data }
         } catch (err) {
           return { error: { status: 'CUSTOM_ERROR', error: (err as Error)?.message || 'reload failed' } }
