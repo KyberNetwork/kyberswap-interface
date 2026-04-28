@@ -86,61 +86,6 @@ type TokenChartApiResponse = {
   message: string
 }
 
-const getAverage = (values: number[]) => {
-  if (!values.length) return 0
-  return values.reduce((sum, value) => sum + value, 0) / values.length
-}
-
-const getRangePercentFromCandle = ({ high, low }: Pick<TokenChartCandle, 'high' | 'low'>) =>
-  low > 0 ? ((high - low) / low) * 100 : undefined
-
-const getNeighborCandles = (candles: TokenChartCandle[], index: number) => {
-  const neighbors: TokenChartCandle[] = []
-  const neighborsNeed = 10
-  let offset = 1
-  while (neighbors.length < neighborsNeed && (index - offset >= 0 || index + offset < candles.length)) {
-    if (index - offset >= 0) {
-      neighbors.push(candles[index - offset])
-    }
-    if (neighbors.length >= neighborsNeed) break
-    if (index + offset < candles.length) {
-      neighbors.push(candles[index + offset])
-    }
-    offset += 1
-  }
-  return neighbors
-}
-
-/**
- * Clamp abnormal high/low spikes by comparing a candle against the 10 nearest candles around it.
- */
-export const sanitizeTokenChartCandles = (candles: TokenChartCandle[]) => {
-  if (candles.length <= 2) return candles
-
-  return [...candles]
-    .sort((a, b) => Date.parse(a.bucket) - Date.parse(b.bucket))
-    .map((candle, index, candles) => {
-      const neighborCandles = getNeighborCandles(candles, index)
-      const averageNeighborHigh = getAverage(neighborCandles.map(neighbor => neighbor.high))
-      const averageNeighborLow = getAverage(neighborCandles.map(neighbor => neighbor.low))
-      const bodyHigh = Math.max(candle.open, candle.close)
-      const bodyLow = Math.min(candle.open, candle.close)
-      const maxReasonableHigh = Math.max(averageNeighborHigh * 1.35, bodyHigh * 1.25)
-      const minReasonableLow = Math.min(averageNeighborLow * 0.78, bodyLow * 0.82)
-      const nextHigh = candle.high > maxReasonableHigh ? Math.max(averageNeighborHigh * 1.18, bodyHigh) : candle.high
-      const nextLow = candle.low < minReasonableLow ? Math.min(averageNeighborLow * 0.86, bodyLow) : candle.low
-
-      if (nextHigh === candle.high && nextLow === candle.low) return candle
-
-      return {
-        ...candle,
-        high: nextHigh,
-        low: nextLow,
-        rangePercent: getRangePercentFromCandle({ low: nextLow, high: nextHigh }),
-      }
-    })
-}
-
 const tokenChartApi = createApi({
   reducerPath: 'tokenChartApi',
   baseQuery: fetchBaseQuery({
@@ -159,12 +104,7 @@ const tokenChartApi = createApi({
           toBucketMs,
         },
       }),
-      transformResponse: (response: TokenChartApiResponse) => {
-        return {
-          ...response.data,
-          candles: sanitizeTokenChartCandles(response.data?.candles ?? []),
-        }
-      },
+      transformResponse: (response: TokenChartApiResponse) => response.data,
     }),
   }),
 })
