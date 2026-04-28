@@ -20,12 +20,37 @@ type UseMerklRewardsProps = {
   positions?: Array<ParsedPosition>
 }
 
+const POLLING_INTERVAL_MS = 120_000
+
+// Single visibility listener shared across all hook instances. Each instance subscribes
+// to receive (newInterval, didResume) updates so it can update RTK Query's polling and
+// trigger an immediate refetch when the tab becomes visible again (RTK Query otherwise
+// waits the full interval before the next fetch).
+type VisibilityCallback = (interval: number, didResume: boolean) => void
+const visibilitySubscribers = new Set<VisibilityCallback>()
+let currentVisibilityInterval =
+  typeof document !== 'undefined' && document.visibilityState === 'hidden' ? 0 : POLLING_INTERVAL_MS
+let visibilityListenerRegistered = false
+
+const ensureVisibilityListener = () => {
+  if (visibilityListenerRegistered || typeof document === 'undefined') return
+  visibilityListenerRegistered = true
+  document.addEventListener('visibilitychange', () => {
+    const next = document.visibilityState === 'hidden' ? 0 : POLLING_INTERVAL_MS
+    if (next === currentVisibilityInterval) return
+    const didResume = currentVisibilityInterval === 0 && next > 0
+    currentVisibilityInterval = next
+    visibilitySubscribers.forEach(cb => cb(next, didResume))
+  })
+}
+
 const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const { account } = useActiveWeb3React()
   const { filters } = useFilter()
   const { supportedChains } = useChainsConfig()
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
   const [searchTokensBySymbol] = useLazySearchTokensBySymbolQuery()
+  const [pollingInterval, setPollingInterval] = useState(currentVisibilityInterval)
 
   const positionsKey = useMemo(
     () => (options?.positions || []).map(position => `${position.positionId}-${position.pool.address}`).join('|'),
@@ -67,8 +92,23 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
       address: account || '',
       chainId: filters.chainIds || supportedChains.map(chain => chain.chainId).join(','),
     },
-    { skip: !account, pollingInterval: 60_000 },
+    { skip: !account, pollingInterval },
   )
+
+  useEffect(() => {
+    ensureVisibilityListener()
+    const onChange: VisibilityCallback = (next, didResume) => {
+      setPollingInterval(next)
+      // Tab just became visible after being hidden — RTK Query restarts the poll timer
+      // from now, so without this the user would wait the full interval before fresh data.
+      // Concurrent refetch calls from sibling hook instances are deduped by RTK Query.
+      if (didResume && account) refetchMerklRewards()
+    }
+    visibilitySubscribers.add(onChange)
+    return () => {
+      visibilitySubscribers.delete(onChange)
+    }
+  }, [account, refetchMerklRewards])
 
   const {
     baseRewards,
