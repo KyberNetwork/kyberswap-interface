@@ -68,12 +68,6 @@ This document turns the external AI Traffic Growth Initiative and agent-readines
   Impact: useful only if KyberSwap has stable, supported, public APIs to advertise.
   Notes: outside frontend scope. Do not generate this from frontend API calls alone.
 
-- [ ] `P3` Revisit discovery `Link` headers only if production strips the nginx header.
-  Assignee: `Engineer + DevOps`
-  Touchpoints: `etc/nginx.conf`, Cloudflare/CDN config outside repo
-  Impact: low. Direct access to `robots.txt`, `sitemap.xml`, and `llms.txt` already works; this is mostly extra discoverability/scanner coverage.
-  Notes: repo nginx already emits this for app-shell responses. Move to edge config only if needed.
-
 ## Agent Readiness Explicitly Skipped
 
 - OAuth/OIDC discovery metadata: skipped because KyberSwap is not exposing an OAuth authorization server on the root domain.
