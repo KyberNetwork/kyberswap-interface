@@ -1,7 +1,20 @@
 import dayjs from 'dayjs'
-import { CrosshairMode, LineStyle, type MouseEventParams, type Time, createChart } from 'lightweight-charts'
+import {
+  type AutoscaleInfo,
+  type AutoscaleInfoProvider,
+  type CandlestickData,
+  CrosshairMode,
+  type HistogramData,
+  type ISeriesApi,
+  LineStyle,
+  type LogicalRange,
+  type MouseEventParams,
+  type Time,
+  type UTCTimestamp,
+  createChart,
+} from 'lightweight-charts'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { type TokenChartTimeFrame } from 'services/tokenChart'
@@ -111,6 +124,57 @@ const getPriceScaleConfig = (chartData: DisplayCandle[]) => {
     minMove,
     precision,
   }
+}
+
+const getVisibleCandles = (chartData: DisplayCandle[], visibleLogicalRange: LogicalRange | null) => {
+  if (!visibleLogicalRange) {
+    return chartData.slice(Math.max(chartData.length - DEFAULT_VISIBLE_CANDLES, 0))
+  }
+
+  return chartData.slice(
+    Math.max(Math.floor(visibleLogicalRange.from), 0),
+    Math.min(Math.ceil(visibleLogicalRange.to) + 1, chartData.length),
+  )
+}
+
+const getRobustAutoscaleInfo = (candles: DisplayCandle[], baseInfo: AutoscaleInfo | null): AutoscaleInfo | null => {
+  if (!baseInfo || candles.length < 8) return baseInfo
+
+  const bodyPrices = candles.flatMap(candle => [candle.open, candle.close]).filter(Number.isFinite)
+  const wickPrices = candles.flatMap(candle => [candle.high, candle.low]).filter(Number.isFinite)
+
+  if (!bodyPrices.length || wickPrices.length < 8) return baseInfo
+
+  const bodyMin = Math.min(...bodyPrices)
+  const bodyMax = Math.max(...bodyPrices)
+  const bodyMid = (bodyMin + bodyMax) / 2
+  const bodyPadding = Math.max((bodyMax - bodyMin) * 0.45, bodyMid * 0.02)
+  const visibleMin = bodyMin - bodyPadding
+  const visibleMax = bodyMax + bodyPadding
+  const includedWickPrices = wickPrices.filter(price => price >= visibleMin && price <= visibleMax)
+  const minValue = Math.min(bodyMin, ...includedWickPrices) - bodyPadding * 0.2
+  const maxValue = Math.max(bodyMax, ...includedWickPrices) + bodyPadding * 0.2
+
+  if (minValue <= 0 || minValue >= maxValue) return baseInfo
+
+  return {
+    ...baseInfo,
+    priceRange: {
+      minValue,
+      maxValue,
+    },
+  }
+}
+
+const createRobustAutoscaleInfoProvider = ({
+  chartDataRef,
+  getVisibleLogicalRange,
+}: {
+  chartDataRef: MutableRefObject<DisplayCandle[]>
+  getVisibleLogicalRange: () => LogicalRange | null
+}): AutoscaleInfoProvider => {
+  return baseImplementation =>
+    getRobustAutoscaleInfo(getVisibleCandles(chartDataRef.current, getVisibleLogicalRange()), baseImplementation())
 }
 
 const getUnixTimestampFromChartTime = (time: Time) => {
@@ -360,8 +424,9 @@ const TokenPriceChartCanvas = ({
   )
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<ReturnType<typeof createChart> | null>(null)
-  const candlestickSeriesRef = useRef<any>(null)
-  const volumeSeriesRef = useRef<any>(null)
+  const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
+  const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
+  const chartDataRef = useRef(chartData)
   const chartDataByTimeRef = useRef<Map<number, DisplayCandle>>(new Map())
   const chartHeightRef = useRef(chartHeight)
   const initialChartOptionsRef = useRef(chartOptions)
@@ -372,6 +437,7 @@ const TokenPriceChartCanvas = ({
 
   /** Keep crosshair tooltip lookup in sync with the latest candle set. */
   useEffect(() => {
+    chartDataRef.current = chartData
     chartDataByTimeRef.current = new Map(chartData.map(candle => [candle.time, candle]))
   }, [chartData])
 
@@ -392,6 +458,12 @@ const TokenPriceChartCanvas = ({
     chartRef.current = chart
 
     const candlestickSeries = chart.addCandlestickSeries(initialCandlestickSeriesOptionsRef.current)
+    candlestickSeries.applyOptions({
+      autoscaleInfoProvider: createRobustAutoscaleInfoProvider({
+        chartDataRef,
+        getVisibleLogicalRange: () => chart.timeScale().getVisibleLogicalRange(),
+      }),
+    })
 
     const volumeSeries = chart.addHistogramSeries({
       lastValueVisible: false,
@@ -500,14 +572,21 @@ const TokenPriceChartCanvas = ({
   useEffect(() => {
     if (!chartRef.current || !candlestickSeriesRef.current || !volumeSeriesRef.current) return
 
-    candlestickSeriesRef.current.setData(chartData)
-    volumeSeriesRef.current.setData(
-      chartData.map(candle => ({
-        time: candle.time,
-        value: candle.volume,
-        color: candle.close >= candle.open ? volumeUpColor : volumeDownColor,
-      })),
-    )
+    const candlestickData: CandlestickData[] = chartData.map(candle => ({
+      time: candle.time as UTCTimestamp,
+      open: candle.open,
+      high: candle.high,
+      low: candle.low,
+      close: candle.close,
+    }))
+    const volumeData: HistogramData[] = chartData.map(candle => ({
+      time: candle.time as UTCTimestamp,
+      value: candle.volume,
+      color: candle.close >= candle.open ? volumeUpColor : volumeDownColor,
+    }))
+
+    candlestickSeriesRef.current.setData(candlestickData)
+    volumeSeriesRef.current.setData(volumeData)
 
     if (!chartData.length || hasInitializedViewRef.current) return
 
