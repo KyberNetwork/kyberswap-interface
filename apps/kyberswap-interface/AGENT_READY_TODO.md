@@ -21,7 +21,7 @@ Current score: `Level 1 - Basic Web Presence`
 | `sitemap.xml` | Pass | Keep | Done | `public/sitemap.xml` is discoverable from `robots.txt`. |
 | AI bot rules | Pass | Keep | Done | Wildcard `User-agent: *` applies to AI bots. Add named bot sections only if policy needs finer control. |
 | Content Signals | Fail | Do | Done | This is the only listed requirement for Level 2. It is cheap and expresses crawler usage preferences clearly. |
-| Link headers | Fail | Do if edge config supports it | P1 | Useful for discoverability, especially for `sitemap`, `llms.txt`, and future agent metadata. May require CDN/nginx/header config outside React code. |
+| Link headers | Fail | Do if edge config supports it | Done | Useful for discoverability, especially for `sitemap`, `llms.txt`, and future agent metadata. Implemented in repo nginx config; may still require CDN/edge config if production does not use this nginx path. |
 | Markdown negotiation | Fail | Consider later | P2 | Useful for content-heavy pages, but KyberSwap is a SPA. Real value depends on prerender/static content work from `AI_SEO_TODO.md`. |
 | Web Bot Auth | Neutral | Ignore for now | P3 | Not required unless KyberSwap wants authenticated bot verification workflows. Current scanner result is informational. |
 | API Catalog | Fail | Consider only with official public API inventory | P2 | Do not publish an API catalog until the team agrees which APIs are public, supported, stable, and safe to advertise. Missing `.well-known` files should now return 404 if production uses repo nginx config. |
@@ -48,7 +48,7 @@ Current score: `Level 1 - Basic Web Presence`
   Notes: confirm the policy stance before shipping. `search=yes` helps search-style AI discovery; `ai-train=no` and `ai-input=no` are conservative defaults.
   Status: *Implemented in `public/robots.txt` using the conservative policy from the scanner prompt.*
 
-- [ ] `P1` Decide and implement discovery `Link` headers.
+- [x] `P1` Decide and implement discovery `Link` headers.
   Assignee: `Engineer + DevOps`
   Touchpoints: `etc/nginx.conf`, CDN/Cloudflare config outside repo
   Candidate links:
@@ -57,6 +57,7 @@ Current score: `Level 1 - Basic Web Presence`
   Link: <https://kyberswap.com/llms.txt>; rel="alternate"; type="text/plain"
   ```
   Notes: prefer edge/CDN headers if production traffic terminates before nginx.
+  Status: *Implemented in repo nginx config for app-shell responses. Verify with `curl -I https://kyberswap.com/` after deploy; if absent, move this to Cloudflare/CDN config.*
 
 - [x] `P1` Stop SPA fallback from returning `200 text/html` for missing `.well-known` JSON files.
   Assignee: `Engineer + DevOps`
@@ -93,7 +94,7 @@ Current score: `Level 1 - Basic Web Presence`
 
 1. Confirm Content Signals policy and update `robots.txt`.
 2. Verify `.well-known` soft-404 behavior at nginx/CDN level after deploy.
-3. Add discovery `Link` headers if production infrastructure supports them cleanly.
+3. Verify discovery `Link` headers after deploy; move to edge config if nginx headers do not reach production.
 4. Re-run `isitagentready.com` and record the new level.
 5. Decide whether API Catalog, Markdown negotiation, or Agent Skills have enough product value to justify maintenance.
 
