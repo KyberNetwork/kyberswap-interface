@@ -7008,6 +7008,14 @@ msgstr "您已将投票权委托给该地址"
 
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/LeftSection.tsx
+#: src/pages/Earns/PositionDetail/LeftSection.tsx
+#: src/pages/Earns/PositionDetail/LeftSection.tsx
+#: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx

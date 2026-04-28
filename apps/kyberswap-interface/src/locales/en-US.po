@@ -7008,6 +7008,14 @@ msgstr "You have already delegated your voting power to this address."
 
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/LeftSection.tsx
+#: src/pages/Earns/PositionDetail/LeftSection.tsx
+#: src/pages/Earns/PositionDetail/LeftSection.tsx
+#: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
