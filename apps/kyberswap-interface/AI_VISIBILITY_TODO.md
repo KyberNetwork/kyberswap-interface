@@ -1,6 +1,6 @@
-# AI SEO TODO
+# AI Visibility TODO
 
-This document turns the external AI Traffic Growth Initiative into an actionable repo-local checklist for `apps/kyberswap-interface`.
+This document turns the external AI Traffic Growth Initiative and agent-readiness findings into an actionable repo-local checklist for `apps/kyberswap-interface`.
 
 ## Goals
 
@@ -20,7 +20,7 @@ This document turns the external AI Traffic Growth Initiative into an actionable
 
 - `public/robots.txt`
 - `public/sitemap.xml`
-- `public/llms.txt` (to be added if approved)
+- `public/llms.txt`
 - `index.html`
 - `src/pages/**`
 - `src/components/**`
@@ -33,6 +33,55 @@ This document turns the external AI Traffic Growth Initiative into an actionable
 - Prefer a few strong pages over many thin pages.
 - Keep internal links crawlable with standard HTML links.
 - Add freshness, authorship, and source attribution to high-value pages.
+
+## Agent Readiness Foundation
+
+- [x] `P0` Add Content Signals to `robots.txt`.
+  Assignee: `Engineer + Policy`
+  Touchpoint: `public/robots.txt`
+  Impact: helps declare AI usage preferences and unlocks the scanner's Level 2 requirement.
+  Status: *Implemented with `Content-Signal: ai-train=no, search=yes, ai-input=no`.*
+
+- [x] `P1` Return `404` for missing `.well-known` protocol files instead of the SPA app shell.
+  Assignee: `Engineer + DevOps`
+  Touchpoint: `etc/nginx.conf`
+  Impact: prevents bots and scanners from treating fallback HTML as malformed protocol metadata.
+  Status: *Implemented with `try_files $uri =404` for `/.well-known/`.*
+
+## Agent Readiness Deferred Items
+
+- [ ] `P2` Evaluate Cloudflare Markdown for Agents at the edge.
+  Assignee: `DevOps + Engineer`
+  Touchpoint: Cloudflare zone config outside repo
+  Impact: required for the scanner's Level 3, but lower priority than rendered HTML and source-of-truth content.
+  Notes: do not implement `Accept: text/markdown` in React runtime. If Cloudflare cannot provide it, consider a narrow static fallback only for source-of-truth pages such as `/` and `/about/kyberswap`.
+
+- [ ] `P2` Consider Agent Skills only for maintained public workflows.
+  Assignee: `Product + Engineer`
+  Touchpoints: potential `public/.well-known/agent-skills/index.json`, skill markdown files
+  Impact: could help agents understand KyberSwap workflows, but only if Product/Compliance owns the content and risk language.
+  Notes: do not publish swap/earn instructions that can drift from product behavior or imply agent authority to transact for users.
+
+- [ ] `P3` Evaluate whether KyberSwap should publish an API Catalog.
+  Assignee: `Backend/API Owner + Engineer`
+  Touchpoints: potential `public/.well-known/api-catalog`, public API docs
+  Impact: useful only if KyberSwap has stable, supported, public APIs to advertise.
+  Notes: outside frontend scope. Do not generate this from frontend API calls alone.
+
+- [ ] `P3` Revisit discovery `Link` headers only if production strips the nginx header.
+  Assignee: `Engineer + DevOps`
+  Touchpoints: `etc/nginx.conf`, Cloudflare/CDN config outside repo
+  Impact: low. Direct access to `robots.txt`, `sitemap.xml`, and `llms.txt` already works; this is mostly extra discoverability/scanner coverage.
+  Notes: repo nginx already emits this for app-shell responses. Move to edge config only if needed.
+
+## Agent Readiness Explicitly Skipped
+
+- OAuth/OIDC discovery metadata: skipped because KyberSwap is not exposing an OAuth authorization server on the root domain.
+- OAuth Protected Resource metadata: skipped because there is no current OAuth-protected resource contract to advertise.
+- MCP Server Card: skipped until KyberSwap has a real supported MCP server and owner.
+- A2A Agent Card: skipped until KyberSwap has a real agent endpoint and owner.
+- Web Bot Auth: skipped until bot request authentication becomes a concrete product/security requirement.
+- x402, MPP, UCP, ACP: skipped because the current site is not exposing agentic commerce discovery or paid agent resources.
 
 ## Added Priority Tasks Not Explicitly Covered In The Original Plan
 
