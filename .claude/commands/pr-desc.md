@@ -32,5 +32,6 @@ The PR description tells the reviewer what merging this branch into main will ch
 - **Do not mention author mistakes or course-corrections made during development.** "Restore X that was accidentally removed earlier in this branch" is internal noise — to a reviewer reading the PR after merge, X is simply unchanged.
 - **Do not mention the tools or process used to arrive at the change.** No "verified with grep", "knip flagged", "tsc clean", "ran tests", "review pass", etc. Tools used during development do not belong in a PR description.
 - **Do not invent context from memory or prior conversation.** If the diff doesn't show it, don't claim it. Read the actual diff.
+- **Do not add a "Test plan" / "Testing" / "QA" section unless the change has specific, non-obvious verification steps.** Generic checklists like "smoke test main flows", "verify wallet connects", "run lint and type-check" are checklist theater — they don't help reviewers and nobody executes them. Only include a test plan when there is a concrete user-facing behavior worth calling out (e.g. "verify the new redirect from `/old` to `/new`"). Default to no test plan section. Keep the description focused on the Summary.
 
 The PR description answers: "what does merging this branch deliver to main, and why?" — not "what happened during development of this branch?"
