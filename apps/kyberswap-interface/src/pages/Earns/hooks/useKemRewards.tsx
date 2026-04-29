@@ -449,9 +449,12 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       merklRetryInFlightRef.current.add(chainId)
       setMerklSyncingChainIds(prev => (prev.includes(chainId) ? prev : [...prev, chainId]))
 
-      const INITIAL_DELAY = 10_000
-      const RETRY_INTERVAL = 8_000
-      const MAX_ATTEMPTS = 5
+      // Wait 20s before the first reload — Merkl's indexer needs time after the on-chain claim
+      // before the new `claimed` amount shows up. Calling sooner just wastes a request.
+      // Then up to 3 retries every 10s (total budget ~50s) until the indexer catches up.
+      const INITIAL_DELAY = 20_000
+      const RETRY_INTERVAL = 10_000
+      const MAX_ATTEMPTS = 4
 
       try {
         await new Promise(resolve => setTimeout(resolve, INITIAL_DELAY))
@@ -485,7 +488,8 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           }
         }
 
-        // Retry budget exhausted — refetch anyway so the next polling cycle starts from latest data
+        // Retry budget exhausted — refetch the main query so whatever data Merkl has now
+        // (even if the claim isn't reflected yet) replaces the stale cached payload.
         refetchMerklRewards()
       } finally {
         merklRetryInFlightRef.current.delete(chainId)

@@ -131,7 +131,13 @@ const rewardMerklApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: MERKL_API_BASE,
   }),
-  keepUnusedDataFor: 60,
+  // Cache stays alive for 5 minutes after no subscribers — covers most navigation patterns
+  // (Earns landing → UserPositions → PositionDetail → back) without re-hitting Merkl.
+  keepUnusedDataFor: 300,
+  // When a new subscriber mounts with identical args, only refetch if cached data is older
+  // than 60s; otherwise reuse the cache. Eliminates the burst of refetches that would
+  // otherwise fire each time a page mounts a new useMerklRewards consumer.
+  refetchOnMountOrArgChange: 60,
   endpoints: builder => ({
     merklRewards: builder.query<MerklRewardsResponse[], MerklRewardsParams>({
       async queryFn({ address, chainId }, api) {
@@ -212,6 +218,28 @@ const rewardMerklApi = createApi({
         return { data: await fetchRewardsPerChain(address, chainIds) }
       },
     }),
+    // One-off per-chain fetch used right before submitting a claim tx so the proofs/amounts
+    // baked into calldata are the freshest available. Bypasses the main RTK Query cache and
+    // does NOT pass `reloadChainId` (no backend rebuild needed — we just want latest cached
+    // data from Merkl). Falls back to the cached chain payload at the call site on failure.
+    fetchMerklChainRewards: builder.mutation<MerklRewardsResponse[], { address: string; chainId: number }>({
+      async queryFn({ address, chainId }) {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10_000)
+        try {
+          const res = await fetch(`${MERKL_API_BASE}/users/${address}/rewards?chainId=${chainId}`, {
+            signal: controller.signal,
+          })
+          if (!res.ok) return { error: { status: res.status, data: 'fetch failed' } }
+          const data: MerklRewardsResponse[] = await res.json()
+          return { data }
+        } catch (err) {
+          return { error: { status: 'CUSTOM_ERROR', error: (err as Error)?.message || 'fetch failed' } }
+        } finally {
+          clearTimeout(timeoutId)
+        }
+      },
+    }),
     // Force Merkl's backend to refresh its cache for a specific chain (used after a successful
     // claim tx so the next `merklRewards` fetch returns up-to-date claimed amounts).
     reloadMerklChain: builder.mutation<MerklRewardsResponse[], { address: string; chainId: number }>({
@@ -239,6 +267,6 @@ const rewardMerklApi = createApi({
   }),
 })
 
-export const { useMerklRewardsQuery, useReloadMerklChainMutation } = rewardMerklApi
+export const { useMerklRewardsQuery, useFetchMerklChainRewardsMutation, useReloadMerklChainMutation } = rewardMerklApi
 
 export default rewardMerklApi
