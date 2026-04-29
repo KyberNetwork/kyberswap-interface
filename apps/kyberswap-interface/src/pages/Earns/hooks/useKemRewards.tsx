@@ -92,6 +92,9 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   const [reloadMerklChain] = useReloadMerklChainMutation()
   const [rewardTab, setRewardTab] = useState<RewardTabType>('ks')
   const merklRetryInFlightRef = useRef<Set<number>>(new Set())
+  // Mirror of `merklRetryInFlightRef` exposed to the UI so callers can disable the claim
+  // button for chains whose post-claim sync hasn't finished yet.
+  const [merklSyncingChainIds, setMerklSyncingChainIds] = useState<number[]>([])
   // Keep `account` reachable from in-flight async retry loops so wallet disconnect aborts cleanly
   // (closure capture would hold the original account string indefinitely otherwise).
   const accountRef = useRef(account)
@@ -438,13 +441,13 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   const reloadMerklUntilUpdated = useCallback(
     async (chainId: number, baselineClaimableUsd: number) => {
       if (!accountRef.current) return
-      // If a retry loop is already running for this chain, fall back to a single refetch so the
-      // second claim's data still gets a chance to sync via the next poll/refetch cycle.
-      if (merklRetryInFlightRef.current.has(chainId)) {
-        refetchMerklRewards()
-        return
-      }
+      // A retry loop is already running for this chain — return without firing another
+      // refetch. The in-flight loop will eventually call `refetchMerklRewards` itself (on
+      // catch-up or budget exhaust), so any extra refetch here would race against the
+      // loop's per-chain reload calls and double the request count to Merkl.
+      if (merklRetryInFlightRef.current.has(chainId)) return
       merklRetryInFlightRef.current.add(chainId)
+      setMerklSyncingChainIds(prev => (prev.includes(chainId) ? prev : [...prev, chainId]))
 
       const INITIAL_DELAY = 10_000
       const RETRY_INTERVAL = 8_000
@@ -486,6 +489,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         refetchMerklRewards()
       } finally {
         merklRetryInFlightRef.current.delete(chainId)
+        setMerklSyncingChainIds(prev => prev.filter(id => id !== chainId))
       }
     },
     [reloadMerklChain, refetchMerklRewards],
@@ -613,6 +617,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         onPositionStatusChange={setPositionStatus}
         merklChainRewards={merklChainRewards}
         merklTotalUsdValue={merklTotalUsdValue}
+        merklSyncingChainIds={merklSyncingChainIds}
         onClaimMerkl={handleClaimMerkl}
         activeTab={rewardTab}
         onTabChange={setRewardTab}
