@@ -51,6 +51,15 @@ export interface MerklRewardsResponse {
   rewards: MerklRewardItem[]
 }
 
+// Subset of `/v4/chains` entry. Merkl returns more (explorers, dispute period, …) but the UI
+// only needs id/name/icon plus the liveCampaigns count to gate which chains we even query.
+export interface MerklChainSummary {
+  id: number
+  name: string
+  icon: string
+  liveCampaigns: number
+}
+
 interface MerklRewardsParams {
   address: string
   chainId: string
@@ -139,6 +148,15 @@ const rewardMerklApi = createApi({
   // otherwise fire each time a page mounts a new useMerklRewards consumer.
   refetchOnMountOrArgChange: 60,
   endpoints: builder => ({
+    // Lookup of chains where Merkl currently has campaigns. Used to build the chainId list for
+    // `merklRewards` so we don't ask Merkl about chains they don't run anything on. The list
+    // changes very rarely (new chains added every few weeks), so cache for a full day. The
+    // 60s `refetchOnMountOrArgChange` from createApi is overridden at the hook call site to
+    // match the longer keepUnusedDataFor.
+    getMerklChains: builder.query<MerklChainSummary[], void>({
+      query: () => ({ url: '/chains' }),
+      keepUnusedDataFor: 86_400,
+    }),
     merklRewards: builder.query<MerklRewardsResponse[], MerklRewardsParams>({
       async queryFn({ address, chainId }, api) {
         const chainIds = chainId
@@ -267,6 +285,11 @@ const rewardMerklApi = createApi({
   }),
 })
 
-export const { useMerklRewardsQuery, useFetchMerklChainRewardsMutation, useReloadMerklChainMutation } = rewardMerklApi
+export const {
+  useGetMerklChainsQuery,
+  useMerklRewardsQuery,
+  useFetchMerklChainRewardsMutation,
+  useReloadMerklChainMutation,
+} = rewardMerklApi
 
 export default rewardMerklApi

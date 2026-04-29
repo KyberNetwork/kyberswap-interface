@@ -1,14 +1,20 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLazySearchTokensBySymbolQuery } from 'services/ksSetting'
-import { useMerklRewardsQuery } from 'services/rewardMerkl'
+import { useGetMerklChainsQuery, useMerklRewardsQuery } from 'services/rewardMerkl'
 
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
+import { EarnChain } from 'pages/Earns/constants'
 import { ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
+
+// Chains the Earn product runs on. Anything outside this set won't render in the UI even if
+// Merkl has rewards on it, so there's no point asking Merkl about them. Filtering numeric
+// enum values guards against the reverse-mapped string keys TS adds to numeric enums.
+const EARN_CHAIN_IDS = new Set<number>(Object.values(EarnChain).filter((v): v is number => typeof v === 'number'))
 
 // Module-level caches shared across all hook instances to avoid duplicate
 // symbol lookups when multiple components subscribe to useMerklRewards.
@@ -24,8 +30,28 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const { account } = useActiveWeb3React()
   const { filters } = useFilter()
   const { supportedChains } = useChainsConfig()
+  // Source of truth for which chains to query Merkl on. Cached for a day in the API layer,
+  // so this is effectively free for every consumer after the first call. We override the
+  // global 60s `refetchOnMountOrArgChange` to match the day-long cache and avoid pointless
+  // remount refetches of a list that changes on the order of weeks.
+  const { data: merklChains, isSuccess: hasMerklChains } = useGetMerklChainsQuery(undefined, {
+    refetchOnMountOrArgChange: 86_400,
+  })
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
   const [searchTokensBySymbol] = useLazySearchTokensBySymbolQuery()
+
+  // Chains we actually want Merkl reward data for: every Earn-supported chain that Merkl
+  // also knows about. We intentionally do NOT filter by `liveCampaigns > 0` — a chain with no
+  // active campaigns can still hold unclaimed rewards from past campaigns, and dropping it
+  // here would silently hide that claimable balance from the user.
+  const merklEnabledChainIds = useMemo(
+    () =>
+      (merklChains || [])
+        .filter(chain => EARN_CHAIN_IDS.has(chain.id))
+        .map(chain => chain.id)
+        .join(','),
+    [merklChains],
+  )
 
   const positionsKey = useMemo(
     () => (options?.positions || []).map(position => `${position.positionId}-${position.pool.address}`).join('|'),
@@ -65,9 +91,12 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   } = useMerklRewardsQuery(
     {
       address: account || '',
-      chainId: filters.chainIds || supportedChains.map(chain => chain.chainId).join(','),
+      chainId: filters.chainIds || merklEnabledChainIds,
     },
-    { skip: !account },
+    // Wait for the Merkl chains list to resolve so the very first call to /rewards already
+    // has the right chainIds. Without this gate, the hook would fire once with an empty
+    // chainId arg (yielding an empty result), then refetch with the proper list.
+    { skip: !account || !hasMerklChains },
   )
 
   const {
@@ -362,16 +391,19 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
 
     return Object.entries(grouped).map(([chainIdStr, info]) => {
       const cId = Number(chainIdStr)
-      const chain = supportedChains.find(c => c.chainId === cId)
+      // Prefer Kyber's name/icon for branding consistency, fall back to Merkl's data for chains
+      // Kyber doesn't list (e.g., Stellar) so the row still renders sensibly.
+      const kyberChain = supportedChains.find(c => c.chainId === cId)
+      const merklChain = merklChains?.find(c => c.id === cId)
       return {
         chainId: cId,
-        chainName: chain?.name || `Chain ${cId}`,
-        chainLogo: chain?.icon || '',
+        chainName: kyberChain?.name || merklChain?.name || `Chain ${cId}`,
+        chainLogo: kyberChain?.icon || merklChain?.icon || '',
         claimableUsdValue: info.claimableUsdValue,
         tokens: info.tokens,
       }
     })
-  }, [parsedRewards, supportedChains])
+  }, [parsedRewards, supportedChains, merklChains])
 
   return useMemo(
     () => ({
