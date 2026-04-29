@@ -190,18 +190,20 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
 
   const displayedToken0 = revertPrice ? secondaryToken : primaryToken
   const displayedToken1 = revertPrice ? primaryToken : secondaryToken
+  const shouldInvertPrice = priceData?.priceInToken && priceData.priceInToken !== secondaryToken.address
+  const shouldRevertPrice = revertPrice ? !shouldInvertPrice : shouldInvertPrice
 
   const chartData = useMemo<DisplayCandle[]>(
     () =>
       (priceData?.candles ?? []).map(candle => ({
         time: candle.ts as UTCTimestamp,
-        open: revertPrice ? invertPrice(candle.open) : candle.open,
-        high: revertPrice ? invertPrice(candle.low) : candle.high,
-        low: revertPrice ? invertPrice(candle.high) : candle.low,
-        close: revertPrice ? invertPrice(candle.close) : candle.close,
+        open: shouldRevertPrice ? invertPrice(candle.open) : candle.open,
+        high: shouldRevertPrice ? invertPrice(candle.low) : candle.high,
+        low: shouldRevertPrice ? invertPrice(candle.high) : candle.low,
+        close: shouldRevertPrice ? invertPrice(candle.close) : candle.close,
         volume: candle.volume,
       })),
-    [priceData?.candles, revertPrice],
+    [priceData?.candles, shouldRevertPrice],
   )
 
   const firstCandle = chartData[0]
