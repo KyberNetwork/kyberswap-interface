@@ -185,7 +185,8 @@ export class BungeeAdapter extends BaseSwapAdapter {
     return {
       txHash: res?.destinationData?.txHash || '',
       status:
-        res.bungeeStatusCode === RequestStatusEnum.REFUNDED || res.refund?.txHash
+        res.bungeeStatusCode === RequestStatusEnum.REFUNDED ||
+        (res.bungeeStatusCode === RequestStatusEnum.REFUND_PENDING && res.refund?.txHash)
           ? 'Refunded'
           : [RequestStatusEnum.EXPIRED, RequestStatusEnum.CANCELLED].includes(res.bungeeStatusCode)
           ? 'Failed'
