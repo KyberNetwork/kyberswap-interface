@@ -64,6 +64,7 @@ type Props = {
   onPositionStatusChange?: (value: PositionStatus) => void
   merklChainRewards?: ChainRewardInfo[]
   merklTotalUsdValue?: number
+  merklSyncingChainIds?: number[]
   onClaimMerkl?: (chainId: number) => Promise<string | undefined>
   activeTab?: RewardTabType
   onTabChange?: (tab: RewardTabType) => void
@@ -81,6 +82,7 @@ export default function ClaimAllModal({
   onPositionStatusChange,
   merklChainRewards = [],
   merklTotalUsdValue = 0,
+  merklSyncingChainIds = [],
   onClaimMerkl,
   activeTab: controlledTab,
   onTabChange,
@@ -108,6 +110,8 @@ export default function ClaimAllModal({
 
   const selectedRewardChain = selectedChainId ? currentChains.find(c => c.chainId === selectedChainId) : null
   const isClaiming = !!(selectedChainId && claimingByChain[selectedChainId])
+  const isSyncingSelectedMerkl =
+    activeTab === 'bonus' && !!selectedChainId && merklSyncingChainIds.includes(selectedChainId)
 
   const handleClaim = useCallback(async () => {
     if (!library || !selectedChainId) return
@@ -313,15 +317,27 @@ export default function ClaimAllModal({
           )}
         </ClaimInfoWrapper>
 
+        {isSyncingSelectedMerkl && (
+          <Text fontSize={12} color={theme.warning} sx={{ marginTop: '-4px' }}>
+            {t`Syncing your last claim with Merkl — please wait a moment.`}
+          </Text>
+        )}
+
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           <ButtonPrimary
             gap="4px"
-            disabled={isClaiming || !selectedRewardChain?.claimableUsdValue}
+            disabled={isClaiming || isSyncingSelectedMerkl || !selectedRewardChain?.claimableUsdValue}
             onClick={handleClaim}
           >
-            {isClaiming && <Loader stroke={'#505050'} />}
-            {isClaiming ? t`Claiming` : activeTab === 'bonus' ? t`Claim Incentives` : t`Claim Rewards`}
+            {(isClaiming || isSyncingSelectedMerkl) && <Loader stroke={'#505050'} />}
+            {isClaiming
+              ? t`Claiming`
+              : isSyncingSelectedMerkl
+              ? t`Syncing`
+              : activeTab === 'bonus'
+              ? t`Claim Incentives`
+              : t`Claim Rewards`}
           </ButtonPrimary>
         </Row>
       </Wrapper>
