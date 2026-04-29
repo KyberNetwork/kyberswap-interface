@@ -171,7 +171,7 @@ const getChartOptions = ({
     timeVisible: timeFrame !== '7d',
   },
   localization: {
-    priceFormatter: (value: number) => formatDisplayNumber(value, { fractionDigits: 4 }),
+    priceFormatter: (value: number) => formatDisplayNumber(value, { fractionDigits: 4, fallback: '' }),
   },
 })
 
