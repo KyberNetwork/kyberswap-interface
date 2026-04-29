@@ -86,6 +86,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     chainRewards: merklChainRewards,
     totalUsdValue: merklTotalUsdValue,
     refetch: refetchMerklRewards,
+    rawData: merklRawData,
   } = useMerklRewards()
   const { claimMerklRewards } = useClaimMerklRewards()
   const [reloadMerklChain] = useReloadMerklChainMutation()
@@ -581,7 +582,8 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
 
   const handleClaimMerkl = useCallback(
     async (targetChainId: number) => {
-      const txHash = await claimMerklRewards(targetChainId)
+      const chainRewards = merklRawData?.find(item => item.chain.id === targetChainId)
+      const txHash = await claimMerklRewards(targetChainId, chainRewards)
       if (txHash) {
         setPendingClaims(prev => {
           const claimKey = `merkl:${targetChainId}`
@@ -591,7 +593,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       }
       return txHash
     },
-    [claimMerklRewards],
+    [claimMerklRewards, merklRawData],
   )
 
   const claimAllRewardsModal =

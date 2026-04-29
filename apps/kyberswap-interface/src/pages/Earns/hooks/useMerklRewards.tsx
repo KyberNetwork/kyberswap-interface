@@ -421,8 +421,10 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
       totalUsdValue,
       loading: isFetching,
       refetch: refetchMerklRewards,
+      // Raw Merkl response — needed by the claim flow to access merkle proofs.
+      rawData: data,
     }),
-    [parsedRewardsByPosition, parsedRewards, chainRewards, totalUsdValue, isFetching, refetchMerklRewards],
+    [parsedRewardsByPosition, parsedRewards, chainRewards, totalUsdValue, isFetching, refetchMerklRewards, data],
   )
 }
 

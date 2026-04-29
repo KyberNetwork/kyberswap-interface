@@ -239,6 +239,6 @@ const rewardMerklApi = createApi({
   }),
 })
 
-export const { useMerklRewardsQuery, useLazyMerklRewardsQuery, useReloadMerklChainMutation } = rewardMerklApi
+export const { useMerklRewardsQuery, useReloadMerklChainMutation } = rewardMerklApi
 
 export default rewardMerklApi
