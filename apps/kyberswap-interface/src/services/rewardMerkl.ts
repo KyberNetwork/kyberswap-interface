@@ -83,11 +83,21 @@ const isChainRecentlyReloaded = (chainId: string): boolean => {
 
 type BatchedResult = { ok: true; data: MerklRewardsResponse[] } | { ok: false; permanent: boolean }
 
-const fetchRewardsPerChain = async (address: string, chainIds: string[]): Promise<MerklRewardsResponse[]> => {
+const fetchRewardsPerChain = async (
+  address: string,
+  chainIds: string[],
+  // Append `reloadChainId=X` to force Merkl's backend to refresh ITS cache for that chain
+  // before responding. Used in post-claim flows where we need to defeat any URL-keyed cache
+  // that wasn't invalidated by an earlier reload call.
+  withReload = false,
+): Promise<MerklRewardsResponse[]> => {
   const results = await Promise.all(
     chainIds.map(async cId => {
       try {
-        const res = await fetch(`${MERKL_API_BASE}/users/${address}/rewards?chainId=${cId}`)
+        const url = withReload
+          ? `${MERKL_API_BASE}/users/${address}/rewards?chainId=${cId}&reloadChainId=${cId}`
+          : `${MERKL_API_BASE}/users/${address}/rewards?chainId=${cId}`
+        const res = await fetch(url)
         if (!res.ok) return null
         const data: MerklRewardsResponse[] = await res.json()
         return data
@@ -124,7 +134,7 @@ const rewardMerklApi = createApi({
   keepUnusedDataFor: 60,
   endpoints: builder => ({
     merklRewards: builder.query<MerklRewardsResponse[], MerklRewardsParams>({
-      async queryFn({ address, chainId }) {
+      async queryFn({ address, chainId }, api) {
         const chainIds = chainId
           .split(',')
           .map(s => s.trim())
@@ -141,33 +151,45 @@ const rewardMerklApi = createApi({
 
         const reloadedChains = chainIds.filter(isChainRecentlyReloaded)
 
-        // Hybrid path: batched for everyone + per-chain ONLY for chains whose backend cache
-        // was just refreshed by `reloadMerklChain` (e.g., post-claim flow). The per-chain
-        // results are guaranteed fresh — they hit the same URL pattern Merkl just refreshed —
-        // and replace the corresponding entries from the batched response. Cost: 2 requests
-        // instead of N. Only the just-claimed chain pays the targeted refresh; other chains
-        // reuse the batched response.
+        // Post-claim path: only the reloaded chains have changed. Re-fetch JUST those with
+        // `reloadChainId` for guaranteed-fresh data, then merge with the already-cached
+        // entries for the unchanged chains. This avoids the wasteful batched call that
+        // re-fetches data we already have for chains that didn't claim.
         if (reloadedChains.length > 0) {
-          // Every requested chain is reloaded — batched would be fully discarded by the merge,
-          // so skip it and just per-chain everything.
+          // Every requested chain is reloaded — nothing to reuse from cache.
           if (reloadedChains.length === chainIds.length) {
-            return { data: await fetchRewardsPerChain(address, chainIds) }
+            return { data: await fetchRewardsPerChain(address, chainIds, true) }
           }
 
-          const [batchedResult, freshPerChain] = await Promise.all([
-            fetchRewardsBatched(address, chainIds),
-            fetchRewardsPerChain(address, reloadedChains),
-          ])
+          const freshPerChain = await fetchRewardsPerChain(address, reloadedChains, true)
+          // `as any` breaks the circular type inference — `rewardMerklApi` is being defined in
+          // the same statement and can't be type-named yet, but the runtime reference is fine
+          // because queryFn is only invoked after the api object has been constructed.
+          const existing =
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ((rewardMerklApi as any).endpoints.merklRewards.select({ address, chainId })(api.getState())?.data ??
+              []) as MerklRewardsResponse[]
+
+          // Use the cache-reuse optimization only when both halves have data. If `freshPerChain`
+          // is empty (per-chain fetch failed for every reloaded chain), returning unmodified
+          // cache would silently serve pre-claim data — fall through to the batched fallback
+          // so the user gets fresh data via a different URL path instead.
+          if (existing.length > 0 && freshPerChain.length > 0) {
+            const refreshedIds = new Set(freshPerChain.map(item => item.chain.id))
+            const merged = existing.filter(item => !refreshedIds.has(item.chain.id)).concat(freshPerChain)
+            return { data: merged }
+          }
+
+          // Cache empty OR `freshPerChain` empty — fall back to batched + reloaded-per-chain
+          // merge so the full picture is populated and stale cache isn't served silently.
+          const batchedResult = await fetchRewardsBatched(address, chainIds)
           if (batchedResult.ok) {
             batchedSupportState = 'supported'
             const refreshedIds = new Set(freshPerChain.map(item => item.chain.id))
             const merged = batchedResult.data.filter(item => !refreshedIds.has(item.chain.id)).concat(freshPerChain)
             return { data: merged }
           }
-
           if (batchedResult.permanent) batchedSupportState = 'unsupported'
-          // Batched failed — fetch the remaining (non-reloaded) chains per-chain and merge
-          // with the already-in-hand `freshPerChain` so we don't re-request reloaded chains.
           const reloadedSet = new Set(reloadedChains)
           const remainingChains = chainIds.filter(id => !reloadedSet.has(id))
           const remainingPerChain = remainingChains.length ? await fetchRewardsPerChain(address, remainingChains) : []
