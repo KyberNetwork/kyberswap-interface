@@ -45,6 +45,16 @@ const routeApi = createApi({
         if (baseResponse?.data?.routeSummary && routeSummary && chainId && tokenInDecimals && tokenOutDecimals) {
           const { amountIn, amountOut } = routeSummary
 
+          if (!routeSummary.amountInUsd || !routeSummary.amountOutUsd) {
+            console.warn('[getRoute] aggregator returned empty amountInUsd/amountOutUsd', {
+              amountInUsd: routeSummary.amountInUsd,
+              amountOutUsd: routeSummary.amountOutUsd,
+              tokenIn,
+              tokenOut,
+              chainId,
+            })
+          }
+
           try {
             const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
             const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
@@ -87,8 +97,26 @@ const routeApi = createApi({
               },
             }
           } catch (error) {
-            console.error('Failed to fetch on-chain price:', error)
+            console.error('[getRoute] on-chain price fetch failed; rawAmount*Usd will not be set', {
+              error,
+              tokenIn,
+              tokenOut,
+              chainId,
+              apiAmountInUsd: routeSummary.amountInUsd,
+              apiAmountOutUsd: routeSummary.amountOutUsd,
+            })
           }
+        } else {
+          console.warn('[getRoute] transform skipped; rawAmount*Usd will not be set', {
+            hasRouteSummary: !!routeSummary,
+            chainId,
+            tokenInDecimals,
+            tokenOutDecimals,
+            tokenIn,
+            tokenOut,
+            apiAmountInUsd: routeSummary?.amountInUsd,
+            apiAmountOutUsd: routeSummary?.amountOutUsd,
+          })
         }
 
         // Return original response if conditions are not met or request fails

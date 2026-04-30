@@ -26,6 +26,7 @@ export const updatePoolDegenMode = createAction<{ poolDegenMode: boolean; isStab
   'user/updatePoolDegenMode',
 )
 export const toggleUseAggregatorForZap = createAction('user/toggleUseAggregatorForZap')
+export const togglePricingChart = createAction('user/togglePricingChart')
 export const toggleTradeRoutes = createAction('user/toggleTradeRoutes')
 export const toggleSuccessSound = createAction('user/toggleSuccessSound')
 export const updateUserLocale = createAction<{ userLocale: SupportedLocale }>('user/updateUserLocale')

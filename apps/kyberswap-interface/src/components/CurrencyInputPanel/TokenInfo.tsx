@@ -171,7 +171,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     <Flex
       width="fit-content"
       height="fit-content"
-      marginTop="6px"
+      marginBottom="-4px"
       marginLeft="4px"
       role="button"
       ref={infoRef}

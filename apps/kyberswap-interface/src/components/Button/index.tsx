@@ -205,7 +205,7 @@ const disabledOutlined = css<{
   border: 1px solid ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.border)};
 `
 export const ButtonOutlined = styled(Base)<{ color?: string }>`
-  border: 1px solid ${({ theme, color }) => color || theme.subText};
+  border: 1px solid ${({ theme, color }) => color || theme.border};
   background-color: transparent;
   color: ${({ theme, color }) => color || theme.subText};
   border-radius: 999px;

@@ -204,7 +204,7 @@ const TradeSummary: React.FC<Props> = ({
             <Trans>Rate</Trans>
           </Text>
 
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
+          <Flex alignItems="center" sx={{ gap: '4px', my: -4 }}>
             <RefreshLoading
               refetchLoading={routeLoading}
               onRefresh={refreshCallback}

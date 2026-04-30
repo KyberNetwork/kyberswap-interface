@@ -6,6 +6,7 @@ export enum ShareType {
 
 export enum ShareOption {
   TOTAL_APR = 'Total APR',
+  ACTIVE_APR = 'Active APR',
   LM_APR = 'Liquidity Mining APR',
   EG_APR = 'EG Sharing APR',
   TOTAL_EARNINGS = 'Total Earnings',
@@ -17,6 +18,7 @@ export enum ShareOption {
 export interface ShareModalProps {
   type: ShareType;
   isFarming?: boolean;
+  hasActiveApr?: boolean;
   defaultOptions?: ShareOption[];
   pool?: {
     feeTier?: number;
@@ -38,6 +40,9 @@ export interface ShareModalProps {
       fees: number;
       eg: number;
       lm: number;
+      activeTotal?: number;
+      activeEg?: number;
+      activeLm?: number;
     };
   };
   position?: {

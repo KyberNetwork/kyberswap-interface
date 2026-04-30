@@ -31,6 +31,7 @@ import {
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleMyEarningChart,
+  togglePricingChart,
   toggleSuccessSound,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
@@ -492,6 +493,17 @@ export const useShowMyEarningChart: () => [boolean, () => void] = () => {
     dispatch(toggleMyEarningChart())
   }, [dispatch])
   return [isShowMyEarningChart, toggle]
+}
+
+export function useShowPricingChart(): boolean {
+  return useSelector((state: AppState) =>
+    state.user.showPricingChart === undefined ? true : state.user.showPricingChart,
+  )
+}
+
+export function useTogglePricingChart(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(togglePricingChart()), [dispatch])
 }
 
 export function useShowTradeRoutes(): boolean {
