@@ -42,7 +42,16 @@ const routeApi = createApi({
         const { chainId, tokenInDecimals, tokenOutDecimals, tokenIn, tokenOut } = params || {}
 
         // Ensure all necessary data is available
-        if (baseResponse?.data?.routeSummary && routeSummary && chainId && tokenInDecimals && tokenOutDecimals) {
+        if (
+          baseResponse?.data?.routeSummary &&
+          routeSummary &&
+          chainId &&
+          // decimals can be 0
+          tokenInDecimals !== null &&
+          tokenInDecimals !== undefined &&
+          tokenOutDecimals !== null &&
+          tokenOutDecimals !== undefined
+        ) {
           const { amountIn, amountOut } = routeSummary
 
           if (!routeSummary.amountInUsd || !routeSummary.amountOutUsd) {
