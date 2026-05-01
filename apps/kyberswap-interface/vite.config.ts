@@ -45,6 +45,7 @@ export default defineConfig({
     },
   },
   resolve: {
+    dedupe: ['styled-components', 'react', 'react-dom'],
     alias: {
       querystring: 'query-string',
       process: 'process/browser',
