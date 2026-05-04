@@ -1,18 +1,5 @@
-import { rgba, transparentize } from 'polished'
+import { transparentize } from 'polished'
 import styled from 'styled-components'
-
-export const TableWrapper = styled.div`
-  width: 100%;
-  padding: 20px;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 16px 0;
-  `}
-
-  display: flex;
-  flex-direction: column;
-  background: ${({ theme }) => rgba(theme.buttonGray, 0.8)};
-  border-radius: 20px;
-`
 
 export const Table = styled.div`
   display: flex;

@@ -15,7 +15,6 @@ export enum PermitNftState {
   READY_TO_SIGN = 'ready_to_sign',
   SIGNING = 'signing',
   SIGNED = 'signed',
-  ERROR = 'error',
 }
 
 export interface PermitNftParams {

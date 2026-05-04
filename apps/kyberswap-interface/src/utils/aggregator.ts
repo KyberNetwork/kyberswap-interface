@@ -8,11 +8,10 @@ import {
   TokenAmount,
   TradeType,
 } from '@kyberswap/ks-sdk-core'
-import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
 
-import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
+import { ETHER_ADDRESS, KYBERSWAP_SOURCE, requestId } from 'constants/index'
 
 import fetchWaiting from './fetchWaiting'
 
@@ -224,7 +223,7 @@ export class Aggregator {
           {
             signal,
             headers: {
-              'X-Request-Id': sentryRequestId,
+              'X-Request-Id': requestId,
               'Accept-Version': 'Latest',
             },
           },
@@ -261,9 +260,6 @@ export class Aggregator {
         // ignore aborted request error
         if (!e?.message?.includes('Fetch is aborted') && !e?.message?.includes('The user aborted a request')) {
           console.error('Aggregator error:', e?.stack || e)
-          const sentryError = new Error('Aggregator API call failed', { cause: e })
-          sentryError.name = 'AggregatorAPIError'
-          captureException(sentryError, { level: 'error' })
         }
       }
     }

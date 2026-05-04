@@ -23,7 +23,7 @@ const CustomPrimaryButton = styled(ButtonPrimary).attrs({
     border: none;
   }
 `
-export const SwapButtonWithPriceImpact = ({
+const SwapButtonWithPriceImpact = ({
   isProcessingSwap,
   minimal,
   showLoading,

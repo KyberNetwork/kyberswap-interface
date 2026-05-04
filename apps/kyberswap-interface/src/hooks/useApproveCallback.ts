@@ -9,14 +9,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import ERC20_ABI from 'constants/abis/erc20.json'
 import { useNotify } from 'state/application/hooks'
-import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { usePaymentToken } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
-import { Aggregator } from 'utils/aggregator'
 import { friendlyError } from 'utils/errorMessage'
-import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { paymasterExecute } from 'utils/sendTransaction'
 
 import { useActiveWeb3React } from './index'
@@ -202,17 +199,4 @@ export function useApproveCallback(
   )
 
   return [approvalState, approve, currentAllowance]
-}
-
-// wraps useApproveCallback in the context of a swap
-export function useApproveCallbackFromTradeV2(
-  trade?: Aggregator,
-  allowedSlippage = 0,
-): [ApprovalState, () => Promise<void>, TokenAmount | undefined] {
-  const amountToApprove = useMemo(
-    () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
-    [trade, allowedSlippage],
-  )
-
-  return useApproveCallback(amountToApprove, trade?.routerAddress)
 }

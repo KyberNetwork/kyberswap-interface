@@ -6,7 +6,7 @@ import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import ksSettingApi from 'services/ksSetting'
 
-import ERC20_INTERFACE, { ERC20_BYTES32_INTERFACE } from 'constants/abis/erc20'
+import ERC20_INTERFACE from 'constants/abis/erc20'
 import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -15,7 +15,7 @@ import { useBytes32TokenContract, useMulticallContract, useTokenReadingContract 
 import { AppState } from 'state'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { NEVER_RELOAD, useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import { escapeQuoteString } from 'utils/tokenInfo'
@@ -85,90 +85,6 @@ function parseStringOrBytes32(str: string | undefined, bytes32: string | undefin
     bytes32 && BYTES32_REGEX.test(bytes32) && arrayify(bytes32)[31] === 0
     ? parseBytes32String(bytes32)
     : defaultValue
-}
-
-export const useTokens = (addresses: string[]): TokenMap => {
-  const { chainId } = useActiveWeb3React()
-  const tokens = useAllTokens()
-
-  const knownTokens = useMemo(() => {
-    return addresses
-      .filter(address => address === ZERO_ADDRESS || tokens[address])
-      .map(address => (address === ZERO_ADDRESS ? NativeCurrencies[chainId] : tokens[address]))
-    // eslint-disable-next-line
-  }, [JSON.stringify(addresses), tokens, chainId])
-
-  const unKnowAddresses = useMemo(
-    () => addresses.filter(address => address !== ZERO_ADDRESS && !tokens[address]),
-    // eslint-disable-next-line
-    [JSON.stringify(addresses), tokens],
-  )
-
-  const nameResult = useMultipleContractSingleData(unKnowAddresses, ERC20_INTERFACE, 'name', undefined, NEVER_RELOAD)
-
-  const name32Result = useMultipleContractSingleData(
-    unKnowAddresses,
-    ERC20_BYTES32_INTERFACE,
-    'name',
-    undefined,
-    NEVER_RELOAD,
-  )
-
-  const symbolResult = useMultipleContractSingleData(
-    unKnowAddresses,
-    ERC20_INTERFACE,
-    'symbol',
-    undefined,
-    NEVER_RELOAD,
-  )
-
-  const symbol32Result = useMultipleContractSingleData(
-    unKnowAddresses,
-    ERC20_BYTES32_INTERFACE,
-    'symbol',
-    undefined,
-    NEVER_RELOAD,
-  )
-
-  const decimalResult = useMultipleContractSingleData(
-    unKnowAddresses,
-    ERC20_INTERFACE,
-    'decimals',
-    undefined,
-    NEVER_RELOAD,
-  )
-
-  return useMemo(() => {
-    const unknownTokens = unKnowAddresses.map((address, index) => {
-      try {
-        const name = nameResult?.[0].result?.[index]
-        const name32 = name32Result?.[0].result?.[index]
-        const symbol = symbolResult?.[0].result?.[index]
-        const symbol32 = symbol32Result?.[0].result?.[index]
-        const decimals = decimalResult?.[0].result?.[index]
-
-        if (!symbol || !decimals) return null
-
-        return new Token(
-          chainId,
-          address,
-          decimals,
-          parseStringOrBytes32(symbol, symbol32, 'UNKNOWN'),
-          parseStringOrBytes32(name, name32, 'Unknown Token'),
-        )
-      } catch (e) {
-        return null
-      }
-    })
-
-    return [...unknownTokens, ...knownTokens].reduce((acc, cur) => {
-      if (!cur) return acc
-      return {
-        ...acc,
-        [cur.isNative ? ZERO_ADDRESS : cur.address]: cur,
-      }
-    }, {})
-  }, [unKnowAddresses, name32Result, nameResult, symbol32Result, symbolResult, decimalResult, knownTokens, chainId])
 }
 
 // undefined if invalid or does not exist

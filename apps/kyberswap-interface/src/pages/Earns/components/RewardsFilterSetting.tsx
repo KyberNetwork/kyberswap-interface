@@ -116,5 +116,3 @@ export const RewardsFilterSetting = ({
     </Flex>
   )
 }
-
-export default RewardsFilterSetting

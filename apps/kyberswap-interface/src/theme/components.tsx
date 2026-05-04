@@ -1,8 +1,7 @@
-import { darken } from 'polished'
 import React, { HTMLProps, useCallback } from 'react'
-import { ArrowLeft, ExternalLink as LinkIconFeather, X } from 'react-feather'
+import { ExternalLink as LinkIconFeather, X } from 'react-feather'
 import { Link } from 'react-router-dom'
-import styled, { css, keyframes } from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { navigateToUrl, validateRedirectURL } from 'utils/redirect'
 
@@ -33,55 +32,11 @@ export const ButtonText = styled.button<{ color?: string; gap?: string }>`
   }
 `
 
-export const Button = styled.button.attrs<{ warning: boolean }, { backgroundColor: string }>(({ warning, theme }) => ({
-  backgroundColor: warning ? theme.red1 : theme.primary,
-}))`
-  padding: 1rem 2rem 1rem 2rem;
-  border-radius: 3rem;
-  cursor: pointer;
-  user-select: none;
-  font-size: 1rem;
-  border: none;
-  outline: none;
-  background-color: ${({ backgroundColor }) => backgroundColor};
-  color: ${({ theme }) => theme.white};
-  width: 100%;
-
-  :hover,
-  :focus {
-    background-color: ${({ backgroundColor }) => darken(0.05, backgroundColor)};
-  }
-
-  :active {
-    background-color: ${({ backgroundColor }) => darken(0.1, backgroundColor)};
-  }
-
-  :disabled {
-    background-color: ${({ theme }) => theme.buttonGray};
-    color: ${({ theme }) => theme.text2} !important;
-    cursor: auto;
-  }
-`
-
 export const CloseIcon = styled(X)<{ onClick?: () => void }>`
   cursor: pointer;
 
   :hover {
     filter: brightness(1.2);
-  }
-`
-
-// for wrapper react feather icons
-export const IconWrapper = styled.div<{ stroke?: string; size?: string; marginRight?: string; marginLeft?: string }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: ${({ size }) => size ?? '20px'};
-  height: ${({ size }) => size ?? '20px'};
-  margin-right: ${({ marginRight }) => marginRight ?? 0};
-  margin-left: ${({ marginLeft }) => marginLeft ?? 0};
-  & > * {
-    stroke: ${({ theme, stroke }) => stroke ?? theme.blue1};
   }
 `
 
@@ -249,77 +204,9 @@ export function ExternalLinkIcon({
   )
 }
 
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`
-
-export const Spinner = styled.img`
-  animation: 2s ${rotate} linear infinite;
-  width: 16px;
-  height: 16px;
-`
-
-const BackArrowLink = styled(StyledInternalLink)`
-  color: ${({ theme }) => theme.text};
-`
-export function BackArrow({ to }: { to: string }) {
-  return (
-    <BackArrowLink to={to}>
-      <ArrowLeft />
-    </BackArrowLink>
-  )
-}
-
-export const CustomLightSpinner = styled(Spinner)<{ size: string }>`
-  height: ${({ size }) => size};
-  width: ${({ size }) => size};
-`
-
-export const HideMedium = styled.span`
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    ${css`
-      display: none;
-    `}
-  `};
-`
-
-export const MediumOnly = styled.span`
-  display: none;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    ${css`
-      display: block;
-    `}
-  `};
-`
-
 export const HideSmall = styled.span`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: none;
-  `};
-`
-
-export const HideExtraSmall = styled.span`
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: none;
-  `};
-`
-
-export const SmallOnly = styled.span`
-  display: none;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: block;
-  `};
-`
-
-export const ExtraSmallOnly = styled.span`
-  display: none;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: block;
   `};
 `
 

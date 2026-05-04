@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
 import { porto } from 'porto/wagmi'
-import { ReactNode, useEffect, useMemo } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { defineChain, http } from 'viem'
 import {
   arbitrum,
@@ -24,7 +24,7 @@ import {
   unichain,
   zksync,
 } from 'viem/chains'
-import { Connector, WagmiProvider, createConfig, createConnector, useConnect } from 'wagmi'
+import { Connector, WagmiProvider, createConfig, createConnector } from 'wagmi'
 import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
 
 import WC_BG from 'assets/images/wc-bg.png'
@@ -200,17 +200,6 @@ export function getConnectorWithId(
     throw new Error(`Expected connector ${id} missing from wagmi context.`)
   }
   return connector
-}
-
-/** Returns a wagmi `Connector` with the given id. If `shouldThrow` is passed, an error will be thrown if the connector is not found. */
-export function useConnectorWithId(id: ConnectorID, options: { shouldThrow: true }): Connector
-export function useConnectorWithId(id: ConnectorID): Connector | undefined
-export function useConnectorWithId(id: ConnectorID, options?: { shouldThrow: true }): Connector | undefined {
-  const { connectors } = useConnect()
-  return useMemo(
-    () => (options?.shouldThrow ? getConnectorWithId(connectors, id, options) : getConnectorWithId(connectors, id)),
-    [connectors, id, options],
-  )
 }
 
 declare module 'wagmi' {

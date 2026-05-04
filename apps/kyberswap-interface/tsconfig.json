@@ -38,8 +38,7 @@
     }
   },
   "exclude": [
-    "node_modules",
-    "cypress"
+    "node_modules"
   ],
   "include": [
     "./src/**/*.ts",

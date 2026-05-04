@@ -136,5 +136,3 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
     error,
   }
 }
-
-export type ZapPoolState = ReturnType<typeof useZapPool>

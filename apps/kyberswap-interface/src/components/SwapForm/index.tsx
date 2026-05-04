@@ -5,9 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
-import styled from 'styled-components'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
 import FeeControlGroup from 'components/FeeControlGroup'
@@ -40,15 +38,6 @@ import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { isInSafeApp } from 'utils'
-
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 20px;
-  width: 20px;
-  margin-right: 10px;
-  path {
-    fill: ${({ theme }) => theme.text} !important;
-  }
-`
 
 export type SwapFormProps = {
   hidden: boolean

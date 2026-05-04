@@ -30,15 +30,6 @@ export interface WalletInfo {
   walletType: WalletType | null
 }
 
-export interface BitcoinWalletContextValue {
-  walletInfo: WalletInfo
-  availableWallets: BitcoinWalletBase[]
-  connectingWallet: WalletType | null
-  setConnectingWallet: (walletType: WalletType | null) => void
-  balance: number
-  getBalance: () => Promise<void>
-}
-
 export interface CreateProviderParams {
   connectingWallet: string | null
   setConnectingWallet: (wallet: WalletType | null) => void
