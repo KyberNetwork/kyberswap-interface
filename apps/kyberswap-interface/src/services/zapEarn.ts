@@ -226,6 +226,7 @@ export interface PoolPriceData {
   candles: Array<PoolPriceCandle>
   currentPrice: number
   priceChange: number
+  priceInToken: string
 }
 
 export interface PoolLiquidityFlowBucket {

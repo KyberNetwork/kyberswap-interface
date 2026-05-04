@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { ethers } from 'ethers'
 import { useCallback } from 'react'
-import { useLazyMerklRewardsQuery } from 'services/rewardMerkl'
+import { MerklRewardsResponse } from 'services/rewardMerkl'
 
 import { NotificationType } from 'components/Announcement/type'
 import MERKL_DISTRIBUTOR_ABI from 'constants/abis/merkl-distributor.json'
@@ -20,19 +20,11 @@ const useClaimMerklRewards = () => {
   const addTransactionWithType = useTransactionAdder()
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const [fetchMerklRewards] = useLazyMerklRewardsQuery()
 
   const claimMerklRewards = useCallback(
-    async (targetChainId: number) => {
+    async (targetChainId: number, chainRewards: MerklRewardsResponse | undefined) => {
       if (!library || !account) return
 
-      // Always fetch fresh data right before claiming to get the latest merkle root & proofs
-      const { data } = await fetchMerklRewards({
-        address: account,
-        chainId: String(targetChainId),
-      })
-
-      const chainRewards = data?.find(item => item.chain.id === targetChainId)
       if (!chainRewards?.rewards?.length) {
         notify({
           title: t`Error`,
@@ -111,7 +103,7 @@ const useClaimMerklRewards = () => {
 
       return txHash
     },
-    [account, addTransactionWithType, fetchMerklRewards, library, notify],
+    [account, addTransactionWithType, library, notify],
   )
 
   return { claimMerklRewards }

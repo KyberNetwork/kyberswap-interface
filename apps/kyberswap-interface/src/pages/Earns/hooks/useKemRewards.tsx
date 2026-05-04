@@ -86,11 +86,15 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     chainRewards: merklChainRewards,
     totalUsdValue: merklTotalUsdValue,
     refetch: refetchMerklRewards,
+    rawData: merklRawData,
   } = useMerklRewards()
   const { claimMerklRewards } = useClaimMerklRewards()
   const [reloadMerklChain] = useReloadMerklChainMutation()
   const [rewardTab, setRewardTab] = useState<RewardTabType>('ks')
   const merklRetryInFlightRef = useRef<Set<number>>(new Set())
+  // Mirror of `merklRetryInFlightRef` exposed to the UI so callers can disable the claim
+  // button for chains whose post-claim sync hasn't finished yet.
+  const [merklSyncingChainIds, setMerklSyncingChainIds] = useState<number[]>([])
   // Keep `account` reachable from in-flight async retry loops so wallet disconnect aborts cleanly
   // (closure capture would hold the original account string indefinitely otherwise).
   const accountRef = useRef(account)
@@ -437,13 +441,13 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   const reloadMerklUntilUpdated = useCallback(
     async (chainId: number, baselineClaimableUsd: number) => {
       if (!accountRef.current) return
-      // If a retry loop is already running for this chain, fall back to a single refetch so the
-      // second claim's data still gets a chance to sync via the next poll/refetch cycle.
-      if (merklRetryInFlightRef.current.has(chainId)) {
-        refetchMerklRewards()
-        return
-      }
+      // A retry loop is already running for this chain — return without firing another
+      // refetch. The in-flight loop will eventually call `refetchMerklRewards` itself (on
+      // catch-up or budget exhaust), so any extra refetch here would race against the
+      // loop's per-chain reload calls and double the request count to Merkl.
+      if (merklRetryInFlightRef.current.has(chainId)) return
       merklRetryInFlightRef.current.add(chainId)
+      setMerklSyncingChainIds(prev => (prev.includes(chainId) ? prev : [...prev, chainId]))
 
       const INITIAL_DELAY = 10_000
       const RETRY_INTERVAL = 8_000
@@ -461,12 +465,18 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           // Treating an errored response as "indexer caught up" would exit the loop prematurely.
           if ('data' in res) {
             const chainData = res.data?.find(c => c.chain.id === chainId)
-            const currentClaimableUsd = computeChainClaimableUsd(chainData)
-
-            if (currentClaimableUsd < baselineClaimableUsd) {
-              // Indexer has caught up — sync the main query and stop
-              refetchMerklRewards()
-              return
+            // Require chainData to have actual reward entries before deciding the indexer
+            // caught up. Merkl can transiently return an empty array OR a chain entry with
+            // `rewards: []` while its cache is rebuilding after `reloadChainId` — both would
+            // read as claimable=0 and trigger a false-positive early exit, stopping the retry
+            // loop after a single attempt and leaving the UI to wait for the next poll cycle.
+            if (chainData?.rewards?.length) {
+              const currentClaimableUsd = computeChainClaimableUsd(chainData)
+              if (currentClaimableUsd < baselineClaimableUsd) {
+                // Indexer has caught up — sync the main query and stop
+                refetchMerklRewards()
+                return
+              }
             }
           }
 
@@ -479,6 +489,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         refetchMerklRewards()
       } finally {
         merklRetryInFlightRef.current.delete(chainId)
+        setMerklSyncingChainIds(prev => prev.filter(id => id !== chainId))
       }
     },
     [reloadMerklChain, refetchMerklRewards],
@@ -575,7 +586,8 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
 
   const handleClaimMerkl = useCallback(
     async (targetChainId: number) => {
-      const txHash = await claimMerklRewards(targetChainId)
+      const chainRewards = merklRawData?.find(item => item.chain.id === targetChainId)
+      const txHash = await claimMerklRewards(targetChainId, chainRewards)
       if (txHash) {
         setPendingClaims(prev => {
           const claimKey = `merkl:${targetChainId}`
@@ -585,7 +597,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       }
       return txHash
     },
-    [claimMerklRewards],
+    [claimMerklRewards, merklRawData],
   )
 
   const claimAllRewardsModal =
@@ -605,6 +617,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         onPositionStatusChange={setPositionStatus}
         merklChainRewards={merklChainRewards}
         merklTotalUsdValue={merklTotalUsdValue}
+        merklSyncingChainIds={merklSyncingChainIds}
         onClaimMerkl={handleClaimMerkl}
         activeTab={rewardTab}
         onTabChange={setRewardTab}
