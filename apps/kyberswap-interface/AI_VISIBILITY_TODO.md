@@ -62,11 +62,11 @@ This document turns the external AI Traffic Growth Initiative and agent-readines
   Impact: could help agents understand KyberSwap workflows, but only if Product/Compliance owns the content and risk language.
   Notes: do not publish swap/earn instructions that can drift from product behavior or imply agent authority to transact for users.
 
-- [ ] `P3` Evaluate whether KyberSwap should publish an API Catalog.
+- [x] `P3` Evaluate whether KyberSwap should publish an API Catalog.
   Assignee: `Backend/API Owner + Engineer`
-  Touchpoints: potential `public/.well-known/api-catalog`, public API docs
+  Touchpoints: `public/.well-known/api-catalog`, public API docs
   Impact: useful only if KyberSwap has stable, supported, public APIs to advertise.
-  Notes: outside frontend scope. Do not generate this from frontend API calls alone.
+  Notes: implemented as a static RFC 9727 Linkset catalog for public docs-backed APIs: Aggregator, Limit Order, and Zap-as-a-Service. API owners should periodically verify OpenAPI spec and health URLs.
 
 ## Agent Readiness Explicitly Skipped
 
