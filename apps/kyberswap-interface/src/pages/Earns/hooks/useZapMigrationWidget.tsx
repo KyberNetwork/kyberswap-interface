@@ -104,8 +104,8 @@ const zapMigrationDexMapping: Record<Exchange, ZapMigrationDex | null> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_AERODROMECL]: ZapMigrationDex.DEX_AERODROMECL,
-  [Exchange.DEX_AERODROMECL2]: ZapMigrationDex.DEX_AERODROMECL,
-  [Exchange.DEX_AERODROMECL3]: ZapMigrationDex.DEX_AERODROMECL,
+  [Exchange.DEX_AERODROMECL2]: ZapMigrationDex.DEX_AERODROMECL2,
+  [Exchange.DEX_AERODROMECL3]: ZapMigrationDex.DEX_AERODROMECL3,
 }
 
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
