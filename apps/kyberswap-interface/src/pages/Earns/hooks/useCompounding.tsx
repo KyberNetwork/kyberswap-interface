@@ -78,6 +78,8 @@ const compoundingDexMapping: Record<Exchange, CompoundingPoolType> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_AERODROMECL]: CompoundingPoolType.DEX_AERODROMECL,
+  [Exchange.DEX_AERODROMECL2]: CompoundingPoolType.DEX_AERODROMECL,
+  [Exchange.DEX_AERODROMECL3]: CompoundingPoolType.DEX_AERODROMECL,
 }
 
 const useCompounding = ({

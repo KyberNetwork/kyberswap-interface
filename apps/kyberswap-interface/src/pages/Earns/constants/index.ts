@@ -57,6 +57,8 @@ export enum Exchange {
   DEX_PANCAKE_INFINITY_CL_BREVIS = 'pancake-infinity-cl-brevis',
   DEX_PANCAKE_INFINITY_CL_LO = 'pancake-infinity-cl-lo',
   DEX_AERODROMECL = 'aerodromecl',
+  DEX_AERODROMECL2 = 'aerodromecl2',
+  DEX_AERODROMECL3 = 'aerodromecl3',
 }
 
 const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
@@ -103,6 +105,14 @@ const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
     smartExitDexType: undefined,
   },
   [Exchange.DEX_AERODROMECL]: aerodrome,
+  [Exchange.DEX_AERODROMECL2]: {
+    ...aerodrome,
+    name: 'Aerodrome Concentrated V2',
+  },
+  [Exchange.DEX_AERODROMECL3]: {
+    ...aerodrome,
+    name: 'Aerodrome Concentrated V3',
+  },
 }
 
 const defaultConfig = {

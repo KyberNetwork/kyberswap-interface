@@ -71,6 +71,8 @@ export const dexVariantNames: Record<string, string> = {
   'pancake-infinity-cl-dynamic': 'Pancake ∞ CL Dynamic',
   'pancake-infinity-cl-lo': 'Pancake ∞ CL LO',
   'pancake-infinity-cl-brevis': 'Pancake ∞ CL Brevis',
+  aerodromecl2: 'Aerodrome Concentrated V2',
+  aerodromecl3: 'Aerodrome Concentrated V3',
 };
 
 export const getDexName = (poolType: PoolType, chainId: number, dexId?: string): string => {
@@ -115,5 +117,5 @@ export const dexMapping: Record<PoolType, readonly string[]> = {
   [PoolType.DEX_THENAFUSION]: ['thena-fusion'],
   [PoolType.DEX_CAMELOTV3]: ['camelot-v3'],
   [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ['quickswap-v3'],
-  [PoolType.DEX_AERODROMECL]: ['aerodrome-cl', 'aerodromecl'],
+  [PoolType.DEX_AERODROMECL]: ['aerodrome-cl', 'aerodromecl', 'aerodromecl2', 'aerodromecl3'],
 } as const;

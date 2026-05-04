@@ -49,6 +49,8 @@ const zapOutDexMapping: Record<Exchange, ZapOutDex> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_AERODROMECL]: ZapOutDex.DEX_AERODROMECL,
+  [Exchange.DEX_AERODROMECL2]: ZapOutDex.DEX_AERODROMECL,
+  [Exchange.DEX_AERODROMECL3]: ZapOutDex.DEX_AERODROMECL,
 }
 
 const useZapOutWidget = (
