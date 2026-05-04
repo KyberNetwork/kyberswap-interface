@@ -12,6 +12,10 @@
         {
           "href": "https://docs.kyberswap.com/developer-guide/aggregator-api/aggregator-api-specification",
           "type": "text/html"
+        },
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/aggregator-api/aggregator-api-specification/evm-swaps",
+          "type": "text/html"
         }
       ],
       "service-meta": [
@@ -31,8 +35,8 @@
       "anchor": "https://limit-order.kyberswap.com",
       "service-desc": [
         {
-          "href": "https://1368568567-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2Fw1XgQJc40kVeGUIxgI7c%2Fuploads%2Fgit-blob-6a2a24b154519be1b7bf257b5407139817242cb5%2FLimitOrderAPIs_v1.2.1.yaml?alt=media",
-          "type": "application/yaml"
+          "href": "https://docs.kyberswap.com/developer-guide/limit-order-api/api-reference.md",
+          "type": "text/markdown"
         }
       ],
       "service-doc": [
@@ -58,17 +62,17 @@
       "anchor": "https://zap-api.kyberswap.com",
       "service-desc": [
         {
-          "href": "https://1368568567-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2Fw1XgQJc40kVeGUIxgI7c%2Fuploads%2FKb7c0Iq7tzY7f82rIq8J%2Fopenapi.yaml?alt=media&token=dc0081be-5e7a-4a26-932b-b6f8d6ebe333",
-          "type": "application/yaml"
-        },
-        {
-          "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/api-reference/zaas-grpc-api.md",
+          "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/api-reference.md",
           "type": "text/markdown"
         }
       ],
       "service-doc": [
         {
           "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/api-reference",
+          "type": "text/html"
+        },
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/api-reference/zaas-http-api",
           "type": "text/html"
         },
         {
