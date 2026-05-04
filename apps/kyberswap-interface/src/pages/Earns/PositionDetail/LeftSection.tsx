@@ -57,6 +57,8 @@ const LeftSection = () => {
               </Text>
               {initialLoading ? (
                 <PositionSkeleton width={80} height={24} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
               ) : (
                 <Text fontSize={16} color={theme.text}>
                   <AnimatedNumber
@@ -79,6 +81,8 @@ const LeftSection = () => {
               </Text>
               {initialLoading ? (
                 <PositionSkeleton width={80} height={24} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
               ) : (
                 <Text fontSize={20} fontWeight={500} color={theme.text}>
                   <AnimatedNumber
@@ -98,6 +102,11 @@ const LeftSection = () => {
                   <>
                     <PositionSkeleton width={120} height={19} />
                     <PositionSkeleton width={120} height={19} />
+                  </>
+                ) : isUnfinalized ? (
+                  <>
+                    <PositionSkeleton width={120} height={19} text={t`Finalizing...`} />
+                    <PositionSkeleton width={120} height={19} text={t`Finalizing...`} />
                   </>
                 ) : (
                   <>

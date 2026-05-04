@@ -4,7 +4,6 @@ import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -37,7 +36,6 @@ import TransactionConfirmationModal, {
 import { TutorialType } from 'components/Tutorial'
 import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
-import { didUserReject } from 'constants/connectors/utils'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import {
   useProAmmNFTPositionManagerReadingContract,
@@ -60,7 +58,6 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
 import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin, formattedNum, isAddressString } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
-import { ErrorName } from 'utils/sentry'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
@@ -368,24 +365,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     ) {
       setAttemptingTxn(false)
       setRemoveLiquidityError('Some things went wrong')
-
-      const e = new Error('Remove Elastic Liquidity Error')
-      e.name = ErrorName.RemoveElasticLiquidityError
-      captureException(e, {
-        extra: {
-          positionManager,
-          liquidityValue0,
-          liquidityValue1,
-          deadline,
-          account,
-          chainId,
-          feeValue0,
-          feeValue1,
-          positionSDK,
-          liquidityPercentage,
-        },
-      })
-
       return
     }
 
@@ -431,19 +410,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       .catch((error: any) => {
         console.log('error', error)
         setAttemptingTxn(false)
-
-        if (!didUserReject(error)) {
-          const e = new Error('Remove Elastic Liquidity Error', { cause: error })
-          e.name = ErrorName.RemoveElasticLiquidityError
-          captureException(e, {
-            extra: {
-              calldata,
-              value,
-              to: positionManager.address,
-            },
-          })
-        }
-
         setRemoveLiquidityError(error?.message || JSON.stringify(error))
       })
   }

@@ -1,12 +1,5 @@
 export enum PermitType {
-  AMOUNT = 'AMOUNT',
   SALT = 'SALT',
-}
-
-export interface PermitInfo {
-  type: PermitType
-  // version is optional, and if omitted, will not be included in the domain
-  version?: string
 }
 
 export const EIP712_DOMAIN_TYPE = [

@@ -43,7 +43,6 @@ pnpm start-stg     # staging mode
 - Build app: `pnpm build`
 - Preview build: `pnpm preview`
 - Lint: `pnpm lint`
-- Storybook: `pnpm storybook` / `pnpm build-storybook`
 
 ## Contributions
 

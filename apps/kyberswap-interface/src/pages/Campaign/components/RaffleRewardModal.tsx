@@ -34,7 +34,7 @@ type Props = {
   participant?: RaffleCampaignParticipant
 }
 
-export const RaffleRewardModal = ({ isOpen, onDismiss, onConfirm, participant }: Props) => {
+const RaffleRewardModal = ({ isOpen, onDismiss, onConfirm, participant }: Props) => {
   const theme = useTheme()
 
   const rewaredWeek = useMemo(() => {

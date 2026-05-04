@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Minus, Plus } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
+import { ButtonIcon } from 'components/PageWrappers'
 import useTheme from 'hooks/useTheme'
-import { ButtonIcon } from 'pages/Pools/styleds'
 
 import { FaqItem } from './types'
 

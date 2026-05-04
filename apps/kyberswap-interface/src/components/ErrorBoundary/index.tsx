@@ -1,5 +1,4 @@
-import { captureException } from '@sentry/react'
-import React, { ErrorInfo, PropsWithChildren } from 'react'
+import React, { PropsWithChildren } from 'react'
 
 import FallbackView from 'components/ErrorBoundary/FallbackView'
 
@@ -7,10 +6,7 @@ type ErrorBoundaryState = {
   error: Error | null
 }
 
-export default class ErrorBoundary extends React.Component<
-  PropsWithChildren<{ captureError?: boolean }>,
-  ErrorBoundaryState
-> {
+export default class ErrorBoundary extends React.Component<PropsWithChildren<unknown>, ErrorBoundaryState> {
   constructor(props: PropsWithChildren<unknown>) {
     super(props)
     this.state = { error: null }
@@ -20,11 +16,7 @@ export default class ErrorBoundary extends React.Component<
     return { error }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const { captureError = true } = this.props
-    if (!captureError) {
-      return
-    }
+  componentDidCatch(error: Error) {
     if (
       error.name === 'ChunkLoadError' ||
       /Loading .*?chunk .*? failed/.test(error.message) ||
@@ -34,27 +26,13 @@ export default class ErrorBoundary extends React.Component<
       error.message.includes('Failed to fetch dynamically imported module') ||
       error.stack?.includes('Failed to fetch dynamically imported module')
     ) {
-      const e = new Error(`[ChunkLoadError] ${error.message}`)
-      e.name = 'ChunkLoadError'
-      e.stack = ''
-      captureException(e, { level: 'warning', extra: { error, errorInfo } })
-      return window.location.reload()
+      window.location.reload()
     }
-
-    const e = new Error(`[${error.name}] ${error.message}`, {
-      cause: error,
-    })
-    e.name = 'AppCrash'
-    e.stack = ''
-    captureException(e, { level: 'fatal', extra: { error, errorInfo } })
   }
 
   render() {
-    const { error } = this.state
-    const { captureError = true } = this.props
-
-    if (error !== null && captureError) {
-      return <FallbackView error={error} />
+    if (this.state.error !== null) {
+      return <FallbackView error={this.state.error} />
     }
 
     return this.props.children

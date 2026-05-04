@@ -152,50 +152,6 @@ export const ButtonLight = styled(Base)<{ color?: string; fontSize?: number }>`
   ${({ $disabled }) => $disabled && disabledLight}
 `
 
-export const ButtonGray = styled(Base)`
-  background-color: ${({ theme }) => theme.buttonGray};
-  color: ${({ theme }) => theme.subText};
-  font-size: 16px;
-  font-weight: 500;
-  &:focus {
-    filter: brightness(0.9) !important;
-  }
-  &:active {
-    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && theme.buttonGray};
-    filter: brightness(0.8) !important;
-  }
-`
-
-const disabledSecondary = css`
-  opacity: 50%;
-  cursor: auto;
-`
-export const ButtonSecondary = styled(Base)`
-  border: 1px solid ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.primary};
-  background-color: transparent;
-  font-size: 16px;
-  border-radius: 12px;
-  padding: ${({ padding }) => (padding ? padding : '10px')};
-
-  &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme }) => theme.primary};
-    border: 1px solid ${({ theme }) => theme.primary};
-  }
-  &:active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => theme.primary};
-    border: 1px solid ${({ theme }) => theme.primary};
-  }
-  &:disabled {
-    ${disabledSecondary}
-  }
-  ${({ $disabled }) => $disabled && disabledSecondary}
-
-  a:hover {
-    text-decoration: none;
-  }
-`
-
 const disabledOutlined = css<{
   altDisabledStyle?: boolean
 }>`

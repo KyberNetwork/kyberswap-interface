@@ -25,8 +25,6 @@ export const knownPatterns = {
   object_object: () => t`Something went wrong. Please try again.`,
 } as const
 
-export type KnownPatternKey = keyof typeof knownPatterns
-
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
 
