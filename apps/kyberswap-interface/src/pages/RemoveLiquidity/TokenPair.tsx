@@ -4,7 +4,6 @@ import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -54,7 +53,6 @@ import {
   getStaticFeeRouterContract,
 } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
-import { ErrorName } from 'utils/sentry'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
 import {
@@ -348,10 +346,6 @@ export default function TokenPair({
           .then(calculateGasMargin)
           .catch(error => {
             console.error(`estimateGas failed`, methodName, args, error)
-            const e = new Error('Remove Classic Liquidity Error', { cause: error })
-            e.name = ErrorName.RemoveClassicLiquidityError
-            captureException(e, { extra: { methodName, args } })
-
             setRemoveLiquidityError(error?.message || JSON.stringify(error))
             return undefined
           }),
@@ -415,9 +409,6 @@ export default function TokenPair({
 
           if (!didUserReject(error)) {
             console.error('Remove Classic Liquidity Error:', { message, error })
-            const e = new Error(friendlyError(error), { cause: error })
-            e.name = ErrorName.RemoveClassicLiquidityError
-            captureException(e, { extra: { args } })
           }
         })
     }

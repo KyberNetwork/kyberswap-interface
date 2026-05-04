@@ -16,12 +16,6 @@ export const PoolPageWrapper = styled.div`
   `}
 `
 
-export const LiquidityWidgetWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-`
-
 export const HeadSection = styled.div`
   display: flex;
   width: 100%;

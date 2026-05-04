@@ -104,10 +104,6 @@ export function useToggleTransactionSettingsMenu(): () => void {
   return useToggleModal(ApplicationModal.TRANSACTION_SETTINGS)
 }
 
-export function usePoolDetailModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.POOL_DETAIL)
-}
-
 export function useRecapModalToggle(): () => void {
   return useToggleModal(ApplicationModal.RECAP)
 }

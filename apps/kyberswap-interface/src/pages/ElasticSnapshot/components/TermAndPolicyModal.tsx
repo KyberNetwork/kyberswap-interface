@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CheckBox from 'components/CheckBox'
 import Modal from 'components/Modal'
+import { TERM_FILES_PATH } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
@@ -93,11 +94,9 @@ export default function TermAndPolicyModal({
           <CheckBox checked={accept3} />
           <Text marginTop="-4px">
             I acknowledge I have read and agree to the{' '}
-            <ExternalLink href="https://kyberswap.com/files/Kyber%20-%20Privacy%20Policy%20-%2020%20November%202023.pdf">
-              KyberSwap Privacy Policy
-            </ExternalLink>{' '}
-            which I agree will apply to any personal data provided by me in connection with the above mentioned KYC
-            screening and my participation in the Grant Program.
+            <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY}>KyberSwap Privacy Policy</ExternalLink> which I agree
+            will apply to any personal data provided by me in connection with the above mentioned KYC screening and my
+            participation in the Grant Program.
           </Text>
         </Flex>
 

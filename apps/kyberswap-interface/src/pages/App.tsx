@@ -1,6 +1,5 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
@@ -60,7 +59,6 @@ const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
 const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
 const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
-//const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
@@ -184,7 +182,7 @@ const RoutesWithNetworkPrefix = () => {
 }
 
 export default function App() {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   useAutoLogin()
   const { online } = useNetwork()
@@ -201,21 +199,6 @@ export default function App() {
   useEffect(() => {
     preloadImages()
   }, [])
-
-  useEffect(() => {
-    if (account) {
-      Sentry.setUser({ id: account })
-    }
-  }, [account])
-
-  useEffect(() => {
-    if (chainId) {
-      Sentry.setTags({
-        chainId: chainId,
-        network: networkInfo.name,
-      })
-    }
-  }, [chainId, networkInfo.name])
 
   useGlobalTrackingEvents()
   useWebVitals()
@@ -315,7 +298,6 @@ export default function App() {
               <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
               <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
               <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-              {/*<Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />*/}
               <Route
                 path={`${APP_PATHS.PROFILE_MANAGE}`}
                 element={

@@ -30,16 +30,16 @@ const blackjackApi = createApi({
           wallets: address,
         },
       }),
-      transformResponse: (res: unknown, meta) => {
+      transformResponse: (res: unknown) => {
         if (verifyBlackjackResponse(res)) {
           return res.data.wallets[0]
         }
-        throw new ApiValidateError(res, meta)
+        throw new ApiValidateError()
       },
     }),
   }),
 })
 
-export const { useCheckBlackjackQuery, useLazyCheckBlackjackQuery } = blackjackApi
+export const { useLazyCheckBlackjackQuery } = blackjackApi
 
 export default blackjackApi

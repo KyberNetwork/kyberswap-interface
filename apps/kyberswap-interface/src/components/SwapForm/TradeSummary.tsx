@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import { AutoColumn } from 'components/Column'
 import WarningIcon from 'components/Icons/WarningIcon'
 import RefreshLoading from 'components/RefreshLoading'
@@ -26,15 +25,6 @@ type WrapperProps = {
   $visible: boolean
   $disabled: boolean
 }
-
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 16px;
-  width: 16px;
-  cursor: pointer;
-  path {
-    fill: ${({ theme }) => theme.text} !important;
-  }
-`
 
 const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   'data-visible': props.$visible,

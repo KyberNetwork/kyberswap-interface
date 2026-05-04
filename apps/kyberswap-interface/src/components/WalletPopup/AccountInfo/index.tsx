@@ -104,7 +104,6 @@ type Props = {
 
 export type ClickHandlerProps = {
   disabledSend: boolean
-  onClickBuy: () => void
   onClickReceive: () => void
   onClickSend: () => void
 }
@@ -112,7 +111,6 @@ export type ClickHandlerProps = {
 export default function AccountInfo({
   totalBalanceInUsd,
   disabledSend,
-  onClickBuy,
   onClickReceive,
   onClickSend,
   isMinimal,
@@ -182,7 +180,6 @@ export default function AccountInfo({
 
             <MinimalActionButtonGroup
               disabledSend={disabledSend}
-              onClickBuy={onClickBuy}
               onClickReceive={onClickReceive}
               onClickSend={onClickSend}
             />
@@ -220,12 +217,7 @@ export default function AccountInfo({
           </Content>
         </Flex>
       </RewardWrapper>
-      <ActionButtonGroup
-        disabledSend={disabledSend}
-        onClickBuy={onClickBuy}
-        onClickReceive={onClickReceive}
-        onClickSend={onClickSend}
-      />
+      <ActionButtonGroup disabledSend={disabledSend} onClickReceive={onClickReceive} onClickSend={onClickSend} />
     </Wrapper>
   )
 }

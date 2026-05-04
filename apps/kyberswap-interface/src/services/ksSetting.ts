@@ -207,13 +207,8 @@ const ksSettingApi = createApi({
 
 export const {
   useGetKyberswapConfigurationQuery,
-  useLazyGetKyberswapConfigurationQuery,
   useGetKyberswapGlobalConfigurationQuery,
   useLazyGetTokenListQuery,
-  useGetDexListQuery,
-  useGetTokenListQuery,
-  useImportTokenMutation,
-  useLazyGetTopTokensQuery,
   useGetChainsConfigurationQuery,
   useGetTokenByAddressesQuery,
   useLazySearchTokensBySymbolQuery,

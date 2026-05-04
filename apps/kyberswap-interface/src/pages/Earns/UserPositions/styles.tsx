@@ -218,41 +218,6 @@ export const PositionValueLabel = styled.p`
   `}
 `
 
-export const PositionAction = styled.div<{ primary?: boolean; disabled?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 12px;
-  background-color: ${({ theme, primary }) => (primary ? rgba(theme.primary, 0.2) : theme.tabActive)};
-  color: ${({ theme, primary }) => (primary ? theme.primary : theme.subText)};
-
-  &:hover {
-    cursor: pointer;
-    filter: brightness(1.2);
-  }
-
-  &:active {
-    filter: brightness(1.05);
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 36px;
-    height: 36px;
-  `}
-
-  ${({ disabled }) =>
-    disabled &&
-    `
-      filter: brightness(0.6) !important;
-    `}
-
-  :hover {
-    ${({ disabled }) => disabled && 'cursor: not-allowed;'}
-  }
-`
-
 export const Divider = styled.div`
   height: 16px;
   width: 1px;
@@ -407,46 +372,6 @@ const HeaderGridTemplate = css`
 
 export const PositionTableHeader = styled(TableHeader)`
   ${HeaderGridTemplate}
-`
-
-export const PositionTableRow = styled(Link)<{ $isUnfinalized?: boolean }>`
-  display: grid;
-  ${HeaderGridTemplate}
-  grid-template-rows: 1fr;
-  padding: 24px;
-  row-gap: 8px;
-  text-decoration: none;
-  color: inherit !important;
-  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : 'transparent')};
-
-  @media (max-width: 1300px) {
-    justify-content: flex-start;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1fr 1fr;
-    border-radius: 20px;
-    background: ${({ theme, $isUnfinalized }) =>
-      $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
-    margin-bottom: 16px;
-  }
-
-  ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
-    display: flex;
-    flex-direction: column;
-    row-gap: 16px;
-    padding: 16px;
-    background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
-    border-radius: 0px;
-    position: relative;
-  `}
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  &:hover {
-    cursor: pointer;
-    background: #31cb9e1a;
-  }
 `
 
 export const PositionTableHeaderItem = styled.div`

@@ -11,8 +11,6 @@ import { updatePrices } from '.'
 
 export enum PriceType {
   Average = 'Average',
-  Buy = 'Buy',
-  Sell = 'Sell',
 }
 
 interface PriceResponse {
