@@ -73,10 +73,9 @@ const MERKL_API_BASE = 'https://api.merkl.xyz/v4'
 let batchedSupportState: 'unknown' | 'supported' | 'unsupported' = 'unknown'
 
 // Map of chainId → timestamp at which `reloadMerklChain` last refreshed Merkl's backend cache
-// for that chain. While a chain's mark is still within RELOAD_FRESHNESS_MS, every `merklRewards`
-// fetch covering that chain is forced down the per-chain path — the only URL pattern we know
-// was refreshed (Merkl may cache the batched URL separately). Mark is read without consuming so
-// concurrent fetches in the window (poll, tab-resume, explicit refetch) all see fresh data.
+// for that chain. While a chain's mark is still within RELOAD_FRESHNESS_MS, the next
+// `merklRewards` fetch attaches `reloadChainId=X` to the batched URL so Merkl serves fresh
+// data for the claimed chain (defeating any URL-keyed cache Merkl holds for the batched URL).
 const recentlyReloadedChainIds = new Map<string, number>()
 const RELOAD_FRESHNESS_MS = 60_000
 
@@ -90,20 +89,27 @@ const isChainRecentlyReloaded = (chainId: string): boolean => {
   return true
 }
 
+// Mark a chain so the next `merklRewards` queryFn appends `reloadChainId=X` to the request
+// URL. The mark auto-expires after RELOAD_FRESHNESS_MS or is consumed by the next successful
+// fetch. Used by the post-claim retry loop to fold reload + display update into a single
+// batched request.
+export const markChainAsReloaded = (chainId: number) => {
+  recentlyReloadedChainIds.set(String(chainId), Date.now())
+}
+
 type BatchedResult = { ok: true; data: MerklRewardsResponse[] } | { ok: false; permanent: boolean }
 
 const fetchRewardsPerChain = async (
   address: string,
   chainIds: string[],
-  // Append `reloadChainId=X` to force Merkl's backend to refresh ITS cache for that chain
-  // before responding. Used in post-claim flows where we need to defeat any URL-keyed cache
-  // that wasn't invalidated by an earlier reload call.
-  withReload = false,
+  // chainIds in this set get `reloadChainId=X` appended so Merkl's backend refreshes its
+  // cache for that chain before responding. Used in post-claim flows.
+  reloadChainIds: Set<string> = new Set(),
 ): Promise<MerklRewardsResponse[]> => {
   const results = await Promise.all(
     chainIds.map(async cId => {
       try {
-        const url = withReload
+        const url = reloadChainIds.has(cId)
           ? `${MERKL_API_BASE}/users/${address}/rewards?chainId=${cId}&reloadChainId=${cId}`
           : `${MERKL_API_BASE}/users/${address}/rewards?chainId=${cId}`
         const res = await fetch(url)
@@ -118,9 +124,19 @@ const fetchRewardsPerChain = async (
   return results.filter(Boolean).flat() as MerklRewardsResponse[]
 }
 
-const fetchRewardsBatched = async (address: string, chainIds: string[]): Promise<BatchedResult> => {
+const fetchRewardsBatched = async (
+  address: string,
+  chainIds: string[],
+  // chainIds whose data Merkl should rebuild before responding. Appended as `reloadChainId=X`
+  // params so the response carries fresh data for those chains, even if Merkl was caching the
+  // batched URL otherwise.
+  reloadChainIds: string[] = [],
+): Promise<BatchedResult> => {
   try {
-    const params = chainIds.map(id => `chainId=${id}`).join('&')
+    const params = chainIds
+      .map(id => `chainId=${id}`)
+      .concat(reloadChainIds.map(id => `reloadChainId=${id}`))
+      .join('&')
     const res = await fetch(`${MERKL_API_BASE}/users/${address}/rewards?${params}`)
     if (res.ok) {
       return { ok: true, data: (await res.json()) as MerklRewardsResponse[] }
@@ -153,12 +169,28 @@ const rewardMerklApi = createApi({
     // changes very rarely (new chains added every few weeks), so cache for a full day. The
     // 60s `refetchOnMountOrArgChange` from createApi is overridden at the hook call site to
     // match the longer keepUnusedDataFor.
+    //
+    // Uses raw `fetch` (not `fetchBaseQuery`) so the request stays a CORS-simple GET — Merkl's
+    // server doesn't accept the preflight that `fetchBaseQuery`'s default headers trigger.
     getMerklChains: builder.query<MerklChainSummary[], void>({
-      query: () => ({ url: '/chains' }),
+      async queryFn() {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10_000)
+        try {
+          const res = await fetch(`${MERKL_API_BASE}/chains`, { signal: controller.signal })
+          if (!res.ok) return { error: { status: res.status, data: 'fetch chains failed' } }
+          const data: MerklChainSummary[] = await res.json()
+          return { data }
+        } catch (err) {
+          return { error: { status: 'CUSTOM_ERROR', error: (err as Error)?.message || 'fetch chains failed' } }
+        } finally {
+          clearTimeout(timeoutId)
+        }
+      },
       keepUnusedDataFor: 86_400,
     }),
     merklRewards: builder.query<MerklRewardsResponse[], MerklRewardsParams>({
-      async queryFn({ address, chainId }, api) {
+      async queryFn({ address, chainId }) {
         const chainIds = chainId
           .split(',')
           .map(s => s.trim())
@@ -168,72 +200,45 @@ const rewardMerklApi = createApi({
           return { data: [] }
         }
 
-        // Per-chain for everything: single chain, or batched known broken
-        if (chainIds.length === 1 || batchedSupportState === 'unsupported') {
-          return { data: await fetchRewardsPerChain(address, chainIds) }
-        }
-
+        // Pull off any chains marked by a recent `reloadMerklChain` so we can request fresh
+        // data for them in this fetch via `reloadChainId=X`. Marks are consumed only after a
+        // successful response — a failed batched call leaves them so the next refetch retries.
         const reloadedChains = chainIds.filter(isChainRecentlyReloaded)
 
-        // Post-claim path: only the reloaded chains have changed. Re-fetch JUST those with
-        // `reloadChainId` for guaranteed-fresh data, then merge with the already-cached
-        // entries for the unchanged chains. This avoids the wasteful batched call that
-        // re-fetches data we already have for chains that didn't claim.
-        if (reloadedChains.length > 0) {
-          // Every requested chain is reloaded — nothing to reuse from cache.
-          if (reloadedChains.length === chainIds.length) {
-            return { data: await fetchRewardsPerChain(address, chainIds, true) }
-          }
-
-          const freshPerChain = await fetchRewardsPerChain(address, reloadedChains, true)
-          // `as any` breaks the circular type inference — `rewardMerklApi` is being defined in
-          // the same statement and can't be type-named yet, but the runtime reference is fine
-          // because queryFn is only invoked after the api object has been constructed.
-          const existing =
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ((rewardMerklApi as any).endpoints.merklRewards.select({ address, chainId })(api.getState())?.data ??
-              []) as MerklRewardsResponse[]
-
-          // Use the cache-reuse optimization only when both halves have data. If `freshPerChain`
-          // is empty (per-chain fetch failed for every reloaded chain), returning unmodified
-          // cache would silently serve pre-claim data — fall through to the batched fallback
-          // so the user gets fresh data via a different URL path instead.
-          if (existing.length > 0 && freshPerChain.length > 0) {
-            const refreshedIds = new Set(freshPerChain.map(item => item.chain.id))
-            const merged = existing.filter(item => !refreshedIds.has(item.chain.id)).concat(freshPerChain)
-            return { data: merged }
-          }
-
-          // Cache empty OR `freshPerChain` empty — fall back to batched + reloaded-per-chain
-          // merge so the full picture is populated and stale cache isn't served silently.
-          const batchedResult = await fetchRewardsBatched(address, chainIds)
-          if (batchedResult.ok) {
-            batchedSupportState = 'supported'
-            const refreshedIds = new Set(freshPerChain.map(item => item.chain.id))
-            const merged = batchedResult.data.filter(item => !refreshedIds.has(item.chain.id)).concat(freshPerChain)
-            return { data: merged }
-          }
-          if (batchedResult.permanent) batchedSupportState = 'unsupported'
-          const reloadedSet = new Set(reloadedChains)
-          const remainingChains = chainIds.filter(id => !reloadedSet.has(id))
-          const remainingPerChain = remainingChains.length ? await fetchRewardsPerChain(address, remainingChains) : []
-          return { data: remainingPerChain.concat(freshPerChain) }
+        if (chainIds.length === 1 || batchedSupportState === 'unsupported') {
+          // Per-chain path: single chain or batched known broken. The `reloadedChains` set
+          // tells us which chainIds need `reloadChainId=X` appended to their per-chain URL.
+          const data = await fetchRewardsPerChain(address, chainIds, new Set(reloadedChains))
+          const refreshedIds = new Set(data.map(item => String(item.chain.id)))
+          reloadedChains.forEach(c => {
+            if (refreshedIds.has(c)) recentlyReloadedChainIds.delete(c)
+          })
+          return { data }
         }
 
-        // Normal poll: try the batched (multi-chain) endpoint to collapse N requests into 1.
-        const batched = await fetchRewardsBatched(address, chainIds)
+        // Batched path. Whenever any chain is freshly reloaded, append `reloadChainId=X` for
+        // each so Merkl serves fresh data for them — every other chain returns its current
+        // (possibly already-fresh) data in the same response. We deliberately do NOT merge with
+        // the existing RTK cache: stale entries for non-claimed chains in the cache caused
+        // post-claim UI to show wrong claimable amounts when Merkl had silently updated those
+        // chains independently of the user's claim.
+        const batched = await fetchRewardsBatched(address, chainIds, reloadedChains)
         if (batched.ok) {
           batchedSupportState = 'supported'
+          reloadedChains.forEach(c => recentlyReloadedChainIds.delete(c))
           return { data: batched.data }
         }
 
         // Only lock to per-chain when the failure is permanent (e.g., Merkl 4xx says the
         // batched format is unsupported). Transient failures fall back this once but leave
         // batchedSupportState alone so the next poll can try batched again.
-        if (batched.permanent) {
-          batchedSupportState = 'unsupported'
-        }
-        return { data: await fetchRewardsPerChain(address, chainIds) }
+        if (batched.permanent) batchedSupportState = 'unsupported'
+        const data = await fetchRewardsPerChain(address, chainIds, new Set(reloadedChains))
+        const refreshedIds = new Set(data.map(item => String(item.chain.id)))
+        reloadedChains.forEach(c => {
+          if (refreshedIds.has(c)) recentlyReloadedChainIds.delete(c)
+        })
+        return { data }
       },
     }),
     // One-off per-chain fetch used right before submitting a claim tx so the proofs/amounts
@@ -258,38 +263,9 @@ const rewardMerklApi = createApi({
         }
       },
     }),
-    // Force Merkl's backend to refresh its cache for a specific chain (used after a successful
-    // claim tx so the next `merklRewards` fetch returns up-to-date claimed amounts).
-    reloadMerklChain: builder.mutation<MerklRewardsResponse[], { address: string; chainId: number }>({
-      async queryFn({ address, chainId }) {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 15_000)
-        try {
-          const res = await fetch(
-            `${MERKL_API_BASE}/users/${address}/rewards?chainId=${chainId}&reloadChainId=${chainId}`,
-            { signal: controller.signal },
-          )
-          if (!res.ok) return { error: { status: res.status, data: 'reload failed' } }
-          const data: MerklRewardsResponse[] = await res.json()
-          // Mark this chain so any `merklRewards` fetch within RELOAD_FRESHNESS_MS uses
-          // the per-chain URL pattern that we just told Merkl to refresh.
-          recentlyReloadedChainIds.set(String(chainId), Date.now())
-          return { data }
-        } catch (err) {
-          return { error: { status: 'CUSTOM_ERROR', error: (err as Error)?.message || 'reload failed' } }
-        } finally {
-          clearTimeout(timeoutId)
-        }
-      },
-    }),
   }),
 })
 
-export const {
-  useGetMerklChainsQuery,
-  useMerklRewardsQuery,
-  useFetchMerklChainRewardsMutation,
-  useReloadMerklChainMutation,
-} = rewardMerklApi
+export const { useGetMerklChainsQuery, useMerklRewardsQuery, useFetchMerklChainRewardsMutation } = rewardMerklApi
 
 export default rewardMerklApi

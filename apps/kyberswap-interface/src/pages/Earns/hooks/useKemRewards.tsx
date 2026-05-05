@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
-import { MerklRewardsResponse, useReloadMerklChainMutation } from 'services/rewardMerkl'
+import { MerklRewardsResponse, markChainAsReloaded } from 'services/rewardMerkl'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -89,7 +89,6 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     rawData: merklRawData,
   } = useMerklRewards()
   const { claimMerklRewards } = useClaimMerklRewards()
-  const [reloadMerklChain] = useReloadMerklChainMutation()
   const [rewardTab, setRewardTab] = useState<RewardTabType>('ks')
   const merklRetryInFlightRef = useRef<Set<number>>(new Set())
   // Mirror of `merklRetryInFlightRef` exposed to the UI so callers can disable the claim
@@ -436,15 +435,18 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   }, [handleOpenCompounding, position])
 
   // After a Merkl claim tx confirms, Merkl's indexer needs ~10–30s to pick up the on-chain claim.
-  // This helper waits, then repeatedly hits the reload endpoint until claimable drops below the
-  // baseline (indexer caught up) or we exhaust the retry budget.
+  // This helper waits, then repeatedly refetches the batched merklRewards query until claimable
+  // drops below the baseline (indexer caught up) or we exhaust the retry budget. Each refetch
+  // is a single batched request that both forces Merkl to refresh the claimed chain (via the
+  // `reloadChainId=X` URL param set by `markChainAsReloaded`) AND returns fresh data for every
+  // requested chain, so the cache is updated atomically.
   const reloadMerklUntilUpdated = useCallback(
     async (chainId: number, baselineClaimableUsd: number) => {
-      if (!accountRef.current) return
-      // A retry loop is already running for this chain — return without firing another
-      // refetch. The in-flight loop will eventually call `refetchMerklRewards` itself (on
-      // catch-up or budget exhaust), so any extra refetch here would race against the
-      // loop's per-chain reload calls and double the request count to Merkl.
+      const initialAccount = accountRef.current
+      if (!initialAccount) return
+      // A retry loop is already running for this chain — return without scheduling a second
+      // one. The in-flight loop will eventually finish (catch-up or budget exhaust) and update
+      // the cache; another loop here would just double the request count to Merkl.
       if (merklRetryInFlightRef.current.has(chainId)) return
       merklRetryInFlightRef.current.add(chainId)
       setMerklSyncingChainIds(prev => (prev.includes(chainId) ? prev : [...prev, chainId]))
@@ -460,26 +462,27 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         await new Promise(resolve => setTimeout(resolve, INITIAL_DELAY))
 
         for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-          const currentAccount = accountRef.current
-          if (!currentAccount) return
+          // Abort if the user disconnected OR switched to a different account mid-loop —
+          // continuing would fetch the old account's data into the new account's cache and
+          // leave a stale syncing indicator on the new account's UI.
+          if (accountRef.current !== initialAccount) return
 
-          const res = await reloadMerklChain({ address: currentAccount, chainId })
-          // `'data' in res` only when the reload succeeded (queryFn returns {error} on failure).
-          // Treating an errored response as "indexer caught up" would exit the loop prematurely.
-          if ('data' in res) {
-            const chainData = res.data?.find(c => c.chain.id === chainId)
-            // Require chainData to have actual reward entries before deciding the indexer
-            // caught up. Merkl can transiently return an empty array OR a chain entry with
-            // `rewards: []` while its cache is rebuilding after `reloadChainId` — both would
-            // read as claimable=0 and trigger a false-positive early exit, stopping the retry
-            // loop after a single attempt and leaving the UI to wait for the next poll cycle.
-            if (chainData?.rewards?.length) {
-              const currentClaimableUsd = computeChainClaimableUsd(chainData)
-              if (currentClaimableUsd < baselineClaimableUsd) {
-                // Indexer has caught up — sync the main query and stop
-                refetchMerklRewards()
-                return
-              }
+          // Mark the chain so the upcoming queryFn appends `reloadChainId=X` to the batched
+          // URL — Merkl will rebuild that chain's cache before responding.
+          markChainAsReloaded(chainId)
+          const result = await refetchMerklRewards()
+          const chainData = result.data?.find(c => c.chain.id === chainId)
+          // Require chainData to have actual reward entries before deciding the indexer
+          // caught up. Merkl can transiently return an empty array OR a chain entry with
+          // `rewards: []` while its cache is rebuilding — both would read as claimable=0 and
+          // trigger a false-positive early exit, stopping the retry loop after a single
+          // attempt and leaving the UI showing pre-claim numbers.
+          if (chainData?.rewards?.length) {
+            const currentClaimableUsd = computeChainClaimableUsd(chainData)
+            if (currentClaimableUsd < baselineClaimableUsd) {
+              // Indexer caught up. The refetch already wrote fresh data into the RTK cache,
+              // so subscribers will re-render with post-claim numbers — nothing else to do.
+              return
             }
           }
 
@@ -488,15 +491,14 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           }
         }
 
-        // Retry budget exhausted — refetch the main query so whatever data Merkl has now
-        // (even if the claim isn't reflected yet) replaces the stale cached payload.
-        refetchMerklRewards()
+        // Retry budget exhausted — the last refetch already updated the cache with whatever
+        // Merkl is reporting now, even if the claim isn't reflected yet.
       } finally {
         merklRetryInFlightRef.current.delete(chainId)
         setMerklSyncingChainIds(prev => prev.filter(id => id !== chainId))
       }
     },
-    [reloadMerklChain, refetchMerklRewards],
+    [refetchMerklRewards],
   )
 
   useEffect(() => {
@@ -573,6 +575,19 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
 
   const pendingClaimKeys = pendingClaims.map(item => item.claimKey)
 
+  // Chains whose Merkl claim tx has been broadcast but not yet confirmed on-chain. Bridges the
+  // gap between `handleClaimMerkl` resolving (tx submitted) and `merklSyncingChainIds` being
+  // populated (tx confirmed) — without this, the claim button briefly re-enables while the user
+  // is waiting for confirmation.
+  const merklPendingTxChainIds = useMemo(
+    () =>
+      pendingClaims
+        .filter(item => item.claimKey.startsWith('merkl:'))
+        .map(item => Number(item.claimKey.split(':')[1]))
+        .filter(id => id > 0 && !Number.isNaN(id)),
+    [pendingClaims],
+  )
+
   const claimModal =
     openClaimModal && claimInfo ? (
       <>
@@ -622,6 +637,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         merklChainRewards={merklChainRewards}
         merklTotalUsdValue={merklTotalUsdValue}
         merklSyncingChainIds={merklSyncingChainIds}
+        merklPendingTxChainIds={merklPendingTxChainIds}
         onClaimMerkl={handleClaimMerkl}
         activeTab={rewardTab}
         onTabChange={setRewardTab}
