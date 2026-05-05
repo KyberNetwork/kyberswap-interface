@@ -11,9 +11,6 @@ import { EarnChain } from 'pages/Earns/constants'
 import { ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
 
-// Chains the Earn product runs on. Anything outside this set won't render in the UI even if
-// Merkl has rewards on it, so there's no point asking Merkl about them. Filtering numeric
-// enum values guards against the reverse-mapped string keys TS adds to numeric enums.
 const EARN_CHAIN_IDS = new Set<number>(Object.values(EarnChain).filter((v): v is number => typeof v === 'number'))
 
 // Module-level caches shared across all hook instances to avoid duplicate
@@ -94,8 +91,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
       chainId: filters.chainIds || merklEnabledChainIds,
     },
     // Wait for the Merkl chains list to resolve so the very first call to /rewards already
-    // has the right chainIds. Without this gate, the hook would fire once with an empty
-    // chainId arg (yielding an empty result), then refetch with the proper list.
+    // has the right chainIds.
     { skip: !account || !hasMerklChains },
   )
 
