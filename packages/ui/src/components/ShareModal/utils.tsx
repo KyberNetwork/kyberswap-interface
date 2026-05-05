@@ -22,6 +22,9 @@ export interface Pool {
     fees: number;
     eg: number;
     lm: number;
+    activeTotal?: number;
+    activeEg?: number;
+    activeLm?: number;
   };
 }
 
@@ -44,6 +47,7 @@ interface Reward {
 interface GetValueByOptionParams {
   type: ShareType;
   option?: ShareOption;
+  selectedOptions?: Set<ShareOption>;
   pool?: Pool;
   position?: Position;
   reward?: Reward;
@@ -106,7 +110,14 @@ export const getSharePath = (type: ShareType, pool: Pool): string => {
   return `${origin}${path}`;
 };
 
-export const getValueByOption = ({ type, option, pool, position, reward }: GetValueByOptionParams): string => {
+export const getValueByOption = ({
+  type,
+  option,
+  selectedOptions,
+  pool,
+  position,
+  reward,
+}: GetValueByOptionParams): string => {
   if (!option) return '';
 
   const isPoolSharing = type === ShareType.POOL_INFO;
@@ -114,13 +125,16 @@ export const getValueByOption = ({ type, option, pool, position, reward }: GetVa
   const isRewardSharing = type === ShareType.REWARD_INFO;
 
   if (isPoolSharing) {
+    const useActive = selectedOptions?.has(ShareOption.ACTIVE_APR);
     switch (option) {
       case ShareOption.TOTAL_APR:
         return `${formatAprNumber((pool?.apr?.fees || 0) + (pool?.apr?.eg || 0) + (pool?.apr?.lm || 0))}%`;
+      case ShareOption.ACTIVE_APR:
+        return `${formatAprNumber(pool?.apr?.activeTotal || 0)}%`;
       case ShareOption.LM_APR:
-        return `${formatAprNumber(pool?.apr?.lm || 0)}%`;
+        return `${formatAprNumber((useActive ? pool?.apr?.activeLm : pool?.apr?.lm) || 0)}%`;
       case ShareOption.EG_APR:
-        return `${formatAprNumber(pool?.apr?.eg || 0)}%`;
+        return `${formatAprNumber((useActive ? pool?.apr?.activeEg : pool?.apr?.eg) || 0)}%`;
       default:
         return '';
     }
@@ -205,6 +219,8 @@ export const getShareOptionLabel = (i18n: I18n, option: ShareOption): string => 
   switch (option) {
     case ShareOption.TOTAL_APR:
       return i18n._('Total APR');
+    case ShareOption.ACTIVE_APR:
+      return i18n._('Active APR');
     case ShareOption.LM_APR:
       return i18n._('Liquidity Mining APR');
     case ShareOption.EG_APR:

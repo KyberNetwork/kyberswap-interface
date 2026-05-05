@@ -43,14 +43,10 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, exchang
 }
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
-  EARN_CHAINS[chainId as EarnChain].nativeAddress === tokenAddress.toLowerCase() ||
-  (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase())
+  EARN_CHAINS[chainId as EarnChain].nativeAddress === tokenAddress.toLowerCase()
 
-export const isUniswapExchange = (dex: Exchange) =>
-  dex === Exchange.DEX_UNISWAPV2 ||
-  dex === Exchange.DEX_UNISWAPV3 ||
-  dex === Exchange.DEX_UNISWAP_V4 ||
-  dex === Exchange.DEX_UNISWAP_V4_FAIRFLOW
+export const isWrappedNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
+  WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase()
 
 export const submitTransaction = async ({
   library,
@@ -106,3 +102,6 @@ export const getNftManagerContract = (dex: Exchange, chainId: number) => {
 
   return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi, chainId as ChainId)
 }
+
+export const truncateSymbol = (symbol: string, maxLength = 10) =>
+  symbol.length > maxLength ? symbol.slice(0, maxLength) + '...' : symbol

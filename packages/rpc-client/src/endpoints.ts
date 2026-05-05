@@ -131,7 +131,15 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://ronin.gateway.tenderly.co',
     'https://ronin.lgns.net/rpc',
   ],
-  [MONAD]: ['https://rpc1.monad.xyz', 'https://rpc-mainnet.monadinfra.com', 'https://rpc.monad.xyz'],
+  [MONAD]: [
+    'https://rpc1.monad.xyz',
+    'https://rpc2.monad.xyz',
+    'https://rpc3.monad.xyz',
+    'https://rpc4.monad.xyz',
+    'https://rpc.monad.xyz',
+    'https://rpc-mainnet.monadinfra.com',
+    'https://monad.gateway.tenderly.co',
+  ],
 };
 
 export const KYBER_RPC_ENDPOINTS: Record<number, string> = {

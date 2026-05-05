@@ -113,7 +113,7 @@ export default function MigrationModal({
               })}
 
             {upToSmall &&
-              farmingPools.map((pool: EarnPool, index: number) => {
+              farmingPools.map(pool => {
                 const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
                 const isFarmingLm = pool.programs?.includes(ProgramType.LM)
 
@@ -159,7 +159,7 @@ export default function MigrationModal({
                         ) : null}
                       </Flex>
                     </Flex>
-                    <MobileTableBottomRow withoutBorder={index === farmingPools.length - 1}>
+                    <MobileTableBottomRow>
                       <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                         <Text color={theme.subText}>{t`Earn Fees`}</Text>
                         <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>

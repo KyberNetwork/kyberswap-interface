@@ -10,16 +10,7 @@ type TopTokenState = {
 const slice = createSlice({
   name: 'topTokens',
   initialState: {} as TopTokenState,
-  reducers: {
-    updateTopTokens(
-      state,
-      { payload: { chainId, topTokens } }: { payload: { chainId: ChainId; topTokens: TopToken[] } },
-    ) {
-      state[chainId] = topTokens
-    },
-  },
+  reducers: {},
 })
-
-export const { updateTopTokens } = slice.actions
 
 export default slice.reducer

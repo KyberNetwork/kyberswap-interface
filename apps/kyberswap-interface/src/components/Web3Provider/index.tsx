@@ -2,8 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
 import { porto } from 'porto/wagmi'
-import { ReactNode, useEffect, useMemo } from 'react'
-import { createClient, defineChain, http } from 'viem'
+import { ReactNode, useEffect } from 'react'
+import { defineChain, http } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -24,7 +24,7 @@ import {
   unichain,
   zksync,
 } from 'viem/chains'
-import { Connector, WagmiProvider, createConfig, createConnector, useConnect } from 'wagmi'
+import { Connector, WagmiProvider, createConfig, createConnector } from 'wagmi'
 import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
 
 import WC_BG from 'assets/images/wc-bg.png'
@@ -37,7 +37,7 @@ import SAFEPAL_ICON from 'assets/wallets-connect/safepal.svg'
 import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
-import { isSupportedChainId } from 'constants/networks'
+import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 
@@ -227,17 +227,6 @@ export function getConnectorWithId(
   return connector
 }
 
-/** Returns a wagmi `Connector` with the given id. If `shouldThrow` is passed, an error will be thrown if the connector is not found. */
-export function useConnectorWithId(id: ConnectorID, options: { shouldThrow: true }): Connector
-export function useConnectorWithId(id: ConnectorID): Connector | undefined
-export function useConnectorWithId(id: ConnectorID, options?: { shouldThrow: true }): Connector | undefined {
-  const { connectors } = useConnect()
-  return useMemo(
-    () => (options?.shouldThrow ? getConnectorWithId(connectors, id, options) : getConnectorWithId(connectors, id)),
-    [connectors, id, options],
-  )
-}
-
 declare module 'wagmi' {
   interface Register {
     config: typeof wagmiConfig
@@ -399,8 +388,21 @@ const wagmiChains = [
   rise,
 ] as const
 
+// Use KyberSwap-owned RPC endpoints so the WalletConnect connector's rpcMap
+// points at reliable URLs. Without this, wagmi falls back to viem's chain
+// defaults (e.g. eth.merkle.io on mainnet), which break approve/send flows
+// for users whose environment can't reach those public RPCs — requests like
+// eth_estimateGas are routed to HTTP RPC, not the paired wallet, so a fetch
+// failure surfaces as "Failed to fetch" before the tx can be relayed.
+const transports = Object.fromEntries(
+  wagmiChains.map(c => [c.id, http(NETWORKS_INFO[c.id as ChainId]?.defaultRpcUrl)]),
+) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof http>>
+
 export const wagmiConfig = createConfig({
   chains: wagmiChains,
+  transports,
+  batch: { multicall: true },
+  pollingInterval: 12_000,
   connectors: [
     injectedWithFallback(),
     walletConnect(WC_PARAMS),
@@ -415,14 +417,6 @@ export const wagmiConfig = createConfig({
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
-  client({ chain }) {
-    return createClient({
-      chain,
-      batch: { multicall: true },
-      pollingInterval: 12_000,
-      transport: http(),
-    })
-  },
 })
 
 export default function Web3Provider({ children }: { children: ReactNode }) {

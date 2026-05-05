@@ -19,6 +19,7 @@ export default function MetricSelect({
   position,
   onRemove,
   isFirstMetric = false,
+  revertPrice = false,
 }: {
   metric: SelectedMetric | null
   setMetric: (value: SelectedMetric) => void
@@ -26,6 +27,7 @@ export default function MetricSelect({
   position: ParsedPosition
   onRemove?: () => void
   isFirstMetric?: boolean
+  revertPrice?: boolean
 }) {
   const theme = useTheme()
   const { currentStep } = useGuidedHighlight()
@@ -94,7 +96,13 @@ export default function MetricSelect({
       )}
 
       {metric !== null && metric.metric === Metric.PoolPrice && (
-        <PriceInput metric={metric} setMetric={setMetric} position={position} isHighlighted={shouldHighlightInput} />
+        <PriceInput
+          metric={metric}
+          setMetric={setMetric}
+          position={position}
+          isHighlighted={shouldHighlightInput}
+          revertPrice={revertPrice}
+        />
       )}
 
       {metric !== null && metric.metric === Metric.Time && (

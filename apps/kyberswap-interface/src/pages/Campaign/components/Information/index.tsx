@@ -5,9 +5,10 @@ import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import Divider from 'components/Divider'
+import { ButtonIcon } from 'components/PageWrappers'
+import { TERM_FILES_PATH } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { CampaignType } from 'pages/Campaign/constants'
-import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
 import { campaignInfos } from './info'
@@ -199,10 +200,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
       >
         <li>
           <Trans>
-            These Terms and Conditions{' '}
-            <ExternalLink href="https://kyberswap.com/files/Kyber%20-%20Terms%20of%20Use%20-%2020%20November%202023.pdf">
-              ({'"Terms"'})
-            </ExternalLink>{' '}
+            These Terms and Conditions <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>({'"Terms"'})</ExternalLink>{' '}
             should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that
             apply to all KyberSwap promotional activities ({'"Campaign"'}).
           </Trans>

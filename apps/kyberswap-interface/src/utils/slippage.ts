@@ -1,24 +1,11 @@
 import { t } from '@lingui/macro'
 
-import {
-  DEFAULT_SLIPPAGE,
-  DEFAULT_SLIPPAGE_CORRELATED_PAIR,
-  DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
-  PAIR_CATEGORY,
-} from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/index'
 
 export enum SLIPPAGE_STATUS {
   NORMAL,
   LOW,
   HIGH,
-}
-
-export const getDefaultSlippage = (isStablePairSwap: boolean, isCorrelatedPair: boolean): number => {
-  return isStablePairSwap
-    ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP
-    : isCorrelatedPair
-    ? DEFAULT_SLIPPAGE_CORRELATED_PAIR
-    : DEFAULT_SLIPPAGE
 }
 
 export const checkRangeSlippage = (slippage: number, pairCategory: PAIR_CATEGORY | undefined): SLIPPAGE_STATUS => {

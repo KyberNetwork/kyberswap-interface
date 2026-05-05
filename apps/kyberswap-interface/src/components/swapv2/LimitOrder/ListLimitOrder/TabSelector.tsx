@@ -10,21 +10,22 @@ import { useActiveWeb3React } from 'hooks'
 
 const TabSelectorWrapper = styled.div`
   display: flex;
+  align-items: center;
   overflow: hidden;
-  border-top-left-radius: 19px;
   width: fit-content;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    border-top-left-radius: 0;
     width: 100%;
   `};
 `
 
 const StyledTabButton = styled(TabButton)`
-  padding: 16px;
+  padding: 12px 16px;
   flex: unset;
   font-size: 14px;
+  font-weight: 500;
   width: fit-content;
+  height: fit-content;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 50%;

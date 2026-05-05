@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
@@ -7,21 +8,28 @@ import { ReactComponent as MoveForwardSvg } from 'assets/svg/ic_move_forward.svg
 // TrendingBanner
 export const TrendingWrapper = styled.div`
   width: 100%;
-  padding: 12px 16px;
+  padding: 8px 16px;
   gap: 8px;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  justify-content: space-around;
+  align-items: stretch;
   flex-shrink: 0;
   position: relative;
-  cursor: pointer;
 
   border: 1px solid transparent;
   background: linear-gradient(#1d5b49, #1d5b49) padding-box,
     linear-gradient(135deg, #4ec7a2 0%, #1d5b49 40%, #1d5b49 60%, #4ec7a2 100%) border-box;
   backdrop-filter: blur(2px);
+`
+
+export const BannerHeaderLink = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
 `
 
 export const pulse = keyframes`
@@ -36,12 +44,13 @@ export const pulse = keyframes`
   }
 `
 
-export const PoolWrapper = styled.div<{ animate: boolean }>`
+export const PoolWrapper = styled(Link)<{ animate: boolean }>`
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 
   ${({ animate }) =>
     animate &&
@@ -51,11 +60,8 @@ export const PoolWrapper = styled.div<{ animate: boolean }>`
 `
 
 export const PoolAprWrapper = styled.div`
-  border-radius: 20px;
+  border-radius: 16px;
   box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.3);
-  padding-bottom: 1px;
-  width: auto;
-  overflow: hidden;
   background-image: linear-gradient(to right, #66666600, #66666600, #a2e9d4, #66666600, #66666600);
 `
 
@@ -73,19 +79,22 @@ export const PoolApr = styled.div`
   background-color: #000;
   color: ${({ theme }) => theme.primary};
   padding: 4px 16px;
+  border-radius: 16px;
+  height: 27px; // perfect pixel
+  margin-bottom: 1px;
   width: max-content;
 `
 
 // FarmingBanner
 export const FarmingWrapper = styled.div`
   width: 100%;
-  padding: 10px 16px;
-  gap: 11px;
+  padding: 8px 16px;
+  gap: 8px;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  justify-content: space-around;
+  align-items: stretch;
   flex-shrink: 0;
   position: relative;
 
@@ -168,12 +177,14 @@ export const FarmingPoolWrapper = styled.div<{ animateMoveForward: boolean; anim
   `}
 `
 
-export const FarmingPool = styled.div`
+export const FarmingPool = styled(Link)`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  cursor: pointer;
+  gap: 4px;
+  padding: 0 6px;
+  text-decoration: none;
+  color: inherit;
 `
 
 export const FarmingAprBadge = styled.div`
@@ -184,17 +195,23 @@ export const FarmingAprBadge = styled.div`
 `
 
 export const MoveBackIcon = styled(MoveBackSvg)`
-  position: absolute;
-  top: 3px;
-  left: 0;
   cursor: pointer;
+  filter: drop-shadow(0 4px 8px black);
+  transition: filter 150ms ease-in-out;
+
+  :hover {
+    filter: drop-shadow(0 4px 8px black) brightness(1.15);
+  }
 `
 
 export const MoveForwardIcon = styled(MoveForwardSvg)`
-  position: absolute;
-  top: 3px;
-  right: 0;
   cursor: pointer;
+  filter: drop-shadow(0 4px 8px black);
+  transition: filter 150ms ease-in-out;
+
+  :hover {
+    filter: drop-shadow(0 4px 8px black) brightness(1.15);
+  }
 `
 
 export const PoolPairText = styled(Text)`

@@ -7,7 +7,6 @@ import {
   Position as PositionSDK,
   computePoolAddress,
 } from '@kyberswap/ks-sdk-elastic'
-import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
@@ -15,13 +14,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 
 import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
-import { didUserReject } from 'constants/connectors/utils'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
-import { ErrorName } from 'utils/sentry'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { useMulticallContract } from './useContract'
@@ -429,19 +426,6 @@ export const useRemoveLiquidityLegacy = (
       .catch((error: any) => {
         setShowPendingModal('removeLiquidity')
         setAttemptingTxn(false)
-
-        if (!didUserReject(error)) {
-          const e = new Error('Remove Legacy Elastic Liquidity Error', { cause: error })
-          e.name = ErrorName.RemoveElasticLiquidityError
-          captureException(e, {
-            extra: {
-              calldata,
-              value,
-              to: config[chainId].positionManagerContract,
-            },
-          })
-        }
-
         setRemoveLiquidityError(error?.message || JSON.stringify(error))
       })
   }

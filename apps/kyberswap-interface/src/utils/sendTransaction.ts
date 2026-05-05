@@ -7,7 +7,7 @@ import { ethers } from 'ethers'
 import { NETWORKS_INFO } from 'constants/networks'
 import { calculateGasMargin } from 'utils'
 
-import { ErrorName, TransactionError } from './sentry'
+import { ErrorName, TransactionError } from './transactionError'
 
 const projectName = 'KyberSwap'
 const partnerCode = ethers.utils.formatBytes32String(projectName)
@@ -40,7 +40,7 @@ export async function sendEVMTransaction({
   contractAddress,
   encodedData,
   value,
-  sentryInfo,
+  errorInfo,
   isSmartConnector,
   chainId,
   paymentToken,
@@ -50,7 +50,7 @@ export async function sendEVMTransaction({
   contractAddress: string
   encodedData: string
   value: BigNumber
-  sentryInfo: {
+  errorInfo: {
     name: ErrorName
     wallet: string | undefined
   }
@@ -100,12 +100,12 @@ export async function sendEVMTransaction({
     if (!gasEstimate) throw new Error('gasEstimate is nullish value')
   } catch (error) {
     throw new TransactionError(
-      sentryInfo.name,
+      errorInfo.name,
       'estimateGas',
       error?.message,
       estimateGasOption,
       { cause: error },
-      sentryInfo.wallet,
+      errorInfo.wallet,
     )
   }
 
@@ -134,12 +134,12 @@ export async function sendEVMTransaction({
     }
 
     throw new TransactionError(
-      sentryInfo.name,
+      errorInfo.name,
       'sendTransaction',
       error?.message,
       sendTransactionOption,
       { cause: error },
-      sentryInfo.wallet,
+      errorInfo.wallet,
     )
   }
 }

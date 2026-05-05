@@ -281,7 +281,6 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
                 fullWidth
                 options={chainOptions}
                 value={selectedChainId.toString()}
-                alignLeft
                 mobileFullWidth
                 onChange={value => setSelectedChainId(Number(value) as ChainId)}
               />
@@ -289,7 +288,6 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
                 fullWidth
                 options={protocolOptions}
                 value={selectedProtocol}
-                alignLeft
                 mobileFullWidth
                 onChange={value => setSelectedProtocol(value as Exchange)}
               />
