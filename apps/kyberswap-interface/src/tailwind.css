@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* base */
+    --ks-white: #ffffff;
+    --ks-white2: #fafafa;
+    --ks-black: #000000;
+
+    /* text */
+    --ks-text: #ffffff;
+    --ks-darkText: #222222;
+    --ks-textReverse: #222222;
+    --ks-subText: #a9a9a9;
+    --ks-disableText: #373737;
+    --ks-text2: #c3c5cb;
+    --ks-text3: #6c7284;
+    --ks-text4: #565a69;
+    --ks-text5: #c9d2d7;
+    --ks-text6: #d8d8d8;
+
+    /* backgrounds */
+    --ks-background: #1c1c1c;
+    --ks-tabActive: #313131;
+    --ks-tabBackground: #0f0f0f;
+    --ks-tableHeader: #313131;
+    --ks-buttonBlack: #0f0f0f;
+    --ks-buttonGray: #292929;
+    --ks-bg1: #212429;
+    --ks-bg2: #222c31;
+    --ks-bg3: #40444f;
+    --ks-bg4: #565a69;
+    --ks-bg5: #31cb9e;
+    --ks-bg6: #1d7a5f;
+
+    /* gradients */
+    --ks-bgSuccess: linear-gradient(90deg, rgba(29, 122, 95, 0.5) 0%, rgba(29, 122, 95, 0) 100%);
+    --ks-bgError: linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%);
+    --ks-bgWarning: linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%);
+    --ks-bgModal: rgba(0, 0, 0, 0.425);
+    --ks-radialGradient: radial-gradient(#095143, #06291d);
+
+    /* primary */
+    --ks-primary: #31cb9e;
+
+    /* border */
+    --ks-border: #505050;
+    --ks-darkBorder: #373737;
+
+    /* shadow colors */
+    --ks-shadow: rgba(0, 0, 0, 0.2);
+    --ks-shadow1: #000000;
+
+    /* semantic */
+    --ks-red: #ff537b;
+    --ks-red1: #ff6871;
+    --ks-red2: #f82d3a;
+    --ks-warning: #ff9901;
+
+    /* accents */
+    --ks-apr: #0faaa2;
+    --ks-lightGreen: #98e5ce;
+    --ks-darkerGreen: #1d7a5f;
+    --ks-darkGreen: #1d7a5f;
+    --ks-green: #31cb9e;
+    --ks-green1: #27ae60;
+    --ks-yellow1: #ffe270;
+    --ks-yellow2: #f3841e;
+    --ks-gray: #737373;
+    --ks-blue: #08a1e7;
+    --ks-blue1: #31cb9e;
+    --ks-blue2: #2c9ce4;
+    --ks-blue3: #58b5ee;
+    --ks-darkBlue: #1183b7;
+  }
+}

@@ -38,6 +38,7 @@ import ListsUpdater from './state/lists/updater'
 import MulticallUpdater from './state/multicall/updater'
 import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
+import './tailwind.css'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
 
 dayjs.extend(utc)
