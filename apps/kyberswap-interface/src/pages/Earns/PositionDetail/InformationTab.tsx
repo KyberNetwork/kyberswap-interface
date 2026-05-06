@@ -592,7 +592,7 @@ const InformationTab = () => {
                 }
               }}
             >
-              {!isOutRange ? t`Add Liquidity` : t`Reposition to new range`}
+              {!isOutRange ? t`Increase Liquidity` : t`Reposition to new range`}
             </PositionAction>
           )}
         </PositionActionWrapper>
