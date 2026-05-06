@@ -19,8 +19,8 @@ import {
   MobileTableRow as MobileTableRowComponent,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
-import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
 import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
+import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
@@ -107,7 +107,7 @@ const MobileTableRow = ({
           <HeaderText color={theme.subText}>{t`APR`}</HeaderText>
           <HStack align="center" gap={4}>
             <PoolAprInfo pool={pool} />
-            <MerklAprInfo pool={pool} />
+            <PoolAprBadges pool={pool} />
           </HStack>
         </MobileTableCell>
         {isFarmingFiltered && (
