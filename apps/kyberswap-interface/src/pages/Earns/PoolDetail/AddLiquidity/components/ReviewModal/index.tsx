@@ -91,12 +91,12 @@ const StatusContent = ({
     canDismiss || canViewPosition ? (
       <>
         {canDismiss && (
-          <Button className="flex-1 h-10 border-subText" variant="outline" onClick={onDismiss}>
+          <Button className="h-10 flex-1 border-subText" variant="outline" onClick={onDismiss}>
             Close
           </Button>
         )}
         {canViewPosition && (
-          <Button className="flex-1 h-10" variant="default" onClick={onViewPosition}>
+          <Button className="h-10 flex-1" variant="default" onClick={onViewPosition}>
             View Position
           </Button>
         )}

@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -29,18 +31,14 @@ module.exports = {
     'package-lock.json',
     'yarn.lock',
   ],
-  settings: {
-    react: {
-      version: 'detect',
-    },
-  },
   extends: [
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
+    'plugin:tailwindcss/recommended',
     'plugin:prettier/recommended',
   ],
-  plugins: ['better-styled-components', 'unused-imports', 'jsx-a11y', 'lingui'],
+  plugins: ['better-styled-components', 'unused-imports', 'jsx-a11y', 'lingui', 'tailwindcss'],
   rules: {
     'unused-imports/no-unused-imports': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -77,5 +75,56 @@ module.exports = {
     'lingui/no-expression-in-message': 2,
     'lingui/no-single-tag-to-translate': 2,
     'lingui/no-trans-inside-trans': 2,
+
+    // Tailwind plugin: keep noisy rules off; rely on prettier-plugin-tailwindcss for ordering.
+    'tailwindcss/classnames-order': 'off',
+    'tailwindcss/no-custom-classname': 'off',
+    'tailwindcss/no-contradicting-classname': 'error',
+    'tailwindcss/enforces-shorthand': 'warn',
   },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+    tailwindcss: {
+      config: path.resolve(__dirname, 'tailwind.config.ts'),
+      callees: ['cn', 'cva', 'clsx', 'twMerge'],
+    },
+  },
+  overrides: [
+    {
+      // Migration guardrail: forbids styled-components / rebass / polished in already-migrated folders.
+      // ➜ When a folder finishes migration, add its glob to `files` below (e.g. 'src/components/Button/**/*.{ts,tsx}').
+      // ➜ Goal at end of Phase 5: files = ['src/**/*.{ts,tsx}'].
+      // See MIGRATION.md.
+      files: [
+        // Sentinel — replace/extend with real paths as folders finish migration.
+        // Examples once Phase 3 starts:
+        //   'src/components/Button/**/*.{ts,tsx}',
+        //   'src/components/Modal/**/*.{ts,tsx}',
+        'src/components/__migrated__/**/*.{ts,tsx}',
+      ],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [
+              {
+                name: 'styled-components',
+                message: 'styled-components is being migrated to Tailwind CSS. Use Tailwind utilities + cn() instead. See apps/kyberswap-interface/MIGRATION.md',
+              },
+              {
+                name: 'rebass',
+                message: 'rebass is being removed. Use plain elements + Tailwind utilities.',
+              },
+              {
+                name: 'polished',
+                message: 'polished helpers are being removed. Use Tailwind utilities (brightness-*, opacity-*) or plain CSS.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
 }
