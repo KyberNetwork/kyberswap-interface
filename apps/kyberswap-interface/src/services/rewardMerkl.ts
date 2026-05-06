@@ -72,13 +72,45 @@ const MERKL_API_BASE = 'https://api.merkl.xyz/v4'
 // so a transient network blip or 5xx doesn't permanently downgrade the session to per-chain.
 let batchedSupportState: 'unknown' | 'supported' | 'unsupported' = 'unknown'
 
+// Map of chainId → timestamp at which the chain was last marked for reload via
+// `markChainAsReloaded`. While the mark is fresh, the next `merklRewards` queryFn will
+// append `reloadChainId=X` to its outgoing URL so Merkl rebuilds its server-side cache for
+// that chain before responding (defeating Merkl's URL-keyed cache). Mark is consumed only
+// after a successful fetch, so a failed batched call leaves the mark for the next retry.
+const recentlyReloadedChainIds = new Map<string, number>()
+const RELOAD_FRESHNESS_MS = 60_000
+
+const isChainRecentlyReloaded = (chainId: string): boolean => {
+  const ts = recentlyReloadedChainIds.get(chainId)
+  if (ts === undefined) return false
+  if (Date.now() - ts > RELOAD_FRESHNESS_MS) {
+    recentlyReloadedChainIds.delete(chainId)
+    return false
+  }
+  return true
+}
+
+// Mark a chain so the next `merklRewards` queryFn appends `reloadChainId=X` to the request.
+// Used by the post-claim retry loop so the batched URL also gets fresh server-rebuilt data
+// instead of Merkl's URL-edge-cached pre-claim numbers.
+export const markChainAsReloaded = (chainId: number) => {
+  recentlyReloadedChainIds.set(String(chainId), Date.now())
+}
+
 type BatchedResult = { ok: true; data: MerklRewardsResponse[] } | { ok: false; permanent: boolean }
 
-const fetchRewardsPerChain = async (address: string, chainIds: string[]): Promise<MerklRewardsResponse[]> => {
+const fetchRewardsPerChain = async (
+  address: string,
+  chainIds: string[],
+  reloadChainIds: Set<string> = new Set(),
+): Promise<MerklRewardsResponse[]> => {
   const results = await Promise.all(
     chainIds.map(async cId => {
       try {
-        const res = await fetch(`${MERKL_API_BASE}/users/${address}/rewards?chainId=${cId}`)
+        const url = reloadChainIds.has(cId)
+          ? `${MERKL_API_BASE}/users/${address}/rewards?chainId=${cId}&reloadChainId=${cId}`
+          : `${MERKL_API_BASE}/users/${address}/rewards?chainId=${cId}`
+        const res = await fetch(url)
         if (!res.ok) return null
         const data: MerklRewardsResponse[] = await res.json()
         return data
@@ -90,9 +122,16 @@ const fetchRewardsPerChain = async (address: string, chainIds: string[]): Promis
   return results.filter(Boolean).flat() as MerklRewardsResponse[]
 }
 
-const fetchRewardsBatched = async (address: string, chainIds: string[]): Promise<BatchedResult> => {
+const fetchRewardsBatched = async (
+  address: string,
+  chainIds: string[],
+  reloadChainIds: string[] = [],
+): Promise<BatchedResult> => {
   try {
-    const params = chainIds.map(id => `chainId=${id}`).join('&')
+    const params = chainIds
+      .map(id => `chainId=${id}`)
+      .concat(reloadChainIds.map(id => `reloadChainId=${id}`))
+      .join('&')
     const res = await fetch(`${MERKL_API_BASE}/users/${address}/rewards?${params}`)
     if (res.ok) {
       return { ok: true, data: (await res.json()) as MerklRewardsResponse[] }
@@ -156,13 +195,25 @@ const rewardMerklApi = createApi({
           return { data: [] }
         }
 
+        // Pull off any chains that were recently `markChainAsReloaded`-ed so we can append
+        // `reloadChainId=X` to this fetch's URL — Merkl will rebuild its server-side cache
+        // for those chains before responding. Marks are consumed only on a successful
+        // response so a failed call leaves them for the next retry.
+        const reloadedChains = chainIds.filter(isChainRecentlyReloaded)
+
         if (chainIds.length === 1 || batchedSupportState === 'unsupported') {
-          return { data: await fetchRewardsPerChain(address, chainIds) }
+          const data = await fetchRewardsPerChain(address, chainIds, new Set(reloadedChains))
+          const refreshedIds = new Set(data.map(item => String(item.chain.id)))
+          reloadedChains.forEach(c => {
+            if (refreshedIds.has(c)) recentlyReloadedChainIds.delete(c)
+          })
+          return { data }
         }
 
-        const batched = await fetchRewardsBatched(address, chainIds)
+        const batched = await fetchRewardsBatched(address, chainIds, reloadedChains)
         if (batched.ok) {
           batchedSupportState = 'supported'
+          reloadedChains.forEach(c => recentlyReloadedChainIds.delete(c))
           return { data: batched.data }
         }
 
@@ -170,7 +221,12 @@ const rewardMerklApi = createApi({
         // batched format is unsupported). Transient failures fall back this once but leave
         // batchedSupportState alone so the next poll can try batched again.
         if (batched.permanent) batchedSupportState = 'unsupported'
-        return { data: await fetchRewardsPerChain(address, chainIds) }
+        const data = await fetchRewardsPerChain(address, chainIds, new Set(reloadedChains))
+        const refreshedIds = new Set(data.map(item => String(item.chain.id)))
+        reloadedChains.forEach(c => {
+          if (refreshedIds.has(c)) recentlyReloadedChainIds.delete(c)
+        })
+        return { data }
       },
     }),
     // One-off per-chain fetch. Two roles:

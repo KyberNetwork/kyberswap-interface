@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
-import { MerklRewardsResponse, useFetchMerklChainRewardsMutation } from 'services/rewardMerkl'
+import { MerklRewardsResponse, markChainAsReloaded, useFetchMerklChainRewardsMutation } from 'services/rewardMerkl'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -468,23 +468,29 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           // leave a stale syncing indicator on the new account's UI.
           if (accountRef.current !== initialAccount) return
 
-          // Force Merkl to rebuild its server-side cache for this chain. The response itself
-          // is discarded — we only care about the side effect on Merkl's backend.
+          // Hit the per-chain endpoint with `reloadChainId=X` so Merkl rebuilds its
+          // server-side cache for the chain AND we get an authoritative fresh payload back
+          // for the exit check. We don't rely on the batched refetch's response for the
+          // check because Merkl serves the batched URL from a separate URL-edge cache that
+          // can stay stale for ~30s even after the per-chain rebuild — the loop would
+          // otherwise spin until that cache TTL expires before exiting.
+          let chainData: MerklRewardsResponse | undefined
           try {
-            await fetchMerklChainRewards({
+            const data = await fetchMerklChainRewards({
               address: initialAccount,
               chainId,
               withReload: true,
             }).unwrap()
+            chainData = data.find(c => c.chain.id === chainId)
           } catch {
-            // backend rebuild request failed; the batched refetch below may still pick up
-            // fresh data if Merkl's URL cache happens to be invalidated by other means
+            // network/abort — fall through to wait + retry
           }
 
-          // Refetch the batched `merklRewards` query so RTK writes fresh post-rebuild data
-          // into the cache atomically, triggering a re-render for every subscriber.
-          const result = await refetchMerklRewards()
-          const chainData = result.data?.find(c => c.chain.id === chainId)
+          // Mark the chain so the upcoming batched refetch's URL also carries
+          // `reloadChainId=X`, defeating Merkl's URL cache for the batched URL too. Without
+          // this the batched response could write stale numbers back into the RTK cache.
+          markChainAsReloaded(chainId)
+          await refetchMerklRewards()
 
           // Exit only when Merkl reports zero remaining claimable on this chain. The
           // `rewards.length > 0` guard inside `isChainFullyClaimed` prevents a transient empty
