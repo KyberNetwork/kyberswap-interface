@@ -107,10 +107,16 @@ const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_AERODROMECL]: aerodrome,
   [Exchange.DEX_AERODROMECL2]: {
     ...aerodrome,
+    nftManagerContract: {
+      [ChainId.BASE]: '0xa990C6a764b73BF43cee5Bb40339c3322FB9D55F',
+    },
     name: 'Aerodrome Concentrated V2',
   },
   [Exchange.DEX_AERODROMECL3]: {
     ...aerodrome,
+    nftManagerContract: {
+      [ChainId.BASE]: '0xe1f8cd9AC4e4A65F54f38a5CdAfCA44f6dD68b53',
+    },
     name: 'Aerodrome Concentrated V3',
   },
 }
