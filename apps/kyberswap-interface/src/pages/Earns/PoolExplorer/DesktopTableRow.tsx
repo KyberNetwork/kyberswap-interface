@@ -14,8 +14,8 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import { FeeTier, SymbolText, TableCell, TableRow } from 'pages/Earns/PoolExplorer/styles'
-import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
 import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
+import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
@@ -102,7 +102,7 @@ const DesktopTableRow = ({
       </TableCell>
       <TableCell>
         <PoolAprInfo pool={pool} />
-        <MerklAprInfo pool={pool} />
+        <PoolAprBadges pool={pool} />
       </TableCell>
       {isFarmingFiltered && (
         <TableCell onClick={e => handleOpenZapInWidget(e, true)}>
