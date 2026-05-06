@@ -175,16 +175,14 @@ const rewardMerklApi = createApi({
     }),
     // One-off per-chain fetch. Two roles:
     //   1) Pre-claim freshness — call right before submitting a claim tx so the proofs/amounts
-    //      baked into calldata are the freshest available.
-    //   2) Post-claim sync — drive the retry loop after a claim tx confirms.
-    // Bypasses the main RTK Query cache for the request itself, then patches the resulting chain
-    // payload into every active `merklRewards` cache entry that includes this chainId (see
-    // `onQueryStarted`). Patching directly avoids relying on `refetch` to propagate post-claim
-    // data to all subscribers — refetch can be deduped, raced, or skipped under specific
-    // arg/skip conditions and we observed UIs sticking on pre-claim numbers as a result.
-    // The `withReload` flag adds `reloadChainId=X` to force Merkl to rebuild its backend cache
-    // for the chain before responding (used post-claim, skipped pre-claim where we just want
-    // current Merkl data without paying the rebuild cost).
+    //      baked into calldata are the freshest available. Bypasses the RTK cache; the result
+    //      is consumed locally and not written back.
+    //   2) Post-claim Merkl backend rebuild — call with `withReload: true` after a claim tx
+    //      confirms so Merkl invalidates its server-side cache for the chain. The caller is
+    //      then expected to refetch the batched `merklRewards` query, which will pick up the
+    //      now-fresh data and update the RTK cache atomically for every subscriber.
+    // The `withReload` flag adds `reloadChainId=X` so Merkl rebuilds its backend cache before
+    // responding.
     fetchMerklChainRewards: builder.mutation<
       MerklRewardsResponse[],
       { address: string; chainId: number; withReload?: boolean }
@@ -204,50 +202,6 @@ const rewardMerklApi = createApi({
           return { error: { status: 'CUSTOM_ERROR', error: (err as Error)?.message || 'fetch failed' } }
         } finally {
           clearTimeout(timeoutId)
-        }
-      },
-      // After a successful single-chain fetch with `withReload: true`, patch the chain's payload
-      // into every fulfilled `merklRewards` cache entry whose args include this chainId.
-      // Without this, the fresh per-chain response would only be visible to the one caller that
-      // awaited it, leaving `useMerklRewardsQuery` subscribers stuck on stale data.
-      //
-      // Gated on `withReload` so the pre-claim freshness fetch (which hits Merkl WITHOUT
-      // `reloadChainId`) does NOT patch the cache — pre-claim responses come from Merkl's URL-
-      // edge cache and can be older than what a concurrent post-claim sync just wrote in.
-      // Only the post-claim path forces a backend rebuild, so only it should publish to cache.
-      async onQueryStarted({ address, chainId, withReload }, { dispatch, queryFulfilled, getState }) {
-        if (!withReload) return
-        try {
-          const { data } = await queryFulfilled
-          const chainData = data.find(item => item.chain.id === chainId)
-          if (!chainData) return
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const apiState = (getState() as any)[rewardMerklApi.reducerPath]
-          const queries = apiState?.queries || {}
-          const targetChainId = String(chainId)
-          Object.values(queries).forEach((entry: unknown) => {
-            const e = entry as { endpointName?: string; originalArgs?: MerklRewardsParams; status?: string } | undefined
-            // Filter to fulfilled `merklRewards` entries only. Patching a `pending` entry races
-            // its in-flight response; patching `uninitialized`/`rejected` writes into a draft
-            // with no baseline data, which is at best a no-op and at worst confuses subscribers.
-            if (!e || e.endpointName !== 'merklRewards' || e.status !== 'fulfilled') return
-            const args = e.originalArgs
-            if (!args || args.address !== address) return
-            const argChainIds = String(args.chainId)
-              .split(',')
-              .map(s => s.trim())
-              .filter(Boolean)
-            if (!argChainIds.includes(targetChainId)) return
-            dispatch(
-              rewardMerklApi.util.updateQueryData('merklRewards', args, draft => {
-                const idx = draft.findIndex(item => item.chain.id === chainId)
-                if (idx >= 0) draft[idx] = chainData
-                else draft.push(chainData)
-              }),
-            )
-          })
-        } catch {
-          // fetch errored — nothing to patch
         }
       },
     }),
