@@ -196,20 +196,22 @@ const ksSettingApi = createApi({
         params,
       }),
     }),
+    searchTokensBySymbol: builder.query<TokenListResponse, { query: string; pageSize?: number }>({
+      query: ({ query, pageSize = 5 }) => ({
+        url: `/tokens`,
+        params: { query, page: 1, pageSize },
+      }),
+    }),
   }),
 })
 
 export const {
   useGetKyberswapConfigurationQuery,
-  useLazyGetKyberswapConfigurationQuery,
   useGetKyberswapGlobalConfigurationQuery,
   useLazyGetTokenListQuery,
-  useGetDexListQuery,
-  useGetTokenListQuery,
-  useImportTokenMutation,
-  useLazyGetTopTokensQuery,
   useGetChainsConfigurationQuery,
   useGetTokenByAddressesQuery,
+  useLazySearchTokensBySymbolQuery,
 } = ksSettingApi
 
 export default ksSettingApi

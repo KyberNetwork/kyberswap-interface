@@ -1,7 +1,6 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import externalApi from 'services/externalApi'
@@ -189,10 +188,6 @@ export default function useClaimReward() {
         .catch((err: any) => {
           //on invalid claim reward
           setAttemptingTxn(false)
-          const e = new Error('Claim Reward error', { cause: err })
-          e.name = 'ClaimRewardError'
-          captureException(e)
-
           setError(err.message || t`Something is wrong. Please try again later!`)
         })
     }

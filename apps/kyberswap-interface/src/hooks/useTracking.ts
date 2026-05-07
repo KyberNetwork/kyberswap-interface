@@ -9,7 +9,7 @@ import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { RANGE } from 'state/mint/proamm/type'
+import { sanitizeFormoPayload } from 'hooks/sanitizeFormoPayload'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -24,8 +24,6 @@ export enum TRACKING_EVENT_TYPE {
   SWAP_INITIATED,
   SWAP_CONFIRMED,
   SWAP_COMPLETED,
-  SWAP_TYPED_ON_THE_TEXT_BOX,
-  SWAP_INPUT_AMOUNT,
   SWAP_SETTINGS_CLICK,
   SWAP_TUTORIAL_CLICK,
   SWAP_TOKEN_INFO_CLICK,
@@ -114,10 +112,6 @@ export enum TRACKING_EVENT_TYPE {
   DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON,
   DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS,
   DISCOVER_UNSUBSCRIBE_TRENDING_SOON_SUCCESS,
-  TRANSAK_BUY_CRYPTO_CLICKED,
-  TRANSAK_DOWNLOAD_WALLET_CLICKED,
-  TRANSAK_SWAP_NOW_CLICKED,
-  SWAP_BUY_CRYPTO_CLICKED,
 
   // for tutorial swap
   TUTORIAL_CLICK_START,
@@ -203,8 +197,6 @@ export enum TRACKING_EVENT_TYPE {
   // Menu header
   MENU_MENU_CLICK,
   MENU_PREFERENCE_CLICK,
-  MENU_CLAIM_REWARDS_CLICK,
-  SUPPORT_CLICK,
 
   // price alert
   PA_CLICK_TAB_IN_NOTI_CENTER,
@@ -217,14 +209,6 @@ export enum TRACKING_EVENT_TYPE {
   PERMIT_FAILED_TOO_MANY_TIMES,
 
   ACCEPT_NEW_AMOUNT,
-
-  // cross chain
-  CROSS_CHAIN_CLICK_DISCLAIMER,
-  CROSS_CHAIN_SWAP_INIT,
-  CROSS_CHAIN_SWAP_CONFIRMED,
-  CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX,
-  CROSS_CHAIN_TXS_SUBMITTED,
-  CROSS_CHAIN_CLICK_SUBSCRIBE,
 
   // earning dashboard
   EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON,
@@ -339,7 +323,6 @@ export enum TRACKING_EVENT_TYPE {
   WALLET_EXTERNAL_LINK_CLICKED,
   WALLET_PINNED,
   BALANCE_VISIBILITY_TOGGLED,
-  WALLET_BUY_CLICKED,
   WALLET_RECEIVE_CLICKED,
   WALLET_SEND_CLICKED,
   WALLET_SEND_INITIATED,
@@ -416,7 +399,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
 
   const formoTrack = useCallback(
     (eventName: string, properties?: Record<string, any>) => {
-      analytics?.track(eventName, properties)
+      analytics?.track(eventName, sanitizeFormoPayload(properties))
     },
     [analytics],
   )
@@ -1042,22 +1025,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Faucet feature - Request faucet Completed')
           break
         }
-        case TRACKING_EVENT_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED: {
-          formoTrack('Buy Crypto - Download a wallet "Download Wallet”')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_BUY_CRYPTO_CLICKED: {
-          formoTrack('Buy Crypto - To purchase crypto on Transak "Buy Now”')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_SWAP_NOW_CLICKED: {
-          formoTrack('Buy Crypto - Swap token on KyberSwap "Swap" button')
-          break
-        }
-        case TRACKING_EVENT_TYPE.SWAP_BUY_CRYPTO_CLICKED: {
-          formoTrack('Buy Crypto - Click on Buy Crypto on KyberSwap')
-          break
-        }
         case TRACKING_EVENT_TYPE.TUTORIAL_CLICK_START: {
           formoTrack('On-Screen Guide - User click on "View" in Setting to view guide')
           break
@@ -1353,7 +1320,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           const { token_1, token_2, range } = payload as {
             token_1: string
             token_2: string
-            range: RANGE
+            range: string
           }
           formoTrack('Elastic - Add Liquidity page - Select range for pool', {
             token_1,
@@ -1413,31 +1380,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.ACCEPT_NEW_AMOUNT: {
           formoTrack('Accept New Amount Button Click', payload)
-          break
-        }
-
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER: {
-          mixpanel.track('Cross-chain - Disclaimer click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX: {
-          mixpanel.track('Cross chain - Disclaimer checkbox click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE: {
-          mixpanel.track('Cross chain - Subscribe click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_INIT: {
-          mixpanel.track('Cross chain - Swap Initiated', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_CONFIRMED: {
-          mixpanel.track('Cross chain - Swap Confirmed', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_TXS_SUBMITTED: {
-          mixpanel.track('Cross chain - Transaction Submitted', payload)
           break
         }
 
@@ -1814,10 +1756,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Balance Visibility Toggled', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.WALLET_BUY_CLICKED: {
-          formoTrack('Wallet Buy Clicked', payload)
-          break
-        }
         case TRACKING_EVENT_TYPE.WALLET_RECEIVE_CLICKED: {
           formoTrack('Wallet Receive Clicked', payload)
           break
@@ -1966,7 +1904,6 @@ export const useGlobalTrackingEvents = () => {
         'elastic/remove': 'Elastic - Remove Liquidity',
         'elastic/add': 'Elastic - Add Liquidity',
         'elastic/increase': 'Elastic - Increase Liquidity',
-        'buy-crypto': 'Buy Crypto',
         bridge: 'Bridge',
         '/kyberdao/stake-knc': 'KyberDAO Stake',
         '/kyberdao/vote': 'KyberDAO Vote',

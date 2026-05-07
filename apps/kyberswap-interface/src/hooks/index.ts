@@ -19,6 +19,26 @@ import { isInSafeApp } from 'utils'
 
 import useDisconnectWallet from './web3/useDisconnectWallet'
 
+const SIGNING_METHODS = new Set([
+  'eth_sendTransaction',
+  'eth_sendRawTransaction',
+  'eth_signTransaction',
+  'eth_sign',
+  'personal_sign',
+  'eth_signTypedData',
+  'eth_signTypedData_v1',
+  'eth_signTypedData_v3',
+  'eth_signTypedData_v4',
+  'wallet_sendCalls',
+])
+
+class BlacklistedWalletError extends Error {
+  constructor() {
+    super('There was an error with your transaction.')
+    this.name = 'BlacklistedWalletError'
+  }
+}
+
 export function useActiveWeb3React(): {
   chainId: ChainId
   account?: string
@@ -70,7 +90,9 @@ export function useWeb3React() {
             get(target, prop) {
               if (prop === 'send') {
                 return async (...params: any[]) => {
-                  if (params[0] === 'eth_chainId') {
+                  const method = params[0]
+
+                  if (method === 'eth_chainId') {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     return target[prop](...params)
@@ -82,10 +104,19 @@ export function useWeb3React() {
                     )
                   }
 
-                  const res = await store.dispatch(
-                    blackjackApi.endpoints.checkBlackjack.initiate(account.address || ''),
-                  )
-                  if (res?.data?.blacklisted) throw new Error('There was an error with your transaction.')
+                  if (SIGNING_METHODS.has(method)) {
+                    try {
+                      const res = await store.dispatch(
+                        blackjackApi.endpoints.checkBlackjack.initiate(account.address || ''),
+                      )
+                      if (res?.data?.blacklisted) throw new BlacklistedWalletError()
+                    } catch (err) {
+                      if (err instanceof BlacklistedWalletError) throw err
+                      // Fail-open: if Blackjack is unreachable (network error, blocked by
+                      // browser extension, CORS), don't block the user's transaction.
+                      console.warn('Blackjack check skipped due to network error', err)
+                    }
+                  }
 
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   // @ts-ignore

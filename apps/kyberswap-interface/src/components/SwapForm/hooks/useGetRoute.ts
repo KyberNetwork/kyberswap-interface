@@ -235,7 +235,8 @@ const useGetRoute = (args: ArgsGetRoute) => {
     }
 
     ;(Object.keys(params) as (keyof typeof params)[]).forEach(key => {
-      if (!params[key]) {
+      // keep 0 value for decimals
+      if (params[key] === null || params[key] === undefined) {
         delete params[key]
       }
     })

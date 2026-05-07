@@ -182,7 +182,7 @@ export const estimateGasForTx = async ({
 
     return {
       gasUsd: undefined,
-      error: friendlyError(message),
+      error: `Estimate gas step: ${friendlyError(message)}`,
     };
   }
 };

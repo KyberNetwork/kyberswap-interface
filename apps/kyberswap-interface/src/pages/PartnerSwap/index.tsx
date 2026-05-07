@@ -6,7 +6,6 @@ import { usePreviousDistinct } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -55,15 +54,6 @@ export const SwitchLocaleLinkWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
   margin-bottom: 0px;
 `}
-`
-
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 27px;
-  width: 27px;
-  margin-right: 10px;
-  path {
-    fill: ${({ theme }) => theme.subText} !important;
-  }
 `
 
 export default function PartnerSwap() {

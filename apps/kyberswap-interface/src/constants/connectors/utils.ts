@@ -1,5 +1,3 @@
-export const getIsInjected = () => Boolean(window.ethereum)
-
 // https://eips.ethereum.org/EIPS/eip-1193#provider-errors
 export enum ErrorCode {
   USER_REJECTED_REQUEST = 4001,

@@ -20,6 +20,8 @@ const BUNGEE_API_BASE_URL =
   typeof window !== 'undefined' && window.location?.hostname === KYBERSWAP_DOMAIN
     ? 'https://backend.bungee.exchange' // use whitelisted backend for kyberswap.com
     : 'https://public-backend.bungee.exchange' // use public backend for local development/testing
+
+/** Reference: https://docs.bungee.exchange/integrate/integration-guides/check-status#status-code-enum */
 enum RequestStatusEnum {
   PENDING = 0,
   ASSIGNED = 1,
@@ -28,8 +30,7 @@ enum RequestStatusEnum {
   SETTLED = 4,
   EXPIRED = 5,
   CANCELLED = 6,
-  REFUND_PENDING = 7,
-  REFUNDED = 8,
+  REFUNDED = 7,
 }
 
 export class BungeeAdapter extends BaseSwapAdapter {

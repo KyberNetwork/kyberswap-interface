@@ -3,13 +3,11 @@ import { getPublicClient } from '@wagmi/core'
 import routeApi from 'services/route'
 import { WalletClient, formatUnits } from 'viem'
 
+import kyberswapIcon from 'assets/images/kyberswap.ico'
 import { wagmiConfig } from 'components/Web3Provider'
 import { AGGREGATOR_API } from 'constants/env'
 import { AGGREGATOR_API_PATHS, ETHER_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
-import store from 'state'
-
-import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
@@ -18,7 +16,9 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { Quote } from 'pages/CrossChainSwap/registry'
+import store from 'state'
 
 export class KyberSwapAdapter extends BaseSwapAdapter {
   constructor() {
@@ -29,7 +29,7 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
     return 'KyberSwap'
   }
   getIcon(): string {
-    return 'https://kyberswap.com/favicon.ico'
+    return kyberswapIcon
   }
   getSupportedChains(): Chain[] {
     return [...MAINNET_NETWORKS].filter(item => !NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(item))

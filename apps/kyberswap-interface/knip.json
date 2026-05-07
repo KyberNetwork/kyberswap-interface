@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/index.tsx",
+    "src/service-worker.ts",
+    "src/serviceWorkerRegistration.ts",
+    "vite.config.ts",
+    "lingui.config.ts"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": [
+    "src/locales/**",
+    "src/**/*.test.{ts,tsx}",
+    "src/**/*.spec.{ts,tsx}"
+  ],
+  "ignoreDependencies": [],
+  "ignoreBinaries": [],
+  "ignoreExportsUsedInFile": true
+}

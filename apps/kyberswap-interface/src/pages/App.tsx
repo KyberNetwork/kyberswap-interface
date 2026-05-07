@@ -1,6 +1,5 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
@@ -19,6 +18,7 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
+import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
@@ -59,7 +59,6 @@ const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
 const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
 const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
-//const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
@@ -71,6 +70,7 @@ const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
 const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
+const PoolDetail = lazy(() => import('pages/Earns/PoolDetail'))
 
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
@@ -182,7 +182,7 @@ const RoutesWithNetworkPrefix = () => {
 }
 
 export default function App() {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   useAutoLogin()
   const { online } = useNetwork()
@@ -200,21 +200,6 @@ export default function App() {
     preloadImages()
   }, [])
 
-  useEffect(() => {
-    if (account) {
-      Sentry.setUser({ id: account })
-    }
-  }, [account])
-
-  useEffect(() => {
-    if (chainId) {
-      Sentry.setTags({
-        chainId: chainId,
-        network: networkInfo.name,
-      })
-    }
-  }, [chainId, networkInfo.name])
-
   useGlobalTrackingEvents()
   useWebVitals()
   const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
@@ -230,6 +215,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
+      <RouteSeo />
       <AppWrapper>
         <ModalsGlobal />
         {!isPartnerSwap && <TopBanner />}
@@ -312,7 +298,6 @@ export default function App() {
               <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
               <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
               <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-              {/*<Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />*/}
               <Route
                 path={`${APP_PATHS.PROFILE_MANAGE}`}
                 element={
@@ -362,6 +347,7 @@ export default function App() {
               <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
               <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
               <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
+              <Route path={APP_PATHS.ADD_LIQUIDITY} element={<PoolDetail />} />
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />

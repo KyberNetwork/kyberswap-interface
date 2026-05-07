@@ -12,7 +12,15 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useShowTradeRoutes, useToggleTradeRoutes, useUserSlippageTolerance } from 'state/user/hooks'
+import {
+  useShowPricingChart,
+  useShowTradeRoutes,
+  useSuccessSoundEnabled,
+  useTogglePricingChart,
+  useToggleSuccessSound,
+  useToggleTradeRoutes,
+  useUserSlippageTolerance,
+} from 'state/user/hooks'
 
 import { CrossChainSourceSetting } from './CrossChainSourceSetting'
 import DegenModeSetting from './DegenModeSetting'
@@ -48,8 +56,12 @@ const SettingsPanel: React.FC<Props> = ({
   const [slippage] = useUserSlippageTolerance()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()
+  const isSuccessSoundEnabled = useSuccessSoundEnabled()
+  const togglePricingChart = useTogglePricingChart()
   const toggleTradeRoutes = useToggleTradeRoutes()
+  const toggleSuccessSound = useToggleSuccessSound()
 
   return (
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
@@ -112,6 +124,18 @@ const SettingsPanel: React.FC<Props> = ({
                 <Trans>Display Settings</Trans>
               </Text>
               <AutoColumn gap="md">
+                {isSwapPage && (
+                  <RowBetween>
+                    <RowFixed>
+                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                        <MouseoverTooltip text={<Trans>Turn on to display pricing chart.</Trans>} placement="right">
+                          <Trans>Pricing Chart</Trans>
+                        </MouseoverTooltip>
+                      </TextDashed>
+                    </RowFixed>
+                    <Toggle isActive={isShowPricingChart} toggle={togglePricingChart} />
+                  </RowBetween>
+                )}
                 {(isSwapPage || isCrossChainPage) && (
                   <RowBetween>
                     <RowFixed>
@@ -124,6 +148,16 @@ const SettingsPanel: React.FC<Props> = ({
                     <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} />
                   </RowBetween>
                 )}
+                <RowBetween>
+                  <RowFixed>
+                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                      <MouseoverTooltip text={<Trans>Turn on to play success sound.</Trans>} placement="right">
+                        <Trans>Sound</Trans>
+                      </MouseoverTooltip>
+                    </TextDashed>
+                  </RowFixed>
+                  <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} />
+                </RowBetween>
               </AutoColumn>
             </Flex>
           )}

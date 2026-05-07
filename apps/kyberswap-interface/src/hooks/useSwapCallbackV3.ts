@@ -13,7 +13,7 @@ import { ChargeFeeBy } from 'types/route'
 import { isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { sendEVMTransaction } from 'utils/sendTransaction'
-import { ErrorName } from 'utils/sentry'
+import { ErrorName } from 'utils/transactionError'
 
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
@@ -134,7 +134,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
         encodedData: encodedSwapData,
         value,
         isSmartConnector,
-        sentryInfo: {
+        errorInfo: {
           name: ErrorName.SwapError,
           wallet: walletKey,
         },

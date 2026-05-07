@@ -2,7 +2,7 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 
 export const Wrapper = styled.div`
   max-width: 1228px;
@@ -45,17 +45,6 @@ export const SupportedChain = styled.div`
   gap: 20px;
   margin: auto;
   margin-top: 32px;
-`
-
-export const BtnOutlined = styled(ButtonOutlined)`
-  width: 216px;
-  padding: 12px;
-  flex: 1;
-  border-radius: 32px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `};
 `
 
 export const BtnPrimary = styled(ButtonPrimary)`
@@ -163,20 +152,6 @@ export const GridWrapper = styled.div`
   grid-auto-flow: column;
   grid-auto-columns: minmax(300px, 1fr);
   overflow-x: auto;
-`
-
-export const KyberSwapSlippage = styled.div`
-  border-radius: 8px;
-  background-color: ${({ theme }) => `${theme.primary}33`};
-  padding: 20px 16px 12px;
-  text-align: center;
-`
-export const TypicalAMM = styled.div<{ background?: string }>`
-  background-color: ${({ theme, background }) => background || theme.buttonBlack};
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  padding: 14px 16px 24px;
-  text-align: center;
 `
 
 export const Footer = styled.div<{ background: string }>`

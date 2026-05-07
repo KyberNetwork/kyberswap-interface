@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+Sitemap: https://kyberswap.com/sitemap.xml

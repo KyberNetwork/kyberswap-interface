@@ -4,5 +4,4 @@ export enum CoreProtocol {
   UniswapV2,
   AlgebraV1,
   AlgebraV19,
-  AlgebraIntegral,
 }

@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 
-import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import Input from 'components/NumericalInput'
 import Select from 'components/Select'
 
@@ -111,8 +111,4 @@ export const ButtonSubmit = styled(ButtonPrimary)`
   ${shareStyleBtn}
   display: flex;
   gap: 4px;
-`
-export const ButtonConnectWallet = styled(ButtonLight)`
-  width: 150px;
-  height: 36px;
 `

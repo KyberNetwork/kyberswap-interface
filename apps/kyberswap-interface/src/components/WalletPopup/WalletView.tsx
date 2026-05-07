@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, FileText, LogOut, StopCircle, X } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -16,7 +15,6 @@ import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
 import SendToken from 'components/WalletPopup/SendToken'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
-import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -129,7 +127,6 @@ export default function WalletView({
   const [view, setView] = useState<string>(storedView || View.ASSETS)
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const navigate = useNavigate()
   const nodeRef = useRef<HTMLDivElement>(null)
   const [isMinimal, setMinimal] = useState(false)
   const { chainId, account = '', walletKey } = useActiveWeb3React()
@@ -184,16 +181,6 @@ export default function WalletView({
   )
 
   const renderAccountInfo = () => {
-    const handleClickBuy = () => {
-      navigate(`${APP_PATHS.BUY_CRYPTO}?step=3`)
-      onDismiss()
-      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Buy' })
-      trackingHandler(TRACKING_EVENT_TYPE.WALLET_BUY_CLICKED, {
-        total_balance_usd: totalBalanceInUsd,
-        wallet_address: account,
-        chain: NETWORKS_INFO[chainId]?.name,
-      })
-    }
     const handleClickReceive = () => {
       setView(View.RECEIVE_TOKEN)
       trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Receive' })
@@ -218,7 +205,6 @@ export default function WalletView({
         toggleShowBalance={toggleShowBalance}
         showBalance={showBalance}
         totalBalanceInUsd={hasNetworkIssue ? '--' : totalBalanceInUsd}
-        onClickBuy={handleClickBuy}
         onClickReceive={handleClickReceive}
         onClickSend={handleClickSend}
         isMinimal={isMinimal}

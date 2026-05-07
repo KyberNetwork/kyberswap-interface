@@ -1,12 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { Bar } from 'components/TradingViewChart/charting_library/charting_library'
-
 type SearchResponse = {
   data: PoolResponse[]
 }
-
-type OHLCV = [number, number, number, number, number, number]
 
 interface CandleResponse {
   data: {
@@ -64,21 +60,6 @@ export interface PoolResponse {
   }
 }
 
-export const transformData = (res: CandleResponse['data']['attributes']['ohlcv_list']): Bar[] => {
-  const tmp = JSON.parse(JSON.stringify(res || []))
-  tmp.sort((a: OHLCV, b: OHLCV) => a[0] - b[0])
-
-  return tmp.map((item: OHLCV) => {
-    return {
-      time: item[0] * 1000,
-      open: item[1],
-      high: item[2],
-      low: item[3],
-      close: item[4],
-      volume: item[5],
-    }
-  })
-}
 const geckoTerminalApi = createApi({
   reducerPath: 'geckoTerminalApi',
   baseQuery: fetchBaseQuery({
@@ -109,7 +90,5 @@ const geckoTerminalApi = createApi({
     }),
   }),
 })
-
-export const { useTokenTopPoolsQuery, useLazyOhlcvQuery } = geckoTerminalApi
 
 export default geckoTerminalApi

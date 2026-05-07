@@ -17,7 +17,8 @@ export class CrossChainSwapAdapterRegistry {
     this.adapters.set(adapter.getName().toLowerCase().replace(/\s+/g, ''), adapter)
   }
 
-  getAdapter(name: string): SwapProvider | undefined {
+  getAdapter(name?: string): SwapProvider | undefined {
+    if (!name) return undefined
     return this.adapters.get(name.toLowerCase().replace(/\s+/g, ''))
   }
 

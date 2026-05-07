@@ -17,6 +17,7 @@ const poolTypeToExchange: Record<number, Exchange> = {
   [PoolType.DEX_PANCAKESWAPV3]: Exchange.DEX_PANCAKESWAPV3,
   [PoolType.DEX_PANCAKE_INFINITY_CL]: Exchange.DEX_PANCAKE_INFINITY_CL,
   [PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+  [PoolType.DEX_SUSHISWAPV3]: Exchange.DEX_SUSHISWAPV3,
 }
 
 export interface SmartExitParams {

@@ -48,7 +48,7 @@ type Props = {
   onViewTerms?: () => void
 }
 
-export const JoinCampaignModal = ({ isOpen, onDismiss, onConfirm, onViewTerms }: Props) => {
+const JoinCampaignModal = ({ isOpen, onDismiss, onConfirm, onViewTerms }: Props) => {
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={400}>
       <Wrapper>

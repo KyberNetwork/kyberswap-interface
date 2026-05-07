@@ -21,8 +21,8 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getReadingContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
-import { ErrorName } from 'utils/sentry'
 import { formatSignature } from 'utils/transaction'
+import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
 
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from '../helpers'
@@ -90,7 +90,7 @@ const useRequestCancelOrder = ({
         encodedData,
         value: BigNumber.from(0),
         isSmartConnector,
-        sentryInfo: {
+        errorInfo: {
           name: ErrorName.LimitOrderError,
           wallet: walletKey,
         },

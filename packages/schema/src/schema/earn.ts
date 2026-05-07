@@ -20,6 +20,8 @@ export enum Exchange {
   DEX_PANCAKE_INFINITY_CL_BREVIS = 'pancake-infinity-cl-brevis',
   DEX_PANCAKE_INFINITY_CL_LO = 'pancake-infinity-cl-lo',
   DEX_AERODROMECL = 'aerodromecl',
+  DEX_AERODROMECL2 = 'aerodromecl2',
+  DEX_AERODROMECL3 = 'aerodromecl3',
 }
 
 export const DEX_NAME: Record<Exchange, string> = {
@@ -40,6 +42,8 @@ export const DEX_NAME: Record<Exchange, string> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: 'Pancake ∞ CL',
   [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: 'Pancake ∞ CL',
   [Exchange.DEX_AERODROMECL]: 'Aerodrome Concentrated',
+  [Exchange.DEX_AERODROMECL2]: 'Aerodrome Concentrated',
+  [Exchange.DEX_AERODROMECL3]: 'Aerodrome Concentrated',
 };
 
 export enum EarnChain {
@@ -75,5 +79,7 @@ const univ3Dexes = [
   Exchange.DEX_PANCAKE_INFINITY_CL_LO,
   Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS,
   Exchange.DEX_AERODROMECL,
+  Exchange.DEX_AERODROMECL2,
+  Exchange.DEX_AERODROMECL3,
 ] as const;
 export const Univ3EarnDex = z.enum(univ3Dexes);
