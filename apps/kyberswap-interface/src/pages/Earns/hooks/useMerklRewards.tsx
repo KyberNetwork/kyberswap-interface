@@ -1,14 +1,17 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLazySearchTokensBySymbolQuery } from 'services/ksSetting'
-import { useMerklRewardsQuery } from 'services/rewardMerkl'
+import { useGetMerklChainsQuery, useMerklRewardsQuery } from 'services/rewardMerkl'
 
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
+import { EarnChain } from 'pages/Earns/constants'
 import { ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
+
+const EARN_CHAIN_IDS = new Set<number>(Object.values(EarnChain).filter((v): v is number => typeof v === 'number'))
 
 // Module-level caches shared across all hook instances to avoid duplicate
 // symbol lookups when multiple components subscribe to useMerklRewards.
@@ -20,37 +23,32 @@ type UseMerklRewardsProps = {
   positions?: Array<ParsedPosition>
 }
 
-const POLLING_INTERVAL_MS = 120_000
-
-// Single visibility listener shared across all hook instances. Each instance subscribes
-// to receive (newInterval, didResume) updates so it can update RTK Query's polling and
-// trigger an immediate refetch when the tab becomes visible again (RTK Query otherwise
-// waits the full interval before the next fetch).
-type VisibilityCallback = (interval: number, didResume: boolean) => void
-const visibilitySubscribers = new Set<VisibilityCallback>()
-let currentVisibilityInterval =
-  typeof document !== 'undefined' && document.visibilityState === 'hidden' ? 0 : POLLING_INTERVAL_MS
-let visibilityListenerRegistered = false
-
-const ensureVisibilityListener = () => {
-  if (visibilityListenerRegistered || typeof document === 'undefined') return
-  visibilityListenerRegistered = true
-  document.addEventListener('visibilitychange', () => {
-    const next = document.visibilityState === 'hidden' ? 0 : POLLING_INTERVAL_MS
-    if (next === currentVisibilityInterval) return
-    const didResume = currentVisibilityInterval === 0 && next > 0
-    currentVisibilityInterval = next
-    visibilitySubscribers.forEach(cb => cb(next, didResume))
-  })
-}
-
 const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const { account } = useActiveWeb3React()
   const { filters } = useFilter()
   const { supportedChains } = useChainsConfig()
+  // Source of truth for which chains to query Merkl on. Cached for a day in the API layer,
+  // so this is effectively free for every consumer after the first call. We override the
+  // global 60s `refetchOnMountOrArgChange` to match the day-long cache and avoid pointless
+  // remount refetches of a list that changes on the order of weeks.
+  const { data: merklChains, isSuccess: hasMerklChains } = useGetMerklChainsQuery(undefined, {
+    refetchOnMountOrArgChange: 86_400,
+  })
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
   const [searchTokensBySymbol] = useLazySearchTokensBySymbolQuery()
-  const [pollingInterval, setPollingInterval] = useState(currentVisibilityInterval)
+
+  // Chains we actually want Merkl reward data for: every Earn-supported chain that Merkl
+  // also knows about. We intentionally do NOT filter by `liveCampaigns > 0` — a chain with no
+  // active campaigns can still hold unclaimed rewards from past campaigns, and dropping it
+  // here would silently hide that claimable balance from the user.
+  const merklEnabledChainIds = useMemo(
+    () =>
+      (merklChains || [])
+        .filter(chain => EARN_CHAIN_IDS.has(chain.id))
+        .map(chain => chain.id)
+        .join(','),
+    [merklChains],
+  )
 
   const positionsKey = useMemo(
     () => (options?.positions || []).map(position => `${position.positionId}-${position.pool.address}`).join('|'),
@@ -90,25 +88,12 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   } = useMerklRewardsQuery(
     {
       address: account || '',
-      chainId: filters.chainIds || supportedChains.map(chain => chain.chainId).join(','),
+      chainId: filters.chainIds || merklEnabledChainIds,
     },
-    { skip: !account, pollingInterval },
+    // Wait for the Merkl chains list to resolve so the very first call to /rewards already
+    // has the right chainIds.
+    { skip: !account || !hasMerklChains },
   )
-
-  useEffect(() => {
-    ensureVisibilityListener()
-    const onChange: VisibilityCallback = (next, didResume) => {
-      setPollingInterval(next)
-      // Tab just became visible after being hidden — RTK Query restarts the poll timer
-      // from now, so without this the user would wait the full interval before fresh data.
-      // Concurrent refetch calls from sibling hook instances are deduped by RTK Query.
-      if (didResume && account) refetchMerklRewards()
-    }
-    visibilitySubscribers.add(onChange)
-    return () => {
-      visibilitySubscribers.delete(onChange)
-    }
-  }, [account, refetchMerklRewards])
 
   const {
     baseRewards,
@@ -123,19 +108,41 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
 
     const calculatedRewards = data.flatMap(chainRewards =>
       (chainRewards.rewards || []).map(reward => {
-        const breakdowns = reward.breakdowns.filter(item => {
+        const filteredBreakdowns = reward.breakdowns.filter(item => {
           if (!positionsFilter?.length) return true
 
           const resolvedPositions = resolvePositionsForBreakdown(item.reason)
           return resolvedPositions.length > 0
         })
 
+        // When no positions filter is applied we want the chain-level totals exactly as
+        // Merkl reports them. Earlier this code summed `+item.<field>` across all breakdowns
+        // via JS `Number`, which loses precision past 2^53 — for tokens with 18 decimals and
+        // many breakdowns the summed `amount` and `claimed` diverge unpredictably, producing
+        // a phantom non-zero `claimableAmount` (amount minus claimed) even when the chain
+        // level reports `amount === claimed`.
+        //
+        // When positions ARE filtered, only matching breakdowns count, so we MUST sum — but
+        // do it in `BigInt` to avoid the same precision drift.
+        const sumField = (field: 'amount' | 'claimed' | 'pending'): string => {
+          if (!positionsFilter?.length) return reward[field]
+          let total = 0n
+          for (const item of filteredBreakdowns) {
+            try {
+              total += BigInt(item[field])
+            } catch {
+              // skip malformed entries
+            }
+          }
+          return total.toString()
+        }
+
         return {
           ...reward,
-          amount: breakdowns.reduce((sum, item) => sum + +item.amount, 0).toString(),
-          claimed: breakdowns.reduce((sum, item) => sum + +item.claimed, 0).toString(),
-          pending: breakdowns.reduce((sum, item) => sum + +item.pending, 0).toString(),
-          breakdowns,
+          amount: sumField('amount'),
+          claimed: sumField('claimed'),
+          pending: sumField('pending'),
+          breakdowns: filteredBreakdowns,
         }
       }),
     )
@@ -402,16 +409,19 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
 
     return Object.entries(grouped).map(([chainIdStr, info]) => {
       const cId = Number(chainIdStr)
-      const chain = supportedChains.find(c => c.chainId === cId)
+      // Prefer Kyber's name/icon for branding consistency, fall back to Merkl's data for chains
+      // Kyber doesn't list (e.g., Stellar) so the row still renders sensibly.
+      const kyberChain = supportedChains.find(c => c.chainId === cId)
+      const merklChain = merklChains?.find(c => c.id === cId)
       return {
         chainId: cId,
-        chainName: chain?.name || `Chain ${cId}`,
-        chainLogo: chain?.icon || '',
+        chainName: kyberChain?.name || merklChain?.name || `Chain ${cId}`,
+        chainLogo: kyberChain?.icon || merklChain?.icon || '',
         claimableUsdValue: info.claimableUsdValue,
         tokens: info.tokens,
       }
     })
-  }, [parsedRewards, supportedChains])
+  }, [parsedRewards, supportedChains, merklChains])
 
   return useMemo(
     () => ({
