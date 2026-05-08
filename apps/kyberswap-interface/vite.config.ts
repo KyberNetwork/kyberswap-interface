@@ -32,6 +32,11 @@ export default defineConfig({
   },
   //https://stackoverflow.com/a/72978600/8153505
   optimizeDeps: {
+    // wagmi v8 statically references @base-org/account inside baseAccount.js for an unused
+    // connector. The package ships ES2025 import-attribute syntax that esbuild 0.18 cannot
+    // parse. Exclude from pre-bundling — the dynamic import inside is never reached because
+    // we don't register the baseAccount() connector.
+    exclude: ['@base-org/account'],
     esbuildOptions: {
       define: {
         global: 'globalThis',
@@ -55,9 +60,11 @@ export default defineConfig({
       'react-redux': 'react-redux/dist/react-redux.js',
       '@': path.resolve(__dirname, './src/'),
       'react-dom/client': 'react-dom/profiling',
+      // WalletConnect ethereum-provider 2.21+ renamed the ESM bundle from index.es.js to
+      // index.js — point the alias at the new path so Vite's pre-bundle resolver finds it.
       '@walletconnect/ethereum-provider': resolve(
         __dirname,
-        'node_modules/@walletconnect/ethereum-provider/dist/index.es.js',
+        'node_modules/@walletconnect/ethereum-provider/dist/index.js',
       ),
 
       //'@web3-react/core': path.resolve(__dirname, 'src/connection/web3reactShim.ts'),
