@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { ArrowUpCircle, BarChart2 } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
+import { useWatchAsset } from 'wagmi'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import Banner from 'components/Banner'
@@ -86,31 +87,26 @@ export function ConfirmationPendingContent({
 
 function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: ChainId }) {
   const { connector } = useWeb3React()
-  const handleClick = async () => {
-    const tokenAddress = token.address
-    const tokenSymbol = token.symbol
-    const tokenDecimals = token.decimals
-    const tokenImage = getTokenLogoURL(token.address, chainId)
-
-    try {
-      const hasInjectedWallet = !!window.ethereum
-      if (hasInjectedWallet) {
-        await (window.ethereum as any).request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC20',
-            options: {
-              address: tokenAddress,
-              symbol: tokenSymbol,
-              decimals: tokenDecimals,
-              image: tokenImage,
-            },
-          },
-        })
-      }
-    } catch (error) {
-      console.log(error)
-    }
+  // Routes wallet_watchAsset through the active connector's provider so it works for the
+  // metaMask SDK on mobile (no window.ethereum) as well as desktop injected wallets.
+  const { mutate: watchAsset } = useWatchAsset()
+  const handleClick = () => {
+    watchAsset(
+      {
+        type: 'ERC20',
+        options: {
+          address: token.address,
+          symbol: token.symbol ?? '',
+          decimals: token.decimals,
+          image: getTokenLogoURL(token.address, chainId),
+        },
+      },
+      {
+        onError: error => {
+          console.error(error)
+        },
+      },
+    )
   }
 
   if (!connector || connector?.name === 'WalletConnect') return null
@@ -145,7 +141,6 @@ export function TransactionSubmittedContent({
   showTxBanner?: boolean
 }) {
   const theme = useTheme()
-  const hasInjectedWallet = !!window.ethereum
 
   return (
     <Wrapper>
@@ -172,9 +167,7 @@ export function TransactionSubmittedContent({
               </Text>
             </ExternalLink>
           )}
-          {hasInjectedWallet && tokenAddToMetaMask?.address && (
-            <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />
-          )}
+          {tokenAddToMetaMask?.address && <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />}
           <ButtonPrimary onClick={onDismiss} style={{ margin: '24px 0 0 0' }}>
             <Text fontWeight={500} fontSize={14}>
               <Trans>Close</Trans>
