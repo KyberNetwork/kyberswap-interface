@@ -213,7 +213,6 @@ const rewardMerklApi = createApi({
         const batched = await fetchRewardsBatched(address, chainIds, reloadedChains)
         if (batched.ok) {
           batchedSupportState = 'supported'
-          reloadedChains.forEach(c => recentlyReloadedChainIds.delete(c))
           return { data: batched.data }
         }
 

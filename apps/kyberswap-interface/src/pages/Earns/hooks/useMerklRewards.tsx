@@ -108,19 +108,41 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
 
     const calculatedRewards = data.flatMap(chainRewards =>
       (chainRewards.rewards || []).map(reward => {
-        const breakdowns = reward.breakdowns.filter(item => {
+        const filteredBreakdowns = reward.breakdowns.filter(item => {
           if (!positionsFilter?.length) return true
 
           const resolvedPositions = resolvePositionsForBreakdown(item.reason)
           return resolvedPositions.length > 0
         })
 
+        // When no positions filter is applied we want the chain-level totals exactly as
+        // Merkl reports them. Earlier this code summed `+item.<field>` across all breakdowns
+        // via JS `Number`, which loses precision past 2^53 — for tokens with 18 decimals and
+        // many breakdowns the summed `amount` and `claimed` diverge unpredictably, producing
+        // a phantom non-zero `claimableAmount` (amount minus claimed) even when the chain
+        // level reports `amount === claimed`.
+        //
+        // When positions ARE filtered, only matching breakdowns count, so we MUST sum — but
+        // do it in `BigInt` to avoid the same precision drift.
+        const sumField = (field: 'amount' | 'claimed' | 'pending'): string => {
+          if (!positionsFilter?.length) return reward[field]
+          let total = 0n
+          for (const item of filteredBreakdowns) {
+            try {
+              total += BigInt(item[field])
+            } catch {
+              // skip malformed entries
+            }
+          }
+          return total.toString()
+        }
+
         return {
           ...reward,
-          amount: breakdowns.reduce((sum, item) => sum + +item.amount, 0).toString(),
-          claimed: breakdowns.reduce((sum, item) => sum + +item.claimed, 0).toString(),
-          pending: breakdowns.reduce((sum, item) => sum + +item.pending, 0).toString(),
-          breakdowns,
+          amount: sumField('amount'),
+          claimed: sumField('claimed'),
+          pending: sumField('pending'),
+          breakdowns: filteredBreakdowns,
         }
       }),
     )
