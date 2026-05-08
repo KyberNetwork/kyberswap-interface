@@ -1,9 +1,10 @@
+import { PUBLIC_RPC_ENDPOINTS } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
 import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect } from 'react'
-import { defineChain, http } from 'viem'
+import { defineChain, fallback, http } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -334,40 +335,70 @@ const WC_PARAMS = {
   },
 }
 
+// Build an ordered, de-duplicated RPC list for a chain: KyberSwap RPC first,
+// then the public RPCs from @kyber/rpc-client. The list feeds both the wagmi
+// `transports` map (via viem `fallback()` for true rotation on read calls) and
+// the chain object's `rpcUrls.default.http` (which connectors like the MetaMask
+// SDK read directly — they ignore `transports` and only consume URL[0]).
+const getRpcUrlsForChain = (chainId: number): string[] => {
+  const primary = NETWORKS_INFO[chainId as ChainId]?.defaultRpcUrl
+  const publics = PUBLIC_RPC_ENDPOINTS[chainId] ?? []
+  const all = [primary, ...publics].filter((url): url is string => !!url)
+  return Array.from(new Set(all))
+}
+
+// Override viem's hardcoded chain defaults (e.g. https://56.rpc.thirdweb.com for BSC)
+// so connector-internal RPC clients don't bypass our transports config and hit
+// public RPCs that quickly rate-limit (HTTP 429).
+const withKyberRpc = <T extends { id: number; rpcUrls: { default: { http: readonly string[] } } }>(chain: T): T => {
+  const urls = getRpcUrlsForChain(chain.id)
+  if (urls.length === 0) return chain
+  return {
+    ...chain,
+    rpcUrls: {
+      ...chain.rpcUrls,
+      default: { ...chain.rpcUrls.default, http: urls },
+    },
+  }
+}
+
 const wagmiChains = [
-  mainnet,
-  arbitrum,
-  optimism,
-  zksync,
-  polygon,
-  base,
-  bsc,
-  linea,
-  mantle,
-  scroll,
-  avalanche,
-  fantom,
-  blast,
-  sonic,
-  berachain,
-  ronin,
-  unichain,
-  hyperevm,
-  etherlink,
-  plasma,
-  monad,
-  megaeth,
+  withKyberRpc(mainnet),
+  withKyberRpc(arbitrum),
+  withKyberRpc(optimism),
+  withKyberRpc(zksync),
+  withKyberRpc(polygon),
+  withKyberRpc(base),
+  withKyberRpc(bsc),
+  withKyberRpc(linea),
+  withKyberRpc(mantle),
+  withKyberRpc(scroll),
+  withKyberRpc(avalanche),
+  withKyberRpc(fantom),
+  withKyberRpc(blast),
+  withKyberRpc(sonic),
+  withKyberRpc(berachain),
+  withKyberRpc(ronin),
+  withKyberRpc(unichain),
+  withKyberRpc(hyperevm),
+  withKyberRpc(etherlink),
+  withKyberRpc(plasma),
+  withKyberRpc(monad),
+  withKyberRpc(megaeth),
 ] as const
 
-// Use KyberSwap-owned RPC endpoints so the WalletConnect connector's rpcMap
-// points at reliable URLs. Without this, wagmi falls back to viem's chain
-// defaults (e.g. eth.merkle.io on mainnet), which break approve/send flows
-// for users whose environment can't reach those public RPCs — requests like
-// eth_estimateGas are routed to HTTP RPC, not the paired wallet, so a fetch
-// failure surfaces as "Failed to fetch" before the tx can be relayed.
+// viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),
+// giving us true client-side RPC rotation for every wagmi-issued call (multicall,
+// useReadContract, polling). KyberSwap RPC sits first; public endpoints are tried
+// only when it errors. Connector-internal calls still use URL[0] of `rpcUrls.default`
+// (set by `withKyberRpc` above), which is the same KyberSwap RPC.
 const transports = Object.fromEntries(
-  wagmiChains.map(c => [c.id, http(NETWORKS_INFO[c.id as ChainId]?.defaultRpcUrl)]),
-) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof http>>
+  wagmiChains.map(c => {
+    const urls = getRpcUrlsForChain(c.id)
+    const httpTransports = urls.length > 0 ? urls.map(url => http(url)) : [http()]
+    return [c.id, fallback(httpTransports, { retryCount: 1 })]
+  }),
+) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof fallback>>
 
 // Migrate localStorage's recent-connector hint from the EIP-6963 io.metamask id (used by the
 // pre-PR injected connector) to the metaMaskSDK id (the new SDK connector). wagmi auto-resets
