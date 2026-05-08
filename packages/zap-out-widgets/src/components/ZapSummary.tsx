@@ -81,7 +81,7 @@ export function ZapSummary() {
                       <Trans>
                         <span>
                           Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol} for{' '}
-                          {formatDisplayNumber(item.amountOut)}{' '}
+                          {formatDisplayNumber(item.amountOut)} {item.tokenOutSymbol} via{' '}
                         </span>
                         {item.poolAddress ? (
                           <a
