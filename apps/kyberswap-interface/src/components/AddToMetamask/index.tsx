@@ -4,7 +4,7 @@ import { useWatchAsset } from 'wagmi'
 
 import { ButtonEmpty } from 'components/Button'
 import { RowFixed } from 'components/Row'
-import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
+import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { getTokenLogoURL } from 'utils'
 
@@ -41,8 +41,10 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
   const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector?.id || ''] ?? connector?.icon
 
   if (!walletKey || !icon) return null
-  if (walletKey === 'WalletConnect') return null
-  if (walletKey === 'COINBASE') return null // Coinbase wallet no need to add since it automatically track token
+  // walletKey is the connector id; match the wagmi v3 ids exactly.
+  // Coinbase auto-tracks tokens; WalletConnect-paired wallets often don't support wallet_watchAsset.
+  if (walletKey === CONNECTION.WALLET_CONNECT_CONNECTOR_ID) return null
+  if (walletKey === CONNECTION.COINBASE_SDK_CONNECTOR_ID) return null
   return (
     <ButtonEmpty mt="12px" padding="0" width="fit-content" onClick={addToMetaMask}>
       <RowFixed>

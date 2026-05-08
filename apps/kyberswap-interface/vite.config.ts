@@ -32,10 +32,10 @@ export default defineConfig({
   },
   //https://stackoverflow.com/a/72978600/8153505
   optimizeDeps: {
-    // wagmi v8 statically references @base-org/account inside baseAccount.js for an unused
-    // connector. The package ships ES2025 import-attribute syntax that esbuild 0.18 cannot
-    // parse. Exclude from pre-bundling — the dynamic import inside is never reached because
-    // we don't register the baseAccount() connector.
+    // @wagmi/connectors v8 statically references @base-org/account inside baseAccount.js for
+    // an unused connector. The package ships ES2025 import-attribute syntax that esbuild 0.18
+    // cannot parse. Exclude from pre-bundling — the dynamic import inside is never reached
+    // because we don't register the baseAccount() connector.
     exclude: ['@base-org/account'],
     esbuildOptions: {
       define: {

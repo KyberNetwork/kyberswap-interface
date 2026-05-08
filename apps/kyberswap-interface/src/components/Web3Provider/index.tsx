@@ -369,6 +369,23 @@ const transports = Object.fromEntries(
   wagmiChains.map(c => [c.id, http(NETWORKS_INFO[c.id as ChainId]?.defaultRpcUrl)]),
 ) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof http>>
 
+// Migrate localStorage's recent-connector hint from the EIP-6963 io.metamask id (used by the
+// pre-PR injected connector) to the metaMaskSDK id (the new SDK connector). wagmi auto-resets
+// the main `wagmi.store` on the v2→v3 version bump, but `wagmi.recentConnectorId` lives outside
+// that store and would otherwise stay pointing at a non-existent connector — preventing the
+// reconnect-priority boost for returning MetaMask users on first visit after deploy.
+;(() => {
+  if (typeof window === 'undefined' || !window.localStorage) return
+  try {
+    const raw = window.localStorage.getItem('wagmi.recentConnectorId')
+    if (raw && JSON.parse(raw) === CONNECTION.METAMASK_RDNS) {
+      window.localStorage.setItem('wagmi.recentConnectorId', JSON.stringify(CONNECTION.METAMASK_SDK_CONNECTOR_ID))
+    }
+  } catch {
+    // ignore parse / storage failures — at worst the user reconnects manually
+  }
+})()
+
 export const wagmiConfig = createConfig({
   chains: wagmiChains,
   transports,

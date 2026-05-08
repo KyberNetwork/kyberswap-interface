@@ -16,6 +16,13 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
       return false
     }
 
+    // Defensive: drop the io.metamask EIP-6963 entry. wagmi v3 normally dedupes it against the
+    // metaMask SDK connector's rdns, but a late provider injection or rdns mismatch could leak it
+    // through and surface as a second "MetaMask" row alongside the SDK entry.
+    if (c.id === CONNECTION.METAMASK_RDNS) {
+      return false
+    }
+
     // SafePal is registered as an injected connector, but should only be shown when its provider is actually present.
     if (c.id === CONNECTION.SAFEPAL && !window.safepalProvider) {
       return false
