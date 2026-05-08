@@ -65,6 +65,7 @@ type Props = {
   merklChainRewards?: ChainRewardInfo[]
   merklTotalUsdValue?: number
   merklSyncingChainIds?: number[]
+  merklPendingTxChainIds?: number[]
   onClaimMerkl?: (chainId: number) => Promise<string | undefined>
   activeTab?: RewardTabType
   onTabChange?: (tab: RewardTabType) => void
@@ -83,6 +84,7 @@ export default function ClaimAllModal({
   merklChainRewards = [],
   merklTotalUsdValue = 0,
   merklSyncingChainIds = [],
+  merklPendingTxChainIds = [],
   onClaimMerkl,
   activeTab: controlledTab,
   onTabChange,
@@ -110,6 +112,10 @@ export default function ClaimAllModal({
 
   const selectedRewardChain = selectedChainId ? currentChains.find(c => c.chainId === selectedChainId) : null
   const isClaiming = !!(selectedChainId && claimingByChain[selectedChainId])
+  // True from tx submission until on-chain confirmation. Without this, the button would
+  // re-enable for a few seconds while the user is still waiting for their wallet to confirm.
+  const isPendingTxSelectedMerkl =
+    activeTab === 'bonus' && !!selectedChainId && merklPendingTxChainIds.includes(selectedChainId)
   const isSyncingSelectedMerkl =
     activeTab === 'bonus' && !!selectedChainId && merklSyncingChainIds.includes(selectedChainId)
 
@@ -327,11 +333,16 @@ export default function ClaimAllModal({
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           <ButtonPrimary
             gap="4px"
-            disabled={isClaiming || isSyncingSelectedMerkl || !selectedRewardChain?.claimableUsdValue}
+            disabled={
+              isClaiming ||
+              isPendingTxSelectedMerkl ||
+              isSyncingSelectedMerkl ||
+              !selectedRewardChain?.claimableUsdValue
+            }
             onClick={handleClaim}
           >
-            {(isClaiming || isSyncingSelectedMerkl) && <Loader stroke={'#505050'} />}
-            {isClaiming
+            {(isClaiming || isPendingTxSelectedMerkl || isSyncingSelectedMerkl) && <Loader stroke={theme.border} />}
+            {isClaiming || isPendingTxSelectedMerkl
               ? t`Claiming`
               : isSyncingSelectedMerkl
               ? t`Syncing`
