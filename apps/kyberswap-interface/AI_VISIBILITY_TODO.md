@@ -21,6 +21,9 @@ This document turns the external AI Traffic Growth Initiative and agent-readines
 - `public/robots.txt`
 - `public/sitemap.xml`
 - `public/llms.txt`
+- `public/.well-known/api-catalog`
+- `public/.well-known/agent-skills/index.json`
+- `public/.well-known/mcp/server-card.json`
 - `index.html`
 - `src/pages/**`
 - `src/components/**`
@@ -35,6 +38,12 @@ This document turns the external AI Traffic Growth Initiative and agent-readines
 - Add freshness, authorship, and source attribution to high-value pages.
 
 ## Agent Readiness Foundation
+
+- [x] `P0` Maintain valid `robots.txt`, `sitemap.xml`, and agent-useful Link headers.
+  Assignee: `Engineer`
+  Touchpoints: `public/robots.txt`, `public/sitemap.xml`, `etc/nginx.conf`
+  Impact: covers the basic IsItAgentReady discovery checks for crawler access, sitemap discovery, and `llms.txt` alternate discovery.
+  Status: *Passed in the IsItAgentReady scan.*
 
 - [x] `P0` Add Content Signals to `robots.txt`.
   Assignee: `Engineer + Policy`
@@ -56,26 +65,34 @@ This document turns the external AI Traffic Growth Initiative and agent-readines
   Impact: required for the scanner's Level 3, but lower priority than rendered HTML and source-of-truth content.
   Notes: do not implement `Accept: text/markdown` in React runtime. If Cloudflare cannot provide it, consider a narrow static fallback only for source-of-truth pages such as `/` and `/about/kyberswap`.
 
-- [ ] `P2` Consider Agent Skills only for maintained public workflows.
+- [x] `P2` Publish Agent Skills discovery for maintained public workflows.
   Assignee: `Product + Engineer`
-  Touchpoints: potential `public/.well-known/agent-skills/index.json`, skill markdown files
-  Impact: could help agents understand KyberSwap workflows, but only if Product/Compliance owns the content and risk language.
-  Notes: do not publish swap/earn instructions that can drift from product behavior or imply agent authority to transact for users.
+  Touchpoints: `public/.well-known/agent-skills/index.json`, `github.com/KyberNetwork/kyberswap-skills`
+  Impact: helps agents discover maintained KyberSwap workflows from the root domain without duplicating skill instructions in this repo.
+  Status: *Done in repo as a discovery index pointing to the maintained KyberSwap skills repo.*
+  Notes: root-domain file is discovery metadata only. Skill instructions remain in the source repo and are pinned by commit URL plus SHA-256 digest.
 
-- [ ] `P3` Evaluate whether KyberSwap should publish an API Catalog.
+- [x] `P2` Publish MCP Server Card for docs-backed MCP discovery.
+  Assignee: `Engineer`
+  Touchpoint: `public/.well-known/mcp/server-card.json`
+  Impact: gives agents a root-domain discovery pointer to the real docs-only MCP endpoint.
+  Status: *Done in repo as a server card for `https://docs.kyberswap.com/~gitbook/mcp`.*
+  Notes: operational MCP repo is linked as related metadata only; no hosted operational endpoint is invented.
+
+- [x] `P3` Evaluate whether KyberSwap should publish an API Catalog.
   Assignee: `Backend/API Owner + Engineer`
-  Touchpoints: potential `public/.well-known/api-catalog`, public API docs
+  Touchpoints: `public/.well-known/api-catalog`, public API docs
   Impact: useful only if KyberSwap has stable, supported, public APIs to advertise.
-  Notes: outside frontend scope. Do not generate this from frontend API calls alone.
+  Notes: implemented as a static RFC 9727 Linkset catalog for public docs-backed APIs: Aggregator, Limit Order, and Zap-as-a-Service. API owners should periodically verify OpenAPI spec and health URLs.
 
 ## Agent Readiness Explicitly Skipped
 
 - OAuth/OIDC discovery metadata: skipped because KyberSwap is not exposing an OAuth authorization server on the root domain.
 - OAuth Protected Resource metadata: skipped because there is no current OAuth-protected resource contract to advertise.
-- MCP Server Card: skipped until KyberSwap has a real supported MCP server and owner.
 - A2A Agent Card: skipped until KyberSwap has a real agent endpoint and owner.
+- WebMCP: skipped/deferred because the docs mention MCP and Documentation MCP, but do not document browser/runtime WebMCP support.
 - Web Bot Auth: skipped until bot request authentication becomes a concrete product/security requirement.
-- x402, MPP, UCP, ACP: skipped because the current site is not exposing agentic commerce discovery or paid agent resources.
+- x402, MPP, UCP, ACP, AP2: skipped because the current site is not exposing agentic commerce discovery or paid agent resources.
 
 ## Added Priority Tasks Not Explicitly Covered In The Original Plan
 
