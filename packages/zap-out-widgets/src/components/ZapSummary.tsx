@@ -79,10 +79,8 @@ export function ZapSummary() {
                   <div className="flex gap-3 items-center text-xs" key={index}>
                     <div className="flex-1 text-subText leading-4">
                       <Trans>
-                        <span>
-                          Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol} for{' '}
-                          {formatDisplayNumber(item.amountOut)} {item.tokenOutSymbol} via{' '}
-                        </span>
+                        Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol} for{' '}
+                        {formatDisplayNumber(item.amountOut)} {item.tokenOutSymbol} via{' '}
                         {item.poolAddress ? (
                           <a
                             href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
