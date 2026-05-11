@@ -185,7 +185,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     parsedAmount,
     isProcessingSwap,
     customChain: chainId,
-    clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || undefined,
+    clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || 'candidate-edge-test-client',
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
