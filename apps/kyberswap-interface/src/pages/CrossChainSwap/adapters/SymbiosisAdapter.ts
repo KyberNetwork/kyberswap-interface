@@ -9,12 +9,13 @@ import {
   BaseSwapAdapter,
   Chain,
   EvmQuoteParams,
+  NonEvmChain,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
 } from './BaseSwapAdapter'
 
-const SYMBIOSIS_API = 'https://api.symbiosis.finance/crosschain/v1'
+const SYMBIOSIS_API = 'https://api.symbiosis.finance/crosschain/v2'
 const KYBERSWAP_PARTNER_ID = 'kyberswap'
 
 export class SymbiosisAdapter extends BaseSwapAdapter {
@@ -29,7 +30,10 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     return 'https://app.symbiosis.finance/images/favicon-32x32.png'
   }
 
-  canSupport(category: string, _tokenIn?: AdapterCurrency, _tokenOut?: AdapterCurrency): boolean {
+  canSupport(category: string, tokenIn?: AdapterCurrency, tokenOut?: AdapterCurrency): boolean {
+    const isBitcoinPair = tokenIn?.symbol === 'BTC' || tokenOut?.symbol === 'BTC'
+    if (isBitcoinPair) return true
+
     // Symbiosis should only be used for stablePair category
     if (category !== 'stablePair') {
       console.warn(`Symbiosis does not support category: ${category}`)
@@ -41,6 +45,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
 
   getSupportedChains(): Chain[] {
     return [
+      NonEvmChain.Bitcoin,
       ChainId.MAINNET,
       ChainId.BSCMAINNET,
       ChainId.MATIC,
@@ -135,7 +140,41 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     }
   }
 
-  async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+  async executeSwap(
+    { quote }: Quote,
+    walletClient: WalletClient,
+    _nearWallet?: unknown,
+    sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+  ): Promise<NormalizedTxResponse> {
+    if (quote.quoteParams.fromChain === NonEvmChain.Bitcoin) {
+      const depositAddress = quote.rawQuote?.tx?.depositAddress
+      if (!depositAddress) throw new Error('Symbiosis deposit address not found')
+      if (!sendBtcFn) throw new Error('Bitcoin wallet is not connected')
+
+      const tx = await sendBtcFn({
+        recipient: depositAddress,
+        amount: quote.quoteParams.amount,
+      })
+
+      return {
+        sender: quote.quoteParams.sender,
+        id: tx,
+        sourceTxHash: tx,
+        adapter: this.getName(),
+        sourceChain: quote.quoteParams.fromChain,
+        targetChain: quote.quoteParams.toChain,
+        inputAmount: quote.quoteParams.amount,
+        outputAmount: quote.outputAmount.toString(),
+        sourceToken: quote.quoteParams.fromToken,
+        targetToken: quote.quoteParams.toToken,
+        timestamp: new Date().getTime(),
+        amountInUsd: quote.inputUsd,
+        amountOutUsd: quote.outputUsd,
+        platformFeePercent: quote.platformFeePercent,
+        recipient: quote.quoteParams.recipient,
+      }
+    }
+
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
 
@@ -166,7 +205,8 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const res = await fetch(`${SYMBIOSIS_API}/tx/${p.sourceChain}/${p.sourceTxHash}`).then(r => r.json())
+    const sourceChain = p.sourceChain === NonEvmChain.Bitcoin ? '3652501241' : p.sourceChain
+    const res = await fetch(`${SYMBIOSIS_API}/tx/${sourceChain}/${p.sourceTxHash}`).then(r => r.json())
 
     // Extract actual output amount from tx.tokenAmount if available
     const actualAmountOut = res?.tx?.tokenAmount?.amount
