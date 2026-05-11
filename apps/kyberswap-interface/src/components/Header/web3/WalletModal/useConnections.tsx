@@ -5,6 +5,8 @@ import { Connector, useConnectors } from 'wagmi'
 import { CONNECTION, CONNECTION_ORDER, HardCodedConnectors, getConnectorWithId } from 'components/Web3Provider'
 import { isInSafeApp } from 'utils'
 
+const normalizeConnectorName = (name: string) => name.trim().toLowerCase()
+
 function getInjectedConnectors(connectors: readonly Connector[]) {
   let isCoinbaseWalletBrowser = false
   const injectedConnectors = connectors.filter(c => {
@@ -20,11 +22,6 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
     // metaMask SDK connector's rdns, but a late provider injection or rdns mismatch could leak it
     // through and surface as a second "MetaMask" row alongside the SDK entry.
     if (c.id === CONNECTION.METAMASK_RDNS) {
-      return false
-    }
-
-    // SafePal is registered as an injected connector, but should only be shown when its provider is actually present.
-    if (c.id === CONNECTION.SAFEPAL && !window.safepalProvider) {
       return false
     }
 
@@ -48,6 +45,20 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
   }
 
   return { injectedConnectors, isCoinbaseWalletBrowser }
+}
+
+function dedupeConnectorsByName(connectors: InjectableConnector[]) {
+  const seen = new Set<string>()
+  return connectors.filter(connector => {
+    const name = normalizeConnectorName(connector.name)
+    if (seen.has(name)) return false
+    seen.add(name)
+    return true
+  })
+}
+
+function getConnectorOrderId(connector: Connector) {
+  return HardCodedConnectors.find(c => c.id === connector.id)?.realId ?? connector.id
 }
 
 type InjectableConnector = Connector & { isInjected?: boolean }
@@ -107,21 +118,20 @@ export function useOrderedConnections(): InjectableConnector[] {
     // Other EIP-6963 injected connectors (Rabby, Phantom, Trust, etc.) the user has installed.
     orderedConnectors.push(...injectedConnectorsWithoutHardcoded)
 
-    // WalletConnect and Coinbase are added last in the list.
+    // Add always-available connectors before applying CONNECTION_ORDER.
     orderedConnectors.push(walletConnectConnector)
     orderedConnectors.push(coinbaseSdkConnector)
+    orderedConnectors.push(...hardcodeInjectedConnectors)
 
     // Sort the connectors by the CONNECTION_ORDER, if not found, put at the end
     orderedConnectors.sort((a, b) => {
-      const aIndex = CONNECTION_ORDER.indexOf(a.id as any)
-      const bIndex = CONNECTION_ORDER.indexOf(b.id as any)
+      const aIndex = CONNECTION_ORDER.indexOf(getConnectorOrderId(a) as any)
+      const bIndex = CONNECTION_ORDER.indexOf(getConnectorOrderId(b) as any)
       if (aIndex === -1) return 1
       if (bIndex === -1) return -1
       return aIndex - bIndex
     })
 
-    orderedConnectors.push(...hardcodeInjectedConnectors)
-
-    return orderedConnectors
+    return dedupeConnectorsByName(orderedConnectors)
   }, [connectors])
 }
