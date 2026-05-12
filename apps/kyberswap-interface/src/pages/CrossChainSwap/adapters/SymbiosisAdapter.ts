@@ -1,6 +1,8 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits } from 'viem'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 
 import { Quote } from '../registry'
@@ -210,10 +212,26 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
 
     // Extract actual output amount from tx.tokenAmount if available
     const actualAmountOut = res?.tx?.tokenAmount?.amount
+    const statusCode = res?.status?.code
+
+    if (statusCode === -1 && typeof p.sourceChain === 'number' && p.sourceTxHash.startsWith('0x')) {
+      const publicClient = getPublicClient(wagmiConfig, {
+        chainId: p.sourceChain as number,
+      })
+      const receipt = await publicClient?.getTransactionReceipt({
+        hash: p.sourceTxHash as `0x${string}`,
+      })
+      if (receipt?.status === 'reverted') {
+        return {
+          txHash: '',
+          status: 'Failed',
+        }
+      }
+    }
 
     return {
       txHash: res?.tx?.hash || '',
-      status: res.status.code === 0 ? 'Success' : res.status.code === 3 ? 'Failed' : 'Processing',
+      status: statusCode === 0 ? 'Success' : statusCode === 3 ? 'Failed' : 'Processing',
       amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
