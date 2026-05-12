@@ -1,4 +1,3 @@
-import { MaxUint256 } from '@ethersproject/constants'
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -14,7 +13,7 @@ import { usePaymentToken } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { paymasterExecute } from 'utils/sendTransaction'
-import { encodeFunctionData } from 'utils/viem'
+import { encodeFunctionData, maxUint256 } from 'utils/viem'
 
 import { useActiveWeb3React } from './index'
 import { useTokenReadingContract, useTokenSigningContract } from './useContract'
@@ -60,7 +59,7 @@ export function useApproveCallback(
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
     // Handle farm approval.
-    if (amountToApprove.quotient.toString() === MaxUint256.toString()) {
+    if (amountToApprove.quotient.toString() === maxUint256.toString()) {
       return currentAllowance.equalTo(JSBI.BigInt(0))
         ? pendingApproval
           ? ApprovalState.PENDING
@@ -113,8 +112,8 @@ export function useApproveCallback(
             estimatedGas = await tokenContract.estimateGas.approve(spender, customAmount)
             approvedAmount = customAmount
           } else {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256)
-            approvedAmount = MaxUint256
+            estimatedGas = await tokenContract.estimateGas.approve(spender, maxUint256)
+            approvedAmount = maxUint256
           }
         } catch (e) {
           try {

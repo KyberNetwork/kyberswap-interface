@@ -1,58 +1,63 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
-import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
+import { usePublicClient } from 'wagmi'
 
 import ERC20_ABI from 'constants/abis/erc20.json'
 import { useActiveWeb3React } from 'hooks'
-import { useReadingContract } from 'hooks/useContract'
 import useTransactionStatus from 'hooks/useTransactionStatus'
-import { useKyberSwapConfig } from 'state/application/hooks'
 import { isAddress } from 'utils'
+import { Address } from 'utils/viem'
 
 interface BalanceProps {
   value: BigNumber
   decimals: number
 }
 
+const EMPTY_BALANCE: BalanceProps = { value: BigNumber.from(0), decimals: 18 }
+
 function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
-  const [balance, setBalance] = useState<BalanceProps>({ value: BigNumber.from(0), decimals: 18 })
+  const [balance, setBalance] = useState<BalanceProps>(EMPTY_BALANCE)
   const { account, chainId: activeChainId } = useActiveWeb3React()
   const chainId = customChainId || activeChainId
-  const { readProvider } = useKyberSwapConfig(chainId)
-  //const currentBlockNumber = useBlockNumber()
+  const publicClient = usePublicClient({ chainId: chainId as number })
   // allows balance to update given transaction updates
   const currentTransactionStatus = useTransactionStatus()
   const addressCheckSum = isAddress(chainId, tokenAddress)
-  const tokenContract = useReadingContract(addressCheckSum ? addressCheckSum : undefined, ERC20_ABI, chainId)
 
   const fetchBalance = useCallback(async () => {
-    const getBalance = async (contract: Contract | null, owner: string | null | undefined): Promise<BalanceProps> => {
-      try {
-        if (account && chainId && readProvider && contract?.address === WETH[chainId].address) {
-          const ethBalance = await readProvider.getBalance(account)
-          return { value: BigNumber.from(ethBalance), decimals: 18 }
-        }
-
-        const balance = await contract?.balanceOf(owner)
-        const decimals = await contract?.decimals()
-
-        return { value: BigNumber.from(balance), decimals: decimals }
-        //todo: return as BigNumber as opposed toString since information will
-        //return Fraction.from(BigNumber.from(balance), BigNumber.from(10).pow(decimals)).toString()
-      } catch (e) {
-        return { value: BigNumber.from(0), decimals: 18 }
-      }
+    if (!account || !publicClient || !addressCheckSum) {
+      setBalance(EMPTY_BALANCE)
+      return
     }
-
-    const balance = await getBalance(tokenContract, account)
-    setBalance(balance)
-  }, [account, tokenContract, chainId, readProvider])
+    try {
+      if (addressCheckSum === WETH[chainId].address) {
+        const ethBalance = await publicClient.getBalance({ address: account as Address })
+        setBalance({ value: BigNumber.from(ethBalance.toString()), decimals: 18 })
+        return
+      }
+      const [rawBalance, decimals] = await Promise.all([
+        publicClient.readContract({
+          address: addressCheckSum as Address,
+          abi: ERC20_ABI,
+          functionName: 'balanceOf',
+          args: [account],
+        }) as Promise<bigint>,
+        publicClient.readContract({
+          address: addressCheckSum as Address,
+          abi: ERC20_ABI,
+          functionName: 'decimals',
+        }) as Promise<number>,
+      ])
+      setBalance({ value: BigNumber.from(rawBalance.toString()), decimals })
+    } catch {
+      setBalance(EMPTY_BALANCE)
+    }
+  }, [account, publicClient, addressCheckSum, chainId])
 
   useEffect(() => {
-    if (account && tokenContract) {
-      fetchBalance()
-    }
-  }, [account, currentTransactionStatus, fetchBalance, tokenContract])
+    fetchBalance()
+  }, [currentTransactionStatus, fetchBalance])
 
   return balance
 }

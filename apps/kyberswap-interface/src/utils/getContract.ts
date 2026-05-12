@@ -1,4 +1,3 @@
-import { AddressZero } from '@ethersproject/constants'
 import { Contract, ContractInterface } from '@ethersproject/contracts'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -14,6 +13,7 @@ import { AppJsonRpcProvider } from 'constants/providers'
 import { cacheCalc, getDefaultConfig } from 'state/application/hooks'
 import store from 'state/index'
 import { isAddress } from 'utils'
+import { zeroAddress } from 'utils/viem'
 
 // account is not optional
 function getSigner(library: Web3Provider, account: string): JsonRpcSigner {
@@ -32,7 +32,7 @@ export function getSigningContract(
   library: Web3Provider,
   account?: string,
 ): Contract {
-  if (!isAddress(ChainId.MAINNET, address) || address === AddressZero) {
+  if (!isAddress(ChainId.MAINNET, address) || address === zeroAddress) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
 
@@ -44,7 +44,7 @@ export function getReadingContract(
   ABI: ContractInterface,
   library: ethers.providers.JsonRpcProvider,
 ): Contract {
-  if (!isAddress(ChainId.MAINNET, address) || address === AddressZero) {
+  if (!isAddress(ChainId.MAINNET, address) || address === zeroAddress) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
 
@@ -56,7 +56,7 @@ export const getReadingContractWithCustomChain = (
   ABI: ContractInterface,
   chainId: ChainId,
 ): Contract => {
-  if (!isAddress(ChainId.MAINNET, address) || address === AddressZero) {
+  if (!isAddress(ChainId.MAINNET, address) || address === zeroAddress) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
 
