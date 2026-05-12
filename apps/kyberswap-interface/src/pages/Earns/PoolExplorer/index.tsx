@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -70,6 +70,20 @@ const PoolExplorer = () => {
   const pendingSearchRef = useRef('')
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+
+  const showRewards = useMemo(() => {
+    const pools = poolData?.data?.pools || []
+    if (!pools.length) return true
+
+    return pools.some(pool => (pool.egUsd || 0) + (pool.merklOpportunity?.rewardsRecord?.total || 0) > 0)
+  }, [poolData?.data?.pools])
+
+  const showPoolPrice = useMemo(() => {
+    const pools = poolData?.data?.pools || []
+    if (!pools.length) return true
+
+    return pools.some(pool => pool.sparkline?.some(value => Number.isFinite(value) && value !== 0))
+  }, [poolData?.data?.pools])
 
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
@@ -251,8 +265,18 @@ const PoolExplorer = () => {
 
       <PoolTableWrapper>
         <ContentWrapper>
-          <TableHeader onSortChange={onSortChange} filters={filters} />
-          <TableContent onOpenZapInWidget={handleNavigateToAddLiquidity} filters={filters} />
+          <TableHeader
+            onSortChange={onSortChange}
+            filters={filters}
+            showRewards={showRewards}
+            showPoolPrice={showPoolPrice}
+          />
+          <TableContent
+            onOpenZapInWidget={handleNavigateToAddLiquidity}
+            filters={filters}
+            showRewards={showRewards}
+            showPoolPrice={showPoolPrice}
+          />
         </ContentWrapper>
         {!isError && (
           <Pagination
