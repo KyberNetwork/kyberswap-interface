@@ -26,7 +26,6 @@ import { PriceType, ZapSnapshotState } from '@/types/index';
 export default function Widget() {
   const { chainId, connectedAccount, onClose, onConnectWallet } = useWidgetStore([
     'chainId',
-    'rpcUrl',
     'poolType',
     'connectedAccount',
     'onClose',
