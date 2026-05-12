@@ -7,9 +7,11 @@
 
 export {
   decodeAbiParameters,
+  decodeEventLog,
   decodeFunctionResult,
   encodeAbiParameters,
   encodeFunctionData,
+  encodePacked,
   formatEther,
   formatUnits,
   getAddress,
@@ -19,11 +21,14 @@ export {
   keccak256,
   namehash,
   parseAbi,
+  parseAbiItem,
   parseAbiParameters,
   parseEther,
+  parseSignature,
   parseUnits,
   stringToHex,
   toBytes,
+  toEventSelector,
   toHex,
 } from 'viem'
 

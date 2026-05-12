@@ -8,7 +8,6 @@ import {
   computePoolAddress,
 } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
@@ -19,14 +18,13 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { decodeFunctionResult, encodeFunctionData } from 'utils/viem'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { useMulticallContract } from './useContract'
 import { PoolState, usePools } from './usePools'
 import { useProAmmPositions } from './useProAmmPositions'
 import useTransactionDeadline from './useTransactionDeadline'
-
-const tickReaderInterface = new Interface(TickReaderABI.abi)
 
 export const config: {
   [chainId: number]: {
@@ -251,15 +249,14 @@ export function usePositionFees(positions: Position[]) {
   useEffect(() => {
     const getData = async () => {
       if (!multicallContract) return
-      const fragment = tickReaderInterface.getFunction('getTotalFeesOwedToPosition')
       const callParams = positions.map(item => {
         return {
           target: networkInfo.elastic.tickReader,
-          callData: tickReaderInterface.encodeFunctionData(fragment, [
-            config[chainId].positionManagerContract,
-            item.pool.id,
-            item.id,
-          ]),
+          callData: encodeFunctionData({
+            abi: TickReaderABI.abi,
+            functionName: 'getTotalFeesOwedToPosition',
+            args: [config[chainId].positionManagerContract, item.pool.id, item.id],
+          }),
         }
       })
 
@@ -272,7 +269,11 @@ export function usePositionFees(positions: Position[]) {
             index: number,
           ) => {
             if (item.success) {
-              const tmp = tickReaderInterface.decodeFunctionResult(fragment, item.returnData)
+              const tmp = decodeFunctionResult({
+                abi: TickReaderABI.abi,
+                functionName: 'getTotalFeesOwedToPosition',
+                data: item.returnData as `0x${string}`,
+              }) as { token0Owed: bigint; token1Owed: bigint }
               return {
                 ...acc,
                 [positions[index].id]: [tmp.token0Owed.toString(), tmp.token1Owed.toString()],

@@ -1,7 +1,6 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -16,6 +15,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { paymasterExecute } from 'utils/sendTransaction'
+import { encodeFunctionData } from 'utils/viem'
 
 import { useActiveWeb3React } from './index'
 import { useWETHContract } from './useContract'
@@ -25,8 +25,6 @@ export enum WrapType {
   WRAP,
   UNWRAP,
 }
-
-const WETHInterface = new Interface(WETH_ABI)
 
 const NOT_APPLICABLE = { wrapType: WrapType.NOT_APPLICABLE }
 /**
@@ -83,7 +81,7 @@ export default function useWrapCallback(
                             from: account,
                             to: WETH[chainId].address,
                             value: BigNumber.from(inputAmount.quotient.toString()),
-                            data: WETHInterface.encodeFunctionData('deposit'),
+                            data: encodeFunctionData({ abi: WETH_ABI, functionName: 'deposit' }),
                           },
                           calculateGasMargin(estimateGas).toNumber(),
                         )
@@ -150,9 +148,11 @@ export default function useWrapCallback(
                           {
                             from: account,
                             to: WETH[chainId].address,
-                            data: WETHInterface.encodeFunctionData('withdraw', [
-                              BigNumber.from(inputAmount.quotient.toString()),
-                            ]),
+                            data: encodeFunctionData({
+                              abi: WETH_ABI,
+                              functionName: 'withdraw',
+                              args: [BigInt(inputAmount.quotient.toString())],
+                            }),
                           },
                           calculateGasMargin(estimateGas).toNumber(),
                         )

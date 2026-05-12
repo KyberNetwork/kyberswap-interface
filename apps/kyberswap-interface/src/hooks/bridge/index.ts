@@ -4,13 +4,14 @@ import JSBI from 'jsbi'
 import { useEffect, useState } from 'react'
 import contractQuery from 'services/contractQuery'
 
-import ERC20_INTERFACE from 'constants/abis/erc20'
+import { ERC20_ABI } from 'constants/abis/erc20'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useMulticallContract } from 'hooks/useContract'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { fetchChunk } from 'state/multicall/updater'
 import { TokenAmountLoading } from 'state/wallet/hooks'
+import { decodeFunctionResult, encodeFunctionData } from 'utils/viem'
 
 export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
   const { readProvider } = useKyberSwapConfig(chainId)
@@ -60,7 +61,7 @@ export type FetchBalancesArg = {
 export const fetchBalancesQuery = async ({ account, tokens, multicallContract }: FetchBalancesArg) => {
   if (!account || !tokens.length || !multicallContract) return []
   const calls: CallParam[] = tokens.map(token => ({
-    callData: ERC20_INTERFACE.encodeFunctionData('balanceOf', [account]),
+    callData: encodeFunctionData({ abi: ERC20_ABI, functionName: 'balanceOf', args: [account] }),
     target: token.wrapped.address,
     fragment: 'balanceOf',
     key: token.wrapped.address,
@@ -119,7 +120,13 @@ const formatResult = (responseData: any, calls: CallParam[], defaultValue?: any)
     if (!response[i]) continue
     let value = ''
     try {
-      value = ERC20_INTERFACE?.decodeFunctionResult(item.fragment, response[i])?.toString()
+      value = String(
+        decodeFunctionResult({
+          abi: ERC20_ABI,
+          functionName: item.fragment as 'balanceOf',
+          data: response[i],
+        }),
+      )
     } catch (error) {
       continue
     }

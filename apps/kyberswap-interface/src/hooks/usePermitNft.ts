@@ -1,6 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
-import { defaultAbiCoder, splitSignature } from 'ethers/lib/utils'
 import { useCallback, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -9,6 +8,7 @@ import { useReadingContract } from 'hooks/useContract'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { friendlyError } from 'utils/errorMessage'
+import { encodeAbiParameters, parseAbiParameters, parseSignature } from 'utils/viem'
 
 export enum PermitNftState {
   NOT_APPLICABLE = 'not_applicable',
@@ -180,12 +180,14 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
 
         const flatSig = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
 
-        const sig = splitSignature(flatSig)
+        const sig = parseSignature(flatSig as `0x${string}`)
         // V3 permit data: encode(deadline, v, r, s)
-        permitData = defaultAbiCoder.encode(
-          ['uint256', 'uint8', 'bytes32', 'bytes32'],
-          [permitDeadline, sig.v, sig.r, sig.s],
-        )
+        permitData = encodeAbiParameters(parseAbiParameters('uint256, uint8, bytes32, bytes32'), [
+          BigInt(permitDeadline),
+          Number(sig.v ?? (sig.yParity === 0 ? 27 : 28)),
+          sig.r,
+          sig.s,
+        ])
         signature = flatSig
       } else {
         // V4 uses EIP-712 typed data signing (keep existing working implementation)
@@ -232,7 +234,11 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         signature = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
 
         // V4 permit data: encode(deadline, nonce, signature) - keep existing working format
-        permitData = defaultAbiCoder.encode(['uint256', 'uint256', 'bytes'], [permitDeadline, nonce, signature])
+        permitData = encodeAbiParameters(parseAbiParameters('uint256, uint256, bytes'), [
+          BigInt(permitDeadline),
+          BigInt(nonce.toString()),
+          signature as `0x${string}`,
+        ])
       }
 
       const v = actualVersion.toUpperCase()

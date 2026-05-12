@@ -1,5 +1,4 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
@@ -54,6 +53,7 @@ import {
 } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
+import { parseSignature } from 'utils/viem'
 
 import {
   CurrentPriceWrapper,
@@ -193,10 +193,10 @@ export default function TokenPair({
     try {
       await library
         .send('eth_signTypedData_v4', [account, data])
-        .then(splitSignature)
+        .then((res: `0x${string}`) => parseSignature(res))
         .then(signature => {
           setSignatureData({
-            v: signature.v,
+            v: Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
             r: signature.r,
             s: signature.s,
             deadline: deadline.toNumber(),

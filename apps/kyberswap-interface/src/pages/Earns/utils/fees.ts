@@ -1,6 +1,4 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { ethers } from 'ethers'
-import { defaultAbiCoder as abiEncoder, keccak256, solidityPack } from 'ethers/lib/utils'
 
 import StateViewABI from 'constants/abis/earn/uniswapv4StateViewAbi.json'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
@@ -10,6 +8,14 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContract, getNftManagerContractAddress } from 'pages/Earns/utils'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
+import {
+  type Abi,
+  encodeAbiParameters,
+  encodeFunctionData,
+  encodePacked,
+  keccak256,
+  parseAbiParameters,
+} from 'utils/viem'
 
 export const getUnclaimedFeesInfo = async (position: ParsedPosition) => {
   const { tokenId, dex, chain, token0, token1 } = position
@@ -101,10 +107,13 @@ const getUniv4UnclaimedFees = async ({
     const stateViewContract = getReadingContractWithCustomChain(stateViewAddress, StateViewABI, chainId)
     if (!stateViewContract) return defaultBalance
 
-    const salt = abiEncoder.encode(['uint256'], [tokenId])
+    const salt = encodeAbiParameters(parseAbiParameters('uint256'), [BigInt(tokenId)])
     const nftPosManagerAddress = getNftManagerContractAddress(dex, chainId)
     const positionId = keccak256(
-      solidityPack(['address', 'int24', 'int24', 'bytes32'], [nftPosManagerAddress, tickLower, tickUpper, salt]),
+      encodePacked(
+        ['address', 'int24', 'int24', 'bytes32'],
+        [nftPosManagerAddress as `0x${string}`, tickLower, tickUpper, salt],
+      ),
     )
     const statePositionInfo = await stateViewContract.getPositionInfo(poolAddress, positionId)
     const positionLiquidity = statePositionInfo[0]
@@ -179,7 +188,8 @@ export const getUniv3CollectCallData = async ({
     amount0Max: maxUnit,
     amount1Max: maxUnit,
   }
-  const collectCallData = contract.interface.encodeFunctionData('collect', [collectParams])
+  const nftAbi = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi as Abi
+  const collectCallData = encodeFunctionData({ abi: nftAbi, functionName: 'collect', args: [collectParams] })
   calldatas.push(collectCallData)
 
   if (involvesETH) {
@@ -187,16 +197,24 @@ export const getUniv3CollectCallData = async ({
 
     const unwrapWNativeTokenFuncName = EARN_DEXES[claimInfo.dex].unwrapWNativeTokenFuncName
     if (!unwrapWNativeTokenFuncName) return
-    const unwrapWETH9CallData = contract.interface.encodeFunctionData(unwrapWNativeTokenFuncName, [0, recipient])
+    const unwrapWETH9CallData = encodeFunctionData({
+      abi: nftAbi,
+      functionName: unwrapWNativeTokenFuncName,
+      args: [0n, recipient],
+    })
 
     // Use 0 as minimum amount for sweepToken to avoid overflow with large balance values
-    const sweepTokenCallData = contract.interface.encodeFunctionData('sweepToken', [token, 0, recipient])
+    const sweepTokenCallData = encodeFunctionData({
+      abi: nftAbi,
+      functionName: 'sweepToken',
+      args: [token, 0n, recipient],
+    })
 
     calldatas.push(unwrapWETH9CallData)
     calldatas.push(sweepTokenCallData)
   }
 
-  const multicallData = contract.interface.encodeFunctionData('multicall', [calldatas])
+  const multicallData = encodeFunctionData({ abi: nftAbi, functionName: 'multicall', args: [calldatas] })
 
   return {
     to: owner !== recipient ? owner : contract.address,
@@ -245,31 +263,40 @@ export const getUniv4CollectCallData = async ({
   const TAKE_PAIR = 0x11
 
   // Pack the actions: DECREASE_LIQUIDITY then TAKE_PAIR
-  const actions = ethers.utils.solidityPack(['uint8', 'uint8'], [DECREASE_LIQUIDITY, TAKE_PAIR])
+  const actions = encodePacked(['uint8', 'uint8'], [DECREASE_LIQUIDITY, TAKE_PAIR])
 
   // Params for DECREASE_LIQUIDITY
   // Format: [tokenId, liquidity, amount0Min, amount1Min, hookData]
   // For collecting fees only: liquidity = 0, amount0Min = 0, amount1Min = 0
   // This allows collecting all fees without decreasing liquidity
-  const params0 = ethers.utils.defaultAbiCoder.encode(
-    ['uint256', 'uint128', 'uint256', 'uint256', 'bytes'],
-    [claimInfo.nftId, 0, 0, 0, '0x'], // 0 liquidity = just claim fees, 0 min amounts = collect all
-  )
+  const params0 = encodeAbiParameters(parseAbiParameters('uint256, uint128, uint256, uint256, bytes'), [
+    BigInt(claimInfo.nftId),
+    0n,
+    0n,
+    0n,
+    '0x',
+  ])
 
   // Params for TAKE_PAIR
-  const params1 = ethers.utils.defaultAbiCoder.encode(
-    ['address', 'address', 'address'],
-    [token0Address, token1Address, recipient],
-  )
+  const params1 = encodeAbiParameters(parseAbiParameters('address, address, address'), [
+    token0Address as `0x${string}`,
+    token1Address as `0x${string}`,
+    recipient as `0x${string}`,
+  ])
 
   // Encode unlockData
-  const unlockData = ethers.utils.defaultAbiCoder.encode(['bytes', 'bytes[]'], [actions, [params0, params1]])
+  const unlockData = encodeAbiParameters(parseAbiParameters('bytes, bytes[]'), [actions, [params0, params1]])
 
   // Set deadline
   const deadline = Math.floor(Date.now() / 1000) + 5 * 60
 
   // Encode function data
-  const data = contract.interface.encodeFunctionData('modifyLiquidities', [unlockData, deadline])
+  const nftAbi = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi as Abi
+  const data = encodeFunctionData({
+    abi: nftAbi,
+    functionName: 'modifyLiquidities',
+    args: [unlockData, BigInt(deadline)],
+  })
 
   return {
     to: contract.address,

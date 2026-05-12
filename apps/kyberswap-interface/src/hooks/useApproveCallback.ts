@@ -2,7 +2,6 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -15,11 +14,10 @@ import { usePaymentToken } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { paymasterExecute } from 'utils/sendTransaction'
+import { encodeFunctionData } from 'utils/viem'
 
 import { useActiveWeb3React } from './index'
 import { useTokenReadingContract, useTokenSigningContract } from './useContract'
-
-const ERC20Interface = new Interface(ERC20_ABI)
 
 export enum ApprovalState {
   UNKNOWN = 'UNKNOWN',
@@ -130,7 +128,11 @@ export function useApproveCallback(
                 {
                   from: account,
                   to: token.address,
-                  data: ERC20Interface.encodeFunctionData('approve', [spender, '0']),
+                  data: encodeFunctionData({
+                    abi: ERC20_ABI,
+                    functionName: 'approve',
+                    args: [spender, BigInt(0)],
+                  }),
                 },
                 calculateGasMargin(estimatedGas).toNumber(),
               )
@@ -149,7 +151,16 @@ export function useApproveCallback(
               {
                 from: account,
                 to: token.address,
-                data: ERC20Interface.encodeFunctionData('approve', [spender, approvedAmount]),
+                data: encodeFunctionData({
+                  abi: ERC20_ABI,
+                  functionName: 'approve',
+                  args: [
+                    spender,
+                    approvedAmount instanceof CurrencyAmount
+                      ? BigInt(approvedAmount.quotient.toString())
+                      : BigInt(approvedAmount?.toString() ?? '0'),
+                  ],
+                }),
               },
               // increase x2 for approval only due to failed tx bcs of gasLimit
               // for more detail: https://team-kyber.slack.com/archives/C048KKJ4TPW/p1718600494715929?thread_ts=1718267233.557269&cid=C048KKJ4TPW

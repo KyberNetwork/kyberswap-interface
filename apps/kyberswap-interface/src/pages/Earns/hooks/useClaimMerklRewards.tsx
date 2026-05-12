@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import { ethers } from 'ethers'
 import { useCallback } from 'react'
 import { MerklRewardsResponse, useFetchMerklChainRewardsMutation } from 'services/rewardMerkl'
 
@@ -11,6 +10,7 @@ import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { formatDisplayNumber } from 'utils/numbers'
+import { encodeFunctionData } from 'utils/viem'
 
 // Merkl distributor contract address - same across all EVM chains
 const MERKL_DISTRIBUTOR_ADDRESS = '0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae'
@@ -71,14 +71,16 @@ const useClaimMerklRewards = () => {
         return
       }
 
-      const iface = new ethers.utils.Interface(MERKL_DISTRIBUTOR_ABI)
-
       const users = claimableRewards.map(() => account)
       const tokens = claimableRewards.map(r => r.token.address)
       const amounts = claimableRewards.map(r => r.amount)
       const proofs = claimableRewards.map(r => r.proofs)
 
-      const calldata = iface.encodeFunctionData('claim', [users, tokens, amounts, proofs])
+      const calldata = encodeFunctionData({
+        abi: MERKL_DISTRIBUTOR_ABI,
+        functionName: 'claim',
+        args: [users, tokens, amounts, proofs],
+      })
 
       const res = await submitTransaction({
         library,

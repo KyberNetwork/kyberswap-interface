@@ -1,7 +1,5 @@
-import { splitSignature } from '@ethersproject/bytes'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { defaultAbiCoder } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 import { usePrevious } from 'react-use'
@@ -16,7 +14,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { permitUpdate } from 'state/swap/actions'
 import { usePermitData } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
-import { parseUnits, toHex } from 'utils/viem'
+import { encodeAbiParameters, parseAbiParameters, parseSignature, parseUnits, toHex } from 'utils/viem'
 
 import { useReadingContract } from './useContract'
 import useTracking, { TRACKING_EVENT_TYPE } from './useTracking'
@@ -160,10 +158,18 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     try {
       const signature = await library
         .send('eth_signTypedData_v4', [account.toLowerCase(), data])
-        .then((res: any) => splitSignature(res))
-      const encodedPermitData = defaultAbiCoder.encode(
-        ['address', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32'],
-        [message.owner, message.spender, message.value, message.deadline, signature.v, signature.r, signature.s],
+        .then((res: `0x${string}`) => parseSignature(res))
+      const encodedPermitData = encodeAbiParameters(
+        parseAbiParameters('address, address, uint256, uint256, uint8, bytes32, bytes32'),
+        [
+          message.owner as `0x${string}`,
+          message.spender as `0x${string}`,
+          BigInt(message.value),
+          BigInt(message.deadline),
+          Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
+          signature.r,
+          signature.s,
+        ],
       )
 
       dispatch(

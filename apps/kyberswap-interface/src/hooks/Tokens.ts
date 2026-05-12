@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import ksSettingApi from 'services/ksSetting'
 
-import ERC20_INTERFACE from 'constants/abis/erc20'
+import { ERC20_ABI } from 'constants/abis/erc20'
 import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -17,7 +17,7 @@ import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import { escapeQuoteString } from 'utils/tokenInfo'
-import { hexToString, toBytes } from 'utils/viem'
+import { decodeFunctionResult, encodeFunctionData, hexToString, toBytes } from 'utils/viem'
 
 import useDebounce from './useDebounce'
 
@@ -174,22 +174,26 @@ export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
           .tryBlockAndAggregate(false, [
             {
               target: address,
-              callData: ERC20_INTERFACE.encodeFunctionData('name'),
+              callData: encodeFunctionData({ abi: ERC20_ABI, functionName: 'name' }),
             },
             {
               target: address,
-              callData: ERC20_INTERFACE.encodeFunctionData('symbol'),
+              callData: encodeFunctionData({ abi: ERC20_ABI, functionName: 'symbol' }),
             },
             {
               target: address,
-              callData: ERC20_INTERFACE.encodeFunctionData('decimals'),
+              callData: encodeFunctionData({ abi: ERC20_ABI, functionName: 'decimals' }),
             },
           ])
           .then(resp => resp.returnData.map((item: [boolean, string]) => item[1]))
 
-        const name = ERC20_INTERFACE.decodeFunctionResult('name', returnData[0])[0]
-        const symbol = ERC20_INTERFACE.decodeFunctionResult('symbol', returnData[1])[0]
-        const decimals = ERC20_INTERFACE.decodeFunctionResult('decimals', returnData[2])[0]
+        const name = decodeFunctionResult({ abi: ERC20_ABI, functionName: 'name', data: returnData[0] }) as string
+        const symbol = decodeFunctionResult({ abi: ERC20_ABI, functionName: 'symbol', data: returnData[1] }) as string
+        const decimals = decodeFunctionResult({
+          abi: ERC20_ABI,
+          functionName: 'decimals',
+          data: returnData[2],
+        }) as number
 
         return new Token(chainId, address, decimals, symbol, name)
       } catch (e) {

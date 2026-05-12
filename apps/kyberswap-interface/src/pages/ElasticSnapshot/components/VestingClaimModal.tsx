@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -19,10 +18,9 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
+import { encodeFunctionData } from 'utils/viem'
 
 import VestingAbi from '../data/abis/vestingAbi.json'
-
-const ContractInterface = new Interface(VestingAbi)
 
 export default function VestingClaimModal({
   onDismiss,
@@ -115,16 +113,20 @@ export default function VestingClaimModal({
         }),
       ])
       .then(signature => {
-        const encodedData = ContractInterface.encodeFunctionData('claim', [
-          {
-            index: leafIndex,
-            receiver: account,
-            vestingAmount,
-          },
-          proof,
-          signature,
-          1, // mode
-        ])
+        const encodedData = encodeFunctionData({
+          abi: VestingAbi,
+          functionName: 'claim',
+          args: [
+            {
+              index: leafIndex,
+              receiver: account,
+              vestingAmount,
+            },
+            proof,
+            signature,
+            1, // mode
+          ],
+        })
         library
           ?.getSigner()
           .sendTransaction({

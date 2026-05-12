@@ -1,6 +1,5 @@
 import { ChainId, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Interface } from 'ethers/lib/utils'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -27,6 +26,7 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
+import { encodeFunctionData } from 'utils/viem'
 
 import InstantAbi from '../data/abis/instantClaimAbi.json'
 import avalanche from '../data/instant/avalanche.json'
@@ -69,8 +69,6 @@ const contractAddress = '0xD0806364e9672EF21039Dc4DC84651B9b535E535'
 const phase2ContractAddress = '0x3771cb0e40f55316a9cf9a79a60b562946a39d8b'
 const phase2_5ContractAddress = '0x39c4620d26c87beef4fdd78295001d1e1e5366f1'
 
-const ContractInterface = new Interface(InstantAbi)
-
 const snapshotPrices: { [key: string]: number } = {
   '0xd7bb095a60d7666d4a6f236423b47ddd6ae6cfa7': 3024.788661,
   '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': 2382.617666,
@@ -94,10 +92,10 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
   const polygonContractAddress =
     phase === '2' ? phase2ContractAddress : phase === '2.5' ? phase2_5ContractAddress : contractAddress
 
-  const ethereumContract = useReadingContract(contractAddress, ContractInterface, ChainId.MAINNET)
-  const optimismContract = useReadingContract(contractAddress, ContractInterface, ChainId.OPTIMISM)
-  const polygonContract = useReadingContract(polygonContractAddress, ContractInterface, ChainId.MATIC)
-  const avalancheContract = useReadingContract(contractAddress, ContractInterface, ChainId.AVAXMAINNET)
+  const ethereumContract = useReadingContract(contractAddress, InstantAbi, ChainId.MAINNET)
+  const optimismContract = useReadingContract(contractAddress, InstantAbi, ChainId.OPTIMISM)
+  const polygonContract = useReadingContract(polygonContractAddress, InstantAbi, ChainId.MATIC)
+  const avalancheContract = useReadingContract(contractAddress, InstantAbi, ChainId.AVAXMAINNET)
 
   const [claimed, setClaimed] = useState([true, true, true, true])
 
@@ -231,18 +229,22 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
         }),
       ])
       .then(signature => {
-        const encodedData = ContractInterface.encodeFunctionData('claim', [
-          {
-            index: userData[selectedIndex]?.claimData?.index,
-            receiver: account,
-            tokenInfo: userData[selectedIndex]?.claimData.tokenInfo.map(item => ({
-              token: item.token,
-              amount: item.amount,
-            })),
-          },
-          userData[selectedIndex]?.proof,
-          signature,
-        ])
+        const encodedData = encodeFunctionData({
+          abi: InstantAbi,
+          functionName: 'claim',
+          args: [
+            {
+              index: userData[selectedIndex]?.claimData?.index,
+              receiver: account,
+              tokenInfo: userData[selectedIndex]?.claimData.tokenInfo.map(item => ({
+                token: item.token,
+                amount: item.amount,
+              })),
+            },
+            userData[selectedIndex]?.proof,
+            signature,
+          ],
+        })
         library
           ?.getSigner()
           .sendTransaction({

@@ -1,12 +1,10 @@
-import { defaultAbiCoder } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
-import { keccak256 } from '@ethersproject/solidity'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
-import { getContractAddress } from 'utils/viem'
+import { encodeAbiParameters, getContractAddress, keccak256, parseAbiParameters } from 'utils/viem'
 
 import { useProAmmNFTPositionManagerReadingContract } from './useContract'
 
@@ -42,14 +40,12 @@ export function useProAmmPositionsFromTokenIds(
             from: (customFactory || networkInfo.elastic.coreFactory) as `0x${string}`,
             opcode: 'CREATE2',
             salt: keccak256(
-              ['bytes'],
-              [
-                defaultAbiCoder.encode(
-                  ['address', 'address', 'uint24'],
-                  [result.info.token0, result.info.token1, result.info.fee],
-                ),
-              ],
-            ) as `0x${string}`,
+              encodeAbiParameters(parseAbiParameters('address, address, uint24'), [
+                result.info.token0 as `0x${string}`,
+                result.info.token1 as `0x${string}`,
+                result.info.fee,
+              ]),
+            ),
             bytecodeHash: (customInitCodeHash || networkInfo.elastic.initCodeHash) as `0x${string}`,
           }),
           feeGrowthInsideLast: result.pos.feeGrowthInsideLast,

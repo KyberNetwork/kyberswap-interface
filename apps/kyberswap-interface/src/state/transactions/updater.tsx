@@ -1,7 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
-import { ethers } from 'ethers'
 import { TxValidationError, findReplacementTx } from 'find-replacement-tx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -27,7 +26,7 @@ import {
   TransactionExtraInfo1Token,
 } from 'state/transactions/type'
 import { findTx } from 'utils'
-import { formatUnits, keccak256, toBytes } from 'utils/viem'
+import { decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
 
 const appsSdk = new SafeAppsSDK()
 
@@ -152,11 +151,13 @@ export default function Updater(): null {
         const lastSwapEvent = swapLogs.slice(-1)[0]
 
         if (lastSwapEvent) {
-          // decode the data
-          const swapInterface = new ethers.utils.Interface([
-            'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
-          ])
-          const parsed = swapInterface.parseLog(lastSwapEvent)
+          const parsed = decodeEventLog({
+            abi: parseAbi([
+              'event Swapped(address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
+            ]),
+            data: lastSwapEvent.data as `0x${string}`,
+            topics: lastSwapEvent.topics as [signature: `0x${string}`, ...args: `0x${string}`[]],
+          })
 
           if (
             (transaction.extraInfo as any)?.tokenAmountOut &&
@@ -164,7 +165,7 @@ export default function Updater(): null {
           ) {
             const extraInfo = { ...transaction.extraInfo }
             ;(extraInfo as any).tokenAmountOut = formatUnits(
-              BigInt(parsed.args.returnAmount.toString()),
+              parsed.args.returnAmount,
               transaction.extraInfo?.arbitrary?.outputDecimals,
             )
             dispatch(
