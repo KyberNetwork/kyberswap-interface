@@ -203,6 +203,27 @@ export const HistorySectionHeader = styled.div`
   width: 100%;
 `
 
+export const PastActionsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => rgba(theme.white, 0.16)};
+    border-radius: 2px;
+  }
+`
+
 export const HistoryCard = styled.div`
   background: ${({ theme }) => rgba(theme.white, 0.04)};
   border-radius: 12px;
