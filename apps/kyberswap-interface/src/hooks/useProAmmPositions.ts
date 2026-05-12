@@ -1,5 +1,4 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { getCreate2Address } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { keccak256 } from '@ethersproject/solidity'
 import { useMemo } from 'react'
@@ -7,6 +6,7 @@ import { useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
+import { getContractAddress } from 'utils/viem'
 
 import { useProAmmNFTPositionManagerReadingContract } from './useContract'
 
@@ -38,9 +38,10 @@ export function useProAmmPositionsFromTokenIds(
 
         return {
           tokenId: tokenId,
-          poolId: getCreate2Address(
-            customFactory || networkInfo.elastic.coreFactory,
-            keccak256(
+          poolId: getContractAddress({
+            from: (customFactory || networkInfo.elastic.coreFactory) as `0x${string}`,
+            opcode: 'CREATE2',
+            salt: keccak256(
               ['bytes'],
               [
                 defaultAbiCoder.encode(
@@ -48,9 +49,9 @@ export function useProAmmPositionsFromTokenIds(
                   [result.info.token0, result.info.token1, result.info.fee],
                 ),
               ],
-            ),
-            customInitCodeHash || networkInfo.elastic.initCodeHash,
-          ),
+            ) as `0x${string}`,
+            bytecodeHash: (customInitCodeHash || networkInfo.elastic.initCodeHash) as `0x${string}`,
+          }),
           feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
           nonce: result.pos.nonce,
           liquidity: result.pos.liquidity,

@@ -1,10 +1,10 @@
-import { namehash } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
 import isZero from 'utils/isZero'
+import { namehash } from 'utils/viem'
 
 import { useENSRegistrarContract, useENSResolverContract } from './useContract'
 import useDebounce from './useDebounce'

@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ethers } from 'ethers'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -19,6 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
+import { formatUnits } from 'utils/viem'
 
 import LimitOrderForm, { Label, LimitOrderFormHandle } from './LimitOrderForm'
 import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
@@ -65,8 +65,8 @@ export default function EditOrderModal({
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset, customChainId) ?? undefined
   const currencyOut = useCurrencyV2(takerAsset, customChainId) ?? undefined
-  const inputAmount = currencyIn ? ethers.utils.formatUnits(makingAmount, currencyIn.decimals) : ''
-  const outputAmount = currencyOut ? ethers.utils.formatUnits(takingAmount, currencyOut.decimals) : ''
+  const inputAmount = currencyIn ? formatUnits(BigInt(makingAmount), currencyIn.decimals) : ''
+  const outputAmount = currencyOut ? formatUnits(BigInt(takingAmount), currencyOut.decimals) : ''
 
   const formatIn = inputAmount ? removeTrailingZero(inputAmount) : inputAmount
   const formatOut = outputAmount ? removeTrailingZero(outputAmount) : outputAmount

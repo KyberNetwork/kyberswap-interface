@@ -1,5 +1,4 @@
 import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
-import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
@@ -7,6 +6,7 @@ import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 
 import { formatDisplayNumber } from './numbers'
+import { parseUnits } from './viem'
 
 export const calculateFeeFromBuildData = (
   routeSummary: DetailedRouteSummary | undefined,

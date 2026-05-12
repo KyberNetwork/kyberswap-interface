@@ -1,6 +1,5 @@
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, Token } from '@kyber/schema'
 import { Trans } from '@lingui/macro'
-import { formatUnits } from 'ethers/lib/utils'
 import { ChangeEvent, useMemo } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -13,6 +12,7 @@ import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
+import { formatUnits } from 'utils/viem'
 
 const Card = styled(Stack)<{ $isRemovable?: boolean }>`
   position: relative;
@@ -144,7 +144,7 @@ const TokenAmountInput = ({
       ? NATIVE_TOKEN_ADDRESS.toLowerCase()
       : token.address.toLowerCase()
   const balanceInWei = tokenBalances[balanceKey]?.toString() || '0'
-  const formattedBalance = formatUnits(balanceInWei, token.decimals)
+  const formattedBalance = formatUnits(BigInt(balanceInWei), token.decimals)
 
   const usdAmount = useMemo(
     () => (tokenPrices[token.address.toLowerCase()] || 0) * parseFloat(amount || '0'),
@@ -166,8 +166,8 @@ const TokenAmountInput = ({
     const rawBalance = BigInt(balanceInWei)
     const nextAmount =
       percentage === 100
-        ? formatUnits(rawBalance.toString(), token.decimals)
-        : formatUnits(((rawBalance * BigInt(percentage)) / 100n).toString(), token.decimals)
+        ? formatUnits(rawBalance, token.decimals)
+        : formatUnits((rawBalance * BigInt(percentage)) / 100n, token.decimals)
     const normalizedAmount = normalizeActionAmount(nextAmount)
 
     updateAmount(normalizedAmount)

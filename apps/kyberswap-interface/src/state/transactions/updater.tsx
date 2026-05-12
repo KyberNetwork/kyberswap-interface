@@ -27,6 +27,7 @@ import {
   TransactionExtraInfo1Token,
 } from 'state/transactions/type'
 import { findTx } from 'utils'
+import { formatUnits, keccak256, toBytes } from 'utils/viem'
 
 const appsSdk = new SafeAppsSDK()
 
@@ -145,7 +146,7 @@ export default function Updater(): null {
       })
       if (receipt.status === 1) {
         // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
-        const swapEventTopic = ethers.utils.id('Swapped(address,address,address,address,uint256,uint256)')
+        const swapEventTopic = keccak256(toBytes('Swapped(address,address,address,address,uint256,uint256)'))
         const swapLogs = receipt.logs.filter((log: any) => log.topics[0] === swapEventTopic)
         // take the last swap event
         const lastSwapEvent = swapLogs.slice(-1)[0]
@@ -162,8 +163,8 @@ export default function Updater(): null {
             transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
           ) {
             const extraInfo = { ...transaction.extraInfo }
-            ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
-              parsed.args.returnAmount.toString(),
+            ;(extraInfo as any).tokenAmountOut = formatUnits(
+              BigInt(parsed.args.returnAmount.toString()),
               transaction.extraInfo?.arbitrary?.outputDecimals,
             )
             dispatch(

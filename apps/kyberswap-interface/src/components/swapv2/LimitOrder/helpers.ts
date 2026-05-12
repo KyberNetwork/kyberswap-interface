@@ -1,6 +1,5 @@
 import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 
 import { RESERVE_USD_DECIMALS } from 'constants/index'
@@ -8,6 +7,7 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { uint256ToFraction } from 'utils/numbers'
+import { parseUnits } from 'utils/viem'
 
 import { CreateOrderParam, LimitOrder, LimitOrderStatus } from './type'
 
@@ -18,7 +18,7 @@ export const isActiveStatus = (status: LimitOrderStatus) =>
 export function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {
   try {
     return new Fraction(
-      ethers.utils.parseUnits(value, decimals).toString(),
+      parseUnits(value, decimals).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)),
     )
   } catch (error) {

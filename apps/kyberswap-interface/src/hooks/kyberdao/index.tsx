@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import axios from 'axios'
 import { BigNumber } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 import kyberDAOApi, {
@@ -35,8 +34,10 @@ import { calculateGasMargin } from 'utils'
 import { aggregateValue } from 'utils/array'
 import { friendlyError } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
+import { bigNumberToBigInt } from 'utils/migration'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
+import { formatUnits } from 'utils/viem'
 
 import { DaoInfo, EligibleTxsInfo } from './types'
 
@@ -72,8 +73,8 @@ export function useKyberDaoStakeActions() {
           extraInfo: {
             tokenSymbol: 'KNC',
             tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
-            tokenAmount: formatUnits(amount),
-            arbitrary: { amount: formatUnits(amount), votingPower },
+            tokenAmount: formatUnits(bigNumberToBigInt(amount), 18),
+            arbitrary: { amount: formatUnits(bigNumberToBigInt(amount), 18), votingPower },
           },
         })
         return tx.hash
@@ -99,8 +100,8 @@ export function useKyberDaoStakeActions() {
           extraInfo: {
             tokenSymbol: 'KNC',
             tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
-            tokenAmount: formatUnits(amount),
-            arbitrary: { amount: formatUnits(amount) },
+            tokenAmount: formatUnits(bigNumberToBigInt(amount), 18),
+            arbitrary: { amount: formatUnits(bigNumberToBigInt(amount), 18) },
           },
         })
         return tx.hash

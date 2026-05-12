@@ -1,4 +1,3 @@
-import { commify, formatUnits } from '@ethersproject/units'
 import { Trans, t } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import Skeleton from 'react-loading-skeleton'
@@ -27,6 +26,9 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
+import { formatLongNumber } from 'utils/formatBalance'
+import { bigNumberToBigInt } from 'utils/migration'
+import { formatUnits } from 'utils/viem'
 
 import KNCLogo from '../kncLogo'
 import StakeKNCComponent from './StakeKNCComponent'
@@ -206,7 +208,7 @@ export default function StakeKNC() {
                 </Text>
                 {totalMigratedKNC ? (
                   <Text fontSize={12} lineHeight="16px">
-                    {commify(formatUnits(totalMigratedKNC).split('.')[0]) + ' KNC'}
+                    {formatLongNumber(formatUnits(bigNumberToBigInt(totalMigratedKNC), 18).split('.')[0]) + ' KNC'}
                   </Text>
                 ) : (
                   <div style={{ lineHeight: 1 }}>

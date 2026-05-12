@@ -1,6 +1,5 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -19,6 +18,8 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
+import { bigIntToBigNumber } from 'utils/migration'
+import { parseUnits } from 'utils/viem'
 
 import CurrencyInputForStake from './CurrencyInputForStake'
 import { useSwitchToEthereum } from './SwitchToEthereumModal'
@@ -85,7 +86,7 @@ export default function MigrateModal({
         setShowConfirm(true)
         setAttemptingTxn(true)
         toggleModal()
-        migrate(parseUnits(value, 18), value)
+        migrate(bigIntToBigNumber(parseUnits(value, 18)), value)
           .then(tx => {
             setAttemptingTxn(false)
             setTxHash(tx)

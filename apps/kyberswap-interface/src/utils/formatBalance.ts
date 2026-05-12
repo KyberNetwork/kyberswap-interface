@@ -1,8 +1,10 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Fraction } from '@kyberswap/ks-sdk-core'
-import { formatUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
+
+import { bigNumberToBigInt } from './migration'
+import { formatUnits } from './viem'
 
 export const getFullDisplayBalance = (balance: BigNumber | string, decimals = 18, significant = 6): string => {
   if (!balance) {
@@ -65,5 +67,5 @@ export const formatLongNumber = (num: string, usd?: boolean): string => {
 }
 
 export const formatUnitsToFixed = (amount: BigNumber, decimals?: number, decimalPlaces?: number) => {
-  return (+(+formatUnits(amount, decimals)).toFixed(decimalPlaces ?? 3)).toString()
+  return (+(+formatUnits(bigNumberToBigInt(amount), decimals ?? 18)).toFixed(decimalPlaces ?? 3)).toString()
 }

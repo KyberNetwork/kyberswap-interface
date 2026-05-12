@@ -1,11 +1,11 @@
-import { ethers } from 'ethers'
-
 import {
   GROUP_TRANSACTION_BY_TYPE,
   TRANSACTION_GROUP,
   TRANSACTION_TYPE,
   TransactionDetails,
 } from 'state/transactions/type'
+
+import { toBytes, toHex } from './viem'
 
 export const getTransactionGroupByType = (type: TRANSACTION_TYPE) => {
   if (GROUP_TRANSACTION_BY_TYPE.SWAP.includes(type)) return TRANSACTION_GROUP.SWAP
@@ -27,11 +27,11 @@ export const getTransactionStatus = (transaction: TransactionDetails) => {
 
 export const formatSignature = (rawSignature: string) => {
   if (rawSignature.length !== 65) return rawSignature
-  const bytes = ethers.utils.arrayify(rawSignature)
+  const bytes = toBytes(rawSignature as `0x${string}`)
   const lastByte = bytes[64]
   if (lastByte === 0 || lastByte === 1) {
     // to support hardware wallet https://ethereum.stackexchange.com/a/113727
     bytes[64] += 27
   }
-  return ethers.utils.hexlify(bytes)
+  return toHex(bytes)
 }

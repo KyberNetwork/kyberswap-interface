@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { formatUnits } from 'ethers/lib/utils'
 import { transparentize } from 'polished'
 import { NavLink } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -18,6 +17,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { formatUnits } from 'utils/viem'
 
 import KNCLogo from '../kncLogo'
 import FAQ from './FAQ'
@@ -133,7 +133,7 @@ export default function KNCUtility() {
                   style={{ gap: '8px' }}
                   fontWeight={500}
                 >
-                  <KNCLogo size={20} /> {account ? formatUnits(stakedBalance) : '--'} KNC
+                  <KNCLogo size={20} /> {account ? formatUnits(BigInt((stakedBalance || 0).toString()), 18) : '--'} KNC
                 </Text>
               </YourStakedKNC>
               <Flex alignSelf="flex-end">

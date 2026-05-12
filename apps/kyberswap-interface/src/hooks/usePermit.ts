@@ -1,7 +1,7 @@
 import { splitSignature } from '@ethersproject/bytes'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { defaultAbiCoder, hexZeroPad, hexlify, parseUnits } from 'ethers/lib/utils'
+import { defaultAbiCoder } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 import { usePrevious } from 'react-use'
@@ -16,6 +16,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { permitUpdate } from 'state/swap/actions'
 import { usePermitData } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
+import { parseUnits, toHex } from 'utils/viem'
 
 import { useReadingContract } from './useContract'
 import useTracking, { TRACKING_EVENT_TYPE } from './useTracking'
@@ -143,7 +144,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
           ? {
               name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
-              salt: hexZeroPad(hexlify(chainId), 32),
+              salt: toHex(chainId, { size: 32 }),
               version: overwritedPermitData.version,
             }
           : {

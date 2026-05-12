@@ -1,7 +1,5 @@
-import { parseBytes32String } from '@ethersproject/strings'
 import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
-import { arrayify } from 'ethers/lib/utils'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import ksSettingApi from 'services/ksSetting'
@@ -19,6 +17,7 @@ import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import { escapeQuoteString } from 'utils/tokenInfo'
+import { hexToString, toBytes } from 'utils/viem'
 
 import useDebounce from './useDebounce'
 
@@ -82,8 +81,8 @@ function parseStringOrBytes32(str: string | undefined, bytes32: string | undefin
   return str && str.length > 0
     ? str
     : // need to check for proper bytes string and valid terminator
-    bytes32 && BYTES32_REGEX.test(bytes32) && arrayify(bytes32)[31] === 0
-    ? parseBytes32String(bytes32)
+    bytes32 && BYTES32_REGEX.test(bytes32) && toBytes(bytes32 as `0x${string}`)[31] === 0
+    ? hexToString(bytes32 as `0x${string}`, { size: 32 })
     : defaultValue
 }
 

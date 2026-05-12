@@ -1,11 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { ethers } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTokenSigningContract } from 'hooks/useContract'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { bigNumberToBigInt } from 'utils/migration'
+import { formatEther, parseEther, parseUnits } from 'utils/viem'
 
 export default function useSendToken(currency: Currency | undefined, recipient: string, amount: string) {
   const { account } = useActiveWeb3React()
@@ -30,12 +31,12 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
           ? library.getSigner().estimateGas({
               from: account,
               to: recipient,
-              value: ethers.utils.parseEther(amount),
+              value: parseEther(amount),
             })
-          : tokenContract.estimateGas.transfer(recipient, ethers.utils.parseUnits(amount, currency.decimals))
+          : tokenContract.estimateGas.transfer(recipient, parseUnits(amount, currency.decimals))
 
         const [estimateGas, gasPrice] = await Promise.all([promise, library.getSigner().getGasPrice()])
-        const format = gasPrice && estimateGas ? ethers.utils.formatEther(estimateGas.mul(gasPrice)) : null
+        const format = gasPrice && estimateGas ? formatEther(bigNumberToBigInt(estimateGas.mul(gasPrice))) : null
         setGasFee(format ? parseFloat(format) : null)
       } catch (error) {
         setGasFee(null)
@@ -67,14 +68,14 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
         return Promise.reject('wrong input')
       }
       const currentGasPrice = await library.getSigner().getGasPrice()
-      const gasPrice = ethers.utils.hexlify(currentGasPrice)
+      const gasPrice = currentGasPrice.toHexString()
       setIsSending(true)
       let transaction
       if (currency.isNative) {
-        const tx = { from: account, to: recipient, value: ethers.utils.parseEther(amount), gasPrice }
+        const tx = { from: account, to: recipient, value: parseEther(amount), gasPrice }
         transaction = await library.getSigner().sendTransaction(tx)
       } else {
-        const numberOfTokens = ethers.utils.parseUnits(amount, currency.decimals)
+        const numberOfTokens = parseUnits(amount, currency.decimals)
         transaction = await tokenContract.transfer(recipient, numberOfTokens)
       }
       addTransaction(transaction.hash)

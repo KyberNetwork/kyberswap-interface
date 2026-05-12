@@ -8,9 +8,10 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { calculateGasMargin } from 'utils'
 
 import { ErrorName, TransactionError } from './transactionError'
+import { stringToHex } from './viem'
 
 const projectName = 'KyberSwap'
-const partnerCode = ethers.utils.formatBytes32String(projectName)
+const partnerCode = stringToHex(projectName, { size: 32 })
 
 const CUSTOM_PAYMASTER_ADDRESS = '0x069246dFEcb95A6409180b52C071003537B23c27'
 
@@ -75,7 +76,7 @@ export async function sendEVMTransaction({
     from: account,
     to: contractAddress,
     data: callData,
-    ...(value && !value.eq(0) ? { value: ethers.utils.hexlify(value) } : {}),
+    ...(value && !value.eq(0) ? { value: value.toHexString() } : {}),
   }
   if (effectiveChainId && NETWORKS_INFO[effectiveChainId]?.accessListEnabled) {
     try {

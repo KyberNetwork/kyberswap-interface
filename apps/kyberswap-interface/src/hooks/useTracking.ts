@@ -1,6 +1,5 @@
 import { useFormo } from '@formo/analytics'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel, { crossChainMixpanel } from 'libs/mixpanel'
 import { useCallback, useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -14,6 +13,8 @@ import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { bigNumberToBigInt } from 'utils/migration'
+import { formatUnits, isAddress } from 'utils/viem'
 
 export enum TRACKING_EVENT_TYPE {
   PAGE_VIEWED,
@@ -576,7 +577,9 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         case TRACKING_EVENT_TYPE.SWAP_COMPLETED: {
           const { arbitrary, actual_gas, gas_price, tx_hash } = payload
           const feeInfo = payload.feeInfo as FeeInfo
-          const formattedGas = gas_price ? formatUnits(gas_price, networkInfo.nativeToken.decimal) : '0'
+          const formattedGas = gas_price
+            ? formatUnits(bigNumberToBigInt(gas_price), networkInfo.nativeToken.decimal)
+            : '0'
 
           const body: Record<string, any> = {
             input_token: arbitrary.inputSymbol,
@@ -1827,7 +1830,7 @@ export const useGlobalTrackingEvents = () => {
   }, [location])
 
   useEffect(() => {
-    if (account && isAddress(account)) {
+    if (account && isAddress(account, { strict: false })) {
       analytics?.identify({ address: account })
       crossChainMixpanel?.identify(account)
 
