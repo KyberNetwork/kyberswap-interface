@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { getWalletClient } from '@wagmi/core'
 import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/widget'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
@@ -19,7 +18,6 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
-import { wagmiConfig } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -27,7 +25,8 @@ import { VerticalDivider } from 'pages/About/styleds'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-import { ensureNotBlacklisted } from 'utils/sendTransaction'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 import vesting3rdData from '../data/pendle_dappos_vesting.json'
 import phase3 from '../data/phase3.json'
@@ -122,10 +121,9 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
             async delegateTransaction(tx) {
               // ZkMe widget hands us a tx in ethers `TransactionRequest` shape; forward it
               // to viem `walletClient.sendTransaction`. ZkMe KYC runs on Polygon only.
-              const walletClient = await getWalletClient(wagmiConfig, { chainId: ChainId.MATIC })
-              if (!walletClient) throw new Error('Wallet client unavailable')
               if (!account) throw new Error('Wallet is not connected')
-              await ensureNotBlacklisted(account)
+              const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
+              if (!walletClient) throw new Error('Wallet client unavailable')
               const t = tx as { to: string; data: string; value?: string | number | bigint }
               const hash = await (walletClient as any).sendTransaction({
                 to: t.to,
@@ -557,40 +555,42 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
                   width="fit-content"
                   style={{ height: '36px' }}
                   disabled={userSelectedOption === 'C'}
-                  onClick={() => {
+                  onClick={async () => {
                     const message = 'I confirm choosing Option C - Opt out.'
-                    library
-                      ?.getSigner()
-                      .signMessage(message)
-                      .then(async signature => {
-                        if (signature && account) {
-                          const res = await createOption({
-                            walletAddress: account,
-                            signature,
-                            message,
-                          })
-                          if ((res as any)?.data?.code === 0) {
-                            notify({
-                              title: t`Choose option successfully`,
-                              summary: t`You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program`,
-                              type: NotificationType.SUCCESS,
-                            })
-                            refetch()
-                          } else {
-                            notify({
-                              title: t`Error`,
-                              summary: (res as any).error?.data?.message || t`Something went wrong`,
-                              type: NotificationType.ERROR,
-                            })
-                          }
-                        } else {
-                          notify({
-                            title: t`Error`,
-                            summary: t`Something went wrong`,
-                            type: NotificationType.ERROR,
-                          })
-                        }
+                    if (!account) return
+                    const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
+                    if (!walletClient) return
+                    const signature = (await (walletClient as any).signMessage({
+                      account: account as Address,
+                      message,
+                    })) as string | undefined
+                    if (!signature) {
+                      notify({
+                        title: t`Error`,
+                        summary: t`Something went wrong`,
+                        type: NotificationType.ERROR,
                       })
+                      return
+                    }
+                    const res = await createOption({
+                      walletAddress: account,
+                      signature,
+                      message,
+                    })
+                    if ((res as any)?.data?.code === 0) {
+                      notify({
+                        title: t`Choose option successfully`,
+                        summary: t`You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program`,
+                        type: NotificationType.SUCCESS,
+                      })
+                      refetch()
+                    } else {
+                      notify({
+                        title: t`Error`,
+                        summary: (res as any).error?.data?.message || t`Something went wrong`,
+                        type: NotificationType.ERROR,
+                      })
+                    }
                   }}
                 >
                   <Trans>Opt Out</Trans>

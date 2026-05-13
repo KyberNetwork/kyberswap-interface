@@ -39,6 +39,8 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
+import { Address } from 'utils/viem'
+import { signTypedDataSafe } from 'utils/walletClient'
 
 const TableHeader = styled.div`
   display: grid;
@@ -152,7 +154,11 @@ const SmartExit = () => {
         throw new Error('Failed to get valid typed data from API')
       }
 
-      const signature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
+      const signature = await signTypedDataSafe({
+        chainId: chainId as number,
+        account: account as Address,
+        typedData,
+      })
 
       await cancelOrder({
         orderId: +showCancelConfirm.id,

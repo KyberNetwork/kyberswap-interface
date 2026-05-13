@@ -19,6 +19,8 @@ import { ConditionType, ParsedPosition, SelectedMetric, SmartExitFee } from 'pag
 import { getPositionLiquidity } from 'pages/Earns/utils/position'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
+import { Address } from 'utils/viem'
+import { signTypedDataSafe } from 'utils/walletClient'
 
 export interface UseSmartExitParams {
   position: ParsedPosition | null
@@ -31,7 +33,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
   const notify = useNotify()
   const { trackingHandler } = useTracking()
   const playSuccessSound = useSuccessSound()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [state, setState] = useState<SmartExitState>(SmartExitState.IDLE)
   const [positionLiquidity, setPositionLiquidity] = useState<string | null>(null)
@@ -124,7 +126,11 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         }
 
         // Step 2: Sign the typed data
-        const orderSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
+        const orderSignature = await signTypedDataSafe({
+          chainId: chainId as number,
+          account: account as Address,
+          typedData,
+        })
 
         // Step 3: Create the order using RTK Query mutation (this will auto-invalidate and refetch the orders list)
         const result = await createOrderMutation({
@@ -176,6 +182,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
     [
       account,
       baseParams,
+      chainId,
       createOrderMutation,
       getSignMessage,
       getSmartExitTrackingPayload,

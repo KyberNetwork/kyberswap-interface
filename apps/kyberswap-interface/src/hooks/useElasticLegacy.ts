@@ -1,4 +1,3 @@
-import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ChainId, Currency, CurrencyAmount, Percent, Token as TokenSDK } from '@kyberswap/ks-sdk-core'
 import {
   FeeAmount,
@@ -7,7 +6,6 @@ import {
   Position as PositionSDK,
   computePoolAddress,
 } from '@kyberswap/ks-sdk-elastic'
-import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
@@ -17,7 +15,9 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { basisPointsToPercent } from 'utils'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
 import { decodeFunctionResult, encodeFunctionData } from 'utils/viem'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -336,7 +336,7 @@ export const useRemoveLiquidityLegacy = (
   feeRewards: Record<string, [string, string]>,
 ) => {
   const { chainId, account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
 
   const { token0, token1, position, usd } = parsePosition(item, chainId, tokenPrices)
   const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[item.id]?.[0] || '0')
@@ -384,45 +384,38 @@ export const useRemoveLiquidityLegacy = (
       },
     })
 
-    const txn = {
-      to: config[chainId].positionManagerContract,
-      data: calldata,
-      value,
-    }
-
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then(async (estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            const tokenAmountIn = position.amount0.toSignificant(6)
-            const tokenAmountOut = position.amount1.toSignificant(6)
-            const tokenSymbolIn = token0.symbol
-            const tokenSymbolOut = token1.symbol
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-              extraInfo: {
-                tokenAmountIn,
-                tokenAmountOut,
-                tokenSymbolIn,
-                tokenSymbolOut,
-                tokenAddressIn: token0.wrapped.address,
-                tokenAddressOut: token1.wrapped.address,
-                contract: item.pool.id,
-                nftId: item.id,
-              },
-            })
-            setAttemptingTxn(false)
-            setTxnHash(response.hash)
-          })
+    sendEVMTransaction({
+      account,
+      library,
+      contractAddress: config[chainId].positionManagerContract,
+      encodedData: calldata as `0x${string}`,
+      value: BigInt(value),
+      errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+      isSmartConnector,
+      chainId,
+    })
+      .then(response => {
+        if (!response?.hash) throw new Error('Transaction failed')
+        const tokenAmountIn = position.amount0.toSignificant(6)
+        const tokenAmountOut = position.amount1.toSignificant(6)
+        const tokenSymbolIn = token0.symbol
+        const tokenSymbolOut = token1.symbol
+        addTransactionWithType({
+          hash: response.hash,
+          type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
+          extraInfo: {
+            tokenAmountIn,
+            tokenAmountOut,
+            tokenSymbolIn,
+            tokenSymbolOut,
+            tokenAddressIn: token0.wrapped.address,
+            tokenAddressOut: token1.wrapped.address,
+            contract: item.pool.id,
+            nftId: item.id,
+          },
+        })
+        setAttemptingTxn(false)
+        setTxnHash(response.hash)
       })
       .catch((error: any) => {
         setShowPendingModal('removeLiquidity')
@@ -452,49 +445,42 @@ export const useRemoveLiquidityLegacy = (
       legacyMode: true,
     })
 
-    const txn = {
-      to: config[chainId].positionManagerContract,
-      data: calldata,
-      value,
-    }
-
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then((estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            const tokenAmountIn = feeValue0?.toSignificant(6)
-            const tokenAmountOut = feeValue1?.toSignificant(6)
-            const tokenSymbolIn = feeValue0?.currency.symbol ?? ''
-            const tokenSymbolOut = feeValue1?.currency.symbol ?? ''
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.COLLECT_FEE,
-              extraInfo: {
-                tokenAmountIn,
-                tokenAmountOut,
-                tokenAddressIn: feeValue0?.currency.wrapped.address,
-                tokenAddressOut: feeValue1?.currency.wrapped.address,
-                tokenSymbolIn,
-                tokenSymbolOut,
-                arbitrary: {
-                  token_1: tokenSymbolIn,
-                  token_2: tokenSymbolOut,
-                  token_1_amount: tokenAmountIn,
-                  token_2_amount: tokenAmountOut,
-                },
-              },
-            })
-            setAttemptingTxn(false)
-            setTxnHash(response.hash)
-          })
+    sendEVMTransaction({
+      account,
+      library,
+      contractAddress: config[chainId].positionManagerContract,
+      encodedData: calldata as `0x${string}`,
+      value: BigInt(value),
+      errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+      isSmartConnector,
+      chainId,
+    })
+      .then(response => {
+        if (!response?.hash) throw new Error('Transaction failed')
+        const tokenAmountIn = feeValue0?.toSignificant(6)
+        const tokenAmountOut = feeValue1?.toSignificant(6)
+        const tokenSymbolIn = feeValue0?.currency.symbol ?? ''
+        const tokenSymbolOut = feeValue1?.currency.symbol ?? ''
+        addTransactionWithType({
+          hash: response.hash,
+          type: TRANSACTION_TYPE.COLLECT_FEE,
+          extraInfo: {
+            tokenAmountIn,
+            tokenAmountOut,
+            tokenAddressIn: feeValue0?.currency.wrapped.address,
+            tokenAddressOut: feeValue1?.currency.wrapped.address,
+            tokenSymbolIn,
+            tokenSymbolOut,
+            arbitrary: {
+              token_1: tokenSymbolIn,
+              token_2: tokenSymbolOut,
+              token_1_amount: tokenAmountIn,
+              token_2_amount: tokenAmountOut,
+            },
+          },
+        })
+        setAttemptingTxn(false)
+        setTxnHash(response.hash)
       })
       .catch((error: any) => {
         setShowPendingModal('collectFee')

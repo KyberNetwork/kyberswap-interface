@@ -26,7 +26,10 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
-import { encodeFunctionData } from 'utils/viem'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Address, encodeFunctionData } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 import InstantAbi from '../data/abis/instantClaimAbi.json'
 import avalanche from '../data/instant/avalanche.json'
@@ -87,7 +90,7 @@ const snapshotPrices: { [key: string]: number } = {
 export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () => void; phase: '1' | '2' | '2.5' }) {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
 
   const polygonContractAddress =
     phase === '2' ? phase2ContractAddress : phase === '2.5' ? phase2_5ContractAddress : contractAddress
@@ -174,116 +177,94 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
     phase !== '1'
       ? 'https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
       : 'https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link'
-  const signAndClaim = useCallback(() => {
+  const signAndClaim = useCallback(async () => {
     setAutoSign(false)
     setSigning(true)
 
-    library
-      ?.send('eth_signTypedData_v4', [
-        account,
-        JSON.stringify({
-          types: {
-            EIP712Domain: [
-              {
-                name: 'name',
-                type: 'string',
-              },
-              {
-                name: 'version',
-                type: 'string',
-              },
-              {
-                name: 'chainId',
-                type: 'uint256',
-              },
-              {
-                name: 'verifyingContract',
-                type: 'address',
-              },
-            ],
-            Agreement: [
-              {
-                name: 'leafIndex',
-                type: 'uint256',
-              },
-              {
-                name: 'termsAndConditions',
-                type: 'string',
-              },
-            ],
-          },
-          primaryType: 'Agreement',
-          domain: {
-            name: 'Kyberswap Instant Grant',
-            version: '1',
-            chainId: selectedNetworkToClaim,
-            verifyingContract: phase !== '1' ? polygonContractAddress : contractAddress,
-          },
-          message: {
-            leafIndex: userData[selectedIndex]?.claimData?.index,
-            termsAndConditions:
-              phase !== '1'
-                ? 'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms and Conditions which can be found at this link https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
-                : `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
-          },
-        }),
-      ])
-      .then(signature => {
-        const encodedData = encodeFunctionData({
-          abi: InstantAbi,
-          functionName: 'claim',
-          args: [
-            {
-              index: userData[selectedIndex]?.claimData?.index,
-              receiver: account,
-              tokenInfo: userData[selectedIndex]?.claimData.tokenInfo.map(item => ({
-                token: item.token,
-                amount: item.amount,
-              })),
-            },
-            userData[selectedIndex]?.proof,
-            signature,
+    try {
+      if (!account || !library || !selectedNetworkToClaim) throw new Error('Wallet not connected')
+
+      const verifyingContract = (phase !== '1' ? polygonContractAddress : contractAddress) as Address
+      const walletClient = await getGatedWalletClient({ chainId: selectedNetworkToClaim })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+
+      const signature = await (walletClient as any).signTypedData({
+        account: account as Address,
+        domain: {
+          name: 'Kyberswap Instant Grant',
+          version: '1',
+          chainId: selectedNetworkToClaim,
+          verifyingContract,
+        },
+        types: {
+          Agreement: [
+            { name: 'leafIndex', type: 'uint256' },
+            { name: 'termsAndConditions', type: 'string' },
           ],
-        })
-        library
-          ?.getSigner()
-          .sendTransaction({
-            to: phase !== '1' ? polygonContractAddress : contractAddress,
-            data: encodedData,
-          })
-          .then(tx => {
-            setSigning(false)
-            addTransactionWithType({
-              hash: tx.hash,
-              type: TRANSACTION_TYPE.CLAIM,
-            })
-            onDismiss()
-          })
-          .catch(e => {
-            console.log(e)
-            setSigning(false)
-            notify({
-              title: `Error`,
-              summary: friendlyError(e),
-              type: NotificationType.ERROR,
-            })
-          })
+        },
+        primaryType: 'Agreement',
+        message: {
+          leafIndex: BigInt(userData[selectedIndex]?.claimData?.index ?? 0),
+          termsAndConditions:
+            phase !== '1'
+              ? 'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms and Conditions which can be found at this link https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
+              : `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
+        },
       })
-      .catch(e => {
-        console.log(e)
-        setSigning(false)
-        notify({
-          title: `Error`,
-          summary: friendlyError(e),
-          type: NotificationType.ERROR,
-        })
+
+      const encodedData = encodeFunctionData({
+        abi: InstantAbi,
+        functionName: 'claim',
+        args: [
+          {
+            index: userData[selectedIndex]?.claimData?.index,
+            receiver: account,
+            tokenInfo: userData[selectedIndex]?.claimData.tokenInfo.map(item => ({
+              token: item.token,
+              amount: item.amount,
+            })),
+          },
+          userData[selectedIndex]?.proof,
+          signature,
+        ],
       })
+
+      const tx = await sendEVMTransaction({
+        account,
+        library,
+        contractAddress: verifyingContract,
+        encodedData,
+        value: 0n,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId: selectedNetworkToClaim,
+      })
+
+      setSigning(false)
+      if (tx?.hash) {
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.CLAIM,
+        })
+      }
+      onDismiss()
+    } catch (e: any) {
+      console.log(e)
+      setSigning(false)
+      notify({
+        title: `Error`,
+        summary: friendlyError(e),
+        type: NotificationType.ERROR,
+      })
+    }
   }, [
     phase,
     polygonContractAddress,
+    contractAddress,
     ipfsLink,
     account,
     library,
+    isSmartConnector,
     selectedNetworkToClaim,
     userData,
     selectedIndex,

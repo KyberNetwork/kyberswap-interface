@@ -23,6 +23,8 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { formatSignature } from 'utils/transaction'
 import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
+import { Address } from 'utils/viem'
+import { signTypedDataSafe } from 'utils/walletClient'
 
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder } from '../type'
@@ -156,7 +158,11 @@ const useRequestCancelOrder = ({
     const cancelPayload = { chainId: chainId.toString(), maker: account, orderIds }
     const messagePayload = await createCancelSignature(cancelPayload).unwrap()
 
-    const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
+    const rawSignature = await signTypedDataSafe({
+      chainId: chainId as number,
+      account: account as Address,
+      typedData: messagePayload,
+    })
     const signature = formatSignature(rawSignature)
     const resp = await cancelOrderRequest({ ...cancelPayload, signature }).unwrap()
 

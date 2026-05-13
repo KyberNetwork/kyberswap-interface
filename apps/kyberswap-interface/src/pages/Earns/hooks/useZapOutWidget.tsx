@@ -21,6 +21,8 @@ import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/appli
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
+import { Address } from 'utils/viem'
+import { signTypedDataSafe } from 'utils/walletClient'
 
 export interface ZapOutInfo {
   position: {
@@ -116,8 +118,14 @@ const useZapOutWidget = (
             source: 'kyberswap-earn',
             rpcUrl: zapOutRpcUrl,
             signTypedData: library
-              ? (account: string, typedDataJson: string) =>
-                  library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
+              ? async (account: string, typedDataJson: string) => {
+                  const parsedTypedData = JSON.parse(typedDataJson)
+                  return signTypedDataSafe({
+                    chainId: chainId as number,
+                    account: account.toLowerCase() as Address,
+                    typedData: parsedTypedData,
+                  })
+                }
               : undefined,
             referral: refCode,
             connectedAccount: {

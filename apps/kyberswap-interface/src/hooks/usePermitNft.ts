@@ -8,7 +8,8 @@ import { useReadingContract } from 'hooks/useContract'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { friendlyError } from 'utils/errorMessage'
-import { encodeAbiParameters, parseAbiParameters, parseSignature } from 'utils/viem'
+import { Address, encodeAbiParameters, parseAbiParameters, parseSignature } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 export enum PermitNftState {
   NOT_APPLICABLE = 'not_applicable',
@@ -142,7 +143,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
           name: contractName,
           version: '1',
           chainId,
-          verifyingContract: contractAddress,
+          verifyingContract: contractAddress as Address,
         }
 
         const types = {
@@ -155,30 +156,23 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         }
 
         const message = {
-          spender,
-          tokenId,
-          nonce: nonce.toString(),
-          deadline: permitDeadline,
+          spender: spender as Address,
+          tokenId: BigInt(tokenId),
+          nonce: BigInt(nonce.toString()),
+          deadline: BigInt(permitDeadline),
         }
 
-        const typedData = JSON.stringify({
-          types: {
-            EIP712Domain: [
-              { name: 'name', type: 'string' },
-              { name: 'version', type: 'string' },
-              { name: 'chainId', type: 'uint256' },
-              { name: 'verifyingContract', type: 'address' },
-            ],
-            ...types,
-          },
+        console.log(`Signing ${actualVersion} NFT permit`, { domain, types, message })
+
+        const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+        if (!walletClient) throw new Error('Wallet client unavailable')
+        const flatSig = (await (walletClient as any).signTypedData({
+          account: account.toLowerCase() as Address,
           domain,
+          types,
           primaryType: 'Permit',
           message,
-        })
-
-        console.log(`Signing ${actualVersion} NFT permit with data:`, typedData)
-
-        const flatSig = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
+        })) as string
 
         const sig = parseSignature(flatSig as `0x${string}`)
         // V3 permit data: encode(deadline, v, r, s)
@@ -196,7 +190,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         const domain = {
           name: contractName,
           chainId,
-          verifyingContract: contractAddress,
+          verifyingContract: contractAddress as Address,
         }
 
         const types = {
@@ -209,29 +203,23 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         }
 
         const message = {
-          spender,
-          tokenId,
-          nonce: nonce.toString(),
-          deadline: permitDeadline,
+          spender: spender as Address,
+          tokenId: BigInt(tokenId),
+          nonce: BigInt(nonce.toString()),
+          deadline: BigInt(permitDeadline),
         }
 
-        const typedData = JSON.stringify({
-          types: {
-            EIP712Domain: [
-              { name: 'name', type: 'string' },
-              { name: 'chainId', type: 'uint256' },
-              { name: 'verifyingContract', type: 'address' },
-            ],
-            ...types,
-          },
+        console.log(`Signing ${actualVersion} NFT permit`, { domain, types, message })
+
+        const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+        if (!walletClient) throw new Error('Wallet client unavailable')
+        signature = (await (walletClient as any).signTypedData({
+          account: account.toLowerCase() as Address,
           domain,
+          types,
           primaryType: 'Permit',
           message,
-        })
-
-        console.log(`Signing ${actualVersion} NFT permit with data:`, typedData)
-
-        signature = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
+        })) as string
 
         // V4 permit data: encode(deadline, nonce, signature) - keep existing working format
         permitData = encodeAbiParameters(parseAbiParameters('uint256, uint256, bytes'), [

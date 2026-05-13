@@ -9,6 +9,8 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 const SAFEPAL_JOINED_SESSION_KEY = 'safepal_joined_weeks'
 
@@ -132,7 +134,12 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
         issuedAt: new Date().toISOString(),
       }).prepareMessage()
 
-      const signature = await library.getSigner().signMessage(message)
+      const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+      const signature = await (walletClient as any).signMessage({
+        account: account as Address,
+        message,
+      })
       await joinCampaign({ userAddress: account, message, signature }).unwrap()
       saveJoinedWeekInSession(account, selectedWeekValue)
 

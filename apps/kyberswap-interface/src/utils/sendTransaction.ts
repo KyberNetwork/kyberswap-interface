@@ -1,7 +1,7 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { SignerPaymaster } from '@holdstation/paymaster-helper'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { getPublicClient, getWalletClient } from '@wagmi/core'
+import { getPublicClient } from '@wagmi/core'
 import { ethers } from 'ethers'
 import blackjackApi from 'services/blackjack'
 
@@ -13,6 +13,7 @@ import { calculateGasMargin } from 'utils'
 import { bigIntToBigNumber, hashToTxResponse } from './migration'
 import { BlacklistedWalletError, ErrorName, TransactionError } from './transactionError'
 import { Address, Hex, stringToHex } from './viem'
+import { getGatedWalletClient } from './walletClient'
 
 const projectName = 'KyberSwap'
 const partnerCode = stringToHex(projectName, { size: 32 })
@@ -77,8 +78,6 @@ export async function sendEVMTransaction({
 }): Promise<TransactionResponse | undefined> {
   if (!account || !library) throw new Error('Invalid transaction')
 
-  await ensureNotBlacklisted(account)
-
   let effectiveChainId = chainId
   try {
     if (!effectiveChainId) {
@@ -95,8 +94,11 @@ export async function sendEVMTransaction({
 
   // Paymaster path: the `@holdstation/paymaster-helper` SDK is typed against ethers, so
   // keep the legacy ethers Signer flow for this branch. The non-paymaster branch below
-  // uses viem directly.
+  // uses viem walletClient (gated via `getGatedWalletClient`), so the Blackjack check
+  // there runs at the EIP-1193 boundary. This branch bypasses viem entirely, so call
+  // the gate inline.
   if (paymentToken) {
+    await ensureNotBlacklisted(account)
     const baseTx = {
       from: account,
       to: contractAddress,
@@ -143,9 +145,11 @@ export async function sendEVMTransaction({
     }
   }
 
-  // Non-paymaster path: viem walletClient + publicClient via wagmi.
+  // Non-paymaster path: viem walletClient + publicClient via wagmi. The wallet client
+  // is gated — its `request()` runs `ensureNotBlacklisted` for any signing method, so
+  // we don't need a separate inline check here.
   const publicClient = getPublicClient(wagmiConfig, { chainId: effectiveChainId as number })
-  const walletClient = await getWalletClient(wagmiConfig, { chainId: effectiveChainId as number })
+  const walletClient = await getGatedWalletClient({ chainId: effectiveChainId as number })
   if (!publicClient || !walletClient) {
     throw new Error('Wallet client unavailable for the requested chain')
   }

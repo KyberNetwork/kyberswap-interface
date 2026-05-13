@@ -58,7 +58,9 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
 import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin, formattedNum, isAddressString } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
+import { sendEVMTransaction } from 'utils/sendTransaction'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
+import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
 import {
@@ -154,7 +156,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const { networkInfo, account, chainId } = useActiveWeb3React()
 
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
@@ -386,26 +388,18 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         havingFee: claimFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
       },
     })
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
-    }
-
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then(async (estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            handleBroadcastRemoveSuccess(response)
-          })
+    sendEVMTransaction({
+      account,
+      library,
+      contractAddress: positionManager.address,
+      encodedData: calldata as `0x${string}`,
+      value: BigInt(value),
+      errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+      isSmartConnector,
+      chainId,
+    })
+      .then(response => {
+        if (response) handleBroadcastRemoveSuccess(response)
       })
       .catch((error: any) => {
         console.log('error', error)

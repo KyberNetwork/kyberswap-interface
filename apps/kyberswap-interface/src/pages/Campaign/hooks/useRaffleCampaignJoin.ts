@@ -10,6 +10,8 @@ import { SiweMessage } from 'siwe'
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 const RAFFLE_JOINED_SESSION_KEY = 'raffle_joined_weeks'
 
@@ -114,7 +116,12 @@ export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
         issuedAt: new Date().toISOString(),
       }).prepareMessage()
 
-      const signature = await library.getSigner().signMessage(message)
+      const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+      const signature = await (walletClient as any).signMessage({
+        account: account as Address,
+        message,
+      })
       await joinCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
       saveJoinedWeekInSession(account, selectedWeek)
 
