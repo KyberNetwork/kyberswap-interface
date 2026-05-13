@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
@@ -68,7 +67,7 @@ export const submitTransaction = async ({
     const signer = library.getSigner()
     const account = await signer.getAddress()
     const network = await library.getNetwork()
-    const value = txData.value ? BigNumber.from(txData.value) : BigNumber.from(0)
+    const value = txData.value ? BigInt(txData.value.toString()) : 0n
     const res = await sendEVMTransaction({
       account,
       library,

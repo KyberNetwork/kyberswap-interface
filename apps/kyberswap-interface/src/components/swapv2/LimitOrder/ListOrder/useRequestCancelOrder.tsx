@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   useCancelOrdersMutation,
@@ -88,7 +87,7 @@ const useRequestCancelOrder = ({
         library,
         contractAddress: contract,
         encodedData,
-        value: BigNumber.from(0),
+        value: 0n,
         isSmartConnector,
         errorInfo: {
           name: ErrorName.LimitOrderError,

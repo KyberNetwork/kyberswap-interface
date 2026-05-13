@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
@@ -66,7 +65,7 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
           library,
           contractAddress: res.data.ContractAddress,
           encodedData: res.data.EncodedData,
-          value: BigNumber.from(0),
+          value: 0n,
           errorInfo: { name: ErrorName.GasRefundClaimError, wallet: undefined },
           isSmartConnector: false,
           chainId,

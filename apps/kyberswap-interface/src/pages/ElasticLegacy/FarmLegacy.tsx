@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
@@ -137,7 +136,7 @@ export default function FarmLegacy({
           library,
           contractAddress: claimInfo.address,
           encodedData: claimInfo.encodedData,
-          value: BigNumber.from(0),
+          value: 0n,
           errorInfo: { name: ErrorName.GasRefundClaimError, wallet: undefined },
           isSmartConnector,
           chainId,

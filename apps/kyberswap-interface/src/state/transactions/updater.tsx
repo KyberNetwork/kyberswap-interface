@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
 import { TxValidationError, findReplacementTx } from 'find-replacement-tx'
@@ -199,8 +198,8 @@ export default function Updater(): null {
             }
             trackingHandler(TRACKING_EVENT_TYPE.SWAP_COMPLETED, {
               arbitrary,
-              actual_gas: receipt.gasUsed || BigNumber.from(0),
-              gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
+              actual_gas: receipt.gasUsed || 0n,
+              gas_price: receipt.effectiveGasPrice || 0n,
               tx_hash: receipt.transactionHash,
               feeInfo: arbitrary.feeInfo,
             })

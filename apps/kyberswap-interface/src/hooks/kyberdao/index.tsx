@@ -580,7 +580,7 @@ export function useClaimGasRefundRewards() {
         contractAddress: rewardContractAddress,
         isSmartConnector,
         encodedData,
-        value: BigNumber.from(0),
+        value: 0n,
         errorInfo: {
           name: ErrorName.GasRefundClaimError,
           wallet: walletKey,

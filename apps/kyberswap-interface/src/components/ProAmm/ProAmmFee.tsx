@@ -129,7 +129,7 @@ export default function ProAmmFee({
         library,
         contractAddress: positionManager.address,
         encodedData: calldata as `0x${string}`,
-        value: BigNumber.from(value),
+        value: BigInt(value),
         errorInfo: { name: ErrorName.SwapError, wallet: undefined },
         isSmartConnector,
         chainId,

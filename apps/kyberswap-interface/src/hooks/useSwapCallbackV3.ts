@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useCallback } from 'react'
 
@@ -125,7 +124,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
-      const value = BigNumber.from(inputAmount.currency.isNative ? inputAmount.quotient.toString() : 0)
+      const value = inputAmount.currency.isNative ? BigInt(inputAmount.quotient.toString()) : 0n
 
       const response = await sendEVMTransaction({
         account,

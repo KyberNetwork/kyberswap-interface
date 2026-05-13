@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { SignerPaymaster } from '@holdstation/paymaster-helper'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -67,7 +66,7 @@ export async function sendEVMTransaction({
   library: ethers.providers.Web3Provider | undefined
   contractAddress: string
   encodedData: string
-  value: BigNumber
+  value: bigint
   errorInfo: {
     name: ErrorName
     wallet: string | undefined
@@ -92,7 +91,7 @@ export async function sendEVMTransaction({
     !isSmartConnector && effectiveChainId === ChainId.BASE ? `${encodedData}${BASE_BUILDER_CODE}` : encodedData
   ) as Hex
 
-  const txValue = value && !value.eq(0) ? BigInt(value.toString()) : undefined
+  const txValue = value && value !== 0n ? value : undefined
 
   // Paymaster path: the `@holdstation/paymaster-helper` SDK is typed against ethers, so
   // keep the legacy ethers Signer flow for this branch. The non-paymaster branch below
@@ -126,7 +125,7 @@ export async function sendEVMTransaction({
         {
           ...estimateGasOption,
           gasLimit,
-          value: value ? ethers.BigNumber.from(value) : undefined,
+          value: txValue !== undefined ? ethers.BigNumber.from(txValue) : undefined,
         },
         gasLimit.toNumber(),
       )

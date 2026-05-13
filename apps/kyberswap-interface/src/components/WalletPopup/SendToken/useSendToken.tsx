@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { getPublicClient } from '@wagmi/core'
 import { useCallback, useEffect, useState } from 'react'
@@ -84,7 +83,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
       setIsSending(true)
       const isNative = currency.isNative
       const contractAddress = isNative ? recipient : currency.wrapped.address
-      const value = isNative ? BigNumber.from(parseEther(amount).toString()) : BigNumber.from(0)
+      const value = isNative ? parseEther(amount) : 0n
       const encodedData = (
         isNative
           ? '0x'
