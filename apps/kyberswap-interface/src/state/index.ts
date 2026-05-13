@@ -42,7 +42,6 @@ import limit from './limit/reducer'
 import lists from './lists/reducer'
 import mintV2 from './mint/proamm/reducer'
 import mint from './mint/reducer'
-import multicall from './multicall/reducer'
 import pair from './pair/reducer'
 import pools from './pools/reducer'
 import profile from './profile/reducer'
@@ -89,7 +88,6 @@ const store = configureStore({
     mintV2,
     burn,
     burnProAmm,
-    multicall,
     lists,
     pair,
     pools,

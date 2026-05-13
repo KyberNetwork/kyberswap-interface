@@ -1,22 +1,12 @@
-import { FunctionFragment, Interface } from '@ethersproject/abi'
+/* eslint-disable no-restricted-imports */
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useMemo } from 'react'
+import { useReadContract, useReadContracts } from 'wagmi'
 
-import { EMPTY_ARRAY } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
-import { AppDispatch, AppState } from 'state/index'
+import { Abi, Address } from 'utils/viem'
 
-import {
-  Call,
-  ListenerOptions,
-  addMulticallListeners,
-  parseCallKey,
-  removeMulticallListeners,
-  toCallKey,
-} from './actions'
+import { ListenerOptions } from './actions'
 
 export interface Result extends ReadonlyArray<any> {
   readonly [key: string]: any
@@ -38,213 +28,83 @@ function isValidMethodArgs(x: unknown): x is MethodArgs | undefined {
   )
 }
 
-interface CallResult {
-  readonly valid: boolean
-  readonly data: string | undefined
-  readonly blockNumber: number | undefined
-}
-
-const INVALID_RESULT: CallResult = { valid: false, blockNumber: undefined, data: undefined }
-
-// use this options object
-export const NEVER_RELOAD: ListenerOptions = {
-  blocksPerFetch: Infinity,
-}
-
-// the lowest level call for subscribing to contract data
-export function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
-  const { chainId } = useActiveWeb3React()
-  const callResults = useSelector<AppState, AppState['multicall']['callResults'][ChainId]>(
-    state => state.multicall.callResults?.[chainId],
-  )
-  const dispatch = useDispatch<AppDispatch>()
-
-  const serializedCallKeys: string = useMemo(
-    () =>
-      JSON.stringify(
-        calls
-          ?.filter((c): c is Call => Boolean(c))
-          ?.map(toCallKey)
-          ?.sort() ?? [],
-      ),
-    [calls],
-  )
-
-  // update listeners when there is an actual change that persists for at least 100ms
-  useEffect(() => {
-    const callKeys: string[] = JSON.parse(serializedCallKeys)
-    if (callKeys.length === 0) return undefined
-    const calls = callKeys.map(key => parseCallKey(key))
-
-    dispatch(
-      addMulticallListeners({
-        chainId,
-        calls,
-        options,
-      }),
-    )
-
-    return () => {
-      dispatch(
-        removeMulticallListeners({
-          chainId,
-          calls,
-          options,
-        }),
-      )
-    }
-  }, [dispatch, options, serializedCallKeys, chainId])
-
-  const lastResults = useRef<CallResult[]>([])
-  return useMemo(() => {
-    let isChanged = lastResults.current.length !== calls.length
-
-    // Construct results using a for-loop to handle sparse arrays.
-    // Array.prototype.map would skip empty entries.
-    const results: CallResult[] = []
-    for (let i = 0; i < calls.length; ++i) {
-      const call = calls[i]
-      let result = INVALID_RESULT
-      if (call) {
-        const callResult = callResults?.[toCallKey(call)]
-        result = {
-          valid: true,
-          data: callResult?.data && callResult.data !== '0x' ? callResult.data : undefined,
-          blockNumber: callResult?.blockNumber,
-        }
-      }
-
-      isChanged = isChanged || !areCallResultsEqual(result, lastResults.current[i])
-      results.push(result)
-    }
-
-    // Force the results to be referentially stable if they have not changed.
-    // This is necessary because *all* callResults are passed as deps when initially memoizing the results.
-    if (isChanged) {
-      lastResults.current = results
-    }
-    return lastResults.current
-  }, [callResults, calls])
-}
-
-function areCallResultsEqual(a: CallResult, b: CallResult) {
-  return a.valid === b.valid && a.data === b.data && a.blockNumber === b.blockNumber
-}
-
 interface CallState {
   readonly valid: boolean
-  // the result, or undefined if loading or errored/no data
   readonly result: Result | undefined
-  // true if the result has never been fetched
   readonly loading: boolean
-  // true if the result is not for the latest block
-  // readonly syncing: boolean
-  // true if the call was made and is synced, but the return data is invalid
   readonly error: boolean
 }
 
 const INVALID_CALL_STATE: CallState = { valid: false, result: undefined, loading: false, error: false }
 const LOADING_CALL_STATE: CallState = { valid: true, result: undefined, loading: true, error: false }
+const ERROR_CALL_STATE: CallState = { valid: true, result: undefined, loading: false, error: true }
 
-export function toCallState(
-  callResult: CallResult | undefined,
-  contractInterface: Interface | undefined,
-  fragment: FunctionFragment | undefined,
-): CallState {
-  if (!callResult || !callResult.valid) return INVALID_CALL_STATE
-  const { data, blockNumber } = callResult
-  if (!blockNumber || !contractInterface || !fragment) return LOADING_CALL_STATE
-  const success = data && data.length > 2
-  // const syncing = blockNumber < latestBlockNumber
-  let result: Result | undefined = undefined
-  if (success && data) {
-    try {
-      result = contractInterface.decodeFunctionResult(fragment, data)
-    } catch (error) {
-      console.debug('Result data parsing failed', fragment, data)
-      return {
-        valid: true,
-        loading: false,
-        error: true,
-        result,
-      }
-    }
-  }
-  return {
-    valid: true,
-    loading: false,
-    result: result,
-    error: !success,
+// Mirrors the old `blocksPerFetch: Infinity` option: viem/wagmi caches indefinitely.
+export const NEVER_RELOAD: ListenerOptions = { blocksPerFetch: Infinity }
+
+type AbiFunctionItem = {
+  type: 'function'
+  name: string
+  inputs?: Array<{ name?: string; type: string }>
+  outputs?: Array<{ name?: string; type: string }>
+}
+
+function findFunctionItem(abi: Abi, methodName: string): AbiFunctionItem | undefined {
+  return (abi as unknown as AbiFunctionItem[]).find(item => item?.type === 'function' && item?.name === methodName)
+}
+
+// Extract ABI from an ethers Contract instance via its Interface.
+// `interface.format('json')` returns the full ABI as a JSON string.
+function contractToAbi(contract: Contract | null | undefined): Abi | null {
+  const iface = contract?.interface as { format(format: string): string } | undefined
+  if (!iface) return null
+  try {
+    return JSON.parse(iface.format('json')) as Abi
+  } catch {
+    return null
   }
 }
 
-export function useSingleContractMultipleData(
-  contract: Contract | null | undefined,
-  methodName: string,
-  callInputs: OptionalMethodInputs[],
-  options?: ListenerOptions,
-): CallState[] {
-  const fragment = useMemo(() => contract?.interface?.getFunction(methodName), [contract, methodName])
-  const { gasRequired } = useMemo(() => options ?? {}, [options])
-  const calls = useMemo(
-    () =>
-      contract && fragment && callInputs && callInputs.length > 0
-        ? callInputs.map<Call>(inputs => {
-            return {
-              address: contract.address,
-              callData: contract.interface.encodeFunctionData(fragment, inputs),
-              gasRequired,
-            }
-          })
-        : EMPTY_ARRAY,
-    [callInputs, contract, fragment, gasRequired],
-  )
-
-  const results = useCallsData(calls, options)
-
-  return useMemo(() => {
-    return results.map(result => toCallState(result, contract?.interface, fragment))
-  }, [fragment, contract, results])
+// Recursively wrap viem `bigint` values (returned for uint256/int256 etc.) as ethers `BigNumber`
+// so legacy callers can keep using `.eq()`, `.toNumber()`, `.mul()` etc. Phase 7 removes this
+// once callers migrate to native bigint arithmetic.
+function wrapBigInts(value: unknown): unknown {
+  if (typeof value === 'bigint') return BigNumber.from(value.toString())
+  if (Array.isArray(value)) return value.map(wrapBigInts)
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const k of Object.keys(value)) out[k] = wrapBigInts((value as Record<string, unknown>)[k])
+    return out
+  }
+  return value
 }
 
-export function useMultipleContractSingleData(
-  addresses: (string | undefined)[],
-  contractInterface: Interface,
-  methodName: string,
-  callInputs?: OptionalMethodInputs,
-  options?: ListenerOptions,
-): CallState[] {
-  const fragment = useMemo(() => contractInterface.getFunction(methodName), [contractInterface, methodName])
+// Reshape viem's decoded result into an ethers-style `Result` (array-with-named-keys),
+// matching what the legacy multicall layer produced from `Interface.decodeFunctionResult`.
+function toResult(item: AbiFunctionItem | undefined, decoded: unknown): Result {
+  if (!item) return [] as unknown as Result
+  const outputs = item.outputs ?? []
+  const wrapped = wrapBigInts(decoded)
+  let arr: any[]
+  if (outputs.length === 0) {
+    arr = []
+  } else if (outputs.length === 1) {
+    arr = [wrapped]
+  } else if (Array.isArray(wrapped)) {
+    arr = [...wrapped]
+  } else if (wrapped && typeof wrapped === 'object') {
+    arr = outputs.map((o, i) => (wrapped as any)[o.name ?? i])
+  } else {
+    arr = [wrapped]
+  }
+  outputs.forEach((o, i) => {
+    if (o.name) (arr as any)[o.name] = arr[i]
+  })
+  return arr as Result
+}
 
-  const callData: string | undefined = useMemo(
-    () =>
-      fragment && isValidMethodArgs(callInputs)
-        ? contractInterface.encodeFunctionData(fragment, callInputs)
-        : undefined,
-    [callInputs, contractInterface, fragment],
-  )
-  const { gasRequired } = useMemo(() => options ?? {}, [options])
-  const calls = useMemo(
-    () =>
-      fragment && addresses?.length > 0 && callData
-        ? addresses.map<Call | undefined>(address => {
-            return address && callData
-              ? {
-                  address,
-                  callData,
-                  gasRequired,
-                }
-              : undefined
-          })
-        : EMPTY_ARRAY,
-    [addresses, callData, fragment, gasRequired],
-  )
-
-  const results = useCallsData(calls, options)
-
-  return useMemo(() => {
-    return results.map(result => toCallState(result, contractInterface, fragment))
-  }, [results, contractInterface, fragment])
+function staleTimeFrom(options?: ListenerOptions): number | undefined {
+  return options?.blocksPerFetch === Infinity ? Infinity : undefined
 }
 
 export function useSingleCallResult(
@@ -253,23 +113,135 @@ export function useSingleCallResult(
   inputs?: OptionalMethodInputs,
   options?: ListenerOptions,
 ): CallState {
-  const fragment = useMemo(() => contract?.interface?.getFunction(methodName), [contract?.interface, methodName])
-  const { gasRequired } = options ?? {}
-  const calls = useMemo<Call[]>(() => {
-    return contract && fragment && isValidMethodArgs(inputs)
-      ? [
-          {
-            address: contract.address,
-            callData: contract.interface.encodeFunctionData(fragment, inputs),
-            gasRequired,
-          },
-        ]
-      : EMPTY_ARRAY
-  }, [contract, fragment, inputs, gasRequired])
+  const abi = useMemo(() => contractToAbi(contract), [contract])
+  const fnItem = useMemo(() => (abi ? findFunctionItem(abi, methodName) : undefined), [abi, methodName])
+  const argsValid = isValidMethodArgs(inputs)
+  const enabled = !!contract && !!abi && !!fnItem && argsValid
+  const staleTime = staleTimeFrom(options)
 
-  const { valid, data, blockNumber } = useCallsData(calls, options)[0] || {}
+  const { data, isError } = useReadContract({
+    address: contract?.address as Address | undefined,
+    abi: (abi ?? []) as Abi,
+    functionName: methodName,
+    args: (argsValid ? (inputs as readonly unknown[] | undefined) : undefined) as readonly unknown[] | undefined,
+    query: {
+      enabled,
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : {}),
+    },
+  })
 
   return useMemo(() => {
-    return toCallState({ valid, data, blockNumber }, contract?.interface, fragment)
-  }, [valid, data, blockNumber, contract, fragment])
+    if (!enabled) return INVALID_CALL_STATE
+    if (isError) return ERROR_CALL_STATE
+    if (data === undefined) return LOADING_CALL_STATE
+    return { valid: true, result: toResult(fnItem, data), loading: false, error: false }
+  }, [enabled, isError, data, fnItem])
 }
+
+export function useSingleContractMultipleData(
+  contract: Contract | null | undefined,
+  methodName: string,
+  callInputs: OptionalMethodInputs[],
+  options?: ListenerOptions,
+): CallState[] {
+  const abi = useMemo(() => contractToAbi(contract), [contract])
+  const fnItem = useMemo(() => (abi ? findFunctionItem(abi, methodName) : undefined), [abi, methodName])
+  const staleTime = staleTimeFrom(options)
+
+  // Per-input validity; wagmi cannot mark individual entries as disabled, so we filter to valid
+  // entries for the call and remap results by index afterwards.
+  const validityMask = useMemo(() => callInputs.map(args => isValidMethodArgs(args)), [callInputs])
+  const validInputs = useMemo(
+    () =>
+      validityMask
+        .map((ok, i) => (ok ? callInputs[i] : null))
+        .filter((args): args is OptionalMethodInputs => args !== null),
+    [callInputs, validityMask],
+  )
+
+  const contractCalls = useMemo(() => {
+    if (!contract || !abi || !fnItem) return []
+    return validInputs.map(args => ({
+      address: contract.address as Address,
+      abi: abi as Abi,
+      functionName: methodName,
+      args: ((args ?? []) as readonly unknown[]) || [],
+    }))
+  }, [contract, abi, fnItem, methodName, validInputs])
+
+  const { data } = useReadContracts({
+    contracts: contractCalls,
+    allowFailure: true,
+    query: {
+      enabled: contractCalls.length > 0,
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : {}),
+    },
+  })
+
+  return useMemo(() => {
+    if (!contract || !abi || !fnItem) {
+      return callInputs.map((_args, i) => (validityMask[i] ? LOADING_CALL_STATE : INVALID_CALL_STATE))
+    }
+    let validIdx = 0
+    return callInputs.map((_args, i) => {
+      if (!validityMask[i]) return INVALID_CALL_STATE
+      const item = data?.[validIdx++]
+      if (!item) return LOADING_CALL_STATE
+      if (item.status === 'failure') return ERROR_CALL_STATE
+      return { valid: true, result: toResult(fnItem, item.result), loading: false, error: false }
+    })
+  }, [contract, abi, fnItem, data, callInputs, validityMask])
+}
+
+export function useMultipleContractSingleData(
+  addresses: (string | undefined)[],
+  abi: Abi,
+  methodName: string,
+  callInputs?: OptionalMethodInputs,
+  options?: ListenerOptions,
+): CallState[] {
+  const fnItem = useMemo(() => findFunctionItem(abi, methodName), [abi, methodName])
+  const argsValid = isValidMethodArgs(callInputs)
+  const staleTime = staleTimeFrom(options)
+
+  const validityMask = useMemo(() => addresses.map(addr => !!addr && argsValid), [addresses, argsValid])
+
+  const contractCalls = useMemo(() => {
+    if (!fnItem || !argsValid) return []
+    return addresses
+      .map(addr =>
+        addr
+          ? {
+              address: addr as Address,
+              abi,
+              functionName: methodName,
+              args: ((callInputs ?? []) as readonly unknown[]) || [],
+            }
+          : null,
+      )
+      .filter((c): c is NonNullable<typeof c> => c !== null)
+  }, [addresses, abi, fnItem, argsValid, methodName, callInputs])
+
+  const { data } = useReadContracts({
+    contracts: contractCalls,
+    allowFailure: true,
+    query: {
+      enabled: contractCalls.length > 0,
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : {}),
+    },
+  })
+
+  return useMemo(() => {
+    if (!fnItem) return addresses.map(() => INVALID_CALL_STATE)
+    let validIdx = 0
+    return addresses.map((_addr, i) => {
+      if (!validityMask[i]) return INVALID_CALL_STATE
+      const item = data?.[validIdx++]
+      if (!item) return LOADING_CALL_STATE
+      if (item.status === 'failure') return ERROR_CALL_STATE
+      return { valid: true, result: toResult(fnItem, item.result), loading: false, error: false }
+    })
+  }, [addresses, fnItem, data, validityMask])
+}
+
+export type { CallState }

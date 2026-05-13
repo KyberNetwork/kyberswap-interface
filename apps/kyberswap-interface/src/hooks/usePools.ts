@@ -1,4 +1,3 @@
-import { Interface } from '@ethersproject/abi'
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
@@ -6,6 +5,7 @@ import { useMemo } from 'react'
 import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
 import { useActiveWeb3React } from 'hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
+import { Abi } from 'utils/viem'
 
 export enum PoolState {
   LOADING = 'LOADING',
@@ -14,7 +14,7 @@ export enum PoolState {
   INVALID = 'INVALID',
 }
 
-const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI.abi)
+const POOL_STATE_ABI = ProAmmPoolStateABI.abi as Abi
 
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][],
@@ -52,8 +52,8 @@ export function usePools(
     })
   }, [transformed, networkInfo, customFactory, customHash])
 
-  const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getPoolState')
-  const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getLiquidityState')
+  const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_ABI, 'getPoolState')
+  const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_ABI, 'getLiquidityState')
 
   return useMemo(() => {
     return poolKeys.map((_key, index) => {

@@ -1,6 +1,6 @@
 import { DMMPool } from '@kyberswap/ks-sdk-classic'
-import { Interface } from 'ethers/lib/utils'
 
-const DMM_POOL_INTERFACE = new Interface(DMMPool.abi)
+const DMM_POOL_ABI = DMMPool.abi
 
-export default DMM_POOL_INTERFACE
+export default DMM_POOL_ABI
+export { DMM_POOL_ABI }
