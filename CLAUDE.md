@@ -1,24 +1,26 @@
 # KyberSwap Interface
 
-Unified frontend monorepo for Kyber Network's DeFi products (Aggregator, Limit Orders, Zap Widgets, Cross-Chain Swaps).
+Unified frontend monorepo for Kyber Network DeFi products (Aggregator, Limit Orders, Zap Widgets, and Cross-Chain Swaps).
 
 ## Quick Start
 
 ```bash
-pnpm i                                    # Install dependencies
-pnpm build-package                        # Build shared packages (REQUIRED before running apps)
-cd apps/kyberswap-interface && pnpm dev    # Run main interface
+pnpm i
+pnpm build-package                         # Required: builds shared workspace packages
+cd apps/kyberswap-interface
+pnpm dev
 ```
 
 ## Development Commands
 
-| Command              | Purpose                        |
-| -------------------- | ------------------------------ |
-| `pnpm i`             | Install all dependencies       |
-| `pnpm build-package` | Build shared packages only     |
-| `pnpm build`         | Build everything               |
-| `pnpm lint`          | Run ESLint across all packages |
-| `pnpm type-check`    | TypeScript validation          |
+| Command              | Purpose                              |
+| -------------------- | ------------------------------------ |
+| `pnpm i`             | Install all dependencies             |
+| `pnpm build-package` | Build shared packages only           |
+| `pnpm build`         | Build all apps and packages          |
+| `pnpm lint`          | Run ESLint across all workspaces     |
+| `pnpm type-check`    | Run TypeScript checks                |
+| `pnpm audit --prod`  | Check production deps for vulnerabilities |
 
 ## Before Committing
 
@@ -26,52 +28,83 @@ cd apps/kyberswap-interface && pnpm dev    # Run main interface
 pnpm lint
 pnpm type-check
 pnpm build
+pnpm audit --prod
 ```
 
 ## Tech Stack
 
 - React 18 + TypeScript + Vite
 - pnpm workspaces + Turborepo
-- styled-components (no CSS modules, no inline styles)
+- styled-components (no CSS Modules, no inline styles)
 - Redux Toolkit + RTK Query (app state), zustand (widget state)
 - ethers.js, wagmi, viem
 
 ## Code Conventions
 
-- Functional components with hooks only
-- TypeScript strict mode, no unjustified `any`
-- Components: `PascalCase.tsx`, Hooks: `useCamelCase.ts`, Utils: `camelCase.ts`
-- Import order: external libs → `@kyberswap/*` → local imports → types → styles
+- Use functional components with hooks only
+- TypeScript strict mode is required; no unjustified `any`
+- Naming:
+  - Components: `PascalCase.tsx`
+  - Hooks: `useCamelCase.ts`
+  - Utils: `camelCase.ts`
+- Import order:
+  1. External libraries
+  2. `@kyberswap/*`
+  3. Local imports
+  4. Types
+  5. Styles
 
-## Code Quality Rules (MUST follow)
+## Code Quality Rules (MUST Follow)
 
-When writing or modifying code, **always** ensure the result is free of:
+When writing or modifying code, always ensure the result has:
 
-1. **TypeScript errors/warnings** — no `any` unless absolutely necessary (and justified with a comment), no implicit `any`, no unused variables/imports, no type mismatches. Run mental type-checking on every change.
-2. **ESLint violations** — follow all project ESLint rules. Key rules include:
-   - No unused imports or variables (`unused-imports/no-unused-imports`)
-   - Proper React hooks dependency arrays (`react-hooks/exhaustive-deps`)
-   - Proper import ordering
-3. **Prettier formatting** — all code must match the project's Prettier config (single quotes, trailing commas, semicolons, print width). Format code consistently.
+1. **Zero TypeScript errors/warnings**
+   - No implicit `any`
+   - No unused variables/imports
+   - No type mismatches
 
-**Workflow (MANDATORY)**: After making any code changes, you **MUST** run the following commands on the affected package(s) and fix all errors before considering the task done:
+2. **Zero ESLint violations**
+   - No unused imports/variables (`unused-imports/no-unused-imports`)
+   - Correct hook dependency arrays (`react-hooks/exhaustive-deps`)
+   - Correct import ordering
+
+3. **Prettier-compliant formatting**
+   - Respect project config (single quotes, trailing commas, semicolons, print width)
+
+### Mandatory Validation Workflow
+
+After any change, run and fix issues until clean:
 
 ```bash
-pnpm lint          # Fix all ESLint errors/warnings
-pnpm type-check    # Fix all TypeScript errors
+pnpm lint
+pnpm type-check
 ```
 
-Format all modified files with Prettier. Do **NOT** present code changes as complete until these checks pass with zero errors. If any check fails, fix the issues and re-run until clean.
+Format all modified files with Prettier before finalizing.
+
+## Security Rules (MUST Follow)
+
+- **Always validate transaction context** before sending/signing:
+  - Verify connected `chainId` matches expected network
+  - Reject zero-address or malformed token/recipient addresses
+  - Block unsafe infinite approvals unless explicitly required by UX
+- **Always run dependency vulnerability checks** before merging:
+  - `pnpm audit --prod`
 
 ## Color & Styling Rules
 
-- **Always use theme colors** — never hardcode hex/rgb values. Use `${({ theme }) => theme.colorName}` in styled-components. Check `src/theme/color.ts` for existing tokens before introducing new colors.
-- Key tokens: `primary`, `text`, `subText`, `background`, `border`, `red1`, `warning`, `buttonBlack`, `buttonGray`, `tableHeader`, etc.
+- Always use theme tokens; never hardcode hex/rgb values
+- In styled-components, use `${({ theme }) => theme.colorName}`
+- Check `src/theme/color.ts` before adding any new color token
+- Common tokens: `primary`, `text`, `subText`, `background`, `border`, `red1`, `warning`, `buttonBlack`, `buttonGray`, `tableHeader`
 
 ## Number Formatting Rules
 
-- **Always reuse existing formatters** — before writing any number formatting logic, check the existing utilities:
-  - `formatDisplayNumber()` from `utils/numbers.ts` (app-level, supports `decimal`/`currency`/`percent`)
+- Reuse existing formatters before creating new logic:
+  - `formatDisplayNumber()` from `utils/numbers.ts` (supports `decimal` / `currency` / `percent`)
   - `formatDisplayNumber()`, `formatTokenAmount()`, `formatCurrency()`, `formatNumber()`, `formatWei()`, `formatAprNumber()` from `@kyberswap/utils`
   - `formatTokenBalance()`, `formatBigLiquidity()`, `formatLongNumber()` from `utils/formatBalance.ts`
-- Do **not** use deprecated formatters (`formatDollarAmount`, `formattedNum`, `formatCurrencyAmount`).
+- Do **not** use deprecated formatters:
+  - `formatDollarAmount`
+  - `formattedNum`
+  - `formatCurrencyAmount`
