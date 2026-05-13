@@ -1,6 +1,5 @@
 import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -37,7 +36,7 @@ const AddressWrapper = styled.div`
   }
 `
 
-const getFullDisplayBalance = (balance: BigNumber, decimals = 18, significant = 6): string => {
+const getFullDisplayBalance = (balance: bigint, decimals = 18, significant = 6): string => {
   const amount = new Fraction(balance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
   if (amount.lessThan(new Fraction('1'))) {
     return amount.toSignificant(significant)
@@ -51,7 +50,7 @@ function FaucetModal() {
   const open = useModalOpen(ApplicationModal.FAUCET_POPUP)
   const toggle = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const theme = useTheme()
-  const [rewardData, setRewardData] = useState<{ amount: BigNumber; tokenAddress: string; program: number }>()
+  const [rewardData, setRewardData] = useState<{ amount: bigint; tokenAddress: string; program: number }>()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
   const { trackingHandler } = useTracking()
@@ -98,7 +97,7 @@ function FaucetModal() {
         })
         setRewardData(rw => {
           if (rw) {
-            rw.amount = BigNumber.from(0)
+            rw.amount = 0n
           }
           return rw
         })
@@ -117,7 +116,7 @@ function FaucetModal() {
         )
         if (data[0])
           setRewardData({
-            amount: BigNumber.from(data[0].amount),
+            amount: BigInt(data[0].amount),
             tokenAddress: data[0].token,
             program: data[0].programId,
           })
@@ -159,7 +158,7 @@ function FaucetModal() {
 
         {account ? (
           <ButtonPrimary
-            disabled={!rewardData?.amount || rewardData?.amount.eq(0)}
+            disabled={!rewardData?.amount || rewardData?.amount === 0n}
             onClick={() => {
               claimRewardCallBack()
               trackingHandler(TRACKING_EVENT_TYPE.FAUCET_REQUEST_INITIATED)

@@ -178,7 +178,7 @@ export default function TokenPair({
       spender: contractAddress,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
-      deadline: deadline.toNumber(),
+      deadline: Number(deadline),
     }
     const data = JSON.stringify({
       types: {
@@ -199,7 +199,7 @@ export default function TokenPair({
             v: Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
             r: signature.r,
             s: signature.s,
-            deadline: deadline.toNumber(),
+            deadline: Number(deadline),
           })
         })
     } catch (error) {
@@ -281,7 +281,7 @@ export default function TokenPair({
           amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
           amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),
           account,
-          deadline.toHexString(),
+          `0x${deadline.toString(16)}`,
         ]
       }
       // removeLiquidity
@@ -295,7 +295,7 @@ export default function TokenPair({
           amountsMin[Field.CURRENCY_A].toString(),
           amountsMin[Field.CURRENCY_B].toString(),
           account,
-          deadline.toHexString(),
+          `0x${deadline.toString(16)}`,
         ]
       }
     }

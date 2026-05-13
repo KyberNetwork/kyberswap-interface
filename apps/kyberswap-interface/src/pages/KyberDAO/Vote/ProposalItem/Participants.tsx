@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import { useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import kyberDAOApi from 'services/kyberDAO'
@@ -159,12 +158,12 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
     if (!proposalInfo?.vote_stats?.votes) return
     return proposalInfo.vote_stats.votes
       .slice()
-      .sort((a, b) => (BigNumber.from(a.power).sub(BigNumber.from(b.power)).gt(0) ? -1 : 1))
+      .sort((a, b) => (BigInt(a.power) > BigInt(b.power) ? -1 : 1))
       .map(v => {
         return {
           ...v,
           staker: v.staker.slice(0, 9) + '...' + v.staker.slice(-4),
-          power: Math.floor(parseFloat(getFullDisplayBalance(BigNumber.from(v.power), 18))).toLocaleString(),
+          power: Math.floor(parseFloat(getFullDisplayBalance(v.power, 18))).toLocaleString(),
         }
       })
   }, [proposalInfo])

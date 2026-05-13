@@ -219,7 +219,7 @@ export default function ZapOut({
         : networkInfo.classic.dynamic?.zap,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
-      deadline: deadline.toNumber(),
+      deadline: Number(deadline),
     }
     const data = JSON.stringify({
       types: {
@@ -240,7 +240,7 @@ export default function ZapOut({
             v: Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
             r: signature.r,
             s: signature.s,
-            deadline: deadline.toNumber(),
+            deadline: Number(deadline),
           })
         })
     } catch (error) {
@@ -308,7 +308,7 @@ export default function ZapOut({
           pairAddress,
           account,
           amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
-          deadline.toHexString(),
+          `0x${deadline.toString(16)}`,
         ]
       }
       // zapOut
@@ -323,7 +323,7 @@ export default function ZapOut({
           independentTokenField === Field.CURRENCY_A
             ? amountsMin[Field.CURRENCY_A].toString()
             : amountsMin[Field.CURRENCY_B].toString(),
-          deadline.toHexString(),
+          `0x${deadline.toString(16)}`,
         ]
       }
     }
