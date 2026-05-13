@@ -62,6 +62,7 @@ export async function sendEVMTransaction({
   isSmartConnector,
   chainId,
   paymentToken,
+  paymasterGasMultiplier,
 }: {
   account: string
   library: ethers.providers.Web3Provider | undefined
@@ -75,6 +76,10 @@ export async function sendEVMTransaction({
   isSmartConnector: boolean
   chainId?: ChainId
   paymentToken?: string
+  // Multiplier applied to the raw gas estimate for the paymaster path; replaces
+  // calculateGasMargin when provided. Used by approval flows that historically bumped
+  // gas by 2x to avoid failures (see Slack thread referenced in useApproveCallback).
+  paymasterGasMultiplier?: number
 }): Promise<TransactionResponse | undefined> {
   if (!account || !library) throw new Error('Invalid transaction')
 
@@ -120,16 +125,19 @@ export async function sendEVMTransaction({
         errorInfo.wallet,
       )
     }
-    const gasLimit = calculateGasMargin(gasEstimate, chainId)
+    const effectiveGasLimit =
+      paymasterGasMultiplier !== undefined
+        ? gasEstimate.mul(paymasterGasMultiplier)
+        : calculateGasMargin(gasEstimate, chainId)
     try {
       return await paymasterExecute(
         paymentToken,
         {
           ...estimateGasOption,
-          gasLimit,
+          gasLimit: effectiveGasLimit,
           value: txValue !== undefined ? ethers.BigNumber.from(txValue) : undefined,
         },
-        gasLimit.toNumber(),
+        effectiveGasLimit.toNumber(),
       )
     } catch (error) {
       const txHash = (error as any)?.transactionHash as string | undefined
@@ -138,7 +146,7 @@ export async function sendEVMTransaction({
         errorInfo.name,
         'sendTransaction',
         error?.message,
-        { ...estimateGasOption, gasLimit },
+        { ...estimateGasOption, gasLimit: effectiveGasLimit },
         { cause: error },
         errorInfo.wallet,
       )

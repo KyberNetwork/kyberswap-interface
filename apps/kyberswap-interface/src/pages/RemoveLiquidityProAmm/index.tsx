@@ -34,6 +34,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
+import farmV1ABI from 'constants/abis/v2/farm.json'
 import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -56,12 +57,13 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
-import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin, formattedNum, isAddressString } from 'utils'
+import { basisPointsToPercent, buildFlagsForFarmV21, formattedNum, isAddressString } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
+import { Abi, encodeFunctionData } from 'utils/viem'
 
 import {
   AmoutToRemoveContent,
@@ -294,8 +296,18 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const burnFromFarm = async () => {
     const contract = isFarmV21 ? farmV21Contract : isFarmV2 ? farmV2Contract : farmV1Contract
+    const abi = (isFarmV21 ? FarmV21ABI : isFarmV2 ? FarmV2ABI : farmV1ABI) as Abi
 
-    if (!contract || !liquidityValue0 || !liquidityValue1 || !deadline || !positionSDK || !liquidityPercentage) {
+    if (
+      !contract ||
+      !liquidityValue0 ||
+      !liquidityValue1 ||
+      !deadline ||
+      !positionSDK ||
+      !liquidityPercentage ||
+      !account ||
+      !library
+    ) {
       return
     }
 
@@ -303,47 +315,58 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       const amount0Min = liquidityValue0?.subtract(liquidityValue0.multiply(basisPointsToPercent(allowedSlippage)))
       const amount1Min = liquidityValue1?.subtract(liquidityValue1.multiply(basisPointsToPercent(allowedSlippage)))
 
-      const params = isFarmV21
+      const tokenIdArg = BigInt(tokenId.toString())
+      const liquidityArg = BigInt(liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString())
+      const amount0MinArg = BigInt(amount0Min.quotient.toString())
+      const amount1MinArg = BigInt(amount1Min.quotient.toString())
+      const deadlineArg = BigInt(deadline.toString())
+
+      const args: unknown[] = isFarmV21
         ? [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
-            buildFlagsForFarmV21({
-              isClaimFee: false,
-              isSyncFee: false,
-              isClaimReward: false,
-              isReceiveNative: !receiveWETH,
-            }),
+            tokenIdArg,
+            liquidityArg,
+            amount0MinArg,
+            amount1MinArg,
+            deadlineArg,
+            BigInt(
+              buildFlagsForFarmV21({
+                isClaimFee: false,
+                isSyncFee: false,
+                isClaimReward: false,
+                isReceiveNative: !receiveWETH,
+              }),
+            ),
           ]
         : isFarmV2
         ? [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
+            tokenIdArg,
+            liquidityArg,
+            amount0MinArg,
+            amount1MinArg,
+            deadlineArg,
             false, // isClaimFee
             !receiveWETH,
           ]
-        : [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
-            !receiveWETH,
-            [false, false],
-          ]
+        : [tokenIdArg, liquidityArg, amount0MinArg, amount1MinArg, deadlineArg, !receiveWETH, [false, false]]
 
-      const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
-
-      const tx = await contract.removeLiquidity(...params, {
-        gasLimit: calculateGasMargin(gasEstimation),
+      const tx = await sendEVMTransaction({
+        account,
+        library,
+        contractAddress: contract.address,
+        encodedData: encodeFunctionData({
+          abi,
+          functionName: 'removeLiquidity',
+          args,
+        }),
+        value: 0n,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
       })
 
-      handleBroadcastRemoveSuccess(tx)
+      if (tx?.hash) {
+        handleBroadcastRemoveSuccess(tx)
+      }
     } catch (e) {
       setAttemptingTxn(false)
       setRemoveLiquidityError(e?.message || JSON.stringify(e))

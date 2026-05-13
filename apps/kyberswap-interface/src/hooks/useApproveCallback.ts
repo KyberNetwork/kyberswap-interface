@@ -10,13 +10,13 @@ import { useNotify } from 'state/application/hooks'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { usePaymentToken } from 'state/user/hooks'
-import { calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
-import { paymasterExecute } from 'utils/sendTransaction'
-import { encodeFunctionData, maxUint256 } from 'utils/viem'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Abi, encodeFunctionData, maxUint256 } from 'utils/viem'
 
-import { useActiveWeb3React } from './index'
-import { useTokenReadingContract, useTokenSigningContract } from './useContract'
+import { useActiveWeb3React, useWeb3React } from './index'
+import { useTokenReadingContract } from './useContract'
 
 export enum ApprovalState {
   UNKNOWN = 'UNKNOWN',
@@ -32,11 +32,11 @@ export function useApproveCallback(
   forceApprove = false,
   onApprovalError?: (error: { message: string; tokenSymbol?: string; tokenAddress?: string; spender?: string }) => void,
 ): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined] {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const token = amountToApprove?.currency.wrapped
   const pendingApproval = useHasPendingApproval(token?.address, spender)
 
-  const tokenContract = useTokenSigningContract(token?.address)
   const readingTokenContract = useTokenReadingContract(token?.address)
 
   const [currentAllowance, setAllowance] = useState<TokenAmount | undefined>(undefined)
@@ -90,8 +90,8 @@ export function useApproveCallback(
           return
         }
 
-        if (!tokenContract) {
-          console.error('tokenContract is null')
+        if (!account) {
+          console.error('no account')
           return
         }
 
@@ -105,78 +105,55 @@ export function useApproveCallback(
           return
         }
 
-        let estimatedGas
-        let approvedAmount
+        const buildApproveData = (amount: bigint) =>
+          encodeFunctionData({
+            abi: ERC20_ABI as Abi,
+            functionName: 'approve',
+            args: [spender, amount],
+          })
+
+        const sendApprove = (amount: bigint) =>
+          sendEVMTransaction({
+            account,
+            library,
+            contractAddress: token.address,
+            encodedData: buildApproveData(amount),
+            value: 0n,
+            errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+            isSmartConnector,
+            chainId,
+            paymentToken: paymentToken?.address,
+            // increase x2 for approval only due to failed tx bcs of gasLimit on the
+            // paymaster path. For more detail:
+            // https://team-kyber.slack.com/archives/C048KKJ4TPW/p1718600494715929?thread_ts=1718267233.557269&cid=C048KKJ4TPW
+            paymasterGasMultiplier: 2,
+          })
+
+        let response
         try {
-          if (customAmount instanceof CurrencyAmount) {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, customAmount)
-            approvedAmount = customAmount
-          } else {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, maxUint256)
-            approvedAmount = maxUint256
-          }
+          const initialAmount =
+            customAmount instanceof CurrencyAmount ? BigInt(customAmount.quotient.toString()) : maxUint256
+          response = await sendApprove(initialAmount)
         } catch (e) {
           try {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, amountToApprove.quotient.toString())
-            approvedAmount = amountToApprove.quotient.toString()
+            response = await sendApprove(BigInt(amountToApprove.quotient.toString()))
           } catch {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, '0')
-            if (paymentToken?.address) {
-              await paymasterExecute(
-                paymentToken.address,
-                {
-                  from: account,
-                  to: token.address,
-                  data: encodeFunctionData({
-                    abi: ERC20_ABI,
-                    functionName: 'approve',
-                    args: [spender, BigInt(0)],
-                  }),
-                },
-                calculateGasMargin(estimatedGas).toNumber(),
-              )
-            } else {
-              await tokenContract.approve(spender, '0', {
-                gasLimit: calculateGasMargin(estimatedGas),
-              })
-            }
+            response = await sendApprove(0n)
             return
           }
         }
 
-        const response = await (paymentToken?.address
-          ? paymasterExecute(
-              paymentToken.address,
-              {
-                from: account,
-                to: token.address,
-                data: encodeFunctionData({
-                  abi: ERC20_ABI,
-                  functionName: 'approve',
-                  args: [
-                    spender,
-                    approvedAmount instanceof CurrencyAmount
-                      ? BigInt(approvedAmount.quotient.toString())
-                      : BigInt(approvedAmount?.toString() ?? '0'),
-                  ],
-                }),
-              },
-              // increase x2 for approval only due to failed tx bcs of gasLimit
-              // for more detail: https://team-kyber.slack.com/archives/C048KKJ4TPW/p1718600494715929?thread_ts=1718267233.557269&cid=C048KKJ4TPW
-              estimatedGas.toNumber() * 2,
-            )
-          : tokenContract.approve(spender, approvedAmount, {
-              gasLimit: calculateGasMargin(estimatedGas),
-            }))
-        addTransactionWithType({
-          hash: response.hash,
-          type: TRANSACTION_TYPE.APPROVE,
-          extraInfo: {
-            tokenSymbol: token.symbol ?? '',
-            tokenAddress: token.address,
-            contract: spender,
-          },
-        })
+        if (response?.hash) {
+          addTransactionWithType({
+            hash: response.hash,
+            type: TRANSACTION_TYPE.APPROVE,
+            extraInfo: {
+              tokenSymbol: token.symbol ?? '',
+              tokenAddress: token.address,
+              contract: spender,
+            },
+          })
+        }
       } catch (error) {
         const message = friendlyError(error)
         console.error('Approve token error:', { message, error })
@@ -200,7 +177,6 @@ export function useApproveCallback(
       account,
       approvalState,
       token,
-      tokenContract,
       amountToApprove,
       spender,
       addTransactionWithType,
@@ -208,6 +184,9 @@ export function useApproveCallback(
       notify,
       paymentToken?.address,
       onApprovalError,
+      library,
+      isSmartConnector,
+      chainId,
     ],
   )
 

@@ -1,6 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { TransactionResponse } from '@ethersproject/providers'
 import {
   Currency,
   CurrencyAmount,
@@ -34,6 +32,8 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
+import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
+import ZAP_ABI from 'constants/abis/zap.json'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -53,16 +53,17 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { calculateGasMargin, formattedNum } from 'utils'
+import { formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { friendlyError } from 'utils/errorMessage'
 import { formatJSBIValue } from 'utils/formatBalance'
-import { getZapContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-import { parseSignature } from 'utils/viem'
+import { Abi, encodeFunctionData, parseSignature } from 'utils/viem'
 
 import {
   CurrentPriceWrapper,
@@ -87,7 +88,7 @@ export default function ZapOut({
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
   const { account, chainId, networkInfo } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
 
   const nativeA = useCurrencyConvertedToNative(currencyA as Currency)
   const nativeB = useCurrencyConvertedToNative(currencyB as Currency)
@@ -286,7 +287,13 @@ export default function ZapOut({
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
     }
-    const zapContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
+    const zapAddress = isStaticFeePair
+      ? isOldStaticFeeContract
+        ? networkInfo.classic.oldStatic?.zap
+        : networkInfo.classic.static.zap
+      : networkInfo.classic.dynamic?.zap
+    if (!zapAddress) throw new Error('missing zap address')
+    const zapAbi = (isStaticFeePair && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI) as Abi
 
     if (!currencyA || !currencyB) throw new Error('missing tokens')
     const liquidityAmount = parsedAmounts[Field.LIQUIDITY]
@@ -296,7 +303,11 @@ export default function ZapOut({
 
     if (!tokenA || !tokenB) throw new Error('could not wrap')
 
-    let methodNames: string[], args: Array<string | string[] | number | boolean>
+    const deadlineArg = BigInt(deadline.toString())
+    const liquidityArg = BigInt(liquidityAmount.quotient.toString())
+
+    let methodNames: string[]
+    let args: unknown[]
     // we have approval, use normal remove liquidity
     if (approval === ApprovalState.APPROVED) {
       // zapOutEth
@@ -304,11 +315,11 @@ export default function ZapOut({
         methodNames = ['zapOutEth']
         args = [
           currencyBIsETH ? tokenA.address : tokenB.address,
-          liquidityAmount.quotient.toString(),
+          liquidityArg,
           pairAddress,
           account,
-          amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
-          `0x${deadline.toString(16)}`,
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString()),
+          deadlineArg,
         ]
       }
       // zapOut
@@ -317,13 +328,15 @@ export default function ZapOut({
         args = [
           independentTokenField === Field.CURRENCY_A ? tokenB.address : tokenA.address,
           independentTokenField === Field.CURRENCY_A ? tokenA.address : tokenB.address,
-          liquidityAmount.quotient.toString(),
+          liquidityArg,
           pairAddress,
           account,
-          independentTokenField === Field.CURRENCY_A
-            ? amountsMin[Field.CURRENCY_A].toString()
-            : amountsMin[Field.CURRENCY_B].toString(),
-          `0x${deadline.toString(16)}`,
+          BigInt(
+            independentTokenField === Field.CURRENCY_A
+              ? amountsMin[Field.CURRENCY_A].toString()
+              : amountsMin[Field.CURRENCY_B].toString(),
+          ),
+          deadlineArg,
         ]
       }
     }
@@ -334,11 +347,11 @@ export default function ZapOut({
         methodNames = ['zapOutEthPermit']
         args = [
           currencyBIsETH ? tokenA.address : tokenB.address,
-          liquidityAmount.quotient.toString(),
+          liquidityArg,
           pairAddress,
           account,
-          amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),
-          signatureData.deadline,
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString()),
+          BigInt(signatureData.deadline),
           false,
           signatureData.v,
           signatureData.r,
@@ -351,13 +364,15 @@ export default function ZapOut({
         args = [
           independentTokenField === Field.CURRENCY_A ? tokenB.address : tokenA.address,
           independentTokenField === Field.CURRENCY_A ? tokenA.address : tokenB.address,
-          liquidityAmount.quotient.toString(),
+          liquidityArg,
           pairAddress,
           account,
-          independentTokenField === Field.CURRENCY_A
-            ? amountsMin[Field.CURRENCY_A].toString()
-            : amountsMin[Field.CURRENCY_B].toString(),
-          signatureData.deadline,
+          BigInt(
+            independentTokenField === Field.CURRENCY_A
+              ? amountsMin[Field.CURRENCY_A].toString()
+              : amountsMin[Field.CURRENCY_B].toString(),
+          ),
+          BigInt(signatureData.deadline),
           false,
           signatureData.v,
           signatureData.r,
@@ -372,89 +387,90 @@ export default function ZapOut({
     if (isStaticFeePair && !isOldStaticFeeContract) {
       args.unshift(networkInfo.classic.static.factory)
     }
-    const safeGasEstimates: (BigNumber | undefined)[] = await Promise.all(
-      methodNames.map(methodName =>
-        zapContract.estimateGas[methodName](...args)
-          .then(calculateGasMargin)
-          .catch(err => {
-            // we only care if the error is something other than the user rejected the tx
-            if (!didUserReject(err)) {
-              console.error(`estimateGas failed`, methodName, args, err)
-            }
 
-            if (
-              err.message.includes('INSUFFICIENT_OUTPUT_AMOUNT') ||
-              err?.data?.message?.includes('INSUFFICIENT_OUTPUT_AMOUNT')
-            ) {
-              setZapOutError(t`Insufficient Liquidity in the Liquidity Pool to Swap`)
-            } else {
-              setZapOutError(err?.message)
-            }
-
-            return undefined
+    setAttemptingTxn(true)
+    let response: Awaited<ReturnType<typeof sendEVMTransaction>>
+    let lastError: unknown
+    for (let i = 0; i < methodNames.length; i++) {
+      try {
+        response = await sendEVMTransaction({
+          account,
+          library,
+          contractAddress: zapAddress,
+          encodedData: encodeFunctionData({
+            abi: zapAbi,
+            functionName: methodNames[i],
+            args,
           }),
-      ),
-    )
-
-    const indexOfSuccessfulEstimation = safeGasEstimates.findIndex(safeGasEstimate =>
-      BigNumber.isBigNumber(safeGasEstimate),
-    )
-
-    // all estimations failed...
-    if (indexOfSuccessfulEstimation === -1) {
-      console.error('This transaction would fail. Please contact support.')
-    } else {
-      const methodName = methodNames[indexOfSuccessfulEstimation]
-      const safeGasEstimate = safeGasEstimates[indexOfSuccessfulEstimation]
-
-      setAttemptingTxn(true)
-      await zapContract[methodName](...args, {
-        gasLimit: safeGasEstimate,
-      })
-        .then((response: TransactionResponse) => {
-          if (currencyA && currencyB) {
-            setAttemptingTxn(false)
-            const tokenAmount = parsedAmounts[independentTokenField]
-            const tokenAmountStr = tokenAmount?.toSignificant(6)
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
-              extraInfo: {
-                tokenAddressIn: currencyA.wrapped.address,
-                tokenAddressOut: currencyB.wrapped.address,
-                tokenSymbolIn: currencyA.symbol,
-                tokenSymbolOut: currencyB.symbol,
-                [(tokenAmount as TokenAmount)?.currency?.address === currencyA?.wrapped.address
-                  ? 'tokenAmountIn'
-                  : 'tokenAmountOut']: tokenAmountStr,
-                contract: pairAddress,
-                arbitrary: {
-                  poolAddress: pairAddress,
-                  token_1: currencyA.symbol,
-                  token_2: currencyB.symbol,
-                  remove_liquidity_method: 'single token',
-                  amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
-                },
-              },
-            })
-
-            setTxHash(response.hash)
-          }
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+          isSmartConnector,
+          chainId,
         })
-        .catch((error: Error) => {
+        if (response) break
+      } catch (error) {
+        lastError = error
+        if (!didUserReject(error)) {
+          console.error(`sendTransaction failed`, methodNames[i], args, error)
+        }
+        if (i === methodNames.length - 1) {
           setAttemptingTxn(false)
-
-          const message = error.message.includes('INSUFFICIENT')
-            ? t`Insufficient liquidity available. Please reload page or increase max slippage and try again!`
-            : error.message
-
-          setZapOutError(message)
-
-          if (!didUserReject(error)) {
-            console.error('Remove Classic Liquidity Error:', { message, error })
+          const err = error as Error & { data?: { message?: string } }
+          const errMessage = err?.message ?? ''
+          if (
+            errMessage.includes('INSUFFICIENT_OUTPUT_AMOUNT') ||
+            err?.data?.message?.includes('INSUFFICIENT_OUTPUT_AMOUNT')
+          ) {
+            setZapOutError(t`Insufficient Liquidity in the Liquidity Pool to Swap`)
+          } else {
+            const message = errMessage.includes('INSUFFICIENT')
+              ? t`Insufficient liquidity available. Please reload page or increase max slippage and try again!`
+              : errMessage || JSON.stringify(error)
+            setZapOutError(message)
+            if (!didUserReject(error)) {
+              console.error('Remove Classic Liquidity Error:', { message, error })
+            }
           }
-        })
+          return
+        }
+      }
     }
+
+    if (!response?.hash) {
+      setAttemptingTxn(false)
+      if (lastError) {
+        const err = lastError as Error
+        setZapOutError(err?.message || JSON.stringify(lastError))
+      }
+      return
+    }
+
+    setAttemptingTxn(false)
+    const tokenAmount = parsedAmounts[independentTokenField]
+    const tokenAmountStr = tokenAmount?.toSignificant(6)
+    addTransactionWithType({
+      hash: response.hash,
+      type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
+      extraInfo: {
+        tokenAddressIn: currencyA.wrapped.address,
+        tokenAddressOut: currencyB.wrapped.address,
+        tokenSymbolIn: currencyA.symbol,
+        tokenSymbolOut: currencyB.symbol,
+        [(tokenAmount as TokenAmount)?.currency?.address === currencyA?.wrapped.address
+          ? 'tokenAmountIn'
+          : 'tokenAmountOut']: tokenAmountStr,
+        contract: pairAddress,
+        arbitrary: {
+          poolAddress: pairAddress,
+          token_1: currencyA.symbol,
+          token_2: currencyB.symbol,
+          remove_liquidity_method: 'single token',
+          amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+        },
+      },
+    })
+
+    setTxHash(response.hash)
   }
 
   const pendingText = `Removing ${parsedAmounts[independentTokenField]?.toSignificant(6)} ${independentToken?.symbol}`

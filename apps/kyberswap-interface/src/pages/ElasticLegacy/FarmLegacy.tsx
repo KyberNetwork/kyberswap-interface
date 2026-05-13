@@ -10,6 +10,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import { ELASTIC_BASE_FEE_UNIT, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -21,10 +22,10 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
-import { calculateGasMargin } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
+import { Abi, encodeFunctionData } from 'utils/viem'
 
 import { FeeTag } from './PositionLegacy'
 
@@ -166,25 +167,37 @@ export default function FarmLegacy({
 
   const handleWithdraw = async () => {
     setShowConfirmModal('withdraw')
-    if (!farmContract) {
+    if (!farmContract || !account || !library) {
       setErrorMessage(t`No contract found`)
       return
     }
 
     try {
-      const nftIds = farmPositions.map(item => item.id)
-      const estimateGas = await farmContract.estimateGas.emergencyWithdraw(nftIds)
-      const tx = await farmContract.emergencyWithdraw(nftIds, {
-        gasLimit: calculateGasMargin(estimateGas),
+      const nftIds = farmPositions.map(item => BigInt(item.id.toString()))
+      const tx = await sendEVMTransaction({
+        account,
+        library,
+        contractAddress: farmContract.address,
+        encodedData: encodeFunctionData({
+          abi: PROMM_FARM_ABI as Abi,
+          functionName: 'emergencyWithdraw',
+          args: [nftIds],
+        }),
+        value: 0n,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
       })
       setAttemptingTxn(false)
-      setTxHash(tx.hash || '')
+      setTxHash(tx?.hash || '')
 
-      addTransactionWithType({
-        hash: tx.hash,
-        type: TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
-        extraInfo: { contract: config[chainId].farmContract },
-      })
+      if (tx?.hash) {
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
+          extraInfo: { contract: config[chainId].farmContract },
+        })
+      }
     } catch (e) {
       setAttemptingTxn(false)
       setErrorMessage(e?.message || JSON.stringify(e))
