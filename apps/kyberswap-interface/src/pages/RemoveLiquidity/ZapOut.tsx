@@ -1,4 +1,3 @@
-import { Contract } from '@ethersproject/contracts'
 import {
   Currency,
   CurrencyAmount,
@@ -164,7 +163,7 @@ export default function ZapOut({
   }
 
   // pair contract
-  const pairContract: Contract | null = usePairContract(pair?.liquidityToken?.address)
+  const pairContract = usePairContract(pair?.liquidityToken?.address)
 
   // allowance handling
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)

@@ -1,7 +1,5 @@
-import { TransactionResponse } from '@ethersproject/providers'
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import externalApi from 'services/externalApi'
 
@@ -77,7 +75,7 @@ export default function useClaimReward() {
             phase.tokens || [],
           )
           if (res) {
-            const remainAmounts = BigNumber.from(phase.reward.amounts[0]).sub(BigNumber.from(res[0])).toString()
+            const remainAmounts = (BigInt(phase.reward.amounts[0]) - BigInt(res[0].toString())).toString()
             setRewardAmounts(CurrencyAmount.fromRawAmount(KNC[chainId], remainAmounts).toSignificant(6))
             if (remainAmounts !== '0') {
               setPhaseId(i)
@@ -151,10 +149,7 @@ export default function useClaimReward() {
         })
         .then((res: number[]) => {
           if (res) {
-            if (
-              res.length === 0 ||
-              !BigNumber.from(userReward.reward?.amounts[0]).sub(BigNumber.from(res[0])).isZero()
-            ) {
+            if (res.length === 0 || BigInt(userReward.reward?.amounts[0] ?? '0') - BigInt(res[0].toString()) !== 0n) {
               //if amount available for claim, execute claim method
               return rewardSigningContract.claim(
                 userReward.phaseId,
@@ -172,7 +167,7 @@ export default function useClaimReward() {
             throw new Error()
           }
         })
-        .then((tx: TransactionResponse) => {
+        .then((tx: { hash: string }) => {
           setAttemptingTxn(false)
           setTxHash(tx.hash)
           addTransactionWithType({

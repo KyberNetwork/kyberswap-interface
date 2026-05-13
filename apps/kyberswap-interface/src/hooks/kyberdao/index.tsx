@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import axios from 'axios'
-import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 import kyberDAOApi, {
@@ -33,7 +32,6 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { aggregateValue } from 'utils/array'
 import { friendlyError } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
-import { bigNumberToBigInt } from 'utils/migration'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { Abi, encodeFunctionData, formatUnits } from 'utils/viem'
@@ -59,7 +57,7 @@ export function useKyberDaoStakeActions() {
   const migrateContract = useSigningContract(kyberDaoInfo?.KNCAddress, MigrateABI)
 
   const stake = useCallback(
-    async (amount: BigNumber, votingPower: string) => {
+    async (amount: bigint, votingPower: string) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -72,7 +70,7 @@ export function useKyberDaoStakeActions() {
           encodedData: encodeFunctionData({
             abi: StakingABI as Abi,
             functionName: 'deposit',
-            args: [bigNumberToBigInt(amount)],
+            args: [amount],
           }),
           value: 0n,
           errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
@@ -86,8 +84,8 @@ export function useKyberDaoStakeActions() {
             extraInfo: {
               tokenSymbol: 'KNC',
               tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
-              tokenAmount: formatUnits(bigNumberToBigInt(amount), 18),
-              arbitrary: { amount: formatUnits(bigNumberToBigInt(amount), 18), votingPower },
+              tokenAmount: formatUnits(amount, 18),
+              arbitrary: { amount: formatUnits(amount, 18), votingPower },
             },
           })
         }
@@ -99,7 +97,7 @@ export function useKyberDaoStakeActions() {
     [account, library, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract, kyberDaoInfo],
   )
   const unstake = useCallback(
-    async (amount: BigNumber) => {
+    async (amount: bigint) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -112,7 +110,7 @@ export function useKyberDaoStakeActions() {
           encodedData: encodeFunctionData({
             abi: StakingABI as Abi,
             functionName: 'withdraw',
-            args: [bigNumberToBigInt(amount)],
+            args: [amount],
           }),
           value: 0n,
           errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
@@ -126,8 +124,8 @@ export function useKyberDaoStakeActions() {
             extraInfo: {
               tokenSymbol: 'KNC',
               tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
-              tokenAmount: formatUnits(bigNumberToBigInt(amount), 18),
-              arbitrary: { amount: formatUnits(bigNumberToBigInt(amount), 18) },
+              tokenAmount: formatUnits(amount, 18),
+              arbitrary: { amount: formatUnits(amount, 18) },
             },
           })
         }
@@ -148,7 +146,7 @@ export function useKyberDaoStakeActions() {
     ],
   )
   const migrate = useCallback(
-    async (amount: BigNumber, rawAmount: string) => {
+    async (amount: bigint, rawAmount: string) => {
       if (!migrateContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -161,7 +159,7 @@ export function useKyberDaoStakeActions() {
           encodedData: encodeFunctionData({
             abi: MigrateABI as Abi,
             functionName: 'mintWithOldKnc',
-            args: [bigNumberToBigInt(amount)],
+            args: [amount],
           }),
           value: 0n,
           errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
@@ -482,14 +480,14 @@ export function useVotingInfo() {
       .catch((err: any) => console.log(err))
   }, [rewardsDistributorContract, account, userRewards?.userReward?.tokens])
 
-  const remainingCumulativeAmount: BigNumber = useMemo(() => {
-    if (!userRewards?.userReward?.tokens || !claimedRewardAmounts?.[0]) return BigNumber.from(0)
+  const remainingCumulativeAmount: bigint = useMemo(() => {
+    if (!userRewards?.userReward?.tokens || !claimedRewardAmounts?.[0]) return 0n
     return (
       userRewards?.userReward?.tokens?.map((_: string, index: number) => {
         const cummulativeAmount = userRewards.userReward?.cumulativeAmounts?.[index]
-        if (!cummulativeAmount) return BigNumber.from(0)
-        return BigNumber.from(cummulativeAmount).sub(BigNumber.from(claimedRewardAmounts[0]))
-      })[0] || BigNumber.from(0)
+        if (!cummulativeAmount) return 0n
+        return BigInt(cummulativeAmount.toString()) - BigInt(claimedRewardAmounts[0].toString())
+      })[0] || 0n
     )
   }, [claimedRewardAmounts, userRewards?.userReward])
 
@@ -537,7 +535,7 @@ export function useVotingInfo() {
     proposals,
     userReward: userRewards?.userReward,
     remainingCumulativeAmount,
-    claimedRewardAmount: claimedRewardAmounts?.[0] ? BigNumber.from(claimedRewardAmounts[0]) : BigNumber.from(0),
+    claimedRewardAmount: claimedRewardAmounts?.[0] ? BigInt(claimedRewardAmounts[0].toString()) : 0n,
     stakerInfo,
     stakerInfoNextEpoch,
     votesInfo,

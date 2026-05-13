@@ -34,7 +34,6 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { isAddress, shortenAddress } from 'utils'
-import { bigIntToBigNumber } from 'utils/migration'
 import { formatUnits, parseUnits } from 'utils/viem'
 
 import KNCLogo from '../kncLogo'
@@ -297,7 +296,7 @@ export default function StakeKNCComponent() {
         setShowConfirm(true)
         setAttemptingTxn(true)
         trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_STAKE_CLICK, { amount: inputValue })
-        stake(bigIntToBigNumber(parseUnits(inputValue, 18)), deltaVotingPower)
+        stake(parseUnits(inputValue, 18), deltaVotingPower)
           .then(tx => {
             setAttemptingTxn(false)
             setTxHash(tx)
@@ -319,7 +318,7 @@ export default function StakeKNCComponent() {
         setShowConfirm(true)
         setAttemptingTxn(true)
         trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_UNSTAKE_CLICK, { amount: inputValue })
-        unstake(bigIntToBigNumber(parseUnits(inputValue, 18)))
+        unstake(parseUnits(inputValue, 18))
           .then(tx => {
             setAttemptingTxn(false)
             setTxHash(tx)

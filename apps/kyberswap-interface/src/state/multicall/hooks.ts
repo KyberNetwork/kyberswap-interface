@@ -12,13 +12,13 @@ export interface Result extends ReadonlyArray<any> {
   readonly [key: string]: any
 }
 
-type MethodArg = string | number | BigNumber
+type MethodArg = string | number | bigint
 type MethodArgs = Array<MethodArg | MethodArg[]>
 
 type OptionalMethodInputs = Array<MethodArg | MethodArg[] | undefined> | undefined
 
 function isMethodArg(x: unknown): x is MethodArg {
-  return ['string', 'number'].indexOf(typeof x) !== -1
+  return ['string', 'number', 'bigint'].indexOf(typeof x) !== -1
 }
 
 function isValidMethodArgs(x: unknown): x is MethodArgs | undefined {

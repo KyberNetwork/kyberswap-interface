@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Percent, Price, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
@@ -334,7 +333,7 @@ export function useDerivedZapOutInfo(
 
   const lpQty = useMemo(() => {
     if (!userLiquidity) {
-      return BigNumber.from('0')
+      return 0n
     }
 
     const liquidityToRemove = JSBI.divide(
@@ -342,7 +341,7 @@ export function useDerivedZapOutInfo(
       percentToRemove.denominator,
     )
 
-    return BigNumber.from(liquidityToRemove.toString())
+    return BigInt(liquidityToRemove.toString())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLiquidity?.quotient.toString(), percentToRemove.numerator.toString(), percentToRemove.denominator.toString()])
 

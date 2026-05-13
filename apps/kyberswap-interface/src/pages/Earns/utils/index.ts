@@ -1,4 +1,3 @@
-import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
@@ -8,7 +7,29 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { BlacklistedWalletError, ErrorName } from 'utils/transactionError'
 import { keccak256, toBytes } from 'utils/viem'
 
-export const getTokenId = async (provider: Web3Provider, txHash: string, exchange: Exchange) => {
+// Structural shapes of the legacy ethers `Web3Provider` / `TransactionRequest`
+// used by callers still on ethers. Kept local so this module no longer needs
+// to import from `@ethersproject/*`; the actual ethers `Web3Provider` is
+// passed through to `sendEVMTransaction` (cast at the boundary).
+// Structural shape used by `submitTransaction` (signer + network) and `getTokenId`
+// (receipt only). The receipt-only callers get the narrower `ReceiptProvider` below.
+type ReceiptProvider = {
+  getTransactionReceipt: (txHash: string) => Promise<{ logs?: Array<{ topics: string[] }> } | null>
+}
+type LegacyWeb3Provider = ReceiptProvider & {
+  getSigner: () => { getAddress: () => Promise<string> }
+  getNetwork: () => Promise<{ chainId: number }>
+}
+
+type LegacyTransactionRequest = {
+  from?: string
+  to?: string
+  data?: string
+  value?: string | number | bigint | { toString: () => string }
+  gasLimit?: string | number | bigint
+}
+
+export const getTokenId = async (provider: ReceiptProvider, txHash: string, exchange: Exchange) => {
   try {
     const receipt = await provider.getTransactionReceipt(txHash)
     if (!receipt || !receipt.logs) return
@@ -57,8 +78,8 @@ export const submitTransaction = async ({
   onError,
   isSmartConnector = false,
 }: {
-  library?: Web3Provider
-  txData: TransactionRequest
+  library?: LegacyWeb3Provider
+  txData: LegacyTransactionRequest
   onError?: (error: Error) => void
   isSmartConnector?: boolean
 }) => {
@@ -70,7 +91,10 @@ export const submitTransaction = async ({
     const value = txData.value ? BigInt(txData.value.toString()) : 0n
     const res = await sendEVMTransaction({
       account,
-      library,
+      // `sendEVMTransaction` still expects an ethers `Web3Provider`; this
+      // module's structural shape is compatible — cast at the boundary so we
+      // can drop the `@ethersproject/providers` import.
+      library: library as Parameters<typeof sendEVMTransaction>[0]['library'],
       contractAddress: (txData.to ?? '') as string,
       encodedData: (txData.data ?? '0x') as string as `0x${string}`,
       value,
@@ -115,7 +139,7 @@ export const getNftManagerContract = (dex: Exchange, chainId: number) => {
   const nftManagerAbi = EARN_DEXES[dex].nftManagerContractAbi
   if (!nftManagerAbi || !nftManagerContractAddress) return
 
-  return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi, chainId as ChainId)
+  return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi as any, chainId as ChainId)
 }
 
 export const truncateSymbol = (symbol: string, maxLength = 10) =>

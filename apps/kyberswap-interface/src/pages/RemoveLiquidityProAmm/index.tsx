@@ -1,5 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { TransactionResponse } from '@ethersproject/providers'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
@@ -137,20 +135,21 @@ export default function RemoveLiquidityProAmm() {
 
   const location = useLocation()
   const parsedTokenId = useMemo(() => {
+    if (!tokenId) return null
     try {
-      return BigNumber.from(tokenId)
+      return BigInt(tokenId)
     } catch {
       return null
     }
   }, [tokenId])
 
-  if (parsedTokenId === null || parsedTokenId.eq(0)) {
+  if (parsedTokenId === null || parsedTokenId === 0n) {
     return <Navigate to={{ ...location, pathname: '/myPools' }} />
   }
   return <Remove tokenId={parsedTokenId} />
 }
 
-function Remove({ tokenId }: { tokenId: BigNumber }) {
+function Remove({ tokenId }: { tokenId: bigint }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerReadingContract()
   const theme = useTheme()
@@ -162,7 +161,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
-  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
+  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const isFarmV2 = networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
   const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
   const isDynamicFarm = networkInfo.elastic.farms.flat().includes(isAddressString(owner))
@@ -204,7 +203,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const currency1IsETHER = !!(chainId && liquidityValue1?.currency.isNative)
   const currency1IsWETH = !!(chainId && liquidityValue1?.currency.equals(WETH[chainId]))
   const { onUserInput } = useBurnProAmmActionHandlers()
-  const removed = position?.liquidity?.eq(0)
+  const removed = position?.liquidity === 0n
 
   const poolAddress = useProAmmPoolInfo(
     positionSDK?.pool?.token0,
@@ -271,7 +270,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const farmV2Contract = useSigningContract(farmV2Address, FarmV2ABI)
   const farmV21Contract = useSigningContract(isFarmV21 ? owner : undefined, FarmV21ABI)
 
-  const handleBroadcastRemoveSuccess = (response: TransactionResponse) => {
+  const handleBroadcastRemoveSuccess = (response: { hash: string }) => {
     setAttemptingTxn(false)
     const tokenAmountIn = liquidityValue0?.toSignificant(6)
     const tokenAmountOut = liquidityValue1?.toSignificant(6)
@@ -315,7 +314,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       const amount0Min = liquidityValue0?.subtract(liquidityValue0.multiply(basisPointsToPercent(allowedSlippage)))
       const amount1Min = liquidityValue1?.subtract(liquidityValue1.multiply(basisPointsToPercent(allowedSlippage)))
 
-      const tokenIdArg = BigInt(tokenId.toString())
+      const tokenIdArg = tokenId
       const liquidityArg = BigInt(liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString())
       const amount0MinArg = BigInt(amount0Min.quotient.toString())
       const amount1MinArg = BigInt(amount1Min.quotient.toString())

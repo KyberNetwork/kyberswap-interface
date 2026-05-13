@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 
@@ -28,7 +27,7 @@ export interface PermitNftParams {
 
 export interface PermitNftResult {
   deadline: number
-  nonce: BigNumber
+  nonce: bigint
   signature: string
   permitData: string
 }
@@ -85,13 +84,13 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
   }, [account, contractAddress, tokenId, spender, isSigningInProgress, permitData])
 
   // Get nonce based on version
-  const getNonce = useCallback((): BigNumber | null => {
+  const getNonce = useCallback((): bigint | null => {
     if (actualVersion === 'v3') {
       // Use ordered nonce from positions function
       if (positionsState?.result?.[0] !== undefined) {
-        return BigNumber.from(positionsState.result[0])
+        return BigInt(positionsState.result[0])
       }
-    } else if (actualVersion === 'v4') return BigNumber.from(Math.floor(Date.now() / 1000))
+    } else if (actualVersion === 'v4') return BigInt(Math.floor(Date.now() / 1000))
 
     return null
   }, [actualVersion, positionsState?.result])
@@ -158,7 +157,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         const message = {
           spender: spender as Address,
           tokenId: BigInt(tokenId),
-          nonce: BigInt(nonce.toString()),
+          nonce: nonce,
           deadline: BigInt(permitDeadline),
         }
 
@@ -205,7 +204,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         const message = {
           spender: spender as Address,
           tokenId: BigInt(tokenId),
-          nonce: BigInt(nonce.toString()),
+          nonce: nonce,
           deadline: BigInt(permitDeadline),
         }
 
@@ -224,7 +223,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         // V4 permit data: encode(deadline, nonce, signature) - keep existing working format
         permitData = encodeAbiParameters(parseAbiParameters('uint256, uint256, bytes'), [
           BigInt(permitDeadline),
-          BigInt(nonce.toString()),
+          nonce,
           signature as `0x${string}`,
         ])
       }

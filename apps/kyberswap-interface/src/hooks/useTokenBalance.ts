@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useState } from 'react'
 import { usePublicClient } from 'wagmi'
@@ -10,11 +9,11 @@ import { isAddress } from 'utils'
 import { Address } from 'utils/viem'
 
 interface BalanceProps {
-  value: BigNumber
+  value: bigint
   decimals: number
 }
 
-const EMPTY_BALANCE: BalanceProps = { value: BigNumber.from(0), decimals: 18 }
+const EMPTY_BALANCE: BalanceProps = { value: 0n, decimals: 18 }
 
 function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
   const [balance, setBalance] = useState<BalanceProps>(EMPTY_BALANCE)
@@ -33,7 +32,7 @@ function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
     try {
       if (addressCheckSum === WETH[chainId].address) {
         const ethBalance = await publicClient.getBalance({ address: account as Address })
-        setBalance({ value: BigNumber.from(ethBalance.toString()), decimals: 18 })
+        setBalance({ value: ethBalance, decimals: 18 })
         return
       }
       const [rawBalance, decimals] = await Promise.all([
@@ -49,7 +48,7 @@ function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
           functionName: 'decimals',
         }) as Promise<number>,
       ])
-      setBalance({ value: BigNumber.from(rawBalance.toString()), decimals })
+      setBalance({ value: rawBalance, decimals })
     } catch {
       setBalance(EMPTY_BALANCE)
     }

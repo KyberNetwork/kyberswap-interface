@@ -1,4 +1,3 @@
-import { TransactionResponse } from '@ethersproject/providers'
 import { useCallback } from 'react'
 
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
@@ -106,7 +105,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   ])
 
   const handleSwapResponse = useCallback(
-    (tx: TransactionResponse) => {
+    (tx: { hash: string }) => {
       const swapData = getSwapData()
 
       addTransactionWithType({

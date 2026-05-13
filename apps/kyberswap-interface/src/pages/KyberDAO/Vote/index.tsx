@@ -126,7 +126,7 @@ export default function Vote() {
   const { vote } = useVotingActions()
   const { switchToEthereum } = useSwitchToEthereum()
 
-  const isHasReward = !!remainingCumulativeAmount && !remainingCumulativeAmount.eq(0)
+  const isHasReward = !!remainingCumulativeAmount && remainingCumulativeAmount !== 0n
 
   const toggleClaimConfirmModal = useToggleModal(ApplicationModal.KYBER_DAO_CLAIM)
   const toggleWalletModal = useWalletModalToggle()

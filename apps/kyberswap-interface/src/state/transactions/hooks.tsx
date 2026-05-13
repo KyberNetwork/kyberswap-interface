@@ -1,4 +1,3 @@
-import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { TransactionNotFoundError } from 'viem'
@@ -12,6 +11,8 @@ import { Hash } from 'utils/viem'
 
 import { addTransaction } from './actions'
 import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo1Token, TransactionHistory } from './type'
+
+type LegacyTx = { to?: string | null; nonce?: number; data?: string }
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
@@ -30,9 +31,9 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
     async ({ hash, desiredChainId, type, firstTxHash, extraInfo }: TransactionHistory) => {
       if (!account) return
 
-      let tx: Pick<TransactionResponse, 'to' | 'nonce' | 'data'> | undefined
+      let tx: LegacyTx | undefined
       try {
-        tx = (await library?.getTransaction(hash)) as TransactionResponse | undefined
+        tx = (await library?.getTransaction(hash)) as LegacyTx | undefined
         if (!tx && publicClient) {
           const viemTx = await publicClient.getTransaction({ hash: hash as Hash }).catch(error => {
             if (error instanceof TransactionNotFoundError) return null
@@ -50,7 +51,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         addTransaction({
           hash,
           from: account,
-          to: tx?.to,
+          to: tx?.to ?? undefined,
           nonce: tx?.nonce,
           data: tx?.data,
           sentAtBlock: blockNumberRef.current,

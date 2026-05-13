@@ -125,7 +125,7 @@ export default function useElasticLegacy(_interval = true) {
   )
 
   const activePositions = useMemo(
-    () => positionsFromContract?.filter(item => item.liquidity.gt('0')) || [],
+    () => positionsFromContract?.filter(item => item.liquidity > 0n) || [],
     [positionsFromContract],
   )
 

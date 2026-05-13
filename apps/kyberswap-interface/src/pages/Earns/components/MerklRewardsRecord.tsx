@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
 
@@ -25,7 +24,7 @@ const MerklRewardsRecord = ({ pool, showEstimate = true }: Props) => {
     return breakdowns.map(reward => {
       return {
         ...reward.token,
-        amount: getFullDisplayBalance(BigNumber.from(reward.amount), reward.token.decimals, 2),
+        amount: getFullDisplayBalance(reward.amount, reward.token.decimals, 2),
       }
     })
   }, [pool])

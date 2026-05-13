@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -6,7 +5,6 @@ import { wagmiConfig } from 'components/Web3Provider'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { useActiveWeb3React } from 'hooks'
-import { bigIntToBigNumber } from 'utils/migration'
 import { Abi, Address } from 'utils/viem'
 
 const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) => {
@@ -38,14 +36,13 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
   )
 
   const calculateZapInAmounts = useCallback(
-    async (tokenIn: string, tokenOut: string, pool: string, userIn: BigNumber) => {
-      const userInBig = BigInt(userIn.toString())
+    async (tokenIn: string, tokenOut: string, pool: string, userIn: bigint) => {
       try {
         return await callZapView(
           'calculateZapInAmounts',
           isStaticFeeContract && !isOldStaticFeeContract
-            ? [networkInfo.classic.static.factory, tokenIn, tokenOut, pool, userInBig]
-            : [tokenIn, tokenOut, pool, userInBig],
+            ? [networkInfo.classic.static.factory, tokenIn, tokenOut, pool, userIn]
+            : [tokenIn, tokenOut, pool, userIn],
         )
       } catch (err) {
         console.error(err)
@@ -56,14 +53,13 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
   )
 
   const calculateZapOutAmount = useCallback(
-    async (tokenIn: string, tokenOut: string, pool: string, lpQty: BigNumber) => {
-      const lpQtyBig = BigInt(lpQty.toString())
+    async (tokenIn: string, tokenOut: string, pool: string, lpQty: bigint) => {
       try {
         return await callZapView(
           'calculateZapOutAmount',
           isStaticFeeContract && !isOldStaticFeeContract
-            ? [networkInfo.classic.static.factory, tokenIn, tokenOut, pool, lpQtyBig]
-            : [tokenIn, tokenOut, pool, lpQtyBig],
+            ? [networkInfo.classic.static.factory, tokenIn, tokenOut, pool, lpQty]
+            : [tokenIn, tokenOut, pool, lpQty],
         )
       } catch (err) {
         console.error(err)
@@ -85,19 +81,19 @@ export const useZapOutAmount = (
   tokenIn?: string,
   tokenOut?: string,
   pool?: string,
-  lpQty?: BigNumber,
+  lpQty?: bigint,
 ) => {
   const { calculateZapOutAmount } = useZap(isStaticFeeContract, isOldStaticFeeContract)
-  const [result, setResult] = useState<{ amount: BigNumber; error?: any }>({
-    amount: BigNumber.from(0),
+  const [result, setResult] = useState<{ amount: bigint; error?: any }>({
+    amount: 0n,
     error: undefined,
   })
 
   useEffect(() => {
     async function handleCalculateZapOutAmount() {
-      if (!lpQty || lpQty.eq(0)) {
+      if (!lpQty || lpQty === 0n) {
         setResult({
-          amount: BigNumber.from(0),
+          amount: 0n,
           error: undefined,
         })
 
@@ -105,16 +101,16 @@ export const useZapOutAmount = (
       }
 
       try {
-        if (tokenIn && tokenOut && pool && lpQty?.gt(0)) {
+        if (tokenIn && tokenOut && pool && lpQty > 0n) {
           const raw = (await calculateZapOutAmount(tokenIn, tokenOut, pool, lpQty)) as bigint
           setResult({
-            amount: bigIntToBigNumber(raw),
+            amount: raw,
             error: undefined,
           })
         }
       } catch (err) {
         setResult({
-          amount: BigNumber.from(0),
+          amount: 0n,
           error: err as Error,
         })
       }

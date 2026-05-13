@@ -18,7 +18,6 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-import { bigIntToBigNumber } from 'utils/migration'
 import { parseUnits } from 'utils/viem'
 
 import CurrencyInputForStake from './CurrencyInputForStake'
@@ -69,7 +68,7 @@ export default function MigrateModal({
     }
     if (!value || isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
       setError(t`Invalid amount`)
-    } else if (!oldKNCBalance.value.gte(parseUnits(value, 18))) {
+    } else if (oldKNCBalance.value < parseUnits(value, 18)) {
       setError(t`Insufficient KNCL balance!`)
       return
     } else {
@@ -86,7 +85,7 @@ export default function MigrateModal({
         setShowConfirm(true)
         setAttemptingTxn(true)
         toggleModal()
-        migrate(bigIntToBigNumber(parseUnits(value, 18)), value)
+        migrate(parseUnits(value, 18), value)
           .then(tx => {
             setAttemptingTxn(false)
             setTxHash(tx)

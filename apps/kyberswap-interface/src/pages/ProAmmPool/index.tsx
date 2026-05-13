@@ -85,7 +85,7 @@ export default function ProAmmPool() {
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
         (acc, p) => {
-          acc[p.liquidity?.eq(0) ? 1 : 0].push(p)
+          acc[p.liquidity === 0n ? 1 : 0].push(p)
           return acc
         },
         [[], []],
@@ -156,7 +156,7 @@ export default function ProAmmPool() {
           position.tokenId.toString() === debouncedSearchText
         )
       })
-      .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
+      .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId === pos.tokenId) === index)
   }, [showClosed, openPositions, closedPositions, debouncedSearchText, nftId, sortFn])
 
   const [showStaked, setShowStaked] = useState(false)

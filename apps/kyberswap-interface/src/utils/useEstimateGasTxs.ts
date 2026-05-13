@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { WETH } from '@kyberswap/ks-sdk-core'
 import { getPublicClient } from '@wagmi/core'
 import { useCallback, useMemo } from 'react'
@@ -8,11 +7,10 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
-import { bigIntToBigNumber, bigNumberToBigInt } from './migration'
 import { Address, Hex, formatEther } from './viem'
 
-type EstimateParams = { contractAddress: string; encodedData: string; value?: BigNumber }
-function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: BigNumber | null; gasInUsd: number | null }> {
+type EstimateParams = { contractAddress: string; encodedData: string; value?: bigint }
+function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: bigint | null; gasInUsd: number | null }> {
   const { account, chainId } = useActiveWeb3React()
 
   const addressParam = useMemo(() => [WETH[chainId].wrapped.address], [chainId])
@@ -20,15 +18,15 @@ function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: BigNumber | 
   const usdPriceNative = tokensPrices[WETH[chainId].wrapped.address] ?? 0
 
   return useCallback(
-    async ({ contractAddress, encodedData, value = BigNumber.from(0) }: EstimateParams) => {
+    async ({ contractAddress, encodedData, value = 0n }: EstimateParams) => {
       let formatGas: number | null = null
-      let gas: BigNumber | null = null
+      let gas: bigint | null = null
       try {
         if (!account) throw new Error('No account')
         const publicClient = getPublicClient(wagmiConfig, { chainId: chainId as number })
         if (!publicClient) throw new Error('Public client unavailable')
 
-        const txValue = value && !value.eq(0) ? BigInt(value.toString()) : undefined
+        const txValue = value !== 0n ? value : undefined
 
         let accessList: any[] | undefined
         if (NETWORKS_INFO[chainId]?.accessListEnabled) {
@@ -63,10 +61,8 @@ function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: BigNumber | 
           }) as Promise<bigint>,
           (publicClient as any).getGasPrice() as Promise<bigint>,
         ])
-        const estimateGasBN = bigIntToBigNumber(estimateGas)
-        const gasPriceBN = bigIntToBigNumber(gasPrice)
-        gas = gasPriceBN && estimateGasBN ? estimateGasBN.mul(gasPriceBN) : null
-        formatGas = gas ? parseFloat(formatEther(bigNumberToBigInt(gas))) : null
+        gas = estimateGas * gasPrice
+        formatGas = parseFloat(formatEther(gas))
       } catch (error) {}
 
       return {

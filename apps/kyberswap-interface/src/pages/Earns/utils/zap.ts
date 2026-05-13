@@ -1,4 +1,3 @@
-import { Web3Provider } from '@ethersproject/providers'
 import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, NATIVE_TOKEN_ADDRESS, PoolType, Token } from '@kyber/schema'
 import axios, { AxiosError } from 'axios'
 
@@ -65,7 +64,7 @@ export const fetchExistingPoolAddress = async (input: {
 }
 
 export const navigateToPositionAfterZap = async (
-  library: Web3Provider,
+  library: { getTransactionReceipt: (txHash: string) => Promise<{ logs?: Array<{ topics: string[] }> } | null> },
   txHash: string,
   chainId: number,
   exchange: Exchange,

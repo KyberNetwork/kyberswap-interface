@@ -61,9 +61,7 @@ export default function CurrencyInputForStake({
               </SmallButton>
               <SmallButton
                 onClick={() =>
-                  setValue(
-                    getFullDisplayBalance(tokenBalance.value.div(2), tokenBalance.decimals, tokenBalance.decimals),
-                  )
+                  setValue(getFullDisplayBalance(tokenBalance.value / 2n, tokenBalance.decimals, tokenBalance.decimals))
                 }
               >
                 Half

@@ -1,9 +1,9 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
+import { bigNumberToBigInt } from 'utils/migration'
 import { encodeAbiParameters, getContractAddress, keccak256, parseAbiParameters } from 'utils/viem'
 
 import { useProAmmNFTPositionManagerReadingContract } from './useContract'
@@ -14,7 +14,7 @@ interface UseProAmmPositionsResults {
 }
 
 export function useProAmmPositionsFromTokenIds(
-  tokenIds: BigNumber[] | undefined,
+  tokenIds: bigint[] | undefined,
   customContract?: string,
   customFactory?: string,
   customInitCodeHash?: string,
@@ -34,6 +34,8 @@ export function useProAmmPositionsFromTokenIds(
         const tokenId = tokenIds[i]
         const result = call.result as Result
 
+        // The multicall bridge wraps viem bigint values as ethers BigNumber for legacy callers;
+        // convert each uint256-shaped field back to bigint for the migrated PositionDetails shape.
         return {
           tokenId: tokenId,
           poolId: getContractAddress({
@@ -48,13 +50,13 @@ export function useProAmmPositionsFromTokenIds(
             ),
             bytecodeHash: (customInitCodeHash || networkInfo.elastic.initCodeHash) as `0x${string}`,
           }),
-          feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
-          nonce: result.pos.nonce,
-          liquidity: result.pos.liquidity,
+          feeGrowthInsideLast: bigNumberToBigInt(result.pos.feeGrowthInsideLast),
+          nonce: bigNumberToBigInt(result.pos.nonce),
+          liquidity: bigNumberToBigInt(result.pos.liquidity),
           operator: result.pos.operator,
           tickLower: result.pos.tickLower,
           tickUpper: result.pos.tickUpper,
-          rTokenOwed: result.pos.rTokenOwed,
+          rTokenOwed: bigNumberToBigInt(result.pos.rTokenOwed),
           fee: result.info.fee,
           token0: result.info.token0,
           token1: result.info.token1,
@@ -77,7 +79,7 @@ interface UseProAmmPositionResults {
   position: PositionDetails | undefined
 }
 
-export function useProAmmPositionsFromTokenId(tokenId: BigNumber | undefined): UseProAmmPositionResults {
+export function useProAmmPositionsFromTokenId(tokenId: bigint | undefined): UseProAmmPositionResults {
   const position = useProAmmPositionsFromTokenIds(tokenId ? [tokenId] : undefined)
   return {
     loading: position.loading,
@@ -115,10 +117,11 @@ export function useProAmmPositions(
   const someTokenIdsLoading = useMemo(() => tokenIdResults.some(({ loading }) => loading), [tokenIdResults])
   const tokenIds = useMemo(() => {
     if (account) {
+      // Multicall bridge wraps uint256 outputs as BigNumber; unwrap back to bigint for downstream callers.
       return tokenIdResults
         .map(({ result }) => result)
         .filter((result): result is Result => !!result)
-        .map(result => BigNumber.from(result[0]))
+        .map(result => bigNumberToBigInt(result[0]))
     }
     return []
   }, [account, tokenIdResults])

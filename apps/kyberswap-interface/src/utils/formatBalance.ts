@@ -1,12 +1,10 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
-import { bigNumberToBigInt } from './migration'
 import { formatUnits } from './viem'
 
-export const getFullDisplayBalance = (balance: BigNumber | string, decimals = 18, significant = 6): string => {
+export const getFullDisplayBalance = (balance: bigint | string, decimals = 18, significant = 6): string => {
   if (!balance) {
     return '0'
   }
@@ -66,6 +64,6 @@ export const formatLongNumber = (num: string, usd?: boolean): string => {
   return usd ? `$${Numeral(num).format('0,0')}` : Numeral(num).format('0,0')
 }
 
-export const formatUnitsToFixed = (amount: BigNumber, decimals?: number, decimalPlaces?: number) => {
-  return (+(+formatUnits(bigNumberToBigInt(amount), decimals ?? 18)).toFixed(decimalPlaces ?? 3)).toString()
+export const formatUnitsToFixed = (amount: bigint, decimals?: number, decimalPlaces?: number) => {
+  return (+(+formatUnits(amount, decimals ?? 18)).toFixed(decimalPlaces ?? 3)).toString()
 }

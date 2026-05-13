@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ContractInterface } from 'ethers'
 
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import arbitrum from 'pages/Earns/constants/chains/arbitrum'
@@ -24,12 +23,17 @@ import uniswapv2 from 'pages/Earns/constants/dexes/uniswapv2'
 import uniswapv3 from 'pages/Earns/constants/dexes/uniswapv3'
 import uniswapv4 from 'pages/Earns/constants/dexes/uniswapv4'
 
+// Loose ABI type that accepts JSON-imported ABIs without requiring viem's
+// strict literal-typed `Abi` shape. Consumers that need the strict type cast
+// via `as Abi` from `utils/viem` at the call site.
+type NftManagerAbi = readonly unknown[]
+
 // Dex info
 export interface EarnDexInfo {
   name: string
   logo: string
   nftManagerContract: { [key in ChainId]?: string } | string
-  nftManagerContractAbi: ContractInterface | null
+  nftManagerContractAbi: NftManagerAbi | null
   unwrapWNativeTokenFuncName: string | null
   siteUrl: string
   collectFeeSupported: boolean

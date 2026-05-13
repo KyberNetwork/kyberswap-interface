@@ -1,5 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
@@ -38,7 +36,7 @@ export default function ProAmmFee({
   totalFeeRewardUSD,
 }: {
   totalFeeRewardUSD: number
-  tokenId: BigNumber
+  tokenId: bigint
   position: Position
   layout?: number
   text?: string
@@ -71,7 +69,7 @@ export default function ProAmmFee({
     setCollectFeeError('')
   }
 
-  const handleBroadcastClaimSuccess = (response: TransactionResponse) => {
+  const handleBroadcastClaimSuccess = (response: { hash: string }) => {
     const tokenAmountIn = feeValue0?.toSignificant(6)
     const tokenAmountOut = feeValue1?.toSignificant(6)
     const tokenSymbolIn = feeValue0?.currency.symbol ?? ''

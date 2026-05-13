@@ -1,6 +1,5 @@
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -42,7 +41,7 @@ export function useApproveCallback(
   const [currentAllowance, setAllowance] = useState<TokenAmount | undefined>(undefined)
   const getAllowance = useCallback(async () => {
     if (!readingTokenContract || !token) return
-    readingTokenContract.allowance(account, spender).then((res: BigNumber) => {
+    readingTokenContract.allowance(account, spender).then((res: { toString(): string }) => {
       setAllowance(TokenAmount.fromRawAmount(token, res.toString()))
     })
   }, [readingTokenContract, account, spender, token])

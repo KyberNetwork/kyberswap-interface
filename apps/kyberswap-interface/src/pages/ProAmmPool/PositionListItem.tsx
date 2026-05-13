@@ -1,7 +1,6 @@
 import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -159,7 +158,7 @@ function PositionListItem({
   const hasActiveFarm = false
   const hasActiveFarmV2 = false
 
-  const [farmReward, _setFarmReward] = useState<BigNumber[] | null>(null)
+  const [farmReward, _setFarmReward] = useState<bigint[] | null>(null)
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -207,7 +206,7 @@ function PositionListItem({
     const temp = farmReward?.[index]
     return (
       usdValue +
-      +CurrencyAmount.fromRawAmount(currency, temp?.gt('0') ? temp?.toString() : '0').toExact() *
+      +CurrencyAmount.fromRawAmount(currency, temp && temp > 0n ? temp.toString() : '0').toExact() *
         prices[currency.wrapped.address]
     )
   }, 0)
@@ -222,7 +221,7 @@ function PositionListItem({
   // prices
   const { priceLower, priceUpper } = getPriceOrderingFromPositionForUI(position)
 
-  const removed = liquidity?.eq(0)
+  const removed = liquidity === 0n
   const theme = useTheme()
 
   const { trackingHandler } = useTracking()
