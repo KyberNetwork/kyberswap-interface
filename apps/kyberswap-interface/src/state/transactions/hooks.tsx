@@ -1,11 +1,14 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { TransactionNotFoundError } from 'viem'
+import { usePublicClient } from 'wagmi'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useBlockNumber, useKyberSwapConfig } from 'state/application/hooks'
+import { useBlockNumber } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
+import { Hash } from 'utils/viem'
 
 import { addTransaction } from './actions'
 import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo1Token, TransactionHistory } from './type'
@@ -13,7 +16,7 @@ import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo1Token, Trans
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const { chainId, account } = useActiveWeb3React()
-  const { readProvider } = useKyberSwapConfig(chainId)
+  const publicClient = usePublicClient({ chainId: chainId as number })
   const { library } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const blockNumber = useBlockNumber()
@@ -27,10 +30,20 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
     async ({ hash, desiredChainId, type, firstTxHash, extraInfo }: TransactionHistory) => {
       if (!account) return
 
-      let tx: TransactionResponse | undefined
+      let tx: Pick<TransactionResponse, 'to' | 'nonce' | 'data'> | undefined
       try {
-        tx = await library?.getTransaction(hash)
-        if (!tx) tx = await readProvider?.getTransaction(hash)
+        tx = (await library?.getTransaction(hash)) as TransactionResponse | undefined
+        if (!tx && publicClient) {
+          const viemTx = await publicClient.getTransaction({ hash: hash as Hash }).catch(error => {
+            if (error instanceof TransactionNotFoundError) return null
+            throw error
+          })
+          // viem stores calldata under `input`; ethers used `data`. Normalize for the
+          // downstream `addTransaction` payload shape.
+          if (viemTx) {
+            tx = { to: viemTx.to ?? undefined, nonce: viemTx.nonce, data: viemTx.input }
+          }
+        }
       } catch (error) {}
 
       dispatch(
@@ -48,7 +61,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch, readProvider, library],
+    [account, chainId, dispatch, publicClient, library],
   )
 }
 

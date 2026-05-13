@@ -7,7 +7,7 @@ import { useAccount } from 'hooks/useAccount'
 
 const providers = new WeakMap<Client, Web3Provider>()
 
-function clientToProvider(client?: Client<Transport, Chain>, chainId?: number) {
+export function clientToProvider(client?: Client<Transport, Chain>, chainId?: number) {
   if (!client) {
     return undefined
   }

@@ -4,12 +4,15 @@ import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-g
 import { TxValidationError, findReplacementTx } from 'find-replacement-tx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { TransactionNotFoundError, TransactionReceiptNotFoundError } from 'viem'
+import { usePublicClient } from 'wagmi'
 
 import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { clientToProvider } from 'hooks/useEthersProvider'
 import useTracking, { NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
+import { useBlockNumber, useTransactionNotify } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/swap/actions'
 import {
@@ -26,7 +29,7 @@ import {
   TransactionExtraInfo1Token,
 } from 'state/transactions/type'
 import { findTx } from 'utils'
-import { decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
+import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
 
 const appsSdk = new SafeAppsSDK()
 
@@ -65,7 +68,16 @@ function shouldCheck(
 export default function Updater(): null {
   const { chainId, account, networkInfo } = useActiveWeb3React()
   const { connector } = useWeb3React()
-  const { readProvider } = useKyberSwapConfig(chainId)
+  const publicClient = usePublicClient({ chainId: chainId as number })
+  // ethers Provider shim wrapping the same viem public client (wagmi transport,
+  // KyberSwap RPC priority). Kept solely for `findReplacementTx`, which is a
+  // third-party helper typed against ethers. Using the public client (not the
+  // wallet connector client) avoids hitting rate-limited wallet RPCs during the
+  // `eth_getLogs` block-range scan.
+  const ethersProvider = useMemo(
+    () => clientToProvider(publicClient as any, chainId as number),
+    [publicClient, chainId],
+  )
 
   const lastBlockNumber = useBlockNumber()
   const dispatch = useDispatch<AppDispatch>()
@@ -240,16 +252,27 @@ export default function Updater(): null {
   )
 
   useEffect(() => {
-    if (!readProvider || !lastBlockNumber) return
+    if (!publicClient || !lastBlockNumber) return
 
     uniqueTransactions
       .filter(hash => shouldCheck(lastBlockNumber, findTx(transactions, hash)))
       .forEach(hash => {
         let txHash = hash
 
-        // Check if tx was replaced
-        readProvider
-          .getTransaction(hash)
+        // Check if tx was replaced. viem throws when the tx isn't yet seen; treat that as
+        // "no result" so the replacement-detection path below kicks in (matches old ethers
+        // behaviour where `getTransaction` returned `null`).
+        publicClient
+          .getTransaction({ hash: hash as Hash })
+          .catch(error => {
+            // viem throws when the tx/receipt isn't yet seen; treat that as null
+            // (matches the old ethers contract). Re-throw genuine RPC errors so
+            // the outer `.catch` logs them.
+            if (error instanceof TransactionNotFoundError || error instanceof TransactionReceiptNotFoundError) {
+              return null
+            }
+            throw error
+          })
           .then(res => {
             const transaction = findTx(transactions, hash)
 
@@ -268,7 +291,10 @@ export default function Updater(): null {
               // by wallet, or rejected by sequencer e.g. Base pre-validation).
               if (from) {
                 try {
-                  const currentNonce = await readProvider.getTransactionCount(from, 'latest')
+                  const currentNonce = await publicClient.getTransactionCount({
+                    address: from as Address,
+                    blockTag: 'latest',
+                  })
                   if (nonce !== undefined && currentNonce > nonce) {
                     dispatch(removeTx({ chainId, hash }))
                   }
@@ -278,8 +304,8 @@ export default function Updater(): null {
               }
             }
 
-            if (sentAtBlock && from && to && nonce && data)
-              findReplacementTx(readProvider, sentAtBlock, {
+            if (sentAtBlock && from && to && nonce && data && ethersProvider)
+              findReplacementTx(ethersProvider, sentAtBlock, {
                 from,
                 to,
                 nonce,
@@ -321,8 +347,17 @@ export default function Updater(): null {
               console.error(`failed to check transaction hash: ${txHash}`, error)
             })
         } else {
-          readProvider
-            .getTransactionReceipt(txHash)
+          publicClient
+            .getTransactionReceipt({ hash: txHash as Hash })
+            .catch(error => {
+              // viem throws when the tx/receipt isn't yet seen; treat that as null
+              // (matches the old ethers contract). Re-throw genuine RPC errors so
+              // the outer `.catch` logs them.
+              if (error instanceof TransactionNotFoundError || error instanceof TransactionReceiptNotFoundError) {
+                return null
+              }
+              throw error
+            })
             .then(receipt => {
               handleTransactionReceipt(txHash, receipt)
             })
@@ -333,7 +368,7 @@ export default function Updater(): null {
       })
 
     // eslint-disable-next-line
-  }, [chainId, readProvider, transactions, lastBlockNumber, dispatch])
+  }, [chainId, publicClient, ethersProvider, transactions, lastBlockNumber, dispatch])
 
   // Fast polling: poll every 2s only when there are pending transactions
   // This is independent of block-based polling and provides faster tx status detection
@@ -342,7 +377,7 @@ export default function Updater(): null {
   const hasPendingTxs = pendingTxHashes.length > 0
 
   useEffect(() => {
-    if (!readProvider || !hasPendingTxs) return
+    if (!publicClient || !hasPendingTxs) return
 
     const isSafe = connector?.id === CONNECTION.SAFE_CONNECTOR_ID
 
@@ -358,8 +393,17 @@ export default function Updater(): null {
               console.warn(`fast-poll: failed to check safe tx: ${hash}`, error)
             })
         } else {
-          readProvider
-            .getTransactionReceipt(hash)
+          publicClient
+            .getTransactionReceipt({ hash: hash as Hash })
+            .catch(error => {
+              // viem throws when the tx/receipt isn't yet seen; treat that as null
+              // (matches the old ethers contract). Re-throw genuine RPC errors so
+              // the outer `.catch` logs them.
+              if (error instanceof TransactionNotFoundError || error instanceof TransactionReceiptNotFoundError) {
+                return null
+              }
+              throw error
+            })
             .then(receipt => {
               if (receipt) handleTransactionReceipt(hash, receipt)
             })
@@ -372,7 +416,7 @@ export default function Updater(): null {
 
     return () => clearInterval(intervalId)
     // eslint-disable-next-line
-  }, [readProvider, hasPendingTxs, connector?.id, handleTransactionReceipt])
+  }, [publicClient, hasPendingTxs, connector?.id, handleTransactionReceipt])
 
   return null
 }
