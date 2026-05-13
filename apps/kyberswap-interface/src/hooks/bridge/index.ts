@@ -8,12 +8,10 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis/erc20'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useKyberSwapConfig } from 'state/application/hooks'
 import { TokenAmountLoading } from 'state/wallet/hooks'
 import { Abi, Address } from 'utils/viem'
 
 export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
-  const { readProvider } = useKyberSwapConfig(chainId)
   const { account } = useActiveWeb3React()
   const [balance, setBalance] = useState<CurrencyAmount<Currency>>()
 
@@ -21,15 +19,20 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
     const controller = new AbortController()
     async function getBalance() {
       try {
-        if (!readProvider || !account || !chainId) {
+        if (!account || !chainId) {
           setBalance(undefined)
           return
         }
-        const balance = await readProvider.getBalance(account)
+        const publicClient = getPublicClient(wagmiConfig, { chainId: chainId as number })
+        if (!publicClient) {
+          setBalance(undefined)
+          return
+        }
+        const balance = await publicClient.getBalance({ address: account as Address })
         if (controller.signal.aborted) {
           return
         }
-        setBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(balance)))
+        setBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(balance.toString())))
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -45,7 +48,7 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
       controller.abort()
       clearInterval(i)
     }
-  }, [chainId, readProvider, account])
+  }, [chainId, account])
 
   return balance
 }
