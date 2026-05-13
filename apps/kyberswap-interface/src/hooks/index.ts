@@ -16,6 +16,7 @@ import { useEthersProvider } from 'hooks/useEthersProvider'
 import store, { AppState } from 'state'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { isInSafeApp } from 'utils'
+import { BlacklistedWalletError } from 'utils/transactionError'
 
 import useDisconnectWallet from './web3/useDisconnectWallet'
 
@@ -31,13 +32,6 @@ const SIGNING_METHODS = new Set([
   'eth_signTypedData_v4',
   'wallet_sendCalls',
 ])
-
-class BlacklistedWalletError extends Error {
-  constructor() {
-    super('There was an error with your transaction.')
-    this.name = 'BlacklistedWalletError'
-  }
-}
 
 export function useActiveWeb3React(): {
   chainId: ChainId

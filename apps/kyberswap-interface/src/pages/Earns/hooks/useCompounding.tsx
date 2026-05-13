@@ -94,7 +94,7 @@ const useCompounding = ({
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
@@ -193,7 +193,7 @@ const useCompounding = ({
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({ library, txData, isSmartConnector })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
@@ -258,6 +258,7 @@ const useCompounding = ({
       handleNavigateToPosition,
       locale,
       library,
+      isSmartConnector,
       onRefreshPosition,
       toggleWalletModal,
       onCloseClaimModal,

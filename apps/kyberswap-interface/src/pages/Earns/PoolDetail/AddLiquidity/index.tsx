@@ -183,7 +183,7 @@ const AddLiquidityBody = ({
 const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const { pool, chainId, exchange, poolAddress } = usePoolDetailContext()
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const deadline = useTransactionDeadline()
   const deadlineValue = deadline ? Number(deadline.toString()) : undefined
 
@@ -271,7 +271,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     async (txData: AddLiquiditySubmitTxData, additionalInfo?: ApprovalAdditionalInfo) => {
       if (!library) throw new Error('Wallet is not connected')
 
-      const { txHash, error } = await submitTransaction({ library, txData })
+      const { txHash, error } = await submitTransaction({ library, txData, isSmartConnector })
       if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
       addTrackedTxHash(txHash)
@@ -289,7 +289,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
 
       return txHash
     },
-    [addTrackedTxHash, addTransactionWithType, exchange, library],
+    [addTrackedTxHash, addTransactionWithType, exchange, isSmartConnector, library],
   )
 
   const runtimeValue = useMemo<AddLiquidityRuntimeContextValue>(

@@ -26,7 +26,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
   const allTransactions = useAllTransactions(true)
 
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
 
   const [claimInfo, setClaimInfo] = useState<ClaimInfo | null>(null)
   const [openClaimModal, setOpenClaimModal] = useState(false)
@@ -74,6 +74,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
 
     const res = await submitTransaction({
       library,
+      isSmartConnector,
       txData,
       onError: (error: Error) => {
         errorMessage = error.message
@@ -121,7 +122,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
         },
       },
     })
-  }, [account, addTransactionWithType, claimInfo, library, notify])
+  }, [account, addTransactionWithType, claimInfo, isSmartConnector, library, notify])
 
   const onOpenClaim = (position: ParsedPosition) => {
     setOpenClaimModal(true)

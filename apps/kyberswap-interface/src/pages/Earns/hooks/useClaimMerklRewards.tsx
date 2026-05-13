@@ -19,7 +19,7 @@ const useClaimMerklRewards = () => {
   const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const [fetchMerklChainRewards] = useFetchMerklChainRewardsMutation()
 
   const claimMerklRewards = useCallback(
@@ -84,6 +84,7 @@ const useClaimMerklRewards = () => {
 
       const res = await submitTransaction({
         library,
+        isSmartConnector,
         txData: {
           to: MERKL_DISTRIBUTOR_ADDRESS,
           data: calldata,
@@ -124,7 +125,7 @@ const useClaimMerklRewards = () => {
 
       return txHash
     },
-    [account, addTransactionWithType, fetchMerklChainRewards, library, notify],
+    [account, addTransactionWithType, fetchMerklChainRewards, isSmartConnector, library, notify],
   )
 
   return { claimMerklRewards }

@@ -23,7 +23,9 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
+import { basisPointsToPercent, formattedNumLong } from 'utils'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
 
 export default function ProAmmFee({
   tokenId,
@@ -43,8 +45,8 @@ export default function ProAmmFee({
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const theme = useTheme()
   const token0Shown = feeValue0?.currency || position.pool.token0
   const token1Shown = feeValue1?.currency || position.pool.token1
@@ -121,28 +123,18 @@ export default function ProAmmFee({
       isPositionClosed: liquidity === '0',
     })
 
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
-    }
-
     try {
-      await library
-        .getSigner()
-        .estimateGas(txn)
-        .then((estimate: BigNumber) => {
-          const newTxn = {
-            ...txn,
-            gasLimit: calculateGasMargin(estimate),
-          }
-          return library
-            .getSigner()
-            .sendTransaction(newTxn)
-            .then((response: TransactionResponse) => {
-              handleBroadcastClaimSuccess(response)
-            })
-        })
+      const response = await sendEVMTransaction({
+        account,
+        library,
+        contractAddress: positionManager.address,
+        encodedData: calldata as `0x${string}`,
+        value: BigNumber.from(value),
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
+      })
+      if (response) handleBroadcastClaimSuccess(response)
     } catch (error: any) {
       setShowPendingModal(true)
       setAttemptingTxn(false)

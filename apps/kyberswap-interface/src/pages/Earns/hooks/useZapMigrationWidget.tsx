@@ -115,7 +115,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
@@ -244,7 +244,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({ library, txData, isSmartConnector })
               const { txHash, error } = res
               if (!txHash || error) {
                 const isReposition = migrateLiquidityPureParams.rePositionMode
@@ -423,6 +423,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       migrateLiquidityPureParams,
       zapMigrationRpcUrl,
       library,
+      isSmartConnector,
       refCode,
       txStatus,
       originalToCurrentHash,

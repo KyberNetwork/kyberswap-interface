@@ -2,13 +2,18 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { SignerPaymaster } from '@holdstation/paymaster-helper'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { getPublicClient, getWalletClient } from '@wagmi/core'
 import { ethers } from 'ethers'
+import blackjackApi from 'services/blackjack'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
+import store from 'state'
 import { calculateGasMargin } from 'utils'
 
-import { ErrorName, TransactionError } from './transactionError'
-import { stringToHex } from './viem'
+import { bigIntToBigNumber, hashToTxResponse } from './migration'
+import { BlacklistedWalletError, ErrorName, TransactionError } from './transactionError'
+import { Address, Hex, stringToHex } from './viem'
 
 const projectName = 'KyberSwap'
 const partnerCode = stringToHex(projectName, { size: 32 })
@@ -27,12 +32,24 @@ export const paymasterExecute = (
   return SignerPaymaster.paymasterExecute({
     network: 'mainnet',
     populateTransaction,
-    // signer: library.getSigner(),
     paymentToken,
     innerInput: partnerCode,
     paymasterAddress: CUSTOM_PAYMASTER_ADDRESS,
     defaultGasLimit: gasLimit,
   })
+}
+
+// Pre-send security gate. Mirrors the same check the legacy `useWeb3React` Proxy did on
+// every `.send('eth_sendTransaction'|signing-method', ...)` call. Fails open on network
+// errors so an unreachable Blackjack service doesn't block the user's transaction.
+export async function ensureNotBlacklisted(account: string) {
+  try {
+    const res = await store.dispatch(blackjackApi.endpoints.checkBlackjack.initiate(account))
+    if (res?.data?.blacklisted) throw new BlacklistedWalletError()
+  } catch (err) {
+    if (err instanceof BlacklistedWalletError) throw err
+    console.warn('Blackjack check skipped due to network error', err)
+  }
 }
 
 export async function sendEVMTransaction({
@@ -61,7 +78,8 @@ export async function sendEVMTransaction({
 }): Promise<TransactionResponse | undefined> {
   if (!account || !library) throw new Error('Invalid transaction')
 
-  let accessList: any[] | undefined
+  await ensureNotBlacklisted(account)
+
   let effectiveChainId = chainId
   try {
     if (!effectiveChainId) {
@@ -70,75 +88,137 @@ export async function sendEVMTransaction({
     }
   } catch {}
 
-  const callData = !isSmartConnector && chainId === ChainId.BASE ? `${encodedData}${BASE_BUILDER_CODE}` : encodedData
+  const callData = (
+    !isSmartConnector && effectiveChainId === ChainId.BASE ? `${encodedData}${BASE_BUILDER_CODE}` : encodedData
+  ) as Hex
 
-  const baseTx = {
-    from: account,
-    to: contractAddress,
-    data: callData,
-    ...(value && !value.eq(0) ? { value: value.toHexString() } : {}),
-  }
-  if (effectiveChainId && NETWORKS_INFO[effectiveChainId]?.accessListEnabled) {
+  const txValue = value && !value.eq(0) ? BigInt(value.toString()) : undefined
+
+  // Paymaster path: the `@holdstation/paymaster-helper` SDK is typed against ethers, so
+  // keep the legacy ethers Signer flow for this branch. The non-paymaster branch below
+  // uses viem directly.
+  if (paymentToken) {
+    const baseTx = {
+      from: account,
+      to: contractAddress,
+      data: callData,
+      ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
+    }
+    const estimateGasOption = baseTx
+    let gasEstimate: ethers.BigNumber | undefined
     try {
-      const al = await library.send('eth_createAccessList', [baseTx, 'latest'])
-      if (al && Array.isArray(al.accessList)) {
-        accessList = al.accessList
-      }
-    } catch {
-      // best-effort; continue without accessList if RPC doesn't support it
-      accessList = undefined
+      gasEstimate = await library.getSigner().estimateGas(estimateGasOption)
+      if (!gasEstimate) throw new Error('gasEstimate is nullish value')
+    } catch (error) {
+      throw new TransactionError(
+        errorInfo.name,
+        'estimateGas',
+        error?.message,
+        estimateGasOption,
+        { cause: error },
+        errorInfo.wallet,
+      )
+    }
+    const gasLimit = calculateGasMargin(gasEstimate, chainId)
+    try {
+      return await paymasterExecute(
+        paymentToken,
+        {
+          ...estimateGasOption,
+          gasLimit,
+          value: value ? ethers.BigNumber.from(value) : undefined,
+        },
+        gasLimit.toNumber(),
+      )
+    } catch (error) {
+      const txHash = (error as any)?.transactionHash as string | undefined
+      if (txHash) return { hash: txHash } as TransactionResponse
+      throw new TransactionError(
+        errorInfo.name,
+        'sendTransaction',
+        error?.message,
+        { ...estimateGasOption, gasLimit },
+        { cause: error },
+        errorInfo.wallet,
+      )
     }
   }
 
-  const estimateGasOption = {
-    ...baseTx,
-    ...(accessList ? { accessList } : {}),
+  // Non-paymaster path: viem walletClient + publicClient via wagmi.
+  const publicClient = getPublicClient(wagmiConfig, { chainId: effectiveChainId as number })
+  const walletClient = await getWalletClient(wagmiConfig, { chainId: effectiveChainId as number })
+  if (!publicClient || !walletClient) {
+    throw new Error('Wallet client unavailable for the requested chain')
   }
 
-  let gasEstimate: ethers.BigNumber | undefined
+  const requestBase = {
+    account: account as Address,
+    to: contractAddress as Address,
+    data: callData,
+    ...(txValue !== undefined ? { value: txValue } : {}),
+  }
+
+  // Best-effort eth_createAccessList for chains that opt-in. Failure is non-fatal.
+  let accessList: { address: Address; storageKeys: Hex[] }[] | undefined
+  if (effectiveChainId && NETWORKS_INFO[effectiveChainId]?.accessListEnabled) {
+    try {
+      const al = (await publicClient.request({
+        method: 'eth_createAccessList' as any,
+        params: [
+          {
+            from: account,
+            to: contractAddress,
+            data: callData,
+            ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
+          },
+          'latest',
+        ] as any,
+      })) as { accessList?: { address: Address; storageKeys: Hex[] }[] } | undefined
+      if (al?.accessList && Array.isArray(al.accessList)) {
+        accessList = al.accessList
+      }
+    } catch {
+      // ignore; chain may not support eth_createAccessList
+    }
+  }
+
+  let gasEstimate: bigint
   try {
-    gasEstimate = await library.getSigner().estimateGas(estimateGasOption)
-    if (!gasEstimate) throw new Error('gasEstimate is nullish value')
+    gasEstimate = (await (publicClient as any).estimateGas({
+      ...requestBase,
+      ...(accessList ? { accessList } : {}),
+    })) as bigint
   } catch (error) {
     throw new TransactionError(
       errorInfo.name,
       'estimateGas',
-      error?.message,
-      estimateGasOption,
+      (error as Error)?.message,
+      { from: account, to: contractAddress, data: callData },
       { cause: error },
       errorInfo.wallet,
     )
   }
 
-  const gasLimit = calculateGasMargin(gasEstimate, chainId)
-  const sendTransactionOption = {
-    ...estimateGasOption,
-    gasLimit,
-  }
+  const gasLimit = calculateGasMargin(bigIntToBigNumber(gasEstimate), effectiveChainId)
 
   try {
-    const response = await (paymentToken
-      ? paymasterExecute(
-          paymentToken,
-          {
-            ...sendTransactionOption,
-            value: value ? ethers.BigNumber.from(value) : undefined,
-          },
-          gasLimit.toNumber(),
-        )
-      : library.getSigner().sendTransaction(sendTransactionOption))
-    return response
+    // viem's `sendTransaction` argument type is a chain-specific union large enough to
+    // overflow the TS instantiation depth limit at this call site. The runtime contract is
+    // simple — `{ to, data, value?, gas?, accessList?, account }` — so call through `any`.
+    const hash = (await (walletClient as any).sendTransaction({
+      ...requestBase,
+      gas: BigInt(gasLimit.toString()),
+      ...(accessList ? { accessList } : {}),
+    })) as Hex
+    return hashToTxResponse(hash, publicClient as any)
   } catch (error) {
     const txHash = (error as any)?.transactionHash as string | undefined
-    if (txHash) {
-      return { hash: txHash } as TransactionResponse
-    }
-
+    if (txHash) return { hash: txHash } as TransactionResponse
     throw new TransactionError(
       errorInfo.name,
       'sendTransaction',
-      error?.message,
-      sendTransactionOption,
+      (error as Error)?.message,
+      { from: account, to: contractAddress, data: callData, gasLimit },
       { cause: error },
       errorInfo.wallet,
     )

@@ -88,7 +88,7 @@ const useZapInWidget = ({
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -351,7 +351,7 @@ const useZapInWidget = ({
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({ library, txData, isSmartConnector })
               const { txHash, error } = res
 
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
@@ -417,6 +417,7 @@ const useZapInWidget = ({
       handleCloseZapInWidget,
       handleNavigateToPosition,
       handleOpenZapMigration,
+      isSmartConnector,
       isSmartExitSupported,
       library,
       locale,

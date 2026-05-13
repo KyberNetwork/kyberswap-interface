@@ -1,3 +1,4 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
@@ -23,6 +24,8 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { calculateGasMargin } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
 
 import { FeeTag } from './PositionLegacy'
 
@@ -74,7 +77,7 @@ export default function FarmLegacy({
   claimInfo: { address: string; encodedData: string } | null
   pendingRewards: Array<{ amount: string; token_address: string }>
 }) {
-  const { chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const addresses = [
     ...new Set(
@@ -123,33 +126,36 @@ export default function FarmLegacy({
 
   const addTransactionWithType = useTransactionAdder()
 
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const handleClaimRewards = async () => {
-    if (library && claimInfo) {
+    if (library && claimInfo && account) {
       try {
         setShowConfirmModal('claim')
         setAttemptingTxn(true)
-        const gas = await library.getSigner().estimateGas({
-          to: claimInfo.address,
-          data: claimInfo.encodedData,
+        const response = await sendEVMTransaction({
+          account,
+          library,
+          contractAddress: claimInfo.address,
+          encodedData: claimInfo.encodedData,
+          value: BigNumber.from(0),
+          errorInfo: { name: ErrorName.GasRefundClaimError, wallet: undefined },
+          isSmartConnector,
+          chainId,
         })
-
-        const { hash } = await library.getSigner().sendTransaction({
-          to: claimInfo.address,
-          data: claimInfo.encodedData,
-          gasLimit: calculateGasMargin(gas),
-        })
+        const hash = response?.hash ?? ''
 
         setAttemptingTxn(false)
-        setTxHash(hash || '')
+        setTxHash(hash)
 
-        addTransactionWithType({
-          hash,
-          type: TRANSACTION_TYPE.CLAIM_REWARD,
-          extraInfo: {
-            summary: t`Farming rewards`,
-          },
-        })
+        if (hash) {
+          addTransactionWithType({
+            hash,
+            type: TRANSACTION_TYPE.CLAIM_REWARD,
+            extraInfo: {
+              summary: t`Farming rewards`,
+            },
+          })
+        }
       } catch (e) {
         setAttemptingTxn(false)
         setErrorMessage(e?.message || JSON.stringify(e))

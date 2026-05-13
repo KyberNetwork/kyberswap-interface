@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { getWalletClient } from '@wagmi/core'
 import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/widget'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
@@ -18,6 +19,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
+import { wagmiConfig } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -25,6 +27,7 @@ import { VerticalDivider } from 'pages/About/styleds'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
+import { ensureNotBlacklisted } from 'utils/sendTransaction'
 
 import vesting3rdData from '../data/pendle_dappos_vesting.json'
 import phase3 from '../data/phase3.json'
@@ -117,8 +120,19 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               return [account]
             },
             async delegateTransaction(tx) {
-              const txResponse = await library.getSigner().sendTransaction(tx as any)
-              return txResponse?.hash
+              // ZkMe widget hands us a tx in ethers `TransactionRequest` shape; forward it
+              // to viem `walletClient.sendTransaction`. ZkMe KYC runs on Polygon only.
+              const walletClient = await getWalletClient(wagmiConfig, { chainId: ChainId.MATIC })
+              if (!walletClient) throw new Error('Wallet client unavailable')
+              if (!account) throw new Error('Wallet is not connected')
+              await ensureNotBlacklisted(account)
+              const t = tx as { to: string; data: string; value?: string | number | bigint }
+              const hash = await (walletClient as any).sendTransaction({
+                to: t.to,
+                data: t.data,
+                ...(t.value !== undefined ? { value: BigInt(t.value.toString()) } : {}),
+              })
+              return hash as string
             },
           }
         : null,

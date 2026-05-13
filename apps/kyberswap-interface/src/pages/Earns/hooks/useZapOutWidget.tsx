@@ -63,7 +63,7 @@ const useZapOutWidget = (
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
@@ -165,7 +165,7 @@ const useZapOutWidget = (
                   },
             ) => {
               const isManualRemove = zapOutPureParams.mode === 'withdrawOnly'
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({ library, txData, isSmartConnector })
               const { txHash, error } = res
               if (!txHash || error) {
                 trackingHandler(
@@ -253,6 +253,7 @@ const useZapOutWidget = (
       zapOutPureParams,
       zapOutRpcUrl,
       library,
+      isSmartConnector,
       refCode,
       account,
       chainId,

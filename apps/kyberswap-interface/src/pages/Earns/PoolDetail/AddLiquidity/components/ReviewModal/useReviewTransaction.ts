@@ -48,7 +48,7 @@ export const useReviewTransaction = ({
   onTrackEvent,
 }: UseReviewTransactionProps) => {
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const navigate = useNavigate()
   const { chainId, chainInfo, exchange, poolAddress } = usePoolDetailContext()
   const { txStatusMap, txHashMapping } = useAddLiquidityRuntimeContext()
@@ -130,6 +130,7 @@ export const useReviewTransaction = ({
     try {
       const { txHash, error } = await submitTransaction({
         library,
+        isSmartConnector,
         txData: {
           from: account,
           to: buildData.routerAddress,
@@ -190,6 +191,7 @@ export const useReviewTransaction = ({
     buildData,
     chainId,
     exchange,
+    isSmartConnector,
     library,
     onAddTrackedTxHash,
     onAddTransactionWithType,
