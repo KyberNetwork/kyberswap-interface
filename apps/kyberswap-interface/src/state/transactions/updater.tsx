@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
-import { TxValidationError, findReplacementTx } from 'find-replacement-tx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { TransactionNotFoundError, TransactionReceiptNotFoundError } from 'viem'
@@ -9,7 +8,6 @@ import { usePublicClient } from 'wagmi'
 import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { clientToProvider } from 'hooks/useEthersProvider'
 import useTracking, { NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useBlockNumber, useTransactionNotify } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
@@ -31,6 +29,55 @@ import { findTx } from 'utils'
 import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
 
 const appsSdk = new SafeAppsSDK()
+
+// Viem-native replacement detector. Mirrors what `find-replacement-tx` used to do:
+// scan blocks since `sentAtBlock` for a transaction from the same sender with the
+// same nonce as the original; if a match is found whose hash differs from the
+// original, that is the replacement tx. A self-transfer with empty data signifies a
+// wallet-side cancellation. Returns `null` if no replacement is detected.
+//
+// Block scan is bounded to 256 blocks to avoid runaway RPC pressure on long-pending
+// transactions; nonce-advancement detection in `checkRemoveTxs` covers the tail.
+async function findReplacementViaViem(args: {
+  publicClient: any
+  originalHash: string
+  from: string
+  nonce: number
+  sentAtBlock: number
+}): Promise<{ hash: string } | 'cancelled' | null> {
+  const { publicClient, originalHash, from, nonce, sentAtBlock } = args
+  const fromLower = from.toLowerCase()
+  try {
+    const currentNonce = await publicClient.getTransactionCount({
+      address: from as Address,
+      blockTag: 'latest',
+    })
+    if (currentNonce <= nonce) return null
+
+    const latestBlock = await publicClient.getBlockNumber()
+    const startBlock = BigInt(Math.max(sentAtBlock, Number(latestBlock) - 256))
+
+    for (let blockNumber = startBlock; blockNumber <= latestBlock; blockNumber++) {
+      let block
+      try {
+        block = await publicClient.getBlock({ blockNumber, includeTransactions: true })
+      } catch {
+        continue
+      }
+      const match = block?.transactions?.find(
+        (tx: any) => tx?.from?.toLowerCase?.() === fromLower && Number(tx?.nonce) === nonce,
+      )
+      if (!match) continue
+      if (match.hash?.toLowerCase?.() === originalHash.toLowerCase()) return null
+      const isSelfTransferEmpty =
+        match.to && (match.to as string).toLowerCase() === fromLower && (!match.input || match.input === '0x')
+      return isSelfTransferEmpty ? 'cancelled' : { hash: match.hash as string }
+    }
+    return null
+  } catch {
+    return null
+  }
+}
 
 const toSafeReceipt = (hash: string, receipt: any) =>
   receipt
@@ -68,15 +115,6 @@ export default function Updater(): null {
   const { chainId, account, networkInfo } = useActiveWeb3React()
   const { connector } = useWeb3React()
   const publicClient = usePublicClient({ chainId: chainId as number })
-  // ethers Provider shim wrapping the same viem public client (wagmi transport,
-  // KyberSwap RPC priority). Kept solely for `findReplacementTx`, which is a
-  // third-party helper typed against ethers. Using the public client (not the
-  // wallet connector client) avoids hitting rate-limited wallet RPCs during the
-  // `eth_getLogs` block-range scan.
-  const ethersProvider = useMemo(
-    () => clientToProvider(publicClient as any, chainId as number),
-    [publicClient, chainId],
-  )
 
   const lastBlockNumber = useBlockNumber()
   const dispatch = useDispatch<AppDispatch>()
@@ -303,34 +341,34 @@ export default function Updater(): null {
               }
             }
 
-            if (sentAtBlock && from && to && nonce && data && ethersProvider)
-              findReplacementTx(ethersProvider, sentAtBlock, {
+            if (sentAtBlock && from && nonce !== undefined) {
+              findReplacementViaViem({
+                publicClient,
+                originalHash: hash,
                 from,
-                to,
                 nonce,
-                data,
+                sentAtBlock,
               })
-                .then(newTx => {
-                  if (newTx) {
-                    txHash = newTx.hash
+                .then(replacement => {
+                  if (replacement === 'cancelled') {
+                    dispatch(removeTx({ chainId, hash }))
+                    return
+                  }
+                  if (replacement) {
+                    txHash = replacement.hash
                     dispatch(
                       replaceTx({
                         chainId,
                         oldHash: hash,
-                        newHash: newTx.hash,
+                        newHash: replacement.hash,
                       }),
                     )
+                    return
                   }
+                  checkRemoveTxs()
                 })
-                .catch((error: unknown) => {
-                  // Transaction was canceled (sent 0 ETH to self with empty data)
-                  if (error instanceof TxValidationError && error.message === 'Transaction canceled.') {
-                    dispatch(removeTx({ chainId, hash }))
-                  } else {
-                    checkRemoveTxs()
-                  }
-                })
-            else {
+                .catch(checkRemoveTxs)
+            } else {
               checkRemoveTxs()
             }
           })
@@ -367,7 +405,7 @@ export default function Updater(): null {
       })
 
     // eslint-disable-next-line
-  }, [chainId, publicClient, ethersProvider, transactions, lastBlockNumber, dispatch])
+  }, [chainId, publicClient, transactions, lastBlockNumber, dispatch])
 
   // Fast polling: poll every 2s only when there are pending transactions
   // This is independent of block-based polling and provides faster tx status detection

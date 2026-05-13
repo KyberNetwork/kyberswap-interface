@@ -116,7 +116,6 @@
     "dompurify": "^3.0.6",
     "ethers": "^5.8.0",
     "events": "^3.3.0",
-    "find-replacement-tx": "^1.2.3",
     "firebase": "^9.8.2",
     "framer-motion": "^10.12.4",
     "html2canvas": "^1.4.1",
