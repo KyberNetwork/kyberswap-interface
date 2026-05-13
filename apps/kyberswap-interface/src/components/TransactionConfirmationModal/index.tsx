@@ -1,8 +1,7 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import React, { useState } from 'react'
-import { AlertTriangle, ArrowUpCircle, BarChart2 } from 'react-feather'
+import { ArrowUpCircle, BarChart2 } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 import { useWatchAsset } from 'wagmi'
@@ -16,7 +15,6 @@ import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
-import { RONIN_MAINTENANCE_MESSAGE, isRoninMaintenanceActive } from 'constants/roninMaintenance'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { VIEW_MODE } from 'state/user/reducer'
@@ -238,21 +236,6 @@ const StyledAlert = styled(Alert)`
   height: 108px;
   width: 108px;
 `
-
-const MaintenanceNotice = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: ${({ theme }) => rgba(theme.warning, 0.15)};
-  color: ${({ theme }) => theme.warning};
-  font-size: 13px;
-  line-height: 18px;
-  text-align: left;
-`
-
 export function TransactionErrorContent({
   message,
   onDismiss,
@@ -271,9 +254,7 @@ export function TransactionErrorContent({
   suggestionMessage?: React.ReactNode
 }) {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
   const [showDetail, setShowDetail] = useState<boolean>(false)
-  const showRoninMaintenance = isRoninMaintenanceActive(chainId)
 
   return (
     <Wrapper>
@@ -285,12 +266,6 @@ export function TransactionErrorContent({
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
         <AutoColumn style={{ marginTop: 20 }} gap="8px" justify="center">
-          {showRoninMaintenance && (
-            <MaintenanceNotice>
-              <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-              <span>{RONIN_MAINTENANCE_MESSAGE}</span>
-            </MaintenanceNotice>
-          )}
           <StyledAlert />
           <Text
             fontWeight={500}
