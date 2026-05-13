@@ -27,9 +27,11 @@ const POLLING_INTERVAL_MS = 5 * 60_000
 type Props = {
   onOpenZapInWidget: ({ pool }: ZapInInfo) => void
   filters: PoolQueryParams
+  showRewards?: boolean
+  showPoolPrice?: boolean
 }
 
-const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
+const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPoolPrice = true }: Props) => {
   const theme = useTheme()
 
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
@@ -112,6 +114,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
               key={pool.address}
               pool={pool}
               filters={filters}
+              showRewards={showRewards}
               onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
             />
@@ -123,6 +126,8 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
             key={pool.address}
             pool={pool}
             filters={filters}
+            showRewards={showRewards}
+            showPoolPrice={showPoolPrice}
             onOpenZapInWidget={onOpenZapInWidget}
             handleFavorite={handleFavorite}
             favoriteLoading={favoriteLoading}

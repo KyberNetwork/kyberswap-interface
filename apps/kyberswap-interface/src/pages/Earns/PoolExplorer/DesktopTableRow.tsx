@@ -24,19 +24,24 @@ import { formatDisplayNumber } from 'utils/numbers'
 const DesktopTableRow = ({
   pool,
   filters,
+  showRewards = true,
+  showPoolPrice = true,
   onOpenZapInWidget,
   handleFavorite,
   favoriteLoading,
 }: {
   pool: ParsedEarnPool
   filters: PoolQueryParams
+  showRewards?: boolean
+  showPoolPrice?: boolean
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
   favoriteLoading: string[]
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+  const showMaxAprColumn = filters.tag === FilterTag.FARMING_POOL
+  const showEgSharingColumn = showMaxAprColumn
   const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
@@ -70,7 +75,12 @@ const DesktopTableRow = ({
   }
 
   return (
-    <TableRow expandColumn={isFarmingFiltered} onClick={e => handleOpenZapInWidget(e)}>
+    <TableRow
+      showMaxAprColumn={showMaxAprColumn}
+      showRewards={showRewards}
+      showPoolPrice={showPoolPrice}
+      onClick={e => handleOpenZapInWidget(e)}
+    >
       <TableCell>
         <HStack align="center" gap={8}>
           <HStack align="flex-end" position="relative" gap={0}>
@@ -104,7 +114,7 @@ const DesktopTableRow = ({
         <PoolAprInfo pool={pool} />
         <PoolAprBadges pool={pool} />
       </TableCell>
-      {isFarmingFiltered && (
+      {showMaxAprColumn && (
         <TableCell onClick={e => handleOpenZapInWidget(e, true)}>
           {!!pool.maxAprInfo ? (
             <MouseoverTooltipDesktopOnly
@@ -144,7 +154,7 @@ const DesktopTableRow = ({
       )}
       <TableCell>
         <Text>
-          {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+          {formatDisplayNumber(showEgSharingColumn ? pool.egUsd : pool.earnFee, {
             style: 'currency',
             significantDigits: 6,
           })}
@@ -156,15 +166,22 @@ const DesktopTableRow = ({
       <TableCell>
         <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
       </TableCell>
-      <TableCell>
-        <Text>
-          {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
-        </Text>
-        <MerklRewardsRecord pool={pool} />
-      </TableCell>
-      <TableCell>
-        <SparklineChart sparkline={pool.sparkline} shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address} />
-      </TableCell>
+      {showRewards && (
+        <TableCell>
+          <Text>
+            {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
+          </Text>
+          <MerklRewardsRecord pool={pool} />
+        </TableCell>
+      )}
+      {showPoolPrice && (
+        <TableCell>
+          <SparklineChart
+            sparkline={pool.sparkline}
+            shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address}
+          />
+        </TableCell>
+      )}
       <TableCell justifyContent="flex-start" pt={16}>
         {favoriteLoading.includes(pool.address) ? (
           <Loader />

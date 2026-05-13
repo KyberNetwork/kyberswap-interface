@@ -18,15 +18,21 @@ import { MEDIA_WIDTHS } from 'theme'
 const TableHeader = ({
   onSortChange,
   filters,
+  showRewards = true,
+  showPoolPrice = true,
 }: {
   onSortChange: (sortBy: string) => void
   filters: PoolQueryParams
+  showRewards?: boolean
+  showPoolPrice?: boolean
 }) => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+  const showMaxAprColumn = filters.tag === FilterTag.FARMING_POOL
+  const showEgSharingColumn = showMaxAprColumn
+  const showExtraVolumeColumn = showMaxAprColumn
 
   return !upToMedium ? (
-    <TableHeaderComponent expandColumn={isFarmingFiltered}>
+    <TableHeaderComponent showMaxAprColumn={showMaxAprColumn} showRewards={showRewards} showPoolPrice={showPoolPrice}>
       <TableCell flexDirection="row">
         <HeaderText>{t`Pair`}</HeaderText>
       </TableCell>
@@ -37,7 +43,7 @@ const TableHeader = ({
         </SortableHeader>
       </TableCell>
       <TableCell flexDirection="row">
-        {isFarmingFiltered ? (
+        {showMaxAprColumn ? (
           <HeaderInfoWrapper role="button">
             {t`Max APR`}
             <InfoHelper
@@ -52,7 +58,7 @@ const TableHeader = ({
         )}
       </TableCell>
       <TableCell flexDirection="row">
-        {isFarmingFiltered ? (
+        {showEgSharingColumn ? (
           <HeaderInfoWrapper role="button">
             {t`EG Sharing`}
             <InfoHelper
@@ -73,7 +79,7 @@ const TableHeader = ({
         )}
       </TableCell>
       <TableCell flexDirection="row">
-        {isFarmingFiltered ? (
+        {showExtraVolumeColumn ? (
           <SortableHeader role="button" onClick={() => onSortChange(SortBy.TVL)}>
             {t`TVL`}
             <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
@@ -85,24 +91,24 @@ const TableHeader = ({
           </SortableHeader>
         )}
       </TableCell>
-      <TableCell flexDirection="row">
-        {isFarmingFiltered ? (
+      {showExtraVolumeColumn && (
+        <TableCell flexDirection="row">
           <SortableHeader role="button" onClick={() => onSortChange(SortBy.VOLUME)}>
             {t`Volume`}
             <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
           </SortableHeader>
-        ) : (
-          <HeaderText>{t`Rewards`}</HeaderText>
-        )}
-      </TableCell>
-      {isFarmingFiltered ? (
+        </TableCell>
+      )}
+      {showRewards && (
         <TableCell flexDirection="row">
           <HeaderText>{t`Rewards`}</HeaderText>
         </TableCell>
-      ) : null}
-      <TableCell flexDirection="row">
-        <HeaderText>{t`Pool Price`}</HeaderText>
-      </TableCell>
+      )}
+      {showPoolPrice && (
+        <TableCell flexDirection="row">
+          <HeaderText>{t`Pool Price`}</HeaderText>
+        </TableCell>
+      )}
       <TableCell />
     </TableHeaderComponent>
   ) : null
