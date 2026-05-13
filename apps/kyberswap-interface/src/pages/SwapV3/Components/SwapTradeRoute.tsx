@@ -246,7 +246,7 @@ const SwapTradeRoute = ({
             ) : null}
 
             {isSmartSettlementActive && (
-              <ClickTooltip text={smartSettlementTooltip} width="360px">
+              <ClickTooltip text={smartSettlementTooltip} width="360px" placement="top">
                 <SmartSettlementBadge role="button">
                   <Shield size={14} color={theme.primary} />
                   <Trans>Smart Settlement</Trans>
