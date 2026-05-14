@@ -301,8 +301,8 @@ export const useZapState = ({
     pollingInterval: pauseAutoRefresh ? 0 : 10_000,
     refetchOnMountOrArgChange: !pauseAutoRefresh,
   })
-  const routeData = routeDisabled ? null : routeResult.data?.data || null
-  const routeMessage = routeResult.data?.message || ''
+  const routeData = routeDisabled ? null : routeResult.currentData?.data || null
+  const routeMessage = routeResult.currentData?.message || ''
   const routeError =
     routeQueryArgs.error ||
     (routeMessage && routeMessage !== 'OK' ? routeMessage : '') ||
