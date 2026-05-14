@@ -430,6 +430,20 @@ export const wagmiConfig = createConfig({
         url: window.location.origin,
         iconUrl: 'https://kyberswap.com/favicon.svg',
       },
+      // SDK default is `metamask://connect/mwp?id=<session>` via `window.location.href`,
+      // which iOS Safari rejects with "Safari cannot open the page because the address is
+      // invalid" when no app is registered for the custom scheme (and intermittently even
+      // when MetaMask is installed). The bundled `useDeeplink: false` path falls back to
+      // `https://metamask.app.link/connect` but strips the session ID — pairing then fails.
+      // Override the opener to rewrite the scheme to MetaMask's universal-link domain while
+      // preserving the path + query so iOS Universal Links resolve to the installed app and
+      // fall back gracefully to the install page when it isn't.
+      mobile: {
+        preferredOpenLink: url => {
+          const universalUrl = url.replace(/^metamask:\/\//, 'https://metamask.app.link/')
+          window.location.href = universalUrl
+        },
+      },
     }),
     injectedWithFallback(),
     walletConnect(WC_PARAMS),
