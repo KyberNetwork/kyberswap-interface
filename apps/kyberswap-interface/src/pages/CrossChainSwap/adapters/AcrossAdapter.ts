@@ -71,7 +71,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     return 'Across'
   }
   getIcon(): string {
-    return 'https://across.to/favicon.svg'
+    return 'https://storage.googleapis.com/ks-setting-1d682dca/49319cc3-81fd-4d70-9870-c99e8b67ba221778733646226.png'
   }
 
   canSupport(category: string, tokenIn?: Currency, tokenOut?: Currency): boolean {
