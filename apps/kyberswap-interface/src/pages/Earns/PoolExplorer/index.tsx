@@ -8,6 +8,7 @@ import { usePoolsExplorerQuery } from 'services/zapEarn'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
+import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { HStack, Stack } from 'components/Stack'
 import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
@@ -230,12 +231,16 @@ const PoolExplorer = () => {
       {zapCreatePoolWidget}
       {smartExitWidget}
 
+      <HiddenH1>Explore and compare yield opportunities across top DeFi protocols on multiple chains.</HiddenH1>
+      <HiddenH2>
+        Trading volume, TVL, and pool performance across networks - all from one interface without switching apps.
+      </HiddenH2>
       <Stack gap={8}>
         <HStack align="center" gap={16}>
           <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
             <IconArrowLeft />
           </BackButton>
-          <Text as="h1" fontSize={24} fontWeight="500">
+          <Text fontSize={24} fontWeight="500">
             {t`Earning with Smart Liquidity Providing`}
           </Text>
         </HStack>

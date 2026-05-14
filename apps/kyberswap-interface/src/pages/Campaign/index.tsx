@@ -5,6 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
+import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -125,6 +126,8 @@ export default function CampaignPage() {
 
   return (
     <Wrapper>
+      <HiddenH1>Earn bonus rewards and incentives while you swap, provide liquidity, or trade.</HiddenH1>
+      <HiddenH2>Join active campaigns across supported chains - no lock-up required.</HiddenH2>
       <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
       <Flex justifyContent="space-between" alignItems="center" marginTop="1.5rem">
         <Text fontSize={24} fontWeight="500">
