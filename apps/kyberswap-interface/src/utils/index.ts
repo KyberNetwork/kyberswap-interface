@@ -76,6 +76,17 @@ export function calculateGasMargin(value: BigNumber, chainId?: ChainId): BigNumb
   return gasMargin.gte(defaultGasLimitMargin) ? value.add(gasMargin) : value.add(defaultGasLimitMargin)
 }
 
+/**
+ * Native-bigint variant of `calculateGasMargin`. Matches the formula
+ * `total = estimate + max(20k, 20% * estimate)` (50% on Polygon and Optimism).
+ */
+export function calculateGasMarginBigInt(value: bigint, chainId?: ChainId): bigint {
+  const defaultGasLimitMargin = BigInt(DEFAULT_GAS_LIMIT_MARGIN)
+  const needHigherGas = [ChainId.MATIC, ChainId.OPTIMISM].includes(chainId as ChainId)
+  const gasMargin = (value * (needHigherGas ? 5000n : 2000n)) / 10000n
+  return gasMargin >= defaultGasLimitMargin ? value + gasMargin : value + defaultGasLimitMargin
+}
+
 // converts a basis points value to a sdk percent
 export function basisPointsToPercent(num: number): Percent {
   return new Percent(JSBI.BigInt(num), JSBI.BigInt(10000))

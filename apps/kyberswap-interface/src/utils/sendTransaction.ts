@@ -8,9 +8,9 @@ import blackjackApi from 'services/blackjack'
 import { wagmiConfig } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
-import { calculateGasMargin } from 'utils'
+import { calculateGasMargin, calculateGasMarginBigInt } from 'utils'
 
-import { bigIntToBigNumber, hashToTxResponse } from './migration'
+import { hashToTxResponse } from './migration'
 import { BlacklistedWalletError, ErrorName, TransactionError } from './transactionError'
 import { Address, Hex, stringToHex } from './viem'
 import { getGatedWalletClient } from './walletClient'
@@ -210,7 +210,7 @@ export async function sendEVMTransaction({
     )
   }
 
-  const gasLimit = calculateGasMargin(bigIntToBigNumber(gasEstimate), effectiveChainId)
+  const gasLimit = calculateGasMarginBigInt(gasEstimate, effectiveChainId)
 
   try {
     // viem's `sendTransaction` argument type is a chain-specific union large enough to
@@ -218,7 +218,7 @@ export async function sendEVMTransaction({
     // simple — `{ to, data, value?, gas?, accessList?, account }` — so call through `any`.
     const hash = (await (walletClient as any).sendTransaction({
       ...requestBase,
-      gas: BigInt(gasLimit.toString()),
+      gas: gasLimit,
       ...(accessList ? { accessList } : {}),
     })) as Hex
     return hashToTxResponse(hash, publicClient as any)
