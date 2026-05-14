@@ -7,7 +7,7 @@ import { useReadingContract } from 'hooks/useContract'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { friendlyError } from 'utils/errorMessage'
-import { Address, encodeAbiParameters, parseAbiParameters, parseSignature } from 'utils/viem'
+import { Address, encodeAbiParameters, parseAbi, parseAbiParameters, parseSignature } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
 export enum PermitNftState {
@@ -32,15 +32,17 @@ export interface PermitNftResult {
   permitData: string
 }
 
-// NFT Position Manager ABI for permit functionality
-const NFT_PERMIT_ABI = [
+// NFT Position Manager ABI for permit functionality. Parsed via viem `parseAbi`
+// so the multicall bridge (which expects object-form AbiItems for function
+// lookup) can discover these reads.
+const NFT_PERMIT_ABI = parseAbi([
   'function name() view returns (string)',
   'function nonces(address owner, uint256 word) view returns (uint256 bitmap)', // V4 unordered nonces
   'function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)', // V3 ordered nonces
   'function DOMAIN_SEPARATOR() view returns (bytes32)', // V3 domain separator
   'function PERMIT_TYPEHASH() view returns (bytes32)', // V3 permit typehash
   'function permit(address spender, uint256 tokenId, uint256 deadline, uint256 nonce, bytes signature) payable',
-]
+])
 
 export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, version = 'auto' }: PermitNftParams) => {
   const { account, chainId } = useActiveWeb3React()

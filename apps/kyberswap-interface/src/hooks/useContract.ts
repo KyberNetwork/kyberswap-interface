@@ -1,4 +1,3 @@
-import { Contract, ContractInterface } from '@ethersproject/contracts'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
@@ -20,68 +19,62 @@ import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useWeb3React } from 'hooks'
-import { useKyberSwapConfig } from 'state/application/hooks'
-import { getReadingContract, getSigningContract } from 'utils/getContract'
+import { isAddress } from 'utils'
+import { Abi, Address, zeroAddress } from 'utils/viem'
 
 import { useActiveWeb3React } from './index'
 
-// returns null on errors
-export function useSigningContract(address: string | undefined, ABI: ContractInterface | null): Contract | null {
+// Lightweight contract reference: just address + ABI. Multicall hooks
+// (useSingleCallResult etc.) only need these two fields, and write paths
+// route through `sendEVMTransaction` + `encodeFunctionData` which take the ABI
+// directly. The legacy ethers `Contract` factory has been removed; for any
+// non-React caller needing the same shape, use the address+abi pair directly
+// with `readContract` from `@wagmi/core`.
+export interface ContractRef {
+  address: Address
+  abi: Abi
+}
+
+function buildRef(address: string | undefined, abi: unknown): ContractRef | null {
+  if (!address) return null
+  if (!isAddress(ChainId.MAINNET, address) || address === zeroAddress) return null
+  return { address: address as Address, abi: abi as Abi }
+}
+
+// `useSigningContract` historically required a connected account because it
+// produced an ethers signing Contract. Post-migration, write paths route
+// through `sendEVMTransaction` and only need address+abi, so this is
+// functionally equivalent to `useReadingContract`. The account gate is kept
+// so disconnected wallets still get `null` (preserves existing call-site
+// conditionals like `if (!contract) return`).
+export function useSigningContract(address: string | undefined, abi: unknown): ContractRef | null {
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
-
-  const lib = useMemo(() => (account ? library : null), [account, library])
-
-  return useMemo(() => {
-    if (!address || !ABI || !lib) return null
-    try {
-      return account ? getSigningContract(address, ABI, lib, account) : null
-    } catch (error) {
-      console.error('Failed to get contract', error)
-      return null
-    }
-  }, [address, ABI, lib, account])
+  return useMemo(() => (account ? buildRef(address, abi) : null), [account, address, abi])
 }
 
 export function useReadingContract(
   address: string | undefined,
-  ABI: ContractInterface | null,
-  customChainId?: ChainId,
-): Contract | null {
-  const { chainId: curChainId } = useActiveWeb3React()
-  const chainId = customChainId || curChainId
-  const { readProvider } = useKyberSwapConfig(chainId)
-
-  return useMemo(() => {
-    if (!address || !readProvider || !ABI) return null
-    try {
-      return getReadingContract(address, ABI, readProvider)
-    } catch (error) {
-      console.error('Failed to get contract', error)
-      return null
-    }
-  }, [address, ABI, readProvider])
+  abi: unknown,
+  _customChainId?: ChainId,
+): ContractRef | null {
+  return useMemo(() => buildRef(address, abi), [address, abi])
 }
 
-export function useTokenSigningContract(tokenAddress?: string): Contract | null {
+export function useTokenSigningContract(tokenAddress?: string): ContractRef | null {
   return useSigningContract(tokenAddress, ERC20_ABI)
 }
 
-export function useTokenReadingContract(tokenAddress?: string, customChainId?: ChainId): Contract | null {
+export function useTokenReadingContract(tokenAddress?: string, customChainId?: ChainId): ContractRef | null {
   return useReadingContract(tokenAddress, ERC20_ABI, customChainId)
 }
 
-export function useWETHContract(customChainId?: ChainId): Contract | null {
-  const { chainId: walletChainId, account } = useActiveWeb3React()
+export function useWETHContract(customChainId?: ChainId): ContractRef | null {
+  const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
-  const signContract = useSigningContract(WETH[chainId]?.address, WETH_ABI)
-  const readContract = useReadingContract(WETH[chainId]?.address, WETH_ABI)
-
-  return account ? signContract : readContract
+  return useReadingContract(WETH[chainId]?.address, WETH_ABI)
 }
 
-export function useArgentWalletDetectorContract(): Contract | null {
+export function useArgentWalletDetectorContract(): ContractRef | null {
   const { chainId } = useActiveWeb3React()
   return useReadingContract(
     chainId === ChainId.MAINNET ? ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS : undefined,
@@ -89,7 +82,7 @@ export function useArgentWalletDetectorContract(): Contract | null {
   )
 }
 
-export function useENSRegistrarContract(): Contract | null {
+export function useENSRegistrarContract(): ContractRef | null {
   const { chainId } = useActiveWeb3React()
   let address: string | undefined
 
@@ -103,43 +96,41 @@ export function useENSRegistrarContract(): Contract | null {
   return useReadingContract(address, ENS_ABI)
 }
 
-export function useENSResolverContract(address: string | undefined): Contract | null {
+export function useENSResolverContract(address: string | undefined): ContractRef | null {
   return useReadingContract(address, ENS_PUBLIC_RESOLVER_ABI)
 }
 
-export function useBytes32TokenContract(tokenAddress?: string): Contract | null {
+export function useBytes32TokenContract(tokenAddress?: string): ContractRef | null {
   return useReadingContract(tokenAddress, ERC20_BYTES32_ABI)
 }
 
-export function usePairContract(pairAddress?: string): Contract | null {
+export function usePairContract(pairAddress?: string): ContractRef | null {
   return useReadingContract(pairAddress, IUniswapV2PairABI.abi)
 }
 
-export function useMulticallContract(customChainId?: ChainId): Contract | null {
+export function useMulticallContract(customChainId?: ChainId): ContractRef | null {
   const { chainId: curChainId } = useActiveWeb3React()
   const chainId = customChainId || curChainId
   return useReadingContract(NETWORKS_INFO[chainId].multicall, MULTICALL_ABI, chainId)
 }
 
-export function useOldStaticFeeFactoryContract(): Contract | null {
+export function useOldStaticFeeFactoryContract(): ContractRef | null {
   const { networkInfo } = useActiveWeb3React()
-
   return useReadingContract(networkInfo.classic.oldStatic?.factory, FACTORY_ABI)
 }
-export function useStaticFeeFactoryContract(): Contract | null {
-  const { networkInfo } = useActiveWeb3React()
 
+export function useStaticFeeFactoryContract(): ContractRef | null {
+  const { networkInfo } = useActiveWeb3React()
   return useReadingContract(networkInfo.classic.static.factory, KS_STATIC_FEE_FACTORY_ABI)
 }
-export function useDynamicFeeFactoryContract(): Contract | null {
-  const { networkInfo } = useActiveWeb3React()
 
+export function useDynamicFeeFactoryContract(): ContractRef | null {
+  const { networkInfo } = useActiveWeb3React()
   return useReadingContract(networkInfo.classic.dynamic?.factory, FACTORY_ABI)
 }
 
-export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
+export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): ContractRef | null {
   const { networkInfo } = useActiveWeb3React()
-
   return useReadingContract(
     isStaticFeeContract
       ? isOldStaticFeeContract
@@ -150,11 +141,11 @@ export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContr
   )
 }
 
-export function useProMMFarmSigningContract(address: string): Contract | null {
+export function useProMMFarmSigningContract(address: string): ContractRef | null {
   return useSigningContract(address, PROMM_FARM_ABI)
 }
 
-export function useProAmmNFTPositionManagerReadingContract(customContract?: string): Contract | null {
+export function useProAmmNFTPositionManagerReadingContract(customContract?: string): ContractRef | null {
   const { networkInfo } = useActiveWeb3React()
   return useReadingContract(customContract || networkInfo.elastic.nonfungiblePositionManager, NFTPositionManagerABI.abi)
 }

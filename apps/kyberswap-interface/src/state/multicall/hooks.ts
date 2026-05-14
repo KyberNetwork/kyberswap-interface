@@ -1,9 +1,9 @@
 /* eslint-disable no-restricted-imports */
 import { BigNumber } from '@ethersproject/bignumber'
-import { Contract } from '@ethersproject/contracts'
 import { useMemo } from 'react'
 import { useReadContract, useReadContracts } from 'wagmi'
 
+import { ContractRef } from 'hooks/useContract'
 import { Abi, Address } from 'utils/viem'
 
 import { ListenerOptions } from './actions'
@@ -49,25 +49,14 @@ type AbiFunctionItem = {
   outputs?: Array<{ name?: string; type: string }>
 }
 
-function findFunctionItem(abi: Abi, methodName: string): AbiFunctionItem | undefined {
+function findFunctionItem(abi: Abi | undefined, methodName: string): AbiFunctionItem | undefined {
+  if (!abi) return undefined
   return (abi as unknown as AbiFunctionItem[]).find(item => item?.type === 'function' && item?.name === methodName)
 }
 
-// Extract ABI from an ethers Contract instance via its Interface.
-// `interface.format('json')` returns the full ABI as a JSON string.
-function contractToAbi(contract: Contract | null | undefined): Abi | null {
-  const iface = contract?.interface as { format(format: string): string } | undefined
-  if (!iface) return null
-  try {
-    return JSON.parse(iface.format('json')) as Abi
-  } catch {
-    return null
-  }
-}
-
 // Recursively wrap viem `bigint` values (returned for uint256/int256 etc.) as ethers `BigNumber`
-// so legacy callers can keep using `.eq()`, `.toNumber()`, `.mul()` etc. Phase 7 removes this
-// once callers migrate to native bigint arithmetic.
+// so legacy callers can keep using `.eq()`, `.toNumber()`, `.mul()` etc. Removed once callers
+// migrate to native bigint arithmetic.
 function wrapBigInts(value: unknown): unknown {
   if (typeof value === 'bigint') return BigNumber.from(value.toString())
   if (Array.isArray(value)) return value.map(wrapBigInts)
@@ -108,19 +97,19 @@ function staleTimeFrom(options?: ListenerOptions): number | undefined {
 }
 
 export function useSingleCallResult(
-  contract: Contract | null | undefined,
+  contract: ContractRef | null | undefined,
   methodName: string,
   inputs?: OptionalMethodInputs,
   options?: ListenerOptions,
 ): CallState {
-  const abi = useMemo(() => contractToAbi(contract), [contract])
-  const fnItem = useMemo(() => (abi ? findFunctionItem(abi, methodName) : undefined), [abi, methodName])
+  const abi = contract?.abi
+  const fnItem = useMemo(() => findFunctionItem(abi, methodName), [abi, methodName])
   const argsValid = isValidMethodArgs(inputs)
   const enabled = !!contract && !!abi && !!fnItem && argsValid
   const staleTime = staleTimeFrom(options)
 
   const { data, isError } = useReadContract({
-    address: contract?.address as Address | undefined,
+    address: contract?.address,
     abi: (abi ?? []) as Abi,
     functionName: methodName,
     args: (argsValid ? (inputs as readonly unknown[] | undefined) : undefined) as readonly unknown[] | undefined,
@@ -139,13 +128,13 @@ export function useSingleCallResult(
 }
 
 export function useSingleContractMultipleData(
-  contract: Contract | null | undefined,
+  contract: ContractRef | null | undefined,
   methodName: string,
   callInputs: OptionalMethodInputs[],
   options?: ListenerOptions,
 ): CallState[] {
-  const abi = useMemo(() => contractToAbi(contract), [contract])
-  const fnItem = useMemo(() => (abi ? findFunctionItem(abi, methodName) : undefined), [abi, methodName])
+  const abi = contract?.abi
+  const fnItem = useMemo(() => findFunctionItem(abi, methodName), [abi, methodName])
   const staleTime = staleTimeFrom(options)
 
   // Per-input validity; wagmi cannot mark individual entries as disabled, so we filter to valid
@@ -162,8 +151,8 @@ export function useSingleContractMultipleData(
   const contractCalls = useMemo(() => {
     if (!contract || !abi || !fnItem) return []
     return validInputs.map(args => ({
-      address: contract.address as Address,
-      abi: abi as Abi,
+      address: contract.address,
+      abi,
       functionName: methodName,
       args: ((args ?? []) as readonly unknown[]) || [],
     }))

@@ -9,6 +9,7 @@ import {
   computePriceImpact,
 } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -29,6 +30,7 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
+import { wagmiConfig } from 'components/Web3Provider'
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
@@ -195,7 +197,13 @@ export default function ZapOut({
     }
 
     // try to gather a signature for permission
-    const nonce = await pairContract.nonces(account)
+    const nonce = (await readContract(wagmiConfig, {
+      address: pairContract.address,
+      abi: pairContract.abi,
+      functionName: 'nonces',
+      args: [account],
+      chainId: chainId as number,
+    })) as bigint
 
     const domain = {
       name: isStaticFeePair ? 'KyberSwap LP' : 'KyberDMM LP',
@@ -218,7 +226,7 @@ export default function ZapOut({
           : networkInfo.classic.static.zap
         : networkInfo.classic.dynamic?.zap,
       value: liquidityAmount.quotient.toString(),
-      nonce: nonce.toHexString(),
+      nonce: `0x${nonce.toString(16)}`,
       deadline: Number(deadline),
     }
     const data = JSON.stringify({
