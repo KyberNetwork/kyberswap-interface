@@ -8,7 +8,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { Shield } from 'components/Icons'
+import { ShieldChecked } from 'components/Icons'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { ClickTooltip } from 'components/Tooltip'
@@ -248,7 +248,7 @@ const SwapTradeRoute = ({
             {isSmartSettlementActive && (
               <ClickTooltip text={smartSettlementTooltip} width="360px" placement="top">
                 <SmartSettlementBadge role="button">
-                  <Shield size={14} color={theme.primary} />
+                  <ShieldChecked size={14} color={theme.primary} />
                   <Trans>Smart Settlement</Trans>
                   <Info size={14} />
                 </SmartSettlementBadge>
