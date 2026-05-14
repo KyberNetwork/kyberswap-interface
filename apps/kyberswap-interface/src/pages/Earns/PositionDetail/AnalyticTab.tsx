@@ -10,7 +10,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
-import { HistoryCard, HistorySectionHeader } from 'pages/Earns/PositionDetail/styles'
+import { HistoryCard, HistorySectionHeader, PastActionsList } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
@@ -80,8 +80,8 @@ const AnalyticTab = () => {
     [chronologicalHistory],
   )
 
-  // Past actions = all entries
-  const pastActions = chronologicalHistory
+  // Past actions = all entries, newest first
+  const pastActions = useMemo(() => [...chronologicalHistory].reverse(), [chronologicalHistory])
 
   const createdTime = useMemo(() => {
     if (!position?.createdTime) return '--'
@@ -307,7 +307,7 @@ const AnalyticTab = () => {
             <Text fontSize={14} color={theme.subText}>
               {t`Past Actions`}
             </Text>
-            <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
+            <PastActionsList>
               {pastActions.map((entry, i) => {
                 const totalValue = getActionTotalValue(entry)
                 const label = getActionLabel(entry.type)
@@ -330,7 +330,7 @@ const AnalyticTab = () => {
                   </Flex>
                 )
               })}
-            </Flex>
+            </PastActionsList>
           </Flex>
         )}
       </Flex>
