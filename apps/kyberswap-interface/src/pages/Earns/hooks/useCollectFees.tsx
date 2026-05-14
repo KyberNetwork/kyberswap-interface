@@ -9,7 +9,7 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition } from 'pages/Earns/types'
-import { getNftManagerContract, submitTransaction } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
 import { getUniv3CollectCallData, getUniv4CollectCallData } from 'pages/Earns/utils/fees'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
@@ -56,8 +56,8 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
       return
     }
 
-    const contract = getNftManagerContract(claimInfo.dex, claimInfo.chainId)
-    if (!contract) return
+    if (!getNftManagerContractAddress(claimInfo.dex, claimInfo.chainId)) return
+    if (!EARN_DEXES[claimInfo.dex]?.nftManagerContractAbi) return
 
     const token0 = claimInfo.tokens[0]
     const token1 = claimInfo.tokens[1]

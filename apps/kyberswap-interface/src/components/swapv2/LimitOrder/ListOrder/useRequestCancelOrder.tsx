@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   useCancelOrdersMutation,
@@ -7,44 +8,47 @@ import {
   useInsertCancellingOrderMutation,
 } from 'services/limitOrder'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
 import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
 import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useKyberSwapConfig } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { getReadingContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { formatSignature } from 'utils/transaction'
 import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
-import { Address } from 'utils/viem'
+import { Abi, Address } from 'utils/viem'
 import { signTypedDataSafe } from 'utils/walletClient'
 
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder } from '../type'
 
 const useGetEncodeLimitOrder = () => {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [getEncodeData] = useGetEncodeDataMutation()
-  const { readProvider } = useKyberSwapConfig()
 
   return useCallback(
     async ({ orders, isCancelAll }: { orders: LimitOrder[]; isCancelAll: boolean | undefined }) => {
-      if (!readProvider) throw new Error()
+      if (!account) throw new Error()
       if (isCancelAll) {
         const contracts = [...new Set(orders.map(e => e.contractAddress))]
         const result = []
         for (const address of contracts) {
-          const limitOrderContract = getReadingContract(address, LIMIT_ORDER_ABI, readProvider)
           const [{ encodedData }, nonce] = await Promise.all([
             getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
-            limitOrderContract?.nonce?.(account),
+            readContract(wagmiConfig, {
+              address: address as Address,
+              abi: LIMIT_ORDER_ABI as Abi,
+              functionName: 'nonce',
+              args: [account],
+              chainId: chainId as number,
+            }),
           ])
           result.push({ encodedData, nonce, contractAddress: address })
         }
@@ -56,7 +60,7 @@ const useGetEncodeLimitOrder = () => {
       }).unwrap()
       return [{ encodedData, contractAddress: orders[0]?.contractAddress, nonce: '' }]
     },
-    [account, getEncodeData, readProvider],
+    [account, chainId, getEncodeData],
   )
 }
 
@@ -141,7 +145,7 @@ const useRequestCancelOrder = ({
       const data = await getEncodeData({ isCancelAll, orders })
       for (const item of data) {
         const { contractAddress, nonce, encodedData } = item
-        await sendTransaction(encodedData, contractAddress, { nonce: nonce.toNumber() })
+        await sendTransaction(encodedData, contractAddress, { nonce: Number(nonce as bigint) })
       }
     } else {
       const data = await getEncodeData({ isCancelAll, orders: order ? [order] : [] })

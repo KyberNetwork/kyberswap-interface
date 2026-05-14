@@ -14,7 +14,6 @@ import {
   PopupType,
 } from 'components/Announcement/type'
 import { NETWORKS_INFO } from 'constants/networks'
-import { AppJsonRpcProvider } from 'constants/providers'
 import { KNC_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/index'
 import { useAppSelector } from 'state/hooks'
@@ -252,27 +251,6 @@ export const useDetailAnnouncement = (): [DetailAnnouncementParam, (v: DetailAnn
   return [announcementDetail, setDetail]
 }
 
-const cacheConfig: {
-  rpc: { [rpc: string]: AppJsonRpcProvider }
-} = {
-  rpc: {},
-}
-
-export const cacheCalc: <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
-  type: T,
-  value: string,
-  fallback: (value: string) => U,
-) => U = <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
-  type: T,
-  value: string,
-  fallback: (value: string) => U,
-) => {
-  if (!cacheConfig['rpc'][value]) {
-    cacheConfig['rpc'][value] = fallback(value)
-  }
-  return cacheConfig[type][value] as U
-}
-
 export function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
   return {
     rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
@@ -288,17 +266,12 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
 
   const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
 
-  const readProvider = useMemo(() => {
-    return cacheCalc('rpc', config.rpc, rpc => new AppJsonRpcProvider(rpc, chainId))
-  }, [config.rpc, chainId])
-
   return useMemo(() => {
     return {
       rpc: config.rpc,
       isEnableBlockService: config.isEnableBlockService,
       isEnableKNProtocol: config.isEnableKNProtocol,
-      readProvider,
       commonTokens: config.commonTokens,
     }
-  }, [config.rpc, config.isEnableBlockService, config.isEnableKNProtocol, config.commonTokens, readProvider])
+  }, [config.rpc, config.isEnableBlockService, config.isEnableKNProtocol, config.commonTokens])
 }

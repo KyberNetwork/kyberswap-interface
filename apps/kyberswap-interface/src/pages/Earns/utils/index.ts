@@ -2,7 +2,6 @@ import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
-import { getReadingContractWithCustomChain } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { BlacklistedWalletError, ErrorName } from 'utils/transactionError'
 import { keccak256, toBytes } from 'utils/viem'
@@ -132,14 +131,6 @@ export const getNftManagerContractAddress = (dex: Exchange, chainId: number) => 
   return typeof nftManagerContractElement === 'string'
     ? nftManagerContractElement
     : nftManagerContractElement[chainId as keyof typeof nftManagerContractElement]
-}
-
-export const getNftManagerContract = (dex: Exchange, chainId: number) => {
-  const nftManagerContractAddress = getNftManagerContractAddress(dex, chainId)
-  const nftManagerAbi = EARN_DEXES[dex].nftManagerContractAbi
-  if (!nftManagerAbi || !nftManagerContractAddress) return
-
-  return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi as any, chainId as ChainId)
 }
 
 export const truncateSymbol = (symbol: string, maxLength = 10) =>
