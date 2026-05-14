@@ -108,8 +108,8 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
                   TokenAmount.fromRawAmount(token1, _reserve1.toString()),
                   TokenAmount.fromRawAmount(token0, _vReserve0.toString()),
                   TokenAmount.fromRawAmount(token1, _vReserve1.toString()),
-                  JSBI.BigInt(feeInPrecision),
-                  JSBI.BigInt(amp[0]),
+                  JSBI.BigInt(feeInPrecision.toString()),
+                  JSBI.BigInt(amp[0].toString()),
                 ),
               ])
             } catch {}
@@ -158,8 +158,8 @@ export function usePairsByAddress(
           TokenAmount.fromRawAmount(token1, _reserve1.toString()),
           TokenAmount.fromRawAmount(token0, _vReserve0.toString()),
           TokenAmount.fromRawAmount(token1, _vReserve1.toString()),
-          JSBI.BigInt(feeInPrecision),
-          JSBI.BigInt(amp[0]),
+          JSBI.BigInt(feeInPrecision.toString()),
+          JSBI.BigInt(amp[0].toString()),
         ),
         isStaticFeePair || isOldStaticFeeContract,
         isOldStaticFeeContract,

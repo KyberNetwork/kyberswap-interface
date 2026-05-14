@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-imports */
-import { BigNumber } from '@ethersproject/bignumber'
 import { useMemo } from 'react'
 import { useReadContract, useReadContracts } from 'wagmi'
 
@@ -54,37 +52,23 @@ function findFunctionItem(abi: Abi | undefined, methodName: string): AbiFunction
   return (abi as unknown as AbiFunctionItem[]).find(item => item?.type === 'function' && item?.name === methodName)
 }
 
-// Recursively wrap viem `bigint` values (returned for uint256/int256 etc.) as ethers `BigNumber`
-// so legacy callers can keep using `.eq()`, `.toNumber()`, `.mul()` etc. Removed once callers
-// migrate to native bigint arithmetic.
-function wrapBigInts(value: unknown): unknown {
-  if (typeof value === 'bigint') return BigNumber.from(value.toString())
-  if (Array.isArray(value)) return value.map(wrapBigInts)
-  if (value && typeof value === 'object') {
-    const out: Record<string, unknown> = {}
-    for (const k of Object.keys(value)) out[k] = wrapBigInts((value as Record<string, unknown>)[k])
-    return out
-  }
-  return value
-}
-
-// Reshape viem's decoded result into an ethers-style `Result` (array-with-named-keys),
-// matching what the legacy multicall layer produced from `Interface.decodeFunctionResult`.
+// Reshape viem's decoded result into an array-with-named-keys `Result`. uint256/int256
+// values stay as native `bigint` — callers consume them with native bigint ops
+// (e.g. `=== 0n`, `Number(x)`).
 function toResult(item: AbiFunctionItem | undefined, decoded: unknown): Result {
   if (!item) return [] as unknown as Result
   const outputs = item.outputs ?? []
-  const wrapped = wrapBigInts(decoded)
   let arr: any[]
   if (outputs.length === 0) {
     arr = []
   } else if (outputs.length === 1) {
-    arr = [wrapped]
-  } else if (Array.isArray(wrapped)) {
-    arr = [...wrapped]
-  } else if (wrapped && typeof wrapped === 'object') {
-    arr = outputs.map((o, i) => (wrapped as any)[o.name ?? i])
+    arr = [decoded]
+  } else if (Array.isArray(decoded)) {
+    arr = [...decoded]
+  } else if (decoded && typeof decoded === 'object') {
+    arr = outputs.map((o, i) => (decoded as any)[o.name ?? i])
   } else {
-    arr = [wrapped]
+    arr = [decoded]
   }
   outputs.forEach((o, i) => {
     if (o.name) (arr as any)[o.name] = arr[i]

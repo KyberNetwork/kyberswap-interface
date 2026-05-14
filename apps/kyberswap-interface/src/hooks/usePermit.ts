@@ -104,7 +104,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       owner: account,
       spender: routerAddress,
       value: parseUnits(currencyAmount.toExact(), currency.decimals).toString(),
-      nonce: tokenNonceState.result[0].toNumber(),
+      nonce: Number(tokenNonceState.result[0] as bigint),
       deadline,
     }
 

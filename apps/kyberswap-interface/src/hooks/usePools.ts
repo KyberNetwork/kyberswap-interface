@@ -65,10 +65,18 @@ export function usePools(
       if (!slot0Valid || !liquidityValid) return [PoolState.INVALID, null]
 
       if (!slot0 || !liquidity) return [PoolState.NOT_EXISTS, null]
-      if (!slot0.sqrtP || slot0.sqrtP.eq(0)) return [PoolState.NOT_EXISTS, null]
+      if (!slot0.sqrtP) return [PoolState.NOT_EXISTS, null]
 
       try {
-        const pool = new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, liquidity.reinvestL, slot0.currentTick)
+        const pool = new Pool(
+          token0,
+          token1,
+          fee,
+          (slot0.sqrtP as bigint).toString(),
+          (liquidity.baseL as bigint).toString(),
+          (liquidity.reinvestL as bigint).toString(),
+          Number(slot0.currentTick),
+        )
 
         return [PoolState.EXISTS, pool]
       } catch (error) {

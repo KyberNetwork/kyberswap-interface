@@ -10,7 +10,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
 import { calculateGasMargin, calculateGasMarginBigInt } from 'utils'
 
-import { hashToTxResponse } from './migration'
 import { BlacklistedWalletError, ErrorName, TransactionError } from './transactionError'
 import { Address, Hex, stringToHex } from './viem'
 import { getGatedWalletClient } from './walletClient'
@@ -221,7 +220,7 @@ export async function sendEVMTransaction({
       gas: gasLimit,
       ...(accessList ? { accessList } : {}),
     })) as Hex
-    return hashToTxResponse(hash, publicClient as any)
+    return { hash } as TransactionResponse
   } catch (error) {
     const txHash = (error as any)?.transactionHash as string | undefined
     if (txHash) return { hash: txHash } as TransactionResponse

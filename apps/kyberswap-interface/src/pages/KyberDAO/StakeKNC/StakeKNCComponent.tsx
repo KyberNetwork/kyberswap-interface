@@ -408,8 +408,8 @@ export default function StakeKNCComponent() {
 
   const handleMaxClick = useCallback(
     (half?: boolean) => {
-      const balance = activeTab === STAKE_TAB.Stake ? KNCBalance : stakedBalance
-      setInputValue(formatUnits(BigInt(balance.div(!!half ? 2 : 1).toString()), 18))
+      const balance = (activeTab === STAKE_TAB.Stake ? KNCBalance : stakedBalance) as bigint
+      setInputValue(formatUnits(balance / (half ? 2n : 1n), 18))
     },
     [activeTab, KNCBalance, stakedBalance],
   )

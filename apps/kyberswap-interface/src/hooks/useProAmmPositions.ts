@@ -3,7 +3,6 @@ import { useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
-import { bigNumberToBigInt } from 'utils/migration'
 import { encodeAbiParameters, getContractAddress, keccak256, parseAbiParameters } from 'utils/viem'
 
 import { useProAmmNFTPositionManagerReadingContract } from './useContract'
@@ -34,8 +33,6 @@ export function useProAmmPositionsFromTokenIds(
         const tokenId = tokenIds[i]
         const result = call.result as Result
 
-        // The multicall bridge wraps viem bigint values as ethers BigNumber for legacy callers;
-        // convert each uint256-shaped field back to bigint for the migrated PositionDetails shape.
         return {
           tokenId: tokenId,
           poolId: getContractAddress({
@@ -50,13 +47,13 @@ export function useProAmmPositionsFromTokenIds(
             ),
             bytecodeHash: (customInitCodeHash || networkInfo.elastic.initCodeHash) as `0x${string}`,
           }),
-          feeGrowthInsideLast: bigNumberToBigInt(result.pos.feeGrowthInsideLast),
-          nonce: bigNumberToBigInt(result.pos.nonce),
-          liquidity: bigNumberToBigInt(result.pos.liquidity),
+          feeGrowthInsideLast: result.pos.feeGrowthInsideLast as bigint,
+          nonce: result.pos.nonce as bigint,
+          liquidity: result.pos.liquidity as bigint,
           operator: result.pos.operator,
           tickLower: result.pos.tickLower,
           tickUpper: result.pos.tickUpper,
-          rTokenOwed: bigNumberToBigInt(result.pos.rTokenOwed),
+          rTokenOwed: result.pos.rTokenOwed as bigint,
           fee: result.info.fee,
           token0: result.info.token0,
           token1: result.info.token1,
@@ -99,7 +96,8 @@ export function useProAmmPositions(
   ])
 
   // we don't expect any account balance to ever exceed the bounds of max safe int
-  const accountBalance: number | undefined = balanceResult?.[0]?.toNumber()
+  const accountBalance: number | undefined =
+    balanceResult?.[0] !== undefined ? Number(balanceResult[0] as bigint) : undefined
 
   const tokenIdsArgs = useMemo(() => {
     if (accountBalance && account) {
@@ -117,11 +115,10 @@ export function useProAmmPositions(
   const someTokenIdsLoading = useMemo(() => tokenIdResults.some(({ loading }) => loading), [tokenIdResults])
   const tokenIds = useMemo(() => {
     if (account) {
-      // Multicall bridge wraps uint256 outputs as BigNumber; unwrap back to bigint for downstream callers.
       return tokenIdResults
         .map(({ result }) => result)
         .filter((result): result is Result => !!result)
-        .map(result => bigNumberToBigInt(result[0]))
+        .map(result => result[0] as bigint)
     }
     return []
   }, [account, tokenIdResults])

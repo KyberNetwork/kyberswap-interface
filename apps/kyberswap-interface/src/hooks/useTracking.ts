@@ -11,7 +11,6 @@ import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { bigNumberToBigInt } from 'utils/migration'
 import { formatUnits, isAddress } from 'utils/viem'
 
 export enum TRACKING_EVENT_TYPE {
@@ -550,9 +549,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         case TRACKING_EVENT_TYPE.SWAP_COMPLETED: {
           const { arbitrary, actual_gas, gas_price, tx_hash } = payload
           const feeInfo = payload.feeInfo as FeeInfo
-          const formattedGas = gas_price
-            ? formatUnits(bigNumberToBigInt(gas_price), networkInfo.nativeToken.decimal)
-            : '0'
+          const formattedGas = gas_price ? formatUnits(gas_price as bigint, networkInfo.nativeToken.decimal) : '0'
 
           const body: Record<string, any> = {
             input_token: arbitrary.inputSymbol,
@@ -563,7 +560,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
               arbitrary.inputSymbol && arbitrary.outputSymbol
                 ? `${arbitrary.inputSymbol}/${arbitrary.outputSymbol}`
                 : undefined,
-            actual_gas: actual_gas.toNumber() * parseFloat(formattedGas),
+            actual_gas: Number(actual_gas as bigint) * parseFloat(formattedGas),
             tx_hash: tx_hash,
             trade_qty: arbitrary.inputAmount,
             amount_in_usd: arbitrary.amountInUsd,
@@ -571,7 +568,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
             gas_price: formattedGas,
-            actual_gas_native: actual_gas?.toNumber(),
+            actual_gas_native: actual_gas !== undefined ? Number(actual_gas as bigint) : undefined,
             trade_route_dexes: arbitrary.tradeRouteDexes,
             chain: arbitrary.chain,
             volume: arbitrary.volume,
