@@ -1,9 +1,11 @@
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
+import { wagmiConfig } from 'components/Web3Provider'
 import ERC20_ABI from 'constants/abis/erc20.json'
 import { useNotify } from 'state/application/hooks'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
@@ -12,10 +14,9 @@ import { usePaymentToken } from 'state/user/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, encodeFunctionData, maxUint256 } from 'utils/viem'
+import { Abi, Address, encodeFunctionData, maxUint256 } from 'utils/viem'
 
 import { useActiveWeb3React, useWeb3React } from './index'
-import { useTokenReadingContract } from './useContract'
 
 export enum ApprovalState {
   UNKNOWN = 'UNKNOWN',
@@ -36,15 +37,18 @@ export function useApproveCallback(
   const token = amountToApprove?.currency.wrapped
   const pendingApproval = useHasPendingApproval(token?.address, spender)
 
-  const readingTokenContract = useTokenReadingContract(token?.address)
-
   const [currentAllowance, setAllowance] = useState<TokenAmount | undefined>(undefined)
   const getAllowance = useCallback(async () => {
-    if (!readingTokenContract || !token) return
-    readingTokenContract.allowance(account, spender).then((res: { toString(): string }) => {
-      setAllowance(TokenAmount.fromRawAmount(token, res.toString()))
-    })
-  }, [readingTokenContract, account, spender, token])
+    if (!token || !account || !spender || !chainId) return
+    const res = (await readContract(wagmiConfig, {
+      address: token.address as Address,
+      abi: ERC20_ABI as Abi,
+      functionName: 'allowance',
+      args: [account, spender],
+      chainId: chainId as number,
+    })) as bigint
+    setAllowance(TokenAmount.fromRawAmount(token, res.toString()))
+  }, [account, spender, token, chainId])
 
   useEffect(() => {
     getAllowance()

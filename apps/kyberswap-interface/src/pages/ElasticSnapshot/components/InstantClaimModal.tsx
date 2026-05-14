@@ -1,5 +1,6 @@
 import { ChainId, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -14,6 +15,7 @@ import Dots from 'components/Dots'
 import { TermAndCondition } from 'components/Header/web3/WalletModal'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
+import { wagmiConfig } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -28,7 +30,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Address, encodeFunctionData } from 'utils/viem'
+import { Abi, Address, encodeFunctionData } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
 import InstantAbi from '../data/abis/instantClaimAbi.json'
@@ -127,13 +129,24 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
 
   useEffect(() => {
     ;(() => {
+      const contractChainIds: [typeof ethereumContract, ChainId][] = [
+        [ethereumContract, ChainId.MAINNET],
+        [optimismContract, ChainId.OPTIMISM],
+        [polygonContract, ChainId.MATIC],
+        [avalancheContract, ChainId.AVAXMAINNET],
+      ]
       Promise.all(
-        [ethereumContract, optimismContract, polygonContract, avalancheContract].map((contract, index) => {
+        contractChainIds.map(([contract, contractChainId], index) => {
           if (userData[index] && contract) {
-            return contract.claimed(userData[index]?.claimData.index)
-          } else {
-            return Promise.resolve(true)
+            return readContract(wagmiConfig, {
+              address: contract.address as Address,
+              abi: InstantAbi as Abi,
+              functionName: 'claimed',
+              args: [BigInt(userData[index]?.claimData.index ?? 0)],
+              chainId: contractChainId as number,
+            }) as Promise<boolean>
           }
+          return Promise.resolve(true)
         }),
       ).then(res => setClaimed(res))
     })()

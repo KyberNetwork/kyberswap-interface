@@ -1,15 +1,18 @@
 import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { multicall } from '@wagmi/core'
 import axios from 'axios'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import ksSettingApi from 'services/ksSetting'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis/erc20'
 import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/index'
-import { useBytes32TokenContract, useMulticallContract, useTokenReadingContract } from 'hooks/useContract'
+import { useBytes32TokenContract, useTokenReadingContract } from 'hooks/useContract'
 import { AppState } from 'state'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -17,7 +20,7 @@ import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import { escapeQuoteString } from 'utils/tokenInfo'
-import { decodeFunctionResult, encodeFunctionData, hexToString, toBytes } from 'utils/viem'
+import { Abi, Address, hexToString, toBytes } from 'utils/viem'
 
 import useDebounce from './useDebounce'
 
@@ -153,14 +156,13 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
   const { chainId: activeChainId } = useActiveWeb3React()
   const chainId = customChainId || activeChainId
-  const multicallContract = useMulticallContract(chainId)
 
   const fetcher = useCallback(
     async (tokenAddress: string) => {
       try {
         const address = isAddress(chainId, tokenAddress)
 
-        if (!multicallContract) {
+        if (!NETWORKS_INFO[chainId]?.multicall) {
           console.error('No multicall contract found')
           return undefined
         }
@@ -170,30 +172,23 @@ export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
           return undefined
         }
 
-        const returnData = await multicallContract.callStatic
-          .tryBlockAndAggregate(false, [
-            {
-              target: address,
-              callData: encodeFunctionData({ abi: ERC20_ABI, functionName: 'name' }),
-            },
-            {
-              target: address,
-              callData: encodeFunctionData({ abi: ERC20_ABI, functionName: 'symbol' }),
-            },
-            {
-              target: address,
-              callData: encodeFunctionData({ abi: ERC20_ABI, functionName: 'decimals' }),
-            },
-          ])
-          .then(resp => resp.returnData.map((item: [boolean, string]) => item[1]))
+        const results = await multicall(wagmiConfig, {
+          allowFailure: true,
+          chainId: chainId as number,
+          contracts: [
+            { address: address as Address, abi: ERC20_ABI as Abi, functionName: 'name' },
+            { address: address as Address, abi: ERC20_ABI as Abi, functionName: 'symbol' },
+            { address: address as Address, abi: ERC20_ABI as Abi, functionName: 'decimals' },
+          ],
+        })
 
-        const name = decodeFunctionResult({ abi: ERC20_ABI, functionName: 'name', data: returnData[0] }) as string
-        const symbol = decodeFunctionResult({ abi: ERC20_ABI, functionName: 'symbol', data: returnData[1] }) as string
-        const decimals = decodeFunctionResult({
-          abi: ERC20_ABI,
-          functionName: 'decimals',
-          data: returnData[2],
-        }) as number
+        if (results.some(r => r.status !== 'success')) {
+          console.error('ERC20 metadata multicall: one or more reads failed', results)
+          return undefined
+        }
+        const name = results[0].result as string
+        const symbol = results[1].result as string
+        const decimals = results[2].result as number
 
         return new Token(chainId, address, decimals, symbol, name)
       } catch (e) {
@@ -201,7 +196,7 @@ export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
         return undefined
       }
     },
-    [chainId, multicallContract],
+    [chainId],
   )
 
   return fetcher

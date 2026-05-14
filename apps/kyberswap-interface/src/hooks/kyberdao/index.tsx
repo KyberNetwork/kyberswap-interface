@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import axios from 'axios'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
@@ -12,6 +13,8 @@ import kyberDAOApi, {
 } from 'services/kyberDAO'
 
 import { NotificationType } from 'components/Announcement/type'
+import { wagmiConfig } from 'components/Web3Provider'
+import ERC20_ABI from 'constants/abis/erc20.json'
 import DaoABI from 'constants/abis/kyberdao/dao.json'
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
@@ -34,7 +37,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, encodeFunctionData, formatUnits } from 'utils/viem'
+import { Abi, Address, encodeFunctionData, formatUnits } from 'utils/viem'
 
 import { DaoInfo, EligibleTxsInfo } from './types'
 
@@ -286,14 +289,22 @@ export function useClaimVotingRewards() {
     }
     if (!library) throw new Error(CONTRACT_NOT_FOUND_MSG)
     try {
-      const isValidClaim = await rewardDistributorReadingContract.isValidClaim(
-        cycle,
-        index,
-        address,
-        tokens,
-        cumulativeAmounts,
-        merkleProof,
-      )
+      const isValidClaim = (await readContract(wagmiConfig, {
+        address: rewardDistributorReadingContract.address as Address,
+        abi: RewardDistributorABI as Abi,
+        functionName: 'isValidClaim',
+        args: [
+          BigInt(cycle.toString()),
+          BigInt(index.toString()),
+          address,
+          tokens,
+          (cumulativeAmounts as Array<string | number | bigint>).map((v: string | number | bigint) =>
+            BigInt(v.toString()),
+          ),
+          merkleProof,
+        ],
+        chainId: chainId as number,
+      })) as boolean
       if (!isValidClaim) throw new Error(t`Invalid claim`)
       const tx = await sendEVMTransaction({
         account,
@@ -410,11 +421,16 @@ export function useStakingInfo() {
 
   const { data: stakerActions } = kyberDAOApi.useGetStakerActionsQuery({ account }, { skip: !account })
 
-  const [totalSupply, setTotalSupply] = useState()
+  const [totalSupply, setTotalSupply] = useState<bigint | undefined>()
   useEffect(() => {
-    kncContract
-      ?.totalSupply()
-      .then((res: any) => setTotalSupply(res))
+    if (!kncContract) return
+    readContract(wagmiConfig, {
+      address: kncContract.address as Address,
+      abi: ERC20_ABI as Abi,
+      functionName: 'totalSupply',
+      chainId: ChainId.MAINNET,
+    })
+      .then(res => setTotalSupply(res as bigint))
       .catch((error: any) => console.error('Get KNC totalSupply error:', { error }))
   }, [kncContract])
 
@@ -441,8 +457,13 @@ export function useVotingInfo() {
 
   const [merkleData, setMerkleData] = useState<any>()
   useEffect(() => {
-    rewardsDistributorContract
-      ?.getMerkleData?.()
+    if (!rewardsDistributorContract) return
+    readContract(wagmiConfig, {
+      address: rewardsDistributorContract.address as Address,
+      abi: RewardDistributorABI as Abi,
+      functionName: 'getMerkleData',
+      chainId: ChainId.MAINNET,
+    })
       .then((res: any) => {
         setMerkleData(res)
       })
@@ -474,8 +495,13 @@ export function useVotingInfo() {
   useEffect(() => {
     if (!rewardsDistributorContract || !account || !userRewards?.userReward?.tokens) return
 
-    rewardsDistributorContract
-      ?.getClaimedAmounts?.(account, userRewards?.userReward?.tokens)
+    readContract(wagmiConfig, {
+      address: rewardsDistributorContract.address as Address,
+      abi: RewardDistributorABI as Abi,
+      functionName: 'getClaimedAmounts',
+      args: [account, userRewards?.userReward?.tokens],
+      chainId: ChainId.MAINNET,
+    })
       .then((res: any) => setClaimedRewardAmounts(res))
       .catch((err: any) => console.log(err))
   }, [rewardsDistributorContract, account, userRewards?.userReward?.tokens])

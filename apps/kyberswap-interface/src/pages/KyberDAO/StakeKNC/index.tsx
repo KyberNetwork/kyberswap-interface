@@ -27,7 +27,6 @@ import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { formatLongNumber } from 'utils/formatBalance'
-import { bigNumberToBigInt } from 'utils/migration'
 import { formatUnits } from 'utils/viem'
 
 import KNCLogo from '../kncLogo'
@@ -208,7 +207,7 @@ export default function StakeKNC() {
                 </Text>
                 {totalMigratedKNC ? (
                   <Text fontSize={12} lineHeight="16px">
-                    {formatLongNumber(formatUnits(bigNumberToBigInt(totalMigratedKNC), 18).split('.')[0]) + ' KNC'}
+                    {formatLongNumber(formatUnits(totalMigratedKNC, 18).split('.')[0]) + ' KNC'}
                   </Text>
                 ) : (
                   <div style={{ lineHeight: 1 }}>

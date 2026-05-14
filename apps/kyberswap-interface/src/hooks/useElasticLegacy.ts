@@ -6,11 +6,15 @@ import {
   Position as PositionSDK,
   computePoolAddress,
 } from '@kyberswap/ks-sdk-elastic'
+import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
+import { MULTICALL_ABI } from 'constants/multicall'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -18,10 +22,9 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent } from 'utils'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { decodeFunctionResult, encodeFunctionData } from 'utils/viem'
+import { Abi, Address, decodeFunctionResult, encodeFunctionData } from 'utils/viem'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { useMulticallContract } from './useContract'
 import { PoolState, usePools } from './usePools'
 import { useProAmmPositions } from './useProAmmPositions'
 import useTransactionDeadline from './useTransactionDeadline'
@@ -242,13 +245,12 @@ export function usePositionFees(positions: Position[]) {
     [tokenId: string]: [string, string]
   }>(() => positions.reduce((acc, item) => ({ ...acc, [item.id]: ['0', '0'] }), {}))
 
-  const multicallContract = useMulticallContract()
-
   const { chainId, networkInfo } = useActiveWeb3React()
+  const multicallAddress = NETWORKS_INFO[chainId]?.multicall
 
   useEffect(() => {
     const getData = async () => {
-      if (!multicallContract) return
+      if (!multicallAddress) return
       const callParams = positions.map(item => {
         return {
           target: networkInfo.elastic.tickReader,
@@ -260,29 +262,30 @@ export function usePositionFees(positions: Position[]) {
         }
       })
 
-      const { returnData } = await multicallContract?.callStatic.tryBlockAndAggregate(false, callParams)
+      const tryResult = (await readContract(wagmiConfig, {
+        address: multicallAddress as Address,
+        abi: MULTICALL_ABI as Abi,
+        functionName: 'tryBlockAndAggregate',
+        args: [false, callParams],
+        chainId: chainId as number,
+      })) as readonly [bigint, `0x${string}`, ReadonlyArray<{ success: boolean; returnData: `0x${string}` }>]
+
+      const returnData = tryResult[2]
       setFeeRewards(
-        returnData.reduce(
-          (
-            acc: { [tokenId: string]: [string, string] },
-            item: { success: boolean; returnData: string },
-            index: number,
-          ) => {
-            if (item.success) {
-              const tmp = decodeFunctionResult({
-                abi: TickReaderABI.abi,
-                functionName: 'getTotalFeesOwedToPosition',
-                data: item.returnData as `0x${string}`,
-              }) as { token0Owed: bigint; token1Owed: bigint }
-              return {
-                ...acc,
-                [positions[index].id]: [tmp.token0Owed.toString(), tmp.token1Owed.toString()],
-              }
+        returnData.reduce<{ [tokenId: string]: [string, string] }>((acc, item, index) => {
+          if (item.success) {
+            const tmp = decodeFunctionResult({
+              abi: TickReaderABI.abi,
+              functionName: 'getTotalFeesOwedToPosition',
+              data: item.returnData,
+            }) as { token0Owed: bigint; token1Owed: bigint }
+            return {
+              ...acc,
+              [positions[index].id]: [tmp.token0Owed.toString(), tmp.token1Owed.toString()],
             }
-            return { ...acc, [positions[index].id]: ['0', '0'] }
-          },
-          {} as { [tokenId: string]: [string, string] },
-        ),
+          }
+          return { ...acc, [positions[index].id]: ['0', '0'] }
+        }, {} as { [tokenId: string]: [string, string] }),
       )
     }
 
@@ -293,7 +296,7 @@ export function usePositionFees(positions: Position[]) {
 
     return () => clearInterval(i)
     // eslint-disable-next-line
-  }, [chainId, multicallContract, networkInfo, positions.length])
+  }, [chainId, multicallAddress, networkInfo, positions.length])
 
   return feeRewards
 }

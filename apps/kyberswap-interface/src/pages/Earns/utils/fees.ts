@@ -1,15 +1,17 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { readContract } from '@wagmi/core'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import StateViewABI from 'constants/abis/earn/uniswapv4StateViewAbi.json'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { ClaimInfo } from 'pages/Earns/components/ClaimModal'
 import { EARN_CHAINS, EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ParsedPosition } from 'pages/Earns/types'
-import { getNftManagerContract, getNftManagerContractAddress } from 'pages/Earns/utils'
-import { getReadingContractWithCustomChain } from 'utils/getContract'
+import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import {
   type Abi,
+  type Address,
   encodeAbiParameters,
   encodeFunctionData,
   encodePacked,
@@ -61,23 +63,36 @@ const getUniv3UnclaimedFees = async ({
   dex: Exchange
   chainId: number
 }) => {
-  const contract = getNftManagerContract(dex, chainId)
-  if (!contract) return { balance0: 0, balance1: 0 }
+  const nftManagerAddress = getNftManagerContractAddress(dex, chainId)
+  const nftManagerAbi = EARN_DEXES[dex].nftManagerContractAbi as Abi | null
+  if (!nftManagerAddress || !nftManagerAbi) return { balance0: 0, balance1: 0 }
 
-  const owner = await contract.ownerOf(tokenId)
+  const owner = (await readContract(wagmiConfig, {
+    address: nftManagerAddress as Address,
+    abi: nftManagerAbi,
+    functionName: 'ownerOf',
+    args: [BigInt(tokenId)],
+    chainId,
+  })) as Address
 
-  const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
-  const results = await contract.callStatic.collect(
-    {
-      tokenId,
-      recipient: owner,
-      amount0Max: maxUnit,
-      amount1Max: maxUnit,
-    },
-    { from: owner },
-  )
-  const balance0 = results.amount0.toString()
-  const balance1 = results.amount1.toString()
+  const maxUint128 = 2n ** 128n - 1n
+  const results = (await readContract(wagmiConfig, {
+    address: nftManagerAddress as Address,
+    abi: nftManagerAbi,
+    functionName: 'collect',
+    args: [
+      {
+        tokenId: BigInt(tokenId),
+        recipient: owner,
+        amount0Max: maxUint128,
+        amount1Max: maxUint128,
+      },
+    ],
+    account: owner,
+    chainId,
+  })) as readonly [bigint, bigint]
+  const balance0 = results[0].toString()
+  const balance1 = results[1].toString()
 
   return { balance0, balance1 }
 }
@@ -96,35 +111,49 @@ const getUniv4UnclaimedFees = async ({
   const defaultBalance = { balance0: 0, balance1: 0 }
 
   try {
-    const nftPosManagerContract = getNftManagerContract(dex, chainId)
-    if (!nftPosManagerContract) return defaultBalance
+    const nftPosManagerAddress = getNftManagerContractAddress(dex, chainId)
+    const nftPosManagerAbi = EARN_DEXES[dex].nftManagerContractAbi as Abi | null
+    if (!nftPosManagerAddress || !nftPosManagerAbi) return defaultBalance
 
-    const positionInfo = await nftPosManagerContract.positionInfo(tokenId)
-    const { tickLower, tickUpper } = decodePositionInfo(BigInt(positionInfo))
+    const positionInfo = (await readContract(wagmiConfig, {
+      address: nftPosManagerAddress as Address,
+      abi: nftPosManagerAbi,
+      functionName: 'positionInfo',
+      args: [BigInt(tokenId)],
+      chainId,
+    })) as bigint
+    const { tickLower, tickUpper } = decodePositionInfo(positionInfo)
 
     const stateViewAddress = EARN_CHAINS[chainId as keyof typeof EARN_CHAINS].univ4StateViewContract
     if (!stateViewAddress) return defaultBalance
-    const stateViewContract = getReadingContractWithCustomChain(stateViewAddress, StateViewABI, chainId)
-    if (!stateViewContract) return defaultBalance
 
     const salt = encodeAbiParameters(parseAbiParameters('uint256'), [BigInt(tokenId)])
-    const nftPosManagerAddress = getNftManagerContractAddress(dex, chainId)
     const positionId = keccak256(
       encodePacked(
         ['address', 'int24', 'int24', 'bytes32'],
         [nftPosManagerAddress as `0x${string}`, tickLower, tickUpper, salt],
       ),
     )
-    const statePositionInfo = await stateViewContract.getPositionInfo(poolAddress, positionId)
+    const statePositionInfo = (await readContract(wagmiConfig, {
+      address: stateViewAddress as Address,
+      abi: StateViewABI as Abi,
+      functionName: 'getPositionInfo',
+      args: [poolAddress as `0x${string}`, positionId],
+      chainId,
+    })) as readonly [bigint, bigint, bigint]
     const positionLiquidity = statePositionInfo[0]
+    const feeGrowthInside0LastX128 = statePositionInfo[1]
+    const feeGrowthInside1LastX128 = statePositionInfo[2]
 
-    const feeGrowthInsideCurrent = await stateViewContract.getFeeGrowthInside(poolAddress, tickLower, tickUpper)
-    const pendingFees0 = positionLiquidity
-      .mul(feeGrowthInsideCurrent[0].sub(statePositionInfo.feeGrowthInside0LastX128))
-      .shr(128)
-    const pendingFees1 = positionLiquidity
-      .mul(feeGrowthInsideCurrent[1].sub(statePositionInfo.feeGrowthInside1LastX128))
-      .shr(128)
+    const feeGrowthInsideCurrent = (await readContract(wagmiConfig, {
+      address: stateViewAddress as Address,
+      abi: StateViewABI as Abi,
+      functionName: 'getFeeGrowthInside',
+      args: [poolAddress as `0x${string}`, tickLower, tickUpper],
+      chainId,
+    })) as readonly [bigint, bigint]
+    const pendingFees0 = (positionLiquidity * (feeGrowthInsideCurrent[0] - feeGrowthInside0LastX128)) >> 128n
+    const pendingFees1 = (positionLiquidity * (feeGrowthInsideCurrent[1] - feeGrowthInside1LastX128)) >> 128n
 
     return {
       balance0: pendingFees0.toString(),
@@ -170,25 +199,31 @@ export const getUniv3CollectCallData = async ({
 }) => {
   if (!claimInfo || !claimInfo.dex || !recipient) return
 
-  const contract = getNftManagerContract(claimInfo.dex as Exchange, claimInfo.chainId)
-  if (!contract) return
+  const nftManagerAddress = getNftManagerContractAddress(claimInfo.dex as Exchange, claimInfo.chainId)
+  const nftAbi = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi as Abi | null
+  if (!nftManagerAddress || !nftAbi) return
 
   const tokenId = claimInfo.nftId
-  const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
+  const maxUint128 = 2n ** 128n - 1n
   const calldatas = []
 
   const token0 = claimInfo.tokens[0]
   const token1 = claimInfo.tokens[1]
 
-  const owner = await contract.ownerOf(tokenId)
+  const owner = (await readContract(wagmiConfig, {
+    address: nftManagerAddress as Address,
+    abi: nftAbi,
+    functionName: 'ownerOf',
+    args: [BigInt(tokenId)],
+    chainId: claimInfo.chainId,
+  })) as Address
   const involvesETH = token0.isNative || token1.isNative
   const collectParams = {
-    tokenId,
+    tokenId: BigInt(tokenId),
     recipient: involvesETH ? ZERO_ADDRESS : recipient,
-    amount0Max: maxUnit,
-    amount1Max: maxUnit,
+    amount0Max: maxUint128,
+    amount1Max: maxUint128,
   }
-  const nftAbi = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi as Abi
   const collectCallData = encodeFunctionData({ abi: nftAbi, functionName: 'collect', args: [collectParams] })
   calldatas.push(collectCallData)
 
@@ -217,7 +252,7 @@ export const getUniv3CollectCallData = async ({
   const multicallData = encodeFunctionData({ abi: nftAbi, functionName: 'multicall', args: [calldatas] })
 
   return {
-    to: owner !== recipient ? owner : contract.address,
+    to: owner !== recipient ? owner : nftManagerAddress,
     data: multicallData,
   }
 }
@@ -231,8 +266,9 @@ export const getUniv4CollectCallData = async ({
 }) => {
   if (!claimInfo || !recipient) return
 
-  const contract = getNftManagerContract(claimInfo.dex as Exchange, claimInfo.chainId)
-  if (!contract) return
+  const nftManagerAddress = getNftManagerContractAddress(claimInfo.dex as Exchange, claimInfo.chainId)
+  const nftAbiForCollect = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi as Abi | null
+  if (!nftManagerAddress || !nftAbiForCollect) return
 
   const token0 = claimInfo.tokens[0]
   const token1 = claimInfo.tokens[1]
@@ -291,15 +327,14 @@ export const getUniv4CollectCallData = async ({
   const deadline = Math.floor(Date.now() / 1000) + 5 * 60
 
   // Encode function data
-  const nftAbi = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi as Abi
   const data = encodeFunctionData({
-    abi: nftAbi,
+    abi: nftAbiForCollect,
     functionName: 'modifyLiquidities',
     args: [unlockData, BigInt(deadline)],
   })
 
   return {
-    to: contract.address,
+    to: nftManagerAddress,
     data,
   }
 }

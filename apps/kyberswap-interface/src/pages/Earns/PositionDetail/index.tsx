@@ -1,6 +1,7 @@
 import { ShareModal, ShareModalProps, ShareOption, ShareType } from '@kyber/ui'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -11,6 +12,7 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -35,11 +37,12 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
-import { getNftManagerContract } from 'pages/Earns/utils'
+import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { toString } from 'utils/numbers'
+import { type Abi, type Address } from 'utils/viem'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -264,9 +267,16 @@ const PositionDetail = () => {
     if (!positionDexId || !positionChainId || !positionTokenId) return
     const fetchOwner = async () => {
       try {
-        const contract = getNftManagerContract(positionDexId, positionChainId)
-        if (contract) {
-          const owner = await contract.ownerOf(positionTokenId)
+        const nftManagerAddress = getNftManagerContractAddress(positionDexId, positionChainId)
+        const nftManagerAbi = EARN_DEXES[positionDexId].nftManagerContractAbi as Abi | null
+        if (nftManagerAddress && nftManagerAbi) {
+          const owner = (await readContract(wagmiConfig, {
+            address: nftManagerAddress as Address,
+            abi: nftManagerAbi,
+            functionName: 'ownerOf',
+            args: [BigInt(positionTokenId)],
+            chainId: positionChainId,
+          })) as Address
           setPositionOwnerAddress(owner)
         }
       } catch (error) {
