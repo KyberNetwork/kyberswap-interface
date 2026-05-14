@@ -2,6 +2,10 @@ import { ChangeEvent, ReactNode, useRef } from 'react'
 
 import { IMAGE_ALLOW_EXTENSIONS } from 'hooks/social'
 
+const IMAGE_MIME_BY_EXTENSION: Partial<Record<(typeof IMAGE_ALLOW_EXTENSIONS)[number], string>> = {
+  svg: 'image/svg+xml',
+}
+
 export default function FileInput({
   onChange,
   children,
@@ -43,7 +47,11 @@ export default function FileInput({
         type="file"
         onChange={handleFileChange}
         style={{ visibility: 'hidden', height: 0, width: 0 }}
-        accept={image ? IMAGE_ALLOW_EXTENSIONS.map(ext => `image/${ext}`).join(', ') : undefined}
+        accept={
+          image
+            ? IMAGE_ALLOW_EXTENSIONS.map(ext => IMAGE_MIME_BY_EXTENSION[ext] || `image/${ext}`).join(', ')
+            : undefined
+        }
       />
     </>
   )

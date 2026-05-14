@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid'
 
 import { BUCKET_NAME } from 'constants/env'
 
-export const IMAGE_ALLOW_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']
+export const IMAGE_ALLOW_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'svg']
 
 export const useUploadImageToCloud = () => {
   const [uploadImage] = useUploadImageMutation()
