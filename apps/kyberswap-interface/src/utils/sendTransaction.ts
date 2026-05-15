@@ -57,7 +57,7 @@ export async function sendEVMTransaction({
     !isSmartConnector && chainId === ChainId.BASE ? `${encodedData}${BASE_BUILDER_CODE}` : encodedData
   ) as Hex
 
-  const txValue = value && value !== 0n ? value : undefined
+  const txValue = value !== 0n ? value : undefined
 
   // viem walletClient + publicClient via wagmi. The wallet client is gated — its
   // `request()` runs `ensureNotBlacklisted` for any signing method, so we don't need a
@@ -129,8 +129,6 @@ export async function sendEVMTransaction({
     })
     return { hash }
   } catch (error) {
-    const txHash = (error as any)?.transactionHash as string | undefined
-    if (txHash) return { hash: txHash }
     throw new TransactionError(
       errorInfo.name,
       'sendTransaction',

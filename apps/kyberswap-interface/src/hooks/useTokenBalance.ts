@@ -1,5 +1,5 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePublicClient } from 'wagmi'
 
 import { ERC20_ABI } from 'constants/abis'
@@ -24,6 +24,10 @@ function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
   const currentTransactionStatus = useTransactionStatus()
   const addressCheckSum = isAddress(chainId, tokenAddress)
 
+  // Decimals is immutable per (chainId, address); cache it across re-fetches so
+  // a balance refresh after every tx doesn't pay for an extra RPC call.
+  const decimalsCacheRef = useRef<Map<string, number>>(new Map())
+
   const fetchBalance = useCallback(async () => {
     if (!account || !publicClient || !addressCheckSum) {
       setBalance(EMPTY_BALANCE)
@@ -33,6 +37,18 @@ function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
       if (addressCheckSum === WETH[chainId].address) {
         const ethBalance = await publicClient.getBalance({ address: account as Address })
         setBalance({ value: ethBalance, decimals: 18 })
+        return
+      }
+      const cacheKey = `${chainId}:${addressCheckSum}`
+      const cachedDecimals = decimalsCacheRef.current.get(cacheKey)
+      if (cachedDecimals !== undefined) {
+        const rawBalance = (await publicClient.readContract({
+          address: addressCheckSum as Address,
+          abi: ERC20_ABI,
+          functionName: 'balanceOf',
+          args: [account],
+        })) as bigint
+        setBalance({ value: rawBalance, decimals: cachedDecimals })
         return
       }
       const [rawBalance, decimals] = await Promise.all([
@@ -48,6 +64,7 @@ function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
           functionName: 'decimals',
         }) as Promise<number>,
       ])
+      decimalsCacheRef.current.set(cacheKey, decimals)
       setBalance({ value: rawBalance, decimals })
     } catch {
       setBalance(EMPTY_BALANCE)

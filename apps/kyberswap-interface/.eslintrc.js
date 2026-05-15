@@ -78,10 +78,10 @@ module.exports = {
     'lingui/no-single-tag-to-translate': 2,
     'lingui/no-trans-inside-trans': 2,
 
-    // ethers.js → viem migration guardrail. Set to `warn` while legacy files
-    // are migrated phase-by-phase; flip to `error` once the codebase is clean.
+    // ethers.js → viem migration guardrail. The codebase is clean, so this is
+    // an error to prevent regressions.
     'no-restricted-imports': [
-      'warn',
+      'error',
       {
         paths: [
           {

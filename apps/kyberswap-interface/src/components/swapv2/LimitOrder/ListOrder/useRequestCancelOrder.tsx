@@ -128,7 +128,7 @@ const useRequestCancelOrder = ({
         const amountIn = order ? formatAmountOrder(makingAmount, makerAssetDecimals) : ''
         const amountOut = order ? formatAmountOrder(takingAmount, takerAssetDecimals) : ''
         addTransactionWithType({
-          ...response,
+          hash: response.hash,
           type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
           extraInfo: order
             ? {

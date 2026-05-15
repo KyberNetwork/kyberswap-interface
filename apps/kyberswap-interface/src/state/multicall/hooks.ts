@@ -154,7 +154,9 @@ export function useSingleContractMultipleData(
 
   return useMemo(() => {
     if (!contract || !abi || !fnItem) {
-      return callInputs.map((_args, i) => (validityMask[i] ? LOADING_CALL_STATE : INVALID_CALL_STATE))
+      // No contract on this chain — mirror `useSingleCallResult`'s INVALID
+      // semantics rather than leaving every input stuck on LOADING forever.
+      return callInputs.map(() => INVALID_CALL_STATE)
     }
     let validIdx = 0
     return callInputs.map((_args, i) => {

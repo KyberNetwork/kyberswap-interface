@@ -110,7 +110,9 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
       console.error('Missing V3 contract data for NFT permit')
       return null
     }
-    if (actualVersion === 'v4' && !noncesState?.result?.[0]) {
+    if (actualVersion === 'v4' && noncesState?.result?.[0] === undefined) {
+      // A fresh account legitimately returns `0n` (all bits free); use an
+      // explicit undefined check instead of falsiness.
       console.error('Missing nonces data for V4 NFT permit')
       return null
     }

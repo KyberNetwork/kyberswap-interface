@@ -175,13 +175,19 @@ export default function Updater(): null {
 
       const transaction = findTx(transactionsRef.current, receipt.transactionHash)
       if (!transaction) return
+      // viem `getTransactionReceipt` returns `status: 'success' | 'reverted'`.
+      // The Safe path (`toSafeReceipt`) already normalizes to numeric 0/1.
+      // SerializableTransactionReceipt + downstream consumers (e.g.
+      // `getTransactionStatus`) expect the ethers-style numeric form, so
+      // normalize here as well.
+      const numericStatus = receipt.status === 'success' || receipt.status === 1 ? 1 : 0
       dispatch(
         finalizeTransaction({
           chainId,
           hash: receipt.transactionHash,
           receipt: {
             blockHash: receipt.blockHash,
-            status: receipt.status,
+            status: numericStatus,
           },
           needCheckSubgraph: NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES.includes(transaction.type),
         }),
@@ -189,10 +195,10 @@ export default function Updater(): null {
 
       transactionNotify({
         hash: receipt.transactionHash,
-        type: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
+        type: numericStatus === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
         account: accountRef.current ?? '',
       })
-      if (receipt.status === 1) {
+      if (numericStatus === 1) {
         // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
         const swapEventTopic = keccak256(toBytes('Swapped(address,address,address,address,uint256,uint256)'))
         const swapLogs = receipt.logs.filter((log: any) => log.topics[0] === swapEventTopic)

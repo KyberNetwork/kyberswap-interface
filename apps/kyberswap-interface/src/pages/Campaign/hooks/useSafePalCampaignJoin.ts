@@ -4,6 +4,7 @@ import { useGetSafePalCampaignUserStatsQuery, useJoinSafePalCampaignMutation } f
 import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
+import { didUserReject } from 'constants/connectors/utils'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
@@ -139,7 +140,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
         type: NotificationType.SUCCESS,
       })
     } catch (error) {
-      if (error.code === 4001) {
+      if (didUserReject(error)) {
         notify({
           title: t`Signature canceled`,
           type: NotificationType.ERROR,
