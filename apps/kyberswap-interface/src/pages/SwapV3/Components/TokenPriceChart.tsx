@@ -48,16 +48,13 @@ const ActivityExplainer = styled(Stack)<{ $height: number }>`
 
 const ActivityWarning = styled(HStack)`
   position: absolute;
+  z-index: 10;
   top: 32px;
   border: 1px solid ${({ theme }) => rgba(theme.warning, 0.24)};
   border-radius: 8px;
   background: ${({ theme }) => rgba(theme.warning, 0.12)};
   color: ${({ theme }) => theme.warning};
-  padding: 8px 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    position: static;
-  `}
+  padding: 8px;
 `
 
 const TokenTabsList = styled.div`
@@ -376,11 +373,19 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
             ) : (
               <>
                 {shouldShowLowActivityWarning && (
-                  <ActivityWarning align="center" gap={8}>
-                    <AlertTriangle size={14} />
-                    <Text color="inherit" fontSize={12}>
-                      <Trans>Limited on-chain activity in the past 24h — price may not reflect tradable rates</Trans>
-                    </Text>
+                  <ActivityWarning align="center" justify="center">
+                    <MouseoverTooltip
+                      placement="top"
+                      text={
+                        <Text fontSize={12}>
+                          <Trans>
+                            Limited on-chain activity in the past 24h - price may not reflect tradable rates
+                          </Trans>
+                        </Text>
+                      }
+                    >
+                      <AlertTriangle size={14} />
+                    </MouseoverTooltip>
                   </ActivityWarning>
                 )}
 
