@@ -13,6 +13,7 @@ import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import VestingAbi from 'pages/ElasticSnapshot/data/abis/vestingAbi.json'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -22,8 +23,6 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { Address, encodeFunctionData } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
-
-import VestingAbi from '../data/abis/vestingAbi.json'
 
 export default function VestingClaimModal({
   onDismiss,

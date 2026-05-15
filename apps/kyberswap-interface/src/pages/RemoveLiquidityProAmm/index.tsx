@@ -44,6 +44,16 @@ import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { MaxButton as MaxBtn } from 'pages/RemoveLiquidity/styled'
+import {
+  AmoutToRemoveContent,
+  Container,
+  Content,
+  FirstColumn,
+  GridColumn,
+  SecondColumn,
+  TokenId,
+  TokenInputWrapper,
+} from 'pages/RemoveLiquidityProAmm/styled'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/proamm/actions'
 import { useBurnProAmmActionHandlers, useBurnProAmmState, useDerivedProAmmBurnInfo } from 'state/burn/proamm/hooks'
@@ -60,17 +70,6 @@ import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippa
 import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { encodeFunctionData } from 'utils/viem'
-
-import {
-  AmoutToRemoveContent,
-  Container,
-  Content,
-  FirstColumn,
-  GridColumn,
-  SecondColumn,
-  TokenId,
-  TokenInputWrapper,
-} from './styled'
 
 const TextUnderlineColor = styled(Text)`
   border-bottom: 1px solid ${({ theme }) => theme.text};

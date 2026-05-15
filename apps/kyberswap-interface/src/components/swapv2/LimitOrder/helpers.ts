@@ -2,14 +2,13 @@ import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 
+import { CreateOrderParam, LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { uint256ToFraction } from 'utils/numbers'
 import { parseUnits } from 'utils/viem'
-
-import { CreateOrderParam, LimitOrder, LimitOrderStatus } from './type'
 
 export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)

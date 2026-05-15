@@ -9,14 +9,13 @@ import { usePairByAddress } from 'data/Reserves'
 import { useTotalSupply } from 'data/TotalSupply'
 import { useActiveWeb3React } from 'hooks'
 import { useZapOutAmount } from 'hooks/useZap'
+import { AppState } from 'state'
+import { Field, switchTokenField, typeInput } from 'state/burn/actions'
 import { useAppDispatch } from 'state/hooks'
-import { AppState } from 'state/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { calculateSlippageAmount } from 'utils'
-
-import { Field, switchTokenField, typeInput } from './actions'
 
 export function useBurnState(): AppState['burn'] {
   return useSelector<AppState, AppState['burn']>(state => state.burn)

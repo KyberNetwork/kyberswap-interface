@@ -16,16 +16,15 @@ import { NotificationType } from 'components/Announcement/type'
 import Divider from 'components/Divider'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import DetailModal, { Price, PriceChange } from 'pages/MarketOverview/DetailModal'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { TabItem, TableRow } from 'pages/MarketOverview/styles'
+import useFilter from 'pages/MarketOverview/useFilter'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 import { Address } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
-
-import DetailModal, { Price, PriceChange } from './DetailModal'
-import SortIcon, { Direction } from './SortIcon'
-import { TabItem, TableRow } from './styles'
-import useFilter from './useFilter'
 
 export default function TableContent({
   showMarketInfo,

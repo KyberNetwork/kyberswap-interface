@@ -1,7 +1,7 @@
 import { ChainId, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 
-import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS } from './index'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
+import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
 const NativeCurrenciesLocal: { [chainId in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
   (acc, chainId) => ({

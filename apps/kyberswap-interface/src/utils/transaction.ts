@@ -4,8 +4,7 @@ import {
   TRANSACTION_TYPE,
   TransactionDetails,
 } from 'state/transactions/type'
-
-import { toBytes, toHex } from './viem'
+import { toBytes, toHex } from 'utils/viem'
 
 export const getTransactionGroupByType = (type: TRANSACTION_TYPE) => {
   if (GROUP_TRANSACTION_BY_TYPE.SWAP.includes(type)) return TRANSACTION_GROUP.SWAP

@@ -9,6 +9,7 @@ import { AutoColumn } from 'components/Column'
 import Copy from 'components/Copy'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { FarmTag } from 'components/FarmTag'
+import { RotateSwapIcon } from 'components/ProAmm/styles'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
@@ -17,8 +18,6 @@ import { FeeTag } from 'pages/ElasticLegacy/PositionLegacy'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { RotateSwapIcon } from './styles'
 
 export default function ProAmmPoolInfo({
   isFarmActive,

@@ -9,13 +9,12 @@ import { CLAIM_REWARD_ABI } from 'constants/abis'
 import { CLAIM_REWARDS_DATA_URL, NETWORKS_INFO } from 'constants/networks'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useReadingContract, useSigningContract } from 'hooks/useContract'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { Address, encodeFunctionData } from 'utils/viem'
-
-import { useReadingContract, useSigningContract } from './useContract'
 
 interface IReward {
   index: number

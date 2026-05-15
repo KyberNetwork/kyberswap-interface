@@ -16,6 +16,9 @@ import { TickReaderABI } from 'constants/abis'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { PoolState, usePools } from 'hooks/usePools'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -24,10 +27,6 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { Address, decodeFunctionResult, encodeFunctionData } from 'utils/viem'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { PoolState, usePools } from './usePools'
-import { useProAmmPositions } from './useProAmmPositions'
-import useTransactionDeadline from './useTransactionDeadline'
 
 export const config: {
   [chainId: number]: {

@@ -8,6 +8,8 @@ import { NotificationType } from 'components/Announcement/type'
 import { EIP_2612 } from 'constants/abis'
 import { PermitType } from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useReadingContract } from 'hooks/useContract'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleCallResult } from 'state/multicall/hooks'
@@ -16,9 +18,6 @@ import { usePermitData } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { Address, encodeAbiParameters, parseAbiParameters, parseSignature, parseUnits, toHex } from 'utils/viem'
 import { signTypedDataSafe } from 'utils/walletClient'
-
-import { useReadingContract } from './useContract'
-import useTracking, { TRACKING_EVENT_TYPE } from './useTracking'
 
 // 24 hours
 const PERMIT_VALIDITY_BUFFER = 24 * 60 * 60

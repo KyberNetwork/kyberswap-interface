@@ -22,11 +22,10 @@ import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/MyPool'
+import ContentLoader from 'pages/ProAmmPool/ContentLoader'
+import PositionGrid from 'pages/ProAmmPool/PositionGrid'
 import { StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
-
-import ContentLoader from './ContentLoader'
-import PositionGrid from './PositionGrid'
 
 const Highlight = styled.span`
   color: ${({ theme }) => theme.text};

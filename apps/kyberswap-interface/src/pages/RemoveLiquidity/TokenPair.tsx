@@ -34,6 +34,17 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Wrapper } from 'pages/MyPool/styleds'
+import {
+  CurrentPriceWrapper,
+  DetailBox,
+  DetailWrapper,
+  FirstColumn,
+  GridColumn,
+  MaxButton,
+  ModalDetailWrapper,
+  SecondColumn,
+  TokenWrapper,
+} from 'pages/RemoveLiquidity/styled'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnActionHandlers, useBurnState, useDerivedBurnInfo } from 'state/burn/hooks'
@@ -52,18 +63,6 @@ import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
 import { signTypedDataSafe } from 'utils/walletClient'
-
-import {
-  CurrentPriceWrapper,
-  DetailBox,
-  DetailWrapper,
-  FirstColumn,
-  GridColumn,
-  MaxButton,
-  ModalDetailWrapper,
-  SecondColumn,
-  TokenWrapper,
-} from './styled'
 
 export default function TokenPair({
   currencyIdA,

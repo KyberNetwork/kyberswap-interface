@@ -15,13 +15,12 @@ import { useKyberDAOInfo, useKyberDaoStakeActions } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
+import CurrencyInputForStake from 'pages/KyberDAO/StakeKNC/CurrencyInputForStake'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { parseUnits } from 'utils/viem'
-
-import CurrencyInputForStake from './CurrencyInputForStake'
-import { useSwitchToEthereum } from './SwitchToEthereumModal'
 
 const Wrapper = styled.div`
   padding: 24px;

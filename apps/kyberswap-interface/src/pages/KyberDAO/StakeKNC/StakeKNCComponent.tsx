@@ -31,16 +31,15 @@ import {
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import DelegateConfirmModal from 'pages/KyberDAO/StakeKNC/DelegateConfirmModal'
+import MigrateModal from 'pages/KyberDAO/StakeKNC/MigrateModal'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import YourTransactionsModal from 'pages/KyberDAO/StakeKNC/YourTransactionsModal'
+import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { formatUnits, parseUnits } from 'utils/viem'
-
-import KNCLogo from '../kncLogo'
-import DelegateConfirmModal from './DelegateConfirmModal'
-import MigrateModal from './MigrateModal'
-import { useSwitchToEthereum } from './SwitchToEthereumModal'
-import YourTransactionsModal from './YourTransactionsModal'
 
 enum STAKE_TAB {
   Stake = 'Stake',

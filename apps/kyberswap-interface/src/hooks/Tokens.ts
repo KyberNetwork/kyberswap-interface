@@ -11,8 +11,9 @@ import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks/index'
+import { useActiveWeb3React } from 'hooks'
 import { useBytes32TokenContract, useTokenReadingContract } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
 import { AppState } from 'state'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -21,8 +22,6 @@ import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import { escapeQuoteString } from 'utils/tokenInfo'
 import { Address, hexToString, toBytes } from 'utils/viem'
-
-import useDebounce from './useDebounce'
 
 // reduce token map into standard address <-> Token mapping
 function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean, customChainId?: ChainId): TokenMap {

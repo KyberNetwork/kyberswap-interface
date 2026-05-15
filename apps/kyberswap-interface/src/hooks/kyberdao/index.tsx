@@ -21,6 +21,7 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { DaoInfo, EligibleTxsInfo } from 'hooks/kyberdao/types'
 import { useReadingContract, useSigningContract, useTokenReadingContract } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
@@ -34,8 +35,6 @@ import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { Address, encodeFunctionData, formatUnits } from 'utils/viem'
-
-import { DaoInfo, EligibleTxsInfo } from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
   return SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO

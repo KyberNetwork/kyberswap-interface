@@ -15,13 +15,19 @@ import {
 } from 'components/Announcement/type'
 import { NETWORKS_INFO } from 'constants/networks'
 import { KNC_ADDRESS } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks/index'
+import { useActiveWeb3React } from 'hooks'
+import { AppDispatch, AppState } from 'state'
+import {
+  ApplicationModal,
+  addPopup,
+  closeModal,
+  removePopup,
+  setAnnouncementDetail,
+  setOpenModal,
+} from 'state/application/actions'
+import { ModalParams } from 'state/application/types'
 import { useAppSelector } from 'state/hooks'
-import { AppDispatch, AppState } from 'state/index'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-
-import { ApplicationModal, addPopup, closeModal, removePopup, setAnnouncementDetail, setOpenModal } from './actions'
-import { ModalParams } from './types'
 
 export function useBlockNumber(): number | undefined {
   const { chainId } = useActiveWeb3React()

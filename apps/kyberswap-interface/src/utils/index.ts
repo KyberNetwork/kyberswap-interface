@@ -10,8 +10,7 @@ import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
-
-import { isAddress, isAddressString } from './address'
+import { isAddress, isAddressString } from 'utils/address'
 
 export { isAddress, isAddressString }
 

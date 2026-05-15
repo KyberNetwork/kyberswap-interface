@@ -4,13 +4,17 @@ import { TransactionNotFoundError } from 'viem'
 import { usePublicClient } from 'wagmi'
 
 import { useActiveWeb3React } from 'hooks'
+import { AppDispatch, AppState } from 'state'
 import { useBlockNumber } from 'state/application/hooks'
-import { AppDispatch, AppState } from 'state/index'
+import { addTransaction } from 'state/transactions/actions'
+import {
+  GroupedTxsByHash,
+  TransactionDetails,
+  TransactionExtraInfo1Token,
+  TransactionHistory,
+} from 'state/transactions/type'
 import { findTx } from 'utils'
 import { Hash } from 'utils/viem'
-
-import { addTransaction } from './actions'
-import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo1Token, TransactionHistory } from './type'
 
 type LegacyTx = { to?: string | null; nonce?: number; data?: string }
 

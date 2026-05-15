@@ -8,15 +8,19 @@ import { ENV_KEY } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { initializeOauthKyberSwap } from 'hooks/useLogin'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import AuthForm from 'pages/Oauth/AuthForm'
+import {
+  canAutoSignInEth,
+  createSignMessage,
+  extractAutoLoginMethod,
+  getSupportLoginMethods,
+} from 'pages/Oauth/helpers'
 import { Container, Content, KyberLogo, TextDesc } from 'pages/Oauth/styled'
 import getShortenAddress from 'utils/getShortenAddress'
 import { queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
-
-import AuthForm from './AuthForm'
-import { canAutoSignInEth, createSignMessage, extractAutoLoginMethod, getSupportLoginMethods } from './helpers'
 
 export const getIamErrorMsg = (error: any) => {
   const data = error?.response?.data

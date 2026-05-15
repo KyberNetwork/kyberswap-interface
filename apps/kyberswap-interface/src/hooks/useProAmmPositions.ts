@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
 import { encodeAbiParameters, getContractAddress, keccak256, parseAbiParameters } from 'utils/viem'
-
-import { useProAmmNFTPositionManagerReadingContract } from './useContract'
 
 interface UseProAmmPositionsResults {
   loading: boolean

@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { ETHER_ADDRESS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks/index'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'

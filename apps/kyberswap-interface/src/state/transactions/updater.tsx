@@ -9,8 +9,8 @@ import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { AppDispatch, AppState } from 'state'
 import { useBlockNumber, useTransactionNotify } from 'state/application/hooks'
-import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/swap/actions'
 import {
   checkedTransaction,

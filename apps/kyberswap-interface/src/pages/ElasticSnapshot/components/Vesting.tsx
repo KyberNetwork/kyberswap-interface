@@ -12,13 +12,12 @@ import { ButtonPrimary } from 'components/Button'
 import { wagmiConfig } from 'components/Web3Provider'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import VestingClaimModal from 'pages/ElasticSnapshot/components/VestingClaimModal'
+import abi from 'pages/ElasticSnapshot/data/abis/vestingAbi.json'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 import { Address } from 'utils/viem'
-
-import abi from '../data/abis/vestingAbi.json'
-import VestingClaimModal from './VestingClaimModal'
 
 const Details = styled.div`
   margin-top: 24px;

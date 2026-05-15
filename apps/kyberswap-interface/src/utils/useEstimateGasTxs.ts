@@ -6,8 +6,7 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-
-import { Address, Hex, PublicClient, formatEther } from './viem'
+import { Address, Hex, PublicClient, formatEther } from 'utils/viem'
 
 type EstimateParams = { contractAddress: string; encodedData: string; value?: bigint }
 function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: bigint | null; gasInUsd: number | null }> {

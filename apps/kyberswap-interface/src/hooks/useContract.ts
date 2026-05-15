@@ -19,9 +19,8 @@ import {
 } from 'constants/abis'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import { Abi, Address, isAddress, zeroAddress } from 'utils/viem'
-
-import { useActiveWeb3React } from './index'
 
 // Lightweight contract reference: address + ABI (+ optional chainId so multicall
 // hooks read from the requested chain rather than the connected one). Multicall

@@ -2,9 +2,8 @@
 import { getAccount, getWalletClient } from '@wagmi/core'
 
 import { wagmiConfig } from 'components/Web3Provider'
-
-import { ensureNotBlacklisted } from './sendTransaction'
-import { Address } from './viem'
+import { ensureNotBlacklisted } from 'utils/sendTransaction'
+import { Address } from 'utils/viem'
 
 class ChainMismatchError extends Error {
   constructor() {

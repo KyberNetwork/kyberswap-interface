@@ -2,9 +2,8 @@ import { useMemo } from 'react'
 import { useReadContract, useReadContracts } from 'wagmi'
 
 import { ContractRef } from 'hooks/useContract'
+import { ListenerOptions } from 'state/multicall/actions'
 import { Abi, Address } from 'utils/viem'
-
-import { ListenerOptions } from './actions'
 
 export interface Result extends ReadonlyArray<any> {
   readonly [key: string]: any

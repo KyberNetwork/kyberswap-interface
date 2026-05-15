@@ -18,17 +18,16 @@ import { useActiveWeb3React } from 'hooks'
 import { useClaimVotingRewards, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
+import ClaimConfirmModal from 'pages/KyberDAO/Vote/ClaimConfirmModal'
+import ProposalListComponent from 'pages/KyberDAO/Vote/ProposalListComponent'
+import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 import { formatUnitsToFixed } from 'utils/formatBalance'
-
-import { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
-import TimerCountdown from '../TimerCountdown'
-import KNCLogo from '../kncLogo'
-import ClaimConfirmModal from './ClaimConfirmModal'
-import ProposalListComponent from './ProposalListComponent'
 
 const Wrapper = styled.div`
   width: 100%;

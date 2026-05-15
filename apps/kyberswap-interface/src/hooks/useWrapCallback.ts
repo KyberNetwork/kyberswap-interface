@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { WETH_ABI } from 'constants/abis'
 import { NativeCurrencies } from 'constants/tokens'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -14,8 +15,6 @@ import { friendlyError } from 'utils/errorMessage'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { encodeFunctionData } from 'utils/viem'
-
-import { useActiveWeb3React, useWeb3React } from './index'
 
 export enum WrapType {
   NOT_APPLICABLE,

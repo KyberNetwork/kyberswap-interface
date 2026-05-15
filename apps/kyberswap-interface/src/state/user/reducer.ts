@@ -10,7 +10,6 @@ import {
 } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { updateVersion } from 'state/global/actions'
-
 import {
   SerializedPair,
   SerializedToken,
@@ -38,7 +37,7 @@ import {
   updateUserDegenMode,
   updateUserLocale,
   updateUserSlippageTolerance,
-} from './actions'
+} from 'state/user/actions'
 
 const currentTimestamp = () => new Date().getTime()
 const AUTO_DISABLE_DEGEN_MODE_MINUTES = 30

@@ -1,13 +1,12 @@
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
+import { useENSRegistrarContract, useENSResolverContract } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
 import isZero from 'utils/isZero'
 import { namehash } from 'utils/viem'
-
-import { useENSRegistrarContract, useENSResolverContract } from './useContract'
-import useDebounce from './useDebounce'
 
 /**
  * Does a reverse lookup for an address to find its ENS name.

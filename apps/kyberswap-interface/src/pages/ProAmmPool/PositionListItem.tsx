@@ -22,14 +22,13 @@ import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import ContentLoader from 'pages/ProAmmPool/ContentLoader'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
 import { currencyId } from 'utils/currencyId'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import ContentLoader from './ContentLoader'
 
 const StyledPositionCard = styled(LightCard)`
   border: none;

@@ -16,13 +16,12 @@ import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
+import FAQ from 'pages/KyberDAO/KNCUtility/FAQ'
+import GasRefundBox from 'pages/KyberDAO/KNCUtility/GasRefundBox'
+import { HeaderCell, Table, TableHeader, TableRow } from 'pages/KyberDAO/KNCUtility/Table'
+import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatUnits } from 'utils/viem'
-
-import KNCLogo from '../kncLogo'
-import FAQ from './FAQ'
-import GasRefundBox from './GasRefundBox'
-import { HeaderCell, Table, TableHeader, TableRow } from './Table'
 
 const Wrapper = styled.div`
   width: 100%;

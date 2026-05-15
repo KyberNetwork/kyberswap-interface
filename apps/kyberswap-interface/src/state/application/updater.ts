@@ -5,8 +5,7 @@ import { useBlockNumber as useWagmiBlockNumber } from 'wagmi'
 
 import { useActiveWeb3React } from 'hooks'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
-
-import { updateBlockNumber } from './actions'
+import { updateBlockNumber } from 'state/application/actions'
 
 export default function Updater(): null {
   const { chainId } = useActiveWeb3React()

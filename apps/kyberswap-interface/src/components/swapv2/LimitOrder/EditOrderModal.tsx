@@ -8,10 +8,20 @@ import styled from 'styled-components'
 
 import Column from 'components/Column'
 import Modal from 'components/Modal'
+import LimitOrderForm, { Label, LimitOrderFormHandle } from 'components/swapv2/LimitOrder/LimitOrderForm'
 import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
+import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
+import {
+  CancelOrderFunction,
+  CancelOrderType,
+  EditOrderInfo,
+  LimitOrder,
+  LimitOrderStatus,
+  RateInfo,
+} from 'components/swapv2/LimitOrder/type'
 import { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -19,10 +29,6 @@ import { useCurrencyV2 } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formatUnits } from 'utils/viem'
-
-import LimitOrderForm, { Label, LimitOrderFormHandle } from './LimitOrderForm'
-import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
-import { CancelOrderFunction, CancelOrderType, EditOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 
 const Wrapper = styled.div`
   width: 100%;

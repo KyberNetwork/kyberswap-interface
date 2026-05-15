@@ -14,7 +14,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { wait } from 'utils/retry'
 import { getGatedWalletClient } from 'utils/walletClient'
 
-//import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
+//import { useLazyKyberswapConfig } from 'hooks/useKyberSwapConfig'
 
 let latestChainId: number | undefined
 export function useChangeNetwork() {

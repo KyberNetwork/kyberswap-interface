@@ -18,6 +18,7 @@ import { useAllTokens } from 'hooks/Tokens'
 import { useProMMFarmSigningContract } from 'hooks/useContract'
 import { Position as SubgraphPosition, config, parsePosition } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
+import { FeeTag } from 'pages/ElasticLegacy/PositionLegacy'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -26,8 +27,6 @@ import { formatDollarAmount } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { encodeFunctionData } from 'utils/viem'
-
-import { FeeTag } from './PositionLegacy'
 
 const Wrapper = styled.div`
   border-radius: 1rem;

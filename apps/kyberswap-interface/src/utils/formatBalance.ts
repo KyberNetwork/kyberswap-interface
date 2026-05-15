@@ -2,7 +2,7 @@ import { Fraction } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
-import { formatUnits } from './viem'
+import { formatUnits } from 'utils/viem'
 
 export const getFullDisplayBalance = (balance: bigint | string, decimals = 18, significant = 6): string => {
   if (!balance) {

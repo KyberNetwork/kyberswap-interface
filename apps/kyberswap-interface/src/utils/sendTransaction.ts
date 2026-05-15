@@ -6,10 +6,9 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
 import { calculateGasMarginBigInt } from 'utils'
-
-import { BlacklistedWalletError, ErrorName, TransactionError } from './transactionError'
-import { Address, Hex, PublicClient } from './viem'
-import { getGatedWalletClient } from './walletClient'
+import { BlacklistedWalletError, ErrorName, TransactionError } from 'utils/transactionError'
+import { Address, Hex, PublicClient } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 export interface SendEVMTransactionResult {
   hash: string

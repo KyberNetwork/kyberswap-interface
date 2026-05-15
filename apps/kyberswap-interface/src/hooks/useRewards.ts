@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
 
 import { REWARD_TYPE } from 'components/WalletPopup/type'
+import { useClaimGasRefundRewards, useClaimVotingRewards, useGasRefundInfo, useVotingInfo } from 'hooks/kyberdao'
 import { useKNCPrice } from 'state/application/hooks'
 import { aggregateValue } from 'utils/array'
 import { formatUnitsToFixed } from 'utils/formatBalance'
-
-import { useClaimGasRefundRewards, useClaimVotingRewards, useGasRefundInfo, useVotingInfo } from './kyberdao'
 
 export const useRewards = () => {
   const kncPrice = useKNCPrice()

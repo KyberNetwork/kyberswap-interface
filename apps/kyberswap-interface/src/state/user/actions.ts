@@ -2,8 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
-
-import { CrossChainSetting, VIEW_MODE } from './reducer'
+import { CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
 
 export interface SerializedToken {
   chainId: number

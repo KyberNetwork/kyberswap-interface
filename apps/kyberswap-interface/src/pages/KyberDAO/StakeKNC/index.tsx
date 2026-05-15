@@ -23,15 +23,14 @@ import { APP_PATHS } from 'constants/index'
 import { useGasRefundTier, useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import StakeKNCComponent from 'pages/KyberDAO/StakeKNC/StakeKNCComponent'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { formatLongNumber } from 'utils/formatBalance'
 import { formatUnits } from 'utils/viem'
-
-import KNCLogo from '../kncLogo'
-import StakeKNCComponent from './StakeKNCComponent'
-import { useSwitchToEthereum } from './SwitchToEthereumModal'
 
 const Wrapper = styled.div`
   width: 100%;

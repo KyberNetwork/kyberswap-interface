@@ -21,11 +21,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
-import { NearToken, useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
-import { useAppSelector } from 'state/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { isEvmChain, isNonEvmChain } from 'utils'
-
 import {
   BitcoinToken,
   Chain,
@@ -36,10 +31,14 @@ import {
   NormalizedQuote,
   QuoteParams,
   SwapProvider,
-} from '../adapters'
-import { CrossChainSwapFactory } from '../factory'
-import { CrossChainSwapAdapterRegistry, Quote } from '../registry'
-import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from '../utils'
+} from 'pages/CrossChainSwap/adapters'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
+import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
+import { NearToken, useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
+import { useAppSelector } from 'state/hooks'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { isEvmChain, isNonEvmChain } from 'utils'
 
 // SSE Event types from the server
 const SSE_EVENT = {
