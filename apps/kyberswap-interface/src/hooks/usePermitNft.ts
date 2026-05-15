@@ -127,7 +127,9 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     try {
       const nonce = getNonce()
 
-      if (!nonce) {
+      // V3 nonce can legitimately be 0n for never-permitted positions; only
+      // bail when the lookup itself failed.
+      if (nonce === null) {
         throw new Error(`Failed to get nonce for ${actualVersion}`)
       }
 

@@ -101,7 +101,7 @@ module.exports = {
           { name: '@ethersproject/units', message: 'Use parseUnits/formatUnits from src/utils/viem.ts.' },
           {
             name: '@ethersproject/bignumber',
-            message: 'Use native bigint; bridge via src/utils/migration.ts if needed.',
+            message: 'Use native bigint.',
           },
           {
             name: '@ethersproject/abi',

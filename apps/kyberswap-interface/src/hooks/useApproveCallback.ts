@@ -132,9 +132,13 @@ export function useApproveCallback(
           try {
             response = await sendApprove(BigInt(amountToApprove.quotient.toString()))
           } catch {
-            // Reset allowance to 0 (USDT-style non-compliant tokens require approving 0
-            // before a new non-zero amount). Still surface the tx in the wallet history.
-            response = await sendApprove(0n)
+            // Last-ditch fallback: reset allowance to 0 (USDT-style tokens reject
+            // approve() when the current allowance is non-zero). The user will need
+            // to retrigger approve to the desired amount — don't surface this as a
+            // successful "Approve" in the wallet history, since the allowance is now
+            // 0 and the caller's flow has not been granted.
+            await sendApprove(0n)
+            return
           }
         }
 

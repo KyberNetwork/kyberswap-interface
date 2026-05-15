@@ -49,7 +49,9 @@ export const getTokenId = async (chainId: number, txHash: string, exchange: Exch
         : transferLogsWithTokenId[transferLogsWithTokenId.length - 1].topics[3]
     }
     if (!hexTokenId) return
-    return Number(hexTokenId)
+    // Use BigInt to preserve precision past 2^53. Callers stringify immediately
+    // (e.g. `getTokenId(...).toString()`), so returning a numeric string is safe.
+    return BigInt(hexTokenId).toString()
   } catch (error) {
     console.log('getTokenId error', error)
     return
@@ -77,11 +79,14 @@ export const submitTransaction = async ({
 }) => {
   if (!account) throw new Error('Wallet is not connected')
   if (!chainId) throw new Error('Chain is not ready')
+  // Fail early with a clear message when the upstream API response is missing
+  // `to` — viem otherwise rejects at sendTransaction with an opaque error.
+  if (!txData.to) throw new Error('Missing contract address in transaction data')
   try {
     const value = txData.value ? BigInt(txData.value.toString()) : 0n
     const res = await sendEVMTransaction({
       account,
-      contractAddress: (txData.to ?? '') as string,
+      contractAddress: txData.to as string,
       encodedData: (txData.data ?? '0x') as string as `0x${string}`,
       value,
       errorInfo: { name: ErrorName.SwapError, wallet: undefined },
@@ -95,14 +100,6 @@ export const submitTransaction = async ({
     }
   } catch (error) {
     if (error instanceof BlacklistedWalletError) throw error
-    const txHash = (error as any)?.transactionHash as string | undefined
-    if (txHash) {
-      return {
-        txHash,
-        error: null,
-      }
-    }
-
     console.error('Submit transaction error:', error)
     if (onError) onError(error as Error)
     return {

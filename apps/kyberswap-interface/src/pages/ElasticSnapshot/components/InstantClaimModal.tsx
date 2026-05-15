@@ -257,8 +257,8 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
           hash: tx.hash,
           type: TRANSACTION_TYPE.CLAIM,
         })
+        onDismiss()
       }
-      onDismiss()
     } catch (e: any) {
       console.log(e)
       setSigning(false)

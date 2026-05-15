@@ -81,7 +81,11 @@ export default function useClaimReward() {
             chainId: chainId as number,
           })) as readonly bigint[]
           if (res) {
-            const remainAmounts = (BigInt(phase.reward.amounts[0]) - BigInt(res[0].toString())).toString()
+            // Clamp at 0 — on-chain `claimed` can briefly exceed `reward` after a
+            // re-org or off-chain data drift, and `CurrencyAmount.fromRawAmount`
+            // rejects negative values.
+            const diff = BigInt(phase.reward.amounts[0]) - BigInt(res[0].toString())
+            const remainAmounts = (diff < 0n ? 0n : diff).toString()
             setRewardAmounts(CurrencyAmount.fromRawAmount(KNC[chainId], remainAmounts).toSignificant(6))
             if (remainAmounts !== '0') {
               setPhaseId(i)

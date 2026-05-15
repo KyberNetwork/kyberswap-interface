@@ -151,8 +151,15 @@ const getUniv4UnclaimedFees = async ({
       args: [poolAddress as `0x${string}`, tickLower, tickUpper],
       chainId,
     })) as readonly [bigint, bigint]
-    const pendingFees0 = (positionLiquidity * (feeGrowthInsideCurrent[0] - feeGrowthInside0LastX128)) >> 128n
-    const pendingFees1 = (positionLiquidity * (feeGrowthInsideCurrent[1] - feeGrowthInside1LastX128)) >> 128n
+    // V4's fee-growth accumulators are uint256 and wrap on overflow, so the
+    // delta against the position's snapshot must be computed modulo 2^256.
+    // Native bigint subtraction is signed and would produce a negative number
+    // after a wrap; mask back into the unsigned range.
+    const TWO_POW_256 = 1n << 256n
+    const delta0 = (feeGrowthInsideCurrent[0] - feeGrowthInside0LastX128 + TWO_POW_256) % TWO_POW_256
+    const delta1 = (feeGrowthInsideCurrent[1] - feeGrowthInside1LastX128 + TWO_POW_256) % TWO_POW_256
+    const pendingFees0 = (positionLiquidity * delta0) >> 128n
+    const pendingFees1 = (positionLiquidity * delta1) >> 128n
 
     return {
       balance0: pendingFees0.toString(),

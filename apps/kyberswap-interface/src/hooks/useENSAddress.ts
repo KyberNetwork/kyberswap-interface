@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { useENSRegistrarContract, useENSResolverContract } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
-import { useSingleCallResult } from 'state/multicall/hooks'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import isZero from 'utils/isZero'
 import { namehash } from 'utils/viem'
 
@@ -20,12 +20,14 @@ export default function useENSAddress(ensName?: string | null): { loading: boole
     }
   }, [debouncedName])
   const registrarContract = useENSRegistrarContract()
-  const resolverAddress = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument)
+  // ENS resolution doesn't change per block — opt out of the per-block
+  // refetch the global readContract invalidation otherwise triggers.
+  const resolverAddress = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument, NEVER_RELOAD)
   const resolverAddressResult = resolverAddress.result?.[0]
   const resolverContract = useENSResolverContract(
     resolverAddressResult && !isZero(resolverAddressResult) ? resolverAddressResult : undefined,
   )
-  const addr = useSingleCallResult(resolverContract, 'addr', ensNodeArgument)
+  const addr = useSingleCallResult(resolverContract, 'addr', ensNodeArgument, NEVER_RELOAD)
 
   const changed = debouncedName !== ensName
   return {
