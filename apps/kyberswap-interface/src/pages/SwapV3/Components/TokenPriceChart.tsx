@@ -54,6 +54,10 @@ const ActivityWarning = styled(HStack)`
   background: ${({ theme }) => rgba(theme.warning, 0.12)};
   color: ${({ theme }) => theme.warning};
   padding: 8px 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    position: static;
+  `}
 `
 
 const TokenTabsList = styled.div`
