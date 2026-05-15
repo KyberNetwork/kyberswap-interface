@@ -265,11 +265,9 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   const priceChangeColor = priceChange >= 0 ? theme.primary : theme.red
 
   const activityCandles = useMemo(() => activityData?.candles ?? [], [activityData?.candles])
-  const trades24h = countRecentTransactions(activityCandles, 24)
-  const trades7d = countRecentTransactions(activityCandles, 24 * 7)
   const shouldUseActivityState = activityCandles.length > 0
-  const shouldHideChartForNoActivity = shouldUseActivityState && trades7d === 0
-  const shouldShowLowActivityWarning = shouldUseActivityState && !shouldHideChartForNoActivity && trades24h < 5
+  const shouldHideChartForNoActivity = shouldUseActivityState && countRecentTransactions(activityCandles, 24 * 7) < 1
+  const shouldShowLowActivityWarning = shouldUseActivityState && countRecentTransactions(activityCandles, 24) < 5
 
   if (!activeToken || !stableToken) return null
 
