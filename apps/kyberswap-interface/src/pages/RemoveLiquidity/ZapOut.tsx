@@ -72,7 +72,7 @@ import { formatJSBIValue } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
 import { sendEVMTransaction } from 'utils/sendTransaction'
-import { ErrorName } from 'utils/transactionError'
+import { ErrorName, TransactionError } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
 import { signTypedDataSafe } from 'utils/walletClient'
@@ -419,7 +419,12 @@ export default function ZapOut({
         if (!didUserReject(error)) {
           console.error(`sendTransaction failed`, methodNames[i], args, error)
         }
-        if (i === methodNames.length - 1) {
+        // Only retry the next method when the failure was at gas estimation —
+        // the wallet hasn't been prompted yet. If `sendTransaction` failed
+        // (e.g. user rejected), retrying would pop a second wallet prompt.
+        const isEstimateFailure = error instanceof TransactionError && error.type === 'estimateGas'
+        const shouldRetry = isEstimateFailure && i < methodNames.length - 1
+        if (!shouldRetry) {
           setAttemptingTxn(false)
           const err = error as Error & { data?: { message?: string } }
           const errMessage = err?.message ?? ''

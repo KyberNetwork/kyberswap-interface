@@ -59,7 +59,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { formatJSBIValue } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
-import { ErrorName } from 'utils/transactionError'
+import { ErrorName, TransactionError } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
 import { signTypedDataSafe } from 'utils/walletClient'
@@ -377,7 +377,14 @@ export default function TokenPair({
       } catch (error) {
         lastError = error
         console.error(`sendTransaction failed`, methodNames[i], methodArgs[i], error)
-        if (i === methodNames.length - 1) {
+        // Only retry the next method when the failure was at gas estimation —
+        // the wallet hasn't been prompted yet, so falling back to the alternate
+        // method (e.g. supportingFeeOnTransfer variant) is free. If the failure
+        // was at `sendTransaction` the user has already seen (and likely
+        // rejected) a wallet prompt; retrying would pop a second one.
+        const isEstimateFailure = error instanceof TransactionError && error.type === 'estimateGas'
+        const shouldRetry = isEstimateFailure && i < methodNames.length - 1
+        if (!shouldRetry) {
           setAttemptingTxn(false)
           const err = error as Error
           const message = err?.message?.includes('INSUFFICIENT')

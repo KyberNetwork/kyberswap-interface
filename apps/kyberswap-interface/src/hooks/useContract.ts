@@ -36,6 +36,9 @@ export interface ContractRef {
 
 function buildRef(address: string | undefined, abi: unknown, chainId?: ChainId): ContractRef | null {
   if (!address) return null
+  // Reject `0x0…` so callers that pass an unset slot (e.g. an optional contract
+  // field that defaults to zero) get `null`, matching the pre-migration behaviour
+  // of `getContract` / `getReadingContract`.
   if (!isAddress(address) || address === zeroAddress) return null
   return { address: address as Address, abi: abi as Abi, chainId }
 }

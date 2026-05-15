@@ -77,7 +77,7 @@ export async function sendEVMTransaction({
 
   // Best-effort eth_createAccessList for chains that opt-in. Failure is non-fatal.
   let accessList: { address: Address; storageKeys: Hex[] }[] | undefined
-  if (chainId && NETWORKS_INFO[chainId]?.accessListEnabled) {
+  if (NETWORKS_INFO[chainId]?.accessListEnabled) {
     try {
       const al = (await publicClient.request({
         method: 'eth_createAccessList' as any,

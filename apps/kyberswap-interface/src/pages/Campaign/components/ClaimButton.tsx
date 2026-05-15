@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
@@ -17,6 +17,7 @@ import { ErrorName } from 'utils/transactionError'
 const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const [claiming, setIsClaiming] = useState(false)
   const notify = useNotify()
   const { changeNetwork } = useChangeNetwork()
@@ -65,7 +66,7 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
           encodedData: res.data.EncodedData,
           value: 0n,
           errorInfo: { name: ErrorName.GasRefundClaimError, wallet: undefined },
-          isSmartConnector: false,
+          isSmartConnector,
           chainId,
         })
           .then(tx => {
@@ -90,7 +91,17 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
             setIsClaiming(false)
           })
       })
-  }, [chainId, changeNetwork, addTransactionWithType, info.ref, info.clientCode, notify, account, networkToSwitch])
+  }, [
+    chainId,
+    changeNetwork,
+    addTransactionWithType,
+    info.ref,
+    info.clientCode,
+    notify,
+    account,
+    networkToSwitch,
+    isSmartConnector,
+  ])
 
   useEffect(() => {
     if (autoClaim && chainId === networkToSwitch) {

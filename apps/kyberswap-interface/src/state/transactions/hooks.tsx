@@ -1,8 +1,9 @@
+import { getPublicClient } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { TransactionNotFoundError } from 'viem'
-import { usePublicClient } from 'wagmi'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { useActiveWeb3React } from 'hooks'
 import { AppDispatch, AppState } from 'state'
 import { useBlockNumber } from 'state/application/hooks'
@@ -21,7 +22,6 @@ type LegacyTx = { to?: string | null; nonce?: number; data?: string }
 // helper that can take a viem transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const { chainId, account } = useActiveWeb3React()
-  const publicClient = usePublicClient({ chainId: chainId as number })
   const dispatch = useDispatch<AppDispatch>()
   const blockNumber = useBlockNumber()
 
@@ -33,6 +33,13 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
   return useCallback(
     async ({ hash, desiredChainId, type, firstTxHash, extraInfo }: TransactionHistory) => {
       if (!account) return
+
+      // Resolve the publicClient for the chain the tx was actually sent on
+      // (`desiredChainId`) — otherwise cross-chain replacements look up the wrong
+      // chain and `to/nonce/data` come back empty, breaking replacement-tx detection
+      // in `state/transactions/updater.tsx` (gates on `sentAtBlock && from && nonce`).
+      const lookupChainId = (desiredChainId ?? chainId) as number
+      const publicClient = getPublicClient(wagmiConfig, { chainId: lookupChainId })
 
       let tx: LegacyTx | undefined
       try {
@@ -64,7 +71,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch, publicClient],
+    [account, chainId, dispatch],
   )
 }
 

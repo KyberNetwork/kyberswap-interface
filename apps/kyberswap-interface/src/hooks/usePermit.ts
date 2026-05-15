@@ -104,7 +104,8 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       owner: account,
       spender: routerAddress,
       value: parseUnits(currencyAmount.toExact(), currency.decimals).toString(),
-      nonce: Number(tokenNonceState.result[0] as bigint),
+      // Keep as bigint — Number(BigInt) would silently truncate for nonces > 2^53.
+      nonce: tokenNonceState.result[0] as bigint,
       deadline,
     }
 
