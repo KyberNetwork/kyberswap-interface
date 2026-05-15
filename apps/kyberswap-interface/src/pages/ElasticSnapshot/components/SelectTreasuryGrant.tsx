@@ -25,7 +25,7 @@ import { VerticalDivider } from 'pages/About/styleds'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-import { Address } from 'utils/viem'
+import { Address, Hex } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
 import vesting3rdData from '../data/pendle_dappos_vesting.json'
@@ -124,12 +124,12 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
               if (!walletClient) throw new Error('Wallet client unavailable')
               const t = tx as { to: string; data: string; value?: string | number | bigint }
-              const hash = await (walletClient as any).sendTransaction({
-                to: t.to,
-                data: t.data,
+              const hash = await walletClient.sendTransaction({
+                to: t.to as Address,
+                data: t.data as Hex,
                 ...(t.value !== undefined ? { value: BigInt(t.value.toString()) } : {}),
               })
-              return hash as string
+              return hash
             },
           }
         : null,
@@ -559,10 +559,10 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
                     if (!account) return
                     const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
                     if (!walletClient) return
-                    const signature = (await (walletClient as any).signMessage({
+                    const signature = await walletClient.signMessage({
                       account: account as Address,
                       message,
-                    })) as string | undefined
+                    })
                     if (!signature) {
                       notify({
                         title: t`Error`,

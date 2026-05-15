@@ -7,7 +7,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
-import { Address, Hex, formatEther } from './viem'
+import { Address, Hex, PublicClient, formatEther } from './viem'
 
 type EstimateParams = { contractAddress: string; encodedData: string; value?: bigint }
 function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: bigint | null; gasInUsd: number | null }> {
@@ -52,14 +52,14 @@ function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: bigint | nul
         }
 
         const [estimateGas, gasPrice] = await Promise.all([
-          (publicClient as any).estimateGas({
+          (publicClient as PublicClient).estimateGas({
             account: account as Address,
             to: contractAddress as Address,
             data: encodedData as Hex,
             ...(txValue !== undefined ? { value: txValue } : {}),
             ...(accessList ? { accessList } : {}),
-          }) as Promise<bigint>,
-          (publicClient as any).getGasPrice() as Promise<bigint>,
+          }),
+          publicClient.getGasPrice(),
         ])
         gas = estimateGas * gasPrice
         formatGas = parseFloat(formatEther(gas))

@@ -143,10 +143,10 @@ export default function TableContent({
       msg = t`Click sign to add favorite tokens at KyberSwap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in 7 days.\n\nIssued at: ${issuedAt}`
       const walletClient = await getGatedWalletClient({ chainId: chainId as number })
       if (!walletClient) throw new Error('Wallet client unavailable')
-      signature = (await (walletClient as any).signMessage({
+      signature = await walletClient.signMessage({
         account: account as Address,
         message: msg,
-      })) as string
+      })
       localStorage.setItem(
         key,
         JSON.stringify({

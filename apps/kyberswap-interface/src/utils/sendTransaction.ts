@@ -8,7 +8,7 @@ import store from 'state'
 import { calculateGasMarginBigInt } from 'utils'
 
 import { BlacklistedWalletError, ErrorName, TransactionError } from './transactionError'
-import { Address, Hex } from './viem'
+import { Address, Hex, PublicClient } from './viem'
 import { getGatedWalletClient } from './walletClient'
 
 // Minimal tx response shape returned by `sendEVMTransaction`. Only `hash` is read
@@ -104,10 +104,13 @@ export async function sendEVMTransaction({
 
   let gasEstimate: bigint
   try {
-    gasEstimate = (await (publicClient as any).estimateGas({
+    // viem's `estimateGas` argument type is a chain-specific union that
+    // overflows the TS instantiation depth at the wagmi-resolved publicClient.
+    // Runtime contract is the standard `{ to, data, value?, account, accessList? }`.
+    gasEstimate = await (publicClient as PublicClient).estimateGas({
       ...requestBase,
       ...(accessList ? { accessList } : {}),
-    })) as bigint
+    })
   } catch (error) {
     throw new TransactionError(
       errorInfo.name,
@@ -122,14 +125,11 @@ export async function sendEVMTransaction({
   const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId)
 
   try {
-    // viem's `sendTransaction` argument type is a chain-specific union large enough to
-    // overflow the TS instantiation depth limit at this call site. The runtime contract is
-    // simple — `{ to, data, value?, gas?, accessList?, account }` — so call through `any`.
-    const hash = (await (walletClient as any).sendTransaction({
+    const hash = await walletClient.sendTransaction({
       ...requestBase,
       gas: gasLimit,
       ...(accessList ? { accessList } : {}),
-    })) as Hex
+    })
     return { hash }
   } catch (error) {
     const txHash = (error as any)?.transactionHash as string | undefined

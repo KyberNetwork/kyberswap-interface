@@ -76,15 +76,11 @@ export async function signTypedDataSafe(params: {
 
   const { EIP712Domain: _omit, ...safeTypes } = (params.typedData.types ?? {}) as Record<string, unknown>
 
-  // viem's `signTypedData` argument type is a deep chain-specific union that
-  // overflows the TS instantiation depth at every call site. The runtime contract
-  // is the standard EIP-712 shape so we call through `any` here, matching the
-  // existing pattern in sendEVMTransaction.
-  return (await (walletClient as any).signTypedData({
+  return walletClient.signTypedData({
     account: params.account,
     domain: params.typedData.domain,
     types: safeTypes,
     primaryType: params.typedData.primaryType,
     message: params.typedData.message,
-  })) as string
+  })
 }

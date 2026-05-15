@@ -79,7 +79,7 @@ export default function JoinReferal() {
 
     const walletClient = await getGatedWalletClient({ chainId: chainId as number })
     if (!walletClient) throw new Error('Wallet client unavailable')
-    const signature = await (walletClient as any).signMessage({
+    const signature = await walletClient.signMessage({
       account: account as Address,
       message,
     })

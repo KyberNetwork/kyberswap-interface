@@ -213,10 +213,10 @@ const getOrCreateSignature = async (account: string, chainId: number) => {
   const msg = FAVORITE_MESSAGE_TEMPLATE.replace('{issuedAt}', issuedAt)
   const walletClient = await getGatedWalletClient({ chainId })
   if (!walletClient) throw new Error('Wallet client unavailable')
-  const signature = (await (walletClient as any).signMessage({
+  const signature = await walletClient.signMessage({
     account: account as Address,
     message: msg,
-  })) as string
+  })
 
   sessionStorage.setItem(key, JSON.stringify({ signature, msg, issuedAt }))
   return { signature, msg }

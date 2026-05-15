@@ -166,15 +166,15 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
 
         const walletClient = await getGatedWalletClient({ chainId: chainId as number })
         if (!walletClient) throw new Error('Wallet client unavailable')
-        const flatSig = (await (walletClient as any).signTypedData({
+        const flatSig = await walletClient.signTypedData({
           account: account.toLowerCase() as Address,
           domain,
           types,
           primaryType: 'Permit',
           message,
-        })) as string
+        })
 
-        const sig = parseSignature(flatSig as `0x${string}`)
+        const sig = parseSignature(flatSig)
         // V3 permit data: encode(deadline, v, r, s)
         permitData = encodeAbiParameters(parseAbiParameters('uint256, uint8, bytes32, bytes32'), [
           BigInt(permitDeadline),
@@ -213,13 +213,13 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
 
         const walletClient = await getGatedWalletClient({ chainId: chainId as number })
         if (!walletClient) throw new Error('Wallet client unavailable')
-        signature = (await (walletClient as any).signTypedData({
+        signature = await walletClient.signTypedData({
           account: account.toLowerCase() as Address,
           domain,
           types,
           primaryType: 'Permit',
           message,
-        })) as string
+        })
 
         // V4 permit data: encode(deadline, nonce, signature) - keep existing working format
         permitData = encodeAbiParameters(parseAbiParameters('uint256, uint256, bytes'), [

@@ -201,7 +201,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
       const walletClient = await getGatedWalletClient({ chainId: selectedNetworkToClaim })
       if (!walletClient) throw new Error('Wallet client unavailable')
 
-      const signature = await (walletClient as any).signTypedData({
+      const signature = await walletClient.signTypedData({
         account: account as Address,
         domain: {
           name: 'Kyberswap Instant Grant',

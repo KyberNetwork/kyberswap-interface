@@ -97,10 +97,10 @@ export default function ChooseGrantModal({
         })
         return
       }
-      const signature = (await (walletClient as any).signMessage({
+      const signature = await walletClient.signMessage({
         account: account as Address,
         message,
-      })) as string | undefined
+      })
       if (signature && account) {
         const res = await createOption({
           walletAddress: account,

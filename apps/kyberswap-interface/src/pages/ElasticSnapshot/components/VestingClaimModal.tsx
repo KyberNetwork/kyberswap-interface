@@ -74,7 +74,7 @@ export default function VestingClaimModal({
       const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
       if (!walletClient) throw new Error('Wallet client unavailable')
 
-      const signature = await (walletClient as any).signTypedData({
+      const signature = await walletClient.signTypedData({
         account: account as Address,
         domain: {
           name: 'Kyberswap Linear Vesting Grant',

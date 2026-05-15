@@ -9,7 +9,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, Address, Hex, encodeFunctionData, formatEther, parseEther, parseUnits } from 'utils/viem'
+import { Abi, Address, Hex, PublicClient, encodeFunctionData, formatEther, parseEther, parseUnits } from 'utils/viem'
 
 export default function useSendToken(currency: Currency | undefined, recipient: string, amount: string) {
   const { account, chainId } = useActiveWeb3React()
@@ -46,7 +46,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
               }),
             }
         const [gasEstimate, gasPrice] = await Promise.all([
-          (publicClient as any).estimateGas(estimateParams) as Promise<bigint>,
+          (publicClient as PublicClient).estimateGas(estimateParams),
           publicClient.getGasPrice(),
         ])
         const format = gasPrice && gasEstimate ? formatEther(gasEstimate * gasPrice) : null
