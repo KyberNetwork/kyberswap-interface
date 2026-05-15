@@ -236,7 +236,11 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   })
 
   const { data: activityData } = useTokenPriceChartQuery(
-    { ...initialQueryParams, timeFrame: '1h' },
+    {
+      ...initialQueryParams,
+      timeFrame: '1h',
+      fromBucketMs: getTokenChartFromBucketMs({ timeFrame: '1h' }),
+    },
     { skip: !activeTokenAddress || !stableAddress },
   )
 
