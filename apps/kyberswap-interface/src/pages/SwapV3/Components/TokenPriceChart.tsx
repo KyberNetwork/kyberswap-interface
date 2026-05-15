@@ -38,8 +38,8 @@ const ChartPanel = styled(Stack)`
   border-radius: 12px;
 `
 
-const ActivityExplainer = styled(Stack)`
-  min-height: 240px;
+const ActivityExplainer = styled(Stack)<{ $height: number }>`
+  min-height: ${({ $height }) => $height}px;
   border: 1px dashed ${({ theme }) => theme.border};
   border-radius: 16px;
   background: ${({ theme }) => rgba(theme.tableHeader, 0.5)};
@@ -354,18 +354,16 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                 )}
               </Stack>
 
-              {!shouldHideChartForNoActivity && (
-                <SegmentedControl
-                  onChange={setTimeFrame}
-                  options={CHART_TIME_FRAME_OPTIONS}
-                  size="sm"
-                  value={timeFrame}
-                />
-              )}
+              <SegmentedControl
+                onChange={setTimeFrame}
+                options={CHART_TIME_FRAME_OPTIONS}
+                size="sm"
+                value={timeFrame}
+              />
             </HStack>
 
             {shouldHideChartForNoActivity ? (
-              <ActivityExplainer align="center" gap={8} justify="center" textAlign="center">
+              <ActivityExplainer $height={chartHeight} align="center" gap={8} justify="center" textAlign="center">
                 <AlertTriangle color={theme.subText} size={28} />
                 <Text color={theme.subText} fontSize={14}>
                   <Trans>Not enough on-chain activity to display a reliable price chart for this token</Trans>
