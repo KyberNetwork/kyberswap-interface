@@ -335,7 +335,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
             <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
               <Stack>
                 {currentPrice !== undefined && (
-                  <HStack align="baseline" gap={8} wrap="wrap">
+                  <HStack align="baseline" gap={8} wrap="nowrap">
                     <Text color={theme.text} fontSize={20} fontWeight={500}>
                       {formatPrice(currentPrice)}
                     </Text>
@@ -355,12 +355,14 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                 )}
               </Stack>
 
-              <SegmentedControl
-                onChange={setTimeFrame}
-                options={CHART_TIME_FRAME_OPTIONS}
-                size="sm"
-                value={timeFrame}
-              />
+              <Stack ml="auto">
+                <SegmentedControl
+                  onChange={setTimeFrame}
+                  options={CHART_TIME_FRAME_OPTIONS}
+                  size="sm"
+                  value={timeFrame}
+                />
+              </Stack>
             </HStack>
 
             {shouldHideChartForNoActivity ? (
