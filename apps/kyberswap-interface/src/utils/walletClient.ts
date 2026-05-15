@@ -27,10 +27,9 @@ type WalletClient = NonNullable<Awaited<ReturnType<typeof getWalletClient>>>
 
 /**
  * Returns a wagmi walletClient with the Blackjack compliance gate installed at the
- * EIP-1193 `request` boundary. Mirrors the legacy `useWeb3React.library` Proxy: any
- * call that would produce a signature or broadcast a transaction first hits
- * `ensureNotBlacklisted(account)` and throws `BlacklistedWalletError` for sanctioned
- * addresses.
+ * EIP-1193 `request` boundary: any call that would produce a signature or broadcast
+ * a transaction first hits `ensureNotBlacklisted(account)` and throws
+ * `BlacklistedWalletError` for sanctioned addresses.
  *
  * Use this in place of `@wagmi/core`'s `getWalletClient` everywhere. The raw import
  * is ESLint-restricted to this file.
@@ -57,9 +56,8 @@ export async function getGatedWalletClient(opts: { chainId: number }): Promise<W
 
 /**
  * EIP-712 signing helper that runs through the gated wallet client and strips
- * `EIP712Domain` from `types` before passing to viem (viem injects EIP712Domain
- * itself and rejects payloads that already contain it — a hazard when forwarding
- * typed-data shapes built for the legacy `eth_signTypedData_v4` JSON-RPC contract).
+ * `EIP712Domain` from `types` before passing to viem — viem injects EIP712Domain
+ * itself and rejects payloads that already contain it.
  */
 export async function signTypedDataSafe(params: {
   chainId: number

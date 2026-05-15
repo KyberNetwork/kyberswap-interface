@@ -41,9 +41,6 @@ export class TransactionError extends Error {
 }
 
 // Thrown by the pre-send blackjack check when the active wallet is on the deny list.
-// Lives here (not inside the `hooks` module that owns the legacy Web3Provider Proxy) so
-// any signing path — both the ethers Proxy in `useWeb3React` and the new viem-based
-// `sendEVMTransaction` — can throw the same error type.
 export class BlacklistedWalletError extends Error {
   constructor() {
     super('There was an error with your transaction.')

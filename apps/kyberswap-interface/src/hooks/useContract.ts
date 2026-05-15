@@ -24,12 +24,11 @@ import { Abi, Address, zeroAddress } from 'utils/viem'
 
 import { useActiveWeb3React } from './index'
 
-// Lightweight contract reference: just address + ABI. Multicall hooks
+// Lightweight contract reference: address + ABI. Multicall hooks
 // (useSingleCallResult etc.) only need these two fields, and write paths
-// route through `sendEVMTransaction` + `encodeFunctionData` which take the ABI
-// directly. The legacy ethers `Contract` factory has been removed; for any
-// non-React caller needing the same shape, use the address+abi pair directly
-// with `readContract` from `@wagmi/core`.
+// route through `sendEVMTransaction` + `encodeFunctionData` which take the
+// ABI directly. Non-React callers should pair this with `readContract` from
+// `@wagmi/core`.
 export interface ContractRef {
   address: Address
   abi: Abi
@@ -41,12 +40,9 @@ function buildRef(address: string | undefined, abi: unknown): ContractRef | null
   return { address: address as Address, abi: abi as Abi }
 }
 
-// `useSigningContract` historically required a connected account because it
-// produced an ethers signing Contract. Post-migration, write paths route
-// through `sendEVMTransaction` and only need address+abi, so this is
-// functionally equivalent to `useReadingContract`. The account gate is kept
-// so disconnected wallets still get `null` (preserves existing call-site
-// conditionals like `if (!contract) return`).
+// Same shape as `useReadingContract`, but returns `null` when no account is
+// connected so call-site conditionals like `if (!contract) return` continue to
+// gate write paths on wallet connection.
 export function useSigningContract(address: string | undefined, abi: unknown): ContractRef | null {
   const { account } = useActiveWeb3React()
   return useMemo(() => (account ? buildRef(address, abi) : null), [account, address, abi])

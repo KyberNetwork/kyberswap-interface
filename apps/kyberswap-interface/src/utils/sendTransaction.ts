@@ -11,8 +11,6 @@ import { BlacklistedWalletError, ErrorName, TransactionError } from './transacti
 import { Address, Hex, PublicClient } from './viem'
 import { getGatedWalletClient } from './walletClient'
 
-// Minimal tx response shape returned by `sendEVMTransaction`. Only `hash` is read
-// downstream — the legacy ethers `TransactionResponse.wait()` shim has no callers.
 export interface SendEVMTransactionResult {
   hash: string
 }
@@ -21,9 +19,9 @@ export interface SendEVMTransactionResult {
 // https://www.base.dev/apps/6985b21e8dcaa0daf5755f6c/settings/builder-code
 const BASE_BUILDER_CODE = '62635f72377968616973350b0080218021802180218021802180218021'
 
-// Pre-send security gate. Mirrors the same check the legacy `useWeb3React` Proxy did on
-// every `.send('eth_sendTransaction'|signing-method', ...)` call. Fails open on network
-// errors so an unreachable Blackjack service doesn't block the user's transaction.
+// Pre-send security gate invoked by the gated walletClient on every signing method.
+// Fails open on network errors so an unreachable Blackjack service doesn't block the
+// user's transaction.
 export async function ensureNotBlacklisted(account: string) {
   try {
     const res = await store.dispatch(blackjackApi.endpoints.checkBlackjack.initiate(account))
