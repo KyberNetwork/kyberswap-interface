@@ -34,7 +34,7 @@ pnpm build
 - pnpm workspaces + Turborepo
 - styled-components (no CSS modules, no inline styles)
 - Redux Toolkit + RTK Query (app state), zustand (widget state)
-- ethers.js, wagmi, viem
+- wagmi, viem
 
 ## Code Conventions
 
