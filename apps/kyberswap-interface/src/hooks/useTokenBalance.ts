@@ -2,7 +2,7 @@ import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useState } from 'react'
 import { usePublicClient } from 'wagmi'
 
-import ERC20_ABI from 'constants/abis/erc20.json'
+import { ERC20_ABI } from 'constants/abis'
 import { useActiveWeb3React } from 'hooks'
 import useTransactionStatus from 'hooks/useTransactionStatus'
 import { isAddress } from 'utils'

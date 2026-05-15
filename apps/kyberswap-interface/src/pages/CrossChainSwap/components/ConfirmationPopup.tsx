@@ -11,7 +11,6 @@ import { Box, Flex, Text } from 'rebass'
 import { useLazyCheckBlackjackQuery } from 'services/blackjack'
 import styled from 'styled-components'
 import { formatUnits } from 'viem'
-import { useWalletClient } from 'wagmi'
 
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -20,6 +19,7 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTheme from 'hooks/useTheme'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
@@ -104,7 +104,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     sender,
     receiver,
   } = useCrossChainSwap()
-  const { data: walletClient } = useWalletClient()
+  const { data: walletClient } = useGatedWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')

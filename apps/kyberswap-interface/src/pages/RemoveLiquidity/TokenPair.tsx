@@ -22,9 +22,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { wagmiConfig } from 'components/Web3Provider'
-import ROUTER_DYNAMIC_FEE_ABI from 'constants/abis/dmm-router-dynamic-fee.json'
-import ROUTER_STATIC_FEE_ABI from 'constants/abis/dmm-router-static-fee.json'
-import KS_ROUTER_STATIC_FEE_ABI from 'constants/abis/ks-router-static-fee.json'
+import { KS_ROUTER_STATIC_FEE_ABI, ROUTER_DYNAMIC_FEE_ABI, ROUTER_STATIC_FEE_ABI } from 'constants/abis'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -52,7 +50,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-import { Abi, Address, encodeFunctionData, parseSignature } from 'utils/viem'
+import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
 import { signTypedDataSafe } from 'utils/walletClient'
 
 import {
@@ -256,13 +254,11 @@ export default function TokenPair({
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
     }
-    const routerAbi = (
-      isStaticFeePair
-        ? isOldStaticFeeContract
-          ? ROUTER_STATIC_FEE_ABI
-          : KS_ROUTER_STATIC_FEE_ABI
-        : ROUTER_DYNAMIC_FEE_ABI
-    ) as Abi
+    const routerAbi = isStaticFeePair
+      ? isOldStaticFeeContract
+        ? ROUTER_STATIC_FEE_ABI
+        : KS_ROUTER_STATIC_FEE_ABI
+      : ROUTER_DYNAMIC_FEE_ABI
 
     const amountsMin = {
       [Field.CURRENCY_A]: calculateSlippageAmount(currencyAmountA, allowedSlippage)[0],

@@ -1,43 +1,44 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
-import IUniswapV2PairABI from 'constants/abis/IUniswapV2PairABI.json'
 import {
   ARGENT_WALLET_DETECTOR_ABI,
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
-} from 'constants/abis/argent-wallet-detector'
-import FACTORY_ABI from 'constants/abis/dmm-factory.json'
-import ENS_PUBLIC_RESOLVER_ABI from 'constants/abis/ens-public-resolver.json'
-import ENS_ABI from 'constants/abis/ens-registrar.json'
-import { ERC20_BYTES32_ABI } from 'constants/abis/erc20'
-import ERC20_ABI from 'constants/abis/erc20.json'
-import KS_STATIC_FEE_FACTORY_ABI from 'constants/abis/ks-factory.json'
-import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
-import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
-import WETH_ABI from 'constants/abis/weth.json'
-import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
-import ZAP_ABI from 'constants/abis/zap.json'
+  ENS_ABI,
+  ENS_PUBLIC_RESOLVER_ABI,
+  ERC20_ABI,
+  ERC20_BYTES32_ABI,
+  FACTORY_ABI,
+  IUniswapV2PairABI,
+  KS_STATIC_FEE_FACTORY_ABI,
+  NFTPositionManagerABI,
+  PROMM_FARM_ABI,
+  WETH_ABI,
+  ZAP_ABI,
+  ZAP_STATIC_FEE_ABI,
+} from 'constants/abis'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO } from 'constants/networks'
-import { isAddress } from 'utils'
-import { Abi, Address, zeroAddress } from 'utils/viem'
+import { Abi, Address, isAddress, zeroAddress } from 'utils/viem'
 
 import { useActiveWeb3React } from './index'
 
-// Lightweight contract reference: address + ABI. Multicall hooks
-// (useSingleCallResult etc.) only need these two fields, and write paths
+// Lightweight contract reference: address + ABI (+ optional chainId so multicall
+// hooks read from the requested chain rather than the connected one). Multicall
+// hooks (useSingleCallResult etc.) only need these fields, and write paths
 // route through `sendEVMTransaction` + `encodeFunctionData` which take the
 // ABI directly. Non-React callers should pair this with `readContract` from
 // `@wagmi/core`.
 export interface ContractRef {
   address: Address
   abi: Abi
+  chainId?: ChainId
 }
 
-function buildRef(address: string | undefined, abi: unknown): ContractRef | null {
+function buildRef(address: string | undefined, abi: unknown, chainId?: ChainId): ContractRef | null {
   if (!address) return null
-  if (!isAddress(ChainId.MAINNET, address) || address === zeroAddress) return null
-  return { address: address as Address, abi: abi as Abi }
+  if (!isAddress(address) || address === zeroAddress) return null
+  return { address: address as Address, abi: abi as Abi, chainId }
 }
 
 // Same shape as `useReadingContract`, but returns `null` when no account is
@@ -51,9 +52,9 @@ export function useSigningContract(address: string | undefined, abi: unknown): C
 export function useReadingContract(
   address: string | undefined,
   abi: unknown,
-  _customChainId?: ChainId,
+  customChainId?: ChainId,
 ): ContractRef | null {
-  return useMemo(() => buildRef(address, abi), [address, abi])
+  return useMemo(() => buildRef(address, abi, customChainId), [address, abi, customChainId])
 }
 
 export function useTokenSigningContract(tokenAddress?: string): ContractRef | null {
@@ -67,7 +68,7 @@ export function useTokenReadingContract(tokenAddress?: string, customChainId?: C
 export function useWETHContract(customChainId?: ChainId): ContractRef | null {
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
-  return useReadingContract(WETH[chainId]?.address, WETH_ABI)
+  return useReadingContract(WETH[chainId]?.address, WETH_ABI, customChainId)
 }
 
 export function useArgentWalletDetectorContract(): ContractRef | null {

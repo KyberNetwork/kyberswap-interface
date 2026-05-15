@@ -2,10 +2,9 @@ import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useState } from 'react'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
-import ZAP_ABI from 'constants/abis/zap.json'
+import { ZAP_ABI, ZAP_STATIC_FEE_ABI } from 'constants/abis'
 import { useActiveWeb3React } from 'hooks'
-import { Abi, Address } from 'utils/viem'
+import { Address } from 'utils/viem'
 
 const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) => {
   const { networkInfo, chainId } = useActiveWeb3React()
@@ -18,7 +17,7 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
       : networkInfo.classic.dynamic?.zap
   ) as string | undefined
 
-  const zapAbi = (isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI) as Abi
+  const zapAbi = isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI
 
   const callZapView = useCallback(
     async (functionName: 'calculateZapInAmounts' | 'calculateZapOutAmount', args: readonly unknown[]) => {

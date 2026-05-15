@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react'
 import contractQuery from 'services/contractQuery'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { ERC20_ABI } from 'constants/abis/erc20'
+import { ERC20_ABI } from 'constants/abis'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { TokenAmountLoading } from 'state/wallet/hooks'
-import { Abi, Address } from 'utils/viem'
+import { Address } from 'utils/viem'
 
 export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
   const { account } = useActiveWeb3React()
@@ -67,7 +67,7 @@ export const fetchBalancesQuery = async ({ account, tokens, chainId }: FetchBala
   const results = await publicClient.multicall({
     contracts: tokens.map(token => ({
       address: token.wrapped.address as Address,
-      abi: ERC20_ABI as Abi,
+      abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [account],
     })),

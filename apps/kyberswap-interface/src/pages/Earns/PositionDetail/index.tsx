@@ -42,7 +42,7 @@ import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { toString } from 'utils/numbers'
-import { type Abi, type Address } from 'utils/viem'
+import { type Address } from 'utils/viem'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -268,7 +268,7 @@ const PositionDetail = () => {
     const fetchOwner = async () => {
       try {
         const nftManagerAddress = getNftManagerContractAddress(positionDexId, positionChainId)
-        const nftManagerAbi = EARN_DEXES[positionDexId].nftManagerContractAbi as Abi | null
+        const nftManagerAbi = EARN_DEXES[positionDexId].nftManagerContractAbi
         if (nftManagerAddress && nftManagerAbi) {
           const owner = (await readContract(wagmiConfig, {
             address: nftManagerAddress as Address,

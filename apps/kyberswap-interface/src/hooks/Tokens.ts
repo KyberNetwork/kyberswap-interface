@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux'
 import ksSettingApi from 'services/ksSetting'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { ERC20_ABI } from 'constants/abis/erc20'
+import { ERC20_ABI } from 'constants/abis'
 import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -20,7 +20,7 @@ import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import { escapeQuoteString } from 'utils/tokenInfo'
-import { Abi, Address, hexToString, toBytes } from 'utils/viem'
+import { Address, hexToString, toBytes } from 'utils/viem'
 
 import useDebounce from './useDebounce'
 
@@ -176,18 +176,21 @@ export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
           allowFailure: true,
           chainId: chainId as number,
           contracts: [
-            { address: address as Address, abi: ERC20_ABI as Abi, functionName: 'name' },
-            { address: address as Address, abi: ERC20_ABI as Abi, functionName: 'symbol' },
-            { address: address as Address, abi: ERC20_ABI as Abi, functionName: 'decimals' },
+            { address: address as Address, abi: ERC20_ABI, functionName: 'name' },
+            { address: address as Address, abi: ERC20_ABI, functionName: 'symbol' },
+            { address: address as Address, abi: ERC20_ABI, functionName: 'decimals' },
           ],
         })
 
-        if (results.some(r => r.status !== 'success')) {
-          console.error('ERC20 metadata multicall: one or more reads failed', results)
+        // Decimals is the only field required to construct a valid Token; tolerate
+        // legacy ERC20s missing name()/symbol() (e.g. MKR returns bytes32) and
+        // fall back to empty strings to preserve pre-migration behavior.
+        if (results[2].status !== 'success') {
+          console.error('ERC20 metadata multicall: decimals read failed', results)
           return undefined
         }
-        const name = results[0].result as string
-        const symbol = results[1].result as string
+        const name = results[0].status === 'success' ? (results[0].result as string) : ''
+        const symbol = results[1].status === 'success' ? (results[1].result as string) : ''
         const decimals = results[2].result as number
 
         return new Token(chainId, address, decimals, symbol, name)

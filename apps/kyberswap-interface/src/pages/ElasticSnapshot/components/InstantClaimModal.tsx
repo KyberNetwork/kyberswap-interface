@@ -30,7 +30,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, Address, encodeFunctionData } from 'utils/viem'
+import { Address, encodeFunctionData } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
 import InstantAbi from '../data/abis/instantClaimAbi.json'
@@ -140,7 +140,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
           if (userData[index] && contract) {
             return readContract(wagmiConfig, {
               address: contract.address as Address,
-              abi: InstantAbi as Abi,
+              abi: InstantAbi,
               functionName: 'claimed',
               args: [BigInt(userData[index]?.claimData.index ?? 0)],
               chainId: contractChainId as number,

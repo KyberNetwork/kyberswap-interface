@@ -2,7 +2,7 @@ import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { readContract } from '@wagmi/core'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import StateViewABI from 'constants/abis/earn/uniswapv4StateViewAbi.json'
+import { StateViewABI } from 'constants/abis'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { ClaimInfo } from 'pages/Earns/components/ClaimModal'
 import { EARN_CHAINS, EARN_DEXES, Exchange } from 'pages/Earns/constants'
@@ -10,7 +10,6 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import {
-  type Abi,
   type Address,
   encodeAbiParameters,
   encodeFunctionData,
@@ -64,7 +63,7 @@ const getUniv3UnclaimedFees = async ({
   chainId: number
 }) => {
   const nftManagerAddress = getNftManagerContractAddress(dex, chainId)
-  const nftManagerAbi = EARN_DEXES[dex].nftManagerContractAbi as Abi | null
+  const nftManagerAbi = EARN_DEXES[dex].nftManagerContractAbi
   if (!nftManagerAddress || !nftManagerAbi) return { balance0: 0, balance1: 0 }
 
   const owner = (await readContract(wagmiConfig, {
@@ -112,7 +111,7 @@ const getUniv4UnclaimedFees = async ({
 
   try {
     const nftPosManagerAddress = getNftManagerContractAddress(dex, chainId)
-    const nftPosManagerAbi = EARN_DEXES[dex].nftManagerContractAbi as Abi | null
+    const nftPosManagerAbi = EARN_DEXES[dex].nftManagerContractAbi
     if (!nftPosManagerAddress || !nftPosManagerAbi) return defaultBalance
 
     const positionInfo = (await readContract(wagmiConfig, {
@@ -136,7 +135,7 @@ const getUniv4UnclaimedFees = async ({
     )
     const statePositionInfo = (await readContract(wagmiConfig, {
       address: stateViewAddress as Address,
-      abi: StateViewABI as Abi,
+      abi: StateViewABI,
       functionName: 'getPositionInfo',
       args: [poolAddress as `0x${string}`, positionId],
       chainId,
@@ -147,7 +146,7 @@ const getUniv4UnclaimedFees = async ({
 
     const feeGrowthInsideCurrent = (await readContract(wagmiConfig, {
       address: stateViewAddress as Address,
-      abi: StateViewABI as Abi,
+      abi: StateViewABI,
       functionName: 'getFeeGrowthInside',
       args: [poolAddress as `0x${string}`, tickLower, tickUpper],
       chainId,
@@ -200,7 +199,7 @@ export const getUniv3CollectCallData = async ({
   if (!claimInfo || !claimInfo.dex || !recipient) return
 
   const nftManagerAddress = getNftManagerContractAddress(claimInfo.dex as Exchange, claimInfo.chainId)
-  const nftAbi = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi as Abi | null
+  const nftAbi = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi
   if (!nftManagerAddress || !nftAbi) return
 
   const tokenId = claimInfo.nftId
@@ -267,7 +266,7 @@ export const getUniv4CollectCallData = async ({
   if (!claimInfo || !recipient) return
 
   const nftManagerAddress = getNftManagerContractAddress(claimInfo.dex as Exchange, claimInfo.chainId)
-  const nftAbiForCollect = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi as Abi | null
+  const nftAbiForCollect = EARN_DEXES[claimInfo.dex as Exchange].nftManagerContractAbi
   if (!nftManagerAddress || !nftAbiForCollect) return
 
   const token0 = claimInfo.tokens[0]

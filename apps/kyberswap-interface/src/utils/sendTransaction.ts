@@ -64,7 +64,7 @@ export async function sendEVMTransaction({
   // `request()` runs `ensureNotBlacklisted` for any signing method, so we don't need a
   // separate inline check here.
   const publicClient = getPublicClient(wagmiConfig, { chainId: chainId as number })
-  const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+  const walletClient = await getGatedWalletClient({ chainId: chainId })
   if (!publicClient || !walletClient) {
     throw new Error('Wallet client unavailable for the requested chain')
   }

@@ -88,7 +88,7 @@ export default function ChooseGrantModal({
     })()
     setLoading(true)
     try {
-      const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+      const walletClient = await getGatedWalletClient({ chainId: chainId })
       if (!walletClient || !account) {
         notify({
           title: t`Error`,

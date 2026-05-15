@@ -3,13 +3,13 @@ import { getPublicClient } from '@wagmi/core'
 import { useCallback, useEffect, useState } from 'react'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import ERC20_ABI from 'constants/abis/erc20.json'
+import { ERC20_ABI } from 'constants/abis'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, Address, Hex, PublicClient, encodeFunctionData, formatEther, parseEther, parseUnits } from 'utils/viem'
+import { Address, Hex, PublicClient, encodeFunctionData, formatEther, parseEther, parseUnits } from 'utils/viem'
 
 export default function useSendToken(currency: Currency | undefined, recipient: string, amount: string) {
   const { account, chainId } = useActiveWeb3React()
@@ -40,7 +40,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
               account: account as Address,
               to: currency.wrapped.address as Address,
               data: encodeFunctionData({
-                abi: ERC20_ABI as Abi,
+                abi: ERC20_ABI,
                 functionName: 'transfer',
                 args: [recipient as Address, parseUnits(amount, currency.decimals)],
               }),
@@ -88,7 +88,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
         isNative
           ? '0x'
           : encodeFunctionData({
-              abi: ERC20_ABI as Abi,
+              abi: ERC20_ABI,
               functionName: 'transfer',
               args: [recipient as Address, parseUnits(amount, currency.decimals)],
             })

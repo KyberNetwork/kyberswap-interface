@@ -10,7 +10,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
+import { PROMM_FARM_ABI } from 'constants/abis'
 import { ELASTIC_BASE_FEE_UNIT, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -25,7 +25,7 @@ import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, encodeFunctionData } from 'utils/viem'
+import { encodeFunctionData } from 'utils/viem'
 
 import { FeeTag } from './PositionLegacy'
 
@@ -177,7 +177,7 @@ export default function FarmLegacy({
         account,
         contractAddress: farmContract.address,
         encodedData: encodeFunctionData({
-          abi: PROMM_FARM_ABI as Abi,
+          abi: PROMM_FARM_ABI,
           functionName: 'emergencyWithdraw',
           args: [nftIds],
         }),

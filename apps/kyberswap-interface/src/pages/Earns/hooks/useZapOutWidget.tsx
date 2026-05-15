@@ -120,7 +120,7 @@ const useZapOutWidget = (
             signTypedData: async (account: string, typedDataJson: string) => {
               const parsedTypedData = JSON.parse(typedDataJson)
               return signTypedDataSafe({
-                chainId: chainId as number,
+                chainId: chainId,
                 account: account.toLowerCase() as Address,
                 typedData: parsedTypedData,
               })

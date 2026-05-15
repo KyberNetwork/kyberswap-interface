@@ -104,7 +104,7 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
         return
       }
 
-      const { signature, msg } = await getOrCreateSignature(account, chainId as number)
+      const { signature, msg } = await getOrCreateSignature(account, chainId)
 
       setDelayFavorite(true)
 

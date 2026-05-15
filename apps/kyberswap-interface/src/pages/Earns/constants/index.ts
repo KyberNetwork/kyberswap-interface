@@ -22,11 +22,9 @@ import thena from 'pages/Earns/constants/dexes/thena'
 import uniswapv2 from 'pages/Earns/constants/dexes/uniswapv2'
 import uniswapv3 from 'pages/Earns/constants/dexes/uniswapv3'
 import uniswapv4 from 'pages/Earns/constants/dexes/uniswapv4'
+import { Abi } from 'utils/viem'
 
-// Loose ABI type that accepts JSON-imported ABIs without requiring viem's
-// strict literal-typed `Abi` shape. Consumers that need the strict type cast
-// via `as Abi` from `utils/viem` at the call site.
-type NftManagerAbi = readonly unknown[]
+type NftManagerAbi = Abi
 
 // Dex info
 export interface EarnDexInfo {

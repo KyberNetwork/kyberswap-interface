@@ -16,7 +16,7 @@ export default function AddLiquidityDescription(transaction: TransactionDetails)
 
   useEffect(() => {
     if (!positionId) {
-      getTokenId(chainId as number, transaction.hash, dex)
+      getTokenId(chainId, transaction.hash, dex)
         .then(id => {
           if (id) setTokenId(id.toString())
           else setTokenId(null)

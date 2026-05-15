@@ -126,7 +126,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
 
         // Step 2: Sign the typed data
         const orderSignature = await signTypedDataSafe({
-          chainId: chainId as number,
+          chainId: chainId,
           account: account as Address,
           typedData,
         })

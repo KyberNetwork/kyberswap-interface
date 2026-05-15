@@ -5,8 +5,8 @@ import { useDispatch } from 'react-redux'
 import { usePrevious } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
-import EIP_2612 from 'constants/abis/eip2612.json'
-import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PermitType } from 'constants/permit'
+import { EIP_2612 } from 'constants/abis'
+import { PermitType } from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -111,10 +111,8 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
 
     const typedData = {
       types: {
-        EIP712Domain:
-          overwritedPermitData && overwritedPermitData.type === PermitType.SALT
-            ? EIP712_DOMAIN_TYPE_SALT
-            : EIP712_DOMAIN_TYPE,
+        // EIP712Domain is omitted on purpose — viem rejects payloads that already
+        // include it (signTypedDataSafe also strips it as a defensive measure).
         Permit: [
           {
             name: 'owner',
@@ -158,7 +156,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
 
     try {
       const rawSignature = await signTypedDataSafe({
-        chainId: chainId as number,
+        chainId: chainId,
         account: account as Address,
         typedData,
       })

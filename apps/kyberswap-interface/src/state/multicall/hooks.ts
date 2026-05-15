@@ -94,9 +94,10 @@ export function useSingleCallResult(
 
   const { data, isError } = useReadContract({
     address: contract?.address,
-    abi: (abi ?? []) as Abi,
+    abi: abi ?? [],
     functionName: methodName,
     args: (argsValid ? (inputs as readonly unknown[] | undefined) : undefined) as readonly unknown[] | undefined,
+    ...(contract?.chainId !== undefined ? { chainId: contract.chainId as number } : {}),
     query: {
       enabled,
       ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : {}),
@@ -139,6 +140,7 @@ export function useSingleContractMultipleData(
       abi,
       functionName: methodName,
       args: ((args ?? []) as readonly unknown[]) || [],
+      ...(contract.chainId !== undefined ? { chainId: contract.chainId as number } : {}),
     }))
   }, [contract, abi, fnItem, methodName, validInputs])
 

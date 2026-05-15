@@ -25,7 +25,7 @@ export default function MigrateLiquidityDescription(transaction: TransactionDeta
 
   useEffect(() => {
     if (!success) return
-    getTokenId(chainId as number, transaction.hash, destinationDex)
+    getTokenId(chainId, transaction.hash, destinationDex)
       .then(id => {
         if (id) setTokenId(id.toString())
         else setTokenId(null)

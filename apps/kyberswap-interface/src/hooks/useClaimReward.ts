@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import externalApi from 'services/externalApi'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import CLAIM_REWARD_ABI from 'constants/abis/claim-reward.json'
+import { CLAIM_REWARD_ABI } from 'constants/abis'
 import { CLAIM_REWARDS_DATA_URL, NETWORKS_INFO } from 'constants/networks'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -13,7 +13,7 @@ import { useAllTransactions, useTransactionAdder } from 'state/transactions/hook
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, Address, encodeFunctionData } from 'utils/viem'
+import { Address, encodeFunctionData } from 'utils/viem'
 
 import { useReadingContract, useSigningContract } from './useContract'
 
@@ -76,7 +76,7 @@ export default function useClaimReward() {
         if (phase.reward) {
           const res = (await readContract(wagmiConfig, {
             address: rewardReadingContract.address as Address,
-            abi: CLAIM_REWARD_ABI as Abi,
+            abi: CLAIM_REWARD_ABI,
             functionName: 'getClaimedAmounts',
             args: [BigInt(phase.phaseId || 0), account || '', phase.tokens || []],
             chainId: chainId as number,
@@ -137,7 +137,7 @@ export default function useClaimReward() {
       try {
         const isValid = (await readContract(wagmiConfig, {
           address: rewardSigningContract.address as Address,
-          abi: CLAIM_REWARD_ABI as Abi,
+          abi: CLAIM_REWARD_ABI,
           functionName: 'isValidClaim',
           args: [
             BigInt(userReward.phaseId),
@@ -153,7 +153,7 @@ export default function useClaimReward() {
 
         const claimed = (await readContract(wagmiConfig, {
           address: rewardSigningContract.address as Address,
-          abi: CLAIM_REWARD_ABI as Abi,
+          abi: CLAIM_REWARD_ABI,
           functionName: 'getClaimedAmounts',
           args: [BigInt(userReward.phaseId || 0), account || '', userReward.tokens || []],
           chainId: chainId as number,
@@ -171,7 +171,7 @@ export default function useClaimReward() {
             chainId,
             contractAddress: rewardSigningContract.address,
             encodedData: encodeFunctionData({
-              abi: CLAIM_REWARD_ABI as Abi,
+              abi: CLAIM_REWARD_ABI,
               functionName: 'claim',
               args: [
                 BigInt(userReward.phaseId),

@@ -15,7 +15,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-import { Abi, Address } from 'utils/viem'
+import { Address } from 'utils/viem'
 
 import abi from '../data/abis/vestingAbi.json'
 import VestingClaimModal from './VestingClaimModal'
@@ -59,7 +59,7 @@ const Claimed = styled.div<{ width: string }>`
   height: 12px;
   left: 0;
   top: 0;
-  botton: 0;
+  bottom: 0;
   width: ${({ width }) => width};
 `
 const Unlocked = styled.div<{ width: string }>`
@@ -69,7 +69,7 @@ const Unlocked = styled.div<{ width: string }>`
   height: 12px;
   left: 0;
   top: 0;
-  botton: 0;
+  bottom: 0;
   width: ${({ width }) => width};
 `
 
@@ -127,7 +127,7 @@ export default function Vesting({
     if (contractAddress && userVestingData) {
       readContract(wagmiConfig, {
         address: contractAddress as Address,
-        abi: abi as Abi,
+        abi: abi,
         functionName: 'claimed',
         args: [BigInt(userVestingData.claimData.index)],
         chainId: ChainId.MATIC,
@@ -152,20 +152,20 @@ export default function Vesting({
       Promise.all([
         readContract(wagmiConfig, {
           address: contractAddress as Address,
-          abi: abi as Abi,
+          abi: abi,
           functionName: 'claimed',
           args: [BigInt(userVestingData.claimData.index)],
           chainId: ChainId.MATIC,
         }),
         readContract(wagmiConfig, {
           address: contractAddress as Address,
-          abi: abi as Abi,
+          abi: abi,
           functionName: 'vestingStartTime',
           chainId: ChainId.MATIC,
         }),
         readContract(wagmiConfig, {
           address: contractAddress as Address,
-          abi: abi as Abi,
+          abi: abi,
           functionName: 'vestingEndTime',
           chainId: ChainId.MATIC,
         }),

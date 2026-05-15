@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { MerklRewardsResponse, useFetchMerklChainRewardsMutation } from 'services/rewardMerkl'
 
 import { NotificationType } from 'components/Announcement/type'
-import MERKL_DISTRIBUTOR_ABI from 'constants/abis/merkl-distributor.json'
+import { MERKL_DISTRIBUTOR_ABI } from 'constants/abis'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify } from 'state/application/hooks'

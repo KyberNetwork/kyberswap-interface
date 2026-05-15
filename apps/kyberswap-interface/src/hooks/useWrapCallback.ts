@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import WETH_ABI from 'constants/abis/weth.json'
+import { WETH_ABI } from 'constants/abis'
 import { NativeCurrencies } from 'constants/tokens'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -13,7 +13,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, encodeFunctionData } from 'utils/viem'
+import { encodeFunctionData } from 'utils/viem'
 
 import { useActiveWeb3React, useWeb3React } from './index'
 
@@ -70,7 +70,7 @@ export default function useWrapCallback(
                     account,
                     contractAddress: wethAddress,
                     encodedData: encodeFunctionData({
-                      abi: WETH_ABI as Abi,
+                      abi: WETH_ABI,
                       functionName: 'deposit',
                     }),
                     value: BigInt(inputAmount.quotient.toString()),
@@ -129,7 +129,7 @@ export default function useWrapCallback(
                     account,
                     contractAddress: wethAddress,
                     encodedData: encodeFunctionData({
-                      abi: WETH_ABI as Abi,
+                      abi: WETH_ABI,
                       functionName: 'withdraw',
                       args: [BigInt(inputAmount.quotient.toString())],
                     }),

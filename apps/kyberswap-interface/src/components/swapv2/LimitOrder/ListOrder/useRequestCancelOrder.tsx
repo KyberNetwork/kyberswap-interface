@@ -12,7 +12,7 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
 import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
-import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
+import { LIMIT_ORDER_ABI } from 'constants/abis'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
@@ -23,7 +23,7 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { formatSignature } from 'utils/transaction'
 import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
-import { Abi, Address } from 'utils/viem'
+import { Address } from 'utils/viem'
 import { signTypedDataSafe } from 'utils/walletClient'
 
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from '../helpers'
@@ -44,7 +44,7 @@ const useGetEncodeLimitOrder = () => {
             getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
             readContract(wagmiConfig, {
               address: address as Address,
-              abi: LIMIT_ORDER_ABI as Abi,
+              abi: LIMIT_ORDER_ABI,
               functionName: 'nonce',
               args: [account],
               chainId: chainId as number,
@@ -163,7 +163,7 @@ const useRequestCancelOrder = ({
     const messagePayload = await createCancelSignature(cancelPayload).unwrap()
 
     const rawSignature = await signTypedDataSafe({
-      chainId: chainId as number,
+      chainId: chainId,
       account: account as Address,
       typedData: messagePayload,
     })

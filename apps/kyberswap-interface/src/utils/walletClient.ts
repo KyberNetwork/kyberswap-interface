@@ -1,10 +1,17 @@
 // eslint-disable-next-line no-restricted-imports
-import { getWalletClient } from '@wagmi/core'
+import { getAccount, getWalletClient } from '@wagmi/core'
 
 import { wagmiConfig } from 'components/Web3Provider'
 
 import { ensureNotBlacklisted } from './sendTransaction'
 import { Address } from './viem'
+
+class ChainMismatchError extends Error {
+  constructor() {
+    super('Your chain is mismatched, please make sure your wallet is switch to the expected chain.')
+    this.name = 'ChainMismatchError'
+  }
+}
 
 // EIP-1193 methods that produce a signature or broadcast a transaction. Every method
 // here goes through `walletClient.request()` under the hood in viem, so a Proxy on
@@ -41,6 +48,10 @@ export async function getGatedWalletClient(opts: { chainId: number }): Promise<W
   const originalRequest = client.request.bind(client) as WalletClient['request']
   const gatedRequest = (async (args: { method: string; params?: unknown }) => {
     if (SIGNING_METHODS.has(args.method)) {
+      const walletChainId = getAccount(wagmiConfig).chainId
+      if (walletChainId !== undefined && walletChainId !== opts.chainId) {
+        throw new ChainMismatchError()
+      }
       const account = client.account?.address as string | undefined
       if (account) await ensureNotBlacklisted(account)
     }

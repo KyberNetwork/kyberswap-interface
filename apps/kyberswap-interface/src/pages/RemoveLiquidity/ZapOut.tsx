@@ -33,8 +33,7 @@ import TransactionConfirmationModal, {
 import { wagmiConfig } from 'components/Web3Provider'
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
-import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
-import ZAP_ABI from 'constants/abis/zap.json'
+import { ZAP_ABI, ZAP_STATIC_FEE_ABI } from 'constants/abis'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -64,7 +63,7 @@ import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-import { Abi, Address, encodeFunctionData, parseSignature } from 'utils/viem'
+import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
 import { signTypedDataSafe } from 'utils/walletClient'
 
 import {
@@ -302,7 +301,7 @@ export default function ZapOut({
         : networkInfo.classic.static.zap
       : networkInfo.classic.dynamic?.zap
     if (!zapAddress) throw new Error('missing zap address')
-    const zapAbi = (isStaticFeePair && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI) as Abi
+    const zapAbi = isStaticFeePair && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI
 
     if (!currencyA || !currencyB) throw new Error('missing tokens')
     const liquidityAmount = parsedAmounts[Field.LIQUIDITY]

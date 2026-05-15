@@ -162,9 +162,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
           deadline: BigInt(permitDeadline),
         }
 
-        console.log(`Signing ${actualVersion} NFT permit`, { domain, types, message })
-
-        const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+        const walletClient = await getGatedWalletClient({ chainId: chainId })
         if (!walletClient) throw new Error('Wallet client unavailable')
         const flatSig = await walletClient.signTypedData({
           account: account.toLowerCase() as Address,
@@ -209,9 +207,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
           deadline: BigInt(permitDeadline),
         }
 
-        console.log(`Signing ${actualVersion} NFT permit`, { domain, types, message })
-
-        const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+        const walletClient = await getGatedWalletClient({ chainId: chainId })
         if (!walletClient) throw new Error('Wallet client unavailable')
         signature = await walletClient.signTypedData({
           account: account.toLowerCase() as Address,

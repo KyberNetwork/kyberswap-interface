@@ -2,10 +2,9 @@ import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
-import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
+import { ProAmmPoolStateABI } from 'constants/abis'
 import { useActiveWeb3React } from 'hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
-import { Abi } from 'utils/viem'
 
 export enum PoolState {
   LOADING = 'LOADING',
@@ -14,7 +13,7 @@ export enum PoolState {
   INVALID = 'INVALID',
 }
 
-const POOL_STATE_ABI = ProAmmPoolStateABI.abi as Abi
+const POOL_STATE_ABI = ProAmmPoolStateABI.abi
 
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][],

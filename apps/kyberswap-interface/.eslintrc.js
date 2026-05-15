@@ -90,6 +90,12 @@ module.exports = {
             message:
               'Use `getGatedWalletClient` / `signTypedDataSafe` from src/utils/walletClient.ts so the Blackjack compliance gate runs at the EIP-1193 boundary.',
           },
+          {
+            name: 'wagmi',
+            importNames: ['useWalletClient'],
+            message:
+              'Use `useGatedWalletClient` from src/hooks/useGatedWalletClient.ts so the Blackjack compliance gate runs at the EIP-1193 boundary.',
+          },
           { name: 'ethers', message: 'Use viem (see src/utils/viem.ts).' },
           { name: 'ethers/lib/utils', message: 'Use parseUnits/formatUnits/etc. from src/utils/viem.ts.' },
           { name: '@ethersproject/units', message: 'Use parseUnits/formatUnits from src/utils/viem.ts.' },

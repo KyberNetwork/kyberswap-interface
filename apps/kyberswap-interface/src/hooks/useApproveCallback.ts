@@ -6,14 +6,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import { wagmiConfig } from 'components/Web3Provider'
-import ERC20_ABI from 'constants/abis/erc20.json'
+import { ERC20_ABI } from 'constants/abis'
 import { useNotify } from 'state/application/hooks'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { friendlyError } from 'utils/errorMessage'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, Address, encodeFunctionData, maxUint256 } from 'utils/viem'
+import { Address, encodeFunctionData, maxUint256 } from 'utils/viem'
 
 import { useActiveWeb3React, useWeb3React } from './index'
 
@@ -41,7 +41,7 @@ export function useApproveCallback(
     if (!token || !account || !spender || !chainId) return
     const res = (await readContract(wagmiConfig, {
       address: token.address as Address,
-      abi: ERC20_ABI as Abi,
+      abi: ERC20_ABI,
       functionName: 'allowance',
       args: [account, spender],
       chainId: chainId as number,
@@ -108,7 +108,7 @@ export function useApproveCallback(
 
         const buildApproveData = (amount: bigint) =>
           encodeFunctionData({
-            abi: ERC20_ABI as Abi,
+            abi: ERC20_ABI,
             functionName: 'approve',
             args: [spender, amount],
           })
@@ -133,7 +133,9 @@ export function useApproveCallback(
           try {
             response = await sendApprove(BigInt(amountToApprove.quotient.toString()))
           } catch {
-            response = await sendApprove(0n)
+            // Reset allowance to 0 (some non-compliant tokens require approving 0 before
+            // a new non-zero amount). No transaction entry is added on this fallback.
+            await sendApprove(0n)
             return
           }
         }

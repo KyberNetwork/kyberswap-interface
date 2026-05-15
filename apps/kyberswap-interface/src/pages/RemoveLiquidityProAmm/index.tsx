@@ -32,9 +32,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import farmV1ABI from 'constants/abis/v2/farm.json'
-import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
-import FarmV2ABI from 'constants/abis/v2/farmv2.json'
+import { FarmV2ABI, FarmV21ABI, farmV1ABI } from 'constants/abis'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import {
   useProAmmNFTPositionManagerReadingContract,
@@ -61,7 +59,7 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-import { Abi, encodeFunctionData } from 'utils/viem'
+import { encodeFunctionData } from 'utils/viem'
 
 import {
   AmoutToRemoveContent,
@@ -295,7 +293,7 @@ function Remove({ tokenId }: { tokenId: bigint }) {
 
   const burnFromFarm = async () => {
     const contract = isFarmV21 ? farmV21Contract : isFarmV2 ? farmV2Contract : farmV1Contract
-    const abi = (isFarmV21 ? FarmV21ABI : isFarmV2 ? FarmV2ABI : farmV1ABI) as Abi
+    const abi = isFarmV21 ? FarmV21ABI : isFarmV2 ? FarmV2ABI : farmV1ABI
 
     if (
       !contract ||

@@ -14,11 +14,7 @@ import kyberDAOApi, {
 
 import { NotificationType } from 'components/Announcement/type'
 import { wagmiConfig } from 'components/Web3Provider'
-import ERC20_ABI from 'constants/abis/erc20.json'
-import DaoABI from 'constants/abis/kyberdao/dao.json'
-import MigrateABI from 'constants/abis/kyberdao/migrate.json'
-import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
-import StakingABI from 'constants/abis/kyberdao/staking.json'
+import { DaoABI, ERC20_ABI, MigrateABI, RewardDistributorABI, StakingABI } from 'constants/abis'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -37,7 +33,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, Address, encodeFunctionData, formatUnits } from 'utils/viem'
+import { Address, encodeFunctionData, formatUnits } from 'utils/viem'
 
 import { DaoInfo, EligibleTxsInfo } from './types'
 
@@ -70,7 +66,7 @@ export function useKyberDaoStakeActions() {
           account,
           contractAddress: stakingContract.address,
           encodedData: encodeFunctionData({
-            abi: StakingABI as Abi,
+            abi: StakingABI,
             functionName: 'deposit',
             args: [amount],
           }),
@@ -109,7 +105,7 @@ export function useKyberDaoStakeActions() {
           account,
           contractAddress: stakingContract.address,
           encodedData: encodeFunctionData({
-            abi: StakingABI as Abi,
+            abi: StakingABI,
             functionName: 'withdraw',
             args: [amount],
           }),
@@ -148,7 +144,7 @@ export function useKyberDaoStakeActions() {
           account,
           contractAddress: migrateContract.address,
           encodedData: encodeFunctionData({
-            abi: MigrateABI as Abi,
+            abi: MigrateABI,
             functionName: 'mintWithOldKnc',
             args: [amount],
           }),
@@ -191,7 +187,7 @@ export function useKyberDaoStakeActions() {
           account,
           contractAddress: stakingContract.address,
           encodedData: encodeFunctionData({
-            abi: StakingABI as Abi,
+            abi: StakingABI,
             functionName: 'delegate',
             args: [address],
           }),
@@ -226,7 +222,7 @@ export function useKyberDaoStakeActions() {
           account,
           contractAddress: stakingContract.address,
           encodedData: encodeFunctionData({
-            abi: StakingABI as Abi,
+            abi: StakingABI,
             functionName: 'delegate',
             args: [address],
           }),
@@ -276,7 +272,7 @@ export function useClaimVotingRewards() {
     try {
       const isValidClaim = (await readContract(wagmiConfig, {
         address: rewardDistributorReadingContract.address as Address,
-        abi: RewardDistributorABI as Abi,
+        abi: RewardDistributorABI,
         functionName: 'isValidClaim',
         args: [
           BigInt(cycle.toString()),
@@ -295,7 +291,7 @@ export function useClaimVotingRewards() {
         account,
         contractAddress: rewardDistributorSigningContract.address,
         encodedData: encodeFunctionData({
-          abi: RewardDistributorABI as Abi,
+          abi: RewardDistributorABI,
           functionName: 'claim',
           args: [
             BigInt(cycle.toString()),
@@ -363,7 +359,7 @@ export const useVotingActions = () => {
           account,
           contractAddress: daoContract.address,
           encodedData: encodeFunctionData({
-            abi: DaoABI as Abi,
+            abi: DaoABI,
             functionName: 'submitVote',
             args: [BigInt(campId), BigInt(option)],
           }),
@@ -408,7 +404,7 @@ export function useStakingInfo() {
     if (!kncContract) return
     readContract(wagmiConfig, {
       address: kncContract.address as Address,
-      abi: ERC20_ABI as Abi,
+      abi: ERC20_ABI,
       functionName: 'totalSupply',
       chainId: ChainId.MAINNET,
     })
@@ -442,7 +438,7 @@ export function useVotingInfo() {
     if (!rewardsDistributorContract) return
     readContract(wagmiConfig, {
       address: rewardsDistributorContract.address as Address,
-      abi: RewardDistributorABI as Abi,
+      abi: RewardDistributorABI,
       functionName: 'getMerkleData',
       chainId: ChainId.MAINNET,
     })
@@ -479,7 +475,7 @@ export function useVotingInfo() {
 
     readContract(wagmiConfig, {
       address: rewardsDistributorContract.address as Address,
-      abi: RewardDistributorABI as Abi,
+      abi: RewardDistributorABI,
       functionName: 'getClaimedAmounts',
       args: [account, userRewards?.userReward?.tokens],
       chainId: ChainId.MAINNET,

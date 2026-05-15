@@ -125,7 +125,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
         issuedAt: new Date().toISOString(),
       }).prepareMessage()
 
-      const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+      const walletClient = await getGatedWalletClient({ chainId: chainId })
       if (!walletClient) throw new Error('Wallet client unavailable')
       const signature = await walletClient.signMessage({
         account: account as Address,

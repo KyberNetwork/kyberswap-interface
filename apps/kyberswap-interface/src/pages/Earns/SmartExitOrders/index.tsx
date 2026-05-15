@@ -154,7 +154,7 @@ const SmartExit = () => {
       }
 
       const signature = await signTypedDataSafe({
-        chainId: chainId as number,
+        chainId: chainId,
         account: account as Address,
         typedData,
       })

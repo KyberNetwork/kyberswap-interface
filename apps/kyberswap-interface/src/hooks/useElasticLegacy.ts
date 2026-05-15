@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
+import { TickReaderABI } from 'constants/abis'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -22,7 +22,7 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent } from 'utils'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-import { Abi, Address, decodeFunctionResult, encodeFunctionData } from 'utils/viem'
+import { Address, decodeFunctionResult, encodeFunctionData } from 'utils/viem'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { PoolState, usePools } from './usePools'
@@ -264,7 +264,7 @@ export function usePositionFees(positions: Position[]) {
 
       const tryResult = (await readContract(wagmiConfig, {
         address: multicallAddress as Address,
-        abi: MULTICALL_ABI as Abi,
+        abi: MULTICALL_ABI,
         functionName: 'tryBlockAndAggregate',
         args: [false, callParams],
         chainId: chainId as number,
