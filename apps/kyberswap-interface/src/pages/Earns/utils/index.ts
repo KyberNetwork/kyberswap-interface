@@ -1,24 +1,12 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { getPublicClient } from '@wagmi/core'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { BlacklistedWalletError, ErrorName } from 'utils/transactionError'
-import { keccak256, toBytes } from 'utils/viem'
-
-// Structural shapes of the legacy ethers `Web3Provider` / `TransactionRequest`
-// used by callers still on ethers. Kept local so this module no longer needs
-// to import from `@ethersproject/*`; the actual ethers `Web3Provider` is
-// passed through to `sendEVMTransaction` (cast at the boundary).
-// Structural shape used by `submitTransaction` (signer + network) and `getTokenId`
-// (receipt only). The receipt-only callers get the narrower `ReceiptProvider` below.
-type ReceiptProvider = {
-  getTransactionReceipt: (txHash: string) => Promise<{ logs?: Array<{ topics: string[] }> } | null>
-}
-type LegacyWeb3Provider = ReceiptProvider & {
-  getSigner: () => { getAddress: () => Promise<string> }
-  getNetwork: () => Promise<{ chainId: number }>
-}
+import { Hash, keccak256, toBytes } from 'utils/viem'
 
 type LegacyTransactionRequest = {
   from?: string
@@ -28,9 +16,12 @@ type LegacyTransactionRequest = {
   gasLimit?: string | number | bigint
 }
 
-export const getTokenId = async (provider: ReceiptProvider, txHash: string, exchange: Exchange) => {
+export const getTokenId = async (chainId: number, txHash: string, exchange: Exchange) => {
   try {
-    const receipt = await provider.getTransactionReceipt(txHash)
+    const publicClient = getPublicClient(wagmiConfig, { chainId })
+    if (!publicClient) return
+
+    const receipt = await publicClient.getTransactionReceipt({ hash: txHash as Hash })
     if (!receipt || !receipt.logs) return
 
     const isUniV4 = EARN_DEXES[exchange].isForkFrom === CoreProtocol.UniswapV4
@@ -72,34 +63,30 @@ export const isWrappedNativeToken = (tokenAddress: string, chainId: keyof typeof
   WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase()
 
 export const submitTransaction = async ({
-  library,
+  account,
+  chainId,
   txData,
   onError,
   isSmartConnector = false,
 }: {
-  library?: LegacyWeb3Provider
+  account: string | undefined
+  chainId: ChainId | number | undefined
   txData: LegacyTransactionRequest
   onError?: (error: Error) => void
   isSmartConnector?: boolean
 }) => {
-  if (!library) throw new Error('Library is not ready!')
+  if (!account) throw new Error('Wallet is not connected')
+  if (!chainId) throw new Error('Chain is not ready')
   try {
-    const signer = library.getSigner()
-    const account = await signer.getAddress()
-    const network = await library.getNetwork()
     const value = txData.value ? BigInt(txData.value.toString()) : 0n
     const res = await sendEVMTransaction({
       account,
-      // `sendEVMTransaction` still expects an ethers `Web3Provider`; this
-      // module's structural shape is compatible — cast at the boundary so we
-      // can drop the `@ethersproject/providers` import.
-      library: library as Parameters<typeof sendEVMTransaction>[0]['library'],
       contractAddress: (txData.to ?? '') as string,
       encodedData: (txData.data ?? '0x') as string as `0x${string}`,
       value,
       errorInfo: { name: ErrorName.SwapError, wallet: undefined },
       isSmartConnector,
-      chainId: network.chainId as ChainId,
+      chainId: chainId as ChainId,
     })
 
     return {

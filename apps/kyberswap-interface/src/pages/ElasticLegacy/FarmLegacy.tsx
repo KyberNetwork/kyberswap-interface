@@ -126,15 +126,14 @@ export default function FarmLegacy({
 
   const addTransactionWithType = useTransactionAdder()
 
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const handleClaimRewards = async () => {
-    if (library && claimInfo && account) {
+    if (claimInfo && account) {
       try {
         setShowConfirmModal('claim')
         setAttemptingTxn(true)
         const response = await sendEVMTransaction({
           account,
-          library,
           contractAddress: claimInfo.address,
           encodedData: claimInfo.encodedData,
           value: 0n,
@@ -167,7 +166,7 @@ export default function FarmLegacy({
 
   const handleWithdraw = async () => {
     setShowConfirmModal('withdraw')
-    if (!farmContract || !account || !library) {
+    if (!farmContract || !account) {
       setErrorMessage(t`No contract found`)
       return
     }
@@ -176,7 +175,6 @@ export default function FarmLegacy({
       const nftIds = farmPositions.map(item => BigInt(item.id.toString()))
       const tx = await sendEVMTransaction({
         account,
-        library,
         contractAddress: farmContract.address,
         encodedData: encodeFunctionData({
           abi: PROMM_FARM_ABI as Abi,

@@ -75,7 +75,7 @@ const useRequestCancelOrder = ({
 }) => {
   const { setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
   const { account, chainId, networkInfo, walletKey } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
   const [createCancelSignature] = useCreateCancelOrderSignatureMutation()
@@ -84,13 +84,12 @@ const useRequestCancelOrder = ({
   const getEncodeData = useGetEncodeLimitOrder()
 
   const requestHardCancelOrder = async (order: LimitOrder | undefined) => {
-    if (!library || !account) return Promise.reject('Wrong input')
+    if (!account) return Promise.reject('Wrong input')
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
 
     const sendTransaction = async (encodedData: string, contract: string, payload: any) => {
       const response = await sendEVMTransaction({
         account,
-        library,
         contractAddress: contract,
         encodedData,
         value: 0n,
@@ -99,6 +98,7 @@ const useRequestCancelOrder = ({
           name: ErrorName.LimitOrderError,
           wallet: walletKey,
         },
+        chainId,
       })
       if (response?.hash) {
         insertCancellingOrder({
@@ -157,7 +157,7 @@ const useRequestCancelOrder = ({
   }
 
   const requestGasLessCancelOrder = async (orders: LimitOrder[]) => {
-    if (!library || !account) return Promise.reject('Wrong input')
+    if (!account) return Promise.reject('Wrong input')
     const orderIds = orders.map(e => e.id)
     const cancelPayload = { chainId: chainId.toString(), maker: account, orderIds }
     const messagePayload = await createCancelSignature(cancelPayload).unwrap()

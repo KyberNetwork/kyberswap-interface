@@ -339,7 +339,7 @@ export const useRemoveLiquidityLegacy = (
   feeRewards: Record<string, [string, string]>,
 ) => {
   const { chainId, account } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const { token0, token1, position, usd } = parsePosition(item, chainId, tokenPrices)
   const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[item.id]?.[0] || '0')
@@ -364,7 +364,7 @@ export const useRemoveLiquidityLegacy = (
   const removeLiquidity = (collectFee: boolean) => {
     setShowPendingModal('removeLiquidity')
     setAttemptingTxn(true)
-    if (!deadline || !account || !library) {
+    if (!deadline || !account) {
       setRemoveLiquidityError('Something went wrong!')
       return
     }
@@ -389,7 +389,6 @@ export const useRemoveLiquidityLegacy = (
 
     sendEVMTransaction({
       account,
-      library,
       contractAddress: config[chainId].positionManagerContract,
       encodedData: calldata as `0x${string}`,
       value: BigInt(value),
@@ -431,7 +430,7 @@ export const useRemoveLiquidityLegacy = (
     setShowPendingModal('collectFee')
     setAttemptingTxn(true)
 
-    if (!feeValue0 || !feeValue1 || !account || !library || !deadline) {
+    if (!feeValue0 || !feeValue1 || !account || !deadline) {
       setAttemptingTxn(false)
       setRemoveLiquidityError('Something went wrong!')
       return
@@ -450,7 +449,6 @@ export const useRemoveLiquidityLegacy = (
 
     sendEVMTransaction({
       account,
-      library,
       contractAddress: config[chainId].positionManagerContract,
       encodedData: calldata as `0x${string}`,
       value: BigInt(value),

@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
@@ -63,22 +62,7 @@ export const shortenHash = (hash: string, chars = 3): string => {
 
 /**
  * Add a margin amount equal to max of 20000 or 20% of estimatedGas
- * total = estimate + max(20k, 20% * estimate)
- *
- * @param value BigNumber
- * @returns BigNumber
- */
-export function calculateGasMargin(value: BigNumber, chainId?: ChainId): BigNumber {
-  const defaultGasLimitMargin = BigNumber.from(DEFAULT_GAS_LIMIT_MARGIN)
-  const needHigherGas = [ChainId.MATIC, ChainId.OPTIMISM].includes(chainId as ChainId)
-  const gasMargin = value.mul(BigNumber.from(needHigherGas ? 5000 : 2000)).div(BigNumber.from(10000))
-
-  return gasMargin.gte(defaultGasLimitMargin) ? value.add(gasMargin) : value.add(defaultGasLimitMargin)
-}
-
-/**
- * Native-bigint variant of `calculateGasMargin`. Matches the formula
- * `total = estimate + max(20k, 20% * estimate)` (50% on Polygon and Optimism).
+ * total = estimate + max(20k, 20% * estimate) (50% on Polygon and Optimism).
  */
 export function calculateGasMarginBigInt(value: bigint, chainId?: ChainId): bigint {
   const defaultGasLimitMargin = BigInt(DEFAULT_GAS_LIMIT_MARGIN)

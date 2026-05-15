@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 
 import { DeltaNft } from 'components/WalletPopup/Transactions/DeltaTokenAmount'
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { getTokenId } from 'pages/Earns/utils'
 import { EarnMigrateLiquidityExtraInfo, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 
 export default function MigrateLiquidityDescription(transaction: TransactionDetails) {
-  const { library } = useWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { extraInfo = {} } = transaction
   const {
     sourcePool,
@@ -24,15 +24,14 @@ export default function MigrateLiquidityDescription(transaction: TransactionDeta
   const { success } = getTransactionStatus(transaction)
 
   useEffect(() => {
-    if (library) {
-      getTokenId(library, transaction.hash, destinationDex)
-        .then(id => {
-          if (id) setTokenId(id.toString())
-          else setTokenId(null)
-        })
-        .catch(error => console.log('failed to get token id', error))
-    }
-  }, [library, transaction.hash, destinationDex])
+    if (!success) return
+    getTokenId(chainId as number, transaction.hash, destinationDex)
+      .then(id => {
+        if (id) setTokenId(id.toString())
+        else setTokenId(null)
+      })
+      .catch(error => console.log('failed to get token id', error))
+  }, [chainId, transaction.hash, destinationDex, success])
 
   return !success ? null : (
     <>

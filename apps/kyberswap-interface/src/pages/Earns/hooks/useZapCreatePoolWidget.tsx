@@ -34,7 +34,7 @@ const useZapCreatePoolWidget = () => {
   const toggleWalletModal = useWalletModalToggle()
   const { account, chainId: connectedChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const navigate = useNavigate()
   const addTransactionWithType = useTransactionAdder()
 
@@ -52,14 +52,14 @@ const useZapCreatePoolWidget = () => {
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, config: CreateConfig) => {
-      if (!library || !config) return
+      if (!config) return
       const poolAddress = await fetchExistingPoolAddress(config)
 
       if (!poolAddress) return
 
-      navigateToPositionAfterZap(library, txHash, config.chainId, config.protocol, poolAddress, navigate)
+      navigateToPositionAfterZap(txHash, config.chainId, config.protocol, poolAddress, navigate)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const widgetProps = useMemo(() => {
@@ -108,7 +108,7 @@ const useZapCreatePoolWidget = () => {
                 dexName?: string
               },
         ) => {
-          const res = await submitTransaction({ library, txData, isSmartConnector })
+          const res = await submitTransaction({ account, chainId: connectedChainId, txData, isSmartConnector })
           const { txHash, error } = res
 
           if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
@@ -162,7 +162,6 @@ const useZapCreatePoolWidget = () => {
     defaultRpc,
     handleClose,
     handleNavigateToPosition,
-    library,
     isSmartConnector,
     locale,
     originalToCurrentHash,

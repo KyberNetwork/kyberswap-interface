@@ -6,7 +6,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'
-import { usePaymentToken, useUserSlippageTolerance } from 'state/user/hooks'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ChargeFeeBy } from 'types/route'
 import { isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
@@ -17,7 +17,7 @@ import { ErrorName } from 'utils/transactionError'
 // and the user has approved the slippage adjusted input amount for the trade
 const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   const { account, chainId, networkInfo } = useActiveWeb3React()
-  const { library, connector, isSmartConnector } = useWeb3React()
+  const { connector, isSmartConnector } = useWeb3React()
   const walletKey = connector?.name
 
   const { recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
@@ -116,8 +116,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     [addTransactionWithType, getSwapData],
   )
 
-  const [paymentToken] = usePaymentToken()
-
   const swapCallbackForEVM = useCallback(
     async (routerAddress: string | undefined, encodedSwapData: string | undefined) => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
@@ -127,7 +125,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
 
       const response = await sendEVMTransaction({
         account,
-        library,
         contractAddress: routerAddress,
         encodedData: encodedSwapData,
         value,
@@ -137,13 +134,12 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           wallet: walletKey,
         },
         chainId,
-        paymentToken: paymentToken?.address,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
       handleSwapResponse(response)
       return response?.hash
     },
-    [account, chainId, handleSwapResponse, inputAmount, library, walletKey, paymentToken?.address, isSmartConnector],
+    [account, chainId, handleSwapResponse, inputAmount, walletKey, isSmartConnector],
   )
 
   return swapCallbackForEVM

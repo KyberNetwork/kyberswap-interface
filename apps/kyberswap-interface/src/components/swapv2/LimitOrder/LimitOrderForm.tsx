@@ -34,7 +34,7 @@ import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useTokenAllowance } from 'data/Allowances'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -232,7 +232,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const [customDateExpire, setCustomDateExpire] = useState<Date | undefined>(defaultExpire)
 
   const [approvalSubmitted, setApprovalSubmitted] = useState(false)
-  const { library } = useWeb3React()
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
@@ -592,7 +591,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
     try {
       const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
-      if (!library || !currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
+      if (!currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
         throw new Error('wrong input')
       }
 

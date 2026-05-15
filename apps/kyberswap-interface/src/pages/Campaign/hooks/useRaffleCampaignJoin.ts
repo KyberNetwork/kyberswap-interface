@@ -8,7 +8,7 @@ import {
 import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Address } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
@@ -63,7 +63,6 @@ export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
-  const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
 
   const [joinCampaign] = useJoinRaffleCampaignMutation()
@@ -92,14 +91,6 @@ export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
   const onJoin = useCallback(async () => {
     if (!account) {
       toggleWalletModal()
-      return
-    }
-    if (!library) {
-      notify({
-        title: t`Unable to access wallet`,
-        summary: t`Please reconnect your wallet and try again.`,
-        type: NotificationType.ERROR,
-      })
       return
     }
 
@@ -143,7 +134,6 @@ export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
     account,
     chainId,
     joinCampaign,
-    library,
     selectedWeek,
     notify,
     refetchParticipant,

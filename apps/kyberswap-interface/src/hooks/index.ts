@@ -1,9 +1,7 @@
-import { Web3Provider } from '@ethersproject/providers'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
-import blackjackApi from 'services/blackjack'
 import { useAccount as useAccountWagmi } from 'wagmi'
 
 import { SMART_WALLETS } from 'components/Web3Provider'
@@ -12,26 +10,11 @@ import { isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { useAccount } from 'hooks/useAccount'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { useEthersProvider } from 'hooks/useEthersProvider'
-import store, { AppState } from 'state'
+import { AppState } from 'state'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { isInSafeApp } from 'utils'
-import { BlacklistedWalletError } from 'utils/transactionError'
 
 import useDisconnectWallet from './web3/useDisconnectWallet'
-
-const SIGNING_METHODS = new Set([
-  'eth_sendTransaction',
-  'eth_sendRawTransaction',
-  'eth_signTransaction',
-  'eth_sign',
-  'personal_sign',
-  'eth_signTypedData',
-  'eth_signTypedData_v1',
-  'eth_signTypedData_v3',
-  'eth_signTypedData_v4',
-  'wallet_sendCalls',
-])
 
 export function useActiveWeb3React(): {
   chainId: ChainId
@@ -67,62 +50,7 @@ export function useActiveWeb3React(): {
 
 export function useWeb3React() {
   const account = useAccount()
-  const kyberChainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
-  const provider = useEthersProvider({ chainId: account.chainId })
-
-  const latestChainIdRef = useRef(account.chainId)
   const [isAcceptedTerm] = useIsAcceptedTerm()
-
-  useEffect(() => {
-    latestChainIdRef.current = account.chainId
-  }, [account.chainId])
-
-  const wrappedProvider = useMemo(
-    () =>
-      provider
-        ? new Proxy(provider, {
-            get(target, prop) {
-              if (prop === 'send') {
-                return async (...params: any[]) => {
-                  const method = params[0]
-
-                  if (method === 'eth_chainId') {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    return target[prop](...params)
-                  }
-
-                  if (kyberChainId !== account.chainId) {
-                    throw new Error(
-                      'Your chain is mismatched, please make sure your wallet is switch to the expected chain.',
-                    )
-                  }
-
-                  if (SIGNING_METHODS.has(method)) {
-                    try {
-                      const res = await store.dispatch(
-                        blackjackApi.endpoints.checkBlackjack.initiate(account.address || ''),
-                      )
-                      if (res?.data?.blacklisted) throw new BlacklistedWalletError()
-                    } catch (err) {
-                      if (err instanceof BlacklistedWalletError) throw err
-                      // Fail-open: if Blackjack is unreachable (network error, blocked by
-                      // browser extension, CORS), don't block the user's transaction.
-                      console.warn('Blackjack check skipped due to network error', err)
-                    }
-                  }
-
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  return target[prop](...params)
-                }
-              }
-              return target[prop as unknown as keyof Web3Provider]
-            },
-          })
-        : provider,
-    [account.chainId, account.address, kyberChainId, provider],
-  )
 
   const disconnect = useDisconnectWallet()
   useEffect(() => {
@@ -136,12 +64,10 @@ export function useWeb3React() {
     () => ({
       account: account.address,
       chainId: account.chainId,
-      provider: wrappedProvider,
-      library: wrappedProvider,
       connector: account.connector,
       active: account.address !== undefined,
       isSmartConnector: SMART_WALLETS.includes(account.connector?.id),
     }),
-    [account.address, account.chainId, account.connector, wrappedProvider],
+    [account.address, account.chainId, account.connector],
   )
 }

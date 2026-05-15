@@ -44,7 +44,7 @@ export default function ProAmmFee({
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
   const { account, chainId } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const theme = useTheme()
   const token0Shown = feeValue0?.currency || position.pool.token0
   const token1Shown = feeValue1?.currency || position.pool.token1
@@ -100,7 +100,7 @@ export default function ProAmmFee({
     setShowPendingModal(true)
     setAttemptingTxn(true)
 
-    if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !library || !deadline || !layout) {
+    if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !deadline || !layout) {
       setAttemptingTxn(false)
       setCollectFeeError('Something went wrong!')
       return
@@ -124,7 +124,6 @@ export default function ProAmmFee({
     try {
       const response = await sendEVMTransaction({
         account,
-        library,
         contractAddress: positionManager.address,
         encodedData: calldata as `0x${string}`,
         value: BigInt(value),

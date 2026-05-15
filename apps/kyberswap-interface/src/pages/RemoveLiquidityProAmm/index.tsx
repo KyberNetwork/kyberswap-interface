@@ -157,7 +157,7 @@ function Remove({ tokenId }: { tokenId: bigint }) {
 
   const { networkInfo, account, chainId } = useActiveWeb3React()
 
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
@@ -304,8 +304,7 @@ function Remove({ tokenId }: { tokenId: bigint }) {
       !deadline ||
       !positionSDK ||
       !liquidityPercentage ||
-      !account ||
-      !library
+      !account
     ) {
       return
     }
@@ -350,7 +349,6 @@ function Remove({ tokenId }: { tokenId: bigint }) {
 
       const tx = await sendEVMTransaction({
         account,
-        library,
         contractAddress: contract.address,
         encodedData: encodeFunctionData({
           abi,
@@ -384,8 +382,7 @@ function Remove({ tokenId }: { tokenId: bigint }) {
       !feeValue0 ||
       !feeValue1 ||
       !positionSDK ||
-      !liquidityPercentage ||
-      !library
+      !liquidityPercentage
     ) {
       setAttemptingTxn(false)
       setRemoveLiquidityError('Some things went wrong')
@@ -412,7 +409,6 @@ function Remove({ tokenId }: { tokenId: bigint }) {
     })
     sendEVMTransaction({
       account,
-      library,
       contractAddress: positionManager.address,
       encodedData: calldata as `0x${string}`,
       value: BigInt(value),

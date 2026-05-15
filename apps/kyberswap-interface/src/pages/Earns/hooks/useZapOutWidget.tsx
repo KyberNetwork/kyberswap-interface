@@ -65,7 +65,7 @@ const useZapOutWidget = (
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
@@ -117,16 +117,14 @@ const useZapOutWidget = (
             ...zapOutPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapOutRpcUrl,
-            signTypedData: library
-              ? async (account: string, typedDataJson: string) => {
-                  const parsedTypedData = JSON.parse(typedDataJson)
-                  return signTypedDataSafe({
-                    chainId: chainId as number,
-                    account: account.toLowerCase() as Address,
-                    typedData: parsedTypedData,
-                  })
-                }
-              : undefined,
+            signTypedData: async (account: string, typedDataJson: string) => {
+              const parsedTypedData = JSON.parse(typedDataJson)
+              return signTypedDataSafe({
+                chainId: chainId as number,
+                account: account.toLowerCase() as Address,
+                typedData: parsedTypedData,
+              })
+            },
             referral: refCode,
             connectedAccount: {
               address: account,
@@ -173,7 +171,7 @@ const useZapOutWidget = (
                   },
             ) => {
               const isManualRemove = zapOutPureParams.mode === 'withdrawOnly'
-              const res = await submitTransaction({ library, txData, isSmartConnector })
+              const res = await submitTransaction({ account, chainId, txData, isSmartConnector })
               const { txHash, error } = res
               if (!txHash || error) {
                 trackingHandler(
@@ -260,7 +258,6 @@ const useZapOutWidget = (
     [
       zapOutPureParams,
       zapOutRpcUrl,
-      library,
       isSmartConnector,
       refCode,
       account,

@@ -45,7 +45,7 @@ export default function VestingClaimModal({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const [signing, setSigning] = useState(false)
   const notify = useNotify()
@@ -69,7 +69,7 @@ export default function VestingClaimModal({
     setSigning(true)
 
     try {
-      if (!account || !library) throw new Error('Wallet not connected')
+      if (!account) throw new Error('Wallet not connected')
 
       const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
       if (!walletClient) throw new Error('Wallet client unavailable')
@@ -112,7 +112,6 @@ export default function VestingClaimModal({
 
       const tx = await sendEVMTransaction({
         account,
-        library,
         contractAddress,
         encodedData,
         value: 0n,
@@ -140,7 +139,6 @@ export default function VestingClaimModal({
     }
   }, [
     account,
-    library,
     isSmartConnector,
     notify,
     addTransactionWithType,

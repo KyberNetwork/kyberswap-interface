@@ -9,7 +9,6 @@ import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { sendEVMTransaction } from 'utils/sendTransaction'
@@ -44,8 +43,7 @@ export default function useWrapCallback(
   allowUnwrap?: boolean
 } {
   const { chainId: walletChainId, account } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
-  const [paymentToken] = usePaymentToken()
+  const { isSmartConnector } = useWeb3React()
   const chainId = customChainId || walletChainId
   const wethAddress = WETH[chainId]?.address
   const balance = useCurrencyBalance(inputCurrency ?? undefined, chainId)
@@ -70,7 +68,6 @@ export default function useWrapCallback(
                 try {
                   const txReceipt = await sendEVMTransaction({
                     account,
-                    library,
                     contractAddress: wethAddress,
                     encodedData: encodeFunctionData({
                       abi: WETH_ABI as Abi,
@@ -80,7 +77,6 @@ export default function useWrapCallback(
                     errorInfo: { name: ErrorName.SwapError, wallet: undefined },
                     isSmartConnector,
                     chainId,
-                    paymentToken: paymentToken?.address,
                   })
                   const hash = txReceipt?.hash
                   if (hash) {
@@ -131,7 +127,6 @@ export default function useWrapCallback(
                 try {
                   const txReceipt = await sendEVMTransaction({
                     account,
-                    library,
                     contractAddress: wethAddress,
                     encodedData: encodeFunctionData({
                       abi: WETH_ABI as Abi,
@@ -142,7 +137,6 @@ export default function useWrapCallback(
                     errorInfo: { name: ErrorName.SwapError, wallet: undefined },
                     isSmartConnector,
                     chainId,
-                    paymentToken: paymentToken?.address,
                   })
                   const hash = txReceipt?.hash
                   if (hash) {
@@ -197,8 +191,6 @@ export default function useWrapCallback(
     forceWrap,
     notify,
     account,
-    paymentToken?.address,
-    library,
     isSmartConnector,
   ])
 }

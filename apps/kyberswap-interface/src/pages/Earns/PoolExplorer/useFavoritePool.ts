@@ -2,10 +2,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { EarnPool, ParsedEarnPool } from 'pages/Earns/types'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 const FAVORITE_DELAY_MS = 500
 const FAVORITE_EXPIRE_DAYS = 7
@@ -21,8 +23,7 @@ const getPoolKey = (pool: EarnPool) => {
 const getSessionStorageKey = (account: string) => `${SESSION_STORAGE_FAVORITE_KEY_PREFIX}${account.toLowerCase()}`
 
 const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
   const toggleWalletModal = useWalletModalToggle()
@@ -103,7 +104,7 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
         return
       }
 
-      const { signature, msg } = await getOrCreateSignature(account, library)
+      const { signature, msg } = await getOrCreateSignature(account, chainId as number)
 
       setDelayFavorite(true)
 
@@ -191,7 +192,7 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
 
 export default useFavoritePool
 
-const getOrCreateSignature = async (account: string, library: any) => {
+const getOrCreateSignature = async (account: string, chainId: number) => {
   const key = `${SESSION_STORAGE_KEY_PREFIX}${account}`
 
   try {
@@ -210,7 +211,12 @@ const getOrCreateSignature = async (account: string, library: any) => {
 
   const issuedAt = new Date().toISOString()
   const msg = FAVORITE_MESSAGE_TEMPLATE.replace('{issuedAt}', issuedAt)
-  const signature = await library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account])
+  const walletClient = await getGatedWalletClient({ chainId })
+  if (!walletClient) throw new Error('Wallet client unavailable')
+  const signature = (await (walletClient as any).signMessage({
+    account: account as Address,
+    message: msg,
+  })) as string
 
   sessionStorage.setItem(key, JSON.stringify({ signature, msg, issuedAt }))
   return { signature, msg }

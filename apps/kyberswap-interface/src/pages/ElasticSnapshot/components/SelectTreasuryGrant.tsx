@@ -18,7 +18,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { VerticalDivider } from 'pages/About/styleds'
@@ -102,12 +102,11 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
   const [isKyc, setIsKyc] = useState(false)
   const [loadingZkme, setLoading] = useState(false)
 
-  const { library } = useWeb3React()
   const [getAccessTokenQuery] = useLazyGetAccessTokensQuery()
 
   const provider: Provider | null = useMemo(
     () =>
-      library && account && chainId === ChainId.MATIC
+      account && chainId === ChainId.MATIC
         ? {
             async getAccessToken() {
               // Request a new token from your backend service and return it to the widget
@@ -134,7 +133,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
             },
           }
         : null,
-    [library, account, getAccessTokenQuery, chainId],
+    [account, getAccessTokenQuery, chainId],
   )
 
   const zkMe = useMemo(() => {

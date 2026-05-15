@@ -92,7 +92,7 @@ const snapshotPrices: { [key: string]: number } = {
 export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () => void; phase: '1' | '2' | '2.5' }) {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const polygonContractAddress =
     phase === '2' ? phase2ContractAddress : phase === '2.5' ? phase2_5ContractAddress : contractAddress
@@ -195,7 +195,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
     setSigning(true)
 
     try {
-      if (!account || !library || !selectedNetworkToClaim) throw new Error('Wallet not connected')
+      if (!account || !selectedNetworkToClaim) throw new Error('Wallet not connected')
 
       const verifyingContract = (phase !== '1' ? polygonContractAddress : contractAddress) as Address
       const walletClient = await getGatedWalletClient({ chainId: selectedNetworkToClaim })
@@ -244,7 +244,6 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
 
       const tx = await sendEVMTransaction({
         account,
-        library,
         contractAddress: verifyingContract,
         encodedData,
         value: 0n,
@@ -276,7 +275,6 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
     contractAddress,
     ipfsLink,
     account,
-    library,
     isSmartConnector,
     selectedNetworkToClaim,
     userData,

@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
@@ -46,7 +46,6 @@ const NFT_PERMIT_ABI = parseAbi([
 
 export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, version = 'auto' }: PermitNftParams) => {
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
   const notify = useNotify()
   const [isSigningInProgress, setIsSigningInProgress] = useState(false)
   const [permitData, setPermitData] = useState<PermitNftResult | null>(null)
@@ -98,7 +97,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
   }, [actualVersion, positionsState?.result])
 
   const signPermitNft = useCallback(async (): Promise<PermitNftResult | null> => {
-    if (!library || !account || !chainId || !nameState?.result?.[0]) {
+    if (!account || !chainId || !nameState?.result?.[0]) {
       console.error('Missing required data for NFT permit')
       return null
     }
@@ -263,7 +262,6 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
   }, [
     account,
     chainId,
-    library,
     contractAddress,
     tokenId,
     spender,

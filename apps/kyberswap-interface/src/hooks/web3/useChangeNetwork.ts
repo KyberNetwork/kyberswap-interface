@@ -12,13 +12,14 @@ import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 import { friendlyError } from 'utils/errorMessage'
 import { wait } from 'utils/retry'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 //import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
 
 let latestChainId: number | undefined
 export function useChangeNetwork() {
   const { isWrongNetwork, chainId: kyberChainId } = useActiveWeb3React()
-  const { chainId, active, library } = useWeb3React()
+  const { chainId, active } = useWeb3React()
   //const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
@@ -110,7 +111,7 @@ export function useChangeNetwork() {
       customFailureCallback?: (error: Error) => void,
       waitUtilUpdatedChainId = false,
     ) => {
-      if (!library?.provider?.request) return
+      if (!chainId) return
       const wrappedSuccessCallback = () => {
         successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
       }
@@ -129,9 +130,11 @@ export function useChangeNetwork() {
 
       const errors: Error[] = []
       try {
-        await library?.provider?.request({
-          method: 'wallet_addEthereumChain',
-          params: [addChainParameter],
+        const walletClient = await getGatedWalletClient({ chainId })
+        if (!walletClient) throw new Error('Wallet client unavailable')
+        await walletClient.request({
+          method: 'wallet_addEthereumChain' as any,
+          params: [addChainParameter] as any,
         })
         wrappedSuccessCallback()
         return
@@ -145,7 +148,7 @@ export function useChangeNetwork() {
 
       failureCallback(desiredChainId, errors.at(-1), customFailureCallback, customTexts)
     },
-    [failureCallback, library?.provider, successCallback],
+    [chainId, failureCallback, successCallback],
   )
 
   const changeNetwork = useCallback(

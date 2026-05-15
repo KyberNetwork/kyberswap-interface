@@ -13,7 +13,7 @@ import { Abi, Address, Hex, encodeFunctionData, formatEther, parseEther, parseUn
 
 export default function useSendToken(currency: Currency | undefined, recipient: string, amount: string) {
   const { account, chainId } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const [estimateGas, setGasFee] = useState<number | null>(null)
   const addTransactionWithType = useTransactionAdder()
   const [isSending, setIsSending] = useState(false)
@@ -77,7 +77,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
 
   const sendTokenEvm = useCallback(async () => {
     try {
-      if (!account || !library || !amount || !recipient || !currency) {
+      if (!account || !amount || !recipient || !currency) {
         return Promise.reject('wrong input')
       }
       setIsSending(true)
@@ -95,7 +95,6 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
       ) as Hex
       const transaction = await sendEVMTransaction({
         account,
-        library,
         contractAddress,
         encodedData,
         value,
@@ -110,7 +109,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
       throw error
     }
     return
-  }, [amount, account, currency, library, recipient, isSmartConnector, chainId, addTransaction])
+  }, [amount, account, currency, recipient, isSmartConnector, chainId, addTransaction])
 
   return { sendToken: sendTokenEvm, isSending, estimateGas }
 }

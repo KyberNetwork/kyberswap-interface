@@ -50,7 +50,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   const allTransactions = useAllTransactions(true)
 
   const { account, chainId } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { supportedChains } = useChainsConfig()
   const { filters } = useFilter()
   const { refetchAfterCollect } = props ?? {}
@@ -212,7 +212,8 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     const { calldata, contractAddress } = encodeData.data
 
     const res = await submitTransaction({
-      library,
+      account,
+      chainId,
       isSmartConnector,
       txData: {
         to: contractAddress,
@@ -245,7 +246,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           .join(', ')}`,
       },
     })
-  }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, isSmartConnector, library, notify])
+  }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, isSmartConnector, notify])
 
   const handleClaimAll = useCallback(async () => {
     if (!account || !chainId || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) return
@@ -277,7 +278,8 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     const { calldata, contractAddress } = encodeData.data
 
     const res = await submitTransaction({
-      library,
+      account,
+      chainId,
       isSmartConnector,
       txData: {
         to: contractAddress,
@@ -311,16 +313,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           .join(', ')}`,
       },
     })
-  }, [
-    account,
-    addTransactionWithType,
-    batchClaimEncodeData,
-    chainId,
-    filteredRewardInfo,
-    isSmartConnector,
-    library,
-    notify,
-  ])
+  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, filteredRewardInfo, isSmartConnector, notify])
 
   const onOpenClaim = (position?: ParsedPosition) => {
     if (!position) return

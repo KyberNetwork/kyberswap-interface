@@ -14,7 +14,8 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { permitUpdate } from 'state/swap/actions'
 import { usePermitData } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
-import { encodeAbiParameters, parseAbiParameters, parseSignature, parseUnits, toHex } from 'utils/viem'
+import { Address, encodeAbiParameters, parseAbiParameters, parseSignature, parseUnits, toHex } from 'utils/viem'
+import { signTypedDataSafe } from 'utils/walletClient'
 
 import { useReadingContract } from './useContract'
 import useTracking, { TRACKING_EVENT_TYPE } from './useTracking'
@@ -31,7 +32,7 @@ export enum PermitState {
 export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddress?: string) => {
   const currency = currencyAmount?.currency.wrapped
   const { account, chainId } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const dispatch = useDispatch()
   const notify = useNotify()
   const eipContract = useReadingContract(currency?.address, EIP_2612)
@@ -93,7 +94,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     }
   }, [permitData?.errorCount, notify, trackingHandler, currency, prevErrorCount])
   const signPermitCallback = useCallback(async (): Promise<void> => {
-    if (!library || !routerAddress || !currency || !account || !overwritedPermitData || !tokenNonceState?.result?.[0]) {
+    if (!routerAddress || !currency || !account || !overwritedPermitData || !tokenNonceState?.result?.[0]) {
       return
     }
     if (permitState !== PermitState.NOT_SIGNED) {
@@ -108,7 +109,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       deadline,
     }
 
-    const data = JSON.stringify({
+    const typedData = {
       types: {
         EIP712Domain:
           overwritedPermitData && overwritedPermitData.type === PermitType.SALT
@@ -153,12 +154,15 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
             },
       primaryType: 'Permit',
       message: message,
-    })
+    }
 
     try {
-      const signature = await library
-        .send('eth_signTypedData_v4', [account.toLowerCase(), data])
-        .then((res: `0x${string}`) => parseSignature(res))
+      const rawSignature = await signTypedDataSafe({
+        chainId: chainId as number,
+        account: account as Address,
+        typedData,
+      })
+      const signature = parseSignature(rawSignature as `0x${string}`)
       const encodedPermitData = encodeAbiParameters(
         parseAbiParameters('address, address, uint256, uint256, uint8, bytes32, bytes32'),
         [
@@ -200,7 +204,6 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     currency,
     currencyAmount,
     dispatch,
-    library,
     notify,
     overwritedPermitData,
     permitState,

@@ -94,7 +94,7 @@ const useCompounding = ({
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
@@ -109,8 +109,6 @@ const useCompounding = ({
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, poolType: CompoundingPoolType, poolId: string, tokenId: number) => {
-      if (!library) return
-
       const dexIndex = Object.values(compoundingDexMapping).findIndex(
         (item, index) => item === poolType && EARN_DEXES[Object.keys(compoundingDexMapping)[index] as Exchange],
       )
@@ -120,9 +118,9 @@ const useCompounding = ({
       }
       const dex = Object.keys(compoundingDexMapping)[dexIndex]
 
-      navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate, tokenId)
+      navigateToPositionAfterZap(txHash, chainId, dex, poolId, navigate, tokenId)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const handleOpenCompounding = useCallback(
@@ -193,7 +191,12 @@ const useCompounding = ({
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData, isSmartConnector })
+              const res = await submitTransaction({
+                account,
+                chainId: compoundingPureParams.chainId,
+                txData,
+                isSmartConnector,
+              })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
@@ -257,7 +260,6 @@ const useCompounding = ({
       handleCloseCompounding,
       handleNavigateToPosition,
       locale,
-      library,
       isSmartConnector,
       onRefreshPosition,
       toggleWalletModal,

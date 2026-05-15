@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
@@ -19,7 +19,6 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
   const { account, chainId } = useActiveWeb3React()
   const [claiming, setIsClaiming] = useState(false)
   const notify = useNotify()
-  const { library } = useWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [autoClaim, setAutoClaim] = useState(false)
 
@@ -62,7 +61,6 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
 
         sendEVMTransaction({
           account,
-          library,
           contractAddress: res.data.ContractAddress,
           encodedData: res.data.EncodedData,
           value: 0n,
@@ -92,17 +90,7 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
             setIsClaiming(false)
           })
       })
-  }, [
-    chainId,
-    library,
-    changeNetwork,
-    addTransactionWithType,
-    info.ref,
-    info.clientCode,
-    notify,
-    account,
-    networkToSwitch,
-  ])
+  }, [chainId, changeNetwork, addTransactionWithType, info.ref, info.clientCode, notify, account, networkToSwitch])
 
   useEffect(() => {
     if (autoClaim && chainId === networkToSwitch) {

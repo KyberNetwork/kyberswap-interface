@@ -52,7 +52,8 @@ import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-import { Abi, encodeFunctionData, parseSignature } from 'utils/viem'
+import { Abi, Address, encodeFunctionData, parseSignature } from 'utils/viem'
+import { signTypedDataSafe } from 'utils/walletClient'
 
 import {
   CurrentPriceWrapper,
@@ -77,7 +78,7 @@ export default function TokenPair({
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
   const { account, chainId, networkInfo } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const nativeA = currencyA as Currency
   const nativeB = currencyB as Currency
@@ -148,7 +149,7 @@ export default function TokenPair({
 
   async function onAttemptToApprove() {
     if (!chainId) throw new Error('missing chain')
-    if (!pairContract || !pair || !library || !deadline) throw new Error('missing dependencies')
+    if (!pairContract || !pair || !deadline) throw new Error('missing dependencies')
     const liquidityAmount = parsedAmounts[Field.LIQUIDITY]
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
@@ -185,7 +186,7 @@ export default function TokenPair({
       nonce: `0x${nonce.toString(16)}`,
       deadline: Number(deadline),
     }
-    const data = JSON.stringify({
+    const typedData = {
       types: {
         EIP712Domain,
         Permit,
@@ -193,20 +194,21 @@ export default function TokenPair({
       domain,
       primaryType: 'Permit',
       message,
-    })
+    }
 
     try {
-      await library
-        .send('eth_signTypedData_v4', [account, data])
-        .then((res: `0x${string}`) => parseSignature(res))
-        .then(signature => {
-          setSignatureData({
-            v: Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
-            r: signature.r,
-            s: signature.s,
-            deadline: Number(deadline),
-          })
-        })
+      const rawSignature = await signTypedDataSafe({
+        chainId: chainId as number,
+        account: account as Address,
+        typedData,
+      })
+      const signature = parseSignature(rawSignature as `0x${string}`)
+      setSignatureData({
+        v: Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
+        r: signature.r,
+        s: signature.s,
+        deadline: Number(deadline),
+      })
     } catch (error) {
       if (didUserReject(error)) {
         notify(
@@ -248,7 +250,7 @@ export default function TokenPair({
   // tx sending
   const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
-    if (!library || !account || !deadline) throw new Error('missing dependencies')
+    if (!account || !deadline) throw new Error('missing dependencies')
     if (!contractAddress) throw new Error('missing router address')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
     if (!currencyAmountA || !currencyAmountB) {
@@ -365,7 +367,6 @@ export default function TokenPair({
       try {
         response = await sendEVMTransaction({
           account,
-          library,
           contractAddress,
           encodedData: encodeFunctionData({
             abi: routerAbi,

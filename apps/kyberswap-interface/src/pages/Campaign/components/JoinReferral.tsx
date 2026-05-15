@@ -18,7 +18,7 @@ import CopyHelper from 'components/Copy'
 import Input from 'components/Input'
 import Modal from 'components/Modal'
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
@@ -61,12 +61,11 @@ export default function JoinReferal() {
   const [getNonce] = useLazyGetNonceQuery()
   const [joinCampaign] = useJoinCampaignMutation()
   const toggleWalletModal = useWalletModalToggle()
-  const { library } = useWeb3React()
 
   const notify = useNotify()
 
   const handleJoin = async (code: string) => {
-    if (!library) return
+    if (!account) return
     const res = await getNonce(account || '')
     const message = new SiweMessage({
       domain: 'kyberswap.com',

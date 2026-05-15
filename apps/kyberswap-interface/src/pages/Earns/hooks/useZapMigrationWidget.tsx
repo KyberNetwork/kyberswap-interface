@@ -117,7 +117,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
@@ -129,11 +129,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, dex: Exchange, targetPoolId: string) => {
-      if (!library) return
-
-      navigateToPositionAfterZap(library, txHash, chainId, dex, targetPoolId, navigate)
+      navigateToPositionAfterZap(txHash, chainId, dex, targetPoolId, navigate)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const handleCloseMigration = useCallback(() => {
@@ -199,16 +197,14 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             ...migrateLiquidityPureParams,
             client: 'kyberswap-earn',
             rpcUrl: zapMigrationRpcUrl,
-            signTypedData: library
-              ? async (account: string, typedDataJson: string) => {
-                  const parsedTypedData = JSON.parse(typedDataJson)
-                  return signTypedDataSafe({
-                    chainId: chainId as number,
-                    account: account.toLowerCase() as Address,
-                    typedData: parsedTypedData,
-                  })
-                }
-              : undefined,
+            signTypedData: async (account: string, typedDataJson: string) => {
+              const parsedTypedData = JSON.parse(typedDataJson)
+              return signTypedDataSafe({
+                chainId: chainId as number,
+                account: account.toLowerCase() as Address,
+                typedData: parsedTypedData,
+              })
+            },
             referral: refCode,
             txStatus,
             txHashMapping: originalToCurrentHash,
@@ -252,7 +248,12 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData, isSmartConnector })
+              const res = await submitTransaction({
+                account,
+                chainId: migrateLiquidityPureParams.chainId,
+                txData,
+                isSmartConnector,
+              })
               const { txHash, error } = res
               if (!txHash || error) {
                 const isReposition = migrateLiquidityPureParams.rePositionMode
@@ -333,8 +334,6 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               navigate(APP_PATHS.EARN_POOLS)
             },
             onSuccess: async (data: OnSuccessProps) => {
-              if (!library) return
-
               const isReposition = migrateLiquidityPureParams.rePositionMode
               const tokenPair = `${data.position.token0.symbol}/${data.position.token1.symbol}`
               trackingHandler(
@@ -361,7 +360,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
               const nftId =
                 data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
+                (isUniv2 ? account || '' : ((await getTokenId(chainId, data.txHash, dex)) || '').toString())
 
               const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
@@ -430,7 +429,6 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     [
       migrateLiquidityPureParams,
       zapMigrationRpcUrl,
-      library,
       isSmartConnector,
       refCode,
       txStatus,

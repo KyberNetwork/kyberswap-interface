@@ -19,12 +19,12 @@ const useClaimMerklRewards = () => {
   const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const { account } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const [fetchMerklChainRewards] = useFetchMerklChainRewardsMutation()
 
   const claimMerklRewards = useCallback(
     async (targetChainId: number, cachedChainRewards: MerklRewardsResponse | undefined) => {
-      if (!library || !account) return
+      if (!account) return
 
       // Pre-claim freshness fetch: hit Merkl one time for this specific chain to make sure the
       // amount + merkle proof we sign over is the latest available. The cached payload from the
@@ -83,7 +83,8 @@ const useClaimMerklRewards = () => {
       })
 
       const res = await submitTransaction({
-        library,
+        account,
+        chainId: targetChainId,
         isSmartConnector,
         txData: {
           to: MERKL_DISTRIBUTOR_ADDRESS,
@@ -125,7 +126,7 @@ const useClaimMerklRewards = () => {
 
       return txHash
     },
-    [account, addTransactionWithType, fetchMerklChainRewards, isSmartConnector, library, notify],
+    [account, addTransactionWithType, fetchMerklChainRewards, isSmartConnector, notify],
   )
 
   return { claimMerklRewards }

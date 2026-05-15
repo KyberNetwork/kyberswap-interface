@@ -90,7 +90,7 @@ const useZapInWidget = ({
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -110,11 +110,9 @@ const useZapInWidget = ({
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, dex: Exchange, poolId: string) => {
-      if (!library) return
-
-      navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
+      navigateToPositionAfterZap(txHash, chainId, dex, poolId, navigate)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const handleOpenZapIn = ({ pool, positionId, initialTick }: ZapInInfo) => {
@@ -189,16 +187,14 @@ const useZapInWidget = ({
             ...addLiquidityPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapInRpcUrl,
-            signTypedData: library
-              ? async (account: string, typedDataJson: string) => {
-                  const parsedTypedData = JSON.parse(typedDataJson)
-                  return signTypedDataSafe({
-                    chainId: chainId as number,
-                    account: account.toLowerCase() as Address,
-                    typedData: parsedTypedData,
-                  })
-                }
-              : undefined,
+            signTypedData: async (account: string, typedDataJson: string) => {
+              const parsedTypedData = JSON.parse(typedDataJson)
+              return signTypedDataSafe({
+                chainId: chainId as number,
+                account: account.toLowerCase() as Address,
+                typedData: parsedTypedData,
+              })
+            },
             referral: refCode,
             txStatus,
             txHashMapping: originalToCurrentHash,
@@ -257,14 +253,12 @@ const useZapInWidget = ({
             },
             onOpenZapMigration: handleOpenZapMigration,
             onSuccess: async (data: OnSuccessProps) => {
-              if (!library) return
-
               const dex = addLiquidityPureParams.dexId
               const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
 
               const nftId =
                 data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
+                (isUniv2 ? account || '' : ((await getTokenId(chainId, data.txHash, dex)) || '').toString())
 
               const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
@@ -359,7 +353,12 @@ const useZapInWidget = ({
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData, isSmartConnector })
+              const res = await submitTransaction({
+                account,
+                chainId: addLiquidityPureParams.chainId,
+                txData,
+                isSmartConnector,
+              })
               const { txHash, error } = res
 
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
@@ -427,7 +426,6 @@ const useZapInWidget = ({
       handleOpenZapMigration,
       isSmartConnector,
       isSmartExitSupported,
-      library,
       locale,
       onOpenSmartExit,
       onRefreshPosition,

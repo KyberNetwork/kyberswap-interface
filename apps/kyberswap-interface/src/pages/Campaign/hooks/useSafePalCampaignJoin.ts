@@ -5,7 +5,7 @@ import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ZERO_ADDRESS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -73,7 +73,6 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
-  const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
 
   const { weeks } = campaignConfig[CampaignType.SafePal]
@@ -111,14 +110,6 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
   const onJoin = useCallback(async () => {
     if (!account) {
       toggleWalletModal()
-      return
-    }
-    if (!library) {
-      notify({
-        title: t`Unable to access wallet`,
-        summary: t`Please reconnect your wallet and try again.`,
-        type: NotificationType.ERROR,
-      })
       return
     }
 
@@ -163,7 +154,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
     } finally {
       void refetchUserStats()
     }
-  }, [account, chainId, joinCampaign, library, notify, refetchUserStats, selectedWeekValue, toggleWalletModal])
+  }, [account, chainId, joinCampaign, notify, refetchUserStats, selectedWeekValue, toggleWalletModal])
 
   return {
     onJoin,

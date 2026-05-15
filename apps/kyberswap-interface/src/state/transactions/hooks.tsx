@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { TransactionNotFoundError } from 'viem'
 import { usePublicClient } from 'wagmi'
 
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useBlockNumber } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
@@ -14,11 +14,10 @@ import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo1Token, Trans
 
 type LegacyTx = { to?: string | null; nonce?: number; data?: string }
 
-// helper that can take a ethers library transaction response and add it to the list of transactions
+// helper that can take a viem transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const { chainId, account } = useActiveWeb3React()
   const publicClient = usePublicClient({ chainId: chainId as number })
-  const { library } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const blockNumber = useBlockNumber()
 
@@ -33,8 +32,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
 
       let tx: LegacyTx | undefined
       try {
-        tx = (await library?.getTransaction(hash)) as LegacyTx | undefined
-        if (!tx && publicClient) {
+        if (publicClient) {
           const viemTx = await publicClient.getTransaction({ hash: hash as Hash }).catch(error => {
             if (error instanceof TransactionNotFoundError) return null
             throw error
@@ -62,7 +60,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch, publicClient, library],
+    [account, chainId, dispatch, publicClient],
   )
 }
 

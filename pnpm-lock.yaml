@@ -48,45 +48,9 @@ importers:
       '@esbuild-plugins/node-globals-polyfill':
         specifier: ^0.2.3
         version: 0.2.3(esbuild@0.24.0)
-      '@ethersproject/abi':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/abstract-provider':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/address':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/bignumber':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/bytes':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/constants':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/contracts':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/providers':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/solidity':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/strings':
-        specifier: ^5.8.0
-        version: 5.8.0
-      '@ethersproject/units':
-        specifier: ^5.8.0
-        version: 5.8.0
       '@formo/analytics':
         specifier: ^1.27.0
         version: 1.27.0(@tanstack/react-query@5.67.1)(@types/react@18.3.12)(react@18.3.1)(typescript@5.9.3)(viem@2.48.11)(wagmi@3.6.9)
-      '@holdstation/paymaster-helper':
-        specifier: ^2.0.20
-        version: 2.0.24
       '@kyber/hooks':
         specifier: workspace:^
         version: link:../../packages/hooks
@@ -273,15 +237,9 @@ importers:
       dompurify:
         specifier: ^3.0.6
         version: 3.2.4
-      ethers:
-        specifier: ^5.8.0
-        version: 5.8.0
       events:
         specifier: ^3.3.0
         version: 3.3.0
-      find-replacement-tx:
-        specifier: ^1.2.3
-        version: 1.2.3
       firebase:
         specifier: ^9.8.2
         version: 9.23.0
@@ -8262,19 +8220,6 @@ packages:
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
     dependencies:
       '@hapi/hoek': 9.3.0
-    dev: false
-
-  /@holdstation/paymaster-helper@2.0.24:
-    resolution: {integrity: sha512-sDM6CylFOtfYxXy3hpV9uoy4MhjOvfcEdBalMO3+XWH8QyLIQGCN09WnnF+KftavJpCshTt2KVIJb4KquptwTA==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      '@types/estree': 1.0.6
-      ethers: 5.8.0
-      typescript: 4.9.5
-      zksync-web3: 0.14.4(ethers@5.8.0)
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
     dev: false
 
   /@hot-wallet/sdk@1.0.8(near-api-js@5.1.1)(typescript@5.9.3):
@@ -17206,6 +17151,7 @@ packages:
 
   /@types/estree@1.0.6:
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
+    dev: true
 
   /@types/estree@1.0.8:
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -24946,15 +24892,6 @@ packages:
       - supports-color
     dev: false
 
-  /find-replacement-tx@1.2.3:
-    resolution: {integrity: sha512-TwCsEBmPVUgD9VRrhRuY0HEPzCXl/2zamYU0ywYAGf8v+9WLCIGOsyA88ObLDLj0/5Gq8ki5XiqL+TY9B1BmPg==}
-    dependencies:
-      ethers: 5.8.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-    dev: false
-
   /find-root@1.1.0:
     resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}
     dev: false
@@ -31916,12 +31853,6 @@ packages:
       - supports-color
     dev: true
 
-  /typescript@4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-    dev: false
-
   /typescript@5.1.6:
     resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
     engines: {node: '>=14.17'}
@@ -33573,15 +33504,6 @@ packages:
     resolution: {integrity: sha512-KHBC7z61OJeaMGnF3wqNZj+GGNXOyypZviiKpQeiHirG5Ib1ImwcLBH70rbMSkKfSmUNBsdf2PwaEJtKvgmkNw==}
     engines: {node: '>=12.20'}
     dev: true
-
-  /zksync-web3@0.14.4(ethers@5.8.0):
-    resolution: {integrity: sha512-kYehMD/S6Uhe1g434UnaMN+sBr9nQm23Ywn0EUP5BfQCsbjcr3ORuS68PosZw8xUTu3pac7G6YMSnNHk+fwzvg==}
-    deprecated: This package has been deprecated in favor of zksync-ethers@5.0.0
-    peerDependencies:
-      ethers: ^5.7.0
-    dependencies:
-      ethers: 5.8.0
-    dev: false
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}

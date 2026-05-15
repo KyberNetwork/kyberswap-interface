@@ -10,7 +10,6 @@ import ERC20_ABI from 'constants/abis/erc20.json'
 import { useNotify } from 'state/application/hooks'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { usePaymentToken } from 'state/user/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
@@ -33,7 +32,7 @@ export function useApproveCallback(
   onApprovalError?: (error: { message: string; tokenSymbol?: string; tokenAddress?: string; spender?: string }) => void,
 ): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined] {
   const { account, chainId } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const token = amountToApprove?.currency.wrapped
   const pendingApproval = useHasPendingApproval(token?.address, spender)
 
@@ -79,7 +78,6 @@ export function useApproveCallback(
   const notify = useNotify()
 
   const addTransactionWithType = useTransactionAdder()
-  const [paymentToken] = usePaymentToken()
 
   const approve = useCallback(
     async (customAmount?: CurrencyAmount<Currency>): Promise<void> => {
@@ -118,18 +116,12 @@ export function useApproveCallback(
         const sendApprove = (amount: bigint) =>
           sendEVMTransaction({
             account,
-            library,
             contractAddress: token.address,
             encodedData: buildApproveData(amount),
             value: 0n,
             errorInfo: { name: ErrorName.SwapError, wallet: undefined },
             isSmartConnector,
             chainId,
-            paymentToken: paymentToken?.address,
-            // increase x2 for approval only due to failed tx bcs of gasLimit on the
-            // paymaster path. For more detail:
-            // https://team-kyber.slack.com/archives/C048KKJ4TPW/p1718600494715929?thread_ts=1718267233.557269&cid=C048KKJ4TPW
-            paymasterGasMultiplier: 2,
           })
 
         let response
@@ -185,9 +177,7 @@ export function useApproveCallback(
       addTransactionWithType,
       forceApprove,
       notify,
-      paymentToken?.address,
       onApprovalError,
-      library,
       isSmartConnector,
       chainId,
     ],

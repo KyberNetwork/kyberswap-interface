@@ -14,11 +14,13 @@ import {
 
 import { NotificationType } from 'components/Announcement/type'
 import Divider from 'components/Divider'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 import DetailModal, { Price, PriceChange } from './DetailModal'
 import SortIcon, { Direction } from './SortIcon'
@@ -44,8 +46,7 @@ export default function TableContent({
 
   const [sortCol, sortDirection] = (filters.sort || '').split(' ')
 
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
   const tokensFromApi = useMemo(() => data?.data.assets || [], [data])
@@ -140,7 +141,12 @@ export default function TableContent({
     if (!signature) {
       const issuedAt = new Date().toISOString()
       msg = t`Click sign to add favorite tokens at KyberSwap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in 7 days.\n\nIssued at: ${issuedAt}`
-      signature = await library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account])
+      const walletClient = await getGatedWalletClient({ chainId: chainId as number })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+      signature = (await (walletClient as any).signMessage({
+        account: account as Address,
+        message: msg,
+      })) as string
       localStorage.setItem(
         key,
         JSON.stringify({

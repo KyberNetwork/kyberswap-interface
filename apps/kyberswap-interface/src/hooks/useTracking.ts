@@ -236,7 +236,6 @@ export enum TRACKING_EVENT_TYPE {
 
   // Swap settings interactions
   TRANSACTION_TIME_LIMIT_CHANGED,
-  GAS_TOKEN_CHANGED,
   LIQUIDITY_SOURCES_TOGGLED,
 
   // Cross-chain execution flow
@@ -1466,10 +1465,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         // Swap settings interaction events
         case TRACKING_EVENT_TYPE.TRANSACTION_TIME_LIMIT_CHANGED: {
           formoTrack('Transaction Time Limit Changed', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.GAS_TOKEN_CHANGED: {
-          formoTrack('Gas Token Changed', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LIQUIDITY_SOURCES_TOGGLED: {

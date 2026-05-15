@@ -6,7 +6,6 @@ import Banner from 'components/Banner'
 import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import GasTokenSetting from 'components/swapv2/GasTokenSetting'
 import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
@@ -46,7 +45,6 @@ export enum TAB {
   LIQUIDITY_SOURCES = 'liquidity_sources',
   LIMIT = 'limit',
   CROSS_CHAIN = 'cross_chain',
-  GAS_TOKEN = 'gas_token',
   CROSS_CHAIN_SOURCES = 'cross_chain_sources',
 }
 
@@ -148,7 +146,6 @@ export default function Swap() {
                   routeSummary={routeSummary}
                   setRouteSummary={setRouteSummary}
                   hidden={activeTab !== TAB.SWAP}
-                  onOpenGasToken={() => setActiveTab(TAB.GAS_TOKEN)}
                 />
               )}
               {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
@@ -165,7 +162,6 @@ export default function Swap() {
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
               {activeTab === TAB.LIMIT && <LimitOrder />}
-              {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} />}
               {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
               {activeTab === TAB.CROSS_CHAIN_SOURCES && (
                 <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />

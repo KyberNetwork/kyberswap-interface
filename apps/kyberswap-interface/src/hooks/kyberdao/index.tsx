@@ -53,7 +53,7 @@ export function useKyberDAOInfo() {
 
 export function useKyberDaoStakeActions() {
   const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const kyberDaoInfo = useKyberDAOInfo()
   const stakingContract = useSigningContract(kyberDaoInfo?.staking, StakingABI)
@@ -64,11 +64,10 @@ export function useKyberDaoStakeActions() {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      if (!account || !library) throw new Error(CONTRACT_NOT_FOUND_MSG)
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
         const tx = await sendEVMTransaction({
           account,
-          library,
           contractAddress: stakingContract.address,
           encodedData: encodeFunctionData({
             abi: StakingABI as Abi,
@@ -97,18 +96,17 @@ export function useKyberDaoStakeActions() {
         throw error
       }
     },
-    [account, library, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract, kyberDaoInfo],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract, kyberDaoInfo],
   )
   const unstake = useCallback(
     async (amount: bigint) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      if (!account || !library) throw new Error(CONTRACT_NOT_FOUND_MSG)
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
         const tx = await sendEVMTransaction({
           account,
-          library,
           contractAddress: stakingContract.address,
           encodedData: encodeFunctionData({
             abi: StakingABI as Abi,
@@ -137,27 +135,17 @@ export function useKyberDaoStakeActions() {
         throw error
       }
     },
-    [
-      account,
-      library,
-      isSmartConnector,
-      chainId,
-      walletKey,
-      addTransactionWithType,
-      stakingContract,
-      kyberDaoInfo?.KNCAddress,
-    ],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract, kyberDaoInfo?.KNCAddress],
   )
   const migrate = useCallback(
     async (amount: bigint, rawAmount: string) => {
       if (!migrateContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      if (!account || !library) throw new Error(CONTRACT_NOT_FOUND_MSG)
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
         const tx = await sendEVMTransaction({
           account,
-          library,
           contractAddress: migrateContract.address,
           encodedData: encodeFunctionData({
             abi: MigrateABI as Abi,
@@ -190,18 +178,17 @@ export function useKyberDaoStakeActions() {
         throw error
       }
     },
-    [account, library, isSmartConnector, chainId, walletKey, addTransactionWithType, migrateContract, kyberDaoInfo],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, migrateContract, kyberDaoInfo],
   )
   const delegate = useCallback(
     async (address: string) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      if (!account || !library) throw new Error(CONTRACT_NOT_FOUND_MSG)
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
         const tx = await sendEVMTransaction({
           account,
-          library,
           contractAddress: stakingContract.address,
           encodedData: encodeFunctionData({
             abi: StakingABI as Abi,
@@ -225,7 +212,7 @@ export function useKyberDaoStakeActions() {
         throw error
       }
     },
-    [account, library, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract],
   )
   const undelegate = useCallback(
     // address here alway should be user's address
@@ -233,11 +220,10 @@ export function useKyberDaoStakeActions() {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      if (!account || !library) throw new Error(CONTRACT_NOT_FOUND_MSG)
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
         const tx = await sendEVMTransaction({
           account,
-          library,
           contractAddress: stakingContract.address,
           encodedData: encodeFunctionData({
             abi: StakingABI as Abi,
@@ -261,7 +247,7 @@ export function useKyberDaoStakeActions() {
         throw error
       }
     },
-    [account, library, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract],
   )
 
   return { stake, unstake, migrate, delegate, undelegate }
@@ -269,7 +255,7 @@ export function useKyberDaoStakeActions() {
 
 export function useClaimVotingRewards() {
   const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { userRewards, remainingCumulativeAmount } = useVotingInfo()
   const kyberDaoInfo = useKyberDAOInfo()
   const rewardDistributorSigningContract = useSigningContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
@@ -287,7 +273,6 @@ export function useClaimVotingRewards() {
     if (!rewardDistributorSigningContract || !rewardDistributorReadingContract) {
       throw new Error(CONTRACT_NOT_FOUND_MSG)
     }
-    if (!library) throw new Error(CONTRACT_NOT_FOUND_MSG)
     try {
       const isValidClaim = (await readContract(wagmiConfig, {
         address: rewardDistributorReadingContract.address as Address,
@@ -308,7 +293,6 @@ export function useClaimVotingRewards() {
       if (!isValidClaim) throw new Error(t`Invalid claim`)
       const tx = await sendEVMTransaction({
         account,
-        library,
         contractAddress: rewardDistributorSigningContract.address,
         encodedData: encodeFunctionData({
           abi: RewardDistributorABI as Abi,
@@ -348,7 +332,6 @@ export function useClaimVotingRewards() {
   }, [
     userRewards,
     account,
-    library,
     isSmartConnector,
     chainId,
     walletKey,
@@ -364,7 +347,7 @@ export function useClaimVotingRewards() {
 
 export const useVotingActions = () => {
   const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
   const daoContract = useSigningContract(kyberDaoInfo?.dao, DaoABI)
   const addTransactionWithType = useTransactionAdder()
@@ -374,11 +357,10 @@ export const useVotingActions = () => {
       if (!daoContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      if (!account || !library) throw new Error(CONTRACT_NOT_FOUND_MSG)
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
         const tx = await sendEVMTransaction({
           account,
-          library,
           contractAddress: daoContract.address,
           encodedData: encodeFunctionData({
             abi: DaoABI as Abi,
@@ -402,7 +384,7 @@ export const useVotingActions = () => {
         throw error
       }
     },
-    [account, library, isSmartConnector, chainId, walletKey, daoContract, addTransactionWithType, kyberDaoInfo?.dao],
+    [account, isSmartConnector, chainId, walletKey, daoContract, addTransactionWithType, kyberDaoInfo?.dao],
   )
   return { vote }
 }
@@ -666,14 +648,14 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
 
 export function useClaimGasRefundRewards() {
   const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const { claimableReward } = useGasRefundInfo({})
   const refetch = useRefetchGasRefundInfo()
   const notify = useNotify()
 
   const claimGasRefundRewards = useCallback(async (): Promise<string> => {
-    if (!account || !library || !claimableReward || claimableReward.knc <= 0) throw new Error(t`Invalid claim`)
+    if (!account || !claimableReward || claimableReward.knc <= 0) throw new Error(t`Invalid claim`)
     refetch()
 
     const url = REWARD_SERVICE_API + '/rewards/claim'
@@ -702,7 +684,6 @@ export function useClaimGasRefundRewards() {
     try {
       const tx = await sendEVMTransaction({
         account,
-        library,
         contractAddress: rewardContractAddress,
         isSmartConnector,
         encodedData,
@@ -711,6 +692,7 @@ export function useClaimGasRefundRewards() {
           name: ErrorName.GasRefundClaimError,
           wallet: walletKey,
         },
+        chainId,
       })
       if (!tx) throw new Error()
       addTransactionWithType({
@@ -735,7 +717,7 @@ export function useClaimGasRefundRewards() {
       })
       throw error
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, refetch, walletKey, isSmartConnector])
+  }, [account, addTransactionWithType, chainId, claimableReward, notify, refetch, walletKey, isSmartConnector])
   return claimGasRefundRewards
 }
 

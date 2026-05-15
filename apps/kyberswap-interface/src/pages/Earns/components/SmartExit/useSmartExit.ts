@@ -9,7 +9,7 @@ import {
 
 import { NotificationType } from 'components/Announcement/type'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useSuccessSound } from 'hooks/useSuccessSound'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { SmartExitState } from 'pages/Earns/components/SmartExit/constants'
@@ -34,7 +34,6 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
   const { trackingHandler } = useTracking()
   const playSuccessSound = useSuccessSound()
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
   const [state, setState] = useState<SmartExitState>(SmartExitState.IDLE)
   const [positionLiquidity, setPositionLiquidity] = useState<string | null>(null)
   const [getSignMessage] = useGetSmartExitSignMessageMutation()
@@ -107,7 +106,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
 
   const createSmartExitOrder = useCallback(
     async (opts: { maxGas: number; permitData: string }): Promise<boolean> => {
-      if (!library || !baseParams || !account) return false
+      if (!baseParams || !account) return false
 
       setState(SmartExitState.CREATING)
       try {
@@ -186,7 +185,6 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
       createOrderMutation,
       getSignMessage,
       getSmartExitTrackingPayload,
-      library,
       notify,
       playSuccessSound,
       trackingHandler,

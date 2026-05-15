@@ -36,7 +36,7 @@ interface IUserReward {
 
 export default function useClaimReward() {
   const { chainId, account, walletKey } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const rewardReadingContract = useReadingContract(
     NETWORKS_INFO[chainId].classic.claimReward ?? undefined,
@@ -46,7 +46,7 @@ export default function useClaimReward() {
     NETWORKS_INFO[chainId].classic.claimReward ?? undefined,
     CLAIM_REWARD_ABI,
   )
-  const isValid = !!chainId && !!account && !!library
+  const isValid = !!chainId && !!account
   const [isUserHasReward, setIsUserHasReward] = useState(false)
   const [rewardAmounts, setRewardAmounts] = useState('0')
   const [error, setError] = useState<string | null>(null)
@@ -96,10 +96,10 @@ export default function useClaimReward() {
 
   useEffect(() => {
     setRewardAmounts('0')
-    if (data && chainId && account && library && userRewards) {
+    if (data && chainId && account && userRewards) {
       updateRewardAmounts().catch(error => console.log(error))
     }
-  }, [data, chainId, account, library, rewardReadingContract, userRewards, updateRewardAmounts])
+  }, [data, chainId, account, rewardReadingContract, userRewards, updateRewardAmounts])
 
   const addTransactionWithType = useTransactionAdder()
   const [attemptingTxn, setAttemptingTxn] = useState(false)
@@ -130,7 +130,7 @@ export default function useClaimReward() {
   }, [hasPendingTx, resetTxn])
 
   const claimRewardsCallback = useCallback(async () => {
-    if (rewardSigningContract && chainId && account && library && data && userRewards[phaseId]) {
+    if (rewardSigningContract && chainId && account && data && userRewards[phaseId]) {
       setAttemptingTxn(true)
       //execute isValidClaim method to pre-check
       const userReward = userRewards[phaseId]
@@ -167,7 +167,6 @@ export default function useClaimReward() {
           //if amount available for claim, execute claim method
           const tx = await sendEVMTransaction({
             account,
-            library,
             isSmartConnector,
             chainId,
             contractAddress: rewardSigningContract.address,
@@ -212,7 +211,6 @@ export default function useClaimReward() {
     rewardSigningContract,
     chainId,
     account,
-    library,
     isSmartConnector,
     walletKey,
     data,
