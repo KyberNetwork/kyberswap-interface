@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux'
 import { useGetKyberswapConfigurationQuery } from 'services/ksSetting'
 import { useBlockNumber as useWagmiBlockNumber } from 'wagmi'
 
-import { queryClient } from 'components/Web3Provider'
 import { useActiveWeb3React } from 'hooks'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { updateBlockNumber } from 'state/application/actions'
@@ -22,14 +21,12 @@ export default function Updater(): null {
 
   useEffect(() => {
     if (!chainId || blockNumber === undefined || !windowVisible) return
+    // Dispatch the new height to Redux; the multicall hooks pick it up via
+    // `useBlockNumberFor` and pass it as wagmi's `blockNumber` parameter,
+    // which makes TanStack Query's queryKey depend on the block. That gives
+    // every read a per-chain, background-refetch-on-block behaviour without
+    // a global cache invalidation pass.
     dispatch(updateBlockNumber({ chainId, blockNumber: Number(blockNumber) }))
-    // Invalidate cached wagmi contract reads so multicall-backed hooks
-    // (`useSingleCallResult` etc.) re-fetch on every new block, matching the
-    // pre-migration redux-multicall semantics. The default TanStack Query
-    // `staleTime: 0` only triggers refetch on focus/reconnect, not on block
-    // advance, so balances / reserves / positions would otherwise go stale.
-    queryClient.invalidateQueries({ queryKey: ['readContract'] })
-    queryClient.invalidateQueries({ queryKey: ['readContracts'] })
   }, [windowVisible, dispatch, blockNumber, chainId])
 
   return null

@@ -1,9 +1,16 @@
+import { keepPreviousData } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useReadContract, useReadContracts } from 'wagmi'
 
 import { ContractRef } from 'hooks/useContract'
+import { useBlockNumberFor } from 'state/application/hooks'
 import { ListenerOptions } from 'state/multicall/actions'
 import { Abi, Address } from 'utils/viem'
+
+// When the per-block refresh keys this query, expose the previous block's data
+// as a placeholder so the UI doesn't flash LOADING_CALL_STATE every block.
+// Keep the cache small: drop stale entries after a single block-time window.
+const PER_BLOCK_QUERY_OPTIONS = { placeholderData: keepPreviousData, gcTime: 30_000 } as const
 
 export interface Result extends ReadonlyArray<any> {
   readonly [key: string]: any
@@ -90,6 +97,14 @@ export function useSingleCallResult(
   const argsValid = isValidMethodArgs(inputs)
   const enabled = !!contract && !!abi && !!fnItem && argsValid
   const staleTime = staleTimeFrom(options)
+  // Drive wagmi's queryKey from the Redux block height for the read's chain so
+  // every advance triggers a background refetch — replaces a global
+  // `queryClient.invalidateQueries({ queryKey: ['readContract'] })` that fired
+  // for every query regardless of chain. Skip when the call opts into
+  // `NEVER_RELOAD` (Infinity staleTime) — static reads (token name/symbol,
+  // ENS resolution, etc.) shouldn't be invalidated every block.
+  const blockNumber = useBlockNumberFor(contract?.chainId)
+  const blockNumberArg = staleTime === Infinity || blockNumber === undefined ? undefined : BigInt(blockNumber)
 
   const { data, isError } = useReadContract({
     address: contract?.address,
@@ -97,9 +112,10 @@ export function useSingleCallResult(
     functionName: methodName,
     args: (argsValid ? (inputs as readonly unknown[] | undefined) : undefined) as readonly unknown[] | undefined,
     ...(contract?.chainId !== undefined ? { chainId: contract.chainId as number } : {}),
+    ...(blockNumberArg !== undefined ? { blockNumber: blockNumberArg } : {}),
     query: {
       enabled,
-      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : {}),
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : PER_BLOCK_QUERY_OPTIONS),
     },
   })
 
@@ -120,6 +136,8 @@ export function useSingleContractMultipleData(
   const abi = contract?.abi
   const fnItem = useMemo(() => findFunctionItem(abi, methodName), [abi, methodName])
   const staleTime = staleTimeFrom(options)
+  const blockNumber = useBlockNumberFor(contract?.chainId)
+  const blockNumberArg = staleTime === Infinity || blockNumber === undefined ? undefined : BigInt(blockNumber)
 
   // Per-input validity; wagmi cannot mark individual entries as disabled, so we filter to valid
   // entries for the call and remap results by index afterwards.
@@ -146,9 +164,10 @@ export function useSingleContractMultipleData(
   const { data } = useReadContracts({
     contracts: contractCalls,
     allowFailure: true,
+    ...(blockNumberArg !== undefined ? { blockNumber: blockNumberArg } : {}),
     query: {
       enabled: contractCalls.length > 0,
-      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : {}),
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : PER_BLOCK_QUERY_OPTIONS),
     },
   })
 
@@ -179,6 +198,9 @@ export function useMultipleContractSingleData(
   const fnItem = useMemo(() => findFunctionItem(abi, methodName), [abi, methodName])
   const argsValid = isValidMethodArgs(callInputs)
   const staleTime = staleTimeFrom(options)
+  // No per-call chainId; this hook always reads on the active chain.
+  const blockNumber = useBlockNumberFor(undefined)
+  const blockNumberArg = staleTime === Infinity || blockNumber === undefined ? undefined : BigInt(blockNumber)
 
   const validityMask = useMemo(() => addresses.map(addr => !!addr && argsValid), [addresses, argsValid])
 
@@ -201,9 +223,10 @@ export function useMultipleContractSingleData(
   const { data } = useReadContracts({
     contracts: contractCalls,
     allowFailure: true,
+    ...(blockNumberArg !== undefined ? { blockNumber: blockNumberArg } : {}),
     query: {
       enabled: contractCalls.length > 0,
-      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : {}),
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : PER_BLOCK_QUERY_OPTIONS),
     },
   })
 

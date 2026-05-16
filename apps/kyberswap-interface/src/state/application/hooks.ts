@@ -35,6 +35,17 @@ export function useBlockNumber(): number | undefined {
   return useSelector((state: AppState) => state.application.blockNumber[chainId])
 }
 
+/**
+ * Same as `useBlockNumber` but reads the block height for a specific chain
+ * instead of the active one. Returns `undefined` if no block has been observed
+ * for `chainId` yet (e.g. the chain is not the one we currently poll).
+ */
+export function useBlockNumberFor(chainId: ChainId | undefined): number | undefined {
+  const { chainId: activeChainId } = useActiveWeb3React()
+  const lookupChainId = chainId ?? activeChainId
+  return useSelector((state: AppState) => state.application.blockNumber[lookupChainId])
+}
+
 export const useCloseModal = (modal: ApplicationModal): (() => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
