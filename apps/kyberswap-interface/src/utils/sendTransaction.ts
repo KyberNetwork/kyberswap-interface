@@ -3,9 +3,9 @@ import { getPublicClient } from '@wagmi/core'
 import blackjackApi from 'services/blackjack'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
 import { calculateGasMarginBigInt } from 'utils'
+import { createAccessListIfEnabled } from 'utils/accessList'
 import { BlacklistedWalletError, ErrorName, TransactionError } from 'utils/transactionError'
 import { Address, Hex, PublicClient } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
@@ -75,29 +75,12 @@ export async function sendEVMTransaction({
     ...(txValue !== undefined ? { value: txValue } : {}),
   }
 
-  // Best-effort eth_createAccessList for chains that opt-in. Failure is non-fatal.
-  let accessList: { address: Address; storageKeys: Hex[] }[] | undefined
-  if (NETWORKS_INFO[chainId]?.accessListEnabled) {
-    try {
-      const al = (await publicClient.request({
-        method: 'eth_createAccessList' as any,
-        params: [
-          {
-            from: account,
-            to: contractAddress,
-            data: callData,
-            ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
-          },
-          'latest',
-        ] as any,
-      })) as { accessList?: { address: Address; storageKeys: Hex[] }[] } | undefined
-      if (al?.accessList && Array.isArray(al.accessList)) {
-        accessList = al.accessList
-      }
-    } catch {
-      // ignore; chain may not support eth_createAccessList
-    }
-  }
+  const accessList = await createAccessListIfEnabled(publicClient, chainId, {
+    from: account,
+    to: contractAddress,
+    data: callData,
+    value: txValue,
+  })
 
   let gasEstimate: bigint
   try {

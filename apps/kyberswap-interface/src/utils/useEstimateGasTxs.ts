@@ -3,9 +3,9 @@ import { getPublicClient } from '@wagmi/core'
 import { useCallback, useMemo } from 'react'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { createAccessListIfEnabled } from 'utils/accessList'
 import { Address, Hex, PublicClient, formatEther } from 'utils/viem'
 
 type EstimateParams = { contractAddress: string; encodedData: string; value?: bigint }
@@ -27,28 +27,12 @@ function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: bigint | nul
 
         const txValue = value !== 0n ? value : undefined
 
-        let accessList: any[] | undefined
-        if (NETWORKS_INFO[chainId]?.accessListEnabled) {
-          try {
-            const al = (await publicClient.request({
-              method: 'eth_createAccessList' as any,
-              params: [
-                {
-                  from: account,
-                  to: contractAddress,
-                  data: encodedData,
-                  ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
-                },
-                'latest',
-              ] as any,
-            })) as { accessList?: any[] } | undefined
-            if (al?.accessList && Array.isArray(al.accessList)) {
-              accessList = al.accessList
-            }
-          } catch {
-            // ignore; chain may not support eth_createAccessList
-          }
-        }
+        const accessList = await createAccessListIfEnabled(publicClient, chainId, {
+          from: account,
+          to: contractAddress,
+          data: encodedData,
+          value: txValue,
+        })
 
         const [estimateGas, gasPrice] = await Promise.all([
           (publicClient as PublicClient).estimateGas({
