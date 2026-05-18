@@ -66,10 +66,9 @@ function useTokensBalanceEVM(tokens?: Token[]): TokenAmountLoading[] {
   return useMemo(
     () =>
       balances.map((balanceCall, i) => {
+        const raw = balanceCall.result?.[0]
         const amount =
-          balanceCall.result?.[0] && tokens?.[i]
-            ? TokenAmount.fromRawAmount(tokens?.[i], balanceCall.result?.[0])
-            : undefined
+          raw !== undefined && tokens?.[i] ? TokenAmount.fromRawAmount(tokens[i], raw.toString()) : undefined
         return [amount, balanceCall.loading]
       }),
     [balances, tokens],
