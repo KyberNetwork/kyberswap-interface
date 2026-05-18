@@ -60,10 +60,15 @@ export default defineConfig({
         global: 'globalThis',
       },
       plugins: [
+        // Cast: GlobalPolyFill returns an esbuild@0.24 Plugin, but Vite 4 types
+        // `esbuildOptions.plugins` against esbuild@0.18 (its bundled version).
+        // The `PluginBuild.initialOptions.packages` union differs between the
+        // two — runtime is fine, only TS errors. Drop the cast once Vite is on
+        // esbuild 0.21+.
         GlobalPolyFill({
           process: true,
           buffer: true,
-        }),
+        }) as any,
       ],
     },
   },
