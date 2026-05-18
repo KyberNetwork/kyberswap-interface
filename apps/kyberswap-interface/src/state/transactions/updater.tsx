@@ -321,7 +321,7 @@ export default function Updater(): null {
 
             if (!transaction || !!res) return // !res this mean tx was drop (cancel/replace)
 
-            const { sentAtBlock, from, to, nonce, data, addedTime } = transaction
+            const { sentAtBlock, from, nonce, addedTime } = transaction
             const checkRemoveTxs = async () => {
               // pending >1 days
               if (Date.now() - addedTime > 86_400_000) {

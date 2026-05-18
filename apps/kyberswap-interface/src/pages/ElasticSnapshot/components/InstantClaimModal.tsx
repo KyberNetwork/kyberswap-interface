@@ -271,7 +271,6 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
   }, [
     phase,
     polygonContractAddress,
-    contractAddress,
     ipfsLink,
     account,
     isSmartConnector,
