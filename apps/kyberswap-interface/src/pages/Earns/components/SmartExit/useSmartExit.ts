@@ -20,7 +20,7 @@ import { getPositionLiquidity } from 'pages/Earns/utils/position'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
-import { signTypedDataSafe } from 'utils/walletClient'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 export interface UseSmartExitParams {
   position: ParsedPosition | null
@@ -125,7 +125,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         }
 
         // Step 2: Sign the typed data
-        const orderSignature = await signTypedDataSafe({
+        const orderSignature = await signTypedDataRaw({
           chainId: chainId,
           account: account as Address,
           typedData,

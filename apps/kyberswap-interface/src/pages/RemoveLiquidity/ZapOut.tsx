@@ -75,7 +75,7 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName, TransactionError } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
-import { signTypedDataSafe } from 'utils/walletClient'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 export default function ZapOut({
   currencyIdA,
@@ -239,7 +239,7 @@ export default function ZapOut({
     }
 
     try {
-      const rawSignature = await signTypedDataSafe({
+      const rawSignature = await signTypedDataRaw({
         chainId: chainId as number,
         account: account as Address,
         typedData,

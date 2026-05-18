@@ -33,7 +33,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 import { Address } from 'utils/viem'
-import { signTypedDataSafe } from 'utils/walletClient'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 interface MigrateLiquidityPureParams {
   from: {
@@ -199,7 +199,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             rpcUrl: zapMigrationRpcUrl,
             signTypedData: async (account: string, typedDataJson: string) => {
               const parsedTypedData = JSON.parse(typedDataJson)
-              return signTypedDataSafe({
+              return signTypedDataRaw({
                 chainId: chainId,
                 account: account.toLowerCase() as Address,
                 typedData: parsedTypedData,

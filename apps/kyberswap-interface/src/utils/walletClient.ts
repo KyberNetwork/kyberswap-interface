@@ -68,6 +68,12 @@ export async function getGatedWalletClient(opts: { chainId: number }): Promise<W
  * EIP-712 signing helper that runs through the gated wallet client and strips
  * `EIP712Domain` from `types` before passing to viem — viem injects EIP712Domain
  * itself and rejects payloads that already contain it.
+ *
+ * Use this only when the caller builds `typedData` without an `EIP712Domain`
+ * spec in `types` (i.e. relies on viem's auto-derivation from `domain`). For
+ * API-supplied typedData that already includes its own `EIP712Domain` spec,
+ * use {@link signTypedDataRaw} — viem's auto-derived domain typehash may not
+ * match what the API/verifier expects.
  */
 export async function signTypedDataSafe(params: {
   chainId: number
@@ -91,4 +97,45 @@ export async function signTypedDataSafe(params: {
     primaryType: params.typedData.primaryType,
     message: params.typedData.message,
   })
+}
+
+/**
+ * EIP-712 signing helper that bypasses viem's typed-data marshalling and
+ * forwards the payload through `eth_signTypedData_v4` JSON-RPC verbatim.
+ *
+ * viem's `signTypedData` strips `EIP712Domain` from `types` and re-derives it
+ * from the `domain` field's shape; if the API/verifier defines `EIP712Domain`
+ * with a different field order or set than viem derives, the domain typehash
+ * (and therefore the digest) diverges and `ecrecover` returns a different
+ * signer than expected. Off-chain order flows (Smart Exit, Limit Order) ship
+ * their own `EIP712Domain` and must be forwarded as-is.
+ *
+ * Caller contract: `typedData` is forwarded through `JSON.stringify`, so it
+ * must NOT contain `bigint` values anywhere in `domain` or `message`
+ * (stringify would throw). Convert nonces / uint256 fields to hex or decimal
+ * strings before calling.
+ */
+export async function signTypedDataRaw(params: {
+  chainId: number
+  account: Address
+  typedData: {
+    domain: any
+    types: Record<string, unknown>
+    primaryType: string
+    message: any
+  }
+}): Promise<string> {
+  const walletClient = await getGatedWalletClient({ chainId: params.chainId })
+  if (!walletClient) throw new Error('Wallet client unavailable')
+
+  // Cast through `unknown` for the same reason as the proxy in
+  // `getGatedWalletClient`: viem's `request` is an overloaded union we can't
+  // narrow from a runtime method string. The intermediate typed object below
+  // is what TypeScript actually checks before the cast escapes.
+  const rpcArgs: { method: 'eth_signTypedData_v4'; params: [Address, string] } = {
+    method: 'eth_signTypedData_v4',
+    params: [params.account, JSON.stringify(params.typedData)],
+  }
+  const result = await (walletClient.request as (a: unknown) => Promise<unknown>)(rpcArgs)
+  return result as string
 }

@@ -31,7 +31,7 @@ import { formatSignature } from 'utils/transaction'
 import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
 import { Address } from 'utils/viem'
-import { signTypedDataSafe } from 'utils/walletClient'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 const useGetEncodeLimitOrder = () => {
   const { account, chainId } = useActiveWeb3React()
@@ -166,7 +166,7 @@ const useRequestCancelOrder = ({
     const cancelPayload = { chainId: chainId.toString(), maker: account, orderIds }
     const messagePayload = await createCancelSignature(cancelPayload).unwrap()
 
-    const rawSignature = await signTypedDataSafe({
+    const rawSignature = await signTypedDataRaw({
       chainId: chainId,
       account: account as Address,
       typedData: messagePayload,

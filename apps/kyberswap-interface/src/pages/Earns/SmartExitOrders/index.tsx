@@ -40,7 +40,7 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
-import { signTypedDataSafe } from 'utils/walletClient'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 const TableHeader = styled.div`
   display: grid;
@@ -153,7 +153,7 @@ const SmartExit = () => {
         throw new Error('Failed to get valid typed data from API')
       }
 
-      const signature = await signTypedDataSafe({
+      const signature = await signTypedDataRaw({
         chainId: chainId,
         account: account as Address,
         typedData,

@@ -8,7 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'
-import { signTypedDataSafe } from 'utils/walletClient'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 export default function useSignOrder(
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>> | undefined,
@@ -33,7 +33,7 @@ export default function useSignOrder(
       })
       const messagePayload = await getMessageSignature(payload).unwrap()
 
-      const rawSignature = await signTypedDataSafe({
+      const rawSignature = await signTypedDataRaw({
         chainId: chainId,
         account: account as Address,
         typedData: messagePayload,
