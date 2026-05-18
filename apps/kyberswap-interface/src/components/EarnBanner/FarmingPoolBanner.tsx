@@ -128,8 +128,8 @@ export default function FarmingPoolBanner() {
             onMouseLeave={() => setIsSlideHovered(false)}
           >
             <FarmingPoolWrapper
-              animateMoveForward={animateMoveForward}
-              animateMoveBack={animateMoveBack}
+              $animateMoveForward={animateMoveForward}
+              $animateMoveBack={animateMoveBack}
               style={{ width: containerWidth * (!upToExtraSmall ? 2 : 3) }}
             >
               {pools.map((pool, index) => {
