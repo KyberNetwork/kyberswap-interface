@@ -1,11 +1,12 @@
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import { AutoColumn } from 'components/Column'
+import WarningIcon from 'components/Icons/WarningIcon'
 import RefreshLoading from 'components/RefreshLoading'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
@@ -24,15 +25,6 @@ type WrapperProps = {
   $visible: boolean
   $disabled: boolean
 }
-
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 16px;
-  width: 16px;
-  cursor: pointer;
-  path {
-    fill: ${({ theme }) => theme.text} !important;
-  }
-`
 
 const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   'data-visible': props.$visible,
@@ -96,7 +88,7 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
   )
 }
 
-const SwapFee: React.FC = () => {
+const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
 
@@ -111,11 +103,13 @@ const SwapFee: React.FC = () => {
   }
 
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
+  const labelColor = isFeeTampered ? theme.warning : theme.subText
+  const valueColor = isFeeTampered ? theme.warning : theme.text
 
   return (
     <RowBetween>
       <RowFixed>
-        <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+        <TextDashed fontSize={12} fontWeight={400} color={labelColor}>
           <MouseoverTooltip
             text={
               isInSafeApp ? (
@@ -137,7 +131,7 @@ const SwapFee: React.FC = () => {
       </RowFixed>
 
       <RowFixed>
-        <TYPE.black color={theme.text} fontSize={12}>
+        <TYPE.black color={valueColor} fontSize={12}>
           {isInSafeApp ? '0.1%' : feeAmountUsd || feeAmountWithSymbol || '--'}
         </TYPE.black>
       </RowFixed>
@@ -151,8 +145,16 @@ type Props = {
   disableRefresh: boolean
   routeLoading: boolean
   refreshCallback: () => void
+  isFeeTampered?: boolean
 }
-const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback, routeLoading }) => {
+const TradeSummary: React.FC<Props> = ({
+  routeSummary,
+  slippage,
+  disableRefresh,
+  refreshCallback,
+  routeLoading,
+  isFeeTampered,
+}) => {
   const theme = useTheme()
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact } = routeSummary || {}
@@ -192,7 +194,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
             <Trans>Rate</Trans>
           </Text>
 
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
+          <Flex alignItems="center" sx={{ gap: '4px', my: -4 }}>
             <RefreshLoading
               refetchLoading={routeLoading}
               onRefresh={refreshCallback}
@@ -275,7 +277,29 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
           </TYPE.black>
         </RowBetween>
 
-        <SwapFee />
+        <SwapFee isFeeTampered={isFeeTampered} />
+
+        {isFeeTampered && (
+          <Flex
+            sx={{
+              borderRadius: '12px',
+              background: rgba(theme.warning, 0.3),
+              padding: '10px 12px',
+              gap: '8px',
+            }}
+          >
+            <WarningIcon color={theme.warning} size={16} />
+            <Text fontSize={12} flex={1}>
+              <Trans>
+                <b>Third-party fee detected</b>
+                <br />
+                An additional fee appears to have been added by a browser extension or other third-party modification,
+                not by KyberSwap. KyberSwap does not charge a flat fee for this trade by default. Please review your
+                browser extensions before proceeding.
+              </Trans>
+            </Text>
+          </Flex>
+        )}
       </AutoColumn>
     </Wrapper>
   )

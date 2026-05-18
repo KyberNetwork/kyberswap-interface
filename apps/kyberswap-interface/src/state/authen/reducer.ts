@@ -8,10 +8,6 @@ export type UserProfile = {
   avatarUrl: string
   data?: { favouriteChainIds?: string[] }
 }
-export type ConfirmProfile = {
-  showModal: boolean
-}
-
 export type AutoSignIn = {
   value: boolean
   account: string | undefined

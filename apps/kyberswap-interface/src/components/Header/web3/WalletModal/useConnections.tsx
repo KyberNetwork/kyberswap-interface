@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Connector, useConnect } from 'wagmi'
+import { Connector, useConnectors } from 'wagmi'
 
 import { CONNECTION, CONNECTION_ORDER, HardCodedConnectors, getConnectorWithId } from 'components/Web3Provider'
 import { isInSafeApp } from 'utils'
+
+const normalizeConnectorName = (name: string) => name.trim().toLowerCase()
 
 function getInjectedConnectors(connectors: readonly Connector[]) {
   let isCoinbaseWalletBrowser = false
@@ -16,6 +18,13 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
       return false
     }
 
+    // Defensive: drop the io.metamask EIP-6963 entry. wagmi v3 normally dedupes it against the
+    // metaMask SDK connector's rdns, but a late provider injection or rdns mismatch could leak it
+    // through and surface as a second "MetaMask" row alongside the SDK entry.
+    if (c.id === CONNECTION.METAMASK_RDNS) {
+      return false
+    }
+
     return c.type === CONNECTION.INJECTED_CONNECTOR_TYPE && c.id !== CONNECTION.INJECTED_CONNECTOR_ID
   })
 
@@ -23,26 +32,44 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
   const realInjectedConnectors = injectedConnectors.filter(c => !hardcodedInjectedIds.includes(c.id))
 
   // Special-case: Return deprecated window.ethereum connector when no eip6963 injectors are present.
+  // Skip when window.ethereum is MetaMask — wagmi v3 dedupes the io.metamask EIP-6963 announcement
+  // against the metaMask SDK connector's rdns, so the SDK entry is the canonical MetaMask row and
+  // the generic "Browser Wallet" fallback would appear as a duplicate pointing at the same provider.
   const fallbackInjector = getConnectorWithId(
     connectors.filter(c => !hardcodedInjectedIds.includes(c.id)),
     CONNECTION.INJECTED_CONNECTOR_ID,
     { shouldThrow: true },
   )
-  if (!realInjectedConnectors.length && Boolean(window.ethereum)) {
+  if (!realInjectedConnectors.length && Boolean(window.ethereum) && !window.ethereum?.isMetaMask) {
     return { injectedConnectors: [fallbackInjector], isCoinbaseWalletBrowser }
   }
 
   return { injectedConnectors, isCoinbaseWalletBrowser }
 }
 
+function dedupeConnectorsByName(connectors: InjectableConnector[]) {
+  const seen = new Set<string>()
+  return connectors.filter(connector => {
+    const name = normalizeConnectorName(connector.name)
+    if (seen.has(name)) return false
+    seen.add(name)
+    return true
+  })
+}
+
+function getConnectorOrderId(connector: Connector) {
+  return HardCodedConnectors.find(c => c.id === connector.id)?.realId ?? connector.id
+}
+
 type InjectableConnector = Connector & { isInjected?: boolean }
 export function useOrderedConnections(): InjectableConnector[] {
-  const { connectors } = useConnect()
+  const connectors = useConnectors()
 
   return useMemo(() => {
     const { injectedConnectors: injectedConnectorsBase, isCoinbaseWalletBrowser } = getInjectedConnectors(connectors)
     const injectedConnectors = injectedConnectorsBase.map(c => ({ ...c, isInjected: true }))
 
+    const metaMaskSdkConnector = getConnectorWithId(connectors, CONNECTION.METAMASK_SDK_CONNECTOR_ID)
     const coinbaseSdkConnector = getConnectorWithId(connectors, CONNECTION.COINBASE_SDK_CONNECTOR_ID)
     const walletConnectConnector = getConnectorWithId(connectors, CONNECTION.WALLET_CONNECT_CONNECTOR_ID)
     const safeConnector = getConnectorWithId(connectors, CONNECTION.SAFE_CONNECTOR_ID)
@@ -52,7 +79,7 @@ export function useOrderedConnections(): InjectableConnector[] {
 
     let hardcodeInjectedConnectors = connectors.filter(c => hardcodedInjectedIds.includes(c.id))
 
-    const injectedConnectorsWithoutHardcoded = injectedConnectors.filter(c => {
+    let injectedConnectorsWithoutHardcoded = injectedConnectors.filter(c => {
       return !hardcodedInjectedIds.includes(c.id)
     })
 
@@ -64,7 +91,7 @@ export function useOrderedConnections(): InjectableConnector[] {
       }
     })
 
-    if (!coinbaseSdkConnector || !walletConnectConnector) {
+    if (!metaMaskSdkConnector || !coinbaseSdkConnector || !walletConnectConnector) {
       throw new Error('Expected connector(s) missing from wagmi context.')
     }
 
@@ -74,7 +101,7 @@ export function useOrderedConnections(): InjectableConnector[] {
       injectedConnectorsWithoutHardcoded.length === 2 &&
       injectedConnectorsWithoutHardcoded.some(c => c.id === CONNECTION.PORTO)
     ) {
-      return injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
+      injectedConnectorsWithoutHardcoded = injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
     }
 
     // Special-case: Only display the Coinbase connector in the Coinbase Wallet.
@@ -84,26 +111,27 @@ export function useOrderedConnections(): InjectableConnector[] {
 
     const orderedConnectors: InjectableConnector[] = []
 
-    // Injected connectors should appear next in the list, as the user intentionally installed/uses them.
+    // MetaMask SDK connector — wagmi auto-dedupes the EIP-6963 io.metamask injected entry
+    // via the connector's `rdns` field, so only this one represents MetaMask.
+    orderedConnectors.push(metaMaskSdkConnector)
+
+    // Other EIP-6963 injected connectors (Rabby, Phantom, Trust, etc.) the user has installed.
     orderedConnectors.push(...injectedConnectorsWithoutHardcoded)
 
-    // WalletConnect and Coinbase are added last in the list.
+    // Add always-available connectors before applying CONNECTION_ORDER.
     orderedConnectors.push(walletConnectConnector)
     orderedConnectors.push(coinbaseSdkConnector)
+    orderedConnectors.push(...hardcodeInjectedConnectors)
 
     // Sort the connectors by the CONNECTION_ORDER, if not found, put at the end
     orderedConnectors.sort((a, b) => {
-      const aIndex = CONNECTION_ORDER.indexOf(a.id as any)
-      const bIndex = CONNECTION_ORDER.indexOf(b.id as any)
+      const aIndex = CONNECTION_ORDER.indexOf(getConnectorOrderId(a) as any)
+      const bIndex = CONNECTION_ORDER.indexOf(getConnectorOrderId(b) as any)
       if (aIndex === -1) return 1
       if (bIndex === -1) return -1
       return aIndex - bIndex
     })
 
-    orderedConnectors.push(...hardcodeInjectedConnectors)
-
-    // Place the most recent connector at the top of the list.
-    orderedConnectors
-    return orderedConnectors
+    return dedupeConnectorsByName(orderedConnectors)
   }, [connectors])
 }

@@ -26,6 +26,7 @@ export default function ShareModal({
   reward,
   type,
   isFarming,
+  hasActiveApr,
   defaultOptions,
   onClose,
 }: ShareModalProps) {
@@ -48,8 +49,8 @@ export default function ShareModal({
     const option1Label = option1 ? getShareOptionLabel(i18n, option1) : '';
     const option2Label = option2 ? getShareOptionLabel(i18n, option2) : '';
 
-    const option1Value = getValueByOption({ type, option: option1, pool, position, reward });
-    const option2Value = getValueByOption({ type, option: option2, pool, position, reward });
+    const option1Value = getValueByOption({ type, option: option1, selectedOptions, pool, position, reward });
+    const option2Value = getValueByOption({ type, option: option2, selectedOptions, pool, position, reward });
 
     return (
       <div
@@ -190,6 +191,7 @@ export default function ShareModal({
             selectedOptions={selectedOptions}
             setSelectedOptions={setSelectedOptions}
             isFarming={isFarming}
+            hasActiveApr={hasActiveApr}
           />
         </div>
 

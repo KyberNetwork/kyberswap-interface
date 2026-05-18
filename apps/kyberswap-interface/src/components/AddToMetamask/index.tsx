@@ -1,9 +1,10 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import styled from 'styled-components'
+import { useWatchAsset } from 'wagmi'
 
 import { ButtonEmpty } from 'components/Button'
 import { RowFixed } from 'components/Row'
-import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
+import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { getTokenLogoURL } from 'utils'
 
@@ -15,35 +16,35 @@ const StyledLogo = styled.img`
 export default function AddTokenToMetaMask({ token }: { token: Token }) {
   const { chainId, walletKey } = useActiveWeb3React()
   const { connector } = useWeb3React()
+  // Routes wallet_watchAsset through the active connector's provider so it works for the
+  // metaMask SDK on mobile (no window.ethereum) as well as desktop injected wallets.
+  const { mutate: watchAsset } = useWatchAsset()
 
-  async function addToMetaMask() {
-    const tokenAddress = token.address
-    const tokenSymbol = token.symbol
-    const tokenDecimals = token.decimals
-    const tokenImage = getTokenLogoURL(token.address, chainId)
-
-    try {
-      await window.ethereum?.request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC20',
-          options: {
-            address: tokenAddress,
-            symbol: tokenSymbol,
-            decimals: tokenDecimals,
-            image: tokenImage,
-          },
+  function addToMetaMask() {
+    watchAsset(
+      {
+        type: 'ERC20',
+        options: {
+          address: token.address,
+          symbol: token.symbol ?? '',
+          decimals: token.decimals,
+          image: getTokenLogoURL(token.address, chainId),
         },
-      })
-    } catch (error) {
-      console.error(error)
-    }
+      },
+      {
+        onError: error => {
+          console.error(error)
+        },
+      },
+    )
   }
   const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector?.id || ''] ?? connector?.icon
 
   if (!walletKey || !icon) return null
-  if (walletKey === 'WalletConnect') return null
-  if (walletKey === 'COINBASE') return null // Coinbase wallet no need to add since it automatically track token
+  // walletKey is the connector id; match the wagmi v3 ids exactly.
+  // Coinbase auto-tracks tokens; WalletConnect-paired wallets often don't support wallet_watchAsset.
+  if (walletKey === CONNECTION.WALLET_CONNECT_CONNECTOR_ID) return null
+  if (walletKey === CONNECTION.COINBASE_SDK_CONNECTOR_ID) return null
   return (
     <ButtonEmpty mt="12px" padding="0" width="fit-content" onClick={addToMetaMask}>
       <RowFixed>

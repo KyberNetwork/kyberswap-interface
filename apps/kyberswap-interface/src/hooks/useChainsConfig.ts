@@ -9,7 +9,6 @@ import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 export enum ChainState {
   NEW = 'new',
   ACTIVE = 'active',
-  INACTIVE = 'inactive',
   MAINTENANCE = 'maintained',
 }
 

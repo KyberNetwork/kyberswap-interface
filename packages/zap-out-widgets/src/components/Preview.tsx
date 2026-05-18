@@ -22,6 +22,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 
 import { SlippageWarning } from '@/components/SlippageWarning';
 import { WarningMsg } from '@/components/WarningMsg';
+import useOnSuccess from '@/hooks/useOnSuccess';
 import useTxStatus from '@/hooks/useTxStatus';
 import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
@@ -52,6 +53,7 @@ export const Preview = () => {
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const { txStatus, currentTxHash } = useTxStatus({ txHash: txHash || undefined });
+  useOnSuccess({ txHash: txHash || '', txStatus });
 
   // Use currentTxHash (which tracks replacements) for displaying to user
   const displayTxHash = currentTxHash || txHash;

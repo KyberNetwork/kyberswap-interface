@@ -8,19 +8,6 @@ export const chunk = <T>(arr: readonly T[], chunkSize: number): T[][] => {
   return result
 }
 
-export const uniqueArray = <T, U>(array: T[], keySelector = (item: T): U => item as any): T[] => {
-  const set = new Set<U>()
-  const result: T[] = []
-  array.forEach(element => {
-    const key = keySelector(element)
-    if (!set.has(key)) {
-      result.push(element)
-      set.add(key)
-    }
-  })
-  return result
-}
-
 export const aggregateValue = <T extends string>(
   values: ({ [key in T]: string | number } | undefined)[],
   field: T,

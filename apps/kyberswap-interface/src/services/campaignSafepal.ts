@@ -79,6 +79,12 @@ export type SafePalCampaignStats = {
   entries: SafePalCampaignLeaderboardEntry[]
 }
 
+export type SafePalCampaignJoinedStats = {
+  from_ts: number
+  to_ts: number
+  user_joinned: number
+}
+
 export type SafePalCampaignWeeklyStats = {
   user_address: string
   page: number
@@ -143,6 +149,13 @@ const safepalCampaignApi = createApi({
     baseUrl: SAFEPAL_CAMPAIGN_API_BASE_URL,
   }),
   endpoints: builder => ({
+    getJoinedStats: builder.query<SafePalCampaignJoinedStats, SafePalTimeRangeParams>({
+      query: params => ({
+        url: '/joinned',
+        params: mapTimeRangeParams(params),
+      }),
+      transformResponse: extractSafePalData,
+    }),
     getStats: builder.query<SafePalCampaignStats, SafePalLeaderboardParams>({
       query: ({ userAddress, ...params }) => ({
         url: '/leaderboard',
@@ -189,6 +202,7 @@ const safepalCampaignApi = createApi({
 })
 
 export const {
+  useGetJoinedStatsQuery: useGetSafePalCampaignJoinedStatsQuery,
   useGetStatsQuery: useGetSafePalCampaignStatsQuery,
   useGetUserStatsQuery: useGetSafePalCampaignUserStatsQuery,
   useGetWeeklyStatsQuery: useGetSafePalCampaignWeeklyStatsQuery,

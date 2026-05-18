@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
 import { useCallback } from 'react'
 import { useSwitchChain } from 'wagmi'
 
@@ -19,7 +18,7 @@ import { wait } from 'utils/retry'
 let latestChainId: number | undefined
 export function useChangeNetwork() {
   const { isWrongNetwork, chainId: kyberChainId } = useActiveWeb3React()
-  const { chainId, connector, active, library } = useWeb3React()
+  const { chainId, active, library } = useWeb3React()
   //const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
@@ -86,12 +85,6 @@ export function useChangeNetwork() {
         message = t`Your wallet not support chain ${name}`
       } else {
         message = error?.message || message
-        const e = new Error(`[Activate chain] ${connector?.id} ${message}`)
-        e.name = 'Activate chain error'
-        captureException(e, {
-          level: 'warning',
-          extra: { error, wallet: connector?.id, chainId, desiredChainId, message },
-        })
       }
       notify({
         title,
@@ -100,7 +93,7 @@ export function useChangeNetwork() {
       })
       customFailureCallback?.(error)
     },
-    [chainId, connector, notify],
+    [notify],
   )
 
   const addNewNetwork = useCallback(

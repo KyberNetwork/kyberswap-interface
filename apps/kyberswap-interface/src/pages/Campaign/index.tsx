@@ -5,6 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
+import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -14,8 +15,6 @@ import CampaignStats from './components/CampaignStats'
 import RaffleCampaignStats from './components/CampaignStats/RaffleCampaignStats'
 import SafePalCampaignStats, { SafePalClaim } from './components/CampaignStats/SafePalCampaignStats'
 import Information from './components/Information'
-import { RaffleTermsSection } from './components/Information/info/raffle'
-import { SafePalTermsSection } from './components/Information/info/safepal'
 import JoinCampaignModal from './components/JoinCampaignModal'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
@@ -102,8 +101,33 @@ export default function CampaignPage() {
     }
   }, [isRaffleCampaign, participant])
 
+  const handleRequestJoin = () => {
+    if (!account) {
+      toggleWalletModal()
+    } else {
+      setIsJoinModalOpen(true)
+    }
+  }
+
+  const handleViewTerms = () => {
+    setIsJoinModalOpen(false)
+    searchParams.set('tab', TabKey.Information)
+    setSearchParams(searchParams)
+
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        document.getElementById('terms-and-conditions')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      })
+    }, 300)
+  }
+
   return (
     <Wrapper>
+      <HiddenH1>Earn bonus rewards and incentives while you swap, provide liquidity, or trade.</HiddenH1>
+      <HiddenH2>Join active campaigns across supported chains - no lock-up required.</HiddenH2>
       <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
       <Flex justifyContent="space-between" alignItems="center" marginTop="1.5rem">
         <Text fontSize={24} fontWeight="500">
@@ -136,25 +160,34 @@ export default function CampaignPage() {
         >
           <WeekSelect type={type} selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
 
-          <ButtonPrimary
-            altDisabledStyle
-            width={upToExtraSmall ? '100%' : '160px'}
-            height="40px"
-            disabled={isJoinedCampaign || isRaffleNotEligible || !isJoinAvailable}
-            onClick={() => {
-              if (isRaffleCampaign || isSafePalCampaign) {
-                if (!account) {
-                  toggleWalletModal()
+          {isSafePalCampaign && isSafePalJoined ? (
+            <ButtonPrimary
+              altDisabledStyle
+              width={upToExtraSmall ? '100%' : '160px'}
+              height="40px"
+              onClick={() => {
+                navigate('/')
+              }}
+            >
+              {t`Trade Now`}
+            </ButtonPrimary>
+          ) : (
+            <ButtonPrimary
+              altDisabledStyle
+              width={upToExtraSmall ? '100%' : '160px'}
+              height="40px"
+              disabled={isJoinedCampaign || isRaffleNotEligible || !isJoinAvailable}
+              onClick={() => {
+                if (isRaffleCampaign || isSafePalCampaign) {
+                  handleRequestJoin()
                 } else {
-                  setIsJoinModalOpen(true)
+                  navigate(ctaLink)
                 }
-              } else {
-                navigate(ctaLink)
-              }
-            }}
-          >
-            {isRaffleJoinedByWeek || isSafePalJoined ? t`Joined` : ctaText}
-          </ButtonPrimary>
+              }}
+            >
+              {isRaffleJoinedByWeek || isSafePalJoined ? t`Joined` : ctaText}
+            </ButtonPrimary>
+          )}
         </Flex>
       )}
 
@@ -214,7 +247,7 @@ export default function CampaignPage() {
         (isRaffleCampaign ? (
           <RaffleLeaderboard selectedWeek={selectedWeek} />
         ) : isSafePalCampaign ? (
-          <SafePalLeaderboard selectedWeek={selectedWeek} />
+          <SafePalLeaderboard selectedWeek={selectedWeek} onRequestJoin={handleRequestJoin} />
         ) : (
           <Leaderboard
             type={type}
@@ -231,7 +264,7 @@ export default function CampaignPage() {
         (isRaffleCampaign ? (
           <RaffleLeaderboard type="owner" selectedWeek={selectedWeek} />
         ) : isSafePalCampaign ? (
-          <SafePalLeaderboard type="owner" selectedWeek={selectedWeek} />
+          <SafePalLeaderboard type="owner" selectedWeek={selectedWeek} onRequestJoin={handleRequestJoin} />
         ) : null)}
 
       {(isRaffleCampaign || isSafePalCampaign) && (
@@ -247,7 +280,7 @@ export default function CampaignPage() {
               void handleJoinSafePalCampaign()
             }
           }}
-          terms={isSafePalCampaign ? <SafePalTermsSection /> : <RaffleTermsSection />}
+          onViewTerms={handleViewTerms}
         />
       )}
 

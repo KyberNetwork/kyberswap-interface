@@ -35,6 +35,7 @@ import { useZapStore } from '@/stores/useZapStore';
 export function Preview({
   onSubmitTx,
   onViewPosition,
+  onCloseSuccess,
   onExplorePools,
 }: {
   onSubmitTx: (
@@ -48,6 +49,7 @@ export function Preview({
     },
   ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
+  onCloseSuccess?: () => void;
   onExplorePools?: () => void;
 }) {
   const { chainId, connectedAccount, rePositionMode, onClose, sourceDexId, targetDexId } = useWidgetStore([
@@ -93,6 +95,15 @@ export function Preview({
     setBuildData(undefined);
     setShowProcessing(false);
     setError(undefined);
+  };
+
+  const handleSuccessClose = () => {
+    if (onCloseSuccess) {
+      onCloseSuccess();
+      return;
+    }
+
+    onDismiss();
   };
 
   const handleConfirm = async () => {
@@ -171,7 +182,10 @@ export function Preview({
                 {t`Explore pools`}
               </button>
             ) : (
-              <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+              <button
+                className="ks-outline-btn flex-1"
+                onClick={txStatus === 'success' ? handleSuccessClose : onDismiss}
+              >
                 {t`Close`}
               </button>
             )}
@@ -189,7 +203,14 @@ export function Preview({
           </>
         }
         onClose={() => {
-          if (txStatus === 'success') onClose();
+          if (txStatus === 'success') {
+            if (onCloseSuccess) {
+              onCloseSuccess();
+              return;
+            }
+
+            onClose();
+          }
           onDismiss();
         }}
       />

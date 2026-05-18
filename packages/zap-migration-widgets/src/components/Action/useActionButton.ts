@@ -5,7 +5,7 @@ import { msg, t } from '@lingui/macro';
 
 import { PermitNftState } from '@kyber/hooks';
 import { getDexName, univ2Types, univ4Types } from '@kyber/schema';
-import { PI_LEVEL, friendlyError } from '@kyber/utils';
+import { PI_LEVEL } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
 import { useOwner } from '@/components/Action/useOwner';
@@ -316,8 +316,9 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
     if (!route || !connectedAccount.address) return;
     setGasLoading(true);
 
+    let buildData;
     try {
-      const buildData = await buildRouteData({
+      buildData = await buildRouteData({
         sender: connectedAccount.address,
         route: route.route,
         source: client,
@@ -336,12 +337,15 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
           },
         }),
       });
-      if (!buildData) {
-        setGasLoading(false);
-        setWidgetError(t`Build route data failed`);
-        return;
-      }
+    } catch (error) {
+      const msg = (error as Error)?.message || 'unknown error';
+      setWidgetError(msg.startsWith('Build route step:') ? msg : `Build route step: ${msg}`);
+      console.log('build route error', error);
+      setGasLoading(false);
+      return;
+    }
 
+    try {
       const txData = {
         from: connectedAccount.address,
         to: buildData.routerAddress,
@@ -349,16 +353,15 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
         value: `0x${BigInt(buildData.value).toString(16)}`,
       };
       const { gasUsd, error } = await estimateGasForTx({ txData, chainId });
-      setGasLoading(false);
 
       if (error || !gasUsd) {
-        setWidgetError(error || t`Estimate gas failed`);
+        setWidgetError(error || 'Estimate gas step: estimate gas failed');
         return;
       }
 
       return { ...buildData, gasUsd };
     } catch (error) {
-      setWidgetError(friendlyError(error as Error));
+      setWidgetError(`Estimate gas step: ${(error as Error)?.message || 'unknown error'}`);
       console.log('estimate gas error', error);
     } finally {
       setGasLoading(false);

@@ -79,7 +79,7 @@ const EarnLanding = () => {
       {smartExitWidget}
 
       <Container>
-        <Text fontSize={36} fontWeight="500">
+        <Text as="h1" fontSize={36} fontWeight="500">
           {t`Maximize Your Earnings in DeFi`}
         </Text>
         <Text

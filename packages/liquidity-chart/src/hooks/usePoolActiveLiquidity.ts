@@ -19,7 +19,7 @@ export default function usePoolActiveLiquidity({ pool, revertPrice }: { pool: Po
     // if the active tick is initialized, the pivot will be an element
     // if not, take the previous tick as pivot
     let pivot = ticks.findIndex(({ index: tick }) => Number(tick) > activeTick) - 1;
-    pivot = pivot <= -1 ? ticks.length - 1 : pivot === 0 ? 0 : pivot - 1;
+    if (pivot < 0) pivot = ticks.length - 1;
 
     let activeTickProcessed: TickProcessed | undefined;
 
@@ -27,7 +27,7 @@ export default function usePoolActiveLiquidity({ pool, revertPrice }: { pool: Po
       activeTickProcessed = {
         liquidityActive: BigInt(liquidity),
         tick: finalActiveTick,
-        liquidityNet: Number(ticks[pivot].index) === finalActiveTick ? BigInt(ticks[pivot].liquidityNet) : 0n,
+        liquidityNet: BigInt(ticks[pivot].liquidityNet),
         price: Number(tickToPrice(finalActiveTick, token0.decimals, token1.decimals, revertPrice)).toFixed(
           PRICE_FIXED_DIGITS,
         ),

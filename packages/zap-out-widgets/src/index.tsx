@@ -22,7 +22,7 @@ import { TokenListProvider } from '@/hooks/useTokenList';
 import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { ZapOutProvider, useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
-import { TxStatus, ZapOutProps } from '@/types/index';
+import { OnSuccessProps, TxStatus, ZapOutProps } from '@/types/index';
 
 import './Widget.scss';
 import './globals.css';
@@ -115,4 +115,4 @@ const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: nu
 
 export { ChainId, PoolType, ZapOut, TxStatus };
 
-export type { SupportedLocale };
+export type { OnSuccessProps, SupportedLocale };

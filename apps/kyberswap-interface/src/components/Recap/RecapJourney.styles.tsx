@@ -1365,24 +1365,6 @@ export const ProgressSegmentFill = styled(motion.div)<{ $isActive: boolean }>`
   width: ${({ $isActive }) => ($isActive ? '100%' : '0%')};
 `
 
-export const ProgressLabel = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.primary};
-  text-transform: uppercase;
-  letter-spacing: 1px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 9px;
-    letter-spacing: 0.75px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(12 / 640 * 100vw);
-    letter-spacing: calc(1 / 640 * 100vw);
-  }
-`
-
 // Part 3: Capital Flow
 export const CapitalFlowContainer = styled(motion.div)`
   display: flex;
@@ -2014,20 +1996,6 @@ export const SummaryStatsRow = styled.div`
   }
 `
 
-export const SummaryVolumeColumn = styled.div`
-  display: contents;
-`
-
-export const SummaryTradesColumn = styled.div`
-  display: contents;
-`
-
-export const SummaryStatItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`
-
 export const SummaryStatLabel = styled.div`
   font-size: 18px;
   font-weight: 600;
@@ -2075,12 +2043,6 @@ export const SummaryTradesValue = styled.div`
   @media screen and (max-width: 480px) {
     font-size: calc(48 / 640 * 100vw);
   }
-`
-
-export const SummaryTradesItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
 `
 
 export const SummaryTradesLabel = styled.div`

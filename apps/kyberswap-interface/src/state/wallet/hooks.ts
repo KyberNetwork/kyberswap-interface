@@ -32,7 +32,7 @@ function useETHBalance(): CurrencyAmount<Currency> | undefined {
   const multicallContract = useMulticallContract()
 
   const addressParam: (string | undefined)[] = useMemo(
-    () => (account && isAddress(chainId, account) ? [account] || [undefined] : [undefined]),
+    () => (account && isAddress(chainId, account) ? [account] : [undefined]),
     [chainId, account],
   )
 

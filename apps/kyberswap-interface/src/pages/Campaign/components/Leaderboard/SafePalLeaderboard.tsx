@@ -45,6 +45,7 @@ const StatusBadge = styled.div<{ $isWinner: boolean }>`
 type Props = {
   type?: 'leaderboard' | 'owner'
   selectedWeek: number
+  onRequestJoin?: () => void
 }
 
 const formatPointValue = (value?: number) => {
@@ -57,7 +58,7 @@ const getTransactionExplorerLink = (chainId: number, txHash: string) => {
   return getEtherscanLink(chainId, txHash, 'transaction')
 }
 
-export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
+export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }: Props) {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
@@ -69,12 +70,8 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
   const [searchAddressInput, setSearchAddressInput] = useState('')
   const [debouncedSearchAddress, setDebouncedSearchAddress] = useState('')
 
-  const {
-    onJoin: handleJoinCampaign,
-    isJoinedByWeek,
-    userStats,
-    isLoadingUserStats,
-  } = useSafePalCampaignJoin({ selectedWeek, enabled: true })
+  const { isJoinedByWeek, userStats, isLoadingUserStats } = useSafePalCampaignJoin({ selectedWeek, enabled: true })
+  const hasLeaderboardPoints = (userStats?.total_points || 0) > 0
 
   const isSelectedWeekAvailable = useMemo(() => isCampaignWeekActive(selectedRange), [selectedRange])
   const isSelectedWeekEnded = useMemo(() => isCampaignWeekEnded(selectedRange), [selectedRange])
@@ -100,7 +97,7 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
     },
     {
       skip: isOwner || !selectedRange,
-      pollingInterval: 10_000,
+      pollingInterval: 30_000,
     },
   )
 
@@ -112,16 +109,15 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
       page: currentPage,
     },
     {
-      skip: !isOwner || !selectedRange || !account,
-      pollingInterval: 10_000,
+      skip: !isOwner || !selectedRange || !account || !hasLeaderboardPoints,
+      pollingInterval: 30_000,
     },
   )
 
   const isLoading = isOwner ? isLoadingTransactions : isLoadingLeaderboard || (!!account && isLoadingUserStats)
-
   const totalCount = isOwner ? transactionsData?.total_items || 0 : leaderboardData?.total_items || 0
-  const hasLeaderboardPoints = (userStats?.total_points || 0) > 0
   const emptyStateMessage = isOwner ? t`No transactions found for this week.` : t`No participants found for this week.`
+  const hasLeaderboardEntries = !isOwner && !!leaderboardData?.entries.length
 
   const renderLabel = (label: ReactNode) =>
     upToSmall ? (
@@ -136,7 +132,7 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
 
   return (
     <Wrapper>
-      {!isOwner && hasLeaderboardPoints && (
+      {!isOwner && (
         <>
           <Flex
             justifyContent="space-between"
@@ -195,80 +191,7 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
 
       {isLoading ? (
         <LocalLoader />
-      ) : !isJoinedByWeek ? (
-        <Flex
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          padding="32px 16px"
-          sx={{ gap: '20px' }}
-        >
-          <Text textAlign="center" color={theme.subText} fontSize={14}>
-            {isOwner ? (
-              <Trans>Join to start tracking - only joined wallets have transactions recorded.</Trans>
-            ) : (
-              <Trans>You haven&apos;t joined this week yet. Join now to appear on the leaderboard.</Trans>
-            )}
-          </Text>
-          <ButtonPrimary
-            width={upToSmall ? '100%' : '160px'}
-            height="40px"
-            disabled={!isSelectedWeekAvailable}
-            onClick={() => void handleJoinCampaign()}
-          >
-            <Trans>Join Now</Trans>
-          </ButtonPrimary>
-        </Flex>
-      ) : !isOwner && !hasLeaderboardPoints ? (
-        <Text textAlign="center" color={theme.subText} padding="24px" marginTop="12px" fontSize={14}>
-          <Trans>You&apos;ve joined. Start trading this week to appear on the leaderboard.</Trans>
-        </Text>
-      ) : isOwner ? (
-        transactionsData?.items.length ? (
-          transactionsData.items.map(tx => {
-            const explorerLink = getTransactionExplorerLink(tx.chain_id, tx.tx_hash)
-
-            return (
-              <Box
-                display={upToSmall ? 'grid' : 'flex'}
-                key={tx.id}
-                padding={upToSmall ? '1rem 0' : '1rem 1.25rem'}
-                fontSize={14}
-                color={theme.text}
-                flexDirection={upToSmall ? 'column' : 'row'}
-                sx={{
-                  gap: upToSmall ? '0.5rem' : '1.25rem',
-                  gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
-                }}
-              >
-                <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
-                  {renderLabel(<Trans>NETWORK</Trans>)}
-                  <Text>{tx.chain_name || '--'}</Text>
-                </Flex>
-                <Flex flex={1} flexDirection="column">
-                  {renderLabel(<Trans>TX HASH</Trans>)}
-                  <Flex alignItems="center" sx={{ gap: '6px' }}>
-                    <Text>{shortenHash(tx.tx_hash, 4)}</Text>
-                    {explorerLink && <ExternalLinkIcon color={theme.subText} href={explorerLink} />}
-                  </Flex>
-                </Flex>
-                <Flex
-                  width={upToSmall ? '100%' : '120px'}
-                  flexDirection="column"
-                  textAlign={upToSmall ? 'left' : 'right'}
-                >
-                  {renderLabel(<Trans>POINTS</Trans>)}
-                  <Text fontWeight="500">{formatPointValue(tx.point)}</Text>
-                </Flex>
-              </Box>
-            )
-          })
-        ) : (
-          <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px" fontSize={14}>
-            {emptyStateMessage}
-          </Text>
-        )
-      ) : leaderboardData?.entries.length ? (
+      ) : !isOwner && hasLeaderboardEntries ? (
         leaderboardData.entries.map((entry, index) => {
           const rank = entry.rank || index + 1 + (currentPage - 1) * 10
           const isWinner = isSelectedWeekEnded && isSafePalCampaignWinner({ rank, total_points: entry.total_points })
@@ -325,13 +248,86 @@ export default function SafePalLeaderboard({ type, selectedWeek }: Props) {
             </Box>
           )
         })
+      ) : !isJoinedByWeek ? (
+        <Flex
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          padding="32px 16px"
+          sx={{ gap: '20px' }}
+        >
+          <Text textAlign="center" color={theme.subText} fontSize={14}>
+            {isOwner ? (
+              <Trans>Join to start tracking - only joined wallets have transactions recorded.</Trans>
+            ) : (
+              <Trans>You haven&apos;t joined this week yet. Join now to appear on the leaderboard.</Trans>
+            )}
+          </Text>
+          <ButtonPrimary
+            width={upToSmall ? '100%' : '160px'}
+            height="40px"
+            disabled={!isSelectedWeekAvailable}
+            onClick={onRequestJoin}
+          >
+            <Trans>Join Now</Trans>
+          </ButtonPrimary>
+        </Flex>
+      ) : !isOwner && !hasLeaderboardPoints ? (
+        <Text textAlign="center" color={theme.subText} padding="24px" marginTop="12px" fontSize={14}>
+          <Trans>You&apos;ve joined. Start trading this week to appear on the leaderboard.</Trans>
+        </Text>
+      ) : isOwner ? (
+        transactionsData?.items.length ? (
+          transactionsData.items.map(tx => {
+            const explorerLink = getTransactionExplorerLink(tx.chain_id, tx.tx_hash)
+
+            return (
+              <Box
+                display={upToSmall ? 'grid' : 'flex'}
+                key={tx.id}
+                padding={upToSmall ? '1rem 0' : '1rem 1.25rem'}
+                fontSize={14}
+                color={theme.text}
+                flexDirection={upToSmall ? 'column' : 'row'}
+                sx={{
+                  gap: upToSmall ? '0.5rem' : '1.25rem',
+                  gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
+                }}
+              >
+                <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
+                  {renderLabel(<Trans>NETWORK</Trans>)}
+                  <Text>{tx.chain_name || '--'}</Text>
+                </Flex>
+                <Flex flex={1} flexDirection="column">
+                  {renderLabel(<Trans>TX HASH</Trans>)}
+                  <Flex alignItems="center" sx={{ gap: '6px' }}>
+                    <Text>{shortenHash(tx.tx_hash, 4)}</Text>
+                    {explorerLink && <ExternalLinkIcon color={theme.subText} href={explorerLink} />}
+                  </Flex>
+                </Flex>
+                <Flex
+                  width={upToSmall ? '100%' : '120px'}
+                  flexDirection="column"
+                  textAlign={upToSmall ? 'left' : 'right'}
+                >
+                  {renderLabel(<Trans>POINTS</Trans>)}
+                  <Text fontWeight="500">{formatPointValue(tx.point)}</Text>
+                </Flex>
+              </Box>
+            )
+          })
+        ) : (
+          <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px" fontSize={14}>
+            {emptyStateMessage}
+          </Text>
+        )
       ) : (
         <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px" fontSize={14}>
           {emptyStateMessage}
         </Text>
       )}
 
-      {!isLoading && isJoinedByWeek && totalCount > 0 && (
+      {!isLoading && totalCount > 0 && (
         <Pagination
           onPageChange={handlePageChange}
           totalCount={totalCount}

@@ -121,15 +121,6 @@ export const RowItem = styled.div`
   gap: 6px;
 `
 
-export const StatusBadge = styled.div<{ color: string }>`
-  background-color: ${({ color }) => rgba(color, 0.1)};
-  color: ${({ color }) => color};
-  font-size: 12px;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 12px;
-`
-
 export const AmountRow = styled.div`
   display: flex;
   align-items: center;

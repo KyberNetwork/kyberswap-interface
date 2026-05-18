@@ -5,9 +5,6 @@ import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-//import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
-//import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-//import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
@@ -15,7 +12,6 @@ import { NewLabel } from 'components/Menu'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-//import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
 
@@ -29,18 +25,6 @@ const IconWrapper = styled.div`
   align-items: center;
 `
 
-//const VisaSVG = styled(Visa)`
-//  path {
-//    fill: ${({ theme }) => theme.text};
-//  }
-//`
-
-//const StyledBuyCrypto = styled(BuyCrypto)`
-//  path {
-//    fill: currentColor;
-//  }
-//`
-
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
@@ -48,9 +32,7 @@ const SwapNavGroup = () => {
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
 
-  const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path =>
-    pathname.startsWith(path),
-  )
+  const isActive = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
 
   return (
     <NavGroup
@@ -106,36 +88,11 @@ const SwapNavGroup = () => {
                 </IconWrapper>
                 <Flex>
                   <Trans>Cross-Chain</Trans>
-                  <NewLabel>New</NewLabel>
+                  <NewLabel isNew>New</NewLabel>
                 </Flex>
               </Flex>
             </StyledNavLink>
           )}
-
-          {/*
-          <StyledNavLink
-            id="buy-crypto-nav-link"
-            to={APP_PATHS.BUY_CRYPTO}
-            onClick={() => {
-              trackingHandler(TRACKING_EVENT_TYPE.SWAP_BUY_CRYPTO_CLICKED)
-            }}
-            style={{ flexDirection: 'column', width: '100%' }}
-          >
-            <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
-              <IconWrapper>
-                <StyledBuyCrypto />
-              </IconWrapper>
-              <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                <Trans>Buy Crypto</Trans>
-                <Flex sx={{ gap: '8px' }}>
-                  <VisaSVG width="20" height="20" />
-                  <MasterCard width="20" height="20" />
-                </Flex>
-              </Flex>
-            </Flex>
-          </StyledNavLink>
-
-          */}
         </Flex>
       }
     />
