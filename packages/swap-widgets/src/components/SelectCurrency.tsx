@@ -263,7 +263,7 @@ function SelectCurrency({
                 ) : loading ? (
                   <Spinner />
                 ) : (
-                  <TokenBalance>
+                  <TokenBalance title={token.formattedBalance}>
                     {token.balance && parseFloat(token.formattedBalance) < 0.000001
                       ? token.formattedBalance
                       : parseFloat(parseFloat(token.formattedBalance).toPrecision(10))}
