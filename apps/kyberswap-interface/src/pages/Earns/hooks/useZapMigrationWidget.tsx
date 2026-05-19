@@ -104,6 +104,8 @@ const zapMigrationDexMapping: Record<Exchange, ZapMigrationDex | null> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_AERODROMECL]: ZapMigrationDex.DEX_AERODROMECL,
+  [Exchange.DEX_AERODROMECL2]: ZapMigrationDex.DEX_AERODROMECL2,
+  [Exchange.DEX_AERODROMECL3]: ZapMigrationDex.DEX_AERODROMECL3,
 }
 
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
@@ -381,6 +383,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     ...DEFAULT_PARSED_POSITION.token0,
                     address: data.position.token0.address,
                     totalProvide: data.position.token0.amount,
+                    currentAmount: data.position.token0.amount,
                     logo: data.position.token0.logo,
                     symbol: data.position.token0.symbol,
                   },
@@ -388,6 +391,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     ...DEFAULT_PARSED_POSITION.token1,
                     address: data.position.token1.address,
                     totalProvide: data.position.token1.amount,
+                    currentAmount: data.position.token1.amount,
                     logo: data.position.token1.logo,
                     symbol: data.position.token1.symbol,
                   },

@@ -1,14 +1,19 @@
 import { type Currency, type CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDown } from 'react-feather'
+import { ChevronDown, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { ShieldChecked } from 'components/Icons'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import { ClickTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 import { type SwapRouteV2, type SwapRouteV3 } from 'utils/aggregationRouting'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
@@ -50,6 +55,30 @@ const RouteTitleText = styled(Text)`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 14px;
   `}
+`
+
+const SmartSettlementBadge = styled.div`
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid ${({ theme }) => rgba(theme.primary, 0.45)};
+  border-radius: 12px;
+  background: ${({ theme }) => rgba(theme.primary, 0.12)};
+  color: ${({ theme }) => theme.primary};
+  font-size: 14px;
+  font-weight: 500;
+`
+
+const SmartSettlementTooltipContent = styled.div`
+  color: ${({ theme }) => theme.subText};
+  font-size: 12px;
+
+  b {
+    color: ${({ theme }) => theme.text};
+    font-weight: 500;
+  }
 `
 
 const ToggleIconWrapper = styled.div`
@@ -117,6 +146,7 @@ type SwapTradeRouteProps = {
   defaultCollapsed?: boolean
   inputAmount: CurrencyAmount<Currency> | undefined
   outputAmount: CurrencyAmount<Currency> | undefined
+  isSmartSettlementActive?: boolean
   scrollOnExpand?: boolean
 }
 
@@ -127,6 +157,7 @@ const SwapTradeRoute = ({
   defaultCollapsed = false,
   inputAmount,
   outputAmount,
+  isSmartSettlementActive = false,
   scrollOnExpand = true,
 }: SwapTradeRouteProps) => {
   const theme = useTheme()
@@ -140,12 +171,29 @@ const SwapTradeRoute = ({
 
   const titleData = useMemo(
     () => ({
-      amountIn: inputAmount?.toSignificant(4),
-      amountOut: outputAmount?.toSignificant(4),
+      amountIn: inputAmount?.toSignificant(8),
+      amountOut: outputAmount?.toSignificant(8),
       inputSymbol: currencyIn?.symbol,
       outputSymbol: currencyOut?.symbol,
     }),
     [currencyIn?.symbol, currencyOut?.symbol, inputAmount, outputAmount],
+  )
+
+  const smartSettlementTooltip = (
+    <SmartSettlementTooltipContent>
+      <Trans>
+        At execution, KyberSwap compares candidate pools on-chain in real time and picks the one that delivers the
+        highest output - giving your swap the best possible rate with an extra layer of protection from slippage,
+        PropAMM manipulation, Just-in-Time attacks and MEVs. <b>Your minimum amount out is always guaranteed.</b> No
+        extra steps needed.
+      </Trans>{' '}
+      <ExternalLink
+        href="https://docs.kyberswap.com/developer-guide/start-here/foundational-solutions/smart-settlement-better-swap-output-with-lower-slippage"
+        onClick={event => event.stopPropagation()}
+      >
+        <Trans>Learn more ↗</Trans>
+      </ExternalLink>
+    </SmartSettlementTooltipContent>
   )
 
   const handleToggle = () => {
@@ -196,6 +244,16 @@ const SwapTradeRoute = ({
                 </RouteTitleText>
               </Flex>
             ) : null}
+
+            {isSmartSettlementActive && (
+              <ClickTooltip text={smartSettlementTooltip} width="360px" placement="top">
+                <SmartSettlementBadge role="button">
+                  <ShieldChecked size={14} color={theme.primary} />
+                  <Trans>Smart Settlement</Trans>
+                  <Info size={14} />
+                </SmartSettlementBadge>
+              </ClickTooltip>
+            )}
           </Flex>
         </PanelTitle>
         <ToggleIconWrapper>

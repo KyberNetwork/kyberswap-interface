@@ -60,7 +60,9 @@ const PoolSection = ({
         <Flex alignItems="center" sx={{ gap: '12px' }}>
           <Icon icon={icon} size="small" />
           <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-            <Text fontSize={20}>{title}</Text>
+            <Text as="h2" fontSize={20}>
+              {title}
+            </Text>
           </MouseoverTooltipDesktopOnly>
         </Flex>
         <Box

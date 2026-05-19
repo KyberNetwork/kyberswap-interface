@@ -40,7 +40,7 @@ const ButtonEth = ({
   const propsEth = {
     height: '36px',
     id: 'btnLoginEth',
-    onClick: (e: MouseEvent) => {
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault()
       onClickEth()
     },

@@ -150,10 +150,9 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
         </LabelHeaderPanel>
         <PoweredByWrapper>
           <PoweredByText>
-            <Trans>
-              Powered by <Coingecko style={{ width: 56 }} />
-            </Trans>
+            <Trans>Powered by</Trans>
           </PoweredByText>
+          <Coingecko style={{ width: 56 }} />
         </PoweredByWrapper>
       </HeaderPanel>
       <MarketInfo token={selectedToken} />
@@ -171,10 +170,9 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
         </LabelHeaderPanel>
         <PoweredByWrapper>
           <PoweredByText>
-            <Trans>
-              Powered by <GoplusLogo style={{ width: 56 }} />
-            </Trans>
+            <Trans>Powered by</Trans>
           </PoweredByText>
+          <GoplusLogo style={{ width: 56 }} />
         </PoweredByWrapper>
       </HeaderPanel>
       <SecurityInfo token={selectedToken} />

@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import { rgba } from 'polished'
 import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 import { usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -216,7 +217,7 @@ export function CurrencySearch({
   useEffect(() => {
     if (isOpen) {
       setSearchQuery('')
-      inputRef.current?.focus()
+      if (!isMobile) inputRef.current?.focus()
     }
   }, [isOpen])
 

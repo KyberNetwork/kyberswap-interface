@@ -19,8 +19,8 @@ import {
   MobileTableRow as MobileTableRowComponent,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
-import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
 import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
+import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
@@ -29,17 +29,20 @@ import { formatDisplayNumber } from 'utils/numbers'
 const MobileTableRow = ({
   pool,
   filters,
+  showRewards = true,
   onOpenZapInWidget,
   handleFavorite,
 }: {
   pool: ParsedEarnPool
   filters: PoolQueryParams
+  showRewards?: boolean
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+  const showMaxAprLine = filters.tag === FilterTag.FARMING_POOL
+  const showEgSharingLine = showMaxAprLine
   const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
@@ -107,10 +110,10 @@ const MobileTableRow = ({
           <HeaderText color={theme.subText}>{t`APR`}</HeaderText>
           <HStack align="center" gap={4}>
             <PoolAprInfo pool={pool} />
-            <MerklAprInfo pool={pool} />
+            <PoolAprBadges pool={pool} />
           </HStack>
         </MobileTableCell>
-        {isFarmingFiltered && (
+        {showMaxAprLine && (
           <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
             <HeaderText color={theme.subText}>{t`Max APR`}</HeaderText>
             {pool.maxAprInfo ? (
@@ -130,9 +133,9 @@ const MobileTableRow = ({
           </MobileTableCell>
         )}
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Fee`}</HeaderText>
+          <HeaderText color={theme.subText}>{showEgSharingLine ? t`EG Sharing` : t`Fee`}</HeaderText>
           <Text>
-            {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+            {formatDisplayNumber(showEgSharingLine ? pool.egUsd : pool.earnFee, {
               style: 'currency',
               significantDigits: 6,
             })}
@@ -146,15 +149,17 @@ const MobileTableRow = ({
           <HeaderText color={theme.subText}>{t`Volume`}</HeaderText>
           <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
         </MobileTableCell>
-        <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
-          <HStack align="center" gap={4}>
-            <Text>
-              {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
-            </Text>
-            <MerklRewardsRecord pool={pool} showEstimate={false} />
-          </HStack>
-        </MobileTableCell>
+        {showRewards && (
+          <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
+            <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
+            <HStack align="center" gap={4}>
+              <Text>
+                {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
+              </Text>
+              <MerklRewardsRecord pool={pool} showEstimate={false} />
+            </HStack>
+          </MobileTableCell>
+        )}
         <MobileTableCell>
           <SparklineChart
             sparkline={pool.sparkline}

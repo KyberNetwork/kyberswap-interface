@@ -775,11 +775,19 @@ export class RpcClient {
 
   private isRetryableError(error: Error): boolean {
     if (error instanceof RpcError) {
-      // Retryable RPC error codes (non-deterministic server-side errors)
+      // Retryable RPC error codes (non-deterministic server-side errors).
+      // HTTP 4xx codes here cover provider-side quirks (e.g. drpc.org returning
+      // 400 for soft throttling or payload rejection) — true deterministic errors
+      // like execution-reverted come back as HTTP 200 with a JSON-RPC error code,
+      // not via this path.
       const retryableCodes = [
         -32000, // Server error
         -32603, // Internal error
         -1, // Timeout
+        400, // Bad request (provider quirk, e.g. drpc soft-throttle)
+        408, // Request timeout
+        409, // Conflict
+        425, // Too early
         500, // Internal server error
         502, // Bad gateway
         503, // Service unavailable
