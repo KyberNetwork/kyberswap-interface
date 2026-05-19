@@ -248,12 +248,7 @@ function App() {
 
   const [showRate, setShowRate] = useState(true);
   const [showDetail, setShowDetail] = useState(true);
-
-  console.log("wallet", wallet?.accounts[0].address);
-
   const [chains, setChain] = useSetChain();
-  console.log(chains);
-
   const [customChainId, setCustomChainId] = useState(chainId);
 
   return (
