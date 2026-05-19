@@ -277,15 +277,28 @@ const useSwap = ({
 
     const controller = new AbortController()
     controllerRef.current = controller
-    const routeResponse = await fetch(
-      `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/routes?${search.slice(1)}`,
-      {
-        signal: controllerRef.current?.signal,
-        headers: {
-          'x-client-id': client,
+    let routeResponse
+    try {
+      routeResponse = await fetch(
+        `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/routes?${search.slice(1)}`,
+        {
+          signal: controller.signal,
+          headers: {
+            'x-client-id': client,
+          },
         },
-      },
-    ).then(r => r.json())
+      ).then(r => r.json())
+    } catch (e: unknown) {
+      // Request was superseded by a newer call; the newer call will manage state.
+      if (e instanceof Error && e.name === 'AbortError') return
+      setTrade(null)
+      setError('Failed to fetch route')
+      if (controllerRef.current === controller) {
+        controllerRef.current = null
+        setLoading(false)
+      }
+      return
+    }
 
     if (Number(routeResponse.data?.routeSummary?.amountOut)) {
       setTrade(routeResponse.data)

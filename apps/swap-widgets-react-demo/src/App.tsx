@@ -33,6 +33,14 @@ const walletConnect = walletConnectModule({
 // initialize Onboard
 init({
   wallets: [injected, walletConnect],
+  appMetadata: {
+    name: "KyberSwap Widget Demo",
+    description: "KyberSwap aggregator widget demo",
+    recommendedInjectedWallets: [
+      { name: "MetaMask", url: "https://metamask.io" },
+      { name: "Coinbase Wallet", url: "https://www.coinbase.com/wallet" },
+    ],
+  },
   chains: [
     {
       id: "0x1",
