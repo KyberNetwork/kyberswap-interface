@@ -1,56 +1,22 @@
-:root {
-  font-family: 'Work Sans', sans-serif;
-  color: #fff;
-  background-color: #1c1c1c;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-  margin: 0;
-  min-height: 100vh;
-}
+@layer base {
+  html,
+  body {
+    @apply min-h-screen bg-zinc-50 font-sans text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+  }
 
-.app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  display: flex;
-  gap: 4rem;
-}
-
-.controls {
-  flex: 1;
-  min-width: 280px;
-  text-align: center;
-}
-
-.button {
-  border: none;
-  border-radius: 999px;
-  margin-top: 1rem;
-  padding: 0.75rem 2rem;
-  background: #28e0b9;
-  color: #313131;
-  font: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 4px 4px rgb(0 0 0 / 4%);
-}
-
-.title {
-  font-weight: 700;
-  font-size: 20px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.row-center {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
+  /* Hide native number input spinners */
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
 }
