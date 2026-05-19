@@ -3,7 +3,7 @@ import { Trade } from '../../hooks/useSwap'
 import Warning from '../../assets/warning.svg'
 import { Button, Detail, DetailLabel, DetailRight, DetailRow, ModalHeader, ModalTitle } from '../Widget/styled'
 import useTheme from '../../hooks/useTheme'
-import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
+import { useActiveWeb3, useRpcTarget } from '../../hooks/useWeb3Provider'
 import { useEffect, useState } from 'react'
 import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo, WRAPPED_NATIVE_TOKEN } from '../../constants'
 import BackIcon from '../../assets/back.svg'
@@ -200,7 +200,8 @@ function Confirmation({
   showDetail?: boolean
 }) {
   const theme = useTheme()
-  const { connectedAccount, chainId, rpcUrl, onSubmitTx } = useActiveWeb3()
+  const { connectedAccount, chainId, onSubmitTx } = useActiveWeb3()
+  const rpcTarget = useRpcTarget()
 
   let minAmountOut = '--'
 
@@ -224,7 +225,7 @@ function Confirmation({
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, txHash).then(res => {
+        isTransactionSuccessful(rpcTarget, txHash).then(res => {
           if (!res) return
 
           if (res.status) {
@@ -237,7 +238,7 @@ function Confirmation({
         clearInterval(i)
       }
     }
-  }, [txHash, rpcUrl])
+  }, [txHash, rpcTarget])
 
   const [snapshotTrade, setSnapshotTrade] = useState<{
     amountIn: string
@@ -320,7 +321,7 @@ function Confirmation({
         data: buildRes.data.data as string,
       }
 
-      const gasEstimated = await estimateGas(rpcUrl, estimateGasOption)
+      const gasEstimated = await estimateGas(rpcTarget, estimateGasOption)
 
       const hash = await onSubmitTx({
         ...estimateGasOption,

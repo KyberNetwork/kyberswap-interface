@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@kyber/hooks": "workspace:*",
+    "@kyber/rpc-client": "workspace:*",
     "@kyber/svgr-esbuild-plugin": "workspace:*",
     "@kyber/typescript-config": "workspace:*",
     "@kyber/ui": "workspace:*",
