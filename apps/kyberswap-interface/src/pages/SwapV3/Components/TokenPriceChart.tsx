@@ -38,18 +38,28 @@ const ChartPanel = styled(Stack)`
   border-radius: 12px;
 `
 
-const ActivityExplainer = styled(Stack)<{ $height: number }>`
-  min-height: ${({ $height }) => $height}px;
-  border: 1px dashed ${({ theme }) => theme.border};
-  border-radius: 16px;
-  background: ${({ theme }) => rgba(theme.tableHeader, 0.5)};
-  padding: 20px;
+const ChartFrame = styled.div`
+  position: relative;
+  border-radius: 8px;
+`
+
+const ActivityOverlay = styled(Stack)`
+  position: absolute;
+  inset: 0;
+  padding: 12px;
+  z-index: 10;
+  border: 1px solid ${({ theme }) => rgba(theme.warning, 0.24)};
+  border-radius: inherit;
+  background: ${({ theme }) => rgba(theme.background, 0.6)};
+  color: ${({ theme }) => theme.warning};
+  text-align: center;
+  backdrop-filter: blur(4px);
 `
 
 const ActivityWarning = styled(HStack)`
   position: absolute;
   z-index: 10;
-  top: 32px;
+  top: 0px;
   border: 1px solid ${({ theme }) => rgba(theme.warning, 0.24)};
   border-radius: 8px;
   background: ${({ theme }) => rgba(theme.warning, 0.12)};
@@ -236,7 +246,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
     },
   })
 
-  const { data: activityData } = useTokenPriceChartQuery(
+  const { currentData: activityData, isLoading: isActivityLoading } = useTokenPriceChartQuery(
     {
       ...initialQueryParams,
       timeFrame: '1h',
@@ -265,7 +275,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   )
 
   const latestPageData = infiniteData?.pages[0]
-  const currentPrice = latestPageData?.latestPrice ?? 0
+  const currentPrice = latestPageData?.latestPrice ?? chartData.at(-1)?.close
   const priceChange = latestPageData?.change24h ?? 0
   const priceChangeColor = priceChange >= 0 ? theme.primary : theme.red
 
@@ -365,56 +375,54 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
               </Stack>
             </HStack>
 
-            {shouldHideChartForNoActivity ? (
-              <ActivityExplainer $height={chartHeight} align="center" gap={8} justify="center" textAlign="center">
-                <AlertTriangle color={theme.subText} size={28} />
-                <Text color={theme.subText} fontSize={14}>
-                  <Trans>Not enough on-chain activity to display a reliable price chart for this token</Trans>
-                </Text>
-              </ActivityExplainer>
-            ) : (
-              <>
-                {shouldShowLowActivityWarning && (
-                  <ActivityWarning align="center" justify="center">
-                    <MouseoverTooltip
-                      placement="top"
-                      text={
-                        <Text fontSize={12}>
-                          <Trans>
-                            Limited on-chain activity in the past 24h - price may not reflect tradable rates
-                          </Trans>
-                        </Text>
-                      }
-                    >
-                      <AlertTriangle size={14} />
-                    </MouseoverTooltip>
-                  </ActivityWarning>
-                )}
+            <ChartFrame>
+              {shouldShowLowActivityWarning && (
+                <ActivityWarning align="center" justify="center">
+                  <MouseoverTooltip
+                    placement="top"
+                    text={
+                      <Text fontSize={12}>
+                        <Trans>Limited on-chain activity in the past 24h - price may not reflect tradable rates</Trans>
+                      </Text>
+                    }
+                  >
+                    <AlertTriangle size={14} />
+                  </MouseoverTooltip>
+                </ActivityWarning>
+              )}
 
-                <PoolChartState
-                  key={chartRequestKey}
-                  emptyMessage={
-                    activeToken ? 'Chart unavailable for this pair.' : 'Select a token to view the price chart.'
-                  }
-                  errorMessage="Unable to load token price."
-                  height={chartHeight}
-                  isEmpty={chartData.length === 0}
-                  isError={isError}
-                  isLoading={isLoading}
-                  skeletonType="candle"
-                >
-                  <Suspense fallback={<PoolChartSkeleton height={chartHeight} type="candle" />}>
-                    <TokenPriceChartCanvas
-                      key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
-                      chartData={chartData}
-                      canLoadMore={hasNextPage}
-                      onLoadMore={handleLoadMore}
-                      timeFrame={timeFrame}
-                    />
-                  </Suspense>
-                </PoolChartState>
-              </>
-            )}
+              <PoolChartState
+                key={chartRequestKey}
+                emptyMessage={
+                  activeToken ? 'Chart unavailable for this pair.' : 'Select a token to view the price chart.'
+                }
+                errorMessage="Unable to load token price."
+                height={chartHeight}
+                isEmpty={chartData.length === 0}
+                isError={isError}
+                isLoading={isLoading || isActivityLoading}
+                skeletonType="candle"
+              >
+                <Suspense fallback={<PoolChartSkeleton height={chartHeight} type="candle" />}>
+                  <TokenPriceChartCanvas
+                    key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
+                    chartData={chartData}
+                    canLoadMore={hasNextPage}
+                    onLoadMore={handleLoadMore}
+                    timeFrame={timeFrame}
+                  />
+                </Suspense>
+              </PoolChartState>
+
+              {shouldHideChartForNoActivity && (
+                <ActivityOverlay align="center" gap={8} justify="center">
+                  <AlertTriangle color={theme.warning} size={28} />
+                  <Text color={theme.text} fontSize={14} fontWeight={500}>
+                    <Trans>Not enough on-chain activity to display a reliable price chart for this token</Trans>
+                  </Text>
+                </ActivityOverlay>
+              )}
+            </ChartFrame>
 
             {upToSmall && (
               <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="280px">
