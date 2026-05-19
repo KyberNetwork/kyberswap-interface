@@ -1,22 +1,39 @@
-#root {
+:root {
+  font-family: 'Work Sans', sans-serif;
+  color: #fff;
+  background-color: #1c1c1c;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.app {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
+  display: flex;
+  gap: 4rem;
+}
+
+.controls {
+  flex: 1;
+  min-width: 280px;
   text-align: center;
 }
 
 .button {
-  outline: none;
   border: none;
   border-radius: 999px;
   margin-top: 1rem;
-  font-size: 1rem;
-  font-weight: 500;
   padding: 0.75rem 2rem;
   background: #28e0b9;
   color: #313131;
+  font: inherit;
+  font-weight: 500;
   cursor: pointer;
-  box-shadow: 0px 4px 4px rgb(0 0 0 / 4%);
+  box-shadow: 0 4px 4px rgb(0 0 0 / 4%);
 }
 
 .title {
@@ -24,13 +41,16 @@
   font-size: 20px;
 }
 
-.App {
-  display: flex;
-  gap: 4rem;
-}
-
 .row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 6px;
+}
+
+.row-center {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
 }

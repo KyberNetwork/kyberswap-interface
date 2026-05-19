@@ -1,524 +1,280 @@
-import { useState, useEffect } from "react";
-import "./App.css";
-import { Widget } from "@kyberswap/widgets";
-import {
-  init,
-  useWallets,
-  useConnectWallet,
-  useSetChain,
-} from "@web3-onboard/react";
-import injectedModule from "@web3-onboard/injected-wallets";
-import { ethers } from "ethers";
-import walletConnectModule from "@web3-onboard/walletconnect";
+import { useEffect, useState } from 'react'
+import { Widget } from '@kyberswap/widgets'
+import injectedModule from '@web3-onboard/injected-wallets'
+import { init, useConnectWallet, useSetChain } from '@web3-onboard/react'
+import walletConnectModule from '@web3-onboard/walletconnect'
+import { ethers } from 'ethers'
+import './App.css'
 
-const injected = injectedModule();
-const walletConnect = walletConnectModule({
-  projectId: "b03ed6d8451c1e05022897815db0ad0b",
-  /**
-   * Chains required to be supported by all wallets connecting to your DApp
-   */
-  requiredChains: [1, 42161, 8453, 80094, 999, 9745, 42793, 143, 4326, 4153],
-  /**
-   * Chains required to be supported by all wallets connecting to your DApp
-   */
-  optionalChains: [10, 137, 56],
-  /**
-   * Defaults to `appMetadata.explore` that is supplied to the web3-onboard init
-   * Strongly recommended to provide atleast one URL as it is required by some wallets (i.e. MetaMask)
-   * To connect with WalletConnect
-   */
-  dappUrl: "http://kyberswap.com",
-});
+const CHAINS = [
+  { id: 1, label: 'Ethereum', token: 'ETH', rpcUrl: 'https://ethereum-rpc.kyberswap.com' },
+  { id: 56, label: 'BSC', token: 'BNB', rpcUrl: 'https://bsc-dataseed.binance.org/' },
+  { id: 8453, label: 'Base', token: 'ETH', rpcUrl: 'https://mainnet.base.org' },
+  { id: 80094, label: 'Berachain', token: 'BERA', rpcUrl: 'https://rpc.berachain.com' },
+  { id: 146, label: 'Sonic', token: 'S', rpcUrl: 'https://rpc.soniclabs.com' },
+  { id: 999, label: 'HyperEVM', token: 'HYPE', rpcUrl: 'https://rpc.hyperliquid.xyz/evm' },
+  { id: 9745, label: 'Plasma', token: 'XPL', rpcUrl: 'https://rpc.plasma.to' },
+  { id: 42793, label: 'Etherlink', token: 'XTZ', rpcUrl: 'https://node.mainnet.etherlink.com' },
+  { id: 143, label: 'Monad', token: 'MON', rpcUrl: 'https://rpc.monad.xyz' },
+  { id: 4326, label: 'MegaETH', token: 'ETH', rpcUrl: 'https://mainnet.megaeth.com/rpc' },
+  { id: 4153, label: 'Rise', token: 'ETH', rpcUrl: 'https://rpc.risechain.com' },
+] as const
 
-// initialize Onboard
+const DEFAULT_TOKEN_OUT: Record<number, string> = {
+  1: '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202',
+  56: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+  8453: '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
+  80094: '0x549943e04f40284185054145c6e4e9568c1d3241',
+  146: '0x29219dd400f2bf60e5a23d13be72b486d4038894',
+  999: '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb',
+  9745: '0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb',
+  42793: '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9',
+  143: '0xe7cd86e13AC4309349F30B3435a9d337750fC82D',
+  4326: '0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7',
+  4153: '0xe436820ba0c69702c1d3e601d421c0ef38262739',
+}
+
+const DARK_THEME = {
+  text: '#FFFFFF',
+  subText: '#A9A9A9',
+  primary: '#1C1C1C',
+  dialog: '#313131',
+  secondary: '#0F0F0F',
+  interactive: '#292929',
+  stroke: '#505050',
+  accent: '#28E0B9',
+  success: '#189470',
+  warning: '#FF9901',
+  error: '#FF537B',
+  fontFamily: 'Work Sans',
+  borderRadius: '16px',
+  buttonRadius: '999px',
+  boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
+}
+
+const LIGHT_THEME = {
+  ...DARK_THEME,
+  text: '#222222',
+  subText: '#5E5E5E',
+  primary: '#FFFFFF',
+  dialog: '#FBFBFB',
+  secondary: '#F5F5F5',
+  interactive: '#E2E2E2',
+}
+
+type WidgetTheme = typeof DARK_THEME | undefined
+
+const STORAGE_KEY = 'connectedWallets'
+
 init({
-  wallets: [injected, walletConnect],
+  wallets: [
+    injectedModule(),
+    walletConnectModule({
+      projectId: 'b03ed6d8451c1e05022897815db0ad0b',
+      // Only Ethereum is required so WalletConnect can pair with wallets that
+      // don't yet support the newer chains (Rise, Monad, HyperEVM, …).
+      requiredChains: [1],
+      optionalChains: CHAINS.filter(c => c.id !== 1).map(c => c.id),
+      dappUrl: 'http://kyberswap.com',
+    }),
+  ],
   appMetadata: {
-    name: "KyberSwap Widget Demo",
-    description: "KyberSwap aggregator widget demo",
+    name: 'KyberSwap Widget Demo',
+    description: 'KyberSwap aggregator widget demo',
     recommendedInjectedWallets: [
-      { name: "MetaMask", url: "https://metamask.io" },
-      { name: "Coinbase Wallet", url: "https://www.coinbase.com/wallet" },
+      { name: 'MetaMask', url: 'https://metamask.io' },
+      { name: 'Coinbase Wallet', url: 'https://www.coinbase.com/wallet' },
     ],
   },
-  chains: [
-    {
-      id: "0x1",
-      token: "ETH",
-      label: "Ethereum Mainnet",
-      rpcUrl: "https://ethereum-rpc.kyberswap.com",
-      namespace: "evm",
-    },
-    {
-      id: "0xa4b1", // 42161 in hex
-      token: "ETH",
-      label: "Arbitrum One",
-      rpcUrl: "https://arbitrum.llamarpc.com",
-      namespace: "evm",
-    },
-    {
-      id: "0x89",
-      token: "MATIC",
-      label: "Polygon",
-      rpcUrl: "https://polygon.kyberengineering.io",
-      namespace: "evm",
-    },
-    {
-      id: "0x138de",
-      token: "BERA",
-      label: "Berachain",
-      rpcUrl: "https://rpc.berachain.com",
-      namespace: "evm",
-    },
-    {
-      id: "0x3e7",
-      token: "HYPE",
-      label: "HyperEvm",
-      rpcUrl: "https://rpc.hyperliquid.xyz/evm",
-      namespace: "evm",
-    },
-    {
-      id: "0x38",
-      token: "BNB",
-      label: "BSC",
-      rpcUrl: "https://bsc-dataseed.binance.org/",
-      namespace: "evm",
-    },
-    {
-      id: "0x2105",
-      token: "ETH",
-      label: "Base",
-      rpcUrl: "https://mainnet.base.org",
-      namespace: "evm",
-    },
-    {
-      id: "0x92",
-      token: "S",
-      label: "Sonic",
-      rpcUrl: "https://rpc.soniclabs.com",
-      namespace: "evm",
-    },
-    {
-      id: "0x2611",
-      token: "XPL",
-      label: "Plasma",
-      rpcUrl: "https://rpc.plasma.to",
-      namespace: "evm",
-    },
-    {
-      id: "0xa729",
-      token: "XTZ",
-      label: "Etherlink",
-      rpcUrl: "https://node.mainnet.etherlink.com",
-      namespace: "evm",
-    },
-    {
-      id: "0x8f",
-      token: "MON",
-      label: "Monad",
-      rpcUrl: "https://rpc.monad.xyz",
-      namespace: "evm",
-    },
-    {
-      id: "0x10e6",
-      token: "ETH",
-      label: "MegaETH",
-      rpcUrl: "https://mainnet.megaeth.com/rpc",
-      namespace: "evm",
-    },
-    {
-      id: "0x1039",
-      token: "ETH",
-      label: "Rise",
-      rpcUrl: "https://rpc.risechain.com",
-      namespace: "evm",
-    },
-  ],
-});
+  chains: CHAINS.map(c => ({
+    id: `0x${c.id.toString(16)}`,
+    token: c.token,
+    label: c.label,
+    rpcUrl: c.rpcUrl,
+    namespace: 'evm',
+  })),
+})
 
-function App() {
-  const [{ wallet }, connect, disconnect] = useConnectWallet();
+export default function App() {
+  const [{ wallet }, connect, disconnect] = useConnectWallet()
+  const [, setChain] = useSetChain()
 
-  // create an ethers provider
-  let ethersProvider: any;
-
-  if (wallet) {
-    ethersProvider = new ethers.providers.Web3Provider(wallet.provider, "any");
-  }
-
-  const connectedWallets = useWallets();
-
-  const [chainId, setChainId] = useState(1);
-
-  useEffect(() => {
-    ethersProvider?.getNetwork().then((res: any) => setChainId(res.chainId));
-  }, [ethersProvider]);
-
-  useEffect(() => {
-    if (!connectedWallets.length) return;
-
-    const connectedWalletsLabelArray = connectedWallets.map(
-      ({ label }) => label,
-    );
-    window.localStorage.setItem(
-      "connectedWallets",
-      JSON.stringify(connectedWalletsLabelArray),
-    );
-  }, [connectedWallets, wallet]);
-
-  useEffect(() => {
-    const previouslyConnectedWallets = JSON.parse(
-      window.localStorage.getItem("connectedWallets") || "[]",
-    );
-
-    if (previouslyConnectedWallets?.length) {
-      async function setWalletFromLocalStorage() {
-        const walletConnected = await connect({
-          autoSelect: previouslyConnectedWallets[0],
-        });
-      }
-      setWalletFromLocalStorage();
-    }
-  }, [connect]);
-
-  const lightTheme = {
-    text: "#222222",
-    subText: "#5E5E5E",
-    primary: "#FFFFFF",
-    dialog: "#FBFBFB",
-    secondary: "#F5F5F5",
-    interactive: "#E2E2E2",
-    stroke: "#505050",
-    accent: "#28E0B9",
-    success: "#189470",
-    warning: "#FF9901",
-    error: "#FF537B",
-    fontFamily: "Work Sans",
-    borderRadius: "16px",
-    buttonRadius: "999px",
-    boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
-  };
-
-  const darkTheme = {
-    text: "#FFFFFF",
-    subText: "#A9A9A9",
-    primary: "#1C1C1C",
-    dialog: "#313131",
-    secondary: "#0F0F0F",
-    interactive: "#292929",
-    stroke: "#505050",
-    accent: "#28E0B9",
-    success: "#189470",
-    warning: "#FF9901",
-    error: "#FF537B",
-    fontFamily: "Work Sans",
-    borderRadius: "16px",
-    buttonRadius: "999px",
-    boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
-  };
-
-  const [theme, setTheme] = useState<any>(darkTheme);
-  const [enableRoute, setEnableRoute] = useState<boolean>(true);
-  const [enableDexes, setEnableDexes] = useState<string>("");
-
-  const defaultTokenOut: { [chainId: number]: string } = {
-    1: "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
-    137: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    56: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
-    43114: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
-    250: "0x049d68029688eAbF473097a2fC38ef61633A3C7A",
-    25: "0x66e428c3f67a68878562e79A0234c1F83c208770",
-    42161: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
-    199: "0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d",
-    106: "0x01445C31581c354b7338AC35693AB2001B50b9aE",
-    1313161554: "0x4988a896b1227218e4a686fde5eabdcabd91571f",
-    42262: "0x6Cb9750a92643382e020eA9a170AbB83Df05F30B",
-    10: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-    59144: "0xa219439258ca9da29e9cc4ce5596924745e12b93",
-    1101: "0x1e4a5963abfd975d8c9021ce480b42188849d41d",
-    324: "0x493257fd37edb34451f62edf8d2a0c418852ba4c",
-    8453: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
-    80094: "0x549943e04f40284185054145c6e4e9568c1d3241",
-    999: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
-    9745: "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
-    42793: "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9",
-    143: "0xe7cd86e13AC4309349F30B3435a9d337750fC82D",
-    4326: "0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7",
-    4153: "0xe436820ba0c69702c1d3e601d421c0ef38262739",
-  };
-
+  const [theme, setTheme] = useState<WidgetTheme>(DARK_THEME)
+  const [chainId, setChainId] = useState<number>(1)
   const [feeSetting, setFeeSetting] = useState({
     feeAmount: 0,
-    feeReceiver: "",
-    chargeFeeBy: "currency_in" as "currency_in" | "currency_out",
+    feeReceiver: '',
+    chargeFeeBy: 'currency_in' as 'currency_in' | 'currency_out',
     isInBps: true,
-  });
+  })
+  const [enableRoute, setEnableRoute] = useState(true)
+  const [enableDexes, setEnableDexes] = useState('')
+  const [showRate, setShowRate] = useState(true)
+  const [showDetail, setShowDetail] = useState(true)
 
-  const [showRate, setShowRate] = useState(true);
-  const [showDetail, setShowDetail] = useState(true);
-  const [chains, setChain] = useSetChain();
-  const [customChainId, setCustomChainId] = useState(chainId);
+  const connectedChainId = wallet ? Number(wallet.chains[0]?.id ?? '0x1') : 1
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as string[]
+    if (stored[0]) connect({ autoSelect: { label: stored[0], disableModals: true } }).catch(() => {})
+  }, [connect])
+
+  useEffect(() => {
+    if (wallet) localStorage.setItem(STORAGE_KEY, JSON.stringify([wallet.label]))
+  }, [wallet])
+
+  const themeName: 'dark' | 'light' | 'custom' =
+    theme === DARK_THEME ? 'dark' : theme === LIGHT_THEME ? 'light' : 'custom'
 
   return (
-    <div className="App">
-      <div>
+    <div className="app">
+      <div className="controls">
         <h1>KyberSwap Widget Demo</h1>
-        <div className="card">
-          <button
-            onClick={() => (wallet ? disconnect(wallet) : connect())}
-            className="button"
-          >
-            {!wallet ? "Connect Wallet" : "Disconnect"}
-          </button>
-        </div>
-        <p className="title">Choose theme</p>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "6px",
-            justifyContent: "space-around",
-          }}
-        >
-          <div>
-            <input
-              type="radio"
-              id="dark"
-              name="age"
-              value="dark"
-              onChange={(e) => {
-                setTheme(darkTheme);
-              }}
-            />
-            <label htmlFor="dark">Dark theme</label>
-          </div>
+        <button className="button" onClick={() => (wallet ? disconnect(wallet) : connect())}>
+          {wallet ? 'Disconnect' : 'Connect Wallet'}
+        </button>
 
-          <div>
-            <input
-              type="radio"
-              id="light"
-              name="age"
-              value="light"
-              onChange={(e) => {
-                setTheme(lightTheme);
-              }}
-            />
-            <label htmlFor="light">Light theme</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="custom"
-              name="age"
-              value="custom"
-              onChange={(e) => {
-                setTheme(undefined);
-              }}
-            />
-            <label htmlFor="custom">Custom</label>
-          </div>
+        <p className="title">Theme</p>
+        <div className="row-center">
+          {(['dark', 'light', 'custom'] as const).map(name => (
+            <label key={name}>
+              <input
+                type="radio"
+                name="theme"
+                checked={themeName === name}
+                onChange={() =>
+                  setTheme(name === 'dark' ? DARK_THEME : name === 'light' ? LIGHT_THEME : undefined)
+                }
+              />{' '}
+              {name[0].toUpperCase() + name.slice(1)}
+            </label>
+          ))}
         </div>
 
-        <div className="row" style={{ marginTop: "16px" }}>
-          chainId
-          <div style={{ display: "flex" }}>
-            <div>
-              <select
-                value={customChainId}
-                onChange={(e) => setCustomChainId(Number(e.target.value))}
-              >
-                <option value={1}>Ethereum Mainnet</option>
-                <option value={56}>BSC</option>
-                <option value={8453}>Base</option>
-                <option value={80094}>Bera</option>
-                <option value={146}>Sonic</option>
-                <option value={999}>HyperEvm</option>
-                <option value={9745}>Plasma</option>
-                <option value={42793}>Etherlink</option>
-                <option value={143}>Monad</option>
-                <option value={4326}>MegaETH</option>
-                <option value={4153}>Rise</option>
-              </select>
-              <label>chainId</label>
-            </div>
-          </div>
+        <div className="row">
+          <label>chainId</label>
+          <select value={chainId} onChange={e => setChainId(Number(e.target.value))}>
+            {CHAINS.map(c => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <p className="title">Charge fee</p>
         <div className="row">
-          chargeFeeBy
-          <div style={{ display: "flex" }}>
-            <div>
-              <input
-                type="radio"
-                id="currency_in"
-                name="chargeFeeBy"
-                value="currency_in"
-                onChange={(e) => {
-                  setFeeSetting({ ...feeSetting, chargeFeeBy: "currency_in" });
-                }}
-              />
-              <label htmlFor="currency_in">currency_in</label>
-            </div>
-            <div>
-              <input
-                type="radio"
-                id="currency_out"
-                name="chargeFeeBy"
-                value="currency_out"
-                onChange={(e) => {
-                  setFeeSetting({ ...feeSetting, chargeFeeBy: "currency_out" });
-                }}
-              />
-              <label htmlFor="currency_out"> currency_out</label>
-            </div>
+          <label>chargeFeeBy</label>
+          <div className="row-center">
+            {(['currency_in', 'currency_out'] as const).map(v => (
+              <label key={v}>
+                <input
+                  type="radio"
+                  name="chargeFeeBy"
+                  checked={feeSetting.chargeFeeBy === v}
+                  onChange={() => setFeeSetting(s => ({ ...s, chargeFeeBy: v }))}
+                />{' '}
+                {v}
+              </label>
+            ))}
           </div>
         </div>
 
         <div className="row">
-          feeReceiver
+          <label>feeReceiver</label>
           <input
             value={feeSetting.feeReceiver}
-            onChange={(e) =>
-              setFeeSetting({ ...feeSetting, feeReceiver: e.target.value })
-            }
+            onChange={e => setFeeSetting(s => ({ ...s, feeReceiver: e.target.value }))}
           />
         </div>
 
         <div className="row">
-          feeAmount
+          <label>feeAmount</label>
           <input
+            type="number"
             value={feeSetting.feeAmount}
-            onChange={(e) =>
-              setFeeSetting({
-                ...feeSetting,
-                feeAmount: Number(e.target.value),
-              })
-            }
+            onChange={e => setFeeSetting(s => ({ ...s, feeAmount: Number(e.target.value) }))}
           />
         </div>
 
-        <div className="row" style={{ justifyContent: "flex-end" }}>
-          <input
-            type="checkbox"
-            checked={feeSetting.isInBps}
-            onChange={(e) => {
-              setFeeSetting({ ...feeSetting, isInBps: e.target.checked });
-            }}
-          />
-          <label htmlFor="isInBps">isInBps</label>
+        <div className="row" style={{ justifyContent: 'flex-end' }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={feeSetting.isInBps}
+              onChange={e => setFeeSetting(s => ({ ...s, isInBps: e.target.checked }))}
+            />{' '}
+            isInBps
+          </label>
         </div>
 
-        <div className="row" style={{ justifyContent: "center" }}>
-          <input
-            type="checkbox"
-            checked={showRate}
-            onChange={(e) => {
-              setShowRate(e.target.checked);
-            }}
-          />
-          <label>Show rate</label>
-        </div>
-
-        <div className="row" style={{ justifyContent: "center" }}>
-          <input
-            type="checkbox"
-            checked={showDetail}
-            onChange={(e) => {
-              setShowDetail(e.target.checked);
-            }}
-          />
-          <label>Show detail</label>
+        <p className="title">Display</p>
+        <div className="row-center">
+          <label>
+            <input type="checkbox" checked={showRate} onChange={e => setShowRate(e.target.checked)} />{' '}
+            Show rate
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={showDetail}
+              onChange={e => setShowDetail(e.target.checked)}
+            />{' '}
+            Show detail
+          </label>
         </div>
 
         <p className="title">Trade route</p>
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            justifyContent: "center",
-          }}
-        >
-          <div>
-            <label>
+        <div className="row-center">
+          {[true, false].map(v => (
+            <label key={String(v)}>
               <input
                 type="radio"
-                name="traderoute"
-                onChange={(e) => {
-                  setEnableRoute(true);
-                }}
-                checked={enableRoute}
-              />
-              Enable
+                name="trade-route"
+                checked={enableRoute === v}
+                onChange={() => setEnableRoute(v)}
+              />{' '}
+              {v ? 'Enable' : 'Disable'}
             </label>
-          </div>
-          <div>
-            <label>
-              <input
-                type="radio"
-                name="traderoute"
-                onChange={(e) => {
-                  setEnableRoute(false);
-                }}
-                checked={!enableRoute}
-              />
-              Disable
-            </label>
-          </div>
+          ))}
         </div>
+
         <p className="title">Enable dexes</p>
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            justifyContent: "center",
-          }}
-        >
-          <label>
-            Enable Dexes{" "}
-            <input
-              type="text"
-              onChange={(e) => {
-                setEnableDexes(e.target.value);
-              }}
-              checked={!enableRoute}
-            />
-          </label>
-        </div>
+        <input
+          type="text"
+          value={enableDexes}
+          onChange={e => setEnableDexes(e.target.value)}
+          placeholder="comma-separated dex IDs"
+          style={{ width: '100%' }}
+        />
       </div>
+
       <Widget
         theme={theme}
         tokenList={[]}
-        defaultTokenOut={defaultTokenOut[customChainId]}
-        feeSetting={
-          feeSetting.feeAmount && feeSetting.feeReceiver
-            ? feeSetting
-            : undefined
-        }
+        defaultTokenOut={DEFAULT_TOKEN_OUT[chainId]}
+        feeSetting={feeSetting.feeAmount && feeSetting.feeReceiver ? feeSetting : undefined}
         client="widget-react-demo"
-        onSubmitTx={async (txData) => {
-          const res = await ethersProvider?.getSigner().sendTransaction(txData);
-          if (!res) throw new Error("Transaction failed");
-          return res.hash;
+        chainId={chainId}
+        connectedAccount={{
+          address: wallet?.accounts?.[0]?.address,
+          chainId: connectedChainId,
         }}
-        onSwitchChain={() => {
-          setChain({
-            chainId: "0x" + customChainId.toString(16),
-            chainNamespace: "evm",
-          });
+        onSubmitTx={async txData => {
+          if (!wallet) throw new Error('No wallet connected')
+          const provider = new ethers.providers.Web3Provider(wallet.provider, 'any')
+          const tx = await provider.getSigner().sendTransaction(txData)
+          return tx.hash
         }}
+        onSwitchChain={() =>
+          setChain({ chainId: `0x${chainId.toString(16)}`, chainNamespace: 'evm' })
+        }
         enableRoute={enableRoute}
         enableDexes={enableDexes}
         showDetail={showDetail}
         showRate={showRate}
-        chainId={customChainId}
-        connectedAccount={{
-          address: wallet?.accounts[0].address,
-          chainId: chainId,
-        }}
       />
     </div>
-  );
+  )
 }
-
-export default App;
