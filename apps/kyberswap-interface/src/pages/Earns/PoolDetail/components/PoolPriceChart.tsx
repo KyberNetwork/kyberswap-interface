@@ -29,6 +29,7 @@ import {
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { RevertIconWrapper } from 'pages/Earns/PositionDetail/styles'
+import { getDefaultRevertPrice } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -323,10 +324,16 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
   const theme = useTheme()
   const { primaryToken, secondaryToken } = usePoolDetailContext()
 
-  const chartContainerRef = useRef<HTMLDivElement>(null)
+  const defaultRevertPrice = useMemo(
+    () => getDefaultRevertPrice({ token0: primaryToken, token1: secondaryToken }, chainId),
+    [chainId, primaryToken, secondaryToken],
+  )
+
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
-  const [revertPrice, setRevertPrice] = useState(false)
+  const [revertPrice, setRevertPrice] = useState(defaultRevertPrice)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+
+  const chartContainerRef = useRef<HTMLDivElement>(null)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -350,6 +357,7 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
 
   const displayedToken0 = revertPrice ? secondaryToken : primaryToken
   const displayedToken1 = revertPrice ? primaryToken : secondaryToken
+
   const shouldInvertPrice = priceData?.priceInToken && priceData.priceInToken !== secondaryToken.address
   const shouldRevertPrice = revertPrice ? !shouldInvertPrice : shouldInvertPrice
 
@@ -408,6 +416,10 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
         : 0
       : undefined
   const priceChangeColor = priceChange === undefined || priceChange >= 0 ? upCandleColor : downCandleColor
+
+  useEffect(() => {
+    setRevertPrice(defaultRevertPrice)
+  }, [defaultRevertPrice, poolAddress])
 
   useEffect(() => {
     chartDataByTimeRef.current = new Map(chartData.map(candle => [candle.time, candle]))
