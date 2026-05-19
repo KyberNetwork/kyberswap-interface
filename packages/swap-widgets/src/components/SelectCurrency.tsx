@@ -5,8 +5,8 @@ import useTokenBalances from '../hooks/useTokenBalances'
 import { useImportedTokens, useTokens } from '../hooks/useTokens'
 import { useActiveWeb3 } from '../hooks/useWeb3Provider'
 import Loading from '../assets/loader.svg'
-import Question from '../assets/question.svg'
-import questionImg from '../assets/question.svg?url'
+import UnknownToken from '../assets/unknown-token.svg'
+import unknownTokenImg from '../assets/unknown-token.svg?url'
 import TrashIcon from '../assets/trash.svg'
 import { useToken } from '../hooks/useToken'
 import { Button } from './Widget/styled'
@@ -143,7 +143,7 @@ const ImportToken = ({ address, onImport }: { address: string; onImport: (token:
   return (
     <TokenRow selected={false}>
       <TokenInfo>
-        <Question />
+        <UnknownToken width={24} height={24} />
         <div style={{ textAlign: 'left' }}>
           <span>{token.symbol}</span>
           <TokenName>{token.name}</TokenName>
@@ -244,7 +244,7 @@ function SelectCurrency({
                     }}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null // prevents looping
-                      currentTarget.src = questionImg
+                      currentTarget.src = unknownTokenImg
                     }}
                   />
                   <div style={{ textAlign: 'left' }}>

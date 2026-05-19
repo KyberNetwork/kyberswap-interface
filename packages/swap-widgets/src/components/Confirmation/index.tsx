@@ -14,7 +14,7 @@ import ErrorIcon from '../../assets/error.svg'
 import Info from '../../assets/info.svg'
 import DropdownIcon from '../../assets/dropdown.svg'
 import InfoHelper from '../InfoHelper'
-import questionImg from '../../assets/question.svg?url'
+import unknownTokenImg from '../../assets/unknown-token.svg?url'
 import { friendlyError } from '../../utils/errorMessage'
 import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto'
 
@@ -432,7 +432,7 @@ function Confirmation({
           height="28"
           onError={({ currentTarget }) => {
             currentTarget.onerror = null // prevents looping
-            currentTarget.src = questionImg
+            currentTarget.src = unknownTokenImg
           }}
         />
         {+Number(amountIn).toPrecision(10)}
@@ -449,7 +449,7 @@ function Confirmation({
           height="28"
           onError={({ currentTarget }) => {
             currentTarget.onerror = null // prevents looping
-            currentTarget.src = questionImg
+            currentTarget.src = unknownTokenImg
           }}
         />
         {+Number(amountOut).toPrecision(10)}

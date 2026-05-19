@@ -10,7 +10,7 @@ import BackIcon from '../../assets/back1.svg'
 import KyberSwapLogo from '../../assets/kyberswap.svg'
 import AlertIcon from '../../assets/alert.svg'
 import Expand from '../../assets/expand.svg'
-import questionImg from '../../assets/question.svg?url'
+import unknownTokenImg from '../../assets/unknown-token.svg?url'
 
 import useTheme from '../../hooks/useTheme'
 
@@ -559,7 +559,7 @@ const Widget = ({
                   style={{ borderRadius: '50%' }}
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null // prevents looping
-                    currentTarget.src = questionImg
+                    currentTarget.src = unknownTokenImg
                   }}
                 />
                 <div style={{ marginLeft: '0.375rem' }}>{tokenInInfo?.symbol}</div>
@@ -648,7 +648,7 @@ const Widget = ({
                   style={{ borderRadius: '50%' }}
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null // prevents looping
-                    currentTarget.src = questionImg
+                    currentTarget.src = unknownTokenImg
                   }}
                 />
                 <div style={{ marginLeft: '0.375rem' }}>{tokenOutInfo?.symbol}</div>

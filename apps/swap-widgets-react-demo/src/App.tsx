@@ -17,7 +17,7 @@ const walletConnect = walletConnectModule({
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
-  requiredChains: [1, 42161, 8453, 80094, 999, 9745, 42793, 143, 4326],
+  requiredChains: [1, 42161, 8453, 80094, 999, 9745, 42793, 143, 4326, 4153],
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
@@ -118,6 +118,13 @@ init({
       rpcUrl: "https://mainnet.megaeth.com/rpc",
       namespace: "evm",
     },
+    {
+      id: "0x1039",
+      token: "ETH",
+      label: "Rise",
+      rpcUrl: "https://rpc.risechain.com",
+      namespace: "evm",
+    },
   ],
 });
 
@@ -143,17 +150,17 @@ function App() {
     if (!connectedWallets.length) return;
 
     const connectedWalletsLabelArray = connectedWallets.map(
-      ({ label }) => label
+      ({ label }) => label,
     );
     window.localStorage.setItem(
       "connectedWallets",
-      JSON.stringify(connectedWalletsLabelArray)
+      JSON.stringify(connectedWalletsLabelArray),
     );
   }, [connectedWallets, wallet]);
 
   useEffect(() => {
     const previouslyConnectedWallets = JSON.parse(
-      window.localStorage.getItem("connectedWallets") || "[]"
+      window.localStorage.getItem("connectedWallets") || "[]",
     );
 
     if (previouslyConnectedWallets?.length) {
@@ -229,6 +236,7 @@ function App() {
     42793: "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9",
     143: "0xe7cd86e13AC4309349F30B3435a9d337750fC82D",
     4326: "0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7",
+    4153: "0xe436820ba0c69702c1d3e601d421c0ef38262739",
   };
 
   const [feeSetting, setFeeSetting] = useState({
@@ -326,6 +334,7 @@ function App() {
                 <option value={42793}>Etherlink</option>
                 <option value={143}>Monad</option>
                 <option value={4326}>MegaETH</option>
+                <option value={4153}>Rise</option>
               </select>
               <label>chainId</label>
             </div>
