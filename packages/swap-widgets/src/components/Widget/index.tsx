@@ -295,8 +295,8 @@ const Widget = ({
   const amountOut =
     isWrap || isUnwrap
       ? inputAmout
-      : trade?.routeSummary?.amountOut
-      ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals).toString()
+      : trade?.routeSummary?.amountOut && tokenOutInfo
+      ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo.decimals).toString()
       : ''
 
   let minAmountOut = ''
@@ -319,7 +319,9 @@ const Widget = ({
       ? 1
       : trade?.routeSummary?.amountIn &&
         trade?.routeSummary?.amountOut &&
-        parseFloat(formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals || 18)) / parseFloat(inputAmout)
+        tokenInInfo &&
+        tokenOutInfo &&
+        parseFloat(formatUnits(trade.routeSummary.amountOut, tokenOutInfo.decimals)) / parseFloat(inputAmout)
 
   const formattedTokenInBalance = parseFloat(parseFloat(tokenInWithUnit).toPrecision(10))
 
@@ -584,10 +586,10 @@ const Widget = ({
             />
             <Rate>
               {(() => {
-                if (!rate) return '--'
+                if (!rate || !tokenInInfo || !tokenOutInfo) return '--'
                 return !inverseRate
-                  ? `1 ${tokenInInfo?.symbol} = ${+rate.toPrecision(10)} ${tokenOutInfo?.symbol}`
-                  : `1 ${tokenOutInfo?.symbol} = ${+(1 / rate).toPrecision(10)} ${tokenInInfo?.symbol}`
+                  ? `1 ${tokenInInfo.symbol} = ${+rate.toPrecision(10)} ${tokenOutInfo.symbol}`
+                  : `1 ${tokenOutInfo.symbol} = ${+(1 / rate).toPrecision(10)} ${tokenInInfo.symbol}`
               })()}
             </Rate>
 

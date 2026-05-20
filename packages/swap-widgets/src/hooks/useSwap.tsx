@@ -334,11 +334,23 @@ const useSwap = ({
     getRate()
   }, [getRate])
 
+  // Wrap the raw setters so any token change immediately clears the stale
+  // trade from state. Without this the UI keeps displaying the previous
+  // rate/amountOut for one render cycle until getRate finishes refreshing.
+  const setTokenInAndReset = useCallback((addr: string) => {
+    setTokenIn(addr)
+    setTrade(null)
+  }, [])
+  const setTokenOutAndReset = useCallback((addr: string) => {
+    setTokenOut(addr)
+    setTrade(null)
+  }, [])
+
   return {
     tokenIn,
     tokenOut,
-    setTokenOut,
-    setTokenIn,
+    setTokenOut: setTokenOutAndReset,
+    setTokenIn: setTokenInAndReset,
     inputAmout,
     trade,
     setInputAmount,
