@@ -145,7 +145,6 @@ const PoolHeaderPage = () => {
 
   return (
     <>
-      {shareInfo && <ShareModal {...shareInfo} />}
       <HStack align="center" gap={8} wrap="wrap">
         <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
           <IconArrowLeft />
@@ -189,6 +188,8 @@ const PoolHeaderPage = () => {
             <ShareButtonWrapper aria-label="Share pool" onClick={handleOpenShare}>
               <Share2 size={16} color={theme.primary} />
             </ShareButtonWrapper>
+
+            {shareInfo && <ShareModal {...shareInfo} />}
           </HStack>
         </HStack>
       </HStack>
