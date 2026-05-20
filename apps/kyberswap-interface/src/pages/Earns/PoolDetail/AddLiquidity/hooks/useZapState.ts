@@ -22,6 +22,7 @@ import {
   isUniV3PoolType,
   validateAddLiquidityInput,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { getDefaultRevertPrice } from 'pages/Earns/utils'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 
@@ -56,17 +57,6 @@ const getDefaultNativeToken = (chainId: number): Token => {
     symbol: wrappedToken.symbol.slice(1) || wrappedToken.symbol,
     name: network.name,
   }
-}
-
-const getDefaultRevertPrice = (pool: ZapPool | null, chainId: number) => {
-  if (!pool) return false
-
-  const wrappedNativeTokenAddress = getNetworkInfo(chainId)?.wrappedToken?.address?.toLowerCase()
-  const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeTokenAddress
-  const isToken0Stable = pool.token0.isStable
-  const isToken1Stable = pool.token1.isStable
-
-  return Boolean(isToken0Stable || (isToken0Native && !isToken1Stable))
 }
 
 const getErrorMessage = (error?: FetchBaseQueryError | { error?: string }) => {
