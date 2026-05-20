@@ -102,12 +102,17 @@ export const formatTimeDurationFromTimestamp = (timestamp: number): string => {
 export const getSharePath = (type: ShareType, pool: Pool): string => {
   const origin = window?.location?.origin || 'kyberswap.com';
 
-  const path =
-    type === ShareType.REWARD_INFO
-      ? '/earn/pools?tag=farming_pool'
-      : `/earn/pools?poolAddress=${pool.address}&poolChainId=${pool.chainId}&exchange=${pool.exchange}`;
+  if (type === ShareType.REWARD_INFO) {
+    return `${origin}/earn/pools?tag=farming_pool`;
+  }
 
-  return `${origin}${path}`;
+  const searchParams = new URLSearchParams({
+    exchange: pool.exchange || '',
+    poolAddress: pool.address || '',
+    poolChainId: pool.chainId?.toString() || '',
+  });
+
+  return `${origin}/pools/add-liquidity?${searchParams.toString()}`;
 };
 
 export const getValueByOption = ({
