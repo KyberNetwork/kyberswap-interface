@@ -21,6 +21,8 @@ const PoolAprBadges = ({ pool }: Props) => {
 
   if (!showEgReward && !showLmReward && !merklOpportunity) return null
 
+  const tokenReward = merklOpportunity?.rewardsRecord.breakdowns[0]?.token
+
   return (
     <HStack align="center" gap={4} wrap="nowrap">
       {showEgReward && (
@@ -47,14 +49,14 @@ const PoolAprBadges = ({ pool }: Props) => {
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
-      {merklOpportunity && (
+      {tokenReward && (
         <MouseoverTooltipDesktopOnly
           placement="bottom"
           width="fit-content"
-          text={`${merklOpportunity.protocol.name} ${t`Bonus`}: ${formatAprNumber(merklOpportunity.apr)}%`}
+          text={`Merkl Bonus: ${formatAprNumber(merklOpportunity.apr)}%`}
         >
           <Badge>
-            <TokenLogo src={merklOpportunity.protocol.icon} size={16} />
+            <TokenLogo src={tokenReward.icon} size={16} />
             <Text>+{formatAprNumber(merklOpportunity.apr)}%</Text>
           </Badge>
         </MouseoverTooltipDesktopOnly>
