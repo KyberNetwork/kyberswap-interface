@@ -27,12 +27,10 @@ const TableHeader = ({
   showPoolPrice?: boolean
 }) => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const showMaxAprColumn = filters.tag === FilterTag.FARMING_POOL
-  const showEgSharingColumn = showMaxAprColumn
-  const showExtraVolumeColumn = showMaxAprColumn
+  const showEgSharingColumn = filters.tag === FilterTag.FARMING_POOL
 
   return !upToMedium ? (
-    <TableHeaderComponent showMaxAprColumn={showMaxAprColumn} showRewards={showRewards} showPoolPrice={showPoolPrice}>
+    <TableHeaderComponent showRewards={showRewards} showPoolPrice={showPoolPrice}>
       <TableCell flexDirection="row">
         <HeaderText>{t`Pair`}</HeaderText>
       </TableCell>
@@ -41,21 +39,6 @@ const TableHeader = ({
           {t`APR`}
           <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
         </SortableHeader>
-      </TableCell>
-      <TableCell flexDirection="row">
-        {showMaxAprColumn ? (
-          <HeaderInfoWrapper role="button">
-            {t`Max APR`}
-            <InfoHelper
-              text={t`Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range`}
-            />
-          </HeaderInfoWrapper>
-        ) : (
-          <SortableHeader role="button" onClick={() => onSortChange(SortBy.EARN_FEE)}>
-            {t`Fee`}
-            <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
-          </SortableHeader>
-        )}
       </TableCell>
       <TableCell flexDirection="row">
         {showEgSharingColumn ? (
@@ -72,33 +55,24 @@ const TableHeader = ({
             />
           </HeaderInfoWrapper>
         ) : (
-          <SortableHeader role="button" onClick={() => onSortChange(SortBy.TVL)}>
-            {t`TVL`}
-            <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
+          <SortableHeader role="button" onClick={() => onSortChange(SortBy.EARN_FEE)}>
+            {t`Fee`}
+            <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
           </SortableHeader>
         )}
       </TableCell>
       <TableCell flexDirection="row">
-        {showExtraVolumeColumn ? (
-          <SortableHeader role="button" onClick={() => onSortChange(SortBy.TVL)}>
-            {t`TVL`}
-            <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
-          </SortableHeader>
-        ) : (
-          <SortableHeader role="button" onClick={() => onSortChange(SortBy.VOLUME)}>
-            {t`Volume`}
-            <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
-          </SortableHeader>
-        )}
+        <SortableHeader role="button" onClick={() => onSortChange(SortBy.TVL)}>
+          {t`TVL`}
+          <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
+        </SortableHeader>
       </TableCell>
-      {showExtraVolumeColumn && (
-        <TableCell flexDirection="row">
-          <SortableHeader role="button" onClick={() => onSortChange(SortBy.VOLUME)}>
-            {t`Volume`}
-            <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
-          </SortableHeader>
-        </TableCell>
-      )}
+      <TableCell flexDirection="row">
+        <SortableHeader role="button" onClick={() => onSortChange(SortBy.VOLUME)}>
+          {t`Volume`}
+          <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
+        </SortableHeader>
+      </TableCell>
       {showRewards && (
         <TableCell flexDirection="row">
           <HeaderText>{t`Rewards`}</HeaderText>

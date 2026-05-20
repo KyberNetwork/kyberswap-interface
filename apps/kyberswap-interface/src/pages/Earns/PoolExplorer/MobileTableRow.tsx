@@ -1,4 +1,3 @@
-import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Text } from 'rebass'
@@ -6,7 +5,6 @@ import { PoolQueryParams } from 'services/zapEarn'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
@@ -41,11 +39,10 @@ const MobileTableRow = ({
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const showMaxAprLine = filters.tag === FilterTag.FARMING_POOL
-  const showEgSharingLine = showMaxAprLine
+  const showEgSharingLine = filters.tag === FilterTag.FARMING_POOL
   const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
-  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
+  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
     trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
       pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
@@ -62,16 +59,6 @@ const MobileTableRow = ({
         chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
-      initialTick:
-        withPriceRange &&
-        pool.maxAprInfo &&
-        pool.maxAprInfo.tickLower !== undefined &&
-        pool.maxAprInfo.tickUpper !== undefined
-          ? {
-              tickLower: pool.maxAprInfo.tickLower,
-              tickUpper: pool.maxAprInfo.tickUpper,
-            }
-          : undefined,
     })
   }
 
@@ -113,25 +100,6 @@ const MobileTableRow = ({
             <PoolAprBadges pool={pool} />
           </HStack>
         </MobileTableCell>
-        {showMaxAprLine && (
-          <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
-            <HeaderText color={theme.subText}>{t`Max APR`}</HeaderText>
-            {pool.maxAprInfo ? (
-              <Text>
-                {formatAprNumber(
-                  Number(pool.maxAprInfo.apr) +
-                    Number(pool.maxAprInfo.kemEGApr) +
-                    Number(pool.maxAprInfo.kemLMApr) +
-                    Number(pool.bonusApr || 0),
-                ) + '%'}
-              </Text>
-            ) : (
-              <MouseoverTooltipDesktopOnly text={t`Not available for this pool`} width="fit-content" placement="bottom">
-                <Text>-</Text>
-              </MouseoverTooltipDesktopOnly>
-            )}
-          </MobileTableCell>
-        )}
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <HeaderText color={theme.subText}>{showEgSharingLine ? t`EG Sharing` : t`Fee`}</HeaderText>
           <Text>
