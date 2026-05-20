@@ -22,7 +22,7 @@ type SeoConfig = {
 const SITE_URL = `https://${KYBERSWAP_DOMAIN}`
 const DEFAULT_TITLE = 'KyberSwap - Limitless Access To DeFi'
 const DEFAULT_DESCRIPTION =
-  'Swap, earn, and trade crypto across chains - everything you need in DeFi, in one place. Powered by an advanced multi-chain aggregator engine.'
+  'Non-custodial platform to swap, earn, and trade crypto at the best rates across chains. Powered by an advanced multi-chain aggregator engine.'
 const DEFAULT_OG_IMAGE = `${SITE_URL}/kyberswap-og-image.png?version=2023`
 const INDEX_ROBOTS = 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
 const NOINDEX_ROBOTS = 'noindex,follow'
