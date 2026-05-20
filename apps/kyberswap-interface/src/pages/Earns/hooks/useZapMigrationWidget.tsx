@@ -32,6 +32,7 @@ import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/appli
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
@@ -267,7 +268,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     completion_time_ms: Date.now(),
                   },
                 )
-                throw new Error(error?.message || 'Transaction failed')
+                throw new Error(error ? friendlyError(error) : 'Transaction failed')
               }
 
               const sourceDex = migrateLiquidityPureParams.from.dexId

@@ -18,6 +18,7 @@ import { fetchExistingPoolAddress, navigateToPositionAfterZap, sortTokensByAddre
 import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { friendlyError } from 'utils/errorMessage'
 
 type CreateConfig = {
   chainId: number
@@ -111,7 +112,7 @@ const useZapCreatePoolWidget = () => {
           const res = await submitTransaction({ account, chainId: connectedChainId, txData, isSmartConnector })
           const { txHash, error } = res
 
-          if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+          if (!txHash || error) throw new Error(error ? friendlyError(error) : 'Transaction failed')
 
           // Track this tx hash for status updates
           addTrackedTxHash(txHash)
