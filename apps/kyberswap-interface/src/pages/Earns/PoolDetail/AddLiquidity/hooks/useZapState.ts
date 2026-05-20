@@ -23,7 +23,7 @@ import {
   validateAddLiquidityInput,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { getDefaultRevertPrice } from 'pages/Earns/utils'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTokenPrices, useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 
 const getTokenBalanceKey = (address: string) =>
@@ -93,11 +93,25 @@ export const useZapState = ({
     setRevertPrice(defaultRevertPrice)
   }, [defaultRevertPrice, pool?.address])
 
+  const initialTokenPriceAddresses = useMemo(
+    () =>
+      pool
+        ? [pool.token0.address.toLowerCase(), pool.token1.address.toLowerCase(), nativeToken.address.toLowerCase()]
+        : [nativeToken.address.toLowerCase()],
+    [nativeToken.address, pool],
+  )
+  const { data: initialTokenPrices, loading: initialTokenPricesLoading } = useTokenPricesWithLoading(
+    initialTokenPriceAddresses,
+    chainId as AppChainId,
+  )
+
   const tokenInputState = useInitialTokensIn({
     pool,
     chainId,
     account,
     nativeToken,
+    tokenPrices: initialTokenPrices,
+    tokenPricesLoading: initialTokenPricesLoading,
   })
 
   const nativeBalance = useNativeBalance(chainId as AppChainId)
