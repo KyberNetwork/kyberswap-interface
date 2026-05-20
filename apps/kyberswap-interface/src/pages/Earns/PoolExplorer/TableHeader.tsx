@@ -1,12 +1,9 @@
-import { Trans, t } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { PoolQueryParams } from 'services/zapEarn'
 
-import InfoHelper from 'components/InfoHelper'
 import { SortBy } from 'pages/Earns/PoolExplorer'
-import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import {
-  HeaderInfoWrapper,
   HeaderText,
   SortableHeader,
   TableCell,
@@ -27,7 +24,6 @@ const TableHeader = ({
   showPoolPrice?: boolean
 }) => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const showEgSharingColumn = filters.tag === FilterTag.FARMING_POOL
 
   return !upToMedium ? (
     <TableHeaderComponent showRewards={showRewards} showPoolPrice={showPoolPrice}>
@@ -41,25 +37,10 @@ const TableHeader = ({
         </SortableHeader>
       </TableCell>
       <TableCell flexDirection="row">
-        {showEgSharingColumn ? (
-          <HeaderInfoWrapper role="button">
-            {t`EG Sharing`}
-            <InfoHelper
-              width="250px"
-              text={
-                <Trans>
-                  The estimated amount of <b>Equilibrium Gain</b> rewards that would be shared with liquidity providers
-                  during the selected time range
-                </Trans>
-              }
-            />
-          </HeaderInfoWrapper>
-        ) : (
-          <SortableHeader role="button" onClick={() => onSortChange(SortBy.EARN_FEE)}>
-            {t`Fee`}
-            <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
-          </SortableHeader>
-        )}
+        <SortableHeader role="button" onClick={() => onSortChange(SortBy.EARN_FEE)}>
+          {t`Fee`}
+          <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
+        </SortableHeader>
       </TableCell>
       <TableCell flexDirection="row">
         <SortableHeader role="button" onClick={() => onSortChange(SortBy.TVL)}>

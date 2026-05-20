@@ -1,7 +1,6 @@
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Text } from 'rebass'
-import { PoolQueryParams } from 'services/zapEarn'
 
 import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
@@ -9,7 +8,6 @@ import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import { FeeTier, SymbolText, TableCell, TableRow } from 'pages/Earns/PoolExplorer/styles'
 import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
@@ -21,7 +19,6 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 const DesktopTableRow = ({
   pool,
-  filters,
   showRewards = true,
   showPoolPrice = true,
   onOpenZapInWidget,
@@ -29,7 +26,6 @@ const DesktopTableRow = ({
   favoriteLoading,
 }: {
   pool: ParsedEarnPool
-  filters: PoolQueryParams
   showRewards?: boolean
   showPoolPrice?: boolean
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
@@ -38,7 +34,6 @@ const DesktopTableRow = ({
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const showEgSharingColumn = filters.tag === FilterTag.FARMING_POOL
   const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -98,7 +93,7 @@ const DesktopTableRow = ({
       </TableCell>
       <TableCell>
         <Text>
-          {formatDisplayNumber(showEgSharingColumn ? pool.egUsd : pool.earnFee, {
+          {formatDisplayNumber(pool.earnFee, {
             style: 'currency',
             significantDigits: 6,
           })}

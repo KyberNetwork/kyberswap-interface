@@ -1,13 +1,11 @@
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Text } from 'rebass'
-import { PoolQueryParams } from 'services/zapEarn'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import {
   FeeTier,
@@ -26,20 +24,17 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 const MobileTableRow = ({
   pool,
-  filters,
   showRewards = true,
   onOpenZapInWidget,
   handleFavorite,
 }: {
   pool: ParsedEarnPool
-  filters: PoolQueryParams
   showRewards?: boolean
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const showEgSharingLine = filters.tag === FilterTag.FARMING_POOL
   const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -101,9 +96,9 @@ const MobileTableRow = ({
           </HStack>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{showEgSharingLine ? t`EG Sharing` : t`Fee`}</HeaderText>
+          <HeaderText color={theme.subText}>{t`Fee`}</HeaderText>
           <Text>
-            {formatDisplayNumber(showEgSharingLine ? pool.egUsd : pool.earnFee, {
+            {formatDisplayNumber(pool.earnFee, {
               style: 'currency',
               significantDigits: 6,
             })}
