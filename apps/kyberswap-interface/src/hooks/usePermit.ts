@@ -6,7 +6,7 @@ import { usePrevious } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import { EIP_2612 } from 'constants/abis'
-import { PermitType } from 'constants/permit'
+import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PermitType } from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -17,7 +17,7 @@ import { permitUpdate } from 'state/swap/actions'
 import { usePermitData } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { Address, encodeAbiParameters, parseAbiParameters, parseSignature, parseUnits, toHex } from 'utils/viem'
-import { signTypedDataSafe } from 'utils/walletClient'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 // 24 hours
 const PERMIT_VALIDITY_BUFFER = 24 * 60 * 60
@@ -105,67 +105,66 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       return
     }
     const deadline = Math.floor(Date.now() / 1000) + PERMIT_VALIDITY_BUFFER
+    // Stringify nonce — signTypedDataRaw forwards through JSON.stringify which
+    // throws on bigint. Hex preserves precision for nonces > 2^53.
     const message = {
       owner: account,
       spender: routerAddress,
       value: parseUnits(currencyAmount.toExact(), currency.decimals).toString(),
-      // Keep as bigint — Number(BigInt) would silently truncate for nonces > 2^53.
-      nonce: nonceResult,
+      nonce: `0x${nonceResult.toString(16)}`,
       deadline,
     }
 
+    const isSaltDomain = overwritedPermitData.type === PermitType.SALT
     const typedData = {
+      // Include EIP712Domain explicitly so the wallet doesn't have to infer
+      // the typehash from `domain` key order — viem's auto-derive produces a
+      // non-standard typehash for our non-standard ordering, which strict
+      // wallets reject by returning a malformed (all-zero) signature.
       types: {
-        // EIP712Domain is omitted on purpose — viem rejects payloads that already
-        // include it (signTypedDataSafe also strips it as a defensive measure).
+        EIP712Domain: isSaltDomain ? EIP712_DOMAIN_TYPE_SALT : EIP712_DOMAIN_TYPE,
         Permit: [
-          {
-            name: 'owner',
-            type: 'address',
-          },
-          {
-            name: 'spender',
-            type: 'address',
-          },
-          {
-            name: 'value',
-            type: 'uint256',
-          },
-          {
-            name: 'nonce',
-            type: 'uint256',
-          },
-          {
-            name: 'deadline',
-            type: 'uint256',
-          },
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
         ],
       },
-      domain:
-        overwritedPermitData && overwritedPermitData.type === PermitType.SALT
-          ? {
-              name: tokenName.result?.[0] || currency.name,
-              verifyingContract: currency.address,
-              salt: toHex(chainId, { size: 32 }),
-              version: overwritedPermitData.version,
-            }
-          : {
-              name: tokenName.result?.[0] || currency.name,
-              verifyingContract: currency.address,
-              version: overwritedPermitData.version,
-              chainId,
-            },
+      domain: isSaltDomain
+        ? {
+            name: tokenName.result?.[0] || currency.name,
+            version: overwritedPermitData.version,
+            verifyingContract: currency.address,
+            salt: toHex(chainId, { size: 32 }),
+          }
+        : {
+            name: tokenName.result?.[0] || currency.name,
+            version: overwritedPermitData.version,
+            chainId,
+            verifyingContract: currency.address,
+          },
       primaryType: 'Permit',
       message: message,
     }
 
     try {
-      const rawSignature = await signTypedDataSafe({
+      const rawSignature = await signTypedDataRaw({
         chainId: chainId,
         account: account as Address,
         typedData,
       })
-      const signature = parseSignature(rawSignature as `0x${string}`)
+      // Some wallets return a malformed signature (e.g. all-zero, EIP-1271
+      // placeholder) instead of throwing when they can't produce a real EIP-712
+      // signature. parseSignature then crashes with "expected valid s/r: ... got 0",
+      // which friendlyError can't map. Translate any parse failure into the
+      // existing "permit" pattern so the user sees "Invalid Permit Signature".
+      let signature: ReturnType<typeof parseSignature>
+      try {
+        signature = parseSignature(rawSignature as `0x${string}`)
+      } catch {
+        throw new Error('Invalid permit signature')
+      }
       const encodedPermitData = encodeAbiParameters(
         parseAbiParameters('address, address, uint256, uint256, uint8, bytes32, bytes32'),
         [
