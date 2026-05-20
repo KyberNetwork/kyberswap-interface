@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/widgets",
   "license": "MIT",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@kyber/hooks": "workspace:*",
+    "@kyber/rpc-client": "workspace:*",
     "@kyber/svgr-esbuild-plugin": "workspace:*",
     "@kyber/typescript-config": "workspace:*",
     "@kyber/ui": "workspace:*",
