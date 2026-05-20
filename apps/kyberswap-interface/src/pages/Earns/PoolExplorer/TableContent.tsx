@@ -113,7 +113,6 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
             <MobileTableRow
               key={pool.address}
               pool={pool}
-              filters={filters}
               showRewards={showRewards}
               onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
@@ -125,7 +124,6 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
           <DesktopTableRow
             key={pool.address}
             pool={pool}
-            filters={filters}
             showRewards={showRewards}
             showPoolPrice={showPoolPrice}
             onOpenZapInWidget={onOpenZapInWidget}

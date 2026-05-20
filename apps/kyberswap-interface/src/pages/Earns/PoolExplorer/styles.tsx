@@ -140,17 +140,10 @@ export const BackButton = styled.button`
 `
 
 export const TableHeader = styled.div.withConfig({
-  shouldForwardProp: prop => !['showMaxAprColumn', 'showRewards', 'showPoolPrice'].includes(prop),
-})<{ showMaxAprColumn?: boolean; showRewards?: boolean; showPoolPrice?: boolean }>`
+  shouldForwardProp: prop => !['showRewards', 'showPoolPrice'].includes(prop),
+})<{ showRewards?: boolean; showPoolPrice?: boolean }>`
   display: grid;
-  grid-template-columns: ${({ showMaxAprColumn, showRewards = true, showPoolPrice = true }) => {
-    if (showMaxAprColumn) {
-      if (showRewards && showPoolPrice) return '1.7fr 0.8fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 156px 40px'
-      if (showRewards) return '1.7fr 0.8fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 40px'
-      if (showPoolPrice) return '1.7fr 0.8fr 0.9fr 0.9fr 0.9fr 0.9fr 176px 40px'
-      return '1.7fr 0.8fr 0.9fr 0.9fr 0.9fr 0.9fr 40px'
-    }
-
+  grid-template-columns: ${({ showRewards = true, showPoolPrice = true }) => {
     if (showRewards && showPoolPrice) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 1fr 156px 40px'
     if (showRewards) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 1fr 40px'
     if (showPoolPrice) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 176px 40px'

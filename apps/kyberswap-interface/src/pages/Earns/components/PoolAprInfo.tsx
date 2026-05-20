@@ -94,7 +94,7 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
   return (
     <HStack align="center" gap={4} wrap="wrap">
       <MouseoverTooltipDesktopOnly
-        placement="bottom"
+        placement="left"
         width="fit-content"
         text={<AprTooltipContent pool={pool} type="total" />}
       >
