@@ -1,17 +1,30 @@
 import { useDebounce } from '@kyber/hooks'
 import { Pool, Token } from '@kyber/schema'
 import { getTokenBalances } from '@kyber/utils/crypto'
-import { formatUnits } from '@kyber/utils/number'
 import { useEffect, useState } from 'react'
 
-import { formatAmountWithDecimals } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+const DEFAULT_AMOUNT_USD_VALUE = 100
+const DEFAULT_AMOUNT_MULTIPLIERS = [1, 2, 5]
+const MAX_DEFAULT_AMOUNT_EXPONENT = 30
 
-const getInitialAmountFromBalance = (balance: string, decimals: number, isNativeToken: boolean): string => {
-  const parsedBalance = parseFloat(balance)
-  if (!parsedBalance || Number.isNaN(parsedBalance) || parsedBalance <= 0) return ''
+const getMinimumUsdAmount = (price: number) => {
+  if (!price || price <= 0) return undefined
 
-  const amount = parsedBalance >= 1 ? 1 : isNativeToken ? parsedBalance * 0.95 : parsedBalance
-  return formatAmountWithDecimals(amount, decimals)
+  for (let exponent = 0; exponent <= MAX_DEFAULT_AMOUNT_EXPONENT; exponent += 1) {
+    for (const multiplier of DEFAULT_AMOUNT_MULTIPLIERS) {
+      const amount = multiplier * 10 ** exponent
+      if (amount * price >= DEFAULT_AMOUNT_USD_VALUE) {
+        return `${multiplier}${'0'.repeat(exponent)}`
+      }
+    }
+  }
+
+  return undefined
+}
+
+const getInitialAmountFromPrice = (price: number | undefined): string => {
+  const amount = getMinimumUsdAmount(price || 0)
+  return amount || ''
 }
 
 type UseInitialTokensInProps = {
@@ -19,9 +32,18 @@ type UseInitialTokensInProps = {
   chainId: number
   account?: string
   nativeToken: Token
+  tokenPrices?: Record<string, number>
+  tokenPricesLoading?: boolean
 }
 
-export const useInitialTokensIn = ({ pool, chainId, account, nativeToken }: UseInitialTokensInProps) => {
+export const useInitialTokensIn = ({
+  pool,
+  chainId,
+  account,
+  nativeToken,
+  tokenPrices = {},
+  tokenPricesLoading = false,
+}: UseInitialTokensInProps) => {
   const [tokensIn, setTokensIn] = useState<Token[]>([])
   const [amountsIn, setAmountsIn] = useState('')
   const [initialized, setInitialized] = useState(false)
@@ -39,17 +61,19 @@ export const useInitialTokensIn = ({ pool, chainId, account, nativeToken }: UseI
 
     const setDefaultTokensIn = async () => {
       if (!pool || initialized) return
+      if (tokenPricesLoading) return
+
+      const nativeTokenAddress = nativeToken.address.toLowerCase()
 
       if (!account) {
         setTokensIn([nativeToken])
-        setAmountsIn('')
+        setAmountsIn(getInitialAmountFromPrice(tokenPrices[nativeTokenAddress]))
         setInitialized(true)
         return
       }
 
       const token0Address = pool.token0.address.toLowerCase()
       const token1Address = pool.token1.address.toLowerCase()
-      const nativeTokenAddress = nativeToken.address.toLowerCase()
       const pairBalance = await getTokenBalances({
         tokenAddresses: Array.from(new Set([token0Address, token1Address, nativeTokenAddress])),
         chainId,
@@ -58,29 +82,29 @@ export const useInitialTokensIn = ({ pool, chainId, account, nativeToken }: UseI
 
       if (cancelled) return
 
-      const token0Balance = formatUnits(BigInt(pairBalance[token0Address]).toString(), pool.token0.decimals)
-      const token1Balance = formatUnits(BigInt(pairBalance[token1Address]).toString(), pool.token1.decimals)
-      const nativeTokenBalance = formatUnits(BigInt(pairBalance[nativeTokenAddress]).toString(), nativeToken.decimals)
       const tokensToSet: Token[] = []
       const amountsToSet: string[] = []
 
-      if (parseFloat(token0Balance) > 0) {
+      const hasToken0Balance = BigInt(pairBalance[token0Address] || '0') > 0n
+      const hasToken1Balance = BigInt(pairBalance[token1Address] || '0') > 0n
+      const isToken0PricedHigher = (tokenPrices[token0Address] || 0) >= (tokenPrices[token1Address] || 0)
+
+      const shouldUseToken0 = hasToken0Balance && (!hasToken1Balance || isToken0PricedHigher)
+      const shouldUseToken1 = hasToken1Balance && (!hasToken0Balance || !isToken0PricedHigher)
+
+      if (shouldUseToken0) {
         tokensToSet.push(pool.token0)
-        amountsToSet.push(
-          getInitialAmountFromBalance(token0Balance, pool.token0.decimals, token0Address === nativeTokenAddress),
-        )
+        amountsToSet.push(getInitialAmountFromPrice(tokenPrices[token0Address]))
       }
 
-      if (parseFloat(token1Balance) > 0) {
+      if (shouldUseToken1) {
         tokensToSet.push(pool.token1)
-        amountsToSet.push(
-          getInitialAmountFromBalance(token1Balance, pool.token1.decimals, token1Address === nativeTokenAddress),
-        )
+        amountsToSet.push(getInitialAmountFromPrice(tokenPrices[token1Address]))
       }
 
       if (!tokensToSet.length) {
         tokensToSet.push(nativeToken)
-        amountsToSet.push(getInitialAmountFromBalance(nativeTokenBalance || '1', nativeToken.decimals, true) || '1')
+        amountsToSet.push(getInitialAmountFromPrice(tokenPrices[nativeTokenAddress]))
       }
 
       setTokensIn(tokensToSet)
@@ -93,7 +117,7 @@ export const useInitialTokensIn = ({ pool, chainId, account, nativeToken }: UseI
     return () => {
       cancelled = true
     }
-  }, [account, chainId, initialized, nativeToken, pool])
+  }, [account, chainId, initialized, nativeToken, pool, tokenPrices, tokenPricesLoading])
 
   return {
     tokensIn,

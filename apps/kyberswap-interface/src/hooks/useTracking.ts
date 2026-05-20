@@ -1,10 +1,8 @@
 import { useFormo } from '@formo/analytics'
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel, { crossChainMixpanel } from 'libs/mixpanel'
-import { useCallback, useEffect, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
-import { useLocation } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
 import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -16,8 +14,6 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
 export enum TRACKING_EVENT_TYPE {
-  PAGE_VIEWED,
-  WALLET_CONNECTED,
   WALLET_CONNECT_CLICK,
   WALLET_CONNECT_ACCEPT_TERM_CLICK,
   WALLET_CONNECT_WALLET_CLICK,
@@ -40,7 +36,6 @@ export enum TRACKING_EVENT_TYPE {
   TRADING_ROUTE_ON_MOBILE,
   TOKEN_INFO_CHECKED,
   TOKEN_SWAP_LINK_SHARED,
-  CHAIN_SWITCHED,
   ADD_FAVORITE_CHAIN,
   REMOVE_FAVORITE_CHAIN,
   CREATE_POOL_INITITATED,
@@ -384,7 +379,6 @@ export const useCrossChainMixpanel = () => {
 
 export default function useTracking(currencies?: { [field in Field]?: Currency }) {
   const { account, networkInfo } = useActiveWeb3React()
-  const network = networkInfo.name
   const analytics = useFormo()
 
   const inputCurrencyFromHook = useInputCurrency()
@@ -408,11 +402,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
     (type: TRACKING_EVENT_TYPE, payload?: any) => {
       // Anonymous events
       switch (type) {
-        case TRACKING_EVENT_TYPE.PAGE_VIEWED: {
-          const { page } = payload
-          page && formoTrack(page + ' Page Viewed')
-          break
-        }
         case TRACKING_EVENT_TYPE.WALLET_CONNECT_CLICK: {
           formoTrack('Wallet Connect - Connect Wallet Button Click')
           break
@@ -425,28 +414,12 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Wallet Connect - Wallet click', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.CHAIN_SWITCHED: {
-          const { old_network, new_network } = payload
-          formoTrack('Chain Switched', {
-            old_network,
-            new_network,
-          })
-          break
-        }
       }
       if (!account) {
         return
       }
       // Need connect wallet events
       switch (type) {
-        case TRACKING_EVENT_TYPE.WALLET_CONNECTED:
-          formoTrack('Wallet Connected', {
-            wallet_address: account,
-            platform: isMobile ? 'Mobile' : 'Web',
-            network,
-            source: location.pathname,
-          })
-          break
         case TRACKING_EVENT_TYPE.ADD_FAVORITE_CHAIN:
           formoTrack('Favourite Chain - Add chain over favourite list success', payload)
           break
@@ -1809,7 +1782,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
       }
     },
     /* eslint-disable */
-    [currencies, network, account, mixpanel.hasOwnProperty('get_distinct_id'), formoTrack],
+    [currencies, account, mixpanel.hasOwnProperty('get_distinct_id'), formoTrack],
     /* eslint-enable */
   )
   return { trackingHandler }
@@ -1817,14 +1790,8 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
 
 export const useGlobalTrackingEvents = () => {
   const { account, chainId } = useActiveWeb3React()
-  const { trackingHandler } = useTracking()
   const analytics = useFormo()
   const oldNetwork = usePrevious(chainId)
-  const location = useLocation()
-  const pathName = useMemo(() => {
-    if (location.pathname.split('/')[1] !== 'elastic') return location.pathname.split('/')[1]
-    return 'elastic/' + location.pathname.split('/')[2]
-  }, [location])
 
   useEffect(() => {
     if (account && isAddress(account)) {
@@ -1864,8 +1831,6 @@ export const useGlobalTrackingEvents = () => {
       crossChainMixpanel?.people.set(params)
       crossChainMixpanel?.people.set_once(first_params)
       crossChainMixpanel?.register_once(params)
-
-      trackingHandler(TRACKING_EVENT_TYPE.WALLET_CONNECTED)
     }
     return () => {
       if (account) {
@@ -1878,42 +1843,8 @@ export const useGlobalTrackingEvents = () => {
 
   useEffect(() => {
     if (oldNetwork) {
-      trackingHandler(TRACKING_EVENT_TYPE.CHAIN_SWITCHED, {
-        new_network: chainId && NETWORKS_INFO[chainId].name,
-        old_network: oldNetwork && NETWORKS_INFO[oldNetwork as ChainId].name,
-      })
       crossChainMixpanel?.register({ network: chainId && NETWORKS_INFO[chainId].name })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
-
-  useEffect(() => {
-    if (pathName) {
-      const map: { [key: string]: string } = {
-        swap: 'Swap',
-        find: 'Pool Finder',
-        pools: 'Pools',
-        farms: 'Farms',
-        myPools: 'My Pools',
-        migration: 'Migration',
-        create: 'Create Pool',
-        add: 'Add Liquidity',
-        remove: 'Remove Liquidity',
-        about: 'About',
-        discover: 'Discover',
-        'elastic/remove': 'Elastic - Remove Liquidity',
-        'elastic/add': 'Elastic - Add Liquidity',
-        'elastic/increase': 'Elastic - Increase Liquidity',
-        bridge: 'Bridge',
-        '/kyberdao/stake-knc': 'KyberDAO Stake',
-        '/kyberdao/vote': 'KyberDAO Vote',
-        limit: 'Limit Order',
-        'cross-chain': 'Cross Chain',
-        'notification-center': 'Notification',
-      }
-      const pageName = map[pathName] || map[location.pathname]
-      pageName && trackingHandler(TRACKING_EVENT_TYPE.PAGE_VIEWED, { page: pageName })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathName, account, chainId, location.pathname])
 }

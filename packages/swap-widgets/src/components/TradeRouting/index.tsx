@@ -27,7 +27,7 @@ import { SCAN_LINK, TokenInfo } from '../../constants'
 import { SwapPool, SwapRouteV2, getTradeComposition } from '../../utils/aggregationRouting'
 import { Trade, useDexes } from '../../hooks/useSwap'
 import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
-import questionImg from '../../assets/question.svg?url'
+import unknownTokenImg from '../../assets/unknown-token.svg?url'
 import { isAddress } from '@kyber/utils/crypto'
 
 interface RouteRowProps {
@@ -83,7 +83,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                       style={{ borderRadius: '50%' }}
                       onError={({ currentTarget }) => {
                         currentTarget.onerror = null // prevents looping
-                        currentTarget.src = questionImg
+                        currentTarget.src = unknownTokenImg
                       }}
                     />
 
@@ -186,7 +186,7 @@ const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
             style={{ borderRadius: '50%' }}
             onError={({ currentTarget }) => {
               currentTarget.onerror = null // prevents looping
-              currentTarget.src = questionImg
+              currentTarget.src = unknownTokenImg
             }}
           />
           <span>

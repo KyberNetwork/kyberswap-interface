@@ -1,15 +1,11 @@
-import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Text } from 'rebass'
-import { PoolQueryParams } from 'services/zapEarn'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import {
   FeeTier,
@@ -19,30 +15,28 @@ import {
   MobileTableRow as MobileTableRowComponent,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
-import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
 import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
+import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const MobileTableRow = ({
   pool,
-  filters,
+  showRewards = true,
   onOpenZapInWidget,
   handleFavorite,
 }: {
   pool: ParsedEarnPool
-  filters: PoolQueryParams
+  showRewards?: boolean
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
-  const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
-  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
+  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
     trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
       pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
@@ -59,16 +53,6 @@ const MobileTableRow = ({
         chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
-      initialTick:
-        withPriceRange &&
-        pool.maxAprInfo &&
-        pool.maxAprInfo.tickLower !== undefined &&
-        pool.maxAprInfo.tickUpper !== undefined
-          ? {
-              tickLower: pool.maxAprInfo.tickLower,
-              tickUpper: pool.maxAprInfo.tickUpper,
-            }
-          : undefined,
     })
   }
 
@@ -110,29 +94,10 @@ const MobileTableRow = ({
             <PoolAprBadges pool={pool} />
           </HStack>
         </MobileTableCell>
-        {isFarmingFiltered && (
-          <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
-            <HeaderText color={theme.subText}>{t`Max APR`}</HeaderText>
-            {pool.maxAprInfo ? (
-              <Text>
-                {formatAprNumber(
-                  Number(pool.maxAprInfo.apr) +
-                    Number(pool.maxAprInfo.kemEGApr) +
-                    Number(pool.maxAprInfo.kemLMApr) +
-                    Number(pool.bonusApr || 0),
-                ) + '%'}
-              </Text>
-            ) : (
-              <MouseoverTooltipDesktopOnly text={t`Not available for this pool`} width="fit-content" placement="bottom">
-                <Text>-</Text>
-              </MouseoverTooltipDesktopOnly>
-            )}
-          </MobileTableCell>
-        )}
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Fee`}</HeaderText>
+          <HeaderText color={theme.subText}>{t`Fee`}</HeaderText>
           <Text>
-            {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+            {formatDisplayNumber(pool.earnFee, {
               style: 'currency',
               significantDigits: 6,
             })}
@@ -146,15 +111,12 @@ const MobileTableRow = ({
           <HeaderText color={theme.subText}>{t`Volume`}</HeaderText>
           <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
         </MobileTableCell>
-        <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
-          <HStack align="center" gap={4}>
-            <Text>
-              {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
-            </Text>
-            <MerklRewardsRecord pool={pool} showEstimate={false} />
-          </HStack>
-        </MobileTableCell>
+        {showRewards && (
+          <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
+            <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
+            <PoolRewardsInfo pool={pool} showEstimate={false} />
+          </MobileTableCell>
+        )}
         <MobileTableCell>
           <SparklineChart
             sparkline={pool.sparkline}

@@ -1,3 +1,4 @@
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO as SCHEMA_NETWORKS_INFO, ChainId as SchemaChainId } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -26,6 +27,7 @@ const chunkList = (list: string[], chunkSize: number) => {
 }
 
 const CHUNK_SIZE = 100
+const NATIVE_TOKEN_PRICE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase()
 
 export const useTokenPricesWithLoading = (
   addresses: Array<string>,
@@ -43,14 +45,25 @@ export const useTokenPricesWithLoading = (
   const chainId = customChain || currentChain
 
   const [loading, setLoading] = useState(true)
-  const addressKeys = addresses
+  const addressKeys = [...addresses]
     .sort()
     .map(x => x.toLowerCase())
     .join(',')
 
+  const wrappedNativeAddress = useMemo(
+    () => SCHEMA_NETWORKS_INFO[chainId as unknown as SchemaChainId]?.wrappedToken.address?.toLowerCase(),
+    [chainId],
+  )
+
   const tokenList = useMemo(() => {
-    return addressKeys.split(',').filter(Boolean)
-  }, [addressKeys])
+    const list = addressKeys.split(',').filter(Boolean)
+
+    if (list.includes(NATIVE_TOKEN_PRICE_KEY) && wrappedNativeAddress) {
+      list.push(wrappedNativeAddress)
+    }
+
+    return Array.from(new Set(list))
+  }, [addressKeys, wrappedNativeAddress])
 
   const unknownPriceList = useMemo(() => {
     return tokenList.filter(item => tokenPrices[`${item}_${chainId}`] === undefined)
@@ -136,13 +149,19 @@ export const useTokenPricesWithLoading = (
   } = useMemo(() => {
     return tokenList.reduce((acc, address) => {
       const key = `${address}_${chainId}`
+      const wrappedNativeKey = `${wrappedNativeAddress}_${chainId}`
+      const price =
+        address === NATIVE_TOKEN_PRICE_KEY && wrappedNativeAddress
+          ? tokenPrices[key] || tokenPrices[wrappedNativeKey] || 0
+          : tokenPrices[key] || 0
+
       return {
         ...acc,
-        [address]: tokenPrices[key] || 0,
-        [isAddressString(address)]: tokenPrices[key] || 0,
+        [address]: price,
+        [isAddressString(address)]: price,
       }
     }, {})
-  }, [tokenList, chainId, tokenPrices])
+  }, [tokenList, chainId, tokenPrices, wrappedNativeAddress])
 
   return { data, loading, fetchPrices, refetch }
 }

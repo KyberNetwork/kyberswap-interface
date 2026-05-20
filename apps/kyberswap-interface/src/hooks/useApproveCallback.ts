@@ -124,19 +124,22 @@ export function useApproveCallback(
             approvedAmount = amountToApprove.quotient.toString()
           } catch {
             estimatedGas = await tokenContract.estimateGas.approve(spender, '0')
-            return paymentToken?.address
-              ? paymasterExecute(
-                  paymentToken.address,
-                  {
-                    from: account,
-                    to: token.address,
-                    data: ERC20Interface.encodeFunctionData('approve', [spender, '0']),
-                  },
-                  calculateGasMargin(estimatedGas).toNumber(),
-                )
-              : tokenContract.approve(spender, '0', {
-                  gasLimit: calculateGasMargin(estimatedGas),
-                })
+            if (paymentToken?.address) {
+              await paymasterExecute(
+                paymentToken.address,
+                {
+                  from: account,
+                  to: token.address,
+                  data: ERC20Interface.encodeFunctionData('approve', [spender, '0']),
+                },
+                calculateGasMargin(estimatedGas).toNumber(),
+              )
+            } else {
+              await tokenContract.approve(spender, '0', {
+                gasLimit: calculateGasMargin(estimatedGas),
+              })
+            }
+            return
           }
         }
 

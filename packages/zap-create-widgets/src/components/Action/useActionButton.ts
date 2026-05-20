@@ -80,6 +80,7 @@ export default function useActionButton({
     amounts: amountsToApprove,
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
+    chainId,
     rpcUrl,
     spender: zapInfo?.routerAddress || '',
     onSubmitTx,
@@ -188,7 +189,7 @@ export default function useActionButton({
         value: `0x${BigInt(data.value).toString(16)}`,
       };
 
-      const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
+      const { gasUsd, error } = await estimateGasForTx({ txData, chainId });
 
       if (error) {
         setWidgetError(error);

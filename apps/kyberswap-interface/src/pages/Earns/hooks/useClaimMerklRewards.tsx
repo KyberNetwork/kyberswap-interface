@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { ethers } from 'ethers'
 import { useCallback } from 'react'
-import { MerklRewardsResponse } from 'services/rewardMerkl'
+import { MerklRewardsResponse, useFetchMerklChainRewardsMutation } from 'services/rewardMerkl'
 
 import { NotificationType } from 'components/Announcement/type'
 import MERKL_DISTRIBUTOR_ABI from 'constants/abis/merkl-distributor.json'
@@ -20,10 +20,29 @@ const useClaimMerklRewards = () => {
   const addTransactionWithType = useTransactionAdder()
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
+  const [fetchMerklChainRewards] = useFetchMerklChainRewardsMutation()
 
   const claimMerklRewards = useCallback(
-    async (targetChainId: number, chainRewards: MerklRewardsResponse | undefined) => {
+    async (targetChainId: number, cachedChainRewards: MerklRewardsResponse | undefined) => {
       if (!library || !account) return
+
+      // Pre-claim freshness fetch: hit Merkl one time for this specific chain to make sure the
+      // amount + merkle proof we sign over is the latest available. The cached payload from the
+      // background `useMerklRewardsQuery` may be up to ~5 min stale (keepUnusedDataFor=300), and
+      // a stale proof against a newer Merkl root would revert on-chain.
+      //
+      // A successful fetch is authoritative — replace the cached payload with whatever Merkl
+      // returned, even if it's empty or missing. That way the `!chainRewards?.rewards?.length`
+      // guard below surfaces a clean "no claimable rewards" error instead of silently submitting
+      // a tx with potentially-stale proofs. Only keep the cached fallback when the network call
+      // itself fails, so a transient error still leaves the claim flow usable.
+      let chainRewards: MerklRewardsResponse | undefined = cachedChainRewards
+      try {
+        const result = await fetchMerklChainRewards({ address: account, chainId: targetChainId }).unwrap()
+        chainRewards = result.find(item => item.chain.id === targetChainId)
+      } catch {
+        // keep `cachedChainRewards` fallback
+      }
 
       if (!chainRewards?.rewards?.length) {
         notify({
@@ -103,7 +122,7 @@ const useClaimMerklRewards = () => {
 
       return txHash
     },
-    [account, addTransactionWithType, library, notify],
+    [account, addTransactionWithType, fetchMerklChainRewards, library, notify],
   )
 
   return { claimMerklRewards }
