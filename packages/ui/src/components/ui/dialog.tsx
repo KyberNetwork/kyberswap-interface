@@ -44,7 +44,9 @@ const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.C
     const [container, setContentRef] = React.useState<HTMLDivElement | null>(null);
     return (
       <>
-        {containerClassName ? <div className={containerClassName} ref={setContentRef} /> : null}
+        {containerClassName ? (
+          <div className={cn('fixed left-0 top-0 z-[1000] h-0 w-0', containerClassName)} ref={setContentRef} />
+        ) : null}
         <DialogPortal container={containerClassName ? container : null}>
           <DialogOverlay className={overlayClassName} />
           <DialogPrimitive.Content
