@@ -93,7 +93,12 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     }
   }, [permitData?.errorCount, notify, trackingHandler, currency, prevErrorCount])
   const signPermitCallback = useCallback(async (): Promise<void> => {
-    if (!routerAddress || !currency || !account || !overwritedPermitData || !tokenNonceState?.result?.[0]) {
+    const nonceResult = tokenNonceState?.result?.[0] as bigint | undefined
+    // Check `=== undefined`, not falsy: a first-time permit returns nonce 0n,
+    // and `!0n` is true — that would silently abort the callback and freeze
+    // the button (no wallet popup, no error). Common when a user signs in
+    // with a new wallet/address that has never permitted this token.
+    if (!routerAddress || !currency || !account || !overwritedPermitData || nonceResult === undefined) {
       return
     }
     if (permitState !== PermitState.NOT_SIGNED) {
@@ -105,7 +110,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       spender: routerAddress,
       value: parseUnits(currencyAmount.toExact(), currency.decimals).toString(),
       // Keep as bigint — Number(BigInt) would silently truncate for nonces > 2^53.
-      nonce: tokenNonceState.result[0] as bigint,
+      nonce: nonceResult,
       deadline,
     }
 
