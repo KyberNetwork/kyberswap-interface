@@ -51,7 +51,7 @@ const CardBackground: React.FC<Props> = ({ noLogo }) => {
       <Layer2 />
       {!noLogo && (
         <LogoWrapper>
-          <KyberLogo width="94px" height="auto" />
+          <KyberLogo width="94px" style={{ height: 'auto' }} />
         </LogoWrapper>
       )}
     </BackgroundWrapper>
