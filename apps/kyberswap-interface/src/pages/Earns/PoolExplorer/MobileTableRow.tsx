@@ -15,9 +15,9 @@ import {
   MobileTableRow as MobileTableRowComponent,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
-import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
 import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
+import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -35,7 +35,6 @@ const MobileTableRow = ({
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
@@ -115,12 +114,7 @@ const MobileTableRow = ({
         {showRewards && (
           <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
             <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
-            <HStack align="center" gap={4}>
-              <Text>
-                {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
-              </Text>
-              <MerklRewardsRecord pool={pool} showEstimate={false} />
-            </HStack>
+            <PoolRewardsInfo pool={pool} showEstimate={false} />
           </MobileTableCell>
         )}
         <MobileTableCell>

@@ -10,9 +10,9 @@ import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import { FeeTier, SymbolText, TableCell, TableRow } from 'pages/Earns/PoolExplorer/styles'
-import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
 import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
+import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -34,7 +34,6 @@ const DesktopTableRow = ({
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
@@ -107,10 +106,7 @@ const DesktopTableRow = ({
       </TableCell>
       {showRewards && (
         <TableCell>
-          <Text>
-            {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
-          </Text>
-          <MerklRewardsRecord pool={pool} />
+          <PoolRewardsInfo pool={pool} />
         </TableCell>
       )}
       {showPoolPrice && (
