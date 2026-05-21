@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { HelpCircle } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DiscordIcon } from 'assets/svg/discord_color.svg'
 import { ReactComponent as EmailIcon } from 'assets/svg/email_color.svg'
@@ -12,65 +11,6 @@ import { ReactComponent as TeleIcon } from 'assets/svg/tele_color.svg'
 import { KYBER_NETWORK_TELEGRAM_URL } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-
-const SubMenu = styled(motion.div)`
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translateY(-100%) !important;
-  padding-bottom: 10px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    right: -10px;
-  `}
-`
-const SubMenuBackground = styled.div`
-  border-radius: 12px;
-  position: absolute;
-  top: -10px;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  z-index: -1;
-`
-
-const SubMenuContent = styled(Flex)`
-  background: ${({ theme }) => theme.tableHeader};
-  padding: 12px 24px;
-  border-radius: 12px;
-  margin-bottom: -10px;
-
-  :after {
-    bottom: 100%;
-    right: 20px;
-    top: calc(100% - 10px);
-    border: solid transparent;
-    content: '';
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border-bottom-color: ${({ theme }) => theme.tableHeader};
-    border-width: 10px;
-    margin-left: -10px;
-    border-top-color: ${({ theme }) => theme.tableHeader};
-    border-bottom-color: transparent;
-    border-width: 10px;
-    margin-left: -10px;
-  }
-`
-
-const Wrapper = styled(motion.div)`
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  z-index: 1;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    bottom: 75px;
-  `};
-`
 
 export default function SupportButton() {
   const [isHover, setIsHover] = useState(false)
@@ -102,7 +42,11 @@ export default function SupportButton() {
   if (window.location.href.includes('/partner-swap')) return null
 
   return (
-    <Wrapper onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+    <motion.div
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+      className="fixed bottom-4 right-4 z-[1] max-lg:bottom-[75px]"
+    >
       <Flex
         backgroundColor={theme.primary}
         alignItems="center"
@@ -126,8 +70,20 @@ export default function SupportButton() {
         )}
       </Flex>
 
-      <SubMenu initial="exit" animate={isHover ? 'enter' : 'exit'} variants={subMenuAnimate}>
-        <SubMenuContent flexDirection="column" sx={{ gap: '1rem' }}>
+      <motion.div
+        initial="exit"
+        animate={isHover ? 'enter' : 'exit'}
+        variants={subMenuAnimate}
+        className="absolute right-0 top-0 !-translate-y-full pb-2.5 max-sm:-right-2.5"
+      >
+        <Flex
+          flexDirection="column"
+          sx={{ gap: '1rem' }}
+          // ::after is a small triangle pointing down toward the button from inside the popover.
+          // `after:-ml-2.5` matches the original `margin-left: -10px` so the triangle stays
+          // centered on the calculated `right: 20px` anchor.
+          className="relative -mb-2.5 rounded-xl bg-tableHeader px-6 py-3 after:pointer-events-none after:absolute after:bottom-full after:right-5 after:top-[calc(100%-10px)] after:-ml-2.5 after:size-0 after:border-[10px] after:border-solid after:border-transparent after:border-t-tableHeader after:content-['']"
+        >
           <ExternalLink
             href="https://discord.com/channels/608934314960224276/1192426056183972010"
             style={{ textDecoration: 'none' }}
@@ -155,9 +111,9 @@ export default function SupportButton() {
               </Text>
             </Flex>
           </a>
-        </SubMenuContent>
-        <SubMenuBackground />
-      </SubMenu>
-    </Wrapper>
+        </Flex>
+        <div className="absolute inset-x-0 -top-2.5 bottom-0 z-[-1] rounded-xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)]" />
+      </motion.div>
+    </motion.div>
   )
 }

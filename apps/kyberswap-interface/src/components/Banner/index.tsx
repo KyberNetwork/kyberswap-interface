@@ -2,7 +2,6 @@ import React, { memo, useMemo } from 'react'
 import { X } from 'react-feather'
 import { useLocalStorage } from 'react-use'
 import { Flex } from 'rebass'
-import styled from 'styled-components'
 import { Autoplay, Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
@@ -13,76 +12,6 @@ import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ExternalLink } from 'theme'
-
-const BannerWrapper = styled(Flex)`
-  --swiper-navigation-size: 12px;
-
-  .swiper-button-prev,
-  .swiper-button-next {
-    color: #ffffff;
-    background: rgba(0, 0, 0, 0.25);
-    width: 32px;
-    height: 32px;
-    margin-top: 0;
-    border-radius: 50%;
-    transform: translateY(-50%);
-    visibility: hidden;
-  }
-
-  .swiper-pagination-bullet {
-    height: 5px;
-    width: 5px;
-    background: #d5dbde;
-  }
-
-  .swiper-pagination-bullet-active {
-    width: 20px;
-    border-radius: 4px;
-    background: #ffffff;
-  }
-
-  &:hover {
-    .swiper-button-prev,
-    .swiper-button-next {
-      visibility: visible;
-    }
-  }
-`
-
-const Wrapper = styled.div`
-  margin: auto;
-  position: relative;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-
-  img {
-    border-radius: 8px;
-  }
-
-  @media screen and (min-width: 1100px) {
-    max-width: 1054px;
-  }
-  @media screen and (min-width: 1240px) {
-    max-width: 1154px;
-  }
-  @media screen and (min-width: 1320px) {
-    max-width: 1226px;
-  }
-  @media screen and (min-width: 1500px) {
-    max-width: 1394px;
-  }
-`
-
-const Close = styled(X)`
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: ${({ theme }) => theme.buttonBlack + '66'};
-  padding: 4px;
-  cursor: pointer;
-  border-bottom-left-radius: 8px;
-`
 
 function Banner({
   margin,
@@ -135,7 +64,13 @@ function Banner({
   if (!showBanner) return null
 
   return (
-    <BannerWrapper margin={margin || 'auto'} padding={padding} maxWidth={maxWidth || '1394px'} width="100%">
+    <Flex
+      margin={margin || 'auto'}
+      padding={padding}
+      maxWidth={maxWidth || '1394px'}
+      width="100%"
+      className="ks-banner"
+    >
       <Swiper
         autoplay={banners.length > 1 ? { delay: 5000 } : false}
         slidesPerView={1}
@@ -146,7 +81,7 @@ function Banner({
       >
         {banners.map((banner, index) => (
           <SwiperSlide key={index}>
-            <Wrapper>
+            <div className="relative m-auto w-full overflow-hidden rounded-lg min-[1100px]:max-w-[1054px] min-[1240px]:max-w-[1154px] min-[1320px]:max-w-[1226px] min-[1500px]:max-w-[1394px] [&_img]:rounded-lg">
               <ExternalLink
                 href={banner.link}
                 onClick={() => {
@@ -158,7 +93,7 @@ function Banner({
               >
                 <img src={banner.img} alt="banner" width="100%" />
               </ExternalLink>
-              <Close
+              <X
                 color={theme.white}
                 role="button"
                 onClick={() => {
@@ -168,12 +103,13 @@ function Banner({
                   })
                   setShowBanner(false)
                 }}
+                className="absolute right-0 top-0 cursor-pointer rounded-bl-lg bg-buttonBlack-40 p-1"
               />
-            </Wrapper>
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>
-    </BannerWrapper>
+    </Flex>
   )
 }
 

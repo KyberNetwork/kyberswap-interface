@@ -314,6 +314,166 @@
     animation: ks-check-flip 1.5s;
   }
 
+  /* <DatePicker> — overrides for react-date-picker so its popup adopts our theme. */
+  .ks-date-picker .custom-date-picker {
+    width: 100%;
+  }
+  .ks-date-picker .react-date-picker__wrapper {
+    height: 0;
+    width: 0;
+    opacity: 0;
+  }
+  .ks-date-picker .react-date-picker__wrapper span {
+    display: none;
+  }
+  .ks-date-picker .react-date-picker__calendar--closed {
+    display: block !important;
+  }
+  .ks-date-picker .react-date-picker__calendar--open {
+    height: fit-content !important;
+  }
+  .ks-date-picker .react-date-picker__calendar {
+    position: unset !important;
+    width: fit-content;
+  }
+  .ks-date-picker .custom-calendar {
+    text-align: center;
+    width: 100%;
+    background: transparent;
+    border: none;
+  }
+  .ks-date-picker .custom-calendar button {
+    background-color: transparent;
+    color: var(--ks-text);
+    margin: 0;
+    border: 0;
+    outline: none;
+    font-weight: 500;
+    font-size: 12px;
+  }
+  .ks-date-picker .custom-calendar button:disabled {
+    color: var(--ks-subText);
+    cursor: not-allowed;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__weekdays__weekday {
+    line-height: 16px;
+    color: var(--ks-subText);
+    text-transform: none;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__decade-view button.react-calendar__tile--hasActive,
+  .ks-date-picker .custom-calendar .react-calendar__decade-view button:not(:disabled):hover,
+  .ks-date-picker .custom-calendar .react-calendar__century-view button.react-calendar__tile--hasActive,
+  .ks-date-picker .custom-calendar .react-calendar__century-view button:not(:disabled):hover,
+  .ks-date-picker .custom-calendar .react-calendar__year-view button.react-calendar__tile--hasActive,
+  .ks-date-picker .custom-calendar .react-calendar__year-view button:not(:disabled):hover {
+    color: var(--ks-primary);
+    font-weight: bold;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__decade-view button,
+  .ks-date-picker .custom-calendar .react-calendar__century-view button,
+  .ks-date-picker .custom-calendar .react-calendar__year-view button {
+    padding: 14px 0.5em;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation {
+    margin: 0;
+    font-weight: 500;
+    height: auto;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__label {
+    height: 24px;
+    font-size: 14px;
+    color: var(--ks-text);
+    background-color: transparent;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__label:hover {
+    background-color: transparent;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__arrow {
+    font-size: 20px;
+    background-color: var(--ks-background);
+    color: var(--ks-text);
+    border-radius: 100%;
+    padding-bottom: 12px;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+    min-width: unset;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__arrow:disabled {
+    background-color: rgba(28, 28, 28, 0.4);
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button {
+    height: 34px;
+    padding: 0;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button abbr {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 100%;
+    display: block;
+    margin: auto;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button.react-calendar__tile--now abbr {
+    background-color: var(--ks-buttonGray);
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button.react-calendar__tile--active abbr,
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button:not(:disabled):hover abbr {
+    color: var(--ks-textReverse);
+    background-color: var(--ks-primary);
+  }
+  .ks-date-picker
+    .custom-calendar
+    .react-calendar__month-view__days
+    button.react-calendar__month-view__days__day--neighboringMonth {
+    font-style: italic;
+  }
+  @media (max-width: 992px) {
+    .ks-date-picker .custom-date-picker .custom-calendar .react-calendar__month-view__days button {
+      height: 48px;
+    }
+    .ks-date-picker .custom-date-picker .custom-calendar .react-calendar__month-view__days button abbr {
+      width: 48px;
+      height: 48px;
+      line-height: 48px;
+    }
+  }
+
+  /* <Banner> — Swiper carousel customization (color overrides + show nav arrows on hover). */
+  .ks-banner {
+    --swiper-navigation-size: 12px;
+  }
+  .ks-banner .swiper-button-prev,
+  .ks-banner .swiper-button-next {
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.25);
+    width: 32px;
+    height: 32px;
+    margin-top: 0;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    visibility: hidden;
+  }
+  .ks-banner .swiper-pagination-bullet {
+    height: 5px;
+    width: 5px;
+    background: #d5dbde;
+  }
+  .ks-banner .swiper-pagination-bullet-active {
+    width: 20px;
+    border-radius: 4px;
+    background: #ffffff;
+  }
+  .ks-banner:hover .swiper-button-prev,
+  .ks-banner:hover .swiper-button-next {
+    visibility: visible;
+  }
+
   /* <HorizontalScroll> — fading shadows on left/right when content overflows.
      Background color is supplied as the `--ks-hs-bg` CSS variable on the host. */
   .ks-horizontal-scroll.left-visible::after,

@@ -101,6 +101,7 @@ module.exports = {
         // Append migrated folders here. Goal end of Phase 5: 'src/**/*.{ts,tsx}'.
         // AppHaveUpdate still imports rebass — defer to Phase 6.
         'src/components/ArrowRotate.tsx',
+        // Banner still imports rebass Flex — defer to Phase 6.
         'src/components/Avatar.tsx',
         'src/components/Badge/**/*.{ts,tsx}',
         'src/components/Card/**/*.{ts,tsx}',
@@ -110,10 +111,12 @@ module.exports = {
         'src/components/Column/**/*.{ts,tsx}',
         // ConfirmModal still imports rebass — defer to Phase 6.
         'src/components/CurrencyLogo/**/*.{ts,tsx}',
+        'src/components/DatePicker.tsx',
         'src/components/Divider/**/*.{ts,tsx}',
         'src/components/Dots.tsx',
         'src/components/DoubleLogo/**/*.{ts,tsx}',
         // ElasticHackedModal + FarmTag still import rebass — defer to Phase 6.
+        // ErrorBoundary/FallbackView still imports rebass Text — defer to Phase 6.
         'src/components/ExpandableBox/**/*.{ts,tsx}',
         'src/components/FeeControlGroup/**/*.{ts,tsx}',
         'src/components/FeeTierControl/**/*.{ts,tsx}',
@@ -153,6 +156,8 @@ module.exports = {
         'src/components/SlippageControl/**/*.{ts,tsx}',
         'src/components/SlippageWarningNote/**/*.{ts,tsx}',
         'src/components/Stack/**/*.{ts,tsx}',
+        'src/components/SwitchLocaleLink/**/*.{ts,tsx}',
+        // SupportButton + AddToMetamask still import rebass — defer to Phase 6.
         'src/components/TabButton.tsx',
         'src/components/Tabs.tsx',
         'src/components/TokenLogo/**/*.{ts,tsx}',
