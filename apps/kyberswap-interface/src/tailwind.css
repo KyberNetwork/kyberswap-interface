@@ -63,6 +63,366 @@
     border-color: rgba(169, 169, 169, 0.25);
   }
 
+  /* <Popover> container — invisible hover-bridge after-pseudo so the popover stays
+     open when the cursor moves between the trigger and the popover body. */
+  .ks-popover-container::after {
+    content: '';
+    position: absolute;
+    background: transparent;
+  }
+  .ks-popover-container[data-popper-placement^='bottom']::after {
+    top: -12px;
+    right: 0;
+    left: 0;
+    height: 12px;
+  }
+  .ks-popover-container[data-popper-placement^='top']::after {
+    right: 0;
+    bottom: -12px;
+    left: 0;
+    height: 12px;
+  }
+  .ks-popover-container[data-popper-placement^='left']::after {
+    top: 0;
+    right: -12px;
+    bottom: 0;
+    width: 12px;
+  }
+  .ks-popover-container[data-popper-placement^='right']::after {
+    top: 0;
+    bottom: 0;
+    left: -12px;
+    width: 12px;
+  }
+
+  /* <Popover> arrow — a 10x10 rotated square that visually points at the trigger. */
+  .ks-popover-arrow {
+    width: 10px;
+    height: 10px;
+  }
+  .ks-popover-arrow::before {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    content: '';
+    border: 1px solid transparent;
+    transform: rotate(45deg);
+    background: var(--ks-tableHeader);
+  }
+  .ks-popover-arrow.arrow-top {
+    bottom: -5px;
+  }
+  .ks-popover-arrow.arrow-top::before {
+    border-top: none;
+    border-left: none;
+  }
+  .ks-popover-arrow.arrow-bottom {
+    top: -5px;
+  }
+  .ks-popover-arrow.arrow-bottom::before {
+    border-bottom: none;
+    border-right: none;
+  }
+  .ks-popover-arrow.arrow-left {
+    right: -5px;
+  }
+  .ks-popover-arrow.arrow-left::before {
+    border-bottom: none;
+    border-left: none;
+  }
+  .ks-popover-arrow.arrow-right {
+    left: -5px;
+  }
+  .ks-popover-arrow.arrow-right::before {
+    border-right: none;
+    border-top: none;
+  }
+
+  /* <Modal> / <Drawer> — overlay applies on reach-dialog's [data-reach-dialog-overlay]
+     attribute so the CSS overrides @reach/dialog/styles.css defaults. Z-index passed
+     via inline style; bg from theme. */
+  .ks-dialog-overlay[data-reach-dialog-overlay] {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--ks-bgModal);
+  }
+
+  /* <Modal> content. Dynamic width/height/maxWidth/etc. are applied via inline style;
+     this class handles the reach-dialog-content attribute selector + scroll behavior +
+     responsive width/border-radius defaults. Inline styles only fire when the consumer
+     explicitly overrode the default (signalled by data-has-explicit-width / -radius). */
+  .ks-dialog-content[data-reach-dialog-content] {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: flex;
+    align-self: center;
+  }
+  .ks-dialog-content[data-reach-dialog-content][data-mobile='true'] {
+    align-self: flex-end;
+  }
+  /* Default width / border-radius. Skip when consumer set them explicitly. */
+  .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-width='true']) {
+    width: 50vw;
+  }
+  .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-radius='true']) {
+    border-radius: 20px;
+  }
+  @media (max-width: 992px) {
+    .ks-dialog-content[data-reach-dialog-content] {
+      margin: 0;
+    }
+    .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-width='true']) {
+      width: 65vw;
+    }
+  }
+  @media (max-width: 768px) {
+    .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-width='true']):not([data-mobile-full-width='true']) {
+      width: 85vw;
+    }
+    .ks-dialog-content[data-reach-dialog-content][data-mobile='true']:not([data-has-explicit-width='true']) {
+      width: 100vw;
+    }
+    /* Flat-bottom on mobile bottom-sheet — overrides the default border-radius via class
+       selector specificity. Consumer-set borderRadius via inline style wins over this. */
+    .ks-dialog-content[data-reach-dialog-content][data-mobile='true']:not([data-has-explicit-radius='true']) {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+  /* <ModalCenter> — when used inside isMobile, ignore default flex-end + use larger radius. */
+  .ks-dialog-content.ks-modal-center[data-mobile='true'] {
+    align-self: unset;
+  }
+  .ks-dialog-content.ks-modal-center[data-mobile='true']:not([data-has-explicit-radius='true']) {
+    border-radius: 24px;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+  }
+
+  /* <Drawer> — only applies its layout on mobile (≤ 992px / md breakpoint). */
+  @media (max-width: 992px) {
+    .ks-drawer-content[data-reach-dialog-content] {
+      padding: 20px 16px;
+      margin: 0 0 2rem 0;
+      background-color: var(--ks-tableHeader);
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05);
+      height: 100vh;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      max-width: 100vw;
+      display: flex;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 80vw;
+    }
+  }
+
+  /* <ScrollableWithSignal> — bottom fade + bouncing arrow indicating more content below.
+     Visibility gated by data-signal-visible and data-show-arrow/data-show-background. */
+  .ks-scrollable-with-signal::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+  }
+  .ks-scrollable-with-signal[data-signal-visible='true'][data-show-background='true']::after {
+    opacity: 1;
+  }
+  .ks-scrollable-with-signal::before {
+    content: '↓';
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--ks-text);
+    background: var(--ks-black);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    transform: translate(-50%, 0);
+    animation: ks-arrow-bounce 1.2s ease-in-out infinite;
+  }
+  .ks-scrollable-with-signal[data-signal-visible='true'][data-show-arrow='true']::before {
+    display: flex;
+    opacity: 1;
+  }
+  @keyframes ks-arrow-bounce {
+    0% {
+      transform: translate(-50%, 0);
+    }
+    50% {
+      transform: translate(-50%, -4px);
+    }
+    100% {
+      transform: translate(-50%, 0);
+    }
+  }
+
+  /* <CopyHelper> — vertical-flip animation: icon scrolls down/up out of frame and
+     a check icon slides in/out from above when copy succeeds. */
+  @keyframes ks-copy-flip {
+    0% {
+      transform: translateY(0);
+      visibility: visible;
+    }
+    20% {
+      transform: translateY(100%);
+      visibility: hidden;
+    }
+    80% {
+      transform: translateY(-100%);
+      visibility: hidden;
+    }
+    100% {
+      transform: translateY(0);
+      visibility: visible;
+    }
+  }
+  @keyframes ks-check-flip {
+    0% {
+      transform: translateY(-100%);
+    }
+    20% {
+      transform: translateY(0);
+    }
+    80% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+  .ks-copy-icon.copied {
+    animation: ks-copy-flip 1.5s;
+  }
+  .ks-check-icon.copied {
+    animation: ks-check-flip 1.5s;
+  }
+
+  /* <HorizontalScroll> — fading shadows on left/right when content overflows.
+     Background color is supplied as the `--ks-hs-bg` CSS variable on the host. */
+  .ks-horizontal-scroll.left-visible::after,
+  .ks-horizontal-scroll.right-visible::before {
+    content: '';
+    display: block;
+    z-index: 2;
+    pointer-events: none;
+    position: absolute;
+    inset: 0 0 auto auto;
+    width: 40px;
+    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .ks-horizontal-scroll.left-visible::after {
+    background: linear-gradient(to right, var(--ks-hs-bg, var(--ks-buttonBlack)), transparent);
+    left: 0;
+  }
+  .ks-horizontal-scroll.right-visible::before {
+    background: linear-gradient(to left, var(--ks-hs-bg, var(--ks-buttonBlack)), transparent);
+    right: 0;
+  }
+
+  /* <Slider> — custom-styled native range input with vendor-prefix thumbs/tracks. */
+  .ks-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+    cursor: pointer;
+  }
+  .ks-slider:focus {
+    outline: none;
+  }
+  .ks-slider::-moz-focus-outer {
+    border: 0;
+  }
+  .ks-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: var(--ks-slider-size, 28px);
+    width: var(--ks-slider-size, 28px);
+    background-color: var(--ks-subText);
+    border-radius: 100%;
+    border: none;
+    transform: translateY(-50%);
+    color: var(--ks-subText);
+  }
+  .ks-slider::-webkit-slider-thumb:hover,
+  .ks-slider::-webkit-slider-thumb:focus {
+    box-shadow:
+      0 0 1px rgba(0, 0, 0, 0.1),
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 16px 24px rgba(0, 0, 0, 0.06),
+      0 24px 32px rgba(0, 0, 0, 0.04);
+  }
+  .ks-slider::-moz-range-thumb {
+    height: var(--ks-slider-size, 28px);
+    width: var(--ks-slider-size, 28px);
+    background-color: var(--ks-subText);
+    border-radius: 100%;
+    border: none;
+    color: var(--ks-subText);
+  }
+  .ks-slider::-moz-range-thumb:hover,
+  .ks-slider::-moz-range-thumb:focus {
+    box-shadow:
+      0 0 1px rgba(0, 0, 0, 0.1),
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 16px 24px rgba(0, 0, 0, 0.06),
+      0 24px 32px rgba(0, 0, 0, 0.04);
+  }
+  .ks-slider::-ms-thumb {
+    height: var(--ks-slider-size, 28px);
+    width: var(--ks-slider-size, 28px);
+    background-color: var(--ks-subText);
+    border-radius: 100%;
+    color: var(--ks-subText);
+  }
+  .ks-slider::-ms-thumb:hover,
+  .ks-slider::-ms-thumb:focus {
+    box-shadow:
+      0 0 1px rgba(0, 0, 0, 0.1),
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 16px 24px rgba(0, 0, 0, 0.06),
+      0 24px 32px rgba(0, 0, 0, 0.04);
+  }
+  .ks-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(90deg, var(--ks-subText), var(--ks-subText));
+    height: 2px;
+  }
+  .ks-slider::-moz-range-track {
+    background: linear-gradient(90deg, var(--ks-subText), var(--ks-subText));
+    height: 2px;
+  }
+  .ks-slider::-ms-track {
+    width: 100%;
+    border-color: transparent;
+    color: transparent;
+    background: var(--ks-subText);
+    height: 2px;
+  }
+  .ks-slider::-ms-fill-lower {
+    background: var(--ks-subText);
+  }
+  .ks-slider::-ms-fill-upper {
+    background: var(--ks-subText);
+  }
+
   /* Used by <Skeleton> — applied to react-loading-skeleton's container span. */
   .ks-skeleton-container {
     display: block;
@@ -94,15 +454,21 @@
   :root {
     /* base */
     --ks-white: #ffffff;
+    --ks-white-60: #ffffff99;
     --ks-white2: #fafafa;
     --ks-black: #000000;
+    --ks-black-20: #00000033;
+    --ks-black-40: #00000066;
+    --ks-black-48: #0000007a;
 
     /* text */
     --ks-text: #ffffff;
     --ks-darkText: #222222;
     --ks-textReverse: #222222;
     --ks-subText: #a9a9a9;
+    --ks-subText-04: #a9a9a90a;
     --ks-subText-20: #a9a9a933;
+    --ks-subText-40: #a9a9a966;
     --ks-disableText: #373737;
     --ks-text2: #c3c5cb;
     --ks-text3: #6c7284;
@@ -118,6 +484,7 @@
     --ks-tabBackground: #0f0f0f;
     --ks-tableHeader: #313131;
     --ks-buttonBlack: #0f0f0f;
+    --ks-buttonBlack-40: #0f0f0f66;
     --ks-buttonBlack-60: #0f0f0f99;
     --ks-buttonGray: #292929;
     --ks-bg1: #212429;

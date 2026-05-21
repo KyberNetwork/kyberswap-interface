@@ -1,9 +1,7 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import React, { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import { ButtonEmpty } from 'components/Button'
@@ -11,33 +9,6 @@ import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 24px 20px;
-  background-color: ${({ theme }) => theme.background};
-`
-
-const Btn = styled.button`
-  outline: none;
-  border: none;
-  height: 36px;
-  width: 36px;
-  min-width: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: ${({ theme }) => rgba(theme.subText, 0.2)};
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-
-  :hover {
-    background: ${({ theme }) => rgba(theme.subText, 0.4)};
-  }
-`
 
 export enum TutorialType {
   ELASTIC_POOLS = 'elastic_pools',
@@ -157,15 +128,18 @@ function Tutorial({ customIcon, type, showTooltip }: Props) {
           </MouseoverTooltip>
         </Flex>
       ) : (
-        <Btn onClick={() => setShow(true)}>
+        <button
+          onClick={() => setShow(true)}
+          className="flex size-9 min-w-9 cursor-pointer items-center justify-center rounded-full border-none bg-subText-20 text-subText outline-none hover:bg-subText-40"
+        >
           <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content">
             <TutorialIcon />
           </MouseoverTooltip>
-        </Btn>
+        </button>
       )}
 
       <Modal isOpen={show} onDismiss={() => setShow(false)} maxWidth="808px" maxHeight={80} minHeight={50}>
-        <ModalContentWrapper>
+        <div className="flex w-full flex-col bg-background px-5 py-6">
           <Flex alignItems="center" justifyContent="space-between">
             <Text fontWeight="500">{title}</Text>
 
@@ -186,7 +160,7 @@ function Tutorial({ customIcon, type, showTooltip }: Props) {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
-        </ModalContentWrapper>
+        </div>
       </Modal>
     </>
   )

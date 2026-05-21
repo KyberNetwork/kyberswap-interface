@@ -16,9 +16,17 @@ const config: Config = {
     extend: {
       colors: {
         // base
-        white: 'var(--ks-white)',
+        white: {
+          DEFAULT: 'var(--ks-white)',
+          60: 'var(--ks-white-60)',
+        },
         white2: 'var(--ks-white2)',
-        black: 'var(--ks-black)',
+        black: {
+          DEFAULT: 'var(--ks-black)',
+          20: 'var(--ks-black-20)',
+          40: 'var(--ks-black-40)',
+          48: 'var(--ks-black-48)',
+        },
 
         // text
         text: 'var(--ks-text)',
@@ -26,7 +34,9 @@ const config: Config = {
         textReverse: 'var(--ks-textReverse)',
         subText: {
           DEFAULT: 'var(--ks-subText)',
+          '04': 'var(--ks-subText-04)',
           20: 'var(--ks-subText-20)',
+          40: 'var(--ks-subText-40)',
         },
         disableText: 'var(--ks-disableText)',
         text2: 'var(--ks-text2)',
@@ -48,6 +58,7 @@ const config: Config = {
         tableHeader: 'var(--ks-tableHeader)',
         buttonBlack: {
           DEFAULT: 'var(--ks-buttonBlack)',
+          40: 'var(--ks-buttonBlack-40)',
           60: 'var(--ks-buttonBlack-60)',
         },
         buttonGray: 'var(--ks-buttonGray)',

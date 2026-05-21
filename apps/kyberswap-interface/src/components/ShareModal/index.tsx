@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import { Telegram } from 'components/Icons'
@@ -19,58 +18,7 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ButtonText, ExternalLink } from 'theme'
-
-const ButtonWrapper = styled.div`
-  text-align: center;
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-
-  a {
-    width: 64px;
-    height: 64px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 8px;
-    &:hover {
-      background-color: ${({ theme }) => theme.buttonBlack};
-    }
-  }
-`
-
-const InputWrapper = styled.div`
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 999px;
-  padding: 4px;
-  display: flex;
-  width: 100%;
-  input {
-    border: none;
-    outline: none;
-    color: ${({ theme }) => theme.text};
-    font-size: 14px;
-    background: transparent;
-    flex: 1;
-    padding-left: 10px;
-  }
-`
-const AlertMessage = styled.span`
-  position: absolute;
-  top: -25px;
-  background: #ddd;
-  color: #222;
-  border-radius: 5px;
-  font-size: 12px;
-  padding: 3px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  &.show {
-    visibility: visible;
-    opacity: 0.9;
-  }
-`
+import { cn } from 'utils/cn'
 
 const ButtonWithHoverEffect = ({
   children,
@@ -98,7 +46,14 @@ const ButtonWithHoverEffect = ({
     onMouseLeave,
   }
   if (renderItem) return renderItem(props)
-  return <ButtonWrapper {...props}>{children(color)}</ButtonWrapper>
+  return (
+    <div
+      {...props}
+      className="text-center text-sm text-subText [&_a:hover]:bg-buttonBlack [&_a]:mb-2 [&_a]:flex [&_a]:size-16 [&_a]:items-center [&_a]:justify-center [&_a]:rounded"
+    >
+      {children(color)}
+    </div>
+  )
 }
 
 type PropsItem = { onClick: () => void; children: (color: string) => any; color?: string }
@@ -223,13 +178,25 @@ export default function ShareModal({
 
         <ShareGroupButtons shareUrl={shareUrl} onShared={onShared} />
 
-        <InputWrapper>
-          <input type="text" value={shareUrl} onChange={noop} />
+        <div className="flex w-full rounded-full bg-buttonBlack p-1">
+          <input
+            type="text"
+            value={shareUrl}
+            onChange={noop}
+            className="flex-1 border-none bg-transparent pl-2.5 text-sm text-text outline-none"
+          />
           <ButtonPrimary onClick={handleCopyClick} fontSize={14} padding="8px 12px" width="auto">
             {t`Copy Link`}
-            <AlertMessage className={isCopied ? 'show' : ''}>{t`Copied!`}</AlertMessage>
+            <span
+              className={cn(
+                'invisible absolute -top-6 rounded-md bg-[#ddd] p-[3px] text-xs text-[#222] opacity-0 transition-all duration-300',
+                isCopied && '!visible !opacity-90',
+              )}
+            >
+              {t`Copied!`}
+            </span>
           </ButtonPrimary>
-        </InputWrapper>
+        </div>
       </Flex>
     </Modal>
   )

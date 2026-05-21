@@ -1,8 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { CSSProperties, ReactNode, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled, { CSSProperties, css } from 'styled-components'
 
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { APP_PATHS } from 'constants/index'
@@ -10,52 +9,11 @@ import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import { cn } from 'utils/cn'
 
 import { ButtonPrimary } from '../Button'
 import { MouseoverTooltipDesktopOnly } from '../Tooltip'
 
-const cssSubscribeBtnSmall = (bgColor: string) => css`
-  width: 36px;
-  min-width: 36px;
-  padding: 6px;
-  background: ${bgColor};
-  &:hover {
-    background: ${bgColor};
-  }
-`
-const SubscribeBtn = styled(ButtonPrimary)<{
-  isDisabled?: boolean
-  iconOnly?: boolean
-  bgColor: string
-}>`
-  overflow: hidden;
-  width: fit-content;
-  height: 32px;
-  padding: 8px 12px;
-  background: ${({ bgColor }) => bgColor};
-  color: ${({ theme, isDisabled }) => (isDisabled ? theme.border : theme.textReverse)};
-  &:hover {
-    background: ${({ bgColor }) => bgColor};
-  }
-  ${({ iconOnly, bgColor }) => iconOnly && cssSubscribeBtnSmall(bgColor)};
-  ${({ theme, bgColor, iconOnly }) =>
-    iconOnly !== false &&
-    theme.mediaWidth.upToExtraSmall`
-   ${cssSubscribeBtnSmall(bgColor)}
-  `}
-`
-
-const ButtonText = styled(Text)<{ iconOnly?: boolean }>`
-  font-size: 14px;
-  font-weight: 500;
-  margin-left: 6px !important;
-  ${({ iconOnly }) => iconOnly && `display: none`};
-  ${({ theme, iconOnly }) =>
-    iconOnly !== false &&
-    theme.mediaWidth.upToExtraSmall`
-    display: none;
-  `}
-`
 export default function SubscribeNotificationButton({
   subscribeTooltip,
   iconOnly,
@@ -97,14 +55,27 @@ export default function SubscribeNotificationButton({
       }, 100)
   }
 
+  // iconOnly !== false means: when iconOnly is true OR undefined, collapse to icon on extra-small screens.
+  const collapseOnXs = iconOnly !== false
+
   return (
     <MouseoverTooltipDesktopOnly text={subscribeTooltip} width="400px">
-      <SubscribeBtn bgColor={theme.primary} onClick={onClickBtn} iconOnly={iconOnly} style={style}>
+      <ButtonPrimary
+        backgroundColor={theme.primary}
+        onClick={onClickBtn}
+        style={style}
+        className={cn(
+          // Original was 32px tall (h-8) + px-3/py-2; collapse modes only override width + padding.
+          'h-8 w-fit overflow-hidden !px-3 !py-2 !text-textReverse hover:!bg-primary',
+          iconOnly && '!w-9 !min-w-9 !p-1.5',
+          collapseOnXs && 'max-xs:!w-9 max-xs:!min-w-9 max-xs:!p-1.5',
+        )}
+      >
         <NotificationIcon size={16} />
-        <ButtonText iconOnly={iconOnly}>
+        <Text className={cn('ml-1.5 text-sm font-medium', iconOnly && 'hidden', collapseOnXs && 'max-xs:hidden')}>
           {hasSubscribe ? <Trans>Unsubscribe</Trans> : <Trans>Subscribe</Trans>}
-        </ButtonText>
-      </SubscribeBtn>
+        </Text>
+      </ButtonPrimary>
     </MouseoverTooltipDesktopOnly>
   )
 }
