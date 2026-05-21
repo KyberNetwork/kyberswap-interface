@@ -1,69 +1,9 @@
-import { rgba } from 'polished'
 import React, { useEffect, useState } from 'react'
-import styled, { css } from 'styled-components'
 
-const optionCSS = css`
-  height: 100%;
-  padding: 0 8px;
-  border-radius: 20px;
-  border-color: transparent;
+import { cn } from 'utils/cn'
 
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background-color: ${({ theme }) => rgba(theme.background, 0.6)};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.background};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-    font-weight: 500;
-  }
-
-  &[data-disabled='true'] {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`
-
-const CustomOption = styled.div`
-  ${optionCSS};
-  flex: 1;
-  column-gap: 4px;
-  cursor: text;
-`
-
-const CustomInput = styled.input`
-  width: 54px;
-  height: 100%;
-  border: 0;
-  padding: 4px 0px 4px 4px;
-  background: transparent;
-  color: inherit;
-  outline: none;
-  text-align: right;
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-
-  &::placeholder {
-    color: inherit;
-    opacity: 0.6;
-  }
-`
+const customOptionClasses =
+  'h-full rounded-[20px] border-transparent px-2 text-center text-xs font-normal leading-4 text-subText outline-none inline-flex items-center justify-center hover:bg-background-60 data-[active=true]:border-primary data-[active=true]:bg-background data-[active=true]:font-medium data-[active=true]:text-text data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50'
 
 const formatPercentValue = (value: number) => {
   if (!Number.isFinite(value)) return ''
@@ -110,17 +50,22 @@ const CustomFeeTierInput: React.FC<Props> = ({ value, onChange, isCustom, disabl
   }
 
   return (
-    <CustomOption data-active={isCustom} data-disabled={disabled}>
-      <CustomInput
+    <div
+      data-active={isCustom}
+      data-disabled={disabled}
+      className={cn(customOptionClasses, 'flex-1 cursor-text gap-1')}
+    >
+      <input
         type="text"
         value={text}
         onChange={handleChange}
         placeholder="Custom"
         inputMode="decimal"
         disabled={disabled}
+        className="h-full w-[54px] border-0 bg-transparent py-1 pl-1 pr-0 text-right text-inherit outline-none placeholder:text-inherit placeholder:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       %
-    </CustomOption>
+    </div>
   )
 }
 

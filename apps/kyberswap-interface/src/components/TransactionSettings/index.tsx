@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex } from 'rebass'
@@ -33,13 +32,6 @@ const SettingsWrapper = styled.div`
   flex-direction: column;
   gap: 0.75rem;
   margin-top: 0.5rem;
-
-  ${Toggle} {
-    background: ${({ theme }) => theme.buttonBlack};
-    &[data-active='true'] {
-      background: ${({ theme }) => rgba(theme.primary, 0.2)};
-    }
-  }
 `
 
 const MenuFlyoutBrowserStyle = css`
@@ -163,6 +155,7 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
                 isActive={isDegenMode}
                 toggle={handleToggleAdvancedMode}
                 highlight={showSetting === 'true'}
+                className="bg-buttonBlack"
               />
             </Flex>
 
@@ -182,6 +175,7 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
                   id="toggle-aggregator-for-zap"
                   isActive={isUseAggregatorForZap}
                   toggle={toggleAggregatorForZap}
+                  className="bg-buttonBlack"
                 />
               </Flex>
             )}

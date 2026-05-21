@@ -1,4 +1,4 @@
-import { CSSProperties } from 'styled-components'
+import { CSSProperties } from 'react'
 
 function Profile({
   size = 14,

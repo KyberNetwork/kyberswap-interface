@@ -147,7 +147,7 @@ export default function StakeKNC() {
               <Text fontSize={16}>KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</Text>
             </RowFit>
           </RowBetween>
-          <Divider margin={isMobile ? '20px 0' : '28px 0'} />
+          <Divider className={isMobile ? 'my-5' : 'my-7'} />
           <RowBetween align={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'} gap="12px">
             <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.warning}>
               <Trans>Note: Staking KNC is only available on Ethereum chain.</Trans>

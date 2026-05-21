@@ -3,7 +3,6 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
-import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
 import AlertCondition, { AlertConditionData } from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
 import { PriceAlert } from 'pages/NotificationCenter/const'
@@ -17,11 +16,6 @@ const Wrapper = styled.div`
 
   border-bottom: 1px solid ${({ theme }) => theme.border};
 
-  ${Toggle} {
-    &[data-active='false'] {
-      background: ${({ theme }) => theme.buttonBlack};
-    }
-  }
   :last-child {
     border: none;
   }

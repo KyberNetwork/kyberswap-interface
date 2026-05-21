@@ -228,7 +228,7 @@ export default function CenterPopup({
             thumbnailImageURL && <Image src={thumbnailImageURL} />
           )}
           {isVertical ? (
-            <Column width={'320px'} height={VIDEO_SIZE} gap="14px" justifyContent={'space-between'}>
+            <Column gap="14px" className="justify-between" style={{ width: '320px', height: VIDEO_SIZE }}>
               {renderContent()}
             </Column>
           ) : (

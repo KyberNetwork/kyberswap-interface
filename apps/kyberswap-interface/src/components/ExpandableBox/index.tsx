@@ -1,30 +1,12 @@
 import { t } from '@lingui/macro'
 import { CSSProperties, ReactNode, useRef, useState } from 'react'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
 import { RowBetween } from 'components/Row'
+import { cn } from 'utils/cn'
 
-const Wrapper = styled(AutoColumn)`
-  & * {
-    transition: all ease-in-out 0.3s;
-  }
-`
-
-const Header = styled(RowBetween)<{ $expanded: boolean }>`
-  cursor: pointer;
-  z-index: 1;
-`
-
-const Content = styled.div<{ $expanded: boolean; $height: number | undefined }>`
-  max-height: 0;
-  margin-top: 0;
-
-  ${({ $expanded }) => ($expanded ? `opacity:1; max-height:500px;` : `opacity:0; max-height:0;`)}
-  z-index: 0;
-`
 export default function ExpandableBox({
   expandedDefault = false,
   headerContent,
@@ -56,7 +38,6 @@ export default function ExpandableBox({
 }) {
   const [expanded, setExpanded] = useState(expandedDefault)
   const contentRef = useRef<HTMLDivElement>(null)
-  const contentHeight = contentRef.current?.getBoundingClientRect().height
 
   const handleChange = () => {
     if (onChange && expandedProp !== undefined) {
@@ -68,39 +49,30 @@ export default function ExpandableBox({
 
   const isExpanded = expandedProp !== undefined ? expandedProp : expanded
   return (
-    <Wrapper
+    <AutoColumn
       style={{
         backgroundColor: backgroundColor || 'black',
         border: border || 'none',
         borderRadius: borderRadius || '8px',
         overflow: 'hidden',
-        color: color,
-        padding: padding,
+        color,
+        padding,
         ...style,
       }}
-      className={className}
+      className={cn('[&_*]:transition-all [&_*]:duration-300 [&_*]:ease-in-out', className)}
     >
-      <Header
+      <RowBetween
         onClick={handleChange}
-        $expanded={isExpanded}
-        style={{
-          backgroundColor: backgroundColor || 'black',
-        }}
+        style={{ backgroundColor: backgroundColor || 'black' }}
+        className="z-[1] cursor-pointer"
       >
         {headerContent || t`Header`} <DropdownSVG style={{ transform: isExpanded ? 'rotate(180deg)' : undefined }} />
-      </Header>
+      </RowBetween>
 
-      <Content ref={contentRef} $expanded={isExpanded} $height={contentHeight}>
-        {hasDivider && (
-          <Divider
-            style={{
-              margin: '16px 0',
-              opacity: isExpanded ? '1' : '0',
-            }}
-          />
-        )}
+      <div ref={contentRef} className={cn('z-0 mt-0', isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0')}>
+        {hasDivider && <Divider style={{ margin: '16px 0', opacity: isExpanded ? '1' : '0' }} />}
         {expandContent}
-      </Content>
-    </Wrapper>
+      </div>
+    </AutoColumn>
   )
 }

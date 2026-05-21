@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import React, { useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
@@ -133,7 +132,7 @@ const SettingsPanel: React.FC<Props> = ({
                         </MouseoverTooltip>
                       </TextDashed>
                     </RowFixed>
-                    <Toggle isActive={isShowPricingChart} toggle={togglePricingChart} />
+                    <Toggle isActive={isShowPricingChart} toggle={togglePricingChart} className="bg-buttonBlack" />
                   </RowBetween>
                 )}
                 {(isSwapPage || isCrossChainPage) && (
@@ -145,7 +144,7 @@ const SettingsPanel: React.FC<Props> = ({
                         </MouseoverTooltip>
                       </TextDashed>
                     </RowFixed>
-                    <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} />
+                    <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} className="bg-buttonBlack" />
                   </RowBetween>
                 )}
                 <RowBetween>
@@ -156,7 +155,7 @@ const SettingsPanel: React.FC<Props> = ({
                       </MouseoverTooltip>
                     </TextDashed>
                   </RowFixed>
-                  <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} />
+                  <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} className="bg-buttonBlack" />
                 </RowBetween>
               </AutoColumn>
             </Flex>
@@ -167,11 +166,4 @@ const SettingsPanel: React.FC<Props> = ({
   )
 }
 
-export default styled(SettingsPanel)`
-  ${Toggle} {
-    background: ${({ theme }) => theme.buttonBlack};
-    &[data-active='true'] {
-      background: ${({ theme }) => rgba(theme.primary, 0.2)};
-    }
-  }
-`
+export default SettingsPanel

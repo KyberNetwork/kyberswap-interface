@@ -43,7 +43,7 @@ export default function ProAmmPooledTokens({
   const theme = useTheme()
   const render =
     layout === 0 ? (
-      <OutlineCard marginTop="1rem" padding="1rem">
+      <OutlineCard className="mt-4 p-4">
         <AutoColumn gap="md">
           <Text fontSize="12px" fontWeight="500">
             {title || <Trans>Your Liquidity</Trans>}
@@ -82,7 +82,7 @@ export default function ProAmmPooledTokens({
       </OutlineCard>
     ) : (
       <>
-        <OutlineCard marginTop="1rem" padding="1rem">
+        <OutlineCard className="mt-4 p-4">
           <AutoColumn gap="md">
             <RowBetween>
               <Text fontSize={12} fontWeight="500" color={theme.subText}>

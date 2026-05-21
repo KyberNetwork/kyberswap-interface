@@ -88,12 +88,12 @@ const CampaignNavGroup = () => {
             </StyledNavLink>
 
             <Column
-              sx={{
+              style={{
                 padding: '0px 8px',
                 height: 'auto',
                 maxHeight: showStip ? '300px' : '0',
                 transition: 'all 0.3s ease-in-out',
-                ovlerflow: 'hidden',
+                overflow: 'hidden',
                 visibility: showStip ? 'visible' : 'hidden',
               }}
             >

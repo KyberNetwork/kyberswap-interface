@@ -96,7 +96,7 @@ export default function PoolFinder() {
   }, [setShowSearch])
 
   const prerequisiteMessage = (
-    <LightCard padding="45px 10px">
+    <LightCard className="px-2.5 py-[45px]">
       <Text textAlign="center">
         {!account ? t`Connect to a wallet to find pools` : t`Select a token to find your liquidity.`}
       </Text>
@@ -160,7 +160,7 @@ export default function PoolFinder() {
           )}
         </ButtonDropdownLight>
         {pairs.filter(([pairState]) => pairState === PairState.LOADING).length > 0 && (
-          <LightCard padding="45px 10px">
+          <LightCard className="px-2.5 py-[45px]">
             <AutoColumn gap="sm" justify="center">
               <Text textAlign="center">
                 <Trans>Loading</Trans>

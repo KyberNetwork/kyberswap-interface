@@ -46,7 +46,7 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
         </Text>
       </Flex>
 
-      <Divider marginX="-1rem" />
+      <Divider className="-mx-4" />
 
       <Flex
         justifyContent="space-between"
@@ -78,7 +78,7 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
         <Text fontSize={14}>{ethBalance?.toSignificant(6)}</Text>
       </Flex>
 
-      <Divider marginX="-1rem" />
+      <Divider className="-mx-4" />
 
       <Flex marginTop="0.75rem" alignItems="center" sx={{ gap: '8px' }}>
         <svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="EvStationRoundedIcon" width="24px">

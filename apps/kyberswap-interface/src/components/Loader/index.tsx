@@ -1,54 +1,18 @@
-import styled, { keyframes } from 'styled-components'
+import { SVGAttributes } from 'react'
 
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`
+import { cn } from 'utils/cn'
 
-const rotateReverse = keyframes`
-  from {
-    transform: rotate(360deg);
-  }
-  to {
-    transform: rotate(0deg);
-  }
-`
-
-const StyledSVG = styled.svg<{ size: string; stroke?: string }>`
-  animation: 2s ${rotate} linear infinite;
-  height: ${({ size }) => size};
-  width: ${({ size }) => size};
-
-  path {
-    stroke: ${({ stroke, theme }) => stroke ?? theme.primary};
-  }
-`
-
-const StyledSVG2 = styled.svg<{ size: string }>`
-  animation: 2s ${rotateReverse} linear infinite;
-  height: ${({ size }) => size};
-  width: ${({ size }) => size};
-`
-
-/**
- * Takes in custom size and stroke for circle color, default to primary color as fill,
- * need ...rest for layered styles on top
- */
-export default function Loader({
-  size = '16px',
-  stroke,
-  strokeWidth = '2.5',
-  ...rest
-}: {
+type LoaderProps = Omit<SVGAttributes<SVGSVGElement>, 'stroke'> & {
   size?: string
   stroke?: string
   strokeWidth?: string
-  [k: string]: any
-}) {
+}
+
+/**
+ * Takes in custom size and stroke for circle color, default to primary color as fill,
+ * need ...rest for layered styles on top.
+ */
+export default function Loader({ size = '16px', stroke, strokeWidth = '2.5', className, style, ...rest }: LoaderProps) {
   const sWN = Number(strokeWidth)
   // viewbox for stroke width:
   // stroke width = 1 => viewbox = 1.5 1.5 21 21
@@ -60,20 +24,33 @@ export default function Loader({
   const viewBox = `${2 - sWN / 2} ${2 - sWN / 2} ${20 + sWN} ${20 + sWN}`
 
   return (
-    <StyledSVG viewBox={viewBox} fill="none" xmlns="http://www.w3.org/2000/svg" size={size} stroke={stroke} {...rest}>
+    <svg
+      viewBox={viewBox}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn('animate-spin-slow', className)}
+      style={{ width: size, height: size, ...style }}
+      {...rest}
+    >
       <path
         d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 9.27455 20.9097 6.80375 19.1414 5"
+        stroke={stroke ?? 'var(--ks-primary)'}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </StyledSVG>
+    </svg>
   )
 }
 
 export const Loader2 = ({ size = 16 }: { size?: number }) => {
   return (
-    <StyledSVG2 fill="none" viewBox="0 0 24 24" size={`${size}px`}>
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      className="animate-spin-slow-reverse"
+      style={{ width: `${size}px`, height: `${size}px` }}
+    >
       <g clipPath="url(#paint0_angular_8201_49757_clip_path)" data-figma-skip-parse="true">
         <g transform="matrix(0 0.012 -0.012 0 12 12)">
           <foreignObject x="-1083.33" y="-1083.33" width="2166.67" height="2166.67">
@@ -97,6 +74,6 @@ export const Loader2 = ({ size = 16 }: { size?: number }) => {
           <path d="M24 12C24 18.6274 18.6274 24 12 24C5.37258 24 0 18.6274 0 12C0 5.37258 5.37258 0 12 0C18.6274 0 24 5.37258 24 12ZM2.8562 12C2.8562 17.05 6.95002 21.1438 12 21.1438C17.05 21.1438 21.1438 17.05 21.1438 12C21.1438 6.95002 17.05 2.8562 12 2.8562C6.95002 2.8562 2.8562 6.95002 2.8562 12Z" />
         </clipPath>
       </defs>
-    </StyledSVG2>
+    </svg>
   )
 }

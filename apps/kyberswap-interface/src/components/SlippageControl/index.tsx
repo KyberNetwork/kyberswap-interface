@@ -1,75 +1,30 @@
-import React, { useMemo } from 'react'
+import React, { ButtonHTMLAttributes, forwardRef, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
 import { APP_PATHS, DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
+import { cn } from 'utils/cn'
 
 import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
 
-const SlippageSettingElement = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 100%;
-  height: 28px;
-  border-radius: 20px;
-  background: ${({ theme }) => theme.tabBackground};
-  padding: 2px;
-`
+const slippageOptionClasses =
+  'h-full rounded-[20px] border border-transparent bg-tabBackground p-0 text-center text-xs font-normal leading-4 text-subText outline-none cursor-pointer hover:border-bg4 focus:border-bg4 data-[active=true]:border-primary data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text data-[warning=true]:border-warning'
 
-const slippageOptionCSS = css`
-  height: 100%;
-  padding: 0;
-  border-radius: 20px;
-  border: 1px solid transparent;
-
-  background-color: ${({ theme }) => theme.tabBackground};
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  cursor: pointer;
-
-  :hover {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-  :focus {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-
-    font-weight: 500;
-  }
-
-  &[data-warning='true'] {
-    border-color: ${({ theme }) => theme.warning};
-  }
-`
-
-export const DefaultSlippageOption = styled.button`
-  ${slippageOptionCSS};
-  flex: 1;
-
-  @media only screen and (max-width: 375px) {
-    font-size: 10px;
-    flex: 0 0 15%;
-  }
-`
+export const DefaultSlippageOption = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>(
+  ({ className, ...props }, ref) => (
+    <button
+      ref={ref}
+      {...props}
+      className={cn(slippageOptionClasses, 'flex-1 max-[375px]:basis-[15%] max-[375px]:text-[10px]', className)}
+    />
+  ),
+)
+DefaultSlippageOption.displayName = 'DefaultSlippageOption'
 
 type Props = CustomSlippageInputProps
-// rawSlippage = 10
-// slippage = 10 / 10_000 = 0.001 = 0.1%
+
 const SlippageControl: React.FC<Props> = props => {
   const { rawSlippage, setRawSlippage, isWarning, isHighlight } = props
   const { trackingHandler } = useTracking()
@@ -87,7 +42,7 @@ const SlippageControl: React.FC<Props> = props => {
   )
 
   return (
-    <SlippageSettingElement>
+    <div className="flex h-7 w-full max-w-full justify-between rounded-[20px] bg-tabBackground p-0.5">
       {options.map(slp => (
         <DefaultSlippageOption
           key={slp}
@@ -114,7 +69,7 @@ const SlippageControl: React.FC<Props> = props => {
       ))}
 
       <CustomSlippageInput data-highlight={isHighlight} {...props} options={options} />
-    </SlippageSettingElement>
+    </div>
   )
 }
 

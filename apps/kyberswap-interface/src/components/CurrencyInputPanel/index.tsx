@@ -265,7 +265,7 @@ export default function CurrencyInputPanel({
   return (
     <div style={{ width: '100%' }}>
       {label && positionLabel === 'out' && (
-        <StyledCard borderRadius={'20px'}>
+        <StyledCard className="rounded-[20px]">
           <Flex justifyContent={'space-between'} alignItems="center">
             <Text fontSize={12} color={theme.subText} fontWeight={500}>
               {label}:

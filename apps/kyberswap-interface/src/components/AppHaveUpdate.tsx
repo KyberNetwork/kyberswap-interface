@@ -1,24 +1,11 @@
 import { Trans } from '@lingui/macro'
-import { transparentize } from 'polished'
 import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { Z_INDEXS } from 'constants/styles'
 import { useServiceWorkerRegistration } from 'state/application/hooks'
 
 import { ButtonPrimary } from './Button'
 
-const Wrapper = styled.div`
-  padding: 20px;
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  background: ${({ theme }) => theme.tableHeader};
-  z-index: ${Z_INDEXS.MODAL};
-  box-shadow: 0 4px 8px 0 ${({ theme }) => transparentize(0.95, theme.shadow1)};
-  text-align: center;
-  border-radius: 1rem;
-`
 const AppHaveUpdate = () => {
   const serviceWorkerRegistration = useServiceWorkerRegistration()
 
@@ -41,7 +28,10 @@ const AppHaveUpdate = () => {
   if (!serviceWorkerRegistration?.waiting) return null
 
   return (
-    <Wrapper>
+    <div
+      style={{ zIndex: Z_INDEXS.MODAL }}
+      className="fixed bottom-4 right-4 rounded-2xl bg-tableHeader p-5 text-center shadow-[0_4px_8px_0_rgba(0,0,0,0.05)]"
+    >
       <Text>
         <Trans>New contents are available.</Trans>
       </Text>
@@ -51,7 +41,7 @@ const AppHaveUpdate = () => {
       >
         <Trans>Reload</Trans>
       </ButtonPrimary>
-    </Wrapper>
+    </div>
   )
 }
 

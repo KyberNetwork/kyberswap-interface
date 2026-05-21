@@ -3,7 +3,6 @@ import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { ModalCenter } from 'components/Modal'
@@ -13,15 +12,6 @@ import { AppState } from 'state'
 import { setConfirmData } from 'state/application/actions'
 import { ConfirmModalState, initialStateConfirmModal } from 'state/application/reducer'
 import { useAppDispatch } from 'state/hooks'
-
-const Wrapper = styled.div`
-  margin: 0;
-  padding: 24px 24px;
-  width: 100%;
-  display: flex;
-  gap: 20px;
-  flex-direction: column;
-`
 
 export const useShowConfirm = () => {
   const dispatch = useAppDispatch()
@@ -46,7 +36,7 @@ const ModalConfirm: React.FC = () => {
 
   return (
     <ModalCenter isOpen={isOpen} minHeight={false} maxWidth={isMobile ? '95vw' : 400}>
-      <Wrapper>
+      <div className="m-0 flex w-full flex-col gap-5 p-6">
         <RowBetween>
           <Text fontSize={20} fontWeight={400}>
             {title || <Trans>Notification</Trans>}
@@ -89,7 +79,7 @@ const ModalConfirm: React.FC = () => {
             {confirmText || <Trans>Confirm</Trans>}
           </ButtonPrimary>
         </Flex>
-      </Wrapper>
+      </div>
     </ModalCenter>
   )
 }

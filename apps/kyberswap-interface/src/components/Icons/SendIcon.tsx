@@ -1,4 +1,4 @@
-import { CSSProperties } from 'styled-components'
+import { CSSProperties } from 'react'
 
 export default function SendIcon({ size = 13, style = {} }: { size?: number; style?: CSSProperties }) {
   return (

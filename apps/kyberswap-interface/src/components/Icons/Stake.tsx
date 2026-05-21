@@ -1,4 +1,4 @@
-import { CSSProperties } from 'styled-components'
+import { CSSProperties } from 'react'
 
 export default function StakeIcon({ size, style = {} }: { size?: string | number; style?: CSSProperties }) {
   return (

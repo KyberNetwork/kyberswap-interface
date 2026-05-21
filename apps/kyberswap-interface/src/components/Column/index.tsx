@@ -1,30 +1,47 @@
-import { Box } from 'rebass'
-import styled from 'styled-components'
+import { CSSProperties, HTMLAttributes, forwardRef } from 'react'
 
-const Column = styled(Box)<{
-  gap?: 'sm' | 'md' | 'lg' | string
-  justify?: 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'space-between'
-}>`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: ${({ gap }) => (gap === 'sm' && '8px') || (gap === 'md' && '12px') || (gap === 'lg' && '24px') || gap};
-  justify-items: ${({ justify }) => justify && justify};
-`
+import { cn } from 'utils/cn'
 
-export const ColumnCenter = styled(Column)`
-  width: 100%;
-  align-items: center;
-`
+type ColumnGap = 'sm' | 'md' | 'lg' | string
+type ColumnJustify = 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'space-between'
 
-export const AutoColumn = styled.div<{
-  gap?: 'sm' | 'md' | 'lg' | string
-  justify?: 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'space-between'
-}>`
-  display: grid;
-  grid-auto-rows: auto;
-  grid-row-gap: ${({ gap }) => (gap === 'sm' && '8px') || (gap === 'md' && '12px') || (gap === 'lg' && '24px') || gap};
-  justify-items: ${({ justify }) => justify && justify};
-`
+const resolveGap = (g?: ColumnGap): string | undefined => {
+  if (g === 'sm') return '8px'
+  if (g === 'md') return '12px'
+  if (g === 'lg') return '24px'
+  return g
+}
 
+type ColumnProps = HTMLAttributes<HTMLDivElement> & {
+  gap?: ColumnGap
+  justify?: ColumnJustify
+}
+
+const Column = forwardRef<HTMLDivElement, ColumnProps>(({ gap, justify, className, style, ...rest }, ref) => {
+  const inline: CSSProperties = {
+    gap: resolveGap(gap),
+    // `justify-items` is a grid property; preserved verbatim for parity with the original styled-component.
+    justifyItems: justify,
+    ...style,
+  }
+  return <div ref={ref} className={cn('flex flex-col justify-start', className)} style={inline} {...rest} />
+})
+Column.displayName = 'Column'
 export default Column
+
+export const ColumnCenter = forwardRef<HTMLDivElement, ColumnProps>(({ className, ...rest }, ref) => (
+  <Column ref={ref} className={cn('w-full items-center', className)} {...rest} />
+))
+ColumnCenter.displayName = 'ColumnCenter'
+
+export const AutoColumn = forwardRef<HTMLDivElement, ColumnProps>(
+  ({ gap, justify, className, style, ...rest }, ref) => {
+    const inline: CSSProperties = {
+      rowGap: resolveGap(gap),
+      justifyItems: justify,
+      ...style,
+    }
+    return <div ref={ref} className={cn('grid auto-rows-auto', className)} style={inline} {...rest} />
+  },
+)
+AutoColumn.displayName = 'AutoColumn'

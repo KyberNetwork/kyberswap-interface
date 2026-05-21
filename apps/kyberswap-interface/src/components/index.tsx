@@ -1,8 +1,7 @@
-import { Text } from 'rebass'
-import styled from 'styled-components'
+import { Text, TextProps } from 'rebass'
 
-export const TruncatedText = styled(Text)`
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-`
+import { cn } from 'utils/cn'
+
+export const TruncatedText = ({ className, ...props }: TextProps) => (
+  <Text {...props} className={cn('truncate', className)} />
+)

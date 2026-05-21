@@ -1,57 +1,7 @@
 import React, { CSSProperties, ReactNode, useState } from 'react'
 import { ChevronDown } from 'react-feather'
-import styled, { css } from 'styled-components'
 
-const ItemWrapper = styled.div`
-  position: relative;
-  padding: 16px 24px;
-  width: 100%;
-  background: ${({ theme }) => theme.background};
-`
-
-const Header = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  user-select: none;
-  cursor: pointer;
-`
-
-const ArrowWrapper = styled.div`
-  width: 32px;
-  height: 32px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  color: ${({ theme }) => theme.text};
-
-  svg {
-    transition: all 150ms ease-in-out;
-  }
-
-  &[data-expanded='true'] {
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-`
-
-const ContentWrapper = styled.div<{ $hasAnim?: boolean; $maxHeight?: string }>`
-  width: 100%;
-  overflow: hidden;
-  ${({ $hasAnim, $maxHeight }) =>
-    $hasAnim &&
-    css`
-      transition: max-height 500ms ease;
-      max-height: ${$maxHeight};
-    `};
-  &[data-expanded='false'] {
-    max-height: 0;
-  }
-`
+import { cn } from 'utils/cn'
 
 type Props = {
   header: string | JSX.Element
@@ -85,8 +35,9 @@ export const CollapseItem: React.FC<Props> = ({
   const [isExpanded, setExpanded] = useState(expandedOnMount)
 
   return (
-    <ItemWrapper style={style} className={className}>
-      <Header
+    <div style={style} className={cn('relative w-full bg-background px-6 py-4', className)}>
+      <div
+        className="flex w-full cursor-pointer select-none items-center justify-between"
         style={{
           ...headerStyle,
           ...(headerBorderRadius !== undefined
@@ -98,13 +49,25 @@ export const CollapseItem: React.FC<Props> = ({
         }}
       >
         {header}
-        <ArrowWrapper data-expanded={isExpanded} style={arrowStyle}>
+        <div
+          data-expanded={isExpanded}
+          style={arrowStyle}
+          className="flex size-8 items-center justify-center text-text [&_svg]:transition-all [&_svg]:duration-150 [&_svg]:ease-in-out data-[expanded=true]:[&_svg]:rotate-180"
+        >
           {arrowComponent || <ChevronDown />}
-        </ArrowWrapper>
-      </Header>
-      <ContentWrapper data-expanded={isExpanded} $hasAnim={animation} $maxHeight={maxHeight}>
+        </div>
+      </div>
+      <div
+        data-expanded={isExpanded}
+        className={cn(
+          'w-full overflow-hidden',
+          animation && '[transition:max-height_500ms_ease]',
+          'data-[expanded=false]:max-h-0',
+        )}
+        style={animation ? { maxHeight } : undefined}
+      >
         {children}
-      </ContentWrapper>
-    </ItemWrapper>
+      </div>
+    </div>
   )
 }

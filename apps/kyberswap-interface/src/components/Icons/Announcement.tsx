@@ -1,4 +1,4 @@
-import { CSSProperties } from 'styled-components'
+import { CSSProperties } from 'react'
 
 function Announcement({ style = {} }: { style: CSSProperties }) {
   return (

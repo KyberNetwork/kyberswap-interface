@@ -496,7 +496,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     <Loader />
                   )}
 
-                  <OutlineCard marginTop="1rem" padding="1rem">
+                  <OutlineCard className="mt-4 p-4">
                     <AutoColumn gap="md">
                       <Text fontSize={12} fontWeight={500}>
                         <Trans>More Information</Trans>
@@ -530,7 +530,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                   </OutlineCard>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (
-                    <WarningCard padding="10px 16px" m="20px 0 0">
+                    <WarningCard className="mt-5 px-4 py-2.5">
                       <Flex alignItems="center">
                         <AlertTriangle stroke={theme.warning} size="16px" />
                         <TYPE.black ml="12px" fontSize="12px" flex={1}>
@@ -583,7 +583,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     <Loader />
                   )}
 
-                  <BlackCard style={{ borderRadius: '1rem', padding: '1rem' }}>
+                  <BlackCard className="rounded-2xl p-4">
                     <Flex alignItems="center" sx={{ gap: '4px' }}>
                       <TokenId color={removed ? theme.red : outOfRange ? theme.warning : theme.primary}>
                         #{tokenId.toString()}
@@ -669,11 +669,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       <Trans>Amount to remove</Trans>
                     </Text>
 
-                    <BlackCard
-                      padding="1rem"
-                      marginTop="1rem"
-                      style={{ borderRadius: '1rem', border: `1px solid ${theme.border}` }}
-                    >
+                    <BlackCard className="mt-4 rounded-2xl border border-border p-4">
                       <Flex sx={{ gap: '1rem' }} alignItems="center">
                         <PercentText fontSize={36} fontWeight="500">
                           {percentForSlider}%
@@ -745,7 +741,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                   </AmoutToRemoveContent>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (
-                    <WarningCard padding="10px 16px" m="24px 0 0">
+                    <WarningCard className="mt-6 px-4 py-2.5">
                       <Flex alignItems="center">
                         <AlertTriangle stroke={theme.warning} size="16px" />
                         <TYPE.black ml="12px" fontSize="12px" flex={1}>

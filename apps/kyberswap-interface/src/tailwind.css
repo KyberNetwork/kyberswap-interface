@@ -2,6 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* Native browser checkbox tinted with theme primary; pseudo-elements handle the indeterminate state. */
+  .ks-checkbox-native {
+    position: relative;
+    transform: scale(1.35);
+    accent-color: var(--ks-primary);
+  }
+  .ks-checkbox-native:indeterminate::before {
+    content: '';
+    display: block;
+    color: var(--ks-textReverse);
+    width: 13px;
+    height: 13px;
+    background-color: var(--ks-primary);
+    border-radius: 2px;
+  }
+  .ks-checkbox-native:indeterminate::after {
+    content: '';
+    display: block;
+    width: 7px;
+    height: 7px;
+    border: solid var(--ks-textReverse);
+    border-width: 2px 0 0 0;
+    position: absolute;
+    top: 5.5px;
+    left: 3px;
+  }
+  .ks-checkbox-native:disabled {
+    background-color: var(--ks-disableText);
+  }
+
+  /* Custom-drawn checkbox with primary fill and a checkmark via clip-path. */
+  .ks-checkbox-border {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border-radius: 0.15em;
+    display: grid;
+    place-content: center;
+    border: 1.5px solid var(--ks-text);
+  }
+  .ks-checkbox-border::before {
+    content: '';
+    width: 13px;
+    height: 13px;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    box-shadow: inset 1em 1em var(--ks-textReverse);
+  }
+  .ks-checkbox-border:checked {
+    background-color: var(--ks-primary);
+    border: none;
+  }
+  .ks-checkbox-border:checked::before {
+    transform: scale(1);
+  }
+  .ks-checkbox-border:disabled {
+    cursor: not-allowed;
+    border-color: rgba(169, 169, 169, 0.25);
+  }
+
+  /* Used by <Skeleton> — applied to react-loading-skeleton's container span. */
+  .ks-skeleton-container {
+    display: block;
+    line-height: 0;
+  }
+
+  /* Used by <Dots> — animates an ellipsis after some text (e.g. "Loading..."). */
+  .animate-ellipsis::after {
+    display: inline-block;
+    animation: ellipsis 1.25s infinite;
+    content: '.';
+    width: 1em;
+    text-align: left;
+  }
+  @keyframes ellipsis {
+    0% {
+      content: '.';
+    }
+    33% {
+      content: '..';
+    }
+    66% {
+      content: '...';
+    }
+  }
+}
+
 @layer base {
   :root {
     /* base */
@@ -14,6 +102,7 @@
     --ks-darkText: #222222;
     --ks-textReverse: #222222;
     --ks-subText: #a9a9a9;
+    --ks-subText-20: #a9a9a933;
     --ks-disableText: #373737;
     --ks-text2: #c3c5cb;
     --ks-text3: #6c7284;
@@ -23,10 +112,13 @@
 
     /* backgrounds */
     --ks-background: #1c1c1c;
+    --ks-background-60: #1c1c1c99;
     --ks-tabActive: #313131;
+    --ks-tabActive-80: #313131cc;
     --ks-tabBackground: #0f0f0f;
     --ks-tableHeader: #313131;
     --ks-buttonBlack: #0f0f0f;
+    --ks-buttonBlack-60: #0f0f0f99;
     --ks-buttonGray: #292929;
     --ks-bg1: #212429;
     --ks-bg2: #222c31;
@@ -57,7 +149,19 @@
     --ks-red: #ff537b;
     --ks-red1: #ff6871;
     --ks-red2: #f82d3a;
+    --ks-red-20: #ff537b33;
+    --ks-red-30: #ff537b4d;
+    --ks-red-35: #ff537b59;
+    --ks-primary-12: #31cb9e1f;
+    --ks-primary-20: #31cb9e33;
+    --ks-primary-25: #31cb9e40;
+    --ks-primary-30: #31cb9e4d;
+    --ks-primary-40: #31cb9e66;
     --ks-warning: #ff9901;
+    --ks-warning-20: #ff990133;
+    --ks-warning-25: rgba(255, 153, 1, 0.25);
+    --ks-warning-30: #ff99014d;
+    --ks-warning-35: #ff990159;
 
     /* accents */
     --ks-apr: #0faaa2;
@@ -66,6 +170,8 @@
     --ks-darkGreen: #1d7a5f;
     --ks-green: #31cb9e;
     --ks-green1: #27ae60;
+    --ks-green1-50: #27ae6080;
+    --ks-primary-50: #31cb9e80;
     --ks-yellow1: #ffe270;
     --ks-yellow2: #f3841e;
     --ks-gray: #737373;

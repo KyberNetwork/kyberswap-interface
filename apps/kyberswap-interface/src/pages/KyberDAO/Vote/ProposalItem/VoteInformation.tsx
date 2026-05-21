@@ -71,7 +71,7 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
       <Text>
         <Trans>Vote Information</Trans>
       </Text>
-      <Divider margin="10px 0" />
+      <Divider className="my-2.5" />
       <InfoRow>
         <Text color={theme.subText}>
           <Trans>Voting System</Trans>

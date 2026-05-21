@@ -55,14 +55,6 @@ const TooltipPanel = styled(Stack)`
     border-top: 1px solid ${({ theme }) => theme.border};
     border-left: 1px solid ${({ theme }) => theme.border};
   }
-
-  ${Toggle} {
-    background: ${({ theme }) => theme.buttonBlack};
-
-    &[data-active='true'] {
-      background: ${({ theme }) => rgba(theme.primary, 0.12)};
-    }
-  }
 `
 
 const DegenModeRow = styled(HStack)<{ $highlight?: boolean }>`
@@ -136,7 +128,11 @@ const AddLiquiditySettings = ({
                 <Text color={theme.warning} fontSize={14} fontWeight={500}>
                   <Trans>Degen Mode</Trans>
                 </Text>
-                <Toggle isActive={isDegenMode} toggle={handleToggleDegenMode} />
+                <Toggle
+                  isActive={isDegenMode}
+                  toggle={handleToggleDegenMode}
+                  className="bg-buttonBlack data-[active=true]:bg-primary-12"
+                />
               </DegenModeRow>
               <Text color={theme.subText} fontSize={12} fontStyle="italic">
                 <Trans>

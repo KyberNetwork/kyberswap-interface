@@ -592,7 +592,7 @@ export default function TokenPair({
         <AutoColumn gap="md">
           <GridColumn>
             <FirstColumn>
-              <BlackCard padding="1rem" borderRadius="4px">
+              <BlackCard className="rounded p-4">
                 <AutoColumn gap="1rem">
                   <RowBetween>
                     <Text fontSize={12} fontWeight={500}>

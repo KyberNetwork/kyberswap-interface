@@ -406,7 +406,7 @@ function PositionListItem({
               </ButtonPrimary>
             </ButtonGroup>
           )}
-          <Divider sx={{ marginBottom: '20px' }} />
+          <Divider className="mb-5" />
           <RowBetween>
             <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
               <ExternalLink

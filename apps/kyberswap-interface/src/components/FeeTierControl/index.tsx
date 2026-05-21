@@ -1,55 +1,11 @@
-import { rgba } from 'polished'
 import React, { useEffect } from 'react'
-import styled, { css } from 'styled-components'
+
+import { cn } from 'utils/cn'
 
 import CustomFeeTierInput from './CustomFeeTierInput'
 
-const Container = styled.div`
-  display: flex;
-  align-items: stretch;
-  border-radius: 20px;
-  border: ${({ theme }) => `1px solid ${theme.border}`};
-  width: 100%;
-  height: 36px;
-`
-
-const optionButtonCSS = css`
-  height: 100%;
-  padding: 0 12px;
-  border-radius: 20px;
-  border-color: transparent;
-
-  background-color: transparent;
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  cursor: pointer;
-  outline: none;
-
-  &:hover {
-    background-color: ${({ theme }) => rgba(theme.background, 0.6)};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.background};
-    color: ${({ theme }) => theme.text};
-    font-weight: 500;
-  }
-
-  &:disabled,
-  &[data-disabled='true'] {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`
-
-const OptionButton = styled.button`
-  ${optionButtonCSS};
-  flex: 1;
-`
+const optionBaseClasses =
+  'h-full rounded-[20px] border-transparent bg-transparent px-3 text-center text-xs font-normal leading-4 text-subText outline-none hover:bg-background-60 data-[active=true]:bg-background data-[active=true]:font-medium data-[active=true]:text-text data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50 disabled:cursor-not-allowed disabled:opacity-50'
 
 const DEFAULT_FEE_OPTIONS = [0.1, 0.3, 0.5, 1]
 
@@ -69,9 +25,9 @@ const FeeTierControl: React.FC<Props> = ({ value, onChange, options = DEFAULT_FE
   }, [options])
 
   return (
-    <Container className={className}>
+    <div className={cn('flex h-9 w-full items-stretch rounded-[20px] border border-border', className)}>
       {options.map(option => (
-        <OptionButton
+        <button
           type="button"
           key={option}
           onClick={() => {
@@ -81,20 +37,23 @@ const FeeTierControl: React.FC<Props> = ({ value, onChange, options = DEFAULT_FE
           data-active={option === value && !isCustom}
           data-disabled={disabled}
           disabled={disabled}
+          className={cn(optionBaseClasses, 'flex-1 cursor-pointer')}
         >
           {option}%
-        </OptionButton>
+        </button>
       ))}
       <CustomFeeTierInput
         value={value}
-        onChange={value => {
-          onChange(value)
+        onChange={v => {
+          onChange(v)
           setIsCustom(true)
         }}
         isCustom={isCustom}
       />
-    </Container>
+    </div>
   )
 }
 
 export default FeeTierControl
+
+export { optionBaseClasses }

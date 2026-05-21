@@ -37,7 +37,7 @@ const ButtonGroup = ({
   const theme = useTheme()
   return (
     <ButtonWrapper style={style}>
-      <Column width={'100%'} gap="8px">
+      <Column gap="8px" className="w-full">
         {buttonGasless}
         {showGaslessNote && (
           <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
@@ -49,7 +49,7 @@ const ButtonGroup = ({
           </Text>
         )}
       </Column>
-      <Column width={'100%'} gap="8px">
+      <Column gap="8px" className="w-full">
         {buttonHardEdit}
         <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
           {isEdit ? (

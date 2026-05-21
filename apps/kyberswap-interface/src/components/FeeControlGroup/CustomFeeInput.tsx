@@ -1,10 +1,9 @@
 import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
 import { DEFAULT_TIPS, MAX_FEE_IN_BIPS } from 'constants/index'
+import { cn } from 'utils/cn'
 import { formatSlippage } from 'utils/slippage'
 
 const parseTipInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
@@ -17,80 +16,8 @@ const getFeeText = (fee: number) => {
   return formatSlippage(fee, false)
 }
 
-const feeOptionCSS = css`
-  height: 100%;
-  padding: 0;
-  border-radius: 20px;
-  border: 1px solid transparent;
-
-  background-color: ${({ theme }) => theme.tabBackground};
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  cursor: pointer;
-
-  :hover {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-  :focus {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-
-    font-weight: 500;
-  }
-`
-
-const CustomFeeOption = styled.div`
-  ${feeOptionCSS};
-
-  flex: 0 0 24%;
-
-  display: inline-flex;
-  align-items: center;
-  padding: 0 4px;
-  column-gap: 2px;
-  flex: 1;
-
-  transition: all 150ms linear;
-
-  &[data-active='true'] {
-    color: ${({ theme }) => theme.text};
-    font-weight: 500;
-  }
-`
-
-const CustomInput = styled.input`
-  width: 100%;
-  height: 100%;
-  border: 0px;
-  border-radius: inherit;
-
-  color: inherit;
-  background: transparent;
-  outline: none;
-  text-align: right;
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-  &::placeholder {
-    font-size: 12px;
-  }
-  @media only screen and (max-width: 375px) {
-    font-size: 10px;
-  }
-`
+const customOptionClasses =
+  'inline-flex h-full flex-1 basis-[24%] items-center gap-0.5 rounded-[20px] border border-transparent bg-tabBackground px-1 py-0 text-center text-xs font-normal leading-4 text-subText outline-none transition-all duration-150 ease-linear hover:border-bg4 focus:border-bg4 data-[active=true]:font-medium data-[active=true]:text-text'
 
 export type Props = {
   fee: number
@@ -150,18 +77,17 @@ const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
 
   return (
     <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
-      <CustomFeeOption data-active={isCustomOptionActive}>
-        <CustomInput
+      <div data-active={isCustomOptionActive} className={cn(customOptionClasses)}>
+        <input
           ref={inputRef}
           placeholder={t`Custom`}
           value={text}
           onChange={handleChangeInput}
           onBlur={handleCommitChange}
+          className="size-full rounded-[inherit] border-0 bg-transparent text-inherit outline-none placeholder:text-xs max-[375px]:text-[10px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
-        <Text as="span" sx={{ flex: '0 0 12px' }}>
-          %
-        </Text>
-      </CustomFeeOption>
+        <span className="basis-3">%</span>
+      </div>
     </Tooltip>
   )
 }

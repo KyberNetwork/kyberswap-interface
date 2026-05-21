@@ -104,7 +104,7 @@ export default function Drawer({
                 exit={{ x: -window.innerWidth }}
                 transition={{ duration: 0.3 }}
               >
-                <Column width={'100%'} gap="12px">
+                <Column gap="12px" className="w-full">
                   <Row width={'100%'} justify="space-between">
                     <Text fontWeight={'500'} color={theme.text}>
                       {title}

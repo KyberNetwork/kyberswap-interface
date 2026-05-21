@@ -1,25 +1,29 @@
-import styled from 'styled-components'
+import { HTMLAttributes, forwardRef } from 'react'
 
-export const TabContainer = styled.div`
-  width: 100%;
-  background: ${({ theme }) => theme.tabBackground};
-  border-radius: 20px;
-  display: flex;
-  padding: 2px;
-  cursor: pointer;
-`
+import { cn } from 'utils/cn'
 
-export const TabItem = styled.div<{ active?: boolean }>`
-  font-size: 12px;
-  font-weight: 500;
-  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
-  background: ${({ theme, active }) => (active ? theme.tabActive : 'transparent')};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 6px;
-  border-radius: 20px;
-  flex-grow: 1;
-  flex-basis: 0;
-  transition: color 300ms;
-`
+export const TabContainer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex w-full cursor-pointer rounded-[20px] bg-tabBackground p-0.5', className)}
+      {...rest}
+    />
+  ),
+)
+TabContainer.displayName = 'TabContainer'
+
+type TabItemProps = HTMLAttributes<HTMLDivElement> & { active?: boolean }
+
+export const TabItem = forwardRef<HTMLDivElement, TabItemProps>(({ active, className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'flex grow basis-0 items-center justify-center rounded-[20px] p-1.5 text-xs font-medium transition-colors duration-300',
+      active ? 'bg-tabActive text-text' : 'text-subText',
+      className,
+    )}
+    {...rest}
+  />
+))
+TabItem.displayName = 'TabItem'

@@ -179,7 +179,7 @@ const Row = memo(
           </TabContainer>
 
           {tab === 'liquidity' && (
-            <OutlineCard padding="12px" marginTop="1rem" borderRadius="1rem">
+            <OutlineCard className="mt-4 rounded-2xl p-3">
               <Flex justifyContent="space-between" fontSize="12px" color={theme.subText}>
                 <Text>
                   <Trans>My Liquidity Balance</Trans>
@@ -230,7 +230,7 @@ const Row = memo(
 
           {tab === 'price_range' && (
             <>
-              <OutlineCard padding="12px" marginTop="1rem" borderRadius="1rem">
+              <OutlineCard className="mt-4 rounded-2xl p-3">
                 <Text fontSize="12px" color={theme.subText}>
                   <Trans>Selected Price Range</Trans>:
                 </Text>

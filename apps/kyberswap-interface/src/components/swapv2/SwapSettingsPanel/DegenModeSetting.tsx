@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { Dispatch, FC, SetStateAction } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex } from 'rebass'
@@ -26,11 +25,10 @@ const Wrapper = styled.div`
 `
 
 type Props = {
-  className?: string
   showConfirmation: boolean
   setShowConfirmation: Dispatch<SetStateAction<boolean>>
 }
-const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfirmation }) => {
+const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) => {
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
   const { trackingHandler } = useTracking()
 
@@ -55,7 +53,7 @@ const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfi
 
   return (
     <>
-      <Wrapper className={className} data-highlight={enableDegenMode}>
+      <Wrapper data-highlight={enableDegenMode}>
         <Flex width="fit-content" alignItems="center">
           <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
             <MouseoverTooltip
@@ -71,7 +69,12 @@ const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfi
             </MouseoverTooltip>
           </TextDashed>
         </Flex>
-        <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleDegenMode} />
+        <Toggle
+          id="toggle-expert-mode-button"
+          isActive={isDegenMode}
+          toggle={handleToggleDegenMode}
+          className="bg-buttonBlack"
+        />
       </Wrapper>
 
       <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
@@ -79,11 +82,4 @@ const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfi
   )
 }
 
-export default styled(DegenModeSetting)`
-  ${Toggle} {
-    background: ${({ theme }) => theme.buttonBlack};
-    &[data-active='true'] {
-      background: ${({ theme }) => rgba(theme.primary, 0.2)};
-    }
-  }
-`
+export default DegenModeSetting

@@ -60,7 +60,7 @@ export default function TimerCountdown({
       padding="3px 8px"
       margin="0px 4px"
       style={{ borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}
-      sx={sx}
+      sx={sx as Record<string, unknown> | undefined}
     >
       <Clock size="12px" />{' '}
       <Text fontSize="12px" lineHeight="12px">

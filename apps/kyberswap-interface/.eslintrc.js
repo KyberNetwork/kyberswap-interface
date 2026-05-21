@@ -98,11 +98,57 @@ module.exports = {
       // ➜ Goal at end of Phase 5: files = ['src/**/*.{ts,tsx}'].
       // See MIGRATION.md.
       files: [
-        // Sentinel — replace/extend with real paths as folders finish migration.
-        // Examples once Phase 3 starts:
-        //   'src/components/Button/**/*.{ts,tsx}',
-        //   'src/components/Modal/**/*.{ts,tsx}',
-        'src/components/__migrated__/**/*.{ts,tsx}',
+        // Append migrated folders here. Goal end of Phase 5: 'src/**/*.{ts,tsx}'.
+        // AppHaveUpdate still imports rebass — defer to Phase 6.
+        'src/components/ArrowRotate.tsx',
+        'src/components/Avatar.tsx',
+        'src/components/Badge/**/*.{ts,tsx}',
+        'src/components/Card/**/*.{ts,tsx}',
+        'src/components/CheckBox.tsx',
+        'src/components/ClaimThresholdControl/**/*.{ts,tsx}',
+        'src/components/Collapse.tsx',
+        'src/components/Column/**/*.{ts,tsx}',
+        // ConfirmModal still imports rebass — defer to Phase 6.
+        'src/components/CurrencyLogo/**/*.{ts,tsx}',
+        'src/components/Divider/**/*.{ts,tsx}',
+        'src/components/Dots.tsx',
+        'src/components/DoubleLogo/**/*.{ts,tsx}',
+        // ElasticHackedModal + FarmTag still import rebass — defer to Phase 6.
+        'src/components/ExpandableBox/**/*.{ts,tsx}',
+        'src/components/FeeControlGroup/**/*.{ts,tsx}',
+        'src/components/FeeTierControl/**/*.{ts,tsx}',
+        'src/components/Icons/SendIcon.tsx',
+        'src/components/Icons/Stake.tsx',
+        'src/components/Icons/Announcement.tsx',
+        'src/components/Icons/Profile.tsx',
+        'src/components/Icons/TransactionSettingsIcon.tsx',
+        'src/components/InfoHelper/**/*.{ts,tsx}',
+        'src/components/Input/**/*.{ts,tsx}',
+        'src/components/LiquidityProviderMode/**/*.{ts,tsx}',
+        'src/components/Loader/**/*.{ts,tsx}',
+        'src/components/LocalLoader/**/*.{ts,tsx}',
+        'src/components/Logo/**/*.{ts,tsx}',
+        'src/components/NumericalInput/**/*.{ts,tsx}',
+        'src/components/PageWrappers.tsx',
+        'src/components/PoolList/styled.tsx',
+        'src/components/ProAmm/styles.tsx',
+        // ProgressBar + QuestionHelper still import rebass — defer to Phase 6 cleanup.
+        'src/components/ProgressSteps/**/*.{ts,tsx}',
+        'src/components/RefreshLoading/styles.tsx',
+        'src/components/Row/**/*.{ts,tsx}',
+        'src/components/SearchInput.tsx',
+        'src/components/SegmentedControl/**/*.{ts,tsx}',
+        'src/components/Seo/HiddenSeoHeadings.tsx',
+        'src/components/Skeleton/**/*.{ts,tsx}',
+        'src/components/SlippageControl/**/*.{ts,tsx}',
+        'src/components/SlippageWarningNote/**/*.{ts,tsx}',
+        'src/components/Stack/**/*.{ts,tsx}',
+        'src/components/TabButton.tsx',
+        'src/components/Tabs.tsx',
+        'src/components/TokenLogo/**/*.{ts,tsx}',
+        'src/components/Toggle/**/*.{ts,tsx}',
+        'src/components/WarningNote/**/*.{ts,tsx}',
+        'src/components/ZapError/**/*.{ts,tsx}',
       ],
       rules: {
         'no-restricted-imports': [

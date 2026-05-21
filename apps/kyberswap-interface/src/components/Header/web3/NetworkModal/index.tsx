@@ -261,7 +261,7 @@ export default function NetworkModal({
           </Flex>
         </RowBetween>
 
-        <Column marginTop="16px" gap="8px" flexGrow={1}>
+        <Column gap="8px" className="mt-4 grow">
           <Row gap="12px">
             <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
               <Trans>Favorite Chain(s)</Trans>

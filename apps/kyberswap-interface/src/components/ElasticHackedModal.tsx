@@ -1,23 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { Info, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonConfirmed, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
-
-const StyledCloseIcon = styled(X)`
-  height: 20px;
-  width: 20px;
-  :hover {
-    cursor: pointer;
-  }
-
-  > * {
-    stroke: ${({ theme }) => theme.text};
-  }
-`
 
 type Props = {
   isOpen: boolean
@@ -32,7 +19,7 @@ const ElasticHackedModal = ({ isOpen, onClose, onConfirm }: Props) => {
     <Modal isOpen={isOpen} width="480px" maxWidth="unset">
       <Flex flexDirection="column" padding="20px" bg={theme.background}>
         <Flex justifyContent="flex-end">
-          <StyledCloseIcon onClick={onClose} />
+          <X onClick={onClose} className="size-5 cursor-pointer [&>*]:stroke-text" />
         </Flex>
         <Flex justifyContent="center">
           <Info color={theme.warning} size={64} />

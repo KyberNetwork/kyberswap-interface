@@ -153,7 +153,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
   const native1 = useCurrencyConvertedToNative(currency1 || undefined)
   return (
     <>
-      <StyledPositionCard border={border}>
+      <StyledPositionCard style={border ? { border } : undefined}>
         <AutoColumn gap="12px">
           <FixedHeightRow>
             <RowFixed>
@@ -444,7 +444,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
   const theme = useTheme()
 
   return (
-    <StyledPositionCard border={border}>
+    <StyledPositionCard style={border ? { border } : undefined}>
       <Flex justifyContent="space-between">
         <div>
           <Flex alignItems="center">
@@ -511,7 +511,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
           </Text>
         </Flex>
       </Flex>
-      <Divider sx={{ marginTop: '0.5rem' }} />
+      <Divider className="mt-2" />
 
       <Flex height="168px" marginTop="0.75rem" flexDirection="column">
         {tab === 'ALL' ? (
@@ -672,7 +672,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         </Flex>
       )}
 
-      <Divider sx={{ marginTop: '20px' }} />
+      <Divider className="mt-5" />
 
       <Flex justifyContent="space-between" marginTop="16px" alignItems="center">
         <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">

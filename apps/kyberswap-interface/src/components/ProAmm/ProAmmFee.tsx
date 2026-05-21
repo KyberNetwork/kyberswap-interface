@@ -154,7 +154,7 @@ export default function ProAmmFee({
 
   if (layout === 0) {
     return (
-      <OutlineCard marginTop="1rem" padding="1rem">
+      <OutlineCard className="mt-4 p-4">
         <AutoColumn gap="md">
           <Text fontSize="12px" fontWeight="500">
             Your Fee Earnings
@@ -206,7 +206,7 @@ export default function ProAmmFee({
   }
 
   return (
-    <OutlineCard marginTop="1rem" padding="1rem">
+    <OutlineCard className="mt-4 p-4">
       <AutoColumn gap="md">
         <RowBetween>
           <Flex>

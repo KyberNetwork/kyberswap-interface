@@ -261,7 +261,7 @@ export default function KNCUtility() {
           </Column>
         </Row>
         <Row>
-          <Column gap="16px" width="100%">
+          <Column gap="16px" className="w-full">
             <Text fontSize={20} lineHeight="32px" fontWeight={400} id="faq">
               <Trans>FAQ</Trans>
             </Text>
@@ -269,7 +269,7 @@ export default function KNCUtility() {
               <FAQ />
             </Column>
           </Column>
-          <Column gap="16px" width="100%">
+          <Column gap="16px" className="w-full">
             <Text fontSize={20} lineHeight="32px" fontWeight={400} id="tac">
               <Trans>Terms and Conditions</Trans>
             </Text>

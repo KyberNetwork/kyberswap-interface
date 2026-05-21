@@ -93,7 +93,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
       </PaddedColumn>
       <SectionBreak />
       <Flex flexDirection={'column'} style={{ padding: '1rem', gap: '1rem' }}>
-        <WarningWrapper borderRadius="20px" padding="15px">
+        <WarningWrapper className="rounded-[20px] p-[15px]">
           <Flex alignItems={'flex-start'}>
             <div>
               <AlertTriangle stroke={theme.warning} size="17px" />
@@ -105,7 +105,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
         </WarningWrapper>
         {tokens.map(token => {
           return (
-            <Card backgroundColor={theme.buttonBlack} key={token.address} padding="2rem">
+            <Card className="bg-buttonBlack p-8" key={token.address}>
               <Flex style={{ gap: 10 }}>
                 <CurrencyLogo currency={token} size={'44px'} />
                 <AutoColumn gap="4px">

@@ -1,22 +1,9 @@
 import { Trans } from '@lingui/macro'
 import { AlertCircle, Info } from 'react-feather'
-import styled from 'styled-components'
 
 import Badge, { BadgeVariant } from 'components/Badge'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-
-const BadgeWrapper = styled.div`
-  font-size: 12px;
-  display: flex;
-  justify-content: flex-end;
-`
-
-const BadgeText = styled.div`
-  font-weight: 500;
-  font-size: 12px;
-  white-space: nowrap;
-`
 
 export default function RangeBadge({
   removed,
@@ -30,18 +17,19 @@ export default function RangeBadge({
   size?: number
 }) {
   const theme = useTheme()
+  const padClass = hideText ? 'p-1' : undefined
   return (
-    <BadgeWrapper>
+    <div className="flex justify-end text-xs">
       {removed ? (
         <MouseoverTooltip text={<Trans>Your position has 0 liquidity, and is not earning fees</Trans>}>
-          <Badge variant={BadgeVariant.NEGATIVE} style={{ padding: hideText ? '4px' : undefined }}>
+          <Badge variant={BadgeVariant.NEGATIVE} className={padClass}>
             <AlertCircle width={size} height={size} />
             {!hideText && (
               <>
                 &nbsp;
-                <BadgeText>
+                <div className="whitespace-nowrap text-xs font-medium">
                   <Trans>Closed</Trans>
-                </BadgeText>
+                </div>
               </>
             )}
           </Badge>
@@ -54,15 +42,14 @@ export default function RangeBadge({
             </Trans>
           }
         >
-          <Badge variant={BadgeVariant.PRIMARY} style={{ padding: hideText ? '4px' : undefined }}>
-            {/* <ActiveDot /> &nbsp; */}
+          <Badge variant={BadgeVariant.PRIMARY} className={padClass}>
             <Info size={size} color={theme.primary} />
             {!hideText && (
               <>
                 &nbsp;
-                <BadgeText>
+                <div className="whitespace-nowrap text-xs font-medium">
                   <Trans>In range</Trans>
-                </BadgeText>
+                </div>
               </>
             )}
           </Badge>
@@ -76,19 +63,19 @@ export default function RangeBadge({
             </Trans>
           }
         >
-          <Badge variant={BadgeVariant.WARNING} style={{ padding: hideText ? '4px' : undefined }}>
+          <Badge variant={BadgeVariant.WARNING} className={padClass}>
             <Info size={size} color={theme.warning} />
             {!hideText && (
               <>
                 &nbsp;
-                <BadgeText>
+                <div className="whitespace-nowrap text-xs font-medium">
                   <Trans>Out of range</Trans>
-                </BadgeText>
+                </div>
               </>
             )}
           </Badge>
         </MouseoverTooltip>
       )}
-    </BadgeWrapper>
+    </div>
   )
 }

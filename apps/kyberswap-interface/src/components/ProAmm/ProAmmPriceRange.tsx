@@ -43,7 +43,7 @@ export default function ProAmmPriceRange({
   const baseSymbol = baseCurrency?.symbol
   const quoteSymbol = quoteCurrency?.symbol
   return (
-    <OutlineCard marginTop="1rem" padding="1rem">
+    <OutlineCard className="mt-4 p-4">
       <AutoColumn gap="12px">
         <Flex>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>

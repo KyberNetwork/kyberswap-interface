@@ -124,7 +124,7 @@ const VotersListModal = ({
             {sumPower ? Math.round(sumPower).toLocaleString() : '--'}
           </Text>
         </RowBetween>
-        <Divider margin="10px 0" />
+        <Divider className="my-2.5" />
         <TableHeaderWrapper fontSize={12} color={theme.subText}>
           <Text>
             <Trans>Wallet</Trans>
@@ -133,7 +133,7 @@ const VotersListModal = ({
             <Trans>Amount</Trans>
           </Text>
         </TableHeaderWrapper>
-        <Divider margin="10px 0" />
+        <Divider className="my-2.5" />
         <ParticipantWrapper style={{ height: 'fit-content', maxHeight: '70vh', minHeight: '200px' }}>
           {participants.map(vote => {
             return (
@@ -211,7 +211,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                     {sumPower ? Math.round(sumPower).toLocaleString() : '--'}
                   </Text>
                 </RowBetween>
-                <Divider margin="10px 0" />
+                <Divider className="my-2.5" />
                 <TableHeaderWrapper fontSize={12} color={theme.subText}>
                   <Text>
                     <Trans>Wallet</Trans>
@@ -220,7 +220,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                     <Trans>Amount</Trans>
                   </Text>
                 </TableHeaderWrapper>
-                <Divider margin="10px 0" />
+                <Divider className="my-2.5" />
 
                 <ParticipantWrapper>
                   {filteredParticipants.slice(0, 5).map(vote => {

@@ -344,7 +344,7 @@ function MyPoolClassic() {
             </TitleRow>
 
             {!account ? (
-              <Card padding="40px">
+              <Card className="p-10">
                 <TYPE.body color={theme.text3} textAlign="center">
                   <Trans>Connect to a wallet to view your liquidity.</Trans>
                 </TYPE.body>

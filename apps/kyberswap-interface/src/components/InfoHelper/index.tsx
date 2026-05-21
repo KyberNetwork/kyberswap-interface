@@ -1,36 +1,10 @@
 import { Placement } from '@popperjs/core'
 import { CSSProperties, ReactNode, useCallback, useState } from 'react'
 import { Info } from 'react-feather'
-import styled from 'styled-components'
 
 import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import { Z_INDEXS } from 'constants/styles'
-
-const InfoWrapper = styled.div<{ isActive?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: none;
-  outline: none;
-  cursor: default;
-  border-radius: 36px;
-  color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.subText)};
-
-  :hover,
-  :focus {
-    opacity: 0.7;
-  }
-`
-
-const InfoHelperWrapper = styled.span<{ $margin: boolean }>`
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: ${({ $margin }) => ($margin ? '0.25rem' : '0')};
-  line-height: 100%;
-  vertical-align: middle;
-`
+import { cn } from 'utils/cn'
 
 export default function InfoHelper({
   text,
@@ -63,8 +37,7 @@ export default function InfoHelper({
   const close = useCallback(() => setShow(false), [setShow])
 
   return (
-    <InfoHelperWrapper
-      $margin={margin}
+    <span
       onClick={e => {
         e.stopPropagation()
         open()
@@ -72,6 +45,7 @@ export default function InfoHelper({
       style={style}
       onMouseEnter={open}
       onMouseLeave={close}
+      className={cn('inline-flex items-center justify-center align-middle leading-none', margin ? 'ml-1' : 'ml-0')}
     >
       <Tooltip
         text={text}
@@ -82,11 +56,16 @@ export default function InfoHelper({
         style={{ zIndex: zIndexTooltip }}
         noArrow={noArrow}
       >
-        <InfoWrapper isActive={isActive}>
+        <div
+          className={cn(
+            'flex cursor-default items-center justify-center rounded-[36px] border-none bg-transparent outline-none hover:opacity-70 focus:opacity-70',
+            isActive ? 'text-textReverse' : 'text-subText',
+          )}
+        >
           <Info size={size || 12} color={color || 'currentcolor'} />
-        </InfoWrapper>
+        </div>
       </Tooltip>
-    </InfoHelperWrapper>
+    </span>
   )
 }
 

@@ -27,6 +27,7 @@ const SingleAlert: React.FC<Props> = ({ alert, isMaxQuotaActiveAlert }) => {
       renderToggle={() => (
         <MouseoverTooltip text={!canUpdateEnable ? t`Maximum number of Active Alerts reached.` : ''}>
           <Toggle
+            className="bg-buttonBlack"
             style={{ transform: 'scale(.8)', cursor: canUpdateEnable ? 'pointer' : 'not-allowed' }}
             icon={<NotificationIcon size={16} color={theme.textReverse} />}
             isActive={alert.isEnabled}

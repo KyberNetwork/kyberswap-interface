@@ -102,7 +102,7 @@ const NearIntentDashboard = () => {
                   </Flex>
                 }
                 dropdownContent={
-                  <Column gap="16px" padding="12px">
+                  <Column gap="16px" className="p-3">
                     {Object.keys(logo).map(walletType => (
                       <Flex
                         key={walletType}
@@ -221,7 +221,7 @@ const NearIntentDashboard = () => {
 
       <SelectChainModal showSelect={showSelect} connect={connect} setShowSelect={setShowSelect} logo={logo} />
 
-      <Divider mt="24px" />
+      <Divider className="mt-6" />
 
       {!upToSmall && (
         <>

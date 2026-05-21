@@ -1,32 +1,33 @@
-import { rgba } from 'polished'
-import { Box } from 'rebass/styled-components'
-import styled from 'styled-components'
+import { HTMLAttributes, forwardRef } from 'react'
 
-const Card = styled(Box)<{ padding?: string; border?: string; borderRadius?: string }>`
-  width: 100%;
-  border-radius: 20px;
-  padding: 1.25rem;
-  padding: ${({ padding }) => padding};
-  border: ${({ border }) => border};
-  border-radius: ${({ borderRadius }) => borderRadius};
-`
+import { cn } from 'utils/cn'
+
+type CardProps = HTMLAttributes<HTMLDivElement>
+
+const base = 'w-full rounded-[20px] p-5'
+
+const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, className)} {...rest} />
+))
+Card.displayName = 'Card'
 export default Card
 
-export const BlackCard = styled(Card)`
-  background-color: ${({ theme }) => theme.buttonBlack};
-`
+export const BlackCard = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, 'bg-buttonBlack', className)} {...rest} />
+))
+BlackCard.displayName = 'BlackCard'
 
-export const LightCard = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.bg2};
-  background-color: ${({ theme }) => theme.bg1};
-`
+export const LightCard = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, 'border border-bg2 bg-bg1', className)} {...rest} />
+))
+LightCard.displayName = 'LightCard'
 
-export const OutlineCard = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.border};
-`
+export const OutlineCard = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, 'border border-border', className)} {...rest} />
+))
+OutlineCard.displayName = 'OutlineCard'
 
-export const WarningCard = styled(Card)`
-  background-color: ${({ theme }) => rgba(theme.warning, 0.25)};
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
+export const WarningCard = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, 'bg-warning-25 font-medium text-text', className)} {...rest} />
+))
+WarningCard.displayName = 'WarningCard'
