@@ -416,6 +416,7 @@ export const TokenPanel = ({
           selectedCurrency={selectedCurrency as EvmCurrency}
           showCommonBases
           customChainId={selectedChain as ChainId}
+          trackingSource="cross_chain"
         />
       ) : (
         <Modal

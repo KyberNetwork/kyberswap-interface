@@ -118,6 +118,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         }
         positionLabel="in"
         customChainId={customChainId}
+        trackingSource="swap"
       />
     </Box>
   )

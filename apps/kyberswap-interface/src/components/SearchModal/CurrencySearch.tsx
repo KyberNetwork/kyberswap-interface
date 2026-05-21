@@ -14,6 +14,7 @@ import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
+import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -22,6 +23,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
@@ -85,6 +87,7 @@ interface CurrencySearchProps {
   title?: string
   tooltip?: ReactNode
   setTokenToShowInfo: (token: Token) => void
+  trackingSource?: string
 }
 
 const PAGE_SIZE = 20
@@ -147,14 +150,17 @@ export function CurrencySearch({
   title,
   tooltip,
   setTokenToShowInfo,
+  trackingSource,
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
   const theme = useTheme()
+  const { trackingHandler } = useTracking()
   const [activeTab, setActiveTab] = useState<Tab>(Tab.All)
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
+  const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
   const isQueryValidEVMAddress = !!isAddress(chainId, debouncedQuery)
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
@@ -356,6 +362,16 @@ export function CurrencySearch({
     }
     // need call api when only debouncedQuery change
   }, [debouncedQuery, prevQuery, fetchListTokens])
+
+  useEffect(() => {
+    if (!trackingDebouncedQuery || !trackingSource) return
+    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_SEARCHED, {
+      source: trackingSource,
+      search_query: trackingDebouncedQuery,
+      chain: NETWORKS_INFO[chainId].name,
+      is_address: !!isAddress(chainId, trackingDebouncedQuery),
+    })
+  }, [trackingDebouncedQuery, trackingSource, chainId, trackingHandler])
 
   const visibleCurrencies: Currency[] = useMemo(() => {
     return isImportedTab || (!isImportedTab && !filteredSortedTokens.length)
