@@ -108,7 +108,14 @@ export async function sendEVMTransaction({
     const hash = await walletClient.sendTransaction({
       ...requestBase,
       gas: gasLimit,
-      ...(accessList ? { accessList } : {}),
+      // Explicitly tag as EIP-1559 when sending an access list. Without `type`,
+      // viem omits it from the eth_sendTransaction payload — the MetaMask
+      // Connect SDK then infers type=0x1 (EIP-2930) from the access list alone
+      // and rejects the tx because the wallet still attaches EIP-1559 fee
+      // fields (maxFeePerGas / maxPriorityFeePerGas). Pre-viem code set
+      // type=2 implicitly via ethers, which is why this only regressed
+      // post-migration.
+      ...(accessList ? { accessList, type: 'eip1559' as const } : {}),
     })
     return { hash }
   } catch (error) {

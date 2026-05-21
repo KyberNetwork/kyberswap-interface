@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import { getAccount, getWalletClient } from '@wagmi/core'
+import { walletActions } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ensureNotBlacklisted } from 'utils/sendTransaction'
@@ -57,11 +58,13 @@ export async function getGatedWalletClient(opts: { chainId: number }): Promise<W
     return (originalRequest as (a: unknown) => Promise<unknown>)(args)
   }) as WalletClient['request']
 
-  // Mutate in place — the wagmi cache hands us a freshly built client per call,
-  // so wrapping the local instance is safe and avoids Proxy invariant pitfalls
-  // (viem clients use class-private slots that a `Proxy` would break).
   client.request = gatedRequest
-  return client
+  // wagmi's getWalletClient extends with walletActions BEFORE we mutate, so
+  // the action closures (sendTransaction, getChainId, etc.) capture the
+  // pre-mutation client and call its original request — bypassing our gate.
+  // Re-extend after mutation to rebind every action to the current (gated)
+  // client.
+  return client.extend(walletActions) as WalletClient
 }
 
 /**
