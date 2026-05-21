@@ -230,6 +230,7 @@ export enum TRACKING_EVENT_TYPE {
 
   // Swap form interactions
   TOKEN_SELECTED,
+  TOKEN_SEARCHED,
   AMOUNT_ENTERED,
   TOKEN_PAIR_REVERSED,
   MAX_BALANCE_CLICKED,
@@ -1448,6 +1449,10 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         // Swap form interaction events
         case TRACKING_EVENT_TYPE.TOKEN_SELECTED: {
           formoTrack('Token Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TOKEN_SEARCHED: {
+          formoTrack('Token Searched', payload)
           break
         }
         case TRACKING_EVENT_TYPE.AMOUNT_ENTERED: {
