@@ -164,7 +164,11 @@ const makeRow = (baseClassName: string, defaults: CSSProperties, displayName: st
       ),
       ...style,
     }
-    return <div ref={ref} className={cn(baseClassName, className)} style={merged} {...stripShorthandProps(props)} />
+    return (
+      <div ref={ref} className={cn(baseClassName, className)} style={merged} {...stripShorthandProps(props)}>
+        {props.children}
+      </div>
+    )
   })
   Component.displayName = displayName
   return Component
@@ -201,7 +205,9 @@ export const AutoRow = forwardRef<HTMLDivElement, RowProps>((props, ref) => {
       className={cn('flex flex-wrap p-0', gap && '[&>*]:!m-[var(--row-gap)]', props.className)}
       style={merged}
       {...stripShorthandProps(props)}
-    />
+    >
+      {props.children}
+    </div>
   )
 })
 AutoRow.displayName = 'AutoRow'
@@ -218,7 +224,9 @@ export const RowFixed = forwardRef<HTMLDivElement, RowProps>((props, ref) => {
     ...props.style,
   }
   return (
-    <div ref={ref} className={cn('flex w-fit p-0', props.className)} style={merged} {...stripShorthandProps(props)} />
+    <div ref={ref} className={cn('flex w-fit p-0', props.className)} style={merged} {...stripShorthandProps(props)}>
+      {props.children}
+    </div>
   )
 })
 RowFixed.displayName = 'RowFixed'
