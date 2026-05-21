@@ -128,13 +128,21 @@ export async function signTypedDataRaw(params: {
   const walletClient = await getGatedWalletClient({ chainId: params.chainId })
   if (!walletClient) throw new Error('Wallet client unavailable')
 
+  // Lowercase the signer address. OKX, Coinbase, SafePal and Binance wallets
+  // are strict about case here — passing the checksummed form makes them
+  // return a malformed (s=0) signature instead of throwing. MetaMask and
+  // Rabby are tolerant, which is why the regression hit only the strict
+  // wallets after we dropped the explicit `.toLowerCase()` from the pre-viem
+  // call site.
+  const lowercaseAccount = params.account.toLowerCase() as Address
+
   // Cast through `unknown` for the same reason as the proxy in
   // `getGatedWalletClient`: viem's `request` is an overloaded union we can't
   // narrow from a runtime method string. The intermediate typed object below
   // is what TypeScript actually checks before the cast escapes.
   const rpcArgs: { method: 'eth_signTypedData_v4'; params: [Address, string] } = {
     method: 'eth_signTypedData_v4',
-    params: [params.account, JSON.stringify(params.typedData)],
+    params: [lowercaseAccount, JSON.stringify(params.typedData)],
   }
   const result = await (walletClient.request as (a: unknown) => Promise<unknown>)(rpcArgs)
   return result as string
