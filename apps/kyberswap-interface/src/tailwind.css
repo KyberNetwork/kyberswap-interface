@@ -608,6 +608,39 @@
       content: '...';
     }
   }
+
+  /* Transactions/Tab fade overlays for horizontal scroll edges. */
+  .ks-transactions-tab[data-scrollable='true'][data-scroll-left='true']::before,
+  .ks-transactions-tab[data-scrollable='true'][data-scroll-right='true']::after {
+    content: '';
+    width: 36px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+  }
+  .ks-transactions-tab[data-scrollable='true'][data-scroll-left='true']::before {
+    left: 0;
+    transform: translateX(-1px);
+    background: linear-gradient(
+      -90deg,
+      rgba(0, 0, 0, 0) 0%,
+      var(--ks-background) 90%,
+      var(--ks-background) 100%
+    );
+  }
+  .ks-transactions-tab[data-scrollable='true'][data-scroll-right='true']::after {
+    right: 0;
+    transform: translateX(1px);
+    justify-content: flex-end;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0) 0%,
+      var(--ks-background) 90%,
+      var(--ks-background) 100%
+    );
+  }
 }
 
 @layer base {

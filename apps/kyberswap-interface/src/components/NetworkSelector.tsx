@@ -2,12 +2,10 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 import { isNonEvmChain } from 'utils'
 
 import NetworkModal from './Header/web3/NetworkModal'
@@ -19,7 +17,6 @@ export const NetworkSelector = ({
   chainId: ChainId
   customOnSelectNetwork?: (chain: ChainId) => void
 }) => {
-  const theme = useTheme()
   const [isOpenNetworkModal, setIsOpenNetworkModal] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -41,10 +38,10 @@ export const NetworkSelector = ({
         isOpen={isOpenNetworkModal}
         customToggleModal={() => setIsOpenNetworkModal(prev => !prev)}
       />
-      <Flex justifyContent="space-between" alignItems="center">
-        <Text fontSize={12} fontWeight="500" color={theme.subText}>
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-subText">
           <Trans>Choose a chain</Trans>
-        </Text>
+        </span>
 
         <div
           role="button"
@@ -52,10 +49,10 @@ export const NetworkSelector = ({
           className="flex cursor-pointer items-center gap-2 rounded-full bg-buttonBlack px-3 py-1.5 text-sm font-medium text-subText"
         >
           <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ height: '20px', width: '20px' }} />
-          <Text>{NETWORKS_INFO[chainId].name}</Text>
+          <span>{NETWORKS_INFO[chainId].name}</span>
           <DropdownSVG />
         </div>
-      </Flex>
+      </div>
     </>
   )
 }

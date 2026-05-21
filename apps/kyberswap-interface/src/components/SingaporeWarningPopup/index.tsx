@@ -2,115 +2,10 @@ import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { MEDIA_WIDTHS } from 'theme'
-
-const ContentWrapper = styled(Flex)`
-  flex-direction: column;
-  gap: 12px;
-  padding: 28px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.background};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 10px;
-    padding: 20px 20px 24px;
-  `}
-`
-
-const Title = styled(Text)`
-  font-size: 18px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: ${({ theme }) => theme.text};
-  line-height: 24px;
-  text-align: center;
-  width: 100%;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 16px;
-    line-height: 22px;
-  `}
-`
-
-const SectionRow = styled(Flex)`
-  align-items: center;
-  gap: 16px;
-  margin-top: 4px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    align-items: flex-start;
-    gap: 12px;
-  `}
-`
-
-const Badge = styled(Flex)`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.tabActive};
-  color: ${({ theme }) => theme.text};
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 16px;
-  flex: 0 0 36px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-    font-size: 14px;
-  `}
-`
-
-const SectionText = styled(Text)`
-  font-size: 16px;
-  line-height: 24px;
-  color: ${({ theme }) => theme.text};
-  margin-top: 2px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 14px;
-    line-height: 22px;
-    margin-top: 0;
-  `}
-`
-
-const Bullets = styled.ul`
-  list-style: disc;
-  list-style-position: outside;
-  margin: -8px 0 0 60px;
-  padding-left: 20px;
-  color: ${({ theme }) => theme.text};
-  font-size: 16px;
-  line-height: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin: 8px 0 0 44px; /* 32 (badge) + 12 (gap) */
-    padding-left: 18px;
-    font-size: 14px;
-    line-height: 22px;
-  `}
-`
-
-const BulletItem = styled.li`
-  margin: 0 0 6px 0;
-`
-
-const StyledButton = styled(ButtonPrimary)`
-  width: auto;
-  align-self: center;
-  padding: 12px 42px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 12px 28px;
-  `}
-`
 
 const STORAGE_KEY = 'singapore_warning_acknowledged'
 
@@ -163,41 +58,54 @@ export default function SingaporeWarningPopup() {
       maxWidth={700}
       zindex={1000}
     >
-      <ContentWrapper>
-        <Title>IMPORTANT NOTICE</Title>
-        <SectionRow>
-          <Badge>A</Badge>
-          <SectionText>
+      <div className="flex w-full flex-col gap-2.5 bg-background p-5 pb-6 sm:gap-3 sm:p-7">
+        <h2 className="m-0 w-full text-center text-base font-semibold uppercase leading-[22px] text-text sm:text-lg sm:leading-6">
+          IMPORTANT NOTICE
+        </h2>
+
+        <div className="mt-1 flex items-start gap-3 sm:items-center sm:gap-4">
+          <span className="flex size-8 flex-[0_0_2rem] items-center justify-center rounded-full bg-tabActive text-sm font-semibold text-text sm:size-9 sm:flex-[0_0_2.25rem] sm:text-base">
+            A
+          </span>
+          <span className="mt-0 text-sm leading-[22px] text-text sm:mt-0.5 sm:text-base sm:leading-6">
             <Trans>
               This Website and its contents have not been reviewed by the Monetary Authority of Singapore
               (&quot;MAS&quot;).
             </Trans>
-          </SectionText>
-        </SectionRow>
+          </span>
+        </div>
 
-        <SectionRow>
-          <Badge>B</Badge>
-          <SectionText>
+        <div className="mt-1 flex items-start gap-3 sm:items-center sm:gap-4">
+          <span className="flex size-8 flex-[0_0_2rem] items-center justify-center rounded-full bg-tabActive text-sm font-semibold text-text sm:size-9 sm:flex-[0_0_2.25rem] sm:text-base">
+            B
+          </span>
+          <span className="mt-0 text-sm leading-[22px] text-text sm:mt-0.5 sm:text-base sm:leading-6">
             <Trans>Neither Kyber Network nor any entity affiliated therewith</Trans>:
-          </SectionText>
-        </SectionRow>
+          </span>
+        </div>
 
-        <Bullets>
-          <BulletItem>
+        <ul className="ml-11 mt-2 list-disc pl-[18px] text-sm leading-[22px] text-text sm:-mt-2 sm:ml-[60px] sm:pl-5 sm:text-base sm:leading-6">
+          <li className="mb-1.5">
             <Trans>(i) is regulated by MAS; or</Trans>
-          </BulletItem>
-          <BulletItem>
+          </li>
+          <li className="mb-1.5">
             <Trans>
               (ii) holds a licence issued by MAS for the provision of, or is authorised by MAS to provide, any service
               relating to tokens (whether digital payment tokens under the Payment Services Act of Singapore or digital
               tokens under the Financial Markets Services Act of Singapore).
             </Trans>
-          </BulletItem>
-        </Bullets>
-        <StyledButton onClick={handleAcknowledge}>
+          </li>
+        </ul>
+
+        <ButtonPrimary
+          onClick={handleAcknowledge}
+          width="auto"
+          style={{ alignSelf: 'center', padding: '12px 28px' }}
+          className="sm:!px-[42px]"
+        >
           <Trans>Acknowledge</Trans>
-        </StyledButton>
-      </ContentWrapper>
+        </ButtonPrimary>
+      </div>
     </Modal>
   )
 }

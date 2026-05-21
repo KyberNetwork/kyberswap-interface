@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { MouseEventHandler } from 'react'
-import styled from 'styled-components'
 
 import { AnnouncementCTA } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -29,7 +28,11 @@ function CtaButton({
       return <ButtonOutlined {...props}>{displayName}</ButtonOutlined>
     case 'link':
       return (
-        <span style={{ color: theme.primary, fontWeight: '500', cursor: 'pointer' }} {...props}>
+        <span
+          {...props}
+          className={`cursor-pointer font-medium text-primary ${className}`}
+          onClick={onClick as React.MouseEventHandler<HTMLSpanElement> | undefined}
+        >
           {displayName}
         </span>
       )
@@ -47,4 +50,4 @@ function CtaButton({
       )
   }
 }
-export default styled(CtaButton)``
+export default CtaButton

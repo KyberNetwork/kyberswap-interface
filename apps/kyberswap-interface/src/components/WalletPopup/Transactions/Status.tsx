@@ -3,7 +3,6 @@ import debounce from 'lodash.debounce'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'
-import { Flex } from 'rebass'
 
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
@@ -103,7 +102,7 @@ function StatusIcon({
     <Repeat size={14} color={theme.warning} />
   )
   return (
-    <Flex style={{ gap: '4px', minWidth: 'unset' }} alignItems={'center'}>
+    <span className="flex items-center gap-1" style={{ minWidth: 'unset' }}>
       <PrimaryText color={theme.text}>
         {checkingStatus ? t`Checking` : isPendingState ? pendingText : success ? t`Completed` : t`Failed`}
       </PrimaryText>
@@ -116,7 +115,7 @@ function StatusIcon({
       ) : (
         <IconFailure size={15} color={theme.red} />
       )}
-    </Flex>
+    </span>
   )
 }
 export default memo(StatusIcon)

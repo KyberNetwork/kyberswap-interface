@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 import { Repeat } from 'react-feather'
-import { DefaultTheme } from 'styled-components'
 
 import { ReactComponent as ApproveIcon } from 'assets/svg/approve_icon.svg'
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
@@ -14,6 +13,8 @@ import VoteIcon from 'components/Icons/Vote'
 import useTheme from 'hooks/useTheme'
 import { TRANSACTION_GROUP, TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 
+type Theme = ReturnType<typeof useTheme>
+
 const MAP_ICON_BY_GROUP: { [group in TRANSACTION_GROUP]: ReactNode } = {
   [TRANSACTION_GROUP.SWAP]: <Repeat size={16} />,
   [TRANSACTION_GROUP.LIQUIDITY]: <LiquidityIcon />,
@@ -21,9 +22,7 @@ const MAP_ICON_BY_GROUP: { [group in TRANSACTION_GROUP]: ReactNode } = {
   [TRANSACTION_GROUP.OTHER]: null,
 }
 
-const MAP_ICON_BY_TYPE: (theme: DefaultTheme) => Partial<Record<TRANSACTION_TYPE, ReactNode>> = (
-  theme: DefaultTheme,
-) => ({
+const MAP_ICON_BY_TYPE: (theme: Theme) => Partial<Record<TRANSACTION_TYPE, ReactNode>> = (theme: Theme) => ({
   [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme.subText} />,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: <IconFailure size={18} />,
   [TRANSACTION_TYPE.APPROVE]: <ApproveIcon width={20} height={22} />,

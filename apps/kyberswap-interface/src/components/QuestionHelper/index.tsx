@@ -1,7 +1,6 @@
 import { Placement } from '@popperjs/core'
 import { useCallback, useState } from 'react'
 import { Info } from 'react-feather'
-import { Flex } from 'rebass'
 
 import Tooltip from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -27,7 +26,7 @@ export default function QuestionHelper({
   const theme = useTheme()
 
   return (
-    <Flex as="span" marginLeft="0.25rem" alignItems="center">
+    <span className="ml-1 inline-flex items-center">
       <Tooltip placement={placement} text={text} show={show}>
         <div
           onClick={open}
@@ -41,6 +40,6 @@ export default function QuestionHelper({
           <Info size={size} color={useCurrentColor ? undefined : color || theme.subText} />
         </div>
       </Tooltip>
-    </Flex>
+    </span>
   )
 }

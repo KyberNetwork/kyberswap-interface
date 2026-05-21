@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import styled from 'styled-components'
 
 import CopyHelper from 'components/Copy'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
@@ -10,13 +9,6 @@ import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 
-const StyledLink = styled(ExternalLink)`
-  color: ${({ theme }) => theme.text};
-  :hover {
-    text-decoration: none;
-    color: ${({ theme }) => theme.text};
-  }
-`
 const ContractAddress = ({ transaction }: { transaction: TransactionDetails }) => {
   const { extraInfo = {}, type } = transaction
   const { chainId } = useActiveWeb3React()
@@ -26,9 +18,12 @@ const ContractAddress = ({ transaction }: { transaction: TransactionDetails }) =
 
   return extraInfo.contract ? (
     <PrimaryText style={{ display: 'flex', color: theme.text, gap: 4, alignItems: 'center' }}>
-      <StyledLink href={getEtherscanLink(chainId, extraInfo.contract, 'address')}>
+      <ExternalLink
+        href={getEtherscanLink(chainId, extraInfo.contract, 'address')}
+        className="!text-text hover:!text-text hover:!no-underline"
+      >
         {prefix}: {getShortenAddress(extraInfo.contract)}
-      </StyledLink>
+      </ExternalLink>
       <CopyHelper toCopy={extraInfo.contract} margin="0" />
     </PrimaryText>
   ) : null

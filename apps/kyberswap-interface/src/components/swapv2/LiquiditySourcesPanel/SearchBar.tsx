@@ -1,58 +1,25 @@
 import { t } from '@lingui/macro'
 import React from 'react'
 import { Search } from 'react-feather'
-import styled from 'styled-components'
 
 type Props = {
   text: string
   setText: (txt: string) => void
 }
 
-const SearchBarWrapper = styled.div`
-  width: 100%;
-  height: 36px;
-  position: relative;
-`
-
-const Input = styled.input`
-  width: 100%;
-  height: 100%;
-
-  padding: 8px 36px 8px 12px;
-
-  background: ${({ theme }) => theme.buttonBlack};
-  border: 0px;
-  border-radius: 40px;
-  color: inherit;
-  outline: none;
-
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-`
-
-const IconWrapper = styled.div`
-  position: absolute;
-  right: 12px;
-  top: 0;
-
-  width: 18px;
-  height: 100%;
-
-  display: flex;
-  align-items: center;
-
-  color: ${({ theme }) => theme.subText};
-`
-
 const SearchBar: React.FC<Props> = ({ text, setText }) => {
   return (
-    <SearchBarWrapper>
-      <Input value={text} onChange={e => setText(e.target.value)} placeholder={t`Search for a liquidity source`} />
-      <IconWrapper>
+    <div className="relative h-9 w-full">
+      <input
+        value={text}
+        onChange={e => setText(e.target.value)}
+        placeholder={t`Search for a liquidity source`}
+        className="size-full rounded-[40px] border-0 bg-buttonBlack py-2 pl-3 pr-9 text-sm font-medium leading-5 text-inherit outline-none"
+      />
+      <div className="absolute right-3 top-0 flex h-full w-[18px] items-center text-subText">
         <Search />
-      </IconWrapper>
-    </SearchBarWrapper>
+      </div>
+    </div>
   )
 }
 

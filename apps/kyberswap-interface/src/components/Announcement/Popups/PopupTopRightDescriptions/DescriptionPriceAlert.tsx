@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { CSSProperties } from 'react'
 import { ArrowDown, ArrowUp } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import { CSSProperties } from 'styled-components'
 
 import { SimplePopupProps } from 'components/Announcement/Popups/SimplePopup'
 import { PRIVATE_ANN_TITLE } from 'components/Announcement/PrivateAnnoucement'
@@ -42,12 +41,12 @@ const DescriptionPriceAlert = (
     summary: (
       <Row gap="6px" flexWrap={'wrap'} alignItems="center">
         <Logo srcs={[tokenInLogoURL]} style={logoStyle} />
-        {tokenInAmount} {tokenInSymbol} <Text color={theme.subText}>to</Text>
-        <Logo srcs={[tokenOutLogoURL]} style={logoStyle} /> {tokenOutSymbol} <Text color={theme.subText}>goes</Text>{' '}
-        <Flex alignItems={'center'} style={{ gap: '4px' }} color={isAbove ? theme.primary : theme.red}>
+        {tokenInAmount} {tokenInSymbol} <span className="text-subText">to</span>
+        <Logo srcs={[tokenOutLogoURL]} style={logoStyle} /> {tokenOutSymbol} <span className="text-subText">goes</span>{' '}
+        <span className="flex items-center gap-1" style={{ color: isAbove ? theme.primary : theme.red }}>
           {isAbove ? <ArrowUp size={16} /> : <ArrowDown size={16} />} {type}
-        </Flex>
-        {threshold} {tokenOutSymbol} <Text color={theme.subText}>on</Text>{' '}
+        </span>
+        {threshold} {tokenOutSymbol} <span className="text-subText">on</span>{' '}
         <NetworkLogo chainId={chainId} style={logoStyle} /> {NETWORKS_INFO[chainId].name}
       </Row>
     ),
