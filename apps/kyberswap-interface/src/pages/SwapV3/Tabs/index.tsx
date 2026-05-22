@@ -34,13 +34,13 @@ const TabWrapper = styled.div`
   }
 `
 
-export const Tab = styled(ButtonEmpty)<{ isActive: boolean; isDisabled?: boolean }>`
+export const Tab = styled(ButtonEmpty)<{ $isActive: boolean; $isDisabled?: boolean }>`
   width: fit-content;
   font-weight: 500;
   padding: 0px;
   margin-right: 6px;
   margin-bottom: 4px;
-  color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
+  color: ${({ theme, $isActive }) => ($isActive ? theme.primary : theme.subText)};
   position: relative;
   border-radius: 0;
   font-size: 18px;
@@ -66,8 +66,8 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean; isDisabled?: boolean
     text-decoration: none;
   }
 
-  ${({ theme, isDisabled }) =>
-    isDisabled &&
+  ${({ theme, $isDisabled }) =>
+    $isDisabled &&
     css`
       color: ${theme.border};
     `};
@@ -133,7 +133,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     <TabContainer>
       <TabWrapper>
         {show(TAB.SWAP) && (
-          <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={TAB.SWAP === activeTab}>
+          <Tab onClick={() => onClickTab(TAB.SWAP)} $isActive={TAB.SWAP === activeTab}>
             <Text fontWeight={500}>
               <Trans>Swap</Trans>
             </Text>
@@ -148,7 +148,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
         )}
         <Tab
           onClick={() => onClickTab(TAB.CROSS_CHAIN)}
-          isActive={activeTab === TAB.CROSS_CHAIN}
+          $isActive={activeTab === TAB.CROSS_CHAIN}
           data-testid="cross-chain-tab"
         >
           <Trans>Cross-Chain</Trans>

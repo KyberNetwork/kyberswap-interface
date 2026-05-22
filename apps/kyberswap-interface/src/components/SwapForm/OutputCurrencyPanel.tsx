@@ -2,8 +2,6 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Skeleton from 'components/Skeleton'
@@ -14,12 +12,11 @@ import { WrapType } from 'hooks/useWrapCallback'
 import { MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 
-export const Label = styled.div`
-  font-weight: 500;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  border-bottom: 1px dashed ${({ theme }) => theme.border};
-`
+export const Label: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', children, ...props }) => (
+  <div {...props} className={`border-b border-dashed border-border text-xs font-medium text-subText ${className}`}>
+    {children}
+  </div>
+)
 
 type Props = {
   wrapType: WrapType
@@ -70,11 +67,11 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   }
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <div className="relative">
       {routeLoading && (
-        <Flex sx={{ position: 'absolute', bottom: '18px', left: '12px', zIndex: 10 }}>
+        <div className="absolute bottom-[18px] left-3 z-10 flex">
           <Skeleton height={24} width={upToSmall ? 120 : 160} />
-        </Flex>
+        </div>
       )}
       <CurrencyInputPanel
         disabledInput
@@ -94,7 +91,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
               placement="right"
               width="200px"
               text={
-                <Text fontSize={12}>
+                <span className="text-xs">
                   {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
                     <Trans>
                       This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the
@@ -105,7 +102,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
                       This is the estimated output amount. Do review the actual output amount at the confirmation stage.
                     </Trans>
                   )}
-                </Text>
+                </span>
               }
             >
               {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
@@ -119,7 +116,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         positionLabel="in"
         customChainId={customChainId}
       />
-    </Box>
+    </div>
   )
 }
 

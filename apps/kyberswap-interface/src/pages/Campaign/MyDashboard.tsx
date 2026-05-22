@@ -316,7 +316,7 @@ const MyDashboard = () => {
                 toggle={() => setIsOpenMenu(prev => !prev)}
                 modalWhenMobile={false}
                 hasArrow={false}
-                customStyle={{
+                style={{
                   minWidth: '240px',
                   top: 'calc(100% + 8px)',
                   right: 0,

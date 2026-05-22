@@ -272,7 +272,7 @@ function AboutKNC() {
           >
             <BtnPrimary
               width="216px"
-              as={Link}
+              as={Link as any}
               to={APP_PATHS.SWAP + '/' + networkInfo.route}
               onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
             >
@@ -314,7 +314,7 @@ function AboutKNC() {
               <BtnPrimary
                 width={above768 ? '236px' : '100%'}
                 margin="40px 0 0"
-                as={Link}
+                as={Link as any}
                 to={APP_PATHS.KYBERDAO_STAKE}
                 onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_STAKE_KNC_CLICKED)}
               >

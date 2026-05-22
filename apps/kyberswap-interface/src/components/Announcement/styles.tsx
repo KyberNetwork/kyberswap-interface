@@ -47,14 +47,7 @@ export const Badge = styled.div<{ isOverflow: boolean }>`
   z-index: 1;
 `
 
-export const browserCustomStyle = css`
-  padding: 0;
-  border-radius: 12px;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: unset;
-    bottom: 3.5rem;
-  `};
-`
+export const ANNOUNCEMENT_FLYOUT_CLASS = '!p-0 !rounded-xl max-lg:!top-auto max-lg:!bottom-14'
 
 export const Wrapper = styled.div`
   width: 380px;

@@ -166,6 +166,13 @@ const config: Config = {
           '0%, 100%': { boxShadow: '0 0 0 0 rgba(255, 153, 1, 0)' },
           '70%': { boxShadow: '0 0 0 1px rgba(255, 153, 1, 1)' },
         },
+        // Drop-shadow pulse for TokenInfo when spread/price warning is active.
+        'token-info-glow': {
+          '0%, 100%': { filter: 'drop-shadow(0 0 2px rgba(255, 178, 55, 0.2))' },
+          '50%': {
+            filter: 'drop-shadow(0 0 8px rgba(255, 178, 55, 0.8)) drop-shadow(0 0 12px rgba(255, 178, 55, 0.4))',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -178,6 +185,7 @@ const config: Config = {
         highlight: 'highlight 2s 2 alternate ease-in-out',
         'loading-shimmer': 'loading-shimmer 1.2s ease-in-out infinite',
         'highlight-warning': 'highlight-warning 2s infinite alternate ease-in-out',
+        'token-info-glow': 'token-info-glow 1.5s ease-in-out infinite',
       },
     },
   },

@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useCallback, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import RangeBadge from 'components/Badge/RangeBadge'
 import { AutoColumn } from 'components/Column'
@@ -13,10 +12,10 @@ import { FarmTag } from 'components/FarmTag'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
-import useTheme from 'hooks/useTheme'
 import { FeeTag } from 'pages/ElasticLegacy/PositionLegacy'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { RotateSwapIcon } from './styles'
@@ -45,7 +44,6 @@ export default function ProAmmPoolInfo({
   const { chainId } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const theme = useTheme()
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
 
   const removed = BigNumber.from(position.liquidity.toString()).eq(0)
@@ -60,9 +58,9 @@ export default function ProAmmPoolInfo({
     }
 
     return (
-      <Flex sx={{ gap: '4px' }} alignItems="center">
+      <div className="flex items-center gap-1">
         <FarmTag address={poolAddress} />
-      </Flex>
+      </div>
     )
   }
 
@@ -86,65 +84,46 @@ export default function ProAmmPoolInfo({
     <>
       {poolAddress && (
         <AutoColumn>
-          <Flex alignItems={upToSmall ? undefined : 'center'} justifyContent="space-between" sx={{ gap: '8px' }}>
-            <Flex alignItems="center" flex={1}>
+          <div className={cn('flex justify-between gap-2', upToSmall ? '' : 'items-center')}>
+            <div className="flex flex-1 items-center">
               <DoubleCurrencyLogo currency0={token0Shown} currency1={token1Shown} size={20} />
-              <Text
-                fontSize="16px"
-                fontWeight="500"
-                maxWidth="fit-content"
-                flex={1}
-                sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-              >
+              <span className="max-w-fit flex-1 truncate text-base font-medium">
                 {token0Shown.symbol} - {token1Shown.symbol}
-              </Text>
+              </span>
               <FeeTag>FEE {(position?.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}% </FeeTag>
-            </Flex>
+            </div>
 
-            <Flex sx={{ gap: '8px' }}>
+            <div className="flex gap-2">
               {renderFarmIcon()}
               {showRangeInfo && <RangeBadge removed={showRemoved && removed} inRange={!outOfRange} hideText />}
-            </Flex>
-          </Flex>
+            </div>
+          </div>
 
-          <Flex
-            justifyContent="space-between"
-            alignItems={upToExtraSmall ? 'flex-start' : 'center'}
-            marginTop="8px"
-            sx={{ gap: '8px' }}
-          >
-            <Flex alignItems="center" color={theme.subText} fontSize={12}>
+          <div className={cn('mt-2 flex justify-between gap-2', upToExtraSmall ? 'items-start' : 'items-center')}>
+            <div className="flex items-center text-xs text-subText">
               <Copy
                 toCopy={poolAddress}
-                text={
-                  <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                    {shortenAddress(chainId, poolAddress)}{' '}
-                  </Text>
-                }
+                text={<span className="text-xs font-medium text-subText">{shortenAddress(chainId, poolAddress)} </span>}
               />
-            </Flex>
-            {showRangeInfo && !!tokenId ? (
-              <Text fontSize="12px" marginRight="4px" color={theme.subText}>
-                #{tokenId}
-              </Text>
-            ) : null}
+            </div>
+            {showRangeInfo && !!tokenId ? <span className="mr-1 text-xs text-subText">#{tokenId}</span> : null}
             {narrow && (
-              <Flex sx={{ gap: '4px' }}>
-                <Text fontSize={12}>
-                  <Flex>
-                    <Text color={theme.subText}>
+              <div className="flex gap-1">
+                <span className="text-xs">
+                  <span className="flex">
+                    <span className="text-subText">
                       <Trans>Current Price:</Trans>
-                    </Text>
+                    </span>
                     &nbsp;1 {tokenB.currency.symbol} = {position.pool.priceOf(tokenB.currency).toSignificant(10)}{' '}
                     {tokenA.currency.symbol}
-                  </Flex>
-                </Text>
-                <span onClick={onReversePrice} style={{ cursor: 'pointer' }}>
+                  </span>
+                </span>
+                <span onClick={onReversePrice} className="cursor-pointer">
                   <RotateSwapIcon rotated={rotated} size={12} />
                 </span>
-              </Flex>
+              </div>
             )}
-          </Flex>
+          </div>
         </AutoColumn>
       )}
     </>

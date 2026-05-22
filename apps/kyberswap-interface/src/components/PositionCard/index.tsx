@@ -5,8 +5,6 @@ import JSBI from 'jsbi'
 import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { LightCard } from 'components/Card'
@@ -28,83 +26,35 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink, UppercaseText } from 'theme'
 import { formattedNum, shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-const TokenWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`
+const FixedHeightRow = ({ className, ...props }: React.ComponentProps<typeof RowBetween>) => (
+  <RowBetween className={cn('h-6', className)} {...props} />
+)
 
-const FixedHeightRow = styled(RowBetween)`
-  height: 24px;
-`
+const VerticalDivider = ({ className }: { className?: string }) => (
+  <div className={cn('h-2.5 w-px bg-subText', className)} />
+)
 
-const VerticalDivider = styled.div`
-  width: 1px;
-  height: 10px;
-  background-color: ${({ theme }) => theme.subText};
-`
-
-const StyledPositionCard = styled(LightCard)`
-  border: none;
-  background: ${({ theme }) => theme.background};
-  position: relative;
-  overflow: hidden;
-  border-radius: 20px;
-  padding: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 16px;
-  `}
-`
-
-const StyledMinimalPositionCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  background: ${({ theme }) => theme.background};
-  border-radius: 20px;
-  padding: 1rem;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-
-  @media only screen and (min-width: 1000px) {
-    flex-direction: row;
-    align-items: center;
-    padding: 20px 16px;
-    gap: 1rem;
-  }
-`
-
-const MinimalPositionItemDivider = styled(VerticalDivider)`
-  height: 36px;
-  background-color: ${({ theme }) => theme.border};
-
-  @media only screen and (max-width: 999px) {
-    display: none;
-  }
-`
-
-const MinimalPositionItem = styled(AutoColumn)<{ noBorder?: boolean; noPadding?: boolean }>`
-  width: 100%;
-  border-bottom: ${({ theme, noBorder }) => (noBorder ? 'none' : `1px solid ${theme.border}`)};
-  padding-bottom: ${({ noPadding }) => (noPadding ? '0' : '1rem')};
-  gap: 4px;
-
-  @media only screen and (min-width: 1000px) {
-    width: fit-content;
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-`
-
-const WarningMessage = styled(Text)`
-  color: ${({ theme }) => theme.warning};
-  text-align: center;
-`
+const PositionCardWrapper = ({
+  className,
+  style,
+  children,
+}: {
+  className?: string
+  style?: React.CSSProperties
+  children: React.ReactNode
+}) => (
+  <LightCard
+    className={cn('relative overflow-hidden rounded-[20px] border-0 bg-background p-4 sm:p-5', className)}
+    style={style}
+  >
+    {children}
+  </LightCard>
+)
 
 const formattedUSDPrice = (tokenAmount: TokenAmount, price: number) => {
   const usdValue = parseFloat(tokenAmount.toSignificant(6)) * price
@@ -152,70 +102,58 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
   const native0 = useCurrencyConvertedToNative(currency0 || undefined)
   const native1 = useCurrencyConvertedToNative(currency1 || undefined)
   return (
-    <>
-      <StyledPositionCard style={border ? { border } : undefined}>
-        <AutoColumn gap="12px">
+    <PositionCardWrapper style={border ? { border } : undefined}>
+      <AutoColumn gap="12px">
+        <FixedHeightRow>
+          <RowFixed>
+            <span className="text-base font-medium">
+              <Trans>My position</Trans>
+            </span>
+          </RowFixed>
+        </FixedHeightRow>
+        <FixedHeightRow onClick={() => setShowMore(!showMore)}>
+          <RowFixed>
+            <DoubleCurrencyLogo currency0={native0} currency1={native1} margin={true} size={20} />
+            <span className="text-xl font-medium">
+              {native0?.symbol}/{native1?.symbol}
+            </span>
+          </RowFixed>
+          <RowFixed>
+            <span className="text-xl font-medium">{userPoolBalance ? userPoolBalance.toSignificant(4) : '-'} </span>
+          </RowFixed>
+        </FixedHeightRow>
+        <AutoColumn gap="4px">
           <FixedHeightRow>
-            <RowFixed>
-              <Text fontWeight={500} fontSize={16}>
-                <Trans>My position</Trans>
-              </Text>
-            </RowFixed>
+            <span className="text-base font-medium">
+              <Trans>My pool share:</Trans>
+            </span>
+            <span className="text-base font-medium">
+              {poolTokenPercentage ? poolTokenPercentage.toFixed(6) + '%' : '-'}
+            </span>
           </FixedHeightRow>
-          <FixedHeightRow onClick={() => setShowMore(!showMore)}>
-            <RowFixed>
-              <DoubleCurrencyLogo currency0={native0} currency1={native1} margin={true} size={20} />
-              <Text fontWeight={500} fontSize={20}>
-                {native0?.symbol}/{native1?.symbol}
-              </Text>
-            </RowFixed>
-            <RowFixed>
-              <Text fontWeight={500} fontSize={20}>
-                {userPoolBalance ? userPoolBalance.toSignificant(4) : '-'}{' '}
-              </Text>
-            </RowFixed>
+          <FixedHeightRow>
+            <span className="text-base font-medium">{native0?.symbol}:</span>
+            {token0Deposited ? (
+              <RowFixed>
+                <span className="ml-1.5 text-base font-medium">{token0Deposited?.toSignificant(6)}</span>
+              </RowFixed>
+            ) : (
+              '-'
+            )}
           </FixedHeightRow>
-          <AutoColumn gap="4px">
-            <FixedHeightRow>
-              <Text fontSize={16} fontWeight={500}>
-                <Trans>My pool share:</Trans>
-              </Text>
-              <Text fontSize={16} fontWeight={500}>
-                {poolTokenPercentage ? poolTokenPercentage.toFixed(6) + '%' : '-'}
-              </Text>
-            </FixedHeightRow>
-            <FixedHeightRow>
-              <Text fontSize={16} fontWeight={500}>
-                {native0?.symbol}:
-              </Text>
-              {token0Deposited ? (
-                <RowFixed>
-                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
-                    {token0Deposited?.toSignificant(6)}
-                  </Text>
-                </RowFixed>
-              ) : (
-                '-'
-              )}
-            </FixedHeightRow>
-            <FixedHeightRow>
-              <Text fontSize={16} fontWeight={500}>
-                {native1?.symbol}:
-              </Text>
-              {token1Deposited ? (
-                <RowFixed>
-                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
-                    {token1Deposited?.toSignificant(6)}
-                  </Text>
-                </RowFixed>
-              ) : (
-                '-'
-              )}
-            </FixedHeightRow>
-          </AutoColumn>
+          <FixedHeightRow>
+            <span className="text-base font-medium">{native1?.symbol}:</span>
+            {token1Deposited ? (
+              <RowFixed>
+                <span className="ml-1.5 text-base font-medium">{token1Deposited?.toSignificant(6)}</span>
+              </RowFixed>
+            ) : (
+              '-'
+            )}
+          </FixedHeightRow>
         </AutoColumn>
-      </StyledPositionCard>
-    </>
+      </AutoColumn>
+    </PositionCardWrapper>
   )
 }
 
@@ -252,47 +190,50 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
 
   const usdPrices = useTokenPrices([pair.token0.wrapped.address, pair.token1.wrapped.address])
 
+  // MinimalPositionItemDivider: 36px tall, border color, hidden under 1000px (`min-lg` is 1200, so use arbitrary).
+  const minimalDivider = <div className="hidden h-9 w-px bg-border [@media(min-width:1000px)]:block" />
+
+  // MinimalPositionItem: full width with bottom border under 1000px; fit-content + no border at 1000px+.
+  const itemBase =
+    'flex w-full flex-col gap-1 border-b border-border pb-4 [@media(min-width:1000px)]:w-fit [@media(min-width:1000px)]:border-b-0 [@media(min-width:1000px)]:pb-0'
+  const itemNoBorder = 'flex w-full flex-col gap-1 [@media(min-width:1000px)]:w-fit'
+
   return (
     <>
-      <Text
-        fontWeight={500}
-        fontSize={16}
-        marginX="16px"
-        paddingY="1rem"
-        style={{ borderBottom: `1px solid ${theme.border}` }}
-      >
+      <div className="mx-4 py-4 text-base font-medium" style={{ borderBottom: `1px solid ${theme.border}` }}>
         <Trans>My Current Position</Trans>
-      </Text>
+      </div>
 
-      <StyledMinimalPositionCard>
-        <MinimalPositionItem gap="4px">
+      <div
+        className={cn(
+          'flex flex-col items-start justify-between gap-4 rounded-[20px] bg-background p-4',
+          '[@media(min-width:1000px)]:flex-row [@media(min-width:1000px)]:items-center [@media(min-width:1000px)]:px-4 [@media(min-width:1000px)]:py-5',
+        )}
+      >
+        <div className={itemBase}>
           <RowFixed>
             <DoubleCurrencyLogo currency0={native0} currency1={native1} size={16} />
             <UppercaseText style={{ marginLeft: '4px' }}>
-              <Text fontWeight={500} fontSize={12} color={theme.subText}>
+              <span className="text-xs font-medium text-subText">
                 {native0?.symbol}/{native1?.symbol} <Trans>LP Tokens</Trans>
-              </Text>
+              </span>
             </UppercaseText>
           </RowFixed>
           <RowFixed>
-            <Text fontWeight={400} fontSize={14}>
-              {userPoolBalance ? userPoolBalance.toSignificant(4) : '-'}{' '}
-            </Text>
+            <span className="text-sm font-normal">{userPoolBalance ? userPoolBalance.toSignificant(4) : '-'} </span>
           </RowFixed>
-        </MinimalPositionItem>
-        <MinimalPositionItemDivider />
+        </div>
+        {minimalDivider}
 
-        <MinimalPositionItem>
-          <TokenWrapper>
+        <div className={itemBase}>
+          <div className="flex items-center gap-1">
             <CurrencyLogo currency={native0} size="16px" />
-            <Text fontSize={12} fontWeight={500}>
-              {native0?.symbol}
-            </Text>
-          </TokenWrapper>
+            <span className="text-xs font-medium">{native0?.symbol}</span>
+          </div>
 
           {token0Deposited ? (
             <RowFixed>
-              <Text fontSize={14} fontWeight={400}>
+              <span className="text-sm font-normal">
                 {token0Deposited.equalTo('0')
                   ? '0'
                   : token0Deposited
@@ -301,25 +242,23 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
                   ? '<0.01'
                   : token0Deposited?.toSignificant(6)}{' '}
                 {formattedUSDPrice(token0Deposited, usdPrices[pair.token0.wrapped.address])}
-              </Text>
+              </span>
             </RowFixed>
           ) : (
             '-'
           )}
-        </MinimalPositionItem>
+        </div>
 
-        <MinimalPositionItemDivider />
+        {minimalDivider}
 
-        <MinimalPositionItem>
-          <TokenWrapper>
+        <div className={itemBase}>
+          <div className="flex items-center gap-1">
             <CurrencyLogo currency={native1} size="16px" />
-            <Text fontSize={12} fontWeight={500}>
-              {native1?.symbol}
-            </Text>
-          </TokenWrapper>
+            <span className="text-xs font-medium">{native1?.symbol}</span>
+          </div>
           {token1Deposited ? (
             <RowFixed>
-              <Text fontSize={14} fontWeight={400}>
+              <span className="text-sm font-normal">
                 {token1Deposited.equalTo('0')
                   ? '0'
                   : token1Deposited
@@ -328,42 +267,37 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
                   ? '<0.01'
                   : token1Deposited?.toSignificant(6)}{' '}
                 {formattedUSDPrice(token1Deposited, usdPrices[pair.token1.wrapped.address])}
-              </Text>
+              </span>
             </RowFixed>
           ) : (
             '-'
           )}
-        </MinimalPositionItem>
+        </div>
 
-        <MinimalPositionItemDivider />
-        <MinimalPositionItem gap="4px" noBorder={true} noPadding={true}>
-          <Text fontSize={12} fontWeight={500} color={theme.subText}>
+        {minimalDivider}
+        <div className={itemNoBorder}>
+          <span className="text-xs font-medium text-subText">
             <UppercaseText>
               <Trans>My Share Of Pool</Trans>
             </UppercaseText>
-          </Text>
-          <Text fontSize={14} fontWeight={400}>
+          </span>
+          <span className="text-sm font-normal">
             {poolTokenPercentage && poolTokenPercentage.greaterThan('0')
               ? poolTokenPercentage?.lessThan(ONE_BIPS)
                 ? '<0.01'
                 : poolTokenPercentage?.toFixed(2)
               : '0'}
             %
-          </Text>
-        </MinimalPositionItem>
-      </StyledMinimalPositionCard>
+          </span>
+        </div>
+      </div>
     </>
   )
 }
 
-const Row = styled(Flex)`
-  justify-content: space-between;
-  color: ${({ theme }) => theme.subText};
-  font-weight: 500;
-  margin-top: 8px;
-  font-size: 12px;
-  line-height: 2;
-`
+const FullRow = ({ children }: { children: React.ReactNode }) => (
+  <div className="mt-2 flex justify-between text-xs font-medium leading-loose text-subText">{children}</div>
+)
 
 export default function FullPositionCard({ pair, border, stakedBalance, myLiquidity, tab }: PositionCardProps) {
   const { chainId, networkInfo } = useActiveWeb3React()
@@ -388,7 +322,6 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
     !!pair &&
     !!totalPoolTokens &&
     !!userPoolBalance &&
-    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
     JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance),
@@ -400,7 +333,6 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
     !!pair &&
     !!totalPoolTokens &&
     !!stakedBalance &&
-    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
     JSBI.greaterThanOrEqual(totalPoolTokens.quotient, stakedBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, stakedBalance),
@@ -444,41 +376,35 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
   const theme = useTheme()
 
   return (
-    <StyledPositionCard style={border ? { border } : undefined}>
-      <Flex justifyContent="space-between">
+    <PositionCardWrapper style={border ? { border } : undefined}>
+      <div className="flex justify-between">
         <div>
-          <Flex alignItems="center">
+          <div className="flex items-center">
             <DoubleCurrencyLogo currency0={native0} currency1={native1} size={24} />
-            <Text fontWeight={500} fontSize={20}>{`${native0?.symbol}/${native1?.symbol}`}</Text>
-          </Flex>
+            <span className="text-xl font-medium">{`${native0?.symbol}/${native1?.symbol}`}</span>
+          </div>
 
-          <Flex alignItems="center" sx={{ gap: '6px' }} marginTop="12px">
-            <Text color={theme.subText} fontWeight={500} fontSize="12px" width="max-content">
-              AMP = {amp.toSignificant(5)}
-            </Text>
+          <div className="mt-3 flex items-center gap-1.5">
+            <span className="w-max text-xs font-medium text-subText">AMP = {amp.toSignificant(5)}</span>
 
             <VerticalDivider />
-            <Flex alignItems="center" color={theme.subText} fontSize={12}>
-              <Text>{shortenAddress(chainId, pair.address, 3)}</Text>
+            <div className="flex items-center text-xs text-subText">
+              <span>{shortenAddress(chainId, pair.address, 3)}</span>
               <CopyHelper toCopy={pair.address} />
-            </Flex>
-          </Flex>
+            </div>
+          </div>
         </div>
 
-        <Flex
-          sx={{
-            gap: '4px',
-          }}
-        >
+        <div className="flex gap-1">
           {isWarning && (
             <MouseoverTooltip
               text={
                 warningToken ? (
-                  <WarningMessage>{t`Note: ${warningToken} is now <10% of the pool. Pool might become inactive if ${warningToken} reaches 0%.`}</WarningMessage>
+                  <span className="text-center text-warning">{t`Note: ${warningToken} is now <10% of the pool. Pool might become inactive if ${warningToken} reaches 0%.`}</span>
                 ) : (
-                  <WarningMessage>
+                  <span className="text-center text-warning">
                     <Trans>One token is close to 0% in the pool ratio. Pool might go inactive.</Trans>
-                  </WarningMessage>
+                  </span>
                 )
               }
             >
@@ -493,153 +419,131 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               </IconWrapper>
             </MouseoverTooltip>
           )}
-        </Flex>
-      </Flex>
+        </div>
+      </div>
 
-      <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center"></Flex>
+      <div className="mt-1 flex items-center justify-end" />
 
-      <Flex alignItems="center" justifyContent="space-between" marginTop="1rem">
-        <Text fontSize="1rem" fontWeight={500} color={theme.subText}>
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-base font-medium text-subText">
           {tab === 'ALL' ? <Trans>My Liquidity</Trans> : <Trans>My Staked</Trans>}
-        </Text>
-        <Flex fontSize={12} color={theme.subText} marginTop="2px" alignItems="baseline" sx={{ gap: '4px' }}>
-          <Flex alignItems="center" flexDirection="row">
-            APR
-          </Flex>
-          <Text as="span" color={theme.apr} fontSize="20px" fontWeight={500}>
-            --
-          </Text>
-        </Flex>
-      </Flex>
+        </span>
+        <div className="mt-0.5 flex items-baseline gap-1 text-xs text-subText">
+          <div className="flex items-center">APR</div>
+          <span className="text-xl font-medium text-apr">--</span>
+        </div>
+      </div>
       <Divider className="mt-2" />
 
-      <Flex height="168px" marginTop="0.75rem" flexDirection="column">
+      <div className="mt-3 flex h-[168px] flex-col">
         {tab === 'ALL' ? (
           <>
-            <Row>
-              <Text>
+            <FullRow>
+              <span>
                 <Trans>My Liquidity Balance</Trans>
-              </Text>
-              <Text fontSize={14} color={theme.text}>
-                {totalDeposit}
-              </Text>
-            </Row>
-            <Row>
-              <Text>
+              </span>
+              <span className="text-sm text-text">{totalDeposit}</span>
+            </FullRow>
+            <FullRow>
+              <span>
                 <Trans>Total LP Tokens</Trans>
-              </Text>
-              <Text color={theme.text} fontSize={14}>
-                {userPoolBalance?.toSignificant(6) ?? '-'}
-              </Text>
-            </Row>
-            <Row>
-              <Flex alignItems="center">
-                <Text>
+              </span>
+              <span className="text-sm text-text">{userPoolBalance?.toSignificant(6) ?? '-'}</span>
+            </FullRow>
+            <FullRow>
+              <div className="flex items-center">
+                <span>
                   <Trans>Available LP Tokens</Trans>
-                </Text>
+                </span>
                 <InfoHelper text={t`Your available LP Token balance after staking (if applicable)`} size={14} />
-              </Flex>
-              <Text color={theme.text} fontSize={14}>
-                {userDefaultPoolBalance?.toSignificant(6) ?? '0'}
-              </Text>
-            </Row>
+              </div>
+              <span className="text-sm text-text">{userDefaultPoolBalance?.toSignificant(6) ?? '0'}</span>
+            </FullRow>
 
-            <Row>
-              <Text>
+            <FullRow>
+              <span>
                 <Trans>Pooled {native0?.symbol}</Trans>
-              </Text>
+              </span>
               {token0Deposited ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency0} />
-                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'} color={theme.text}>
-                    {token0Deposited?.toSignificant(6)}
-                  </Text>
+                  <span className="ml-1.5 text-sm font-medium text-text">{token0Deposited?.toSignificant(6)}</span>
                 </RowFixed>
               ) : (
                 '-'
               )}
-            </Row>
-            <Row>
-              <Text>
+            </FullRow>
+            <FullRow>
+              <span>
                 <Trans>Pooled {native1?.symbol}</Trans>
-              </Text>
+              </span>
               {token1Deposited ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency1} />
-                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                    {token1Deposited?.toSignificant(6)}
-                  </Text>
+                  <span className="ml-1.5 text-sm font-medium text-text">{token1Deposited?.toSignificant(6)}</span>
                 </RowFixed>
               ) : (
                 '-'
               )}
-            </Row>
+            </FullRow>
 
-            <Row>
-              <Text>
+            <FullRow>
+              <span>
                 <Trans>My Share Of Pool</Trans>
-              </Text>
-              <Text fontSize={14} color={theme.text}>
+              </span>
+              <span className="text-sm text-text">
                 {poolTokenPercentage
                   ? (poolTokenPercentage.toFixed(2) === '0.00' ? '<0.01' : poolTokenPercentage.toFixed(2)) + '%'
                   : '-'}
-              </Text>
-            </Row>
+              </span>
+            </FullRow>
           </>
         ) : (
           <>
-            <Row>
-              <Text>
+            <FullRow>
+              <span>
                 <Trans>My Staked Balance</Trans>
-              </Text>
-              <Text fontSize={14} color={theme.text}>
-                {formattedNum(stakedUSD.toString(), true)}
-              </Text>
-            </Row>
-            <Row>
-              <Text>
+              </span>
+              <span className="text-sm text-text">{formattedNum(stakedUSD.toString(), true)}</span>
+            </FullRow>
+            <FullRow>
+              <span>
                 <Trans>Staked LP Tokens</Trans>
-              </Text>
-              <Text color={theme.text} fontSize={14}>
-                {stakedBalance?.toSignificant(6) ?? '-'}
-              </Text>
-            </Row>
-            <Row>
-              <Text>
+              </span>
+              <span className="text-sm text-text">{stakedBalance?.toSignificant(6) ?? '-'}</span>
+            </FullRow>
+            <FullRow>
+              <span>
                 <Trans>Staked {native0?.symbol}</Trans>
-              </Text>
+              </span>
               {token0Staked ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency0} />
-                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'} color={theme.text}>
-                    {token0Staked?.toSignificant(6)}
-                  </Text>
+                  <span className="ml-1.5 text-sm font-medium text-text">{token0Staked?.toSignificant(6)}</span>
                 </RowFixed>
               ) : (
                 '-'
               )}
-            </Row>
-            <Row>
-              <Text>
+            </FullRow>
+            <FullRow>
+              <span>
                 <Trans>Staked {native1?.symbol}</Trans>
-              </Text>
+              </span>
               {token1Staked ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency1} />
-                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                    {token1Staked?.toSignificant(6)}
-                  </Text>
+                  <span className="ml-1.5 text-sm font-medium text-text">{token1Staked?.toSignificant(6)}</span>
                 </RowFixed>
               ) : (
                 '-'
               )}
-            </Row>
+            </FullRow>
           </>
         )}
-      </Flex>
+      </div>
 
       {tab === 'ALL' && (
-        <Flex marginTop="20px" sx={{ gap: '1rem' }}>
+        <div className="mt-5 flex gap-4">
           {userDefaultPoolBalance?.greaterThan(JSBI.BigInt(0)) ? (
             <ButtonOutlined
               style={{
@@ -652,9 +556,9 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
                 chainId,
               )}/${pair.address}`}
             >
-              <Text width="max-content">
+              <span className="w-max">
                 <Trans>Remove Liquidity</Trans>
-              </Text>
+              </span>
             </ButtonOutlined>
           ) : (
             <ButtonPrimary
@@ -664,17 +568,17 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
                 fontSize: '14px',
               }}
             >
-              <Text width="max-content">
+              <span className="w-max">
                 <Trans>Remove Liquidity</Trans>
-              </Text>
+              </span>
             </ButtonPrimary>
           )}
-        </Flex>
+        </div>
       )}
 
       <Divider className="mt-5" />
 
-      <Flex justifyContent="space-between" marginTop="16px" alignItems="center">
+      <div className="mt-4 flex items-center justify-between">
         <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
           <ExternalLink
             style={{ width: '100%', textAlign: 'center' }}
@@ -683,7 +587,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
             <Trans>Analytics ↗</Trans>
           </ExternalLink>
         </ButtonEmpty>
-      </Flex>
-    </StyledPositionCard>
+      </div>
+    </PositionCardWrapper>
   )
 }

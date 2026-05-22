@@ -21,7 +21,7 @@ import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from
 import { ApplicationModal } from 'state/application/types'
 import { MEDIA_WIDTHS } from 'theme'
 
-import { Badge, Container, StyledMenu, StyledMenuButton, Title, Wrapper, browserCustomStyle } from './styles'
+import { ANNOUNCEMENT_FLYOUT_CLASS, Badge, Container, StyledMenu, StyledMenuButton, Title, Wrapper } from './styles'
 
 function AnnouncementComponent() {
   const [activeTab, setActiveTab] = useState(Tab.CATEGORY)
@@ -382,7 +382,7 @@ function AnnouncementComponent() {
       ) : (
         <MenuFlyout
           trigger={bellIcon}
-          customStyle={browserCustomStyle}
+          className={ANNOUNCEMENT_FLYOUT_CLASS}
           isOpen={isOpenInbox}
           toggle={toggleNotificationCenter}
         >

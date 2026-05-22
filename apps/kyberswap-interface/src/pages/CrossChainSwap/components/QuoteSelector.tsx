@@ -289,7 +289,7 @@ export const QuoteSelector = ({
       }
       hasArrow={false}
       toggle={() => setShow(prev => !prev)}
-      customStyle={{
+      style={{
         width: '100%',
         left: `calc(100% + 16px)`,
         top: 0,

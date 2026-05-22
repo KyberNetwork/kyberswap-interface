@@ -609,6 +609,42 @@
     }
   }
 
+  /* MenuFlyout arrow on the top edge (default desktop) and bottom edge (upToLarge). */
+  .ks-menu-flyout-arrow::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    height: 0;
+    width: 0;
+    bottom: 100%;
+    right: 20px;
+    top: -20px;
+    border: solid transparent;
+    border-bottom-color: var(--ks-tableHeader);
+    border-width: 10px;
+    margin-left: -10px;
+  }
+  @media (max-width: 1200px) {
+    .ks-menu-flyout-arrow::after {
+      top: 100%;
+      border-top-color: var(--ks-tableHeader);
+      border-bottom-color: transparent;
+    }
+  }
+
+  /* TransactionSettings flyout: arrow flips above the panel at upToLarge. */
+  .ks-tx-settings-flyout > div::after {
+    margin-left: -10px;
+  }
+  @media (max-width: 1200px) {
+    .ks-tx-settings-flyout > div::after {
+      top: -40px;
+      border-top-color: transparent;
+      border-bottom-color: var(--ks-tableHeader);
+      border-width: 10px;
+    }
+  }
+
   /* Transactions/Tab fade overlays for horizontal scroll edges. */
   .ks-transactions-tab[data-scrollable='true'][data-scroll-left='true']::before,
   .ks-transactions-tab[data-scrollable='true'][data-scroll-right='true']::after {

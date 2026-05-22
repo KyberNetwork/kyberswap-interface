@@ -65,7 +65,8 @@ const ButtonEth = ({
       </>
     ),
   }
-  return React.createElement(primary ? ButtonPrimary : ButtonLight, propsEth)
+  const Component = primary ? ButtonPrimary : ButtonLight
+  return <Component {...propsEth} />
 }
 
 export default ButtonEth

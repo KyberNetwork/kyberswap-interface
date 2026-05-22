@@ -246,7 +246,7 @@ function AboutKyberSwap() {
                 <BtnPrimary
                   margin="48px 0"
                   width="216px"
-                  as={Link}
+                  as={Link as any}
                   to={APP_PATHS.SWAP + '/' + networkInfo.route}
                   onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
                 >
@@ -269,7 +269,7 @@ function AboutKyberSwap() {
             {!above500 && (
               <BtnPrimary
                 margin="40px 0"
-                as={Link}
+                as={Link as any}
                 to={APP_PATHS.SWAP + '/' + networkInfo.route}
                 onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
               >
@@ -308,7 +308,7 @@ function AboutKyberSwap() {
                 alt="KNCGraphic"
                 style={{ display: above768 ? 'none' : 'block', margin: 'auto', marginTop: '40px' }}
               />
-              <BtnPrimary as={Link} to="/about/knc" margin="48px 0">
+              <BtnPrimary as={Link as any} to="/about/knc" margin="48px 0">
                 <KNCBlack />
                 <Text fontSize={['14px', '16px']} marginLeft="8px">
                   <Trans>Find out more</Trans>

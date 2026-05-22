@@ -130,19 +130,8 @@ const ListWrapper = styled.div`
   position: relative;
 `
 
-const MenuFlyoutBrowserStyle = css`
-  min-width: unset;
-  right: -8px;
-  width: 230px;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: unset;
-    bottom: 3.5rem;
-  `};
-`
-
-const MenuFlyoutMobileStyle = css`
-  overflow-y: scroll;
-`
+const MENU_FLYOUT_BROWSER_CLASS = '!min-w-0 !right-[-8px] !w-[230px] max-lg:!top-auto max-lg:!bottom-14'
+const MENU_FLYOUT_MOBILE_CLASS = 'overflow-y-scroll'
 
 const ClaimRewardButton = styled(ButtonPrimary)`
   margin-top: 10px;
@@ -279,8 +268,8 @@ export default function Menu() {
             <MenuIcon width={18} height={18} />
           </StyledMenuButton>
         }
-        customStyle={MenuFlyoutBrowserStyle}
-        mobileCustomStyle={MenuFlyoutMobileStyle}
+        className={MENU_FLYOUT_BROWSER_CLASS}
+        mobileClassName={MENU_FLYOUT_MOBILE_CLASS}
         isOpen={open}
         toggle={toggle}
         hasArrow

@@ -1,10 +1,7 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { transparentize } from 'polished'
 import { useCallback, useEffect } from 'react'
 import { AlertTriangle, ArrowLeft } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Card from 'components/Card'
@@ -19,37 +16,6 @@ import { ExternalLinkIcon } from 'theme/components'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { PaddedColumn } from './styleds'
-
-const Wrapper = styled.div`
-  position: relative;
-  width: 100%;
-  overflow: auto;
-`
-
-const WarningWrapper = styled(Card)`
-  background-color: ${({ theme }) => transparentize(0.8, theme.warning)};
-  width: fit-content;
-`
-
-const SectionBreak = styled.div`
-  height: 1px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.bg3};
-`
-
-const AddressText = styled.div`
-  font-size: 12px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 10px;
-`}
-`
-
-const DescText = styled.div`
-  font-size: 14px;
-  color: ${({ theme }) => theme.warning};
-  font-weight: 500;
-  margin-left: 8px;
-`
 
 interface ImportProps {
   enterToImport?: boolean
@@ -83,7 +49,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
   }, [onClickImport, enterToImport])
 
   return (
-    <Wrapper>
+    <div className="relative w-full overflow-auto">
       <PaddedColumn gap="14px" style={{ width: '100%', flex: '1 1' }}>
         <RowBetween>
           {onBack ? <ArrowLeft style={{ cursor: 'pointer' }} onClick={onBack} /> : <div></div>}
@@ -91,43 +57,41 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
           {onDismiss ? <CloseIcon onClick={onDismiss} /> : <div />}
         </RowBetween>
       </PaddedColumn>
-      <SectionBreak />
-      <Flex flexDirection={'column'} style={{ padding: '1rem', gap: '1rem' }}>
-        <WarningWrapper className="rounded-[20px] p-[15px]">
-          <Flex alignItems={'flex-start'}>
+      <div className="h-px w-full bg-bg3" />
+      <div className="flex flex-col gap-4 p-4">
+        <Card className="w-fit rounded-[20px] bg-warning-20 p-[15px]">
+          <div className="flex items-start">
             <div>
               <AlertTriangle stroke={theme.warning} size="17px" />
             </div>
-            <DescText>
+            <div className="ml-2 text-sm font-medium text-warning">
               <Trans>This token isn’t frequently swapped. Please do your own research before trading.</Trans>
-            </DescText>
-          </Flex>
-        </WarningWrapper>
+            </div>
+          </div>
+        </Card>
         {tokens.map(token => {
           return (
             <Card className="bg-buttonBlack p-8" key={token.address}>
-              <Flex style={{ gap: 10 }}>
+              <div className="flex gap-2.5">
                 <CurrencyLogo currency={token} size={'44px'} />
                 <AutoColumn gap="4px">
                   <TYPE.body fontWeight={500} fontSize={20}>
                     {token.symbol}
                   </TYPE.body>
-                  <Text color={theme.subText} fontWeight={400} fontSize={14}>
-                    {token.name}
-                  </Text>
-                  <Flex alignItems={'center'} color={theme.text} style={{ gap: 5 }}>
-                    <AddressText>
+                  <span className="text-sm font-normal text-subText">{token.name}</span>
+                  <div className="flex items-center gap-[5px] text-text">
+                    <div className="text-[10px] sm:text-xs">
                       <Trans>Address</Trans>: {shortenAddress(token.chainId, token.address, 7)}
-                    </AddressText>
+                    </div>
                     <CopyHelper toCopy={token.address} style={{ color: theme.subText }} />
                     <ExternalLinkIcon
                       color={theme.subText}
                       size={16}
                       href={getEtherscanLink(token.chainId, token.address, 'address')}
                     />
-                  </Flex>
+                  </div>
                 </AutoColumn>
-              </Flex>
+              </div>
             </Card>
           )
         })}
@@ -140,7 +104,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
         >
           <Trans>I understand</Trans>
         </ButtonPrimary>
-      </Flex>
-    </Wrapper>
+      </div>
+    </div>
   )
 }
