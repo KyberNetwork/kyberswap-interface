@@ -3,7 +3,6 @@ import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
 
 import { ButtonAction } from 'components/Button'
@@ -84,7 +83,6 @@ export default function NetworkModal({
   const { userInfo } = useSessionInfo()
   const { trackingHandler } = useTracking()
   const [requestSaveProfile] = useUpdateProfileMutation()
-  // const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
   const [favoriteChains, setFavoriteChains] = useFavoriteChains()
 
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -190,12 +188,10 @@ export default function NetworkModal({
     return (
       <>
         <Row gap="12px">
-          <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
-            {title}
-          </Text>
+          <span className="flex-shrink-0 text-[10px] leading-6 text-subText">{title}</span>
           <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
         </Row>
-        <div style={{ position: 'relative', marginBottom: '12px', flexGrow: 1 }}>
+        <div className="relative mb-3 flex-grow">
           <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
           {displayChains.length === 0 ? (
             <Row
@@ -205,16 +201,13 @@ export default function NetworkModal({
               justify="center"
               minHeight="60px"
             >
-              <Text fontSize="10px" lineHeight="14px" color={theme.subText}>
+              <span className="text-[10px] leading-[14px] text-subText">
                 <Trans>Drag here to unfavorite chain(s).</Trans>
-              </Text>
+              </span>
             </Row>
           ) : (
             <NetworkList data-testid="network-list">
-              <>
-                {/*Hardedcode for Ethereum and BTC render first*/}
-                {displayChains.map(renderNetworkButton)}
-              </>
+              <>{displayChains.map(renderNetworkButton)}</>
             </NetworkList>
           )}
           {isWrongNetwork && (
@@ -241,10 +234,10 @@ export default function NetworkModal({
     >
       <Wrapper ref={wrapperRef}>
         <RowBetween alignItems="center">
-          <Text fontWeight="500" fontSize={20}>
+          <span className="text-xl font-medium">
             {isWrongNetwork ? <Trans>Wrong Chain</Trans> : <Trans>Select a Chain</Trans>}
-          </Text>
-          <Flex alignItems="center" sx={{ gap: '8px' }}>
+          </span>
+          <div className="flex items-center gap-2">
             <SearchInput
               value={searchText}
               placeholder={t`Search by chain name`}
@@ -258,14 +251,14 @@ export default function NetworkModal({
             <ButtonAction onClick={toggleNetworkModal}>
               <X />
             </ButtonAction>
-          </Flex>
+          </div>
         </RowBetween>
 
         <Column gap="8px" className="mt-4 grow">
           <Row gap="12px">
-            <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
+            <span className="flex-shrink-0 text-[10px] leading-6 text-subText">
               <Trans>Favorite Chain(s)</Trans>
-            </Text>
+            </span>
             <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
           </Row>
           <div ref={favoriteDropRef} id={FAVORITE_DROPZONE_ID} style={{ position: 'relative' }}>
@@ -279,9 +272,9 @@ export default function NetworkModal({
                 justify="center"
                 minHeight="60px"
               >
-                <Text fontSize="10px" lineHeight="14px" color={theme.subText}>
+                <span className="text-[10px] leading-[14px] text-subText">
                   <Trans>Drag your favourite chain(s) here</Trans>
-                </Text>
+                </span>
               </Row>
             ) : (
               <NetworkList>
@@ -291,7 +284,11 @@ export default function NetworkModal({
                       return (
                         <div
                           key="ghost"
-                          style={{ height: '60px', backgroundColor: theme.tableHeader + '80', borderRadius: '16px' }}
+                          style={{
+                            height: '60px',
+                            backgroundColor: theme.tableHeader + '80',
+                            borderRadius: '16px',
+                          }}
                         />
                       )
                     }

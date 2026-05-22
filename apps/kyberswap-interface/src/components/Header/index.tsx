@@ -1,9 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { lighten } from 'polished'
 import { Link, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
 import AboutNavGroup from 'components/Header/groups/AboutNavGroup'
@@ -16,161 +13,31 @@ import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import Menu from 'components/Menu'
 import RecapButton from 'components/Recap/RecapButton'
-import Row, { RowFixed } from 'components/Row'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
-const HeaderFrame = styled.div<{ hide?: boolean }>`
-  height: ${({ hide }) => (hide ? 0 : undefined)};
-  padding: ${({ hide }) => (hide ? 0 : '1rem')};
-  overflow: ${({ hide }) => (hide ? 'hidden' : undefined)};
-  display: grid;
-  grid-template-columns: 1fr 120px;
-  align-items: center;
-  justify-content: space-between;
-  flex-direction: row;
-  width: 100%;
-  top: 0;
-  position: relative;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  z-index: ${Z_INDEXS.HEADER};
-  ${({ theme, hide }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr;
-    padding: ${hide ? 0 : '1rem'};
-    width: calc(100%);
-    position: relative;
-  `};
+const IconImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: string; alt: string }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={cn(
+      'w-[140px] max-w-none max-sm:w-[114px] max-[500px]:w-[100px]',
+      isChristmas ? 'mt-[-9px] max-sm:-mt-0.5' : 'mt-px',
+    )}
+  />
+)
 
-  ${({ theme, hide }) => theme.mediaWidth.upToExtraSmall`
-    padding: ${hide ? 0 : '0.5 1rem'};
-    height: ${hide ? 0 : '60px'};
-  `}
-`
-
-const HeaderControls = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-self: flex-end;
-  gap: 8px;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex-direction: row;
-    justify-content: space-between;
-    justify-self: center;
-    padding: 1rem;
-    position: fixed;
-    bottom: 0px;
-    left: 0px;
-    width: 100%;
-    z-index: 98;
-    height: 72px;
-    background-color: ${({ theme }) => theme.buttonBlack};
-  `};
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-      height: 60px;
-  `};
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      padding: 1rem 8px;
-  `};
-`
-
-const HeaderElement = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    align-items: center;
-    width: 100%;
-    justify-content: space-between;
-  `};
-`
-
-const HeaderElementWrap = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0px 6px;
-  border-radius: 36px;
-  background-color: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.subText};
-  :hover,
-  :focus {
-    background-color: ${({ theme }) => lighten(0.05, theme.background)};
-    border: 1px solid ${({ theme }) => theme.primary};
-  }
-`
-
-const HeaderRow = styled(RowFixed)`
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-   width: 100%;
-  `};
-`
-
-const HeaderLinks = styled(Row)`
-  gap: 4px;
-  justify-content: center;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    justify-content: flex-end;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-     gap: 0px;
-  `}
-`
-
-const IconImage = styled.img<{ isChristmas?: boolean }>`
-  width: 140px;
-  margin-top: ${({ isChristmas }) => (isChristmas ? '-9px' : '1px')};
-
-  ${({ theme, isChristmas }) => theme.mediaWidth.upToSmall`
-    width: 114px;
-    margin-top: ${isChristmas ? '-2px' : '1px'};
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width:100px;
-  `}
-`
-
-const Title = styled(Link)`
-  display: flex;
-  align-items: center;
-  pointer-events: auto;
-  justify-self: flex-start;
-  margin-right: 12px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    justify-self: center;
-  `};
-  :hover {
-    cursor: pointer;
-  }
-`
-
-const LogoIcon = styled.div`
-  transition: transform 0.3s ease;
-
-  :hover {
-    transform: rotate(-5deg);
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    :hover {
-      transform: rotate(0);
-    }
-  `}
-`
+const LogoIcon = ({ children }: { children: React.ReactNode }) => (
+  <div className="transition-transform duration-300 hover:rotate-[-5deg] max-[500px]:hover:rotate-0">{children}</div>
+)
 
 export default function Header() {
   const { networkInfo } = useActiveWeb3React()
   const [holidayMode] = useHolidayMode()
-  const theme = useTheme()
   const { pathname } = useLocation()
   const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
 
@@ -179,23 +46,38 @@ export default function Header() {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
+  const hide = isPartnerSwap && upToLarge
+
   const menu = (
-    <HeaderElementWrap>
+    <div className="flex items-center gap-2 rounded-[36px] border border-background bg-background px-1.5 text-subText hover:border-primary hover:brightness-105 focus:border-primary focus:brightness-105">
       <Announcement />
-      <div style={{ height: '18px', borderLeft: `2px solid ${theme.subText}` }} />
+      <div style={{ height: '18px', borderLeft: '2px solid var(--ks-subText)' }} />
       <Menu />
-    </HeaderElementWrap>
+    </div>
   )
 
   return (
-    <HeaderFrame hide={isPartnerSwap && upToLarge}>
-      <HeaderRow>
+    <div
+      style={{ zIndex: Z_INDEXS.HEADER }}
+      className={cn(
+        'border-black/10 relative top-0 grid w-full items-center justify-between border-b',
+        'grid-cols-[1fr_120px] flex-row p-4',
+        'max-lg:grid-cols-[1fr]',
+        'max-[500px]:px-4 max-[500px]:py-2',
+        hide && '!h-0 !overflow-hidden !p-0',
+        hide ? 'max-[500px]:!h-0' : 'max-[500px]:h-[60px]',
+      )}
+    >
+      <div className="flex flex-row flex-nowrap items-center max-md:w-full md:max-md:w-full">
         {isPartnerSwap ? (
           <LogoIcon>
             <IconImage src={'/logo-dark.svg'} alt="logo" />
           </LogoIcon>
         ) : (
-          <Title to={`${APP_PATHS.SWAP}/${networkInfo.route}`}>
+          <Link
+            to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
+            className="mr-3 flex cursor-pointer items-center justify-self-start hover:cursor-pointer max-sm:justify-self-center"
+          >
             {holidayMode ? (
               <LogoIcon>
                 <IconImage isChristmas src={'/christmas-logo-dark.svg?'} alt="logo" />
@@ -205,10 +87,10 @@ export default function Header() {
                 <IconImage src={'/logo-dark.svg'} alt="logo" />
               </LogoIcon>
             )}
-          </Title>
+          </Link>
         )}
         {!isPartnerSwap && (
-          <HeaderLinks>
+          <div className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end max-xxs:gap-0">
             <SwapNavGroup />
             <EarnNavGroup />
 
@@ -226,40 +108,48 @@ export default function Header() {
             )}
             <AboutNavGroup />
             <RecapButton />
-          </HeaderLinks>
+          </div>
         )}
-      </HeaderRow>
+      </div>
 
-      <HeaderControls>
+      <div
+        className={cn(
+          'flex flex-row items-center gap-2 justify-self-end',
+          'max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:z-[98] max-lg:h-[72px] max-lg:w-full',
+          'max-lg:justify-between max-lg:justify-self-center max-lg:bg-buttonBlack max-lg:p-4',
+          'max-sm:h-[60px]',
+          'max-[500px]:px-2 max-[500px]:py-4',
+        )}
+      >
         {isPartnerSwap ? (
-          <Flex justifyContent="space-between" width="100%">
+          <div className="flex w-full justify-between">
             {upToLarge && (
               <LogoIcon>
                 <IconImage src={'/logo-dark.svg'} alt="logo" />
               </LogoIcon>
             )}
 
-            <Flex sx={{ gap: '1rem' }} height="42px">
+            <div className="flex h-[42px] gap-4">
               <SelectNetwork />
               <SelectWallet />
-            </Flex>
-          </Flex>
+            </div>
+          </div>
         ) : upToXXSmall ? (
-          <HeaderElement>
+          <div className="flex w-full items-center justify-between gap-2">
             <SelectNetwork />
             <SelectWallet />
             {menu}
-          </HeaderElement>
+          </div>
         ) : (
           <>
-            <HeaderElement style={{ justifyContent: 'flex-start' }}>
+            <div className="flex items-center justify-start gap-2">
               <SelectNetwork />
               <SelectWallet />
-            </HeaderElement>
-            <HeaderElement style={{ justifyContent: 'flex-end' }}>{menu}</HeaderElement>
+            </div>
+            <div className="flex items-center justify-end gap-2">{menu}</div>
           </>
         )}
-      </HeaderControls>
-    </HeaderFrame>
+      </div>
+    </div>
   )
 }

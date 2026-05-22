@@ -1,122 +1,67 @@
-import { darken } from 'polished'
 import { CSSProperties, forwardRef } from 'react'
 import { NavLink as BaseNavLink, NavLinkProps } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
 import { ExternalLink } from 'theme/components'
-
-const activeClassName = 'ACTIVE'
+import { cn } from 'utils/cn'
 
 interface Props extends NavLinkProps {
-  activeClassName?: string
   activeStyle?: CSSProperties
   $disabled?: boolean
   customActive?: boolean
   isCustomActive?: boolean
 }
-// fix warning of activeClassName: https://reactrouter.com/en/6.4.5/upgrading/v5#remove-activeclassname-and-activestyle-props-from-navlink-
-const NavLink = forwardRef(
-  ({ activeClassName, activeStyle, customActive, isCustomActive, ...props }: Props, ref: any) => {
-    return (
-      <BaseNavLink
-        ref={ref}
-        {...props}
-        className={({ isActive }) =>
-          [props.className, (customActive ? isCustomActive : isActive) ? activeClassName : null]
-            .filter(Boolean)
-            .join(' ')
-        }
-        style={({ isActive }) => ({
-          ...props.style,
-          ...((customActive ? isCustomActive : isActive) ? activeStyle : null),
-        })}
-      />
-    )
-  },
+
+// Base link styles shared by StyledNavLink and StyledNavExternalLink.
+const LINK_BASE_CLASS =
+  'inline-flex w-fit flex-row flex-nowrap items-start rounded-[3rem] px-3 py-2 text-base font-medium text-subText no-underline outline-none cursor-pointer max-sm:px-1.5'
+
+const ACTIVE_CLASS = 'rounded-xl font-semibold !text-primary'
+
+// react-router v6 removed activeClassName/activeStyle from NavLink; we recreate it via the className function form.
+export const StyledNavLink = forwardRef<HTMLAnchorElement, Props>(
+  ({ activeStyle, customActive, isCustomActive, $disabled, className, style, ...props }, ref) => (
+    <BaseNavLink
+      ref={ref}
+      {...props}
+      className={({ isActive }) =>
+        cn(
+          LINK_BASE_CLASS,
+          'hover:brightness-90',
+          (customActive ? isCustomActive : isActive) && ACTIVE_CLASS,
+          $disabled && 'pointer-events-none !text-border',
+          className as string | undefined,
+        )
+      }
+      style={({ isActive }) => ({
+        ...style,
+        ...((customActive ? isCustomActive : isActive) ? activeStyle : null),
+      })}
+    />
+  ),
+)
+StyledNavLink.displayName = 'StyledNavLink'
+
+type ExternalLinkProps = React.ComponentProps<typeof ExternalLink> & {
+  customActive?: boolean
+  isCustomActive?: boolean
+}
+
+export const StyledNavExternalLink = ({ className, customActive, isCustomActive, ...props }: ExternalLinkProps) => (
+  <ExternalLink
+    {...props}
+    className={cn(
+      LINK_BASE_CLASS,
+      'hover:!no-underline hover:brightness-90 focus:!text-subText focus:!no-underline',
+      'max-xxs:!hidden',
+      (customActive ? isCustomActive : false) && 'rounded-xl font-semibold',
+      className,
+    )}
+  />
 )
 
-NavLink.displayName = 'NavLink'
-
-export const StyledNavLink = styled(NavLink).attrs({
-  activeClassName,
-})<{ $disabled?: boolean }>`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: left;
-  border-radius: 3rem;
-  padding: 8px 12px;
-  outline: none;
-  cursor: pointer;
-  text-decoration: none;
-  color: ${({ theme }) => theme.subText};
-  font-size: 1rem;
-  width: fit-content;
-  font-weight: 500;
-
-  &.${activeClassName} {
-    border-radius: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.primary};
-  }
-
-  :hover {
-    color: ${({ theme }) => darken(0.1, theme.primary)};
-  }
-
-  ${({ theme, $disabled }) =>
-    $disabled &&
-    css`
-      pointer-events: none;
-      color: ${theme.border};
-    `};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 8px 6px;
-  `}
-`
-
-export const StyledNavExternalLink = styled(ExternalLink).attrs({
-  activeClassName,
-})`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: left;
-  border-radius: 3rem;
-  outline: none;
-  cursor: pointer;
-  text-decoration: none;
-  color: ${({ theme }) => theme.subText};
-  font-size: 1rem;
-  width: fit-content;
-  padding: 8px 12px;
-  font-weight: 500;
-
-  &.${activeClassName} {
-    border-radius: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.subText};
-  }
-
-  :hover {
-    color: ${({ theme }) => darken(0.1, theme.primary)};
-    text-decoration: none;
-  }
-
-  :focus {
-    color: ${({ theme }) => theme.subText};
-    text-decoration: none;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      display: none;
-  `}
-`
-
-export const DropdownTextAnchor = styled.div`
-  display: inline-block;
-  width: fit-content;
-  padding: 8px 6px;
-  padding-right: 0px;
-
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-`
+export const DropdownTextAnchor = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('inline-block w-fit cursor-pointer px-1.5 py-2 pr-0 text-base font-medium', className)}
+    {...props}
+  />
+)

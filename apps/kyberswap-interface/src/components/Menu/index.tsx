@@ -4,8 +4,6 @@ import { isMobile } from 'react-device-detect'
 import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart, X } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
@@ -42,147 +40,73 @@ import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useHolidayMode, useUserLocale } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isChristmasTime } from 'utils'
+import { cn } from 'utils/cn'
 
 import ClaimRewardModal from './ClaimRewardModal'
 import FaucetModal from './FaucetModal'
 import NavDropDown from './NavDropDown'
 
-const MenuItem = styled.li`
-  flex: 1;
-  padding: 0.75rem 0;
-  text-decoration: none;
-  display: flex;
-  font-weight: 500;
-  white-space: nowrap;
-  align-items: center;
-  color: ${({ theme }) => theme.subText};
-  font-size: 15px;
+// Base style for each menu list item — color/font, hover, embedded icon spacing.
+const MENU_ITEM_CLASS = cn(
+  'flex flex-1 items-center whitespace-nowrap py-3 text-[15px] font-medium text-subText no-underline',
+  '[&_svg]:mr-2 [&_svg]:size-4',
+  '[&_a]:flex [&_a]:items-center [&_a]:text-subText hover:[&_a]:text-text hover:[&_a]:no-underline',
+)
 
-  svg {
-    margin-right: 8px;
-    height: 16px;
-    width: 16px;
-  }
+const MenuItem = ({
+  children,
+  onClick,
+  id,
+  style,
+  className,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  id?: string
+  style?: React.CSSProperties
+  className?: string
+}) => (
+  <li id={id} onClick={onClick} style={style} className={cn(MENU_ITEM_CLASS, className)}>
+    {children}
+  </li>
+)
 
-  a {
-    color: ${({ theme }) => theme.subText};
-    display: flex;
-    align-items: center;
-    :hover {
-      text-decoration: none;
-      color: ${({ theme }) => theme.text};
-    }
-  }
-`
-
-const NavLinkBetween = styled(MenuItem)`
-  justify-content: space-between;
-  position: unset !important;
-  max-height: 40px;
-  cursor: pointer;
-  svg {
-    margin: 0;
-    width: unset;
-    height: unset;
-  }
-`
-
-const StyledMenuButton = styled.button<{ active?: boolean }>`
-  border: none;
-  background-color: transparent;
-  margin: 0;
-  padding: 0;
-  height: 40px;
-  width: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.subText};
-
-  border-radius: 999px;
-
-  :hover {
-    cursor: pointer;
-    outline: none;
-  }
-
-  ${({ active }) =>
-    active &&
-    css`
-      cursor: pointer;
-      outline: none;
-      color: ${({ theme }) => theme.text};
-    `}
-`
-
-const StyledMenu = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  border: none;
-  text-align: left;
-`
-
-const ListWrapper = styled.div`
-  max-height: calc(100vh - 150px);
-  overflow-y: scroll;
-  position: relative;
-`
+const NavLinkBetween = ({
+  children,
+  onClick,
+  id,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  id?: string
+}) => (
+  <li
+    id={id}
+    onClick={onClick}
+    className={cn(
+      MENU_ITEM_CLASS,
+      '!static max-h-10 cursor-pointer justify-between',
+      '[&_svg]:m-0 [&_svg]:!h-auto [&_svg]:!w-auto',
+    )}
+  >
+    {children}
+  </li>
+)
 
 const MENU_FLYOUT_BROWSER_CLASS = '!min-w-0 !right-[-8px] !w-[230px] max-lg:!top-auto max-lg:!bottom-14'
 const MENU_FLYOUT_MOBILE_CLASS = 'overflow-y-scroll'
 
-const ClaimRewardButton = styled(ButtonPrimary)`
-  margin-top: 10px;
-  padding: 11px;
-  font-size: 14px;
-  width: max-content;
-  ${!isMobile &&
-  css`
-    margin-left: auto;
-    margin-right: auto;
-  `}
-`
+export const NewLabel = ({ isNew, children }: { isNew?: boolean; children: React.ReactNode }) => (
+  <span className={cn('ml-1 text-[10px]', isNew ? 'text-red' : 'text-subText')}>{children}</span>
+)
 
-export const NewLabel = styled.span<{ isNew?: boolean }>`
-  font-size: 10px;
-  margin-left: 4px;
-  color: ${({ theme, isNew }) => (isNew ? theme.red : theme.subText)};
-`
+const Divider = () => <div className="my-2.5 border-t border-border" />
 
-const Divider = styled.div`
-  border-top: 1px solid ${({ theme }) => theme.border};
-  margin-top: 10px;
-  margin-bottom: 10px;
-`
-
-const Title = styled(MenuItem)`
-  font-weight: 500;
-  font-size: 16px;
-  color: ${({ theme }) => theme.text};
-`
-
-const ScrollEnd = styled.div<{ show: boolean }>`
-  visibility: ${({ show }) => (show ? 'initial' : 'hidden')};
-  position: sticky !important;
-  width: 100%;
-  text-align: center;
-  z-index: 2;
-  @keyframes floating {
-    from {
-      bottom: 10px;
-    }
-    to {
-      bottom: -10px;
-    }
-  }
-  animation-name: floating;
-  animation-duration: 1s;
-  animation-timing-function: ease;
-  animation-iteration-count: infinite;
-  animation-direction: alternate-reverse;
-`
+const Title = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
+  <li style={style} className={cn(MENU_ITEM_CLASS, 'text-base !text-text', '[&_svg]:mr-2 [&_svg]:size-4')}>
+    {children}
+  </li>
+)
 
 const noop = () => {}
 
@@ -236,7 +160,7 @@ export default function Menu() {
       const abortController = new AbortController()
       const onScroll = () => {
         if (abortController.signal.aborted) return
-        setShowScroll(Math.abs(wrapperNode.offsetHeight + wrapperNode.scrollTop - wrapperNode.scrollHeight) > 10) //no need to show scroll down when scrolled to last 10px
+        setShowScroll(Math.abs(wrapperNode.offsetHeight + wrapperNode.scrollTop - wrapperNode.scrollHeight) > 10)
       }
       onScroll()
       wrapperNode.addEventListener('scroll', onScroll)
@@ -251,11 +175,10 @@ export default function Menu() {
   }, [wrapperNode])
 
   return (
-    <StyledMenu>
+    <div className="relative flex items-center justify-center border-none text-left">
       <MenuFlyout
         trigger={
-          <StyledMenuButton
-            active={open}
+          <button
             onClick={() => {
               if (!open) {
                 trackingHandler(TRACKING_EVENT_TYPE.MENU_DROPDOWN_OPENED, {})
@@ -264,9 +187,13 @@ export default function Menu() {
             }}
             aria-label="Menu"
             id={TutorialIds.BUTTON_MENU_HEADER}
+            className={cn(
+              'm-0 flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 outline-none',
+              open ? 'text-text' : 'text-subText',
+            )}
           >
             <MenuIcon width={18} height={18} />
-          </StyledMenuButton>
+          </button>
         }
         className={MENU_FLYOUT_BROWSER_CLASS}
         mobileClassName={MENU_FLYOUT_MOBILE_CLASS}
@@ -288,7 +215,10 @@ export default function Menu() {
             />
           </AutoColumn>
         ) : (
-          <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
+          <div
+            ref={wrapperNode => setWrapperNode(wrapperNode)}
+            className="relative max-h-[calc(100vh-150px)] overflow-y-scroll"
+          >
             {isMobile && (
               <ButtonEmpty
                 onClick={toggle}
@@ -330,46 +260,40 @@ export default function Menu() {
                 }}
               >
                 <Faucet />
-                <Text width="max-content">
+                <span className="w-max">
                   <Trans>Faucet</Trans>
-                </Text>
+                </span>
               </MenuItem>
             )}
             {upToExtraSmall && (
               <NavLink to={APP_PATHS.MARKET_OVERVIEW}>
-                <MenuItem
-                  onClick={() => {
-                    navigate(APP_PATHS.MARKET_OVERVIEW)
-                  }}
-                >
+                <MenuItem onClick={() => navigate(APP_PATHS.MARKET_OVERVIEW)}>
                   <PieChart />
-                  <Text>
+                  <span>
                     <Trans>Market</Trans>
-                  </Text>
+                  </span>
                 </MenuItem>
               </NavLink>
             )}
 
             {upToMedium && (
-              <>
-                <MenuItem>
-                  <NavDropDown
-                    icon={<VoteIcon />}
-                    title={
-                      <Text sx={{ position: 'relative' }} width="max-content">
-                        <Trans>KyberDAO</Trans>
-                      </Text>
-                    }
-                    link={'/campaigns'}
-                    options={[
-                      { link: APP_PATHS.KYBERDAO_STAKE, label: t`Stake KNC` },
-                      { link: APP_PATHS.KYBERDAO_VOTE, label: t`Vote` },
-                      { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
-                      { link: 'https://discord.gg/cqwvAuYp3H', label: t`Feature Request`, external: true },
-                    ]}
-                  />
-                </MenuItem>
-              </>
+              <MenuItem>
+                <NavDropDown
+                  icon={<VoteIcon />}
+                  title={
+                    <span className="relative w-max">
+                      <Trans>KyberDAO</Trans>
+                    </span>
+                  }
+                  link={'/campaigns'}
+                  options={[
+                    { link: APP_PATHS.KYBERDAO_STAKE, label: t`Stake KNC` },
+                    { link: APP_PATHS.KYBERDAO_VOTE, label: t`Vote` },
+                    { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
+                    { link: 'https://discord.gg/cqwvAuYp3H', label: t`Feature Request`, external: true },
+                  ]}
+                />
+              </MenuItem>
             )}
 
             {upToXXSmall && (
@@ -377,9 +301,9 @@ export default function Menu() {
                 <NavDropDown
                   icon={<CampaignIcon />}
                   title={
-                    <Text sx={{ position: 'relative' }} width="max-content">
+                    <span className="relative w-max">
                       <Trans>Campaigns</Trans>
-                    </Text>
+                    </span>
                   }
                   link="/campaigns"
                   options={[
@@ -549,9 +473,9 @@ export default function Menu() {
               >
                 <Trans>KyberSwap Guide</Trans>
                 <Row justify="flex-end">
-                  <Text color={theme.text}>
+                  <span className="text-text">
                     <Trans>View</Trans>
-                  </Text>
+                  </span>
                   &nbsp;
                   <LightIcon color={theme.text} />
                 </Row>
@@ -598,12 +522,14 @@ export default function Menu() {
             <Divider />
 
             <AutoRow justify="center">
-              <ClaimRewardButton
+              <ButtonPrimary
                 disabled={!account || !networkInfo.classic.claimReward || pendingTx}
                 onClick={() => {
                   trackingHandler(TRACKING_EVENT_TYPE.CLAIM_REWARDS_INITIATED)
                   toggleClaimPopup()
                 }}
+                className={cn('mt-2.5 w-max text-sm', !isMobile && 'mx-auto')}
+                style={{ padding: '11px' }}
               >
                 {pendingTx ? (
                   <>
@@ -612,21 +538,22 @@ export default function Menu() {
                 ) : (
                   <Trans>Claim Rewards</Trans>
                 )}
-              </ClaimRewardButton>
+              </ButtonPrimary>
             </AutoRow>
 
-            <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign={'center'}>
-              kyberswap@{TAG}
-            </Text>
-            <ScrollEnd show={showScroll}>
+            <span className="mt-4 block text-center text-[10px] font-light text-subText">kyberswap@{TAG}</span>
+            <div
+              style={{ visibility: showScroll ? 'visible' : 'hidden' }}
+              className="sticky z-[2] w-full text-center [animation:floating_1s_ease_infinite_alternate-reverse]"
+            >
               <ChevronDown color={theme.text4} />
-            </ScrollEnd>
-          </ListWrapper>
+            </div>
+          </div>
         )}
       </MenuFlyout>
 
       <ClaimRewardModal />
       {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
-    </StyledMenu>
+    </div>
   )
 }

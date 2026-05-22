@@ -1,10 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 import { useConnect } from 'wagmi'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
@@ -25,77 +22,73 @@ import {
 } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 
 import Option from './Option'
 import { useOrderedConnections } from './useConnections'
 
-export const CloseIcon = styled.div`
-  height: 24px;
-  align-self: flex-end;
-  cursor: pointer;
-  color: ${({ theme }) => theme.text};
-  &:hover {
-    opacity: 0.6;
-  }
-`
+export const CloseIcon = ({
+  children,
+  onClick,
+  className,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  className?: string
+}) => (
+  <div onClick={onClick} className={cn('h-6 cursor-pointer self-end text-text hover:opacity-60', className)}>
+    {children}
+  </div>
+)
 
-const Wrapper = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap}
-  margin: 0;
-  padding: 0;
-  width: 100%;
-`
+export const ContentWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn('mt-4 gap-4 rounded-b-[20px]', className)}>{children}</div>
+)
 
-export const ContentWrapper = styled.div`
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  margin-top: 1rem;
-  gap: 1rem;
-`
+export const TermAndCondition = ({
+  children,
+  onClick,
+  className,
+  style,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  className?: string
+  style?: React.CSSProperties
+}) => (
+  <div
+    onClick={onClick}
+    style={style}
+    className={cn(
+      'bg-buttonBlack/30 hover:bg-buttonBlack/50 flex cursor-pointer items-center rounded-2xl p-2 text-xs font-medium leading-4 accent-primary',
+      className,
+    )}
+  >
+    {children}
+  </div>
+)
 
-export const TermAndCondition = styled.div`
-  padding: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.35)};
-  color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary : 'inherit')};
-  accent-color: ${({ theme }) => theme.primary};
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.5)};
-  }
-`
+export const UpperSection = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn('relative p-6', className)}>{children}</div>
+)
 
-export const UpperSection = styled.div`
-  position: relative;
-  padding: 24px;
-  position: relative;
-`
+export const OptionGrid = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn('grid grid-cols-2 items-center gap-4 max-sm:grid-cols-1', className)}>{children}</div>
+)
 
-export const OptionGrid = styled.div`
-  display: grid;
-  gap: 1rem;
-  align-items: center;
-  grid-template-columns: repeat(2, 1fr);
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     grid-template-columns: 1fr;
-  `}
-`
-
-const HoverText = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  font-size: 20px;
-  :hover {
-    cursor: pointer;
-  }
-`
+const HoverText = ({
+  children,
+  onClick,
+  style,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  style?: React.CSSProperties
+}) => (
+  <div onClick={onClick} style={style} className="flex cursor-pointer items-center gap-1 text-xl hover:cursor-pointer">
+    {children}
+  </div>
+)
 
 export default function WalletModal() {
   const { isWrongNetwork, account } = useActiveWeb3React()
@@ -133,12 +126,7 @@ export default function WalletModal() {
       <UpperSection>
         <RowBetween marginBottom="26px" gap="20px">
           {(isSomeOptionPending || isError) && (
-            <HoverText
-              onClick={() => {
-                reset()
-              }}
-              style={{ marginRight: '1rem', flex: 1 }}
-            >
+            <HoverText onClick={() => reset()} style={{ marginRight: '1rem', flex: 1 }}>
               <ChevronLeft color={theme.primary} />
             </HoverText>
           )}
@@ -170,7 +158,7 @@ export default function WalletModal() {
               data-testid="accept-term"
               style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
             />
-            <Text color={theme.subText}>
+            <span className="text-subText">
               <Trans>Accept </Trans>{' '}
               <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                 <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
@@ -180,10 +168,10 @@ export default function WalletModal() {
                 <Trans>Privacy Policy</Trans>
               </ExternalLink>
               {'. '}
-              <Text fontSize={10} as="span">
+              <span className="text-[10px]">
                 <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
-              </Text>
-            </Text>
+              </span>
+            </span>
           </TermAndCondition>
         )}
         <ContentWrapper>
@@ -216,20 +204,11 @@ export default function WalletModal() {
       minHeight={false}
       maxHeight={90}
       maxWidth={600}
-      bypassScrollLock={
-        true
-        //isSomeOptionPending
-        //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
-      }
-      bypassFocusLock={
-        true
-        //isSomeOptionPending
-        //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
-        // walletView === WALLET_VIEWS.PENDING && ['WALLET_CONNECT', 'KRYSTAL_WC', 'BLOCTO'].includes(pendingWalletKey)
-      }
+      bypassScrollLock={true}
+      bypassFocusLock={true}
       zindex={99999}
     >
-      <Wrapper>{getModalContent()}</Wrapper>
+      <div className="m-0 flex w-full flex-col flex-nowrap p-0">{getModalContent()}</div>
     </Modal>
   )
 }

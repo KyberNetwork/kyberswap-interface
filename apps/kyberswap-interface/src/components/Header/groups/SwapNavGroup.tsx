@@ -2,8 +2,6 @@ import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
@@ -14,16 +12,13 @@ import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
+import { cn } from 'utils/cn'
 
 import NavGroup from './NavGroup'
 
-const IconWrapper = styled.div`
-  flex: 0 0 16px;
-  display: flex;
-  width: 16px;
-  height: 16px;
-  align-items: center;
-`
+const IconWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex size-4 flex-[0_0_16px] items-center">{children}</div>
+)
 
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
@@ -45,18 +40,18 @@ const SwapNavGroup = () => {
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={upTo430 ? '160px' : '250px'}>
+        <div id={TutorialIds.BRIDGE_LINKS} className={cn('flex flex-col', upTo430 ? 'min-w-[160px]' : 'min-w-[250px]')}>
           <StyledNavLink
             id={`swapv2-nav-link`}
             to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
             style={{ flexDirection: 'column' }}
           >
-            <Flex alignItems="center" sx={{ gap: '12px' }}>
+            <div className="flex items-center gap-3">
               <IconWrapper>
                 <Repeat size={16} />
               </IconWrapper>
               <Trans>Swap</Trans>
-            </Flex>
+            </div>
           </StyledNavLink>
 
           {isSupportLimitOrder(chainId) && (
@@ -65,14 +60,14 @@ const SwapNavGroup = () => {
               to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
               style={{ flexDirection: 'column', width: '100%' }}
             >
-              <Flex alignItems="center" sx={{ gap: '12px' }}>
+              <div className="flex items-center gap-3">
                 <IconWrapper>
                   <LimitOrderIcon />
                 </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                <div className="flex flex-1 items-center justify-between">
                   <Trans>Limit Order</Trans>
-                </Flex>
-              </Flex>
+                </div>
+              </div>
             </StyledNavLink>
           )}
 
@@ -82,18 +77,18 @@ const SwapNavGroup = () => {
               to={APP_PATHS.CROSS_CHAIN}
               style={{ flexDirection: 'column', width: '100%' }}
             >
-              <Flex alignItems="center" sx={{ gap: '12px' }}>
+              <div className="flex items-center gap-3">
                 <IconWrapper>
                   <CrossChainIcon height={15} />
                 </IconWrapper>
-                <Flex>
+                <div className="flex">
                   <Trans>Cross-Chain</Trans>
                   <NewLabel isNew>New</NewLabel>
-                </Flex>
-              </Flex>
+                </div>
+              </div>
             </StyledNavLink>
           )}
-        </Flex>
+        </div>
       }
     />
   )

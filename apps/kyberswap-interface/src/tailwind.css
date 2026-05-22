@@ -609,6 +609,16 @@
     }
   }
 
+  /* Menu scroll-hint chevron bounce. */
+  @keyframes floating {
+    from {
+      bottom: 10px;
+    }
+    to {
+      bottom: -10px;
+    }
+  }
+
   /* MenuFlyout arrow on the top edge (default desktop) and bottom edge (upToLarge). */
   .ks-menu-flyout-arrow::after {
     content: '';

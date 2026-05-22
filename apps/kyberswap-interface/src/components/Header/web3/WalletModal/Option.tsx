@@ -1,6 +1,4 @@
-import { darken } from 'polished'
 import React from 'react'
-import styled, { css } from 'styled-components'
 import { Connector, useConnect } from 'wagmi'
 
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
@@ -8,96 +6,60 @@ import { useActiveWeb3React } from 'hooks'
 import { useCloseModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { useIsAcceptedTerm } from 'state/user/hooks'
+import { cn } from 'utils/cn'
 
-export const IconWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
+export const IconWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div
+    className={cn(
+      'flex items-center justify-center bg-transparent max-md:items-end',
+      '[&>img]:size-5 [&>img]:rounded [&>span]:size-5 [&>span]:rounded',
+      className,
+    )}
+  >
+    {children}
+  </div>
+)
 
-  & > img,
-  span {
-    height: 20px;
-    width: 20px;
-    border-radius: 4px;
-  }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    align-items: flex-end;
-  `};
-`
+export const HeaderText = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn('flex flex-row flex-nowrap font-medium text-subText', className)}>{children}</div>
+)
 
-export const HeaderText = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap};
-  color: ${({ theme }) => theme.subText};
-  font-weight: 500;
-`
-
-export const OptionCardClickable = styled.div<{
+type OptionCardClickableProps = React.HTMLAttributes<HTMLDivElement> & {
   connected: boolean
   installLink?: string
   isDisabled?: boolean
   overridden?: boolean
-}>`
-  height: 36px;
-  width: 100%;
-  border-radius: 18px;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  align-items: center;
-  padding: 8px 10px;
-  background-color: ${({ theme }) => theme.tableHeader};
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 14px;
+}
 
-  cursor: ${({ isDisabled, installLink, overridden }) =>
-    !isDisabled && !installLink && !overridden ? 'pointer' : 'not-allowed'};
+export const OptionCardClickable = ({
+  connected,
+  installLink,
+  isDisabled,
+  overridden,
+  className,
+  children,
+  ...props
+}: OptionCardClickableProps) => {
+  const disabled = isDisabled || installLink || overridden
+  return (
+    <div
+      {...props}
+      className={cn(
+        'flex h-9 w-full flex-row items-center gap-2 overflow-hidden whitespace-nowrap rounded-[18px] bg-tableHeader px-2.5 py-2 text-sm',
+        disabled ? 'cursor-not-allowed grayscale [&_.option-header-text]:!text-border' : 'cursor-pointer',
+        !disabled && 'hover:no-underline hover:brightness-90 [&:hover_.option-header-text]:!text-text',
+        !isDisabled && connected && '!bg-primary [&_.option-header-text]:!text-darkText',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  )
+}
 
-  ${({ isDisabled, connected, theme }) =>
-    !isDisabled && connected
-      ? `
-      background-color: ${theme.primary} !important;
-      & ${HeaderText} {
-        color: ${theme.darkText} !important;
-      }
-    `
-      : ''}
-
-  &:hover {
-    text-decoration: none;
-    ${({ installLink, isDisabled, overridden }) =>
-      installLink || isDisabled || overridden
-        ? ''
-        : css`
-            background-color: ${({ theme }) => darken(0.1, theme.tableHeader)};
-            color: ${({ theme }) => theme.text} !important;
-          `}
-  }
-
-  ${({ isDisabled, installLink, overridden, theme }) =>
-    isDisabled || installLink || overridden
-      ? `
-      filter: grayscale(100%);
-      & ${HeaderText} {
-        color: ${theme.border};
-      }
-    `
-      : ''}
-`
-
-export const OptionCardLeft = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap};
-  justify-content: center;
-  height: 100%;
-`
-
-// const StyledLink = styled(ExternalLink)`
-//   width: 100%;
-//   &:hover {
-//     text-decoration: none;
-//   }
-// `
+export const OptionCardLeft = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn('flex h-full flex-col flex-nowrap justify-center', className)}>{children}</div>
+)
 
 const Option = ({ connector }: { connector: Connector }) => {
   const [isAcceptedTerm] = useIsAcceptedTerm()
@@ -125,7 +87,7 @@ const Option = ({ connector }: { connector: Connector }) => {
 
   const isCurrentOptionPending = isSomeOptionPending && variables.connector === connector
 
-  const content = (
+  return (
     <OptionCardClickable
       role="button"
       id={`connect-${name}`}
@@ -141,51 +103,10 @@ const Option = ({ connector }: { connector: Connector }) => {
         <img src={icon} alt={'Icon'} />
       </IconWrapper>
       <OptionCardLeft>
-        <HeaderText>{name}</HeaderText>
+        <HeaderText className="option-header-text">{name}</HeaderText>
       </OptionCardLeft>
     </OptionCardClickable>
   )
-
-  if (!isAcceptedTerm) return content
-
-  // if (readyState === WalletReadyState.NotDetected) {
-  //   return (
-  //     <MouseoverTooltip
-  //       placement="bottom"
-  //       text={
-  //         <Trans>
-  //           You will need to install {wallet.name} extension/dapp before you can connect with it on KyberSwap. Get it{' '}
-  //           <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
-  //         </Trans>
-  //       }
-  //     >
-  //       {content}
-  //     </MouseoverTooltip>
-  //   )
-  // }
-  //
-  // if (isOverridden) {
-  //   return (
-  //     <MouseoverTooltip
-  //       width="fit-content"
-  //       maxWidth="500px"
-  //       text={
-  //         walletKey === 'COIN98' ? (
-  //           <Trans>
-  //             You need to enable <b>&quot;Override Wallet&quot;</b> in Coin98 settings.
-  //           </Trans>
-  //         ) : (
-  //           <C98OverrideGuide walletKey={walletKey} isOpened={false} />
-  //         )
-  //       }
-  //       placement="bottom"
-  //     >
-  //       {content}
-  //     </MouseoverTooltip>
-  //   )
-  // }
-
-  return content
 }
 
 export default React.memo(Option)
