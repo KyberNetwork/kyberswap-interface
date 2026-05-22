@@ -1,0 +1,15 @@
+.ks-quote-selector-list::-webkit-scrollbar {
+  display: unset;
+  width: 6px;
+  border-radius: 999px;
+}
+
+.ks-quote-selector-list::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.ks-quote-selector-list::-webkit-scrollbar-thumb {
+  background: rgba(169, 169, 169, 0.4);
+  border-radius: 999px;
+}

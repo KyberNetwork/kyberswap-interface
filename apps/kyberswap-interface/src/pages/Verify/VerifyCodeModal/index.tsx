@@ -3,9 +3,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { isAndroid, isIOS, isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
@@ -17,43 +15,7 @@ import useTheme from 'hooks/useTheme'
 import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
 import { useRefreshProfile } from 'state/profile/hooks'
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  width: 100%;
-`
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-`
-
-const Label = styled.span`
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-`
-
-const Input = styled.input<{ hasError: boolean }>`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 20px;
-  width: 56px;
-  height: 80px;
-  font-size: 48px;
-  outline: none;
-  color: ${({ theme, hasError }) => (hasError ? theme.red : theme.subText)};
-  border: 1px solid ${({ theme, hasError }) => (hasError ? theme.red : theme.border)};
-  text-align: center;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 28px;
-    width: 46px;
-    height: 60px;
-  `}
-`
+import { cn } from 'utils/cn'
 
 const formatTime = (secs: number) => {
   const mins = (secs / 60) | 0
@@ -147,7 +109,7 @@ export default function VerifyCodeModal({
     }
   }, [email, sendOtp, sendCodeFn])
 
-  const checkedRegisterStatus = useRef(false) // prevent spam
+  const checkedRegisterStatus = useRef(false)
   const sendEmailWhenInit = useCallback(() => {
     if (checkedRegisterStatus.current) return
     checkedRegisterStatus.current = true
@@ -200,14 +162,18 @@ export default function VerifyCodeModal({
 
   const header = (
     <RowBetween>
-      <Text color={theme.text} fontWeight={'500'} fontSize={'20'}>
+      <span className="text-xl font-medium text-text">
         {verifySuccess ? verifySuccessTitle : <Trans>Verify your email address.</Trans>}
-      </Text>
+      </span>
       <X color={theme.text} cursor="pointer" onClick={onDismiss} />
     </RowBetween>
   )
 
   const showExpiredTime = !isSendMailError && !isRateLimitError && expiredDuration > 0
+
+  const labelBaseClass = 'text-xs font-normal leading-4'
+  const inputBaseClass =
+    'rounded-[20px] bg-buttonBlack w-14 h-20 text-[48px] outline-none text-center border max-sm:text-[28px] max-sm:w-[46px] max-sm:h-[60px]'
 
   return (
     <Modal
@@ -226,36 +192,30 @@ export default function VerifyCodeModal({
           : undefined
       }
     >
-      <Wrapper>
+      <div className="flex w-full flex-col p-5">
         {verifySuccess ? (
-          <Content>
+          <div className="flex flex-col gap-[22px]">
             {header}
             {verifySuccessContent}
-          </Content>
+          </div>
         ) : (
-          <Content>
+          <div className="flex flex-col gap-[22px]">
             {header}
-            <Label style={{ color: isSendMailError || isRateLimitError ? theme.red : theme.subText }}>
+            <span className={cn(labelBaseClass, isSendMailError || isRateLimitError ? 'text-red' : 'text-subText')}>
               {isRateLimitError ? (
                 <Trans>You reached limit quota. Please try after a few minutes.</Trans>
               ) : isSendMailError ? (
                 <Trans>
-                  Failed to send a verification code to{' '}
-                  <Text as="span" color={theme.text}>
-                    {email}
-                  </Text>
-                  . Please click Resend to try again
+                  Failed to send a verification code to <span className="text-text">{email}</span>. Please click Resend
+                  to try again
                 </Trans>
               ) : (
                 <Trans>
-                  We have sent a verification code to{' '}
-                  <Text as="span" color={theme.text}>
-                    {email}
-                  </Text>
-                  . Please enter the code in the field below:
+                  We have sent a verification code to <span className="text-text">{email}</span>. Please enter the code
+                  in the field below:
                 </Trans>
               )}
-            </Label>
+            </span>
 
             <OTPInput
               containerStyle={{ justifyContent: 'space-between' }}
@@ -263,9 +223,12 @@ export default function VerifyCodeModal({
               onChange={onChangeOTP}
               numInputs={6}
               renderInput={props => (
-                <Input
+                <input
                   {...props}
-                  hasError={isVerifyMailError}
+                  className={cn(
+                    inputBaseClass,
+                    isVerifyMailError ? 'border-red text-red' : 'border-border text-subText',
+                  )}
                   placeholder="-"
                   type="number"
                   onFocus={() => {
@@ -280,7 +243,7 @@ export default function VerifyCodeModal({
             />
 
             {(showExpiredTime || canShowResend) && (
-              <Label style={{ width: '100%', textAlign: 'center' }}>
+              <span className={cn(labelBaseClass, 'w-full text-center text-subText')}>
                 {showExpiredTime && (
                   <Trans>
                     Code will expire in {formatTime(expiredDuration)}
@@ -291,12 +254,12 @@ export default function VerifyCodeModal({
                 {canShowResend && (
                   <Trans>
                     Didn&apos;t receive code?{' '}
-                    <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
+                    <span className="cursor-pointer text-primary" onClick={sendEmail}>
                       Resend
-                    </Text>
+                    </span>
                   </Trans>
                 )}
-              </Label>
+              </span>
             )}
             {isSendMailError ? (
               <ButtonPrimary height={'36px'} onClick={sendEmail}>
@@ -317,9 +280,9 @@ export default function VerifyCodeModal({
                 )}
               </ButtonPrimary>
             )}
-          </Content>
+          </div>
         )}
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

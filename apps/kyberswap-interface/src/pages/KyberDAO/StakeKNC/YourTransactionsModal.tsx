@@ -4,8 +4,6 @@ import dayjs from 'dayjs'
 import { ReactNode, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
 import CopyHelper from 'components/Copy'
@@ -28,76 +26,11 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, getTokenLogoURL } from 'utils'
 
-const Wrapper = styled.div`
-  width: 100%;
-  padding: 20px;
-`
-const gridTemplate = `5fr 3fr 3fr 3fr`
-const gridTemplateMobile = '1fr 1fr'
-const TableWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-`
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: ${gridTemplate};
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
-  border-radius: 8px 8px 0px 0px;
-  ${({ theme }) => css`
-    background-color: ${theme.background};
-  `}
+const gridCols = 'grid-cols-[5fr_3fr_3fr_3fr]'
+const gridColsMobile = 'max-sm:grid-cols-[1fr_1fr]'
+const tableCellClass =
+  'flex items-center gap-1 px-4 py-2.5 text-sm text-text [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-subText max-sm:flex-col max-sm:justify-between max-sm:px-0 max-sm:py-3 max-sm:[&>*]:flex-1'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `}
-`
-const TableHeaderItem = styled.div<{ align?: 'left' | 'right' | 'center' }>`
-  padding: 16px;
-  text-transform: uppercase;
-  font-size: 12px;
-  text-align: ${({ align }) => align};
-  ${({ theme }) => css`
-    color: ${theme.subText};
-  `}
-`
-const TableRow = styled.div`
-  height: 55px;
-  display: grid;
-  grid-template-columns: ${gridTemplate};
-  ${({ theme }) => css`
-    border-bottom: 1px solid ${theme.border};
-  `};
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: ${gridTemplateMobile};
-    height: 76px;
-  `}
-`
-const TableCell = styled.div<{ justify?: 'flex-end' | 'flex-right' | 'center' }>`
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  gap: 4px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.text};
-  justify-content: ${({ justify }) => justify};
-  svg {
-    width: 16px;
-    height: 16px;
-    color: ${({ theme }) => theme.subText};
-  }
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 12px 0;
-    &>*{
-      flex:1;
-    }
-  `}
-`
-const ButtonIcon = styled.div`
-  cursor: pointer;
-`
 const formatAmount = (amount: number) => (amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString())
 
 export default function YourTransactionsModal() {
@@ -135,10 +68,10 @@ export default function YourTransactionsModal() {
                 return (
                   <>
                     {formatAmount(amount) + ' KNC'}
-                    <Text fontSize={12} color={theme.subText}>
+                    <span className="text-xs text-subText">
                       + {((+(action.meta?.amount || 0) / proposal.vote_stats?.total_vote_count) * 100).toPrecision(3)}%
                       Power
-                    </Text>
+                    </span>
                   </>
                 )
               }
@@ -147,9 +80,9 @@ export default function YourTransactionsModal() {
                 return (
                   <>
                     {formatAmount(amount) + ' KNC'}
-                    <Text fontSize={12} color={theme.subText}>
+                    <span className="text-xs text-subText">
                       + {calculateVotingPower(action.meta?.amount?.toString() || '0')}% Power
-                    </Text>
+                    </span>
                   </>
                 )
               }
@@ -158,9 +91,9 @@ export default function YourTransactionsModal() {
                 return (
                   <>
                     {formatAmount(amount) + ' KNC'}
-                    <Text fontSize={12} color={theme.subText}>
+                    <span className="text-xs text-subText">
                       - {calculateVotingPower(action.meta?.amount?.toString() || '0')}% Power
-                    </Text>
+                    </span>
                   </>
                 )
               }
@@ -191,43 +124,48 @@ export default function YourTransactionsModal() {
   const [, setCopied] = useCopyClipboard()
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} maxHeight={750} maxWidth={800} width="70vw">
-      <Wrapper>
-        <Flex flexDirection="column" style={{ minHeight: '500px', gap: '20px' }}>
+      <div className="w-full p-5">
+        <div className="flex min-h-[500px] flex-col gap-5">
           <RowBetween>
-            <Text fontSize={20}>
+            <span className="text-xl">
               <Trans>Your transactions</Trans>
-            </Text>
-            <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleModal}>
+            </span>
+            <div className="flex cursor-pointer" role="button" onClick={toggleModal}>
               <X onClick={toggleModal} size={20} color={theme.subText} />
-            </Flex>
+            </div>
           </RowBetween>
-          <TableWrapper>
-            <TableHeader>
-              <TableHeaderItem>
+          <div className="flex flex-1 flex-col">
+            <div
+              className={`grid ${gridCols} rounded-t-lg bg-background shadow-[0px_4px_16px_rgba(0,0,0,0.08)] max-sm:hidden`}
+            >
+              <div className="p-4 text-xs uppercase text-subText">
                 <Trans>TXN HASH</Trans>
-              </TableHeaderItem>
-              <TableHeaderItem>
+              </div>
+              <div className="p-4 text-xs uppercase text-subText">
                 <Trans>Action</Trans>
-              </TableHeaderItem>
-              <TableHeaderItem>
+              </div>
+              <div className="p-4 text-xs uppercase text-subText">
                 <Trans>Local Time</Trans>
-              </TableHeaderItem>
-              <TableHeaderItem align="right">
+              </div>
+              <div className="p-4 text-right text-xs uppercase text-subText">
                 <Trans>Amount</Trans>
-              </TableHeaderItem>
-            </TableHeader>
+              </div>
+            </div>
             {formattedActions.length > 0 ? (
               !isMobile ? (
                 <>
                   {formattedActions.map((action: StakerAction & { hashText: string; description: ReactNode }) => {
                     return (
-                      <TableRow key={action.tx_hash}>
-                        <TableCell>
+                      <div
+                        className={`grid ${gridCols} ${gridColsMobile} h-[55px] border-b border-border max-sm:h-[76px]`}
+                        key={action.tx_hash}
+                      >
+                        <div className={tableCellClass}>
                           <NetworkLogo style={{ width: 16, height: 16 }} chainId={ChainId.MAINNET} />
-                          <Text>{action.hashText}</Text>
-                          <ButtonIcon onClick={() => setCopied(action.tx_hash)}>
+                          <span>{action.hashText}</span>
+                          <div className="cursor-pointer" onClick={() => setCopied(action.tx_hash)}>
                             <CopyIcon />
-                          </ButtonIcon>
+                          </div>
                           <ExternalLink
                             href={getEtherscanLink(
                               chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
@@ -237,22 +175,22 @@ export default function YourTransactionsModal() {
                           >
                             <LaunchIcon />
                           </ExternalLink>
-                        </TableCell>
-                        <TableCell>
-                          <Text>{action.type}</Text>
-                        </TableCell>
-                        <TableCell>
+                        </div>
+                        <div className={tableCellClass}>
+                          <span>{action.type}</span>
+                        </div>
+                        <div className={tableCellClass}>
                           <AutoColumn>
-                            <Text color={theme.text}>{dayjs(action.timestamp * 1000).format('DD/MM/YYYY')}</Text>
-                            <Text color={theme.subText}>{dayjs(action.timestamp * 1000).format('hh:mm:ss A')}</Text>
+                            <span className="text-text">{dayjs(action.timestamp * 1000).format('DD/MM/YYYY')}</span>
+                            <span className="text-subText">{dayjs(action.timestamp * 1000).format('hh:mm:ss A')}</span>
                           </AutoColumn>
-                        </TableCell>
-                        <TableCell>
+                        </div>
+                        <div className={tableCellClass}>
                           <AutoColumn justify="flex-end" style={{ width: '100%', color: theme.text }} gap="4px">
                             {action.description}
                           </AutoColumn>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                      </div>
                     )
                   })}
                 </>
@@ -260,8 +198,11 @@ export default function YourTransactionsModal() {
                 <>
                   {formattedActions.map((action: StakerAction & { hashText: string; description: ReactNode }) => {
                     return (
-                      <TableRow key={action.tx_hash}>
-                        <TableCell>
+                      <div
+                        className={`grid ${gridCols} ${gridColsMobile} h-[55px] border-b border-border max-sm:h-[76px]`}
+                        key={action.tx_hash}
+                      >
+                        <div className={tableCellClass}>
                           <Row gap="4px">
                             <img
                               src={`${getTokenLogoURL(KNC_ADDRESS, ChainId.MAINNET)}`}
@@ -269,44 +210,44 @@ export default function YourTransactionsModal() {
                               width="24px"
                               height="24px"
                             />
-                            <Text>{action.type}</Text>
-                            <ButtonIcon onClick={() => setCopied(action.tx_hash)}>
+                            <span>{action.type}</span>
+                            <div className="cursor-pointer" onClick={() => setCopied(action.tx_hash)}>
                               <CopyIcon />
-                            </ButtonIcon>
+                            </div>
                             <ExternalLink href={getEtherscanLink(1, action.tx_hash, 'transaction')}>
                               <LaunchIcon />
                             </ExternalLink>
                           </Row>
                           <Row gap="4px">
-                            <Text color={theme.text}>{dayjs(action.timestamp).format('MM/DD/YYYY')}</Text>
-                            <Text color={theme.subText}>{dayjs(action.timestamp).format('hh:mm:ss')}</Text>
+                            <span className="text-text">{dayjs(action.timestamp).format('MM/DD/YYYY')}</span>
+                            <span className="text-subText">{dayjs(action.timestamp).format('hh:mm:ss')}</span>
                           </Row>
-                        </TableCell>
-                        <TableCell>
+                        </div>
+                        <div className={tableCellClass}>
                           <AutoColumn justify="flex-end" style={{ width: '100%' }}>
                             {action.description}
                           </AutoColumn>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                      </div>
                     )
                   })}
                 </>
               )
             ) : (
-              <Flex alignItems="center" justifyContent="center" flex={1} flexDirection="column" style={{ gap: '10px' }}>
+              <div className="flex flex-1 flex-col items-center justify-center gap-2.5">
                 <CircleInfoIcon></CircleInfoIcon>
-                <Text>
+                <span>
                   <Trans>You have no Transaction History.</Trans>
-                </Text>
-                <Text>
+                </span>
+                <span>
                   <Trans>
                     Go to{' '}
                     <Link to="/kyberdao/stake-knc" onClick={() => toggleModal()}>
                       Stake
                     </Link>
                   </Trans>
-                </Text>
-              </Flex>
+                </span>
+              </div>
             )}
             <Pagination
               currentPage={page}
@@ -315,9 +256,9 @@ export default function YourTransactionsModal() {
               totalCount={stakerActions?.length || 0}
               haveBg={false}
             />
-          </TableWrapper>
-        </Flex>
-      </Wrapper>
+          </div>
+        </div>
+      </div>
     </Modal>
   )
 }

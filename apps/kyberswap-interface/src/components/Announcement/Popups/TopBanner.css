@@ -1,0 +1,8 @@
+@keyframes ks-top-banner-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-1 * var(--ks-marquee-shift, 0px)));
+  }
+}

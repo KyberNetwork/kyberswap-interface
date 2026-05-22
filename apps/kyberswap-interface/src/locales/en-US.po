@@ -102,6 +102,7 @@ msgstr "Cross Chain"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Increase Liquidity"
@@ -192,7 +193,6 @@ msgid "Farming rewards"
 msgstr "Farming rewards"
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
-#: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -940,7 +940,6 @@ msgstr "Est. Paymaster Gas Fee"
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-#: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
 msgid "Rewards"
 msgstr "Rewards"
@@ -968,6 +967,10 @@ msgstr "Position Back in range"
 #: src/components/Announcement/PrivateAnnoucement/InboxItemEarnPosition.tsx
 msgid "Position Out of range"
 msgstr "Position Out of range"
+
+#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+msgid "Learn more ↗"
+msgstr "Learn more ↗"
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 #: src/pages/Campaign/components/Information/info/safepal.tsx
@@ -1595,6 +1598,7 @@ msgid "CREATED | EXPIRY"
 msgstr "CREATED | EXPIRY"
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
+#: src/pages/Earns/components/PoolAprBadges.tsx
 #: src/pages/Earns/components/PoolAprInfo.tsx
 msgid "LM Reward"
 msgstr "LM Reward"
@@ -1629,6 +1633,10 @@ msgstr "Claim failed"
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Can Change Balance"
 msgstr "Can Change Balance"
+
+#: src/pages/Earns/components/ClaimAllModal/index.tsx
+msgid "Syncing your last claim with Merkl — please wait a moment."
+msgstr "Syncing your last claim with Merkl — please wait a moment."
 
 #: src/components/SwapForm/OutputCurrencyPanel.tsx
 msgid "Est. Output"
@@ -1798,6 +1806,7 @@ msgstr "Expiry reached"
 msgid "Full hash #1: 0x...B987A5F → last 4 hex digits = 7A5F"
 msgstr "Full hash #1: 0x...B987A5F → last 4 hex digits = 7A5F"
 
+#: src/pages/Earns/components/PoolRewardsInfo.tsx
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
 msgid "Bonus Rewards"
 msgstr "Bonus Rewards"
@@ -1928,6 +1937,10 @@ msgstr "Go to My Pool"
 msgid "Unable to get the market price"
 msgstr "Unable to get the market price"
 
+#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+msgid "At execution, KyberSwap compares candidate pools on-chain in real time and picks the one that delivers the highest output - giving your swap the best possible rate with an extra layer of protection from slippage, PropAMM manipulation, Just-in-Time attacks and MEVs. <0>Your minimum amount out is always guaranteed.</0> No extra steps needed."
+msgstr "At execution, KyberSwap compares candidate pools on-chain in real time and picks the one that delivers the highest output - giving your swap the best possible rate with an extra layer of protection from slippage, PropAMM manipulation, Just-in-Time attacks and MEVs. <0>Your minimum amount out is always guaranteed.</0> No extra steps needed."
+
 #: src/components/Menu/FaucetModal.tsx
 #: src/components/Menu/index.tsx
 msgid "Faucet"
@@ -2035,6 +2048,10 @@ msgstr "<0>9,000 ARB</0> is allocated for this campaign each week."
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "Estimated network fee for your transaction."
 msgstr "Estimated network fee for your transaction."
+
+#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+msgid "Limited on-chain activity in the past 24h - price may not reflect tradable rates"
+msgstr "Limited on-chain activity in the past 24h - price may not reflect tradable rates"
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Yes. We only count the first 50 eligible hashes per wallet."
@@ -2323,6 +2340,10 @@ msgstr "Stake liquidity into farm"
 msgid "LP Tokens Removed"
 msgstr "LP Tokens Removed"
 
+#: src/pages/Earns/components/ClaimAllModal/index.tsx
+msgid "Syncing"
+msgstr "Syncing"
+
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Your Staked KNC"
@@ -2482,7 +2503,6 @@ msgstr "Top 100 pools that have the high total earned fee in the last 7 days"
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
-#: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -2775,8 +2795,8 @@ msgid "1H"
 msgstr "1H"
 
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-msgid "Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range"
-msgstr "Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range"
+#~ msgid "Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range"
+#~ msgstr "Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range"
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "The campaign takes place on 6 chains: Ethereum, BNB Chain, Base, Arbitrum, Polygon, Avalanche."
@@ -3441,8 +3461,8 @@ msgstr "Users that perform swaps with <0>KyberSwap.com</0> website directly will
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-msgid "EG Sharing"
-msgstr "EG Sharing"
+#~ msgid "EG Sharing"
+#~ msgstr "EG Sharing"
 
 #: src/pages/Earns/components/SmartExit/Warning.tsx
 msgid "Max fee is capped at 100% for safety."
@@ -3701,7 +3721,6 @@ msgstr "Guest"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/ZapCreatePool/CreatePoolModal.tsx
-#: src/pages/Earns/PositionDetail/InformationTab.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
 
@@ -4009,7 +4028,6 @@ msgid "After the campaign period ends, KyberSwap will determine results using a 
 msgstr "After the campaign period ends, KyberSwap will determine results using a <0>fully transparent, on-chain verifiable computation</0>."
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
-#: src/pages/Earns/components/MerklAprInfo.tsx
 msgid "Bonus"
 msgstr "Bonus"
 
@@ -4229,8 +4247,8 @@ msgstr "KyberSwap reserves the right to disqualify any address found to engage i
 
 #: src/pages/Earns/PoolExplorer/DesktopTableRow.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
-msgid "Not available for this pool"
-msgstr "Not available for this pool"
+#~ msgid "Not available for this pool"
+#~ msgstr "Not available for this pool"
 
 #: src/pages/Campaign/timelines.tsx
 msgid "<0>Week 5</0> Aug 05 - Aug 11"
@@ -4575,8 +4593,8 @@ msgstr "Your passcode or Import Token is invalid"
 
 #: src/components/swapv2/TokenInfo/index.tsx
 #: src/components/swapv2/TokenInfo/index.tsx
-msgid "Powered by <0/>"
-msgstr "Powered by <0/>"
+#~ msgid "Powered by <0/>"
+#~ msgstr "Powered by <0/>"
 
 #: src/components/WalletPopup/WalletView.tsx
 msgid "Disconnect wallet"
@@ -5008,6 +5026,10 @@ msgstr "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
 #: src/components/Menu/index.tsx
 msgid "Holiday Mode"
 msgstr "Holiday Mode"
+
+#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+msgid "Smart Settlement"
+msgstr "Smart Settlement"
 
 #: src/pages/Campaign/components/Leaderboard/index.tsx
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
@@ -6455,6 +6477,7 @@ msgstr "KYBER DAO"
 msgid "Sound"
 msgstr "Sound"
 
+#: src/components/swapv2/TokenInfo/index.tsx
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Powered by"
 msgstr "Powered by"
@@ -7099,7 +7122,9 @@ msgstr "Remove failed"
 msgid "Market Overview"
 msgstr "Market Overview"
 
+#: src/pages/Earns/components/PoolAprBadges.tsx
 #: src/pages/Earns/components/PoolAprInfo.tsx
+#: src/pages/Earns/components/PoolRewardsInfo.tsx
 msgid "FairFlow EG Rewards"
 msgstr "FairFlow EG Rewards"
 
@@ -7358,8 +7383,8 @@ msgid "I pay"
 msgstr "I pay"
 
 #: src/pages/Earns/PoolExplorer/DesktopTableRow.tsx
-msgid "Add liquidity with price range:"
-msgstr "Add liquidity with price range:"
+#~ msgid "Add liquidity with price range:"
+#~ msgstr "Add liquidity with price range:"
 
 #: src/pages/MyPool/index.tsx
 msgid "Here you can view all your liquidity and staked balances in the Classic Pools."
@@ -7571,6 +7596,10 @@ msgstr "Expires In"
 #: src/pages/ElasticSnapshot/components/InstantClaim.tsx
 msgid "Available assets for claiming"
 msgstr "Available assets for claiming"
+
+#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+msgid "Not enough on-chain activity to display a reliable price chart for this token"
+msgstr "Not enough on-chain activity to display a reliable price chart for this token"
 
 #: src/components/Menu/index.tsx
 msgid "Icons"
@@ -8024,8 +8053,8 @@ msgid "Add liquidity for a token pair and earn fees on the trades that are in yo
 msgstr "Add liquidity for a token pair and earn fees on the trades that are in your selected price range."
 
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-msgid "The estimated amount of <0>Equilibrium Gain</0> rewards that would be shared with liquidity providers during the selected time range"
-msgstr "The estimated amount of <0>Equilibrium Gain</0> rewards that would be shared with liquidity providers during the selected time range"
+#~ msgid "The estimated amount of <0>Equilibrium Gain</0> rewards that would be shared with liquidity providers during the selected time range"
+#~ msgstr "The estimated amount of <0>Equilibrium Gain</0> rewards that would be shared with liquidity providers during the selected time range"
 
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 msgid "You are delegating your voting power to this address. Your stake balance will remain the same. The delegated address will be responsible for the transaction fee The delegated wallet will be able to vote from the <0>next epoch</0> onward"
@@ -8517,8 +8546,8 @@ msgstr "You must connect wallet and fill an email first"
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-msgid "Max APR"
-msgstr "Max APR"
+#~ msgid "Max APR"
+#~ msgstr "Max APR"
 
 #: src/pages/Campaign/timelines.tsx
 msgid "<0>Week 2</0> Jul 28 - Aug 03"

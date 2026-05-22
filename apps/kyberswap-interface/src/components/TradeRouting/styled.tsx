@@ -1,300 +1,181 @@
-import styled, { css } from 'styled-components'
+import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, forwardRef } from 'react'
 
-const fadeOverlayBase = css`
-  content: '';
-  position: absolute;
-  display: block;
-  pointer-events: none;
-  opacity: 0;
-`
+import { cn } from 'utils/cn'
 
-const tradeRoutePoolItemStyles = css`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  border-radius: 12px;
-  color: ${({ theme }) => theme.subText};
-  font-size: 10px;
-  line-height: 20px;
-  white-space: nowrap;
-  text-decoration: none;
+import './styled.css'
 
-  & > .img--sm {
-    width: 14px;
-    height: 14px;
-    margin-right: 4px;
-  }
-`
+type RoutingFadeYProps = HTMLAttributes<HTMLDivElement> & { backgroundColor?: string }
 
-export const RoutingFadeY = styled.div<{ backgroundColor?: string }>`
-  position: relative;
-  min-height: 0;
-  overflow: hidden;
+export const RoutingFadeY = forwardRef<HTMLDivElement, RoutingFadeYProps>(
+  ({ className, backgroundColor, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('ks-trade-routing-fade-y relative min-h-0 overflow-hidden', className)}
+      style={{ ...(backgroundColor ? ({ '--ks-tr-bg': backgroundColor } as CSSProperties) : {}), ...style }}
+      {...rest}
+    />
+  ),
+)
+RoutingFadeY.displayName = 'RoutingFadeY'
 
-  &:before,
-  &:after {
-    ${fadeOverlayBase};
-    left: 50%;
-    z-index: 3;
-    width: 100%;
-    height: 50px;
-    transform: translateX(-50%);
-    transition: all 0.2s ease;
-  }
+export const RoutingViewport = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('ks-trade-routing-viewport ml-0 max-h-full max-w-full flex-1', className)} {...rest} />
+  ),
+)
+RoutingViewport.displayName = 'RoutingViewport'
 
-  &:before {
-    top: 0;
-    background: linear-gradient(to bottom, ${({ backgroundColor }) => backgroundColor}, transparent);
-  }
+export const PairRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('relative flex items-center justify-between pt-3', className)} {...rest} />
+))
+PairRow.displayName = 'PairRow'
 
-  &:after {
-    bottom: 0;
-    background: linear-gradient(to top, ${({ backgroundColor }) => backgroundColor}, transparent);
-  }
+export const PairTokenSlot = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex min-h-[38px] w-max min-w-[100px] items-center justify-between whitespace-nowrap rounded-lg text-base font-medium max-sm:min-w-[120px]',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+PairTokenSlot.displayName = 'PairTokenSlot'
 
-  &.top:before,
-  &.bottom:after {
-    opacity: 1;
-  }
-`
+type TokenLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  reverse?: boolean
+  as?: 'a' | 'div'
+}
 
-export const RoutingViewport = styled.div`
-  flex: 1;
-  margin-left: 0;
-  max-width: 100%;
-  max-height: 100%;
-  overflow-x: hidden;
-  overflow-y: scroll;
+export const TokenLink = forwardRef<HTMLAnchorElement, TokenLinkProps>(
+  ({ className, reverse, as: As = 'a', ...rest }, ref) => {
+    const cls = cn(
+      'flex w-full items-center whitespace-nowrap pb-2 text-subText no-underline [&>span]:mx-1',
+      reverse && 'flex-row-reverse justify-start',
+      className,
+    )
+    if (As === 'div') {
+      const { href: _href, ...divRest } = rest
+      return (
+        <div
+          ref={ref as unknown as React.Ref<HTMLDivElement>}
+          className={cls}
+          {...(divRest as HTMLAttributes<HTMLDivElement>)}
+        />
+      )
+    }
+    return <a ref={ref} className={cls} {...rest} />
+  },
+)
+TokenLink.displayName = 'TokenLink'
 
-  &::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
-  }
+export const RouteList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('ks-trade-routing-list relative m-auto w-full px-2.5 pt-5', className)} {...rest} />
+))
+RouteList.displayName = 'RouteList'
 
-  &::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 999px;
-  }
+type RouteDotProps = HTMLAttributes<HTMLElement> & { out?: boolean }
 
-  &:hover::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.border};
-    border-radius: 999px;
-  }
+export const RouteDot = forwardRef<HTMLElement, RouteDotProps>(({ className, out, ...rest }, ref) => (
+  <i
+    ref={ref}
+    className={cn(
+      'absolute top-0 z-[1] inline-block size-2 rounded-full bg-primary',
+      out ? 'right-[6.5px]' : 'left-[6.5px]',
+      className,
+    )}
+    {...rest}
+  />
+))
+RouteDot.displayName = 'RouteDot'
 
-  &::-webkit-scrollbar-track-piece {
-    background: transparent;
-  }
-`
+export const RouteRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('ks-trade-routing-row relative flex items-center justify-end', className)} {...rest} />
+))
+RouteRow.displayName = 'RouteRow'
 
-export const PairRow = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 12px;
-`
+export const RouteBadge = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'absolute left-2 top-[calc(50%-15px)] z-[2] translate-y-1/2 bg-buttonBlack px-1 text-xs font-bold leading-[14px] text-primary',
+      className,
+    )}
+    {...rest}
+  />
+))
+RouteBadge.displayName = 'RouteBadge'
 
-export const PairTokenSlot = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: max-content;
-  min-width: 100px;
-  min-height: 38px;
-  border-radius: 0.5rem;
-  white-space: nowrap;
-  font-size: 16px;
-  font-weight: 500;
+export const RouteConnector = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('absolute left-0 w-full border-b border-buttonGray', className)} {...rest} />
+  ),
+)
+RouteConnector.displayName = 'RouteConnector'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    min-width: 120px;
-  `}
-`
+type RoutingFadeXProps = HTMLAttributes<HTMLDivElement> & { backgroundColor?: string }
 
-export const TokenLink = styled.a<{ reverse?: boolean }>`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding-bottom: 8px;
-  white-space: nowrap;
-  color: ${({ theme }) => theme.subText};
-  text-decoration: none;
-  ${({ reverse }) =>
-    reverse &&
-    css`
-      flex-direction: row-reverse;
-      justify-content: flex-start;
-    `}
+export const RoutingFadeX = forwardRef<HTMLDivElement, RoutingFadeXProps>(
+  ({ className, backgroundColor, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('ks-trade-routing-fade-x my-2.5 ml-1.5 w-[calc(100%-68px)]', className)}
+      style={{ ...(backgroundColor ? ({ '--ks-tr-bg': backgroundColor } as CSSProperties) : {}), ...style }}
+      {...rest}
+    />
+  ),
+)
+RoutingFadeX.displayName = 'RoutingFadeX'
 
-  & > span {
-    margin-left: 4px;
-    margin-right: 4px;
-  }
-`
+export const HopList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('z-[1] flex items-center', className)} {...rest} />
+))
+HopList.displayName = 'HopList'
 
-export const RouteList = styled.div`
-  position: relative;
-  width: 100%;
-  margin: auto;
-  padding: 20px 10px 0;
+export const HopCard = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'relative m-auto h-fit shrink-0 grow-0 basis-[168px] rounded-lg border border-buttonGray bg-buttonBlack p-3',
+      className,
+    )}
+    {...rest}
+  />
+))
+HopCard.displayName = 'HopCard'
 
-  &:before {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    display: block;
-  }
-`
+export const PoolList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('mt-1 flex flex-col gap-2 rounded-lg bg-background px-3 py-2', className)} {...rest} />
+))
+PoolList.displayName = 'PoolList'
 
-export const RouteDot = styled.i<{ out?: boolean }>`
-  position: absolute;
-  top: 0;
-  left: ${({ out }) => (out ? 'unset' : '6.5px')};
-  right: ${({ out }) => (out ? '6.5px' : 'unset')};
-  z-index: 1;
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 100%;
-  background-color: ${({ theme }) => theme.primary};
-`
+const POOL_ITEM_CLASS =
+  'flex w-full items-center whitespace-nowrap rounded-xl text-[10px] leading-5 text-subText no-underline [&>.img--sm]:mr-1 [&>.img--sm]:size-3.5'
 
-export const RouteRow = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+export const PoolLink = forwardRef<HTMLAnchorElement, AnchorHTMLAttributes<HTMLAnchorElement>>(
+  ({ className, ...rest }, ref) => (
+    <a ref={ref} className={cn(POOL_ITEM_CLASS, 'hover:text-white', className)} {...rest} />
+  ),
+)
+PoolLink.displayName = 'PoolLink'
 
-  &:before,
-  &:after {
-    content: '';
-    position: absolute;
-    display: block;
-    width: 100%;
-    height: calc(50% + 20px);
-    box-sizing: border-box;
-    pointer-events: none;
-    border-right: 1px solid ${({ theme }) => theme.buttonGray};
-    border-left: 1px solid ${({ theme }) => theme.buttonGray};
-  }
+export const PoolLabel = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(POOL_ITEM_CLASS, className)} {...rest} />
+))
+PoolLabel.displayName = 'PoolLabel'
 
-  &:before {
-    top: -20px;
-  }
+export const RouteArrow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('z-[1] flex h-6 min-w-[24px] items-center justify-center', className)} {...rest} />
+))
+RouteArrow.displayName = 'RouteArrow'
 
-  &:after {
-    bottom: -10px;
-  }
-
-  &:last-child:after {
-    display: none;
-  }
-`
-
-export const RouteBadge = styled.div`
-  position: absolute;
-  top: calc(50% - 15px);
-  left: 8px;
-  z-index: 2;
-  padding: 0 4px;
-  transform: translateY(50%);
-  background: ${({ theme }) => theme.buttonBlack};
-  color: ${({ theme }) => theme.primary};
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 14px;
-`
-
-export const RouteConnector = styled.div`
-  position: absolute;
-  left: 0px;
-  width: 100%;
-  border-bottom: 1px solid ${({ theme }) => theme.buttonGray};
-`
-
-export const RoutingFadeX = styled.div<{ backgroundColor?: string }>`
-  margin: 10px 0 10px 6px;
-  width: calc(100% - 68px);
-
-  &:after,
-  &:before {
-    ${fadeOverlayBase};
-    inset: 0 0 auto auto;
-    top: 50%;
-    z-index: 2;
-    width: 40px;
-    height: calc(100% - 20px);
-    transform: translateY(-50%);
-    transition: all 0.1s ease;
-  }
-
-  &:after {
-    left: 42px;
-    background: linear-gradient(to right, ${({ backgroundColor }) => backgroundColor}, transparent);
-  }
-
-  &:before {
-    right: 24px;
-    background: linear-gradient(to left, ${({ backgroundColor }) => backgroundColor}, transparent);
-  }
-
-  &.left-visible:after,
-  &.right-visible:before {
-    opacity: 1;
-  }
-`
-
-export const HopList = styled.div`
-  display: flex;
-  align-items: center;
-  z-index: 1;
-`
-
-export const HopCard = styled.div`
-  position: relative;
-  flex: 0 0 168px;
-  height: fit-content;
-  margin: auto;
-  padding: 12px;
-  border: 1px solid ${({ theme }) => theme.buttonGray};
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-`
-
-export const PoolList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: ${({ theme }) => theme.background};
-`
-
-export const PoolLink = styled.a`
-  ${tradeRoutePoolItemStyles};
-
-  &:hover {
-    color: ${({ theme }) => theme.white};
-  }
-`
-
-export const PoolLabel = styled.div`
-  ${tradeRoutePoolItemStyles};
-`
-
-export const RouteArrow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  z-index: 1;
-`
-
-export const ArrowHead = styled.div`
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 5px solid ${({ theme }) => theme.primary};
-`
+export const ArrowHead = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn('size-0 border-y-[5px] border-l-[5px] border-y-transparent border-l-primary', className)}
+    {...rest}
+  />
+))
+ArrowHead.displayName = 'ArrowHead'

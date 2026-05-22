@@ -1,14 +1,9 @@
 import { API_URLS, Pool, Token, ZapRouteDetail } from '@kyber/schema'
-import { rgba } from 'polished'
 import { Fragment } from 'react'
-import { Box, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as KyberLogo } from 'assets/svg/kyber/kyber_logo.svg'
 import Skeleton from 'components/Skeleton'
-import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
 import TooltipText from 'pages/Earns/PoolDetail/AddLiquidity/components/TooltipText'
 import {
   formatBpsLabel,
@@ -18,116 +13,6 @@ import {
   getZapFeePercent,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const FlowRow = styled(HStack)`
-  width: 100%;
-  align-items: center;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    align-items: stretch;
-  `}
-`
-
-const AssetCard = styled(Stack)`
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.buttonGray};
-`
-
-const StepTrack = styled(Stack)`
-  position: relative;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    min-width: 100%;
-    min-height: 140px;
-  `}
-`
-
-const TrackLine = styled.div`
-  position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 50%;
-  height: 1px;
-  background: ${({ theme }) => theme.border};
-  opacity: 0.6;
-
-  &::after {
-    content: '';
-    position: absolute;
-    right: 0px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-left: 6px solid ${({ theme }) => theme.border};
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    left: 50%;
-    right: auto;
-    top: -8px;
-    bottom: -8px;
-    width: 1px;
-    height: auto;
-    transform: translateX(-50%);
-
-    &::after {
-      left: 50%;
-      right: auto;
-      top: auto;
-      bottom: 8px;
-      transform: translateX(-50%);
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-top: 6px solid ${({ theme }) => theme.border};
-      border-bottom: 0;
-    }
-  `}
-`
-
-const TrackStartDot = styled.div`
-  position: absolute;
-  z-index: 1;
-  left: -4px;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.border};
-  opacity: 0.8;
-  transform: translateY(-50%);
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    left: 50%;
-    top: -4px;
-    transform: translateX(-50%);
-  `}
-`
-
-const StepPill = styled(Stack)`
-  position: relative;
-  z-index: 1;
-  gap: 0;
-  min-width: 160px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: ${({ theme }) => theme.background};
-`
-
-const StepPillTop = styled(HStack)`
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-bottom: 1px solid ${({ theme }) => rgba(theme.border, 0.4)};
-`
 
 type RouteTokenItem = {
   token: Token
@@ -143,62 +28,50 @@ type AddLiquidityRoutePreviewProps = {
 }
 
 const PreviewAssetItems = ({ items }: { items: RouteTokenItem[] }) => {
-  const theme = useTheme()
-
   if (!items.length) {
     return (
-      <Box height={17}>
+      <div className="h-[17px]">
         <Skeleton width={160} height={17} />
-      </Box>
+      </div>
     )
   }
 
   return (
-    <HStack width="100%" minWidth={0} align="center" justify="center" gap={8} wrap="wrap">
+    <div className="flex w-full min-w-0 flex-wrap items-center justify-center gap-2">
       {items.slice(0, 2).map((item, index) => (
         <Fragment key={`${item.token.address}-${index}`}>
-          {index > 0 ? (
-            <Text color={theme.subText} fontSize={14}>
-              |
-            </Text>
-          ) : null}
-          <HStack minWidth={0} align="center" gap={4}>
+          {index > 0 ? <span className="text-sm text-subText">|</span> : null}
+          <div className="flex min-w-0 items-center gap-1">
             <TokenLogo src={item.token.logo} size={16} />
-            <Text color={theme.text} fontSize={14} fontWeight={500}>
+            <span className="text-sm font-medium text-text">
               {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}
-            </Text>
-          </HStack>
+            </span>
+          </div>
         </Fragment>
       ))}
       {items.length > 2 ? (
-        <HStack align="center" borderRadius={999} background={theme.tabActive} p="4px 8px">
-          <Text color={theme.subText} fontSize={12}>
-            +{items.length - 2} more
-          </Text>
-        </HStack>
+        <div className="flex items-center rounded-full bg-tabActive px-2 py-1">
+          <span className="text-xs text-subText">+{items.length - 2} more</span>
+        </div>
       ) : null}
-    </HStack>
+    </div>
   )
 }
 
-const PreviewAssetCard = ({ items, usdAmount }: { items: RouteTokenItem[]; usdAmount?: string }) => {
-  const theme = useTheme()
-
-  return (
-    <AssetCard>
-      <HStack align="center" p="8px 16px">
-        <PreviewAssetItems items={items} />
-      </HStack>
-      <Stack justify="center" background={theme.background} p="8px 16px">
-        <Text color={theme.subText} fontSize={14} textAlign="center">
-          {usdAmount === undefined
-            ? '...'
-            : `~${formatDisplayNumber(Number(usdAmount), { style: 'currency', significantDigits: 6 })}`}
-        </Text>
-      </Stack>
-    </AssetCard>
-  )
-}
+const PreviewAssetCard = ({ items, usdAmount }: { items: RouteTokenItem[]; usdAmount?: string }) => (
+  <div className="relative z-[1] flex min-w-0 flex-col overflow-hidden rounded-xl bg-buttonGray">
+    <div className="flex items-center px-4 py-2">
+      <PreviewAssetItems items={items} />
+    </div>
+    <div className="flex flex-col justify-center bg-background px-4 py-2">
+      <span className="text-center text-sm text-subText">
+        {usdAmount === undefined
+          ? '...'
+          : `~${formatDisplayNumber(Number(usdAmount), { style: 'currency', significantDigits: 6 })}`}
+      </span>
+    </div>
+  </div>
+)
 
 const AddLiquidityRoutePreview = ({
   inputTokens,
@@ -207,70 +80,62 @@ const AddLiquidityRoutePreview = ({
   zapRoute,
   slippage,
 }: AddLiquidityRoutePreviewProps) => {
-  const theme = useTheme()
-
   const inputItems = getInputTokenItems(inputTokens ?? [], inputAmounts ?? '')
   const outputItems = getOutputTokenItems(pool, zapRoute)
   const zapFeePercent = getZapFeePercent(zapRoute)
 
   return (
-    <FlowRow>
+    <div className="flex w-full items-center max-sm:flex-col max-sm:items-stretch">
       <PreviewAssetCard items={inputItems} usdAmount={zapRoute?.zapDetails.initialAmountUsd} />
 
-      <StepTrack>
-        <TrackLine />
-        <TrackStartDot />
-        <StepPill>
-          <StepPillTop>
+      <div className="relative flex flex-1 flex-col items-center justify-center max-sm:min-h-[140px] max-sm:min-w-full">
+        <div className="absolute inset-x-0 top-1/2 h-px bg-border opacity-60 after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:border-y-4 after:border-l-[6px] after:border-y-transparent after:border-l-border max-sm:inset-y-[-8px] max-sm:left-1/2 max-sm:right-auto max-sm:h-auto max-sm:w-px max-sm:-translate-x-1/2 max-sm:after:bottom-2 max-sm:after:left-1/2 max-sm:after:right-auto max-sm:after:top-auto max-sm:after:-translate-x-1/2 max-sm:after:border-x-4 max-sm:after:border-b-0 max-sm:after:border-t-[6px] max-sm:after:border-x-transparent max-sm:after:border-t-border" />
+        <div className="absolute left-[-4px] top-1/2 z-[1] size-2 -translate-y-1/2 rounded-full bg-border opacity-80 max-sm:left-1/2 max-sm:top-[-4px] max-sm:-translate-x-1/2" />
+        <div className="relative z-[1] flex min-w-[160px] flex-col overflow-hidden rounded-xl bg-background">
+          <div className="border-border/40 flex items-center gap-2 border-b px-3 py-2">
             <KyberLogo width={18} height={18} />
-            <Text color={theme.subText} fontSize={14} fontWeight={500}>
-              Kyber Zap
-            </Text>
-          </StepPillTop>
+            <span className="text-sm font-medium text-subText">Kyber Zap</span>
+          </div>
 
-          <Stack gap={8} p="8px 12px">
-            <HStack align="center" justify="space-between" gap={16}>
+          <div className="flex flex-col gap-2 px-3 py-2">
+            <div className="flex items-center justify-between gap-4">
               <TooltipText
                 tooltip={
-                  <Stack gap={4} align="flex-start" sx={{ a: { color: 'primary', textDecoration: 'none' } }}>
+                  <div className="flex flex-col items-start gap-1 [&_a]:text-primary [&_a]:no-underline">
                     Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
                     fees.
                     <a href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener norefferer noreferrer">
                       {'>'} More details
                     </a>
-                  </Stack>
+                  </div>
                 }
                 placement="left"
-                color={theme.subText}
+                color="var(--ks-subText)"
                 fontSize={14}
               >
                 Fee
               </TooltipText>
-              <Text color={theme.text2} fontSize={14} fontWeight={500}>
-                {formatPercent(zapFeePercent)}
-              </Text>
-            </HStack>
-            <HStack align="center" justify="space-between" gap={16}>
+              <span className="text-sm font-medium text-text2">{formatPercent(zapFeePercent)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
               <TooltipText
                 tooltip={
                   'Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!'
                 }
                 placement="left"
-                color={theme.subText}
+                color="var(--ks-subText)"
                 fontSize={14}
               >
                 Max Slippage
               </TooltipText>
-              <Text color={theme.text2} fontSize={14} fontWeight={500}>
-                {formatBpsLabel(slippage)}
-              </Text>
-            </HStack>
-          </Stack>
-        </StepPill>
-      </StepTrack>
+              <span className="text-sm font-medium text-text2">{formatBpsLabel(slippage)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <PreviewAssetCard items={outputItems} usdAmount={zapRoute?.positionDetails.addedAmountUsd} />
-    </FlowRow>
+    </div>
   )
 }
 

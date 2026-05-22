@@ -1,11 +1,9 @@
 import { Trans, t } from '@lingui/macro'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
-import { Flex, Text } from 'rebass'
-import styled, { CSSProperties } from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
@@ -30,55 +28,7 @@ import {
 import { MEDIA_WIDTHS } from 'theme'
 
 import TransactionItem from './TransactionItem'
-
-const ContentWrapper = styled.div`
-  width: 100%;
-  flex: 1 1 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  .scrollbar {
-    &::-webkit-scrollbar {
-      display: block;
-      width: 4px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: ${({ theme }) => theme.border};
-    }
-    overflow-x: hidden !important;
-  }
-`
-
-const Wrapper = styled.div`
-  width: 100%;
-  flex: 1 1 0;
-  overflow: hidden;
-
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
-
-const ClearTxButton = styled.div`
-  cursor: pointer;
-  color: ${({ theme }) => theme.primary};
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-`
-
-const ClearTxWrapper = styled.div`
-  padding: 20px;
-  border-radius: 20px;
-  background-color: ${({ theme }) => theme.tableHeader};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  width: 100%;
-  color: ${({ theme }) => theme.subText};
-`
+import './transactions.css'
 
 function RowItem({
   index,
@@ -98,21 +48,13 @@ function RowItem({
   const rowRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    /** because react-window don't support dynamic height => manually calc height for each item
-     *
-     * --- warning ---
-     * title
-     * left    right
-     *
-     * => item height = warning_height + tile_height + max(height_left, height_right) + gap + padding
-     */
     const leftCol = rowRef.current?.querySelector('.left-column')
     const rightCol = rowRef.current?.querySelector('.right-column')
     if (leftCol && rightCol && rowRef.current) {
       const { paddingTop, paddingBottom, gap } = getComputedStyle(rowRef.current)
       const rowGap = parseFloat(gap)
       const warningHeight = rowRef.current.dataset.stalled === 'true' ? NUMBERS.STALL_WARNING_HEIGHT + rowGap : 0
-      const rowNum = Math.max(leftCol.children.length, rightCol.children.length) + 1 // 1 for title
+      const rowNum = Math.max(leftCol.children.length, rightCol.children.length) + 1
       setRowHeight(
         index,
         parseFloat(paddingTop) +
@@ -134,7 +76,7 @@ function RowItem({
     />
   )
 }
-// This is intentional, we don't need to persist in localStorage
+
 let storedActiveTab = ''
 function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const transactions = useSortRecentTransactions(false)
@@ -232,34 +174,32 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   return (
     <>
       <Modal isOpen={openClearTxModal} onDismiss={toggleClearTxModal}>
-        <ClearTxWrapper>
+        <div className="flex w-full flex-col items-center justify-center gap-6 rounded-[20px] bg-tableHeader p-5 text-subText">
           <RowBetween align="start">
-            <Text fontSize={20} fontWeight={500} color={theme.text}>
-              {t`Clear All Pending Transactions`}
-            </Text>
+            <span className="text-xl font-medium text-text">{t`Clear All Pending Transactions`}</span>
             <X color={theme.text} style={{ cursor: 'pointer' }} onClick={toggleClearTxModal} />
           </RowBetween>
           <Row gap="12px">
-            <Text fontSize={14} color={theme.text} lineHeight="16px">
+            <span className="text-sm leading-4 text-text">
               {t`Are you sure you want to clear all pending transactions? This will remove them from your list but will not affect their status on-chain.`}
-            </Text>
+            </span>
           </Row>
           <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
             <ButtonOutlined onClick={toggleClearTxModal}>{t`Cancel`}</ButtonOutlined>
             <ButtonPrimary onClick={onClearAllPendingTransactions}>{t`Clear All`}</ButtonPrimary>
           </Row>
-        </ClearTxWrapper>
+        </div>
       </Modal>
-      <Wrapper>
+      <div className="flex w-full flex-1 flex-col gap-3 overflow-hidden">
         <Tab<TRANSACTION_GROUP | string> activeTab={activeTab} setActiveTab={setActiveTab} tabs={filterTab} />
-        <ContentWrapper>
+        <div className="ks-transactions-content w-full flex-1 overflow-y-auto overflow-x-hidden">
           {formatTransactions.length === 0 ? (
-            <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10, marginTop: '20px' }}>
+            <div className="mt-5 flex flex-col items-center gap-2.5 text-subText">
               <Info size={32} />
-              <Text fontSize={'14px'}>
+              <span className="text-sm">
                 <Trans>You have no Transaction History.</Trans>
-              </Text>
-            </Flex>
+              </span>
+            </div>
           ) : (
             <AutoSizer>
               {({ height, width }) => (
@@ -287,17 +227,17 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
               )}
             </AutoSizer>
           )}
-        </ContentWrapper>
+        </div>
         {pendingTransactions.length !== 0 && (
-          <ClearTxButton>
-            <Text fontSize={14} onClick={toggleClearTxModal}>{t`Clear Pending Transactions`}</Text>
+          <div className="flex cursor-pointer items-center gap-[5px] text-sm text-primary">
+            <span className="text-sm" onClick={toggleClearTxModal}>{t`Clear Pending Transactions`}</span>
             <InfoHelper
               color={theme.primary}
               text={t`Manually clear this transaction from the pending list. This will not affect its on-chain status.`}
             />
-          </ClearTxButton>
+          </div>
         )}
-      </Wrapper>
+      </div>
     </>
   )
 }

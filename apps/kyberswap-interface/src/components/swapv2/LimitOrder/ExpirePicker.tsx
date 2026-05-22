@@ -1,10 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Calendar, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import DatePicker from 'components/DatePicker'
@@ -16,43 +13,6 @@ import { MIN_TIME_MINUTES, getExpireOptions } from './const'
 
 const HOURS = Array.from({ length: 24 }, (_, i) => ({ label: i, value: i }))
 const MINS = Array.from({ length: 60 }, (_, i) => ({ label: i, value: i }))
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 24px 20px;
-  font-weight: 500;
-  width: 100%;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     padding: 16px 10px;
-  `}
-`
-
-const DefaultOptionContainer = styled.div`
-  background-color: ${({ theme }) => theme.background};
-  padding: 10px;
-  font-size: 12px;
-  border-radius: 16px 0px 0px 16px;
-  white-space: nowrap;
-  display: flex;
-  gap: 14px;
-  padding-top: 20px;
-  flex-direction: column;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    display:none;
-  `}
-`
-
-const ResultContainer = styled.div`
-  background-color: ${({ theme }) => rgba(theme.warning, 0.2)};
-  padding: 12px;
-  border-radius: 20px;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-`
 
 const isToday = (date: Date) => {
   const today = new Date()
@@ -107,9 +67,7 @@ export default function DateTimePicker({
   }
 
   const onSelectDefaultOption = useCallback((value: number) => {
-    // value can be either seconds (duration) or timestamp (absolute date in seconds)
-    // If value is greater than a reasonable duration threshold, treat it as a timestamp
-    const isTimestamp = value > 1000000000 // Timestamps in seconds (10+ digits, represents Sep 2001+)
+    const isTimestamp = value > 1000000000
     if (!isTimestamp) setDefaultExpire(value)
     const date = isTimestamp ? new Date(value) : new Date(Date.now() + value * 1000)
     setDate(date)
@@ -163,42 +121,40 @@ export default function DateTimePicker({
 
   return (
     <Modal maxWidth={'98vw'} width={'480px'} isOpen={isOpen} enableSwipeGesture={false}>
-      <Container>
-        <Flex justifyContent={'space-between'} alignItems="center">
-          <Text fontSize={14}>{title || <Trans>Customize the Expiry Time</Trans>}</Text>
+      <div className="flex w-full flex-col gap-4 px-5 py-6 font-medium max-sm:px-2.5 max-sm:py-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">{title || <Trans>Customize the Expiry Time</Trans>}</span>
           <X color={theme.text} onClick={onDismiss} cursor="pointer" />
-        </Flex>
-        <Flex style={{ gap: 16 }}>
-          <DefaultOptionContainer>
-            <Text color={theme.border}>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex flex-col gap-3.5 whitespace-nowrap rounded-l-2xl bg-background p-2.5 pt-5 text-xs max-md:hidden">
+            <span className="text-border">
               <Trans>Default Options</Trans>
-            </Text>
+            </span>
             {(defaultOptions || getExpireOptions()).map(opt => (
-              <Text
-                style={{ cursor: 'pointer' }}
-                color={opt.value === defaultExpire ? theme.primary : theme.subText}
+              <span
                 key={opt.value}
+                className="cursor-pointer"
+                style={{ color: opt.value === defaultExpire ? theme.primary : theme.subText }}
                 onClick={() => opt.value && onSelectDefaultOption(Number(opt.value))}
               >
                 {opt.label}
-              </Text>
+              </span>
             ))}
-          </DefaultOptionContainer>
-          <Flex flexDirection="column" style={{ gap: 5, alignItems: 'center', flex: 1 }}>
+          </div>
+          <div className="flex flex-1 flex-col items-center gap-[5px]">
             <DatePicker value={date} onChange={(date: Date) => setCustomDate(date, hour, min)} />
 
-            <Flex justifyContent={'space-between'} width="100%" padding="0px 8px">
+            <div className="flex w-full justify-between px-2 py-0">
               <Select
                 value={hour}
                 activeRender={item => (
-                  <Flex justifyContent={'space-between'} alignItems="center">
-                    <Text color={theme.text} fontSize={14}>
-                      {item?.label}
-                    </Text>
-                    <Text>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-text">{item?.label}</span>
+                    <span>
                       <Trans>Hour</Trans>
-                    </Text>
-                  </Flex>
+                    </span>
+                  </div>
                 )}
                 {...propsSelect}
                 options={hourOptions}
@@ -207,37 +163,36 @@ export default function DateTimePicker({
               <Select
                 value={min}
                 activeRender={item => (
-                  <Flex justifyContent={'space-between'} alignItems="center">
-                    <Text color={theme.text} fontSize={14}>
-                      {item?.label}
-                    </Text>
-                    <Text>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-text">{item?.label}</span>
+                    <span>
                       <Trans>Min</Trans>
-                    </Text>
-                  </Flex>
+                    </span>
+                  </div>
                 )}
                 {...propsSelect}
                 options={minOptions}
                 onChange={onSetMin}
               />
-            </Flex>
-          </Flex>
-        </Flex>
-        <ResultContainer
+            </div>
+          </div>
+        </div>
+        <div
+          className="flex w-full justify-between rounded-[20px] bg-warning-20 p-3 text-sm"
           style={{
             backgroundColor: title ? 'transparent' : undefined,
             border: title ? `1px solid ${theme.primary}` : undefined,
           }}
         >
-          <Flex alignItems={'center'} color={theme.subText}>
+          <div className="flex items-center text-subText">
             <Calendar color={title ? theme.primary : theme.warning} size={17} />
-            <Text marginLeft={'5px'}>
+            <span className="ml-[5px]">
               {title ? <Trans>Order will trigger on</Trans> : <Trans>Order will Expire on</Trans>}
-            </Text>
-          </Flex>
-          <Text color={theme.text}>{dayjs(expireResult).format('DD/MM/YYYY HH:mm')}</Text>
-        </ResultContainer>
-        <Flex justifyContent={'flex-end'} style={{ gap: 16 }}>
+            </span>
+          </div>
+          <span className="text-text">{dayjs(expireResult).format('DD/MM/YYYY HH:mm')}</span>
+        </div>
+        <div className="flex justify-end gap-4">
           <ButtonOutlined
             onClick={onDismiss}
             style={{
@@ -259,8 +214,8 @@ export default function DateTimePicker({
           >
             <Trans>Set</Trans>
           </ButtonPrimary>
-        </Flex>
-      </Container>
+        </div>
+      </div>
     </Modal>
   )
 }

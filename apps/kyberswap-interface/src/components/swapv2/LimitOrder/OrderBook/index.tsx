@@ -1,12 +1,9 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useMedia } from 'react-use'
 import { FixedSizeList } from 'react-window'
-import { Text } from 'rebass'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
-import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import LocalLoader from 'components/LocalLoader'
@@ -14,7 +11,6 @@ import RefreshLoading from 'components/RefreshLoading'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
-import useTheme from 'hooks/useTheme'
 import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -31,66 +27,15 @@ const DESKTOP_SIGNIFICANT_DIGITS = 6
 const MOBILE_SIGNIFICANT_DIGITS = 5
 const MOBILE_SIGNIFICANT_DIGITS_FOR_LESS_THAN_ONE = 4
 
-const OrderBookWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 1rem;
-  position: relative;
-`
-
-const RefreshText = styled.div`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 16px;
-  top: -2.5rem;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    position: static;
-    margin-bottom: 1rem;
-    margin-left: 1rem;
-  `}
-`
-
-const MarketPrice = styled.div`
-  padding: 8px 12px;
-  font-size: 20px;
-  line-height: 24px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  display: grid;
-  grid-template-columns: 1fr 2fr 2fr 2fr 1fr;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    grid-template-columns: 1.2fr 1.8fr 2fr 1.8fr;
-  `}
-`
-
-const OrderItemWrapper = styled(FixedSizeList)`
-  ::-webkit-scrollbar {
-    display: unset;
-    width: 4px;
-    border-radius: 999px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 999px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.disableText};
-    border-radius: 999px;
-  }
-`
+const ORDER_LIST_SCROLLBAR_CLASS =
+  '[&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-disableText [&::-webkit-scrollbar-thumb]:rounded-full'
 
 const NoDataPanel = () => (
   <NoResultWrapper>
     <NoDataIcon />
-    <Text marginTop={10}>
+    <span className="mt-2.5">
       <Trans>No orders.</Trans>
-    </Text>
+    </span>
   </NoResultWrapper>
 )
 
@@ -110,7 +55,6 @@ const formatOrders = (
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!makerCurrency || !takerCurrency) return []
 
-  // Format orders, remove orders that are above 99% filled and sort descending by rate
   const ordersFormatted = orders
     .map(order => {
       const newMakerCurrency = new Token(
@@ -156,7 +100,6 @@ const formatOrders = (
       }),
     }))
 
-  // Merge orders with the same rate
   const mergedOrders: LimitOrderFromTokenPairFormatted[] = []
   const groupOrders = groupToMap(ordersFormatted, ({ rate }: LimitOrderFromTokenPairFormatted) => rate)
 
@@ -187,7 +130,6 @@ const formatOrders = (
 }
 
 export default function OrderBook() {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { chainId, networkInfo } = useActiveWeb3React()
@@ -246,7 +188,6 @@ export default function OrderBook() {
     refetchReversedOrder()
   }, [refetchMarketRate, refetchOrders, refetchReversedOrder])
 
-  // Scroll to bottom when new orders are fetched
   useEffect(() => {
     if (formattedOrders.length && ordersWrapperRef.current) {
       ordersWrapperRef.current.scrollToItem(formattedOrders.length - 1)
@@ -254,25 +195,26 @@ export default function OrderBook() {
   }, [formattedOrders, loadingOrders, loadingReversedOrders])
 
   return (
-    <OrderBookWrapper>
+    <div className="relative mt-4 flex flex-col">
       {loadingOrders || loadingReversedOrders ? (
         <LocalLoader />
       ) : (
         <>
           {refetchActive && (
-            <RefreshText>
-              <Text fontSize={'14px'} color={theme.subText} marginRight={'4px'}>
+            <div className="absolute -top-10 right-4 flex items-center max-sm:static max-sm:mb-4 max-sm:ml-4">
+              <span className="mr-1 text-sm text-subText">
                 <Trans>Orders refresh in</Trans>
-              </Text>{' '}
+              </span>{' '}
               <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
-            </RefreshText>
+            </div>
           )}
 
           <TableHeader />
 
           {formattedOrders.length > 0 ? (
-            <OrderItemWrapper
+            <FixedSizeList
               ref={ordersWrapperRef}
+              className={ORDER_LIST_SCROLLBAR_CLASS}
               height={(formattedOrders.length < ITEMS_DISPLAY ? formattedOrders.length : ITEMS_DISPLAY) * ITEM_HEIGHT}
               itemCount={formattedOrders.length}
               itemSize={ITEM_HEIGHT}
@@ -282,22 +224,23 @@ export default function OrderBook() {
                 const order = formattedOrders[index]
                 return <OrderItem key={order.id} style={style} order={order} />
               }}
-            </OrderItemWrapper>
+            </FixedSizeList>
           ) : (
             <NoDataPanel />
           )}
 
           {!!marketRate && (
-            <MarketPrice>
+            <div className="grid grid-cols-[1fr_2fr_2fr_2fr_1fr] bg-white-04 px-3 py-2 text-xl leading-6 max-[500px]:grid-cols-[1.2fr_1.8fr_2fr_1.8fr]">
               <ChainImage src={networkInfo?.icon} alt="Network" />
               {formatDisplayNumber(marketRate, {
                 significantDigits: getSignificantDigits(marketRate.toString(), upToSmall),
               })}
-            </MarketPrice>
+            </div>
           )}
 
           {formattedReversedOrders.length > 0 ? (
-            <OrderItemWrapper
+            <FixedSizeList
+              className={ORDER_LIST_SCROLLBAR_CLASS}
               height={
                 (formattedReversedOrders.length < ITEMS_DISPLAY ? formattedReversedOrders.length : ITEMS_DISPLAY) *
                 ITEM_HEIGHT
@@ -310,12 +253,12 @@ export default function OrderBook() {
                 const order = formattedReversedOrders[index]
                 return <OrderItem key={order.id} style={style} reverse order={order} />
               }}
-            </OrderItemWrapper>
+            </FixedSizeList>
           ) : (
             <NoDataPanel />
           )}
         </>
       )}
-    </OrderBookWrapper>
+    </div>
   )
 }

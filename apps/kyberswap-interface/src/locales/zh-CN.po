@@ -102,6 +102,7 @@ msgstr "跨链"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
+#: src/pages/Earns/PositionDetail/InformationTab.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Increase Liquidity"
@@ -192,7 +193,6 @@ msgid "Farming rewards"
 msgstr "流动性挖矿奖励"
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
-#: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -940,7 +940,6 @@ msgstr "预估 Paymaster Gas 费"
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-#: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
 msgid "Rewards"
 msgstr ""
@@ -967,6 +966,10 @@ msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemEarnPosition.tsx
 msgid "Position Out of range"
+msgstr ""
+
+#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+msgid "Learn more ↗"
 msgstr ""
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
@@ -1595,6 +1598,7 @@ msgid "CREATED | EXPIRY"
 msgstr "创建 | 到期"
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
+#: src/pages/Earns/components/PoolAprBadges.tsx
 #: src/pages/Earns/components/PoolAprInfo.tsx
 msgid "LM Reward"
 msgstr "挖矿奖励"
@@ -1629,6 +1633,10 @@ msgstr "领取失败"
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Can Change Balance"
 msgstr "可更改余额"
+
+#: src/pages/Earns/components/ClaimAllModal/index.tsx
+msgid "Syncing your last claim with Merkl — please wait a moment."
+msgstr ""
 
 #: src/components/SwapForm/OutputCurrencyPanel.tsx
 msgid "Est. Output"
@@ -1798,6 +1806,7 @@ msgstr ""
 msgid "Full hash #1: 0x...B987A5F → last 4 hex digits = 7A5F"
 msgstr "完整哈希 #1: 0x...B987A5F → 最后 4 位十六进制数字 = 7A5F"
 
+#: src/pages/Earns/components/PoolRewardsInfo.tsx
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
 msgid "Bonus Rewards"
 msgstr ""
@@ -1928,6 +1937,10 @@ msgstr "前往我的资金池"
 msgid "Unable to get the market price"
 msgstr "无法获取市场价格"
 
+#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+msgid "At execution, KyberSwap compares candidate pools on-chain in real time and picks the one that delivers the highest output - giving your swap the best possible rate with an extra layer of protection from slippage, PropAMM manipulation, Just-in-Time attacks and MEVs. <0>Your minimum amount out is always guaranteed.</0> No extra steps needed."
+msgstr ""
+
 #: src/components/Menu/FaucetModal.tsx
 #: src/components/Menu/index.tsx
 msgid "Faucet"
@@ -2035,6 +2048,10 @@ msgstr "本次活动每周分配 <0>9,000 ARB</0>。"
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "Estimated network fee for your transaction."
 msgstr "本次交易的预估网络手续费"
+
+#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+msgid "Limited on-chain activity in the past 24h - price may not reflect tradable rates"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Yes. We only count the first 50 eligible hashes per wallet."
@@ -2323,6 +2340,10 @@ msgstr "将流动性质押至农场"
 msgid "LP Tokens Removed"
 msgstr "已移除 LP 代币"
 
+#: src/pages/Earns/components/ClaimAllModal/index.tsx
+msgid "Syncing"
+msgstr ""
+
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Your Staked KNC"
@@ -2482,7 +2503,6 @@ msgstr "过去 7 天手续费最高的前 100 个资金池"
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
-#: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -2775,8 +2795,8 @@ msgid "1H"
 msgstr "1 小时"
 
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-msgid "Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range"
-msgstr "最大 年化收益率 为该池近期最高活跃仓位 年化收益率"
+#~ msgid "Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range"
+#~ msgstr "最大 年化收益率 为该池近期最高活跃仓位 年化收益率"
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "The campaign takes place on 6 chains: Ethereum, BNB Chain, Base, Arbitrum, Polygon, Avalanche."
@@ -3441,8 +3461,8 @@ msgstr "直接在 <0>KyberSwap.com</0> 网站进行兑换的用户，每笔合�
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-msgid "EG Sharing"
-msgstr "EG 分成"
+#~ msgid "EG Sharing"
+#~ msgstr "EG 分成"
 
 #: src/pages/Earns/components/SmartExit/Warning.tsx
 msgid "Max fee is capped at 100% for safety."
@@ -3701,7 +3721,6 @@ msgstr "访客"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/ZapCreatePool/CreatePoolModal.tsx
-#: src/pages/Earns/PositionDetail/InformationTab.tsx
 msgid "Add Liquidity"
 msgstr "添加流动性"
 
@@ -4009,7 +4028,6 @@ msgid "After the campaign period ends, KyberSwap will determine results using a 
 msgstr "活动期结束后，KyberSwap 将使用<0>完全透明、可在链上验证的计算</0>来确定结果。"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
-#: src/pages/Earns/components/MerklAprInfo.tsx
 msgid "Bonus"
 msgstr ""
 
@@ -4229,8 +4247,8 @@ msgstr "KyberSwap 保留取消任何被发现存在刷量、女巫攻击、闪�
 
 #: src/pages/Earns/PoolExplorer/DesktopTableRow.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
-msgid "Not available for this pool"
-msgstr ""
+#~ msgid "Not available for this pool"
+#~ msgstr ""
 
 #: src/pages/Campaign/timelines.tsx
 msgid "<0>Week 5</0> Aug 05 - Aug 11"
@@ -4575,8 +4593,8 @@ msgstr "您的密码或导入代币无效"
 
 #: src/components/swapv2/TokenInfo/index.tsx
 #: src/components/swapv2/TokenInfo/index.tsx
-msgid "Powered by <0/>"
-msgstr "由 <0/> 提供支持"
+#~ msgid "Powered by <0/>"
+#~ msgstr "由 <0/> 提供支持"
 
 #: src/components/WalletPopup/WalletView.tsx
 msgid "Disconnect wallet"
@@ -5008,6 +5026,10 @@ msgstr ""
 #: src/components/Menu/index.tsx
 msgid "Holiday Mode"
 msgstr "假日模式"
+
+#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+msgid "Smart Settlement"
+msgstr ""
 
 #: src/pages/Campaign/components/Leaderboard/index.tsx
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
@@ -6455,6 +6477,7 @@ msgstr "KYBER DAO"
 msgid "Sound"
 msgstr ""
 
+#: src/components/swapv2/TokenInfo/index.tsx
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Powered by"
 msgstr "技术支持"
@@ -7099,7 +7122,9 @@ msgstr "移除失败"
 msgid "Market Overview"
 msgstr "市场概览"
 
+#: src/pages/Earns/components/PoolAprBadges.tsx
 #: src/pages/Earns/components/PoolAprInfo.tsx
+#: src/pages/Earns/components/PoolRewardsInfo.tsx
 msgid "FairFlow EG Rewards"
 msgstr ""
 
@@ -7358,8 +7383,8 @@ msgid "I pay"
 msgstr "我支付"
 
 #: src/pages/Earns/PoolExplorer/DesktopTableRow.tsx
-msgid "Add liquidity with price range:"
-msgstr "添加带价格区间的流动性："
+#~ msgid "Add liquidity with price range:"
+#~ msgstr "添加带价格区间的流动性："
 
 #: src/pages/MyPool/index.tsx
 msgid "Here you can view all your liquidity and staked balances in the Classic Pools."
@@ -7571,6 +7596,10 @@ msgstr ""
 #: src/pages/ElasticSnapshot/components/InstantClaim.tsx
 msgid "Available assets for claiming"
 msgstr "可领取的资产"
+
+#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+msgid "Not enough on-chain activity to display a reliable price chart for this token"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 msgid "Icons"
@@ -8024,8 +8053,8 @@ msgid "Add liquidity for a token pair and earn fees on the trades that are in yo
 msgstr "为交易对添加流动性，并在所选价格区间内赚取手续费"
 
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-msgid "The estimated amount of <0>Equilibrium Gain</0> rewards that would be shared with liquidity providers during the selected time range"
-msgstr "所选时间范围内将分配给 LP 的 <0>均衡收益</0> 预估值"
+#~ msgid "The estimated amount of <0>Equilibrium Gain</0> rewards that would be shared with liquidity providers during the selected time range"
+#~ msgstr "所选时间范围内将分配给 LP 的 <0>均衡收益</0> 预估值"
 
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 msgid "You are delegating your voting power to this address. Your stake balance will remain the same. The delegated address will be responsible for the transaction fee The delegated wallet will be able to vote from the <0>next epoch</0> onward"
@@ -8517,8 +8546,8 @@ msgstr "您需先连接钱包并填写邮箱"
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
-msgid "Max APR"
-msgstr "最高 年化收益率"
+#~ msgid "Max APR"
+#~ msgstr "最高 年化收益率"
 
 #: src/pages/Campaign/timelines.tsx
 msgid "<0>Week 2</0> Jul 28 - Aug 03"

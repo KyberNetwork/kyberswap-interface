@@ -3,9 +3,7 @@ import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Star, X } from 'react-feather'
 import { useMedia, usePreviousDistinct } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { AssetToken, useGetQuoteByChainQuery } from 'services/marketOverview'
-import styled from 'styled-components'
 
 import { ButtonEmpty, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -21,12 +19,6 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { ContentChangable, TabItem } from './styles'
 import useFilter from './useFilter'
-
-const Disclaimer = styled.div`
-  font-size: 12px;
-  font-style: italic;
-  margin-top: 1rem;
-`
 
 export default function DetailModal({
   tokenToShow,
@@ -48,12 +40,14 @@ export default function DetailModal({
   const { filters } = useFilter()
   const selectedChainId = filters.chainId
 
+  const rowGridClass = upToSmall ? 'grid-cols-[1fr_100px_80px]' : 'grid-cols-[1fr_0.75fr_0.75fr_0.75fr]'
+
   return (
     <Modal isOpen={!!tokenToShow} onDismiss={onDismiss} width="100%" maxWidth="600px">
       {tokenToShow ? (
-        <Flex width="100%" flexDirection="column" padding={upToSmall ? '1rem' : '2rem'}>
-          <Flex justifyContent="space-between" sx={{ gap: '4px' }}>
-            <Flex alignItems="center" sx={{ gap: '6px' }} flex="1">
+        <div className={`flex w-full flex-col ${upToSmall ? 'p-4' : 'p-8'}`}>
+          <div className="flex justify-between gap-1">
+            <div className="flex flex-1 items-center gap-1.5">
               <img
                 src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
                 width="24px"
@@ -63,16 +57,8 @@ export default function DetailModal({
                   borderRadius: '50%',
                 }}
               />
-              <Text fontSize={16} minWidth="max-content">
-                {tokenToShow.symbol} {}
-              </Text>
-              <Text
-                fontSize={14}
-                color={theme.subText}
-                sx={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}
-              >
-                {tokenToShow.name}
-              </Text>
+              <span className="min-w-max text-base">{tokenToShow.symbol}</span>
+              <span className="truncate text-sm text-subText">{tokenToShow.name}</span>
 
               <Star
                 size={16}
@@ -83,109 +69,92 @@ export default function DetailModal({
                 onClick={() => toggleFavorite(tokenToShow)}
                 style={{ minWidth: '16px' }}
               />
-            </Flex>
+            </div>
 
             <ButtonEmpty onClick={onDismiss} width="fit-content" style={{ padding: 0 }}>
               <X color={theme.text} />
             </ButtonEmpty>
-          </Flex>
+          </div>
 
-          <Box
-            sx={{
-              background: '#ffffff20',
-              padding: '0.75rem 1rem',
-              display: 'grid',
-              gridTemplateColumns: upToSmall ? '1fr 1fr' : '1fr 1fr 1fr 1fr',
-              gap: upToSmall ? '0.75rem' : '1.5rem',
-              height: 'fit-content',
-              borderRadius: '1rem',
-              marginTop: '1.25rem',
-            }}
+          <div
+            className={`mt-5 grid h-fit rounded-2xl bg-white-08 px-4 py-3 ${
+              upToSmall ? 'grid-cols-2 gap-3' : 'grid-cols-4 gap-6'
+            }`}
           >
             <div>
-              <Text fontSize={12} color={theme.subText}>
+              <span className="text-xs text-subText">
                 <Trans>Market Cap</Trans>
-              </Text>
-              <Text marginTop="4px">
+              </span>
+              <div className="mt-1">
                 {tokenToShow.marketCap
                   ? formatDisplayNumber(tokenToShow.marketCap, { style: 'currency', fractionDigits: 2 })
                   : '--'}
-              </Text>
+              </div>
             </div>
             <div>
-              <Text fontSize={12} color={theme.subText}>
+              <span className="text-xs text-subText">
                 <Trans>24h Volume</Trans>
-              </Text>
-              <Text marginTop="4px">
+              </span>
+              <div className="mt-1">
                 {tokenToShow.volume24h
                   ? formatDisplayNumber(tokenToShow.volume24h, { style: 'currency', fractionDigits: 2 })
                   : '--'}
-              </Text>
+              </div>
             </div>
 
             <div>
-              <Text fontSize={12} color={theme.subText}>
+              <span className="text-xs text-subText">
                 <Trans>All Time Low</Trans>
-              </Text>
-              <Text marginTop="4px">
+              </span>
+              <div className="mt-1">
                 {formatDisplayNumber(tokenToShow.allTimeLow, { style: 'currency', fractionDigits: 2 })}
-              </Text>
+              </div>
             </div>
             <div>
-              <Text fontSize={12} color={theme.subText}>
+              <span className="text-xs text-subText">
                 <Trans>All Time High</Trans>
-              </Text>
-              <Text marginTop="4px">
+              </span>
+              <div className="mt-1">
                 {formatDisplayNumber(tokenToShow.allTimeHigh, { style: 'currency', fractionDigits: 2 })}
-              </Text>
+              </div>
             </div>
-          </Box>
+          </div>
           {!upToSmall ? (
-            <Box
-              sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToSmall ? '100px 80px' : '0.75fr  0.75fr 0.75fr'}` }}
-              marginTop="1.5rem"
-              marginBottom="8px"
-            >
+            <div className={`mb-2 mt-6 grid ${rowGridClass}`}>
               <div />
-              <Text fontSize={12} color={theme.subText} textAlign="right">
+              <span className="text-right text-xs text-subText">
                 <Trans>Buy Price</Trans>
-              </Text>
-              <Text fontSize={12} color={theme.subText} textAlign="right">
+              </span>
+              <span className="text-right text-xs text-subText">
                 <Trans>Sell Price</Trans>
-              </Text>
+              </span>
               <div />
-            </Box>
+            </div>
           ) : (
-            <>
-              <Flex alignItems="center" marginY="8px" justifyContent="flex-end" sx={{ gap: '12px' }}>
-                <Text fontSize={12} color={theme.subText} textAlign="right">
-                  <Trans>On-chain Price</Trans>
-                </Text>
-                <Flex
-                  sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
-                  padding="1px"
-                  width="fit-content"
+            <div className="my-2 flex items-center justify-end gap-3">
+              <span className="text-right text-xs text-subText">
+                <Trans>On-chain Price</Trans>
+              </span>
+              <div className="flex w-fit rounded-full border border-border bg-buttonBlack p-px">
+                <TabItem
+                  active={selectedPrice === 'buy'}
+                  onClick={() => {
+                    setSelectedPrice('buy')
+                  }}
                 >
-                  <TabItem
-                    active={selectedPrice === 'buy'}
-                    onClick={() => {
-                      setSelectedPrice('buy')
-                    }}
-                  >
-                    <Trans>Buy</Trans>
-                  </TabItem>
+                  <Trans>Buy</Trans>
+                </TabItem>
 
-                  <TabItem
-                    active={selectedPrice === 'sell'}
-                    onClick={() => {
-                      setSelectedPrice('sell')
-                    }}
-                  >
-                    <Trans>Sell</Trans>
-                  </TabItem>
-                </Flex>
-              </Flex>
-            </>
+                <TabItem
+                  active={selectedPrice === 'sell'}
+                  onClick={() => {
+                    setSelectedPrice('sell')
+                  }}
+                >
+                  <Trans>Sell</Trans>
+                </TabItem>
+              </div>
+            </div>
           )}
 
           {tokenToShow.tokens
@@ -211,17 +180,9 @@ export default function DetailModal({
                 : ''
 
               return (
-                <Box
-                  key={token.chainId}
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: `1fr ${upToSmall ? '100px 80px' : '0.75fr 0.75fr 0.75fr'}`,
-                  }}
-                  marginBottom="1rem"
-                  alignItems="center"
-                >
-                  <Flex sx={{ gap: '12px' }} alignItems="center">
-                    <Box sx={{ position: 'relative' }} width="32px">
+                <div key={token.chainId} className={`mb-4 grid items-center ${rowGridClass}`}>
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-8">
                       <img
                         src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
                         width="32px"
@@ -239,49 +200,36 @@ export default function DetailModal({
                         height="16px"
                         style={{ position: 'absolute', right: '-8px', bottom: 0 }}
                       />
-                    </Box>
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                      <Flex alignItems="center" fontSize={16}>
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                      <div className="flex items-center text-base">
                         {tokenToShow.symbol}{' '}
-                        {quoteSymbol && (
-                          <Text
-                            as="span"
-                            color={theme.subText}
-                            fontSize={14}
-                            sx={{
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            /{quoteSymbol}
-                          </Text>
-                        )}
-                      </Flex>
-                      <Text color={theme.subText} display="flex" marginTop="2px" fontSize="12px">
+                        {quoteSymbol && <span className="truncate text-sm text-subText">/{quoteSymbol}</span>}
+                      </div>
+                      <div className="mt-0.5 flex text-xs text-subText">
                         {shortenAddress(1, address)}
                         <CopyHelper toCopy={address} />
-                      </Text>
+                      </div>
                     </div>
-                  </Flex>
+                  </div>
 
                   {upToSmall ? (
-                    <Text textAlign="right">
+                    <div className="text-right">
                       <Price price={+price} />
-                    </Text>
+                    </div>
                   ) : (
                     <>
-                      <Text textAlign="right">
+                      <div className="text-right">
                         <Price price={+token.priceBuy} />
-                      </Text>
+                      </div>
 
-                      <Text textAlign="right">
+                      <div className="text-right">
                         <Price price={+token.priceSell} />
-                      </Text>
+                      </div>
                     </>
                   )}
 
-                  <Flex sx={{ gap: '12px' }} alignItems="center" justifyContent="flex-end">
+                  <div className="flex items-center justify-end gap-3">
                     <ButtonOutlined
                       color={theme.primary}
                       style={{
@@ -299,14 +247,14 @@ export default function DetailModal({
                     >
                       <Trans>Swap</Trans>
                     </ButtonOutlined>
-                  </Flex>
-                </Box>
+                  </div>
+                </div>
               )
             })}
-          <Disclaimer>
+          <div className="mt-4 text-xs italic">
             <Trans>Grouping selection across chains is sourced from Coingecko and CoinMarketCap</Trans>
-          </Disclaimer>
-        </Flex>
+          </div>
+        </div>
       ) : null}
     </Modal>
   )

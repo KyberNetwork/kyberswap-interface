@@ -1,8 +1,6 @@
 import { formatAprNumber } from '@kyber/utils'
-import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import {
   type PoolAnalyticsWindow,
@@ -10,10 +8,8 @@ import {
   usePoolAprHistoryQuery,
   usePositionAprHistoryQuery,
 } from 'services/zapEarn'
-import styled from 'styled-components'
 
 import SegmentedControl from 'components/SegmentedControl'
-import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import {
   CHART_WINDOW_OPTIONS,
@@ -23,26 +19,6 @@ import {
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const TooltipCard = styled(Stack)`
-  gap: 12px;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.tableHeader};
-  border-radius: 12px;
-  box-shadow: 0 12px 32px ${({ theme }) => theme.shadow};
-`
-
-const TooltipGrid = styled.div`
-  display: grid;
-  gap: 8px 16px;
-  grid-template-columns: auto auto;
-`
-
-const BaselineRow = styled(HStack)`
-  align-items: baseline;
-`
 
 export const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
 
@@ -71,39 +47,30 @@ const AprHistoryTooltip = ({
   if (!active || !point) return null
 
   return (
-    <TooltipCard>
-      <Text color={theme.subText} fontSize={12}>
-        {formatTooltipTimeLabel(point.ts, window)}
-      </Text>
-      <TooltipGrid>
+    <div
+      className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader px-4 py-3"
+      style={{ boxShadow: `0 12px 32px ${theme.shadow}` }}
+    >
+      <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
+      <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         {point.activeApr ? (
           <>
-            <Text color={theme.subText} fontSize={12}>
-              Active APR
-            </Text>
-            <Text color={theme.blue} fontSize={12} fontWeight={500} textAlign="right">
-              {formatAprNumber(point.activeApr)}%
-            </Text>
+            <span className="text-xs text-subText">Active APR</span>
+            <span className="text-right text-xs font-medium text-blue">{formatAprNumber(point.activeApr)}%</span>
           </>
         ) : null}
-        <Text color={theme.subText} fontSize={12}>
-          APR
-        </Text>
-        <Text color={theme.primary} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAprNumber(point.totalApr)}%
-        </Text>
+        <span className="text-xs text-subText">APR</span>
+        <span className="text-right text-xs font-medium text-primary">{formatAprNumber(point.totalApr)}%</span>
         {point.volumeUsd || point.volumeUsd === 0 ? (
           <>
-            <Text color={theme.subText} fontSize={12}>
-              Vol
-            </Text>
-            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+            <span className="text-xs text-subText">Vol</span>
+            <span className="text-right text-xs font-medium text-text">
               {formatDisplayNumber(point.volumeUsd, { style: 'currency', significantDigits: 6 })}
-            </Text>
+            </span>
           </>
         ) : null}
-      </TooltipGrid>
-    </TooltipCard>
+      </div>
+    </div>
   )
 }
 
@@ -124,10 +91,10 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
   const activeDotStroke = theme.buttonBlack
   const aprLineColor = theme.primary
   const activeAprLineColor = theme.blue
-  const volumeUpColor = rgba(theme.darkGreen, 0.8)
-  const volumeDownColor = rgba(theme.red, 0.5)
-  const cursorColor = rgba(theme.text, 0.12)
-  const gridColor = rgba(theme.text, 0.06)
+  const volumeUpColor = `${theme.darkGreen}cc`
+  const volumeDownColor = `${theme.red}80`
+  const cursorColor = `${theme.text}1f`
+  const gridColor = `${theme.text}0f`
 
   const poolAprHistoryQuery = usePoolAprHistoryQuery(
     { chainId, address: poolAddress || '', window },
@@ -164,59 +131,41 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
   const { hasActiveApr, latestActiveApr, latestTotalApr } = useMemo(() => getLatestAprValues(chartData), [chartData])
 
   return (
-    <Stack gap={16}>
-      <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
-        <Stack gap={12}>
-          <HStack align="center" gap="12px 24px" wrap="wrap">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             {hasActiveApr && latestTotalApr !== undefined ? (
-              <BaselineRow gap={4}>
-                <Text color={theme.subText} fontSize={14}>
-                  APR
-                </Text>
-                <Text color={theme.text} fontSize={14} fontWeight={500}>
-                  {formatAprValue(latestTotalApr)}
-                </Text>
-              </BaselineRow>
+              <div className="flex items-baseline gap-1">
+                <span className="text-sm text-subText">APR</span>
+                <span className="text-sm font-medium text-text">{formatAprValue(latestTotalApr)}</span>
+              </div>
             ) : null}
-            <BaselineRow gap={4}>
-              <Text color={theme.subText} fontSize={14}>
-                Max APR
-              </Text>
-              <Text color={theme.text} fontSize={14} fontWeight={500}>
-                {formatAprValue(intervalMaxApr)}
-              </Text>
-            </BaselineRow>
-          </HStack>
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm text-subText">Max APR</span>
+              <span className="text-sm font-medium text-text">{formatAprValue(intervalMaxApr)}</span>
+            </div>
+          </div>
 
           {hasActiveApr ? (
-            <BaselineRow gap={8} wrap="wrap">
-              <Text color={theme.text} fontSize={16} fontWeight={500}>
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="text-base font-medium text-text">
                 {positionId ? 'Position Active APR' : 'Active APR'}
-              </Text>
-              <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
-                {formatAprValue(latestActiveApr)}
-              </Text>
-              <Text color={theme.subText} fontSize={14}>
-                (Earning Per Active TVL)
-              </Text>
-            </BaselineRow>
+              </span>
+              <span className="text-xl font-medium leading-none text-blue">{formatAprValue(latestActiveApr)}</span>
+              <span className="text-sm text-subText">(Earning Per Active TVL)</span>
+            </div>
           ) : (
-            <BaselineRow gap={8} wrap="wrap">
-              <Text color={theme.text} fontSize={16} fontWeight={500}>
-                APR
-              </Text>
-              <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
-                {formatAprValue(latestTotalApr)}
-              </Text>
-              <Text color={theme.subText} fontSize={14}>
-                (Earning Per Total TVL)
-              </Text>
-            </BaselineRow>
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="text-base font-medium text-text">APR</span>
+              <span className="text-xl font-medium leading-none text-primary">{formatAprValue(latestTotalApr)}</span>
+              <span className="text-sm text-subText">(Earning Per Total TVL)</span>
+            </div>
           )}
-        </Stack>
+        </div>
 
         <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />
-      </HStack>
+      </div>
 
       <PoolChartState
         emptyMessage="Historical APR data is not available yet."
@@ -292,7 +241,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
           </ResponsiveContainer>
         </PoolChartWrapper>
       </PoolChartState>
-    </Stack>
+    </div>
   )
 }
 

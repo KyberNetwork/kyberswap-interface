@@ -4,9 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { LogOut, Save } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia, usePrevious } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
-import styled from 'styled-components'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
@@ -33,76 +31,12 @@ import { useIsKeepCurrentProfile, useProfileInfo, useRefreshProfile, useSignedAc
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 30px 24px;
-  gap: 20px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    align-items: center;
-    max-width: 100%;
-  `}
-`
-
-const Label = styled.label`
-  font-size: 14px;
-  color: ${({ theme }) => theme.subText};
-`
-
 const AVATAR_SIZE = isMobile ? '90px' : '120px'
 
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
+const leftColumnClass = 'gap-7 w-[420px] max-sm:w-full'
+const formGroupClass = 'flex flex-col gap-3'
+const labelClass = 'text-sm text-subText'
 
-const LeftColum = styled(Column)`
-  gap: 28px;
-  width: 420px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
-`
-
-const StyledAddressInput = styled(AddressInput)`
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 20px;
-  height: 42px;
-`
-
-const FormWrapper = styled.div`
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-direction: column;
-  width: 100%;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    align-items: center;
-    gap: 20px;
-  `}
-`
-const ActionsWrapper = styled.div`
-  display: flex;
-  gap: 20px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    justify-content: space-between;
-    gap: 12px;
-  `}
-`
-
-const ProfileContent = styled.div`
-  display: flex;
-  gap: 20px;
-  justify-content: flex-start;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column-reverse;
-    width: 100%;
-    align-items: center;
-    gap: 12px;
-  `}
-`
 const getCacheDataDefault = () =>
   JSON.parse(
     JSON.stringify({
@@ -218,30 +152,31 @@ export default function Profile() {
   const [isKeepCurrentProfile, toggleKeepCurrentProfile] = useIsKeepCurrentProfile()
 
   return (
-    <Wrapper>
+    <div className="flex flex-col gap-5 px-6 py-[30px] max-sm:max-w-full max-sm:items-center">
       {!isMobile && (
-        <Text fontSize={'24px'} fontWeight={'500'}>
+        <span className="text-2xl font-medium">
           <Trans>Profile Details</Trans>
-        </Text>
+        </span>
       )}
-      <FormWrapper>
+      <div className="flex w-full flex-col items-start justify-between gap-[30px] max-sm:items-center max-sm:gap-5">
         <WarningSignMessage />
         {signedAccount && isSignInEth && (
-          <LeftColum>
-            <FormGroup>
-              <Label>
+          <Column className={leftColumnClass}>
+            <div className={formGroupClass}>
+              <label className={labelClass}>
                 <Trans>Wallet Address</Trans>
-              </Label>
-              <StyledAddressInput
+              </label>
+              <AddressInput
+                className="h-[42px] rounded-[20px] border border-border"
                 style={{ color: theme.subText, cursor: 'pointer' }}
                 disabled
                 value={shortenAddress(chainId, signedAccount, 17, false)}
                 icon={<CopyHelper toCopy={signedAccount} style={{ color: theme.subText }} />}
               />
-            </FormGroup>
+            </div>
 
-            <FormGroup>
-              <Flex alignItems={'flex-start'} style={{ gap: '6px' }}>
+            <div className={formGroupClass}>
+              <div className="flex items-start gap-1.5">
                 <CheckBox
                   id="keep-profile"
                   borderStyle
@@ -250,26 +185,26 @@ export default function Profile() {
                   checked={isKeepCurrentProfile}
                 />
                 <Column gap="6px">
-                  <Text as="label" htmlFor="keep-profile" fontSize={'14px'} fontWeight={'500'} color={theme.text}>
+                  <label htmlFor="keep-profile" className="text-sm font-medium text-text">
                     <Trans>Keep Current Profile</Trans>
-                  </Text>
-                  <Text fontSize={'12px'} color={theme.subText}>
+                  </label>
+                  <span className="text-xs text-subText">
                     <Trans>Keep this profile active whenever you switch wallets.</Trans>
-                  </Text>
+                  </span>
                 </Column>
-              </Flex>
-            </FormGroup>
-          </LeftColum>
+              </div>
+            </div>
+          </Column>
         )}
 
-        <div style={{ borderBottom: `1px solid ${theme.border}`, width: '100%' }} />
+        <div className="w-full border-b border-border" />
 
-        <ProfileContent>
-          <LeftColum>
-            <FormGroup>
-              <Label>
+        <div className="flex justify-start gap-5 max-sm:w-full max-sm:flex-col-reverse max-sm:items-center max-sm:gap-3">
+          <Column className={leftColumnClass}>
+            <div className={formGroupClass}>
+              <label className={labelClass}>
                 <Trans>Username (Optional)</Trans>
-              </Label>
+              </label>
               <Input
                 color={theme.text}
                 maxLength={50}
@@ -277,17 +212,17 @@ export default function Profile() {
                 onChange={e => onChangeNickname(e.target.value)}
                 placeholder={t`Your nickname`}
               />
-            </FormGroup>
+            </div>
 
-            <FormGroup>
-              <Label style={{ borderBottom: '1px dotted', width: 'fit-content' }}>
+            <div className={formGroupClass}>
+              <label className={`${labelClass} w-fit border-b border-dotted`}>
                 <MouseoverTooltip
                   text={t`If you wish to receive notifications from KyberSwap on your trades, liquidity positions and more, you can provide your email!`}
                   placement="top"
                 >
                   <Trans>Email Address (Optional)</Trans>
                 </MouseoverTooltip>
-              </Label>
+              </label>
               <InputEmailWithVerification
                 style={{ color: theme.text }}
                 hasError={!!errorInput}
@@ -299,18 +234,18 @@ export default function Profile() {
                 onDismissVerifyModal={onDismissVerifyModal}
                 disabled={isSignInEmail}
               />
-            </FormGroup>
-          </LeftColum>
+            </div>
+          </Column>
 
-          <FormGroup style={{ width: isMobile ? '120px' : AVATAR_SIZE, alignItems: 'center' }}>
-            <Label style={{ textAlign: 'center' }}>
+          <div className={formGroupClass} style={{ width: isMobile ? '120px' : AVATAR_SIZE, alignItems: 'center' }}>
+            <label className={`${labelClass} text-center`}>
               <Trans>Profile Picture</Trans>
-            </Label>
+            </label>
             <AvatarEdit avatar={displayAvatar} handleFileChange={handleFileChange} size={AVATAR_SIZE} />
-          </FormGroup>
-        </ProfileContent>
+          </div>
+        </div>
 
-        <ActionsWrapper>
+        <div className="flex gap-5 max-sm:justify-between max-sm:gap-3">
           <ButtonSave onClick={saveProfile} disabled={disableBtnSave}>
             <Save size={16} style={{ marginRight: '4px' }} />
             {loading ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
@@ -327,8 +262,8 @@ export default function Profile() {
               <Trans>Sign Out</Trans>
             </ButtonLogout>
           )}
-        </ActionsWrapper>
-      </FormWrapper>
-    </Wrapper>
+        </div>
+      </div>
+    </div>
   )
 }
