@@ -5,8 +5,6 @@ import { Connector, useConnectors } from 'wagmi'
 import { CONNECTION, CONNECTION_ORDER, HardCodedConnectors, getConnectorWithId } from 'components/Web3Provider'
 import { isInSafeApp } from 'utils'
 
-const normalizeConnectorName = (name: string) => name.trim().toLowerCase()
-
 function getInjectedConnectors(connectors: readonly Connector[]) {
   let isCoinbaseWalletBrowser = false
   const injectedConnectors = connectors.filter(c => {
@@ -47,14 +45,30 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
   return { injectedConnectors, isCoinbaseWalletBrowser }
 }
 
-function dedupeConnectorsByName(connectors: InjectableConnector[]) {
-  const seen = new Set<string>()
-  return connectors.filter(connector => {
-    const name = normalizeConnectorName(connector.name)
-    if (seen.has(name)) return false
-    seen.add(name)
-    return true
+function getConnectorNameKey(connector: Connector) {
+  return connector.name.trim().toLowerCase()
+}
+
+function getConnectorOrderIndex(connector: Connector) {
+  const id = getConnectorOrderId(connector)
+  const index = CONNECTION_ORDER.indexOf(id as any)
+  return index === -1 ? Number.POSITIVE_INFINITY : index
+}
+
+// Dedupe only real injected connectors by display name. Hardcoded install/deep-link options
+// are removed before this step, so they cannot replace an actual provider connector.
+function dedupeInjectedConnectors(connectors: InjectableConnector[]) {
+  const byName = new Map<string, InjectableConnector>()
+
+  connectors.forEach(connector => {
+    const name = getConnectorNameKey(connector)
+    const existing = byName.get(name)
+    if (!existing || getConnectorOrderIndex(connector) < getConnectorOrderIndex(existing)) {
+      byName.set(name, connector)
+    }
   })
+
+  return Array.from(byName.values())
 }
 
 function getConnectorOrderId(connector: Connector) {
@@ -79,9 +93,13 @@ export function useOrderedConnections(): InjectableConnector[] {
 
     let hardcodeInjectedConnectors = connectors.filter(c => hardcodedInjectedIds.includes(c.id))
 
-    let injectedConnectorsWithoutHardcoded = injectedConnectors.filter(c => {
-      return !hardcodedInjectedIds.includes(c.id)
-    })
+    // Keep installed/injected providers separate from hardcoded install options.
+    // This lets us dedupe provider aliases without hiding install options globally.
+    const injectedConnectorsWithoutHardcoded = dedupeInjectedConnectors(
+      injectedConnectors.filter(c => {
+        return !hardcodedInjectedIds.includes(c.id)
+      }),
+    )
 
     // remove hardcoded connectors if the real connector is present
     HardCodedConnectors.forEach(c => {
@@ -95,13 +113,13 @@ export function useOrderedConnections(): InjectableConnector[] {
       throw new Error('Expected connector(s) missing from wagmi context.')
     }
 
-    // Special-case: Only display the injected connector for in-wallet browsers.
-    if (
-      isMobile &&
-      injectedConnectorsWithoutHardcoded.length === 2 &&
-      injectedConnectorsWithoutHardcoded.some(c => c.id === CONNECTION.PORTO)
-    ) {
-      injectedConnectorsWithoutHardcoded = injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
+    // Special-case: In mobile in-wallet browsers, show only the wallet that injected the provider.
+    // Porto can be present as an extra injected connector, but should not replace the active wallet.
+    if (isMobile) {
+      const mobileInjectedConnectors = injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
+      if (mobileInjectedConnectors.length >= 1) {
+        return mobileInjectedConnectors
+      }
     }
 
     // Special-case: Only display the Coinbase connector in the Coinbase Wallet.
@@ -132,6 +150,6 @@ export function useOrderedConnections(): InjectableConnector[] {
       return aIndex - bIndex
     })
 
-    return dedupeConnectorsByName(orderedConnectors)
+    return orderedConnectors
   }, [connectors])
 }
