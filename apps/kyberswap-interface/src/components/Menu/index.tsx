@@ -303,7 +303,7 @@ export default function Menu() {
             {isMobile && (
               <ButtonEmpty
                 onClick={toggle}
-                style={{ position: 'absolute', width: 'fit-content', top: '-16px', right: '-16px' }}
+                style={{ position: 'absolute', width: 'fit-content', top: 0, right: 0, padding: 0 }}
               >
                 <X color={theme.subText} />
               </ButtonEmpty>
