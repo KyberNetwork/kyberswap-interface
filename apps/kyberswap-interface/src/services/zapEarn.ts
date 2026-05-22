@@ -474,7 +474,6 @@ export const {
   useExplorerLandingQuery,
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
-  useLazyPoolsExplorerQuery,
   usePoolDetailQuery,
   useLazyPoolDetailQuery,
   useEstimatePositionAprQuery,

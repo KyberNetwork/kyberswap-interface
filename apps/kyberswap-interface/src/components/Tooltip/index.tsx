@@ -1,10 +1,11 @@
-import { ReactNode, useCallback, useRef, useState } from 'react'
+import { type MouseEvent, ReactNode, useCallback, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import Popover, { PopoverProps } from 'components/Popover'
 import Row from 'components/Row'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
 const TooltipContainer = styled.div<{ width?: string; maxWidth?: string; size?: number }>`
   width: ${({ width }) => width || '228px'};
@@ -18,11 +19,6 @@ const TooltipContainer = styled.div<{ width?: string; maxWidth?: string; size?: 
 export const TextDashed = styled(Text)<{ color?: string; underlineColor?: string }>`
   width: fit-content;
   border-bottom: 1px dotted ${({ theme, underlineColor }) => underlineColor || theme.border};
-`
-
-export const TextDotted = styled(Text)<{ $underlineColor?: string }>`
-  width: fit-content;
-  border-bottom: 1px dotted ${({ theme, $underlineColor }) => $underlineColor || theme.border};
 `
 
 interface TooltipProps extends Omit<PopoverProps, 'content'> {
@@ -70,6 +66,38 @@ export default function Tooltip({
       onMouseLeave={onMouseLeave}
       {...rest}
     />
+  )
+}
+
+export function ClickTooltip({
+  children,
+  disableTooltip,
+  stopPropagationOnClick = true,
+  ...rest
+}: Omit<TooltipProps, 'show'> & { stopPropagationOnClick?: boolean }) {
+  const [show, setShow] = useState(false)
+  const nodeRef = useRef<HTMLDivElement>(null)
+
+  useOnClickOutside(nodeRef, show ? () => setShow(false) : undefined)
+
+  const handleClick = useCallback(
+    (event: MouseEvent<HTMLDivElement>) => {
+      if (stopPropagationOnClick) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+      setShow(prev => !prev)
+    },
+    [stopPropagationOnClick],
+  )
+
+  if (disableTooltip) return <>{children}</>
+  return (
+    <Tooltip {...rest} show={show}>
+      <div ref={nodeRef} onClick={handleClick}>
+        {children}
+      </div>
+    </Tooltip>
   )
 }
 

@@ -1,4 +1,5 @@
 import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
+import { Token } from '@kyber/schema'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
@@ -48,11 +49,15 @@ export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) 
 export const isWrappedNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase()
 
-export const isUniswapExchange = (dex: Exchange) =>
-  dex === Exchange.DEX_UNISWAPV2 ||
-  dex === Exchange.DEX_UNISWAPV3 ||
-  dex === Exchange.DEX_UNISWAP_V4 ||
-  dex === Exchange.DEX_UNISWAP_V4_FAIRFLOW
+export const getDefaultRevertPrice = (pool: { token0: Token; token1: Token } | null, chainId: number) => {
+  if (!pool) return false
+
+  const isToken0Native = isWrappedNativeToken(pool.token0.address, chainId as keyof typeof WETH)
+  const isToken0Stable = pool.token0.isStable
+  const isToken1Stable = pool.token1.isStable
+
+  return Boolean(isToken0Stable || (isToken0Native && !isToken1Stable))
+}
 
 export const submitTransaction = async ({
   library,

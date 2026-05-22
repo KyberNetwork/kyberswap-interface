@@ -240,7 +240,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
     <Stack gap={16}>
       <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
         <Text color={theme.text} fontSize={18} fontWeight={500}>
-          Earning
+          Earning History
         </Text>
 
         <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />

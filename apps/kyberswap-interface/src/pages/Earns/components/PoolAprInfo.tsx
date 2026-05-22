@@ -83,7 +83,7 @@ const FarmingMarker = ({ pool }: { pool: ParsedEarnPool }) => {
   return isFarmingLm ? (
     <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
   ) : (
-    <FarmingIcon width={24} height={24} style={{ marginLeft: 4 }} />
+    <FarmingIcon width={20} height={20} style={{ marginLeft: 4 }} />
   )
 }
 
@@ -94,7 +94,7 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
   return (
     <HStack align="center" gap={4} wrap="wrap">
       <MouseoverTooltipDesktopOnly
-        placement="bottom"
+        placement="left"
         width="fit-content"
         text={<AprTooltipContent pool={pool} type="total" />}
       >

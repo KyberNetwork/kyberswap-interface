@@ -10,6 +10,7 @@ import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -291,9 +292,13 @@ const UserPositions = () => {
       {claimAllRewardsModal}
 
       <PositionPageWrapper>
+        <HiddenH1>Track all your active liquidity positions in one dashboard.</HiddenH1>
+        <HiddenH2>
+          Monitor APR, rewards, and performance across protocols — no need to check each one separately.
+        </HiddenH2>
         <Flex alignItems="center" sx={{ gap: 3 }}>
           <IconArrowLeft onClick={() => navigate(-1)} />
-          <Text as="h1" fontSize={24} fontWeight="500">
+          <Text fontSize={24} fontWeight="500">
             {t`My Liquidity Positions`}
           </Text>
         </Flex>

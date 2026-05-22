@@ -151,14 +151,6 @@ export type AnnouncementTemplateSmartExit = {
   reason?: SmartExitReason
 }
 
-export type TokenInfoWatchlist = {
-  logoURL: string
-  kyberScore: string
-  symbol: string
-  price: string
-  priceChange: string
-}
-
 export type AnnouncementTemplatePoolPosition = {
   position: PoolPositionAnnouncement | PoolPositionLiquidityAnnouncement
   popupType: PopupType

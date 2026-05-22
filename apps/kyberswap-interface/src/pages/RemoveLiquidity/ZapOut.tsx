@@ -13,7 +13,6 @@ import {
   computePriceImpact,
 } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -63,7 +62,6 @@ import { formatJSBIValue } from 'utils/formatBalance'
 import { getZapContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
-import { ErrorName } from 'utils/sentry'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
 import {
@@ -391,11 +389,6 @@ export default function ZapOut({
               setZapOutError(t`Insufficient Liquidity in the Liquidity Pool to Swap`)
             } else {
               setZapOutError(err?.message)
-              if (!didUserReject(err)) {
-                const e = new Error('estimate gas zap out failed', { cause: err })
-                e.name = ErrorName.RemoveClassicLiquidityError
-                captureException(e, { extra: { args } })
-              }
             }
 
             return undefined
@@ -459,9 +452,6 @@ export default function ZapOut({
 
           if (!didUserReject(error)) {
             console.error('Remove Classic Liquidity Error:', { message, error })
-            const e = new Error(friendlyError(message), { cause: error })
-            e.name = ErrorName.RemoveClassicLiquidityError
-            captureException(e, { extra: { args } })
           }
         })
     }

@@ -121,6 +121,11 @@ export default function Swap() {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
 
+  const isSmartSettlementActive = useMemo(
+    () => routeSummary?.route?.some(route => route.some(swap => swap.extra?._ce)),
+    [routeSummary?.route],
+  )
+
   const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId])
 
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
@@ -184,6 +189,7 @@ export default function Swap() {
                 defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
                 inputAmount={routeSummary?.parsedAmountIn}
                 outputAmount={routeSummary?.parsedAmountOut}
+                isSmartSettlementActive={isSmartSettlementActive}
               />
             )}
 

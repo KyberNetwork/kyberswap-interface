@@ -4,7 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
-import { ChevronDown } from 'react-feather'
+import { AlertTriangle, ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import {
@@ -14,6 +14,7 @@ import {
   type TokenChartTimeFrame,
   getTokenChartFromBucketMs,
   useLazyTokenPriceChartQuery,
+  useTokenPriceChartQuery,
 } from 'services/tokenChart'
 import styled from 'styled-components'
 
@@ -35,6 +36,35 @@ const ChartPanel = styled(Stack)`
   overflow: hidden;
   border: 1px solid ${({ theme }) => theme.darkBorder};
   border-radius: 12px;
+`
+
+const ChartFrame = styled.div`
+  position: relative;
+  border-radius: 8px;
+`
+
+const ActivityOverlay = styled(Stack)`
+  position: absolute;
+  inset: 0;
+  padding: 12px;
+  z-index: 10;
+  border: 1px solid ${({ theme }) => rgba(theme.warning, 0.24)};
+  border-radius: inherit;
+  background: ${({ theme }) => rgba(theme.background, 0.6)};
+  color: ${({ theme }) => theme.warning};
+  text-align: center;
+  backdrop-filter: blur(4px);
+`
+
+const ActivityWarning = styled(HStack)`
+  position: absolute;
+  z-index: 10;
+  top: 0px;
+  border: 1px solid ${({ theme }) => rgba(theme.warning, 0.24)};
+  border-radius: 8px;
+  background: ${({ theme }) => rgba(theme.warning, 0.12)};
+  color: ${({ theme }) => theme.warning};
+  padding: 8px;
 `
 
 const TokenTabsList = styled.div`
@@ -128,6 +158,10 @@ const mergeTokenChartCandles = (candles: TokenChartCandle[]) =>
     .sort((a, b) => dayjs(a.bucket).valueOf() - dayjs(b.bucket).valueOf())
     .filter((candle, index, array) => index === 0 || candle.bucket !== array[index - 1]?.bucket)
 
+const countRecentTransactions = (candles: TokenChartCandle[], count: number) => {
+  return candles.slice(-count).reduce((total, candle) => total + (candle.transactions ?? 0), 0)
+}
+
 type TokenPriceChartProps = {
   tokens?: Array<Currency | undefined>
 }
@@ -212,6 +246,15 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
     },
   })
 
+  const { currentData: activityData, isLoading: isActivityLoading } = useTokenPriceChartQuery(
+    {
+      ...initialQueryParams,
+      timeFrame: '1h',
+      fromBucketMs: getTokenChartFromBucketMs({ timeFrame: '1h' }),
+    },
+    { skip: !activeTokenAddress || !stableAddress },
+  )
+
   const handleLoadMore = async () => {
     if (!hasNextPage || isFetchingNextPage) return
     await fetchNextPage()
@@ -232,9 +275,14 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   )
 
   const latestPageData = infiniteData?.pages[0]
-  const currentPrice = latestPageData?.latestPrice ?? 0
+  const currentPrice = latestPageData?.latestPrice ?? chartData.at(-1)?.close
   const priceChange = latestPageData?.change24h ?? 0
   const priceChangeColor = priceChange >= 0 ? theme.primary : theme.red
+
+  const activityCandles = useMemo(() => activityData?.candles ?? [], [activityData?.candles])
+  const shouldUseActivityState = activityCandles.length > 0
+  const shouldHideChartForNoActivity = shouldUseActivityState && countRecentTransactions(activityCandles, 24 * 7) < 1
+  const shouldShowLowActivityWarning = shouldUseActivityState && countRecentTransactions(activityCandles, 24) < 5
 
   if (!activeToken || !stableToken) return null
 
@@ -293,11 +341,11 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
 
       {isExpanded && (
         <Stack p={16} sx={{ borderTop: `1px solid ${theme.darkBorder}` }}>
-          <Stack gap={12}>
+          <Stack gap={12} position="relative">
             <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
               <Stack>
                 {currentPrice !== undefined && (
-                  <HStack align="baseline" gap={8} wrap="wrap">
+                  <HStack align="baseline" gap={8} wrap="nowrap">
                     <Text color={theme.text} fontSize={20} fontWeight={500}>
                       {formatPrice(currentPrice)}
                     </Text>
@@ -317,36 +365,64 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                 )}
               </Stack>
 
-              <SegmentedControl
-                onChange={setTimeFrame}
-                options={CHART_TIME_FRAME_OPTIONS}
-                size="sm"
-                value={timeFrame}
-              />
+              <Stack ml="auto">
+                <SegmentedControl
+                  onChange={setTimeFrame}
+                  options={CHART_TIME_FRAME_OPTIONS}
+                  size="sm"
+                  value={timeFrame}
+                />
+              </Stack>
             </HStack>
 
-            <PoolChartState
-              key={chartRequestKey}
-              emptyMessage={
-                activeToken ? 'Chart unavailable for this pair.' : 'Select a token to view the price chart.'
-              }
-              errorMessage="Unable to load token price."
-              height={chartHeight}
-              isEmpty={chartData.length === 0}
-              isError={isError}
-              isLoading={isLoading}
-              skeletonType="candle"
-            >
-              <Suspense fallback={<PoolChartSkeleton height={chartHeight} type="candle" />}>
-                <TokenPriceChartCanvas
-                  key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
-                  chartData={chartData}
-                  canLoadMore={hasNextPage}
-                  onLoadMore={handleLoadMore}
-                  timeFrame={timeFrame}
-                />
-              </Suspense>
-            </PoolChartState>
+            <ChartFrame>
+              {shouldShowLowActivityWarning && (
+                <ActivityWarning align="center" justify="center">
+                  <MouseoverTooltip
+                    placement="top"
+                    text={
+                      <Text fontSize={12}>
+                        <Trans>Limited on-chain activity in the past 24h - price may not reflect tradable rates</Trans>
+                      </Text>
+                    }
+                  >
+                    <AlertTriangle size={14} />
+                  </MouseoverTooltip>
+                </ActivityWarning>
+              )}
+
+              <PoolChartState
+                key={chartRequestKey}
+                emptyMessage={
+                  activeToken ? 'Chart unavailable for this pair.' : 'Select a token to view the price chart.'
+                }
+                errorMessage="Unable to load token price."
+                height={chartHeight}
+                isEmpty={chartData.length === 0}
+                isError={isError}
+                isLoading={isLoading || isActivityLoading}
+                skeletonType="candle"
+              >
+                <Suspense fallback={<PoolChartSkeleton height={chartHeight} type="candle" />}>
+                  <TokenPriceChartCanvas
+                    key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
+                    chartData={chartData}
+                    canLoadMore={hasNextPage}
+                    onLoadMore={handleLoadMore}
+                    timeFrame={timeFrame}
+                  />
+                </Suspense>
+              </PoolChartState>
+
+              {shouldHideChartForNoActivity && (
+                <ActivityOverlay align="center" gap={8} justify="center">
+                  <AlertTriangle color={theme.warning} size={28} />
+                  <Text color={theme.text} fontSize={14} fontWeight={500}>
+                    <Trans>Not enough on-chain activity to display a reliable price chart for this token</Trans>
+                  </Text>
+                </ActivityOverlay>
+              )}
+            </ChartFrame>
 
             {upToSmall && (
               <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="280px">

@@ -22,19 +22,29 @@ type SeoConfig = {
 const SITE_URL = `https://${KYBERSWAP_DOMAIN}`
 const DEFAULT_TITLE = 'KyberSwap - Limitless Access To DeFi'
 const DEFAULT_DESCRIPTION =
-  'KyberSwap is a multi-chain aggregator and DeFi hub that empowers users with the insights and tools to achieve financial autonomy. All the above while being fast, secure, and easy-to-use.'
+  'Non-custodial platform to swap, earn, and trade crypto at the best rates across chains. Powered by an advanced multi-chain aggregator engine.'
 const DEFAULT_OG_IMAGE = `${SITE_URL}/kyberswap-og-image.png?version=2023`
 const INDEX_ROBOTS = 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
 const NOINDEX_ROBOTS = 'noindex,follow'
 const STRUCTURED_DATA_ID = 'kyberswap-structured-data'
 const ABOUT_KYBERSWAP_DESCRIPTION =
   'KyberSwap is a decentralized platform. We provide our traders with superior token prices by analyzing rates across thousands of exchanges instantly!'
-const SWAP_DESCRIPTION = 'Instantly buy or sell tokens at superior prices'
-const LIMIT_DESCRIPTION = 'Buy or sell tokens at customized prices'
-const CROSS_CHAIN_DESCRIPTION = 'Swap between tokens on different chains'
+const SWAP_DESCRIPTION =
+  'Swap any token at the best rate across chains. An advanced aggregator splits your trade across hundreds of DEXs and liquidity sources for minimal slippage.'
+const LIMIT_DESCRIPTION =
+  'Auto execute with your price target. Gasless & no slippage - Kyberswap Limit Order execute on-chain automatically when the market reaches your price.'
+const CROSS_CHAIN_DESCRIPTION =
+  'Swap tokens between EVMs, Bitcoin, Solana, and Near chains in one step - no manual bridging. Quotes from multiple providers, best rate picked automatically.'
 const EARN_DESCRIPTION =
   'Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap technology—to help you maximize earnings from your liquidity across various DeFi protocols.'
-const EARN_POOLS_DESCRIPTION = 'Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology.'
+const EARN_POOLS_DESCRIPTION =
+  'Explore and compare yield opportunities across top DeFi protocols on multiple chains -  trading volume, TVL, and pool performance across networks - all from one interface without switching apps.'
+const EARN_POSITIONS_DESCRIPTION =
+  'Track all your active liquidity positions in one dashboard. Monitor APR, rewards, and performance across protocols - no need to check each one separately.'
+const MARKET_DESCRIPTION =
+  'Live token on-chain prices, trading volume, and market trends across multiple chains. Spot opportunities and jump straight into a trade from one dashboard.'
+const CAMPAIGNS_DESCRIPTION =
+  'Earn bonus rewards and incentives while you swap, provide liquidity, or trade. Join active campaigns across supported chains - no lock-up required.'
 const ABOUT_KNC_DESCRIPTION =
   'KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap - the multi-chain decentralized exchange (DEX) that provides superior rates for traders.'
 
@@ -194,6 +204,35 @@ const resolveSeoConfig = (pathname: string, search: string): SeoConfig => {
       canonicalPath: APP_PATHS.EARN_POOLS,
       robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
       structuredData: getDefaultStructuredData(APP_PATHS.EARN_POOLS),
+    }
+  }
+
+  if (normalizedPath === APP_PATHS.EARN_POSITIONS) {
+    return {
+      title: 'Liquidity Positions | KyberSwap',
+      description: EARN_POSITIONS_DESCRIPTION,
+      canonicalPath: APP_PATHS.EARN_POSITIONS,
+      robots: NOINDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(APP_PATHS.EARN_POSITIONS),
+    }
+  }
+
+  if (normalizedPath === APP_PATHS.MARKET_OVERVIEW) {
+    return {
+      title: 'Market Overview | KyberSwap',
+      description: MARKET_DESCRIPTION,
+      canonicalPath: APP_PATHS.MARKET_OVERVIEW,
+      robots: NOINDEX_ROBOTS,
+    }
+  }
+
+  const campaignsMatch = matchPath('/campaigns/*', normalizedPath)
+  if (campaignsMatch) {
+    return {
+      title: 'Campaigns | KyberSwap',
+      description: CAMPAIGNS_DESCRIPTION,
+      canonicalPath: normalizedPath,
+      robots: NOINDEX_ROBOTS,
     }
   }
 

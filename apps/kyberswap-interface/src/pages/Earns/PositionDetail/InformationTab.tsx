@@ -214,6 +214,8 @@ const InformationTab = () => {
             <Flex flexDirection="column" alignContent="flex-end" sx={{ gap: 2 }}>
               {initialLoading ? (
                 <PositionSkeleton width={120} height={19} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton width={120} height={19} text={t`Finalizing...`} />
               ) : (
                 <Flex alignItems="center" sx={{ gap: '6px' }} fontSize={16}>
                   <TokenLogo src={position?.token0.logo} size={16} />
@@ -223,6 +225,8 @@ const InformationTab = () => {
               )}
               {initialLoading ? (
                 <PositionSkeleton width={120} height={19} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton width={120} height={19} text={t`Finalizing...`} />
               ) : (
                 <Flex alignItems="center" sx={{ gap: '6px' }} fontSize={16}>
                   <TokenLogo src={position?.token1.logo} size={16} />
@@ -378,6 +382,8 @@ const InformationTab = () => {
                   <CompactPriceValue>
                     {initialLoading ? (
                       <PositionSkeleton width={60} height={18} />
+                    ) : isUnfinalized ? (
+                      <PositionSkeleton width={60} height={18} text={t`Finalizing...`} />
                     ) : (
                       <>
                         <Text fontSize={16} fontWeight={500}>
@@ -420,6 +426,8 @@ const InformationTab = () => {
                   <CompactPriceValue>
                     {initialLoading ? (
                       <PositionSkeleton width={60} height={18} />
+                    ) : isUnfinalized ? (
+                      <PositionSkeleton width={60} height={18} text={t`Finalizing...`} />
                     ) : (
                       <>
                         <Text fontSize={16} fontWeight={500}>
@@ -584,7 +592,7 @@ const InformationTab = () => {
                 }
               }}
             >
-              {!isOutRange ? t`Add Liquidity` : t`Reposition to new range`}
+              {!isOutRange ? t`Increase Liquidity` : t`Reposition to new range`}
             </PositionAction>
           )}
         </PositionActionWrapper>

@@ -11,6 +11,9 @@ Preferred source pages:
 Official documentation:
 - https://docs.kyberswap.com
 
+API discovery:
+- https://kyberswap.com/.well-known/api-catalog
+
 Policies:
 - https://kyberswap.com/files/Kyber%20-%20Terms%20of%20Use%20-%2017%20April%202025.pdf
 - https://kyberswap.com/files/Kyber%20-%20Privacy%20Policy%20-%2020%20November%202023.pdf

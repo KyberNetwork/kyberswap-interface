@@ -43,4 +43,3 @@ cypress/fixtures/example.json
 target/
 
 *.tsbuildinfo
-storybook-static

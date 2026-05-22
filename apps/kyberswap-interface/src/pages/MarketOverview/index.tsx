@@ -9,14 +9,15 @@ import { useMarketOverviewQuery } from 'services/marketOverview'
 import { ButtonEmpty } from 'components/Button'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
+import { PoolsPageWrapper } from 'components/PageWrappers'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
+import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import { MEDIA_WIDTHS } from 'theme'
 
 import SortIcon, { Direction } from './SortIcon'
@@ -99,8 +100,10 @@ export default function MarketOverview() {
 
   return (
     <PoolsPageWrapper>
+      <HiddenH1>Live token on-chain prices, trading volume, and market trends across multiple chains.</HiddenH1>
+      <HiddenH2>Spot opportunities and jump straight into a trade from one dashboard.</HiddenH2>
       <div>
-        <Text as="h1" fontSize={24} fontWeight="500">
+        <Text fontSize={24} fontWeight="500">
           <Trans>Market Overview</Trans>
         </Text>
         <Text color={theme.subText} marginTop="8px">
