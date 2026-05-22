@@ -709,15 +709,18 @@
     --ks-red: #ff537b;
     --ks-red1: #ff6871;
     --ks-red2: #f82d3a;
+    --ks-red-10: #ff537b1a;
     --ks-red-20: #ff537b33;
     --ks-red-30: #ff537b4d;
     --ks-red-35: #ff537b59;
+    --ks-primary-10: #31cb9e1a;
     --ks-primary-12: #31cb9e1f;
     --ks-primary-20: #31cb9e33;
     --ks-primary-25: #31cb9e40;
     --ks-primary-30: #31cb9e4d;
     --ks-primary-40: #31cb9e66;
     --ks-warning: #ff9901;
+    --ks-warning-10: #ff99011a;
     --ks-warning-20: #ff990133;
     --ks-warning-25: rgba(255, 153, 1, 0.25);
     --ks-warning-30: #ff99014d;

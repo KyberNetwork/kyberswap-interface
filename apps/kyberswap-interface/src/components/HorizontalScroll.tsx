@@ -1,6 +1,5 @@
 import { CSSProperties, Fragment, ReactNode, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
-import { Flex } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 import useThrottle from 'hooks/useThrottle'
@@ -65,11 +64,11 @@ const HorizontalScroll = ({
       className="ks-horizontal-scroll relative flex h-fit w-full max-w-[calc(100vw-32px)] items-center justify-end max-sm:justify-start"
     >
       <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
-        <Flex alignItems="center" sx={{ gap: 4, flex: 1 }} ref={contentRef} style={style}>
+        <div ref={contentRef} style={style} className="flex flex-1 items-center gap-8">
           {(items ?? []).map(i => (
             <Fragment key={i}>{renderItem(i)}</Fragment>
           ))}
-        </Flex>
+        </div>
       </ScrollContainer>
     </div>
   )

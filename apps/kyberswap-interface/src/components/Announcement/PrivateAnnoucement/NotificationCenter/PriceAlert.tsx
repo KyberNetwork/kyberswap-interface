@@ -1,6 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { getSwapUrlPriceAlert } from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
@@ -11,28 +9,6 @@ import { useNavigateToUrl } from 'utils/redirect'
 import { formatTime } from 'utils/time'
 
 import { Desc, Time, Title, Wrapper } from './styled'
-
-const SupplementaryTextWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 12px 16px;
-  justify-content: space-between;
-  flex-wrap: wrap;
-
-  font-size: 12px;
-  white-space: nowrap;
-  line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column;
-    ${EmptySupplementaryText} {
-      display: none;
-    }
-  `}
-`
-
-const EmptySupplementaryText = styled.span``
 
 const PriceAlertAnnouncement: React.FC<PrivateAnnouncementPropCenter<AnnouncementTemplatePriceAlert>> = ({
   announcement,
@@ -46,23 +22,23 @@ const PriceAlertAnnouncement: React.FC<PrivateAnnouncementPropCenter<Announcemen
   }
   return (
     <Wrapper onClick={onClick}>
-      <Flex justifyContent="space-between" width="100%">
+      <div className="flex w-full justify-between">
         <Title>
           <InboxIcon type={templateType} chainId={Number(chainId)} />
           {title}
         </Title>
-        <Flex alignItems={'center'}>
+        <div className="flex items-center">
           <Time>{formatTime(sentAt)} </Time>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
       <Desc>
         <AlertCondition alertData={templateBody.alert || {}} shouldIncludePrefix={true} />
         {note ? (
-          <SupplementaryTextWrapper>
-            <Text as="span" sx={{ whiteSpace: 'break-spaces', overflowWrap: 'anywhere' }}>
+          <div className="flex flex-col flex-wrap justify-between gap-x-4 gap-y-3 whitespace-nowrap text-xs leading-4 text-subText md:flex-row">
+            <span className="whitespace-break-spaces [overflow-wrap:anywhere]">
               <Trans>Note</Trans>: {note}
-            </Text>
-          </SupplementaryTextWrapper>
+            </span>
+          </div>
         ) : null}
       </Desc>
     </Wrapper>

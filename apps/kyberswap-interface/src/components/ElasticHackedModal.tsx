@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { Info, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { ButtonConfirmed, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
@@ -17,32 +16,32 @@ const ElasticHackedModal = ({ isOpen, onClose, onConfirm }: Props) => {
 
   return (
     <Modal isOpen={isOpen} width="480px" maxWidth="unset">
-      <Flex flexDirection="column" padding="20px" bg={theme.background}>
-        <Flex justifyContent="flex-end">
+      <div className="flex flex-col bg-background p-5">
+        <div className="flex justify-end">
           <X onClick={onClose} className="size-5 cursor-pointer [&>*]:stroke-text" />
-        </Flex>
-        <Flex justifyContent="center">
+        </div>
+        <div className="flex justify-center">
           <Info color={theme.warning} size={64} />
-        </Flex>
-        <Text marginTop="20px" textAlign="center" fontSize="16px" fontWeight={500} lineHeight="24px">
+        </div>
+        <p className="m-0 mt-5 text-center text-base font-medium leading-6">
           <Trans>Attention</Trans>
-        </Text>
-        <Text marginTop="8px" textAlign="center" fontSize={14} lineHeight="20px" color={theme.subText}>
+        </p>
+        <p className="m-0 mt-2 text-center text-sm leading-5 text-subText">
           <Trans>
             Adding liquidity to Elastic Pools and staking in Elastic Farms is temporarily unavailable. Kindly visit
             &quot;My Pool&quot; for prompt removal of your liquidity.
           </Trans>
-        </Text>
+        </p>
 
-        <Flex sx={{ gap: '16px' }} marginTop="20px">
+        <div className="mt-5 flex gap-4">
           <ButtonOutlined style={{ flex: 1, fontSize: '16px', padding: '10px' }} onClick={onClose}>
             <Trans>Close</Trans>
           </ButtonOutlined>
           <ButtonConfirmed style={{ fontSize: '16px', flex: 1, padding: '10px' }} onClick={onConfirm}>
             <Trans>Go to My Pool</Trans>
           </ButtonConfirmed>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     </Modal>
   )
 }

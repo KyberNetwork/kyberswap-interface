@@ -3,7 +3,6 @@ import '@reach/dialog/styles.css'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { CSSProperties, ReactNode } from 'react'
 import { X } from 'react-feather'
-import { Text } from 'rebass'
 
 import Column from 'components/Column'
 import Row from 'components/Row'
@@ -68,9 +67,7 @@ export default function Drawer({
             >
               <Column gap="12px" className="w-full">
                 <Row width={'100%'} justify="space-between">
-                  <Text fontWeight={'500'} color={theme.text}>
-                    {title}
-                  </Text>
+                  <span className="font-medium text-text">{title}</span>
                   <X style={{ cursor: 'pointer' }} size={18} color={theme.subText} onClick={onDismiss} />
                 </Row>
                 <div>{children}</div>

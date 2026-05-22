@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { CSSProperties, ReactNode, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
 
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { APP_PATHS } from 'constants/index'
@@ -72,9 +71,9 @@ export default function SubscribeNotificationButton({
         )}
       >
         <NotificationIcon size={16} />
-        <Text className={cn('ml-1.5 text-sm font-medium', iconOnly && 'hidden', collapseOnXs && 'max-xs:hidden')}>
+        <span className={cn('ml-1.5 text-sm font-medium', iconOnly && 'hidden', collapseOnXs && 'max-xs:hidden')}>
           {hasSubscribe ? <Trans>Unsubscribe</Trans> : <Trans>Subscribe</Trans>}
-        </Text>
+        </span>
       </ButtonPrimary>
     </MouseoverTooltipDesktopOnly>
   )

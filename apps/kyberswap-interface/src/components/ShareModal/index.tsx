@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
 import { Telegram } from 'components/Icons'
@@ -79,14 +78,14 @@ export const ShareGroupButtons = ({
   )
 
   return (
-    <Flex justifyContent="space-between" padding="32px 0" width="100%">
+    <div className="flex w-full justify-between py-8">
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
             <ExternalLink href={telegram} style={{ display: 'flex' }}>
               <Telegram size={size} color={color} />
             </ExternalLink>
-            {showLabel && <Text>Telegram</Text>}
+            {showLabel && <span>Telegram</span>}
           </>
         )}
       </ShareItem>
@@ -96,7 +95,7 @@ export const ShareGroupButtons = ({
             <ExternalLink href={twitter} style={{ display: 'flex' }}>
               <TwitterIcon width={size} height={size} color={color} />
             </ExternalLink>
-            {showLabel && <Text>Twitter</Text>}
+            {showLabel && <span>Twitter</span>}
           </>
         )}
       </ShareItem>
@@ -106,7 +105,7 @@ export const ShareGroupButtons = ({
             <ExternalLink href={facebook} style={{ display: 'flex' }}>
               <Facebook color={color} size={size} />
             </ExternalLink>
-            {showLabel && <Text>Facebook</Text>}
+            {showLabel && <span>Facebook</span>}
           </>
         )}
       </ShareItem>
@@ -116,11 +115,11 @@ export const ShareGroupButtons = ({
             <ExternalLink href={discord} style={{ display: 'flex' }}>
               <Discord width={size} height={size} color={color} />
             </ExternalLink>
-            {showLabel && <Text>Discord</Text>}
+            {showLabel && <span>Discord</span>}
           </>
         )}
       </ShareItem>
-    </Flex>
+    </div>
   )
 }
 
@@ -166,11 +165,9 @@ export default function ShareModal({
 
   return (
     <Modal isOpen={isOpen} onDismiss={handleDismissModal}>
-      <Flex flexDirection="column" alignItems="center" padding="25px" width="100%">
+      <div className="flex w-full flex-col items-center p-6">
         <RowBetween>
-          <Text fontSize={18} fontWeight={500}>
-            {title}
-          </Text>
+          <span className="text-lg font-medium">{title}</span>
           <ButtonText onClick={handleDismissModal} style={{ lineHeight: '0' }}>
             <X color={theme.text} />
           </ButtonText>
@@ -197,7 +194,7 @@ export default function ShareModal({
             </span>
           </ButtonPrimary>
         </div>
-      </Flex>
+      </div>
     </Modal>
   )
 }

@@ -1,8 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Dispatch, FC, SetStateAction } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
@@ -10,19 +8,6 @@ import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDegenModeManager } from 'state/user/hooks'
-
-import { highlight } from '../styleds'
-
-const Wrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 8px;
-  margin: -8px;
-  border-radius: 8px;
-  &[data-highlight='true'] {
-    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
-  }
-`
 
 type Props = {
   showConfirmation: boolean
@@ -53,8 +38,11 @@ const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) 
 
   return (
     <>
-      <Wrapper data-highlight={enableDegenMode}>
-        <Flex width="fit-content" alignItems="center">
+      <div
+        data-highlight={enableDegenMode}
+        className="-m-2 flex justify-between rounded-lg p-2 data-[highlight=true]:animate-highlight"
+      >
+        <div className="flex w-fit items-center">
           <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
             <MouseoverTooltip
               text={
@@ -68,14 +56,14 @@ const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) 
               <Trans>Degen Mode</Trans>
             </MouseoverTooltip>
           </TextDashed>
-        </Flex>
+        </div>
         <Toggle
           id="toggle-expert-mode-button"
           isActive={isDegenMode}
           toggle={handleToggleDegenMode}
           className="bg-buttonBlack"
         />
-      </Wrapper>
+      </div>
 
       <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
     </>

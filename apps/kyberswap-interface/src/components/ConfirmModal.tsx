@@ -2,12 +2,10 @@ import { Trans } from '@lingui/macro'
 import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
-import { Flex, Text } from 'rebass'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { ModalCenter } from 'components/Modal'
 import { RowBetween } from 'components/Row'
-import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
 import { setConfirmData } from 'state/application/actions'
 import { ConfirmModalState, initialStateConfirmModal } from 'state/application/reducer'
@@ -27,7 +25,6 @@ const ModalConfirm: React.FC = () => {
   const { isOpen, onCancel, onConfirm, cancelText, confirmText, content, title } = useSelector(
     (state: AppState) => state.application.confirmModal,
   )
-  const theme = useTheme()
   const dispatch = useAppDispatch()
 
   const handleDismiss = () => {
@@ -38,21 +35,12 @@ const ModalConfirm: React.FC = () => {
     <ModalCenter isOpen={isOpen} minHeight={false} maxWidth={isMobile ? '95vw' : 400}>
       <div className="m-0 flex w-full flex-col gap-5 p-6">
         <RowBetween>
-          <Text fontSize={20} fontWeight={400}>
-            {title || <Trans>Notification</Trans>}
-          </Text>
+          <span className="text-xl font-normal">{title || <Trans>Notification</Trans>}</span>
         </RowBetween>
 
-        <Text as="span" fontSize="14px" color={theme.subText}>
-          {content}
-        </Text>
+        <span className="text-sm text-subText">{content}</span>
 
-        <Flex
-          sx={{
-            alignItems: 'center',
-            gap: '16px',
-          }}
-        >
+        <div className="flex items-center gap-4">
           {cancelText && (
             <ButtonOutlined
               borderRadius="24px"
@@ -78,7 +66,7 @@ const ModalConfirm: React.FC = () => {
           >
             {confirmText || <Trans>Confirm</Trans>}
           </ButtonPrimary>
-        </Flex>
+        </div>
       </div>
     </ModalCenter>
   )

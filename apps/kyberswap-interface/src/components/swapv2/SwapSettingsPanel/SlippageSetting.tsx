@@ -1,7 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import React, { useMemo } from 'react'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import SlippageControl from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
@@ -12,20 +10,6 @@ import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage } from 'utils/slippage'
-
-const Message = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  &[data-warning='true'] {
-    color: ${({ theme }) => theme.warning};
-  }
-
-  &[data-error='true'] {
-    color: ${({ theme }) => theme.red1};
-  }
-`
 
 type Props = {
   shouldShowPinButton?: boolean
@@ -47,21 +31,12 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   const msg = SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || ''
 
   return (
-    <Flex
-      sx={{
-        flexDirection: 'column',
-        rowGap: '8px',
-      }}
-    >
-      <Flex
-        sx={{
-          alignItems: 'center',
-        }}
-      >
+    <div className="flex flex-col gap-y-2">
+      <div className="flex items-center">
         <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
           <MouseoverTooltip
             text={
-              <Text>
+              <span>
                 <Trans>
                   During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
                   <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
@@ -69,7 +44,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
                   </ExternalLink>
                   .
                 </Trans>
-              </Text>
+              </span>
             }
             placement="right"
           >
@@ -78,7 +53,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
         </TextDashed>
 
         {shouldShowPinButton && <PinButton isActive={isSlippageControlPinned} onClick={togglePinSlippage} />}
-      </Flex>
+      </div>
 
       <SlippageControl
         rawSlippage={rawSlippage}
@@ -88,11 +63,15 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
       />
 
       {isWarning && (
-        <Message data-warning={true} data-error={false}>
+        <div
+          data-warning={true}
+          data-error={false}
+          className="text-xs font-normal leading-4 data-[error=true]:text-red1 data-[warning=true]:text-warning"
+        >
           {t`Your slippage ${msg}`}
-        </Message>
+        </div>
       )}
-    </Flex>
+    </div>
   )
 }
 

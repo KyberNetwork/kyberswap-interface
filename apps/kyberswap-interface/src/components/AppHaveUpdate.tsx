@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { Text } from 'rebass'
 
 import { Z_INDEXS } from 'constants/styles'
 import { useServiceWorkerRegistration } from 'state/application/hooks'
@@ -32,9 +31,9 @@ const AppHaveUpdate = () => {
       style={{ zIndex: Z_INDEXS.MODAL }}
       className="fixed bottom-4 right-4 rounded-2xl bg-tableHeader p-5 text-center shadow-[0_4px_8px_0_rgba(0,0,0,0.05)]"
     >
-      <Text>
+      <div>
         <Trans>New contents are available.</Trans>
-      </Text>
+      </div>
       <ButtonPrimary
         style={{ width: 'fit-content', padding: '8px 20px', margin: 'auto', marginTop: '1rem' }}
         onClick={updateServiceWorker}

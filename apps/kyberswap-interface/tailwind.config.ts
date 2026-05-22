@@ -72,6 +72,7 @@ const config: Config = {
         // primary
         primary: {
           DEFAULT: 'var(--ks-primary)',
+          10: 'var(--ks-primary-10)',
           12: 'var(--ks-primary-12)',
           20: 'var(--ks-primary-20)',
           25: 'var(--ks-primary-25)',
@@ -87,6 +88,7 @@ const config: Config = {
         // semantic
         red: {
           DEFAULT: 'var(--ks-red)',
+          10: 'var(--ks-red-10)',
           20: 'var(--ks-red-20)',
           30: 'var(--ks-red-30)',
           35: 'var(--ks-red-35)',
@@ -95,6 +97,7 @@ const config: Config = {
         red2: 'var(--ks-red2)',
         warning: {
           DEFAULT: 'var(--ks-warning)',
+          10: 'var(--ks-warning-10)',
           20: 'var(--ks-warning-20)',
           25: 'var(--ks-warning-25)',
           30: 'var(--ks-warning-30)',

@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
 
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -41,7 +40,7 @@ export const FarmTag = ({
   return (
     <MouseoverTooltip
       text={
-        <Text>
+        <span>
           <Trans>
             Participate in the Elastic farm to earn more rewards. Click{' '}
             <Link
@@ -53,7 +52,7 @@ export const FarmTag = ({
             </Link>{' '}
             to go to the farm.
           </Trans>
-        </Text>
+        </span>
       }
     >
       {tag}

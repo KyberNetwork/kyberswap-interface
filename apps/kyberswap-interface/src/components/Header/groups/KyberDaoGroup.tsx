@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import styled from 'styled-components'
 
 import { ReactComponent as KyberLogo } from 'assets/svg/kyber/knc_black.svg'
 import Column from 'components/Column'
@@ -15,10 +14,6 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
 
-const KyberDaoWrapper = styled.span`
-  display: inline-flex;
-`
-
 const KyberDAONavGroup = () => {
   const { pathname } = useLocation()
   const isActive = pathname.includes(APP_PATHS.KYBERDAO_STAKE)
@@ -27,7 +22,7 @@ const KyberDAONavGroup = () => {
   if (upToMedium) return null
 
   return (
-    <KyberDaoWrapper id={TutorialIds.KYBER_DAO_LINK}>
+    <span id={TutorialIds.KYBER_DAO_LINK} className="inline-flex">
       <NavGroup
         dropdownAlign={upToMedium ? 'right' : 'left'}
         isActive={isActive}
@@ -72,7 +67,7 @@ const KyberDAONavGroup = () => {
           </Column>
         }
       />
-    </KyberDaoWrapper>
+    </span>
   )
 }
 

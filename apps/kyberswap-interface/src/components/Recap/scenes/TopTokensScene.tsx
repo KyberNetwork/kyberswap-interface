@@ -1,5 +1,4 @@
 import { memo } from 'react'
-import { Flex } from 'rebass'
 
 import {
   EmptyItem,
@@ -53,13 +52,13 @@ function TopTokensScene({ nickname, topTokens }: TopTokensSceneProps) {
             }}
           >
             <TopListRank>{index + 1}</TopListRank>
-            <Flex alignItems="center" sx={{ gap: '8px' }}>
+            <div className="flex items-center gap-2">
               <TopListIconWrapper>
                 <TopListIcon src={token.logo} alt={token.symbol} />
                 {token.chainLogo && <TopListChainIcon src={token.chainLogo} alt="chain" />}
               </TopListIconWrapper>
               <TopListName>{token.symbol}</TopListName>
-            </Flex>
+            </div>
           </TopListItem>
         ))}
         {topTokens.length === 0 && (

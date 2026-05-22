@@ -1,11 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import ElasticHackedModal from 'components/ElasticHackedModal'
@@ -17,10 +15,15 @@ import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { isInEnum } from 'utils/string'
 
 import { PoolClassicIcon, PoolElasticIcon } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
+
+// Original used rebass responsive array fontSize={[18, 20, 24]} with rebass
+// breakpoints (40em=640, 52em=832). Approximated with Tailwind xs (576) / sm (768).
+const TAB_LABEL_CLASS = 'text-lg font-medium leading-tight xs:text-xl sm:text-2xl'
 
 function ClassicElasticTab() {
   const navigate = useNavigate()
@@ -66,23 +69,20 @@ function ClassicElasticTab() {
     }
   }, [tab, dontShowLegacy, setSearchParams, qs])
 
-  const legacyTag = (small?: boolean) => (
-    <Text
-      sx={{
-        fontSize: small ? '10px' : '14px',
-        fontWeight: '500',
-        padding: '2px 8px',
-        borderRadius: '999px',
-        color: tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText,
-        background: tab === VERSION.ELASTIC_LEGACY ? rgba(theme.primary, 0.2) : rgba(theme.subText, 0.2),
-        marginTop: small ? 0 : '-12px',
-        marginLeft: '2px',
-        lineHeight: 1.5,
-      }}
-    >
-      Legacy
-    </Text>
-  )
+  const legacyTag = (small?: boolean) => {
+    const isActive = tab === VERSION.ELASTIC_LEGACY
+    return (
+      <span
+        className={cn(
+          'ml-0.5 rounded-full px-2 py-0.5 font-medium leading-normal',
+          small ? 'text-[10px]' : 'mt-[-12px] text-sm',
+          isActive ? 'bg-primary-20 text-primary' : 'bg-subText-20 text-subText',
+        )}
+      >
+        Legacy
+      </span>
+    )
+  }
 
   const handleSwitchTab = (version: VERSION) => {
     if (!!notSupportedClassicMsg && version === VERSION.CLASSIC) return
@@ -147,7 +147,7 @@ function ClassicElasticTab() {
   }, [setSearchParams, notSupportedElasticMsg, notSupportedClassicMsg, qs, tab])
 
   return (
-    <Flex width="max-content">
+    <div className="flex w-max">
       <MouseoverTooltip
         width="fit-content"
         placement="bottom"
@@ -156,37 +156,33 @@ function ClassicElasticTab() {
           (dontShowLegacy ? (
             ''
           ) : !showLegacyExplicit ? (
-            <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
-              <Flex
+            <div className="flex flex-col gap-4 p-2">
+              <div
                 role="button"
-                color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
-                sx={{ gap: '8px', cursor: 'pointer' }}
-                fontSize="14px"
-                fontWeight={500}
+                className="flex cursor-pointer items-center gap-2 text-sm font-medium"
+                style={{ color: tab === VERSION.ELASTIC ? theme.primary : theme.subText }}
                 onClick={() => handleSwitchTab(VERSION.ELASTIC)}
               >
                 <PoolElasticIcon size={16} />
                 {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
-              </Flex>
+              </div>
 
-              <Flex
+              <div
                 role="button"
-                color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
-                sx={{ gap: '8px', cursor: 'pointer' }}
-                fontWeight={500}
-                fontSize="14px"
+                className="flex cursor-pointer items-center gap-2 text-sm font-medium"
+                style={{ color: tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText }}
                 onClick={() => handleSwitchTab(VERSION.ELASTIC_LEGACY)}
               >
                 <PoolElasticIcon size={16} />
                 {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
                 {legacyTag(true)}
-              </Flex>
-            </Flex>
+              </div>
+            </div>
           ) : null)
         }
       >
-        <Flex
-          alignItems={'center'}
+        <div
+          className="flex items-center"
           onClick={() => {
             if (isMobile) {
               if (showLegacyExplicit || dontShowLegacy) handleSwitchTab(VERSION.ELASTIC)
@@ -194,82 +190,67 @@ function ClassicElasticTab() {
           }}
         >
           <PoolElasticIcon size={20} color={color} />
-          <Text
-            fontWeight={500}
-            fontSize={[18, 20, 24]}
-            color={color}
-            width={'auto'}
-            marginLeft="4px"
+          <span
             role="button"
+            className={cn(TAB_LABEL_CLASS, 'ml-1 w-auto')}
             style={{
-              cursor: !!notSupportedElasticMsg ? 'not-allowed' : 'pointer',
+              color,
+              cursor: notSupportedElasticMsg ? 'not-allowed' : 'pointer',
             }}
           >
             {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
-          </Text>
+          </span>
 
           {!showLegacyExplicit && tab === VERSION.ELASTIC_LEGACY && legacyTag()}
 
           {!dontShowLegacy && !showLegacyExplicit && <DropdownSVG style={{ color }} />}
-        </Flex>
+        </div>
       </MouseoverTooltip>
-      <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
-        |
-      </Text>
+      <span className={cn(TAB_LABEL_CLASS, 'mx-3 text-subText')}>|</span>
 
       {showLegacyExplicit && (
         <>
           <MouseoverTooltip text={notSupportedElasticMsg || ''} placement="top">
-            <Flex
-              sx={{ position: 'relative' }}
-              alignItems={'center'}
+            <div
+              className="relative flex items-center"
               onClick={() => {
                 handleSwitchTab(VERSION.ELASTIC_LEGACY)
               }}
             >
               <PoolElasticIcon size={20} color={legacyElasticColor} />
-              <Text
-                fontWeight={500}
-                fontSize={[18, 20, 24]}
-                color={legacyElasticColor}
-                width={'auto'}
-                marginLeft="4px"
+              <span
                 role="button"
+                className={cn(TAB_LABEL_CLASS, 'ml-1 w-auto')}
                 style={{
-                  cursor: !!notSupportedElasticMsg ? 'not-allowed' : 'pointer',
+                  color: legacyElasticColor,
+                  cursor: notSupportedElasticMsg ? 'not-allowed' : 'pointer',
                 }}
               >
                 {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
-              </Text>
+              </span>
               {legacyTag()}
-            </Flex>
+            </div>
           </MouseoverTooltip>
-          <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
-            |
-          </Text>
+          <span className={cn(TAB_LABEL_CLASS, 'mx-3 text-subText')}>|</span>
         </>
       )}
 
       <MouseoverTooltip text={notSupportedClassicMsg || ''}>
-        <Flex
-          alignItems={'center'}
+        <div
+          className="flex items-center"
           onClick={() => {
             handleSwitchTab(VERSION.CLASSIC)
           }}
         >
           <PoolClassicIcon size={20} color={getColorOfClassicTab()} />
-          <Text
-            fontWeight={500}
-            fontSize={[18, 20, 24]}
-            color={getColorOfClassicTab()}
-            width={'auto'}
-            marginLeft="4px"
-            style={{ cursor: 'pointer' }}
+          <span
             role="button"
+            className={cn(TAB_LABEL_CLASS, 'ml-1 w-auto cursor-pointer')}
+            style={{ color: getColorOfClassicTab() }}
           >
             {isFarmPage ? <Trans>Classic Farms</Trans> : <Trans>Classic Pools</Trans>}
-          </Text>
-        </Flex>
+          </span>
+        </div>
       </MouseoverTooltip>
 
       <ElasticHackedModal
@@ -285,7 +266,7 @@ function ClassicElasticTab() {
           navigate({ pathname: APP_PATHS.MY_POOLS })
         }}
       />
-    </Flex>
+    </div>
   )
 }
 

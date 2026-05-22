@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import { Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
@@ -32,11 +31,11 @@ export default function ProgressBar({
   const effectivePercent = loading ? 0 : normalizedPercent < 0.5 ? 0 : normalizedPercent
 
   return (
-    <Flex flexDirection={'column'} style={{ gap: 5 }}>
+    <div className="flex flex-col gap-[5px]">
       {label && value ? (
-        <Flex justifyContent={'space-between'} fontSize={12} color={labelColor || theme.subText} lineHeight={'normal'}>
-          {label} <Text color={valueColor || theme.subText}>{value}</Text>
-        </Flex>
+        <div className="flex justify-between text-xs leading-normal" style={{ color: labelColor || theme.subText }}>
+          {label} <span style={{ color: valueColor || theme.subText }}>{value}</span>
+        </div>
       ) : null}
       <div
         className="relative rounded-full"
@@ -62,6 +61,6 @@ export default function ProgressBar({
           )}
         </div>
       </div>
-    </Flex>
+    </div>
   )
 }
