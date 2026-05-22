@@ -2,13 +2,10 @@ import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { rgba } from 'polished'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { HTMLAttributes, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 import { formatUnits } from 'viem'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -18,7 +15,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
 import Modal from 'components/Modal'
 import { Input as NumericalInput } from 'components/NumericalInput'
-import { RowBetween, RowFixed } from 'components/Row'
+import { RowFixed } from 'components/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import { SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
@@ -41,13 +38,18 @@ import { useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { CloseIcon } from 'theme'
 import { isEvmChain, shortenHash } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const TokenPanelWrapper = styled.div`
-  padding: 12px;
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 1rem;
-`
+const CurrencyRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'data-[selected=true]:bg-bg6/15 flex h-14 cursor-pointer items-center justify-between gap-4 px-5 py-1 [@media(hover:hover)]:hover:bg-buttonBlack',
+      className,
+    )}
+    {...rest}
+  />
+)
 export const TokenPanel = ({
   selectedChain,
   selectedCurrency,
@@ -202,12 +204,8 @@ export const TokenPanel = ({
   }
 
   const balanceSection = (
-    <Flex
-      sx={{ gap: '4px', cursor: 'pointer' }}
-      color={theme.subText}
-      fontSize="12px"
-      fontWeight="500"
-      alignItems="center"
+    <div
+      className="flex cursor-pointer items-center gap-1 text-xs font-medium text-subText"
       role="button"
       onClick={() => {
         if (disabled) return
@@ -254,14 +252,14 @@ export const TokenPanel = ({
             },
           )
         : balance?.toSignificant(6) || 0}
-    </Flex>
+    </div>
   )
 
   return (
-    <TokenPanelWrapper>
+    <div className="rounded-2xl bg-buttonBlack p-3">
       {termAndPolicyModal}
 
-      <Flex justifyContent="space-between" marginBottom="12px">
+      <div className="mb-3 flex justify-between">
         <SelectNetwork
           onSelectNetwork={onSelectNetwork}
           selectedChainId={selectedChain}
@@ -272,13 +270,9 @@ export const TokenPanel = ({
         {evmLayout ? (
           balanceSection
         ) : (
-          <Flex
+          <div
             role="button"
-            fontSize={12}
-            fontWeight={500}
-            alignItems="center"
-            color={theme.subText}
-            sx={{ gap: '4px', cursor: 'pointer', position: 'relative' }}
+            className="relative flex cursor-pointer items-center gap-1 text-xs font-medium text-subText"
             onClick={handleWalletClick}
           >
             {connectedAddress
@@ -289,19 +283,13 @@ export const TokenPanel = ({
             <ChevronDown size={14} />
 
             {showMenu && (
-              <Box
-                ref={node}
-                sx={{
-                  position: 'absolute',
-                  right: 0,
-                  top: '26px',
-                  background: theme.tableHeader,
-                  borderRadius: '8px',
-                }}
+              <div
+                ref={node as React.RefObject<HTMLDivElement>}
+                className="absolute right-0 top-[26px] rounded-lg bg-tableHeader"
               >
-                <Text
+                <span
                   role="button"
-                  padding="12px 16px"
+                  className="block px-4 py-3"
                   onClick={async e => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -316,12 +304,12 @@ export const TokenPanel = ({
                   }}
                 >
                   {t`Disconnect`}
-                </Text>
-              </Box>
+                </span>
+              </div>
             )}
-          </Flex>
+          </div>
         )}
-      </Flex>
+      </div>
 
       <InputRow>
         {loading ? (
@@ -355,9 +343,9 @@ export const TokenPanel = ({
           />
         ) : (
           !!amountUsd && (
-            <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
+            <span className="mr-2 text-sm font-medium text-border">
               ~{formatDisplayNumber(amountUsd, { significantDigits: 4, style: 'currency' })}
-            </Text>
+            </span>
           )
         )}
 
@@ -424,13 +412,11 @@ export const TokenPanel = ({
           maxHeight={isMobileHorizontal ? 100 : 80}
           height={isMobileHorizontal ? '95vh' : undefined}
         >
-          <Flex flexDirection="column" width="100%" padding="20px" sx={{ gap: '1rem' }}>
-            <Flex justifyContent="space-between" alignItems="center">
-              <Text fontSize={20} fontWeight={500}>
-                {t`Select a token`}
-              </Text>
+          <div className="flex w-full flex-col gap-4 p-5">
+            <div className="flex items-center justify-between">
+              <span className="text-xl font-medium">{t`Select a token`}</span>
               <CloseIcon onClick={() => setModalOpen(false)} />
-            </Flex>
+            </div>
             <SearchWrapper>
               <SearchInput
                 type="text"
@@ -448,16 +434,10 @@ export const TokenPanel = ({
             </SearchWrapper>
 
             <Separator />
-            <Box
-              sx={{
-                flex: 1,
-                overflowY: 'scroll',
-                marginX: '-20px',
-              }}
-            >
+            <div className="-mx-5 flex-1 overflow-y-scroll">
               {filteredTokens.map(item => {
                 return (
-                  <CurrencyRowWrapper
+                  <CurrencyRow
                     key={item.assetId}
                     role="button"
                     onClick={() => {
@@ -465,7 +445,7 @@ export const TokenPanel = ({
                       setModalOpen(false)
                     }}
                   >
-                    <Flex alignItems="center" style={{ gap: 8 }}>
+                    <div className="flex items-center gap-2">
                       <img
                         src={item.logo}
                         alt={item.symbol}
@@ -478,45 +458,26 @@ export const TokenPanel = ({
                         }}
                       />
                       <div>
-                        <Text fontWeight={500}>{item.symbol}</Text>
+                        <span className="font-medium">{item.symbol}</span>
                         {selectedChain === NonEvmChain.Solana && (
-                          <Text fontSize="10px" color={theme.subText} mt="2px">
-                            {shortenHash(item.assetId, 4)}
-                          </Text>
+                          <span className="mt-0.5 block text-[10px] text-subText">{shortenHash(item.assetId, 4)}</span>
                         )}
                       </div>
-                    </Flex>
-                    <Text>
+                    </div>
+                    <span>
                       {selectedChain === 'solana'
                         ? formatDisplayNumber(solanaBalances[item.assetId]?.balance || 0, { significantDigits: 8 })
                         : formatDisplayNumber(formatUnits(BigInt(balances[item.assetId] || '0'), item.decimals), {
                             significantDigits: 8,
                           })}
-                    </Text>
-                  </CurrencyRowWrapper>
+                    </span>
+                  </CurrencyRow>
                 )
               })}
-            </Box>
-          </Flex>
+            </div>
+          </div>
         </Modal>
       )}
-    </TokenPanelWrapper>
+    </div>
   )
 }
-
-const CurrencyRowWrapper = styled(RowBetween)<{ hoverColor?: string }>`
-  padding: 4px 20px;
-  height: 56px;
-  display: flex;
-  gap: 16px;
-  cursor: pointer;
-  &[data-selected='true'] {
-    background: ${({ theme }) => rgba(theme.bg6, 0.15)};
-  }
-
-  @media (hover: hover) {
-    :hover {
-      background: ${({ theme, hoverColor }) => hoverColor || theme.buttonBlack};
-    }
-  }
-`

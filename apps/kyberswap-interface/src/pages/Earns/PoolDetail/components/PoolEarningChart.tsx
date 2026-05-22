@@ -1,7 +1,5 @@
-import { rgba } from 'polished'
 import { Fragment, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import {
   Bar,
   CartesianGrid,
@@ -21,7 +19,6 @@ import {
   usePoolEarningsQuery,
   usePositionEarningsQuery,
 } from 'services/zapEarn'
-import styled from 'styled-components'
 
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
@@ -59,29 +56,19 @@ type PoolEarningChartProps = {
   positionId?: string
 }
 
-const TooltipCard = styled(Stack)`
-  gap: 12px;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.tableHeader};
-  border-radius: 12px;
-  box-shadow: 0 12px 32px ${({ theme }) => theme.shadow};
-`
+const TooltipCard = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,0.2)]">
+    {children}
+  </div>
+)
 
-const TooltipGrid = styled.div`
-  display: grid;
-  gap: 8px 16px;
-  grid-template-columns: auto auto;
-`
+const TooltipGrid = ({ children }: { children: React.ReactNode }) => (
+  <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">{children}</div>
+)
 
-const LegendDot = styled.span<{ $color: string }>`
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  background: ${({ $color }) => $color};
-  flex-shrink: 0;
-`
+const LegendDot = ({ $color }: { $color: string }) => (
+  <span className="size-3 flex-shrink-0 rounded-full" style={{ background: $color }} />
+)
 
 const getVisibleLabelStep = (dataLength: number, upToSmall: boolean, window: PoolAnalyticsWindow) => {
   if (window === '7d') return 1
@@ -148,30 +135,18 @@ const EarningsTooltip = ({
   point?: EarningsChartPoint
   window: PoolAnalyticsWindow
 }) => {
-  const theme = useTheme()
-
   if (!active || !point) return null
 
   return (
     <TooltipCard>
-      <Text color={theme.subText} fontSize={12}>
-        {formatTooltipTimeLabel(point.ts, window)}
-      </Text>
+      <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
       <TooltipGrid>
-        <Text color={theme.subText} fontSize={12}>
-          Total Earn
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatUsd(point.totalUsd)}
-        </Text>
+        <span className="text-xs text-subText">Total Earn</span>
+        <span className="text-right text-xs font-medium text-text">{formatUsd(point.totalUsd)}</span>
         {breakdownItems.map(item => (
           <Fragment key={item.key}>
-            <Text color={theme.subText} fontSize={12}>
-              {item.label}
-            </Text>
-            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-              {formatUsd(point[item.key])}
-            </Text>
+            <span className="text-xs text-subText">{item.label}</span>
+            <span className="text-right text-xs font-medium text-text">{formatUsd(point[item.key])}</span>
           </Fragment>
         ))}
       </TooltipGrid>
@@ -186,8 +161,8 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 240 : 320
   const breakdownChartSize = upToSmall ? 160 : 180
-  const cursorColor = rgba(theme.text, 0.12)
-  const gridColor = rgba(theme.text, 0.06)
+  const cursorColor = 'var(--ks-text-12)'
+  const gridColor = 'rgba(255,255,255,0.06)'
 
   const poolEarningsQuery = usePoolEarningsQuery(
     { chainId, address: poolAddress || '', window },
@@ -239,9 +214,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
   return (
     <Stack gap={16}>
       <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
-        <Text color={theme.text} fontSize={18} fontWeight={500}>
-          Earning History
-        </Text>
+        <span className="text-lg font-medium text-text">Earning History</span>
 
         <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />
       </HStack>
@@ -370,12 +343,8 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                 sx={{ inset: 0, pointerEvents: 'none' }}
                 textAlign="center"
               >
-                <Text color={theme.subText} fontSize={14}>
-                  Total Earn
-                </Text>
-                <Text color={theme.text} fontSize={18} fontWeight={500}>
-                  {formatCompactUsd(totalEarned)}
-                </Text>
+                <span className="text-sm text-subText">Total Earn</span>
+                <span className="text-lg font-medium text-text">{formatCompactUsd(totalEarned)}</span>
               </Stack>
             </Stack>
 
@@ -384,12 +353,8 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                 <HStack align="center" gap={12} justify="flex-start" key={item.key} width="fit-content">
                   <LegendDot $color={item.color} />
                   <HStack align="center" gap={8} justify="flex-start" wrap="wrap">
-                    <Text color={theme.subText} fontSize={14}>
-                      {item.label}
-                    </Text>
-                    <Text color={theme.text} fontSize={14} fontWeight={500}>
-                      {formatUsd(item.value)}
-                    </Text>
+                    <span className="text-sm text-subText">{item.label}</span>
+                    <span className="text-sm font-medium text-text">{formatUsd(item.value)}</span>
                   </HStack>
                 </HStack>
               ))}

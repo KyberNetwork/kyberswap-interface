@@ -5,10 +5,8 @@ import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
-import { Text } from 'rebass'
 import { useCheckPairQuery } from 'services/marketOverview'
 import { useLazyPoolDetailQuery, useSupportedProtocolsQuery } from 'services/zapEarn'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -24,46 +22,26 @@ import { Exchange } from 'pages/Earns/constants'
 import { fetchExistingPoolAddress } from 'pages/Earns/utils/zap'
 import { useWalletModalToggle } from 'state/application/hooks'
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  gap: 24px;
-  width: 100%;
-`
+const Wrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex w-full flex-col gap-6 p-6">{children}</div>
+)
 
-const Title = styled.h2`
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-`
+const Title = ({ children }: { children: React.ReactNode }) => <h2 className="m-0 text-xl font-semibold">{children}</h2>
 
-const Section = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
+const Section = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col gap-3">{children}</div>
 
-const TokenSelectWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: ${({ theme }) => theme.background};
-  border-radius: 999px;
-  padding: 6px 12px;
-  width: 100%;
-  cursor: pointer;
-`
+const TokenSelectWrapper = ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
+  <div
+    onClick={onClick}
+    className="flex w-full cursor-pointer items-center justify-between rounded-full bg-background px-3 py-1.5"
+  >
+    {children}
+  </div>
+)
 
-const Footer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column-reverse;
-  `}
-`
+const Footer = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex justify-end gap-3 max-sm:flex-col-reverse">{children}</div>
+)
 
 type FeePreset = { defaultFee: number; options: number[] }
 
@@ -273,9 +251,9 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
           </Title>
 
           <Section>
-            <Text>
+            <span>
               <Trans>Choose to create pool on</Trans>
-            </Text>
+            </span>
             <Row gap="12px">
               <DropdownMenu
                 fullWidth
@@ -295,16 +273,14 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
           </Section>
 
           <Section>
-            <Text>
+            <span>
               <Trans>Choose Pool Pair</Trans>
-            </Text>
+            </span>
             <Row gap="12px">
               <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token0')}>
                 <Row gap="6px" style={{ flex: 1 }}>
                   {token0 && <TokenLogo src={token0.logo} size={20} />}
-                  <Text fontSize="14px" color={theme.subText}>
-                    {token0?.symbol || <Trans>Select Token</Trans>}
-                  </Text>
+                  <span className="text-sm text-subText">{token0?.symbol || <Trans>Select Token</Trans>}</span>
                 </Row>
                 <DropdownSVG color={theme.subText} />
               </TokenSelectWrapper>
@@ -312,28 +288,26 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
               <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token1')}>
                 <Row gap="6px" style={{ flex: 1 }}>
                   {token1 && <TokenLogo src={token1.logo} size={20} />}
-                  <Text fontSize="14px" color={theme.subText}>
-                    {token1?.symbol || <Trans>Select Token</Trans>}
-                  </Text>
+                  <span className="text-sm text-subText">{token1?.symbol || <Trans>Select Token</Trans>}</span>
                 </Row>
                 <DropdownSVG color={theme.subText} />
               </TokenSelectWrapper>
             </Row>
             {tokensFOT.length > 0 && (
-              <Text fontSize="14px" color={theme.warning} mt="-4px">
+              <span className="-mt-1 text-sm text-warning">
                 {tokensFOT.length > 1 ? (
                   <Trans>Can&apos;t create pool because {tokensFOT.join(' and ')} are fee-on-transfer tokens</Trans>
                 ) : (
                   <Trans>Can&apos;t create pool because {tokensFOT[0]} is a fee-on-transfer token</Trans>
                 )}
-              </Text>
+              </span>
             )}
           </Section>
 
           <Section>
-            <Text>
+            <span>
               <Trans>Select Fee Tier</Trans>
-            </Text>
+            </span>
             <FeeTierControl value={fee} onChange={setFee} options={feeOptions} />
           </Section>
 

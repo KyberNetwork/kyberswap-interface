@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { DefaultTheme, keyframes } from 'styled-components'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import { cn } from 'utils/cn'
@@ -139,17 +138,3 @@ export const StyledActionButtonSwapForm = ({
     </button>
   )
 }
-
-export const highlight = (theme: DefaultTheme) => keyframes`
-  0% {
-    box-shadow: 0 0 0 0 ${theme.primary};
-  }
-
-  70% {
-    box-shadow: 0 0 0 2px ${theme.primary};
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 ${theme.primary};
-  }
-`

@@ -1,9 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { transparentize } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
 import luxuryGreenBackground from 'assets/images/kyberdao/luxury-green-background-small.jpg'
@@ -22,6 +19,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
+import { cn } from 'utils/cn'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 
 import { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
@@ -30,65 +28,16 @@ import KNCLogo from '../kncLogo'
 import ClaimConfirmModal from './ClaimConfirmModal'
 import ProposalListComponent from './ProposalListComponent'
 
-const Wrapper = styled.div`
-  width: 100%;
-  background-image: url(${bgimg});
-  background-size: 100% auto;
-  background-repeat: repeat-y;
-  z-index: 1;
-  background-color: transparent;
-  background-position: top;
-`
-
-const Container = styled.div`
-  width: 1224px;
-  margin: auto;
-  min-height: 1200px;
-  padding: 48px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    width:100%;
-    padding: 48px 16px;
-  `}
-`
-
-const Card = styled.div<{ hasGreenBackground?: boolean }>`
-  padding: 20px 24px;
-  border-radius: 20px;
-
-  ${({ theme }) => css`
-    background-color: ${transparentize(0.3, theme.buttonGray)};
-    flex: 1;
-  `}
-  ${({ hasGreenBackground }) =>
-    hasGreenBackground &&
-    css`
-      background-image: url('${luxuryGreenBackground}');
-      background-size: cover;
-    `}
-`
-
-const CardGroup = styled(RowBetween)`
-  width: 100%;
-  gap: 24px;
-  margin-bottom: 12px;
-  align-items: stretch;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column;
-  `}
-`
-
-const TabReward = styled.span<{ active?: boolean }>`
-  cursor: pointer;
-  ${({ active, theme }) => active && `color: ${theme.primary}`};
-
-  :hover {
-    filter: brightness(1.2);
-  }
-`
+const Card = ({ hasGreenBackground, children }: { hasGreenBackground?: boolean; children: React.ReactNode }) => (
+  <div
+    className="bg-buttonGray/70 flex-1 rounded-[20px] px-6 py-5"
+    style={
+      hasGreenBackground ? { backgroundImage: `url('${luxuryGreenBackground}')`, backgroundSize: 'cover' } : undefined
+    }
+  >
+    {children}
+  </div>
+)
 
 const formatVotingPower = (votingPowerNumber?: number) => {
   if (votingPowerNumber === undefined) return '--'
@@ -210,31 +159,34 @@ export default function Vote() {
   )
 
   return (
-    <Wrapper>
-      <Container>
+    <div
+      className="z-[1] w-full bg-transparent bg-[length:100%_auto] bg-top bg-repeat-y"
+      style={{ backgroundImage: `url(${bgimg})` }}
+    >
+      <div className="mx-auto flex min-h-[1200px] w-[1224px] flex-col gap-3 py-12 max-lg:w-full max-lg:px-4 max-lg:py-12">
         <RowBetween marginBottom={isMobile ? 0 : 36}>
-          <Text fontSize={isMobile ? 22 : 24} lineHeight="28px" fontWeight={500} flex={1}>
+          <span className={cn('flex-1 font-medium leading-7', isMobile ? 'text-[22px]' : 'text-2xl')}>
             <Trans>Vote - Earn Rewards</Trans>
-          </Text>
+          </span>
           <RowFit gap="4px">
             <KNCLogo size={20} />
-            <Text fontSize={16}>KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</Text>
+            <span className="text-base">KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</span>
           </RowFit>
         </RowBetween>
-        <CardGroup>
+        <RowBetween className="mb-3 w-full items-stretch gap-6 max-md:flex-col">
           <Card>
             <AutoColumn>
-              <Text color={theme.subText} fontSize="14px" marginBottom="20px">
+              <span className="mb-5 text-sm text-subText">
                 <Trans>Total Staked KNC</Trans>
-              </Text>
-              <Text fontSize={20} marginBottom="8px" fontWeight={500}>
+              </span>
+              <span className="mb-2 text-xl font-medium">
                 {daoInfo ? formattedNumLong(Math.round(daoInfo.total_staked)) + ' KNC' : '--'}
-              </Text>
-              <Text fontSize={12} color={theme.subText}>
+              </span>
+              <span className="text-xs text-subText">
                 {daoInfo && kncPrice
                   ? '~' + formattedNumLong(+kncPrice * Math.round(daoInfo.total_staked)) + ' USD'
                   : ''}
-              </Text>
+              </span>
             </AutoColumn>
           </Card>
           {/* <Card>
@@ -263,7 +215,7 @@ export default function Vote() {
           </Card> */}
           <Card>
             <AutoColumn>
-              <Text color={theme.subText} fontSize="14px" marginBottom="20px">
+              <span className="mb-5 text-sm text-subText">
                 <Trans>Your Voting Power</Trans>{' '}
                 <InfoHelper
                   fontSize={12}
@@ -271,14 +223,13 @@ export default function Vote() {
                   text={t`Your voting power is calculated by
 [Your Staked KNC] / [Total Staked KNC] * 100%.`}
                 />
-              </Text>
+              </span>
 
               <RowBetween marginBottom="8px">
                 <RowFit>
-                  <Text
-                    fontSize={20}
-                    color={hasPendingStakeAmount && !hasStakeAmount ? theme.border : theme.text}
-                    fontWeight={500}
+                  <span
+                    className="text-xl font-medium"
+                    style={{ color: hasPendingStakeAmount && !hasStakeAmount ? theme.border : theme.text }}
                   >
                     {formatVotingPower(
                       daoInfo?.total_staked && votePowerAmount && (votePowerAmount / daoInfo.total_staked) * 100,
@@ -292,7 +243,7 @@ export default function Vote() {
                         size={14}
                         text={
                           <AutoColumn gap="8px">
-                            <Text color={theme.subText} lineHeight="14px" style={{ width: '260px' }}>
+                            <span className="block w-[260px] leading-[14px] text-subText">
                               {hasPendingStakeAmount ? (
                                 <Trans>
                                   A portion of your voting power can only be used from the next Epoch onward
@@ -300,8 +251,8 @@ export default function Vote() {
                               ) : (
                                 <Trans>You have been delegated voting power from other address(es)</Trans>
                               )}
-                            </Text>
-                            <Text color={theme.text}>
+                            </span>
+                            <span className="text-text">
                               <Trans>
                                 Voting Power this Epoch:{' '}
                                 {formatVotingPower(
@@ -310,9 +261,9 @@ export default function Vote() {
                                     (votePowerAmount / daoInfo.total_staked) * 100,
                                 )}
                               </Trans>
-                            </Text>
+                            </span>
                             {stakerInfo?.delegated_stake_amount ? (
-                              <Text color={theme.text}>
+                              <span className="text-text">
                                 <Trans>
                                   Delegated Voting Power:{' '}
                                   {formatVotingPower(
@@ -321,9 +272,9 @@ export default function Vote() {
                                       (stakerInfo?.delegated_stake_amount / daoInfo.total_staked) * 100,
                                   )}
                                 </Trans>
-                              </Text>
+                              </span>
                             ) : null}
-                            <Text color={theme.warning}>
+                            <span className="text-warning">
                               <Trans>
                                 Voting Power next Epoch:{' '}
                                 {formatVotingPower(
@@ -332,7 +283,7 @@ export default function Vote() {
                                     (nextEpochVotePowerAmount / daoInfo.total_staked) * 100,
                                 )}
                               </Trans>
-                            </Text>
+                            </span>
                           </AutoColumn>
                         }
                       />
@@ -346,7 +297,7 @@ export default function Vote() {
                         text={t`You can only vote from the next Epoch onward`}
                       />
                     ) : null}
-                  </Text>
+                  </span>
                   {!totalStakedAmount ? (
                     <InfoHelper
                       placement="top"
@@ -362,17 +313,17 @@ export default function Vote() {
                   >
                     <RowFit gap="4px" color={theme.subText}>
                       <VoteIcon size={14} />
-                      <Text fontSize={12}>
+                      <span className="text-xs">
                         {stakerInfo?.delegate.slice(0, 5) + '...' + stakerInfo?.delegate.slice(-4)}
-                      </Text>
+                      </span>
                     </RowFit>
                   </MouseoverTooltip>
                 )}
               </RowBetween>
               <RowBetween>
-                <Text fontSize={12} color={theme.subText}>
+                <span className="text-xs text-subText">
                   {totalStakedAmount ? (+totalStakedAmount.toFixed(2)).toLocaleString() + ' KNC Staked' : '--'}
-                </Text>
+                </span>
                 <StyledInternalLink to="/kyberdao/stake-knc" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
                   <Trans>Stake KNC ↗</Trans>
                 </StyledInternalLink>
@@ -381,34 +332,40 @@ export default function Vote() {
           </Card>
           <Card hasGreenBackground={isHasReward}>
             <AutoColumn justify="space-between">
-              <Text color={theme.subText} fontSize="14px" marginBottom={20}>
-                <TabReward
-                  active={rewardTab === REWARD_TAB.YourReward}
+              <span className="mb-5 text-sm text-subText">
+                <span
+                  className={cn(
+                    'cursor-pointer hover:brightness-125',
+                    rewardTab === REWARD_TAB.YourReward && 'text-primary',
+                  )}
                   onClick={() => setRewardTab(REWARD_TAB.YourReward)}
                 >
                   <Trans>Your Reward</Trans>
-                </TabReward>{' '}
+                </span>{' '}
                 |{' '}
-                <TabReward
-                  active={rewardTab === REWARD_TAB.ClaimedReward}
+                <span
+                  className={cn(
+                    'cursor-pointer hover:brightness-125',
+                    rewardTab === REWARD_TAB.ClaimedReward && 'text-primary',
+                  )}
                   onClick={() => setRewardTab(REWARD_TAB.ClaimedReward)}
                 >
                   <Trans>Claimed Reward</Trans>
-                </TabReward>
-              </Text>
+                </span>
+              </span>
               {account ? (
                 rewardTab === REWARD_TAB.YourReward ? (
                   <RowBetween>
                     <AutoColumn>
-                      <Text fontSize={20} marginBottom="8px" fontWeight={500}>
+                      <span className="mb-2 text-xl font-medium">
                         {formatUnitsToFixed(remainingCumulativeAmount, undefined, 2)} KNC
-                      </Text>
-                      <Text fontSize={12} color={theme.subText}>
+                      </span>
+                      <span className="text-xs text-subText">
                         {(+(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0')).toFixed(
                           2,
                         )).toLocaleString()}{' '}
                         USD
-                      </Text>
+                      </span>
                     </AutoColumn>
                     <ButtonPrimary
                       width="75px"
@@ -422,13 +379,13 @@ export default function Vote() {
                 ) : (
                   <RowBetween>
                     <AutoColumn>
-                      <Text fontSize={20} marginBottom="8px" fontWeight={500}>
+                      <span className="mb-2 text-xl font-medium">
                         {(+formatUnitsToFixed(claimedRewardAmount, undefined, 2)).toLocaleString()} KNC
-                      </Text>
-                      <Text fontSize={12} color={theme.subText}>
+                      </span>
+                      <span className="text-xs text-subText">
                         {(+(+formatUnitsToFixed(claimedRewardAmount) * +(kncPrice || 0)).toFixed(2)).toLocaleString()}{' '}
                         USD
-                      </Text>
+                      </span>
                     </AutoColumn>
                   </RowBetween>
                 )
@@ -439,7 +396,7 @@ export default function Vote() {
               )}
             </AutoColumn>
           </Card>
-        </CardGroup>
+        </RowBetween>
         <AutoRow
           fontSize={12}
           flexDirection={isMobile ? 'column' : 'row'}
@@ -447,22 +404,22 @@ export default function Vote() {
           gap={isMobile ? '4px' : '0px'}
         >
           <RowFit>
-            <Text>
+            <span>
               <Trans>In Progress: Epoch {daoInfo ? daoInfo.current_epoch : '--'}</Trans>
-            </Text>
+            </span>
             {daoInfo && (
               <TimerCountdown
                 endTime={daoInfo.first_epoch_start_timestamp + daoInfo.current_epoch * daoInfo.epoch_period_in_seconds}
               />
             )}
           </RowFit>
-          <Text>
+          <span>
             <Trans>Vote on current epoch proposals to get your full reward.</Trans>
-          </Text>
+          </span>
         </AutoRow>
-        <Text color={theme.subText} fontStyle="italic" fontSize={12} hidden={isMobile}>
+        <span className="text-xs italic text-subText" hidden={isMobile}>
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain.</Trans>
-        </Text>
+        </span>
         <ProposalListComponent voteCallback={handleVote} />
         <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
         <TransactionConfirmationModal
@@ -478,7 +435,7 @@ export default function Vote() {
             return <></>
           }}
         />
-      </Container>
-    </Wrapper>
+      </div>
+    </div>
   )
 }

@@ -1,9 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, FileText, LogOut, StopCircle, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DragHandleIcon } from 'assets/svg/wallet_drag_handle.svg'
 import CopyHelper from 'components/Copy'
@@ -23,6 +20,7 @@ import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { useTokensHasBalance } from 'state/wallet/hooks'
 import { ExternalLinkIcon } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 
 import ReceiveToken from './ReceiveToken'
 import RewardCenter from './RewardCenter'
@@ -30,76 +28,6 @@ import ListTransaction from './Transactions'
 import { View as getView } from './type'
 
 export const HANDLE_CLASS_NAME = 'walletPopupDragHandle'
-
-const IconWrapper = styled.div`
-  display: flex;
-  width: 20px;
-  height: 20px;
-  justify-content: center;
-  align-items: center;
-`
-
-const LogOutIcon = styled(LogOut)`
-  cursor: pointer;
-  color: ${({ theme }) => theme.subText};
-  :hover {
-    opacity: 0.8;
-    text-decoration: none;
-  }
-`
-
-type WrapperProps = { $pinned: boolean; $blur: boolean }
-const Wrapper = styled.div.attrs<WrapperProps>(props => ({
-  'data-pinned': props.$pinned,
-  'data-blur': props.$blur,
-}))<WrapperProps>`
-  width: 100%;
-  /* height: 100%; */
-  height: unset;
-  padding-top: 0px;
-
-  display: flex;
-
-  border-radius: 20px 0px 0px 0px;
-  background-color: ${({ theme }) => theme.tabActive};
-  box-shadow: 0px 0px 12px 8px rgb(0 0 0 / 4%);
-
-  overflow: hidden;
-
-  &[data-pinned='true'] {
-    border-radius: 20px;
-  }
-
-  &[data-blur='true'] {
-    background-color: ${({ theme }) => rgba(theme.tabActive, 0.92)};
-    backdrop-filter: blur(4px);
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding-bottom: 0;
-  `};
-`
-
-const TabItem = styled.div<{ active: boolean }>`
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: 500;
-  padding-bottom: 10px;
-  cursor: pointer;
-  user-select: none;
-  :hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`
-
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  gap: 14px;
-`
 
 type Props = {
   onDismiss: () => void
@@ -148,10 +76,13 @@ export default function WalletView({
     return () => clearTimeout(timeout)
   }, [loadingTokens])
 
+  const tabBase =
+    'flex cursor-pointer select-none items-center gap-1 pb-2.5 font-medium text-subText hover:text-primary'
+
   const underTab = (
     <Row gap="20px" style={{ borderBottom: `1px solid ${theme.border}` }}>
-      <TabItem
-        active={view === View.ASSETS}
+      <div
+        className={cn(tabBase, view === View.ASSETS && 'text-primary')}
         onClick={() => {
           trackingHandler(TRACKING_EVENT_TYPE.WALLET_TAB_SWITCHED, {
             previous_tab: view === View.TRANSACTIONS ? 'transactions' : 'assets',
@@ -162,9 +93,9 @@ export default function WalletView({
         }}
       >
         <StopCircle size={16} /> <Trans>Assets</Trans>
-      </TabItem>
-      <TabItem
-        active={view === View.TRANSACTIONS}
+      </div>
+      <div
+        className={cn(tabBase, view === View.TRANSACTIONS && 'text-primary')}
         onClick={() => {
           trackingHandler(TRACKING_EVENT_TYPE.WUI_TRANSACTION_CLICK)
           trackingHandler(TRACKING_EVENT_TYPE.WALLET_TAB_SWITCHED, {
@@ -176,7 +107,7 @@ export default function WalletView({
         }}
       >
         <FileText size={16} /> <Trans>Transactions</Trans>
-      </TabItem>
+      </div>
     </Row>
   )
 
@@ -218,15 +149,15 @@ export default function WalletView({
     switch (view) {
       case View.TRANSACTIONS:
         return (
-          <ContentWrapper>
+          <div className="flex flex-1 flex-col gap-3.5">
             {renderAccountInfo()}
             {underTab}
             <ListTransaction isMinimal={isMinimal} />
-          </ContentWrapper>
+          </div>
         )
       case View.ASSETS:
         return (
-          <ContentWrapper>
+          <div className="flex flex-1 flex-col gap-3.5">
             {renderAccountInfo()}
             {underTab}
             <MyAssets
@@ -237,7 +168,7 @@ export default function WalletView({
               usdBalances={usdBalances}
               currencyBalances={currencyBalances}
             />
-          </ContentWrapper>
+          </div>
         )
       case View.SEND_TOKEN:
         return <SendToken loadingTokens={loadingTokens} currencies={currencies} currencyBalances={currencyBalances} />
@@ -288,72 +219,43 @@ export default function WalletView({
   const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector?.id || ''] ?? connector?.icon
 
   return (
-    <Wrapper ref={nodeRef} $pinned={isPinned} $blur={blurBackground}>
-      <Flex
-        className={classNameForHandle}
-        sx={{
-          height: '100%',
-          flex: '0 0 20px',
-          cursor: cursorForHandle,
-        }}
-      />
+    <div
+      ref={nodeRef}
+      className={cn(
+        'flex h-auto w-full overflow-hidden rounded-tl-[20px] bg-tabActive pt-0 shadow-[0px_0px_12px_8px_rgb(0_0_0_/_4%)] max-md:pb-0',
+        isPinned && 'rounded-[20px]',
+        blurBackground && 'bg-tabActive/[0.92] backdrop-blur-sm',
+      )}
+    >
+      <div className={classNameForHandle} style={{ height: '100%', flex: '0 0 20px', cursor: cursorForHandle }} />
 
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          width: '100%',
-          height: '100%',
-        }}
-      >
-        <Flex
-          className={classNameForHandle}
-          sx={{
-            flexDirection: 'column',
-            width: '100%',
-            cursor: cursorForHandle,
-            marginBottom: '8px',
-          }}
-        >
+      <div className="flex size-full flex-col">
+        <div className={cn('mb-2 flex w-full flex-col', classNameForHandle)} style={{ cursor: cursorForHandle }}>
           {isPinned && (
-            <Flex
-              sx={{
-                height: '12px',
-                justifyContent: 'center',
-                alignItems: 'center',
-                paddingTop: '8px',
-              }}
-            >
+            <div className="flex h-3 items-center justify-center pt-2">
               <DragHandleIcon />
-            </Flex>
+            </div>
           )}
 
-          <Flex
-            sx={{
-              flex: '0 0 48px',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
+          <div className="flex shrink-0 grow-0 basis-12 items-center justify-between">
             {isShowBack ? (
               <>
                 <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} color={theme.subText} />
-                <Flex alignItems="center">
+                <div className="flex items-center">
                   {isShowArrow && (
                     <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} />
                   )}{' '}
                   {view}
-                </Flex>
+                </div>
               </>
             ) : (
-              <Flex alignItems={'center'} style={{ gap: 8 }} color={theme.subText}>
+              <div className="flex items-center gap-2 text-subText">
                 {walletKey && (
-                  <IconWrapper>
+                  <div className="flex size-5 items-center justify-center">
                     <img height={18} src={icon} alt="" />
-                  </IconWrapper>
+                  </div>
                 )}
-                <Text as="span" fontWeight="500">
-                  {shortenAddress(chainId, account, 5, false)}
-                </Text>
+                <span className="font-medium">{shortenAddress(chainId, account, 5, false)}</span>
                 <MouseoverTooltip text={t`Copy wallet address`} width="fit-content" placement="top">
                   <span
                     onClick={() =>
@@ -380,11 +282,15 @@ export default function WalletView({
                   </span>
                 </MouseoverTooltip>
                 <MouseoverTooltip text={t`Disconnect wallet`} width="fit-content" placement="top">
-                  <LogOutIcon size={16} onClick={disconnectWallet} />
+                  <LogOut
+                    size={16}
+                    onClick={disconnectWallet}
+                    className="cursor-pointer text-subText hover:no-underline hover:opacity-80"
+                  />
                 </MouseoverTooltip>
-              </Flex>
+              </div>
             )}
-            <Flex style={{ gap: 20 }} alignItems="center">
+            <div className="flex items-center gap-5">
               {onPin && onUnpin && <PinButton isActive={isPinned} onClick={isPinned ? onUnpin : onPin} />}
               <X
                 onClick={() => {
@@ -397,31 +303,19 @@ export default function WalletView({
                 color={theme.subText}
                 cursor="pointer"
               />
-            </Flex>
-          </Flex>
-        </Flex>
+            </div>
+          </div>
+        </div>
 
         {renderContent()}
 
-        <Flex
-          className={classNameForHandle}
-          sx={{
-            height: '20px',
-            flex: '0 0 20px',
-            width: '100%',
-            cursor: cursorForHandle,
-          }}
+        <div
+          className={cn('h-5 w-full shrink-0 grow-0 basis-5', classNameForHandle)}
+          style={{ cursor: cursorForHandle }}
         />
-      </Flex>
+      </div>
 
-      <Flex
-        className={classNameForHandle}
-        sx={{
-          height: '100%',
-          flex: '0 0 20px',
-          cursor: cursorForHandle,
-        }}
-      />
-    </Wrapper>
+      <div className={classNameForHandle} style={{ height: '100%', flex: '0 0 20px', cursor: cursorForHandle }} />
+    </div>
   )
 }

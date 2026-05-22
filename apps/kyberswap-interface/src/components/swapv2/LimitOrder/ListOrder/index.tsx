@@ -1,13 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { HTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { useGetListOrdersQuery } from 'services/limitOrder'
-import styled from 'styled-components'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
@@ -28,6 +25,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
@@ -50,93 +48,23 @@ import OrderItem from './OrderItem'
 import TabSelector from './TabSelector'
 import TableHeader from './TableHeader'
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100vw;
-  `};
-`
-
-const TabSelectorWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid ${({ theme }) => theme.background};
-  border-top: 1px solid ${({ theme }) => theme.background};
-`
-
-const ButtonCancelAll = styled(ButtonLight)`
-  font-size: 14px;
-  width: fit-content;
-  padding: 8px 14px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-   width: 100%;
-   padding: 10px;
-  `};
-`
-
 const PAGE_SIZE = 10
-export const NoResultWrapper = styled.div`
-  min-height: 140px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.subText};
-`
 
-const TableFooterWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border-radius: 0 0 20px 20px;
-  padding: 10px 12px;
-  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column-reverse;
-  `};
-`
+export const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex min-h-[140px] flex-col items-center justify-center text-subText', className)} {...rest} />
+)
 
 const TableFooter = ({ children = [], isTabActive }: { children: ReactNode[]; isTabActive: boolean }) => {
   const totalChild = children.filter(Boolean).length
   return totalChild ? (
-    <TableFooterWrapper style={{ justifyContent: totalChild === 1 && !isTabActive ? 'center' : 'space-between' }}>
+    <div
+      className="flex items-center gap-4 rounded-b-[20px] bg-subText-20 px-3 py-2.5 max-sm:flex-col-reverse"
+      style={{ justifyContent: totalChild === 1 && !isTabActive ? 'center' : 'space-between' }}
+    >
       {children}
-    </TableFooterWrapper>
+    </div>
   ) : null
 }
-
-const SearchFilter = styled.div`
-  gap: 1rem;
-  padding: 0 12px;
-  display: flex;
-  justify-content: space-between;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-  `};
-`
-const SelectFilter = styled(Select)`
-  background: ${({ theme }) => theme.background};
-  border-radius: 40px;
-  max-width: 50%;
-  height: 36px;
-  font-size: 14px;
-  min-width: 100%;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     min-width: unset;
-  `};
-`
-const SearchInputWrapped = styled(SearchInput)`
-  flex: 1;
-  height: 36px;
-  max-width: 330px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     width: 100%;
-     max-width: unset;
-  `};
-`
 
 export default function ListMyOrder({ customChainId }: { customChainId?: ChainId }) {
   const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
@@ -359,30 +287,32 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     calcPercentFilledOrder(currentOrder.filledTakingAmount, currentOrder.takingAmount, currentOrder.takerAssetDecimals)
 
   return (
-    <Wrapper>
-      <TabSelectorWrapper>
+    <div className="flex flex-col gap-4 max-sm:w-screen">
+      <div className="flex items-center justify-between border-y border-background">
         <TabSelector
           setActiveTab={onSelectTab}
           activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
         />
-      </TabSelectorWrapper>
+      </div>
 
-      <SearchFilter>
+      <div className="flex justify-between gap-4 px-3 max-sm:flex-col">
         <Row width={upToSmall ? '100%' : 'fit-content'} alignItems="center" gap="8px" justify={'space-between'}>
-          <SelectFilter
+          <Select
+            className="h-9 min-w-full max-w-[50%] rounded-[40px] bg-background text-sm max-sm:min-w-0"
             key={orderType}
             options={isTabActive ? ACTIVE_ORDER_OPTIONS() : CLOSE_ORDER_OPTIONS()}
             value={orderType}
             onChange={setOrderType}
           />
         </Row>
-        <SearchInputWrapped
+        <SearchInput
+          className="h-9 max-w-[330px] flex-1 max-sm:w-full max-sm:max-w-none"
           placeholder={t`Search by token symbol or token address`}
           maxLength={255}
           value={keyword}
           onChange={onChangeKeyword}
         />
-      </SearchFilter>
+      </div>
       {loading ? (
         <LocalLoader />
       ) : (
@@ -406,12 +336,17 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
           {orders.length !== 0 ? (
             <TableFooter isTabActive={isTabActive}>
               {isTabActive && (
-                <ButtonCancelAll color={theme.red} onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
+                <ButtonLight
+                  color={theme.red}
+                  onClick={onCancelAllOrder}
+                  disabled={disabledBtnCancelAll}
+                  className="w-fit px-3.5 py-2 text-sm max-sm:w-full max-sm:p-2.5"
+                >
                   <Trash size={15} />
-                  <Text marginLeft={'5px'}>
+                  <span className="ml-[5px]">
                     <Trans>Cancel All</Trans>
-                  </Text>
-                </ButtonCancelAll>
+                  </span>
+                </ButtonLight>
               )}
               {totalOrder > PAGE_SIZE && (
                 <Pagination
@@ -427,7 +362,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
           ) : (
             <NoResultWrapper>
               <NoDataIcon />
-              <Text marginTop={'10px'}>
+              <span className="mt-2.5">
                 {keyword ? (
                   <Trans>No orders found.</Trans>
                 ) : isTabActive ? (
@@ -435,7 +370,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
                 ) : (
                   <Trans>You don&apos;t have any order history.</Trans>
                 )}
-              </Text>
+              </span>
             </NoResultWrapper>
           )}
         </div>
@@ -467,6 +402,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
           }`}
         />
       )}
-    </Wrapper>
+    </div>
   )
 }

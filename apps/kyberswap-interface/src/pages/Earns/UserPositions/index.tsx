@@ -360,8 +360,7 @@ const UserPositions = () => {
                 </PositionTableHeaderFlexItem>
 
                 <PositionTableHeaderFlexItem
-                  flexDirection="column"
-                  alignItems="flex-start"
+                  className="flex-col items-start"
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
@@ -378,7 +377,7 @@ const UserPositions = () => {
 
                 <Flex sx={{ gap: '4px' }}>
                   <FarmingIcon width={24} height={24} />
-                  <PositionTableHeaderFlexItem flexDirection="column">
+                  <PositionTableHeaderFlexItem className="flex-col">
                     <Trans>
                       <Text>Unclaimed</Text>
                       <Text>rewards</Text>

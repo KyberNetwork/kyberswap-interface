@@ -2,11 +2,9 @@ import { ChainId, type Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import {
   TOKEN_CHART_CANDLE_INTERVAL_MS,
   type TokenChartCandle,
@@ -16,7 +14,6 @@ import {
   useLazyTokenPriceChartQuery,
   useTokenPriceChartQuery,
 } from 'services/tokenChart'
-import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
@@ -27,116 +24,11 @@ import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 import type { DisplayCandle } from './TokenPriceChartCanvas'
 
 const TokenPriceChartCanvas = lazy(() => import('./TokenPriceChartCanvas'))
-
-const ChartPanel = styled(Stack)`
-  overflow: hidden;
-  border: 1px solid ${({ theme }) => theme.darkBorder};
-  border-radius: 12px;
-`
-
-const ChartFrame = styled.div`
-  position: relative;
-  border-radius: 8px;
-`
-
-const ActivityOverlay = styled(Stack)`
-  position: absolute;
-  inset: 0;
-  padding: 12px;
-  z-index: 10;
-  border: 1px solid ${({ theme }) => rgba(theme.warning, 0.24)};
-  border-radius: inherit;
-  background: ${({ theme }) => rgba(theme.background, 0.6)};
-  color: ${({ theme }) => theme.warning};
-  text-align: center;
-  backdrop-filter: blur(4px);
-`
-
-const ActivityWarning = styled(HStack)`
-  position: absolute;
-  z-index: 10;
-  top: 0px;
-  border: 1px solid ${({ theme }) => rgba(theme.warning, 0.24)};
-  border-radius: 8px;
-  background: ${({ theme }) => rgba(theme.warning, 0.12)};
-  color: ${({ theme }) => theme.warning};
-  padding: 8px;
-`
-
-const TokenTabsList = styled.div`
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-  overflow-x: auto;
-`
-
-const HeaderMetaText = styled(Text)`
-  flex: 0 1 auto;
-  min-width: 0;
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  font-style: italic;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 150ms ease-in-out;
-
-  :hover {
-    color: ${({ theme }) => theme.text};
-  }
-`
-
-const TabButton = styled.button<{ $active: boolean; $isLast: boolean }>`
-  position: relative;
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 16px;
-  border: 0;
-  border-right: ${({ theme, $isLast }) => ($isLast ? '0' : `1px solid ${theme.darkBorder}`)};
-  background: ${({ theme, $active }) => ($active ? rgba(theme.primary, 0.14) : 'transparent')};
-  color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: inset 0 -2px 0 ${({ theme, $active }) => ($active ? theme.primary : 'transparent')};
-
-  :hover {
-    color: ${({ theme, $active }) => ($active ? theme.primary : theme.text)};
-    background: ${({ theme, $active }) => ($active ? rgba(theme.primary, 0.14) : theme.tableHeader)};
-  }
-`
-
-const ToggleIconWrapper = styled.button`
-  flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  transition: background 150ms ease-in-out;
-  cursor: pointer;
-
-  :hover {
-    background: ${({ theme }) => theme.tableHeader};
-  }
-`
-
-const PanelChevron = styled(ChevronDown)<{ $expanded: boolean }>`
-  color: ${({ theme }) => theme.subText};
-  transform: rotate(${({ $expanded }) => ($expanded ? '180deg' : '0deg')});
-  transition: transform 150ms ease-in-out;
-`
 
 const CHART_TIME_FRAME_OPTIONS = [
   { label: '15m', value: '15m' },
@@ -288,13 +180,13 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
 
   const settlementPriceTooltip = (
     <Stack gap={4} align="flex-start">
-      <Text color={theme.subText} fontSize={12}>
+      <span className="text-xs text-subText">
         <Trans>
           Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from
           actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data.
           Values may differ from prices on other platforms.
         </Trans>
-      </Text>
+      </span>
       <ExternalLink href="https://docs.kyberswap.com/developer-guide/start-here/foundational-solutions/token-settlement-price">
         <Trans>Learn more about KyberSwap Settlement Prices</Trans>
       </ExternalLink>
@@ -302,40 +194,56 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   )
 
   return (
-    <ChartPanel gap={0}>
+    <Stack gap={0} className="overflow-hidden rounded-xl border border-darkBorder">
       <HStack align="center" gap={12} pr={16}>
-        <TokenTabsList role="tablist">
+        <div role="tablist" className="flex min-w-0 flex-1 items-center overflow-x-auto">
           {filteredTokens.map((token, index) => {
             const isActive = index === resolvedActiveTabIndex
+            const isLast = index === filteredTokens.length - 1
             return (
-              <TabButton
-                $active={isActive}
-                $isLast={index === filteredTokens.length - 1}
+              <button
+                type="button"
                 key={getCurrencyKey(token)}
                 onClick={() => {
                   setActiveTabIndex(index)
                   setIsExpanded(true)
                 }}
+                className={cn(
+                  'relative flex shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
+                  !isLast && 'border-r border-darkBorder',
+                  isActive
+                    ? 'bg-primary/15 hover:bg-primary/15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:text-primary'
+                    : 'bg-transparent text-subText hover:bg-tableHeader hover:text-text',
+                )}
               >
                 <CurrencyLogo currency={token} size="20px" />
-                <Text color="inherit" fontSize={16} fontWeight={500}>
+                <span className="text-base font-medium" style={{ color: 'inherit' }}>
                   {token.symbol}/{stableToken?.symbol}
-                </Text>
-              </TabButton>
+                </span>
+              </button>
             )
           })}
-        </TokenTabsList>
+        </div>
 
         {!upToSmall && (
           <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="360px">
-            <HeaderMetaText>{t`Powered by KyberSwap Settlement Prices`}</HeaderMetaText>
+            <span className="block min-w-0 shrink basis-auto truncate text-sm italic text-subText transition-colors duration-150 hover:text-text">
+              {t`Powered by KyberSwap Settlement Prices`}
+            </span>
           </MouseoverTooltip>
         )}
 
         {upToSmall && (
-          <ToggleIconWrapper onClick={() => setIsExpanded(expanded => !expanded)} type="button">
-            <PanelChevron $expanded={isExpanded} size={18} />
-          </ToggleIconWrapper>
+          <button
+            type="button"
+            onClick={() => setIsExpanded(expanded => !expanded)}
+            className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 transition-colors duration-150 hover:bg-tableHeader"
+          >
+            <ChevronDown
+              size={18}
+              className={cn('text-subText transition-transform duration-150', isExpanded ? 'rotate-180' : 'rotate-0')}
+            />
+          </button>
         )}
       </HStack>
 
@@ -346,21 +254,17 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
               <Stack>
                 {currentPrice !== undefined && (
                   <HStack align="baseline" gap={8} wrap="nowrap">
-                    <Text color={theme.text} fontSize={20} fontWeight={500}>
-                      {formatPrice(currentPrice)}
-                    </Text>
+                    <span className="text-xl font-medium text-text">{formatPrice(currentPrice)}</span>
 
                     <HStack align="center" gap={4}>
-                      <Text color={priceChangeColor} fontSize={14} fontWeight={500}>
+                      <span className="text-sm font-medium" style={{ color: priceChangeColor }}>
                         {formatSignedPercent(priceChange)}
-                      </Text>
-                      <Text color={priceChangeColor} fontSize={10}>
+                      </span>
+                      <span className="text-[10px]" style={{ color: priceChangeColor }}>
                         {priceChange >= 0 ? '▲' : '▼'}
-                      </Text>
+                      </span>
                     </HStack>
-                    <Text color={theme.subText} fontSize={14}>
-                      (24h)
-                    </Text>
+                    <span className="text-sm text-subText">(24h)</span>
                   </HStack>
                 )}
               </Stack>
@@ -375,20 +279,24 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
               </Stack>
             </HStack>
 
-            <ChartFrame>
+            <div className="relative rounded-lg">
               {shouldShowLowActivityWarning && (
-                <ActivityWarning align="center" justify="center">
+                <HStack
+                  align="center"
+                  justify="center"
+                  className="border-warning/25 bg-warning/10 absolute top-0 z-10 rounded-lg border p-2 text-warning"
+                >
                   <MouseoverTooltip
                     placement="top"
                     text={
-                      <Text fontSize={12}>
+                      <span className="text-xs">
                         <Trans>Limited on-chain activity in the past 24h - price may not reflect tradable rates</Trans>
-                      </Text>
+                      </span>
                     }
                   >
                     <AlertTriangle size={14} />
                   </MouseoverTooltip>
-                </ActivityWarning>
+                </HStack>
               )}
 
               <PoolChartState
@@ -415,24 +323,32 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
               </PoolChartState>
 
               {shouldHideChartForNoActivity && (
-                <ActivityOverlay align="center" gap={8} justify="center">
+                <Stack
+                  align="center"
+                  gap={8}
+                  justify="center"
+                  className="border-warning/25 absolute inset-0 z-10 rounded-[inherit] border p-3 text-center text-warning backdrop-blur-sm"
+                  style={{ backgroundColor: 'rgba(28,28,28,0.6)' }}
+                >
                   <AlertTriangle color={theme.warning} size={28} />
-                  <Text color={theme.text} fontSize={14} fontWeight={500}>
+                  <span className="text-sm font-medium text-text">
                     <Trans>Not enough on-chain activity to display a reliable price chart for this token</Trans>
-                  </Text>
-                </ActivityOverlay>
+                  </span>
+                </Stack>
               )}
-            </ChartFrame>
+            </div>
 
             {upToSmall && (
               <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="280px">
-                <HeaderMetaText>{t`Settlement Prices`}</HeaderMetaText>
+                <span className="block min-w-0 shrink basis-auto truncate text-sm italic text-subText transition-colors duration-150 hover:text-text">
+                  {t`Settlement Prices`}
+                </span>
               </MouseoverTooltip>
             )}
           </Stack>
         </Stack>
       )}
-    </ChartPanel>
+    </Stack>
   )
 }
 

@@ -5,8 +5,6 @@ import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled, { keyframes } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Card from 'components/Card'
@@ -33,130 +31,104 @@ import { UserLiquidityPosition } from 'state/pools/hooks'
 import { useLiquidityPositionTokenPairs, useToV2LiquidityTokens } from 'state/user/hooks'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
 import { StyledInternalLink, TYPE } from 'theme'
+import { cn } from 'utils/cn'
 
-export const Tab = styled.div<{ active: boolean }>`
-  padding: 4px 0;
-  color: ${({ active, theme }) => (active ? theme.primary : theme.subText)};
-  font-weight: 500;
-  cursor: pointer;
-  :hover {
-    color: ${props => props.theme.primary};
-  }
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 14px;
-  `};
-`
+interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
+  active: boolean
+}
 
-export const PageWrapper = styled(AutoColumn)`
-  padding: 32px 0 100px;
-  width: 100%;
-  max-width: 1224px;
+export const Tab = ({ active, className, children, ...rest }: TabProps) => (
+  <div
+    className={cn(
+      'cursor-pointer py-1 font-medium hover:text-primary max-sm:text-sm',
+      active ? 'text-primary' : 'text-subText',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    padding: 24px 12px 100px;
-    max-width: 832px;
-  `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-width: 392px;
-  `};
-`
+interface PageWrapperProps extends React.ComponentProps<typeof AutoColumn> {
+  className?: string
+}
 
-export const InstructionText = styled.div`
-  width: 100%;
-  padding: 16px 0;
-  font-size: 12px;
-  line-height: 1.5;
-  border-top: 1px solid ${({ theme }) => theme.border};
-  color: ${({ theme }) => theme.subText};
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
+export const PageWrapper = ({ className, ...rest }: PageWrapperProps) => (
+  <AutoColumn
+    className={cn(
+      'w-full max-w-[1224px] px-0 pb-[100px] pt-8 max-lg:max-w-[832px] max-lg:px-3 max-lg:pt-6 max-sm:max-w-[392px]',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const TitleRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+export const InstructionText = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex w-full items-center justify-between border-y border-border py-4 text-xs leading-normal text-subText',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 1rem;
-    width: 100%;
-    flex-direction: column;
-  `};
-`
+export const TitleRow = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex items-center justify-between gap-3 max-sm:w-full max-sm:flex-col max-sm:gap-4', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const PositionCardGrid = styled.div`
-  display: grid;
-  grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
-  gap: 24px;
-  max-width: 1224px;
+export const PositionCardGrid = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'grid max-w-[1224px] gap-6 [grid-template-columns:minmax(392px,auto)_minmax(392px,auto)_minmax(392px,auto)] max-lg:max-w-[832px] max-lg:grid-cols-2 max-sm:max-w-[392px] max-sm:grid-cols-1',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1fr;
-    max-width: 832px;
-  `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1fr;
-    max-width: 392px;
-  `};
-`
+export const FilterRow = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex items-center justify-between gap-3 max-lg:w-full max-lg:justify-end',
+      'max-sm:flex-col-reverse max-sm:items-start max-sm:gap-0',
+      'max-sm:[&>div:nth-child(1)]:mt-5 max-sm:[&>div]:mt-3',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const FilterRow = styled(Flex)`
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+interface PreloadCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  width?: string
+  height?: string
+}
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-      width: 100%;
-      justify-content: flex-end;
-  `}
+export const PreloadCard = ({ width, height, className, style, ...rest }: PreloadCardProps) => (
+  <div
+    className={cn(
+      'relative inline-block overflow-hidden rounded-lg bg-background',
+      "after:absolute after:inset-0 after:-translate-x-full after:animate-[ks-shimmer-x_2s_infinite] after:content-['']",
+      'after:[background-image:linear-gradient(90deg,rgba(255,255,255,0)_0,rgba(255,255,255,0.2)_20%,rgba(255,255,255,0.5)_60%,rgba(255,255,255,0))]',
+      className,
+    )}
+    style={{ width: width ?? '100%', height: height ?? '436px', ...style }}
+    {...rest}
+  />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    align-items: flex-start;
-    flex-direction: column-reverse;
-    gap: 0;
-
-    > div {
-      margin-top: 12px;
-      width: 100%
-      justify-content: space-between
-      &:nth-child(1){
-        margin-top: 20px
-      }
-    }
-  `}
-`
-
-const shimmer = keyframes`
-    100% {
-      transform: translateX(100%);
-    }
-`
-
-export const PreloadCard = styled.div<{ width?: string; height?: string }>`
-  width: ${({ width }) => width ?? '100%'};
-  height: ${({ height }) => height ?? '436px'};
-  background: ${({ theme }) => theme.background};
-  border-radius: 8px;
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-
-  &::after {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    transform: translateX(-100%);
-    background-image: linear-gradient(90deg, rgba(#fff, 0) 0, rgba(#fff, 0.2) 20%, rgba(#fff, 0.5) 60%, rgba(#fff, 0));
-    animation: ${shimmer} 2s infinite;
-
-    content: '';
-  }
-`
 export default function PoolCombination() {
   const { tab = VERSION.ELASTIC } = useParsedQueryString<{
     tab: string
@@ -271,8 +243,8 @@ function MyPoolClassic() {
               </InstructionText>
             </AutoRow>
             <TitleRow>
-              <Flex justifyContent="space-between" flex={1} alignItems="center" width="100%">
-                <Flex sx={{ gap: '1.5rem' }} alignItems="center">
+              <div className="flex w-full flex-1 items-center justify-between">
+                <div className="flex items-center gap-6">
                   <Tab
                     active={!showStaked}
                     onClick={() => {
@@ -297,21 +269,18 @@ function MyPoolClassic() {
                   >
                     <Trans>My Staked Pools</Trans>
                   </Tab>
-                </Flex>
+                </div>
 
                 {upToSmall && (
-                  <Flex sx={{ gap: '12px' }}>
+                  <div className="flex gap-3">
                     <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />
-                  </Flex>
+                  </div>
                 )}
-              </Flex>
+              </div>
 
-              <Flex
-                alignItems="center"
-                flexDirection="row"
-                justifyContent="flex-end"
-                sx={{ gap: '12px' }}
-                width={under768 ? '100%' : undefined}
+              <div
+                className="flex flex-row items-center justify-end gap-3"
+                style={{ width: under768 ? '100%' : undefined }}
               >
                 <Search
                   style={{ width: 'unset', flex: under768 ? 1 : undefined }}
@@ -334,13 +303,13 @@ function MyPoolClassic() {
                   }}
                 >
                   <Withdraw />
-                  <Text marginLeft="4px">
+                  <span className="ml-1">
                     <Trans>Import Pool</Trans>
-                  </Text>
+                  </span>
                 </ButtonPrimary>
 
                 {!upToSmall && <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />}
-              </Flex>
+              </div>
             </TitleRow>
 
             {!account ? (
@@ -370,17 +339,17 @@ function MyPoolClassic() {
                       )
                     })}
                   </PositionCardGrid>
-                  <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
+                  <span className="mt-4 text-center text-base text-subText">
                     {t`Don't see a pool you joined?`}{' '}
                     <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
                       <Trans>Import it.</Trans>
                     </StyledInternalLink>
-                  </Text>
+                  </span>
                 </>
               ) : (
-                <Flex flexDirection="column" alignItems="center" marginTop="60px">
+                <div className="mt-[60px] flex flex-col items-center">
                   <Info size={48} color={theme.subText} />
-                  <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
+                  <span className="mt-4 text-center text-base leading-normal text-subText">
                     <Trans>
                       No liquidity found. Check out our{' '}
                       <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic`}>
@@ -392,19 +361,19 @@ function MyPoolClassic() {
                     <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
                       <Trans>Import it.</Trans>
                     </StyledInternalLink>
-                  </Text>
-                </Flex>
+                  </span>
+                </div>
               )
             ) : (
-              <Flex flexDirection="column" alignItems="center" marginTop="60px">
+              <div className="mt-[60px] flex flex-col items-center">
                 <Info size={48} color={theme.subText} />
-                <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
+                <span className="mt-4 text-center text-base leading-normal text-subText">
                   <Trans>
                     No staked liquidity found. Check out our{' '}
                     <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}`}>Farms.</StyledInternalLink>
                   </Trans>
-                </Text>
-              </Flex>
+                </span>
+              </div>
             )}
           </AutoColumn>
         </AutoColumn>

@@ -710,6 +710,19 @@
     }
   }
 
+  /* LimitOrder ListOrder — primary box-shadow pulse on highlighted row. */
+  @keyframes ks-order-highlight {
+    0% {
+      box-shadow: 0 0 0 0 var(--ks-primary);
+    }
+    70% {
+      box-shadow: 0 0 0 2px var(--ks-primary);
+    }
+    100% {
+      box-shadow: 0 0 0 0 var(--ks-primary);
+    }
+  }
+
   /* OptionButton (KyberDAO Vote) — striped overlay animation for "Choosing" state. */
   @keyframes ks-stripe-move {
     0% {

@@ -3,8 +3,6 @@ import '@kyber/ui/styles.css'
 import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
@@ -74,29 +72,17 @@ const PoolDetail = lazy(() => import('pages/Earns/PoolDetail'))
 
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
-const AppWrapper = styled.div`
-  display: flex;
-  flex-flow: column;
-  align-items: flex-start;
-`
+const AppWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-col items-start">{children}</div>
+)
 
-const HeaderWrapper = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
-  width: 100%;
-  justify-content: space-between;
-  z-index: 3;
-`
+const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="z-[3] flex w-full flex-row flex-nowrap justify-between">{children}</div>
+)
 
-const BodyWrapper = styled.div`
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  width: 100%;
-  align-items: center;
-  min-height: calc(100vh - 148px);
-  flex: 1;
-  z-index: 1;
-`
+const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="relative z-[1] flex min-h-[calc(100vh-148px)] w-full flex-1 flex-col items-center">{children}</div>
+)
 
 const preloadImages = () => {
   const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [NETWORKS_INFO[chainId].icon])
@@ -240,8 +226,8 @@ export default function App() {
             <SingaporeWarningPopup />
             {isInSafeApp && !safeAppAcceptedTermOfUse && (
               <Modal isOpen>
-                <Flex width="100%" padding="32px 24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
-                  <Text fontSize={16} lineHeight="24px" textAlign="center">
+                <div className="flex w-full flex-col items-center gap-6 px-6 py-8">
+                  <span className="text-center text-base leading-6">
                     By clicking Continue, you accept the{' '}
                     <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                       KyberSwap&lsquo;s Terms of Use
@@ -250,7 +236,7 @@ export default function App() {
                     <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
                       Privacy Policy
                     </ExternalLink>
-                  </Text>
+                  </span>
                   <ButtonPrimary
                     onClick={() => {
                       dispatch(updateSafeAppAcceptedTermOfUse(true))
@@ -258,7 +244,7 @@ export default function App() {
                   >
                     Continue
                   </ButtonPrimary>
-                </Flex>
+                </div>
               </Modal>
             )}
             <Popups />

@@ -1,7 +1,4 @@
-import { rgba } from 'polished'
-import { Component, type ReactNode } from 'react'
-import { Box, Text } from 'rebass'
-import styled, { keyframes } from 'styled-components'
+import { Component, type ReactNode, forwardRef } from 'react'
 
 import { ReactComponent as PriceChartEmptyIcon } from 'assets/svg/price-chart-empty.svg'
 import ProgressBar from 'components/ProgressBar'
@@ -11,36 +8,39 @@ import useTheme from 'hooks/useTheme'
 
 const DEFAULT_CHART_HEIGHT = 360
 
-export const PoolChartWrapper = styled.div<{ $height?: number }>`
-  width: 100%;
-  height: ${({ $height }) => $height ?? DEFAULT_CHART_HEIGHT}px;
-`
+interface PoolChartWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
+  $height?: number
+}
 
-const shimmer = keyframes`
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-`
+export const PoolChartWrapper = forwardRef<HTMLDivElement, PoolChartWrapperProps>(function PoolChartWrapper(
+  { $height, style, children, ...rest },
+  ref,
+) {
+  return (
+    <div ref={ref} className="w-full" style={{ height: `${$height ?? DEFAULT_CHART_HEIGHT}px`, ...style }} {...rest}>
+      {children}
+    </div>
+  )
+})
 
-const SkeletonBar = styled.div<{ $height: number }>`
-  position: relative;
-  flex: 1 1 0;
-  min-width: 4px;
-  max-width: 12px;
-  height: ${({ $height }) => $height}%;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  background: ${({ theme }) => rgba(theme.text, 0.04)};
-  overflow: hidden;
-`
+const SkeletonBar = ({ $height, children }: { $height: number; children?: ReactNode }) => (
+  <div
+    className="bg-text/[0.04] relative min-w-1 max-w-3 flex-1 overflow-hidden rounded-t"
+    style={{ height: `${$height}%` }}
+  >
+    {children}
+  </div>
+)
 
-const SkeletonBarShimmer = styled.div`
-  position: absolute;
-  inset: 0;
-  background: ${({ theme }) =>
-    `linear-gradient(90deg, ${rgba(theme.text, 0)} 0%, ${rgba(theme.text, 0.04)} 50%, ${rgba(theme.text, 0)} 100%)`};
-  opacity: 0.7;
-  animation: ${shimmer} 1.8s linear infinite;
-`
+const SkeletonBarShimmer = () => (
+  <div
+    className="absolute inset-0 opacity-70"
+    style={{
+      background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, var(--ks-text-04) 50%, rgba(255,255,255,0) 100%)',
+      animation: 'ks-shimmer-x 1.8s linear infinite',
+    }}
+  />
+)
 
 type PoolChartSkeletonProps = {
   height?: number
@@ -68,15 +68,9 @@ type PoolChartStateProps = {
   skeletonType?: PoolChartSkeletonProps['type']
 }
 
-const ChartFetchingOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  padding-top: 4px;
-  background: ${({ theme }) => rgba(theme.background, 0.06)};
-  pointer-events: none;
-  backdrop-filter: blur(4px);
-`
+const ChartFetchingOverlay = ({ children }: { children: ReactNode }) => (
+  <div className="bg-background/[0.06] pointer-events-none absolute inset-0 z-[1] pt-1 backdrop-blur">{children}</div>
+)
 
 class PoolChartRenderBoundary extends Component<
   {
@@ -129,18 +123,16 @@ const PoolChartStateLayout = ({
 }
 
 const LineChartSkeleton = ({ height }: { height: number }) => {
-  const theme = useTheme()
-
   return (
-    <Box height={`${Math.max(height - 64, 0)}px`} width="100%">
+    <div style={{ height: `${Math.max(height - 64, 0)}px`, width: '100%' }}>
       <svg height="100%" preserveAspectRatio="none" viewBox="0 0 600 240" width="100%">
         <defs>
           <linearGradient id="pool-chart-line-skeleton-gradient" x1="0%" x2="100%" y1="0%" y2="0%">
-            <stop offset="0%" stopColor={rgba(theme.text, 0.04)} />
-            <stop offset="50%" stopColor={rgba(theme.text, 0.14)}>
+            <stop offset="0%" stopColor="var(--ks-text-04)" />
+            <stop offset="50%" stopColor="var(--ks-text-12)">
               <animate attributeName="offset" dur="1.8s" repeatCount="indefinite" values="-0.5; 0.5; 1.5" />
             </stop>
-            <stop offset="100%" stopColor={rgba(theme.text, 0.04)} />
+            <stop offset="100%" stopColor="var(--ks-text-04)" />
           </linearGradient>
         </defs>
 
@@ -153,7 +145,7 @@ const LineChartSkeleton = ({ height }: { height: number }) => {
           strokeWidth="4"
         />
       </svg>
-    </Box>
+    </div>
   )
 }
 
@@ -161,7 +153,7 @@ const BarChartSkeleton = ({ height }: { height: number }) => {
   const barHeights = [15, 20, 5, 10, 15, 30, 10, 15, 60, 70, 85, 90, 100, 70, 80, 40, 55, 60, 15, 20, 25, 15, 10, 5]
 
   return (
-    <Box height={`${Math.max(height - 64, 0)}px`} width="100%">
+    <div style={{ height: `${Math.max(height - 64, 0)}px`, width: '100%' }}>
       <HStack align="flex-end" gap={8} height="100%" justify="center" p="8px" width="100%">
         {barHeights.map((barHeight, index) => (
           <SkeletonBar $height={barHeight * 0.8} key={index}>
@@ -169,12 +161,11 @@ const BarChartSkeleton = ({ height }: { height: number }) => {
           </SkeletonBar>
         ))}
       </HStack>
-    </Box>
+    </div>
   )
 }
 
 const CandleChartSkeleton = ({ height }: { height: number }) => {
-  const theme = useTheme()
   const candles = [
     { bodyHeight: 34, bodyY: 142, wickTop: 88, wickBottom: 202, x: 38 },
     { bodyHeight: 52, bodyY: 116, wickTop: 74, wickBottom: 198, x: 96 },
@@ -189,13 +180,13 @@ const CandleChartSkeleton = ({ height }: { height: number }) => {
   ]
 
   return (
-    <Box height={`${Math.max(height - 64, 0)}px`} width="100%">
+    <div style={{ height: `${Math.max(height - 64, 0)}px`, width: '100%' }}>
       <svg height="100%" preserveAspectRatio="none" viewBox="0 0 600 240" width="100%">
         <defs>
           <linearGradient id="pool-chart-candle-skeleton-shimmer" x1="0%" x2="100%" y1="0%" y2="0%">
-            <stop offset="0%" stopColor={rgba(theme.text, 0)} />
-            <stop offset="50%" stopColor={rgba(theme.text, 0.12)} />
-            <stop offset="100%" stopColor={rgba(theme.text, 0)} />
+            <stop offset="0%" stopColor="transparent" />
+            <stop offset="50%" stopColor="var(--ks-text-12)" />
+            <stop offset="100%" stopColor="transparent" />
           </linearGradient>
           <mask id="pool-chart-candle-skeleton-mask">
             {candles.map(candle => (
@@ -218,7 +209,7 @@ const CandleChartSkeleton = ({ height }: { height: number }) => {
         {candles.map(candle => (
           <g key={candle.x}>
             <line
-              stroke={rgba(theme.text, 0.05)}
+              stroke="var(--ks-text-04)"
               strokeLinecap="round"
               strokeWidth="2"
               x1={candle.x}
@@ -227,7 +218,7 @@ const CandleChartSkeleton = ({ height }: { height: number }) => {
               y2={candle.wickBottom}
             />
             <rect
-              fill={rgba(theme.text, 0.05)}
+              fill="var(--ks-text-04)"
               height={candle.bodyHeight}
               rx="4"
               width="24"
@@ -253,7 +244,7 @@ const CandleChartSkeleton = ({ height }: { height: number }) => {
           />
         </rect>
       </svg>
-    </Box>
+    </div>
   )
 }
 
@@ -320,9 +311,9 @@ const PoolChartEmptyState = ({
   return (
     <PoolChartStateLayout gap={12} height={height}>
       {showIcon ? <PriceChartEmptyIcon height={128} width={128} /> : null}
-      <Text fontSize={14} color={textColor ?? theme.subText} fontWeight={textWeight ?? 500}>
+      <span className="text-sm" style={{ color: textColor ?? theme.subText, fontWeight: textWeight ?? 500 }}>
         {message}
-      </Text>
+      </span>
     </PoolChartStateLayout>
   )
 }
@@ -360,12 +351,12 @@ const PoolChartState = ({
   }
 
   const content = isFetching ? (
-    <Box width="100%" sx={{ position: 'relative' }}>
+    <div className="relative w-full">
       {children}
       <ChartFetchingOverlay>
         <ProgressBar loading height="3px" width="100%" />
       </ChartFetchingOverlay>
-    </Box>
+    </div>
   ) : (
     children
   )

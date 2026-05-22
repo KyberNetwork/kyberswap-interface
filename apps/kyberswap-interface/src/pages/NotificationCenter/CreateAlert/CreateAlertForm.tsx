@@ -1,11 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { CSSProperties, useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useCreatePriceAlertMutation } from 'services/priceAlert'
-import { CSSProperties } from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import CheckBox from 'components/CheckBox'
@@ -203,23 +201,21 @@ export default function CreateAlert({
               menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
               optionStyle={{ padding: 0 }}
               activeRender={item => (
-                <Flex alignItems="center" style={{ gap: 6 }}>
+                <div className="flex items-center" style={{ gap: 6 }}>
                   <NetworkLogo style={{ width: 20, height: 20 }} chainId={item?.value as ChainId} />
-                  <Text fontSize={14} fontWeight="500">
-                    {item?.label}
-                  </Text>
-                </Flex>
+                  <span className="text-sm font-medium">{item?.label}</span>
+                </div>
               )}
               optionRender={item => {
                 return (
                   <MouseoverTooltip text="">
-                    <Text sx={{ padding: '10px 18px', cursor: 'pointer' }}>{item?.label}</Text>
+                    <span className="cursor-pointer px-[18px] py-2.5">{item?.label}</span>
                   </MouseoverTooltip>
                 )
               }}
             />
 
-            <Flex sx={{ gap: '12px' }}>
+            <div className="flex gap-3">
               <StyledInputNumber
                 value={formInput.tokenInAmount}
                 onUserInput={val => onChangeInput('tokenInAmount', val)}
@@ -241,7 +237,7 @@ export default function CreateAlert({
                   customChainId={selectedChain}
                 />
               </div>
-            </Flex>
+            </div>
 
             <MiniLabel>
               <Trans>to</Trans>
@@ -277,20 +273,18 @@ export default function CreateAlert({
               onChange={setAlertType}
               optionStyle={{ padding: '10px 12px' }}
               optionRender={item => (
-                <Flex alignItems="center" style={{ gap: 6 }}>
+                <div className="flex items-center" style={{ gap: 6 }}>
                   {item?.value === PriceAlertType.ABOVE ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
                   {item?.label}
-                </Flex>
+                </div>
               )}
               activeRender={item => {
                 const isAbove = item?.value === PriceAlertType.ABOVE
                 return (
-                  <Flex alignItems="center" style={{ gap: 6 }} color={isAbove ? theme.primary : theme.red}>
+                  <div className="flex items-center" style={{ gap: 6, color: isAbove ? theme.primary : theme.red }}>
                     {isAbove ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
-                    <Text fontSize={14} fontWeight="500">
-                      {item?.label}
-                    </Text>
-                  </Flex>
+                    <span className="text-sm font-medium">{item?.label}</span>
+                  </div>
                 )
               }}
             />
@@ -331,12 +325,10 @@ export default function CreateAlert({
               menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
               optionStyle={{ textTransform: 'capitalize' }}
               activeRender={item => (
-                <Flex alignItems="center" style={{ gap: 6, textTransform: 'capitalize' }}>
+                <div className="flex items-center capitalize" style={{ gap: 6 }}>
                   <Clock size={20} color={theme.text} />
-                  <Text fontSize={14} fontWeight="500">
-                    {item?.label}
-                  </Text>
-                </Flex>
+                  <span className="text-sm font-medium">{item?.label}</span>
+                </div>
               )}
             />
           </RowBetween>
@@ -354,9 +346,9 @@ export default function CreateAlert({
               style={{ width: 15, height: 15 }}
               onChange={() => setDisableAfterTrigger(v => !v)}
             />
-            <Text as="label" fontSize="14px" color={theme.text} htmlFor="disable-trigger">
+            <label className="text-sm text-text" htmlFor="disable-trigger">
               <Trans>Disable the alert after it triggers once</Trans>
-            </Text>
+            </label>
           </Row>
         </RightColumn>
       </Form>

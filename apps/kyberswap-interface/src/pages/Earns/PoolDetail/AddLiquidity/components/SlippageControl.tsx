@@ -2,11 +2,8 @@ import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, ZapRouteDetail } from '@kybe
 import { translateZapMessage } from '@kyber/ui'
 import { PI_LEVEL, getZapImpact } from '@kyber/utils'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
@@ -15,6 +12,7 @@ import TooltipText from 'pages/Earns/PoolDetail/AddLiquidity/components/TooltipT
 import { getSlippageNotice, getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { useDegenModeManager } from 'state/user/hooks'
+import { cn } from 'utils/cn'
 
 const PRESET_SLIPPAGE_OPTIONS = [5, 10, 50, 100]
 const SLIPPAGE_INPUT_REGEX = /^(\d+)\.?(\d{1,2})?$/
@@ -52,109 +50,6 @@ const validateSlippageInput = (
 
   return { isValid: true }
 }
-
-const SummaryCard = styled(Stack)`
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 12px;
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
-
-  :hover {
-    background: ${({ theme }) => theme.darkText};
-  }
-`
-
-const ExpandButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-`
-
-const Controls = styled.div`
-  display: flex;
-  align-items: stretch;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 20px;
-  background: ${({ theme }) => theme.background};
-`
-
-const Option = styled.button<{ $active: boolean }>`
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 32px;
-  padding: 0px 8px 0px 12px;
-  border: none;
-  border-radius: 20px;
-  background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
-  color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
-  font-size: 14px;
-  font-weight: ${({ $active }) => ($active ? 500 : 400)};
-  cursor: pointer;
-
-  :hover {
-    background: ${({ theme, $active }) => ($active ? rgba(theme.tabActive, 0.8) : theme.buttonGray)};
-  }
-`
-
-const InputWrap = styled.div<{ $active: boolean; $error?: boolean; $warning?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1 1 0;
-  gap: 4px;
-  min-width: 0;
-  padding: 0px 8px;
-  border-radius: 20px;
-  background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
-  color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
-
-  :hover {
-    background: ${({ theme, $active }) => ($active ? theme.tabActive : theme.background)};
-  }
-`
-
-const Input = styled.input`
-  width: 56px;
-  border: none;
-  background: transparent;
-  color: inherit;
-  min-width: 0;
-  padding: 0px;
-  font-weight: 500;
-  outline: none;
-  text-align: right;
-`
-
-const Suggestion = styled.button`
-  width: fit-content;
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.primary};
-  cursor: pointer;
-  font-size: 14px;
-  padding: 0;
-
-  :hover {
-    filter: brightness(1.12);
-  }
-`
-
-const Caret = styled(ChevronDown)<{ $open: boolean }>`
-  width: 16px;
-  height: 16px;
-  color: ${({ theme }) => theme.subText};
-  transform: rotate(${({ $open }) => ($open ? 180 : 0)}deg);
-  transition: transform 0.2s ease;
-`
 
 type SlippageControlProps = {
   context: {
@@ -298,8 +193,16 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
 
   return (
     <Stack gap={8}>
-      <SummaryCard gap={8}>
-        <ExpandButton type="button" aria-expanded={isExpanded} onClick={() => setIsExpanded(prev => !prev)}>
+      <Stack
+        gap={8}
+        className="w-full rounded-xl border border-border bg-background px-3 py-2 text-text hover:bg-darkText"
+      >
+        <button
+          type="button"
+          aria-expanded={isExpanded}
+          onClick={() => setIsExpanded(prev => !prev)}
+          className="flex w-full cursor-pointer items-center justify-between gap-2 border-none bg-transparent p-0 text-inherit"
+        >
           <HStack align="center" justify="space-between" width="100%" gap={16}>
             <TooltipText
               tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
@@ -311,34 +214,47 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
               Max Slippage
             </TooltipText>
             <HStack as="span" align="center" gap={4}>
-              <Text as="span" color={valueColor} fontSize={14} fontWeight={500}>
+              <span className="text-sm font-medium" style={{ color: valueColor }}>
                 {formatSlippageLabel(slippage)}
-              </Text>
-              <Caret $open={isExpanded} />
+              </span>
+              <ChevronDown
+                className={cn(
+                  'size-4 text-subText transition-transform duration-200 ease-out',
+                  isExpanded && 'rotate-180',
+                )}
+              />
             </HStack>
           </HStack>
-        </ExpandButton>
+        </button>
 
         {isExpanded && (
           <>
-            <Controls>
+            <div className="flex items-stretch rounded-[20px] border border-border bg-background">
               {PRESET_SLIPPAGE_OPTIONS.map(item => (
-                <Option
-                  $active={slippage === item && !isCustom}
+                <button
+                  type="button"
                   key={item}
                   onClick={() => handlePresetClick(item)}
-                  type="button"
+                  className={cn(
+                    'min-h-8 min-w-0 flex-1 cursor-pointer rounded-[20px] border-none pl-3 pr-2 text-sm',
+                    slippage === item && !isCustom
+                      ? 'hover:bg-tabActive/80 bg-tabActive font-medium text-text'
+                      : 'bg-transparent font-normal text-subText hover:bg-buttonGray',
+                  )}
                 >
                   {formatSlippageInput(item)}%
-                </Option>
+                </button>
               ))}
 
-              <InputWrap
-                $active={isCustom}
-                $error={Boolean(message && !isValid)}
-                $warning={Boolean(message && isValid)}
+              <div
+                className={cn(
+                  'flex min-w-0 flex-1 items-center justify-center gap-1 rounded-[20px] px-2',
+                  isCustom
+                    ? 'bg-tabActive text-text hover:bg-tabActive'
+                    : 'bg-transparent text-subText hover:bg-background',
+                )}
               >
-                <Input
+                <input
                   onBlur={event => handleCustomInputBlur(event.currentTarget.value)}
                   onChange={event => handleCustomInputChange(event.target.value)}
                   onFocus={() => {
@@ -347,17 +263,20 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
                   }}
                   placeholder="Custom"
                   value={customInput}
+                  className="w-14 min-w-0 border-none bg-transparent p-0 text-right font-medium text-inherit outline-none"
                 />
-                <Text as="span" fontSize={14}>
-                  %
-                </Text>
-              </InputWrap>
-            </Controls>
+                <span className="text-sm">%</span>
+              </div>
+            </div>
 
             {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
-              <Suggestion type="button" onClick={handleSuggestionClick}>
+              <button
+                type="button"
+                onClick={handleSuggestionClick}
+                className="w-fit cursor-pointer border-none bg-transparent p-0 text-sm text-primary hover:brightness-[1.12]"
+              >
                 <Trans>Suggestion</Trans>: {formatSlippageLabel(suggestedSlippage)}
-              </Suggestion>
+              </button>
             )}
 
             {warningMessage ? <NoteCard $tone={isValid ? 'warning' : 'error'}>{warningMessage}</NoteCard> : null}
@@ -365,7 +284,7 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
         )}
 
         <ZapImpact route={route} />
-      </SummaryCard>
+      </Stack>
     </Stack>
   )
 }
@@ -398,9 +317,9 @@ const ZapImpact = ({ route }: { route?: ZapRouteDetail | null }) => {
         >
           Zap Impact
         </TooltipText>
-        <Text as="span" color={valueColor} fontSize={14} fontWeight={500}>
+        <span className="text-sm font-medium" style={{ color: valueColor }}>
           {impact.display || '--'}
-        </Text>
+        </span>
       </HStack>
 
       {hasWarning && warningMessage ? (

@@ -1,8 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import Checkbox from 'components/CheckBox'
@@ -25,80 +23,6 @@ import { useSessionInfo } from 'state/authen/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
 import { pushUnique } from 'utils'
 import { isEmailValid } from 'utils/string'
-
-const Wrapper = styled.div`
-  margin: 0;
-  padding: 30px 24px;
-  width: 100%;
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-  width: 100%;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     gap: 14px;
-     padding: 24px 16px;
-  `}
-`
-
-const Label = styled.p`
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-`
-
-const TopicItem = styled.label`
-  display: flex;
-  gap: 14px;
-  font-weight: 500;
-  align-items: center;
-  width: 100%;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     flex-basis: unset;
-  `}
-`
-
-const Divider = styled.div`
-  border-top: 1px solid ${({ theme }) => theme.border};
-  width: 100%;
-`
-
-const TopicItemHeader = styled.label`
-  color: ${({ theme }) => theme.text};
-  align-items: center;
-  font-size: 14px;
-  font-weight: 500;
-  display: flex;
-  justify-content: space-between;
-`
-
-const ListGroupWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 16px;
-  flex-direction: row;
-  justify-content: space-between;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     flex-direction: column;
-     gap: 24px;
-  `}
-`
-
-const GroupColum = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-`
-
-const EmailColum = styled(Column)`
-  max-width: 50%;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     max-width: 100%;
-  `}
-`
 
 const noop = () => {}
 
@@ -317,11 +241,11 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
 
   const renderTableHeader = () => {
     return (
-      <TopicItemHeader htmlFor="selectAll">
-        <Text fontSize={'14px'}>
+      <label htmlFor="selectAll" className="flex items-center justify-between text-sm font-medium text-text">
+        <span className="text-sm">
           <Trans>Notification Preferences</Trans>
-        </Text>
-      </TopicItemHeader>
+        </span>
+      </label>
     )
   }
 
@@ -336,7 +260,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
   const renderTopic = (topic: Topic, disabled: boolean, disableTooltip?: ReactNode) => {
     return (
       <MouseoverTooltip text={disabled ? disableTooltip : ''} key={topic.id}>
-        <TopicItem key={topic.id} htmlFor={`topic${topic.id}`} style={{ alignItems: 'flex-start' }}>
+        <label key={topic.id} htmlFor={`topic${topic.id}`} className="flex w-full items-start gap-3.5 font-medium">
           <Checkbox
             disabled={disabled}
             borderStyle
@@ -346,29 +270,29 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
             onChange={() => onChangeTopic(topic.id)}
           />
           <Column gap="10px">
-            <Text color={disabled ? theme.border : theme.text} fontSize={14}>
+            <span className="text-sm" style={{ color: disabled ? theme.border : theme.text }}>
               {topic.name}
-            </Text>
-            <Text color={disabled ? theme.border : theme.subText} fontSize={12}>
+            </span>
+            <span className="text-xs" style={{ color: disabled ? theme.border : theme.subText }}>
               {topic.description}
-            </Text>
+            </span>
           </Column>
-        </TopicItem>
+        </label>
       </MouseoverTooltip>
     )
   }
 
   const navigate = useNavigate()
   return (
-    <Wrapper>
-      <Text fontWeight={'500'} color={theme.text} fontSize="14px">
+    <div className="m-0 flex w-full flex-col gap-[18px] px-6 py-[30px] max-md:gap-3.5 max-md:px-4 max-md:py-6">
+      <span className="text-sm font-medium text-text">
         <Trans>Email Notification</Trans>
-      </Text>
+      </span>
 
-      <EmailColum>
-        <Label>
+      <Column className="max-w-[50%] max-md:max-w-full">
+        <p className="text-xs font-medium leading-4 text-subText">
           <Trans>Enter your email address to receive notifications.</Trans>
-        </Label>
+        </p>
         <InputEmailWithVerification
           hasError={hasErrorInput}
           showVerifyModal={showVerifyModal}
@@ -380,16 +304,19 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           disabled={isSignInEmail}
         />
         {errorInput && (
-          <Label style={{ color: errorInput ? theme.red : theme.border, margin: '7px 0px 0px 0px' }}>
+          <p
+            className="text-xs font-medium leading-4"
+            style={{ color: errorInput ? theme.red : theme.border, margin: '7px 0px 0px 0px' }}
+          >
             {errorInput}
-          </Label>
+          </p>
         )}
-      </EmailColum>
-      <Divider />
+      </Column>
+      <div className="w-full border-t border-border" />
       <Column gap="16px">
         {renderTableHeader()}
-        <ListGroupWrapper>
-          <GroupColum>
+        <div className="flex w-full flex-row justify-between gap-4 max-md:flex-col max-md:gap-6">
+          <div className="flex w-full flex-col gap-4">
             {commons.map(topic => {
               const isDisabled = topic.isPriceElasticPool ? !account : topic.isPriceAlert ? false : disableCheckbox
               return renderTopic(
@@ -398,34 +325,32 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
                 isDisabled ? t`You must connect wallet and fill an email first` : '',
               )
             })}
-          </GroupColum>
-          <GroupColum>
+          </div>
+          <div className="flex w-full flex-col gap-4">
             {restrict.map(topic => {
               return renderTopic(
                 topic,
                 disableCheckbox || !isLogin,
                 <Trans>
                   Before you can subscribe to this notification, sign-in to a profile first. Go the{' '}
-                  <Text
-                    sx={{ cursor: 'pointer' }}
-                    as="span"
-                    color={theme.primary}
+                  <span
+                    className="cursor-pointer text-primary"
                     onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)}
                   >
                     Profile
-                  </Text>{' '}
+                  </span>{' '}
                   tab to sign-in with your wallet
                 </Trans>,
               )
             })}
-          </GroupColum>
-        </ListGroupWrapper>
+          </div>
+        </div>
         {totalTopic === 0 && (
           <Row justify="center" align="center" gap="6px" marginTop={'20px'} width={'100%'}>
             <Loader />
-            <Text color={theme.subText} fontSize={14}>
+            <span className="text-sm text-subText">
               <Trans>Loading topics ...</Trans>
-            </Text>
+            </span>
           </Row>
         )}
       </Column>
@@ -445,20 +370,14 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           }
         />
       )}
-    </Wrapper>
+    </div>
   )
 }
 
-const StyledPreference = styled.div`
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    max-width: unset;
-  `}
-`
-
 export default function Overview() {
   return (
-    <StyledPreference>
+    <div className="max-md:max-w-none">
       <NotificationPreference />
-    </StyledPreference>
+    </div>
   )
 }

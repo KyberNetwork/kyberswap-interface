@@ -2,9 +2,7 @@ import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import aggregatorStatsApi from 'services/aggregatorStats'
-import styled from 'styled-components'
 
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
@@ -45,65 +43,39 @@ import {
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatBigLiquidity } from 'utils/formatBalance'
 
-// import MeetTheTeam from './MeetTheTeam'
+const KNCBlack = () => <KNCSVG className="[&_path]:fill-textReverse" />
 
-const KNCBlack = styled(KNCSVG)`
-  path {
-    fill: ${({ theme }) => theme.textReverse};
-  }
-`
+const ForTraderInfoRow = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-1 basis-full max-lg:size-full max-lg:flex-1 max-lg:gap-6">{children}</div>
+)
 
-const ForTraderInfoRow = styled.div`
-  flex: 1 1 100%;
-  display: flex;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex: 1;
-    gap: 24px;
-    width: 100%;
-    height: 100%;
-  `}
-`
-
-const ForTraderInfoCell = styled.div`
-  flex: 1 1 100%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex: 1;
-  `}
-`
+const ForTraderInfoCell = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-1 basis-full flex-col items-center max-lg:flex-1">{children}</div>
+)
 
 export const KSStatistic = () => {
-  const theme = useTheme()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedChains } = useChainsConfig()
 
   return (
-    <Box sx={{ position: 'relative', marginTop: '20px' }}>
+    <div className="relative mt-5">
       <ForTraderInfoShadow />
       <ForTraderInfo>
         <ForTraderInfoRow>
           <ForTraderInfoCell>
-            <Text fontWeight="600" fontSize="24px">
-              $24B
-            </Text>
-            <Text color={theme.subText} marginTop="4px" fontSize="14px">
+            <span className="text-2xl font-semibold">$24B</span>
+            <span className="mt-1 text-sm text-subText">
               <Trans>TVL From DEXs</Trans>
-            </Text>
+            </span>
           </ForTraderInfoCell>
 
           <ForTraderDivider />
 
           <ForTraderInfoCell>
-            <Text fontWeight="600" fontSize="24px">
-              70+
-            </Text>
-            <Text color={theme.subText} marginTop="4px" fontSize="14px">
+            <span className="text-2xl font-semibold">70+</span>
+            <span className="mt-1 text-sm text-subText">
               <Trans>DEXs</Trans>
-            </Text>
+            </span>
           </ForTraderInfoCell>
         </ForTraderInfoRow>
 
@@ -111,25 +83,21 @@ export const KSStatistic = () => {
 
         <ForTraderInfoRow>
           <ForTraderInfoCell>
-            <Text fontWeight="600" fontSize="24px">
-              {supportedChains.length}+
-            </Text>
-            <Text color={theme.subText} marginTop="4px" fontSize="14px">
+            <span className="text-2xl font-semibold">{supportedChains.length}+</span>
+            <span className="mt-1 text-sm text-subText">
               <Trans>Chains</Trans>
-            </Text>
+            </span>
           </ForTraderInfoCell>
           <ForTraderDivider />
           <ForTraderInfoCell>
-            <Text fontWeight="600" fontSize="24px">
-              20,000+
-            </Text>
-            <Text color={theme.subText} marginTop="4px" fontSize="14px">
+            <span className="text-2xl font-semibold">20,000+</span>
+            <span className="mt-1 text-sm text-subText">
               <Trans>Tokens</Trans>
-            </Text>
+            </span>
           </ForTraderInfoCell>
         </ForTraderInfoRow>
       </ForTraderInfo>
-    </Box>
+    </div>
   )
 }
 
@@ -152,19 +120,16 @@ function AboutKyberSwap() {
   const { supportedChains } = useChainsConfig()
 
   return (
-    <div style={{ position: 'relative', background: theme.buttonBlack, width: '100%' }}>
+    <div className="relative w-full bg-buttonBlack">
       <AboutPage>
         <Banner margin="32px auto 0" padding="0 16px" maxWidth="1224px" />
 
         <Wrapper>
-          <Text as="h1" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
+          <h1 className="text-center text-[28px] font-light leading-8 sm:text-[48px] sm:leading-[60px]">
             <Trans>
-              <Text color={theme.primary} as="span" fontWeight="500">
-                Swap
-              </Text>{' '}
-              Tokens at Superior Rates
+              <span className="font-medium text-primary">Swap</span> Tokens at Superior Rates
             </Trans>
-          </Text>
+          </h1>
 
           <SupportedChain>
             {supportedChains.map(({ chainId: chain, icon, name }) => (
@@ -176,88 +141,82 @@ function AboutKyberSwap() {
 
           <StatisticWrapper>
             <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
+              <span className="text-2xl font-semibold sm:text-[28px]">
                 {dataToShow.totalTradingVolume ? (
                   formatBigLiquidity(dataToShow.totalTradingVolume, 2, true)
                 ) : (
                   <Loader />
                 )}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
+              </span>
+              <span className="mt-2 text-subText">
                 <Trans>Total Trading Volume</Trans>*
-              </Text>
+              </span>
             </StatisticItem>
             <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
+              <span className="text-2xl font-semibold sm:text-[28px]">
                 {dataToShow['24hTradingVolume'] ? (
                   formatBigLiquidity(dataToShow['24hTradingVolume'], 2, true)
                 ) : (
                   <Loader />
                 )}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
+              </span>
+              <span className="mt-2 text-subText">
                 <Trans>24H Trading Volume</Trans>*
-              </Text>
+              </span>
             </StatisticItem>
           </StatisticWrapper>
 
           <ForTrader>
-            <Flex flex={1} flexDirection="column" height="max-content">
-              <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
+            <div className="flex h-max flex-1 flex-col">
+              <span className="text-base font-medium text-primary sm:text-xl">
                 <Trans>FOR TRADERS</Trans>
-              </Text>
-              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']} fontWeight="500">
+              </span>
+              <h2 className="mt-3 text-[28px] font-medium sm:text-4xl">
                 <Trans>Swap your tokens at superior rates. No limits</Trans>
-              </Text>
-              <Text
-                fontSize="16px"
-                marginTop={['40px', '48px']}
-                color={theme.text}
-                lineHeight="24px"
-                textAlign="justify"
-              >
+              </h2>
+              <span className="mt-10 text-justify text-base leading-6 text-text sm:mt-12">
                 <Trans>
                   With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs and identify
                   superior trade routes for you.
                 </Trans>
-              </Text>
+              </span>
 
-              <Flex marginTop="20px" alignItems="center">
+              <div className="mt-5 flex items-center">
                 <BestPrice />
-                <Text marginLeft="12px">
+                <span className="ml-3">
                   <Trans>Superior price guaranteed</Trans>
-                </Text>
-              </Flex>
-              <Flex marginTop="20px" alignItems="center">
+                </span>
+              </div>
+              <div className="mt-5 flex items-center">
                 <LowestSlippage />
-                <Text marginLeft="12px">
+                <span className="ml-3">
                   <Trans>Lowest possible slippage</Trans>
-                </Text>
-              </Flex>
+                </span>
+              </div>
 
-              <Flex marginTop="20px" alignItems="center">
+              <div className="mt-5 flex items-center">
                 <Clock />
-                <Text marginLeft="12px">
+                <span className="ml-3">
                   <Trans>Save time & effort</Trans>
-                </Text>
-              </Flex>
+                </span>
+              </div>
 
               {above500 && (
                 <BtnPrimary
                   margin="48px 0"
                   width="216px"
-                  as={Link as any}
+                  as={Link as never}
                   to={APP_PATHS.SWAP + '/' + networkInfo.route}
                   onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
                 >
                   <Repeat size={20} />
-                  <Text fontSize="16px" marginLeft="8px">
+                  <span className="ml-2 text-base">
                     <Trans>Swap Now</Trans>
-                  </Text>
+                  </span>
                 </BtnPrimary>
               )}
-            </Flex>
-            <Flex flex={1} flexDirection="column">
+            </div>
+            <div className="flex flex-1 flex-col">
               <img
                 width="100%"
                 src={ForTraderImage}
@@ -265,61 +224,53 @@ function AboutKyberSwap() {
                 style={{ marginTop: above992 ? '0.25rem' : '40px' }}
               />
               <KSStatistic />
-            </Flex>
+            </div>
             {!above500 && (
               <BtnPrimary
                 margin="40px 0"
-                as={Link as any}
+                as={Link as never}
                 to={APP_PATHS.SWAP + '/' + networkInfo.route}
                 onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
               >
                 <Repeat />
-                <Text fontSize={['16px', '20px']} marginLeft="8px">
+                <span className="ml-2 text-base sm:text-xl">
                   <Trans>Swap Now</Trans>
-                </Text>
+                </span>
               </BtnPrimary>
             )}
           </ForTrader>
 
           <AboutKNC>
             <img height="400px" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'block' : 'none' }} />
-            <Flex width="100%" alignSelf="center" flexDirection="column" height="max-content">
-              <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
+            <div className="flex h-max w-full flex-col self-center">
+              <span className="text-base font-medium text-primary sm:text-xl">
                 <Trans>ABOUT KNC</Trans>
-              </Text>
-              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']} fontWeight="500">
+              </span>
+              <h2 className="mt-3 text-[28px] font-medium sm:text-4xl">
                 <Trans>Kyber Network Crystal (KNC)</Trans>
-              </Text>
-              <Text
-                fontSize="16px"
-                marginTop={['40px', '48px']}
-                color={theme.subText}
-                lineHeight="24px"
-                textAlign="justify"
-              >
+              </h2>
+              <span className="mt-10 text-justify text-base leading-6 text-subText sm:mt-12">
                 <Trans>
                   KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product
                   KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem.
                 </Trans>
-              </Text>
+              </span>
               <img
                 width="75%"
                 src={KNCGraphic}
                 alt="KNCGraphic"
                 style={{ display: above768 ? 'none' : 'block', margin: 'auto', marginTop: '40px' }}
               />
-              <BtnPrimary as={Link as any} to="/about/knc" margin="48px 0">
+              <BtnPrimary as={Link as never} to="/about/knc" margin="48px 0">
                 <KNCBlack />
-                <Text fontSize={['14px', '16px']} marginLeft="8px">
+                <span className="ml-2 text-sm sm:text-base">
                   <Trans>Find out more</Trans>
-                </Text>
+                </span>
               </BtnPrimary>
-            </Flex>
+            </div>
           </AboutKNC>
 
-          {/* <MeetTheTeam /> */}
-
-          <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
+          <h2 className="mt-[100px] text-center text-[28px] font-medium sm:mt-40 sm:text-4xl">
             <Trans>Powered by</Trans>
 
             <Powered>
@@ -341,43 +292,43 @@ function AboutKyberSwap() {
 
               <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
 
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+              <div className="flex w-auto items-center gap-3">
                 <img
                   src="https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png"
                   alt="Bera"
                   width="80px"
                 />
-                <Text>Berachain</Text>
-              </Flex>
+                <span>Berachain</span>
+              </div>
 
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+              <div className="flex w-auto items-center gap-3">
                 <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" height="80px" />
-                <Text>Roninchain</Text>
-              </Flex>
+                <span>Roninchain</span>
+              </div>
               <img src="https://www.etherlink.com/logo-desktop.svg" alt="Etherlink" width="100%" />
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+              <div className="flex w-auto items-center gap-3">
                 <img
                   src="https://storage.googleapis.com/ks-setting-1d682dca/9cdb1542-1d9a-4cf0-b67b-b68b1a29b09d1758725874771.png"
                   alt="Plasma"
                   width="80px"
                 />
-                <Text>Plasma</Text>
-              </Flex>
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <span>Plasma</span>
+              </div>
+              <div className="flex w-auto items-center gap-3">
                 <img src={monadIcon} alt="Monad" width="80px" />
-                <Text>Monad</Text>
-              </Flex>
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <span>Monad</span>
+              </div>
+              <div className="flex w-auto items-center gap-3">
                 <img src={megaEthIcon} alt="MegaETH" width="80px" />
-                <Text>MegaETH</Text>
-              </Flex>
+                <span>MegaETH</span>
+              </div>
             </Powered>
-          </Text>
+          </h2>
         </Wrapper>
       </AboutPage>
       <Footer background={theme.background}>
         <FooterContainer>
-          <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
+          <div className="flex flex-wrap justify-center gap-3">
             <ExternalLink href={`https://docs.kyberswap.com`}>
               <Trans>Docs</Trans>
             </ExternalLink>
@@ -395,7 +346,7 @@ function AboutKyberSwap() {
             <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
             <VerticalDivider />
             <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>
-          </Flex>
+          </div>
           <FooterSocialLink />
         </FooterContainer>
       </Footer>
