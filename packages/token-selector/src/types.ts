@@ -50,6 +50,8 @@ export interface TokenOptions {
   token1Address?: string;
   /** External token balances (optional - if not provided, will fetch internally) */
   tokenBalances?: { [key: string]: bigint };
+  /** Override the maximum number of tokens selectable in ADD mode (default: MAX_TOKENS). */
+  maxTokens?: number;
 }
 
 /**

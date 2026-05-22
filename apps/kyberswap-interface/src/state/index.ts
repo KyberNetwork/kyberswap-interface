@@ -10,6 +10,7 @@ import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
+import dustSwapApi from 'services/dustSwap'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
@@ -37,6 +38,7 @@ import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
 import crossChainSwap from './crossChainSwap'
 import customizeDexes from './customizeDexes'
+import dustLiquidation from './dustLiquidation/reducer'
 import { updateVersion } from './global/actions'
 import limit from './limit/reducer'
 import lists from './lists/reducer'
@@ -84,6 +86,7 @@ const store = configureStore({
     transactions,
     crossChainSwap,
     swap,
+    dustLiquidation,
     limit,
     mint,
     mintV2,
@@ -114,6 +117,7 @@ const store = configureStore({
     tokenPrices,
     topTokens,
     [zapApi.reducerPath]: zapApi.reducer,
+    [dustSwapApi.reducerPath]: dustSwapApi.reducer,
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
@@ -156,6 +160,7 @@ const store = configureStore({
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
       .concat(zapApi.middleware)
+      .concat(dustSwapApi.middleware)
       .concat(zapEarnServiceApi.middleware)
       .concat(rewardServiceApi.middleware)
       .concat(rewardMerklApi.middleware)

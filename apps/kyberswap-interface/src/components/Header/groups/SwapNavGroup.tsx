@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Repeat } from 'react-feather'
+import { Repeat, Wind } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
@@ -10,6 +10,7 @@ import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import { NewLabel } from 'components/Menu'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import { isDustSwapSupported } from 'constants/dustLiquidation'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -32,7 +33,9 @@ const SwapNavGroup = () => {
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
 
-  const isActive = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
+  const isActive = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN, APP_PATHS.DUST].some(path =>
+    pathname.startsWith(path),
+  )
 
   return (
     <NavGroup
@@ -88,6 +91,20 @@ const SwapNavGroup = () => {
                 </IconWrapper>
                 <Flex>
                   <Trans>Cross-Chain</Trans>
+                  <NewLabel isNew>New</NewLabel>
+                </Flex>
+              </Flex>
+            </StyledNavLink>
+          )}
+
+          {isDustSwapSupported(chainId) && (
+            <StyledNavLink id="dust-nav-link" to={APP_PATHS.DUST} style={{ flexDirection: 'column', width: '100%' }}>
+              <Flex alignItems="center" sx={{ gap: '12px' }}>
+                <IconWrapper>
+                  <Wind size={16} />
+                </IconWrapper>
+                <Flex>
+                  <Trans>Dust Liquidation</Trans>
                   <NewLabel isNew>New</NewLabel>
                 </Flex>
               </Flex>

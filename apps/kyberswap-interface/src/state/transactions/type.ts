@@ -100,6 +100,17 @@ export type EarnMigrateLiquidityExtraInfo = {
   contract?: string
 }
 
+// ex: dust liquidate 3 tokens (WETH, KNC, DAI) into USDC
+export type TransactionExtraInfoDustSwap = {
+  tokensIn: Array<{ address: string; symbol: string; amount: string; logoUrl?: string }>
+  tokenAddressOut: string
+  tokenSymbolOut: string
+  tokenAmountOut: string
+  tokenLogoURLOut?: string
+  amountOutUsd?: string
+  contract?: string // router address
+}
+
 export type TransactionExtraInfo = (
   | TransactionExtraInfo1Token
   | TransactionExtraInfo2Token
@@ -109,6 +120,7 @@ export type TransactionExtraInfo = (
   | EarnAddLiquidityExtraInfo
   | EarnRemoveLiquidityExtraInfo
   | EarnMigrateLiquidityExtraInfo
+  | TransactionExtraInfoDustSwap
 ) & {
   actuallySuccess?: boolean
   needCheckSubgraph?: boolean
@@ -165,6 +177,7 @@ export enum TRANSACTION_TYPE {
   UNWRAP_TOKEN = 'Unwrap Token',
   APPROVE = 'Approved',
   SWAP = 'Swap',
+  DUST_SWAP = 'Dust Liquidate',
 
   CLASSIC_CREATE_POOL = 'Classic Create Pool',
   ELASTIC_CREATE_POOL = 'Elastic Create Pool',
@@ -208,7 +221,7 @@ export enum TRANSACTION_TYPE {
 }
 
 export const GROUP_TRANSACTION_BY_TYPE = {
-  SWAP: [TRANSACTION_TYPE.SWAP, TRANSACTION_TYPE.WRAP_TOKEN, TRANSACTION_TYPE.UNWRAP_TOKEN],
+  SWAP: [TRANSACTION_TYPE.SWAP, TRANSACTION_TYPE.WRAP_TOKEN, TRANSACTION_TYPE.UNWRAP_TOKEN, TRANSACTION_TYPE.DUST_SWAP],
   LIQUIDITY: [
     TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
     TRANSACTION_TYPE.CLASSIC_CREATE_POOL,

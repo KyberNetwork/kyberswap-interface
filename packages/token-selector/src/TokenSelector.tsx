@@ -70,6 +70,7 @@ interface TokenSelectorProps {
   selectedTokenAddress?: string;
   token0Address: string;
   token1Address: string;
+  maxTokens?: number;
 
   // Position features
   showUserPositions: boolean;
@@ -198,6 +199,7 @@ export default function TokenSelector({
   poolAddress,
   token0Address = "",
   token1Address = "",
+  maxTokens = MAX_TOKENS,
   showUserPositions = false,
   positionsOnly = false,
   excludePositionIds,
@@ -410,7 +412,7 @@ export default function TokenSelector({
           const listModalAmountsIn = modalAmountsIn.split(",");
           listModalAmountsIn.splice(index, 1);
           setModalAmountsIn(listModalAmountsIn.join(","));
-        } else if (modalTokensIn.length < MAX_TOKENS) {
+        } else if (modalTokensIn.length < maxTokens) {
           const clonedModalTokensIn = [...modalTokensIn];
           clonedModalTokensIn.push(newToken);
           setModalTokensIn(clonedModalTokensIn);
@@ -437,6 +439,7 @@ export default function TokenSelector({
       modalTokensIn,
       setSelectedTokens,
       modalAmountsIn,
+      maxTokens,
       i18n,
     ],
   );
@@ -724,7 +727,7 @@ export default function TokenSelector({
           modalTabSelected === MODAL_TAB.TOKENS && (
             <p className="text-sm text-subText px-6">
               {i18n._("The maximum number of tokens selected is {count}.", {
-                count: MAX_TOKENS,
+                count: maxTokens,
               })}
             </p>
           )}

@@ -26,6 +26,7 @@ import {
   TransactionExtraBaseInfo,
   TransactionExtraInfo1Token,
   TransactionExtraInfo2Token,
+  TransactionExtraInfoDustSwap,
   TransactionExtraInfoHarvestFarm,
   TransactionExtraInfoStakeFarm,
 } from 'state/transactions/type'
@@ -173,6 +174,32 @@ const DescriptionLiquidity = (transaction: TransactionDetails) => {
   }
 }
 
+const DescriptionDustSwap = (transaction: TransactionDetails) => {
+  const { tokensIn, tokenAddressOut, tokenSymbolOut, tokenAmountOut } = (transaction.extraInfo ||
+    {}) as TransactionExtraInfoDustSwap
+  return (
+    <>
+      <DeltaTokenAmount
+        tokenAddress={tokenAddressOut}
+        symbol={tokenSymbolOut}
+        amount={tokenAmountOut}
+        plus
+        logoURL={tokenAddressOut === ETHER_ADDRESS ? getNativeTokenLogo(transaction.chainId) : undefined}
+      />
+      {tokensIn?.map(token => (
+        <DeltaTokenAmount
+          key={token.address}
+          tokenAddress={token.address}
+          symbol={token.symbol}
+          amount={token.amount}
+          plus={false}
+          logoURL={token.address === ETHER_ADDRESS ? getNativeTokenLogo(transaction.chainId) : undefined}
+        />
+      ))}
+    </>
+  )
+}
+
 const DescriptionHarvestFarmReward = (transaction: TransactionDetails) => {
   const { rewards = [] } = (transaction.extraInfo ?? {}) as TransactionExtraInfoHarvestFarm
   return (
@@ -267,6 +294,7 @@ const DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: Description2Token,
   [TRANSACTION_TYPE.WRAP_TOKEN]: Description2Token,
   [TRANSACTION_TYPE.SWAP]: Description2Token,
+  [TRANSACTION_TYPE.DUST_SWAP]: DescriptionDustSwap,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: Description2Token,
 
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: DescriptionLimitOrder,

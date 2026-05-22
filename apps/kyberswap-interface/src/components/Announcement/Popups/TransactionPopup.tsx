@@ -19,6 +19,7 @@ import {
   TransactionExtraBaseInfo,
   TransactionExtraInfo1Token,
   TransactionExtraInfo2Token,
+  TransactionExtraInfoDustSwap,
 } from 'state/transactions/type'
 import { ExternalLink, HideSmall } from 'theme'
 import { findTx, getEtherscanLink } from 'utils'
@@ -197,12 +198,23 @@ const summaryEarnCompound = (txs: TransactionDetails) => {
   }
 }
 
+const summaryDustSwap = (txs: TransactionDetails) => {
+  const { tokensIn, tokenSymbolOut, tokenAmountOut } = (txs.extraInfo || {}) as TransactionExtraInfoDustSwap
+  const count = tokensIn?.length ?? 0
+  const inputsText = tokensIn?.map(t => t.symbol).join(', ') || `${count} tokens`
+  return {
+    success: t`Liquidated ${inputsText} into ${tokenAmountOut} ${tokenSymbolOut}.`,
+    error: t`Liquidating ${inputsText} into ${tokenSymbolOut} failed.`,
+  }
+}
+
 // to render summary in notify transaction
 const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.WRAP_TOKEN]: summary2Token,
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: summary2Token,
   [TRANSACTION_TYPE.APPROVE]: summaryApprove,
   [TRANSACTION_TYPE.SWAP]: summary2Token,
+  [TRANSACTION_TYPE.DUST_SWAP]: summaryDustSwap,
 
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: summaryLiquidity,

@@ -70,6 +70,7 @@ const TokenModal = ({
     selectedTokenAddress,
     token0Address = "",
     token1Address = "",
+    maxTokens = MAX_TOKENS,
   } = tokenOptions ?? {};
 
   const {
@@ -132,7 +133,7 @@ const TokenModal = ({
         onClose();
       }
     } else if (
-      (selectedTokens || []).length < MAX_TOKENS &&
+      (selectedTokens || []).length < maxTokens &&
       setTokensIn &&
       setAmountsIn
     ) {
@@ -145,6 +146,7 @@ const TokenModal = ({
   }, [
     amountsIn,
     importToken,
+    maxTokens,
     mode,
     onClose,
     onTokenSelect,
@@ -197,6 +199,7 @@ const TokenModal = ({
             title={title}
             selectedTokenAddress={selectedTokenAddress}
             mode={mode}
+            maxTokens={maxTokens}
             chainId={chainId}
             positionId={positionId}
             token0Address={token0Address}
