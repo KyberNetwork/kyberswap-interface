@@ -30,5 +30,6 @@ export const BannerWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
+    display: none;
   `}
 `
