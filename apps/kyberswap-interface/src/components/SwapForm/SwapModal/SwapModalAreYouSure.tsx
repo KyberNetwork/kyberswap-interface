@@ -2,42 +2,10 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 24px 24px 28px;
-  background-color: ${({ theme }) => theme.tableHeader};
-`
-
-const StyledInput = styled.input`
-  margin-top: 24px;
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 16px;
-  outline: none;
-  color: ${({ theme }) => theme.text};
-  border: none;
-  &::placeholder {
-    color: ${({ theme }) => theme.disableText};
-  }
-`
-
-const StyledCloseIcon = styled(X)`
-  height: 28px;
-  width: 28px;
-  :hover {
-    cursor: pointer;
-  }
-`
 
 export default function SwapModalAreYouSure({
   show,
@@ -75,30 +43,30 @@ export default function SwapModalAreYouSure({
       }}
       maxHeight={100}
     >
-      <ModalContentWrapper>
-        <Flex alignItems="center" justifyContent="space-between">
-          <Text fontSize="20px" fontWeight={500}>
+      <div className="flex w-full flex-col bg-tableHeader p-6 pb-7">
+        <div className="flex items-center justify-between">
+          <span className="text-xl font-medium">
             <Trans>Are you sure?</Trans>
-          </Text>
+          </span>
 
-          <StyledCloseIcon color={theme.text} onClick={() => setShow(false)} />
-        </Flex>
+          <X color={theme.text} className="size-7 cursor-pointer" onClick={() => setShow(false)} />
+        </div>
 
-        <Text fontSize={14} marginTop="28px">
+        <span className="mt-7 text-sm">
           <Trans>
             Due to market conditions, your output has been updated from {parsedAmountOut?.toSignificant(10)}{' '}
             {parsedAmountOut?.currency?.symbol} to {parsedAmountOutFromBuild?.toSignificant(10)}{' '}
             {parsedAmountOut?.currency?.symbol} ({formattedOutputChangePercent}%).
           </Trans>
-        </Text>
+        </span>
 
-        <Text fontSize={14} marginTop="28px">
+        <span className="mt-7 text-sm">
           <Trans>
             If you&apos;re okay with this, please type the word &apos;confirm&apos; below to accept this new amount.
           </Trans>
-        </Text>
+        </span>
 
-        <StyledInput
+        <input
           placeholder="confirm"
           value={confirmText}
           onChange={e => setConfirmText(e.target.value)}
@@ -107,8 +75,9 @@ export default function SwapModalAreYouSure({
               handleConfirm()
             }
           }}
+          className="mt-6 rounded-full border-0 bg-buttonBlack px-4 py-2 text-base text-text outline-none placeholder:text-disableText"
         />
-        <Flex sx={{ gap: '16px' }} marginTop="28px" justifyContent={'center'}>
+        <div className="mt-7 flex justify-center gap-4">
           <ButtonOutlined
             style={{
               flex: 1,
@@ -129,8 +98,8 @@ export default function SwapModalAreYouSure({
           >
             <Trans>Confirm</Trans>
           </ButtonErrorStyle>
-        </Flex>
-      </ModalContentWrapper>
+        </div>
+      </div>
     </Modal>
   )
 }

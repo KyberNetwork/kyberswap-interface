@@ -1,8 +1,6 @@
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { ChevronLeft, ChevronRight, X } from 'react-feather'
 import { useMedia } from 'react-use'
-import styled from 'styled-components'
 
 import NotificationImage from 'assets/images/notification_default.png'
 import CtaButton from 'components/Announcement/Popups/CtaButton'
@@ -16,133 +14,16 @@ import { MEDIA_WIDTHS } from 'theme'
 import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
-const PaginationButton = styled.div`
-  background: ${({ theme }) => rgba(theme.border, 0.7)};
-  opacity: 0.7;
-  color: ${({ theme }) => theme.text};
-  border-radius: 30px;
-  cursor: pointer;
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-`
+const PAGINATION_BTN_CLASS =
+  'absolute top-0 bottom-0 my-auto hidden h-7 w-7 cursor-pointer select-none items-center justify-center rounded-[30px] bg-border/70 text-text opacity-70 group-hover:flex max-md:flex'
 
-const CloseButton = styled(X)`
-  position: absolute;
-  cursor: pointer;
-  right: 12px;
-  top: 12px;
-  min-width: 24px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    right: -10px;
-    top: -10px;
-  `}
-`
-const Wrapper = styled.div`
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-  height: 580px;
-  position: relative;
+const CLOSE_BTN_CLASS =
+  'absolute right-3 top-3 hidden min-w-[24px] cursor-pointer group-hover:flex max-md:flex max-sm:right-[-10px] max-sm:top-[-10px]'
 
-  ${PaginationButton},${CloseButton} {
-    display: none;
-  }
-  :hover {
-    ${PaginationButton},${CloseButton} {
-      display: flex;
-    }
-  }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    gap: 16px;
-    padding: 20px 20px 16px 20px;
-    ${PaginationButton},${CloseButton} {
-      display: flex;
-    }
-  `};
-`
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
-  gap: 16px;
-  flex: 1;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    gap: 20px;
-  `}
-  a:focus-visible {
-    outline: none;
-  }
-  &::-webkit-scrollbar {
-    display: block;
-    width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.subText};
-    border-radius: 8px;
-  }
-`
-
-const Title = styled.div`
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 24px;
-  word-break: break-word;
-`
-
-const ButtonWrapper = styled(Row)`
-  gap: 24px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 12px;
-  `}
-`
-
-const Image = styled.img`
-  border-radius: 20px;
-  max-height: 270px;
-  width: 100%;
-  object-fit: contain;
-  margin: auto;
-`
-
-const StyledCtaButton = styled(CtaButton)`
-  width: fit-content;
-  min-width: 220px;
-  height: 36px;
-  max-width: 100%;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: fit-content;
-    min-width: 100px;
-    max-width: 100%;
-  `}
-`
-
-const Desc = styled.div`
-  word-break: break-word;
-  font-size: 14px;
-  line-height: 20px;
-  > * {
-    :first-child {
-      margin-top: 0;
-    }
-    :last-child {
-      margin-bottom: 0;
-    }
-  }
-`
+const CTA_BUTTON_CLASS = 'h-9 w-fit min-w-[220px] max-w-full max-sm:min-w-[100px]'
 
 export const formatCtaName = (ctaName: string, ctaUrl: string) => {
-  const formatName = ctaName.replace('{{.ctaName}}', '') // fallback backend return empty data
+  const formatName = ctaName.replace('{{.ctaName}}', '')
   if (!ctaUrl) return formatName || t`Close`
   return formatName || t`Detail`
 }
@@ -193,41 +74,46 @@ export default function DetailAnnouncementPopup({
       onDismiss={onDismiss}
       zindex={Z_INDEXS.MODAL}
     >
-      <Wrapper>
-        <div style={{ position: 'relative' }}>
-          <Image src={thumbnailImageURL || NotificationImage} />
-          <CloseButton color={theme.subText} onClick={onDismiss} />
+      <div className="group relative flex h-[580px] w-full flex-col gap-6 p-6 max-md:gap-4 max-md:p-5 max-md:pb-4">
+        <div className="relative">
+          <img
+            src={thumbnailImageURL || NotificationImage}
+            className="m-auto max-h-[270px] w-full rounded-[20px] object-contain"
+          />
+          <X color={theme.subText} onClick={onDismiss} className={CLOSE_BTN_CLASS} />
         </div>
-        <ContentWrapper>
-          <Title>{name}</Title>
-          <Desc
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden max-md:gap-5 [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-subText [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1 [&_a:focus-visible]:outline-none">
+          <div className="break-words text-xl font-medium leading-6">{name}</div>
+          <div
             dangerouslySetInnerHTML={{
               __html: escapeScriptHtml(content),
             }}
+            className="break-words text-sm leading-5 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
           />
-        </ContentWrapper>
-        <ButtonWrapper justify="center">
+        </div>
+        <Row justify="center" className="gap-6 max-sm:gap-3">
           {ctas.length > 0 &&
             ctas.map(item => (
-              <StyledCtaButton
+              <CtaButton
                 key={item.url}
+                className={CTA_BUTTON_CLASS}
                 data={item}
                 color={!item.url ? 'outline' : 'primary'}
                 onClick={() => onClickCta(item.url)}
               />
             ))}
-        </ButtonWrapper>
+        </Row>
         {announcements.length > 1 && (
           <>
-            <PaginationButton onClick={onBack} style={{ left: 4 }}>
+            <div onClick={onBack} className={PAGINATION_BTN_CLASS} style={{ left: 4 }}>
               <ChevronLeft size={18} />
-            </PaginationButton>
-            <PaginationButton onClick={onNext} style={{ right: 4 }}>
+            </div>
+            <div onClick={onNext} className={PAGINATION_BTN_CLASS} style={{ right: 4 }}>
               <ChevronRight size={18} />
-            </PaginationButton>
+            </div>
           </>
         )}
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

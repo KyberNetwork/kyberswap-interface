@@ -1,12 +1,9 @@
 import { Trans, t } from '@lingui/macro'
-import { Box, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
-import { AutoRow } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAllTransactions } from 'state/transactions/hooks'
@@ -25,35 +22,27 @@ import { findTx, getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { getTransactionStatus } from 'utils/transaction'
 
-const RowNoFlex = styled(AutoRow)`
-  flex-wrap: nowrap;
-`
-
 type SummaryFunction = (
   summary: TransactionDetails,
 ) => { success: string; error: string; customTitleSuccess?: string } | string
 
-// ex: approve 3 knc
 const summary1Token = (txs: TransactionDetails) => {
   const { tokenAmount, tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
   return `${txs.type} ${tokenAmount} ${tokenSymbol}`
 }
 
-// ex: swap 2knc to 3eth
 const summary2Token = (txs: TransactionDetails, withType = true) => {
   const { tokenAmountIn, tokenSymbolIn, tokenAmountOut, tokenSymbolOut } = (txs.extraInfo ||
     {}) as TransactionExtraInfo2Token
   return `${withType ? txs.type : ''} ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
 }
 
-// ex: approve knc, approve elastic farm
 const summaryApprove = (txs: TransactionDetails) => {
   const { tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
   const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
   return `${txs.type} ${summary ?? tokenSymbol}`
 }
 
-// ex: claim rewards, claim 3 knc
 const summaryClaim = (txs: TransactionDetails) => {
   const { tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
   const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
@@ -64,7 +53,6 @@ const summaryStakeUnstakeFarm = (txs: TransactionDetails) => {
   return txs.type === TRANSACTION_TYPE.STAKE ? t`Stake liquidity into farm` : t`Unstake liquidity from farm.`
 }
 
-// ex: elastic add liquidity 30 knc and 40 usdt
 const summaryLiquidity = (txs: TransactionDetails) => {
   const extraInfo = txs.extraInfo || {}
   const {
@@ -197,7 +185,6 @@ const summaryEarnCompound = (txs: TransactionDetails) => {
   }
 }
 
-// to render summary in notify transaction
 const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.WRAP_TOKEN]: summary2Token,
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: summary2Token,
@@ -286,31 +273,31 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
   const success = notiType === NotificationType.SUCCESS
   const transactions = useAllTransactions(true)
   const transaction = findTx(transactions, hash)
-  const color = success ? theme.primary : theme.red
 
   if (!transaction) return null
   const { title, summary } = getSummary(transaction)
 
   return (
-    <Box>
-      <RowNoFlex>
-        <div style={{ paddingRight: 16 }}>
+    <div>
+      <div className="flex flex-row flex-nowrap">
+        <div className="pr-4">
           {success ? <CheckCircle color={theme.primary} size={'20px'} /> : <IconFailure color={theme.red} />}
         </div>
         <AutoColumn gap="8px">
-          <Text fontSize="16px" fontWeight={500} color={color}>
+          <span className={success ? 'text-base font-medium text-primary' : 'text-base font-medium text-red'}>
             {title}
-          </Text>
-          <Text fontSize="14px" fontWeight={400} color={theme.text} lineHeight={1.6}>
-            {summary}
-          </Text>
+          </span>
+          <span className="text-sm font-normal leading-[1.6] text-text">{summary}</span>
         </AutoColumn>
-      </RowNoFlex>
+      </div>
       <HideSmall style={{ margin: '8px 0 0 40px', display: 'block' }}>
-        <ExternalLink href={getEtherscanLink(chainId, hash, 'transaction')} style={{ color: color, fontSize: 14 }}>
+        <ExternalLink
+          href={getEtherscanLink(chainId, hash, 'transaction')}
+          style={{ color: success ? theme.primary : theme.red, fontSize: 14 }}
+        >
           <Trans>View transaction</Trans>
         </ExternalLink>
       </HideSmall>
-    </Box>
+    </div>
   )
 }

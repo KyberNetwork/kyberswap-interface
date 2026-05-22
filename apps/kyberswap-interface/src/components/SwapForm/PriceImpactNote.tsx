@@ -1,31 +1,36 @@
 import { Trans } from '@lingui/macro'
 import { FC } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { isSupportLimitOrder } from 'utils'
 import { checkPriceImpact } from 'utils/prices'
 
-export const TextUnderlineColor = styled(Text)`
-  border-bottom: 1px solid ${({ theme }) => theme.text};
-  width: fit-content;
-  cursor: pointer;
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
+type TextUnderlineColorProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+  as?: React.ElementType
+}
 
-const TextUnderlineTransparent = styled(Text)`
-  border-bottom: 1px solid transparent;
-  width: fit-content;
-  cursor: pointer;
-`
+export const TextUnderlineColor = ({
+  children,
+  as: Component = 'span',
+  className,
+  ...rest
+}: TextUnderlineColorProps) => (
+  <Component
+    {...rest}
+    className={`w-fit cursor-pointer border-b border-solid border-text font-medium text-text ${className ?? ''}`}
+  >
+    {children}
+  </Component>
+)
+
+const TextUnderlineTransparent = ({ children }: { children: React.ReactNode }) => (
+  <span className="w-fit cursor-pointer border-b border-solid border-transparent">{children}</span>
+)
 
 export const PRICE_IMPACT_EXPLANATION_URL =
   'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact'
@@ -37,7 +42,6 @@ type Props = {
 }
 
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
-  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const priceImpactResult = checkPriceImpact(priceImpact)
   const switchToLimitOrder = useSwitchPairToLimitOrder()
@@ -47,25 +51,23 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
     return null
   }
   const limitOrderLink = (
-    <Text
-      sx={{ cursor: 'pointer', color: theme.primary }}
-      as={'u'}
+    <u
+      className="cursor-pointer text-primary"
       onClick={() => {
         trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_WARNING_IN_SWAP)
         switchToLimitOrder()
       }}
     >
       <Trans>Limit Order</Trans>
-    </Text>
+    </u>
   )
 
-  // invalid
   if (priceImpactResult.isInvalid) {
     return (
       <WarningNote
         level="serious"
         shortText={
-          <Text as="span">
+          <span>
             <Trans>
               Unable to calculate{' '}
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
@@ -84,11 +86,11 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
             ) : (
               ''
             )}
-          </Text>
+          </span>
         }
         longText={
           isDegenMode ? (
-            <Text>
+            <div>
               {isDegenMode ? (
                 <Trans>
                   You have turned on <b>Degen Mode</b> from settings. Trades can still be executed when price impact
@@ -100,20 +102,19 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
                   continue by enabling Degen Mode.
                 </Trans>
               )}
-            </Text>
+            </div>
           ) : undefined
         }
       />
     )
   }
 
-  // VERY high
   if (priceImpactResult.isVeryHigh) {
     return (
       <WarningNote
         level="serious"
         shortText={
-          <Text alignItems="center" style={{ gap: '0.5ch' }}>
+          <div className="flex items-center" style={{ gap: '0.5ch' }}>
             <Trans>
               <span>
                 <TextUnderlineColor
@@ -127,10 +128,10 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
               </span>{' '}
               is very high. You will lose funds!
             </Trans>
-          </Text>
+          </div>
         }
         longText={
-          <Text>
+          <div>
             {isDegenMode ? (
               <Trans>
                 You have turned on Degen Mode from settings. Trades with very high price impact can be executed
@@ -146,23 +147,22 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
                 in bad rates and loss of funds
               </Trans>
             )}
-          </Text>
+          </div>
         }
       />
     )
   }
 
-  // high
   if (showLimitOrderLink && !!priceImpact && priceImpact > 1 && isSupportLimitOrder(chainId)) {
     return (
       <WarningNote
         shortText={
-          <Text>
+          <div>
             <Trans>
               Price Impact is high. Please consider placing a {!isMobile ? <br /> : null}
               {limitOrderLink} to soften the price impact.
             </Trans>
-          </Text>
+          </div>
         }
       />
     )

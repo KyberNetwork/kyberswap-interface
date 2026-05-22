@@ -32,4 +32,6 @@ const CreateAlertButton: React.FC<Props> = ({ className }) => {
   )
 }
 
+// Re-wrapped via styled() so Header.tsx can use `${CreateAlertButton}` selector.
+// Once Header.tsx is migrated, drop styled() and remove the import.
 export default styled(CreateAlertButton)``

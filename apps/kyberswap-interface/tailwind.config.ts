@@ -90,6 +90,7 @@ const config: Config = {
           DEFAULT: 'var(--ks-red)',
           10: 'var(--ks-red-10)',
           20: 'var(--ks-red-20)',
+          25: 'var(--ks-red-25)',
           30: 'var(--ks-red-30)',
           35: 'var(--ks-red-35)',
         },

@@ -3,8 +3,6 @@ import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -21,23 +19,6 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
-
-const Wrapper = styled.div`
-  padding: 20px;
-  border-radius: 20px;
-  background-color: ${({ theme }) => theme.tableHeader};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  width: 100%;
-  color: ${({ theme }) => theme.text};
-
-  .time-frame-legend {
-    display: none;
-  }
-`
 
 export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
   [ChainId.MAINNET]: 'https://ethereum-rpc-mev-protection.kyberswap.com/',
@@ -100,16 +81,16 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
       onDismiss={onClose}
       zindex={Z_INDEXS.POPOVER_CONTAINER + 1}
     >
-      <Wrapper>
+      <div className="flex w-full flex-col items-center justify-center gap-6 rounded-[20px] bg-tableHeader p-5 text-text [&_.time-frame-legend]:hidden">
         <RowBetween align="start">
-          <Text fontSize={24} fontWeight={500} color={theme.text}>
+          <span className="text-2xl font-medium text-text">
             <Trans>Add Custom RPC Endpoint</Trans>
-          </Text>
-          <X color={theme.text} style={{ cursor: 'pointer' }} onClick={onClose} />
+          </span>
+          <X color={theme.text} className="cursor-pointer" onClick={onClose} />
         </RowBetween>
-        <Text fontSize={12} lineHeight="16px">
-          <Flex flexDirection="column" sx={{ gap: '8px' }}>
-            <Text>
+        <div className="text-xs leading-4">
+          <div className="flex flex-col gap-2">
+            <span>
               <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/maximal-extractable-value-mev">
                 MEV
               </ExternalLink>{' '}
@@ -121,23 +102,20 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
                 - powered by Blink to protect your transactions from front-running attacks and ensure a better trading
                 experience.
               </Trans>
-            </Text>
-            <Flex alignItems="center">
-              <Trans>RPC Url</Trans>:
-              <Text color={theme.primary} fontWeight={500} marginLeft="4px">
-                {KYBER_SWAP_RPC[chainId]}
-              </Text>
+            </span>
+            <div className="flex items-center">
+              <Trans>RPC Url</Trans>:<span className="ml-1 font-medium text-primary">{KYBER_SWAP_RPC[chainId]}</span>
               <CopyHelper size={14} toCopy={KYBER_SWAP_RPC[chainId] || ''} />
-            </Flex>
-            <Text>
+            </div>
+            <span>
               <Trans>
                 Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re
                 using another wallet please add the RPC endpoint manually in your wallet’s custom network settings.
                 Please make sure you understand how it works and use it at your own caution.
               </Trans>
-            </Text>
-          </Flex>
-        </Text>
+            </span>
+          </div>
+        </div>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
           <ButtonOutlined onClick={onClose}>{isUsingMetamask ? t`No, go back` : t`Dismiss`}</ButtonOutlined>
           {isUsingMetamask && (
@@ -146,7 +124,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
             </ButtonPrimary>
           )}
         </Row>
-      </Wrapper>
+      </div>
     </Modal>
   )
 }
