@@ -84,6 +84,7 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
 
       return {
         ...pool,
+        chainId: poolChainId,
         dexLogo: dexInfo?.logoURL || '',
         dexName: dexInfo?.name || pool.exchange,
         favorite: { chainId: poolChainId, isFavorite: getFavoriteStatus(pool) },
