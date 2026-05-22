@@ -25,10 +25,10 @@ export interface EarnPool {
   kemEGApr: number
   kemLMApr: number
   bonusApr?: number
-  activeAllApr?: number
-  activeLpApr?: number
-  activeKemEGApr?: number
-  activeKemLMApr?: number
+  activeApr?: number
+  activeFeeApr?: number
+  activeEgApr?: number
+  activeLmApr?: number
   liquidity: number
   tvl: number
   chainId?: number
