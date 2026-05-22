@@ -1,6 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -13,59 +11,22 @@ import { useActiveWeb3React } from 'hooks'
 import { Position as SubgraphPosition, usePositionFees, useRemoveLiquidityLegacy } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { cn } from 'utils/cn'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-export const FeeTag = styled.div`
-  min-width: max-content;
-  width: max-content;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.darkBlue + '33'};
-  color: ${({ theme }) => theme.darkBlue};
-  font-size: 12px;
-  font-weight: 500;
-  padding: 2px 6px;
-  margin-left: 6px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 20px;
-`
+export const FeeTag = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div
+    className={cn(
+      'ml-1.5 flex h-5 w-max min-w-max items-center gap-1 rounded-full bg-[#1183b733] px-1.5 py-0.5 text-xs font-medium text-darkBlue',
+      className,
+    )}
+  >
+    {children}
+  </div>
+)
 
-const Wrapper = styled.div`
-  border-radius: 1rem;
-  border: 1px solid ${({ theme }) => theme.border};
-  padding: 24px;
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.subText};
-  line-height: 1.5;
-  font-size: 14px;
-  overflow-x: scroll;
-`
-
-const OverFlow = styled.div`
-  min-width: 860px;
-  overflow-x: scroll;
-`
-
-const TableHeader = styled.div`
-  display: grid;
-  font-size: 12px;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  grid-template-columns: 0.75fr 2fr 1fr 1.5fr 1fr;
-  font-weight: 500;
-  padding: 1rem;
-  background: ${({ theme }) => theme.tableHeader};
-  color: ${({ theme }) => theme.subText};
-  align-items: center;
-`
-const TableRow = styled(TableHeader)`
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  font-size: 14px;
-`
+const TABLE_GRID = 'grid grid-cols-[0.75fr_2fr_1fr_1.5fr_1fr] items-center p-4 font-medium'
 
 export default function PositionLegacy({ positions }: { positions: SubgraphPosition[] }) {
   const addresses = [...new Set(positions.map(item => [item.token0.id, item.token1.id]).flat())]
@@ -75,31 +36,31 @@ export default function PositionLegacy({ positions }: { positions: SubgraphPosit
   const feeRewards = usePositionFees(positions)
 
   return (
-    <Wrapper>
-      <OverFlow>
-        <TableHeader>
-          <Text>
+    <div className="overflow-x-scroll rounded-2xl border border-border bg-background p-6 text-sm leading-normal text-subText">
+      <div className="min-w-[860px] overflow-x-scroll">
+        <div className={cn(TABLE_GRID, 'rounded-t-lg bg-tableHeader text-xs text-subText')}>
+          <span>
             <Trans>NFT ID</Trans>
-          </Text>
-          <Text>
+          </span>
+          <span>
             <Trans>Pools</Trans>
-          </Text>
-          <Text>
+          </span>
+          <span>
             <Trans>My liquidity</Trans>
-          </Text>
-          <Text>
+          </span>
+          <span>
             <Trans>My fees earned</Trans>
-          </Text>
-          <Text textAlign="right">
+          </span>
+          <span className="text-right">
             <Trans>Action</Trans>
-          </Text>
-        </TableHeader>
+          </span>
+        </div>
 
         {positions.map(item => {
           return <Row key={item.id} position={item} feeRewards={feeRewards} tokenPrices={tokenPrices} />
         })}
-      </OverFlow>
-    </Wrapper>
+      </div>
+    </div>
   )
 }
 
@@ -131,78 +92,78 @@ const Row = ({
   const { account } = useActiveWeb3React()
 
   return (
-    <TableRow key={item.id}>
-      <Text color={theme.subText}>{item.id}</Text>
+    <div key={item.id} className={cn(TABLE_GRID, 'border-b border-border bg-background text-sm text-text')}>
+      <span className="text-subText">{item.id}</span>
 
-      <Flex alignItems="center">
+      <div className="flex items-center">
         <DoubleCurrencyLogo currency0={unwrappedToken(token0)} currency1={unwrappedToken(token1)} />
-        <Text color={theme.primary}>
+        <span className="text-primary">
           {unwrappedToken(token0).symbol} - {unwrappedToken(token1).symbol}
-        </Text>
+        </span>
         <FeeTag>
           <Trans>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</Trans>
         </FeeTag>
-      </Flex>
+      </div>
 
-      <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
+      <div className="flex w-fit items-center justify-start">
         <MouseoverTooltip
           width="fit-content"
           placement="bottom"
           text={
-            <Flex flexDirection="column" fontSize="12px">
-              <Flex sx={{ gap: '4px' }} alignItems="center">
+            <div className="flex flex-col text-xs">
+              <div className="flex items-center gap-1">
                 <CurrencyLogo currency={unwrappedToken(position.amount0.currency)} size="16px" />
-                <Text fontWeight="500">{position.amount0.toSignificant(6)}</Text>
-                <Text fontWeight="500">{unwrappedToken(position.amount0.currency).symbol}</Text>
-              </Flex>
+                <span className="font-medium">{position.amount0.toSignificant(6)}</span>
+                <span className="font-medium">{unwrappedToken(position.amount0.currency).symbol}</span>
+              </div>
 
-              <Flex sx={{ gap: '4px' }} alignItems="center" marginTop="6px">
+              <div className="mt-1.5 flex items-center gap-1">
                 <CurrencyLogo currency={unwrappedToken(position.amount1.currency)} size="16px" />
-                <Text fontWeight="500">{position.amount1.toSignificant(6)}</Text>
-                <Text fontWeight="500">{unwrappedToken(position.amount1.currency).symbol}</Text>
-              </Flex>
-            </Flex>
+                <span className="font-medium">{position.amount1.toSignificant(6)}</span>
+                <span className="font-medium">{unwrappedToken(position.amount1.currency).symbol}</span>
+              </div>
+            </div>
           }
         >
           {formatDollarAmount(usd)}
           <DropdownSvg />
         </MouseoverTooltip>
-      </Flex>
+      </div>
 
-      <Flex flexDirection="column" sx={{ gap: '6px' }} fontSize="12px">
-        <Flex sx={{ gap: '4px' }} alignItems="center">
+      <div className="flex flex-col gap-1.5 text-xs">
+        <div className="flex items-center gap-1">
           <CurrencyLogo currency={unwrappedToken(token0)} size="16px" />
-          <Text fontWeight="500">{feeValue0.toSignificant(6)}</Text>
-          <Text fontWeight="500">{unwrappedToken(token0).symbol}</Text>
-        </Flex>
+          <span className="font-medium">{feeValue0.toSignificant(6)}</span>
+          <span className="font-medium">{unwrappedToken(token0).symbol}</span>
+        </div>
 
-        <Flex sx={{ gap: '4px' }} alignItems="center">
+        <div className="flex items-center gap-1">
           <CurrencyLogo currency={unwrappedToken(token1)} size="16px" />
-          <Text fontWeight="500">{feeValue1.toSignificant(6)}</Text>
-          <Text fontWeight="500">{unwrappedToken(token1).symbol}</Text>
-        </Flex>
-      </Flex>
+          <span className="font-medium">{feeValue1.toSignificant(6)}</span>
+          <span className="font-medium">{unwrappedToken(token1).symbol}</span>
+        </div>
+      </div>
 
-      <Flex justifyContent="flex-end">
+      <div className="flex justify-end">
         {item.owner !== account?.toLowerCase() ? (
           <MouseoverTooltip
             placement="top"
             text={t`You need to withdraw your deposited liquidity position from the Farm first.`}
           >
             <ButtonPrimary padding="6px 12px" style={{ background: theme.buttonGray, color: theme.border }}>
-              <Text fontSize="12px">
+              <span className="text-xs">
                 <Trans>Remove Liquidity</Trans>
-              </Text>
+              </span>
             </ButtonPrimary>
           </MouseoverTooltip>
         ) : (
           <ButtonOutlined padding="6px 12px" width="fit-content" onClick={() => removeLiquidity(true)}>
-            <Text fontSize="12px">
+            <span className="text-xs">
               <Trans>Remove Liquidity</Trans>
-            </Text>
+            </span>
           </ButtonOutlined>
         )}
-      </Flex>
+      </div>
 
       <TransactionConfirmationModal
         isOpen={!!showPendingModal}
@@ -211,7 +172,7 @@ const Row = ({
         attemptingTxn={attemptingTxn}
         pendingText={t`Removing liquidity`}
         content={() => (
-          <Flex flexDirection={'column'} width="100%">
+          <div className="flex w-full flex-col">
             {removeLiquidityError ? (
               <TransactionErrorContent
                 onDismiss={handleDismiss}
@@ -226,9 +187,9 @@ const Row = ({
                 }}
               />
             ) : null}
-          </Flex>
+          </div>
         )}
       />
-    </TableRow>
+    </div>
   )
 }

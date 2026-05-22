@@ -1,11 +1,9 @@
 import { Trans } from '@lingui/macro'
 import { useMemo, useRef } from 'react'
 import { QRCode, IProps as QRCodeProps } from 'react-qrcode-logo'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import KncLogo from 'assets/images/kyber_logo_for_qr.png'
-import { AddressInput as AddressInputPanel } from 'components/AddressInputPanel'
+import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Deposit from 'components/Icons/Deposit'
@@ -16,26 +14,6 @@ import { Label } from './styled'
 
 const QR_SIZE = 200
 const QR_ID = 'react-qrcode-logo'
-
-const AddressInput = styled(AddressInputPanel)`
-  width: 100%;
-`
-
-const ButtonDone = styled(ButtonPrimary)`
-  flex: 1;
-  height: 36px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
-`
-
-const ButtonDownloadQR = styled(ButtonExport)`
-  flex: 1;
-  height: 36px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
-`
 
 type Props = {
   importToken: string
@@ -53,8 +31,6 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
       logoWidth: 32,
       logoHeight: 32,
       size: QR_SIZE,
-      // `ethereum` is intentional. This QR is used to open the Send feature on the wallet (e.g. Metamask)
-      // Chain is not switched by this prefix
       value: importToken,
       eyeColor: { outer: '#000000', inner: '#000000' },
       quietZone: 14,
@@ -64,29 +40,16 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
 
   let qrElement = null
   try {
-    qrElement = qrCodeProps ? <QRCode {...qrCodeProps} /> : <Flex sx={{ width: '228px', height: '228px' }} />
+    qrElement = qrCodeProps ? <QRCode {...qrCodeProps} /> : <div className="h-[228px] w-[228px]" />
   } catch (e) {
     qrElement = (
-      <Flex
-        sx={{
-          // match size of QR
-          width: '228px',
-          height: '228px',
-          borderRadius: '16px',
-          justifyContent: 'center',
-          alignItems: 'center',
-          border: `2px solid ${theme.border}`,
-          textAlign: 'center',
-          color: theme.subText,
-          fontSize: '14px',
-        }}
-      >
+      <div className="flex h-[228px] w-[228px] items-center justify-center rounded-2xl border-2 border-solid border-border text-center text-sm text-subText">
         <Trans>
           Something went wrong,
           <br />
           please try again
         </Trans>
-      </Flex>
+      </div>
     )
   }
 
@@ -105,30 +68,10 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
   }
 
   return (
-    <Flex
-      flexDirection="column"
-      width="100%"
-      sx={{
-        gap: '16px',
-      }}
-    >
-      <Flex
-        sx={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          margin: '8px 0',
-        }}
-      >
-        {qrElement}
-      </Flex>
+    <div className="flex w-full flex-col gap-4">
+      <div className="my-2 flex items-center justify-center">{qrElement}</div>
 
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          gap: '8px',
-          width: '100%',
-        }}
-      >
+      <div className="flex w-full flex-col gap-2">
         <Label>
           <Trans>Your import token (click to copy)</Trans>
         </Label>
@@ -137,13 +80,14 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
           onClick={() => {
             copyButtonRef.current?.click?.()
           }}
-          style={{ color: theme.subText, cursor: 'pointer', width: '100%' }}
+          className="w-full"
+          style={{ color: theme.subText, cursor: 'pointer' }}
           disabled
           value={importToken}
           icon={<CopyHelper ref={copyButtonRef} toCopy={importToken} style={{ color: theme.subText }} />}
           pattern={null}
         />
-      </Flex>
+      </div>
 
       <ButtonEmpty
         style={{
@@ -159,27 +103,16 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
         <Trans>Forgot your Passcode?</Trans>
       </ButtonEmpty>
 
-      <Flex
-        width="100%"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{
-          gap: '16px',
-        }}
-      >
-        <ButtonDownloadQR onClick={downloadQR}>
-          <Deposit
-            width={18}
-            height={18}
-            style={{
-              marginRight: '4px',
-            }}
-          />
+      <div className="flex w-full items-center justify-between gap-4">
+        <ButtonExport onClick={downloadQR} className="!h-9 flex-1 text-sm font-medium leading-5">
+          <Deposit width={18} height={18} style={{ marginRight: '4px' }} />
           Download QR
-        </ButtonDownloadQR>
+        </ButtonExport>
 
-        <ButtonDone onClick={dismissModal}>Done</ButtonDone>
-      </Flex>
-    </Flex>
+        <ButtonPrimary onClick={dismissModal} className="!h-9 flex-1 text-sm font-medium leading-5">
+          Done
+        </ButtonPrimary>
+      </div>
+    </div>
   )
 }

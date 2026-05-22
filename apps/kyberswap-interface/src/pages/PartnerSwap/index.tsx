@@ -3,8 +3,6 @@ import { t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import Banner from 'components/Banner'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
@@ -14,7 +12,7 @@ import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
-import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper, highlight } from 'components/swapv2/styleds'
+import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
@@ -34,27 +32,26 @@ import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } 
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { DetailedRouteSummary } from 'types/route'
+import { cn } from 'utils/cn'
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
 }
 
-export const AppBodyWrapped = styled(BodyWrapper)`
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  padding: 16px;
-  margin-top: 0;
+export const AppBodyWrapped = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <BodyWrapper
+    className={cn('mt-0 p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)] data-[highlight=true]:animate-highlight', className)}
+    {...rest}
+  >
+    {children}
+  </BodyWrapper>
+)
 
-  &[data-highlight='true'] {
-    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
-  }
-`
-
-export const SwitchLocaleLinkWrapper = styled.div`
-  margin-bottom: 30px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  margin-bottom: 0px;
-`}
-`
+export const SwitchLocaleLinkWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('mb-[30px] max-md:mb-0', className)} {...rest}>
+    {children}
+  </div>
+)
 
 export default function PartnerSwap() {
   const { account, chainId: walletChainId } = useActiveWeb3React()
@@ -220,11 +217,11 @@ export default function PartnerSwap() {
             {isCrossChainPage && <TransactionHistory />}
           </InfoComponents>
         </Container>
-        <Flex justifyContent="center">
+        <div className="flex justify-center">
           <SwitchLocaleLinkWrapper>
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
-        </Flex>
+        </div>
       </PageWrapper>
 
       <Updater customChainId={expectedChainId} />

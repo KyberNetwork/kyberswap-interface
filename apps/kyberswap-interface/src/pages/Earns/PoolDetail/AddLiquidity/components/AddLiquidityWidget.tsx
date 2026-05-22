@@ -2,8 +2,6 @@ import { PoolType, Pool as ZapPool } from '@kyber/schema'
 import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useState } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
@@ -19,13 +17,6 @@ import { useZapActions } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapA
 import { useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { useWalletModalToggle } from 'state/application/hooks'
-
-const FormStack = styled(Stack)`
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.background};
-`
 
 type AddLiquidityWidgetContext = {
   chainId: ChainId
@@ -108,12 +99,10 @@ const AddLiquidityWidget = ({
   }, [highlightDegenMode])
 
   return (
-    <FormStack gap={16}>
+    <Stack gap={16} className="w-full rounded-xl bg-background p-4">
       <Stack gap={12}>
         <HStack align="center" justify="space-between">
-          <Text fontWeight={500} letterSpacing="0.06em">
-            ADD LIQUIDITY
-          </Text>
+          <span className="font-medium tracking-[0.06em]">ADD LIQUIDITY</span>
           <AddLiquiditySettings
             isOpen={isSettingsOpen}
             onOpenChange={setIsSettingsOpen}
@@ -232,7 +221,7 @@ const AddLiquidityWidget = ({
           {actions.primaryActionText}
         </PrimaryActionButton>
       </HStack>
-    </FormStack>
+    </Stack>
   )
 }
 

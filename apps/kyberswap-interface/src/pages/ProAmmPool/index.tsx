@@ -4,8 +4,6 @@ import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -28,32 +26,6 @@ import { PositionDetails } from 'types/position'
 import ContentLoader from './ContentLoader'
 import PositionGrid from './PositionGrid'
 
-const Highlight = styled.span`
-  color: ${({ theme }) => theme.text};
-`
-
-const TabRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    gap: 1rem;
-    width: 100%;
-    flex-direction: column;
-  `}
-`
-
-const TabWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 8px;
-  `}
-`
-
 interface AddressSymbolMapInterface {
   [key: string]: string
 }
@@ -66,8 +38,8 @@ const renderNotificationButton = (iconOnly: boolean) => {
         <div>
           <Trans>
             Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes
-            <Highlight>out-of-range</Highlight> or comes back <Highlight>in-range</Highlight>, you will receive an
-            email.
+            <span className="text-text">out-of-range</span> or comes back <span className="text-text">in-range</span>,
+            you will receive an email.
           </Trans>
         </div>
       }
@@ -171,9 +143,9 @@ export default function ProAmmPool() {
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools.</Trans>
           </InstructionText>
-          <TabRow>
-            <Flex justifyContent="space-between" flex={1} alignItems="center" width="100%">
-              <TabWrapper>
+          <div className="flex items-center justify-between gap-3 max-lg:w-full max-lg:flex-col max-lg:gap-4">
+            <div className="flex w-full flex-1 items-center justify-between">
+              <div className="flex items-center gap-4 max-sm:gap-2">
                 <Tab
                   active={!showStaked}
                   role="button"
@@ -193,22 +165,22 @@ export default function ProAmmPool() {
                 >
                   {isMobile ? <Trans>Farming Positions</Trans> : <Trans>My Farming Positions</Trans>}
                 </Tab>
-              </TabWrapper>
+              </div>
 
               {upToSmall && (
-                <Flex sx={{ gap: '8px' }}>
+                <div className="flex gap-2">
                   <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />
                   {renderNotificationButton(true)}
-                </Flex>
+                </div>
               )}
-            </Flex>
+            </div>
             <FilterRow>
-              <Flex alignItems="center" style={{ gap: '8px' }}>
-                <Text fontSize="14px" color={theme.subText}>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-subText">
                   <Trans>Show closed positions</Trans>
-                </Text>
+                </span>
                 <Toggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
-              </Flex>
+              </div>
               <Search
                 minWidth="254px"
                 searchValue={searchValueInQs}
@@ -222,7 +194,7 @@ export default function ProAmmPool() {
                 </>
               )}
             </FilterRow>
-          </TabRow>
+          </div>
 
           {!account ? (
             <Card className="p-10">
@@ -241,17 +213,17 @@ export default function ProAmmPool() {
               <PositionGrid positions={positionList} refe={tokenAddressSymbolMap} />
             </>
           ) : (
-            <Flex flexDirection="column" alignItems="center" marginTop="60px">
+            <div className="mt-[60px] flex flex-col items-center">
               <Info size={48} color={theme.subText} />
-              <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
+              <span className="mt-4 text-center text-base leading-normal text-subText">
                 <Trans>
                   No liquidity found. Check out our{' '}
                   <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`}>
                     Pools.
                   </StyledInternalLink>
                 </Trans>
-              </Text>
-            </Flex>
+              </span>
+            </div>
           )}
         </AutoColumn>
       </PageWrapper>

@@ -1,9 +1,6 @@
 import { motion } from 'framer-motion'
-import { rgba } from 'polished'
-import { useCallback, useEffect, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
-import { Flex } from 'rebass'
-import styled, { DefaultTheme, keyframes } from 'styled-components'
 
 import getPopupTopRightDescriptionByType from 'components/Announcement/Popups/PopupTopRightDescriptions'
 import SimplePopup from 'components/Announcement/Popups/SimplePopup'
@@ -20,38 +17,9 @@ import { useSuccessSound } from 'hooks/useSuccessSound'
 import useTheme from 'hooks/useTheme'
 import { useRemovePopup } from 'state/application/hooks'
 
-const StyledClose = styled(X)`
-  margin-left: 10px;
-  min-width: 24px;
-  :hover {
-    cursor: pointer;
-  }
-`
 const delta = window.innerWidth + 'px'
 
-const rtl = keyframes`
-  from {
-    opacity: 0;
-    transform: translateX(${delta});
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-`
-
-const ltr = keyframes`
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(${delta});
-  }
-`
-
-const getBackgroundColor = (theme: DefaultTheme, type: NotificationType = NotificationType.ERROR) => {
+const getBackgroundColor = (theme: ReturnType<typeof useTheme>, type: NotificationType = NotificationType.ERROR) => {
   const mapColor = {
     [NotificationType.SUCCESS]: theme.bgSuccess,
     [NotificationType.ERROR]: theme.bgError,
@@ -60,71 +28,16 @@ const getBackgroundColor = (theme: DefaultTheme, type: NotificationType = Notifi
   return mapColor[type]
 }
 
-const Popup = styled.div<{ type?: NotificationType }>`
-  display: inline-block;
-  width: 100%;
-  background: ${({ theme, type }) => getBackgroundColor(theme, type)};
-  position: relative;
-  padding: 20px;
-  padding-right: 12px;
-`
-
-const Fader = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: ${({ theme }) => theme.subText};
-`
-
-const AnimatedFader = motion(Fader)
-
-const PopupWrapper = styled.div<{ removeAfterMs?: number | null }>`
-  position: relative;
-  isolation: isolate;
-  border-radius: 10px;
-  overflow: hidden;
-  width: min(calc(100vw - 32px), 425px);
-  animation: ${rtl} 0.7s ease-in-out,
-    ${ltr} 0.5s ease-in-out ${({ removeAfterMs }) => (removeAfterMs || 15000) / 1000 - 0.2}s; // animation out auto play after removeAfterMs - 0.2 seconds
-  &:not(:first-of-type) {
-    margin-top: 15px;
-  }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: auto;
-  `}
-`
-
-const SolidBackgroundLayer = styled.div`
-  background: ${({ theme }) => theme.bg2};
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`
-
 const WrappedAnimatedFader = ({ removeAfterMs }: { removeAfterMs: number | null }) => {
   return (
-    <AnimatedFader
+    <motion.div
+      className="absolute bottom-0 left-0 h-0.5 w-full bg-subText"
       initial={{ width: '100%' }}
       animate={{ width: '0%' }}
       transition={{ duration: removeAfterMs ?? undefined }}
     />
   )
 }
-
-const Overlay = styled.div`
-  display: flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: ${({ theme }) =>
-    `linear-gradient(180deg, ${rgba(theme.black, 0)} 40.1%, ${rgba(theme.black, 0.8)} 100%)`};
-`
 
 export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType; hasOverlay: boolean }) {
   const { removeAfterMs, popupType, content } = popup
@@ -153,7 +66,6 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
   let popupContent: React.ReactNode | null = null
 
   useEffect(() => {
-    // Play sound when a success notification appears
     if (popupType === PopupType.TRANSACTION && (content as PopupContentTxn).type === NotificationType.SUCCESS) {
       playSuccessSound()
     }
@@ -183,19 +95,36 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
 
   if (!popupContent) return null
 
+  const ltrDelay = (removeAfterMs || 15000) / 1000 - 0.2
+  const wrapperStyle: CSSProperties & Record<'--ks-popup-delta', string> = {
+    '--ks-popup-delta': delta,
+    animation: `ks-popup-rtl 0.7s ease-in-out, ks-popup-ltr 0.5s ease-in-out ${ltrDelay}s`,
+  }
+
   return isRestartAnimation ? (
     <div />
   ) : (
-    <PopupWrapper removeAfterMs={removeAfterMs}>
-      <SolidBackgroundLayer />
-      <Popup type={notiType}>
-        <Flex justifyContent={'space-between'}>
+    <div
+      className="relative w-[min(calc(100vw-32px),425px)] overflow-hidden rounded-[10px] [isolation:isolate] max-md:m-auto [&:not(:first-of-type)]:mt-[15px]"
+      style={wrapperStyle}
+    >
+      <div className="absolute left-0 top-0 size-full bg-bg2" />
+      <div
+        className="relative inline-block w-full py-5 pl-5 pr-3"
+        style={{ background: getBackgroundColor(theme, notiType) }}
+      >
+        <div className="flex justify-between">
           {popupContent}
-          <StyledClose color={theme.text2} onClick={removeThisPopup} />
-        </Flex>
+          <X color={theme.text2} onClick={removeThisPopup} className="ml-[10px] min-w-[24px] hover:cursor-pointer" />
+        </div>
         {removeAfterMs && <WrappedAnimatedFader removeAfterMs={removeAfterMs} />}
-      </Popup>
-      {hasOverlay && <Overlay />}
-    </PopupWrapper>
+      </div>
+      {hasOverlay && (
+        <div
+          className="absolute left-0 top-0 flex size-full"
+          style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 40.1%, rgba(0,0,0,0.8) 100%)' }}
+        />
+      )}
+    </div>
   )
 }

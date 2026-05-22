@@ -1,8 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode } from 'react'
+import { CSSProperties, ReactNode } from 'react'
 import { Check } from 'react-feather'
-import { Text } from 'rebass'
-import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -19,6 +17,12 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
+const ButtonWrapper = ({ children, style }: { children: ReactNode; style?: CSSProperties }) => (
+  <div className="flex items-start gap-5 max-sm:flex-col" style={style}>
+    {children}
+  </div>
+)
+
 const ButtonGroup = ({
   isEdit,
   buttonGasless,
@@ -34,24 +38,23 @@ const ButtonGroup = ({
   style?: CSSProperties
   showGaslessNote?: boolean
 }) => {
-  const theme = useTheme()
   return (
     <ButtonWrapper style={style}>
       <Column gap="8px" className="w-full">
         {buttonGasless}
         {showGaslessNote && (
-          <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+          <span className="text-[10px] leading-[14px] text-subText">
             {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
             <Trans>
               <br /> Cancellation may not be instant.{' '}
               <ExternalLink href={DOCS_LINKS.GASLESS_CANCEL}>Learn more ↗︎</ExternalLink>
             </Trans>
-          </Text>
+          </span>
         )}
       </Column>
       <Column gap="8px" className="w-full">
         {buttonHardEdit}
-        <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+        <span className="text-[10px] leading-[14px] text-subText">
           {isEdit ? (
             <Trans>Edit immediately by paying {gasAmountDisplay} gas fees.</Trans>
           ) : (
@@ -60,20 +63,11 @@ const ButtonGroup = ({
           <ExternalLink href={DOCS_LINKS.HARD_CANCEL}>
             <Trans>Learn more ↗︎</Trans>
           </ExternalLink>
-        </Text>
+        </span>
       </Column>
     </ButtonWrapper>
   )
 }
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-  `}
-`
 
 type ButtonInfo = {
   orderSupportGasless: boolean

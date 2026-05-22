@@ -4,9 +4,7 @@ import { shortenAddress } from '@kyber/utils/crypto'
 import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
 import { PoolDetailToken } from 'services/zapEarn'
-import styled from 'styled-components'
 
 import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
@@ -18,52 +16,6 @@ import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { IconArrowLeft, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const BackButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: ${({ theme }) => theme.text};
-  cursor: pointer;
-
-  :hover {
-    background: ${({ theme }) => theme.tabActive};
-  }
-`
-
-const ProtocolBadge = styled(HStack)`
-  min-height: 32px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.buttonGray};
-  white-space: nowrap;
-`
-
-const ProtocolLogo = styled.img`
-  flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
-`
-
-const InfoButton = styled(Center)`
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: ${({ theme }) => theme.buttonGray};
-`
-
-const FeeBadge = styled(Stack)`
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.darkText};
-`
-
 const TooltipAddressRow = ({ token, chainInfo }: { token: PoolDetailToken; chainInfo: NetworkInfo }) => {
   const isNativeToken = token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
   const tokenLogo = isNativeToken ? chainInfo.nativeToken.logo : token.logoURI
@@ -72,12 +24,8 @@ const TooltipAddressRow = ({ token, chainInfo }: { token: PoolDetailToken; chain
   return (
     <HStack align="center" gap={8} wrap="wrap">
       <TokenLogo src={tokenLogo} size={20} />
-      <Text color="inherit" fontSize={14} fontWeight={500}>
-        {tokenSymbol}
-      </Text>
-      <Text color="inherit" fontSize={14}>
-        {isNativeToken ? 'Native Token' : shortenAddress(token.address, 4)}
-      </Text>
+      <span className="text-sm font-medium">{tokenSymbol}</span>
+      <span className="text-sm">{isNativeToken ? 'Native Token' : shortenAddress(token.address, 4)}</span>
       {!isNativeToken ? <CopyHelper margin="0" size={14} toCopy={token.address} /> : null}
     </HStack>
   )
@@ -130,12 +78,10 @@ const PoolHeaderPage = () => {
           <TokenLogo src={primaryToken.logoURI} size={20} />
           <TokenLogo src={secondaryToken.logoURI} size={20} translateLeft />
         </HStack>
-        <Text color={theme.text} fontSize={14} fontWeight={500}>
+        <span className="text-sm font-medium text-text">
           {primaryToken.symbol}/{secondaryToken.symbol}
-        </Text>
-        <Text color={theme.subText} fontSize={14}>
-          {shortenAddress(pool.address, 4)}
-        </Text>
+        </span>
+        <span className="text-sm text-subText">{shortenAddress(pool.address, 4)}</span>
         <CopyHelper size={14} margin="0" toCopy={pool.address} />
       </HStack>
       <TooltipAddressRow token={primaryToken} chainInfo={chainInfo} />
@@ -146,9 +92,14 @@ const PoolHeaderPage = () => {
   return (
     <>
       <HStack align="center" gap={8} wrap="wrap">
-        <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
+        <button
+          aria-label="Go back"
+          onClick={() => navigate(-1)}
+          type="button"
+          className="flex size-9 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-text hover:bg-tabActive"
+        >
           <IconArrowLeft />
-        </BackButton>
+        </button>
 
         <HStack minWidth={0} align="center" gap={12} wrap="wrap">
           <HStack minWidth={0} align="center" gap={12}>
@@ -158,11 +109,11 @@ const PoolHeaderPage = () => {
               <TokenLogo src={chainInfo.icon} size={16} translateLeft translateTop />
             </HStack>
 
-            <Text color={theme.text} fontSize={24} fontWeight={500} sx={{ whiteSpace: 'nowrap' }}>
+            <span className="whitespace-nowrap text-2xl font-medium text-text">
               {primaryToken.symbol}/{secondaryToken.symbol}
-            </Text>
+            </span>
 
-            <InfoButton>
+            <Center className="size-8 rounded-lg bg-buttonGray">
               <InfoHelper
                 text={tooltipContent}
                 size={18}
@@ -171,19 +122,17 @@ const PoolHeaderPage = () => {
                 placement="bottom"
                 width="fit-content"
               />
-            </InfoButton>
+            </Center>
           </HStack>
 
           <HStack align="center" gap={8}>
-            <ProtocolBadge align="center" gap={8}>
-              <ProtocolLogo alt={dexInfo.name} src={dexInfo.logo} />
-              <Text color={theme.text} fontSize={14} fontWeight={500}>
-                {dexInfo.name}
-              </Text>
-              <Text color={theme.subText} fontSize={14} fontWeight={500}>
+            <HStack align="center" gap={8} className="min-h-8 whitespace-nowrap rounded-xl bg-buttonGray px-3 py-2">
+              <img alt={dexInfo.name} src={dexInfo.logo} className="size-4 flex-none object-contain" />
+              <span className="text-sm font-medium text-text">{dexInfo.name}</span>
+              <span className="text-sm font-medium text-subText">
                 | {formatDisplayNumber(pool.swapFee, { significantDigits: 4 })}%
-              </Text>
-            </ProtocolBadge>
+              </span>
+            </HStack>
 
             <ShareButtonWrapper aria-label="Share pool" onClick={handleOpenShare}>
               <Share2 size={16} color={theme.primary} />
@@ -198,7 +147,6 @@ const PoolHeaderPage = () => {
 }
 
 const PoolHeaderReview = () => {
-  const theme = useTheme()
   const { pool, primaryToken, secondaryToken, dexInfo } = usePoolDetailContext()
 
   return (
@@ -209,23 +157,21 @@ const PoolHeaderReview = () => {
       </HStack>
 
       <Stack gap={4}>
-        <Text color={theme.text} fontSize={16} fontWeight={500}>
+        <span className="text-base font-medium text-text">
           {primaryToken.symbol}/{secondaryToken.symbol}
-        </Text>
+        </span>
 
         <HStack align="center" gap={8} wrap="wrap">
           <HStack align="center" gap={4}>
-            <ProtocolLogo alt={dexInfo.name} src={dexInfo.logo} />
-            <Text color={theme.subText} fontSize={14}>
-              {dexInfo.name}
-            </Text>
+            <img alt={dexInfo.name} src={dexInfo.logo} className="size-4 flex-none object-contain" />
+            <span className="text-sm text-subText">{dexInfo.name}</span>
           </HStack>
 
-          <FeeBadge>
-            <Text color={theme.subText} fontSize={12} fontWeight={500}>
+          <Stack className="rounded-full bg-darkText px-3 py-1">
+            <span className="text-xs font-medium text-subText">
               Fee {formatDisplayNumber(pool.swapFee, { significantDigits: 4 })}%
-            </Text>
-          </FeeBadge>
+            </span>
+          </Stack>
         </HStack>
       </Stack>
     </HStack>

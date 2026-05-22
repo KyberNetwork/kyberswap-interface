@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { ChevronRight, Eye, EyeOff, Star } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import CoinbaseSubscribeBtn from 'components/CoinbaseSubscribeBtn'
 import Loader from 'components/Loader'
@@ -13,86 +11,9 @@ import { useRewards } from 'hooks/useRewards'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { formatNumberWithPrecisionRange } from 'utils'
+import { cn } from 'utils/cn'
 
 import { View } from '../type'
-
-const ContentWrapper = styled.div`
-  position: relative;
-  width: 100%;
-`
-
-const RewardWrapper = styled.div`
-  position: relative;
-  width: 100%;
-`
-
-const Content = styled.div`
-  position: relative;
-  z-index: 2;
-
-  width: 100%;
-  height: 100%;
-  padding: 12px 16px;
-
-  display: flex;
-  gap: 4px;
-  flex-direction: column;
-  justify-content: space-between;
-`
-
-const BalanceTitle = styled.span`
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-`
-
-const BalanceValue = styled.span`
-  font-size: 36px;
-  font-weight: 500;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-`
-
-type WrapperProps = {
-  $minimal: boolean
-}
-const Wrapper = styled.div.attrs<WrapperProps>(props => ({
-  'data-minimal': props.$minimal,
-}))<WrapperProps>`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  transition: all 100ms;
-
-  ${ActionButtonGroup} {
-    display: flex;
-  }
-  ${MinimalActionButtonGroup} {
-    display: none;
-  }
-
-  ${({ $minimal }) =>
-    $minimal &&
-    css`
-      & {
-        ${MinimalActionButtonGroup} {
-          display: flex;
-          align-self: flex-end;
-        }
-        ${ActionButtonGroup} {
-          display: none;
-        }
-        ${Content} {
-          padding: 12px;
-        }
-        ${BalanceValue} {
-          font-size: 20px;
-        }
-      }
-    `}
-`
 
 type Props = {
   totalBalanceInUsd: number | null | string
@@ -126,28 +47,27 @@ export default function AccountInfo({
   } = useRewards()
 
   return (
-    <Wrapper $minimal={isMinimal}>
+    <div
+      data-minimal={isMinimal}
+      className={cn(
+        'flex flex-col gap-[14px] transition-all duration-100',
+        '[&_[data-action=full]]:flex [&_[data-action=minimal]]:hidden',
+        'data-[minimal=true]:[&_[data-action=full]]:hidden',
+        'data-[minimal=true]:[&_[data-action=minimal]]:flex data-[minimal=true]:[&_[data-action=minimal]]:self-end',
+      )}
+    >
       <div style={{ marginLeft: '28px', marginTop: '-1rem' }}>
         <CoinbaseSubscribeBtn />
       </div>
-      <ContentWrapper>
+      <div className="relative w-full">
         <CardBackground noLogo={isMinimal} />
-        <Content>
-          <Flex
-            sx={{
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Flex
-              sx={{
-                flexDirection: 'column',
-                gap: '4px',
-              }}
-            >
-              <Flex
-                width="fit-content"
-                sx={{ gap: '4px', cursor: 'pointer' }}
+        <div
+          className={cn('relative z-[2] flex size-full flex-col justify-between gap-1 px-4 py-3', isMinimal && 'p-3')}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <div
+                className="flex w-fit cursor-pointer gap-1"
                 onClick={() => {
                   trackingHandler(TRACKING_EVENT_TYPE.BALANCE_VISIBILITY_TOGGLED, {
                     new_state: showBalance ? 'hidden' : 'visible',
@@ -157,13 +77,13 @@ export default function AccountInfo({
                   toggleShowBalance()
                 }}
               >
-                <BalanceTitle>
+                <span className="text-xs font-medium leading-4 text-subText">
                   <Trans>Total Balance</Trans>
-                </BalanceTitle>
+                </span>
                 {showBalance ? <EyeOff size={14} color={theme.subText} /> : <Eye size={14} color={theme.subText} />}
-              </Flex>
+              </div>
 
-              <BalanceValue>
+              <span className={cn('truncate text-4xl font-medium', isMinimal && 'text-xl')}>
                 {typeof totalBalanceInUsd === 'number' ? (
                   showBalance ? (
                     `$${formatNumberWithPrecisionRange(totalBalanceInUsd, 0, 8)}`
@@ -175,31 +95,33 @@ export default function AccountInfo({
                 ) : (
                   <Loader size="30px" />
                 )}
-              </BalanceValue>
-            </Flex>
+              </span>
+            </div>
 
             <MinimalActionButtonGroup
               disabledSend={disabledSend}
               onClickReceive={onClickReceive}
               onClickSend={onClickSend}
             />
-          </Flex>
-        </Content>
-      </ContentWrapper>
-      <RewardWrapper>
-        <Flex flexDirection="row" alignContent="center">
+          </div>
+        </div>
+      </div>
+      <div className="relative w-full">
+        <div className="flex flex-row content-center">
           <CardBackground noLogo />
-          <Content style={{ padding: '10px 12px' }}>
-            <Flex justifyContent="space-between" alignItems="center">
-              <Flex sx={{ gap: '4px' }}>
+          <div
+            className="relative z-[2] flex size-full flex-col justify-between gap-1"
+            style={{ padding: '10px 12px' }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1">
                 <Star size={16} color={theme.subText} fill={theme.subText} />
-                <Text color={theme.subText} fontSize={12} fontWeight={500} lineHeight="16px">
+                <span className="text-xs font-medium leading-4 text-subText">
                   <Trans>Total Available Rewards</Trans>
-                </Text>
-              </Flex>
-              <Flex
-                sx={{ gap: '4px', cursor: 'pointer' }}
-                alignItems="center"
+                </span>
+              </div>
+              <div
+                className="flex cursor-pointer items-center gap-1"
                 onClick={() => {
                   trackingHandler(TRACKING_EVENT_TYPE.WALLET_REWARDS_VIEWED, {
                     total_rewards_usd: usd,
@@ -208,16 +130,16 @@ export default function AccountInfo({
                   setView(View().REWARD_CENTER)
                 }}
               >
-                <Text color={theme.text} fontSize={12} fontWeight={500} lineHeight="16px">
+                <span className="text-xs font-medium leading-4 text-text">
                   ${formatNumberWithPrecisionRange(usd, 0, 8)}
-                </Text>
+                </span>
                 <ChevronRight size={20} color={theme.subText} />
-              </Flex>
-            </Flex>
-          </Content>
-        </Flex>
-      </RewardWrapper>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <ActionButtonGroup disabledSend={disabledSend} onClickReceive={onClickReceive} onClickSend={onClickSend} />
-    </Wrapper>
+    </div>
   )
 }

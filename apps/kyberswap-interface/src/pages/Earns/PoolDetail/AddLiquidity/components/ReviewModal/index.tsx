@@ -1,9 +1,7 @@
 import { NETWORKS_INFO, Pool, ZapRouteDetail } from '@kyber/schema'
 import { Button, StatusDialog, StatusDialogType, translateZapMessage } from '@kyber/ui'
 import { useEffect, useRef } from 'react'
-import { Text } from 'rebass'
 import { BuildZapInData } from 'services/zap'
-import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
@@ -26,17 +24,6 @@ type ReviewWarningItem = {
   tone: 'info' | 'warning' | 'error'
   message: string
 }
-
-const ModalContent = styled(Stack)`
-  align-self: flex-start;
-  font-size: 14px;
-  padding: 24px;
-  width: 100%;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 16px;
-  `}
-`
 
 type AddLiquidityReviewModalProps = {
   pool: Pool
@@ -206,11 +193,9 @@ const AddLiquidityReviewModal = ({
 
   return (
     <Modal isOpen borderRadius="20px" maxWidth={480} mobileFullWidth onDismiss={handleDismiss}>
-      <ModalContent gap={16}>
+      <Stack gap={16} className="w-full self-start p-6 text-sm max-sm:p-4">
         <HStack align="center" justify="space-between" width="100%">
-          <Text fontSize={24} fontWeight={500}>
-            Add Liquidity via Zap
-          </Text>
+          <span className="text-2xl font-medium">Add Liquidity via Zap</span>
           <CloseIcon color={theme.subText} onClick={handleDismiss} size={28} />
         </HStack>
 
@@ -234,10 +219,10 @@ const AddLiquidityReviewModal = ({
           </Stack>
         ) : null}
 
-        <Text color={theme.subText} fontSize={14} fontStyle="italic">
+        <span className="text-sm italic text-subText">
           The information is intended solely for your reference at the time you are viewing. It is your responsibility
           to verify all information before making decisions.
-        </Text>
+        </span>
 
         <ConfirmButton
           altDisabledStyle
@@ -248,7 +233,7 @@ const AddLiquidityReviewModal = ({
         >
           {transaction.confirmLoading ? 'Adding Liquidity...' : isHighZapImpact ? 'Zap Anyway' : 'Add Liquidity'}
         </ConfirmButton>
-      </ModalContent>
+      </Stack>
     </Modal>
   )
 }

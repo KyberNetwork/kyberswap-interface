@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Plus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
@@ -32,6 +31,4 @@ const CreateAlertButton: React.FC<Props> = ({ className }) => {
   )
 }
 
-// Re-wrapped via styled() so Header.tsx can use `${CreateAlertButton}` selector.
-// Once Header.tsx is migrated, drop styled() and remove the import.
-export default styled(CreateAlertButton)``
+export default CreateAlertButton

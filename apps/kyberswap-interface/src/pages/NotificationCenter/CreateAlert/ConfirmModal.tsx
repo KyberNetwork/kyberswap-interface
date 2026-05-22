@@ -3,16 +3,14 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useUpdatePriceAlertMutation } from 'services/priceAlert'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { NetworkLogo } from 'components/Logo'
 import Modal from 'components/Modal'
-import Row, { RowBetween } from 'components/Row'
+import { RowBetween } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
@@ -26,42 +24,17 @@ import {
   PriceAlertStat,
   PriceAlertType,
 } from 'pages/NotificationCenter/const'
+import { cn } from 'utils/cn'
 import { uint256ToFraction } from 'utils/numbers'
 import { formatTimeDuration } from 'utils/time'
 
-const Wrapper = styled.div`
-  margin: 0;
-  padding: 24px 24px;
-  width: 100%;
-  display: flex;
-  gap: 20px;
-  flex-direction: column;
-`
+const Label: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ className, ...rest }) => (
+  <span {...rest} className={cn('text-sm text-subText', className)} />
+)
 
-const CloseIcon = styled(X)`
-  cursor: pointer;
-  color: ${({ theme }) => theme.subText};
-`
-
-const Container = styled.div`
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 24px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
-
-const Label = styled.span`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-`
-
-const Value = styled.span`
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-  font-size: 14px;
-`
+const Value: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ className, ...rest }) => (
+  <span {...rest} className={cn('text-sm font-medium text-text', className)} />
+)
 
 export default function ConfirmModal({
   data: { alert, currencyIn, currencyOut },
@@ -98,6 +71,7 @@ export default function ConfirmModal({
     try {
       if (!id || isLoading.current || !canUpdateEnable) return
       isLoading.current = true
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error }: any = await enablePriceAlert({ id, isEnabled: !isEnabled })
       if (!isEnabled) subscribeOne(+PRICE_ALERT_TOPIC_ID)
       if (error) throw error
@@ -119,12 +93,12 @@ export default function ConfirmModal({
 
   return (
     <Modal isOpen={true} onDismiss={onDismiss} minHeight={false} maxWidth={480}>
-      <Wrapper>
+      <div className="m-0 flex w-full flex-col gap-5 p-6">
         <RowBetween>
-          <Text fontSize={20} fontWeight={500}>
+          <span className="text-xl font-medium">
             <Trans>Alert Created</Trans>
-          </Text>
-          <CloseIcon onClick={onDismiss} />
+          </span>
+          <X onClick={onDismiss} className="cursor-pointer text-subText" />
         </RowBetween>
 
         <RowBetween>
@@ -133,8 +107,8 @@ export default function ConfirmModal({
               Alerts Created: {totalAlerts}/{maxAlerts}
             </Trans>
           </Label>
-          <Flex alignItems="center" style={{ gap: '6px' }}>
-            <Label style={{ color: isMaxQuota ? theme.warning : theme.subText }}>
+          <div className="flex items-center gap-1.5">
+            <Label className={cn(isMaxQuota ? 'text-warning' : 'text-subText')}>
               <Trans>
                 Active Alerts: {totalActiveAlerts}/{maxActiveAlerts}
               </Trans>
@@ -147,11 +121,11 @@ export default function ConfirmModal({
                 toggle={toggleEnable}
               />
             </MouseoverTooltip>
-          </Flex>
+          </div>
         </RowBetween>
 
-        <Container>
-          <Row alignItems={'center'} gap="12px 6px" style={{ flexWrap: 'wrap' }}>
+        <div className="flex flex-col gap-3 rounded-3xl bg-buttonBlack p-4">
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-3">
             <Label>
               <Trans>Send me an alert when on </Trans>
             </Label>
@@ -161,12 +135,12 @@ export default function ConfirmModal({
               <Trans>the price of</Trans>
             </Label>
 
-            <Flex sx={{ gap: '6px' }}>
+            <div className="flex gap-1.5">
               <CurrencyLogo currency={currencyIn} size={'16px'} />
               <Value>
                 {uint256ToFraction(tokenInAmount, currencyIn.decimals)?.toSignificant(6)} {currencyIn.symbol}
               </Value>
-            </Flex>
+            </div>
 
             <Label>
               <Trans>to</Trans>
@@ -180,12 +154,7 @@ export default function ConfirmModal({
             </Label>
 
             <Value
-              style={{
-                color: type === PriceAlertType.ABOVE ? theme.primary : theme.red,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '2px',
-              }}
+              className={cn('flex items-center gap-0.5', type === PriceAlertType.ABOVE ? '!text-primary' : '!text-red')}
             >
               {type === PriceAlertType.ABOVE ? <ArrowUp size={18} /> : <ArrowDown size={18} />} {type}
             </Value>
@@ -193,34 +162,34 @@ export default function ConfirmModal({
             <Value>
               {threshold} {currencyOut.symbol}
             </Value>
-          </Row>
+          </div>
 
           <RowBetween>
-            <Label style={{ fontSize: 12 }}>
+            <Label className="!text-xs">
               <Trans>
-                Cooldown: <Value style={{ fontSize: 12 }}>{formatTimeDuration(cooldown)}</Value>
+                Cooldown: <Value className="!text-xs">{formatTimeDuration(cooldown)}</Value>
               </Trans>
             </Label>
             {note && (
-              <Label style={{ fontSize: 12 }}>
+              <Label className="!text-xs">
                 <Trans>
-                  Note: <Value style={{ fontSize: 12 }}>{note}</Value>
+                  Note: <Value className="!text-xs">{note}</Value>
                 </Trans>
               </Label>
             )}
           </RowBetween>
 
           {disableAfterTrigger && (
-            <Text color={theme.warning} fontSize={12} fontStyle="italic">
+            <span className="text-xs italic text-warning">
               <Trans>This alert will be disabled after its triggered once</Trans>
-            </Text>
+            </span>
           )}
-        </Container>
+        </div>
 
-        <ButtonPrimary borderRadius="46px" height="36px" width="100%" onClick={onSave}>
+        <ButtonPrimary onClick={onSave} className="!h-9 w-full !rounded-[46px]">
           <Trans>View Price Alerts</Trans>
         </ButtonPrimary>
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

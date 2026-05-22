@@ -1,39 +1,14 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
-import { Flex, Text } from 'rebass'
 import { useCreateOptionMutation } from 'services/commonService'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
-
-const Option = styled.div<{ disabled: boolean; active: boolean }>`
-  border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.border)};
-  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.2) : theme.buttonGray)};
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  border-radius: 16px;
-  gap: 8px;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  transition: all 0.2s;
-`
-const Opt = styled.div<{ active: boolean }>`
-  text-shadow: ${({ theme, active }) => (active ? `0px 0px 3px ${theme.primary}` : undefined)};
-  color: ${({ theme, active }) => (!active ? theme.subText : theme.primary)};
-  width: 40px;
-  height: 40px;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 40px;
-  text-align: center;
-`
+import { cn } from 'utils/cn'
 
 export default function ChooseGrantModal({
   isOpen,
@@ -44,12 +19,9 @@ export default function ChooseGrantModal({
   onDismiss: () => void
   userSelectedOption?: string
 }) {
-  const theme = useTheme()
-
   const options = {
     A: t`USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months.`,
     B: t`USD stablecoins equivalent to 100% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 12 months.`,
-    // C: t`Opt out.`,
   }
 
   const accountOnlyOptionB = [
@@ -96,6 +68,7 @@ export default function ChooseGrantModal({
             signature,
             message,
           })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if ((res as any)?.data?.code === 0) {
             notify({
               title: t`Choose option successfully`,
@@ -106,6 +79,7 @@ export default function ChooseGrantModal({
           } else {
             notify({
               title: t`Error`,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               summary: (res as any).error?.data?.message || t`Something went wrong`,
               type: NotificationType.ERROR,
             })
@@ -121,88 +95,74 @@ export default function ChooseGrantModal({
       .finally(() => setLoading(false))
   }
 
-  // const [isAcceptTerm, setIsAcceptTerm] = useState(false)
-
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="480px" width="100%">
-      <Flex flexDirection="column" padding="20px" bg={theme.background} width="100%" lineHeight={1.5}>
-        <Text color={theme.text} fontSize="20px" fontWeight="500" textAlign="center">
+      <div className="flex w-full flex-col bg-background p-5 leading-normal">
+        <span className="text-center text-xl font-medium text-text">
           <Trans>Treasury Grant Options</Trans>
-        </Text>
+        </span>
 
-        <Text fontSize="12px" marginTop="24px" color={theme.subText} textAlign="justify">
+        <span className="mt-6 text-justify text-xs text-subText">
           <Trans>
             KyberSwap Elastic Exploit Treasury Grant Program (“Program”) will support Affected Users who have lost
             Affected Assets to the KyberSwap Elastic Exploit. Under the Program, an Affected User who fulfils
             Eligibility Requirements can choose from one of the following options for the Treasury Grants in respect of
             each Affected Address of such Affected User.
           </Trans>
-        </Text>
+        </span>
 
-        <Flex flexDirection="column" sx={{ gap: '12px' }} marginTop="24px">
+        <div className="mt-6 flex flex-col gap-3">
           {Object.keys(options).map(opt => {
-            const disabled = opt === 'A' && accountOnlyOptionB.includes(account?.toLowerCase())
+            const disabled = opt === 'A' && accountOnlyOptionB.includes(account?.toLowerCase() ?? '')
+            const active = selectedOption === opt
             return (
-              <Option
+              <div
                 key={opt}
                 onClick={() => !disabled && !loading && !userSelectedOption && setSelectedOption(opt)}
-                active={selectedOption === opt}
-                disabled={!!userSelectedOption || disabled}
                 role="button"
+                className={cn(
+                  'flex items-center gap-2 rounded-2xl border border-solid p-3 transition-all duration-200',
+                  active ? 'border-primary bg-primary-20' : 'border-border bg-buttonGray',
+                  !!userSelectedOption || disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+                )}
               >
-                <Opt active={selectedOption === opt}>{opt}</Opt>
-                <Text flex={1} fontSize="12px">
-                  {options[opt]}
-                </Text>
-              </Option>
+                <div
+                  className={cn(
+                    'size-10 text-center text-2xl font-medium leading-10',
+                    active ? 'text-primary [text-shadow:0px_0px_3px_var(--ks-primary)]' : 'text-subText',
+                  )}
+                >
+                  {opt}
+                </div>
+                <span className="flex-1 text-xs">{options[opt as keyof typeof options]}</span>
+              </div>
             )
           })}
-        </Flex>
+        </div>
 
         {!userSelectedOption && (
-          <Text marginTop="6px" fontSize="12px" color={theme.warning}>
+          <span className="mt-1.5 text-xs text-warning">
             <Trans>Once you make a selection, you are unable to change your choice.</Trans>
-          </Text>
+          </span>
         )}
 
         {userSelectedOption ? (
-          <Flex marginTop="24px">
+          <div className="mt-6 flex">
             <ButtonOutlined onClick={onDismiss}>
               <Trans>Close</Trans>
             </ButtonOutlined>
-          </Flex>
+          </div>
         ) : (
-          <>
-            {/* <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} style={{ marginTop: '24px' }}>
-              <input
-                type="checkbox"
-                checked={isAcceptTerm}
-                data-testid="accept-term"
-                style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
-              />
-              <Text color={theme.subText}>
-                <Trans>Accept </Trans>{' '}
-                <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
-                  <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
-                </ExternalLink>{' '}
-                <Trans>and</Trans>{' '}
-                <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                  <Trans>Privacy Policy</Trans>
-                </ExternalLink>
-              </Text>
-            </TermAndCondition>
-            */}
-            <Flex marginTop="16px" sx={{ gap: '1rem' }}>
-              <ButtonOutlined onClick={onDismiss}>
-                <Trans>Rethink</Trans>
-              </ButtonOutlined>
-              <ButtonPrimary onClick={signMessage} disabled={!selectedOption || loading}>
-                {loading ? <Dots>Signing</Dots> : <Trans>Sign with your wallet</Trans>}
-              </ButtonPrimary>
-            </Flex>
-          </>
+          <div className="mt-4 flex gap-4">
+            <ButtonOutlined onClick={onDismiss}>
+              <Trans>Rethink</Trans>
+            </ButtonOutlined>
+            <ButtonPrimary onClick={signMessage} disabled={!selectedOption || loading}>
+              {loading ? <Dots>Signing</Dots> : <Trans>Sign with your wallet</Trans>}
+            </ButtonPrimary>
+          </div>
         )}
-      </Flex>
+      </div>
     </Modal>
   )
 }

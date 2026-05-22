@@ -31,7 +31,7 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
 
   return (
     <PoolRow
-      justifyContent="space-between"
+      className="justify-between"
       key={pool.address}
       role="button"
       onClick={e => {
