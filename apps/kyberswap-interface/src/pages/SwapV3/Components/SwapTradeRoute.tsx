@@ -171,8 +171,8 @@ const SwapTradeRoute = ({
 
   const titleData = useMemo(
     () => ({
-      amountIn: inputAmount?.toSignificant(8),
-      amountOut: outputAmount?.toSignificant(8),
+      amountIn: inputAmount?.toSignificant(4),
+      amountOut: outputAmount?.toSignificant(4),
       inputSymbol: currencyIn?.symbol,
       outputSymbol: currencyOut?.symbol,
     }),
