@@ -3,9 +3,7 @@ import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
-import styled from 'styled-components'
 
 import Column from 'components/Column'
 import Modal from 'components/Modal'
@@ -23,18 +21,6 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import LimitOrderForm, { Label, LimitOrderFormHandle } from './LimitOrderForm'
 import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
 import { CancelOrderFunction, CancelOrderType, EditOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
-
-const Wrapper = styled.div`
-  width: 100%;
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
-
-const StyledLabel = styled(Label)`
-  margin-bottom: 0;
-`
 
 enum Steps {
   EDIT_ORDER,
@@ -160,23 +146,23 @@ export default function EditOrderModal({
   const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas, cancelType, renderCancelButtons }
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
-      <Wrapper>
-        <Flex justifyContent={'space-between'} alignItems="center">
+      <div className="flex w-full flex-col gap-4 px-[22px] py-5">
+        <div className="flex items-center justify-between">
           {showReview ? <ChevronLeft style={{ cursor: 'pointer', color: theme.subText }} onClick={onBack} /> : <div />}
-          <Text>{showReview ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</Text>
+          <span>{showReview ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</span>
           <X style={{ cursor: 'pointer', color: theme.subText }} onClick={onDismiss} />
-        </Flex>
+        </div>
 
         <Column gap="10px">
-          <StyledLabel>
+          <Label className="mb-0">
             <Trans>
               Editing this order will automatically cancel your existing order and a new order will be created.
             </Trans>
-          </StyledLabel>
+          </Label>
           {status === LimitOrderStatus.PARTIALLY_FILLED && (
-            <StyledLabel>
+            <Label className="mb-0">
               <Trans>Your currently existing order is {filled}% filled.</Trans>
-            </StyledLabel>
+            </Label>
           )}
         </Column>
 
@@ -198,7 +184,7 @@ export default function EditOrderModal({
             defaultExpire={defaultExpire}
           />
         )}
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

@@ -1,8 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import React, { useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -36,12 +34,6 @@ type Props = {
   isCrossChainPage?: boolean
 }
 
-const BackText = styled.span`
-  font-size: 20px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
-
 const SettingsPanel: React.FC<Props> = ({
   isSwapPage,
   isCrossChainPage,
@@ -63,9 +55,9 @@ const SettingsPanel: React.FC<Props> = ({
   const toggleSuccessSound = useToggleSuccessSound()
 
   return (
-    <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
-      <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
-        <Flex alignItems="center" sx={{ gap: '4px' }}>
+    <div className={`w-full ${className ?? ''}`} id={TutorialIds.TRADING_SETTING_CONTENT}>
+      <div className="mb-1 flex w-full flex-col">
+        <div className="flex items-center gap-1">
           <ChevronLeft
             onClick={() => {
               if (isCrossChainPage) {
@@ -79,17 +71,10 @@ const SettingsPanel: React.FC<Props> = ({
             cursor={'pointer'}
             size={26}
           />
-          <BackText>{t`Settings`}</BackText>
-        </Flex>
+          <span className="text-xl font-medium text-text">{t`Settings`}</span>
+        </div>
 
-        <Flex
-          sx={{
-            marginTop: '22px',
-            flexDirection: 'column',
-            rowGap: '12px',
-            width: '100%',
-          }}
-        >
+        <div className="mt-[22px] flex w-full flex-col gap-3">
           {(isSwapPage || isCrossChainPage) && (
             <>
               <span className="settingTitle">
@@ -105,23 +90,10 @@ const SettingsPanel: React.FC<Props> = ({
           )}
 
           {isSwapPage && (
-            <Flex
-              sx={{
-                flexDirection: 'column',
-                rowGap: '12px',
-                paddingTop: '16px',
-                borderTop: `1px solid ${theme.border}`,
-              }}
-            >
-              <Text
-                as="span"
-                sx={{
-                  fontSize: '16px',
-                  fontWeight: 500,
-                }}
-              >
+            <div className="flex flex-col gap-3 border-t border-solid border-border pt-4">
+              <span className="text-base font-medium">
                 <Trans>Display Settings</Trans>
-              </Text>
+              </span>
               <AutoColumn gap="md">
                 {isSwapPage && (
                   <RowBetween>
@@ -158,11 +130,11 @@ const SettingsPanel: React.FC<Props> = ({
                   <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} className="bg-buttonBlack" />
                 </RowBetween>
               </AutoColumn>
-            </Flex>
+            </div>
           )}
-        </Flex>
-      </Flex>
-    </Box>
+        </div>
+      </div>
+    </div>
   )
 }
 

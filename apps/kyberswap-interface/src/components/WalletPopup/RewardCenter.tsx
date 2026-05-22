@@ -1,7 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { NotificationType } from 'components/Announcement/type'
@@ -18,56 +16,6 @@ import { friendlyError } from 'utils/errorMessage'
 import CardBackground from './AccountInfo/CardBackground'
 import Tab from './Transactions/Tab'
 import { REWARD_TYPE } from './type'
-
-const ContentWrapper = styled.div`
-  position: relative;
-  width: 100%;
-`
-const BalanceTitle = styled(TextDashed)`
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-`
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 100%;
-  gap: 16px;
-  overflow-y: scroll;
-`
-
-const Content = styled.div`
-  position: relative;
-  z-index: 2;
-
-  width: 100%;
-  height: 100%;
-  padding: 12px 16px;
-
-  display: flex;
-  gap: 4px;
-  flex-direction: column;
-  justify-content: space-between;
-`
-const BalanceValue = styled.span`
-  font-size: 36px;
-  font-weight: 500;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-`
-
-const RewardWrapper = styled.div`
-  display: flex;
-  border-radius: 44px;
-  background-color: ${({ theme }) => theme.background};
-  width: 100%;
-  padding: 6px 12px;
-  align-items: center;
-  gap: 4px;
-`
 
 export default function RewardCenter() {
   const { trackingHandler } = useTracking()
@@ -119,54 +67,44 @@ export default function RewardCenter() {
   }, [currentReward, trackingHandler, notify, switchToEthereum])
 
   return (
-    <Wrapper>
-      <ContentWrapper>
+    <div className="flex flex-1 basis-full flex-col gap-4 overflow-y-scroll">
+      <div className="relative w-full">
         <CardBackground noLogo />
-        <Content>
-          <Flex
-            sx={{
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Flex
-              sx={{
-                flexDirection: 'column',
-                gap: '4px',
-              }}
-            >
-              <Flex width="fit-content" sx={{ gap: '4px' }}>
+        <div className="relative z-[2] flex size-full flex-col justify-between gap-1 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <div className="flex w-fit gap-1">
                 <MouseoverTooltip
                   text={t`Total Available Rewards = Total Available Voting Rewards + Total Available Gas Refund.`}
                 >
-                  <BalanceTitle>
+                  <TextDashed className="text-xs font-medium leading-4 text-subText">
                     <Trans>Total Available Rewards</Trans>
-                  </BalanceTitle>
+                  </TextDashed>
                 </MouseoverTooltip>
-              </Flex>
+              </div>
 
-              <BalanceValue>{formatNumberWithPrecisionRange(totalReward.knc, 0, 8)} KNC</BalanceValue>
-              <Text fontSize={12} fontWeight={500} lineHeight="16px" color={theme.subText}>
+              <span className="overflow-hidden truncate whitespace-nowrap text-4xl font-medium">
+                {formatNumberWithPrecisionRange(totalReward.knc, 0, 8)} KNC
+              </span>
+              <span className="text-xs font-medium leading-4 text-subText">
                 {typeof totalReward.usd === 'number'
                   ? `${totalReward.usd > 0 ? '~ ' : ''}$${formatNumberWithPrecisionRange(totalReward.usd, 0, 8)}`
                   : '$ --'}
-              </Text>
-            </Flex>
-          </Flex>
-        </Content>
-      </ContentWrapper>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
       <Tab<REWARD_TYPE> activeTab={activeTab} setActiveTab={setActiveTab} tabs={TABS} />
-      <Flex flexDirection="column" sx={{ gap: '12px' }}>
-        <Text fontSize={12} fontWeight={500} lineHeight="16px" color={theme.primary}>
+      <div className="flex flex-col gap-3">
+        <span className="text-xs font-medium leading-4 text-primary">
           <Trans>Your Reward</Trans>
-        </Text>
-        <Flex sx={{ gap: '8px' }}>
-          <RewardWrapper>
+        </span>
+        <div className="flex gap-2">
+          <div className="flex w-full items-center gap-1 rounded-[44px] bg-background px-3 py-1.5">
             <DollarIcon width={12} height={12} color={theme.subText} />
-            <Text fontSize={12} fontWeight={400} lineHeight="16px">
-              {currentReward.knc} KNC
-            </Text>
-          </RewardWrapper>
+            <span className="text-xs font-normal leading-4">{currentReward.knc} KNC</span>
+          </div>
           <ButtonPrimary
             width="fit-content"
             padding="4px 15px"
@@ -174,12 +112,12 @@ export default function RewardCenter() {
             onClick={claimRewards}
             disabled={claiming || !currentReward.knc}
           >
-            <Text fontSize={14} fontWeight={500} lineHeight="20px">
+            <span className="text-sm font-medium leading-5">
               {claiming ? <Trans>Claiming</Trans> : <Trans>Claim</Trans>}
-            </Text>
+            </span>
           </ButtonPrimary>
-        </Flex>
-      </Flex>
-    </Wrapper>
+        </div>
+      </div>
+    </div>
   )
 }

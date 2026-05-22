@@ -3,8 +3,6 @@ import { Trans, t } from '@lingui/macro'
 import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -22,10 +20,6 @@ import { ExternalLink } from 'theme'
 
 import CurrencyInputForStake from './CurrencyInputForStake'
 import { useSwitchToEthereum } from './SwitchToEthereumModal'
-
-const Wrapper = styled.div`
-  padding: 24px;
-`
 
 export default function MigrateModal({
   setPendingText,
@@ -59,7 +53,6 @@ export default function MigrateModal({
 
   const oldKNCBalance = useTokenBalance(kyberDAOInfo?.KNCLAddress || '')
   useEffect(() => {
-    // Check if too many decimals
     try {
       parseUnits(value, 18)
     } catch {
@@ -102,17 +95,17 @@ export default function MigrateModal({
 
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={664} maxWidth={420}>
-      <Wrapper>
+      <div className="p-6">
         <AutoColumn gap="20px">
           <RowBetween>
-            <Text fontSize={20} color={theme.text}>
+            <span className="text-xl text-text">
               <Trans>KNC Migration</Trans>
-            </Text>
-            <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleModal}>
+            </span>
+            <div role="button" onClick={toggleModal} className="flex cursor-pointer">
               <X onClick={toggleModal} size={20} color={theme.subText} />
-            </Flex>
+            </div>
           </RowBetween>
-          <Text fontSize={12} lineHeight="16px" color={theme.subText}>
+          <span className="text-xs leading-4 text-subText">
             <Trans>
               Click Migrate to start the migration process from KNC Legacy to the new KNC. You will receive the new KNC
               tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC{' '}
@@ -122,7 +115,7 @@ export default function MigrateModal({
                 here ↗
               </ExternalLink>
             </Trans>
-          </Text>
+          </span>
           <CurrencyInputForStake
             value={value}
             setValue={setValue}
@@ -130,18 +123,8 @@ export default function MigrateModal({
             tokenName="KNCL"
           />
           <RowBetween>
-            <Text fontSize={12} color={theme.subText}>
-              1KNCL = 1KNC
-            </Text>
-            <AutoRow
-              style={{
-                height: '44px',
-                width: '44px',
-                borderRadius: '50%',
-                background: theme.buttonBlack,
-                padding: '10px',
-              }}
-            >
+            <span className="text-xs text-subText">1KNCL = 1KNC</span>
+            <AutoRow className="size-11 rounded-full bg-buttonBlack p-2.5">
               <ArrowDown />
             </AutoRow>
           </RowBetween>
@@ -161,7 +144,7 @@ export default function MigrateModal({
                   </ButtonPrimary>
                 )}
                 <ButtonPrimary disabled={approval !== ApprovalState.APPROVED || !!error} onClick={handleMigrate}>
-                  <Text fontSize={14}>{error || <Trans>Migrate</Trans>}</Text>
+                  <span className="text-sm">{error || <Trans>Migrate</Trans>}</span>
                 </ButtonPrimary>
               </>
             ) : (
@@ -171,7 +154,7 @@ export default function MigrateModal({
             )}
           </Row>
         </AutoColumn>
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

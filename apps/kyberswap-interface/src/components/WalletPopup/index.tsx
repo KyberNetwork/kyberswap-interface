@@ -2,8 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { createPortal } from 'react-dom'
 import { Rnd } from 'react-rnd'
-import { Flex } from 'rebass'
-import { createGlobalStyle } from 'styled-components'
 
 import Modal from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
@@ -12,15 +10,22 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 import WalletView, { HANDLE_CLASS_NAME } from './WalletView'
 
-const GlobalStyle = createGlobalStyle<{ $pinned: boolean }>`
-  #app > .react-draggable {
-    inset: unset;
-    top: unset;
-    left: unset;
-    right: ${({ $pinned }) => ($pinned ? '10px' : '0px')};
-    bottom: ${({ $pinned }) => ($pinned ? '10px' : '0px')};
-  }
-`
+const PinnedGlobalStyle = ({ pinned }: { pinned: boolean }) => {
+  // Override react-rnd's inline positioning so the popup snaps to bottom-right
+  // when pinned (10px offset) or flush (0px) when transient.
+  const offset = pinned ? '10px' : '0px'
+  const css = `
+    #app > .react-draggable {
+      inset: unset;
+      top: unset;
+      left: unset;
+      right: ${offset};
+      bottom: ${offset};
+    }
+  `
+  // eslint-disable-next-line react/no-danger
+  return <style dangerouslySetInnerHTML={{ __html: css }} />
+}
 
 const defaultWidth = 410
 const defaultHeight = 680
@@ -99,15 +104,7 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
   if (!isPinned) {
     return (
       <Modal isOpen={isModalOpen && !isPinned} onDismiss={onDismissModal} minHeight={false}>
-        <Flex
-          sx={{
-            width: defaultWidth,
-            height: defaultHeight,
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-          }}
-        >
+        <div className="absolute bottom-0 right-0 flex" style={{ width: defaultWidth, height: defaultHeight }}>
           <WalletView
             {...commonProps}
             blurBackground
@@ -115,7 +112,7 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
             onPin={handlePinPopup}
             onUnpin={handleUnpinPopup}
           />
-        </Flex>
+        </div>
       </Modal>
     )
   }
@@ -127,7 +124,7 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
 
   return (
     <>
-      <GlobalStyle $pinned={isPinned} />
+      <PinnedGlobalStyle pinned={isPinned} />
       {shouldOpenPopup &&
         createPortal(
           <Rnd

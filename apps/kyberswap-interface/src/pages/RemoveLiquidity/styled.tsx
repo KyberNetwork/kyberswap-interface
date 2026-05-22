@@ -1,167 +1,127 @@
-import styled from 'styled-components'
-
 import { AutoColumn } from 'components/Column'
+import { cn } from 'utils/cn'
 
-export const PageWrapper = styled.div`
-  padding: 28px 16px 100px;
-  width: 100%;
+export const PageWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'w-full px-4 pb-[100px] pt-7',
+      'sm:px-4 sm:pt-6 [@media(min-width:1000px)]:px-8 [@media(min-width:1366px)]:px-[215px] [@media(min-width:1366px)]:pb-[50px] [@media(min-width:1440px)]:px-[252px]',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  @media only screen and (min-width: 768px) {
-    padding: 24px 16px 100px;
-  }
+export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'mx-auto max-w-[936px] rounded-[20px] bg-background px-5 pb-6 pt-1 [@media(min-width:1000px)]:px-6',
+      'shadow-[0_0_1px_rgba(0,0,0,0.01),0_4px_8px_rgba(0,0,0,0.04),0_16px_24px_rgba(0,0,0,0.04),0_24px_32px_rgba(0,0,0,0.01)]',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  @media only screen and (min-width: 1000px) {
-    padding: 24px 32px 100px;
-  }
+export const GridColumn = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('grid grid-cols-[1fr] sm:grid-cols-[1fr_1fr]', className)} {...rest}>
+    {children}
+  </div>
+)
 
-  @media only screen and (min-width: 1366px) {
-    padding: 24px 215px 50px;
-  }
+export const TopBar = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'mt-4 flex flex-col-reverse items-center border-t border-solid border-border py-5',
+      'sm:mt-0 sm:grid sm:grid-cols-[1fr_1fr]',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  @media only screen and (min-width: 1440px) {
-    padding: 24px 252px 50px;
-  }
-`
+export const LiquidityProviderModeWrapper = ({
+  children,
+  className,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('w-full sm:pr-6', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Container = styled.div`
-  max-width: 936px;
-  margin: 0 auto;
-  padding: 4px 20px 24px;
-  background: ${({ theme }) => theme.background};
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 20px;
+export const PoolName = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('mb-6 flex text-sm font-medium text-subText sm:mb-0 sm:justify-end', className)} {...rest}>
+    {children}
+  </div>
+)
 
-  @media only screen and (min-width: 1000px) {
-    padding: 4px 24px 24px;
-  }
-`
+export const FirstColumn = ({ children, className, ...rest }: React.ComponentProps<typeof AutoColumn>) => (
+  <AutoColumn
+    className={cn(
+      'gap-5 border-b border-solid border-border pb-6 [grid-auto-rows:min-content]',
+      'sm:border-0 sm:border-r sm:border-solid sm:border-border sm:pb-0 sm:pr-6',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </AutoColumn>
+)
 
-export const GridColumn = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
+export const SecondColumn = ({ children, className, ...rest }: React.ComponentProps<typeof AutoColumn>) => (
+  <AutoColumn className={cn('pt-6 [grid-auto-rows:min-content] sm:pl-6 sm:pt-0', className)} {...rest}>
+    {children}
+  </AutoColumn>
+)
 
-  @media only screen and (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-  }
-`
+export const MaxButton = ({ children, className, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    className={cn(
+      'm-1 flex-1 cursor-pointer overflow-hidden rounded-full border border-solid border-transparent bg-primary-20 py-1.5 text-base font-medium text-primary hover:border-primary focus:border-primary focus:outline-none max-sm:py-1',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </button>
+)
 
-export const TopBar = styled.div`
-  padding: 20px 0;
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-  border-top: 1px solid ${({ theme }) => theme.border};
-  margin-top: 1rem;
+export const DetailWrapper = ({ children, className, ...rest }: React.ComponentProps<typeof AutoColumn>) => (
+  <AutoColumn
+    className={cn('my-6 mb-7 rounded-[20px] border border-solid border-border px-4 pb-3 pt-4', className)}
+    {...rest}
+  >
+    {children}
+  </AutoColumn>
+)
 
-  @media only screen and (min-width: 768px) {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-top: 0;
-  }
-`
+export const DetailBox = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('grid grid-cols-[1fr_1fr]', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const LiquidityProviderModeWrapper = styled.div`
-  width: 100%;
+export const TokenWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-center gap-1', className)} {...rest}>
+    {children}
+  </div>
+)
 
-  @media only screen and (min-width: 768px) {
-    padding-right: 24px;
-  }
-`
+export const ModalDetailWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('mb-7 rounded-[20px] border border-solid border-border p-4', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const PoolName = styled.div`
-  display: flex;
-  margin-bottom: 24px;
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-
-  @media only screen and (min-width: 768px) {
-    justify-content: flex-end;
-    margin-bottom: 0;
-  }
-`
-
-export const FirstColumn = styled(AutoColumn)`
-  grid-auto-rows: min-content;
-  padding-bottom: 24px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  gap: 20px;
-
-  @media only screen and (min-width: 768px) {
-    padding-right: 24px;
-    padding-bottom: 0;
-    border-right: 1px solid ${({ theme }) => theme.border};
-    border-bottom: none;
-  }
-`
-
-export const SecondColumn = styled(AutoColumn)`
-  grid-auto-rows: min-content;
-  padding-top: 24px;
-
-  @media only screen and (min-width: 768px) {
-    padding-left: 24px;
-    padding-top: 0;
-  }
-`
-
-export const MaxButton = styled.button`
-  flex: 1;
-  padding: 6px 0;
-  background-color: ${({ theme }) => `${theme.primary}33`};
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-size: 1rem;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 0.25rem 0;
-  `};
-  font-weight: 500;
-  cursor: pointer;
-  margin: 0.25rem;
-  overflow: hidden;
-  color: ${({ theme }) => theme.primary};
-  :hover {
-    border: 1px solid ${({ theme }) => theme.primary};
-  }
-  :focus {
-    border: 1px solid ${({ theme }) => theme.primary};
-    outline: none;
-  }
-`
-
-export const DetailWrapper = styled(AutoColumn)`
-  padding: 1rem 1rem 12px;
-  border: 1px solid ${({ theme }) => theme.border};
-  margin: 24px 0 28px;
-  border-radius: 20px;
-`
-
-export const DetailBox = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-`
-
-export const TokenWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`
-
-export const ModalDetailWrapper = styled.div`
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 20px;
-  padding: 1rem;
-  margin-bottom: 28px;
-`
-
-export const CurrentPriceWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  @media only screen and (min-width: 768px) {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-`
+export const CurrentPriceWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col sm:flex-row sm:items-center sm:justify-between', className)} {...rest}>
+    {children}
+  </div>
+)

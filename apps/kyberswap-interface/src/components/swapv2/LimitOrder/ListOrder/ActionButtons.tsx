@@ -1,9 +1,6 @@
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
-import { useCallback, useEffect, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { ExternalLink as LinkIcon, Trash } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled, { CSSProperties, css } from 'styled-components'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
@@ -19,28 +16,37 @@ import { formatRemainTime } from 'utils/time'
 import { isActiveStatus } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 
-const IconWrap = styled.div<{ color: string; isDisabled?: boolean }>`
-  background-color: ${({ color, isDisabled, theme }) =>
-    color ? `${rgba(isDisabled ? theme.subText : color, 0.2)}` : 'transparent'};
-  ${({ isDisabled }) =>
-    isDisabled
-      ? css`
-          filter: grayscale(1);
-          pointer-events: none;
-          cursor: not-allowed;
-        `
-      : css`
-          cursor: pointer;
-        `};
-  border-radius: 24px;
-  padding: 7px 8px 5px 8px;
-  margin-left: 5px;
-  height: 30px;
-  width: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
+const IconWrap = ({
+  children,
+  color,
+  isDisabled,
+  style,
+  onClick,
+}: {
+  children: React.ReactNode
+  color: string
+  isDisabled?: boolean
+  style?: CSSProperties
+  onClick?: (e: React.MouseEvent) => void
+}) => (
+  <div
+    onClick={isDisabled ? undefined : onClick}
+    style={{
+      ...style,
+      // Theme colors are 6-digit hex — append `33` (= 0x33/255 ≈ 0.2 alpha) for the tinted bg.
+      // Avoids color-mix() which the project's browserslist (Chrome 52+) doesn't support.
+      backgroundColor: color
+        ? `${isDisabled ? '#a9a9a9' : color}${color.startsWith('#') && color.length === 7 ? '33' : ''}`
+        : 'transparent',
+      cursor: isDisabled ? 'not-allowed' : 'pointer',
+      filter: isDisabled ? 'grayscale(1)' : undefined,
+      pointerEvents: isDisabled ? 'none' : undefined,
+    }}
+    className="ml-1.5 flex h-[30px] w-[30px] items-center justify-center rounded-3xl px-2 pb-[5px] pt-[7px]"
+  >
+    {children}
+  </div>
+)
 
 const CancelStatusButton = ({ expiredAt, style }: { expiredAt: number | undefined; style?: CSSProperties }) => {
   const theme = useTheme()
@@ -61,12 +67,9 @@ const CancelStatusButton = ({ expiredAt, style }: { expiredAt: number | undefine
   return (
     <MouseoverTooltipDesktopOnly
       text={
-        <Text as="span">
-          Gaslessly cancelling in{' '}
-          <Text as="span" color={theme.red} fontWeight={'500'}>
-            {formatRemainTime(remain)}
-          </Text>
-        </Text>
+        <span>
+          Gaslessly cancelling in <span className="font-medium text-red">{formatRemainTime(remain)}</span>
+        </span>
       }
       placement="top"
       width="fit-content"
@@ -86,7 +89,6 @@ const ActionButtons = ({
   isChildren,
   itemStyle = {},
   onCancelOrder,
-  // onEditOrder,
   isCancelling = false,
 }: {
   order: LimitOrder
@@ -129,39 +131,22 @@ const ActionButtons = ({
   const disabledCancel = isCancelling
 
   return (
-    <Flex alignItems={'center'} justifyContent={'flex-end'}>
+    <div className="flex items-center justify-end">
       {iconCancelling}
       {isActiveTab && !isChildren ? (
-        <>
-          {/* numberTxs === 0 && (
-            <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Edit`} placement="top" width="fit-content">
-              <IconWrap
-                color={theme.primary}
-                style={itemStyle}
-                onClick={e => {
-                  e.stopPropagation()
-                  onEditOrder?.(order)
-                }}
-                isDisabled={disabledCancel}
-              >
-                <Edit3 color={disabledCancel ? theme.border : theme.primary} size={15} />
-              </IconWrap>
-            </MouseoverTooltipDesktopOnly>
-          ) */}
-          <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Cancel`} placement="top" width="fit-content">
-            <IconWrap
-              color={theme.red}
-              style={itemStyle}
-              isDisabled={disabledCancel}
-              onClick={e => {
-                e.stopPropagation()
-                onCancelOrder?.(order)
-              }}
-            >
-              <Trash color={disabledCancel ? theme.border : theme.red} size={15} />
-            </IconWrap>
-          </MouseoverTooltipDesktopOnly>
-        </>
+        <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Cancel`} placement="top" width="fit-content">
+          <IconWrap
+            color={theme.red}
+            style={itemStyle}
+            isDisabled={disabledCancel}
+            onClick={e => {
+              e.stopPropagation()
+              onCancelOrder?.(order)
+            }}
+          >
+            <Trash color={disabledCancel ? theme.border : theme.red} size={15} />
+          </IconWrap>
+        </MouseoverTooltipDesktopOnly>
       ) : (
         (numberTxs <= 1 || isChildren) && (
           <>
@@ -169,7 +154,7 @@ const ActionButtons = ({
               <IconWrap color={isChildren ? '' : theme.subText} isDisabled={isDisabledCopy} style={itemStyle}>
                 <CopyHelper
                   toCopy={txHash}
-                  style={{ color: isDisabledCopy ? rgba(theme.subText, 0.4) : theme.subText, margin: 0 }}
+                  style={{ color: isDisabledCopy ? 'var(--ks-subText-40)' : theme.subText, margin: 0 }}
                   size="15"
                 />
               </IconWrap>
@@ -181,7 +166,7 @@ const ActionButtons = ({
             >
               <IconWrap color={isChildren ? '' : theme.primary} isDisabled={isDisabledCopy} style={itemStyle}>
                 <ExternalLink href={chainId ? getEtherscanLink(chainId, txHash, 'transaction') : ''}>
-                  <LinkIcon size={15} color={isDisabledCopy ? rgba(theme.subText, 0.4) : theme.primary} />
+                  <LinkIcon size={15} color={isDisabledCopy ? 'var(--ks-subText-40)' : theme.primary} />
                 </ExternalLink>
               </IconWrap>
             </MouseoverTooltipDesktopOnly>
@@ -189,7 +174,7 @@ const ActionButtons = ({
         )
       )}
       {iconExpand}
-    </Flex>
+    </div>
   )
 }
 export default ActionButtons

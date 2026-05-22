@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { useEffect, useRef } from 'react'
-import styled from 'styled-components'
 
 import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
@@ -18,6 +17,7 @@ import {
 } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
+import { cn } from 'utils/cn'
 import {
   subscribeAnnouncement,
   subscribePrivateAnnouncement,
@@ -25,45 +25,6 @@ import {
 } from 'utils/firebase'
 
 import TopRightPopup from './TopRightPopup'
-
-const FixedPopupColumn = styled.div<{ hasTopbarPopup: boolean }>`
-  position: fixed;
-  top: ${({ hasTopbarPopup }) => (hasTopbarPopup ? '156px' : '108px')};
-  right: 1rem;
-  z-index: ${Z_INDEXS.POPUP_NOTIFICATION};
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  ${({ theme, hasTopbarPopup }) => theme.mediaWidth.upToMedium`
-    left: 0;
-    right: 0;
-    top: ${hasTopbarPopup ? '170px' : '110px'};
-    align-items: center;
-  `};
-  ${({ theme, hasTopbarPopup }) => theme.mediaWidth.upToSmall`
-    top: ${hasTopbarPopup ? '170px' : '70px'};
-  `};
-`
-
-const ActionWrapper = styled.div`
-  gap: 10px;
-  justify-content: flex-end;
-  display: flex;
-  width: 100%;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding-right: 16px;
-  `};
-`
-
-const ActionButton = styled(ButtonEmpty)`
-  background-color: ${({ theme }) => theme.border};
-  color: ${({ theme }) => theme.text};
-  border-radius: 30px;
-  padding: 4px 10px;
-  width: fit-content;
-  border-radius: 30px;
-  font-size: 10px;
-`
 
 const MAX_NOTIFICATION = 4
 
@@ -91,7 +52,6 @@ export default function Popups() {
       data.forEach(item => {
         const { popupType } = item.templateBody
         if ((!isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
-          // only show PopupType.CENTER when the first visit app
           addPopup({
             content: item,
             popupType,
@@ -144,28 +104,44 @@ export default function Popups() {
 
   useNotificationLimitOrder()
   const totalTopRightPopup = topRightPopups.length
+  const hasTopbarPopup = topPopups.length !== 0
 
   return (
     <>
       {topRightPopups.length > 0 && (
-        <FixedPopupColumn hasTopbarPopup={topPopups.length !== 0}>
-          <ActionWrapper>
+        <div
+          style={{ zIndex: Z_INDEXS.POPUP_NOTIFICATION }}
+          className={cn(
+            'fixed right-4 flex flex-col items-end',
+            hasTopbarPopup ? 'top-[156px]' : 'top-[108px]',
+            'max-md:inset-x-0 max-md:items-center',
+            hasTopbarPopup ? 'max-md:top-[170px]' : 'max-md:top-[110px]',
+            hasTopbarPopup ? 'max-sm:top-[170px]' : 'max-sm:top-[70px]',
+          )}
+        >
+          <div className="flex w-full justify-end gap-2.5 max-md:pr-4">
             {totalTopRightPopup >= MAX_NOTIFICATION && (
-              <ActionButton onClick={toggleNotificationCenter}>
+              <ButtonEmpty
+                onClick={toggleNotificationCenter}
+                className="w-fit rounded-[30px] bg-border px-2.5 py-1 text-[10px] text-text"
+              >
                 <Trans>See All</Trans>
-              </ActionButton>
+              </ButtonEmpty>
             )}
             {totalTopRightPopup > 1 && (
-              <ActionButton onClick={clearAllTopRightPopup}>
+              <ButtonEmpty
+                onClick={clearAllTopRightPopup}
+                className="w-fit rounded-[30px] bg-border px-2.5 py-1 text-[10px] text-text"
+              >
                 <Trans>Clear All</Trans>
-              </ActionButton>
+              </ButtonEmpty>
             )}
-          </ActionWrapper>
+          </div>
 
           {topRightPopups.slice(0, MAX_NOTIFICATION).map((item, i) => (
             <TopRightPopup key={item.key} popup={item} hasOverlay={i === MAX_NOTIFICATION - 1} />
           ))}
-        </FixedPopupColumn>
+        </div>
       )}
       {snippetPopups.length > 0 && <SnippetPopup data={snippetPopups} clearAll={clearAllSnippetPopup} />}
       {centerPopup && <CenterPopup data={centerPopup} onDismiss={clearAllCenterPopup} />}

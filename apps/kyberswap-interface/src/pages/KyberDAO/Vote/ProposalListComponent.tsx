@@ -1,10 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { lighten } from 'polished'
 import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import FAQIcon from 'components/Icons/FAQIcon'
 import ForumIcon from 'components/Icons/ForumIcon'
@@ -23,36 +20,7 @@ import ProposalItem from './ProposalItem'
 import SearchProposal from './SearchProposal'
 import SelectProposalStatus from './SelectProposalStatus'
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  margin-top: 10px;
-`
-
-const TextButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  ${({ theme }) => css`
-    color: ${theme.subText};
-    :hover {
-      color: ${lighten(0.2, theme.primary)} !important;
-    }
-  `}
-`
-const HistoryButton = styled(RowFit)`
-  justify-content: flex-end;
-  gap: 4px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.subText};
-  :hover {
-    color: ${({ theme }) => lighten(0.2, theme.primary)};
-  }
-`
+const TEXT_BUTTON_CLASS = 'flex cursor-pointer items-center gap-1 text-sm text-subText hover:!brightness-125'
 
 function ProposalListComponent({
   voteCallback,
@@ -87,40 +55,41 @@ function ProposalListComponent({
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
 
   return (
-    <Wrapper>
+    <div className="mt-2.5 flex flex-col items-stretch gap-3">
       <RowBetween marginBottom={'10px'}>
-        <Flex>
-          <Text color={theme.primary} fontSize={20}>
+        <div className="flex">
+          <span className="text-xl text-primary">
             <Trans>KIPs</Trans>
-          </Text>
-        </Flex>
-        <Flex style={{ gap: '30px' }}>
+          </span>
+        </div>
+        <div className="flex gap-[30px]">
           {account && (
-            <HistoryButton onClick={toggleYourTransactions}>
+            <RowFit onClick={toggleYourTransactions} className={`${TEXT_BUTTON_CLASS} justify-end`}>
               <History />
-              <Text fontSize={14} hidden={isMobile}>
+              <span className="text-sm" hidden={isMobile}>
                 {' '}
                 <Trans>History</Trans>
-              </Text>
-            </HistoryButton>
+              </span>
+            </RowFit>
           )}
-          <TextButton href="https://gov.kyber.org/" target="_blank" rel="noreferrer">
+          <a href="https://gov.kyber.org/" target="_blank" rel="noreferrer" className={TEXT_BUTTON_CLASS}>
             <ForumIcon />{' '}
-            <Text hidden={isMobile}>
+            <span hidden={isMobile}>
               <Trans>Forum</Trans>
-            </Text>
-          </TextButton>
-          <TextButton
+            </span>
+          </a>
+          <a
             href="https://docs.kyberswap.com/kyber-dao/kyber-dao-introduction"
             target="_blank"
             rel="noreferrer"
+            className={TEXT_BUTTON_CLASS}
           >
             <FAQIcon />
-            <Text hidden={isMobile}>
+            <span hidden={isMobile}>
               <Trans>FAQ</Trans>
-            </Text>
-          </TextButton>
-        </Flex>
+            </span>
+          </a>
+        </div>
       </RowBetween>
       <RowBetween>
         <SelectProposalStatus status={status} setStatus={setStatus} />
@@ -140,32 +109,20 @@ function ProposalListComponent({
             )
           })
         ) : (
-          <Flex
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="center"
-            color={theme.subText}
-            style={{ height: '200px', gap: '12px' }}
-          >
+          <div className="flex h-[200px] flex-col items-center justify-center gap-3 text-subText">
             <Info size={24} color={theme.subText} />
-            <Text color={theme.subText}>
+            <span className="text-subText">
               <Trans>No proposal found</Trans>
-            </Text>
-          </Flex>
+            </span>
+          </div>
         )
       ) : (
-        <Flex
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="center"
-          color={theme.subText}
-          style={{ height: '200px', gap: '12px' }}
-        >
+        <div className="flex h-[200px] flex-col items-center justify-center gap-3 text-subText">
           <AnimateLoader />
-        </Flex>
+        </div>
       )}
       <YourTransactionsModal />
-    </Wrapper>
+    </div>
   )
 }
 

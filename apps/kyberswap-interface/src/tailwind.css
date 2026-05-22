@@ -658,6 +658,26 @@
     }
   }
 
+  /* LiquidityChart skeleton shimmer — sweeps across each bar (-100% → 100%). */
+  @keyframes ks-shimmer-x {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* OptionButton (KyberDAO Vote) — striped overlay animation for "Choosing" state. */
+  @keyframes ks-stripe-move {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 50px 0;
+    }
+  }
+
   /* MarketOverview / RefetchIndicator price pulse (green for up, red for down). */
   @keyframes ks-pulse-green {
     0% {
