@@ -23,11 +23,6 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
       return false
     }
 
-    // SafePal is registered as an injected connector, but should only be shown when its provider is actually present.
-    if (c.id === CONNECTION.SAFEPAL && !window.safepalProvider) {
-      return false
-    }
-
     return c.type === CONNECTION.INJECTED_CONNECTOR_TYPE && c.id !== CONNECTION.INJECTED_CONNECTOR_ID
   })
 
@@ -68,7 +63,7 @@ export function useOrderedConnections(): InjectableConnector[] {
 
     let hardcodeInjectedConnectors = connectors.filter(c => hardcodedInjectedIds.includes(c.id))
 
-    let injectedConnectorsWithoutHardcoded = injectedConnectors.filter(c => {
+    const injectedConnectorsWithoutHardcoded = injectedConnectors.filter(c => {
       return !hardcodedInjectedIds.includes(c.id)
     })
 
@@ -90,7 +85,7 @@ export function useOrderedConnections(): InjectableConnector[] {
       injectedConnectorsWithoutHardcoded.length === 2 &&
       injectedConnectorsWithoutHardcoded.some(c => c.id === CONNECTION.PORTO)
     ) {
-      injectedConnectorsWithoutHardcoded = injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
+      return injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
     }
 
     // Special-case: Only display the Coinbase connector in the Coinbase Wallet.
