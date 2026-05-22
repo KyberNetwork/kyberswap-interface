@@ -619,6 +619,45 @@
     }
   }
 
+  /* ContentLoader / Loading shimmer — sweeps background gradient across the bar. */
+  @keyframes ks-shine {
+    to {
+      background-position-x: -200%;
+    }
+  }
+
+  /* RefetchIndicator progress bar — slides from -100% to 400%. */
+  @keyframes ks-progress-slide {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(400%);
+    }
+  }
+
+  /* AnimatedNumber roll-in / roll-out — new value rolls up, old value rolls out. */
+  @keyframes ks-roll-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes ks-roll-out {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+  }
+
   /* MenuFlyout arrow on the top edge (default desktop) and bottom edge (upToLarge). */
   .ks-menu-flyout-arrow::after {
     content: '';

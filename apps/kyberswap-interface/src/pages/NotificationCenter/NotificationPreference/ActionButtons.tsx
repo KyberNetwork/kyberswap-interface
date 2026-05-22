@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { Save } from 'react-feather'
-import styled, { css } from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { XCircle } from 'components/Icons'
@@ -8,40 +7,7 @@ import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 
-const ButtonText = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-`
-
-const shareStyle = css`
-  width: 100%;
-  justify-content: space-around;
-  margin-top: 4px;
-`
-const ActionWrapper = styled.div`
-  display: flex;
-  gap: 20px;
-  flex-direction: row;
-  align-items: center;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    ${shareStyle}
-`};
-`
-
-const shareStyleBtn = css`
-  width: 120px;
-  height: 36px;
-  border-radius: 46px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 45%;
-`};
-`
-const ButtonUnSub = styled(ButtonOutlined)`
-  ${shareStyleBtn}
-`
-const ButtonSave = styled(ButtonPrimary)`
-  ${shareStyleBtn}
-`
+const BTN_CLASS = 'h-9 w-[120px] rounded-[46px] max-sm:w-[45%]'
 
 export default function ActionButtons({
   disableButtonSave,
@@ -59,18 +25,18 @@ export default function ActionButtons({
   tooltipSave: string
 }) {
   return (
-    <ActionWrapper>
-      <ButtonUnSub onClick={onUnsubscribeAll} disabled={!subscribeAtLeast1Topic}>
+    <div className="flex flex-row items-center gap-5 max-sm:mt-1 max-sm:w-full max-sm:justify-around">
+      <ButtonOutlined className={BTN_CLASS} onClick={onUnsubscribeAll} disabled={!subscribeAtLeast1Topic}>
         <XCircle size={'14px'} />
         &nbsp;
         <Trans>Opt-out</Trans>
-      </ButtonUnSub>
+      </ButtonOutlined>
 
-      <ButtonSave disabled={disableButtonSave} onClick={onSave}>
+      <ButtonPrimary className={BTN_CLASS} disabled={disableButtonSave} onClick={onSave}>
         <Save size={14} />
         &nbsp;
         <MouseoverTooltip text={tooltipSave}>
-          <ButtonText>
+          <span className="text-sm font-medium">
             {(() => {
               if (isLoading) {
                 return (
@@ -83,9 +49,9 @@ export default function ActionButtons({
               }
               return <Trans>Save</Trans>
             })()}
-          </ButtonText>
+          </span>
         </MouseoverTooltip>
-      </ButtonSave>
-    </ActionWrapper>
+      </ButtonPrimary>
+    </div>
   )
 }

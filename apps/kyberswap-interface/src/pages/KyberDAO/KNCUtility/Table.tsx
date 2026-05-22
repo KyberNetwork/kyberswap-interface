@@ -1,46 +1,46 @@
-import { transparentize } from 'polished'
-import styled from 'styled-components'
+import { cn } from 'utils/cn'
 
-export const Table = styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-`
-export const Row = styled.div<{ $background?: string }>`
-  width: 100%;
-  height: 36px;
-  padding: 0 20px;
-  background: unset;
+const ROW_BASE_CLASS =
+  'grid h-9 w-full grid-cols-[48px_1fr_96px_24px] items-center gap-x-4 border-t border-solid border-border bg-transparent px-5 max-[500px]:gap-x-2 [&[role=button]]:cursor-pointer'
 
-  display: grid;
-  align-items: center;
-  grid-template-columns: 48px 1fr 96px 24px;
-  column-gap: 16px;
-  border-top: 1px solid ${({ theme }) => theme.border};
+export const Table = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col', className)} {...rest}>
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    column-gap: 8px;
-  `}
+export const Row = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn(ROW_BASE_CLASS, className)} {...rest}>
+    {children}
+  </div>
+)
 
-  &[role="button"] {
-    cursor: pointer;
-  }
-`
+export const TableHeader = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <Row
+    className={cn('border-t-0 bg-[linear-gradient(0deg,var(--ks-primary-50)_0%,var(--ks-primary-20)_100%)]', className)}
+    {...rest}
+  >
+    {children}
+  </Row>
+)
 
-export const TableHeader = styled(Row)`
-  border-top: none;
-  background: linear-gradient(
-    0deg,
-    ${({ theme }) => transparentize(0.5, theme.primary)} 0%,
-    ${({ theme }) => transparentize(0.8, theme.primary)} 100%
-  );
-`
-export const TableRow = styled(Row)``
+export const TableRow = Row
 
-export const HeaderCell = styled.span<{ textAlign?: 'left' | 'center' | 'right' }>`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 36px;
-  color: ${({ theme }) => theme.text};
-  text-align: ${({ textAlign }) => textAlign || 'left'};
-`
+export const HeaderCell = ({
+  children,
+  className,
+  textAlign,
+  ...rest
+}: React.HTMLAttributes<HTMLSpanElement> & { textAlign?: 'left' | 'center' | 'right' }) => (
+  <span
+    className={cn(
+      'text-base font-medium leading-9 text-text',
+      textAlign === 'center' && 'text-center',
+      textAlign === 'right' && 'text-right',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </span>
+)

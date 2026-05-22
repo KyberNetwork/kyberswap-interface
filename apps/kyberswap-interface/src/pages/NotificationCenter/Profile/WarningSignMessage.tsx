@@ -1,9 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Row from 'components/Row'
@@ -14,19 +11,6 @@ import { useSessionInfo } from 'state/authen/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
-const WarningWrapper = styled.div`
-  border-radius: 24px;
-  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 8px 14px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px 14px;
-  `}
-`
 const DOC_URL = 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/profiles'
 const WarningSignMessage = () => {
   const { signIn } = useLogin()
@@ -39,10 +23,10 @@ const WarningSignMessage = () => {
 
   if (pendingAuthentication || !isSigInGuest) return null
   return (
-    <WarningWrapper>
+    <div className="flex items-center gap-5 rounded-3xl bg-subText-20 px-3.5 py-2 max-md:flex-col max-md:gap-2.5 max-md:px-3.5 max-md:py-3">
       <Row style={{ gap: '12px' }}>
         {!upToMedium && <Info color={theme.subText} size={18} style={{ minWidth: '18px' }} />}
-        <Text fontSize={'12px'} lineHeight={'16px'}>
+        <span className="text-xs leading-4">
           <Trans>
             You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will
             allow us to offer you a better experience.
@@ -55,7 +39,7 @@ const WarningSignMessage = () => {
               ''
             )}
           </Trans>
-        </Text>
+        </span>
       </Row>
       <Row justify="space-between" width={upToMedium ? '100%' : 'fit-content'}>
         {upToMedium && (
@@ -67,7 +51,7 @@ const WarningSignMessage = () => {
           <Trans>Sign-in</Trans>
         </ButtonPrimary>
       </Row>
-    </WarningWrapper>
+    </div>
   )
 }
 export default WarningSignMessage

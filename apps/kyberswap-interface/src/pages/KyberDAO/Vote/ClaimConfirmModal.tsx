@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
@@ -13,31 +11,6 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
 import KNCLogo from '../kncLogo'
 
-const Wrapper = styled.div`
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`
-
-const AddressWrapper = styled.div`
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  padding: 10px 12px;
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  ${({ theme }) => css`
-    background-color: ${theme.buttonBlack};
-    color: ${theme.subText};
-    :disabled {
-      color: ${theme.border};
-    }
-  `}
-`
-
 export default function ClaimConfirmModal({ amount, onConfirmClaim }: { amount: string; onConfirmClaim: () => void }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -45,31 +18,31 @@ export default function ClaimConfirmModal({ amount, onConfirmClaim }: { amount: 
   const toggleModal = useToggleModal(ApplicationModal.KYBER_DAO_CLAIM)
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal}>
-      <Wrapper>
+      <div className="flex flex-col gap-5 p-6">
         <RowBetween>
           <AutoRow gap="2px">
-            <Text fontSize={20}>
+            <span className="text-xl">
               <Trans>Claim your KNC rewards</Trans>
-            </Text>
+            </span>
           </AutoRow>
-          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleModal}>
+          <div role="button" onClick={toggleModal} className="flex cursor-pointer">
             <X onClick={toggleModal} size={20} color={theme.subText} />
-          </Flex>
+          </div>
         </RowBetween>
-        <AddressWrapper>
-          <Text fontSize={12}>
+        <div className="flex flex-col gap-3.5 rounded-lg border-0 bg-buttonBlack px-3 py-2.5 text-sm text-subText outline-none">
+          <span className="text-xs">
             <Trans>Your wallet address</Trans>
-          </Text>
-          <Text color={theme.border}>{account}</Text>
-        </AddressWrapper>
-        <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.text}>
+          </span>
+          <span className="text-border">{account}</span>
+        </div>
+        <span className="text-base font-normal leading-6 text-text">
           <Trans>If your wallet is eligible, you will be able to claim your reward below:</Trans>
-        </Text>
+        </span>
         <RowFit gap="10px">
-          <KNCLogo size={28} /> <Text fontSize={32}>{amount} KNC</Text>
+          <KNCLogo size={28} /> <span className="text-[32px]">{amount} KNC</span>
         </RowFit>
         <ButtonPrimary onClick={onConfirmClaim}>Claim</ButtonPrimary>
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

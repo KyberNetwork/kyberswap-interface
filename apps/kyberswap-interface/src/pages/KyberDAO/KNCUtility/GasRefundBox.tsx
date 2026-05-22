@@ -208,11 +208,7 @@ export default function GasRefundBox() {
               <Text fontSize={12} fontWeight={500} lineHeight="16px" as="span">
                 <Trans>
                   Available to claim in{' '}
-                  <TimerCountdown
-                    endTime={nextCycleStartTime}
-                    maxLength={2}
-                    sx={{ display: 'inline-flex !important' }}
-                  />
+                  <TimerCountdown endTime={nextCycleStartTime} maxLength={2} style={{ display: 'inline-flex' }} />
                 </Trans>
               </Text>
             ) : null}

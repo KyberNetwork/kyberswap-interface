@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ReactNode } from 'react'
-import styled, { CSSProperties } from 'styled-components'
+import { CSSProperties, ReactNode } from 'react'
 
 import { TokenLogoWithChain, TokenLogoWithShadow } from 'components/Logo'
 import TokenLogo from 'components/TokenLogo'
@@ -8,12 +7,11 @@ import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem
 import { getTokenLogo } from 'components/WalletPopup/Transactions/helper'
 import useTheme from 'hooks/useTheme'
 
-export const TokenAmountWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-`
+export const TokenAmountWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={`flex items-center gap-1 text-xs ${className ?? ''}`} {...rest}>
+    {children}
+  </div>
+)
 
 const DeltaTokenAmount = ({
   symbol,

@@ -1,8 +1,6 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMemo, useState } from 'react'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import AddTokenToMetaMask from 'components/AddToMetamask'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
@@ -12,55 +10,34 @@ import Loader from 'components/Loader'
 import { RowBetween, RowFit } from 'components/Row'
 import { getMarketTokenInfo } from 'components/swapv2/TokenInfo/utils'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTokenInfo from 'hooks/useTokenInfo'
 import { shortenAddress } from 'utils'
 
-const Wrapper = styled.div`
-  border-radius: 4px;
-  width: 100%;
-  padding: 0 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
-
-const InfoRowLabel = styled.div`
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-`
-
-const InfoRowValue = styled.div`
-  color: ${({ theme }) => theme.text};
-  font-size: 12px;
-  font-weight: 500;
-`
 export default function MarketInfo({ token }: { token: Token | undefined }) {
   const { data: tokenInfo, loading } = useTokenInfo(token)
   const [expand, setExpand] = useState(false)
   const { chainId } = useActiveWeb3React()
-  const theme = useTheme()
   const listData = useMemo(() => getMarketTokenInfo(tokenInfo), [tokenInfo])
 
   return (
-    <Wrapper>
+    <div className="flex w-full flex-col gap-3 rounded-sm px-[26px]">
       {(expand ? listData : listData.slice(0, 3)).map(item => (
         <RowBetween key={item.label}>
-          <InfoRowLabel>{item.label}</InfoRowLabel>
-          <InfoRowValue>{loading ? <Loader size="10px" /> : item.value}</InfoRowValue>
+          <span className="text-xs text-subText">{item.label}</span>
+          <span className="text-xs font-medium text-text">{loading ? <Loader size="10px" /> : item.value}</span>
         </RowBetween>
       ))}
 
       <RowBetween style={{ borderBottom: 'none', paddingBottom: 0 }}>
-        <InfoRowLabel>
+        <span className="text-xs text-subText">
           <Trans>Contract Address</Trans>
-        </InfoRowLabel>
+        </span>
 
         <RowFit gap="4px">
           {token ? (
             <>
               <CurrencyLogo currency={token} size="16px" />
-              <InfoRowValue>{shortenAddress(chainId, token.address, 3)}</InfoRowValue>
+              <span className="text-xs font-medium text-text">{shortenAddress(chainId, token.address, 3)}</span>
               <CopyHelper toCopy={token.address} />
               <AddTokenToMetaMask token={token} />
             </>
@@ -70,21 +47,12 @@ export default function MarketInfo({ token }: { token: Token | undefined }) {
         </RowFit>
       </RowBetween>
 
-      <Flex
-        sx={{
-          alignItems: 'center',
-          gap: '2px',
-          cursor: 'pointer',
-          justifyContent: 'center',
-          fontSize: '12px',
-          fontWeight: '500',
-          height: '20px',
-        }}
-        color={theme.primary}
+      <div
         onClick={() => setExpand(!expand)}
+        className="flex h-5 cursor-pointer items-center justify-center gap-0.5 text-xs font-medium text-primary"
       >
         {!expand ? <Trans>View more</Trans> : <Trans>View less</Trans>} <DropdownArrowIcon rotate={expand} />
-      </Flex>
-    </Wrapper>
+      </div>
+    </div>
   )
 }

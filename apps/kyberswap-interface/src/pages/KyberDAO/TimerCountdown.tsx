@@ -1,21 +1,15 @@
-import { transparentize } from 'polished'
-import { useEffect, useState } from 'react'
+import { CSSProperties, useEffect, useState } from 'react'
 import { Clock } from 'react-feather'
-import { SxStyleProp, Text } from 'rebass'
-import { useTheme } from 'styled-components'
-
-import { RowFit } from 'components/Row'
 
 export default function TimerCountdown({
   endTime,
   maxLength = Number.MAX_SAFE_INTEGER,
-  sx,
+  style,
 }: {
   endTime: number
   maxLength?: number
-  sx?: SxStyleProp
+  style?: CSSProperties
 }) {
-  const theme = useTheme()
   const [timeString, setTimeString] = useState<string>('--')
 
   useEffect(() => {
@@ -33,7 +27,7 @@ export default function TimerCountdown({
       ]
 
       const texts: string[] = []
-      let hideZero = true // hide leading zero, e.g: 0 days 0h 10min -> 10min
+      let hideZero = true
       for (let i = 0, count = 0; i < levels.length && count < maxLength; i++) {
         if (levels[i][0] === 0 && hideZero) {
           continue
@@ -54,18 +48,11 @@ export default function TimerCountdown({
   }, [endTime, maxLength])
 
   return (
-    <RowFit
-      backgroundColor={transparentize(0.8, theme.primary)}
-      color={theme.primary}
-      padding="3px 8px"
-      margin="0px 4px"
-      style={{ borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}
-      sx={sx as Record<string, unknown> | undefined}
+    <div
+      style={style}
+      className="mx-1 flex w-fit flex-row flex-nowrap items-center gap-1 rounded-lg bg-primary-20 px-2 py-[3px] text-primary"
     >
-      <Clock size="12px" />{' '}
-      <Text fontSize="12px" lineHeight="12px">
-        {timeString}
-      </Text>
-    </RowFit>
+      <Clock size="12px" /> <span className="text-xs leading-3">{timeString}</span>
+    </div>
   )
 }

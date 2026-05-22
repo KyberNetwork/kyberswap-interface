@@ -1,25 +1,11 @@
 import { Trans } from '@lingui/macro'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
-const Wrapper = styled.div`
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`
-const TextWrapper = styled(Text)`
-  & b {
-    font-weight: 500;
-    color: ${({ theme }) => theme.text};
-  }
-`
 export default function VoteConfirmModal({
   isShow,
   toggle,
@@ -36,24 +22,24 @@ export default function VoteConfirmModal({
   const theme = useTheme()
   return (
     <Modal isOpen={isShow} onDismiss={toggle}>
-      <Wrapper>
+      <div className="flex flex-col gap-5 p-5">
         <RowBetween>
           <AutoRow gap="2px">
-            <Text fontSize={20}>
+            <span className="text-xl">
               <Trans>Vote</Trans>
-            </Text>
+            </span>
           </AutoRow>
-          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggle}>
+          <div role="button" onClick={toggle} className="flex cursor-pointer">
             <X onClick={toggle} size={20} color={theme.subText} />
-          </Flex>
+          </div>
         </RowBetween>
-        <TextWrapper fontSize={16} lineHeight="24px" color={theme.subText}>
+        <span className="text-base leading-6 text-subText [&_b]:font-medium [&_b]:text-text">
           <Trans>
             You are voting for <b>{options}</b> on <b>{title}</b> with your KIP voting power
           </Trans>
-        </TextWrapper>
+        </span>
         <ButtonPrimary onClick={onVoteConfirm}>Vote</ButtonPrimary>
-      </Wrapper>
+      </div>
     </Modal>
   )
 }
