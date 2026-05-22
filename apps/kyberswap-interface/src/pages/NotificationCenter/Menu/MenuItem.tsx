@@ -1,7 +1,5 @@
-import { Fragment, useState } from 'react'
+import { CSSProperties, Fragment, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Flex } from 'rebass'
-import styled, { CSSProperties } from 'styled-components'
 
 import { formatNumberOfUnread } from 'components/Announcement/helper'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
@@ -12,58 +10,7 @@ import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MenuItemType, Unread } from 'pages/NotificationCenter/Menu'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-
-const IconWrapper = styled.div`
-  height: 16px;
-  flex: 0 0 16px;
-  justify-content: center;
-  align-items: center;
-`
-
-const Label = styled.span`
-  font-weight: 500;
-  font-size: 14px;
-  overflow-wrap: break-word;
-`
-
-const Badge = styled.div`
-  padding: 2px 4px;
-  border-radius: 30px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1;
-  background: ${({ theme }) => theme.subText};
-  color: ${({ theme }) => theme.textReverse};
-`
-
-const StyledLink = styled(Link)<{ $isChildren?: boolean; $expand?: boolean; $isFirstParent: boolean }>`
-  border-top: ${({ theme, $isChildren, $isFirstParent }) =>
-    $isChildren || $isFirstParent ? 'none' : `1px solid ${theme.border}`};
-  border-bottom: ${({ theme, $isChildren, $expand }) =>
-    $isChildren || !$expand ? 'none' : `1px solid ${theme.border}`};
-`
-
-type WrapperProps = {
-  $active: boolean
-}
-const Wrapper = styled.div.attrs<WrapperProps>(props => ({
-  'data-active': props.$active,
-}))<WrapperProps>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: ${({ theme }) => theme.subText};
-  padding: 16px 0;
-  cursor: pointer;
-
-  &[data-active='true'] {
-    color: ${({ theme }) => theme.primary};
-
-    ${Badge} {
-      background-color: ${({ theme }) => theme.primary};
-    }
-  }
-`
+import { cn } from 'utils/cn'
 
 type Props = {
   isMobile?: boolean
@@ -105,30 +52,38 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
   const isFirstParent = Boolean(!isChildren && index === 0)
   return (
     <>
-      <StyledLink
-        $isFirstParent={isFirstParent}
-        $expand={expand}
+      <Link
         to={onClick ? '#' : path}
         onClick={onClickMenu}
-        $isChildren={isChildren}
+        className={cn(
+          'block',
+          isChildren || isFirstParent ? 'border-t-0' : 'border-t border-solid border-border',
+          isChildren || !expand ? 'border-b-0' : 'border-b border-solid border-border',
+        )}
       >
-        <Wrapper $active={isActive} style={style}>
-          <Flex
-            sx={{
-              flex: '1 1 0',
-              alignItems: 'center',
-              color: isActive ? theme.primary : theme.subText,
-              gap: '8px',
-            }}
-          >
-            <IconWrapper>{icon}</IconWrapper>
-            <Label>{title}</Label>
-          </Flex>
+        <div
+          data-active={isActive}
+          style={style}
+          className="flex cursor-pointer items-center gap-2 py-4 text-subText data-[active=true]:text-primary"
+        >
+          <div className="flex flex-1 items-center gap-2" style={{ color: isActive ? theme.primary : theme.subText }}>
+            <div className="flex h-4 flex-[0_0_16px] items-center justify-center">{icon}</div>
+            <span className="break-words text-sm font-medium">{title}</span>
+          </div>
 
-          {totalUnread ? <Badge>{formatNumberOfUnread(totalUnread)}</Badge> : null}
+          {totalUnread ? (
+            <div
+              className={cn(
+                'rounded-[30px] px-1 py-0.5 text-xs font-medium leading-none text-textReverse',
+                isActive ? 'bg-primary' : 'bg-subText',
+              )}
+            >
+              {formatNumberOfUnread(totalUnread)}
+            </div>
+          ) : null}
           {canShowExpand && <DropdownArrowIcon rotate={expand} />}
-        </Wrapper>
-      </StyledLink>
+        </div>
+      </Link>
       {canShowListChildren && (
         <Column style={{ padding: '8px 0', marginLeft: '24px' }}>
           {childs?.map((el, i) => {

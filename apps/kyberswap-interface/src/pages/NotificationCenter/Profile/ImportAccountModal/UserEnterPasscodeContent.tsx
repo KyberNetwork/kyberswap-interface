@@ -1,8 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useState } from 'react'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
@@ -15,21 +13,7 @@ import { ExternalLink } from 'theme'
 
 import { Label } from '../ExportAccountModal/styled'
 
-const ButtonNext = styled(ButtonPrimary)`
-  flex: 1;
-  height: 36px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
-`
-
-const ButtonCancel = styled(ButtonExport)`
-  flex: 1;
-  height: 36px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
-`
+const BTN_CLASS = 'h-9 flex-1 text-sm font-medium leading-5'
 
 type Props = {
   dismissModal: () => void
@@ -57,21 +41,9 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
   }
 
   return (
-    <Flex
-      sx={{
-        width: '100%',
-        gap: '16px',
-        flexDirection: 'column',
-      }}
-    >
+    <div className="flex w-full flex-col gap-4">
       <div id="reader" style={{ display: 'none' }}></div>
-      <Text
-        sx={{
-          fontWeight: 400,
-          fontSize: '14px',
-          lineHeight: '20px',
-        }}
-      >
+      <span className="text-sm font-normal leading-5">
         <Trans>
           You can keep your information synced across all of your devices by importing your profile. Learn more about
           profiles{' '}
@@ -80,14 +52,9 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           </ExternalLink>
           .
         </Trans>
-      </Text>
+      </span>
 
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          gap: '8px',
-        }}
-      >
+      <div className="flex flex-col gap-2">
         <Label>
           <Trans>Your passcode</Trans>
         </Label>
@@ -100,14 +67,9 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           onChange={e => setPasscode(e.target.value)}
           placeholder="Enter your passcode"
         />
-      </Flex>
+      </div>
 
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          gap: '8px',
-        }}
-      >
+      <div className="flex flex-col gap-2">
         <Label>
           <Trans>Your import token</Trans>
         </Label>
@@ -118,7 +80,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           onChange={e => setImportToken(e.target.value)}
           placeholder={t`Enter your Code`}
         />
-      </Flex>
+      </div>
 
       <FileInput onImgChange={handleFileChange} image width="100%">
         <ButtonEmpty
@@ -135,27 +97,21 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           <Trans>Or upload QR Code</Trans>
         </ButtonEmpty>
       </FileInput>
-      <Flex
-        width="100%"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{
-          gap: '16px',
-        }}
-      >
-        <ButtonCancel onClick={dismissModal} disabled={loading}>
+      <div className="flex w-full items-center justify-between gap-4">
+        <ButtonExport className={BTN_CLASS} onClick={dismissModal} disabled={loading}>
           Cancel
-        </ButtonCancel>
-        <ButtonNext
+        </ButtonExport>
+        <ButtonPrimary
+          className={BTN_CLASS}
           disabled={!passcode || passcode.length < 6 || !importToken || loading}
           onClick={() => {
             onImportToken({ passcode, importToken })
           }}
         >
           {loading ? <Trans>Importing...</Trans> : <Trans>Import</Trans>}
-        </ButtonNext>
-      </Flex>
-    </Flex>
+        </ButtonPrimary>
+      </div>
+    </div>
   )
 }
 

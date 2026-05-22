@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Input from 'components/Input'
@@ -11,21 +9,7 @@ import { ExternalLink } from 'theme'
 
 import { Label } from './styled'
 
-const ButtonNext = styled(ButtonPrimary)`
-  flex: 1;
-  height: 36px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
-`
-
-const ButtonCancel = styled(ButtonExport)`
-  flex: 1;
-  height: 36px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
-`
+const BTN_CLASS = 'h-9 flex-1 text-sm font-medium leading-5'
 
 type Props = {
   dismissModal: () => void
@@ -36,20 +20,8 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
   const theme = useTheme()
 
   return (
-    <Flex
-      sx={{
-        width: '100%',
-        gap: '16px',
-        flexDirection: 'column',
-      }}
-    >
-      <Text
-        sx={{
-          fontWeight: 400,
-          fontSize: '14px',
-          lineHeight: '20px',
-        }}
-      >
+    <div className="flex w-full flex-col gap-4">
+      <span className="text-sm font-normal leading-5">
         <Trans>
           Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about
           profile{' '}
@@ -58,23 +30,12 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
           </ExternalLink>
           .
         </Trans>
-      </Text>
-      <Text
-        sx={{
-          fontWeight: 400,
-          fontSize: '14px',
-          lineHeight: '20px',
-        }}
-      >
+      </span>
+      <span className="text-sm font-normal leading-5">
         <Trans>First, you will need to create a passcode</Trans>
-      </Text>
+      </span>
 
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          gap: '8px',
-        }}
-      >
+      <div className="flex flex-col gap-2">
         <Label>
           <Trans>Your passcode</Trans>
         </Label>
@@ -88,37 +49,26 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
           placeholder="Enter your passcode"
         />
 
-        <Text
-          sx={{
-            fontWeight: 400,
-            fontSize: '12px',
-            lineHeight: '16px',
-            fontStyle: 'italic',
-          }}
-        >
+        <span className="text-xs font-normal italic leading-4">
           <Trans>Your passcode must be at least 6 characters long</Trans>
-        </Text>
-      </Flex>
+        </span>
+      </div>
 
-      <Flex
-        width="100%"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{
-          gap: '16px',
-        }}
-      >
-        <ButtonCancel onClick={dismissModal}>Cancel</ButtonCancel>
-        <ButtonNext
+      <div className="flex w-full items-center justify-between gap-4">
+        <ButtonExport className={BTN_CLASS} onClick={dismissModal}>
+          Cancel
+        </ButtonExport>
+        <ButtonPrimary
+          className={BTN_CLASS}
           disabled={!passcode || passcode.length < 6}
           onClick={() => {
             onEnterPasscode(passcode)
           }}
         >
           <Trans>Next</Trans>
-        </ButtonNext>
-      </Flex>
-    </Flex>
+        </ButtonPrimary>
+      </div>
+    </div>
   )
 }
 

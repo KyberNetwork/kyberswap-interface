@@ -2,55 +2,13 @@ import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useGetAlertStatsQuery } from 'services/priceAlert'
-import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
 import { ConfirmAlertModalData, PROFILE_MANAGE_ROUTES, PriceAlertStat } from 'pages/NotificationCenter/const'
 
 import ConfirmModal from './ConfirmModal'
 import CreateAlertForm from './CreateAlertForm'
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 0 24px;
-  padding-bottom: 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0;
-    padding-bottom: 16px;
-  `}
-`
-
-const Header = styled.div`
-  width: fit-content;
-  height: 60px;
-
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-
-  transform: translateX(-4px);
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding-left: 16px;
-    padding-right: 16px;
-  `}
-`
-
-const Headline = styled.div`
-  font-size: 12px;
-  line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-  border-top: 1px solid ${({ theme }) => theme.border};
-  padding-top: 12px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding-left: 16px;
-    padding-right: 16px;
-  `}
-`
 
 export default function CreateAlert() {
   const [modalData, setModalData] = useState<ConfirmAlertModalData>()
@@ -68,31 +26,30 @@ export default function CreateAlert() {
   }
 
   return (
-    <Wrapper>
-      <Flex
-        sx={{
-          width: '100%',
-          flexDirection: 'column',
-        }}
-      >
-        <Header onClick={goBack} role="button">
+    <div className="flex flex-col gap-4 px-6 pb-4 max-md:px-0 max-md:pb-4">
+      <div className="flex w-full flex-col">
+        <div
+          onClick={goBack}
+          role="button"
+          className="flex h-[60px] w-fit -translate-x-1 cursor-pointer items-center max-md:px-4"
+        >
           <ChevronLeft size={20} />
-          <Text fontWeight={'500'} fontSize="14px">
+          <span className="text-sm font-medium">
             <Trans>Create Alert</Trans>
-          </Text>
-        </Header>
+          </span>
+        </div>
 
-        <Headline>
+        <div className="border-t border-solid border-border pt-3 text-xs leading-4 text-subText max-md:px-4">
           <Trans>
             We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the
             price alert is triggered, we will send you a notification
           </Trans>
-        </Headline>
-      </Flex>
+        </div>
+      </div>
 
       <CreateAlertForm showModalConfirm={showModalConfirm} priceAlertStat={priceAlertStat} />
 
       {modalData && <ConfirmModal data={modalData} onDismiss={hideModalConfirm} priceAlertStat={priceAlertStat} />}
-    </Wrapper>
+    </div>
   )
 }

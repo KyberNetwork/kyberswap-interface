@@ -1,54 +1,43 @@
 import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { MEDIA_WIDTHS } from 'theme'
 
 import { ItemWrapper } from './OrderItem'
 
-const Header = styled(ItemWrapper)`
-  background-color: ${({ theme }) => theme.tableHeader};
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  font-weight: 500;
-  padding: 16px 12px;
-  border-bottom: none;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding-left: 16px;
-  `};
-`
-
 const TableHeader = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <Header>
+    <ItemWrapper
+      className="border-b-0 bg-tableHeader px-3 py-4 text-xs font-medium text-subText max-sm:pl-4"
+      hasBorder={false}
+    >
       {!upToSmall ? (
         <>
-          <Flex alignItems={'center'} style={{ gap: 10 }}>
-            <Text>
+          <div className="flex items-center gap-2.5">
+            <span>
               <Trans>LIMIT ORDER(S)</Trans>
-            </Text>
-          </Flex>
-          <Text className="rate">
+            </span>
+          </div>
+          <span className="rate">
             <Trans>RATE</Trans>
-          </Text>
-          <Text>
+          </span>
+          <span>
             <Trans>CREATED | EXPIRY</Trans>
-          </Text>
-          <Text>
+          </span>
+          <span>
             <Trans> FILLED % | STATUS</Trans>
-          </Text>
-          <Text textAlign={'right'}>
+          </span>
+          <span className="text-right">
             <Trans>ACTION</Trans>
-          </Text>
+          </span>
         </>
       ) : (
-        <Text style={{ whiteSpace: 'nowrap' }}>
+        <span className="whitespace-nowrap">
           <Trans>LIMIT ORDER(S)</Trans>
-        </Text>
+        </span>
       )}
-    </Header>
+    </ItemWrapper>
   )
 }
 

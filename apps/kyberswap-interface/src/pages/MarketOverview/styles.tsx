@@ -1,132 +1,128 @@
-import { rgba } from 'polished'
-import { Flex } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import { cn } from 'utils/cn'
 
-export const TableWrapper = styled.div`
-  background: ${({ theme }) => rgba(theme.background, 0.8)};
-  border-radius: 16px;
-  overflow: hidden;
+export const TableWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('bg-background/80 overflow-hidden rounded-2xl max-md:-mx-4', className)} {...rest}>
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: 0 -16px;
-  `}
-`
+export const ContentWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('p-6 max-md:p-4', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const ContentWrapper = styled.div`
-  padding: 24px;
+export const Tag = ({
+  children,
+  className,
+  active,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { active: boolean }) => (
+  <div
+    className={cn(
+      'cursor-pointer rounded-xl border border-solid px-4 py-2 text-sm',
+      active
+        ? 'border-primary bg-primary-20 font-medium text-text'
+        : 'border-transparent bg-tableHeader font-normal text-subText',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 16px;
-  `}
-`
+export const TableHeader = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('grid grid-cols-[1fr_2fr_1.2fr_100px] items-center', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Tag = styled.div<{ active: boolean }>`
-  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.2) : theme.tableHeader)};
-  border: 1px solid ${({ theme, active }) => (active ? theme.primary : 'transparent')};
-  border-radius: 12px;
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
-  font-weight: ${({ active }) => (active ? '500' : '400')};
-`
+export const TableRow = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'grid cursor-pointer grid-cols-[1fr_0.5fr_0.5fr_0.5fr_0.5fr_0.6fr_0.6fr_100px] items-center border-b-0 hover:bg-buttonBlack max-md:grid-cols-[1fr_1fr_1fr]',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr 1.2fr 100px;
-  align-items: center;
-`
+export const SubHeaderRow = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <TableRow className={cn('text-sm text-subText hover:bg-transparent', className)} {...rest}>
+    {children}
+  </TableRow>
+)
 
-export const TableRow = styled(TableHeader)`
-  grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.6fr 100px;
-  border-bottom: none;
-  cursor: pointer;
+export const Tabs = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-center gap-3 py-4 text-subText', className)} {...rest}>
+    {children}
+  </div>
+)
 
-  &:hover {
-    background: ${({ theme }) => theme.buttonBlack};
-  }
+export const Tab = ({
+  children,
+  className,
+  active,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { active: boolean }) => (
+  <div
+    className={cn('cursor-pointer text-sm font-medium', active ? 'text-primary' : 'text-subText', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr 1fr 1fr;
-  `}
-`
+export const ContentChangable = ({
+  children,
+  className,
+  animate,
+  up,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { animate: boolean; up: boolean }) => (
+  <div
+    className={cn(
+      'flex items-center justify-end',
+      animate && (up ? '[animation:ks-pulse-green_0.6s]' : '[animation:ks-pulse-red_0.6s]'),
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const SubHeaderRow = styled(TableRow)`
-  font-size: 14px;
-  color: ${({ theme }) => theme.subText};
-  &:hover {
-    background: none;
-  }
-`
+export const PriceSelectionField = ({
+  children,
+  className,
+  active,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { active: boolean }) => (
+  <div
+    className={cn('cursor-pointer px-3 py-1.5 text-center text-sm text-text', active && 'bg-primary-20', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const Tabs = styled.div`
-  padding: 1rem 0 1rem;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: ${({ theme }) => theme.subText};
-`
-
-export const Tab = styled.div<{ active: boolean }>`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  cursor: pointer;
-`
-
-const pulse = keyframes`
-  0% {
-    color: #31CB9E;
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    color: #ffffff;
-    opacity: 1;
-  }
-`
-
-const pulseRed = keyframes`
-  0% {
-    color: #FF6871;
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    color: #ffffff;
-    opacity: 1;
-  }
-`
-
-export const ContentChangable = styled.div<{ animate: boolean; up: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-
-  ${({ animate, up }) =>
-    animate &&
-    css`
-      animation: ${up ? pulse : pulseRed} 0.6s;
-    `}
-`
-
-export const PriceSelectionField = styled.div<{ active: boolean }>`
-  padding: 6px 12px;
-  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.2) : undefined)};
-  font-size: 14px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-`
-
-export const TabItem = styled(Flex)<{ active?: boolean }>`
-  padding: 4px 8px;
-  align-items: center;
-  border-radius: 999px;
-  background: ${({ theme, active }) => (active ? theme.tabActive : 'transparent')};
-  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
-`
+export const TabItem = ({
+  children,
+  className,
+  active,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { active?: boolean }) => (
+  <div
+    className={cn(
+      'flex items-center rounded-full px-2 py-1',
+      active ? 'bg-tabActive text-text' : 'bg-transparent text-subText',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)

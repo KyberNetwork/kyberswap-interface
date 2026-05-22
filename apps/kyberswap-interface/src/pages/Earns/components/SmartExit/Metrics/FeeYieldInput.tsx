@@ -1,8 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import { useTheme } from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
+import useTheme from 'hooks/useTheme'
 import { InlineHighlightWrapper } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import { FEE_YIELD_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomInput, CustomOption } from 'pages/Earns/components/SmartExit/styles'
@@ -23,42 +22,34 @@ export default function FeeYieldInput({
 
   return (
     <>
-      <Flex alignItems="center" sx={{ gap: '1rem' }} justifyContent="space-between">
-        <Flex alignItems="center" sx={{ gap: '4px' }}>
-          <Text>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-1">
+          <span>
             <Trans>Exit when fee yield</Trans>
-          </Text>
+          </span>
           <InfoHelper
             text={
-              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+              <div className="text-xs leading-4 text-subText">
                 <Trans>
                   Based on the amount of fee tokens your position has earned compared with your initial deposited token
                   amounts.
                 </Trans>
                 <br />
                 <Trans>
-                  This calculation is{' '}
-                  <Text as="span" fontWeight={600} color={theme.text}>
-                    token-based
-                  </Text>
-                  ,{' '}
-                  <Text as="span" fontWeight={600} color={theme.text}>
-                    not USD-based
-                  </Text>
-                  , and does not change with price fluctuations.
+                  This calculation is <span className="font-semibold text-text">token-based</span>,{' '}
+                  <span className="font-semibold text-text">not USD-based</span>, and does not change with price
+                  fluctuations.
                 </Trans>
                 <br />
-                <Text
-                  as="a"
+                <a
                   href="https://docs.kyberswap.com/kyberswap-solutions/smart-exit/feature-capabilities#id-1.-fee-yield-condition"
                   target="_blank"
                   rel="noopener noreferrer"
-                  color={theme.primary}
-                  sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                  className="text-primary no-underline hover:underline"
                 >
                   <Trans>Details</Trans>
-                </Text>
-              </Text>
+                </a>
+              </div>
             }
             placement="bottom"
             color={theme.text}
@@ -66,18 +57,16 @@ export default function FeeYieldInput({
             size={14}
             style={{ marginLeft: 0 }}
           />
-          <Text> ≥</Text>
-        </Flex>
+          <span> ≥</span>
+        </div>
         <InlineHighlightWrapper isHighlighted={isHighlighted}>
-          <Flex sx={{ position: 'relative' }} flex={1}>
+          <div className="relative flex flex-1">
             <CustomInput
               value={feeYieldCondition}
               onChange={e => {
                 const value = e.target.value
-                // Only allow numbers and decimal point
                 if (/^\d*\.?\d*$/.test(value)) {
                   const numValue = parseFloat(value)
-                  // Allow 0-100%
                   if (value === '' || (!Number.isNaN(numValue) && numValue >= 0 && numValue <= 100)) {
                     setMetric({ ...metric, condition: value })
                   }
@@ -85,19 +74,11 @@ export default function FeeYieldInput({
               }}
               placeholder="Fee yield"
             />
-            <Text
-              sx={{
-                top: '8px',
-                right: '8px',
-                position: 'absolute',
-              }}
-            >
-              %
-            </Text>
-          </Flex>
+            <span className="absolute right-2 top-2">%</span>
+          </div>
         </InlineHighlightWrapper>
-      </Flex>
-      <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
+      </div>
+      <div className="flex justify-end gap-1">
         {FEE_YIELD_PRESETS.map(item => {
           const isSelected = metric.condition === item.toString()
 
@@ -111,7 +92,7 @@ export default function FeeYieldInput({
             </CustomOption>
           )
         })}
-      </Flex>
+      </div>
     </>
   )
 }

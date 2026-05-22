@@ -658,6 +658,34 @@
     }
   }
 
+  /* MarketOverview / RefetchIndicator price pulse (green for up, red for down). */
+  @keyframes ks-pulse-green {
+    0% {
+      color: #31cb9e;
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      color: #ffffff;
+      opacity: 1;
+    }
+  }
+  @keyframes ks-pulse-red {
+    0% {
+      color: #ff6871;
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      color: #ffffff;
+      opacity: 1;
+    }
+  }
+
   /* MenuFlyout arrow on the top edge (default desktop) and bottom edge (upToLarge). */
   .ks-menu-flyout-arrow::after {
     content: '';
@@ -732,6 +760,8 @@
   :root {
     /* base */
     --ks-white: #ffffff;
+    --ks-white-04: #ffffff0a;
+    --ks-white-08: #ffffff14;
     --ks-white-60: #ffffff99;
     --ks-white2: #fafafa;
     --ks-black: #000000;
@@ -741,6 +771,10 @@
 
     /* text */
     --ks-text: #ffffff;
+    --ks-text-04: #ffffff0a;
+    --ks-text-08: #ffffff14;
+    --ks-text-12: #ffffff1f;
+    --ks-text-60: #ffffff99;
     --ks-darkText: #222222;
     --ks-textReverse: #222222;
     --ks-subText: #a9a9a9;
@@ -801,6 +835,7 @@
     --ks-red-35: #ff537b59;
     --ks-primary-10: #31cb9e1a;
     --ks-primary-12: #31cb9e1f;
+    --ks-primary-15: #31cb9e26;
     --ks-primary-20: #31cb9e33;
     --ks-primary-25: #31cb9e40;
     --ks-primary-30: #31cb9e4d;

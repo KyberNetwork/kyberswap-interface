@@ -18,6 +18,8 @@ const config: Config = {
         // base
         white: {
           DEFAULT: 'var(--ks-white)',
+          '04': 'var(--ks-white-04)',
+          '08': 'var(--ks-white-08)',
           60: 'var(--ks-white-60)',
         },
         white2: 'var(--ks-white2)',
@@ -29,7 +31,13 @@ const config: Config = {
         },
 
         // text
-        text: 'var(--ks-text)',
+        text: {
+          DEFAULT: 'var(--ks-text)',
+          '04': 'var(--ks-text-04)',
+          '08': 'var(--ks-text-08)',
+          12: 'var(--ks-text-12)',
+          60: 'var(--ks-text-60)',
+        },
         darkText: 'var(--ks-darkText)',
         textReverse: 'var(--ks-textReverse)',
         subText: {
@@ -74,6 +82,7 @@ const config: Config = {
           DEFAULT: 'var(--ks-primary)',
           10: 'var(--ks-primary-10)',
           12: 'var(--ks-primary-12)',
+          15: 'var(--ks-primary-15)',
           20: 'var(--ks-primary-20)',
           25: 'var(--ks-primary-25)',
           30: 'var(--ks-primary-30)',

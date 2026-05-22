@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
+import { CSSProperties } from 'react'
 import { Check } from 'react-feather'
-import styled, { CSSProperties } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Input from 'components/Input'
@@ -8,25 +8,6 @@ import Tooltip from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 
-const CheckIcon = styled(Check)`
-  position: absolute;
-  right: 13px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-`
-const ButtonVerify = styled(ButtonLight)`
-  position: absolute;
-  right: 13px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  font-size: 12px;
-`
-
-const InputWrapper = styled.div`
-  position: relative;
-`
 type Props = {
   onChange: (val: string) => void
   isVerifiedEmail?: boolean
@@ -57,7 +38,7 @@ export function InputEmail({
       width="fit-content"
       containerStyle={style}
     >
-      <InputWrapper style={style}>
+      <div className="relative" style={style}>
         <Input
           color={style?.color}
           style={{ maxHeight: '100%' }}
@@ -69,7 +50,7 @@ export function InputEmail({
         />
 
         {!isVerifiedEmail && value && (
-          <ButtonVerify
+          <ButtonLight
             width={'50px'}
             height={'24px'}
             disabled={hasError || disabled}
@@ -77,12 +58,15 @@ export function InputEmail({
               e.preventDefault()
               showVerifyModal?.()
             }}
+            className="absolute inset-y-0 right-[13px] my-auto text-xs"
           >
             <Trans>Verify</Trans>
-          </ButtonVerify>
+          </ButtonLight>
         )}
-        {isVerifiedEmail && value && !hasError && <CheckIcon color={theme.primary} />}
-      </InputWrapper>
+        {isVerifiedEmail && value && !hasError && (
+          <Check color={theme.primary} className="absolute inset-y-0 right-[13px] my-auto" />
+        )}
+      </div>
     </Tooltip>
   )
 }

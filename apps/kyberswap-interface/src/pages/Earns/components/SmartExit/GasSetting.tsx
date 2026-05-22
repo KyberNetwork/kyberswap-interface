@@ -115,13 +115,8 @@ export default function GasSetting({
           {/* Custom option */}
           <CustomOption
             key="custom"
-            sx={{
-              color: customGasPercent ? theme.primary : undefined,
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
+            className="flex flex-1 items-center gap-1"
+            style={{ color: customGasPercent ? theme.primary : undefined }}
           >
             <Input
               value={customGasPercent}

@@ -1,72 +1,39 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import LocalLoader from 'components/LocalLoader'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
-import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
 import AllPositionLegacy from './AllPositionLegacy'
 import FarmLegacy from './FarmLegacy'
 import PositionLegacy from './PositionLegacy'
 
-const Wrapper = styled.div`
-  border-radius: 24px;
-  background: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => theme.border};
-  padding: 12px 20px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: ${({ theme }) => theme.subText};
-`
+const Notice = ({ isFarm }: { isFarm?: boolean }) => (
+  <div className="rounded-3xl border border-solid border-border bg-background px-5 py-3 text-sm leading-normal text-subText">
+    <Trans>
+      Due to a potential issue with our legacy <span className="text-text">Elastic protocol</span>, we have permanently
+      paused our <span className="text-text">Elastic {isFarm ? 'Farms' : 'Pools'} (Legacy)</span>. If you wish to
+      participate in our {isFarm ? 'farms' : 'pools'}, check out our new and audited{' '}
+      <Link to={isFarm ? '/farms' : '/pools'}>Elastic {isFarm ? 'Farms' : 'Pools'}</Link>.
+    </Trans>
+  </div>
+)
 
-const Warning = styled(Wrapper)`
-  background: ${({ theme }) => rgba(theme.warning, 0.3)};
-  border: none;
-  color: ${({ theme }) => theme.text};
-`
-const Notice = ({ isFarm }: { isFarm?: boolean }) => {
-  const theme = useTheme()
-  return (
-    <Wrapper>
-      <Trans>
-        Due to a potential issue with our legacy{' '}
-        <Text as="span" color={theme.text}>
-          Elastic protocol
-        </Text>
-        , we have permanently paused our{' '}
-        <Text as="span" color={theme.text}>
-          Elastic {isFarm ? 'Farms' : 'Pools'} (Legacy)
-        </Text>
-        . If you wish to participate in our {isFarm ? 'farms' : 'pools'}, check out our new and audited{' '}
-        <Link to={isFarm ? '/farms' : '/pools'}>Elastic {isFarm ? 'Farms' : 'Pools'}</Link>.
-      </Trans>
-    </Wrapper>
-  )
-}
-
-const WarningNotice = () => {
-  const theme = useTheme()
-  return (
-    <Warning>
-      <Trans>
-        Due to a{' '}
-        <ExternalLink href="https://twitter.com/KyberNetwork/status/1647920799557505028?t=3W5CxZULDimB9AgGKFHQ2w&s=19">
-          <Text as="span" color={theme.warning}>
-            potential issue
-          </Text>
-        </ExternalLink>{' '}
-        with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from
-        Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited{' '}
-        <Link to="/pools">{t`Elastic Pools`}</Link> where you can add liquidity normally instead.
-      </Trans>
-    </Warning>
-  )
-}
+const WarningNotice = () => (
+  <div className="rounded-3xl border-0 bg-warning-30 px-5 py-3 text-sm leading-normal text-text">
+    <Trans>
+      Due to a{' '}
+      <ExternalLink href="https://twitter.com/KyberNetwork/status/1647920799557505028?t=3W5CxZULDimB9AgGKFHQ2w&s=19">
+        <span className="text-warning">potential issue</span>
+      </ExternalLink>{' '}
+      with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from Elastic
+      Pools (Legacy). We have fixed all the issues and deployed the new and audited{' '}
+      <Link to="/pools">{t`Elastic Pools`}</Link> where you can add liquidity normally instead.
+    </Trans>
+  </div>
+)
 
 export default function ElasticLegacy({ tab }: { tab: 'farm' | 'position' | 'my_positions' }) {
   const { loading, positions, farmPositions, allPositions } = useElasticLegacy()
@@ -111,10 +78,10 @@ export default function ElasticLegacy({ tab }: { tab: 'farm' | 'position' | 'my_
         ))}
 
       {tab === 'my_positions' && (
-        <Flex flexDirection="column" marginTop="1.5rem">
+        <div className="mt-6 flex flex-col">
           <WarningNotice />
           <AllPositionLegacy positions={[...allPositions, ...farmPositions]} />
-        </Flex>
+        </div>
       )}
     </>
   )

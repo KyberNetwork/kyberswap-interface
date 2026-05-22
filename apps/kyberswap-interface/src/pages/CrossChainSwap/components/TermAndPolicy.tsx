@@ -1,64 +1,44 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { TERM_FILES_PATH } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 
-export const Wrapper = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap}
-  margin: 0;
-  padding: 0;
-  width: 100%;
-`
+export const Wrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('m-0 flex w-full flex-col flex-nowrap p-0', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const UpperSection = styled.div`
-  position: relative;
-  padding: 24px;
-`
+export const UpperSection = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative p-6', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const CloseIcon = styled.div`
-  height: 24px;
-  align-self: flex-end;
-  color: ${({ theme }) => theme.text};
-  cursor: pointer;
+export const CloseIcon = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('h-6 cursor-pointer self-end text-text hover:opacity-60', className)} {...rest}>
+    {children}
+  </div>
+)
 
-  &:hover {
-    opacity: 0.6;
-  }
-`
-
-export const TermAndCondition = styled.div`
-  padding: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.35)};
-  color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary : 'inherit')};
-  accent-color: ${({ theme }) => theme.primary};
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.5)};
-  }
-`
-
-export const ButtonWrapper = styled.div`
-  margin-top: 24px;
-  display: flex;
-  justify-content: center;
-`
+export const TermAndCondition = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex cursor-pointer items-center rounded-2xl bg-buttonBlack-40 p-2 text-xs font-medium leading-4 accent-primary hover:bg-buttonBlack-60',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
 export default function TermAndPolicy({
   isOpen,
@@ -69,7 +49,6 @@ export default function TermAndPolicy({
   onClose: () => void
   onConfirm: () => void
 }) {
-  const theme = useTheme()
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
   return (
@@ -86,7 +65,7 @@ export default function TermAndPolicy({
       <Wrapper>
         <UpperSection>
           <RowBetween marginBottom="26px" gap="20px">
-            <Text>{t`Connect your Wallet`}</Text>
+            <span>{t`Connect your Wallet`}</span>
             <CloseIcon onClick={onClose}>
               <Close />
             </CloseIcon>
@@ -95,11 +74,13 @@ export default function TermAndPolicy({
             <input
               type="checkbox"
               checked={isAcceptedTerm}
-              onChange={() => {}}
+              onChange={() => {
+                // controlled — toggled via parent onClick
+              }}
               data-testid="accept-term"
               style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
             />
-            <Text color={theme.subText}>
+            <span className="text-subText">
               <span>{t`Accept`}</span>{' '}
               <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                 <span>{t`KyberSwap's Terms of Use`}</span>
@@ -109,14 +90,16 @@ export default function TermAndPolicy({
                 <span>{t`Privacy Policy`}</span>
               </ExternalLink>
               {'. '}
-              <Text fontSize={10} as="span">
+              <span className="text-[10px]">
                 {t`Last updated:`} {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}
-              </Text>
-            </Text>
+              </span>
+            </span>
           </TermAndCondition>
-          <ButtonWrapper>
-            <ButtonPrimary width={'120px'} disabled={!isAcceptedTerm} onClick={onConfirm}>{t`Continue`}</ButtonPrimary>
-          </ButtonWrapper>
+          <div className="mt-6 flex justify-center">
+            <ButtonPrimary width={'120px'} disabled={!isAcceptedTerm} onClick={onConfirm}>
+              {t`Continue`}
+            </ButtonPrimary>
+          </div>
         </UpperSection>
       </Wrapper>
     </Modal>
