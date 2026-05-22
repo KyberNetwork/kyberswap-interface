@@ -76,7 +76,11 @@ const PoolExplorer = () => {
     const pools = poolData?.data?.pools || []
     if (!pools.length) return true
 
-    return pools.some(pool => (pool.egUsd || 0) + (pool.merklOpportunity?.rewardsRecord?.total || 0) > 0)
+    return pools.some(pool => {
+      if (pool.egUsd || pool.merklOpportunity?.rewardsRecord?.total) return true
+      if (pool.kemReward?.rewardCfg) return true
+      return false
+    })
   }, [poolData?.data?.pools])
 
   const showPoolPrice = useMemo(() => {

@@ -13,6 +13,27 @@ export enum PAIR_CATEGORY {
   DEFAULT_EMPTY = '', // For Krystal data
 }
 
+export interface KemReward {
+  rewardCfg: Array<{
+    tokenAddress: string
+    amountReward: string | number
+    weightFee: number
+    weightAt: number
+    weightAtFee3: number
+    weightAt3Fee: number
+    weightFeeEg: number
+    tokenInfo?: {
+      address: string
+      symbol: string
+      decimals: number
+      logoURL?: string
+    }
+  }>
+  startTime: number
+  endTime: number
+  egSharingPercentage: number
+}
+
 export interface EarnPool {
   address: string
   earnFee: number
@@ -43,6 +64,7 @@ export interface EarnPool {
   }
   category?: PAIR_CATEGORY
   programs?: Array<ProgramType>
+  kemReward?: KemReward
   merklOpportunity?: MerklOpportunity
   tokens: Array<{
     address: string
