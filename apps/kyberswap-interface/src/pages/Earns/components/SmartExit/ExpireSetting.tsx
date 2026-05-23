@@ -69,13 +69,7 @@ export default function ExpireSetting({
         {openSetting && (
           <SettingMenu>
             <div className="flex items-center justify-between">
-              <TextDashed
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  height: 'fit-content',
-                }}
-              >
+              <TextDashed className="flex h-fit items-center">
                 <MouseoverTooltip
                   placement="right"
                   text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}

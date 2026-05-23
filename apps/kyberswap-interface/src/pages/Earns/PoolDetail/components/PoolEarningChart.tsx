@@ -297,10 +297,10 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
             direction={upToSmall ? 'column' : 'row'}
             gap={upToSmall ? 12 : 20}
             justify="center"
-            sx={{ margin: '0 auto' }}
+            className="mx-auto"
             width={upToSmall ? '100%' : 'fit-content'}
           >
-            <Stack height={breakdownChartSize} position="relative" sx={{ flexShrink: 0 }} width={breakdownChartSize}>
+            <Stack height={breakdownChartSize} position="relative" className="shrink-0" width={breakdownChartSize}>
               <ResponsiveContainer height="100%" width="100%">
                 <PieChart>
                   <Pie
@@ -340,7 +340,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                 align="center"
                 justify="center"
                 position="absolute"
-                sx={{ inset: 0, pointerEvents: 'none' }}
+                className="pointer-events-none inset-0"
                 textAlign="center"
               >
                 <span className="text-sm text-subText">Total Earn</span>

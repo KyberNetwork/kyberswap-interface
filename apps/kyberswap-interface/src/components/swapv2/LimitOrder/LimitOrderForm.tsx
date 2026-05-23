@@ -1022,12 +1022,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
               color={theme.subText}
               fontSize={12}
               fontWeight={500}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                lineHeight: '1',
-                height: 'fit-content',
-              }}
+              className="flex h-fit items-center leading-none"
             >
               <MouseoverTooltip
                 placement="right"

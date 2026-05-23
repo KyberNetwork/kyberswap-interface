@@ -32,11 +32,7 @@ export default function MoreInfo({
       </div>
 
       <div className="mt-4 flex justify-between">
-        <TextDashed
-          color={theme.subText}
-          fontSize={14}
-          sx={{ display: 'flex', alignItems: 'center', height: 'fit-content' }}
-        >
+        <TextDashed color={theme.subText} fontSize={14} className="flex h-fit items-center">
           <MouseoverTooltip
             placement="right"
             text={t`The actual gas cost will be deducted from your outputs when the order executes.`}
@@ -48,11 +44,7 @@ export default function MoreInfo({
       </div>
 
       <div className="mt-4 flex justify-between">
-        <TextDashed
-          color={theme.subText}
-          fontSize={14}
-          sx={{ display: 'flex', alignItems: 'center', height: 'fit-content' }}
-        >
+        <TextDashed color={theme.subText} fontSize={14} className="flex h-fit items-center">
           <MouseoverTooltip
             placement="right"
             text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}

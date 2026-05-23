@@ -74,7 +74,7 @@ export default function GasRefundBox() {
           width="100%"
           flexDirection={upToExtraSmall ? 'column' : 'row'}
           align={upToExtraSmall ? 'start' : 'center'}
-          sx={{ gap: '16px' }}
+          className="gap-4"
         >
           <div className="flex">
             <TextDashed>
@@ -122,7 +122,7 @@ export default function GasRefundBox() {
             </span>
           )}
         </RowBetween>
-        <RowBetween width="100%" flexDirection="row" sx={{ gap: '16px' }} align="end">
+        <RowBetween width="100%" flexDirection="row" className="gap-4" align="end">
           <div className="flex flex-col gap-2">
             <span className="flex items-center text-xl font-medium leading-6 text-text">
               {account ? formattedNum(reward?.knc.toString() || '0') : '--'} KNC
@@ -182,7 +182,7 @@ export default function GasRefundBox() {
         </RowBetween>
       </div>
       <hr className="m-0 h-px w-full border-none bg-border" />
-      <RowBetween flexDirection="row" sx={{ gap: '16px' }}>
+      <RowBetween flexDirection="row" className="gap-4">
         <div className="flex flex-col gap-4">
           <TextDashed fontSize={14} lineHeight="20px" fontWeight={500}>
             <MouseoverTooltip

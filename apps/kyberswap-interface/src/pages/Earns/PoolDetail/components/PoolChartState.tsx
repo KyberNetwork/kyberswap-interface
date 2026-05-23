@@ -285,7 +285,7 @@ const EarningChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: PoolChartSkelet
         direction={isCompact ? 'column' : 'row'}
         gap={isCompact ? 12 : 20}
         justify="center"
-        sx={{ margin: '0 auto' }}
+        className="mx-auto"
         width={isCompact ? '100%' : 'fit-content'}
       >
         <Skeleton circle height={breakdownChartSize} width={breakdownChartSize} />

@@ -248,7 +248,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
       </HStack>
 
       {isExpanded && (
-        <Stack p={16} sx={{ borderTop: `1px solid ${theme.darkBorder}` }}>
+        <Stack p={16} className="border-t border-darkBorder">
           <Stack gap={12} position="relative">
             <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
               <Stack>
