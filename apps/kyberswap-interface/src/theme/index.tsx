@@ -1,14 +1,8 @@
-import { lighten } from 'polished'
-import React from 'react'
-import { Text, TextProps } from 'rebass'
-import styled, {
-  DefaultTheme,
-  ThemeProvider as StyledComponentsThemeProvider,
-  createGlobalStyle,
-  css,
-} from 'styled-components'
+import React, { CSSProperties, HTMLAttributes, useMemo } from 'react'
 
+import useTheme, { ThemeContext } from 'hooks/useTheme'
 import { Colors, colors } from 'theme/color'
+import { cn } from 'utils/cn'
 
 export * from 'theme/components'
 
@@ -22,253 +16,154 @@ export const MEDIA_WIDTHS = {
   upToXXL: 1800,
 }
 
-const mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = (
-  Object.keys(MEDIA_WIDTHS) as (keyof typeof MEDIA_WIDTHS)[]
-).reduce((accumulator, size) => {
-  accumulator[size] = (a: any, b: any, c: any) => css`
-    @media (max-width: ${MEDIA_WIDTHS[size]}px) {
-      ${css(a, b, c)}
-    }
-  `
-  return accumulator
-}, {} as { [width in keyof typeof MEDIA_WIDTHS]: typeof css })
-
-function theme(): DefaultTheme {
-  return {
-    ...colors(),
-
-    grids: {
-      sm: 8,
-      md: 12,
-      lg: 24,
-    },
-
-    // media queries
-    mediaWidth: mediaWidthTemplates,
-
-    // css snippets
-    flexColumnNoWrap: css`
-      display: flex;
-      flex-flow: column nowrap;
-    `,
-    flexRowNoWrap: css`
-      display: flex;
-      flex-flow: row nowrap;
-    `,
-  }
+function theme(): Colors {
+  return colors()
 }
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  return <StyledComponentsThemeProvider theme={theme()}>{children}</StyledComponentsThemeProvider>
+  const value = useMemo(() => theme(), [])
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
 
-const TextWrapper = styled(Text)<{ color: keyof Colors }>`
-  color: ${({ color, theme }) => (theme as any)[color]} !important;
-`
+// Rebass-like Text props accepted by TYPE.* wrappers. `color` accepts either a theme
+// token key (e.g. 'subText') or a CSS color literal (e.g. theme.text → '#ffffff').
+type CSSNumberOrString = string | number
+
+type TextWrapperProps = Omit<HTMLAttributes<HTMLParagraphElement>, 'color'> & {
+  color?: string
+  fontSize?: CSSNumberOrString
+  fontWeight?: CSSNumberOrString
+  fontStyle?: string
+  lineHeight?: CSSNumberOrString
+  lineheight?: CSSNumberOrString // legacy rebass prop spelling (used by TYPE.h3 historically)
+  textAlign?: CSSProperties['textAlign']
+  width?: CSSNumberOrString
+  padding?: CSSNumberOrString
+  margin?: CSSNumberOrString
+  mt?: CSSNumberOrString
+  mb?: CSSNumberOrString
+  ml?: CSSNumberOrString
+  mr?: CSSNumberOrString
+  mx?: CSSNumberOrString
+  my?: CSSNumberOrString
+  marginTop?: CSSNumberOrString
+  marginBottom?: CSSNumberOrString
+  marginLeft?: CSSNumberOrString
+  marginRight?: CSSNumberOrString
+}
+
+function TextWrapper({
+  color,
+  fontSize,
+  fontWeight,
+  fontStyle,
+  lineHeight,
+  lineheight,
+  textAlign,
+  width,
+  padding,
+  margin,
+  mt,
+  mb,
+  ml,
+  mr,
+  mx,
+  my,
+  marginTop,
+  marginBottom,
+  marginLeft,
+  marginRight,
+  className,
+  style,
+  ...rest
+}: TextWrapperProps) {
+  // Resolve color: theme key first, fall back to literal string.
+  const palette = useTheme() as unknown as Record<string, string>
+  const resolvedColor = color ? (palette[color] !== undefined ? palette[color] : color) : undefined
+
+  const mergedStyle: CSSProperties = {
+    ...(resolvedColor ? { color: resolvedColor } : {}),
+    ...(fontSize !== undefined ? { fontSize: typeof fontSize === 'number' ? `${fontSize}px` : fontSize } : {}),
+    ...(fontWeight !== undefined ? { fontWeight } : {}),
+    ...(fontStyle !== undefined ? { fontStyle } : {}),
+    ...(lineHeight !== undefined ? { lineHeight } : {}),
+    ...(lineheight !== undefined ? { lineHeight: lineheight } : {}),
+    ...(textAlign !== undefined ? { textAlign } : {}),
+    ...(width !== undefined ? { width } : {}),
+    ...(padding !== undefined ? { padding } : {}),
+    ...(margin !== undefined ? { margin } : {}),
+    ...(mt !== undefined ? { marginTop: mt } : {}),
+    ...(mb !== undefined ? { marginBottom: mb } : {}),
+    ...(ml !== undefined ? { marginLeft: ml } : {}),
+    ...(mr !== undefined ? { marginRight: mr } : {}),
+    ...(mx !== undefined ? { marginLeft: mx, marginRight: mx } : {}),
+    ...(my !== undefined ? { marginTop: my, marginBottom: my } : {}),
+    ...(marginTop !== undefined ? { marginTop } : {}),
+    ...(marginBottom !== undefined ? { marginBottom } : {}),
+    ...(marginLeft !== undefined ? { marginLeft } : {}),
+    ...(marginRight !== undefined ? { marginRight } : {}),
+    ...style,
+  }
+
+  return <p className={cn('m-0', className)} style={mergedStyle} {...rest} />
+}
 
 export const TYPE = {
-  main(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'subText'} {...props} />
+  main(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="subText" {...props} />
   },
-  link(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'primary'} {...props} />
+  link(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="primary" {...props} />
   },
-  black(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'text'} {...props} />
+  black(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="text" {...props} />
   },
-  white(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'white'} {...props} />
+  white(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="white" {...props} />
   },
-  body(props: TextProps) {
-    return <TextWrapper fontWeight={400} fontSize={16} color={'text'} {...props} />
+  body(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={400} fontSize={16} color="text" {...props} />
   },
-  largeHeader(props: TextProps) {
+  largeHeader(props: TextWrapperProps) {
     return <TextWrapper fontWeight={600} fontSize={24} {...props} />
   },
-  mediumHeader(props: TextProps) {
+  mediumHeader(props: TextWrapperProps) {
     return <TextWrapper fontWeight={500} fontSize={20} {...props} />
   },
-  subHeader(props: TextProps) {
+  subHeader(props: TextWrapperProps) {
     return <TextWrapper fontWeight={400} fontSize={14} {...props} />
   },
-  h3(props: TextProps) {
-    return <TextWrapper fontSize={'18px'} fontWeight={500} color={'#E1F5FE'} lineheight={'21px'} my={0} {...props} />
+  h3(props: TextWrapperProps) {
+    return <TextWrapper fontSize="18px" fontWeight={500} color="#E1F5FE" lineheight="21px" my={0} {...props} />
   },
-  small(props: TextProps) {
+  small(props: TextWrapperProps) {
     return <TextWrapper fontWeight={500} fontSize={11} {...props} />
   },
-  blue(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'primary'} {...props} />
+  blue(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="primary" {...props} />
   },
-  yellow(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'yellow1'} {...props} />
+  yellow(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="yellow1" {...props} />
   },
-  warning(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'warning'} {...props} />
+  warning(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="warning" {...props} />
   },
-  darkGray(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'text3'} {...props} />
+  darkGray(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="text3" {...props} />
   },
-  gray(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'bg3'} {...props} />
+  gray(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} color="bg3" {...props} />
   },
-  italic(props: TextProps) {
-    return <TextWrapper fontWeight={500} fontSize={12} fontStyle={'italic'} color={'text2'} {...props} />
+  italic(props: TextWrapperProps) {
+    return <TextWrapper fontWeight={500} fontSize={12} fontStyle="italic" color="text2" {...props} />
   },
-  error({ error, ...props }: { error: boolean } & TextProps) {
+  error({ error, ...props }: { error: boolean } & TextWrapperProps) {
     return <TextWrapper fontWeight={500} color={error ? 'red1' : 'text2'} {...props} />
   },
 }
 
-export const FixedGlobalStyle = createGlobalStyle`
-  html, input, textarea, button {
-    font-family: 'Work Sans', 'Inter', sans-serif;
-    font-display: fallback;
-  }
-
-  @supports (font-variation-settings: normal) {
-    html, input, textarea, button {
-      font-family: 'Work Sans', 'Inter var', sans-serif;
-    }
-  }
-
-  @property --border-angle {
-    syntax: "<angle>";
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    -webkit-text-size-adjust: none;
-  }
-
-  a {
-    color: ${colors().primary};
-    text-decoration: none;
-    :hover{
-      color: ${lighten(0.2, colors().primary)};
-    }
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  button {
-    user-select: none;
-  }
-
-  html {
-    font-size: 16px;
-    font-variant: none;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv03' on;
-
-  }
-`
-
-export const ThemedGlobalStyle = createGlobalStyle`
-  ::-webkit-scrollbar {
-    display: none;
-  }
-
-  * {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    outline: none;
-  }
-
-  html {
-    color: ${({ theme }) => theme.text};
-    background-color: ${({ theme }) => theme.buttonBlack};
-  }
-
-  body {
-    min-height: 100vh;
-    background: ${({ theme }) => theme.buttonBlack};
-  }
-
-  .staked-only-switch {
-    box-shadow: 0 0 0 2px;
-    background: ${({ theme }) => theme.background} !important;
-  }
-
-  .staked-only-switch[aria-checked="false"] div {
-    background: ${({ theme }) => theme.border} !important;
-  }
-
-  .staked-only-switch div {
-    background: ${({ theme }) => theme.primary};
-  }
-
-  #language-selector {
-    &:focus-visible {
-      outline-width: 0;
-    }
-  }
-
-  .grecaptcha-badge {
-    visibility: hidden;
-  }
-
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input[type=number] {
-    -moz-appearance: textfield; /* Firefox */
-    appearance: textfield;
-  }
-
-  .tv-lightweight-charts{
-    width: 100% !important;
-
-    & > * {
-      width: 100% !important;
-    }
-  }
-
-  .zkme-widget-mask {
-    position: fixed;
-  }
-
-  coinbasewallet-subscribe::part(modal-dialog) {
-    padding: 24px;
-    background: ${({ theme }) => theme.background};
-    color: ${({ theme }) => theme.text};
-  }
-
-  coinbasewallet-subscribe::part(modal-title) {
-    font-size: 24px;
-  }
-
-  coinbasewallet-subscribe::part(subscribe-toggle) {
-    background: ${({ theme }) => theme.primary};
-    color: ${({ theme }) => theme.textReverse};
-    font-size: 16px;
-  }
-
-  coinbasewallet-subscribe::part(close-button) {
-    top: 24px;
-    right: 24px;
-
-    filter: invert(96%) sepia(4%) saturate(18%) hue-rotate(177deg) brightness(105%) contrast(104%);
-  }
-
-  coinbasewallet-subscribe::part(qr-code) {
-    background: #ffffff;
-  }
-
-
-  coinbasewallet-subscribe::part(subscribe-confirmation) {
-    padding-right: 1.5rem;
-  }
-
-`
+// Global styles (formerly FixedGlobalStyle / ThemedGlobalStyle styled-components)
+// now live in src/tailwind.css under @layer base. Keep these as no-op components so
+// existing JSX in src/index.tsx (<FixedGlobalStyle/>, <ThemedGlobalStyle/>) compiles.
+export const FixedGlobalStyle = () => null
+export const ThemedGlobalStyle = () => null

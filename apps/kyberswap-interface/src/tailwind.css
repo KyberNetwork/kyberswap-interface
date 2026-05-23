@@ -919,6 +919,161 @@
 }
 
 @layer base {
+  /* Formerly FixedGlobalStyle (theme/index.tsx) — base font, html/body reset,
+     link colors (primary + lightened hover), focus, smoothing, font feature settings. */
+  html,
+  input,
+  textarea,
+  button {
+    font-family: 'Work Sans', 'Inter', sans-serif;
+    font-display: fallback;
+  }
+
+  @supports (font-variation-settings: normal) {
+    html,
+    input,
+    textarea,
+    button {
+      font-family: 'Work Sans', 'Inter var', sans-serif;
+    }
+  }
+
+  @property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: none;
+  }
+
+  a {
+    color: var(--ks-primary);
+    text-decoration: none;
+  }
+  a:hover {
+    /* lighten(0.2, #31CB9E) pre-computed */
+    color: #7fe0bd;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  button {
+    user-select: none;
+  }
+
+  html {
+    font-size: 16px;
+    font-variant: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv03' on;
+  }
+
+  /* Formerly ThemedGlobalStyle (theme/index.tsx) — scrollbars off, html/body
+     colors, control overrides (input number, staked-only switch, language
+     selector, recaptcha badge, tv-lightweight-charts, zkme widget, coinbase
+     subscribe shadow-DOM parts). */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    outline: none;
+  }
+
+  html {
+    color: var(--ks-text);
+    background-color: var(--ks-buttonBlack);
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--ks-buttonBlack);
+  }
+
+  .staked-only-switch {
+    box-shadow: 0 0 0 2px;
+    background: var(--ks-background) !important;
+  }
+
+  .staked-only-switch[aria-checked='false'] div {
+    background: var(--ks-border) !important;
+  }
+
+  .staked-only-switch div {
+    background: var(--ks-primary);
+  }
+
+  #language-selector:focus-visible {
+    outline-width: 0;
+  }
+
+  .grecaptcha-badge {
+    visibility: hidden;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield; /* Firefox */
+    appearance: textfield;
+  }
+
+  .tv-lightweight-charts {
+    width: 100% !important;
+  }
+  .tv-lightweight-charts > * {
+    width: 100% !important;
+  }
+
+  .zkme-widget-mask {
+    position: fixed;
+  }
+
+  coinbasewallet-subscribe::part(modal-dialog) {
+    padding: 24px;
+    background: var(--ks-background);
+    color: var(--ks-text);
+  }
+
+  coinbasewallet-subscribe::part(modal-title) {
+    font-size: 24px;
+  }
+
+  coinbasewallet-subscribe::part(subscribe-toggle) {
+    background: var(--ks-primary);
+    color: var(--ks-textReverse);
+    font-size: 16px;
+  }
+
+  coinbasewallet-subscribe::part(close-button) {
+    top: 24px;
+    right: 24px;
+    filter: invert(96%) sepia(4%) saturate(18%) hue-rotate(177deg) brightness(105%) contrast(104%);
+  }
+
+  coinbasewallet-subscribe::part(qr-code) {
+    background: #ffffff;
+  }
+
+  coinbasewallet-subscribe::part(subscribe-confirmation) {
+    padding-right: 1.5rem;
+  }
+
   :root {
     /* base */
     --ks-white: #ffffff;
