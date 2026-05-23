@@ -11,12 +11,16 @@ import styled from 'styled-components'
 
 import Logo from 'components/Logo'
 import { DUST_MAX_INPUTS_TOTAL } from 'constants/dustLiquidation'
+import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { AppState } from 'state'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { DustInput, DustToken } from 'state/dustLiquidation/actions'
 import { useDustLiquidationActions, useDustLiquidationState } from 'state/dustLiquidation/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { getNativeTokenLogo } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Row = styled.div`
@@ -24,8 +28,12 @@ const Row = styled.div`
   align-items: center;
   gap: 12px;
   background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 12px;
-  padding: 10px 12px;
+  border-radius: 16px;
+  padding: 14px 16px;
+  transition: background 120ms ease;
+  :hover {
+    background: ${({ theme }) => theme.buttonGray};
+  }
 `
 
 const TokenMeta = styled.div`
@@ -39,9 +47,10 @@ const Symbol = styled.div`
   color: ${({ theme }) => theme.text};
   font-size: 14px;
   font-weight: 500;
+  line-height: 1.2;
 `
 
-const Balance = styled.button`
+const BalanceRow = styled.button`
   background: transparent;
   border: 0;
   padding: 0;
@@ -49,23 +58,55 @@ const Balance = styled.button`
   font-size: 12px;
   cursor: pointer;
   text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
   :hover {
     color: ${({ theme }) => theme.primary};
   }
 `
 
-const AmountInput = styled.input`
+const MaxBadge = styled.span`
+  font-size: 10px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.primary};
+  background: ${({ theme }) => theme.primary}22;
+  padding: 1px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`
+
+const AmountColumn = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  gap: 2px;
+`
+
+const AmountInput = styled.input`
   background: transparent;
   border: 0;
   outline: none;
   color: ${({ theme }) => theme.text};
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 500;
   text-align: right;
   min-width: 0;
+  width: 100%;
+  line-height: 1.2;
   ::placeholder {
     color: ${({ theme }) => theme.subText};
   }
+`
+
+const AmountUsd = styled.span`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  line-height: 1.2;
 `
 
 const RemoveButton = styled.button`
@@ -76,8 +117,10 @@ const RemoveButton = styled.button`
   cursor: pointer;
   display: flex;
   align-items: center;
+  border-radius: 8px;
   :hover {
     color: ${({ theme }) => theme.red1};
+    background: ${({ theme }) => theme.red1}1a;
   }
 `
 
@@ -119,12 +162,30 @@ const sanitizeAmount = (raw: string): string => {
   return parts[0] + '.' + parts.slice(1).join('')
 }
 
-const TokenRow = ({ input }: { input: DustInput }) => {
+const formatUsd = (n: number): string => {
+  if (!Number.isFinite(n) || n <= 0) return '-'
+  if (n < 0.01) return '<$0.01'
+  return `$${n.toLocaleString(undefined, { maximumFractionDigits: n >= 1000 ? 0 : 2 })}`
+}
+
+const TokenRow = ({ input, price }: { input: DustInput; price?: number }) => {
+  const { chainId } = useActiveWeb3React()
   const { removeToken, updateAmount } = useDustLiquidationActions()
   const { value, decimals } = useTokenBalance(input.address)
   // One-shot guard: auto-fill to max only on first balance load. If the user clears
   // the input after that, we don't re-fill — their action wins.
   const autoFilledRef = useRef(false)
+
+  const isNative = input.address.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+  const logoSrcs = useMemo(() => {
+    const srcs: string[] = []
+    if (isNative) {
+      const native = getNativeTokenLogo(chainId)
+      if (native) srcs.push(native)
+    }
+    if (input.logo) srcs.push(input.logo)
+    return srcs
+  }, [isNative, chainId, input.logo])
 
   const balanceDisplay = useMemo(() => {
     if (!value) return '0'
@@ -135,6 +196,13 @@ const TokenRow = ({ input }: { input: DustInput }) => {
       return '0'
     }
   }, [value, decimals])
+
+  const amountUsd = useMemo(() => {
+    if (!price || price <= 0 || !input.amount) return undefined
+    const n = Number(input.amount)
+    if (!Number.isFinite(n) || n <= 0) return undefined
+    return n * price
+  }, [price, input.amount])
 
   useEffect(() => {
     if (autoFilledRef.current) return
@@ -162,25 +230,27 @@ const TokenRow = ({ input }: { input: DustInput }) => {
     }
   }, [value, decimals, input.address, updateAmount])
 
+  const hasBalance = !!value && !value.isZero()
+
   return (
     <Row>
-      <Logo
-        srcs={input.logo ? [input.logo] : []}
-        alt={input.symbol}
-        style={{ width: 24, height: 24, borderRadius: 999 }}
-      />
+      <Logo srcs={logoSrcs} alt={input.symbol} style={{ width: 28, height: 28, borderRadius: 999 }} />
       <TokenMeta>
         <Symbol>{input.symbol}</Symbol>
-        <Balance type="button" onClick={onMax}>
+        <BalanceRow type="button" onClick={onMax} disabled={!hasBalance}>
           <Trans>Balance:</Trans> {balanceDisplay}
-        </Balance>
+          {hasBalance && <MaxBadge>Max</MaxBadge>}
+        </BalanceRow>
       </TokenMeta>
-      <AmountInput
-        inputMode="decimal"
-        placeholder="0.0"
-        value={input.amount}
-        onChange={e => updateAmount(input.address, sanitizeAmount(e.target.value))}
-      />
+      <AmountColumn>
+        <AmountInput
+          inputMode="decimal"
+          placeholder="0.0"
+          value={input.amount}
+          onChange={e => updateAmount(input.address, sanitizeAmount(e.target.value))}
+        />
+        {amountUsd !== undefined && <AmountUsd>≈ {formatUsd(amountUsd)}</AmountUsd>}
+      </AmountColumn>
       <RemoveButton type="button" onClick={() => removeToken(input.address)} aria-label="Remove token">
         <X size={16} />
       </RemoveButton>
@@ -202,6 +272,14 @@ const TokenMultiSelector = () => {
   const { replace } = useDustLiquidationActions()
   const store = useStore<AppState>()
   const [showModal, setShowModal] = useState(false)
+
+  // Pull prices for every token on the chain so the modal can show USD per row
+  // (it's the same dataset the modal renders), and so each selected From-row
+  // can compute amount × price. The price hook batches into chunks of 100 and
+  // caches in redux, so subsequent renders are free.
+  const allTokens = useAllTokens(true)
+  const allTokenAddresses = useMemo(() => Object.keys(allTokens), [allTokens])
+  const tokenPrices = useTokenPrices(allTokenAddresses, chainId)
 
   const modalTokensIn: SchemaToken[] = useMemo(
     () =>
@@ -254,7 +332,9 @@ const TokenMultiSelector = () => {
           <Trans>No tokens selected. Add tokens below.</Trans>
         </EmptyState>
       ) : (
-        inputs.map(input => <TokenRow key={input.address} input={input} />)
+        inputs.map(input => (
+          <TokenRow key={input.address} input={input} price={tokenPrices[input.address.toLowerCase()]} />
+        ))
       )}
 
       <AddButton type="button" onClick={() => setShowModal(true)} disabled={inputs.length >= DUST_MAX_INPUTS_TOTAL}>
@@ -276,6 +356,7 @@ const TokenMultiSelector = () => {
               setTokensIn: onTokensChanged,
               setAmountsIn: onAmountsChanged,
               maxTokens: DUST_MAX_INPUTS_TOTAL,
+              tokenPrices,
             }}
           />,
           document.body,

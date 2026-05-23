@@ -71,6 +71,7 @@ interface TokenSelectorProps {
   token0Address: string;
   token1Address: string;
   maxTokens?: number;
+  tokenPrices?: { [key: string]: number };
 
   // Position features
   showUserPositions: boolean;
@@ -104,6 +105,7 @@ interface TokenRowData {
   tabSelected: TOKEN_TAB;
   selectedTokenAddress?: string;
   modalTokensInAddress: Set<string>;
+  tokenPrices?: { [key: string]: number };
   onClickToken: (token: CustomizeToken) => void;
   onRemoveImportedToken: (e: React.MouseEvent, token: Token) => void;
   onShowTokenInfo: (e: React.MouseEvent, token: Token) => void;
@@ -121,6 +123,7 @@ const TokenRow = memo(function TokenRow({
     tabSelected,
     selectedTokenAddress,
     modalTokensInAddress,
+    tokenPrices,
     onClickToken,
     onRemoveImportedToken,
     onShowTokenInfo,
@@ -132,6 +135,19 @@ const TokenRow = memo(function TokenRow({
   const isSelected =
     mode === TOKEN_SELECT_MODE.SELECT &&
     token.address?.toLowerCase() === selectedTokenAddress?.toLowerCase();
+
+  const price = tokenPrices?.[token.address?.toLowerCase()];
+  const balanceNumeric = parseFloat(token.balance ?? "0");
+  const usdValue =
+    typeof price === "number" && price > 0 && Number.isFinite(balanceNumeric) && balanceNumeric > 0
+      ? balanceNumeric * price
+      : undefined;
+  const usdDisplay =
+    usdValue !== undefined
+      ? usdValue >= 0.01
+        ? `$${usdValue.toLocaleString(undefined, { maximumFractionDigits: usdValue >= 1000 ? 0 : 2 })}`
+        : "<$0.01"
+      : null;
 
   return (
     <div
@@ -171,7 +187,12 @@ const TokenRow = memo(function TokenRow({
       </div>
       <div className="flex items-center gap-2 justify-end">
         {tabSelected === TOKEN_TAB.ALL ? (
-          <span>{token.balance}</span>
+          <div className="flex flex-col items-end">
+            <span>{token.balance}</span>
+            {usdDisplay && (
+              <span className="text-xs text-subText">{usdDisplay}</span>
+            )}
+          </div>
         ) : (
           <TrashIcon
             className="w-[18px] text-subText hover:text-text !cursor-pointer"
@@ -200,6 +221,7 @@ export default function TokenSelector({
   token0Address = "",
   token1Address = "",
   maxTokens = MAX_TOKENS,
+  tokenPrices,
   showUserPositions = false,
   positionsOnly = false,
   excludePositionIds,
@@ -318,7 +340,8 @@ export default function TokenSelector({
         };
       })
       .sort((a: CustomizeToken, b: CustomizeToken) => {
-        // Combined sort: selected > inPair > balance (descending).
+        // Combined sort: selected > inPair > USD value (descending; falls back to
+        // raw balance when prices are not available).
         // In ADD mode, treat the initial token set as "selected" for sorting,
         // so toggling tokens in the modal does not reorder the list.
         let aSelectedPriority = a.selected;
@@ -340,7 +363,17 @@ export default function TokenSelector({
           return bSelectedPriority - aSelectedPriority;
         }
         if (b.inPair !== a.inPair) return b.inPair - a.inPair;
-        return parseFloat(b.balance) - parseFloat(a.balance);
+
+        const aBalance = parseFloat(a.balance);
+        const bBalance = parseFloat(b.balance);
+        const aPrice = tokenPrices?.[a.address.toLowerCase()] ?? 0;
+        const bPrice = tokenPrices?.[b.address.toLowerCase()] ?? 0;
+        const aUsd = aPrice > 0 ? aBalance * aPrice : 0;
+        const bUsd = bPrice > 0 ? bBalance * bPrice : 0;
+        // Sort priced tokens by USD value first; unpriced tokens fall back to
+        // raw-balance comparison among themselves.
+        if (aUsd > 0 || bUsd > 0) return bUsd - aUsd;
+        return bBalance - aBalance;
       });
   }, [
     modalTabSelected,
@@ -349,6 +382,7 @@ export default function TokenSelector({
     importedTokens,
     tokensIn,
     tokenBalances,
+    tokenPrices,
     mode,
     selectedTokenAddress,
     selectedTokens,
@@ -532,6 +566,7 @@ export default function TokenSelector({
       tabSelected,
       selectedTokenAddress,
       modalTokensInAddress,
+      tokenPrices,
       onClickToken: handleClickToken,
       onRemoveImportedToken: handleRemoveImportedToken,
       onShowTokenInfo: handleShowTokenInfo,
@@ -543,6 +578,7 @@ export default function TokenSelector({
       tabSelected,
       selectedTokenAddress,
       modalTokensInAddress,
+      tokenPrices,
       handleClickToken,
       handleRemoveImportedToken,
       handleShowTokenInfo,

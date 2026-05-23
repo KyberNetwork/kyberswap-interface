@@ -15,6 +15,7 @@ import { RowBetween, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { formattedNum } from 'utils'
@@ -161,6 +162,14 @@ export function CurrencyRow({
       role="button"
     >
       <Flex alignItems="center" style={{ gap: 8 }}>
+        {showFavoriteIcon && (
+          <FavoriteButton
+            onClick={e => handleClickFavorite?.(e, currency)}
+            data-active={isFavorite}
+            data-testid="button-favorite-token"
+            role="button"
+          />
+        )}
         <CurrencyLogo currency={currency} size={'24px'} />
         <Column gap="2px">
           <Text title={currency.name} fontWeight={500} data-testid="token-symbol">
@@ -170,8 +179,8 @@ export function CurrencyRow({
         </Column>
       </Flex>
 
-      <Column style={{ alignItems: 'flex-end', gap: 2 }}>
-        <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
+      <RowFixed style={{ gap: 15 }}>
+        <Column style={{ alignItems: 'flex-end', gap: 2 }}>
           {showImported ? (
             <DeleteButton onClick={onClickRemove} data-testid="button-remove-import-token" />
           ) : customBalance !== undefined ? (
@@ -179,31 +188,23 @@ export function CurrencyRow({
           ) : (
             balanceComponent
           )}
-          {showFavoriteIcon && (
-            <FavoriteButton
-              onClick={e => handleClickFavorite?.(e, currency)}
-              data-active={isFavorite}
-              data-testid="button-favorite-token"
-              role="button"
-            />
+          {usdBalance !== undefined && !hideBalance && (
+            <Text fontSize={'12px'} color={theme.subText}>
+              {formattedNum(usdBalance + '', true)}
+            </Text>
           )}
-          {setTokenToShowInfo && (
-            <StyledInfo
-              role="button"
-              onClick={e => {
-                e.stopPropagation()
-                setTokenToShowInfo(currency.wrapped)
-              }}
-              size={18}
-            />
-          )}
-        </RowFixed>
-        {usdBalance !== undefined && !hideBalance && (
-          <Text fontSize={'12px'} color={theme.subText}>
-            {formattedNum(usdBalance + '', true)}
-          </Text>
+        </Column>
+        {setTokenToShowInfo && (
+          <StyledInfo
+            role="button"
+            onClick={e => {
+              e.stopPropagation()
+              setTokenToShowInfo(currency.wrapped)
+            }}
+            size={18}
+          />
         )}
-      </Column>
+      </RowFixed>
     </CurrencyRowWrapper>
   )
 }
@@ -253,6 +254,11 @@ function CurrencyList({
   const tokenImports = useUserAddedTokens(customChainId)
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
 
+  // For native currencies, fall back to the wrapped-token address — both trade at
+  // the same price and the wrapped one is what the price API actually keys on.
+  const priceAddresses = React.useMemo(() => currencies.map(c => c.wrapped.address).filter(Boolean), [currencies])
+  const tokenPrices = useTokenPrices(priceAddresses, customChainId)
+
   const Row = useCallback(
     function TokenRow({ style, currency, currencyBalance }: TokenRowProps) {
       const isSelected = Boolean(currency && selectedCurrency?.equals(currency))
@@ -272,6 +278,10 @@ function CurrencyList({
 
       if (currency) {
         // whitelist
+
+        const priceKey = currency.wrapped.address
+        const price = tokenPrices[priceKey] ?? tokenPrices[priceKey?.toLowerCase()] ?? 0
+        const usdBalance = currencyBalance && price > 0 ? parseFloat(currencyBalance.toExact()) * price : undefined
 
         const isFavorite = (() => {
           if (currency.isToken && favoriteTokens) {
@@ -296,6 +306,7 @@ function CurrencyList({
             onSelect={onCurrencySelect}
             otherSelected={otherSelected}
             setTokenToShowInfo={setTokenToShowInfo}
+            usdBalance={usdBalance}
           />
         )
       }
@@ -316,6 +327,7 @@ function CurrencyList({
       account,
       favoriteTokens,
       setTokenToShowInfo,
+      tokenPrices,
     ],
   )
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])

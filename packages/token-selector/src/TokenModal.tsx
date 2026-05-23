@@ -71,6 +71,7 @@ const TokenModal = ({
     token0Address = "",
     token1Address = "",
     maxTokens = MAX_TOKENS,
+    tokenPrices,
   } = tokenOptions ?? {};
 
   const {
@@ -200,6 +201,7 @@ const TokenModal = ({
             selectedTokenAddress={selectedTokenAddress}
             mode={mode}
             maxTokens={maxTokens}
+            tokenPrices={tokenPrices}
             chainId={chainId}
             positionId={positionId}
             token0Address={token0Address}

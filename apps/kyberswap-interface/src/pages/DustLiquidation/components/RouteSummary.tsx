@@ -5,16 +5,18 @@ import { Flex } from 'rebass'
 import { DustSwapRouteApiResponse } from 'services/dustSwap'
 import styled from 'styled-components'
 
+import SlippageControl from 'components/SlippageControl'
+import { DEFAULT_SLIPPAGES, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import { useDustLiquidationActions, useDustLiquidationState } from 'state/dustLiquidation/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = styled.div`
   background: ${({ theme }) => theme.background};
   border-radius: 20px;
-  padding: 16px 20px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 `
 
 const Header = styled.div`
@@ -24,26 +26,42 @@ const Header = styled.div`
 `
 
 const HeaderText = styled.div`
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   color: ${({ theme }) => theme.subText};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `
 
 const RefreshButton = styled.button`
   background: transparent;
   border: 0;
-  padding: 4px;
+  padding: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   color: ${({ theme }) => theme.subText};
   cursor: pointer;
   :hover {
     color: ${({ theme }) => theme.text};
+    background: ${({ theme }) => theme.buttonBlack};
   }
+  :disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`
+
+const Rows = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 `
 
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 13px;
 `
 
@@ -57,10 +75,10 @@ const Value = styled.span<{ warn?: boolean; error?: boolean }>`
 `
 
 const Skeleton = styled.div`
-  height: 16px;
-  width: 80px;
+  height: 14px;
+  width: 70px;
   background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 8px;
+  border-radius: 6px;
   animation: pulse 1.4s ease-in-out infinite;
   @keyframes pulse {
     0%,
@@ -73,16 +91,24 @@ const Skeleton = styled.div`
   }
 `
 
+const Divider = styled.div`
+  height: 1px;
+  background: ${({ theme }) => theme.border};
+  opacity: 0.4;
+`
+
 const ErrorText = styled.div`
   color: ${({ theme }) => theme.red1};
   font-size: 13px;
+  text-align: center;
+  padding: 8px 0;
 `
 
 const HintText = styled.div`
   color: ${({ theme }) => theme.subText};
   font-size: 13px;
   text-align: center;
-  padding: 4px 0;
+  padding: 8px 0;
 `
 
 const ApplyButton = styled.button`
@@ -90,10 +116,10 @@ const ApplyButton = styled.button`
   border: 1px solid ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.primary};
   font-size: 11px;
-  padding: 2px 8px;
+  font-weight: 500;
+  padding: 3px 10px;
   border-radius: 999px;
   cursor: pointer;
-  margin-left: 8px;
   :hover {
     background: ${({ theme }) => theme.primary};
     color: ${({ theme }) => theme.background};
@@ -144,49 +170,59 @@ const RouteSummary = ({ route, loading, error, hint, onRefresh }: Props) => {
         <HintText>{hint}</HintText>
       ) : (
         <>
-          <Row>
-            <Label>
-              <Trans>Total input</Trans>
-            </Label>
-            {loading || !details ? <Skeleton /> : <Value>{usd(details.initialAmountUsd)}</Value>}
-          </Row>
-          <Row>
-            <Label>
-              <Trans>Estimated output</Trans>
-            </Label>
-            {loading || !details ? <Skeleton /> : <Value>{usd(details.finalAmountUsd)}</Value>}
-          </Row>
-          <Row>
-            <Label>
-              <Trans>Price impact</Trans>
-            </Label>
-            {loading || !details ? (
-              <Skeleton />
-            ) : (
-              <Value warn={priceImpactWarn} error={priceImpactError}>
-                {priceImpact != null ? `${priceImpact.toFixed(2)}%` : '-'}
-              </Value>
-            )}
-          </Row>
-          <Row>
-            <Label>
-              <Trans>Network fee</Trans>
-            </Label>
-            {loading || !route?.data ? <Skeleton /> : <Value>{usd(route.data.gasUsd)}</Value>}
-          </Row>
-          <Row>
-            <Label>
-              <Trans>Slippage</Trans>
-            </Label>
-            <Flex alignItems="center">
-              <Value>{(slippage / 100).toFixed(2)}%</Value>
+          <Rows>
+            <Row>
+              <Label>
+                <Trans>Total input</Trans>
+              </Label>
+              {loading || !details ? <Skeleton /> : <Value>{usd(details.initialAmountUsd)}</Value>}
+            </Row>
+            <Row>
+              <Label>
+                <Trans>Estimated output</Trans>
+              </Label>
+              {loading || !details ? <Skeleton /> : <Value>{usd(details.finalAmountUsd)}</Value>}
+            </Row>
+            <Row>
+              <Label>
+                <Trans>Price impact</Trans>
+              </Label>
+              {loading || !details ? (
+                <Skeleton />
+              ) : (
+                <Value warn={priceImpactWarn} error={priceImpactError}>
+                  {priceImpact != null ? `${priceImpact.toFixed(2)}%` : '-'}
+                </Value>
+              )}
+            </Row>
+            <Row>
+              <Label>
+                <Trans>Network fee</Trans>
+              </Label>
+              {loading || !route?.data ? <Skeleton /> : <Value>{usd(route.data.gasUsd)}</Value>}
+            </Row>
+          </Rows>
+
+          <Divider />
+
+          <Flex flexDirection="column" sx={{ gap: '10px' }}>
+            <Flex justifyContent="space-between" alignItems="center">
+              <Label>
+                <Trans>Slippage tolerance</Trans>
+              </Label>
               {shouldSuggest && (
                 <ApplyButton type="button" onClick={() => updateSlippage(suggestedSlippage)}>
-                  <Trans>Use suggested {(suggestedSlippage / 100).toFixed(2)}%</Trans>
+                  <Trans>Use {(suggestedSlippage / 100).toFixed(2)}%</Trans>
                 </ApplyButton>
               )}
             </Flex>
-          </Row>
+            <SlippageControl
+              rawSlippage={slippage}
+              setRawSlippage={updateSlippage}
+              isWarning={slippage > MAX_NORMAL_SLIPPAGE_IN_BIPS}
+              options={DEFAULT_SLIPPAGES}
+            />
+          </Flex>
         </>
       )}
     </Card>

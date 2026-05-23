@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -33,18 +33,19 @@ const Card = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 `
 
 const PageHeader = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 0 4px;
 `
 
 const Title = styled.h1`
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 500;
   color: ${({ theme }) => theme.text};
 `
@@ -52,6 +53,15 @@ const Title = styled.h1`
 const Subtitle = styled.div`
   font-size: 13px;
   color: ${({ theme }) => theme.subText};
+  line-height: 1.4;
+`
+
+const SectionLabel = styled.div`
+  font-size: 13px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.subText};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `
 
 const ErrorText = styled.div`
@@ -109,17 +119,17 @@ const DustLiquidation = () => {
       ) : (
         <>
           <Card>
-            <Text fontSize={14} fontWeight={500}>
-              <Trans>From (tokens to liquidate)</Trans>
-            </Text>
+            <SectionLabel>
+              <Trans>From — tokens to liquidate</Trans>
+            </SectionLabel>
             <TokenMultiSelector />
           </Card>
 
           <Card>
-            <Text fontSize={14} fontWeight={500}>
-              <Trans>To</Trans>
-            </Text>
-            <Flex justifyContent="flex-end">
+            <Flex justifyContent="space-between" alignItems="center">
+              <SectionLabel>
+                <Trans>Receive as</Trans>
+              </SectionLabel>
               <OutputSelector />
             </Flex>
           </Card>
