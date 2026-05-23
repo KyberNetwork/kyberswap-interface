@@ -4,7 +4,7 @@ import { useLocation } from 'react-router'
 import { DEFAULT_LOCALE, SupportedLocale, getLocaleLabel } from 'constants/locales'
 import { navigatorLocale, useActiveLocale } from 'hooks/useActiveLocale'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { StyledInternalLink, TYPE } from 'theme'
+import { StyledInternalLink } from 'theme'
 
 export function SwitchLocaleLink() {
   const activeLocale = useActiveLocale()
@@ -26,9 +26,9 @@ export function SwitchLocaleLink() {
     }
 
     return (
-      <TYPE.small className="!mt-4 opacity-60 hover:opacity-100 max-md:hidden">
+      <p className="m-0 mt-4 text-[11px] font-medium leading-[normal] opacity-60 hover:opacity-100 max-md:hidden">
         KyberSwap available in: {<StyledInternalLink to={target}>{getLocaleLabel(targetLocale)}</StyledInternalLink>}
-      </TYPE.small>
+      </p>
     )
   }
 

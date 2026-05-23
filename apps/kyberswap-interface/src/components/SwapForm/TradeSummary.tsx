@@ -11,7 +11,7 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
 import { BIPS_BASE } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink, TYPE } from 'theme'
+import { ExternalLink } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
@@ -98,9 +98,9 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
       </RowFixed>
 
       <RowFixed>
-        <TYPE.black color={valueColor} fontSize={12}>
+        <p className="m-0 text-[12px] font-medium" style={{ color: valueColor }}>
           {isInSafeApp ? '0.1%' : feeAmountUsd || feeAmountWithSymbol || '--'}
-        </TYPE.black>
+        </p>
       </RowFixed>
     </RowBetween>
   )
@@ -205,9 +205,7 @@ const TradeSummary: React.FC<Props> = ({
             </TextDashed>
           </RowFixed>
           <RowFixed>
-            <TYPE.black color={theme.text} fontSize={12}>
-              {minimumAmountOutStr || '--'}
-            </TYPE.black>
+            <p className="m-0 text-[12px] font-medium text-text">{minimumAmountOutStr || '--'}</p>
           </RowFixed>
         </RowBetween>
 
@@ -238,12 +236,14 @@ const TradeSummary: React.FC<Props> = ({
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
-          <TYPE.black
-            fontSize={12}
-            color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
+          <p
+            className="m-0 text-[12px] font-medium"
+            style={{
+              color: priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text,
+            }}
           >
             {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
-          </TYPE.black>
+          </p>
         </RowBetween>
 
         <SwapFee isFeeTampered={isFeeTampered} />

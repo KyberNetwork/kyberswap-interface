@@ -20,7 +20,7 @@ import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/MyPool'
-import { StyledInternalLink, TYPE } from 'theme'
+import { StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
 
 import ContentLoader from './ContentLoader'
@@ -198,9 +198,9 @@ export default function ProAmmPool() {
 
           {!account ? (
             <Card className="p-10">
-              <TYPE.body color={theme.text3} textAlign="center">
+              <p className="m-0 text-center text-base text-text3">
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
-              </TYPE.body>
+              </p>
             </Card>
           ) : positionsLoading && !positions ? (
             <PositionCardGrid>

@@ -22,7 +22,7 @@ import useToggle from 'hooks/useToggle'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
-import { ButtonText, CloseIcon, TYPE } from 'theme'
+import { ButtonText, CloseIcon } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
 import { cn } from 'utils/cn'
 import { filterTokens } from 'utils/filtering'
@@ -94,12 +94,9 @@ const fetchTokens = async (
 }
 
 export const NoResult = ({ msg }: { msg?: ReactNode }) => {
-  const theme = useTheme()
   return (
     <Column style={{ padding: '20px', height: '100%' }} data-testid="no-token-result">
-      <TYPE.main color={theme.text3} textAlign="center" mb="20px">
-        {msg || <Trans>No results found.</Trans>}
-      </TYPE.main>
+      <p className="m-0 mb-5 text-center font-medium text-text3">{msg || <Trans>No results found.</Trans>}</p>
     </Column>
   )
 }

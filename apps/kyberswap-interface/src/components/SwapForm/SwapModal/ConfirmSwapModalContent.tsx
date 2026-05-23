@@ -32,7 +32,6 @@ import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
-import { TYPE } from 'theme'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
@@ -492,7 +491,7 @@ export default function ConfirmSwapModalContent({
                     </StyledBalanceMaxMini>
                   </div>
                 ) : (
-                  <TYPE.black fontSize={12}>--</TYPE.black>
+                  <p className="m-0 text-[12px] font-medium text-text">--</p>
                 )
               }
             />

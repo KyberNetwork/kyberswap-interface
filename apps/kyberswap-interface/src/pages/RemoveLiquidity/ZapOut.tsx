@@ -52,7 +52,7 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
-import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
+import { StyledInternalLink, UppercaseText } from 'theme'
 import { calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -530,18 +530,20 @@ export default function ZapOut({
       <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
           <CurrencyLogo currency={currencies[independentTokenField]} size={'24px'} />
-          <span className="text-[24px] font-medium">{parsedAmounts[independentTokenField]?.toSignificant(6)}</span>
-          <span className="text-[24px] font-medium">{independentToken?.symbol}</span>
+          <span className="text-[24px] font-medium leading-[normal]">
+            {parsedAmounts[independentTokenField]?.toSignificant(6)}
+          </span>
+          <span className="text-[24px] font-medium leading-[normal]">{independentToken?.symbol}</span>
           {estimatedUsd && (
-            <span className="ml-1 text-[18px] font-medium text-subText">
+            <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
               (~{formattedNum(estimatedUsd.toString(), true) || undefined})
             </span>
           )}
         </AutoRow>
 
-        <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
+        <p className="m-0 text-left text-[12px] font-normal italic leading-[normal] text-subText">
           {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
-        </TYPE.italic>
+        </p>
       </AutoColumn>
     )
   }
@@ -553,44 +555,46 @@ export default function ZapOut({
           {pair && (
             <>
               <CurrentPriceWrapper style={{ paddingBottom: '8px' }}>
-                <TYPE.subHeader fontSize={14} fontWeight={400} color={theme.subText}>
+                <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Current Price</Trans>
-                </TYPE.subHeader>
-                <TYPE.black fontSize={14} fontWeight={400}>
+                </p>
+                <p className="m-0 text-sm font-normal leading-[normal] text-text">
                   <CurrentPrice price={price} />
-                </TYPE.black>
+                </p>
               </CurrentPriceWrapper>
 
               <RowBetween style={{ paddingBottom: '12px' }}>
-                <TYPE.subHeader fontSize={14} fontWeight={400} color={theme.subText}>
+                <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Price Impact</Trans>
-                </TYPE.subHeader>
-                <TYPE.black fontSize={14} fontWeight={400}>
+                </p>
+                <p className="m-0 text-sm font-normal leading-[normal] text-text">
                   <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
-                </TYPE.black>
+                </p>
               </RowBetween>
 
               <RowBetween style={{ paddingBottom: '12px' }}>
-                <span className="text-[14px] text-subText">
+                <span className="text-[14px] leading-[normal] text-subText">
                   <Trans>LP Tokens Removed</Trans>
                 </span>
 
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin={true} />
-                  <span className="text-[14px] text-text">{parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}</span>
+                  <span className="text-[14px] leading-[normal] text-text">
+                    {parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}
+                  </span>
                 </RowFixed>
               </RowBetween>
 
               {amountsMin && (
                 <>
                   <RowBetween style={{ paddingBottom: '12px' }}>
-                    <TYPE.subHeader fontWeight={400} fontSize={14} color={theme.subText}>
+                    <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                       <Trans>Minimum Received</Trans>
-                    </TYPE.subHeader>
+                    </p>
 
                     <TokenWrapper>
                       <CurrencyLogo currency={independentToken} size="16px" />
-                      <TYPE.black fontWeight={400} fontSize={14}>
+                      <p className="m-0 text-sm font-normal leading-[normal] text-text">
                         {formatJSBIValue(
                           independentTokenField === Field.CURRENCY_A
                             ? amountsMin[Field.CURRENCY_A]
@@ -598,7 +602,7 @@ export default function ZapOut({
                           independentToken?.decimals,
                         )}{' '}
                         {independentToken?.symbol}
-                      </TYPE.black>
+                      </p>
                     </TokenWrapper>
                   </RowBetween>
                 </>
@@ -608,7 +612,7 @@ export default function ZapOut({
         </ModalDetailWrapper>
 
         <ButtonPrimary disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)} onClick={onRemove}>
-          <span className="text-[16px] font-medium">
+          <span className="text-[16px] font-medium leading-[normal]">
             <Trans>Confirm</Trans>
           </span>
         </ButtonPrimary>
@@ -650,11 +654,11 @@ export default function ZapOut({
               <BlackCard className="rounded p-4">
                 <AutoColumn gap="1rem">
                   <RowBetween>
-                    <span className="text-[12px] font-medium">
+                    <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Amount</Trans>
                     </span>
 
-                    <span className="text-[12px] font-medium">
+                    <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Balance</Trans>:{' '}
                       {!userLiquidity ? (
                         <Loader />
@@ -665,7 +669,9 @@ export default function ZapOut({
                     </span>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>
-                    <span className="text-[72px] font-medium">{formattedAmounts[Field.LIQUIDITY_PERCENT]}%</span>
+                    <span className="text-[72px] font-medium leading-[normal]">
+                      {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
+                    </span>
                   </Row>
 
                   <>
@@ -749,30 +755,30 @@ export default function ZapOut({
                 <DetailWrapper>
                   <DetailBox style={{ paddingBottom: '12px', borderBottom: `1px dashed ${theme.border}` }}>
                     <AutoColumn gap="8px">
-                      <TYPE.subHeader fontWeight={500} fontSize={12} color={theme.subText}>
+                      <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                         <UppercaseText>
                           <Trans>Price Impact</Trans>
                         </UppercaseText>
-                      </TYPE.subHeader>
-                      <TYPE.black fontWeight={400} fontSize={14}>
+                      </p>
+                      <p className="m-0 text-sm font-normal leading-[normal] text-text">
                         <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
-                      </TYPE.black>
+                      </p>
                     </AutoColumn>
 
                     {amountsMin && (
                       <AutoColumn gap="8px">
-                        <TYPE.subHeader fontWeight={500} fontSize={12} color={theme.subText}>
+                        <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                           <UppercaseText>
                             <Trans>Minimum Received</Trans>
                           </UppercaseText>
-                        </TYPE.subHeader>
+                        </p>
 
                         <TokenWrapper>
                           <CurrencyLogo
                             currency={independentTokenField === Field.CURRENCY_A ? currencyA : currencyB}
                             size="16px"
                           />
-                          <TYPE.black fontWeight={400} fontSize={14}>
+                          <p className="m-0 text-sm font-normal leading-[normal] text-text">
                             {formatJSBIValue(
                               independentTokenField === Field.CURRENCY_A
                                 ? amountsMin[Field.CURRENCY_A]
@@ -780,26 +786,21 @@ export default function ZapOut({
                               independentToken?.decimals,
                             )}{' '}
                             {independentToken?.symbol}
-                          </TYPE.black>
+                          </p>
                         </TokenWrapper>
                       </AutoColumn>
                     )}
                   </DetailBox>
 
                   <DetailBox style={{ paddingTop: '12px' }}>
-                    <TYPE.subHeader
-                      fontWeight={500}
-                      fontSize={12}
-                      color={theme.subText}
-                      style={{ display: 'flex', alignItems: 'center' }}
-                    >
+                    <p className="m-0 flex items-center text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Current Price</Trans>
                       </UppercaseText>
-                    </TYPE.subHeader>
-                    <TYPE.black fontWeight={400} fontSize={14}>
+                    </p>
+                    <p className="m-0 text-sm font-normal leading-[normal] text-text">
                       <CurrentPrice price={price} />
-                    </TYPE.black>
+                    </p>
                   </DetailBox>
                 </DetailWrapper>
               )}
@@ -860,7 +861,7 @@ export default function ZapOut({
                         (!isValid || priceImpactSeverity > 2)
                       }
                     >
-                      <span className="text-[16px] font-medium">
+                      <span className="text-[16px] font-medium leading-[normal]">
                         {error
                           ? error
                           : priceImpactSeverity > 3 && !isDegenMode

@@ -6,7 +6,6 @@ import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { AutoRow } from 'components/Row'
-import { TYPE } from 'theme'
 import { cn } from 'utils/cn'
 
 export default function ImportRow({
@@ -32,12 +31,12 @@ export default function ImportRow({
       <CurrencyLogo currency={token} size={'24px'} style={{ opacity: dim ? '0.6' : '1' }} />
       <AutoColumn gap="4px" style={{ opacity: dim ? '0.6' : '1' }}>
         <AutoRow>
-          <TYPE.body fontWeight={500}>{token.symbol}</TYPE.body>
-          <TYPE.darkGray ml="8px" fontWeight={300}>
+          <p className="m-0 text-base font-medium leading-[normal] text-text">{token.symbol}</p>
+          <div className="m-0 ml-2 font-light text-text3">
             <div className="max-w-[140px] truncate text-xs" title={token.name}>
               {token.name}
             </div>
-          </TYPE.darkGray>
+          </div>
         </AutoRow>
       </AutoColumn>
       <ButtonPrimary

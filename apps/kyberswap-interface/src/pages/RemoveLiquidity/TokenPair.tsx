@@ -41,7 +41,7 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
+import { StyledInternalLink, UppercaseText } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
@@ -463,10 +463,12 @@ export default function TokenPair({
       <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
           <CurrencyLogo currency={currencyA} size={'28px'} />
-          <span className="text-[32px] font-medium">{parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}</span>
-          <span className="text-[32px] font-medium">{nativeA?.symbol}</span>
+          <span className="text-[32px] font-medium leading-[normal]">
+            {parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
+          </span>
+          <span className="text-[32px] font-medium leading-[normal]">{nativeA?.symbol}</span>
           {!!estimatedUsdCurrencyA && (
-            <span className="ml-1 text-[18px] font-medium text-subText">
+            <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
               (~{formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined})
             </span>
           )}
@@ -474,18 +476,20 @@ export default function TokenPair({
 
         <AutoRow gap="4px">
           <CurrencyLogo currency={currencyB} size={'28px'} />
-          <span className="text-[32px] font-medium">{parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}</span>
-          <span className="text-[32px] font-medium">{nativeB?.symbol}</span>
+          <span className="text-[32px] font-medium leading-[normal]">
+            {parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
+          </span>
+          <span className="text-[32px] font-medium leading-[normal]">{nativeB?.symbol}</span>
           {!!estimatedUsdCurrencyB && (
-            <span className="ml-1 text-[18px] font-medium text-subText">
+            <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
               (~{formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined})
             </span>
           )}
         </AutoRow>
 
-        <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
+        <p className="m-0 text-left text-[12px] font-normal italic leading-[normal] text-subText">
           {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
-        </TYPE.italic>
+        </p>
       </AutoColumn>
     )
   }
@@ -497,37 +501,39 @@ export default function TokenPair({
           {pair && (
             <>
               <CurrentPriceWrapper style={{ paddingBottom: '8px' }}>
-                <TYPE.subHeader fontSize={14} fontWeight={400} color={theme.subText}>
+                <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Current Price</Trans>
-                </TYPE.subHeader>
-                <TYPE.black fontSize={14} fontWeight={400}>
+                </p>
+                <p className="m-0 text-sm font-normal leading-[normal] text-text">
                   <CurrentPrice price={price} />
-                </TYPE.black>
+                </p>
               </CurrentPriceWrapper>
 
               <RowBetween style={{ paddingBottom: '12px' }}>
-                <span className="text-[14px] text-subText">
+                <span className="text-[14px] leading-[normal] text-subText">
                   <Trans>LP Tokens Removed</Trans>
                 </span>
 
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin={true} />
-                  <span className="text-[14px] text-text">{parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}</span>
+                  <span className="text-[14px] leading-[normal] text-text">
+                    {parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}
+                  </span>
                 </RowFixed>
               </RowBetween>
 
               {amountsMin && (
                 <>
                   <RowBetween style={{ paddingBottom: '12px' }}>
-                    <TYPE.subHeader fontWeight={400} fontSize={14} color={theme.subText}>
+                    <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                       <Trans>Minimum Received</Trans>
-                    </TYPE.subHeader>
+                    </p>
 
                     <TokenWrapper>
                       <CurrencyLogo currency={currencyA} size="16px" />
-                      <TYPE.black fontWeight={400} fontSize={14}>
+                      <p className="m-0 text-sm font-normal leading-[normal] text-text">
                         {formatJSBIValue(amountsMin[Field.CURRENCY_A], currencyA?.decimals)} {nativeA?.symbol}
-                      </TYPE.black>
+                      </p>
                     </TokenWrapper>
                   </RowBetween>
 
@@ -536,9 +542,9 @@ export default function TokenPair({
 
                     <TokenWrapper>
                       <CurrencyLogo currency={currencyB} size="16px" />
-                      <TYPE.black fontWeight={400} fontSize={14}>
+                      <p className="m-0 text-sm font-normal leading-[normal] text-text">
                         {formatJSBIValue(amountsMin[Field.CURRENCY_B], currencyB?.decimals)} {nativeB?.symbol}
-                      </TYPE.black>
+                      </p>
                     </TokenWrapper>
                   </RowBetween>
                 </>
@@ -548,7 +554,7 @@ export default function TokenPair({
         </ModalDetailWrapper>
 
         <ButtonPrimary disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)} onClick={onRemove}>
-          <span className="text-[16px] font-medium">
+          <span className="text-[16px] font-medium leading-[normal]">
             <Trans>Confirm</Trans>
           </span>
         </ButtonPrimary>
@@ -584,11 +590,11 @@ export default function TokenPair({
               <BlackCard className="rounded p-4">
                 <AutoColumn gap="1rem">
                   <RowBetween>
-                    <span className="text-[12px] font-medium">
+                    <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Amount</Trans>
                     </span>
 
-                    <span className="text-[12px] font-medium">
+                    <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Balance</Trans>:{' '}
                       {!userLiquidity ? (
                         <Loader />
@@ -599,7 +605,9 @@ export default function TokenPair({
                     </span>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>
-                    <span className="text-[72px] font-medium">{formattedAmounts[Field.LIQUIDITY_PERCENT]}%</span>
+                    <span className="text-[72px] font-medium leading-[normal]">
+                      {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
+                    </span>
                   </Row>
 
                   <>
@@ -698,45 +706,40 @@ export default function TokenPair({
               {pair && (
                 <DetailWrapper>
                   <AutoRow justify="space-between" gap="4px" style={{ paddingBottom: '12px' }}>
-                    <TYPE.subHeader fontWeight={500} fontSize={12} color={theme.subText}>
+                    <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Minimum Received</Trans>
                       </UppercaseText>
-                    </TYPE.subHeader>
+                    </p>
                   </AutoRow>
 
                   {amountsMin && (
                     <DetailBox style={{ paddingBottom: '12px', borderBottom: `1px dashed ${theme.border}` }}>
                       <TokenWrapper>
                         <CurrencyLogo currency={currencyA} size="16px" />
-                        <TYPE.black fontWeight={400} fontSize={14}>
+                        <p className="m-0 text-sm font-normal leading-[normal] text-text">
                           {formatJSBIValue(amountsMin[Field.CURRENCY_A], currencyA?.decimals)} {nativeA?.symbol}
-                        </TYPE.black>
+                        </p>
                       </TokenWrapper>
 
                       <TokenWrapper>
                         <CurrencyLogo currency={currencyB} size="16px" />
-                        <TYPE.black fontWeight={400} fontSize={14}>
+                        <p className="m-0 text-sm font-normal leading-[normal] text-text">
                           {formatJSBIValue(amountsMin[Field.CURRENCY_B], currencyB?.decimals)} {nativeB?.symbol}
-                        </TYPE.black>
+                        </p>
                       </TokenWrapper>
                     </DetailBox>
                   )}
 
                   <DetailBox style={{ paddingTop: '12px' }}>
-                    <TYPE.subHeader
-                      fontWeight={500}
-                      fontSize={12}
-                      color={theme.subText}
-                      style={{ display: 'flex', alignItems: 'center' }}
-                    >
+                    <p className="m-0 flex items-center text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Current Price</Trans>
                       </UppercaseText>
-                    </TYPE.subHeader>
-                    <TYPE.black fontWeight={400} fontSize={14}>
+                    </p>
+                    <p className="m-0 text-sm font-normal leading-[normal] text-text">
                       <CurrentPrice price={price} />
-                    </TYPE.black>
+                    </p>
                   </DetailBox>
                 </DetailWrapper>
               )}
@@ -779,7 +782,7 @@ export default function TokenPair({
                       disabled={!isValid || (signatureData === null && approval !== ApprovalState.APPROVED)}
                       error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
                     >
-                      <span className="text-[16px] font-medium">{error || t`Remove`}</span>
+                      <span className="text-[16px] font-medium leading-[normal]">{error || t`Remove`}</span>
                     </ButtonError>
                   </RowBetween>
                 )}

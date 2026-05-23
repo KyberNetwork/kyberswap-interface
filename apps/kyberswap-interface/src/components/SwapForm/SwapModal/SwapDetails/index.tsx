@@ -25,7 +25,7 @@ import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
-import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp, shortenAddress } from 'utils'
 import { calculateFeeFromBuildData } from 'utils/fee'
@@ -176,9 +176,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black fontSize={12} fontWeight={500}>
-                {minimumAmountOutStr || '--'}
-              </TYPE.black>
+              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{minimumAmountOutStr || '--'}</p>
             }
           />
         </RowBetween>
@@ -190,7 +188,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                 text={
                   <div>
                     <Trans>Estimated change in price due to the size of your transaction.</Trans>
-                    <p className="text-[12px]">
+                    <p className="m-0 text-[12px] leading-[normal]">
                       <Trans>
                         Read more{' '}
                         <a
@@ -218,12 +216,18 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black
-                fontSize={12}
-                color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
+              <p
+                className="m-0 text-[12px] font-medium leading-[normal]"
+                style={{
+                  color: priceImpactResult.isVeryHigh
+                    ? theme.red
+                    : priceImpactResult.isHigh
+                    ? theme.warning
+                    : theme.text,
+                }}
               >
                 {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
-              </TYPE.black>
+              </p>
             }
           />
         </RowBetween>
@@ -247,13 +251,15 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
               <div className="flex flex-col items-end gap-1">
                 <div className="flex gap-1" onClick={() => setShowDetailGas(prev => !prev)}>
                   {isHold && !!gasUsd && (
-                    <span className="text-[12px] text-subText line-through">{formattedNum(gasUsd, true)}</span>
+                    <span className="text-[12px] leading-[normal] text-subText line-through">
+                      {formattedNum(gasUsd, true)}
+                    </span>
                   )}
-                  <TYPE.black color={theme.text} fontSize={12}>
+                  <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
                     {gasUsd
                       ? formattedNum(isHold ? +gasUsd * 0.8 : +gasUsd + Number(buildData?.additionalCostUsd || 0), true)
                       : '--'}
-                  </TYPE.black>
+                  </p>
                   {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
                     <ChevronDown
                       color={theme.subText}
@@ -276,9 +282,9 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                         </TextDashed>
                       </RowFixed>
                       <div className="flex gap-1">
-                        <TYPE.black color={theme.text} fontSize={12}>
+                        <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
                           {gasUsd && formattedNum(gasUsd, true)}
-                        </TYPE.black>
+                        </p>
                       </div>
                     </div>
 
@@ -291,9 +297,9 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                         </TextDashed>
                       </RowFixed>
                       <div className="flex gap-1">
-                        <TYPE.black color={theme.text} fontSize={12}>
+                        <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
                           {formattedNum(buildData.additionalCostUsd, true)}
-                        </TYPE.black>
+                        </p>
                       </div>
                     </div>
                   </>
@@ -305,7 +311,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
 
         <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
           <RowFixed style={{ minWidth: 'max-content' }}>
-            <span className="min-w-max text-[12px] font-normal text-subText">
+            <span className="min-w-max text-[12px] font-normal leading-[normal] text-subText">
               <Trans>Maximum Receiving</Trans>
             </span>
           </RowFixed>
@@ -317,9 +323,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black fontSize={12} fontWeight={500}>
-                {maximumAmountOutStr || '--'}
-              </TYPE.black>
+              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{maximumAmountOutStr || '--'}</p>
             }
           />
         </RowBetween>
@@ -362,9 +366,9 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                       <Trans>Updated</Trans>
                     </div>
                   )}
-                  <TYPE.black color={theme.text} fontWeight={500} fontSize={12}>
+                  <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
                     {isInSafeApp ? '0.1%' : feeAmountUsdFromBuild || feeAmountWithSymbol || '--'}
-                  </TYPE.black>
+                  </p>
                 </div>
               }
             />
@@ -393,9 +397,12 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           </RowFixed>
 
           <div className="flex flex-col items-end gap-1.5">
-            <TYPE.black fontSize={12} color={checkWarningSlippage(slippage, cat) ? theme.warning : undefined}>
+            <p
+              className="m-0 text-[12px] font-medium leading-[normal] text-text"
+              style={checkWarningSlippage(slippage, cat) ? { color: theme.warning } : undefined}
+            >
               {formatSlippage(slippage)}
-            </TYPE.black>
+            </p>
             {addMevButton}
           </div>
         </RowBetween>
@@ -403,16 +410,16 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
         <Divider />
         {recipient && (
           <RowBetween>
-            <span className="text-[12px] text-subText">
+            <span className="text-[12px] leading-[normal] text-subText">
               <Trans>Recipient</Trans>
             </span>
-            <div className="flex items-center gap-1 text-[12px] font-medium">
+            <div className="flex items-center gap-1 text-[12px] font-medium leading-[normal]">
               <img src={networkInfo.icon} alt="network icon" width="12px" height="12px" />
               <ExternalLink
                 href={`${networkInfo.etherscanUrl}/address/${recipient}`}
                 style={{ textDecoration: 'underline', color: theme.text, textDecorationStyle: 'dotted' }}
               >
-                <span className="text-[12px]">{shortenAddress(chainId, recipient)}</span>
+                <span className="text-[12px] leading-[normal]">{shortenAddress(chainId, recipient)}</span>
               </ExternalLink>
             </div>
           </RowBetween>
@@ -437,7 +444,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                 href={`${networkInfo.etherscanUrl}/address/${buildData.routerAddress}`}
                 style={{ textDecoration: 'underline', color: theme.text, textDecorationStyle: 'dotted' }}
               >
-                <span className="text-[12px]">{shortenAddress(chainId, buildData.routerAddress)}</span>
+                <span className="text-[12px] leading-[normal]">{shortenAddress(chainId, buildData.routerAddress)}</span>
               </ExternalLink>
             </div>
           )}

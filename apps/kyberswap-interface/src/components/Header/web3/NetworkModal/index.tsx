@@ -21,7 +21,6 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useFavoriteChains } from 'state/user/hooks'
-import { TYPE } from 'theme'
 
 import DraggableNetworkButton from './components/DraggableNetworkButton'
 import DropzoneOverlay from './components/DropzoneOverlay'
@@ -211,9 +210,9 @@ export default function NetworkModal({
             </NetworkList>
           )}
           {isWrongNetwork && (
-            <TYPE.main fontSize={16} marginTop={14}>
+            <p className="m-0 mt-[14px] text-[16px] font-medium text-subText">
               <Trans>Please connect to the appropriate chain.</Trans>
-            </TYPE.main>
+            </p>
           )}
         </div>
       </>

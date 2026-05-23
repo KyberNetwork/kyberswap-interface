@@ -11,7 +11,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { useAddUserToken } from 'state/user/hooks'
-import { CloseIcon, TYPE } from 'theme'
+import { CloseIcon } from 'theme'
 import { ExternalLinkIcon } from 'theme/components'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
@@ -53,7 +53,9 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
       <PaddedColumn gap="14px" style={{ width: '100%', flex: '1 1' }}>
         <RowBetween>
           {onBack ? <ArrowLeft style={{ cursor: 'pointer' }} onClick={onBack} /> : <div></div>}
-          <TYPE.mediumHeader>{tokens.length > 1 ? t`Import Tokens` : t`Import Token`}</TYPE.mediumHeader>
+          <p className="m-0 text-xl font-medium leading-[normal]">
+            {tokens.length > 1 ? t`Import Tokens` : t`Import Token`}
+          </p>
           {onDismiss ? <CloseIcon onClick={onDismiss} /> : <div />}
         </RowBetween>
       </PaddedColumn>
@@ -75,9 +77,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
               <div className="flex gap-2.5">
                 <CurrencyLogo currency={token} size={'44px'} />
                 <AutoColumn gap="4px">
-                  <TYPE.body fontWeight={500} fontSize={20}>
-                    {token.symbol}
-                  </TYPE.body>
+                  <p className="m-0 text-xl font-medium leading-[normal] text-text">{token.symbol}</p>
                   <span className="text-sm font-normal text-subText">{token.name}</span>
                   <div className="flex items-center gap-[5px] text-text">
                     <div className="text-[10px] sm:text-xs">

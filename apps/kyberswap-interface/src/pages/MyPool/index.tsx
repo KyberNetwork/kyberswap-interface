@@ -30,7 +30,7 @@ import ProAmmPool from 'pages/ProAmmPool'
 import { UserLiquidityPosition } from 'state/pools/hooks'
 import { useLiquidityPositionTokenPairs, useToV2LiquidityTokens } from 'state/user/hooks'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
-import { StyledInternalLink, TYPE } from 'theme'
+import { StyledInternalLink } from 'theme'
 import { cn } from 'utils/cn'
 
 interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -314,9 +314,9 @@ function MyPoolClassic() {
 
             {!account ? (
               <Card className="p-10">
-                <TYPE.body color={theme.text3} textAlign="center">
+                <p className="m-0 text-center text-base text-text3">
                   <Trans>Connect to a wallet to view your liquidity.</Trans>
-                </TYPE.body>
+                </p>
               </Card>
             ) : !showStaked ? (
               loading && !v2PairsWithoutStakedAmount.length ? (
