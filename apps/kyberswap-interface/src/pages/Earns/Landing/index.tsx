@@ -1,9 +1,7 @@
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
 import FireIcon from 'assets/svg/earn/fire.svg'
@@ -17,7 +15,6 @@ import RocketIcon from 'assets/svg/rocket.svg'
 import StakingIcon from 'assets/svg/staking.svg'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import Card from 'pages/Earns/Landing/Card'
 import PoolSection from 'pages/Earns/Landing/PoolSection'
 import RewardSection from 'pages/Earns/Landing/RewardSection'
@@ -31,7 +28,6 @@ import { MEDIA_WIDTHS } from 'theme'
 const EarnLanding = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { isLoading, data } = useExplorerLandingQuery({ userAddress: account })
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
@@ -79,21 +75,11 @@ const EarnLanding = () => {
       {smartExitWidget}
 
       <Container>
-        <Text as="h1" fontSize={36} fontWeight="500">
-          {t`Maximize Your Earnings in DeFi`}
-        </Text>
-        <Text
-          marginTop="1rem"
-          marginBottom={'32px'}
-          maxWidth="800px"
-          fontSize={16}
-          color={theme.subText}
-          marginX="auto"
-          lineHeight="24px"
-        >
+        <h1 className="text-4xl font-medium">{t`Maximize Your Earnings in DeFi`}</h1>
+        <p className="mx-auto mb-8 mt-4 max-w-[800px] text-base leading-6 text-subText">
           {t`Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap
             technology—to help you maximize earnings from your liquidity across various DeFi protocols.`}
-        </Text>
+        </p>
 
         <RewardSection />
 
@@ -150,9 +136,9 @@ const EarnLanding = () => {
           styles={{ marginTop: upToSmall ? '16px' : '40px' }}
         />
 
-        <Box
-          sx={{
-            display: 'grid',
+        <div
+          className="grid"
+          style={{
             gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)',
             marginTop: upToXXSmall ? 16 : 40,
             gap: upToXXSmall ? 16 : 20,
@@ -184,35 +170,20 @@ const EarnLanding = () => {
             isLoading={isLoading}
             listPools={solidEarningPool}
           />
-        </Box>
+        </div>
 
-        <Flex
+        <div
           role="button"
           onClick={() => {
             navigate({
               pathname: APP_PATHS.EARN_POOLS,
             })
           }}
-          sx={{
-            cursor: 'pointer',
-            border: `1px solid ${theme.primary}`,
-            margin: 'auto',
-            marginTop: '40px',
-            borderRadius: '999px',
-            height: '56px',
-            background: rgba(theme.primary, 0.2),
-            fontSize: '16px',
-            fontWeight: 500,
-            color: theme.primary,
-            alignItems: 'center',
-            padding: '1rem 2rem',
-            width: 'fit-content',
-            ':hover': { background: rgba(theme.primary, 0.25) },
-          }}
+          className="mx-auto mt-10 flex h-14 w-fit cursor-pointer items-center rounded-full border border-primary bg-primary/20 px-8 py-4 text-base font-medium text-primary hover:bg-primary/[0.25]"
         >
           {t`EXPLORE POOLS`}
           <img src={PlayIcon} alt="play" width="36px" />
-        </Flex>
+        </div>
       </Container>
     </WrapperBg>
   )

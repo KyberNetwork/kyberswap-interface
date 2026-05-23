@@ -170,7 +170,7 @@ export default function Vote() {
           </span>
           <RowFit gap="4px">
             <KNCLogo size={20} />
-            <span className="text-base">KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</span>
+            <span className="text-base leading-[normal]">KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</span>
           </RowFit>
         </RowBetween>
         <RowBetween className="mb-3 w-full items-stretch gap-6 max-md:flex-col">
@@ -179,7 +179,7 @@ export default function Vote() {
               <span className="mb-5 text-sm text-subText">
                 <Trans>Total Staked KNC</Trans>
               </span>
-              <span className="mb-2 text-xl font-medium">
+              <span className="mb-2 text-xl font-medium leading-[normal]">
                 {daoInfo ? formattedNumLong(Math.round(daoInfo.total_staked)) + ' KNC' : '--'}
               </span>
               <span className="text-xs text-subText">
@@ -228,7 +228,7 @@ export default function Vote() {
               <RowBetween marginBottom="8px">
                 <RowFit>
                   <span
-                    className="text-xl font-medium"
+                    className="text-xl font-medium leading-[normal]"
                     style={{ color: hasPendingStakeAmount && !hasStakeAmount ? theme.border : theme.text }}
                   >
                     {formatVotingPower(
@@ -357,7 +357,7 @@ export default function Vote() {
                 rewardTab === REWARD_TAB.YourReward ? (
                   <RowBetween>
                     <AutoColumn>
-                      <span className="mb-2 text-xl font-medium">
+                      <span className="mb-2 text-xl font-medium leading-[normal]">
                         {formatUnitsToFixed(remainingCumulativeAmount, undefined, 2)} KNC
                       </span>
                       <span className="text-xs text-subText">
@@ -379,7 +379,7 @@ export default function Vote() {
                 ) : (
                   <RowBetween>
                     <AutoColumn>
-                      <span className="mb-2 text-xl font-medium">
+                      <span className="mb-2 text-xl font-medium leading-[normal]">
                         {(+formatUnitsToFixed(claimedRewardAmount, undefined, 2)).toLocaleString()} KNC
                       </span>
                       <span className="text-xs text-subText">

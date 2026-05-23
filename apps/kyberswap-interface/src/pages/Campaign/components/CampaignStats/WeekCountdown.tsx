@@ -1,9 +1,7 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
-import { Text } from 'rebass'
 
-import useTheme from 'hooks/useTheme'
 import { StatCard } from 'pages/Campaign/styles'
 import { CampaignWeek } from 'pages/Campaign/timelines'
 
@@ -25,7 +23,6 @@ type Props = {
 const EMPTY_WEEK: CampaignWeek = { value: -1, start: 0, end: 0 }
 
 export const WeekCountdown = ({ weekOptions, selectedWeek }: Props) => {
-  const theme = useTheme()
   const initializing = weekOptions.length === 0
 
   const defaultWeek = weekOptions[0] || EMPTY_WEEK
@@ -54,12 +51,10 @@ export const WeekCountdown = ({ weekOptions, selectedWeek }: Props) => {
 
   return (
     <StatCard style={{ flex: 1 }}>
-      <Text fontSize={14} color={theme.subText}>
-        {initializing ? '' : startEndIn}
-      </Text>
-      <Text marginTop="8px" fontSize={20} fontWeight="500">
+      <span className="text-sm text-subText">{initializing ? '' : startEndIn}</span>
+      <p className="mt-2 text-xl font-medium">
         {initializing ? '' : isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : formatCountdown(duration)}
-      </Text>
+      </p>
     </StatCard>
   )
 }

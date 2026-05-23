@@ -61,7 +61,7 @@ export const SmallButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HT
       ref={ref}
       {...rest}
       className={cn(
-        'cursor-pointer rounded-[10px] border-none bg-tableHeader px-2 py-[3px] text-xs text-subText transition-all duration-100 ease-in-out hover:brightness-105 active:brightness-110',
+        'cursor-pointer rounded-[10px] border-none bg-tableHeader px-2 py-[3px] text-xs leading-[normal] text-subText transition-all duration-100 ease-in-out hover:brightness-105 active:brightness-110',
         className,
       )}
     />

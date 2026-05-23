@@ -4,7 +4,6 @@ import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
-import { Text } from 'rebass'
 
 import { ButtonDropdownLight } from 'components/Button'
 import { LightCard } from 'components/Card'
@@ -97,9 +96,9 @@ export default function PoolFinder() {
 
   const prerequisiteMessage = (
     <LightCard className="px-2.5 py-[45px]">
-      <Text textAlign="center">
+      <p className="text-center">
         {!account ? t`Connect to a wallet to find pools` : t`Select a token to find your liquidity.`}
-      </Text>
+      </p>
     </LightCard>
   )
 
@@ -125,14 +124,12 @@ export default function PoolFinder() {
           {native0 ? (
             <Row>
               <CurrencyLogo currency={currency0 || undefined} />
-              <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
-                {native0?.symbol}
-              </Text>
+              <span className="ml-3 text-xl font-medium">{native0?.symbol}</span>
             </Row>
           ) : (
-            <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+            <span className="ml-3 text-xl font-medium">
               <Trans>Select a token</Trans>
-            </Text>
+            </span>
           )}
         </ButtonDropdownLight>
 
@@ -149,23 +146,21 @@ export default function PoolFinder() {
           {native1 ? (
             <Row>
               <CurrencyLogo currency={currency1 || undefined} />
-              <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
-                {native1?.symbol}
-              </Text>
+              <span className="ml-3 text-xl font-medium">{native1?.symbol}</span>
             </Row>
           ) : (
-            <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+            <span className="ml-3 text-xl font-medium">
               <Trans>Select a token</Trans>
-            </Text>
+            </span>
           )}
         </ButtonDropdownLight>
         {pairs.filter(([pairState]) => pairState === PairState.LOADING).length > 0 && (
           <LightCard className="px-2.5 py-[45px]">
             <AutoColumn gap="sm" justify="center">
-              <Text textAlign="center">
+              <p className="text-center">
                 <Trans>Loading</Trans>
                 <Dots />
-              </Text>
+              </p>
             </AutoColumn>
           </LightCard>
         )}
@@ -176,13 +171,13 @@ export default function PoolFinder() {
                 <ColumnCenter
                   style={{ justifyItems: 'center', backgroundColor: '', padding: '12px 0px', borderRadius: '12px' }}
                 >
-                  <Text textAlign="center" fontWeight={500}>
+                  <p className="text-center font-medium">
                     <Trans>Pool Found!</Trans>
-                  </Text>
+                  </p>
                   <StyledInternalLink to={`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=classic`}>
-                    <Text textAlign="center">
+                    <p className="text-center">
                       <Trans>Manage your pools.</Trans>
-                    </Text>
+                    </p>
                   </StyledInternalLink>
                 </ColumnCenter>
                 {myPairs}

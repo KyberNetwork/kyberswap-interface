@@ -1,7 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
@@ -20,7 +19,7 @@ import {
   Wrapper,
   X,
 } from 'pages/Earns/components/ClaimModal/styles'
-import { Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -100,26 +99,26 @@ const ClaimModal = ({
     <Modal isOpen onDismiss={onClose}>
       <Wrapper>
         <ModalHeader>
-          <Text fontSize={20} fontWeight={500}>
+          <span className="text-xl font-medium">
             {claimType === ClaimType.FEES
               ? t`Claim Fees`
               : claimType === ClaimType.REWARDS
               ? t`Claim Rewards`
               : t`Claim`}
-          </Text>
+          </span>
           <X onClick={onClose} />
         </ModalHeader>
         <ClaimInfoWrapper>
-          <Text fontSize={14} color={theme.subText} marginBottom={2}>
+          <p className="mb-0.5 text-sm text-subText">
             {t`Choose to reinvest your earnings back into this position or send them to your wallet.`}
-          </Text>
+          </p>
           <ClaimInfo>
-            <Flex alignItems={'center'} justifyContent={'space-between'}>
-              <Text fontSize={14} color={theme.subText}>{t`Total Value`}</Text>
-              <Text fontSize={18} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '160px' }}>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-subText">{t`Total Value`}</span>
+              <span className="max-w-[160px] truncate text-lg">
                 {formatDisplayNumber(claimInfo.totalValue, { style: 'currency', significantDigits: 4 })}
-              </Text>
-            </Flex>
+              </span>
+            </div>
 
             {[...claimInfo.tokens]
               .sort((a, b) => b.value - a.value)

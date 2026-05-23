@@ -1,6 +1,5 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
-import { Text } from 'rebass'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
@@ -42,32 +41,29 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
 
   return (
     <Stack gap={2}>
-      <Text>
+      <p>
         {t`Earning per`}{' '}
-        <Text as="span" color={isActive ? theme.blue : theme.primary}>
-          {isActive ? t`Active` : t`Total`}
-        </Text>{' '}
-        {t`TVL`}
-      </Text>
+        <span style={{ color: isActive ? theme.blue : theme.primary }}>{isActive ? t`Active` : t`Total`}</span> {t`TVL`}
+      </p>
       {lpApr !== undefined && (
-        <Text>
+        <p>
           {t`LP Fee APR`}: {formatAprNumber(lpApr)}%
-        </Text>
+        </p>
       )}
       {egApr !== undefined && (
-        <Text>
+        <p>
           {t`FairFlow EG Rewards`}: {formatAprNumber(egApr)}%
-        </Text>
+        </p>
       )}
       {lmApr !== undefined && (
-        <Text>
+        <p>
           {t`LM Reward`}: {formatAprNumber(lmApr)}%
-        </Text>
+        </p>
       )}
       {bonusApr !== undefined && (
-        <Text>
+        <p>
           {t`Bonus APR`}: {formatAprNumber(bonusApr)}%
-        </Text>
+        </p>
       )}
     </Stack>
   )
@@ -103,15 +99,18 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
 
       {activeAllApr !== undefined ? (
         <>
-          <Text color={theme.subText}>|</Text>
+          <span className="text-subText">|</span>
           <MouseoverTooltipDesktopOnly
             placement="bottom"
             width="fit-content"
             text={<AprTooltipContent pool={pool} type="active" />}
           >
-            <Text color={getAprColor(activeAllApr, theme.blue, theme.blue, theme.red)} fontWeight={500}>
+            <span
+              className="font-medium"
+              style={{ color: getAprColor(activeAllApr, theme.blue, theme.blue, theme.red) }}
+            >
               {formatAprNumber(activeAllApr)}%
-            </Text>
+            </span>
           </MouseoverTooltipDesktopOnly>
         </>
       ) : null}

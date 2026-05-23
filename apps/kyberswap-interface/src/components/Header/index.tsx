@@ -60,7 +60,7 @@ export default function Header() {
     <div
       style={{ zIndex: Z_INDEXS.HEADER }}
       className={cn(
-        'border-black/10 relative top-0 grid w-full items-center justify-between border-b',
+        'relative top-0 grid w-full items-center justify-between border-b border-black/10',
         'grid-cols-[1fr_120px] flex-row p-4',
         'max-lg:grid-cols-[1fr]',
         'max-[500px]:px-4 max-[500px]:py-2',

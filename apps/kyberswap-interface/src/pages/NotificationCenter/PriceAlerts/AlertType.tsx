@@ -1,8 +1,6 @@
 import { t } from '@lingui/macro'
 import { ArrowDown, ArrowUp } from 'react-feather'
-import { Text } from 'rebass'
 
-import useTheme from 'hooks/useTheme'
 import { PriceAlertType } from 'pages/NotificationCenter/const'
 
 type Props = {
@@ -15,20 +13,12 @@ const labelByType: () => Record<PriceAlertType, string> = () => ({
 })
 
 const AlertType: React.FC<Props> = ({ type }) => {
-  const theme = useTheme()
-
   return (
-    <Text
-      as="span"
-      sx={{
-        color: type === PriceAlertType.ABOVE ? theme.primary : theme.red,
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '2px',
-      }}
+    <span
+      className={`inline-flex items-center gap-[2px] ${type === PriceAlertType.ABOVE ? 'text-primary' : 'text-red'}`}
     >
       {type === PriceAlertType.ABOVE ? <ArrowUp size={18} /> : <ArrowDown size={18} />} {labelByType()[type]}
-    </Text>
+    </span>
   )
 }
 

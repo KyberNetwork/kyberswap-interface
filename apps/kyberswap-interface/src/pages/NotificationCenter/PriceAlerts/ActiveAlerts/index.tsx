@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { Flex } from 'rebass'
 import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
@@ -57,15 +56,11 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
 
   return (
     <>
-      <Flex
-        sx={{
-          flexDirection: 'column',
-        }}
-      >
+      <div className="flex flex-col">
         {data?.alerts.map(alert => (
           <SingleAlert key={alert.id} alert={alert} isMaxQuotaActiveAlert={isMaxQuotaActiveAlert} />
         ))}
-      </Flex>
+      </div>
 
       <CommonPagination
         style={{ margin: 0 }}

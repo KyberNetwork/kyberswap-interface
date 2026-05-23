@@ -1,6 +1,5 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
-import { Text } from 'rebass'
 
 import { ReactComponent as KyberBonusIcon } from 'assets/svg/kyber/kyber_bonus.svg'
 import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
@@ -33,7 +32,7 @@ const PoolAprBadges = ({ pool }: Props) => {
         >
           <Badge>
             <UniBonusIcon width={16} height={16} />
-            <Text>+{formatAprNumber(pool.kemEGApr)}%</Text>
+            <span>+{formatAprNumber(pool.kemEGApr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
@@ -45,7 +44,7 @@ const PoolAprBadges = ({ pool }: Props) => {
         >
           <Badge>
             <KyberBonusIcon width={16} height={16} />
-            <Text>+{formatAprNumber(pool.kemLMApr)}%</Text>
+            <span>+{formatAprNumber(pool.kemLMApr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
@@ -57,7 +56,7 @@ const PoolAprBadges = ({ pool }: Props) => {
         >
           <Badge>
             <TokenLogo src={tokenReward.icon} size={16} />
-            <Text>+{formatAprNumber(merklOpportunity.apr)}%</Text>
+            <span>+{formatAprNumber(merklOpportunity.apr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}

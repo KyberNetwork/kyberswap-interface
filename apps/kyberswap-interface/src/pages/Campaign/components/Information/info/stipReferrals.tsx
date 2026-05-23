@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
 
 import { ExternalLink } from 'theme'
 
@@ -29,15 +28,12 @@ const ReferralsTimelineSection = (): CampaignSectionComponent => (
 )
 
 const ReferralsRewardsSection = (): CampaignSectionComponent => (
-  <Text>
+  <p>
     <Trans>
-      Up to{' '}
-      <Text as="span" fontSize="24px" color="#ffffff" fontWeight="500">
-        45,000 ARB
-      </Text>{' '}
-      are allocated for the Referral Campaign until the end of the Trading Campaign.
+      Up to <span className="text-2xl font-medium text-white">45,000 ARB</span> are allocated for the Referral Campaign
+      until the end of the Trading Campaign.
     </Trans>
-  </Text>
+  </p>
 )
 
 const ReferralsTermsSection = ({ week = 0 }: CampaignSectionProps): CampaignSectionComponent => (
@@ -45,10 +41,8 @@ const ReferralsTermsSection = ({ week = 0 }: CampaignSectionProps): CampaignSect
     <li>
       <Trans>
         The Campaign will run from{' '}
-        <Text as="span" color="#ffffff" fontStyle="bold">
-          8th July 2024 at 0:00 UTC to 15th September 2024 at 23:59 UTC UTC
-        </Text>
-        . KyberSwap retains the right to amend the Campaign&apos;s start and end dates with reasonable notice.
+        <span className="font-bold text-white">8th July 2024 at 0:00 UTC to 15th September 2024 at 23:59 UTC UTC</span>.
+        KyberSwap retains the right to amend the Campaign&apos;s start and end dates with reasonable notice.
       </Trans>
     </li>
     <li>
@@ -71,9 +65,9 @@ const ReferralsTermsSection = ({ week = 0 }: CampaignSectionProps): CampaignSect
       <Trans>
         Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
         ARB.{' '}
-        <Text as="span" color="#ffffff" fontStyle="bold">
+        <span className="font-bold text-white">
           Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
-        </Text>
+        </span>
       </Trans>
     </li>
 

@@ -51,7 +51,7 @@ export const CurrencySelect = forwardRef<
       ref={ref}
       {...rest}
       className={cn(
-        'user-select-none flex items-center rounded-full px-2 py-1.5 text-xl font-medium outline-none',
+        'user-select-none flex items-center rounded-full px-2 py-1.5 text-xl font-medium leading-[normal] outline-none',
         hideInput ? 'h-10 w-full bg-buttonBlack' : 'w-auto bg-background',
         selected ? 'border border-transparent text-subText' : 'border border-primary text-primary',
         !selected && 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]',

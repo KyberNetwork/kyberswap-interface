@@ -18,7 +18,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { formatRemainTime } from 'utils/time'
 
 const CountDownWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('bg-buttonBlack/30 flex flex-col items-center gap-2 rounded-2xl p-3', className)}>{children}</div>
+  <div className={cn('flex flex-col items-center gap-2 rounded-2xl bg-buttonBlack/30 p-3', className)}>{children}</div>
 )
 
 export default function CancelStatusCountDown({

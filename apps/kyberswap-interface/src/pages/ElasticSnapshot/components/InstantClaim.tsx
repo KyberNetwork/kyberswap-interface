@@ -1,12 +1,12 @@
 import { Trans } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { VerticalDivider } from 'pages/About/styleds'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import avalanche from '../data/instant/avalanche.json'
@@ -46,7 +46,6 @@ export default function InstantClaim() {
   const phase2Value = phase2Data?.claimData.tokenInfo.reduce((acc, cur) => acc + cur.value, 0) || 0
   const phase2_5Value = phase2_5Data?.claimData.tokenInfo.reduce((acc, cur) => acc + cur.value, 0) || 0
 
-  // no overlap user, ensure that only phase 2 or phase 2.5
   const valuePhase2 = phase2_5Value || phase2Value
 
   const totalValue = phase1Value + phase2Value + phase2_5Value
@@ -57,101 +56,75 @@ export default function InstantClaim() {
   if (!userData.filter(Boolean).length && !phase2Data && !phase2_5Data) return null
 
   return (
-    <Flex flexDirection="column">
+    <div className="flex flex-col">
       {phase && <InstantClaimModal onDismiss={onDismiss} phase={phase} />}
-      <Text fontSize={20} fontWeight="500">
+      <span className="text-xl font-medium">
         <Trans>Available assets for claiming</Trans>
-      </Text>
+      </span>
 
-      <Flex marginTop="1rem" padding={upToMedium ? '12px 0' : '12px 20px'} alignItems="center">
-        <Flex
-          flexDirection="column"
-          justifyContent="space-between"
-          width="max-content"
-          sx={{ gap: '16px' }}
-          marginRight={upToMedium ? '12px' : '24px'}
-        >
-          <Text fontSize={upToMedium ? '12px' : '14px'} fontWeight="500" color={theme.subText} lineHeight="20px">
+      <div className={cn('mt-4 flex items-center', upToMedium ? 'px-0 py-3' : 'px-5 py-3')}>
+        <div className={cn('flex w-max flex-col justify-between gap-4', upToMedium ? 'mr-3' : 'mr-6')}>
+          <span className={cn('font-medium leading-5 text-subText', upToMedium ? 'text-xs' : 'text-sm')}>
             <Trans>TOTAL AMOUNT (USD)</Trans>
-          </Text>
-          <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-            {format(totalValue)}
-          </Text>
-        </Flex>
+          </span>
+          <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>{format(totalValue)}</span>
+        </div>
         <VerticalDivider style={{ height: '100%' }} />
 
-        <Flex
-          flexDirection="column"
-          justifyContent="space-between"
-          sx={{ gap: '16px' }}
-          marginX={upToMedium ? '12px' : '24px'}
-        >
-          <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+        <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
+          <span className="text-sm leading-5 text-subText">
             <Trans>Phase 1</Trans>
-          </Text>
-          <Flex sx={{ gap: '1rem' }} alignItems="flex-end">
-            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {format(phase1Value)}
-            </Text>
+          </span>
+          <div className="flex items-end gap-4">
+            <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>{format(phase1Value)}</span>
             {phase1Value !== 0 && (
-              <Text
-                sx={{ fontSize: '14px', cursor: 'pointer' }}
-                fontWeight="500"
+              <span
+                className="mb-0.5 cursor-pointer text-sm font-medium"
                 role="button"
-                color={theme.primary}
-                mb="2px"
+                style={{ color: theme.primary }}
                 onClick={() => {
                   setShow('1')
                 }}
               >
                 <Trans>Details</Trans>
-              </Text>
+              </span>
             )}
-          </Flex>
-        </Flex>
+          </div>
+        </div>
 
         <VerticalDivider style={{ height: '80%' }} />
 
-        <Flex
-          flexDirection="column"
-          justifyContent="space-between"
-          marginX={upToMedium ? '12px' : '24px'}
-          sx={{ gap: '16px' }}
-        >
-          <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+        <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
+          <span className="text-sm leading-5 text-subText">
             <Trans>Phase 2</Trans>
-          </Text>
-          <Flex sx={{ gap: '1rem' }} alignItems="flex-end">
-            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {format(valuePhase2 || 0)}
-            </Text>
+          </span>
+          <div className="flex items-end gap-4">
+            <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>{format(valuePhase2 || 0)}</span>
             {valuePhase2 !== 0 && (
-              <Text
-                sx={{ fontSize: '14px', cursor: 'pointer' }}
-                fontWeight="500"
+              <span
+                className="mb-0.5 cursor-pointer text-sm font-medium"
                 role="button"
-                color={theme.primary}
-                mb="2px"
+                style={{ color: theme.primary }}
                 onClick={() => {
                   setShow(phase2Data ? '2' : '2.5')
                 }}
               >
                 <Trans>Details</Trans>
-              </Text>
+              </span>
             )}
-          </Flex>
-        </Flex>
-      </Flex>
+          </div>
+        </div>
+      </div>
 
-      <Text marginTop="1rem" fontSize={14} color={theme.subText} lineHeight={1.5}>
+      <p className="mt-4 text-sm leading-normal text-subText">
         <Trans>Total Amount includes assets that KyberSwap has recovered or rescued under Category 3 & 5</Trans>
-      </Text>
-      <Text marginTop="8px" fontSize={14} color={theme.subText} lineHeight={1.5}>
+      </p>
+      <p className="mt-2 text-sm leading-normal text-subText">
         <Trans>
           Your assets are spread across various networks. Kindly choose the relevant network and proceed with the
           claiming process.
         </Trans>
-      </Text>
-    </Flex>
+      </p>
+    </div>
   )
 }

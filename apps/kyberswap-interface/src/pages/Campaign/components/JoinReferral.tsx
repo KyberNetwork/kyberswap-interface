@@ -3,7 +3,6 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
-import { Box, Flex, Text } from 'rebass'
 import {
   useCreateShareMutation,
   useGetParticipantQuery,
@@ -103,12 +102,12 @@ export default function JoinReferal() {
 
   if (!account)
     return (
-      <Flex width="150px">
+      <div className="flex w-[150px]">
         <ConnectWalletButton onClick={toggleWalletModal} style={{ width: 'fit-content' }} />
-      </Flex>
+      </div>
     )
 
-  if (isLoading) return <Box height="40px" />
+  if (isLoading) return <div className="h-10" />
 
   if (error || !data) {
     return (
@@ -118,20 +117,20 @@ export default function JoinReferal() {
         </ButtonPrimary>
 
         <Modal isOpen={showRefModal} onDismiss={() => setShowRefModal(false)}>
-          <Flex width="100%" padding="24px 32px 32px" flexDirection="column">
-            <Flex justifyContent="space-between" alignItems="center">
-              <Text fontSize={20} fontWeight="500">
+          <div className="flex w-full flex-col px-8 pb-8 pt-6">
+            <div className="flex items-center justify-between">
+              <span className="text-xl font-medium">
                 <Trans>Code Referral</Trans>
-              </Text>
+              </span>
               <X cursor="pointer" color={theme.subText} onClick={() => setShowRefModal(false)} role="button" />
-            </Flex>
+            </div>
 
-            <Text marginTop="32px" color={theme.subText}>
+            <p className="mt-8 text-subText">
               <Trans>
                 Enter the referral code to get 5% extra bonus, more information{' '}
                 <ExternalLink href="/campaigns/referrals?tab=information">here.</ExternalLink>
               </Trans>
-            </Text>
+            </p>
 
             <Input
               style={{ marginTop: '24px' }}
@@ -142,7 +141,7 @@ export default function JoinReferal() {
               }}
             />
 
-            <Flex sx={{ gap: '1rem' }} marginTop="24px">
+            <div className="mt-6 flex gap-4">
               <ButtonPrimary
                 onClick={() => {
                   handleJoin(refCode)
@@ -150,8 +149,8 @@ export default function JoinReferal() {
               >
                 <Trans>Confirm</Trans>
               </ButtonPrimary>
-            </Flex>
-          </Flex>
+            </div>
+          </div>
         </Modal>
       </>
     )
@@ -165,37 +164,37 @@ export default function JoinReferal() {
       </ButtonPrimary>
 
       <Modal isOpen={showInviteModal} onDismiss={() => setShowInviteModal(false)}>
-        <Flex width="100%" padding="24px 32px 32px" flexDirection="column">
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize={20} fontWeight="500">
+        <div className="flex w-full flex-col px-8 pb-8 pt-6">
+          <div className="flex items-center justify-between">
+            <span className="text-xl font-medium">
               <Trans>Generate Referral</Trans>
-            </Text>
+            </span>
             <X cursor="pointer" color={theme.subText} onClick={() => setShowInviteModal(false)} role="button" />
-          </Flex>
+          </div>
 
-          <Text marginTop="32px" color={theme.subText}>
+          <p className="mt-8 text-subText">
             <Trans>Copy and share your link/code with your network.</Trans>
-          </Text>
+          </p>
 
-          <Box sx={{ position: 'relative', marginTop: '24px' }}>
+          <div className="relative mt-6">
             <Input style={{ paddingRight: '40px' }} value={refLink || domain} />
 
-            <Box sx={{ position: 'absolute', right: '12px', top: '12px' }}>
+            <div className="absolute right-3 top-3">
               <CopyHelper toCopy={refLink || domain} />
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          <Box sx={{ position: 'relative', marginTop: '24px' }}>
+          <div className="relative mt-6">
             <Input
               style={{ paddingRight: '40px', letterSpacing: '4px' }}
               value={data?.data?.participant?.referralCode}
             />
 
-            <Box sx={{ position: 'absolute', right: '12px', top: '12px' }}>
+            <div className="absolute right-3 top-3">
               <CopyHelper toCopy={data?.data?.participant?.referralCode || ''} />
-            </Box>
-          </Box>
-        </Flex>
+            </div>
+          </div>
+        </div>
       </Modal>
     </>
   )

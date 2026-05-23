@@ -4,7 +4,6 @@ import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -179,19 +178,13 @@ export default function VestingClaimModal({
 
   return (
     <Modal width="100%" maxWidth="680px" isOpen={true} onDismiss={onDismiss}>
-      <Flex
-        flexDirection="column"
-        padding={upToSmall ? '1rem' : '20px'}
-        bg={theme.background}
-        width="100%"
-        lineHeight={1.5}
-        sx={{
-          position: 'relative',
-        }}
+      <div
+        className={`relative flex w-full flex-col bg-background ${upToSmall ? 'p-4' : 'p-5'}`}
+        style={{ lineHeight: 1.5 }}
       >
-        <Text color={theme.text} fontSize="20px" fontWeight="500" textAlign="center">
+        <span className="text-center text-xl font-medium text-text">
           <Trans>Claim Asset</Trans>
-        </Text>
+        </span>
         <ButtonEmpty
           onClick={onDismiss}
           width="36px"
@@ -202,37 +195,24 @@ export default function VestingClaimModal({
           <X color={theme.text} />
         </ButtonEmpty>
 
-        <Text color={theme.subText} fontSize={14}>
+        <span className="text-sm text-subText">
           <Trans>You are currently claiming</Trans>
-        </Text>
+        </span>
 
-        <Box
-          sx={{
-            background: theme.buttonBlack,
-            padding: '1rem',
-            borderRadius: '12px',
-            marginTop: '8px',
-            gap: '4px',
-            alignItems: 'center',
-          }}
-          display="flex"
-        >
+        <div className="mt-2 flex items-center gap-1 rounded-xl bg-buttonBlack p-4">
           <img src="https://polygonscan.com/token/images/centre-usdc_32.png" alt="" width="20px" height="20px" />
-          {tokenAmount.toFixed(6)} <Text>USDC</Text>
-        </Box>
+          {tokenAmount.toFixed(6)} <span>USDC</span>
+        </div>
 
-        <Text color={theme.subText} marginTop="8px">
-          on the{' '}
-          <Text as="span" color={theme.text}>
-            Polygon NetWork
-          </Text>
-        </Text>
+        <span className="mt-2 text-subText">
+          on the <span className="text-text">Polygon NetWork</span>
+        </span>
 
-        <Text color={theme.subText} fontSize={14} marginTop="24px">
+        <span className="mt-6 text-sm text-subText">
           Make sure you have read and understand the{' '}
           <ExternalLink href={tcLink}>KyberSwap’s Terms and Conditions</ExternalLink> before proceeding. You will need
           to Sign a message to confirm that you have read and accepted before claiming your assets.
-        </Text>
+        </span>
 
         <TermAndCondition
           onClick={() => setIsAcceptTerm(prev => !prev)}
@@ -244,11 +224,11 @@ export default function VestingClaimModal({
             data-testid="accept-term"
             style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
           />
-          <Text>
+          <span>
             Accept <ExternalLink href={tcLink}>KyberSwap’s Terms and Conditions</ExternalLink>
-          </Text>
+          </span>
         </TermAndCondition>
-        <Flex marginTop="24px" sx={{ gap: '1rem' }}>
+        <div className="mt-6 flex gap-4">
           <ButtonOutlined
             onClick={() => {
               onDismiss()
@@ -259,8 +239,8 @@ export default function VestingClaimModal({
           <ButtonPrimary onClick={handleClaim} disabled={!isAcceptTerm || signing}>
             {signing ? <Dots>Signing</Dots> : 'Sign and Claim'}
           </ButtonPrimary>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     </Modal>
   )
 }

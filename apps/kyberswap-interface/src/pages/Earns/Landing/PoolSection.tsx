@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 
 import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -32,19 +31,9 @@ const PoolSection = ({
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const poolItemContainerStyles = {
-    ...(size === 'small'
-      ? {
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-        }
-      : {
-          display: 'grid',
-          gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)',
-          gap: '1rem',
-        }),
-  }
+  const poolItemContainerClass = size === 'small' ? 'flex flex-col gap-4' : 'grid gap-4'
+  const poolItemContainerStyle: React.CSSProperties =
+    size === 'large' ? { gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)' } : {}
 
   return (
     <PoolWrapper style={styles}>
@@ -57,30 +46,24 @@ const PoolSection = ({
           })
         }}
       >
-        <Flex alignItems="center" sx={{ gap: '12px' }}>
+        <div className="flex items-center gap-3">
           <Icon icon={icon} size="small" />
           <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-            <Text as="h2" fontSize={20}>
-              {title}
-            </Text>
+            <h2 className="text-xl">{title}</h2>
           </MouseoverTooltipDesktopOnly>
-        </Flex>
-        <Box
-          sx={{
-            height: '1px',
-            margin: '16px',
-            width: '100%',
-            background: 'linear-gradient(90deg, #161A1C 0%, #49287F 29%, #111413 100%)',
-          }}
+        </div>
+        <div
+          className="m-4 h-px w-full"
+          style={{ background: 'linear-gradient(90deg, #161A1C 0%, #49287F 29%, #111413 100%)' }}
         />
         {isLoading ? (
           <LocalLoader />
         ) : (
-          <Box sx={poolItemContainerStyles}>
+          <div className={poolItemContainerClass} style={poolItemContainerStyle}>
             {listPools.map(pool => (
               <PoolItem pool={pool} key={pool.address} />
             ))}
-          </Box>
+          </div>
         )}
       </ListPoolWrapper>
     </PoolWrapper>

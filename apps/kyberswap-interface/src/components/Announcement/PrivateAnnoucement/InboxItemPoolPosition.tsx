@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Flex } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
@@ -21,7 +20,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { useNavigateToUrl } from 'utils/redirect'
 
-/** @deprecated */
 function InboxItemPoolPosition({
   announcement,
   onRead,
@@ -76,7 +74,7 @@ function InboxItemPoolPosition({
       </InboxItemRow>
 
       <InboxItemRow>
-        <Flex alignItems={'center'} style={{ gap: '4px' }}>
+        <div className="flex items-center gap-1">
           <DoubleCurrencyLogoV2
             style={{ marginRight: 10 }}
             logoUrl1={token0LogoURL}
@@ -86,7 +84,7 @@ function InboxItemPoolPosition({
           <PrimaryText>
             {token0Symbol}/{token1Symbol}
           </PrimaryText>
-        </Flex>
+        </div>
         <PrimaryText color={isInRange ? theme.primary : theme.warning}>
           {currentPrice} {token0Symbol}/{token1Symbol}
         </PrimaryText>

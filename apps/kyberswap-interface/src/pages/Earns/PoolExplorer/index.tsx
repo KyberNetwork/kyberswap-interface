@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
@@ -14,7 +13,6 @@ import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import Filter from 'pages/Earns/PoolExplorer/Filter'
 import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
@@ -53,7 +51,6 @@ const PoolExplorer = () => {
   const deboundedSearch = useDebounce(search, DEBOUNCE_DELAY)
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const theme = useTheme()
   const notify = useNotify()
   const { trackingHandler } = useTracking()
   const { filters, updateFilters } = useFilter(setSearch)
@@ -240,13 +237,11 @@ const PoolExplorer = () => {
           <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
             <IconArrowLeft />
           </BackButton>
-          <Text fontSize={24} fontWeight="500">
-            {t`Earning with Smart Liquidity Providing`}
-          </Text>
+          <span className="text-2xl font-medium">{t`Earning with Smart Liquidity Providing`}</span>
         </HStack>
-        <Text color={theme.subText} fontStyle={'italic'}>
+        <span className="italic text-subText">
           {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
-        </Text>
+        </span>
       </Stack>
 
       <Filter

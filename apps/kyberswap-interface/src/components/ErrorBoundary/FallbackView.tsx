@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import React from 'react'
-import { Text } from 'rebass'
 import UAParser from 'ua-parser-js'
 
 import { ButtonPrimary } from 'components/Button'
@@ -70,19 +69,17 @@ const FallbackView: React.FC<Props> = ({ error }) => {
     <div className="z-[1] flex w-full flex-col items-center justify-center">
       <div className="m-auto w-full px-6 pb-[18px] pt-12">
         <AutoColumn gap={'lg'} justify="center">
-          <Text textAlign="center" fontSize="24px" maxWidth={'600px'}>
+          <p className="max-w-[600px] text-center text-2xl">
             {foundError?.title || <Trans>Oops! Something went wrong</Trans>}
-          </Text>
+          </p>
 
           {foundError?.description ? (
-            <Text textAlign="center" fontSize="16px" maxWidth={'600px'} marginTop="16px">
-              {foundError.description}
-            </Text>
+            <p className="mt-4 max-w-[600px] text-center text-base">{foundError.description}</p>
           ) : (
             <>
               <div className="overflow-auto whitespace-pre-line">
                 <code>
-                  <Text fontSize={10}>{error.stack}</Text>
+                  <span className="text-[10px]">{error.stack}</span>
                 </code>
               </div>
               <AutoRow>
@@ -94,10 +91,10 @@ const FallbackView: React.FC<Props> = ({ error }) => {
                     )}`}
                     target="_blank"
                   >
-                    <Text fontSize={16}>
+                    <span className="text-base">
                       <Trans>Create an issue on GitHub</Trans>
                       <span>↗</span>
-                    </Text>
+                    </span>
                   </ExternalLink>
                 </div>
               </AutoRow>

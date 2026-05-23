@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { Flex } from 'rebass'
 import { useGetListPriceAlertHistoryQuery } from 'services/announcement'
 
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
@@ -29,15 +28,11 @@ const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boole
 
   return (
     <>
-      <Flex
-        sx={{
-          flexDirection: 'column',
-        }}
-      >
+      <div className="flex flex-col">
         {notifications.map(alert => (
           <SingleAlert key={alert.id} announcement={alert as PrivateAnnouncement<AnnouncementTemplatePriceAlert>} />
         ))}
-      </Flex>
+      </div>
 
       <CommonPagination
         style={{ margin: 0 }}

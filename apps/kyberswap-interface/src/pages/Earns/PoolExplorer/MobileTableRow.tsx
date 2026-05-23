@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
-import { Text } from 'rebass'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
@@ -96,20 +95,20 @@ const MobileTableRow = ({
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <HeaderText color={theme.subText}>{t`Fee`}</HeaderText>
-          <Text>
+          <span>
             {formatDisplayNumber(pool.earnFee, {
               style: 'currency',
               significantDigits: 6,
             })}
-          </Text>
+          </span>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <HeaderText color={theme.subText}>{t`TVL`}</HeaderText>
-          <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
+          <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
           <HeaderText color={theme.subText}>{t`Volume`}</HeaderText>
-          <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+          <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
         </MobileTableCell>
         {showRewards && (
           <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>

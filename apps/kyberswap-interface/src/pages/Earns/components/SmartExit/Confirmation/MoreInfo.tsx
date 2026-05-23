@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { Flex, Text } from 'rebass'
 
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TIMES_IN_SECS } from 'constants/index'
@@ -20,30 +19,23 @@ export default function MoreInfo({
   const theme = useTheme()
   const nowInSeconds = Math.floor(Date.now() / 1000)
   const remainingSeconds = deadline - nowInSeconds
-  // Consider "Forever" if remaining time is close to FOREVER_EXPIRE_TIME (within 1 day tolerance)
   const isForever = remainingSeconds >= FOREVER_EXPIRE_TIME - TIMES_IN_SECS.ONE_DAY
   const displayTime = isForever ? 'Forever' : dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
 
   return (
     <>
-      <Flex justifyContent={'space-between'} mt="1rem">
-        <Text color={theme.subText} fontSize={14}>
+      <div className="mt-4 flex justify-between">
+        <span className="text-sm text-subText">
           <Trans>Platform Fee</Trans>
-        </Text>
-        <Text color={theme.text} fontSize={14}>
-          {protocolFee}%
-        </Text>
-      </Flex>
+        </span>
+        <span className="text-sm text-text">{protocolFee}%</span>
+      </div>
 
-      <Flex justifyContent={'space-between'} mt="1rem">
+      <div className="mt-4 flex justify-between">
         <TextDashed
           color={theme.subText}
           fontSize={14}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: 'fit-content',
-          }}
+          sx={{ display: 'flex', alignItems: 'center', height: 'fit-content' }}
         >
           <MouseoverTooltip
             placement="right"
@@ -52,20 +44,14 @@ export default function MoreInfo({
             <Trans>Max Execution Gas</Trans>
           </MouseoverTooltip>
         </TextDashed>
-        <Text color={theme.text} fontSize={14}>
-          {formatDisplayNumber(maxGas, { significantDigits: 4 })}%
-        </Text>
-      </Flex>
+        <span className="text-sm text-text">{formatDisplayNumber(maxGas, { significantDigits: 4 })}%</span>
+      </div>
 
-      <Flex justifyContent={'space-between'} mt="1rem">
+      <div className="mt-4 flex justify-between">
         <TextDashed
           color={theme.subText}
           fontSize={14}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: 'fit-content',
-          }}
+          sx={{ display: 'flex', alignItems: 'center', height: 'fit-content' }}
         >
           <MouseoverTooltip
             placement="right"
@@ -74,10 +60,8 @@ export default function MoreInfo({
             <Trans>Expires in</Trans>
           </MouseoverTooltip>
         </TextDashed>
-        <Text color={theme.text} fontSize={14}>
-          {displayTime}
-        </Text>
-      </Flex>
+        <span className="text-sm text-text">{displayTime}</span>
+      </div>
     </>
   )
 }

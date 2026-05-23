@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { AlignJustify, List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
 
 import { ReactComponent as AllIcon } from 'assets/svg/all_icon.svg'
@@ -141,7 +140,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
   }, [signedAccount, isSigInGuest, profile, toggleImportProfile, isSignInGuestDefault, menuItems])
 
   return (
-    <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>
+    <div className={`flex flex-col ${upToMedium ? 'p-0' : 'p-6'}`}>
       {menuItemDeskTop.map((data, index) => (
         <MenuItem
           key={index}
@@ -152,7 +151,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
           onChildrenClick={onChildrenClick}
         />
       ))}
-    </Flex>
+    </div>
   )
 }
 

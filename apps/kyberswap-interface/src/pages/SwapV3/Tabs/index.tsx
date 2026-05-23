@@ -20,7 +20,7 @@ export const Tab = ({
 }: React.ComponentProps<typeof ButtonEmpty> & { $isActive: boolean; $isDisabled?: boolean }) => (
   <ButtonEmpty
     className={cn(
-      'relative mb-1 mr-1.5 w-fit rounded-none p-0 text-lg font-medium hover:no-underline focus:no-underline max-sm:px-1.5 max-sm:py-0 max-sm:text-sm',
+      'relative mb-1 mr-1.5 w-fit rounded-none p-0 text-lg font-medium leading-[normal] hover:no-underline focus:no-underline max-sm:px-1.5 max-sm:py-0 max-sm:text-sm',
       "before:mr-2 before:h-[22px] before:w-0.5 before:rounded-sm before:bg-border before:content-['']",
       'first:before:hidden',
       $isDisabled ? 'text-border' : $isActive ? 'text-primary' : 'text-subText',

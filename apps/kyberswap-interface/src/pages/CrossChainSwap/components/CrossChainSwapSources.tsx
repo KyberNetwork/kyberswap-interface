@@ -1,12 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
-import { Box, Flex, Text } from 'rebass'
 
 import CheckBox from 'components/CheckBox'
 import { BackIconWrapper, LiquiditySourceHeader, SourceList } from 'components/swapv2/LiquiditySourcesPanel'
 import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
 import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { updateExcludedSources } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -14,7 +12,6 @@ import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { CrossChainSwapFactory } from '../factory'
 
 export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const [searchText, setSearchText] = useState('')
 
@@ -41,26 +38,14 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
   }, [excludedSources, sources])
 
   return (
-    <Box width="100%">
-      <Flex
-        width={'100%'}
-        flexDirection={'column'}
-        sx={{
-          rowGap: '20px',
-        }}
-      >
-        <Flex
-          alignItems="center"
-          sx={{
-            // this is to make the arrow stay exactly where it stays in Swap panel
-            marginTop: '5px',
-          }}
-        >
+    <div className="w-full">
+      <div className="flex w-full flex-col gap-y-5">
+        <div className="mt-[5px] flex items-center">
           <BackIconWrapper onClick={onBack}></BackIconWrapper>
-          <Text color={theme.text} fontWeight={500} fontSize={18}>
+          <span className="text-lg font-medium text-text">
             <Trans>Liquidity Sources</Trans>
-          </Text>
-        </Flex>
+          </span>
+        </div>
 
         <SearchBar text={searchText} setText={setSearchText} />
 
@@ -75,9 +60,9 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
               }
             }}
           />
-          <Text>
+          <span>
             <Trans>Liquidity Sources</Trans>
-          </Text>
+          </span>
         </LiquiditySourceHeader>
 
         <SourceList>
@@ -114,7 +99,7 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
               </Source>
             ))}
         </SourceList>
-      </Flex>
-    </Box>
+      </div>
+    </div>
   )
 }

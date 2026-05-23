@@ -31,7 +31,7 @@ const NavGroup: React.FC<Props> = ({
     <div
       id={id}
       className={cn(
-        'group relative inline-block w-fit select-none text-base font-medium hover:brightness-90',
+        'group relative inline-block w-fit select-none text-base font-medium leading-[normal] hover:brightness-90',
         isActive ? 'text-primary' : 'text-subText',
         className,
       )}

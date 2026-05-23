@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
 
 import nearCampaignGuide from 'pages/Campaign/assets/near_campaign_guide.png'
 
@@ -194,18 +193,12 @@ const NearIntentsRewardsSection = (): CampaignSectionComponent => (
   <>
     <li>
       <Trans>
-        Week 1:{' '}
-        <Text as="span" color="#fff">
-          20,000 USDT
-        </Text>
+        Week 1: <span className="text-white">20,000 USDT</span>
       </Trans>
     </li>
     <li>
       <Trans>
-        Week 2:{' '}
-        <Text as="span" color="#fff">
-          30,000 USDT
-        </Text>
+        Week 2: <span className="text-white">30,000 USDT</span>
       </Trans>
     </li>
     <li>

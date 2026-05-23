@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from 'react'
 import { X } from 'react-feather'
 import { useLocalStorage } from 'react-use'
-import { Flex } from 'rebass'
 import { Autoplay, Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
@@ -64,12 +63,13 @@ function Banner({
   if (!showBanner) return null
 
   return (
-    <Flex
-      margin={margin || 'auto'}
-      padding={padding}
-      maxWidth={maxWidth || '1394px'}
-      width="100%"
-      className="ks-banner"
+    <div
+      className="ks-banner flex w-full"
+      style={{
+        margin: margin || 'auto',
+        padding,
+        maxWidth: maxWidth || '1394px',
+      }}
     >
       <Swiper
         autoplay={banners.length > 1 ? { delay: 5000 } : false}
@@ -109,7 +109,7 @@ function Banner({
           </SwiperSlide>
         ))}
       </Swiper>
-    </Flex>
+    </div>
   )
 }
 

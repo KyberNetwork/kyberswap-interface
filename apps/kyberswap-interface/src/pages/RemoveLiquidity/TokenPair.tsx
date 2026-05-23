@@ -6,7 +6,6 @@ import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyber
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -464,31 +463,23 @@ export default function TokenPair({
       <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
           <CurrencyLogo currency={currencyA} size={'28px'} />
-          <Text fontSize={32} fontWeight={500}>
-            {parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
-          </Text>
-          <Text fontSize={32} fontWeight={500}>
-            {nativeA?.symbol}
-          </Text>
+          <span className="text-[32px] font-medium">{parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}</span>
+          <span className="text-[32px] font-medium">{nativeA?.symbol}</span>
           {!!estimatedUsdCurrencyA && (
-            <Text color={theme.subText} marginLeft="4px" fontSize={18} fontWeight={500}>
+            <span className="ml-1 text-[18px] font-medium text-subText">
               (~{formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined})
-            </Text>
+            </span>
           )}
         </AutoRow>
 
         <AutoRow gap="4px">
           <CurrencyLogo currency={currencyB} size={'28px'} />
-          <Text fontSize={32} fontWeight={500}>
-            {parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
-          </Text>
-          <Text fontSize={32} fontWeight={500}>
-            {nativeB?.symbol}
-          </Text>
+          <span className="text-[32px] font-medium">{parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}</span>
+          <span className="text-[32px] font-medium">{nativeB?.symbol}</span>
           {!!estimatedUsdCurrencyB && (
-            <Text color={theme.subText} marginLeft="4px" fontSize={18} fontWeight={500}>
+            <span className="ml-1 text-[18px] font-medium text-subText">
               (~{formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined})
-            </Text>
+            </span>
           )}
         </AutoRow>
 
@@ -515,15 +506,13 @@ export default function TokenPair({
               </CurrentPriceWrapper>
 
               <RowBetween style={{ paddingBottom: '12px' }}>
-                <Text color={theme.subText} fontSize={14} fontWeight={400}>
+                <span className="text-[14px] text-subText">
                   <Trans>LP Tokens Removed</Trans>
-                </Text>
+                </span>
 
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin={true} />
-                  <Text color={theme.text} fontSize={14} fontWeight={400}>
-                    {parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}
-                  </Text>
+                  <span className="text-[14px] text-text">{parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}</span>
                 </RowFixed>
               </RowBetween>
 
@@ -559,9 +548,9 @@ export default function TokenPair({
         </ModalDetailWrapper>
 
         <ButtonPrimary disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)} onClick={onRemove}>
-          <Text fontWeight={500} fontSize={16}>
+          <span className="text-[16px] font-medium">
             <Trans>Confirm</Trans>
-          </Text>
+          </span>
         </ButtonPrimary>
       </>
     )
@@ -595,11 +584,11 @@ export default function TokenPair({
               <BlackCard className="rounded p-4">
                 <AutoColumn gap="1rem">
                   <RowBetween>
-                    <Text fontSize={12} fontWeight={500}>
+                    <span className="text-[12px] font-medium">
                       <Trans>Amount</Trans>
-                    </Text>
+                    </span>
 
-                    <Text fontSize={12} fontWeight={500}>
+                    <span className="text-[12px] font-medium">
                       <Trans>Balance</Trans>:{' '}
                       {!userLiquidity ? (
                         <Loader />
@@ -607,12 +596,10 @@ export default function TokenPair({
                         formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
                       )}{' '}
                       LP Tokens
-                    </Text>
+                    </span>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>
-                    <Text fontSize={72} fontWeight={500}>
-                      {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
-                    </Text>
+                    <span className="text-[72px] font-medium">{formattedAmounts[Field.LIQUIDITY_PERCENT]}%</span>
                   </Row>
 
                   <>
@@ -667,7 +654,7 @@ export default function TokenPair({
                     id="remove-liquidity-tokena"
                     estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                   />
-                  <Flex justifyContent="flex-end" alignItems="center" marginTop="0.5rem">
+                  <div className="mt-2 flex items-center justify-end">
                     {pairAddress && chainId && (currencyAIsETHER || currencyAIsWETH) && (
                       <StyledInternalLink
                         replace
@@ -678,7 +665,7 @@ export default function TokenPair({
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
                     )}
-                  </Flex>
+                  </div>
                 </div>
 
                 <div>
@@ -693,7 +680,7 @@ export default function TokenPair({
                     id="remove-liquidity-tokenb"
                     estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                   />
-                  <Flex justifyContent="flex-end" alignItems="center" marginTop="0.5rem">
+                  <div className="mt-2 flex items-center justify-end">
                     {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
@@ -704,7 +691,7 @@ export default function TokenPair({
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
                     )}
-                  </Flex>
+                  </div>
                 </div>
               </>
 
@@ -792,9 +779,7 @@ export default function TokenPair({
                       disabled={!isValid || (signatureData === null && approval !== ApprovalState.APPROVED)}
                       error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
                     >
-                      <Text fontSize={16} fontWeight={500}>
-                        {error || t`Remove`}
-                      </Text>
+                      <span className="text-[16px] font-medium">{error || t`Remove`}</span>
                     </ButtonError>
                   </RowBetween>
                 )}

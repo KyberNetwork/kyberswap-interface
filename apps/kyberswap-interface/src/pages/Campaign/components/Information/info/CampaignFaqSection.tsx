@@ -1,39 +1,31 @@
 import { useState } from 'react'
 import { Minus, Plus } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { ButtonIcon } from 'components/PageWrappers'
-import useTheme from 'hooks/useTheme'
 
 import { FaqItem } from './types'
 
 function FaqRow({ q, a }: FaqItem) {
   const [show, setShow] = useState(false)
-  const theme = useTheme()
 
   return (
     <>
-      <Flex justifyContent="space-between" marginTop="1rem">
-        <li style={{ flex: 1 }}>{q}</li>
+      <div className="mt-4 flex justify-between">
+        <li className="flex-1">{q}</li>
         <ButtonIcon onClick={() => setShow(prev => !prev)}>
           {show ? <Minus size={14} /> : <Plus size={14} />}
         </ButtonIcon>
-      </Flex>
+      </div>
 
-      <Text
-        color={theme.subText}
-        marginX="16px"
-        marginRight="32px"
-        fontStyle="italic"
-        sx={{
+      <p
+        className="mx-4 mr-8 overflow-hidden italic text-subText transition-all duration-300 ease-in-out"
+        style={{
           maxHeight: show ? '1000px' : 0,
           opacity: show ? 1 : 0,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
         }}
       >
         {a}
-      </Text>
+      </p>
     </>
   )
 }

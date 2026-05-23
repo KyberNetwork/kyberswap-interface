@@ -1,10 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Box, Text } from 'rebass'
 
 import InfoHelper from 'components/InfoHelper'
-import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { useRaffleCampaignJoin } from 'pages/Campaign/hooks/useRaffleCampaignJoin'
 import { StatCard } from 'pages/Campaign/styles'
@@ -24,7 +22,6 @@ const getWeekPosition = (weeks: CampaignWeek[], selectedWeek: number) => {
 }
 
 export default function RaffleCampaignStats({ selectedWeek }: { selectedWeek: number }) {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { weeks: configWeeks } = campaignConfig[CampaignType.Raffle]
@@ -38,46 +35,37 @@ export default function RaffleCampaignStats({ selectedWeek }: { selectedWeek: nu
   const weekPosition = getWeekPosition(weeks, selectedWeek)
 
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: upToSmall ? '1fr' : 'repeat(4, minmax(0, 1fr))',
-        marginTop: '1rem',
-        gap: '12px',
-      }}
-    >
+    <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: upToSmall ? '1fr' : 'repeat(4, minmax(0, 1fr))' }}>
       <WeekCountdown weekOptions={weeks} selectedWeek={selectedWeek} />
 
       <StatCard>
-        <Text fontSize={14} color={theme.subText}>
+        <div className="text-sm text-subText">
           <Trans>Participants</Trans>
-        </Text>
-        <Text marginTop="8px" fontSize={20} fontWeight="500">
+        </div>
+        <div className="mt-2 text-xl font-medium">
           {formatLabelValue(campaignStats, 'participant.week_' + weekPosition)}
-        </Text>
+        </div>
       </StatCard>
 
       <StatCard>
-        <Text fontSize={14} color={theme.subText}>
+        <div className="text-sm text-subText">
           <Trans>Eligible Transactions</Trans>
-        </Text>
-        <Text marginTop="8px" fontSize={20} fontWeight="500">
+        </div>
+        <div className="mt-2 text-xl font-medium">
           {formatLabelValue(campaignStats, 'eligible.week_' + weekPosition)}
-        </Text>
+        </div>
       </StatCard>
 
       <StatCard>
-        <Text fontSize={14} color={theme.subText}>
+        <div className="text-sm text-subText">
           <Trans>Your Transactions</Trans>{' '}
           <InfoHelper
             text={<Trans>Eligible transactions executed from your connected wallet during the selected week.</Trans>}
             placement="top"
           />
-        </Text>
-        <Text marginTop="8px" fontSize={20} fontWeight="500">
-          {formatLabelValue(participant, 'tx_count_week_' + weekPosition)}
-        </Text>
+        </div>
+        <div className="mt-2 text-xl font-medium">{formatLabelValue(participant, 'tx_count_week_' + weekPosition)}</div>
       </StatCard>
-    </Box>
+    </div>
   )
 }

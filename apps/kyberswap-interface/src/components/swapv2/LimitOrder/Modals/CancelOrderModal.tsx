@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Text } from 'rebass'
 
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
@@ -115,9 +114,9 @@ function CancelOrderModal({
         content: (
           <Value>
             <Logo srcs={[makerAssetLogoURL]} style={styleLogo} />
-            <Text>
+            <span>
               {formatAmountOrder(makingAmount, makerAssetDecimals)} {makerAssetSymbol}
-            </Text>
+            </span>
           </Value>
         ),
       },
@@ -131,9 +130,9 @@ function CancelOrderModal({
               ]}
               style={styleLogo}
             />
-            <Text>
+            <span>
               {formatAmountOrder(takingAmount, takerAssetDecimals)} {takerSymbol}
-            </Text>
+            </span>
           </Value>
         ),
       },

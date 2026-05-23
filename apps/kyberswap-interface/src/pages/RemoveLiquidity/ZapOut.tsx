@@ -15,7 +15,6 @@ import {
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -531,16 +530,12 @@ export default function ZapOut({
       <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
           <CurrencyLogo currency={currencies[independentTokenField]} size={'24px'} />
-          <Text fontSize={24} fontWeight={500}>
-            {parsedAmounts[independentTokenField]?.toSignificant(6)}
-          </Text>
-          <Text fontSize={24} fontWeight={500}>
-            {independentToken?.symbol}
-          </Text>
+          <span className="text-[24px] font-medium">{parsedAmounts[independentTokenField]?.toSignificant(6)}</span>
+          <span className="text-[24px] font-medium">{independentToken?.symbol}</span>
           {estimatedUsd && (
-            <Text color={theme.subText} marginLeft="4px" fontSize={18} fontWeight={500}>
+            <span className="ml-1 text-[18px] font-medium text-subText">
               (~{formattedNum(estimatedUsd.toString(), true) || undefined})
-            </Text>
+            </span>
           )}
         </AutoRow>
 
@@ -576,15 +571,13 @@ export default function ZapOut({
               </RowBetween>
 
               <RowBetween style={{ paddingBottom: '12px' }}>
-                <Text color={theme.subText} fontSize={14} fontWeight={400}>
+                <span className="text-[14px] text-subText">
                   <Trans>LP Tokens Removed</Trans>
-                </Text>
+                </span>
 
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin={true} />
-                  <Text color={theme.text} fontSize={14} fontWeight={400}>
-                    {parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}
-                  </Text>
+                  <span className="text-[14px] text-text">{parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}</span>
                 </RowFixed>
               </RowBetween>
 
@@ -615,9 +608,9 @@ export default function ZapOut({
         </ModalDetailWrapper>
 
         <ButtonPrimary disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)} onClick={onRemove}>
-          <Text fontWeight={500} fontSize={16}>
+          <span className="text-[16px] font-medium">
             <Trans>Confirm</Trans>
-          </Text>
+          </span>
         </ButtonPrimary>
       </>
     )
@@ -657,11 +650,11 @@ export default function ZapOut({
               <BlackCard className="rounded p-4">
                 <AutoColumn gap="1rem">
                   <RowBetween>
-                    <Text fontSize={12} fontWeight={500}>
+                    <span className="text-[12px] font-medium">
                       <Trans>Amount</Trans>
-                    </Text>
+                    </span>
 
-                    <Text fontSize={12} fontWeight={500}>
+                    <span className="text-[12px] font-medium">
                       <Trans>Balance</Trans>:{' '}
                       {!userLiquidity ? (
                         <Loader />
@@ -669,12 +662,10 @@ export default function ZapOut({
                         formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
                       )}{' '}
                       {t`LP Tokens`}
-                    </Text>
+                    </span>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>
-                    <Text fontSize={72} fontWeight={500}>
-                      {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
-                    </Text>
+                    <span className="text-[72px] font-medium">{formattedAmounts[Field.LIQUIDITY_PERCENT]}%</span>
                   </Row>
 
                   <>
@@ -724,7 +715,7 @@ export default function ZapOut({
                   isSwitchMode
                   estimatedUsd={formattedNum(estimatedUsd.toString(), true) || undefined}
                 />
-                <Flex justifyContent="flex-end" alignItems="center" marginTop="0.5rem">
+                <div className="mt-2 flex items-center justify-end">
                   {pairAddress &&
                     chainId &&
                     (selectedCurrencyIsETHER || selectedCurrencyIsWETH) &&
@@ -751,7 +742,7 @@ export default function ZapOut({
                         {selectedCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
                     )}
-                </Flex>
+                </div>
               </div>
 
               {pair && (
@@ -869,7 +860,7 @@ export default function ZapOut({
                         (!isValid || priceImpactSeverity > 2)
                       }
                     >
-                      <Text fontSize={16} fontWeight={500}>
+                      <span className="text-[16px] font-medium">
                         {error
                           ? error
                           : priceImpactSeverity > 3 && !isDegenMode
@@ -877,7 +868,7 @@ export default function ZapOut({
                           : priceImpactSeverity > 2
                           ? t`Remove Anyway`
                           : t`Remove`}
-                      </Text>
+                      </span>
                     </ButtonError>
                   </RowBetween>
                 )}

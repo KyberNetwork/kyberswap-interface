@@ -1,9 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { Flex, Text } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
@@ -142,7 +140,7 @@ const InboxItemEarnPosition = ({
       </InboxItemRow>
 
       <InboxItemRow>
-        <Flex alignItems="center" style={{ gap: '4px' }}>
+        <div className="flex items-center gap-1">
           <DoubleCurrencyLogoV2
             style={{ marginRight: 10 }}
             logoUrl1={token0LogoURL}
@@ -153,23 +151,17 @@ const InboxItemEarnPosition = ({
             {token0Symbol}/{token1Symbol}
           </PrimaryText>
 
-          <Flex alignItems="center" p="4px 8px" bg={rgba(theme.white, 0.05)} sx={{ gap: 1, borderRadius: 12 }}>
+          <div className="flex items-center gap-1 rounded-xl bg-white/[0.05] px-2 py-1">
             <TokenLogo src={dex.logo} size={14} />
-            <Text fontSize={12} color={theme.subText}>
-              {dex.version}
-            </Text>
-            {tokenId && (
-              <Text fontSize={12} color={theme.subText}>
-                #{tokenId}
-              </Text>
-            )}
-          </Flex>
-        </Flex>
+            <span className="text-xs text-subText">{dex.version}</span>
+            {tokenId && <span className="text-xs text-subText">#{tokenId}</span>}
+          </div>
+        </div>
       </InboxItemRow>
 
       {[Status.NEW, Status.ADD, Status.PARTIAL_REMOVE, Status.FULL_REMOVE].includes(status) && (
         <InboxItemRow>
-          <Flex alignItems="center" style={{ gap: '4px' }}>
+          <div className="flex items-center gap-1">
             <PrimaryText color={theme.subText}>
               {status === Status.NEW ? t`Created Balance:` : status === Status.ADD ? t`Added:` : t`Removed:`}
             </PrimaryText>
@@ -178,7 +170,7 @@ const InboxItemEarnPosition = ({
                 ? formatTokenAmounts(token0After, token1After)
                 : formatTokenAmounts(token0Delta, token1Delta)}
             </PrimaryText>
-          </Flex>
+          </div>
         </InboxItemRow>
       )}
 

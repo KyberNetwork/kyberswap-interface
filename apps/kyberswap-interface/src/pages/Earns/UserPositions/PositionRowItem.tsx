@@ -1,10 +1,8 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 
 import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
@@ -34,6 +32,7 @@ import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { EarnPool, ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
+import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
 function TruncatedBadge({
@@ -67,21 +66,16 @@ function TruncatedBadge({
     <MouseoverTooltipDesktopOnly text={label} width="fit-content" placement="bottom" disableTooltip={!isTruncated}>
       <Badge
         style={{
-          backgroundColor: rgba(theme.white, 0.08),
+          backgroundColor: hexAlpha(theme.white, 0.08),
           maxWidth: '300px',
         }}
       >
-        <Flex alignItems={'center'} sx={{ gap: '4px' }} style={{ overflow: 'hidden' }}>
+        <div className="flex items-center gap-1 overflow-hidden">
           <TokenLogo src={dexLogo} size={12} />
-          <Text
-            ref={textRef}
-            fontSize={12}
-            color={theme.subText}
-            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-          >
+          <span ref={textRef} className="truncate text-[12px] text-subText">
             {label}
-          </Text>
-        </Flex>
+          </span>
+        </div>
       </Badge>
     </MouseoverTooltipDesktopOnly>
   )
@@ -192,20 +186,15 @@ export default function PositionRowItem({
     >
       {/* Overview info */}
       <PositionOverview>
-        <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
+        <div className="flex flex-wrap items-center gap-2">
           <ImageContainer>
             <TokenLogo src={token0.logo} />
             <TokenLogo src={token1.logo} translateLeft />
             <TokenLogo src={chain.logo} size={12} translateLeft translateTop />
           </ImageContainer>
-          <Text
-            marginLeft={-2}
-            fontSize={upToSmall ? 15 : 16}
-            maxWidth={'160px'}
-            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-          >
+          <span className={`-ml-2 max-w-[160px] truncate ${upToSmall ? 'text-[15px]' : 'text-[16px]'}`}>
             {token0.symbol}/{token1.symbol}
-          </Text>
+          </span>
           {!isUnfinalized && (
             <Badge
               type={
@@ -225,18 +214,16 @@ export default function PositionRowItem({
               {status === PositionStatus.OUT_RANGE ? (
                 <InfoHelperWithDelay
                   text={
-                    <Flex flexDirection={'column'} sx={{ gap: 1 }}>
-                      <Text>{t`The position is inactive. Update to an action price range to earn fees/rewards.`}</Text>
-                      <Flex
-                        color={theme.primary}
-                        alignItems={'center'}
-                        sx={{ gap: 1, cursor: 'pointer' }}
+                    <div className="flex flex-col gap-1">
+                      <p>{t`The position is inactive. Update to an action price range to earn fees/rewards.`}</p>
+                      <div
+                        className="flex cursor-pointer items-center gap-1 text-primary"
                         onClick={e => onReposition(e, position)}
                       >
-                        <Text>{t`Reposition to new range`}</Text>
+                        <span>{t`Reposition to new range`}</span>
                         <ArrowRight size={14} />
-                      </Flex>
-                    </Flex>
+                      </div>
+                    </div>
                   }
                   color={theme.warning}
                   placement="top"
@@ -248,13 +235,8 @@ export default function PositionRowItem({
           )}
           {smartExitPosIds.includes(position.positionId) && (
             <MouseoverTooltipDesktopOnly text={t`Active Smart Exit Order`} width="fit-content" placement="bottom">
-              <Flex
-                alignItems="center"
-                justifyContent="center"
-                sx={{ cursor: 'pointer', borderRadius: '30px' }}
-                backgroundColor={rgba(theme.white, 0.04)}
-                width={24}
-                height={24}
+              <div
+                className="flex size-6 cursor-pointer items-center justify-center rounded-[30px] bg-white/[0.04]"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation()
                   e.preventDefault()
@@ -262,11 +244,11 @@ export default function PositionRowItem({
                 }}
               >
                 <ListSmartExitIcon width={16} height={16} color={theme.primary} />
-              </Flex>
+              </div>
             </MouseoverTooltipDesktopOnly>
           )}
-        </Flex>
-        <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
           <TruncatedBadge
             dexName={dex.name}
             dexLogo={dex.logo}
@@ -275,7 +257,7 @@ export default function PositionRowItem({
             isUniv2={pool.isUniv2}
             theme={theme}
           />
-        </Flex>
+        </div>
       </PositionOverview>
 
       {/* Actions for Tablet */}
@@ -289,35 +271,35 @@ export default function PositionRowItem({
           text={
             <>
               {position.totalValueTokens.map(token => (
-                <Text key={`${token.address}-${token.symbol}`}>
+                <p key={`${token.address}-${token.symbol}`}>
                   {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
-                </Text>
+                </p>
               ))}
               {merklRewards.map(token => (
-                <Text key={`${token.address}-${token.symbol}`}>
+                <p key={`${token.address}-${token.symbol}`}>
                   {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} {token.symbol}
-                </Text>
+                </p>
               ))}
             </>
           }
           width="fit-content"
           placement="bottom"
         >
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
+          <div className="flex items-center gap-1.5">
+            <p className="max-w-[80px]" style={LIMIT_TEXT_STYLES}>
               <AnimatedNumber
                 value={formatDisplayNumber(totalValue + merklRewardsTotalUsd, {
                   style: 'currency',
                   significantDigits: 4,
                 })}
               />
-            </Text>
+            </p>
             {position.isValueUpdating && (
               <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
                 <Loader2 size={12} />
               </MouseoverTooltipDesktopOnly>
             )}
-          </Flex>
+          </div>
         </MouseoverTooltipDesktopOnly>
       </PositionValueWrapper>
 
@@ -330,7 +312,7 @@ export default function PositionRowItem({
         ) : isWaitingForRewards ? (
           <RewardSyncing width={70} height={19} />
         ) : (
-          <Flex alignItems={'center'} sx={{ gap: 1 }}>
+          <div className="flex items-center gap-1">
             {pool.isFarming || bonusApr > 0 ? (
               <AprDetailTooltip
                 feeApr={position.feeApr['24h']}
@@ -338,14 +320,14 @@ export default function PositionRowItem({
                 lmApr={position.kemLMApr['24h']}
                 merklApr={bonusApr}
               >
-                <Text color={theme.primary}>
+                <span className="text-primary">
                   <AnimatedNumber value={`${formatAprNumber(apr['24h'] + bonusApr)}%`} />
-                </Text>
+                </span>
               </AprDetailTooltip>
             ) : (
-              <Text color={theme.text}>
+              <span className="text-text">
                 <AnimatedNumber value={`${formatAprNumber(apr['24h'])}%`} />
-              </Text>
+              </span>
             )}
 
             {!pool.isFarming &&
@@ -354,16 +336,16 @@ export default function PositionRowItem({
                 <MouseoverTooltipDesktopOnly
                   text={
                     <>
-                      <Text>
+                      <p>
                         {!!position.suggestionPool
                           ? pool.fee === position.suggestionPool.feeTier
                             ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
                             : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
                           : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
-                      </Text>
-                      <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={e => onMigrateToKem(e, position)}>
+                      </p>
+                      <p className="cursor-pointer text-primary" onClick={e => onMigrateToKem(e, position)}>
                         {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
-                      </Text>
+                      </p>
                     </>
                   }
                   width={!!position.suggestionPool ? '290px' : '310px'}
@@ -372,7 +354,7 @@ export default function PositionRowItem({
                   <ArrowRightCircle size={16} color={theme.primary} onClick={e => onMigrateToKem(e, position)} />
                 </MouseoverTooltipDesktopOnly>
               )}
-          </Flex>
+          </div>
         )}
       </PositionValueWrapper>
 
@@ -386,22 +368,22 @@ export default function PositionRowItem({
           <MouseoverTooltipDesktopOnly
             text={
               <>
-                <Text>
+                <p>
                   {formatDisplayNumber(token0.unclaimedAmount, { significantDigits: 6 })}{' '}
                   {token0.isNative ? pool.nativeToken.symbol : token0.symbol}
-                </Text>
-                <Text>
+                </p>
+                <p>
                   {formatDisplayNumber(token1.unclaimedAmount, { significantDigits: 6 })}{' '}
                   {token1.isNative ? pool.nativeToken.symbol : token1.symbol}
-                </Text>
+                </p>
               </>
             }
             width="fit-content"
             placement="bottom"
           >
-            <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+            <p className="max-w-[100px]" style={LIMIT_TEXT_STYLES}>
               <AnimatedNumber value={formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })} />
-            </Text>
+            </p>
           </MouseoverTooltipDesktopOnly>
         )}
       </PositionValueWrapper>
@@ -414,49 +396,49 @@ export default function PositionRowItem({
         ) : isWaitingForRewards ? (
           <RewardSyncing width={80} height={19} />
         ) : (
-          <Flex alignItems={'center'} sx={{ gap: 1 }}>
+          <div className="flex items-center gap-1">
             {upToSmall && <FarmingIcon width={20} height={20} />}
             <MouseoverTooltipDesktopOnly
               text={
                 <>
-                  <Text>
+                  <p>
                     {t`In-Progress`}:{' '}
                     {formatDisplayNumber(rewards.inProgressUsdValue, {
                       significantDigits: 4,
                       style: 'currency',
                     })}
-                  </Text>
-                  <Text>
+                  </p>
+                  <p>
                     {t`Claimable`}:{' '}
                     {formatDisplayNumber(rewards.claimableUsdValue, {
                       significantDigits: 4,
                       style: 'currency',
                     })}
-                  </Text>
+                  </p>
                   {merklRewardsTotalUsd > 0 && (
-                    <Text>
+                    <p>
                       {t`Merkl Bonus`}:{' '}
                       {formatDisplayNumber(merklRewardsTotalUsd, {
                         significantDigits: 4,
                         style: 'currency',
                       })}
-                    </Text>
+                    </p>
                   )}
                 </>
               }
               width="fit-content"
               placement="bottom"
             >
-              <Text>
+              <span>
                 <AnimatedNumber
                   value={formatDisplayNumber(rewards.unclaimedUsdValue + merklRewardsTotalUsd, {
                     style: 'currency',
                     significantDigits: 4,
                   })}
                 />
-              </Text>
+              </span>
             </MouseoverTooltipDesktopOnly>
-          </Flex>
+          </div>
         )}
       </PositionValueWrapper>
 
@@ -467,25 +449,28 @@ export default function PositionRowItem({
         <PositionValueLabel>{t`Balance`}</PositionValueLabel>
 
         {token0.symbol && token1.symbol ? (
-          <Flex
-            flexDirection={upToSmall ? 'row' : 'column'}
-            alignItems={upToSmall ? 'center' : 'flex-start'}
-            sx={{ gap: 1.8, overflow: 'hidden', width: '100%' }}
+          <div
+            className={`flex w-full overflow-hidden ${upToSmall ? 'flex-row items-center' : 'flex-col items-start'}`}
+            style={{ gap: '7.2px' }}
           >
-            <Flex alignItems="center" sx={{ gap: 1, maxWidth: '100%' }}>
-              <Text style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+            <div className="flex max-w-full items-center gap-1">
+              <span className="flex-shrink-0 whitespace-nowrap">
                 {formatDisplayNumber(token0.currentAmount, { significantDigits: 4 })}
-              </Text>
-              <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
-            </Flex>
+              </span>
+              <span className="max-w-[80px]" style={LIMIT_TEXT_STYLES}>
+                {token0.symbol}
+              </span>
+            </div>
             {upToSmall && <Divider />}
-            <Flex alignItems="center" sx={{ gap: 1, maxWidth: '100%' }}>
-              <Text style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+            <div className="flex max-w-full items-center gap-1">
+              <span className="flex-shrink-0 whitespace-nowrap">
                 {formatDisplayNumber(token1.currentAmount, { significantDigits: 4 })}
-              </Text>
-              <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token1.symbol}</Text>
-            </Flex>
-          </Flex>
+              </span>
+              <span className="max-w-[80px]" style={LIMIT_TEXT_STYLES}>
+                {token1.symbol}
+              </span>
+            </div>
+          </div>
         ) : (
           '--'
         )}

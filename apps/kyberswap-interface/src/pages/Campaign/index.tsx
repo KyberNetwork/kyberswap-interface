@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
 import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
@@ -129,35 +128,23 @@ export default function CampaignPage() {
       <HiddenH1>Earn bonus rewards and incentives while you swap, provide liquidity, or trade.</HiddenH1>
       <HiddenH2>Join active campaigns across supported chains - no lock-up required.</HiddenH2>
       <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
-      <Flex justifyContent="space-between" alignItems="center" marginTop="1.5rem">
-        <Text fontSize={24} fontWeight="500">
-          {title}
-        </Text>
+      <div className="mt-6 flex items-center justify-between">
+        <span className="text-2xl font-medium">{title}</span>
 
         {isReferralCampaign && <JoinReferral />}
         {isRaffleNotEligible && (
           <StatCard style={{ padding: '8px 16px' }}>
-            <Text fontSize={14} color="error" textAlign="right">
+            <span className="block text-right text-sm text-red">
               <Trans>
-                You are{' '}
-                <Text as="span" fontWeight="500" color="white">
-                  not eligible
-                </Text>{' '}
-                for this campaign
+                You are <span className="font-medium text-white">not eligible</span> for this campaign
               </Trans>
-            </Text>
+            </span>
           </StatCard>
         )}
-      </Flex>
+      </div>
 
       {!isReferralCampaign && (
-        <Flex
-          justifyContent="space-between"
-          marginTop="1rem"
-          alignItems="center"
-          flexDirection={upToExtraSmall ? 'column' : 'row'}
-          sx={{ gap: '1rem' }}
-        >
+        <div className={`mt-4 flex items-center justify-between gap-4 ${upToExtraSmall ? 'flex-col' : 'flex-row'}`}>
           <WeekSelect type={type} selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
 
           {isSafePalCampaign && isSafePalJoined ? (
@@ -188,7 +175,7 @@ export default function CampaignPage() {
               {isRaffleJoinedByWeek || isSafePalJoined ? t`Joined` : ctaText}
             </ButtonPrimary>
           )}
-        </Flex>
+        </div>
       )}
 
       {isRaffleCampaign ? (
@@ -200,7 +187,7 @@ export default function CampaignPage() {
       )}
       {isSafePalCampaign && <SafePalClaim selectedWeek={selectedWeek} />}
 
-      <Flex justifyContent="space-between" alignItems="center" marginTop="1rem" flexWrap="wrap" sx={{ gap: '1rem' }}>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
         <Tabs>
           <Tab
             role="button"
@@ -239,7 +226,7 @@ export default function CampaignPage() {
         <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${type}`}>
           <Trans>[ My Dashboard ]</Trans>
         </StyledInternalLink>
-      </Flex>
+      </div>
 
       {tab === TabKey.Information && <Information type={type} selectedWeek={selectedWeek} />}
 

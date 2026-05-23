@@ -2,14 +2,12 @@ import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { useGetLeaderboardQuery, useGetUserReferralTotalRewardQuery, useGetUserRewardQuery } from 'services/campaign'
 import { useGetDashboardQuery, useGetParticipantQuery } from 'services/referral'
 
 import InfoHelper from 'components/InfoHelper'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { StatCard } from 'pages/Campaign/styles'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -25,7 +23,6 @@ type Props = {
 }
 
 export default function CampaignStats({ type, selectedWeek }: Props) {
-  const theme = useTheme()
   const { account } = useWeb3React()
   const { campaign, weeks, reward, program, year, url } = campaignConfig[type]
 
@@ -102,85 +99,75 @@ export default function CampaignStats({ type, selectedWeek }: Props) {
   const participantCount = leaderboardData?.data?.participantCount
   const userPoint = userData?.data?.point
 
+  const gridTemplateColumns =
+    type === CampaignType.NearIntents
+      ? upToMedium
+        ? '1fr'
+        : '1fr 1.2fr'
+      : upToSmall
+      ? '1fr'
+      : !isReferralCampaign
+      ? '1fr 1fr'
+      : '1fr 2fr'
+
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns:
-          type === CampaignType.NearIntents
-            ? upToMedium
-              ? '1fr'
-              : '1fr 1.2fr'
-            : upToSmall
-            ? '1fr'
-            : !isReferralCampaign
-            ? '1fr 1fr'
-            : '1fr 2fr',
-        marginTop: '1rem',
-        gap: '12px',
-      }}
-    >
-      <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
+    <div className="mt-4 grid gap-3" style={{ gridTemplateColumns }}>
+      <div className={`flex w-full gap-3 ${upToSmall ? 'flex-col' : 'flex-row'}`}>
         {!isReferralCampaign && <WeekCountdown weekOptions={weeks} selectedWeek={selectedWeek} />}
 
         <StatCard style={{ flex: 1 }}>
-          <Text fontSize={14} color={theme.subText}>
+          <span className="text-sm text-subText">
             <Trans>Participants</Trans>
-          </Text>
-          <Text marginTop="8px" fontSize={20} fontWeight="500">
+          </span>
+          <p className="mt-2 text-xl font-medium">
             {isReferralCampaign
               ? formatDisplayNumber(totalParticipant, { significantDigits: 6 })
               : participantCount
               ? formatDisplayNumber(participantCount, { significantDigits: 6 })
               : '--'}
-          </Text>
+          </p>
         </StatCard>
-      </Flex>
+      </div>
 
       {type === CampaignType.NearIntents ? (
         <NearIntentCampaignStats selectedWeek={selectedWeek} />
       ) : (
-        <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
+        <div className={`flex w-full gap-3 ${upToSmall ? 'flex-col' : 'flex-row'}`}>
           <StatCard style={{ flex: 1 }}>
-            <Text fontSize={14} color={theme.subText}>
-              {isReferralCampaign ? t`My referrals` : t`My Earned Points`}
-            </Text>
-            <Text marginTop="8px" fontSize={20} fontWeight="500">
+            <span className="text-sm text-subText">{isReferralCampaign ? t`My referrals` : t`My Earned Points`}</span>
+            <p className="mt-2 text-xl font-medium">
               {isReferralCampaign
                 ? formatDisplayNumber(myTotalRefer || 0, { significantDigits: 4 })
                 : userPoint
                 ? formatDisplayNumber(Math.floor(userPoint), { significantDigits: 6 })
                 : '--'}
-            </Text>
+            </p>
           </StatCard>
           <StatCard style={{ flex: 1 }}>
-            <Text fontSize={14} color={theme.subText}>
+            <span className="text-sm text-subText">
               {t`My Est. Rewards`}{' '}
               <InfoHelper
                 text={
                   <Trans>
                     The Estimated Rewards will vary based on the points earned by you and all campaign participants
                     during the week. Check out how they are calculated in the{' '}
-                    <Text as="span" fontWeight="500" color={theme.primary}>
-                      Information
-                    </Text>{' '}
-                    tab.
+                    <span className="font-medium text-primary">Information</span> tab.
                   </Trans>
                 }
               />
-            </Text>
-            <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
+            </span>
+            <div className="mt-2 flex items-center text-xl font-medium">
               <img src={reward.logo} alt={reward.symbol} width="20px" height="20px" style={{ borderRadius: '50%' }} />
-              <Text marginLeft="4px" fontSize={16}>
+              <span className="ml-1 text-base">
                 {isReferralCampaign ? referralReward : rewardNumber} {reward.symbol}
-              </Text>
-              <Text ml="4px" fontSize={14} color={theme.subText}>
+              </span>
+              <span className="ml-1 text-sm text-subText">
                 {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
-              </Text>
-            </Flex>
+              </span>
+            </div>
           </StatCard>
-        </Flex>
+        </div>
       )}
-    </Box>
+    </div>
   )
 }

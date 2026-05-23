@@ -1,6 +1,3 @@
-import { rgba } from 'polished'
-import { Flex } from 'rebass'
-
 import WarningIcon from 'components/Icons/WarningIcon'
 import useTheme from 'hooks/useTheme'
 
@@ -11,19 +8,17 @@ export const PiWarning = () => {
   const theme = useTheme()
   if (!warning?.priceImpaceInfo || !warning?.priceImpaceInfo?.message) return null
 
+  const isVeryHigh = warning.priceImpaceInfo.isVeryHigh
+  const color = isVeryHigh ? theme.red : theme.warning
+
   return (
-    <Flex
-      sx={{
-        backgroundColor: rgba(warning.priceImpaceInfo.isVeryHigh ? theme.red : theme.warning, 0.1),
-        borderRadius: '999px',
-        padding: '8px 12px',
-        fontSize: '12px',
-        gap: '4px',
-        color: warning.priceImpaceInfo.isVeryHigh ? theme.red : theme.warning,
-      }}
+    <div
+      className={`inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs ${
+        isVeryHigh ? 'bg-red/10 text-red' : 'bg-warning/10 text-warning'
+      }`}
     >
-      <WarningIcon color={warning.priceImpaceInfo?.isVeryHigh ? theme.red : theme.warning} size={18} />
+      <WarningIcon color={color} size={18} />
       {warning.priceImpaceInfo?.message}
-    </Flex>
+    </div>
   )
 }

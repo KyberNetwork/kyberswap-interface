@@ -18,7 +18,7 @@ export const ModalContent = ({ children, className, ...rest }: React.HTMLAttribu
 )
 
 export const BackgroundOverlay = ({ className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('bg-black/60 pointer-events-none absolute inset-0 z-[1]', className)} {...rest} />
+  <div className={cn('pointer-events-none absolute inset-0 z-[1] bg-black/60', className)} {...rest} />
 )
 
 export const TitleWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -54,7 +54,7 @@ export const InputLabel = ({ children, className, ...rest }: React.HTMLAttribute
 export const StyledInput = ({ className, ...rest }: React.ComponentProps<typeof Input>) => (
   <Input
     className={cn(
-      'bg-black/[0.64] w-full self-stretch rounded-2xl border-0 px-4 py-3 text-base leading-6 text-text [font-feature-settings:"liga"_off,"clig"_off] placeholder:text-base placeholder:text-border',
+      'w-full self-stretch rounded-2xl border-0 bg-black/[0.64] px-4 py-3 text-base leading-6 text-text [font-feature-settings:"liga"_off,"clig"_off] placeholder:text-base placeholder:text-border',
       className,
     )}
     {...rest}

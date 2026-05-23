@@ -1,13 +1,11 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
 
 import { ReactComponent as RewardIcon } from 'assets/svg/earn/ic_bag.svg'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { Badge } from 'pages/Earns/PoolExplorer/styles'
 import { EarnPool } from 'pages/Earns/types'
 import { getFullDisplayBalance } from 'utils/formatBalance'
@@ -22,22 +20,20 @@ const RewardTooltipContent = ({ egRewards, bonusRewards }: { egRewards: number; 
   return (
     <Stack gap={2}>
       {egRewards > 0 && (
-        <Text>
+        <p>
           {t`FairFlow EG Rewards`}: {formatDisplayNumber(egRewards, { style: 'currency', significantDigits: 4 })}
-        </Text>
+        </p>
       )}
       {bonusRewards > 0 && (
-        <Text>
+        <p>
           {t`Bonus Rewards`}: {formatDisplayNumber(bonusRewards, { style: 'currency', significantDigits: 4 })}
-        </Text>
+        </p>
       )}
     </Stack>
   )
 }
 
 const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
-  const theme = useTheme()
-
   const egRewards = pool.egUsd || 0
   const bonusRewards = pool.merklOpportunity?.dailyRewards ?? 0
   const totalRewards = egRewards + bonusRewards
@@ -64,10 +60,10 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
           width="fit-content"
           placement="left"
         >
-          <Text>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</Text>
+          <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>
         </MouseoverTooltipDesktopOnly>
       ) : (
-        <Text>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</Text>
+        <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>
       )}
 
       {rewardTokens.length > 0 && showEstimate && weeklyRewards > 0 && (
@@ -79,9 +75,9 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
                   {rewardTokens.map(token => (
                     <HStack align="center" gap={4} key={`${token.chainId}-${token.address}`}>
                       {token.icon ? <TokenLogo src={token.icon} size={16} /> : null}
-                      <Text>
+                      <span>
                         {token.amount} {token.symbol}
-                      </Text>
+                      </span>
                     </HStack>
                   ))}
                 </Stack>
@@ -100,21 +96,21 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
           {showEstimate && weeklyRewards > 0 && (
             <MouseoverTooltipDesktopOnly
               text={
-                <Text>
-                  <Text as="span" color={theme.blue3} fontWeight={500}>
+                <p>
+                  <span className="font-medium text-blue3">
                     {formatDisplayNumber(weeklyRewardsEst, { style: 'currency', significantDigits: 4 })}/week
-                  </Text>{' '}
+                  </span>{' '}
                   {`when adding $${depositAmount} liquidity (est)`}
-                </Text>
+                </p>
               }
               width="fit-content"
               placement="bottom"
             >
               <Badge style={{ padding: '4px 6px' }}>
                 <RewardIcon width={16} height={16} />
-                <Text sx={{ whiteSpace: 'nowrap' }}>
+                <span className="whitespace-nowrap">
                   {formatDisplayNumber(weeklyRewards, { style: 'currency', significantDigits: 4 })}/week
-                </Text>
+                </span>
               </Badge>
             </MouseoverTooltipDesktopOnly>
           )}

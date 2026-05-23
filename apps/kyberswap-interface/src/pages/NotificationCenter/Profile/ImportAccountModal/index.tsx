@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -57,26 +56,18 @@ export default function ImportAccountModal({ isOpen, onDismiss }: Props) {
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false} maxWidth={420} width={'420px'}>
-      <Flex
-        flexDirection="column"
-        alignItems="center"
-        padding="24px"
-        width="100%"
-        sx={{
-          gap: '16px',
-        }}
-      >
-        <Flex width="100%" justifyContent={'space-between'}>
-          <Text fontSize={18} fontWeight={500}>
+      <div className="flex w-full flex-col items-center gap-4 p-6">
+        <div className="flex w-full justify-between">
+          <span className="text-lg font-medium">
             <Trans>Import Profile</Trans>
-          </Text>
+          </span>
           <ButtonText onClick={onDismiss} style={{ lineHeight: '0' }}>
             <X color={theme.text} />
           </ButtonText>
-        </Flex>
+        </div>
 
         <UserEnterPasscodeContent dismissModal={onDismiss} onImportToken={handleImportToken} loading={loading} />
-      </Flex>
+      </div>
     </Modal>
   )
 }

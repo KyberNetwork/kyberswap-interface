@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { Fragment, useState } from 'react'
 import { Minus, Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 
 import Divider from 'components/Divider'
 import { ButtonIcon } from 'components/PageWrappers'
@@ -40,96 +39,74 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
   }
 
   return (
-    <Box
-      marginTop="1.25rem"
-      padding="1.5rem"
-      sx={{
-        background: theme.background,
-        borderRadius: '20px',
-      }}
-    >
-      <Flex justifyContent="space-between">
-        <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
+    <div className="mt-5 rounded-[20px] bg-background p-6">
+      <div className="flex justify-between">
+        <div className="flex items-center gap-1 text-xl">
           <Star color={theme.warning} fill={theme.warning} />
           {type === CampaignType.NearIntents || type === CampaignType.Raffle
             ? t`How to participate?`
             : t`How to earn points`}
-        </Flex>
+        </div>
 
         <ButtonIcon onClick={() => setIsShowRule(prev => !prev)}>
           {!isShowRule ? <Plus size={14} /> : <Minus size={14} />}
         </ButtonIcon>
-      </Flex>
+      </div>
 
-      <Box
-        color={theme.subText}
-        lineHeight="28px"
-        paddingLeft="14px"
-        width="95%"
-        sx={{
+      <div
+        className="w-[95%] overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
+        style={{
           maxHeight: isShowRule ? '10000px' : 0,
           opacity: isShowRule ? 1 : 0,
           marginTop: isShowRule ? '1rem' : 0,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
         }}
       >
         {HowToSection({ week: selectedWeek })}
-      </Box>
+      </div>
 
       <Divider style={{ marginTop: '20px' }} />
 
-      <Flex justifyContent="space-between" marginTop="20px">
-        <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
+      <div className="mt-5 flex justify-between">
+        <div className="flex items-center gap-1 text-xl">
           {isRaffleCampaign ? t`🕑️ Timeline and Reward` : t`🕑️ Timeline`}
-        </Flex>
+        </div>
 
         <ButtonIcon onClick={() => setIsShowTimeline(prev => !prev)}>
           {!isShowTimeline ? <Plus size={14} /> : <Minus size={14} />}
         </ButtonIcon>
-      </Flex>
+      </div>
 
-      <Box
-        color={theme.subText}
-        lineHeight="28px"
-        paddingLeft="14px"
-        sx={{
+      <div
+        className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
+        style={{
           maxHeight: isShowTimeline ? '1000px' : 0,
           opacity: isShowTimeline ? 1 : 0,
           marginTop: isShowTimeline ? '1rem' : 0,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
         }}
       >
         {TimelineSection({ week: selectedWeek })}
-      </Box>
+      </div>
 
       <Divider style={{ marginTop: '20px' }} />
 
-      <Flex justifyContent="space-between" marginTop="20px">
-        <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
-          {t`🏆 Rewards`}
-        </Flex>
+      <div className="mt-5 flex justify-between">
+        <div className="flex items-center gap-1 text-xl">{t`🏆 Rewards`}</div>
 
         <ButtonIcon onClick={() => setIsShowReward(prev => !prev)}>
           {!isShowReward ? <Plus size={14} /> : <Minus size={14} />}
         </ButtonIcon>
-      </Flex>
+      </div>
 
-      <Text
-        color={theme.subText}
-        lineHeight="28px"
-        paddingLeft="14px"
-        sx={{
+      <div
+        className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
+        style={{
           maxHeight: isShowReward ? '2000px' : 0,
           opacity: isShowReward ? 1 : 0,
           marginTop: isShowReward ? '1rem' : 0,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
         }}
       >
         {RewardsSection({ week: selectedWeek })}
-      </Text>
+      </div>
 
       {customSections.map((section, index) => {
         const isShowSection = showCustomSections[index] ?? true
@@ -139,10 +116,8 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
           <Fragment key={index}>
             <Divider style={{ marginTop: '20px' }} />
 
-            <Flex justifyContent="space-between" marginTop="20px">
-              <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
-                {section.title}
-              </Flex>
+            <div className="mt-5 flex justify-between">
+              <div className="flex items-center gap-1 text-xl">{section.title}</div>
 
               <ButtonIcon
                 onClick={() =>
@@ -154,48 +129,38 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
               >
                 {!isShowSection ? <Plus size={14} /> : <Minus size={14} />}
               </ButtonIcon>
-            </Flex>
+            </div>
 
-            <Text
-              color={theme.subText}
-              lineHeight="28px"
-              paddingLeft="14px"
-              sx={{
+            <div
+              className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
+              style={{
                 maxHeight: isShowSection ? '2000px' : 0,
                 opacity: isShowSection ? 1 : 0,
                 marginTop: isShowSection ? '1rem' : 0,
-                transition: 'all 0.3s ease',
-                overflow: 'hidden',
               }}
             >
               {CustomSectionContent({ week: selectedWeek })}
-            </Text>
+            </div>
           </Fragment>
         )
       })}
 
       <Divider style={{ marginTop: '20px' }} />
 
-      <Flex id="terms-and-conditions" justifyContent="space-between" marginTop="20px" sx={{ scrollMarginTop: 20 }}>
-        <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
-          {t`📄 Terms & Conditions`}
-        </Flex>
+      <div id="terms-and-conditions" className="mt-5 flex justify-between" style={{ scrollMarginTop: 20 }}>
+        <div className="flex items-center gap-1 text-xl">{t`📄 Terms & Conditions`}</div>
 
         <ButtonIcon onClick={() => setIsShowTc(prev => !prev)}>
           {!isShowTc ? <Plus size={14} /> : <Minus size={14} />}
         </ButtonIcon>
-      </Flex>
+      </div>
 
-      <Text
-        color={theme.subText}
-        lineHeight="28px"
-        paddingLeft="14px"
-        sx={{
+      <div
+        className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
+        style={{
           maxHeight: isShowTc ? '2000px' : 0,
           opacity: isShowTc ? 1 : 0,
           marginTop: isShowTc ? '1rem' : 0,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
         }}
       >
         <li>
@@ -206,34 +171,28 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
           </Trans>
         </li>
         {TermsSection({ week: selectedWeek })}
-      </Text>
+      </div>
 
       <Divider style={{ marginTop: '20px' }} />
 
-      <Flex justifyContent="space-between" marginTop="20px">
-        <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
-          {t`❓ FAQ`}
-        </Flex>
+      <div className="mt-5 flex justify-between">
+        <div className="flex items-center gap-1 text-xl">{t`❓ FAQ`}</div>
 
         <ButtonIcon onClick={() => setIsShowFaq(prev => !prev)}>
           {!isShowFaq ? <Plus size={14} /> : <Minus size={14} />}
         </ButtonIcon>
-      </Flex>
+      </div>
 
-      <Box
-        color={theme.subText}
-        lineHeight="28px"
-        paddingLeft="14px"
-        maxWidth={upTo400 ? '300px' : upTo450 ? '350px' : undefined}
-        sx={{
+      <div
+        className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
+        style={{
           maxHeight: isShowFaq ? '5000px' : 0,
           opacity: isShowFaq ? 1 : 0,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
+          maxWidth: upTo400 ? '300px' : upTo450 ? '350px' : undefined,
         }}
       >
         {FaqSection({ week: selectedWeek })}
-      </Box>
-    </Box>
+      </div>
+    </div>
   )
 }

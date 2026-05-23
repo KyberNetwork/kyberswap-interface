@@ -79,7 +79,7 @@ export function ListInfo({
   return (
     <Column gap="8px">
       {title && <Label className="mb-1">{title}</Label>}
-      <div className="bg-buttonBlack/30 flex flex-col gap-3 rounded-xl p-4">
+      <div className="flex flex-col gap-3 rounded-xl bg-buttonBlack/30 p-4">
         {listData.map(item => (
           <Row key={item.label}>
             <Label>{item.label}</Label>

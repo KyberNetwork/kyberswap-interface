@@ -1,8 +1,5 @@
-import { Text } from 'rebass'
-
 import { ReactComponent as BagIcon } from 'assets/svg/kyber/ic_bag.svg'
 import { HStack, Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
 import { formatApr, formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetail/Information/utils'
 import AprHistoryChart from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import TopMetricsStrip, { type TopMetricItem } from 'pages/Earns/PoolDetail/components/TopMetricsStrip'
@@ -10,7 +7,6 @@ import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
 const InformationTab = () => {
-  const theme = useTheme()
   const { chainId, pool, poolAddress } = usePoolDetailContext()
 
   const tokenPrices = useTokenPrices(
@@ -29,9 +25,7 @@ const InformationTab = () => {
 
   const rewardsValue = (
     <HStack align="center" gap={4}>
-      <Text as="span" color={theme.text} fontWeight={500}>
-        {formatApr(rewardApr)}
-      </Text>
+      <span className="font-medium text-text">{formatApr(rewardApr)}</span>
       {rewardApr > 0 ? <BagIcon height={20} width={20} /> : null}
     </HStack>
   )

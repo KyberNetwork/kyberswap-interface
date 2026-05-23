@@ -1,7 +1,6 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconTrending } from 'assets/svg/earn/ic_pool_high_apr.svg'
@@ -90,7 +89,7 @@ export default function TrendingPoolBanner() {
     <TrendingWrapper>
       <BannerHeaderLink onClick={handleBannerTracking} to={APP_PATHS.EARN}>
         <IconTrending width={24} height={24} color={theme.primary} />
-        <Text color={theme.primary} fontWeight={500}>{t`TRENDING POOLS`}</Text>
+        <span className="font-medium text-primary">{t`TRENDING POOLS`}</span>
       </BannerHeaderLink>
       {!!pool ? (
         <PoolWrapper
@@ -100,17 +99,13 @@ export default function TrendingPoolBanner() {
           onMouseLeave={() => setIsSlideHovered(false)}
           to={getPoolDetailHref(pool)}
         >
-          <Flex alignItems="center">
+          <div className="flex items-center">
             <TokenLogo src={pool.tokens[0].logoURI} boxShadowColor="#0b2e24" />
             <TokenLogo src={pool.tokens[1].logoURI} boxShadowColor="#0b2e24" translateLeft />
-            <Text
-              marginLeft={2}
-              sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
-              title={poolSymbol}
-            >
+            <span className="ml-2 truncate" title={poolSymbol}>
               {poolSymbol}
-            </Text>
-          </Flex>
+            </span>
+          </div>
           <PoolAprWrapper>
             <PoolApr>
               {formatAprNumber(pool.allApr)}% <AprText>{t`APR`}</AprText>
@@ -118,14 +113,14 @@ export default function TrendingPoolBanner() {
           </PoolAprWrapper>
         </PoolWrapper>
       ) : (
-        <Flex alignItems="center" justifyContent="space-between">
-          <Flex alignItems="center">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
             <Skeleton circle height={24} variant="darkSubtle" width={24} />
             <Skeleton circle height={24} style={{ marginLeft: -8 }} variant="darkSubtle" width={24} />
             <Skeleton height={18} style={{ marginLeft: 8 }} variant="darkSubtle" width={88} />
-          </Flex>
+          </div>
           <Skeleton height={28} borderRadius={16} variant="darkSubtle" width={120} />
-        </Flex>
+        </div>
       )}
     </TrendingWrapper>
   )

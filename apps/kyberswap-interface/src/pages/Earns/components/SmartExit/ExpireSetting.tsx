@@ -2,13 +2,11 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMemo, useRef, useState } from 'react'
 import { Sliders } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import { TIMES_IN_SECS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import { EXPIRE_TIME_PRESETS, FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
 import { CustomOption, SettingButton, SettingContainer, SettingMenu } from 'pages/Earns/components/SmartExit/styles'
 import { formatTimeDuration } from 'utils/time'
@@ -30,7 +28,6 @@ export default function ExpireSetting({
   expireTime: number
   setExpireTime: (v: number) => void
 }) {
-  const theme = useTheme()
   const [openDatePicker, setOpenDatePicker] = useState(false)
   const [openSetting, setOpenSetting] = useState(false)
   const [customDefaultDate, setCustomDefaultDate] = useState<Date | undefined>(undefined)
@@ -63,15 +60,15 @@ export default function ExpireSetting({
       />
 
       <SettingContainer ref={settingRef}>
-        <Flex justifyContent="flex-end">
+        <div className="flex justify-end">
           <SettingButton type="button" onClick={() => setOpenSetting(v => !v)} aria-label={t`Open settings`}>
             <Sliders size={16} />
           </SettingButton>
-        </Flex>
+        </div>
 
         {openSetting && (
           <SettingMenu>
-            <Flex alignItems="center" justifyContent="space-between">
+            <div className="flex items-center justify-between">
               <TextDashed
                 sx={{
                   display: 'flex',
@@ -86,21 +83,12 @@ export default function ExpireSetting({
                   <Trans>Expires In</Trans>
                 </MouseoverTooltip>
               </TextDashed>
-              <Text
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  lineHeight: '1',
-                  color: theme.text,
-                }}
-              >
-                <Text color={theme.text} fontSize={14}>
-                  {displayTime}
-                </Text>
-              </Text>
-            </Flex>
+              <span className="text-sm font-medium leading-none text-text">
+                <span className="text-sm text-text">{displayTime}</span>
+              </span>
+            </div>
 
-            <Flex justifyContent="flex-start" sx={{ gap: '8px', flexWrap: 'wrap' }}>
+            <div className="flex flex-wrap justify-start gap-2">
               {[
                 { label: '7D', value: EXPIRE_TIME_PRESETS.SEVEN_DAYS },
                 { label: '30D', value: EXPIRE_TIME_PRESETS.THIRTY_DAYS },
@@ -109,7 +97,6 @@ export default function ExpireSetting({
                 {
                   label: 'Custom',
                   onSelect: () => {
-                    // Set default date to 1 month from now for the date picker
                     const oneMonthFromNow = new Date(Date.now() + EXPIRE_TIME_PRESETS.THIRTY_DAYS * 1000)
                     setCustomDefaultDate(oneMonthFromNow)
                     setOpenDatePicker(true)
@@ -131,7 +118,7 @@ export default function ExpireSetting({
                   </CustomOption>
                 )
               })}
-            </Flex>
+            </div>
           </SettingMenu>
         )}
       </SettingContainer>

@@ -1,8 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Flex } from 'rebass'
 
-import useTheme from 'hooks/useTheme'
 import AlertType from 'pages/NotificationCenter/PriceAlerts/AlertType'
 import NetworkInlineDisplay from 'pages/NotificationCenter/PriceAlerts/NetworkInlineDisplay'
 import TokenInlineDisplay from 'pages/NotificationCenter/PriceAlerts/TokenInlineDisplay'
@@ -27,7 +25,6 @@ type Props = {
   shouldIncludePrefix: boolean
 }
 const AlertCondition: React.FC<Props> = ({ alertData, shouldIncludePrefix }) => {
-  const theme = useTheme()
   const rawChainId = alertData.chainId
   const chainId = Number(rawChainId) as ChainId
 
@@ -36,16 +33,9 @@ const AlertCondition: React.FC<Props> = ({ alertData, shouldIncludePrefix }) => 
     : alertData.tokenInAmount
 
   return (
-    <Flex
-      sx={{
-        flex: '1 1 fit-content',
-        alignItems: 'center',
-        fontSize: '14px',
-        color: theme.subText,
-        gap: '4px 6px',
-        flexWrap: 'wrap',
-        lineHeight: '20px',
-      }}
+    <div
+      className="flex flex-wrap items-center text-sm leading-5 text-subText"
+      style={{ flex: '1 1 fit-content', gap: '4px 6px' }}
     >
       {shouldIncludePrefix && <Trans>Alert when</Trans>}
       <TokenInlineDisplay
@@ -63,7 +53,7 @@ const AlertCondition: React.FC<Props> = ({ alertData, shouldIncludePrefix }) => 
         amount={alertData.threshold}
         logoUrl={alertData.tokenOutLogoURL}
       />
-    </Flex>
+    </div>
   )
 }
 

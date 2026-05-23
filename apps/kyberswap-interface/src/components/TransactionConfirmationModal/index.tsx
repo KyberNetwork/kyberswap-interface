@@ -226,7 +226,7 @@ export function TransactionErrorContent({
                 {showDetail ? t`Show less` : t`Show more details`}
               </span>
               {showDetail && (
-                <AutoColumn className="bg-buttonBlack/40 mt-3 max-h-[200px] w-full overflow-y-scroll break-words rounded p-3 text-center text-[10px] leading-4 text-text">
+                <AutoColumn className="mt-3 max-h-[200px] w-full overflow-y-scroll break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] leading-4 text-text">
                   {typeof message === 'string' ? message : JSON.stringify(message)}
                 </AutoColumn>
               )}

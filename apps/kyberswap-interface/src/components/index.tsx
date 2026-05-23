@@ -1,7 +1,7 @@
-import { Text, TextProps } from 'rebass'
+import { HTMLAttributes } from 'react'
 
 import { cn } from 'utils/cn'
 
-export const TruncatedText = ({ className, ...props }: TextProps) => (
-  <Text {...props} className={cn('truncate', className)} />
+export const TruncatedText = ({ className, ...props }: HTMLAttributes<HTMLSpanElement>) => (
+  <span {...props} className={cn('truncate', className)} />
 )

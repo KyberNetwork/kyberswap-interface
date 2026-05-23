@@ -60,7 +60,7 @@ export const TermAndCondition = ({
     onClick={onClick}
     style={style}
     className={cn(
-      'bg-buttonBlack/30 hover:bg-buttonBlack/50 flex cursor-pointer items-center rounded-2xl p-2 text-xs font-medium leading-4 accent-primary',
+      'flex cursor-pointer items-center rounded-2xl bg-buttonBlack/30 p-2 text-xs font-medium leading-4 accent-primary hover:bg-buttonBlack/50',
       className,
     )}
   >

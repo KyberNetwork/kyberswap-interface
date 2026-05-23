@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import {
   useGetSafePalCampaignJoinedStatsQuery,
   useGetSafePalCampaignTransactionsQuery,
@@ -14,7 +13,6 @@ import { ButtonPrimary } from 'components/Button'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { WeekCountdown } from 'pages/Campaign/components/CampaignStats/WeekCountdown'
 import SafePalClaimModal from 'pages/Campaign/components/SafePalClaimModal'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
@@ -47,7 +45,6 @@ const formatClaimDeadline = (timestamp: number) =>
     .format('DD/MM/YYYY HH:mm') + ' UTC'
 
 export default function SafePalCampaignStats({ selectedWeek }: { selectedWeek: number }) {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
 
@@ -81,63 +78,49 @@ export default function SafePalCampaignStats({ selectedWeek }: { selectedWeek: n
   )
 
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: upToSmall ? '1fr' : 'repeat(4, minmax(0, 1fr))',
-        marginTop: '1rem',
-        gap: '12px',
-      }}
-    >
+    <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: upToSmall ? '1fr' : 'repeat(4, minmax(0, 1fr))' }}>
       <WeekCountdown weekOptions={weeks} selectedWeek={selectedWeek} />
 
       <StatCard>
-        <Text fontSize={14} color={theme.subText}>
+        <span className="text-sm text-subText">
           <Trans>Participants</Trans>
-        </Text>
-        <Text marginTop="8px" fontSize={20} fontWeight="500">
-          {formatCountValue(joinedStats?.user_joinned)}
-        </Text>
+        </span>
+        <p className="mt-2 text-xl font-medium">{formatCountValue(joinedStats?.user_joinned)}</p>
       </StatCard>
 
       <StatCard>
-        <Text fontSize={14} color={theme.subText}>
+        <span className="text-sm text-subText">
           <Trans>Eligible Transactions</Trans>
-        </Text>
-        <Text marginTop="8px" fontSize={20} fontWeight="500">
-          {formatCountValue(transactionsData?.total_valid_tx)}
-        </Text>
+        </span>
+        <p className="mt-2 text-xl font-medium">{formatCountValue(transactionsData?.total_valid_tx)}</p>
       </StatCard>
 
       <StatCard>
-        <Text fontSize={14} color={theme.subText}>
+        <span className="text-sm text-subText">
           <Trans>Your Total Points</Trans>
-        </Text>
+        </span>
         <MouseoverTooltip
           text={
             <>
-              <Text>
+              <p>
                 <Trans>Transaction Points: {formatPointValue(userStats?.base_points)}</Trans>
-              </Text>
-              <Text>
+              </p>
+              <p>
                 <Trans>Bonus Points: {formatPointValue(userStats?.bonus_points)}</Trans>
-              </Text>
+              </p>
             </>
           }
           width="200px"
           placement="bottom"
         >
-          <Text marginTop="8px" fontSize={20} fontWeight="500">
-            {formatPointValue(userStats?.total_points)}
-          </Text>
+          <p className="mt-2 text-xl font-medium">{formatPointValue(userStats?.total_points)}</p>
         </MouseoverTooltip>
       </StatCard>
-    </Box>
+    </div>
   )
 }
 
 export const SafePalClaim = ({ selectedWeek }: { selectedWeek: number }) => {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
@@ -174,30 +157,25 @@ export const SafePalClaim = ({ selectedWeek }: { selectedWeek: number }) => {
   const isDeadlinePassed = isCampaignWeekEnded(claimWindow, now)
 
   return (
-    <Flex
-      marginTop="1rem"
-      padding="8px 16px"
-      justifyContent="space-between"
-      alignItems="center"
-      flexDirection={upToSmall ? 'column' : 'row'}
-      sx={{
-        gap: '12px',
+    <div
+      className={`mt-4 flex items-center justify-between gap-3 px-4 py-2 ${upToSmall ? 'flex-col' : 'flex-row'}`}
+      style={{
         borderRadius: '20px',
         border: '1px solid rgba(49, 203, 158, 0.28)',
         background:
           'linear-gradient(90deg, rgba(14, 77, 62, 0.55) 0%, rgba(20, 100, 82, 0.38) 55%, rgba(18, 65, 98, 0.45) 100%)',
       }}
     >
-      <Box>
-        <Text color={theme.text} fontSize={upToSmall ? 15 : 16}>
+      <div>
+        <p className={`text-text ${upToSmall ? 'text-[15px]' : 'text-base'}`}>
           <Trans>
             You&apos;ve won 🎁 SafePal X1 Hardware Wallet in Week {displayWeekNumber} of the SafePal Campaign.
           </Trans>
-        </Text>
-        <Text color={theme.subText} fontStyle="italic" marginTop="4px" fontSize={upToSmall ? 13 : 14}>
+        </p>
+        <p className={`mt-1 italic text-subText ${upToSmall ? 'text-[13px]' : 'text-sm'}`}>
           <Trans>Claim deadline: {formatClaimDeadline(claimWindow.end)}</Trans>
-        </Text>
-      </Box>
+        </p>
+      </div>
 
       <ButtonPrimary
         width="fit-content"
@@ -214,6 +192,6 @@ export const SafePalClaim = ({ selectedWeek }: { selectedWeek: number }) => {
         onDismiss={() => setIsClaimModalOpen(false)}
         claimWeek={claimWindow}
       />
-    </Flex>
+    </div>
   )
 }

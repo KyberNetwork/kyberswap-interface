@@ -24,7 +24,7 @@ const config: Config = {
         },
         white2: 'rgb(var(--ks-white2-rgb) / <alpha-value>)',
         black: {
-          DEFAULT: 'var(--ks-black)',
+          DEFAULT: 'rgb(var(--ks-black-rgb) / <alpha-value>)',
           20: 'var(--ks-black-20)',
           40: 'var(--ks-black-40)',
           48: 'var(--ks-black-48)',
@@ -65,7 +65,7 @@ const config: Config = {
         tabBackground: 'var(--ks-tabBackground)',
         tableHeader: 'rgb(var(--ks-tableHeader-rgb) / <alpha-value>)',
         buttonBlack: {
-          DEFAULT: 'var(--ks-buttonBlack)',
+          DEFAULT: 'rgb(var(--ks-buttonBlack-rgb) / <alpha-value>)',
           40: 'var(--ks-buttonBlack-40)',
           60: 'var(--ks-buttonBlack-60)',
         },

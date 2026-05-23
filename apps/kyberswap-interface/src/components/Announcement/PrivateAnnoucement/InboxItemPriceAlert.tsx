@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ArrowDown, ArrowUp, Repeat } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
@@ -75,26 +74,25 @@ function InboxItemBridge({
       </InboxItemRow>
 
       <InboxItemRow>
-        <Flex alignItems={'center'} style={{ gap: '4px' }}>
+        <div className="flex items-center gap-1">
           <DeltaTokenAmount color={theme.text} amount={tokenInAmount} symbol={tokenInSymbol} logoURL={tokenInLogoURL} />
-          <Text color={theme.subText}>
+          <span className="text-subText">
             <Trans>to</Trans>
-          </Text>
+          </span>
           <DeltaTokenAmount color={theme.text} amount={<div />} symbol={tokenOutSymbol} logoURL={tokenOutLogoURL} />
-        </Flex>
+        </div>
       </InboxItemRow>
 
       <InboxItemRow>
-        <Flex alignItems={'center'} style={{ gap: '4px' }}>
-          <Flex
-            style={{ gap: '4px' }}
-            alignItems={'center'}
-            color={type === PriceAlertType.ABOVE ? theme.primary : theme.red}
+        <div className="flex items-center gap-1">
+          <div
+            className="flex items-center gap-1"
+            style={{ color: type === PriceAlertType.ABOVE ? theme.primary : theme.red }}
           >
             {type === PriceAlertType.ABOVE ? <ArrowUp size={16} /> : <ArrowDown size={16} />} {type}
-          </Flex>
+          </div>
           {threshold} {tokenOutSymbol}
-        </Flex>
+        </div>
         {time}
       </InboxItemRow>
     </InboxItemWrapper>

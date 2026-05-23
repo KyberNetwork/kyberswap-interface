@@ -287,7 +287,7 @@ const DropdownAction = ({
             <div
               onClick={onClickOverlay}
               className={cn(
-                'bg-black/50 fixed inset-0 z-[999] transition-opacity duration-300 ease-in-out',
+                'fixed inset-0 z-[999] bg-black/50 transition-opacity duration-300 ease-in-out',
                 open ? 'visible opacity-100' : 'invisible opacity-0',
               )}
             />

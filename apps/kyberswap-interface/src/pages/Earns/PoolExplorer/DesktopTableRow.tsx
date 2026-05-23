@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
-import { Text } from 'rebass'
 
 import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
@@ -81,9 +80,7 @@ const DesktopTableRow = ({
         </HStack>
         <HStack align="center" gap={4}>
           <TokenLogo src={pool.dexLogo} size={18} />
-          <Text color={theme.subText} fontSize={14}>
-            {pool.dexName}
-          </Text>
+          <span className="text-sm text-subText">{pool.dexName}</span>
         </HStack>
       </TableCell>
       <TableCell>
@@ -91,18 +88,18 @@ const DesktopTableRow = ({
         <PoolAprBadges pool={pool} />
       </TableCell>
       <TableCell>
-        <Text>
+        <span>
           {formatDisplayNumber(pool.earnFee, {
             style: 'currency',
             significantDigits: 6,
           })}
-        </Text>
+        </span>
       </TableCell>
       <TableCell>
-        <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
+        <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
       </TableCell>
       <TableCell>
-        <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+        <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
       </TableCell>
       {showRewards && (
         <TableCell>

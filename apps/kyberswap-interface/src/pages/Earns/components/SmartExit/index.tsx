@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
@@ -59,10 +58,8 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
     estimateFee: smartExit.estimateFee,
   })
 
-  // Position is loading or not available yet
   const positionLoading = isLoading || !position
 
-  // Calculate max gas percentage
   const maxGasPercent = customGasPercent ? parseFloat(customGasPercent) : (feeInfo?.gas.percentage || 0) * multiplier
   const isGasTooHigh = maxGasPercent >= 100
 
@@ -78,7 +75,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
       bgColor={theme.background}
       padding="20px"
     >
-      <Flex width="100%" flexDirection="column">
+      <div className="flex w-full flex-col">
         {showConfirm && position ? (
           <Confirmation
             selectedMetrics={selectedMetrics.filter(metric => metric !== null) as SelectedMetric[]}
@@ -98,20 +95,20 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
           />
         ) : (
           <GuidedHighlightProvider selectedMetrics={selectedMetrics}>
-            <Flex justifyContent="space-between" alignItems="center" mb="16px">
-              <Text fontSize={20} fontWeight={500}>
+            <div className="mb-4 flex items-center justify-between">
+              <span className="text-xl font-medium">
                 <Trans>Set Up Smart Exit</Trans>
-              </Text>
+              </span>
               <X onClick={onDismiss} style={{ cursor: 'pointer' }} />
-            </Flex>
+            </div>
 
-            <Flex justifyContent="space-between" alignItems="center">
+            <div className="flex items-center justify-between">
               <PositionHeader position={position} isLoading={positionLoading} initialLoading={positionLoading} />
               <ExpireSetting expireTime={expireTime} setExpireTime={setExpireTime} />
-            </Flex>
+            </div>
 
             <ContentWrapper>
-              <Flex flexDirection="column" sx={{ gap: '1rem' }} flex={1}>
+              <div className="flex flex-1 flex-col gap-4">
                 <PositionLiquidity position={position} isLoading={positionLoading} />
                 <PoolPrice
                   position={position}
@@ -120,9 +117,9 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
                   setRevertPrice={setRevertPrice}
                 />
                 {orWithTimeAlreadyMet && conditionTime && <OrTimeAlreadyMetWarning conditionTime={conditionTime} />}
-              </Flex>
+              </div>
 
-              <Flex flexDirection="column" flex={1} sx={{ gap: '1rem' }}>
+              <div className="flex flex-1 flex-col gap-4">
                 <Metrics
                   position={position}
                   selectedMetrics={selectedMetrics}
@@ -145,7 +142,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
                   timeBeforeNow={timeBeforeNow}
                   isGasTooHigh={isGasTooHigh}
                 />
-              </Flex>
+              </div>
             </ContentWrapper>
 
             <Actions
@@ -157,7 +154,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             />
           </GuidedHighlightProvider>
         )}
-      </Flex>
+      </div>
     </Modal>
   )
 }

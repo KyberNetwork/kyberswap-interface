@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import { ButtonEmpty } from 'components/Button'
@@ -122,11 +121,11 @@ function Tutorial({ customIcon, type, showTooltip }: Props) {
   return (
     <>
       {customIcon ? (
-        <Flex onClick={() => setShow(true)} alignItems="center">
+        <div className="flex items-center" onClick={() => setShow(true)}>
           <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content" disableTooltip={!showTooltip}>
             {customIcon}
           </MouseoverTooltip>
-        </Flex>
+        </div>
       ) : (
         <button
           onClick={() => setShow(true)}
@@ -140,18 +139,14 @@ function Tutorial({ customIcon, type, showTooltip }: Props) {
 
       <Modal isOpen={show} onDismiss={() => setShow(false)} maxWidth="808px" maxHeight={80} minHeight={50}>
         <div className="flex w-full flex-col bg-background px-5 py-6">
-          <Flex alignItems="center" justifyContent="space-between">
-            <Text fontWeight="500">{title}</Text>
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{title}</span>
 
             <ButtonEmpty onClick={() => setShow(false)} width="36px" height="36px" padding="0">
               <X color={theme.text} />
             </ButtonEmpty>
-          </Flex>
-          {subTitle && (
-            <Text color={theme.subText} fontSize={12} marginTop="24px" marginBottom="16px">
-              {subTitle}
-            </Text>
-          )}
+          </div>
+          {subTitle && <p className="mb-4 mt-6 text-xs text-subText">{subTitle}</p>}
           <iframe
             width="100%"
             height="100%"

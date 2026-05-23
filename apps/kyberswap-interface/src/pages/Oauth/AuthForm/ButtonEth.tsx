@@ -1,7 +1,6 @@
 import { LoginMethod } from '@kyberswap/oauth2'
 import { Trans } from '@lingui/macro'
 import React, { useCallback } from 'react'
-import { Text } from 'rebass'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
@@ -51,10 +50,10 @@ const ButtonEth = ({
           <>
             <Loader />
             &nbsp;{' '}
-            <Text sx={{ whiteSpace: 'nowrap' }}>
+            <span className="whitespace-nowrap">
               {' '}
               <Trans>Signing In</Trans>
-            </Text>
+            </span>
           </>
         ) : (
           <>
