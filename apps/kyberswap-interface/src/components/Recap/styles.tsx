@@ -34,7 +34,7 @@ export const Title = ({ children, className, ...rest }: React.HTMLAttributes<HTM
 )
 
 export const Description = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('text-white/[0.48] self-stretch text-left text-sm font-normal italic', className)} {...rest}>
+  <div className={cn('self-stretch text-left text-sm font-normal italic text-white/[0.48]', className)} {...rest}>
     {children}
   </div>
 )

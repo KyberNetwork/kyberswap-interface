@@ -44,7 +44,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 const CurrencyRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'data-[selected=true]:bg-bg6/15 flex h-14 cursor-pointer items-center justify-between gap-4 px-5 py-1 [@media(hover:hover)]:hover:bg-buttonBlack',
+      'flex h-14 cursor-pointer items-center justify-between gap-4 px-5 py-1 data-[selected=true]:bg-bg6/15 [@media(hover:hover)]:hover:bg-buttonBlack',
       className,
     )}
     {...rest}

@@ -228,7 +228,7 @@ const PriceInput = ({
   }, [activeTick, isFullRange, isInfiniteValue, normalizedPool, type])
 
   return (
-    <div className="bg-buttonGray/80 flex w-full min-w-0 items-stretch rounded-xl">
+    <div className="flex w-full min-w-0 items-stretch rounded-xl bg-buttonGray/80">
       <div className="flex items-center justify-center rounded-l-xl bg-tabActive px-2 py-1">
         <span className="text-xs font-medium text-subText">{type === PriceInputType.MinPrice ? 'MIN' : 'MAX'}</span>
       </div>

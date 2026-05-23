@@ -4,7 +4,7 @@ export const ItemActionWrapper = ({ children, className, ...rest }: React.HTMLAt
   <div
     data-ann-actions
     className={cn(
-      'bg-tableHeader/90 pointer-events-none absolute right-1 top-1 z-[2] flex -translate-y-1 items-center gap-3 rounded-lg p-1 opacity-0 transition-[opacity,transform] duration-150 ease-in-out',
+      'pointer-events-none absolute right-1 top-1 z-[2] flex -translate-y-1 items-center gap-3 rounded-lg bg-tableHeader/90 p-1 opacity-0 transition-[opacity,transform] duration-150 ease-in-out',
       className,
     )}
     {...rest}
@@ -152,7 +152,7 @@ export const DetailItem = ({ children, className, ...rest }: React.HTMLAttribute
 )
 
 export const DetailValue = ({ children, className, ...rest }: React.HTMLAttributes<HTMLSpanElement>) => (
-  <span className={cn('text-text/80 font-medium', className)} {...rest}>
+  <span className={cn('font-medium text-text/80', className)} {...rest}>
     {children}
   </span>
 )

@@ -23,11 +23,11 @@ const TopMetricsStrip = ({ items, split = false }: { items: TopMetricItem[]; spl
   const cols = upToSmall ? Math.min(items.length, 2) : upToMedium ? Math.min(items.length, 3) : items.length
   return (
     <div
-      className={cn('grid gap-3', !split && 'bg-buttonGray/80 rounded-2xl p-4')}
+      className={cn('grid gap-3', !split && 'rounded-2xl bg-buttonGray/80 p-4')}
       style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
     >
       {items.map(metric => (
-        <Stack key={metric.label} gap="4px" className={cn('min-w-0', split && 'bg-buttonGray/80 rounded-2xl p-4')}>
+        <Stack key={metric.label} gap="4px" className={cn('min-w-0', split && 'rounded-2xl bg-buttonGray/80 p-4')}>
           <span className="overflow-hidden truncate whitespace-nowrap text-sm text-subText">{metric.label}</span>
           <MetricValue value={metric.value} />
         </Stack>

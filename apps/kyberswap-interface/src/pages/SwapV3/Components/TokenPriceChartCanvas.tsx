@@ -13,18 +13,16 @@ import {
   type UTCTimestamp,
   createChart,
 } from 'lightweight-charts'
-import { rgba } from 'polished'
 import { type MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { type TokenChartTimeFrame } from 'services/tokenChart'
-import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { MEDIA_WIDTHS } from 'theme'
+import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export type DisplayCandle = {
@@ -55,35 +53,6 @@ type TokenPriceChartCanvasProps = {
 
 const DEFAULT_VISIBLE_CANDLES = 60
 const LOAD_MORE_THRESHOLD = 20
-
-const ChartFrame = styled.div<{ $height: number }>`
-  position: relative;
-  width: 100%;
-  height: ${({ $height }) => $height}px;
-`
-
-const ChartCanvas = styled(PoolChartWrapper)<{ $ready: boolean }>`
-  visibility: ${({ $ready }) => ($ready ? 'visible' : 'hidden')};
-`
-
-const TooltipCard = styled(Stack)`
-  position: absolute;
-  z-index: 2;
-  gap: 12px;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 12px;
-  background: ${({ theme }) => rgba(theme.tableHeader, 0.8)};
-  box-shadow: 0 12px 32px ${({ theme }) => theme.shadow};
-  pointer-events: none;
-`
-
-const TooltipGrid = styled.div`
-  display: grid;
-  gap: 8px 16px;
-  grid-template-columns: auto auto;
-`
 
 const formatAxisTimeLabel = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
   if (timeFrame === '1d' || timeFrame === '7d') {
@@ -310,77 +279,57 @@ const PriceChartTooltip = ({ timeFrame, tooltip }: { timeFrame: TokenChartTimeFr
   const priceRange = candle.rangePercent ?? (candle.low ? ((candle.high - candle.low) / candle.low) * 100 : 0)
 
   return (
-    <TooltipCard style={{ left, top }}>
-      <Text color={theme.subText} fontSize={12}>
-        {formatTooltipDate(candle.time, timeFrame)}
-      </Text>
+    <Stack
+      className="pointer-events-none absolute z-[2] min-w-[220px] gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
+      style={{ left, top, boxShadow: `0 12px 32px ${theme.shadow}` }}
+    >
+      <span className="text-xs text-subText">{formatTooltipDate(candle.time, timeFrame)}</span>
 
-      <TooltipGrid>
-        <Text color={theme.subText} fontSize={12}>
-          Open
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.open)}
-        </Text>
+      <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
+        <span className="text-xs text-subText">Open</span>
+        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.open)}</span>
 
-        <Text color={theme.subText} fontSize={12}>
-          High
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.high)}
-        </Text>
+        <span className="text-xs text-subText">High</span>
+        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.high)}</span>
 
-        <Text color={theme.subText} fontSize={12}>
-          Low
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.low)}
-        </Text>
+        <span className="text-xs text-subText">Low</span>
+        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.low)}</span>
 
-        <Text color={theme.subText} fontSize={12}>
-          Close
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.close)}
-        </Text>
+        <span className="text-xs text-subText">Close</span>
+        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.close)}</span>
 
-        <Text color={theme.subText} fontSize={12}>
-          %Change
-        </Text>
-        <Text color={priceChange >= 0 ? theme.primary : theme.red} fontSize={12} fontWeight={500} textAlign="right">
+        <span className="text-xs text-subText">%Change</span>
+        <span
+          className="text-right text-xs font-medium"
+          style={{ color: priceChange >= 0 ? theme.primary : theme.red }}
+        >
           {formatSignedPercent(priceChange)}
-        </Text>
+        </span>
 
-        <Text color={theme.subText} fontSize={12}>
-          Range
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+        <span className="text-xs text-subText">Range</span>
+        <span className="text-right text-xs font-medium text-text">
           {formatSignedPercent(priceRange).replace(/^\+/, '')}
-        </Text>
+        </span>
 
         {candle.volume > 0 && (
           <>
-            <Text color={theme.subText} fontSize={12}>
-              Vol
-            </Text>
-            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+            <span className="text-xs text-subText">Vol</span>
+            <span className="text-right text-xs font-medium text-text">
               {formatDisplayNumber(candle.volume, { significantDigits: 4 })}
-            </Text>
+            </span>
           </>
         )}
 
         {candle.transactions !== undefined ? (
           <>
-            <Text color={theme.subText} fontSize={12}>
-              Transactions
-            </Text>
-            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+            <span className="text-xs text-subText">Transactions</span>
+            <span className="text-right text-xs font-medium text-text">
               {formatDisplayNumber(candle.transactions, { significantDigits: 4 })}
-            </Text>
+            </span>
           </>
         ) : null}
-      </TooltipGrid>
-    </TooltipCard>
+      </div>
+    </Stack>
   )
 }
 
@@ -393,12 +342,12 @@ const TokenPriceChartCanvas = ({
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
-  const gridColor = rgba(theme.text, 0.06)
-  const crosshairColor = rgba(theme.text, 0.12)
+  const gridColor = hexAlpha(theme.text, 0.06)
+  const crosshairColor = hexAlpha(theme.text, 0.12)
   const upCandleColor = theme.primary
   const downCandleColor = theme.red
-  const volumeUpColor = rgba(theme.darkGreen, 0.8)
-  const volumeDownColor = rgba(theme.red, 0.5)
+  const volumeUpColor = hexAlpha(theme.darkGreen, 0.8)
+  const volumeDownColor = hexAlpha(theme.red, 0.5)
   const priceScaleConfig = useMemo(() => getPriceScaleConfig(chartData), [chartData])
   const subTextColor = theme.subText
   const chartOptions = useMemo(
@@ -435,7 +384,6 @@ const TokenPriceChartCanvas = ({
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [isViewportReady, setIsViewportReady] = useState(false)
 
-  /** Keep crosshair tooltip lookup in sync with the latest candle set. */
   useEffect(() => {
     chartDataRef.current = chartData
     chartDataByTimeRef.current = new Map(chartData.map(candle => [candle.time, candle]))
@@ -445,7 +393,6 @@ const TokenPriceChartCanvas = ({
     chartHeightRef.current = chartHeight
   }, [chartHeight])
 
-  /** Create the chart instance once and wire imperative subscriptions around it. */
   useEffect(() => {
     const container = chartContainerRef.current
 
@@ -552,7 +499,6 @@ const TokenPriceChartCanvas = ({
     }
   }, [canLoadMore, onLoadMore])
 
-  /** Apply visual option updates without recreating the chart instance. */
   useEffect(() => {
     if (!chartRef.current) return
 
@@ -568,7 +514,6 @@ const TokenPriceChartCanvas = ({
     candlestickSeriesRef.current?.applyOptions(candlestickSeriesOptions)
   }, [candlestickSeriesOptions, chartOptions])
 
-  /** Push data into the existing series and initialize the first viewport once. */
   useEffect(() => {
     if (!chartRef.current || !candlestickSeriesRef.current || !volumeSeriesRef.current) return
 
@@ -604,10 +549,14 @@ const TokenPriceChartCanvas = ({
   }, [chartData, volumeDownColor, volumeUpColor])
 
   return (
-    <ChartFrame $height={chartHeight}>
+    <div className="relative w-full" style={{ height: `${chartHeight}px` }}>
       {tooltip && isViewportReady ? <PriceChartTooltip timeFrame={timeFrame} tooltip={tooltip} /> : null}
-      <ChartCanvas $height={chartHeight} $ready={isViewportReady} ref={chartContainerRef} />
-    </ChartFrame>
+      <PoolChartWrapper
+        $height={chartHeight}
+        ref={chartContainerRef}
+        style={{ visibility: isViewportReady ? 'visible' : 'hidden' }}
+      />
+    </div>
   )
 }
 

@@ -1,18 +1,15 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/widget'
-import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import {
   useCreateOptionMutation,
   useGetUserSelectedOptionQuery,
   useLazyGetAccessTokensQuery,
 } from 'services/commonService'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -24,6 +21,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { VerticalDivider } from 'pages/About/styleds'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import vesting3rdData from '../data/pendle_dappos_vesting.json'
@@ -36,22 +34,6 @@ import TermAndPolicyModal from './TermAndPolicyModal'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
-const Step = styled.div`
-  border-radius: 8px;
-  padding: 8px;
-  text-align: center;
-  line-height: 20px;
-  width: 56px;
-  height: 56px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.subText};
-  background: ${({ theme }) => theme.background};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-`
-
 const APP_ID = 'M2023122583510932543540072365652'
 
 const MANUAL_KYCS = [
@@ -62,9 +44,14 @@ const MANUAL_KYCS = [
   '0x4526B09df42775975a543e0E984172Ab202b4Ff8',
 ]
 
+const Step = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex size-14 flex-col items-center justify-center rounded-lg bg-background p-2 text-center text-sm leading-5 text-subText">
+    {children}
+  </div>
+)
+
 export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveVestingData: boolean }) {
   const theme = useTheme()
-
   const { account, chainId } = useActiveWeb3React()
   const phase3Info = phase3.find(
     item =>
@@ -216,121 +203,88 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
         }}
         userSelectedOption={userSelectedOption}
       />
-      <Flex flexDirection="column">
-        <Text fontSize={20} fontWeight="500">
+      <div className="flex flex-col">
+        <span className="text-xl font-medium">
           <Trans>Selecting Treasury Grant Option</Trans>
-        </Text>
+        </span>
 
-        <Box backgroundColor={rgba('#08A1E7', 0.2)} padding="1rem" sx={{ borderRadius: '12px' }} marginTop="1rem">
-          <Text fontSize={14} lineHeight="20px">
-            For anyone who missed the{' '}
-            <Text color="#58B5EE" as="span">
-              March 13
-            </Text>{' '}
-            Treasury Grant program registration deadline, you will still be able to complete registration steps.
-            However, if eligible, your grant will be processed at a later time. We will announce the Grant processing
-            timeline for Batch 2 Treasury Grant recipients on{' '}
-            <Text color="#58B5EE" as="span">
-              February 24th at 14:00 UTC
-            </Text>{' '}
-            at{' '}
+        <div className="mt-4 rounded-xl bg-blue/20 p-4">
+          <span className="text-sm leading-5">
+            For anyone who missed the <span className="text-blue3">March 13</span> Treasury Grant program registration
+            deadline, you will still be able to complete registration steps. However, if eligible, your grant will be
+            processed at a later time. We will announce the Grant processing timeline for Batch 2 Treasury Grant
+            recipients on <span className="text-blue3">February 24th at 14:00 UTC</span> at{' '}
             <ExternalLink href="https://blog.kyberswap.com/kyberswap-elastic-exploit-treasury-grant-program-registration/#:~:text=For%20Affected%20Users%20who%20missed%20the%20Treasury%20Grant%20Program%20registration%20period%3A">
               the following link
             </ExternalLink>
-          </Text>
-        </Box>
+          </span>
+        </div>
 
-        <Flex marginTop="1rem" padding={upToMedium ? '12px 0' : '12px 20px'} alignItems="center">
-          <Flex
-            flexDirection="column"
-            justifyContent="space-between"
-            marginRight={upToMedium ? '12px' : '24px'}
-            sx={{ gap: '16px', borderRadius: '12px' }}
-          >
-            <Text fontSize={upToMedium ? '12px' : '14px'} fontWeight="500" color={theme.subText} lineHeight="20px">
+        <div className={cn('mt-4 flex items-center py-3', upToMedium ? 'px-0' : 'px-5')}>
+          <div className={cn('flex flex-col justify-between gap-4 rounded-xl', upToMedium ? 'mr-3' : 'mr-6')}>
+            <span className={cn('font-medium leading-5 text-subText', upToMedium ? 'text-xs' : 'text-sm')}>
               <Trans>TOTAL AMOUNT (USD)</Trans>
-            </Text>
-            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+            </span>
+            <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>
               {phase3Info ? format(phase3Info.value) : isTotalNull ? 'N/A' : format(totalValue)}
-            </Text>
-          </Flex>
+            </span>
+          </div>
           <VerticalDivider style={{ height: '100%' }} />
-          <Flex
-            flexDirection="column"
-            justifyContent="space-between"
-            marginX={upToMedium ? '12px' : '24px'}
-            sx={{ gap: '16px' }}
-          >
-            <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+          <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
+            <span className="text-sm leading-5 text-subText">
               <Trans>Phase 1</Trans>
-            </Text>
-            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+            </span>
+            <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>
               {phase3Info ? format(phase3Info.vestedAmount || 0) : format(userData?.value || 0)}
-            </Text>
-          </Flex>
+            </span>
+          </div>
           <VerticalDivider style={{ height: '80%' }} />
-          <Flex
-            flexDirection="column"
-            justifyContent="space-between"
-            sx={{ gap: '16px' }}
-            marginX={upToMedium ? '12px' : '24px'}
-          >
-            <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+          <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
+            <span className="text-sm leading-5 text-subText">
               <Trans>Phase 2</Trans>
-            </Text>
-            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+            </span>
+            <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>
               {phase3Info ? 0 : isNull ? 'N/A' : format(totalPhase2Value || 0)}
-            </Text>
-          </Flex>
+            </span>
+          </div>
           {phase3Info && (
             <>
               <VerticalDivider style={{ height: '80%' }} />
-              <Flex
-                flexDirection="column"
-                justifyContent="space-between"
-                sx={{ gap: '16px' }}
-                marginX={upToMedium ? '12px' : '24px'}
-              >
-                <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+              <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
+                <span className="text-sm leading-5 text-subText">
                   <Trans>Phase 3</Trans>
-                </Text>
-                <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+                </span>
+                <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>
                   {format(phase3Info.value - (phase3Info.vestedAmount || 0))}
-                </Text>
-              </Flex>
+                </span>
+              </div>
             </>
           )}
-        </Flex>
+        </div>
 
-        <Text fontSize={14} color={theme.subText} lineHeight={1.5}>
-          <Info size={12} color="#58B5EE" />
-          <Text as="span" marginLeft="6px" color="#58B5EE">
-            Phase 1:
-          </Text>{' '}
-          First Batch of Affected Users including:
+        <div className="text-sm leading-relaxed text-subText">
+          <Info size={12} color={theme.blue3} />
+          <span className="ml-1.5 text-blue3">Phase 1:</span> First Batch of Affected Users including:
           <ul>
             <li>Normal cases of Affected Users who made the January 31 Treasury Grant Program registration deadline</li>
-            <li style={{ marginTop: '4px' }}>
+            <li className="mt-1">
               Category 3 Affected Users who made the January 31 Treasury Grant Program registration deadline, intending
               to claim Treasury Grants for unrecovered funds
             </li>
-            <li style={{ marginTop: '4px' }}>
+            <li className="mt-1">
               Category 3 and 5 Affected Users claiming Category 3 Affected Assets which have been partially recovered,
               Category 3 Swapped Affected Assets, and Category 5 Affected Assets which have been recovered
             </li>
           </ul>
-        </Text>
+        </div>
 
-        <Text fontSize={14} color={theme.subText} lineHeight={1.5}>
-          <Info size={12} color="#58B5EE" />
-          <Text as="span" marginLeft="6px" color="#58B5EE">
-            Phase 2:
-          </Text>{' '}
-          Second Batch of Affected Users including:
+        <div className="text-sm leading-relaxed text-subText">
+          <Info size={12} color={theme.blue3} />
+          <span className="ml-1.5 text-blue3">Phase 2:</span> Second Batch of Affected Users including:
           <ul>
             <li>Third Party Affected Users of DappOS, Pendle, Magpie/Penpie and Equilibria</li>
-            <li style={{ marginTop: '4px' }}>Affected Users with Multisig/AA/Safe/Other Contract Affected Addresses</li>
-            <li style={{ marginTop: '4px' }}>
+            <li className="mt-1">Affected Users with Multisig/AA/Safe/Other Contract Affected Addresses</li>
+            <li className="mt-1">
               Normal cases of Affected Users who missed the January 31 Treasury Grant Program registration deadline, but
               made the next March 4 deadline
             </li>
@@ -339,14 +293,12 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               the next March 4 deadline, intending to claim Treasury Grants for unrecovered funds
             </li>
           </ul>
-        </Text>
+        </div>
 
-        <Text fontSize={14} color={theme.subText} lineHeight={1.5}>
-          <Info size={12} color="#58B5EE" />
-          <Text as="span" marginLeft="6px" color="#58B5EE">
-            Phase 3:
-          </Text>{' '}
-          The <b>Third Batch of Special Affected Users (total 11 wallets) including</b> who encountered specific issues
+        <div className="text-sm leading-relaxed text-subText">
+          <Info size={12} color={theme.blue3} />
+          <span className="ml-1.5 text-blue3">Phase 3:</span> The{' '}
+          <b>Third Batch of Special Affected Users (total 11 wallets) including</b> who encountered specific issues
           listed below and reported them through the{' '}
           <b>Kyber Customer Support channel prior to the Phase 2 deadline.</b>
           To be eligible for Phase 3 of the KyberSwap Grant Program, users must have strictly followed specific
@@ -361,60 +313,52 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               process
             </li>
 
-            <li style={{ marginTop: '4px' }}>
+            <li className="mt-1">
               Users who were unable to apply within Phase 2 due to ZkMe-related delays or errors.
             </li>
-            <li style={{ marginTop: '4px' }}>
+            <li className="mt-1">
               Users who experienced wallet security issues and requested to update to a new wallet for grant application
               purposes.
             </li>
           </ul>
-          <Text>
+          <div>
             All users eligible for Phase 3 have been notified of their eligibility directly through the KyberSwap
             Customer Support channel.
-          </Text>
-        </Text>
+          </div>
+        </div>
 
-        <Text marginTop="1rem" fontSize={14} color={theme.subText} lineHeight="20px">
+        <span className="mt-4 text-sm leading-5 text-subText">
           <Trans>
             Total Amount includes all affected funds under Category 1, 2 & 4 and unrecovered funds under Category 3 & 5
             (USD value subject to change based on Grant Terms).
           </Trans>
-        </Text>
-        <Text marginTop="8px" fontSize={14} color={theme.subText} lineHeight="20px">
+        </span>
+        <span className="mt-2 text-sm leading-5 text-subText">
           <Trans>
             To apply for KyberSwap Treasury Grant, complete your KYC process and select your preferred option before
             January 31, 2024 - 14 OTC
           </Trans>
-        </Text>
+        </span>
 
-        <Flex sx={{ gap: '20px' }} alignItems={upToMedium ? 'flex-start' : 'center'} marginTop="24px">
+        <div className={cn('mt-6 flex gap-5', upToMedium ? 'items-start' : 'items-center')}>
           <Step>
-            <Trans>Step</Trans>{' '}
-            <Text fontSize={20} fontWeight="500" color={theme.text}>
-              1
-            </Text>
+            <Trans>Step</Trans> <span className="text-xl font-medium text-text">1</span>
           </Step>
-          <Flex
-            flex={1}
-            alignItems={upToMedium ? 'flex-start' : 'center'}
-            sx={{ gap: '20px' }}
-            flexDirection={upToMedium ? 'column' : 'row'}
-          >
-            <Text fontSize={14} flex={1} lineHeight="20px" color={isKyc ? theme.subText : theme.text}>
+          <div className={cn('flex flex-1 gap-5', upToMedium ? 'flex-col items-start' : 'flex-row items-center')}>
+            <span className={cn('flex-1 text-sm leading-5', isKyc ? 'text-subText' : 'text-text')}>
               {isKyc ? (
                 <Trans>Your wallet has been verified. Please select the grant option.</Trans>
               ) : (
                 <Trans>Only available on Polygon, you may need to spend a small gas fee to complete your KYC</Trans>
               )}
-            </Text>
+            </span>
 
             {isKyc ? (
               <ButtonLight style={{ width: 'fit-content', height: '36px', minWidth: '116px' }}>
                 <Check size={18} />
-                <Text marginLeft="0.25rem">
+                <span className="ml-1">
                   <Trans>Verified</Trans>
-                </Text>
+                </span>
               </ButtonLight>
             ) : (
               <ButtonPrimary
@@ -438,58 +382,45 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
                 )}
               </ButtonPrimary>
             )}
-          </Flex>
-        </Flex>
+          </div>
+        </div>
 
-        <Flex sx={{ gap: '20px' }} alignItems={upToMedium ? 'flex-start' : 'center'} marginTop="24px">
+        <div className={cn('mt-6 flex gap-5', upToMedium ? 'items-start' : 'items-center')}>
           <Step>
-            <Trans>Step</Trans>{' '}
-            <Text fontSize={20} fontWeight="500" color={theme.text}>
-              2
-            </Text>
+            <Trans>Step</Trans> <span className="text-xl font-medium text-text">2</span>
           </Step>
-          <Flex
-            flex={1}
-            alignItems={upToMedium ? 'flex-start' : 'center'}
-            sx={{ gap: '20px' }}
-            flexDirection={upToMedium ? 'column' : 'row'}
-          >
-            <Text fontSize={14} flex={1} lineHeight="20px" color={userSelectedOption ? theme.subText : theme.text}>
+          <div className={cn('flex flex-1 gap-5', upToMedium ? 'flex-col items-start' : 'flex-row items-center')}>
+            <span className={cn('flex-1 text-sm leading-5', userSelectedOption ? 'text-subText' : 'text-text')}>
               {userSelectedOption ? (
-                <Text display="flex" sx={{ gap: '4px' }}>
+                <span className="flex gap-1">
                   You have selected option {userSelectedOption}.{' '}
                   {userHaveVestingData ? (
-                    <Text>
+                    <span>
                       Please go to{' '}
-                      <Text
-                        as="span"
-                        color={theme.primary}
-                        sx={{ cursor: 'pointer' }}
+                      <span
+                        className="cursor-pointer text-primary"
                         onClick={() => {
                           searchParams.set('tab', 'vesting')
                           setSearchParams(searchParams)
                         }}
                       >
                         Vesting
-                      </Text>{' '}
+                      </span>{' '}
                       tab to claim tokens{' '}
-                    </Text>
+                    </span>
                   ) : (
                     `The UI for claiming tokens will be enabled on ${
                       totalPhase2Value ? 'March 20, 2024.' : 'February 6th, 2024.'
                     }`
                   )}
-                </Text>
+                </span>
               ) : (
                 <Trans>
-                  You can{' '}
-                  <Text color={theme.warning} as="span">
-                    choose Grant Option once
-                  </Text>
-                  , please read and decide carefully
+                  You can <span className="text-warning">choose Grant Option once</span>, please read and decide
+                  carefully
                 </Trans>
               )}
-            </Text>
+            </span>
 
             <ButtonPrimary
               width="fit-content"
@@ -505,31 +436,26 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
                 <Trans>Choose Grant Option</Trans>
               )}
             </ButtonPrimary>
-          </Flex>
-        </Flex>
-        <Text fontStyle="italic" fontSize={14} color={theme.subText} marginTop="8px">
+          </div>
+        </div>
+        <span className="mt-2 text-sm italic text-subText">
           KyberSwap Treasury Grant Completed on 1st Feb 2025 as announced in this{' '}
           <ExternalLink href="https://x.com/kybernetwork/status/1886258729508831569">tweet</ExternalLink>. If there’s an
           update, we will announce it on our official channels.
-        </Text>
+        </span>
 
         {(!userSelectedOption || userSelectedOption === 'C') && (
           <>
-            <Flex marginTop="24px" />
+            <div className="mt-6" />
             <Divider />
 
-            <Flex sx={{ gap: '20px' }} alignItems={upToMedium ? 'flex-start' : 'center'} marginTop="24px">
+            <div className={cn('mt-6 flex gap-5', upToMedium ? 'items-start' : 'items-center')}>
               <Step>
                 <Trans>Opt Out</Trans>
               </Step>
 
-              <Flex
-                flex={1}
-                alignItems={upToMedium ? 'flex-start' : 'center'}
-                sx={{ gap: '20px' }}
-                flexDirection={upToMedium ? 'column' : 'row'}
-              >
-                <Text fontSize={14} flex={1} lineHeight="20px">
+              <div className={cn('flex flex-1 gap-5', upToMedium ? 'flex-col items-start' : 'flex-row items-center')}>
+                <span className="flex-1 text-sm leading-5">
                   {userSelectedOption === 'C' ? (
                     <Trans>Thank you. You have chosen to Opt Out.</Trans>
                   ) : (
@@ -537,7 +463,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
                       In case you want to Opt Out (i) from KyberSwap Treasury Grant Program, proceed in actions.
                     </Trans>
                   )}
-                </Text>
+                </span>
 
                 <ButtonOutlined
                   width="fit-content"
@@ -581,18 +507,15 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
                 >
                   <Trans>Opt Out</Trans>
                 </ButtonOutlined>
-              </Flex>
-            </Flex>
+              </div>
+            </div>
 
-            <Text marginTop="1rem" color={theme.subText} fontSize={14} fontStyle="italic">
-              Once you make a selection, you are{' '}
-              <Text color={theme.warning} as="span">
-                unable to change your choice.
-              </Text>
-            </Text>
+            <span className="mt-4 text-sm italic text-subText">
+              Once you make a selection, you are <span className="text-warning">unable to change your choice.</span>
+            </span>
           </>
         )}
-      </Flex>
+      </div>
     </>
   )
 }

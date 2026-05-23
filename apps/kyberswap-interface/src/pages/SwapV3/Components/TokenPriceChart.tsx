@@ -212,7 +212,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                   'relative flex shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
                   !isLast && 'border-r border-darkBorder',
                   isActive
-                    ? 'bg-primary/15 hover:bg-primary/15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:text-primary'
+                    ? 'bg-primary/15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary/15 hover:text-primary'
                     : 'bg-transparent text-subText hover:bg-tableHeader hover:text-text',
                 )}
               >
@@ -284,7 +284,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                 <HStack
                   align="center"
                   justify="center"
-                  className="border-warning/25 bg-warning/10 absolute top-0 z-10 rounded-lg border p-2 text-warning"
+                  className="absolute top-0 z-10 rounded-lg border border-warning/25 bg-warning/10 p-2 text-warning"
                 >
                   <MouseoverTooltip
                     placement="top"
@@ -327,7 +327,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                   align="center"
                   gap={8}
                   justify="center"
-                  className="border-warning/25 absolute inset-0 z-10 rounded-[inherit] border p-3 text-center text-warning backdrop-blur-sm"
+                  className="absolute inset-0 z-10 rounded-[inherit] border border-warning/25 p-3 text-center text-warning backdrop-blur-sm"
                   style={{ backgroundColor: 'rgba(28,28,28,0.6)' }}
                 >
                   <AlertTriangle color={theme.warning} size={28} />

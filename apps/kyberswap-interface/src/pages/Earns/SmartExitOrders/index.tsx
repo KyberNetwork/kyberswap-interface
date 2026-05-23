@@ -216,7 +216,7 @@ const SmartExit = () => {
         <Filter filters={filters} updateFilters={updateFilters} />
         <StyledNavigateButton
           onClick={handleOpenTokenSelector}
-          className="hover:bg-primary/10 border border-primary bg-transparent text-primary hover:brightness-100"
+          className="border border-primary bg-transparent text-primary hover:bg-primary/10 hover:brightness-100"
         >
           <Trans>Set Up Smart Exit</Trans>
         </StyledNavigateButton>
@@ -268,7 +268,7 @@ const SmartExit = () => {
             <div className="mt-2 flex gap-3">
               <button
                 onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}
-                className="bg-white/[0.08] text-white/70 flex cursor-pointer items-center justify-center rounded-2xl border-0 px-[18px] py-2.5 text-sm font-medium transition-all duration-200"
+                className="flex cursor-pointer items-center justify-center rounded-2xl border-0 bg-white/[0.08] px-[18px] py-2.5 text-sm font-medium text-white/70 transition-all duration-200"
               >
                 <Trans>My Positions</Trans>
               </button>

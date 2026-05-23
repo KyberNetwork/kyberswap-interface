@@ -11,7 +11,7 @@ export default function TableHeader() {
   const { currencyIn, currencyOut } = useLimitState()
 
   return (
-    <ItemWrapper className="bg-white/[0.04] cursor-default p-3 text-xs font-medium leading-4 text-subText">
+    <ItemWrapper className="cursor-default bg-white/[0.04] p-3 text-xs font-medium leading-4 text-subText">
       <span>CHAIN</span>
       <span>
         <Trans>RATE</Trans>

@@ -1,544 +1,410 @@
-import { rgba } from 'polished'
-import { Link } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, forwardRef } from 'react'
 
 import { ReactComponent as IconArrowLeftSvg } from 'assets/svg/ic_left_arrow.svg'
+import { cn } from 'utils/cn'
 
-// Shared animations
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`
+import './styles.css'
 
-const slideDown = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`
+export const IconArrowLeft = ({ className, ...rest }: React.SVGProps<SVGSVGElement>) => (
+  <IconArrowLeftSvg className={cn('cursor-pointer text-white2 hover:brightness-150', className)} {...rest} />
+)
 
-export const IconArrowLeft = styled(IconArrowLeftSvg)`
-  cursor: pointer;
-  color: rgba(250, 250, 250, 1);
+export const PositionDetailWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'relative flex w-full animate-[ks-pd-fade-in_0.3s_ease-out] items-start gap-4 max-md:flex-col',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+PositionDetailWrapper.displayName = 'PositionDetailWrapper'
 
-  :hover {
-    filter: brightness(1.5);
-  }
-`
+export const LeftColumn = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'flex min-w-[320px] max-w-[480px] flex-[2_1_0%] flex-col gap-4 max-md:w-full max-md:min-w-0 max-md:max-w-full',
+      className,
+    )}
+    {...rest}
+  />
+))
+LeftColumn.displayName = 'LeftColumn'
 
-// New two-column layout
-export const PositionDetailWrapper = styled.div`
-  display: flex;
-  gap: 16px;
-  width: 100%;
-  position: relative;
-  align-items: flex-start;
-  animation: ${fadeIn} 0.3s ease-out;
+export const RightColumn = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn('flex min-w-0 flex-[3_1_0%] flex-col rounded-xl bg-white/[0.04] max-md:w-full', className)}
+    {...rest}
+  />
+))
+RightColumn.displayName = 'RightColumn'
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column;
-  `}
-`
+export const DarkCard = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('flex flex-col gap-2 rounded-xl bg-background p-4', className)} {...rest} />
+))
+DarkCard.displayName = 'DarkCard'
 
-export const LeftColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  flex: 2 1 0%;
-  min-width: 320px;
-  max-width: 480px;
+export const CardDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('h-px w-full bg-white/[0.08]', className)} {...rest} />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    max-width: 100%;
-    min-width: 0;
-    width: 100%;
-  `}
-`
+export const TabMenu = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn('flex items-center overflow-hidden rounded-t-xl border-b border-white/[0.04]', className)}
+    {...rest}
+  />
+))
+TabMenu.displayName = 'TabMenu'
 
-export const RightColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 3 1 0%;
-  min-width: 0;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  border-radius: 12px;
+type TabItemProps = HTMLAttributes<HTMLDivElement> & { active?: boolean }
+export const TabItem = forwardRef<HTMLDivElement, TabItemProps>(({ active, className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'flex h-12 cursor-pointer items-center justify-center whitespace-nowrap border-b-2 px-5 py-3 text-sm font-medium uppercase leading-6 transition-colors',
+      active
+        ? 'border-primary bg-primary/10 text-primary hover:text-primary'
+        : 'border-transparent bg-transparent text-subText hover:text-text',
+      className,
+    )}
+    {...rest}
+  />
+))
+TabItem.displayName = 'TabItem'
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-  `}
-`
+export const TabDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('h-5 w-px bg-white/[0.08]', className)} {...rest} />
+)
 
-export const DarkCard = styled.div`
-  background: ${({ theme }) => theme.background};
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
+export const TabContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('flex flex-col gap-3 p-4 max-md:p-3', className)} {...rest} />
+))
+TabContent.displayName = 'TabContent'
 
-export const CardDivider = styled.div`
-  width: 100%;
-  height: 1px;
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-`
+export const TabContentArea = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex flex-1 animate-[ks-pd-fade-in_0.25s_ease-out] flex-col gap-3', className)}
+      {...rest}
+    />
+  ),
+)
+TabContentArea.displayName = 'TabContentArea'
 
-// Tab navigation
-export const TabMenu = styled.div`
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid ${({ theme }) => rgba(theme.white, 0.04)};
-  border-radius: 12px 12px 0 0;
-  overflow: hidden;
-`
+export const DexInfoBadge = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex h-9 items-center gap-1 rounded-xl bg-white/[0.04] px-3 py-1', className)}
+      {...rest}
+    />
+  ),
+)
+DexInfoBadge.displayName = 'DexInfoBadge'
 
-export const TabItem = styled.div<{ active?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 24px;
-  text-transform: uppercase;
-  cursor: pointer;
-  white-space: nowrap;
-  color: ${({ active, theme }) => (active ? theme.primary : theme.subText)};
-  background: ${({ active, theme }) => (active ? rgba(theme.primary, 0.1) : 'transparent')};
-  border-bottom: 2px solid ${({ active, theme }) => (active ? theme.primary : 'transparent')};
-  transition: color 0.2s, background 0.2s, border-color 0.2s;
+type ClaimButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
+export const ClaimButton = forwardRef<HTMLButtonElement, ClaimButtonProps>(({ className, disabled, ...rest }, ref) => (
+  <button
+    ref={ref}
+    disabled={disabled}
+    className={cn(
+      'cursor-pointer whitespace-nowrap rounded-xl border border-primary bg-transparent px-3 py-1.5 text-xs font-medium leading-4 text-primary',
+      'hover:enabled:brightness-125',
+      disabled && 'cursor-not-allowed opacity-30',
+      className,
+    )}
+    {...rest}
+  />
+))
+ClaimButton.displayName = 'ClaimButton'
 
-  &:hover {
-    color: ${({ active, theme }) => (active ? theme.primary : theme.text)};
-  }
-`
+export const EarningChartContainer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => <div ref={ref} className={cn('flex w-full flex-col gap-4', className)} {...rest} />,
+)
+EarningChartContainer.displayName = 'EarningChartContainer'
 
-export const TabDivider = styled.div`
-  width: 1px;
-  height: 20px;
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-`
+export const HistorySectionHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex w-full items-center gap-2 border-b border-white/[0.04] pb-1', className)}
+      {...rest}
+    />
+  ),
+)
+HistorySectionHeader.displayName = 'HistorySectionHeader'
 
-export const TabContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+export const PastActionsList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('ks-pd-past-actions flex max-h-60 flex-col items-end gap-2 overflow-y-auto pr-1', className)}
+      {...rest}
+    />
+  ),
+)
+PastActionsList.displayName = 'PastActionsList'
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 12px;
-  `}
-`
+export const HistoryCard = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('flex flex-1 flex-col gap-2 rounded-xl bg-white/[0.04] p-3', className)} {...rest} />
+))
+HistoryCard.displayName = 'HistoryCard'
 
-export const TabContentArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-  animation: ${fadeIn} 0.25s ease-out;
-`
+export const NextDistribution = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex w-full flex-wrap items-center justify-between gap-2 rounded-[10px] bg-white/[0.04] px-3 py-2',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+NextDistribution.displayName = 'NextDistribution'
 
-// Dex info badge in header
-export const DexInfoBadge = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  border-radius: 12px;
-  padding: 4px 12px;
-  height: 36px;
-`
+export const TotalLiquiditySection = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex min-w-0 flex-[1_1_280px] items-center gap-5 rounded-xl bg-background p-4 max-sm:gap-3 max-sm:p-3',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+TotalLiquiditySection.displayName = 'TotalLiquiditySection'
 
-// Claim button (small, outlined green)
-export const ClaimButton = styled.button<{ disabled?: boolean }>`
-  border: 1px solid ${({ theme }) => theme.primary};
-  background: transparent;
-  color: ${({ theme }) => theme.primary};
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  cursor: pointer;
-  white-space: nowrap;
+export const PriceSection = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex flex-wrap items-center justify-between rounded-xl border border-white/[0.08] px-4 py-2',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+PriceSection.displayName = 'PriceSection'
 
-  &:hover:not(:disabled) {
-    filter: brightness(1.2);
-  }
+export const AprSection = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'flex min-w-0 flex-[1_1_280px] flex-col justify-center gap-1.5 rounded-xl bg-background p-4 max-sm:p-3',
+      className,
+    )}
+    {...rest}
+  />
+))
+AprSection.displayName = 'AprSection'
 
-  ${({ disabled }) =>
-    disabled &&
-    css`
-      opacity: 0.3;
-      cursor: not-allowed;
-    `}
-`
+type VerticalDividerProps = HTMLAttributes<HTMLDivElement> & { height?: string }
+export const VerticalDivider = ({ height, className, style, ...rest }: VerticalDividerProps) => (
+  <div className={cn('w-px bg-tabActive', className)} style={{ height: height || '32px', ...style }} {...rest} />
+)
 
-// Earnings tab chart styles
-export const EarningChartContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-`
+export const RevertIconWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex aspect-square size-6 cursor-pointer items-center justify-center gap-2.5 rounded-full bg-white/[0.08] hover:brightness-90',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+RevertIconWrapper.displayName = 'RevertIconWrapper'
 
-// History tab styles
-export const HistorySectionHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid ${({ theme }) => rgba(theme.white, 0.04)};
-  width: 100%;
-`
+export const PositionActionWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex items-center justify-end gap-4 py-2 max-sm:flex-col-reverse max-sm:gap-2', className)}
+      {...rest}
+    />
+  ),
+)
+PositionActionWrapper.displayName = 'PositionActionWrapper'
 
-export const PastActionsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  max-height: 240px;
-  overflow-y: auto;
-  padding-right: 4px;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => rgba(theme.white, 0.16)};
-    border-radius: 2px;
-  }
-`
-
-export const HistoryCard = styled.div`
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-`
-
-export const NextDistribution = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 10px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  padding: 8px 12px;
-  flex-wrap: wrap;
-  gap: 8px;
-`
-
-export const TotalLiquiditySection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex: 1 1 280px;
-  border-radius: 12px;
-  padding: 16px;
-  background: ${({ theme }) => theme.background};
-  min-width: 0;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 12px;
-    gap: 12px;
-  `}
-`
-
-export const PriceSection = styled.div`
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  border-radius: 12px;
-  border: 1px solid ${({ theme }) => rgba(theme.white, 0.08)};
-`
-
-export const AprSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  flex: 1 1 280px;
-  min-width: 0;
-  border-radius: 12px;
-  padding: 16px;
-  background: ${({ theme }) => theme.background};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 12px;
-  `}
-`
-
-export const VerticalDivider = styled.div<{ height?: string }>`
-  width: 1px;
-  height: ${({ height }) => height || '32px'};
-  background: ${({ theme }) => theme.tabActive};
-`
-
-export const RevertIconWrapper = styled.div`
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  aspect-ratio: 1/1;
-  border-radius: 50%;
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-  cursor: pointer;
-
-  :hover {
-    filter: brightness(0.9);
-  }
-`
-
-export const PositionActionWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
-  padding: 8px 0;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 8px;
-    flex-direction: column-reverse;
-  `}
-`
-
-export const PositionAction = styled.button<{
+type PositionActionProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   outline?: boolean
   outlineDefault?: boolean
   small?: boolean
-  disabled?: boolean
   load?: boolean
   mobileAutoWidth?: boolean
-}>`
-  border-radius: 12px;
-  padding: 10px 18px;
-  background-color: ${({ theme }) => theme.primary};
-  border: 1px solid ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.black};
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  cursor: pointer;
+}
+export const PositionAction = forwardRef<HTMLButtonElement, PositionActionProps>(
+  ({ className, outline, outlineDefault, small, load, mobileAutoWidth, disabled, ...rest }, ref) => (
+    <button
+      ref={ref}
+      disabled={disabled}
+      className={cn(
+        'flex cursor-pointer items-center gap-1.5 rounded-xl border border-primary bg-primary px-[18px] py-2.5 text-black',
+        small && '!px-4 !py-1.5',
+        (outline || outlineDefault) && 'bg-transparent',
+        outline && 'text-primary',
+        outlineDefault && 'border-white/70 text-white/70',
+        !mobileAutoWidth && 'max-sm:w-full max-sm:justify-center',
+        'hover:brightness-125',
+        disabled && '!cursor-not-allowed border-transparent bg-white/[0.12] text-white/40 !brightness-[0.6]',
+        load && '!cursor-not-allowed !brightness-[0.6]',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+PositionAction.displayName = 'PositionAction'
 
-  ${({ small }) => small && 'padding: 6px 16px;'}
-  ${({ outline, outlineDefault }) => (outlineDefault || outline) && 'background-color: transparent;'}
-  ${({ outline, theme }) => outline && `color: ${theme.primary};`}
-  ${({ outlineDefault, theme }) =>
-    outlineDefault && `color: ${rgba(theme.white, 0.7)}; border-color: ${rgba(theme.white, 0.7)};`}
+export const ChartWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('flex w-full px-8 max-sm:px-0', className)} {...rest} />
+  ),
+)
+ChartWrapper.displayName = 'ChartWrapper'
 
-  ${({ theme, mobileAutoWidth }) =>
-    !mobileAutoWidth &&
-    theme.mediaWidth.upToSmall`
-      width: 100%;
-      justify-content: center;
-    `}
+type ChartFadeInProps = HTMLAttributes<HTMLDivElement> & { $visible?: boolean }
+export const ChartFadeIn = forwardRef<HTMLDivElement, ChartFadeInProps>(({ $visible, className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn($visible ? 'animate-[ks-pd-fade-in_0.4s_ease-out]' : 'invisible h-0 overflow-hidden', className)}
+    {...rest}
+  />
+))
+ChartFadeIn.displayName = 'ChartFadeIn'
 
-  :hover {
-    filter: brightness(1.2);
-  }
+export const MigrationLiquidityRecommend = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex animate-[ks-pd-slide-down_0.3s_ease-out] flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl bg-apr/20 px-5 py-2.5 text-sm max-sm:gap-y-0.5',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+MigrationLiquidityRecommend.displayName = 'MigrationLiquidityRecommend'
 
-  ${({ disabled, theme }) =>
-    disabled &&
-    `cursor: not-allowed; color: ${rgba(
-      theme.white,
-      0.4,
-    )}; border-color: transparent; filter: brightness(0.6) !important; background-color: ${rgba(theme.white, 0.12)};`}
-  ${({ load }) => load && `cursor: not-allowed; filter: brightness(0.6) !important;`}
-`
+export const ShareButtonWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex cursor-pointer items-center justify-center rounded-full bg-primary/20 py-1.5 pl-1.5 pr-2 transition-all duration-100 ease-in-out hover:brightness-125 active:brightness-105',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+ShareButtonWrapper.displayName = 'ShareButtonWrapper'
 
-export const ChartWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  padding: 0 32px;
+export const RewardLink = forwardRef<HTMLAnchorElement, AnchorHTMLAttributes<HTMLAnchorElement>>(
+  ({ className, ...rest }, ref) => (
+    <a ref={ref} className={cn('flex gap-1 border-b border-dashed border-text', className)} {...rest} />
+  ),
+)
+RewardLink.displayName = 'RewardLink'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 0;
-  `}
-`
+export const RemoveLiquidityDropdownWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('relative inline-block max-sm:w-full', className)} {...rest} />
+  ),
+)
+RemoveLiquidityDropdownWrapper.displayName = 'RemoveLiquidityDropdownWrapper'
 
-export const ChartFadeIn = styled.div<{ $visible?: boolean }>`
-  ${({ $visible }) =>
-    !$visible
-      ? css`
-          visibility: hidden;
-          height: 0;
-          overflow: hidden;
-        `
-      : css`
-          animation: ${fadeIn} 0.4s ease-out;
-        `}
-`
+type DropdownButtonProps = PositionActionProps & { isOpen?: boolean }
+export const DropdownButton = forwardRef<HTMLButtonElement, DropdownButtonProps>(
+  ({ className, isOpen: _isOpen, ...rest }, ref) => (
+    <PositionAction ref={ref} className={cn('relative flex items-center justify-center gap-2', className)} {...rest} />
+  ),
+)
+DropdownButton.displayName = 'DropdownButton'
 
-export const MigrationLiquidityRecommend = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  padding: 10px 20px;
-  align-items: center;
-  font-size: 14px;
-  gap: 8px;
-  row-gap: 4px;
-  border-radius: 16px;
-  background: rgba(15, 170, 162, 0.2);
-  animation: ${slideDown} 0.3s ease-out;
+type DropdownMenuProps = HTMLAttributes<HTMLDivElement> & { isOpen: boolean }
+export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(({ isOpen, className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'absolute right-0 top-[calc(100%+8px)] z-[1000] w-max flex-col gap-1 rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.1)] max-sm:right-1/2 max-sm:translate-x-1/2',
+      isOpen ? 'flex animate-[ks-pd-slide-down_0.2s_ease-out]' : 'hidden',
+      className,
+    )}
+    {...rest}
+  />
+))
+DropdownMenu.displayName = 'DropdownMenu'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    row-gap: 2px;
-  `}
-`
+export const CompactPriceBox = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('flex h-10 flex-1 items-stretch overflow-hidden rounded-xl', className)} {...rest} />
+  ),
+)
+CompactPriceBox.displayName = 'CompactPriceBox'
 
-export const ShareButtonWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-  padding: 6px 8px 6px 6px;
-  transition: all 0.1s ease-in-out;
-  cursor: pointer;
+export const CompactPriceLabel = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex w-9 flex-shrink-0 items-center justify-center rounded-l-xl bg-white/[0.08] text-[10px] font-medium uppercase text-subText',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+CompactPriceLabel.displayName = 'CompactPriceLabel'
 
-  :hover {
-    filter: brightness(1.2);
-  }
+export const CompactPriceValue = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex flex-1 flex-col items-center justify-center gap-0.5 rounded-r-xl bg-white/[0.04] px-2 py-1',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+CompactPriceValue.displayName = 'CompactPriceValue'
 
-  :active {
-    filter: brightness(1.05);
-  }
-`
+export const PricePercentage = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('text-xs font-medium uppercase text-subText', className)} {...rest} />
+)
 
-export const RewardLink = styled(Link)`
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px dashed ${({ theme }) => theme.text};
-`
-
-export const RemoveLiquidityDropdownWrapper = styled.div`
-  position: relative;
-  display: inline-block;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
-`
-
-export const DropdownButton = styled(PositionAction)<{ isOpen?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  position: relative;
-`
-
-export const DropdownMenu = styled.div<{ isOpen: boolean }>`
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  border-radius: 12px;
-  display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
-  flex-direction: column;
-  gap: 4px;
-  width: max-content;
-  z-index: 1000;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
-  animation: ${({ isOpen }) => (isOpen ? slideDown : 'none')} 0.2s ease-out;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    right: 50%;
-    transform: translateX(50%);
-  `}
-`
-
-// Compact MIN/MAX price box matching the Figma design
-// Two-part box: label (darker bg, left rounded) + value (lighter bg, right rounded)
-export const CompactPriceBox = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: stretch;
-  height: 40px;
-  border-radius: 12px;
-  overflow: hidden;
-`
-
-export const CompactPriceLabel = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  flex-shrink: 0;
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-  border-radius: 12px 0 0 12px;
-  font-size: 10px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-  text-transform: uppercase;
-`
-
-export const CompactPriceValue = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  border-radius: 0 12px 12px 0;
-  padding: 4px 8px;
-`
-
-export const PricePercentage = styled.span`
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  color: ${({ theme }) => theme.subText};
-`
-
-export const DropdownMenuItem = styled.button<{ disabled?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => rgba(theme.white, 0.1)};
-  color: ${({ theme }) => rgba(theme.white, 0.7)};
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  width: 100%;
-  text-align: left;
-
-  &:hover:not(:disabled) {
-    background: ${({ theme }) => rgba(theme.background, 0.9)};
-    border-color: ${({ theme }) => rgba(theme.white, 0.2)};
-    color: ${({ theme }) => theme.white};
-  }
-
-  ${({ disabled }) =>
-    disabled &&
-    `
-      cursor: not-allowed;
-      opacity: 0.5;
-      filter: brightness(0.6);
-    `}
-`
+type DropdownMenuItemProps = ButtonHTMLAttributes<HTMLButtonElement>
+export const DropdownMenuItem = forwardRef<HTMLButtonElement, DropdownMenuItemProps>(
+  ({ className, disabled, ...rest }, ref) => (
+    <button
+      ref={ref}
+      disabled={disabled}
+      className={cn(
+        'flex w-full cursor-pointer items-center justify-between rounded-xl border border-white/10 bg-background px-4 py-2.5 text-left text-sm text-white/70 transition-all',
+        'hover:enabled:border-white/20 hover:enabled:bg-background/90 hover:enabled:text-white',
+        disabled && 'cursor-not-allowed opacity-50 brightness-[0.6]',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+DropdownMenuItem.displayName = 'DropdownMenuItem'

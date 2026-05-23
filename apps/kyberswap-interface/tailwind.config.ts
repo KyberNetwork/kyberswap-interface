@@ -17,12 +17,12 @@ const config: Config = {
       colors: {
         // base
         white: {
-          DEFAULT: 'var(--ks-white)',
+          DEFAULT: 'rgb(var(--ks-white-rgb) / <alpha-value>)',
           '04': 'var(--ks-white-04)',
           '08': 'var(--ks-white-08)',
           60: 'var(--ks-white-60)',
         },
-        white2: 'var(--ks-white2)',
+        white2: 'rgb(var(--ks-white2-rgb) / <alpha-value>)',
         black: {
           DEFAULT: 'var(--ks-black)',
           20: 'var(--ks-black-20)',
@@ -32,7 +32,7 @@ const config: Config = {
 
         // text
         text: {
-          DEFAULT: 'var(--ks-text)',
+          DEFAULT: 'rgb(var(--ks-text-rgb) / <alpha-value>)',
           '04': 'var(--ks-text-04)',
           '08': 'var(--ks-text-08)',
           12: 'var(--ks-text-12)',
@@ -41,7 +41,7 @@ const config: Config = {
         darkText: 'var(--ks-darkText)',
         textReverse: 'var(--ks-textReverse)',
         subText: {
-          DEFAULT: 'var(--ks-subText)',
+          DEFAULT: 'rgb(var(--ks-subText-rgb) / <alpha-value>)',
           '04': 'var(--ks-subText-04)',
           20: 'var(--ks-subText-20)',
           40: 'var(--ks-subText-40)',
@@ -55,31 +55,31 @@ const config: Config = {
 
         // backgrounds
         background: {
-          DEFAULT: 'var(--ks-background)',
+          DEFAULT: 'rgb(var(--ks-background-rgb) / <alpha-value>)',
           60: 'var(--ks-background-60)',
         },
         tabActive: {
-          DEFAULT: 'var(--ks-tabActive)',
+          DEFAULT: 'rgb(var(--ks-tabActive-rgb) / <alpha-value>)',
           80: 'var(--ks-tabActive-80)',
         },
         tabBackground: 'var(--ks-tabBackground)',
-        tableHeader: 'var(--ks-tableHeader)',
+        tableHeader: 'rgb(var(--ks-tableHeader-rgb) / <alpha-value>)',
         buttonBlack: {
           DEFAULT: 'var(--ks-buttonBlack)',
           40: 'var(--ks-buttonBlack-40)',
           60: 'var(--ks-buttonBlack-60)',
         },
-        buttonGray: 'var(--ks-buttonGray)',
+        buttonGray: 'rgb(var(--ks-buttonGray-rgb) / <alpha-value>)',
         bg1: 'var(--ks-bg1)',
         bg2: 'var(--ks-bg2)',
         bg3: 'var(--ks-bg3)',
         bg4: 'var(--ks-bg4)',
         bg5: 'var(--ks-bg5)',
-        bg6: 'var(--ks-bg6)',
+        bg6: 'rgb(var(--ks-bg6-rgb) / <alpha-value>)',
 
         // primary
         primary: {
-          DEFAULT: 'var(--ks-primary)',
+          DEFAULT: 'rgb(var(--ks-primary-rgb) / <alpha-value>)',
           10: 'var(--ks-primary-10)',
           12: 'var(--ks-primary-12)',
           15: 'var(--ks-primary-15)',
@@ -91,12 +91,12 @@ const config: Config = {
         },
 
         // border
-        border: 'var(--ks-border)',
+        border: 'rgb(var(--ks-border-rgb) / <alpha-value>)',
         darkBorder: 'var(--ks-darkBorder)',
 
         // semantic
         red: {
-          DEFAULT: 'var(--ks-red)',
+          DEFAULT: 'rgb(var(--ks-red-rgb) / <alpha-value>)',
           10: 'var(--ks-red-10)',
           20: 'var(--ks-red-20)',
           25: 'var(--ks-red-25)',
@@ -106,7 +106,7 @@ const config: Config = {
         red1: 'var(--ks-red1)',
         red2: 'var(--ks-red2)',
         warning: {
-          DEFAULT: 'var(--ks-warning)',
+          DEFAULT: 'rgb(var(--ks-warning-rgb) / <alpha-value>)',
           10: 'var(--ks-warning-10)',
           20: 'var(--ks-warning-20)',
           25: 'var(--ks-warning-25)',
@@ -115,7 +115,7 @@ const config: Config = {
         },
 
         // accents
-        apr: 'var(--ks-apr)',
+        apr: 'rgb(var(--ks-apr-rgb) / <alpha-value>)',
         lightGreen: 'var(--ks-lightGreen)',
         darkerGreen: 'var(--ks-darkerGreen)',
         darkGreen: 'var(--ks-darkGreen)',
@@ -126,8 +126,8 @@ const config: Config = {
         },
         yellow1: 'var(--ks-yellow1)',
         yellow2: 'var(--ks-yellow2)',
-        gray: 'var(--ks-gray)',
-        blue: 'var(--ks-blue)',
+        gray: 'rgb(var(--ks-gray-rgb) / <alpha-value>)',
+        blue: 'rgb(var(--ks-blue-rgb) / <alpha-value>)',
         blue1: 'var(--ks-blue1)',
         blue2: 'var(--ks-blue2)',
         blue3: 'var(--ks-blue3)',

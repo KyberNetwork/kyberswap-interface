@@ -6,9 +6,7 @@ import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo,
 import { Repeat } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { NotificationType } from 'components/Announcement/type'
@@ -50,6 +48,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getCookieValue } from 'utils'
+import { cn } from 'utils/cn'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatTimeDuration } from 'utils/time'
@@ -69,25 +68,24 @@ import {
 } from './helpers'
 import { CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from './type'
 
-const DropdownIcon = styled(DropdownSVG)`
-  transition: transform 300ms;
-  color: ${({ theme }) => theme.subText};
-  &[data-flip='true'] {
-    transform: rotate(180deg);
-  }
-`
+const DropdownIcon = ({ className, ...rest }: React.SVGProps<SVGSVGElement> & { 'data-flip'?: boolean }) => (
+  <DropdownSVG
+    className={cn('text-subText transition-transform duration-300 data-[flip=true]:rotate-180', className)}
+    {...rest}
+  />
+)
 
-export const Label = styled.div`
-  font-weight: 500;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-`
-const Set2Market = styled(Label)`
-  color: ${({ theme }) => theme.primary};
-  cursor: pointer;
-  user-select: none;
-  margin: 0;
-`
+export const Label = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-xs font-medium text-subText', className)} {...rest}>
+    {children}
+  </div>
+)
+
+const Set2Market = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <Label className={cn('m-0 cursor-pointer select-none text-primary', className)} {...rest}>
+    {children}
+  </Label>
+)
 const INPUT_HEIGHT = 28
 
 type Props = {
@@ -107,18 +105,11 @@ type Props = {
   useUrlParams?: boolean
 }
 
-const InputWrapper = styled.div`
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 12px;
-  flex: 1;
-  padding: 12px;
-  flex-direction: column;
-  gap: 0.5rem;
-  display: flex;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
-`
+const InputWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-1 flex-col gap-2 rounded-xl bg-buttonBlack p-3 max-sm:w-full', className)} {...rest}>
+    {children}
+  </div>
+)
 
 const useInputAmount = ({
   defaultInputAmount,
@@ -893,7 +884,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     )
   return (
     <>
-      <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
+      <div className="flex flex-col gap-4">
         {useUrlParams ? <NetworkSelector chainId={chainId} /> : null}
         <Tooltip
           text={inputError}
@@ -935,7 +926,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
         <RowBetween gap="1rem" flexDirection={upToSmall ? 'column' : 'row'}>
           <InputWrapper>
-            <Flex justifyContent={'space-between'} alignItems="center">
+            <div className="flex items-center justify-between">
               <DeltaRate
                 invert={rateInfo.invert}
                 symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
@@ -947,8 +938,8 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                   <Trans>Market</Trans>
                 </Set2Market>
               )}
-            </Flex>
-            <Flex alignItems={'center'} style={{ background: theme.buttonBlack, borderRadius: 12 }}>
+            </div>
+            <div className="flex items-center rounded-xl bg-buttonBlack">
               <NumericalInput
                 maxLength={50}
                 style={{ fontSize: 14, height: INPUT_HEIGHT }}
@@ -959,17 +950,17 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                 onBlur={trackingPriceSetOnBlur}
               />
               {currencyIn && currencyOut && (
-                <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!rateInfo.invert)}>
+                <div className="flex cursor-pointer gap-1.5" onClick={() => onInvertRate(!rateInfo.invert)}>
                   <CurrencyLogo size={'18px'} currency={rateInfo.invert ? currencyIn : currencyOut} />
-                  <Text fontSize={14} color={theme.subText} sx={{ userSelect: 'none' }}>
+                  <span className="select-none text-sm text-subText">
                     {rateInfo.invert ? currencyIn?.symbol : currencyOut?.symbol}
-                  </Text>
+                  </span>
                   <div>
                     <Repeat color={theme.subText} size={12} />
                   </div>
-                </Flex>
+                </div>
               )}
-            </Flex>
+            </div>
           </InputWrapper>
         </RowBetween>
 
@@ -1026,7 +1017,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         </Tooltip>
 
         <div>
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
+          <div className="flex items-center gap-1">
             <TextDashed
               color={theme.subText}
               fontSize={12}
@@ -1045,50 +1036,14 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                 <Trans>Expires in</Trans>
               </MouseoverTooltip>
             </TextDashed>
-            <Flex
-              sx={{
-                alignItems: 'center',
-                gap: '4px',
-                cursor: 'pointer',
-              }}
-              role="button"
-              onClick={() => setExpanded(e => !e)}
-            >
-              <Text
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  lineHeight: '1',
-                  color: theme.text,
-                }}
-              >
-                <Text color={theme.text} fontSize={14}>
-                  {displayTime}
-                </Text>
-              </Text>
+            <div className="flex cursor-pointer items-center gap-1" role="button" onClick={() => setExpanded(e => !e)}>
+              <span className="text-sm font-medium leading-none text-text">{displayTime}</span>
               <DropdownIcon data-flip={expanded} />
-            </Flex>
-          </Flex>
+            </div>
+          </div>
 
-          <Flex
-            sx={{
-              transition: 'all 100ms linear',
-              paddingTop: expanded ? '8px' : '0px',
-              height: expanded ? '36px' : '0px',
-              overflow: 'hidden',
-            }}
-          >
-            <Flex
-              sx={{
-                justifyContent: 'space-between',
-                width: '100%',
-                maxWidth: '100%',
-                height: '28px',
-                borderRadius: '20px',
-                background: theme.tabBackground,
-                padding: '2px',
-              }}
-            >
+          <div className={cn('flex overflow-hidden transition-all duration-100', expanded ? 'h-9 pt-2' : 'h-0 pt-0')}>
+            <div className="flex h-7 w-full max-w-full justify-between rounded-[20px] bg-tabBackground p-0.5">
               {[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }].map((item: any) => {
                 return (
                   <DefaultSlippageOption
@@ -1103,8 +1058,8 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                   </DefaultSlippageOption>
                 )
               })}
-            </Flex>
-          </Flex>
+            </div>
+          </div>
         </div>
 
         {warningMessage.map((mess, i) => (
@@ -1112,7 +1067,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         ))}
 
         {renderActionBtn()}
-      </Flex>
+      </div>
 
       {renderConfirmModal()}
 

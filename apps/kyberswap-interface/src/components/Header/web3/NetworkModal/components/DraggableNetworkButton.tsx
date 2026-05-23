@@ -47,7 +47,7 @@ const MaintainLabel = ({
 )
 
 const CircleGreen = () => (
-  <div className="border-primary/30 ml-auto size-4 rounded-lg border-2 bg-primary bg-clip-content" />
+  <div className="ml-auto size-4 rounded-lg border-2 border-primary/30 bg-primary bg-clip-content" />
 )
 
 const DraggableNetworkButton = ({
@@ -226,7 +226,7 @@ const DraggableNetworkButton = ({
             'transition-[background-color] duration-200 ease-in-out',
             'max-sm:h-[54px] max-sm:p-2 max-sm:text-xs',
             selected && '!bg-buttonBlack [&>div]:text-text',
-            disabled && 'text-subText/40 !cursor-not-allowed',
+            disabled && '!cursor-not-allowed text-subText/40',
           )}
         >
           <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px', borderRadius: '4px' }} />

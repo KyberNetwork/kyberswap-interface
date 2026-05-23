@@ -248,7 +248,7 @@ const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct }: QuoteSt
             data-open={open ? 'true' : 'false'}
             className="max-h-0 overflow-hidden opacity-0 transition-all duration-200 data-[open=true]:max-h-20 data-[open=true]:pt-1 data-[open=true]:opacity-100"
           >
-            <div className="border-gray/30 flex justify-between border-t border-dashed pt-1 text-xs text-subText">
+            <div className="flex justify-between border-t border-dashed border-gray/30 pt-1 text-xs text-subText">
               <span>{getStepInfoLabel(step.type)}</span>
               <span>{getStepInfoValue(step.type, quoteSlippage, bridgeFeePct)}</span>
             </div>

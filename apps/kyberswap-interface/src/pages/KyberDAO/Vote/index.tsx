@@ -30,7 +30,7 @@ import ProposalListComponent from './ProposalListComponent'
 
 const Card = ({ hasGreenBackground, children }: { hasGreenBackground?: boolean; children: React.ReactNode }) => (
   <div
-    className="bg-buttonGray/70 flex-1 rounded-[20px] px-6 py-5"
+    className="flex-1 rounded-[20px] bg-buttonGray/70 px-6 py-5"
     style={
       hasGreenBackground ? { backgroundImage: `url('${luxuryGreenBackground}')`, backgroundSize: 'cover' } : undefined
     }

@@ -114,7 +114,7 @@ const EstimatedPositionApr = ({
   )
 
   return (
-    <div className="border-primary/[0.24] flex w-full items-center justify-between gap-3 rounded-xl border border-solid bg-primary-12 px-3 py-2">
+    <div className="flex w-full items-center justify-between gap-3 rounded-xl border border-solid border-primary/[0.24] bg-primary-12 px-3 py-2">
       <span className="text-sm text-text">Est. Position APR</span>
       <MouseoverTooltip placement="top" width={aprValues ? '320px' : 'fit-content'} text={tooltipContent}>
         <HStack minWidth={64} justify="flex-end">

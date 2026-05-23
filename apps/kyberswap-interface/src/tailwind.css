@@ -1026,5 +1026,23 @@
     --ks-blue2: #2c9ce4;
     --ks-blue3: #58b5ee;
     --ks-darkBlue: #1183b7;
+
+    /* RGB channel duplicates — required for Tailwind `/N` opacity modifier on tokens. */
+    --ks-white-rgb: 255 255 255;
+    --ks-white2-rgb: 250 250 250;
+    --ks-text-rgb: 255 255 255;
+    --ks-subText-rgb: 169 169 169;
+    --ks-background-rgb: 28 28 28;
+    --ks-tabActive-rgb: 49 49 49;
+    --ks-tableHeader-rgb: 49 49 49;
+    --ks-buttonGray-rgb: 41 41 41;
+    --ks-bg6-rgb: 29 122 95;
+    --ks-primary-rgb: 49 203 158;
+    --ks-border-rgb: 80 80 80;
+    --ks-red-rgb: 255 83 123;
+    --ks-warning-rgb: 255 153 1;
+    --ks-apr-rgb: 15 170 162;
+    --ks-gray-rgb: 115 115 115;
+    --ks-blue-rgb: 8 161 231;
   }
 }

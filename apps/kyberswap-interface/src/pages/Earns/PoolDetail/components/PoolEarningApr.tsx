@@ -64,7 +64,7 @@ const PoolEarningApr = () => {
               <span className="text-sm font-medium text-text">Active APR</span>
               <InfoHelper text="Earning Per Active TVL" size={14} placement="top" />
             </HStack>
-            <Stack className="bg-blue/[0.12] rounded-xl px-3 py-1">
+            <Stack className="rounded-xl bg-blue/[0.12] px-3 py-1">
               <span className="text-2xl font-semibold text-blue">{formatAprValue(aprSummary.activeApr)}</span>
             </Stack>
           </Stack>

@@ -92,7 +92,7 @@ const AddLiquidityRoutePreview = ({
         <div className="absolute inset-x-0 top-1/2 h-px bg-border opacity-60 after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:border-y-4 after:border-l-[6px] after:border-y-transparent after:border-l-border max-sm:inset-y-[-8px] max-sm:left-1/2 max-sm:right-auto max-sm:h-auto max-sm:w-px max-sm:-translate-x-1/2 max-sm:after:bottom-2 max-sm:after:left-1/2 max-sm:after:right-auto max-sm:after:top-auto max-sm:after:-translate-x-1/2 max-sm:after:border-x-4 max-sm:after:border-b-0 max-sm:after:border-t-[6px] max-sm:after:border-x-transparent max-sm:after:border-t-border" />
         <div className="absolute left-[-4px] top-1/2 z-[1] size-2 -translate-y-1/2 rounded-full bg-border opacity-80 max-sm:left-1/2 max-sm:top-[-4px] max-sm:-translate-x-1/2" />
         <div className="relative z-[1] flex min-w-[160px] flex-col overflow-hidden rounded-xl bg-background">
-          <div className="border-border/40 flex items-center gap-2 border-b px-3 py-2">
+          <div className="flex items-center gap-2 border-b border-border/40 px-3 py-2">
             <KyberLogo width={18} height={18} />
             <span className="text-sm font-medium text-subText">Kyber Zap</span>
           </div>

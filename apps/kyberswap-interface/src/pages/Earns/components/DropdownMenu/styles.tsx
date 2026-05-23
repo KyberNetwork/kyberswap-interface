@@ -23,7 +23,7 @@ export const DropdownTitleWrapper = ({
       highlight
         ? flatten
           ? 'border-primary bg-primary-20 text-text'
-          : 'bg-blue/[0.2] border-transparent text-text'
+          : 'border-transparent bg-blue/[0.2] text-text'
         : `border-transparent ${!background ? 'bg-background' : ''} text-subText`,
       className,
     )}

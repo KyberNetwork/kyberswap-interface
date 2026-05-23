@@ -1,12 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -20,6 +17,7 @@ import useTheme from 'hooks/useTheme'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import TreasuryGrantAndInstantClaim from './components/TreasuryGrantAndInstantClaim'
@@ -35,24 +33,11 @@ import vestingPhase3 from './data/vesting/phase3.json'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
-const StyledTabs = styled(Tabs)`
-  border-top: 1px solid ${({ theme }) => theme.border};
-  border-radius: 0px;
-  background: ${({ theme }) => theme.background};
-`
-
-const Tag = styled.div`
-  border-radius: 50%;
-  font-size: 12px;
-  font-weight: 500;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: ${({ theme }) => rgba(theme.primary, 0.3)};
-  color: ${({ theme }) => theme.primary};
-`
+const Tag = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex size-[22px] items-center justify-center rounded-full bg-primary-30 text-xs font-medium text-primary">
+    {children}
+  </div>
+)
 
 const poolsByCategories: {
   [key: string]: {
@@ -70,46 +55,6 @@ Object.keys(poolsByCategoriesRaw).forEach(key => {
     )
   })
 })
-
-const Wrapper = styled.div`
-  border-radius: 1rem;
-  border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.subText};
-  line-height: 1.5;
-  font-size: 14px;
-  overflow: hidden;
-  text-align: center;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    border: none;
-    border-radius: 0;
-  `}
-`
-
-const TableHeader = styled.div`
-  display: grid;
-  font-size: 12px;
-  grid-template-columns: 1fr 0.75fr 1fr 1fr;
-  font-weight: 500;
-  padding: 1rem;
-  background: ${({ theme }) => theme.tableHeader};
-  color: ${({ theme }) => theme.subText};
-  align-items: center;
-`
-const TableRow = styled(TableHeader)`
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  font-size: 14px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    background: ${({ theme }) => theme.buttonBlack};
-    justify-content: space-between;
-  `}
-`
 
 interface Position {
   position_id: number
@@ -219,47 +164,34 @@ export default function ElasticSnapshot() {
 
   return (
     <PoolsPageWrapper>
-      <Flex
-        justifyContent="space-between"
-        sx={{ gap: '1rem' }}
-        flexDirection={upToMedium ? 'column' : 'row'}
-        alignItems="center"
-      >
-        <Flex flexDirection="column" sx={{ gap: '12px' }} flex={3}>
-          <Flex sx={{ gap: '1rem', cursor: 'pointer' }} alignItems="center">
-            <Text
-              as="h2"
-              fontSize={24}
-              fontWeight="500"
+      <div className={cn('flex items-center justify-between gap-4', upToMedium ? 'flex-col' : 'flex-row')}>
+        <div className="flex flex-[3] flex-col gap-3">
+          <div className="flex cursor-pointer items-center gap-4">
+            <h2
+              className={cn('text-2xl font-medium', tab === 'snapshot' ? 'text-primary' : 'text-text')}
               role="button"
-              color={tab === 'snapshot' ? theme.primary : theme.text}
               onClick={() => setTab('snapshot')}
             >
               <Trans>Snapshot</Trans>
-            </Text>
+            </h2>
 
             {userHaveVestingData && (
               <>
-                <Text fontSize={24} color={theme.subText}>
-                  |
-                </Text>
+                <span className="text-2xl text-subText">|</span>
 
-                <Text
-                  as="h2"
-                  fontSize={24}
-                  fontWeight="500"
-                  color={tab === 'vesting' ? theme.primary : theme.text}
+                <h2
+                  className={cn('text-2xl font-medium', tab === 'vesting' ? 'text-primary' : 'text-text')}
                   onClick={() => setTab('vesting')}
                 >
                   <Trans>Vesting</Trans>
-                </Text>
+                </h2>
               </>
             )}
-          </Flex>
+          </div>
 
           {tab === 'snapshot' && (
             <>
-              <Text fontSize={14} color={theme.subText} lineHeight="20px">
+              <span className="text-sm leading-5 text-subText">
                 <Trans>
                   You can find the list of your liquidity positions in KyberSwap Elastic pools that were affected by the
                   exploit below. Snapshots for each chain are taken based on the last block prior to the exploit.
@@ -268,100 +200,82 @@ export default function ElasticSnapshot() {
                   Prices are sourced based on the closest available pricing data from CoinGecko immediately following
                   the exploit.
                 </Trans>
-              </Text>
+              </span>
               <ExternalLink href="https://blog.kyberswap.com/kyberswap-treasury-grant-program/">
-                <Text fontSize="14px">
+                <span className="text-sm">
                   <Trans>Official announcement is here ↗</Trans>
-                </Text>
+                </span>
               </ExternalLink>
             </>
           )}
-        </Flex>
+        </div>
 
         {tab === 'snapshot' && (
-          <>
-            <Flex flexDirection="column" sx={{ gap: '12px', width: '100%', maxWidth: '580px' }}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: upToSmall ? '1fr 1fr' : '1fr 1fr 1fr', gap: '1rem' }}>
-                <Flex
-                  flexDirection="column"
-                  padding="12px"
-                  justifyContent="space-between"
-                  sx={{ gap: '16px', borderRadius: '12px' }}
-                  backgroundColor="rgba(0,0,0,0.64)"
-                >
-                  <Text fontSize="14px" fontWeight="500" color={theme.subText}>
-                    <Trans>Total Amount (USD)</Trans>
-                  </Text>
-                  <Text fontWeight="500" fontSize={20}>
-                    {phase3Info ? format(phase3Info.value) : userInfo ? format(userInfo.total_usd) : '--'}
-                  </Text>
-                </Flex>
+          <div className="flex w-full max-w-[580px] flex-col gap-3">
+            <div className={cn('grid gap-4', upToSmall ? 'grid-cols-2' : 'grid-cols-3')}>
+              <div className="flex flex-col justify-between gap-4 rounded-xl bg-black-48 p-3">
+                <span className="text-sm font-medium text-subText">
+                  <Trans>Total Amount (USD)</Trans>
+                </span>
+                <span className="text-xl font-medium">
+                  {phase3Info ? format(phase3Info.value) : userInfo ? format(userInfo.total_usd) : '--'}
+                </span>
+              </div>
 
-                {upToSmall && <div />}
+              {upToSmall && <div />}
 
-                <Flex
-                  flexDirection="column"
-                  padding="12px"
-                  justifyContent="space-between"
-                  sx={{ gap: '16px', borderRadius: '12px' }}
-                  backgroundColor="rgba(0,0,0,0.64)"
-                >
-                  <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
-                    <Trans>
-                      Total Liquidity Amount
-                      <br />
-                      (USD)
-                    </Trans>
-                  </Text>
-                  <Text fontWeight="500" fontSize={20}>
-                    {phase3Info ? format(phase3Info.value) : userInfo ? format(userInfo.total_liquidity_usd) : '--'}
-                  </Text>
-                </Flex>
+              <div className="flex flex-col justify-between gap-4 rounded-xl bg-black-48 p-3">
+                <span className="text-sm font-medium leading-5 text-subText">
+                  <Trans>
+                    Total Liquidity Amount
+                    <br />
+                    (USD)
+                  </Trans>
+                </span>
+                <span className="text-xl font-medium">
+                  {phase3Info ? format(phase3Info.value) : userInfo ? format(userInfo.total_liquidity_usd) : '--'}
+                </span>
+              </div>
 
-                <Flex
-                  flexDirection="column"
-                  padding="12px"
-                  justifyContent="space-between"
-                  sx={{ gap: '16px', borderRadius: '12px' }}
-                  backgroundColor="rgba(0,0,0,0.64)"
-                >
-                  <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
-                    <Trans>
-                      Total Fees Amount
-                      <br />
-                      (USD)
-                    </Trans>
-                  </Text>
-                  <Text fontWeight="500" fontSize={20}>
-                    {userInfo ? format(userInfo.total_fee_usd) : '--'}
-                  </Text>
-                </Flex>
-              </Box>
-              <Text color={theme.subText} fontStyle="italic" fontSize="10px" textAlign="right">
-                <Trans>Total Amount (USD) = Total Liquidity Amount (USD) + Total Fees Amount (USD)</Trans>
-              </Text>
-            </Flex>
-          </>
+              <div className="flex flex-col justify-between gap-4 rounded-xl bg-black-48 p-3">
+                <span className="text-sm font-medium leading-5 text-subText">
+                  <Trans>
+                    Total Fees Amount
+                    <br />
+                    (USD)
+                  </Trans>
+                </span>
+                <span className="text-xl font-medium">{userInfo ? format(userInfo.total_fee_usd) : '--'}</span>
+              </div>
+            </div>
+            <span className="text-right text-[10px] italic text-subText">
+              <Trans>Total Amount (USD) = Total Liquidity Amount (USD) + Total Fees Amount (USD)</Trans>
+            </span>
+          </div>
         )}
-      </Flex>
+      </div>
 
       {tab === 'snapshot' ? (
         <>
           {(userInfo || phase3Info) && <TreasuryGrantAndInstantClaim userHaveVestingData={userHaveVestingData} />}
 
-          <Flex flexDirection="column" marginTop="1.5rem" marginX={upToSmall ? '-1rem' : 0}>
-            <Wrapper>
+          <div className={cn('mt-6 flex flex-col', upToSmall && '-mx-4')}>
+            <div
+              className={cn(
+                'overflow-hidden rounded-2xl border border-border bg-background text-center text-sm leading-relaxed text-subText',
+                'max-sm:rounded-none max-sm:border-0',
+              )}
+            >
               {account ? (
                 userInfo ? (
                   <>
-                    <Text textAlign="left" fontSize="14px" padding="16px 24px">
+                    <div className="px-6 py-4 text-left text-sm">
                       <Trans>Wallet address</Trans>:{' '}
-                      <Text as="span" fontWeight="500" color={theme.text}>
-                        {upToSmall ? shortenAddress(1, account) : account}
-                      </Text>
-                    </Text>
+                      <span className="font-medium text-text">{upToSmall ? shortenAddress(1, account) : account}</span>
+                    </div>
 
-                    <StyledTabs
+                    <Tabs
+                      className="rounded-none border-t border-border bg-background"
                       activeKey={selectedCategory}
                       onChange={key => setSelectedCategory(+key)}
                       tabItemStyle={{ background: theme.background }}
@@ -369,190 +283,164 @@ export default function ElasticSnapshot() {
                         return {
                           key: index,
                           label: (
-                            <Text
-                              fontWeight="500"
-                              fontSize="14px"
-                              display="flex"
-                              alignItems="center"
-                              sx={{ gap: '4px' }}
-                            >
+                            <span className="flex items-center gap-1 text-sm font-medium">
                               <Trans>Category</Trans> {index + 1}{' '}
                               {!!positionsByCategories[index].length && (
                                 <Tag>{positionsByCategories[index].length}</Tag>
                               )}
-                            </Text>
+                            </span>
                           ),
                           children: (
-                            <Flex
-                              alignItems={upToMedium ? 'flex-start' : 'center'}
-                              padding="1rem"
-                              sx={{ gap: '24px' }}
-                              justifyContent="space-between"
-                              flexDirection={upToMedium ? 'column-reverse' : 'row'}
+                            <div
+                              className={cn(
+                                'flex justify-between gap-6 p-4',
+                                upToMedium ? 'flex-col-reverse items-start' : 'flex-row items-center',
+                              )}
                             >
-                              <Box textAlign="left">
-                                <Text fontWeight="500" fontSize={20} color={theme.text}>
+                              <div className="text-left">
+                                <div className="text-xl font-medium text-text">
                                   <Trans>Category</Trans> {selectedCategory + 1}
-                                </Text>
-                                <Text fontSize={14} fontWeight="500" marginY="1rem">
-                                  {categoriesDesc[selectedCategory]}
-                                </Text>
-                              </Box>
+                                </div>
+                                <div className="my-4 text-sm font-medium">{categoriesDesc[selectedCategory]}</div>
+                              </div>
 
-                              <Box
-                                minWidth={upToMedium ? '100%' : '180px'}
-                                textAlign="left"
-                                backgroundColor={theme.buttonBlack}
-                                padding="12px"
-                                sx={{
-                                  borderRadius: '12px',
-                                }}
+                              <div
+                                className={cn(
+                                  'rounded-xl bg-buttonBlack p-3 text-left',
+                                  upToMedium ? 'min-w-full' : 'min-w-[180px]',
+                                )}
                               >
-                                <Text fontSize={14} fontWeight="500">
+                                <div className="text-sm font-medium">
                                   <Trans>Total Amount (USD)</Trans>
-                                </Text>
+                                </div>
 
-                                <Text marginTop="24px" fontSize="20px" color={theme.text} fontWeight="500">
+                                <div className="mt-6 text-xl font-medium text-text">
                                   {format(
                                     positionsByCategories[selectedCategory].reduce((s, c) => s + c.position_usd, 0),
                                   )}
-                                </Text>
-                              </Box>
-                            </Flex>
+                                </div>
+                              </div>
+                            </div>
                           ),
                         }
                       })}
                     />
 
                     {!upToSmall && (
-                      <TableHeader>
-                        <Text textAlign="left">
+                      <div className="grid grid-cols-[1fr_0.75fr_1fr_1fr] items-center bg-tableHeader p-4 text-xs font-medium text-subText">
+                        <span className="text-left">
                           <Trans>POOLS</Trans>
-                        </Text>
-                        <Text textAlign="right">
+                        </span>
+                        <span className="text-right">
                           <Trans>NFT ID</Trans>
-                        </Text>
+                        </span>
 
-                        <Text
-                          textAlign="right"
-                          sx={{ borderBottom: `1px dotted ${theme.border}` }}
-                          width="fit-content"
-                          marginLeft="auto"
-                        >
+                        <span className="ml-auto w-fit border-b border-dotted border-border text-right">
                           <MouseoverTooltip
                             text={t`This is the USD value of your liquidity position immediately before the exploit.`}
                           >
                             <Trans>POSITION LIQUIDITY (USD)</Trans>
                           </MouseoverTooltip>
-                        </Text>
-                        <Text
-                          textAlign="right"
-                          sx={{ borderBottom: `1px dotted ${theme.border}` }}
-                          width="fit-content"
-                          marginLeft="auto"
-                        >
+                        </span>
+                        <span className="ml-auto w-fit border-b border-dotted border-border text-right">
                           <MouseoverTooltip
                             text={t`This is the USD value of the fees earned by your liquidity position immediately before the exploit.`}
                           >
                             <Trans>POSITION FEE (USD)</Trans>
                           </MouseoverTooltip>
-                        </Text>
-                      </TableHeader>
+                        </span>
+                      </div>
                     )}
 
                     {!positionsByCategories[selectedCategory].length && (
-                      <Text padding="48px 16px">
+                      <div className="px-4 py-12">
                         <Trans>
                           None of the liquidity position(s) held by your wallet ({shortenAddress(1, account)}) were
                           affected by the exploit on this category.
                         </Trans>
-                      </Text>
+                      </div>
                     )}
                     {positionsByCategories[selectedCategory].map(item => (
-                      <TableRow key={item.position_id}>
-                        <Flex>
+                      <div
+                        key={item.position_id}
+                        className={cn(
+                          'grid items-center border-b border-border bg-background p-4 text-sm text-text',
+                          upToSmall
+                            ? 'grid-cols-2 justify-between gap-3 bg-buttonBlack'
+                            : 'grid-cols-[1fr_0.75fr_1fr_1fr]',
+                        )}
+                      >
+                        <div className="flex">
                           <Logo
                             address0={item.info.token0}
                             address1={item.info.token1}
                             chainId={chainToChainId[item.info.chain]}
                           />
                           {item.info.pair}
-                        </Flex>
-                        <Text textAlign="right">#{item.position_id}</Text>
+                        </div>
+                        <span className="text-right">#{item.position_id}</span>
 
                         {upToSmall && (
                           <>
                             <MouseoverTooltip
                               text={t`This is the USD value of your liquidity position immediately before the exploit.`}
                             >
-                              <Text
-                                color={theme.subText}
-                                fontSize="12px"
-                                fontWeight="500"
-                                sx={{ borderBottom: `1px dotted ${theme.border}` }}
-                              >
+                              <span className="border-b border-dotted border-border text-xs font-medium text-subText">
                                 <Trans>POSITION LIQUIDITY (USD)</Trans>
-                              </Text>
+                              </span>
                             </MouseoverTooltip>
 
-                            <Text
-                              color={theme.subText}
-                              fontSize="12px"
-                              fontWeight="500"
-                              width="fit-content"
-                              justifySelf="flex-end"
-                              sx={{ borderBottom: `1px dotted ${theme.border}` }}
-                            >
+                            <span className="w-fit justify-self-end border-b border-dotted border-border text-xs font-medium text-subText">
                               <MouseoverTooltip
                                 text={t`This is the USD value of the fees earned by your liquidity position immediately before the exploit.`}
                               >
                                 <Trans>POSITION FEES (USD)</Trans>
                               </MouseoverTooltip>
-                            </Text>
+                            </span>
                           </>
                         )}
-                        <Text textAlign={upToSmall ? 'left' : 'right'}>{format(item.liquidity_usd)}</Text>
-                        <Text textAlign="right">{format(item.fee_usd)}</Text>
-                      </TableRow>
+                        <span className={upToSmall ? 'text-left' : 'text-right'}>{format(item.liquidity_usd)}</span>
+                        <span className="text-right">{format(item.fee_usd)}</span>
+                      </div>
                     ))}
                   </>
                 ) : (
-                  <Flex padding="36px 16px" justifyContent="center" alignItems="center" flexDirection="column">
+                  <div className="flex flex-col items-center justify-center px-4 py-9">
                     <Info size={64} />
-                    <Text fontSize={14} marginTop="24px">
+                    <div className="mt-6 text-sm">
                       <Trans>
                         None of the liquidity position(s) held by your wallet ({shortenAddress(1, account)}) were
                         affected by the exploit.
                       </Trans>
-                    </Text>
-                  </Flex>
+                    </div>
+                  </div>
                 )
               ) : (
-                <Flex padding="48px 16px" justifyContent="center" alignItems="center" flexDirection="column">
-                  <Text fontSize="14px" marginBottom="24px" maxWidth="820px">
+                <div className="flex flex-col items-center justify-center px-4 py-12">
+                  <div className="mb-6 max-w-[820px] text-sm">
                     <Trans>
                       Please connect your wallet to view your affected position(s). If your Affected Address is a
                       Multisig or other Contracts, you won’t be able to complete the steps via the UI. Instead, please
                       contact us at <a href="mailto:support@kyberswap.com">support@kyberswap.com</a>
                     </Trans>
-                  </Text>
+                  </div>
 
                   <ButtonPrimary onClick={toggleWalletModal} width="94px">
                     <Trans>Connect</Trans>
                   </ButtonPrimary>
-                </Flex>
+                </div>
               )}
-            </Wrapper>
-          </Flex>
+            </div>
+          </div>
         </>
       ) : (
         userHaveVestingData && (
           <>
-            <Text fontSize={14} color={theme.subText} lineHeight="20px">
+            <span className="text-sm leading-5 text-subText">
               <Trans>
                 You can find the vesting details of each category of assets that were affected by the exploit below.
               </Trans>
-            </Text>
+            </span>
 
             {(vestingA || vestingB) && (
               <Vesting
@@ -598,7 +486,7 @@ const Logo = ({ chainId, address0, address1 }: { chainId: ChainId; address0: str
   const allTokens = useAllTokens(true, chainId)
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <div className="relative">
       <DoubleCurrencyLogo
         size={20}
         currency0={allTokens[address0.toLowerCase()]}
@@ -607,11 +495,11 @@ const Logo = ({ chainId, address0, address1 }: { chainId: ChainId; address0: str
 
       <img
         src={NETWORKS_INFO[chainId].icon}
-        style={{ position: 'absolute', bottom: 0, right: '4px', zIndex: 1 }}
+        className="absolute bottom-0 right-1 z-[1]"
         width="12px"
         height="12px"
         alt=""
       />
-    </Box>
+    </div>
   )
 }

@@ -36,7 +36,7 @@ const CategoryItem = ({ onClick, style, title, icon, subLine1, subLine2, counter
       'flex cursor-pointer items-center gap-3.5 border-b border-solid border-border bg-background px-5 py-4 text-sm hover:bg-buttonBlack',
     )}
   >
-    <div className="bg-white/[0.1] flex size-8 items-center justify-center rounded-lg">{icon}</div>
+    <div className="flex size-8 items-center justify-center rounded-lg bg-white/[0.1]">{icon}</div>
     <div className="flex flex-1 flex-col gap-0.5">
       <span className="font-medium text-white">{title}</span>
       {!!subLine1 && (typeof subLine1 === 'string' ? <SubLine maxLine={2}>{subLine1}</SubLine> : subLine1)}

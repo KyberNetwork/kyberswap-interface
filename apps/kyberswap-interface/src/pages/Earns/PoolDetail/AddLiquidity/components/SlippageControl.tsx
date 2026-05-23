@@ -238,7 +238,7 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
                   className={cn(
                     'min-h-8 min-w-0 flex-1 cursor-pointer rounded-[20px] border-none pl-3 pr-2 text-sm',
                     slippage === item && !isCustom
-                      ? 'hover:bg-tabActive/80 bg-tabActive font-medium text-text'
+                      ? 'bg-tabActive font-medium text-text hover:bg-tabActive/80'
                       : 'bg-transparent font-normal text-subText hover:bg-buttonGray',
                   )}
                 >

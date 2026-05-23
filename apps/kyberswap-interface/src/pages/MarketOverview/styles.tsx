@@ -1,7 +1,7 @@
 import { cn } from 'utils/cn'
 
 export const TableWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('bg-background/80 overflow-hidden rounded-2xl max-md:-mx-4', className)} {...rest}>
+  <div className={cn('overflow-hidden rounded-2xl bg-background/80 max-md:-mx-4', className)} {...rest}>
     {children}
   </div>
 )

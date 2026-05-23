@@ -25,7 +25,7 @@ export const PoolChartWrapper = forwardRef<HTMLDivElement, PoolChartWrapperProps
 
 const SkeletonBar = ({ $height, children }: { $height: number; children?: ReactNode }) => (
   <div
-    className="bg-text/[0.04] relative min-w-1 max-w-3 flex-1 overflow-hidden rounded-t"
+    className="relative min-w-1 max-w-3 flex-1 overflow-hidden rounded-t bg-text/[0.04]"
     style={{ height: `${$height}%` }}
   >
     {children}
@@ -69,7 +69,7 @@ type PoolChartStateProps = {
 }
 
 const ChartFetchingOverlay = ({ children }: { children: ReactNode }) => (
-  <div className="bg-background/[0.06] pointer-events-none absolute inset-0 z-[1] pt-1 backdrop-blur">{children}</div>
+  <div className="pointer-events-none absolute inset-0 z-[1] bg-background/[0.06] pt-1 backdrop-blur">{children}</div>
 )
 
 class PoolChartRenderBoundary extends Component<

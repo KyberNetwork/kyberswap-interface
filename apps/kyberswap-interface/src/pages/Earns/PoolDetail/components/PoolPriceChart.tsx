@@ -7,12 +7,9 @@ import {
   type UTCTimestamp,
   createChart,
 } from 'lightweight-charts'
-import { rgba } from 'polished'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { type PoolAnalyticsWindow, usePoolPriceQuery } from 'services/zapEarn'
-import styled from 'styled-components'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import SegmentedControl from 'components/SegmentedControl'
@@ -31,6 +28,8 @@ import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { RevertIconWrapper } from 'pages/Earns/PositionDetail/styles'
 import { getDefaultRevertPrice } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
+import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type DisplayCandle = {
@@ -47,48 +46,6 @@ type TooltipState = {
   left: number
   top: number
 }
-
-const ChartFrame = styled.div<{ $height: number }>`
-  position: relative;
-  width: 100%;
-  height: ${({ $height }) => $height}px;
-`
-
-const ChartInner = styled.div`
-  width: 100%;
-  height: 100%;
-  padding: 0 12px 24px 24px;
-  box-sizing: border-box;
-`
-
-const HeaderTitle = styled(HStack)`
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-`
-
-const PairLabel = styled(Text)`
-  white-space: nowrap;
-`
-
-const TooltipCard = styled(Stack)`
-  position: absolute;
-  z-index: 2;
-  gap: 12px;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 12px;
-  background: ${({ theme }) => rgba(theme.tableHeader, 0.8)};
-  box-shadow: 0 12px 32px ${({ theme }) => theme.shadow};
-  pointer-events: none;
-`
-
-const TooltipGrid = styled.div`
-  display: grid;
-  gap: 8px 16px;
-  grid-template-columns: auto auto;
-`
 
 const invertPrice = (value: number) => (value === 0 ? 0 : 1 / value)
 
@@ -256,62 +213,41 @@ const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window:
   const priceRange = candle.low ? ((candle.high - candle.low) / candle.low) * 100 : 0
 
   return (
-    <TooltipCard style={{ left, top }}>
-      <Text color={theme.subText} fontSize={12}>
-        {formatTooltipDate(candle.time, window)}
-      </Text>
+    <Stack
+      className="pointer-events-none absolute z-[2] min-w-[220px] gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
+      style={{ left, top, boxShadow: `0 12px 32px ${theme.shadow}` }}
+    >
+      <span className="text-xs text-subText">{formatTooltipDate(candle.time, window)}</span>
 
-      <TooltipGrid>
-        <Text color={theme.subText} fontSize={12}>
-          Open
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.open)}
-        </Text>
+      <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
+        <span className="text-xs text-subText">Open</span>
+        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.open)}</span>
 
-        <Text color={theme.subText} fontSize={12}>
-          High
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.high)}
-        </Text>
+        <span className="text-xs text-subText">High</span>
+        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.high)}</span>
 
-        <Text color={theme.subText} fontSize={12}>
-          Low
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.low)}
-        </Text>
+        <span className="text-xs text-subText">Low</span>
+        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.low)}</span>
 
-        <Text color={theme.subText} fontSize={12}>
-          Close
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatPrice(candle.close)}
-        </Text>
+        <span className="text-xs text-subText">Close</span>
+        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.close)}</span>
 
-        <Text color={theme.subText} fontSize={12}>
-          %Change
-        </Text>
-        <Text color={priceChange >= 0 ? theme.primary : theme.red} fontSize={12} fontWeight={500} textAlign="right">
+        <span className="text-xs text-subText">%Change</span>
+        <span className={cn('text-right text-xs font-medium', priceChange >= 0 ? 'text-primary' : 'text-red')}>
           {formatSignedPercent(priceChange)}
-        </Text>
+        </span>
 
-        <Text color={theme.subText} fontSize={12}>
-          Range
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+        <span className="text-xs text-subText">Range</span>
+        <span className="text-right text-xs font-medium text-text">
           {formatSignedPercent(priceRange).replace(/^\+/, '')}
-        </Text>
+        </span>
 
-        <Text color={theme.subText} fontSize={12}>
-          Vol
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+        <span className="text-xs text-subText">Vol</span>
+        <span className="text-right text-xs font-medium text-text">
           {formatDisplayNumber(candle.volume, { style: 'currency', significantDigits: 4 })}
-        </Text>
-      </TooltipGrid>
-    </TooltipCard>
+        </span>
+      </div>
+    </Stack>
   )
 }
 
@@ -338,12 +274,12 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
 
-  const gridColor = rgba(theme.text, 0.06)
-  const crosshairColor = rgba(theme.text, 0.12)
+  const gridColor = hexAlpha(theme.text, 0.06)
+  const crosshairColor = hexAlpha(theme.text, 0.12)
   const upCandleColor = theme.primary
   const downCandleColor = theme.red
-  const volumeUpColor = rgba(theme.darkGreen, 0.8)
-  const volumeDownColor = rgba(theme.red, 0.5)
+  const volumeUpColor = hexAlpha(theme.darkGreen, 0.8)
+  const volumeDownColor = hexAlpha(theme.red, 0.5)
 
   const {
     data: priceData,
@@ -555,35 +491,33 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
     <Stack gap={16}>
       <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
         <Stack gap={12}>
-          <HeaderTitle>
+          <HStack align="center" wrap="wrap" gap={8}>
             <HStack align="center" flex="0 0 auto" gap={0}>
               <TokenLogo src={displayedToken0.logoURI} size={24} />
               <TokenLogo src={displayedToken1.logoURI} size={24} translateLeft />
             </HStack>
 
-            <PairLabel color={theme.text} fontSize={20} fontWeight={500}>
+            <span className="whitespace-nowrap text-xl font-medium text-text">
               {displayedToken0.symbol}/{displayedToken1.symbol}
-            </PairLabel>
+            </span>
 
             <RevertIconWrapper onClick={() => setRevertPrice(prev => !prev)}>
               <RevertPriceIcon height={12} width={12} />
             </RevertIconWrapper>
-          </HeaderTitle>
+          </HStack>
 
           {lastCandle && priceChange !== undefined ? (
             <HStack align="baseline" gap={10} wrap="wrap">
               <>
-                <Text color={theme.text} fontSize={24} fontWeight={500}>
-                  {formatPrice(lastCandle.close)}
-                </Text>
+                <span className="text-2xl font-medium text-text">{formatPrice(lastCandle.close)}</span>
 
                 <HStack align="center" gap={6}>
-                  <Text color={priceChangeColor} fontSize={16} fontWeight={500}>
+                  <span className="text-base font-medium" style={{ color: priceChangeColor }}>
                     {formatSignedPercent(priceChange)}
-                  </Text>
-                  <Text color={priceChangeColor} fontSize={12}>
+                  </span>
+                  <span className="text-xs" style={{ color: priceChangeColor }}>
                     {priceChange >= 0 ? '▲' : '▼'}
-                  </Text>
+                  </span>
                 </HStack>
               </>
             </HStack>
@@ -604,12 +538,12 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
         isLoading={isLoading}
         skeletonType="candle"
       >
-        <ChartFrame $height={chartHeight}>
+        <div className="relative w-full" style={{ height: chartHeight }}>
           {tooltip ? <PriceChartTooltip tooltip={tooltip} window={window} /> : null}
-          <ChartInner>
+          <div className="box-border size-full pb-6 pl-6 pr-3">
             <PoolChartWrapper $height={chartHeight - 12} ref={chartContainerRef} />
-          </ChartInner>
-        </ChartFrame>
+          </div>
+        </div>
       </PoolChartState>
     </Stack>
   )

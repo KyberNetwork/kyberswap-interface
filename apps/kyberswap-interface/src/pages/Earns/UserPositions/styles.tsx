@@ -70,7 +70,7 @@ export enum BadgeType {
 export const Badge = ({ type, className, ...rest }: HTMLAttributes<HTMLDivElement> & { type?: BadgeType }) => (
   <div
     className={cn(
-      'bg-white/[0.04] flex items-center rounded-[30px] px-3 py-1 text-xs text-subText max-xxs:px-[9px]',
+      'flex items-center rounded-[30px] bg-white/[0.04] px-3 py-1 text-xs text-subText max-xxs:px-[9px]',
       type === BadgeType.PRIMARY && 'bg-primary/20 text-primary',
       type === BadgeType.WARNING && 'bg-warning/20 text-warning',
       type === BadgeType.SECONDARY && 'bg-primary-10 text-subText',
@@ -338,5 +338,5 @@ export const CurrentPriceTooltip = ({
 )
 
 export const HorizontalDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('bg-white/[0.08] my-1 h-px w-full', className)} {...rest} />
+  <div className={cn('my-1 h-px w-full bg-white/[0.08]', className)} {...rest} />
 )

@@ -182,6 +182,14 @@ const buildStackStyle = (p: StackProps, defaultDirection: CSSProperties['flexDir
   fontSize: p.fontSize,
 })
 
+const omitUndefined = (style: CSSProperties): CSSProperties => {
+  const out: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(style)) {
+    if (v !== undefined) out[k] = v
+  }
+  return out as CSSProperties
+}
+
 const renderStack = (
   defaultDirection: CSSProperties['flexDirection'],
   props: StackProps,
@@ -193,7 +201,7 @@ const renderStack = (
     {
       ref,
       className: cn('flex', props.className),
-      style: { ...buildStackStyle(props, defaultDirection), ...overrideStyle, ...props.style },
+      style: omitUndefined({ ...buildStackStyle(props, defaultDirection), ...overrideStyle, ...props.style }),
       ...stripShorthandProps(props),
     },
     props.children,
