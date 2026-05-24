@@ -303,10 +303,7 @@ export default function ConfirmSwapModalContent({
     )
   }
 
-  const warningStyle =
-    priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
-      ? { background: theme.red, color: theme.text }
-      : undefined
+  const showWarningStyle = priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
 
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isAdvancedMode, priceImpactFromBuild)
 
@@ -585,8 +582,7 @@ export default function ConfirmSwapModalContent({
                 onClick={onSwap}
                 disabled={disableSwap}
                 id="confirm-swap-or-send"
-                className="flex items-center gap-1"
-                style={disableSwap ? undefined : warningStyle}
+                className={cn('flex items-center gap-1', !disableSwap && showWarningStyle && '!bg-red !text-text')}
               >
                 {shouldDisableConfirmButton ? (
                   <span className="text-sm font-medium leading-none">

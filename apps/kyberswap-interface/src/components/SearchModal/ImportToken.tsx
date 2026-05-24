@@ -9,7 +9,6 @@ import { AutoColumn } from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { RowBetween } from 'components/Row'
-import useTheme from 'hooks/useTheme'
 import { useAddUserToken } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 import { ExternalLinkIcon } from 'theme/components'
@@ -26,8 +25,6 @@ interface ImportProps {
 }
 
 export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, handleCurrencySelect }: ImportProps) {
-  const theme = useTheme()
-
   const addToken = useAddUserToken()
 
   const onClickImport = useCallback(() => {
@@ -64,7 +61,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
         <Card className="w-fit rounded-[20px] bg-warning-20 p-[15px]">
           <div className="flex items-start">
             <div>
-              <AlertTriangle stroke={theme.warning} size="17px" />
+              <AlertTriangle size="17px" className="text-warning" />
             </div>
             <div className="ml-2 text-sm font-medium text-warning">
               <Trans>This token isn’t frequently swapped. Please do your own research before trading.</Trans>

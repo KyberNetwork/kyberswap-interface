@@ -4,7 +4,6 @@ import { ChevronDown } from 'react-feather'
 
 import { ProposalStatus } from 'hooks/kyberdao/types'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 export default function SelectProposalStatus({
@@ -14,7 +13,6 @@ export default function SelectProposalStatus({
   status?: string
   setStatus?: (s: string) => void
 }) {
-  const theme = useTheme()
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => setShow(false))
@@ -24,7 +22,7 @@ export default function SelectProposalStatus({
         onClick={() => setShow(s => !s)}
         className="relative z-[101] flex h-9 w-[min(140px,30vw)] cursor-pointer items-center justify-between rounded-[20px] bg-background px-3 py-2 text-sm font-medium text-border hover:brightness-110"
       >
-        <span style={!!status && status !== 'All' ? { color: theme.text } : undefined}>{status || 'All'}</span>
+        <span className={cn(!!status && status !== 'All' && 'text-text')}>{status || 'All'}</span>
         <ChevronDown size={16} />
       </div>
       <div

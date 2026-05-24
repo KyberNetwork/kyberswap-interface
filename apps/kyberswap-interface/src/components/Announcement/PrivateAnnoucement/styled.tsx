@@ -77,14 +77,9 @@ export const StatusTitle = ({
   children,
   className,
   isRead,
-  $color,
   ...rest
-}: React.HTMLAttributes<HTMLDivElement> & { isRead?: boolean; $color?: string }) => (
-  <Title
-    className={cn('flex items-center gap-1.5', isRead ? 'text-text' : 'text-primary', className)}
-    style={$color ? { color: $color } : undefined}
-    {...rest}
-  >
+}: React.HTMLAttributes<HTMLDivElement> & { isRead?: boolean }) => (
+  <Title className={cn('flex items-center gap-1.5', isRead ? 'text-text' : 'text-primary', className)} {...rest}>
     {children}
   </Title>
 )

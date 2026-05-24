@@ -28,6 +28,7 @@ import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp, shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { calculateFeeFromBuildData } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
@@ -398,8 +399,10 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
 
           <div className="flex flex-col items-end gap-1.5">
             <p
-              className="m-0 text-[12px] font-medium leading-[normal] text-text"
-              style={checkWarningSlippage(slippage, cat) ? { color: theme.warning } : undefined}
+              className={cn(
+                'm-0 text-[12px] font-medium leading-[normal] text-text',
+                checkWarningSlippage(slippage, cat) && 'text-warning',
+              )}
             >
               {formatSlippage(slippage)}
             </p>

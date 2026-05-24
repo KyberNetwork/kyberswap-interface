@@ -6,8 +6,8 @@ import { useSearchParams } from 'react-router-dom'
 import { ButtonPrimary } from 'components/Button'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Dots } from 'components/swapv2/styleds'
-import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
+import { cn } from 'utils/cn'
 import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
 
@@ -39,7 +39,6 @@ const SwapButtonWithPriceImpact = ({
   text?: ReactNode
   showTooltipPriceImpact?: boolean
 }) => {
-  const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -72,10 +71,9 @@ const SwapButtonWithPriceImpact = ({
     return (
       <ButtonPrimary
         id="swap-button"
-        className={BUTTON_CLASS}
+        className={cn(BUTTON_CLASS, !shouldDisable && '!bg-red !text-text')}
         onClick={onClick}
         disabled={shouldDisable}
-        style={shouldDisable ? undefined : { background: theme.red, color: theme.text }}
       >
         <Trans>Swap Anyway</Trans>
       </ButtonPrimary>
