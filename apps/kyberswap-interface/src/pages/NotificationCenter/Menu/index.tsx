@@ -15,7 +15,6 @@ import ProfileIcon from 'components/Icons/Profile'
 import Withdraw from 'components/Icons/Withdraw'
 import Drawer from 'components/Modal/Drawer'
 import { getAnnouncementsTemplateIds } from 'constants/env'
-import useTheme from 'hooks/useTheme'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import ImportAccountModal from 'pages/NotificationCenter/Profile/ImportAccountModal'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -158,12 +157,10 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
 const MenuForMobile = (props: PropsMenu) => {
   const isOpen = useModalOpen(ApplicationModal.MENU_NOTI_CENTER)
   const toggleModal = useToggleModal(ApplicationModal.MENU_NOTI_CENTER)
-  const theme = useTheme()
-
   return (
     <Drawer
       title={t`Your Profile`}
-      trigger={<AlignJustify color={theme.subText} onClick={toggleModal} />}
+      trigger={<AlignJustify className="text-subText" onClick={toggleModal} />}
       isOpen={isOpen}
       onDismiss={toggleModal}
     >

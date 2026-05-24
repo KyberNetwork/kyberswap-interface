@@ -72,7 +72,7 @@ export default function DetailModal({
             </div>
 
             <ButtonEmpty onClick={onDismiss} width="fit-content" style={{ padding: 0 }}>
-              <X color={theme.text} />
+              <X className="text-text" />
             </ButtonEmpty>
           </div>
 
@@ -231,7 +231,7 @@ export default function DetailModal({
 
                   <div className="flex items-center justify-end gap-3">
                     <ButtonOutlined
-                      color={theme.primary}
+                      className="text-primary"
                       style={{
                         width: 'fit-content',
                         padding: '4px 12px',

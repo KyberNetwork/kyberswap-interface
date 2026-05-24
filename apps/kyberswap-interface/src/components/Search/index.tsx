@@ -4,7 +4,6 @@ import { X } from 'react-feather'
 
 import { ButtonEmpty } from 'components/Button'
 import SearchIcon from 'components/Icons/Search'
-import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 type ContainerProps = HTMLAttributes<HTMLDivElement> & { minWidth?: string }
@@ -61,7 +60,6 @@ interface SearchProps {
 }
 
 const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchProps) => {
-  const theme = useTheme()
   return (
     <Container style={style} minWidth={minWidth}>
       <Wrapper>
@@ -76,10 +74,10 @@ const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchP
         />
         {searchValue && (
           <ButtonEmpty onClick={() => onSearch('')} style={{ padding: '2px 4px', width: 'max-content' }}>
-            <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
+            <X className="text-subText" size={14} style={{ minWidth: '14px' }} />
           </ButtonEmpty>
         )}
-        <SearchIcon color={theme.subText} onClick={() => onSearch(searchValue)} />
+        <SearchIcon className="text-subText" onClick={() => onSearch(searchValue)} />
       </Wrapper>
     </Container>
   )

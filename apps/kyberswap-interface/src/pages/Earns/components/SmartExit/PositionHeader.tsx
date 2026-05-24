@@ -9,7 +9,6 @@ import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { DexInfo, PositionHeader as Header } from 'pages/Earns/components/SmartExit/styles'
@@ -30,7 +29,6 @@ const PositionHeader = ({
   initialLoading: boolean
   style?: React.CSSProperties
 }) => {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -159,7 +157,7 @@ const PositionHeader = ({
                   </div>
                 }
                 size={16}
-                color={theme.blue2}
+                className="text-blue2"
                 placement="top"
                 width="fit-content"
               />

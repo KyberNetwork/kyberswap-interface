@@ -124,7 +124,7 @@ export default function DateTimePicker({
       <div className="flex w-full flex-col gap-4 px-5 py-6 font-medium max-sm:px-2.5 max-sm:py-4">
         <div className="flex items-center justify-between">
           <span className="text-sm">{title || <Trans>Customize the Expiry Time</Trans>}</span>
-          <X color={theme.text} onClick={onDismiss} cursor="pointer" />
+          <X className="text-text" onClick={onDismiss} cursor="pointer" />
         </div>
         <div className="flex gap-4">
           <div className="flex flex-col gap-3.5 whitespace-nowrap rounded-l-2xl bg-background p-2.5 pt-5 text-xs max-md:hidden">

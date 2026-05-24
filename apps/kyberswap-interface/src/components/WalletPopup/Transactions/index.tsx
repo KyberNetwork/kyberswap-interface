@@ -15,7 +15,6 @@ import useCancellingOrders, { CancellingOrderInfo } from 'components/swapv2/Limi
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import { isSupportKyberDao } from 'hooks/kyberdao'
-import useTheme from 'hooks/useTheme'
 import { useAppDispatch } from 'state/hooks'
 import { clearAllPendingTransactions } from 'state/transactions/actions'
 import { useSortRecentTransactions } from 'state/transactions/hooks'
@@ -80,7 +79,6 @@ function RowItem({
 let storedActiveTab = ''
 function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const transactions = useSortRecentTransactions(false)
-  const theme = useTheme()
   const cancellingOrderInfo = useCancellingOrders()
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
@@ -177,7 +175,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
         <div className="flex w-full flex-col items-center justify-center gap-6 rounded-[20px] bg-tableHeader p-5 text-subText">
           <RowBetween align="start">
             <span className="text-xl font-medium text-text">{t`Clear All Pending Transactions`}</span>
-            <X color={theme.text} style={{ cursor: 'pointer' }} onClick={toggleClearTxModal} />
+            <X className="text-text" style={{ cursor: 'pointer' }} onClick={toggleClearTxModal} />
           </RowBetween>
           <Row gap="12px">
             <span className="text-sm leading-4 text-text">
@@ -232,7 +230,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
           <div className="flex cursor-pointer items-center gap-[5px] text-sm text-primary">
             <span className="text-sm" onClick={toggleClearTxModal}>{t`Clear Pending Transactions`}</span>
             <InfoHelper
-              color={theme.primary}
+              className="text-primary"
               text={t`Manually clear this transaction from the pending list. This will not affect its on-chain status.`}
             />
           </div>

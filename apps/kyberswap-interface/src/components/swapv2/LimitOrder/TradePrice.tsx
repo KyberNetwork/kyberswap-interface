@@ -13,6 +13,7 @@ interface TradePriceProps {
   style: CSSProperties
   label?: string
   color?: string
+  className?: string
   symbolIn: string | undefined
   symbolOut: string | undefined
   loading: boolean
@@ -24,6 +25,7 @@ export default function TradePrice({
   style = {},
   label,
   color,
+  className,
   symbolIn,
   symbolOut,
   loading,
@@ -49,6 +51,7 @@ export default function TradePrice({
       className={cn(
         'flex h-[22px] items-center text-xs font-medium leading-[14px] text-subText',
         show ? 'cursor-pointer' : 'cursor-default',
+        className,
       )}
       style={style}
       onClick={() => setShowInverted(!showInverted)}

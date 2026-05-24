@@ -18,7 +18,6 @@ const TradeRouting = lazy(() => import('components/TradeRouting'))
 
 const TradeRouteSkeleton = () => {
   const theme = useTheme()
-
   return (
     <Stack gap={40} py={12}>
       <HStack align="center" justify="space-between" gap={16}>
@@ -59,7 +58,6 @@ const SwapTradeRoute = ({
   isSmartSettlementActive = false,
   scrollOnExpand = true,
 }: SwapTradeRouteProps) => {
-  const theme = useTheme()
   const panelRef = useRef<HTMLDivElement>(null)
 
   const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
@@ -150,7 +148,7 @@ const SwapTradeRoute = ({
                   role="button"
                   className="flex shrink-0 items-center gap-1 rounded-xl border border-primary-40 bg-primary-12 px-2 py-1 text-sm font-medium text-primary"
                 >
-                  <ShieldChecked size={14} color={theme.primary} />
+                  <ShieldChecked size={14} className="text-primary" />
                   <Trans>Smart Settlement</Trans>
                   <Info size={14} />
                 </div>

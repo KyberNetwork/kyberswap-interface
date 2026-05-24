@@ -47,13 +47,12 @@ export const Label = ({ children, className, style, ...rest }: React.HTMLAttribu
 )
 
 export const Header = ({ title, onDismiss }: { title: string; onDismiss: () => void }) => {
-  const theme = useTheme()
   return (
     <div className="flex justify-between">
       <div className="flex items-center gap-2 text-text">
         <span className="text-xl">{title}</span>
       </div>
-      <X onClick={onDismiss} style={{ cursor: 'pointer' }} color={theme.subText} />
+      <X onClick={onDismiss} style={{ cursor: 'pointer' }} className="text-subText" />
     </div>
   )
 }

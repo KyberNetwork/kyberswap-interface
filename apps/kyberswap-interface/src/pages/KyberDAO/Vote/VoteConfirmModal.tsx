@@ -4,7 +4,6 @@ import { X } from 'react-feather'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
-import useTheme from 'hooks/useTheme'
 
 export default function VoteConfirmModal({
   isShow,
@@ -19,7 +18,6 @@ export default function VoteConfirmModal({
   title: string
   onVoteConfirm: () => void
 }) {
-  const theme = useTheme()
   return (
     <Modal isOpen={isShow} onDismiss={toggle}>
       <div className="flex flex-col gap-5 p-5">
@@ -30,7 +28,7 @@ export default function VoteConfirmModal({
             </span>
           </AutoRow>
           <div role="button" onClick={toggle} className="flex cursor-pointer">
-            <X onClick={toggle} size={20} color={theme.subText} />
+            <X onClick={toggle} size={20} className="text-subText" />
           </div>
         </RowBetween>
         <span className="text-base leading-6 text-subText [&_b]:font-medium [&_b]:text-text">

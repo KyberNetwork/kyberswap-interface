@@ -13,7 +13,6 @@ import { CONNECTION } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
@@ -32,8 +31,6 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
   const { trackingHandler } = useTracking()
   const { walletKey, chainId } = useActiveWeb3React()
   const notify = useNotify()
-  const theme = useTheme()
-
   const isUsingMetamask = useMemo(() => walletKey === CONNECTION.METAMASK_RDNS, [walletKey])
   const chainName = useMemo(() => NETWORKS_INFO[chainId].name, [chainId])
 
@@ -86,7 +83,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           <span className="text-2xl font-medium text-text">
             <Trans>Add Custom RPC Endpoint</Trans>
           </span>
-          <X color={theme.text} className="cursor-pointer" onClick={onClose} />
+          <X className="cursor-pointer text-text" onClick={onClose} />
         </RowBetween>
         <div className="text-xs leading-4">
           <div className="flex flex-col gap-2">

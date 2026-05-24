@@ -108,7 +108,7 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
 
             <div className="flex justify-between">
               <div className="flex w-fit items-center">
-                <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                   <MouseoverTooltip
                     text={t`You can make trades with high price impact and without any confirmation prompts. Enable at your own risk`}
                     placement="right"
@@ -129,7 +129,7 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
             {isElastic && (
               <div className="flex justify-between">
                 <div className="flex w-fit items-center">
-                  <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                  <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                     <MouseoverTooltip
                       text={t`Zap will include DEX aggregator to find the best price.`}
                       placement="right"

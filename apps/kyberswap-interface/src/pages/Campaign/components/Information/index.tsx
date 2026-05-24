@@ -42,7 +42,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
     <div className="mt-5 rounded-[20px] bg-background p-6">
       <div className="flex justify-between">
         <div className="flex items-center gap-1 text-xl">
-          <Star color={theme.warning} fill={theme.warning} />
+          <Star className="text-warning" fill={theme.warning} />
           {type === CampaignType.NearIntents || type === CampaignType.Raffle
             ? t`How to participate?`
             : t`How to earn points`}

@@ -5,14 +5,12 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
 import KNCLogo from '../kncLogo'
 
 export default function ClaimConfirmModal({ amount, onConfirmClaim }: { amount: string; onConfirmClaim: () => void }) {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const modalOpen = useModalOpen(ApplicationModal.KYBER_DAO_CLAIM)
   const toggleModal = useToggleModal(ApplicationModal.KYBER_DAO_CLAIM)
@@ -26,7 +24,7 @@ export default function ClaimConfirmModal({ amount, onConfirmClaim }: { amount: 
             </span>
           </AutoRow>
           <div role="button" onClick={toggleModal} className="flex cursor-pointer">
-            <X onClick={toggleModal} size={20} color={theme.subText} />
+            <X onClick={toggleModal} size={20} className="text-subText" />
           </div>
         </RowBetween>
         <div className="flex flex-col gap-3.5 rounded-lg border-0 bg-buttonBlack px-3 py-2.5 text-sm text-subText outline-none">

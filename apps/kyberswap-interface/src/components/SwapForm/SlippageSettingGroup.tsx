@@ -12,7 +12,6 @@ import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -46,7 +45,6 @@ export default function SlippageSettingGroup({
   onOpenGasToken?: () => void
 }) {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
-  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
@@ -67,7 +65,7 @@ export default function SlippageSettingGroup({
   let rightButton =
     KYBER_SWAP_RPC[chainId] && active && !isPartnerSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
-        <Shield size={14} color={theme.subText} />
+        <Shield size={14} className="text-subText" />
         <span className="whitespace-nowrap text-subText">
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
           <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />

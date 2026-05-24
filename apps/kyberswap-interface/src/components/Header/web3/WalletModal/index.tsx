@@ -10,7 +10,6 @@ import { RowBetween } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
 import { TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import {
@@ -92,9 +91,6 @@ const HoverText = ({
 
 export default function WalletModal() {
   const { isWrongNetwork, account } = useActiveWeb3React()
-
-  const theme = useTheme()
-
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
   const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
@@ -127,7 +123,7 @@ export default function WalletModal() {
         <RowBetween marginBottom="26px" gap="20px">
           {(isSomeOptionPending || isError) && (
             <HoverText onClick={() => reset()} style={{ marginRight: '1rem', flex: 1 }}>
-              <ChevronLeft color={theme.primary} />
+              <ChevronLeft className="text-primary" />
             </HoverText>
           )}
           <HoverText>

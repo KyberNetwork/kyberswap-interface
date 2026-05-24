@@ -121,7 +121,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
     !isMobile &&
     !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
-        <Shield size={14} color={theme.subText} />
+        <Shield size={14} className="text-subText" />
         <span className="whitespace-nowrap text-subText">
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
           <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />
@@ -139,7 +139,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
       >
         <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
           <RowFixed style={{ minWidth: 'max-content' }}>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText" minWidth="max-content">
               <MouseoverTooltip
                 width="200px"
                 text={
@@ -183,7 +183,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
 
         <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip
                 text={
                   <div>
@@ -234,7 +234,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
 
         <RowBetween style={{ gap: '16px' }} align="flex-start">
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
                 {paymentToken ? t`Est. Paymaster Gas Fee` : t`Estimated Total Gas`}
               </MouseoverTooltip>
@@ -262,7 +262,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                   </p>
                   {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
                     <ChevronDown
-                      color={theme.subText}
+                      className="text-subText"
                       size={14}
                       style={{
                         transform: `rotate(${showDetailGas ? '180deg' : '0deg'})`,
@@ -275,7 +275,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                   <>
                     <div className="mr-[18px] flex gap-2">
                       <RowFixed>
-                        <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                           <MouseoverTooltip text={<Trans>L2 execution fee</Trans>} placement="right">
                             Est. L2 gas fee
                           </MouseoverTooltip>
@@ -290,7 +290,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
 
                     <div className="mr-[18px] flex gap-2">
                       <RowFixed>
-                        <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                           <MouseoverTooltip text={<Trans>L1 fee that pays for rolls up cost</Trans>} placement="right">
                             Est. L1 gas fee
                           </MouseoverTooltip>
@@ -331,7 +331,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
         {!!feeAmount && feeAmount !== '0' && (
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
-              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+              <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                 <MouseoverTooltip
                   text={
                     isInSafeApp ? (
@@ -377,7 +377,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
 
         <RowBetween height={addMevButton !== null ? '45px' : '20px'} style={{ gap: '16px' }} align="flex-start">
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip
                 text={
                   <p>
@@ -426,7 +426,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
         )}
 
         <RowBetween>
-          <TextDashed fontSize={12} color={theme.subText}>
+          <TextDashed fontSize={12} className="text-subText">
             <MouseoverTooltip
               text={
                 <Trans>

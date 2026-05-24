@@ -240,7 +240,7 @@ export default function WalletView({
           <div className="flex shrink-0 grow-0 basis-12 items-center justify-between">
             {isShowBack ? (
               <>
-                <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} color={theme.subText} />
+                <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} className="text-subText" />
                 <div className="flex items-center">
                   {isShowArrow && (
                     <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} />
@@ -278,7 +278,7 @@ export default function WalletView({
                       })
                     }
                   >
-                    <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} color={theme.subText} />
+                    <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} className="text-subText" />
                   </span>
                 </MouseoverTooltip>
                 <MouseoverTooltip text={t`Disconnect wallet`} width="fit-content" placement="top">
@@ -300,7 +300,7 @@ export default function WalletView({
                   })
                   onDismiss()
                 }}
-                color={theme.subText}
+                className="text-subText"
                 cursor="pointer"
               />
             </div>

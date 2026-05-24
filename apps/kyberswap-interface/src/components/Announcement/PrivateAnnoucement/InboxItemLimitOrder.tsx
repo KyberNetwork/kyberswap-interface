@@ -73,7 +73,7 @@ function InboxItemLimitOrder({
       return {
         label: t`Order Reverted`,
         color: theme.red,
-        icon: <XCircle color={theme.red} size={14} />,
+        icon: <XCircle className="text-red" size={14} />,
         message: increasedFilledPercent ? t`Reverted ${increasedFilledPercent}` : t`Order Reverted`,
       }
     }
@@ -82,14 +82,14 @@ function InboxItemLimitOrder({
         return {
           label: t`Order Filled`,
           color: theme.primary,
-          icon: <CheckCircle size="14" color={theme.primary} />,
+          icon: <CheckCircle size="14" className="text-primary" />,
           message: t`100% Filled`,
         }
       case LimitOrderStatus.PARTIALLY_FILLED:
         return {
           label: t`Order Partially Filled`,
           color: theme.warning,
-          icon: <Repeat color={theme.warning} size={14} />,
+          icon: <Repeat className="text-warning" size={14} />,
           message: increasedFilledPercent
             ? t`${filledPercentLabel} Filled ${increasedFilledPercent}`
             : t`${filledPercentLabel} Filled`,
@@ -98,14 +98,14 @@ function InboxItemLimitOrder({
         return {
           label: t`Order Expired`,
           color: theme.subText,
-          icon: <XCircle color={theme.subText} size={14} />,
+          icon: <XCircle className="text-subText" size={14} />,
           message: filledPercent ? t`${filledPercent}% Filled | Expired` : t`Expired`,
         }
       case LimitOrderStatus.CANCELLING:
         return {
           label: t`Cancelling Order`,
           color: theme.warning,
-          icon: <Repeat color={theme.warning} size={14} />,
+          icon: <Repeat className="text-warning" size={14} />,
           message: t`Cancelling Order`,
         }
       case LimitOrderStatus.CANCELLED:
@@ -113,14 +113,14 @@ function InboxItemLimitOrder({
         return {
           label: t`Order Cancelled`,
           color: theme.subText,
-          icon: <XCircle color={theme.subText} size={14} />,
+          icon: <XCircle className="text-subText" size={14} />,
           message: t`Order Cancelled`,
         }
       case LimitOrderStatus.INSUFFICIENT_FUNDS:
         return {
           label: t`Insufficient Funds`,
           color: theme.warning,
-          icon: <XCircle color={theme.warning} size={14} />,
+          icon: <XCircle className="text-warning" size={14} />,
           message: t`Insufficient Funds`,
         }
       default:
@@ -195,7 +195,7 @@ function InboxItemLimitOrder({
               {makingAmount} {makerAssetSymbol}
             </span>
           </AmountItem>
-          <ArrowRight size={14} color={theme.subText} />
+          <ArrowRight size={14} className="text-subText" />
           <AmountItem>
             {takerAssetLogoURL && <TokenLogoWithShadow size="16px" srcs={[takerAssetLogoURL]} />}
             <span>

@@ -5,7 +5,6 @@ import { X } from 'react-feather'
 
 import { ButtonErrorStyle, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
 
 export default function SwapModalAreYouSure({
   show,
@@ -31,9 +30,6 @@ export default function SwapModalAreYouSure({
       setShow(false)
     }
   }
-
-  const theme = useTheme()
-
   return (
     <Modal
       isOpen={show}
@@ -49,7 +45,7 @@ export default function SwapModalAreYouSure({
             <Trans>Are you sure?</Trans>
           </span>
 
-          <X color={theme.text} className="size-7 cursor-pointer" onClick={() => setShow(false)} />
+          <X className="size-7 cursor-pointer text-text" onClick={() => setShow(false)} />
         </div>
 
         <span className="mt-7 text-sm">

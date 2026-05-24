@@ -14,7 +14,6 @@ import Loader from 'components/Loader'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { EARN_CHAINS, EARN_DEXES, EarnChain } from 'pages/Earns/constants'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
@@ -47,7 +46,6 @@ const DropdownAction = ({
   }
   hasActiveSmartExitOrder: boolean
 }) => {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [open, setOpen] = useState(false)
   const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0 })
@@ -262,7 +260,7 @@ const DropdownAction = ({
           open ? 'bg-tabActive max-sm:bg-buttonGray' : 'bg-inherit max-sm:bg-tabActive',
         )}
       >
-        <MoreVertical color={theme.subText} size={18} />
+        <MoreVertical className="text-subText" size={18} />
       </div>
       {!upToExtraSmall &&
         open &&

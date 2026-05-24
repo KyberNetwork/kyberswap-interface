@@ -335,7 +335,7 @@ export const TransactionHistory = () => {
           <div className="flex items-center gap-2">
             {shortenHash(tx.sourceTxHash)}
             <ExternalLinkIcon
-              color={theme.subText}
+              className="text-subText"
               size={14}
               href={
                 tx.sourceChain === NonEvmChain.Near
@@ -353,7 +353,7 @@ export const TransactionHistory = () => {
           <div className="flex items-center gap-2">
             {shortenHash(tx.targetTxHash)}
             <ExternalLinkIcon
-              color={theme.subText}
+              className="text-subText"
               size={14}
               href={
                 tx.adapter.toLowerCase() === 'debridge'

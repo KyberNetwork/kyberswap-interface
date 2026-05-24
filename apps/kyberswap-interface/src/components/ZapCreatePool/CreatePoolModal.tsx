@@ -282,7 +282,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
                   {token0 && <TokenLogo src={token0.logo} size={20} />}
                   <span className="text-sm text-subText">{token0?.symbol || <Trans>Select Token</Trans>}</span>
                 </Row>
-                <DropdownSVG color={theme.subText} />
+                <DropdownSVG className="text-subText" />
               </TokenSelectWrapper>
 
               <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token1')}>
@@ -290,7 +290,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
                   {token1 && <TokenLogo src={token1.logo} size={20} />}
                   <span className="text-sm text-subText">{token1?.symbol || <Trans>Select Token</Trans>}</span>
                 </Row>
-                <DropdownSVG color={theme.subText} />
+                <DropdownSVG className="text-subText" />
               </TokenSelectWrapper>
             </Row>
             {tokensFOT.length > 0 && (

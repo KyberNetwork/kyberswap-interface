@@ -7,7 +7,6 @@ import { RowBetween, RowFixed } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import {
   useShowPricingChart,
@@ -42,7 +41,6 @@ const SettingsPanel: React.FC<Props> = ({
   onClickLiquiditySources,
   onClickCrossChainSources,
 }) => {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const [slippage] = useUserSlippageTolerance()
 
@@ -67,7 +65,7 @@ const SettingsPanel: React.FC<Props> = ({
               }
               onBack()
             }}
-            color={theme.subText}
+            className="text-subText"
             cursor={'pointer'}
             size={26}
           />
@@ -98,7 +96,7 @@ const SettingsPanel: React.FC<Props> = ({
                 {isSwapPage && (
                   <RowBetween>
                     <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                      <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                         <MouseoverTooltip text={<Trans>Turn on to display pricing chart.</Trans>} placement="right">
                           <Trans>Pricing Chart</Trans>
                         </MouseoverTooltip>
@@ -110,7 +108,7 @@ const SettingsPanel: React.FC<Props> = ({
                 {(isSwapPage || isCrossChainPage) && (
                   <RowBetween>
                     <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                      <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                         <MouseoverTooltip text={<Trans>Turn on to display trade route.</Trans>} placement="right">
                           <Trans>Trade Route</Trans>
                         </MouseoverTooltip>
@@ -121,7 +119,7 @@ const SettingsPanel: React.FC<Props> = ({
                 )}
                 <RowBetween>
                   <RowFixed>
-                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                    <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                       <MouseoverTooltip text={<Trans>Turn on to play success sound.</Trans>} placement="right">
                         <Trans>Sound</Trans>
                       </MouseoverTooltip>

@@ -455,7 +455,7 @@ export default function ConfirmSwapModalContent({
               level={outputChangePercent <= AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD ? 'error' : 'warning'}
               isAccepted={hasAcceptedNewAmount}
             >
-              {hasAcceptedNewAmount && <Check size={20} color={theme.text} />}
+              {hasAcceptedNewAmount && <Check size={20} className="text-text" />}
               <div className="flex-1 text-text">
                 {hasAcceptedNewAmount ? (
                   <Trans>New Amount Accepted</Trans>
@@ -487,7 +487,7 @@ export default function ConfirmSwapModalContent({
                   <div className="flex items-center justify-center text-right text-xs font-medium text-text">
                     <ExecutionPrice executionPrice={getSwapDetailsProps().executionPrice} showInverted={showInverted} />
                     <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
-                      <Repeat size={14} color={theme.text} />
+                      <Repeat size={14} className="text-text" />
                     </StyledBalanceMaxMini>
                   </div>
                 ) : (

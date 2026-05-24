@@ -285,7 +285,7 @@ export default function FarmLegacy({
         {!!numberOfPosition && (
           <ButtonLight
             onClick={handleWithdraw}
-            color={theme.red}
+            className="text-red"
             width="170px"
             padding="8px"
             style={{ border: `1px solid ${theme.red}` }}

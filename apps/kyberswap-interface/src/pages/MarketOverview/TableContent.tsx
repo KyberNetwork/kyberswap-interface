@@ -458,7 +458,7 @@ export default function TableContent({
                 {volAndMc}
 
                 <div className="flex items-center justify-center gap-3">
-                  <Info size={16} color={theme.subText} />
+                  <Info size={16} className="text-subText" />
 
                   <Star
                     size={16}

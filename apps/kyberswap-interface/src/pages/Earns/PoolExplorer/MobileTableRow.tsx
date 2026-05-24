@@ -87,14 +87,14 @@ const MobileTableRow = ({
       </MobileTableCell>
       <MobileTableBottomRow>
         <MobileTableCell alignItems="baseline" justifyContent="space-between" className="gap-1">
-          <HeaderText color={theme.subText}>{t`APR`}</HeaderText>
+          <HeaderText className="text-subText">{t`APR`}</HeaderText>
           <HStack align="center" gap={4}>
             <PoolAprInfo pool={pool} />
             <PoolAprBadges pool={pool} />
           </HStack>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
-          <HeaderText color={theme.subText}>{t`Fee`}</HeaderText>
+          <HeaderText className="text-subText">{t`Fee`}</HeaderText>
           <span>
             {formatDisplayNumber(pool.earnFee, {
               style: 'currency',
@@ -103,16 +103,16 @@ const MobileTableRow = ({
           </span>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
-          <HeaderText color={theme.subText}>{t`TVL`}</HeaderText>
+          <HeaderText className="text-subText">{t`TVL`}</HeaderText>
           <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
-          <HeaderText color={theme.subText}>{t`Volume`}</HeaderText>
+          <HeaderText className="text-subText">{t`Volume`}</HeaderText>
           <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
         </MobileTableCell>
         {showRewards && (
           <MobileTableCell justifyContent="space-between" alignItems="flex-start" className="gap-1">
-            <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
+            <HeaderText className="text-subText">{t`Rewards`}</HeaderText>
             <PoolRewardsInfo pool={pool} showEstimate={false} />
           </MobileTableCell>
         )}

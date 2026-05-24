@@ -7,6 +7,7 @@ export default function Avatar({
   url,
   size,
   color,
+  className,
   onClick,
   style,
   loading,
@@ -14,6 +15,7 @@ export default function Avatar({
   url: string | undefined
   size: number
   color?: string
+  className?: string
   onClick?: () => void
   style?: CSSProperties
   loading?: boolean
@@ -28,7 +30,13 @@ export default function Avatar({
           style={{ width: size, height: size, ...style }}
         />
       ) : (
-        <Profile size={size} color={color} style={{ ...style, minHeight: size, minWidth: size }} onClick={onClick} />
+        <Profile
+          size={size}
+          color={color}
+          className={className}
+          style={{ ...style, minHeight: size, minWidth: size }}
+          onClick={onClick}
+        />
       )}
       {loading && (
         <div

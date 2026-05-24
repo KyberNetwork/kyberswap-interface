@@ -114,8 +114,6 @@ export function TransactionSubmittedContent({
   tokenAddToMetaMask?: Token
   showTxBanner?: boolean
 }) {
-  const theme = useTheme()
-
   return (
     <div className="w-full overflow-y-auto">
       <AutoColumn className={SECTION_CLASS}>
@@ -128,7 +126,7 @@ export function TransactionSubmittedContent({
         {showTxBanner && <Banner isInModal />}
 
         <div className="flex w-full flex-col items-center py-[30px]">
-          <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.primary} />
+          <ArrowUpCircle strokeWidth={0.5} size={90} className="text-primary" />
         </div>
         <AutoColumn gap="16px" justify={'center'}>
           <span className="text-xl font-medium">

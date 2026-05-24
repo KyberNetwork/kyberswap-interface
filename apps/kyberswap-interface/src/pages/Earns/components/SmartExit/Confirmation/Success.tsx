@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 
 export default function Success({
   onDismiss,
@@ -14,7 +13,6 @@ export default function Success({
   onDismiss: () => void
   onCloseSmartExit: () => void
 }) {
-  const theme = useTheme()
   const navigate = useNavigate()
 
   return (
@@ -25,7 +23,7 @@ export default function Success({
       </div>
 
       <div className="flex items-center justify-center gap-2 text-xl font-medium">
-        <CheckCircle color={theme.primary} size="20px" />
+        <CheckCircle className="text-primary" size="20px" />
 
         <span>
           <Trans>Condition saved</Trans>

@@ -3,7 +3,6 @@ import dayjs from 'dayjs'
 
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TIMES_IN_SECS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -16,7 +15,6 @@ export default function MoreInfo({
   protocolFee: number
   maxGas: number
 }) {
-  const theme = useTheme()
   const nowInSeconds = Math.floor(Date.now() / 1000)
   const remainingSeconds = deadline - nowInSeconds
   const isForever = remainingSeconds >= FOREVER_EXPIRE_TIME - TIMES_IN_SECS.ONE_DAY
@@ -32,7 +30,7 @@ export default function MoreInfo({
       </div>
 
       <div className="mt-4 flex justify-between">
-        <TextDashed color={theme.subText} fontSize={14} className="flex h-fit items-center">
+        <TextDashed fontSize={14} className="flex h-fit items-center text-subText">
           <MouseoverTooltip
             placement="right"
             text={t`The actual gas cost will be deducted from your outputs when the order executes.`}
@@ -44,7 +42,7 @@ export default function MoreInfo({
       </div>
 
       <div className="mt-4 flex justify-between">
-        <TextDashed color={theme.subText} fontSize={14} className="flex h-fit items-center">
+        <TextDashed fontSize={14} className="flex h-fit items-center text-subText">
           <MouseoverTooltip
             placement="right"
             text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}

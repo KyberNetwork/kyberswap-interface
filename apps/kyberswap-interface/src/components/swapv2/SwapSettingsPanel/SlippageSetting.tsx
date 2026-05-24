@@ -5,7 +5,6 @@ import SlippageControl from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -16,7 +15,6 @@ type Props = {
 }
 
 const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
-  const theme = useTheme()
   const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } = useSlippageSettingByPage()
 
   const pairCategory = usePairCategory()
@@ -33,7 +31,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   return (
     <div className="flex flex-col gap-y-2">
       <div className="flex items-center">
-        <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
           <MouseoverTooltip
             text={
               <span>

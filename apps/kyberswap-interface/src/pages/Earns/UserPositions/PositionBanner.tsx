@@ -125,7 +125,7 @@ export default function PositionBanner({
         })
       }
     >
-      <Share2 size={14} color={theme.primary} />
+      <Share2 size={14} className="text-primary" />
     </ShareButtonWrapper>
   )
 

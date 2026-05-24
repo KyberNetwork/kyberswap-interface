@@ -101,7 +101,7 @@ export default function YourTransactionsModal() {
                 return (
                   <>
                     --
-                    <RowFit fontSize={12} color={theme.subText}>
+                    <RowFit fontSize={12} className="text-subText">
                       to {`${action?.meta?.d_addr?.slice(0, 6)}...${action?.meta?.d_addr?.slice(-4)}`}
                       <CopyHelper
                         toCopy={action?.meta?.d_addr || ''}
@@ -119,7 +119,7 @@ export default function YourTransactionsModal() {
           })(),
         }
       }) || [],
-    [stakerActions, proposals, calculateVotingPower, theme.subText, page, pageSize],
+    [stakerActions, proposals, calculateVotingPower, page, pageSize],
   )
   const [, setCopied] = useCopyClipboard()
   return (
@@ -131,7 +131,7 @@ export default function YourTransactionsModal() {
               <Trans>Your transactions</Trans>
             </span>
             <div className="flex cursor-pointer" role="button" onClick={toggleModal}>
-              <X onClick={toggleModal} size={20} color={theme.subText} />
+              <X onClick={toggleModal} size={20} className="text-subText" />
             </div>
           </RowBetween>
           <div className="flex flex-1 flex-col">

@@ -13,7 +13,6 @@ import {
 } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { Z_INDEXS } from 'constants/styles'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDetailAnnouncement, useRemovePopup } from 'state/application/hooks'
 import { useNavigateToUrl } from 'utils/redirect'
@@ -91,7 +90,6 @@ export default function SnippetPopup({
   data: PopupItemType<PopupContentAnnouncement>[]
   clearAll: () => void
 }) {
-  const theme = useTheme()
   const [, setAnnouncementDetail] = useDetailAnnouncement()
   const showDetailAnnouncement = (selectedIndex: number) => {
     setAnnouncementDetail({
@@ -128,12 +126,11 @@ export default function SnippetPopup({
         ))}
       </Swiper>
       <X
-        color={theme.subText}
         onClick={() => {
           clearAll()
           trackingClose()
         }}
-        className="absolute right-3 top-3 z-[1] h-[18px] w-[18px] cursor-pointer max-sm:right-[calc(12px+16px)] max-sm:h-[22px] max-sm:w-[22px]"
+        className="absolute right-3 top-3 z-[1] h-[18px] w-[18px] cursor-pointer text-subText max-sm:right-[calc(12px+16px)] max-sm:h-[22px] max-sm:w-[22px]"
       />
     </div>
   )

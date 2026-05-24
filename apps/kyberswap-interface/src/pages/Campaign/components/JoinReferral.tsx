@@ -18,13 +18,11 @@ import Input from 'components/Input'
 import Modal from 'components/Modal'
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 
 export default function JoinReferal() {
   const { account } = useActiveWeb3React()
-  const theme = useTheme()
   const [searchParams] = useSearchParams()
 
   const [showRefModal, setShowRefModal] = useState(false)
@@ -122,7 +120,7 @@ export default function JoinReferal() {
               <span className="text-xl font-medium">
                 <Trans>Code Referral</Trans>
               </span>
-              <X cursor="pointer" color={theme.subText} onClick={() => setShowRefModal(false)} role="button" />
+              <X cursor="pointer" className="text-subText" onClick={() => setShowRefModal(false)} role="button" />
             </div>
 
             <p className="mt-8 text-subText">
@@ -169,7 +167,7 @@ export default function JoinReferal() {
             <span className="text-xl font-medium">
               <Trans>Generate Referral</Trans>
             </span>
-            <X cursor="pointer" color={theme.subText} onClick={() => setShowInviteModal(false)} role="button" />
+            <X cursor="pointer" className="text-subText" onClick={() => setShowInviteModal(false)} role="button" />
           </div>
 
           <p className="mt-8 text-subText">

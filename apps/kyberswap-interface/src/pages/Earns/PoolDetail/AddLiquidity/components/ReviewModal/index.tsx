@@ -6,7 +6,6 @@ import { BuildZapInData } from 'services/zap'
 import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
 import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getStatusErrorMessage } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
@@ -117,7 +116,6 @@ const AddLiquidityReviewModal = ({
   onAddTrackedTxHash,
   onAddTransactionWithType,
 }: AddLiquidityReviewModalProps) => {
-  const theme = useTheme()
   const hasTrackedSummaryView = useRef(false)
   const hasSubmitAttemptRef = useRef(false)
 
@@ -196,7 +194,7 @@ const AddLiquidityReviewModal = ({
       <Stack gap={16} className="w-full self-start p-6 text-sm max-sm:p-4">
         <HStack align="center" justify="space-between" width="100%">
           <span className="text-2xl font-medium">Add Liquidity via Zap</span>
-          <CloseIcon color={theme.subText} onClick={handleDismiss} size={28} />
+          <CloseIcon className="text-subText" onClick={handleDismiss} size={28} />
         </HStack>
 
         <PoolHeader isReview />
@@ -226,7 +224,7 @@ const AddLiquidityReviewModal = ({
 
         <ConfirmButton
           altDisabledStyle
-          color={theme.buttonBlack}
+          className="text-buttonBlack"
           disabled={transaction.confirmDisabled || Boolean(error)}
           onClick={() => void transaction.handleSubmit()}
           type="button"

@@ -195,7 +195,7 @@ function AboutKyberSwap() {
               </div>
 
               <div className="mt-5 flex items-center">
-                <Clock />
+                <Clock className="text-primary" />
                 <span className="ml-3">
                   <Trans>Save time & effort</Trans>
                 </span>

@@ -319,7 +319,7 @@ export default function StakeKNCComponent() {
 
       <div className="mb-4 flex w-full flex-col gap-4">
         <div className="flex w-full flex-col gap-4 rounded-[20px] bg-background p-4">
-          <RowBetween color={theme.subText}>
+          <RowBetween className="text-subText">
             <Link to="/swap/ethereum/eth-to-knc" className="flex items-center justify-center gap-1 text-subText">
               <Repeat size={16} />
               <span className="text-sm">
@@ -344,7 +344,7 @@ export default function StakeKNCComponent() {
                     <SmallButton onClick={() => handleMaxClick(true)}>Half</SmallButton>
                   </AutoRow>
                   {activeTab === STAKE_TAB.Stake && (
-                    <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
+                    <AutoRow gap="3px" justify="flex-end" className="text-subText">
                       <Wallet /> <span className="text-xs">{KNCBalance ? formatUnits(KNCBalance) : 0}</span>
                     </AutoRow>
                   )}
@@ -398,7 +398,7 @@ export default function StakeKNCComponent() {
                   <InfoHelper
                     size={20}
                     fontSize={12}
-                    color={theme.primary}
+                    className="text-primary"
                     text={t`Staking KNC is only available on Ethereum chain`}
                     style={{ marginRight: '5px' }}
                     placement="top"
@@ -443,7 +443,7 @@ export default function StakeKNCComponent() {
                 borderRadius="16px"
                 backgroundColor={theme.buttonBlack}
                 padding="16px"
-                color={theme.subText}
+                className="text-subText"
                 style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
                 headerContent={
                   <AutoRow>
@@ -473,7 +473,7 @@ export default function StakeKNCComponent() {
                   <InfoHelper
                     size={20}
                     fontSize={12}
-                    color={theme.primary}
+                    className="text-primary"
                     text={t`Delegate is only available on Ethereum chain`}
                     style={{ marginRight: '5px' }}
                     placement="top"
@@ -489,7 +489,7 @@ export default function StakeKNCComponent() {
         border={`1px solid ${theme.border}`}
         backgroundColor={theme.buttonBlack}
         borderRadius="16px"
-        color={theme.subText}
+        className="text-subText"
         padding={'12px 16px'}
         headerContent={
           <span className="text-xs uppercase text-text">

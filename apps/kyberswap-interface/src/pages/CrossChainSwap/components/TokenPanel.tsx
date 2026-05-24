@@ -232,7 +232,7 @@ export const TokenPanel = ({
         onUserInput(balance?.toExact() || '0')
       }}
     >
-      <Wallet color={theme.subText} />
+      <Wallet className="text-subText" />
       {!connectedAddress
         ? '--'
         : selectedChain === NonEvmChain.Solana
@@ -430,7 +430,7 @@ export const TokenPanel = ({
                 }}
                 autoComplete="off"
               />
-              <SearchIcon size={18} color={theme.border} />
+              <SearchIcon size={18} className="text-border" />
             </SearchWrapper>
 
             <Separator />

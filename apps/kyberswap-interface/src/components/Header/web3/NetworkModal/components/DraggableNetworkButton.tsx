@@ -262,7 +262,7 @@ const DraggableNetworkButton = ({
           </Row>
           {!isMobile && (
             <div className="hidden cursor-grab opacity-0 group-hover:block group-hover:opacity-100">
-              <Icon id="drag-indicator" color={theme.border} />
+              <Icon id="drag-indicator" className="text-border" />
             </div>
           )}
         </motion.div>

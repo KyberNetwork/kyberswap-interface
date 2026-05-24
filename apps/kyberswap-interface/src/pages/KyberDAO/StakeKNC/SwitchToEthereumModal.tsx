@@ -9,7 +9,6 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen, useModalOpenParams, useToggleModal } from 'state/application/hooks'
@@ -36,8 +35,6 @@ export const useSwitchToEthereum = () => {
 
 export default function SwitchToEthereumModal() {
   const { chainId } = useActiveWeb3React()
-
-  const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.SWITCH_TO_ETHEREUM)
   const closeModal = useCloseModal(ApplicationModal.SWITCH_TO_ETHEREUM)
   const params = useModalOpenParams(ApplicationModal.SWITCH_TO_ETHEREUM)
@@ -54,14 +51,14 @@ export default function SwitchToEthereumModal() {
       <div className="p-6">
         <AutoColumn gap="20px">
           <RowBetween>
-            <AutoRow gap="2px" color={theme.primary}>
+            <AutoRow gap="2px" className="text-primary">
               <WarningIcon size="28px" />
               <span className="text-xl">
                 <Trans>Switch Network</Trans>
               </span>
             </AutoRow>
             <div role="button" onClick={closeModal} className="flex cursor-pointer">
-              <X onClick={closeModal} size={20} color={theme.subText} />
+              <X onClick={closeModal} size={20} className="text-subText" />
             </div>
           </RowBetween>
           <span className="text-sm leading-5">

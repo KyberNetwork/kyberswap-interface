@@ -217,7 +217,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                 )}
               >
                 <CurrencyLogo currency={token} size="20px" />
-                <span className="text-base font-medium" style={{ color: 'inherit' }}>
+                <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
                   {token.symbol}/{stableToken?.symbol}
                 </span>
               </button>
@@ -330,7 +330,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                   className="absolute inset-0 z-10 rounded-[inherit] border border-warning/25 p-3 text-center text-warning backdrop-blur-sm"
                   style={{ backgroundColor: 'rgba(28,28,28,0.6)' }}
                 >
-                  <AlertTriangle color={theme.warning} size={28} />
+                  <AlertTriangle className="text-warning" size={28} />
                   <span className="text-sm font-medium text-text">
                     <Trans>Not enough on-chain activity to display a reliable price chart for this token</Trans>
                   </span>

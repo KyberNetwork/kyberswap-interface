@@ -239,7 +239,7 @@ export default function Vote() {
                         fontSize={12}
                         placement="top"
                         width="fit-content"
-                        color={theme.warning}
+                        className="text-warning"
                         size={14}
                         text={
                           <AutoColumn gap="8px">
@@ -292,7 +292,7 @@ export default function Vote() {
                       <InfoHelper
                         fontSize={12}
                         size={14}
-                        color={theme.subText}
+                        className="text-subText"
                         placement="top"
                         text={t`You can only vote from the next Epoch onward`}
                       />
@@ -311,7 +311,7 @@ export default function Vote() {
                     text={t`You have already delegated your voting power to this address.`}
                     placement="top"
                   >
-                    <RowFit gap="4px" color={theme.subText}>
+                    <RowFit gap="4px" className="text-subText">
                       <VoteIcon size={14} />
                       <span className="text-xs">
                         {stakerInfo?.delegate.slice(0, 5) + '...' + stakerInfo?.delegate.slice(-4)}

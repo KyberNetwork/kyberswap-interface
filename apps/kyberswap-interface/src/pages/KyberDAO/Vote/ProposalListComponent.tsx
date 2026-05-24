@@ -11,7 +11,6 @@ import { RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
-import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
@@ -27,7 +26,6 @@ function ProposalListComponent({
 }: {
   voteCallback?: (proposal_id: number, option: number) => Promise<boolean>
 }) {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { proposals } = useVotingInfo()
   const [status, setStatus] = useState<string | undefined>()
@@ -110,7 +108,7 @@ function ProposalListComponent({
           })
         ) : (
           <div className="flex h-[200px] flex-col items-center justify-center gap-3 text-subText">
-            <Info size={24} color={theme.subText} />
+            <Info size={24} className="text-subText" />
             <span className="text-subText">
               <Trans>No proposal found</Trans>
             </span>

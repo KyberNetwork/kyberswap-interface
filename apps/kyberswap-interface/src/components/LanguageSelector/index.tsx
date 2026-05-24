@@ -57,7 +57,7 @@ export default function LanguageSelector({
               <div className={cn('text-sm', isSelected ? 'text-primary' : 'text-subText')}>
                 {getLocaleLabel(locale)}
               </div>
-              {isSelected && <Check color={theme.primary} />}
+              {isSelected && <Check className="text-primary" />}
             </ButtonEmpty>
           )
         })}

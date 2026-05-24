@@ -3,7 +3,6 @@ import { Fragment, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { formatUnits } from 'viem'
 
-import useTheme from 'hooks/useTheme'
 import { Chain, SwapProvider } from 'pages/CrossChainSwap/adapters'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
@@ -215,7 +214,6 @@ const QuoteTokenNode = ({ token, amount }: { token: TokenInfo | null; amount?: s
 }
 
 const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct }: QuoteStepCardProps) => {
-  const theme = useTheme()
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -241,7 +239,11 @@ const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct }: QuoteSt
               </div>
             </div>
             <div className="flex min-h-[18px] min-w-[14px] items-center">
-              {open ? <ChevronUp size={14} color={theme.subText} /> : <ChevronDown size={14} color={theme.subText} />}
+              {open ? (
+                <ChevronUp size={14} className="text-subText" />
+              ) : (
+                <ChevronDown size={14} className="text-subText" />
+              )}
             </div>
           </div>
           <div

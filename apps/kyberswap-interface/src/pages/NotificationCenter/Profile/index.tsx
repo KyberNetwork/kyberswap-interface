@@ -206,7 +206,7 @@ export default function Profile() {
                 <Trans>Username (Optional)</Trans>
               </label>
               <Input
-                color={theme.text}
+                className="text-text"
                 maxLength={50}
                 value={nickname}
                 onChange={e => onChangeNickname(e.target.value)}

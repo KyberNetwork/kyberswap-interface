@@ -35,7 +35,6 @@ export const StyledMenuButton = ({
 )
 
 export function FindPoolTabs() {
-  const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const goBack = () => {
@@ -47,7 +46,7 @@ export function FindPoolTabs() {
     <div className="flex flex-row flex-nowrap items-center justify-evenly rounded-[3rem]">
       <RowBetween style={{ padding: '1rem' }}>
         <ButtonEmpty width="fit-content" padding="0" onClick={goBack}>
-          <ArrowLeft color={theme.text} />
+          <ArrowLeft className="text-text" />
         </ButtonEmpty>
         <div className="text-xl font-medium">
           <Trans>Import Pool</Trans>
@@ -109,7 +108,7 @@ export function AddRemoveTabs({
       onClick={!!onBack ? onBack : goBack}
       className="!mr-2 !h-7 !w-7 !justify-center hover:!cursor-pointer hover:!bg-buttonBlack hover:!outline-none focus:!outline-none"
     >
-      {alignTitle === 'left' ? <ChevronLeft color={theme.subText} /> : <ArrowLeft color={theme.text} />}
+      {alignTitle === 'left' ? <ChevronLeft className="text-subText" /> : <ArrowLeft className="text-text" />}
     </ButtonEmpty>
   )
   const title = (

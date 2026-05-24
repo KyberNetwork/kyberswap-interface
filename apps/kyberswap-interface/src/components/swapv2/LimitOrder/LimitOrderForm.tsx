@@ -956,7 +956,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                     {rateInfo.invert ? currencyIn?.symbol : currencyOut?.symbol}
                   </span>
                   <div>
-                    <Repeat color={theme.subText} size={12} />
+                    <Repeat className="text-subText" size={12} />
                   </div>
                 </div>
               )}
@@ -969,7 +969,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             <TradePrice
               price={tradeInfo}
               style={{ width: 'fit-content', fontStyle: 'italic' }}
-              color={theme.text}
+              className="text-text"
               label={t`Est. Market Price:`}
               loading={loadingTrade}
               symbolIn={currencyIn?.symbol}
@@ -1018,12 +1018,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
         <div>
           <div className="flex items-center gap-1">
-            <TextDashed
-              color={theme.subText}
-              fontSize={12}
-              fontWeight={500}
-              className="flex h-fit items-center leading-none"
-            >
+            <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center leading-none text-subText">
               <MouseoverTooltip
                 placement="right"
                 text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}

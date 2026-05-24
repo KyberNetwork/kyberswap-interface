@@ -75,7 +75,7 @@ export default function TimeInput({
           <span style={{ color: timeCondition.time === null ? theme.border : theme.text }}>
             {timeCondition.time === null ? t`Pickup time` : dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}
           </span>
-          <Calendar color={theme.primary} size={20} />
+          <Calendar className="text-primary" size={20} />
         </div>
       </HighlightWrapper>
 

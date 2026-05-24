@@ -5,7 +5,6 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
-import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
@@ -22,7 +21,6 @@ export default function DelegateConfirmModal({
   onAddressChange: (address: string) => void
   delegateCallback: () => void
 }) {
-  const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.DELEGATE_CONFIRM)
   const toggleModal = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
 
@@ -33,7 +31,7 @@ export default function DelegateConfirmModal({
           <RowBetween>
             <span className="text-xl">{isUndelegate ? <Trans>Undelegate</Trans> : <Trans>Delegate</Trans>}</span>
             <div role="button" onClick={toggleModal} className="flex cursor-pointer">
-              <X onClick={toggleModal} size={20} color={theme.subText} />
+              <X onClick={toggleModal} size={20} className="text-subText" />
             </div>
           </RowBetween>
           <span className="text-base leading-6 text-subText">

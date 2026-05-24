@@ -337,7 +337,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             <div className="mb-3 flex items-center justify-between">
               <span className="text-xl font-medium">{t`Confirm Swap Details`}</span>
               <ButtonEmpty width="fit-content" padding="0" onClick={onDismiss}>
-                <X size={20} color={theme.text} />
+                <X size={20} className="text-text" />
               </ButtonEmpty>
             </div>
             <span className="mb-4 text-xs text-subText">{t`Please review the details of your swap`}</span>

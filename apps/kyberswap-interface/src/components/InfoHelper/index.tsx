@@ -12,6 +12,7 @@ export default function InfoHelper({
   fontSize,
   isActive = false,
   color,
+  className,
   placement,
   width,
   style,
@@ -24,6 +25,7 @@ export default function InfoHelper({
   fontSize?: number
   isActive?: boolean
   color?: string
+  className?: string
   placement?: Placement
   width?: string
   style?: CSSProperties
@@ -60,6 +62,7 @@ export default function InfoHelper({
           className={cn(
             'flex cursor-default items-center justify-center rounded-[36px] border-none bg-transparent outline-none hover:opacity-70 focus:opacity-70',
             isActive ? 'text-textReverse' : 'text-subText',
+            className,
           )}
         >
           <Info size={size || 12} color={color || 'currentcolor'} />
@@ -73,6 +76,7 @@ export const InfoHelperWithDelay = ({
   text,
   size,
   color,
+  className,
   placement,
   width,
   style,
@@ -80,11 +84,12 @@ export const InfoHelperWithDelay = ({
   text: string | ReactNode
   size?: number
   color?: string
+  className?: string
   placement?: Placement
   width?: string
   style?: CSSProperties
 }) => (
   <MouseoverTooltip text={text} width={width} placement={placement} delay={200}>
-    <Info size={size || 12} color={color || 'currentcolor'} style={style} />
+    <Info size={size || 12} color={color || 'currentcolor'} style={style} className={className} />
   </MouseoverTooltip>
 )

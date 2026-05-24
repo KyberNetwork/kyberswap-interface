@@ -291,7 +291,7 @@ export default function ClaimAllModal({
                 <span>{selectedRewardChain.chainName}</span>
                 <ChevronDown
                   size={16}
-                  color={theme.subText}
+                  className="text-subText"
                   style={{
                     transform: selectedChainExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease',

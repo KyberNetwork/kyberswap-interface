@@ -477,7 +477,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       </div>
                       <Divider />
                       <RowBetween>
-                        <TextDashed fontSize={12} fontWeight={500} color={theme.subText} minWidth="max-content">
+                        <TextDashed fontSize={12} fontWeight={500} className="text-subText" minWidth="max-content">
                           <MouseoverTooltip
                             width="200px"
                             text={

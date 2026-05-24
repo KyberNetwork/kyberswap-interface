@@ -16,7 +16,6 @@ import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { VerticalDivider } from 'pages/About/styleds'
 import { useNotify } from 'state/application/hooks'
@@ -51,7 +50,6 @@ const Step = ({ children }: { children: React.ReactNode }) => (
 )
 
 export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveVestingData: boolean }) {
-  const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const phase3Info = phase3.find(
     item =>
@@ -263,7 +261,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
         </div>
 
         <div className="text-sm leading-relaxed text-subText">
-          <Info size={12} color={theme.blue3} />
+          <Info size={12} className="text-blue3" />
           <span className="ml-1.5 text-blue3">Phase 1:</span> First Batch of Affected Users including:
           <ul>
             <li>Normal cases of Affected Users who made the January 31 Treasury Grant Program registration deadline</li>
@@ -279,7 +277,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
         </div>
 
         <div className="text-sm leading-relaxed text-subText">
-          <Info size={12} color={theme.blue3} />
+          <Info size={12} className="text-blue3" />
           <span className="ml-1.5 text-blue3">Phase 2:</span> Second Batch of Affected Users including:
           <ul>
             <li>Third Party Affected Users of DappOS, Pendle, Magpie/Penpie and Equilibria</li>
@@ -296,7 +294,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
         </div>
 
         <div className="text-sm leading-relaxed text-subText">
-          <Info size={12} color={theme.blue3} />
+          <Info size={12} className="text-blue3" />
           <span className="ml-1.5 text-blue3">Phase 3:</span> The{' '}
           <b>Third Batch of Special Affected Users (total 11 wallets) including</b> who encountered specific issues
           listed below and reported them through the{' '}

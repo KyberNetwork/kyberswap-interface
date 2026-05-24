@@ -60,7 +60,7 @@ export default function MyAssets({
     return (
       <div className={WRAPPER_CLASS}>
         <Column style={{ gap: '12px', alignItems: 'center', marginTop: '16px' }}>
-          <AlertTriangle color={theme.warning} />
+          <AlertTriangle className="text-warning" />
           <span className="text-warning">Network is slow. Please try again later</span>
         </Column>
       </div>
@@ -125,7 +125,7 @@ export default function MyAssets({
                 fontSize: 14,
               }}
             >
-              <Info color={theme.subText} />
+              <Info className="text-subText" />
               <span className="text-subText">
                 <Trans>Don&apos;t see your tokens</Trans>
               </span>

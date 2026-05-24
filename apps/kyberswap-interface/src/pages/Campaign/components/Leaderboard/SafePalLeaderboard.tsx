@@ -243,7 +243,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
                   {renderLabel(<Trans>TX HASH</Trans>)}
                   <div className="flex items-center gap-1.5">
                     <span>{shortenHash(tx.tx_hash, 4)}</span>
-                    {explorerLink && <ExternalLinkIcon color={theme.subText} href={explorerLink} />}
+                    {explorerLink && <ExternalLinkIcon className="text-subText" href={explorerLink} />}
                   </div>
                 </div>
                 <div className={cn('flex flex-col', upToSmall ? 'w-full text-left' : 'w-[120px] text-right')}>

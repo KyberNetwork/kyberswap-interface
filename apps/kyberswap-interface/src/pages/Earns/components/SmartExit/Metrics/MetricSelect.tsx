@@ -59,7 +59,7 @@ export default function MetricSelect({
     <div className="relative flex flex-col gap-3 rounded-xl border border-solid border-tabActive p-4">
       {onRemove && (
         <div className="absolute right-1 top-1 cursor-pointer">
-          <X onClick={onRemove} size={14} color={theme.subText} />
+          <X onClick={onRemove} size={14} className="text-subText" />
         </div>
       )}
       <div className="flex items-center justify-between gap-4">

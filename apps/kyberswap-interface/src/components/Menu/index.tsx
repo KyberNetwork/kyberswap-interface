@@ -224,7 +224,7 @@ export default function Menu() {
                 onClick={toggle}
                 style={{ position: 'absolute', width: 'fit-content', top: '-16px', right: '-16px' }}
               >
-                <X color={theme.subText} />
+                <X className="text-subText" />
               </ButtonEmpty>
             )}
 
@@ -477,7 +477,7 @@ export default function Menu() {
                     <Trans>View</Trans>
                   </span>
                   &nbsp;
-                  <LightIcon color={theme.text} />
+                  <LightIcon className="text-text" />
                 </Row>
               </NavLinkBetween>
             )}
@@ -500,7 +500,7 @@ export default function Menu() {
               }}
             >
               <Trans>Notification Center</Trans>
-              <MailIcon size={17} color={theme.text} />
+              <MailIcon size={17} className="text-text" />
             </NavLinkBetween>
             <NavLinkBetween
               onClick={() => {
@@ -546,7 +546,7 @@ export default function Menu() {
               style={{ visibility: showScroll ? 'visible' : 'hidden' }}
               className="sticky z-[2] w-full text-center [animation:floating_1s_ease_infinite_alternate-reverse]"
             >
-              <ChevronDown color={theme.text4} />
+              <ChevronDown className="text-text4" />
             </div>
           </div>
         )}

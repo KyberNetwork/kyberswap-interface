@@ -115,7 +115,7 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
       >
         <div className="flex justify-between">
           {popupContent}
-          <X color={theme.text2} onClick={removeThisPopup} className="ml-[10px] min-w-[24px] hover:cursor-pointer" />
+          <X onClick={removeThisPopup} className="ml-[10px] min-w-[24px] text-text2 hover:cursor-pointer" />
         </div>
         {removeAfterMs && <WrappedAnimatedFader removeAfterMs={removeAfterMs} />}
       </div>

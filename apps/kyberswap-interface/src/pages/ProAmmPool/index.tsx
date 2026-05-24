@@ -17,7 +17,6 @@ import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
-import useTheme from 'hooks/useTheme'
 import { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/MyPool'
 import { StyledInternalLink } from 'theme'
@@ -64,9 +63,6 @@ export default function ProAmmPool() {
       ) ?? [[], []],
     [positions],
   )
-
-  const theme = useTheme()
-
   const {
     search: searchValueInQs = '',
     tab = VERSION.ELASTIC,
@@ -214,7 +210,7 @@ export default function ProAmmPool() {
             </>
           ) : (
             <div className="mt-[60px] flex flex-col items-center">
-              <Info size={48} color={theme.subText} />
+              <Info size={48} className="text-subText" />
               <span className="mt-4 text-center text-base leading-normal text-subText">
                 <Trans>
                   No liquidity found. Check out our{' '}

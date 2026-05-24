@@ -7,7 +7,6 @@ import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import NavGroup from 'components/Header/groups/NavGroup'
-import useTheme from 'hooks/useTheme'
 import { getDateOfWeek } from 'pages/Campaign/MyDashboard'
 import { SelectChainModal } from 'pages/Campaign/components/SelectChainModal'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
@@ -21,7 +20,6 @@ import { formatDisplayNumber } from 'utils/numbers'
 const tableGridClass = 'grid grid-cols-[40px_2fr_2fr] gap-4'
 
 const NearIntentDashboard = () => {
-  const theme = useTheme()
   const { reward } = campaignConfig[CampaignType.NearIntents]
 
   const {
@@ -110,7 +108,7 @@ const NearIntentDashboard = () => {
                         </div>
 
                         <ButtonText
-                          color={theme.primary}
+                          className="text-primary"
                           style={{ fontSize: '14px' }}
                           onClick={e => {
                             if (address[walletType]) {

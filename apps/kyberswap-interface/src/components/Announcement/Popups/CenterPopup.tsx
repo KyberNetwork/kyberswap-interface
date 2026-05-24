@@ -13,7 +13,6 @@ import Column from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import { Z_INDEXS } from 'constants/styles'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
@@ -55,7 +54,6 @@ export default function CenterPopup({
   onDismiss: () => void
   data: PopupItemType<PopupContentAnnouncement>
 }) {
-  const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { trackingHandler } = useTracking()
 
@@ -128,7 +126,7 @@ export default function CenterPopup({
           <span className="break-words text-xl font-medium leading-6">{name}</span>
           <X
             cursor={'pointer'}
-            color={theme.subText}
+            className="text-subText"
             onClick={() => {
               onDismiss()
               trackingClose()

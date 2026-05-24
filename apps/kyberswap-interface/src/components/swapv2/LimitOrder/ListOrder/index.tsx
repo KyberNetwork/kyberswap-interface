@@ -20,7 +20,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
@@ -279,9 +278,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
   }, [totalOrderNotCancelling, orders, ordersUpdating])
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  const theme = useTheme()
-
   const filledPercent =
     currentOrder &&
     calcPercentFilledOrder(currentOrder.filledTakingAmount, currentOrder.takingAmount, currentOrder.takerAssetDecimals)
@@ -337,10 +333,9 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
             <TableFooter isTabActive={isTabActive}>
               {isTabActive && (
                 <ButtonLight
-                  color={theme.red}
                   onClick={onCancelAllOrder}
                   disabled={disabledBtnCancelAll}
-                  className="w-fit px-3.5 py-2 text-sm max-sm:w-full max-sm:p-2.5"
+                  className="w-fit px-3.5 py-2 text-sm text-red max-sm:w-full max-sm:p-2.5"
                 >
                   <Trash size={15} />
                   <span className="ml-[5px]">

@@ -91,7 +91,7 @@ function InboxItemPoolPosition({
       </InboxItemRow>
 
       <InboxItemRow>
-        <PrimaryText color={theme.subText}>
+        <PrimaryText className="text-subText">
           {minPrice} - {maxPrice} {token0Symbol}/{token1Symbol}
         </PrimaryText>
         {time}

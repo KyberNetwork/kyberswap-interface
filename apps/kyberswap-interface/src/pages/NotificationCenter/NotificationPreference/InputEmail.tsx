@@ -64,7 +64,7 @@ export function InputEmail({
           </ButtonLight>
         )}
         {isVerifiedEmail && value && !hasError && (
-          <Check color={theme.primary} className="absolute inset-y-0 right-[13px] my-auto" />
+          <Check className="absolute inset-y-0 right-[13px] my-auto text-primary" />
         )}
       </div>
     </Tooltip>

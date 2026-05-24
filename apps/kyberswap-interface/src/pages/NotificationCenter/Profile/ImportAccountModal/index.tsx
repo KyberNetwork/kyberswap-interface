@@ -5,7 +5,6 @@ import { X } from 'react-feather'
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import useLogin from 'hooks/useLogin'
-import useTheme from 'hooks/useTheme'
 import UserEnterPasscodeContent from 'pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent'
 import { useNotify } from 'state/application/hooks'
 import { ButtonText } from 'theme/components'
@@ -17,7 +16,6 @@ type Props = {
 }
 
 export default function ImportAccountModal({ isOpen, onDismiss }: Props) {
-  const theme = useTheme()
   const notify = useNotify()
   const [loading, setLoading] = useState(false)
 
@@ -62,7 +60,7 @@ export default function ImportAccountModal({ isOpen, onDismiss }: Props) {
             <Trans>Import Profile</Trans>
           </span>
           <ButtonText onClick={onDismiss} style={{ lineHeight: '0' }}>
-            <X color={theme.text} />
+            <X className="text-text" />
           </ButtonText>
         </div>
 

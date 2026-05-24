@@ -328,7 +328,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
           {honeypot?.isFOT || honeypot?.isHoneypot ? (
             <div className="flex gap-2 rounded-2xl px-3 py-2.5" style={{ background: hexAlpha(theme.warning, 0.3) }}>
-              <WarningIcon color={theme.warning} size={20} />
+              <WarningIcon className="text-warning" size={20} />
               <span className="flex-1 text-sm">
                 {honeypot.isHoneypot ? (
                   <Trans>

@@ -207,7 +207,7 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
             <TooltipText
               tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
               placement="bottom"
-              color={theme.subText}
+              className="text-subText"
               fontSize={14}
               width="fit-content"
             >
@@ -311,7 +311,7 @@ const ZapImpact = ({ route }: { route?: ZapRouteDetail | null }) => {
         <TooltipText
           tooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
           placement="bottom"
-          color={theme.subText}
+          className="text-subText"
           fontSize={14}
           width="fit-content"
         >

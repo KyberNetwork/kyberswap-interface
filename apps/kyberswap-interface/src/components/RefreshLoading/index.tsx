@@ -5,7 +5,6 @@ import { CountDown, SpinWrapper, WrappedSvg } from 'components/RefreshLoading/st
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useDebounce from 'hooks/useDebounce'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
-import useTheme from 'hooks/useTheme'
 
 const INTERVAL_REFETCH_TIME = 10 // seconds
 const MIN_REFRESH_TIME = 2 // seconds
@@ -93,14 +92,12 @@ const Spin = ({
   refreshTime: number
   disableRefresh: boolean
 }) => {
-  const theme = useTheme()
-
   return (
     <WrappedSvg
       spinning={!countdown && !disableRefresh}
       id="arrow_loading"
       xmlns="http://www.w3.org/2000/svg"
-      color={theme.primary}
+      className="text-primary"
       viewBox="2 2 20 20"
       width="24"
       height="24"

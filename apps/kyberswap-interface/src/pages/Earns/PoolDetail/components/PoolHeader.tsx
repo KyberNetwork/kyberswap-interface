@@ -11,7 +11,6 @@ import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { NetworkInfo } from 'constants/networks/type'
-import useTheme from 'hooks/useTheme'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { IconArrowLeft, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -33,7 +32,6 @@ const TooltipAddressRow = ({ token, chainInfo }: { token: PoolDetailToken; chain
 
 const PoolHeaderPage = () => {
   const navigate = useNavigate()
-  const theme = useTheme()
   const { pool, chainInfo, dexInfo, exchange, chainId, primaryToken, secondaryToken } = usePoolDetailContext()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
@@ -118,7 +116,7 @@ const PoolHeaderPage = () => {
                 text={tooltipContent}
                 size={18}
                 margin={false}
-                color={theme.blue}
+                className="text-blue"
                 placement="bottom"
                 width="fit-content"
               />
@@ -135,7 +133,7 @@ const PoolHeaderPage = () => {
             </HStack>
 
             <ShareButtonWrapper aria-label="Share pool" onClick={handleOpenShare}>
-              <Share2 size={16} color={theme.primary} />
+              <Share2 size={16} className="text-primary" />
             </ShareButtonWrapper>
 
             {shareInfo && <ShareModal {...shareInfo} />}

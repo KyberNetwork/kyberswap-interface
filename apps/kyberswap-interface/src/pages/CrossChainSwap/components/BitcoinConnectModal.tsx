@@ -17,7 +17,6 @@ import { RowBetween } from 'components/Row'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { DerivationPaths } from 'components/Web3Provider/BitcoinProvider/providers/ledger'
 import { TERM_FILES_PATH } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -51,7 +50,6 @@ const Option = ({
 
 export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
-  const theme = useTheme()
 
   const [showLedgerType, setShowLedgerType] = useState(false)
   const notify = useNotify()
@@ -196,7 +194,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                           }}
                         />
                         <span className="flex flex-row flex-nowrap font-medium text-subText">{wallet.name}</span>
-                        {connectingWallet === wallet.type && <Loader color={theme.white} />}
+                        {connectingWallet === wallet.type && <Loader className="text-white" />}
                       </div>
                       <span className="min-w-max text-xs text-subText">{wallet.isInstalled() && t`Detected`}</span>
                     </Option>

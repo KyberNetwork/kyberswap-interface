@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 
 import InfoHelper from 'components/InfoHelper'
-import useTheme from 'hooks/useTheme'
 import { InlineHighlightWrapper } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import { FEE_YIELD_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomInput, CustomOption } from 'pages/Earns/components/SmartExit/styles'
@@ -18,7 +17,6 @@ export default function FeeYieldInput({
   isHighlighted?: boolean
 }) {
   const feeYieldCondition = getFeeYieldCondition(metric) || ''
-  const theme = useTheme()
 
   return (
     <>
@@ -52,7 +50,7 @@ export default function FeeYieldInput({
               </div>
             }
             placement="bottom"
-            color={theme.text}
+            className="text-text"
             width="315px"
             size={14}
             style={{ marginLeft: 0 }}

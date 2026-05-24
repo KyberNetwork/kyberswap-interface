@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'react-fe
 import { useMedia } from 'react-use'
 
 import { DOTS, usePagination } from 'components/Pagination/usePagination'
-import useTheme from 'hooks/useTheme'
 
 import PaginationInputOnMobile from './PaginationInputOnMobile'
 import { PaginationButton, PaginationContainer, PaginationItem } from './styles'
@@ -35,9 +34,6 @@ export default function Pagination({
     siblingCount,
     pageSize,
   })
-
-  const theme = useTheme()
-
   // this must be a number, not the DOT (string)
   const lastPage = paginationRange[paginationRange.length - 1] as number
 
@@ -74,13 +70,13 @@ export default function Pagination({
       >
         <PaginationItem $disabled={currentPage === 1} onClick={handleClickToFirstPage}>
           <PaginationButton haveBg={haveBg}>
-            <ChevronsLeft width={16} color={theme.subText} />
+            <ChevronsLeft width={16} className="text-subText" />
           </PaginationButton>
         </PaginationItem>
 
         <PaginationItem $disabled={currentPage === 1} onClick={onPrevious}>
           <PaginationButton haveBg={haveBg}>
-            <ChevronLeft width={16} color={theme.subText} />
+            <ChevronLeft width={16} className="text-subText" />
           </PaginationButton>
         </PaginationItem>
 
@@ -88,13 +84,13 @@ export default function Pagination({
 
         <PaginationItem $disabled={currentPage === lastPage} onClick={onNext}>
           <PaginationButton haveBg={haveBg}>
-            <ChevronRight width={16} color={theme.subText} />
+            <ChevronRight width={16} className="text-subText" />
           </PaginationButton>
         </PaginationItem>
 
         <PaginationItem $disabled={currentPage === lastPage} onClick={handleClickToLastPage}>
           <PaginationButton haveBg={haveBg}>
-            <ChevronsRight width={16} color={theme.subText} />
+            <ChevronsRight width={16} className="text-subText" />
           </PaginationButton>
         </PaginationItem>
       </PaginationContainer>
@@ -105,7 +101,7 @@ export default function Pagination({
     <PaginationContainer className={className} style={{ background: haveBg ? undefined : 'transparent', ...style }}>
       <PaginationItem $disabled={currentPage === 1} onClick={onPrevious}>
         <PaginationButton haveBg={haveBg}>
-          <ChevronLeft width={16} color={theme.subText} />
+          <ChevronLeft width={16} className="text-subText" />
         </PaginationButton>
       </PaginationItem>
       {paginationRange.map((pageNumber, index) => {
@@ -126,7 +122,7 @@ export default function Pagination({
       })}
       <PaginationItem $disabled={currentPage === lastPage} onClick={onNext}>
         <PaginationButton haveBg={haveBg}>
-          <ChevronRight width={16} color={theme.subText} />
+          <ChevronRight width={16} className="text-subText" />
         </PaginationButton>
       </PaginationItem>
     </PaginationContainer>

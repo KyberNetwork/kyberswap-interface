@@ -17,7 +17,6 @@ import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useNotification from 'hooks/useNotification'
-import useTheme from 'hooks/useTheme'
 import {
   ConfirmAlertModalData,
   PROFILE_MANAGE_ROUTES,
@@ -45,8 +44,6 @@ export default function ConfirmModal({
   priceAlertStat: PriceAlertStat
   data: ConfirmAlertModalData
 }) {
-  const theme = useTheme()
-
   const { maxActiveAlerts, totalActiveAlerts, totalAlerts, maxAlerts } = priceAlertStat
   const isMaxQuota = totalActiveAlerts >= maxActiveAlerts
 
@@ -116,7 +113,7 @@ export default function ConfirmModal({
             <MouseoverTooltip text={!canUpdateEnable ? t`Maximum number of Active Alerts reached` : ''}>
               <Toggle
                 style={{ transform: 'scale(.8)', cursor: canUpdateEnable ? 'pointer' : 'not-allowed' }}
-                icon={<NotificationIcon size={16} color={theme.textReverse} />}
+                icon={<NotificationIcon size={16} className="text-textReverse" />}
                 isActive={isEnabled}
                 toggle={toggleEnable}
               />

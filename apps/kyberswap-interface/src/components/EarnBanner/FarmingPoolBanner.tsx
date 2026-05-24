@@ -19,7 +19,6 @@ import {
 import Skeleton from 'components/Skeleton'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { type EarnPool } from 'pages/Earns/types/pool'
@@ -28,7 +27,6 @@ import { MEDIA_WIDTHS } from 'theme'
 let indexInterval: NodeJS.Timeout
 
 export default function FarmingPoolBanner() {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
@@ -111,7 +109,7 @@ export default function FarmingPoolBanner() {
   return (
     <FarmingWrapper>
       <BannerHeaderLink to={`${APP_PATHS.EARN_POOLS}?tag=${FilterTag.FARMING_POOL}`}>
-        <FarmingIcon width={24} height={24} color={theme.primary} />
+        <FarmingIcon width={24} height={24} className="text-primary" />
         <span className="font-medium" style={{ color: '#FCD884' }}>{t`FARMING POOLS`}</span>
       </BannerHeaderLink>
       {pools.length > 0 ? (

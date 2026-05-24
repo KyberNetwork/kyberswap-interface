@@ -294,7 +294,7 @@ const SwapActionButton: React.FC<Props> = ({
               >
                 <RowFit gap="4px">
                   <InfoHelper
-                    color={theme.textReverse}
+                    className="text-textReverse"
                     placement="top"
                     text={
                       <Trans>

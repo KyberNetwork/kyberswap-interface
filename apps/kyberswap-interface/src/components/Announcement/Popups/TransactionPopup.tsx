@@ -281,7 +281,7 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
     <div>
       <div className="flex flex-row flex-nowrap">
         <div className="pr-4">
-          {success ? <CheckCircle color={theme.primary} size={'20px'} /> : <IconFailure color={theme.red} />}
+          {success ? <CheckCircle className="text-primary" size={'20px'} /> : <IconFailure className="text-red" />}
         </div>
         <AutoColumn gap="8px">
           <span className={success ? 'text-base font-medium text-primary' : 'text-base font-medium text-red'}>

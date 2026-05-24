@@ -3,7 +3,6 @@ import { Info, X } from 'react-feather'
 
 import { ButtonConfirmed, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
 
 type Props = {
   isOpen: boolean
@@ -12,8 +11,6 @@ type Props = {
 }
 
 const ElasticHackedModal = ({ isOpen, onClose, onConfirm }: Props) => {
-  const theme = useTheme()
-
   return (
     <Modal isOpen={isOpen} width="480px" maxWidth="unset">
       <div className="flex flex-col bg-background p-5">
@@ -21,7 +18,7 @@ const ElasticHackedModal = ({ isOpen, onClose, onConfirm }: Props) => {
           <X onClick={onClose} className="size-5 cursor-pointer [&>*]:stroke-text" />
         </div>
         <div className="flex justify-center">
-          <Info color={theme.warning} size={64} />
+          <Info className="text-warning" size={64} />
         </div>
         <p className="m-0 mt-5 text-center text-base font-medium leading-6">
           <Trans>Attention</Trans>

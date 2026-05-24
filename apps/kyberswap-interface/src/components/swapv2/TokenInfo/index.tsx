@@ -67,7 +67,7 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
       <div className="flex items-center justify-between px-4">
         {onBack && (
           <div className="flex items-center gap-1">
-            <ChevronLeft onClick={onBack} color={theme.subText} cursor={'pointer'} size={26} />
+            <ChevronLeft onClick={onBack} className="text-subText" cursor={'pointer'} size={26} />
             {isOneToken ? (
               <span className="font-medium">{inputToken?.symbol}</span>
             ) : (

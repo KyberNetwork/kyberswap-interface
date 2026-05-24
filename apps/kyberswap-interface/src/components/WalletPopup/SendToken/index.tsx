@@ -222,11 +222,11 @@ export default function SendToken({
             placeholder="0x..."
             icon={
               <MouseoverTooltip text={t`Paste from clipboard`} width="150px">
-                <Clipboard size={20} cursor="pointer" color={theme.subText} onClick={onPaste} />
+                <Clipboard size={20} cursor="pointer" className="text-subText" onClick={onPaste} />
               </MouseoverTooltip>
             }
           />
-          <Label color={theme.red} style={{ opacity: recipientError ? 1 : 0, transition: '0.3s' }}>
+          <Label className="text-red" style={{ opacity: recipientError ? 1 : 0, transition: '0.3s' }}>
             {recipientError}
           </Label>
         </div>
@@ -267,7 +267,7 @@ export default function SendToken({
           <Label>
             <Trans>Gas Fee</Trans>
           </Label>
-          <Label color={theme.text}>
+          <Label className="text-text">
             {estimateGas && usdPriceNative
               ? `~ ${formattedNum((estimateGas * usdPriceNative).toString(), true)} `
               : '-'}

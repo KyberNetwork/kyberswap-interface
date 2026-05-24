@@ -11,7 +11,6 @@ import Dots from 'components/Dots'
 import { TermAndCondition } from 'components/Header/web3/WalletModal'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -41,7 +40,6 @@ export default function VestingClaimModal({
   tcLink: string
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
 
@@ -192,7 +190,7 @@ export default function VestingClaimModal({
           padding="0"
           style={{ position: 'absolute', right: '1rem', top: '1rem' }}
         >
-          <X color={theme.text} />
+          <X className="text-text" />
         </ButtonEmpty>
 
         <span className="text-sm text-subText">

@@ -22,7 +22,6 @@ import {
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { getDexVersion, getTokenId } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -44,7 +43,6 @@ const InboxItemEarnPosition = ({
   onPin,
   onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplatePoolPosition>) => {
-  const theme = useTheme()
   const navigate = useNavigate()
 
   const { isRead, templateType, templateBody } = announcement
@@ -162,7 +160,7 @@ const InboxItemEarnPosition = ({
       {[Status.NEW, Status.ADD, Status.PARTIAL_REMOVE, Status.FULL_REMOVE].includes(status) && (
         <InboxItemRow>
           <div className="flex items-center gap-1">
-            <PrimaryText color={theme.subText}>
+            <PrimaryText className="text-subText">
               {status === Status.NEW ? t`Created Balance:` : status === Status.ADD ? t`Added:` : t`Removed:`}
             </PrimaryText>
             <PrimaryText>
@@ -179,7 +177,7 @@ const InboxItemEarnPosition = ({
           <PrimaryText>
             {currentPrice} {token0Symbol}/{token1Symbol}
           </PrimaryText>
-          <PrimaryText color={theme.subText}>
+          <PrimaryText className="text-subText">
             {minPrice} - {maxPrice}
           </PrimaryText>
         </InboxItemRow>

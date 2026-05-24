@@ -16,7 +16,6 @@ import Search from 'components/Search'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { HeadSection, NavigateButton, Tag, TagContainer } from 'pages/Earns/PoolExplorer/styles'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
@@ -76,7 +75,6 @@ const Filter = ({
   totalItems?: number
   isFetching?: boolean
 }) => {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const { i18n } = useLingui()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -337,7 +335,7 @@ const Filter = ({
             style={{ height: '36px', width: upToMedium ? '100%' : '280px' }}
           />
           <ButtonOutlined
-            color={theme.primary}
+            className="text-primary"
             borderRadius="16px"
             height="32px"
             onClick={() => {

@@ -13,7 +13,6 @@ import { Input as NumericalInput } from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -241,9 +240,6 @@ export default function CurrencyInputPanel({
   const { account } = useActiveWeb3React()
 
   const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
-
-  const theme = useTheme()
-
   const handleDismissSearch = useCallback(() => {
     setModalOpen(false)
   }, [setModalOpen])
@@ -287,7 +283,7 @@ export default function CurrencyInputPanel({
                 style={{ cursor: onMax ? 'pointer' : undefined }}
                 className="flex items-center"
               >
-                <Wallet color={theme.subText} />
+                <Wallet className="text-subText" />
                 <span className="ml-1 font-medium text-subText" data-testid="balance">
                   {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0}
                 </span>
@@ -319,7 +315,7 @@ export default function CurrencyInputPanel({
                     </StyledBalanceMax>
                   )
                 )}
-                {lockIcon && <Lock color={theme.subText} style={{ marginRight: 8, height: 16 }} />}
+                {lockIcon && <Lock className="text-subText" style={{ marginRight: 8, height: 16 }} />}
               </>
             )}
             {customCurrencySelect || (

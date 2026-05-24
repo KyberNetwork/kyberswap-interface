@@ -28,8 +28,6 @@ type PanelProps = {
 }
 
 const DetailPanel: React.FC<PanelProps> = ({ isExpanded, title, content, toggleExpand }) => {
-  const theme = useTheme()
-
   return (
     <>
       <div role="button" onClick={toggleExpand} className="flex h-14 cursor-pointer items-center justify-between">
@@ -43,7 +41,7 @@ const DetailPanel: React.FC<PanelProps> = ({ isExpanded, title, content, toggleE
             isExpanded && 'rotate-180',
           )}
         >
-          <ChevronDown size="20" color={theme.text} />
+          <ChevronDown size="20" className="text-text" />
         </div>
       </div>
 

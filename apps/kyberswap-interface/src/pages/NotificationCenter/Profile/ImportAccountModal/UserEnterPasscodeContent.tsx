@@ -6,7 +6,6 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import FileInput from 'components/FileInput'
 import Input from 'components/Input'
-import useTheme from 'hooks/useTheme'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
@@ -23,7 +22,6 @@ type Props = {
 const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal, loading }) => {
   const [passcode, setPasscode] = useState('')
   const [importToken, setImportToken] = useState('')
-  const theme = useTheme()
   const notify = useNotify()
   const handleFileChange = (_: string, file: File) => {
     const qr = new Html5Qrcode('reader')
@@ -61,7 +59,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
 
         <Input
           type="password"
-          color={theme.text}
+          className="text-text"
           maxLength={50}
           value={passcode}
           onChange={e => setPasscode(e.target.value)}
@@ -75,7 +73,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
         </Label>
 
         <Input
-          color={theme.text}
+          className="text-text"
           value={importToken}
           onChange={e => setImportToken(e.target.value)}
           placeholder={t`Enter your Code`}

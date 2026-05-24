@@ -10,7 +10,6 @@ import Loader from 'components/Loader'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import { DOCS_LINKS } from 'components/swapv2/LimitOrder/const'
 import useInterval from 'hooks/useInterval'
-import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { cn } from 'utils/cn'
@@ -34,8 +33,6 @@ export default function CancelStatusCountDown({
 }) {
   const { errorMessage, attemptingTxn } = flowState
   const pendingText = flowState.pendingText || t`Canceling order`
-
-  const theme = useTheme()
 
   const [remain, setRemain] = useState(0)
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
@@ -62,7 +59,7 @@ export default function CancelStatusCountDown({
         <Trans>Order will be automatically cancelled in</Trans>
       </span>
       <div className="flex items-center gap-1.5 text-lg font-medium text-red">
-        <Clock color={theme.red} size={16} /> <span className="leading-5">{formatRemainTime(remain)}</span>
+        <Clock className="text-red" size={16} /> <span className="leading-5">{formatRemainTime(remain)}</span>
       </div>
       <span className="text-[10px] font-normal text-subText">
         <Trans>*There is a possibility that the order might be filled before cancellation.</Trans>{' '}
@@ -80,7 +77,7 @@ export default function CancelStatusCountDown({
         <CountDownWrapper className="min-h-[50px] flex-row justify-center">
           {errorMessage ? (
             <>
-              <WarningIcon color={theme.red} />
+              <WarningIcon className="text-red" />
               <span className="text-sm text-red">{friendlyError(errorMessage)}</span>
             </>
           ) : (

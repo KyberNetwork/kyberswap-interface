@@ -5,7 +5,6 @@ import KNC from 'assets/images/KNC.svg'
 import Wallet from 'components/Icons/Wallet'
 import Input from 'components/NumericalInput'
 import { AutoRow, RowBetween } from 'components/Row'
-import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useKNCPrice } from 'state/application/hooks'
 import { getTokenLogoURL } from 'utils'
@@ -26,7 +25,6 @@ export default function CurrencyInputForStake({
   tokenName: string
   disabled?: boolean
 }) {
-  const theme = useTheme()
   const tokenBalance = useTokenBalance(tokenAddress)
   const kncPrice = useKNCPrice()
   const kncValueInUsd = useMemo(() => {
@@ -58,7 +56,7 @@ export default function CurrencyInputForStake({
             </>
           )}
         </AutoRow>
-        <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
+        <AutoRow gap="3px" justify="flex-end" className="text-subText">
           <Wallet />{' '}
           <span className="text-xs">
             {tokenBalance ? getFullDisplayBalance(tokenBalance.value, tokenBalance.decimals) : 0}

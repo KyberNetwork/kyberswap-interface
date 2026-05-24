@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDegenModeManager } from 'state/user/hooks'
 
@@ -31,8 +30,6 @@ const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) 
     setShowConfirmation(true)
   }
 
-  const theme = useTheme()
-
   const [searchParams] = useSearchParams()
   const enableDegenMode = searchParams.get('enableDegenMode') === 'true'
 
@@ -43,7 +40,7 @@ const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) 
         className="-m-2 flex justify-between rounded-lg p-2 data-[highlight=true]:animate-highlight"
       >
         <div className="flex w-fit items-center">
-          <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+          <TextDashed fontSize={12} fontWeight={400} className="text-subText">
             <MouseoverTooltip
               text={
                 <Trans>

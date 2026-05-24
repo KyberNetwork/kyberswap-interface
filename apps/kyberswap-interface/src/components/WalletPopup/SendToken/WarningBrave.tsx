@@ -8,18 +8,15 @@ import { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { shortenAddress } from 'utils'
 
 const WarningBrave = ({ token }: { token: Currency | undefined }) => {
   const { chainId, walletKey } = useActiveWeb3React()
-  const theme = useTheme()
-
   if (!token || walletKey !== 'BRAVE' || token.isNative) return null
   return (
     <div className="flex gap-4 rounded-2xl bg-buttonBlack p-4 text-xs leading-4 text-subText">
       <div>
-        <AlertTriangle size={18} color={theme.subText} />
+        <AlertTriangle size={18} className="text-subText" />
       </div>
       <div className="flex flex-col gap-2.5">
         <span className="font-normal text-text">

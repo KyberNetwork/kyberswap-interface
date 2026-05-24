@@ -80,7 +80,11 @@ export default function AccountInfo({
                 <span className="text-xs font-medium leading-4 text-subText">
                   <Trans>Total Balance</Trans>
                 </span>
-                {showBalance ? <EyeOff size={14} color={theme.subText} /> : <Eye size={14} color={theme.subText} />}
+                {showBalance ? (
+                  <EyeOff size={14} className="text-subText" />
+                ) : (
+                  <Eye size={14} className="text-subText" />
+                )}
               </div>
 
               <span className={cn('truncate text-4xl font-medium', isMinimal && 'text-xl')}>
@@ -115,7 +119,7 @@ export default function AccountInfo({
           >
             <div className="flex items-center justify-between">
               <div className="flex gap-1">
-                <Star size={16} color={theme.subText} fill={theme.subText} />
+                <Star size={16} className="text-subText" fill={theme.subText} />
                 <span className="text-xs font-medium leading-4 text-subText">
                   <Trans>Total Available Rewards</Trans>
                 </span>
@@ -133,7 +137,7 @@ export default function AccountInfo({
                 <span className="text-xs font-medium leading-4 text-text">
                   ${formatNumberWithPrecisionRange(usd, 0, 8)}
                 </span>
-                <ChevronRight size={20} color={theme.subText} />
+                <ChevronRight size={20} className="text-subText" />
               </div>
             </div>
           </div>

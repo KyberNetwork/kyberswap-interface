@@ -12,7 +12,6 @@ import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberDAOInfo, useKyberDaoStakeActions } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
@@ -35,7 +34,6 @@ export default function MigrateModal({
   setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
 }) {
   const kyberDAOInfo = useKyberDAOInfo()
-  const theme = useTheme()
   const { chainId, account } = useActiveWeb3React()
   const modalOpen = useModalOpen(ApplicationModal.MIGRATE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
@@ -102,7 +100,7 @@ export default function MigrateModal({
               <Trans>KNC Migration</Trans>
             </span>
             <div role="button" onClick={toggleModal} className="flex cursor-pointer">
-              <X onClick={toggleModal} size={20} color={theme.subText} />
+              <X onClick={toggleModal} size={20} className="text-subText" />
             </div>
           </RowBetween>
           <span className="text-xs leading-4 text-subText">

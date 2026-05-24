@@ -16,14 +16,12 @@ import Skeleton from 'components/Skeleton'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { type EarnPool } from 'pages/Earns/types/pool'
 
 let indexInterval: NodeJS.Timeout
 
 export default function TrendingPoolBanner() {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
@@ -88,7 +86,7 @@ export default function TrendingPoolBanner() {
   return (
     <TrendingWrapper>
       <BannerHeaderLink onClick={handleBannerTracking} to={APP_PATHS.EARN}>
-        <IconTrending width={24} height={24} color={theme.primary} />
+        <IconTrending width={24} height={24} className="text-primary" />
         <span className="font-medium text-primary">{t`TRENDING POOLS`}</span>
       </BannerHeaderLink>
       {!!pool ? (

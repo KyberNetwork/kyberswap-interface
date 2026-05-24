@@ -9,7 +9,6 @@ import Row from 'components/Row'
 import { NativeToken } from 'constants/networks/type'
 import { useWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import {
   ClaimInfo,
@@ -60,7 +59,6 @@ const ClaimModal = ({
   onCompound?: () => void
   onClose: () => void
 }) => {
-  const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { library, chainId } = useWeb3React()
   const { supportedChains } = useChainsConfig()
@@ -136,7 +134,7 @@ const ClaimModal = ({
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           {compoundable && onCompound ? (
-            <ButtonOutlined color={theme.primary} gap="4px" disabled={isClaiming} onClick={onCompound}>
+            <ButtonOutlined className="text-primary" gap="4px" disabled={isClaiming} onClick={onCompound}>
               {t`Compound`}
             </ButtonOutlined>
           ) : (

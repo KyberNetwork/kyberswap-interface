@@ -37,7 +37,7 @@ const DescriptionPriceAlert = (
     title: PRIVATE_ANN_TITLE()[templateType] ?? '',
     type: NotificationType.SUCCESS,
     link: `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}?tab=${Tab.HISTORY}`,
-    icon: <Clock size={20} />,
+    icon: <Clock size={20} className="text-primary" />,
     summary: (
       <Row gap="6px" flexWrap={'wrap'} alignItems="center">
         <Logo srcs={[tokenInLogoURL]} style={logoStyle} />

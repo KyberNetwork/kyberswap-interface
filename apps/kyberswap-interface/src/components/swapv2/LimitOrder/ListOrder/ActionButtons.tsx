@@ -75,7 +75,7 @@ const CancelStatusButton = ({ expiredAt, style }: { expiredAt: number | undefine
       width="fit-content"
     >
       <IconWrap color={theme.warning} style={{ ...style, cursor: 'unset' }}>
-        <WarningIcon color={theme.warning} />
+        <WarningIcon className="text-warning" />
       </IconWrap>
     </MouseoverTooltipDesktopOnly>
   )
@@ -117,7 +117,7 @@ const ActionButtons = ({
         }}
         style={itemStyle}
       >
-        <DropdownArrowIcon rotate={!!expand} color={theme.subText} />
+        <DropdownArrowIcon rotate={!!expand} className="text-subText" />
       </IconWrap>
     ) : null
 

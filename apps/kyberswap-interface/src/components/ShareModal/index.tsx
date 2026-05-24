@@ -149,7 +149,6 @@ export default function ShareModal({
 }) {
   const isOpen = useModalOpen(ApplicationModal.SHARE)
   const toggle = useToggleModal(ApplicationModal.SHARE)
-  const theme = useTheme()
 
   const [isCopied, setCopied] = useCopyClipboard()
   const shareUrl = url || window.location.href
@@ -169,7 +168,7 @@ export default function ShareModal({
         <RowBetween>
           <span className="text-lg font-medium">{title}</span>
           <ButtonText onClick={handleDismissModal} style={{ lineHeight: '0' }}>
-            <X color={theme.text} />
+            <X className="text-text" />
           </ButtonText>
         </RowBetween>
 

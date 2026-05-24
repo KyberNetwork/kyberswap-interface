@@ -6,7 +6,6 @@ import { X } from 'react-feather'
 
 import Column from 'components/Column'
 import Row from 'components/Row'
-import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 const AnimatedDialogOverlay = motion(DialogOverlay)
@@ -37,8 +36,6 @@ export default function Drawer({
   trigger,
   title,
 }: ModalProps) {
-  const theme = useTheme()
-
   const overlayStyle: CSSProperties = { zIndex: zindex as number }
   const contentStyle: CSSProperties | undefined =
     width || bgColor ? { ...(width && { width }), ...(bgColor && { backgroundColor: bgColor }) } : undefined
@@ -68,7 +65,7 @@ export default function Drawer({
               <Column gap="12px" className="w-full">
                 <Row width={'100%'} justify="space-between">
                   <span className="font-medium text-text">{title}</span>
-                  <X style={{ cursor: 'pointer' }} size={18} color={theme.subText} onClick={onDismiss} />
+                  <X style={{ cursor: 'pointer' }} size={18} className="text-subText" onClick={onDismiss} />
                 </Row>
                 <div>{children}</div>
               </Column>

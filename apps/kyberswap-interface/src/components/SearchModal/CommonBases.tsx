@@ -6,7 +6,6 @@ import { Edit2, XCircle } from 'react-feather'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { AutoRow } from 'components/Row'
-import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 import { getDisplayTokenInfo } from './CurrencyList'
@@ -32,7 +31,6 @@ export default function CommonBases({
   onSelect: (currency: Currency) => void
   handleToggleFavorite: (e: React.MouseEvent, currency: Currency) => void
 }) {
-  const theme = useTheme()
   const [isEditMode, setEditMode] = useState(false)
   const isHeightSmall = window.outerHeight < HEIGHT_THRESHOLD
   if (!tokens.length) return null
@@ -72,7 +70,7 @@ export default function CommonBases({
               setEditMode(prev => !prev)
             }}
           >
-            <Edit2 size={isHeightSmall ? 14 : 16} color={theme.subText} />
+            <Edit2 size={isHeightSmall ? 14 : 16} className="text-subText" />
           </div>
         )}
       </AutoRow>

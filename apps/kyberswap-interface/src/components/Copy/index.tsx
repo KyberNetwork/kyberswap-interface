@@ -13,10 +13,11 @@ type Props = {
   size?: string | number
   text?: ReactNode
   color?: string
+  className?: string
 }
 
 const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
-  { toCopy, margin, style = {}, size, text, color },
+  { toCopy, margin, style = {}, size, text, color, className },
   ref,
 ) {
   const [isCopied, setCopied] = useCopyClipboard(2000)
@@ -32,7 +33,10 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
 
   const copyIcon = (
     <>
-      <div className={cn('ks-copy-icon absolute left-0 flex items-center', isCopied && 'copied')} style={{ color }}>
+      <div
+        className={cn('ks-copy-icon absolute left-0 flex items-center', isCopied && 'copied', className)}
+        style={color ? { color } : undefined}
+      >
         <CopyIcon size={size || 14} />
       </div>
       <div className={cn('ks-check-icon -translate-y-full text-primary', isCopied && 'copied')}>

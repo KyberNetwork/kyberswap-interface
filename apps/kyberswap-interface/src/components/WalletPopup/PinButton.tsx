@@ -1,17 +1,14 @@
 import { ReactComponent as PinIcon } from 'assets/svg/pin_icon.svg'
 import { ReactComponent as PinSolidIcon } from 'assets/svg/pin_solid_icon.svg'
-import useTheme from 'hooks/useTheme'
 
 type Props = {
   isActive: boolean
   onClick: () => void
 }
 const PinButton: React.FC<Props> = ({ isActive, onClick }) => {
-  const theme = useTheme()
-
   return (
     <div className="flex size-4 cursor-pointer items-center justify-center" role="button" onClick={onClick}>
-      {isActive ? <PinSolidIcon color={theme.text} /> : <PinIcon color={theme.subText} />}
+      {isActive ? <PinSolidIcon className="text-text" /> : <PinIcon className="text-subText" />}
     </div>
   )
 }

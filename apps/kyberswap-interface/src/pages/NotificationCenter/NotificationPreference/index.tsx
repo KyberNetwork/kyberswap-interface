@@ -169,7 +169,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           title: t`Notification Preferences`,
           summary: t`Your notification preferences have been saved successfully`,
           type: NotificationType.SUCCESS,
-          icon: <MailIcon color={theme.primary} />,
+          icon: <MailIcon className="text-primary" />,
         },
         10000,
       )
@@ -233,7 +233,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
         title: t`Unsubscribe Successfully`,
         summary: t`You have successfully unsubscribed from all email notifications`,
         type: NotificationType.SUCCESS,
-        icon: <MailIcon color={theme.primary} />,
+        icon: <MailIcon className="text-primary" />,
       },
       10_000,
     )

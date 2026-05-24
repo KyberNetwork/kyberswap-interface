@@ -415,7 +415,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
                   background: theme.warning,
                 }}
               >
-                <AlertTriangle color={theme.textReverse} size={16} />
+                <AlertTriangle className="text-textReverse" size={16} />
               </IconWrapper>
             </MouseoverTooltip>
           )}

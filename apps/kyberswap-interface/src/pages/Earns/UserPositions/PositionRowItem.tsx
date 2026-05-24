@@ -225,7 +225,7 @@ export default function PositionRowItem({
                       </div>
                     </div>
                   }
-                  color={theme.warning}
+                  className="text-warning"
                   placement="top"
                   width="280px"
                   style={{ marginLeft: 4 }}
@@ -243,7 +243,7 @@ export default function PositionRowItem({
                   navigate(APP_PATHS.EARN_SMART_EXIT)
                 }}
               >
-                <ListSmartExitIcon width={16} height={16} color={theme.primary} />
+                <ListSmartExitIcon width={16} height={16} className="text-primary" />
               </div>
             </MouseoverTooltipDesktopOnly>
           )}
@@ -351,7 +351,7 @@ export default function PositionRowItem({
                   width={!!position.suggestionPool ? '290px' : '310px'}
                   placement="bottom"
                 >
-                  <ArrowRightCircle size={16} color={theme.primary} onClick={e => onMigrateToKem(e, position)} />
+                  <ArrowRightCircle size={16} className="text-primary" onClick={e => onMigrateToKem(e, position)} />
                 </MouseoverTooltipDesktopOnly>
               )}
           </div>

@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 
 import InfoHelper from 'components/InfoHelper'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 export type Level = 'better' | 'worse' | 'worst' | undefined
@@ -20,7 +19,6 @@ const LEVEL_CLASS: Record<NonNullable<Level>, string> = {
 }
 
 export default function UpdatedBadge({ $level, outputAmount }: Props) {
-  const theme = useTheme()
   const output = `${outputAmount.toSignificant(RESERVE_USD_DECIMALS)} ${outputAmount.currency.symbol}`
 
   if (!$level) {
@@ -39,7 +37,7 @@ export default function UpdatedBadge({ $level, outputAmount }: Props) {
         <InfoHelper
           placement="top"
           size={14}
-          color={theme.primary}
+          className="text-primary"
           text={
             <span className="text-xs">
               <Trans>We got you a higher amount. The initial output amount was {output}</Trans>

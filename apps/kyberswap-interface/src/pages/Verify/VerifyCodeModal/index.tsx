@@ -11,7 +11,6 @@ import Dots from 'components/Dots'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { TIMES_IN_SECS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
 import { useRefreshProfile } from 'state/profile/hooks'
@@ -55,7 +54,6 @@ export default function VerifyCodeModal({
   getErrorMsgFn?: (err: any) => string
   refreshProfile?: boolean
 }) {
-  const theme = useTheme()
   const [otp, setOtp] = useState<string>('')
   const [verifyOtp] = useVerifyOtpMutation()
   const [sendOtp] = useSendOtpMutation()
@@ -165,7 +163,7 @@ export default function VerifyCodeModal({
       <span className="text-xl font-medium text-text">
         {verifySuccess ? verifySuccessTitle : <Trans>Verify your email address.</Trans>}
       </span>
-      <X color={theme.text} cursor="pointer" onClick={onDismiss} />
+      <X className="text-text" cursor="pointer" onClick={onDismiss} />
     </RowBetween>
   )
 

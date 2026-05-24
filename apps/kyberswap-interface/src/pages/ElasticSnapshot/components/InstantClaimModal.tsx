@@ -17,7 +17,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useReadingContract } from 'hooks/useContract'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -61,7 +60,6 @@ const snapshotPrices: { [key: string]: number } = {
 }
 
 export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () => void; phase: '1' | '2' | '2.5' }) {
-  const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
 
@@ -283,7 +281,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
           padding="0"
           style={{ position: 'absolute', right: '1rem', top: '1rem' }}
         >
-          <X color={theme.text} />
+          <X className="text-text" />
         </ButtonEmpty>
 
         {selectedNetworkToClaim ? (

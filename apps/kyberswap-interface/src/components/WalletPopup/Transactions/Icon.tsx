@@ -10,10 +10,7 @@ import IconSprite from 'components/Icons/Icon'
 import SendIcon from 'components/Icons/SendIcon'
 import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
-import useTheme from 'hooks/useTheme'
 import { TRANSACTION_GROUP, TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
-
-type Theme = ReturnType<typeof useTheme>
 
 const MAP_ICON_BY_GROUP: { [group in TRANSACTION_GROUP]: ReactNode } = {
   [TRANSACTION_GROUP.SWAP]: <Repeat size={16} />,
@@ -22,8 +19,8 @@ const MAP_ICON_BY_GROUP: { [group in TRANSACTION_GROUP]: ReactNode } = {
   [TRANSACTION_GROUP.OTHER]: null,
 }
 
-const MAP_ICON_BY_TYPE: (theme: Theme) => Partial<Record<TRANSACTION_TYPE, ReactNode>> = (theme: Theme) => ({
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme.subText} />,
+const MAP_ICON_BY_TYPE: Partial<Record<TRANSACTION_TYPE, ReactNode>> = {
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} className="text-subText" />,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: <IconFailure size={18} />,
   [TRANSACTION_TYPE.APPROVE]: <ApproveIcon width={20} height={22} />,
   [TRANSACTION_TYPE.CLAIM_REWARD]: <MoneyBag size={18} />,
@@ -31,11 +28,10 @@ const MAP_ICON_BY_TYPE: (theme: Theme) => Partial<Record<TRANSACTION_TYPE, React
   [TRANSACTION_TYPE.KYBERDAO_STAKE]: <StakeIcon size={18} />,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: <ThunderIcon />,
   [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: <StakeIcon size={18} style={{ transform: 'scaleY(-1)' }} />,
-})
+}
 
 const Icon = ({ txs }: { txs: TransactionDetails }) => {
-  const theme = useTheme()
-  const icon = MAP_ICON_BY_TYPE(theme)[txs.type] || MAP_ICON_BY_GROUP[txs.group] || <Repeat size={16} />
+  const icon = MAP_ICON_BY_TYPE[txs.type] || MAP_ICON_BY_GROUP[txs.group] || <Repeat size={16} />
   return icon as JSX.Element
 }
 export default Icon

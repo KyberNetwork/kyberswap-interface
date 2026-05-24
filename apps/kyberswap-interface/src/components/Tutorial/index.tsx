@@ -6,7 +6,6 @@ import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.s
 import { ButtonEmpty } from 'components/Button'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
 export enum TutorialType {
@@ -53,7 +52,6 @@ export const getTutorialVideoId = (type: TutorialType) => {
 }
 
 function Tutorial({ customIcon, type, showTooltip }: Props) {
-  const theme = useTheme()
   const [show, setShow] = useState(false)
 
   const title = (() => {
@@ -143,7 +141,7 @@ function Tutorial({ customIcon, type, showTooltip }: Props) {
             <span className="font-medium">{title}</span>
 
             <ButtonEmpty onClick={() => setShow(false)} width="36px" height="36px" padding="0">
-              <X color={theme.text} />
+              <X className="text-text" />
             </ButtonEmpty>
           </div>
           {subTitle && <p className="mb-4 mt-6 text-xs text-subText">{subTitle}</p>}

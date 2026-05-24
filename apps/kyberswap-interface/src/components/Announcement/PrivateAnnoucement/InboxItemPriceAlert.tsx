@@ -75,11 +75,16 @@ function InboxItemBridge({
 
       <InboxItemRow>
         <div className="flex items-center gap-1">
-          <DeltaTokenAmount color={theme.text} amount={tokenInAmount} symbol={tokenInSymbol} logoURL={tokenInLogoURL} />
+          <DeltaTokenAmount
+            className="text-text"
+            amount={tokenInAmount}
+            symbol={tokenInSymbol}
+            logoURL={tokenInLogoURL}
+          />
           <span className="text-subText">
             <Trans>to</Trans>
           </span>
-          <DeltaTokenAmount color={theme.text} amount={<div />} symbol={tokenOutSymbol} logoURL={tokenOutLogoURL} />
+          <DeltaTokenAmount className="text-text" amount={<div />} symbol={tokenOutSymbol} logoURL={tokenOutLogoURL} />
         </div>
       </InboxItemRow>
 

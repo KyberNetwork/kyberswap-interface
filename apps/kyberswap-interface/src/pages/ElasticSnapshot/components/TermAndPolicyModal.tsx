@@ -6,7 +6,6 @@ import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CheckBox from 'components/CheckBox'
 import Modal from 'components/Modal'
 import { TERM_FILES_PATH } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
 export default function TermAndPolicyModal({
@@ -18,7 +17,6 @@ export default function TermAndPolicyModal({
   onDismiss: () => void
   onOk: () => void
 }) {
-  const theme = useTheme()
   const [accept1, setAccept1] = useState(false)
   const [accept2, setAccept2] = useState(false)
   const [accept3, setAccept3] = useState(false)
@@ -34,7 +32,7 @@ export default function TermAndPolicyModal({
           padding="0"
           style={{ position: 'absolute', right: '1rem', top: '1rem' }}
         >
-          <X color={theme.text} />
+          <X className="text-text" />
         </ButtonEmpty>
 
         <p className="text-center text-xl font-medium text-text">Terms and Conditions</p>

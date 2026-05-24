@@ -7,7 +7,6 @@ import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -47,7 +46,6 @@ type Props = {
   }
 }
 const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
-  const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isHighlight, setIsHighlight] = useState(false)
@@ -105,12 +103,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
     <div className="flex w-full flex-col">
       <div className="flex items-center justify-between gap-1 text-subText">
         <div className="flex items-center gap-1">
-          <TextDashed
-            color={theme.subText}
-            fontSize={12}
-            fontWeight={500}
-            className="flex h-fit items-center leading-none"
-          >
+          <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center leading-none text-subText">
             <MouseoverTooltip
               placement="right"
               text={

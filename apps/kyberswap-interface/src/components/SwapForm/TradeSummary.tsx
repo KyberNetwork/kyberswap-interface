@@ -170,12 +170,12 @@ const TradeSummary: React.FC<Props> = ({
               disableRefresh={disableRefresh}
               clickable
             />
-            <TradePrice price={routeSummary?.executionPrice} color={theme.text} />
+            <TradePrice price={routeSummary?.executionPrice} className="text-text" />
           </div>
         </RowBetween>
         <RowBetween>
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip
                 width="200px"
                 text={
@@ -211,7 +211,7 @@ const TradeSummary: React.FC<Props> = ({
 
         <RowBetween>
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip
                 text={
                   <div>
@@ -250,7 +250,7 @@ const TradeSummary: React.FC<Props> = ({
 
         {isFeeTampered && (
           <div className="flex gap-2 rounded-xl bg-warning-30 px-3 py-2.5">
-            <WarningIcon color={theme.warning} size={16} />
+            <WarningIcon className="text-warning" size={16} />
             <span className="flex-1 text-xs">
               <Trans>
                 <b>Third-party fee detected</b>

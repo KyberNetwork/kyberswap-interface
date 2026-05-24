@@ -10,7 +10,6 @@ import { RowBetween } from 'components/Row'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useEligibleTransactions } from 'hooks/kyberdao'
-import useTheme from 'hooks/useTheme'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { formattedNum, getEtherscanLink } from 'utils'
 
@@ -20,7 +19,6 @@ export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolea
   const { chainId, networkInfo } = useActiveWeb3React()
   const [currentPage, setCurrentPage] = useState(1)
   const eligibleTxs = useEligibleTransactions(currentPage, 10)
-  const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   return (
@@ -67,10 +65,10 @@ export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolea
                         <span className="self-center text-sm font-normal leading-normal">
                           {tx.tx.slice(0, 6)}...{tx.tx.slice(-4)}
                         </span>
-                        <CopyHelper toCopy={tx.tx} margin="unset" color={theme.subText} />
+                        <CopyHelper toCopy={tx.tx} margin="unset" className="text-subText" />
                         <ExternalLinkIcon
                           href={getEtherscanLink(chainId, tx.tx, 'transaction')}
-                          color={theme.subText}
+                          className="text-subText"
                         />
                       </div>
                     </HeaderCell>

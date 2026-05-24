@@ -180,7 +180,6 @@ const RewardSection = () => {
                   })}
                   width="290px"
                   placement="top"
-                  color={theme.text}
                 />
               </div>
             )}

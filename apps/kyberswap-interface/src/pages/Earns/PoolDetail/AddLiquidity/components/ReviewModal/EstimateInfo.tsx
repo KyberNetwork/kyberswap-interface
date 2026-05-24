@@ -115,7 +115,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
         <HStack align="center" justify="space-between">
           <TooltipText
             tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-            color={theme.subText}
+            className="text-subText"
             fontSize={14}
           >
             Max Slippage
@@ -130,7 +130,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
                 placement="top"
                 size={12}
                 text={slippageNotice.message}
-                color={theme.warning}
+                className="text-warning"
               />
             ) : null}
           </HStack>
@@ -140,7 +140,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
           <MetricCard>
             <TooltipText
               tooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
-              color={theme.subText}
+              className="text-subText"
               fontSize={14}
             >
               Est. Remaining
@@ -152,7 +152,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
           <MetricCard>
             <TooltipText
               tooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
-              color={theme.subText}
+              className="text-subText"
               fontSize={14}
             >
               Zap Impact
@@ -174,7 +174,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
                   </a>
                 </Stack>
               }
-              color={theme.subText}
+              className="text-subText"
               fontSize={14}
             >
               Zap Fee

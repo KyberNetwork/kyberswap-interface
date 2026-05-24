@@ -299,7 +299,7 @@ export default function CreateAlert({
             style={{ width: 'fit-content', fontStyle: 'italic' }}
             label={t`Note: The current price is `}
             price={executionPrice}
-            color={theme.text}
+            className="text-text"
             icon={<RefreshButton shouldDisable={!executionPrice} callback={getRoute} size={16} skipFirst />}
           />
         </LeftColumn>
@@ -326,7 +326,7 @@ export default function CreateAlert({
               optionStyle={{ textTransform: 'capitalize' }}
               activeRender={item => (
                 <div className="flex items-center capitalize" style={{ gap: 6 }}>
-                  <Clock size={20} color={theme.text} />
+                  <Clock size={20} className="text-text" />
                   <span className="text-sm font-medium">{item?.label}</span>
                 </div>
               )}

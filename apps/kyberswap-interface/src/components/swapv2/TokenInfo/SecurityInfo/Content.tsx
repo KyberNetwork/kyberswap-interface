@@ -4,6 +4,7 @@ import { AlertOctagon } from 'react-feather'
 import Loader from 'components/Loader'
 import { RISKY_THRESHOLD, isItemRisky } from 'components/swapv2/TokenInfo/utils'
 import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
 export enum WarningType {
   RISKY,
@@ -18,8 +19,18 @@ export type ItemData = {
   riskyReverse?: boolean
 }
 
-const Label = ({ children, color, fontWeight }: { children: React.ReactNode; color?: string; fontWeight?: string }) => (
-  <span className="text-xs font-normal text-subText" style={{ color, fontWeight }}>
+const Label = ({
+  children,
+  color,
+  className,
+  fontWeight,
+}: {
+  children: React.ReactNode
+  color?: string
+  className?: string
+  fontWeight?: string
+}) => (
+  <span className={cn('text-xs font-normal text-subText', className)} style={{ color, fontWeight }}>
     {children}
   </span>
 )
@@ -79,25 +90,24 @@ const Content = ({
   totalWarning: number
   loading: boolean
 }) => {
-  const theme = useTheme()
   return (
     <div className="flex flex-wrap justify-between gap-3 px-5 py-4 max-md:flex-col">
       <ItemWrapper>
         <div className="flex items-center gap-1.5">
-          <AlertOctagon size={16} color={theme.red} />
+          <AlertOctagon size={16} className="text-red" />
           <Label>{totalRisk <= 1 ? <Trans>Risky Item</Trans> : <Trans>Risky Item(s)</Trans>}</Label>
         </div>
-        <Label color={theme.red} fontWeight="500">
+        <Label className="text-red" fontWeight="500">
           {totalRisk}
         </Label>
       </ItemWrapper>
 
       <ItemWrapper>
         <div className="flex items-center gap-1.5">
-          <AlertOctagon size={16} color={theme.warning} />
+          <AlertOctagon size={16} className="text-warning" />
           <Label>{totalWarning <= 1 ? <Trans>Attention Item</Trans> : <Trans>Attention Item(s)</Trans>}</Label>
         </div>
-        <Label color={theme.warning} fontWeight="500">
+        <Label className="text-warning" fontWeight="500">
           {totalWarning}
         </Label>
       </ItemWrapper>

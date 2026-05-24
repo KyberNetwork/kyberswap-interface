@@ -220,7 +220,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
                 currency={revertPrice ? currencyIn : currencyOut}
                 chainId={revertPrice ? fromChainId : toChainId}
               />
-              <Repeat size={12} color={theme.subText} />
+              <Repeat size={12} className="text-subText" />
             </div>
           ) : (
             '--'

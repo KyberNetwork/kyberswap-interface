@@ -17,7 +17,6 @@ import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, formatAndCacheToken, useAllTokens, useFetchERC20TokenFromRPC } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -117,7 +116,6 @@ export function CurrencySearch({
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
-  const theme = useTheme()
   const [activeTab, setActiveTab] = useState<Tab>(Tab.All)
 
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -398,7 +396,7 @@ export function CurrencySearch({
             onKeyDown={handleEnter}
             autoComplete="off"
           />
-          <SearchIcon size={18} color={theme.border} />
+          <SearchIcon size={18} className="text-border" />
         </SearchWrapper>
 
         {showCommonBases && (

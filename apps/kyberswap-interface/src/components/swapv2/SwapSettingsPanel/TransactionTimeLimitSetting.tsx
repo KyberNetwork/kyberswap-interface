@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useUserTransactionTTL } from 'state/user/hooks'
 import { cn } from 'utils/cn'
@@ -31,7 +30,6 @@ const validateDeadlineString = (str: string): boolean => {
 }
 
 const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
 
   const [deadline, setDeadline] = useUserTransactionTTL()
@@ -71,7 +69,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
   return (
     <div className={cn('flex items-center justify-between', className)}>
       <div className="flex items-center">
-        <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
           <MouseoverTooltip
             text={
               <span>

@@ -11,7 +11,6 @@ import Loader from 'components/Loader'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
 import { isTxsPendingTooLong as isShowPendingWarning } from 'components/WalletPopup/Transactions/helper'
 import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
-import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { modifyTransaction } from 'state/transactions/actions'
 import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
@@ -92,18 +91,17 @@ function StatusIcon({
     return () => interval.current && clearInterval(interval.current)
   }, [needCheckActuallyPending, pendingRpc, checkStatusDebounced, type])
 
-  const theme = useTheme()
   const checkingStatus = isPendingState === null
 
   const pendingText = isPendingTooLong ? t`Pending` : t`Processing`
   const pendingIcon = isPendingTooLong ? (
-    <WarningIcon size={12} color={theme.red} solid />
+    <WarningIcon size={12} className="text-red" solid />
   ) : (
-    <Repeat size={14} color={theme.warning} />
+    <Repeat size={14} className="text-warning" />
   )
   return (
     <span className="flex items-center gap-1" style={{ minWidth: 'unset' }}>
-      <PrimaryText color={theme.text}>
+      <PrimaryText className="text-text">
         {checkingStatus ? t`Checking` : isPendingState ? pendingText : success ? t`Completed` : t`Failed`}
       </PrimaryText>
       {checkingStatus ? (
@@ -111,9 +109,9 @@ function StatusIcon({
       ) : isPendingState ? (
         pendingIcon
       ) : success ? (
-        <CheckCircle size="12px" color={theme.primary} />
+        <CheckCircle size="12px" className="text-primary" />
       ) : (
-        <IconFailure size={15} color={theme.red} />
+        <IconFailure size={15} className="text-red" />
       )}
     </span>
   )

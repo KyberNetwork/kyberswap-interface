@@ -264,7 +264,7 @@ const AnalyticTab = () => {
                   >
                     {shortenTxHash(liquiditySourceEntry.txHash)}
                   </span>
-                  <CopyHelper color={theme.blue2} size={14} toCopy={liquiditySourceEntry.txHash} />
+                  <CopyHelper className="text-blue2" size={14} toCopy={liquiditySourceEntry.txHash} />
                 </div>
               )}
             </div>

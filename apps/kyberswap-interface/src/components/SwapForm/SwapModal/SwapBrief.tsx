@@ -100,7 +100,7 @@ export default function SwapBrief({
       </div>
 
       <div className="absolute left-1/2 top-[calc(76px-6px)] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border border-solid border-border bg-buttonGray">
-        <ArrowDown size="12" color={theme.subText} />
+        <ArrowDown size="12" className="text-subText" />
       </div>
 
       <div className="flex flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">

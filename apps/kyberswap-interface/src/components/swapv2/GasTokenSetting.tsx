@@ -6,7 +6,6 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { GAS_TOKENS, NativeCurrencies } from 'constants/tokens'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalances, useNativeBalance } from 'state/wallet/hooks'
@@ -14,7 +13,6 @@ import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 
 export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
-  const theme = useTheme()
   const ethBalance = useNativeBalance()
   const balances = useCurrencyBalances(GAS_TOKENS)
 
@@ -24,7 +22,7 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
   return (
     <>
       <div className="flex cursor-pointer items-center gap-1.5" role="button" onClick={onBack}>
-        <ArrowLeft size="24px" color={theme.subText} />
+        <ArrowLeft size="24px" className="text-subText" />
         <span className="text-xl font-medium">Gas Token</span>
       </div>
 

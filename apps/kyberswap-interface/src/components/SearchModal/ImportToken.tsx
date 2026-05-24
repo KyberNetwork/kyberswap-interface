@@ -83,9 +83,9 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
                     <div className="text-[10px] sm:text-xs">
                       <Trans>Address</Trans>: {shortenAddress(token.chainId, token.address, 7)}
                     </div>
-                    <CopyHelper toCopy={token.address} style={{ color: theme.subText }} />
+                    <CopyHelper toCopy={token.address} className="text-subText" />
                     <ExternalLinkIcon
-                      color={theme.subText}
+                      className="text-subText"
                       size={16}
                       href={getEtherscanLink(token.chainId, token.address, 'address')}
                     />

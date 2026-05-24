@@ -9,7 +9,6 @@ import AnnouncementItem from 'components/Announcement/AnnoucementItem'
 import InboxItem from 'components/Announcement/PrivateAnnoucement'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 
 import { ListAnnouncement } from './styles'
 
@@ -59,8 +58,6 @@ export default function AnnoucementList({
 }: Props) {
   const { account } = useActiveWeb3React()
   const scrollRef = useRef<HTMLDivElement>(null)
-  const theme = useTheme()
-
   const handleLoadMore = loadMoreAnnouncements ?? (() => null)
   const handleToggle = toggleNotificationCenter ?? (() => null)
   const handleShowDetail = showDetailAnnouncement ?? (() => null)
@@ -96,7 +93,7 @@ export default function AnnoucementList({
     <div className="flex flex-1 flex-col">
       {visibleList.length === 0 && (
         <div className="flex h-full flex-col items-center justify-center gap-2">
-          <Info color={theme.subText} size={27} />
+          <Info className="text-subText" size={27} />
           <span className="text-center text-subText">
             <Trans>No notifications found</Trans>
           </span>

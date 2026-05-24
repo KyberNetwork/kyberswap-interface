@@ -4,7 +4,6 @@ import { isMobile } from 'react-device-detect'
 import { ChevronRight } from 'react-feather'
 
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 import { cn } from 'utils/cn'
 
@@ -13,8 +12,6 @@ type Props = {
 }
 
 const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
-  const theme = useTheme()
-
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
 
@@ -30,7 +27,7 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
   return (
     <div className="flex cursor-pointer items-center justify-between" onClick={onClick}>
       <div className={groupClass}>
-        <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
           <MouseoverTooltip
             text={<Trans>Your trade is routed through one or more of these liquidity sources.</Trans>}
             placement="right"
@@ -46,7 +43,7 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
             {selectedDexes.length || numberOfDEXes} out of {numberOfDEXes} selected
           </Trans>
         </span>
-        <ChevronRight size={20} color={theme.subText} />
+        <ChevronRight size={20} className="text-subText" />
       </div>
     </div>
   )

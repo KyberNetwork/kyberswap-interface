@@ -8,9 +8,9 @@ import { AnnouncementTemplatePopup } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
 import { Z_INDEXS } from 'constants/styles'
-import useTheme from 'hooks/useTheme'
 import { useDetailAnnouncement } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
@@ -33,7 +33,6 @@ export default function DetailAnnouncementPopup({
 }: {
   fetchMore: () => Promise<{ hasMore: boolean; announcements: AnnouncementTemplatePopup[] } | undefined>
 }) {
-  const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const [{ selectedIndex, announcements = [], hasMore }, setAnnouncementDetail] = useDetailAnnouncement()
 
@@ -80,7 +79,7 @@ export default function DetailAnnouncementPopup({
             src={thumbnailImageURL || NotificationImage}
             className="m-auto max-h-[270px] w-full rounded-[20px] object-contain"
           />
-          <X color={theme.subText} onClick={onDismiss} className={CLOSE_BTN_CLASS} />
+          <X onClick={onDismiss} className={cn(CLOSE_BTN_CLASS, 'text-subText')} />
         </div>
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden max-md:gap-5 [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-subText [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1 [&_a:focus-visible]:outline-none">
           <div className="break-words text-xl font-medium leading-6">{name}</div>

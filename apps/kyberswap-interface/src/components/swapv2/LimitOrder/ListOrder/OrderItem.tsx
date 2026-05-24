@@ -73,8 +73,8 @@ const DeltaAmount = ({
   style,
   children,
   ...rest
-}: React.HTMLAttributes<HTMLDivElement> & { color: string }) => (
-  <div className={cn('font-medium', className)} style={{ color, ...style }} {...rest}>
+}: React.HTMLAttributes<HTMLDivElement> & { color?: string }) => (
+  <div className={cn('font-medium', className)} style={color ? { color, ...style } : style} {...rest}>
     {children}
   </div>
 )
@@ -102,6 +102,7 @@ const TokenLogo = ({ srcs }: { srcs: string[] }) => <Logo srcs={srcs} className=
 const SingleAmountInfo = ({
   amount,
   color,
+  className,
   logoUrl,
   symbol,
   plus = true,
@@ -109,7 +110,8 @@ const SingleAmountInfo = ({
   decimals,
 }: {
   amount: string
-  color: string
+  color?: string
+  className?: string
   symbol: string
   logoUrl: string
   plus?: boolean
@@ -118,7 +120,7 @@ const SingleAmountInfo = ({
 }) => (
   <div className="flex items-center">
     {!hideLogo && <TokenLogo srcs={[logoUrl]} />}
-    <DeltaAmount color={color}>
+    <DeltaAmount color={color} className={className}>
       {plus ? '+' : '-'} {formatAmountOrder(amount, decimals)} {symbol || '???'}
     </DeltaAmount>
   </div>
@@ -136,14 +138,13 @@ const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: st
     nativeOutput,
     chainId,
   } = order
-  const theme = useTheme()
   const native = NativeCurrencies[chainId]
   const isNative = nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
   return (
     <Colum>
       <SingleAmountInfo
         decimals={takerAssetDecimals}
-        color={theme.primary}
+        className="text-primary"
         logoUrl={isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL}
         amount={takingAmount}
         symbol={takerSymbol}
@@ -151,7 +152,7 @@ const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: st
       <SingleAmountInfo
         decimals={makerAssetDecimals}
         plus={false}
-        color={theme.subText}
+        className="text-subText"
         logoUrl={makerAssetLogoURL}
         amount={makingAmount}
         symbol={makerAssetSymbol}
@@ -170,7 +171,6 @@ const TradeRateOrder = ({
   style?: CSSProperties
 }) => {
   const [invert, setInvert] = useState(false)
-  const theme = useTheme()
   const symbolIn = order.makerAssetSymbol || '???'
 
   const onInvert = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -181,10 +181,10 @@ const TradeRateOrder = ({
   return (
     <Colum style={style} onClick={event => event.stopPropagation()}>
       <div className="flex cursor-pointer items-center gap-[6px]" onClick={onInvert}>
-        <span style={{ color: theme.text }}>{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</span>
-        <Repeat color={theme.text} size={12} />
+        <span className="text-text">{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</span>
+        <Repeat className="text-text" size={12} />
       </div>
-      <span style={{ color: theme.text }}>{formatRateLimitOrder(order, invert)}</span>
+      <span className="text-text">{formatRateLimitOrder(order, invert)}</span>
     </Colum>
   )
 }
@@ -266,6 +266,7 @@ export default function OrderItem({
   const [expand, setExpand] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isCancelling = isOrderCancelling(order)
+  const theme = useTheme()
 
   const {
     createdAt = Date.now(),
@@ -287,7 +288,6 @@ export default function OrderItem({
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
   const isOrderActive = isActiveStatus(order.status)
   const filledPercent = calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals)
-  const theme = useTheme()
 
   const makingToken = useMemo(() => {
     return new Token(order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol, '')
@@ -394,7 +394,7 @@ export default function OrderItem({
                 <div key={txs.txHash} className="flex justify-between">
                   <SingleAmountInfo
                     decimals={takerAssetDecimals}
-                    color={theme.subText}
+                    className="text-subText"
                     logoUrl={order.takerAssetLogoURL}
                     amount={txs.takingAmount}
                     symbol={takerSymbol}
@@ -472,7 +472,7 @@ export default function OrderItem({
                   <IndexText />
                   <div className="flex">
                     <div style={{ width: LOGO_SIZE, marginRight: 8 }} />
-                    <DeltaAmount color={theme.subText}>
+                    <DeltaAmount className="text-subText">
                       + {formatAmountOrder(txs.takingAmount, takerAssetDecimals)} {takerSymbol}
                     </DeltaAmount>
                   </div>

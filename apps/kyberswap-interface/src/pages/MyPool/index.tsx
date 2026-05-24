@@ -348,7 +348,7 @@ function MyPoolClassic() {
                 </>
               ) : (
                 <div className="mt-[60px] flex flex-col items-center">
-                  <Info size={48} color={theme.subText} />
+                  <Info size={48} className="text-subText" />
                   <span className="mt-4 text-center text-base leading-normal text-subText">
                     <Trans>
                       No liquidity found. Check out our{' '}
@@ -366,7 +366,7 @@ function MyPoolClassic() {
               )
             ) : (
               <div className="mt-[60px] flex flex-col items-center">
-                <Info size={48} color={theme.subText} />
+                <Info size={48} className="text-subText" />
                 <span className="mt-4 text-center text-base leading-normal text-subText">
                   <Trans>
                     No staked liquidity found. Check out our{' '}

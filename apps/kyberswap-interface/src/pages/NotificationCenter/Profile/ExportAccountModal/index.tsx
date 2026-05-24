@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 
 import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
 import QRCodeContent from 'pages/NotificationCenter/Profile/ExportAccountModal/QRCodeContent'
 import UserEnterPasscodeContent from 'pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent'
 import { useImportToken } from 'state/profile/hooks'
@@ -21,7 +20,6 @@ type Props = {
   onDismiss: () => void
 }
 export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
-  const theme = useTheme()
   const guestAccount = useMemo(() => KyberOauth2.getAnonymousAccount(), [])
   const guestAccountStr = guestAccount ? JSON.stringify(guestAccount) : ''
   const { getImportToken, removeImportToken, saveImportToken } = useImportToken()
@@ -91,7 +89,7 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
             <Trans>Export Profile</Trans>
           </span>
           <ButtonText onClick={onDismiss} style={{ lineHeight: '0' }}>
-            <X color={theme.text} />
+            <X className="text-text" />
           </ButtonText>
         </div>
 

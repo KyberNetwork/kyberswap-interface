@@ -7,7 +7,6 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -15,7 +14,6 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
 const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) => {
-  const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const [claiming, setIsClaiming] = useState(false)
   const notify = useNotify()
@@ -112,7 +110,7 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
   }, [chainId, autoClaim, handleClaim, networkToSwitch])
 
   return (
-    <ButtonOutlined color={theme.primary} width="88px" height="32px" onClick={handleClaim} disabled={claiming}>
+    <ButtonOutlined className="text-primary" width="88px" height="32px" onClick={handleClaim} disabled={claiming}>
       {claiming ? <Trans>Claiming</Trans> : <Trans>Claim</Trans>}
     </ButtonOutlined>
   )

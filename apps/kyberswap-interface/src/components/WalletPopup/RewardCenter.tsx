@@ -6,7 +6,6 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { useRewards } from 'hooks/useRewards'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { useNotify } from 'state/application/hooks'
@@ -29,8 +28,6 @@ export default function RewardCenter() {
       value: REWARD_TYPE.GAS_REFUND,
     },
   ] as { title: string; value: REWARD_TYPE }[]
-
-  const theme = useTheme()
   const notify = useNotify()
   const [activeTab, setActiveTab] = useState<REWARD_TYPE>(REWARD_TYPE.VOTING_REWARDS)
   const { rewards, totalReward } = useRewards()
@@ -102,7 +99,7 @@ export default function RewardCenter() {
         </span>
         <div className="flex gap-2">
           <div className="flex w-full items-center gap-1 rounded-[44px] bg-background px-3 py-1.5">
-            <DollarIcon width={12} height={12} color={theme.subText} />
+            <DollarIcon width={12} height={12} className="text-subText" />
             <span className="text-xs font-normal leading-4">{currentReward.knc} KNC</span>
           </div>
           <ButtonPrimary

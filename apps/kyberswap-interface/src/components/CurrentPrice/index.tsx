@@ -3,7 +3,6 @@ import { useState } from 'react'
 
 import { ButtonEmpty } from 'components/Button'
 import SwitchIcon from 'components/Icons/SwitchIcon'
-import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 interface CurrentPriceProps {
@@ -11,7 +10,6 @@ interface CurrentPriceProps {
 }
 
 export default function CurrentPrice({ price }: CurrentPriceProps) {
-  const theme = useTheme()
   const [showInverted, setShowInverted] = useState<boolean>(false)
 
   const formattedPrice = showInverted ? price?.toSignificant(8) : price?.invert()?.toSignificant(8)
@@ -29,7 +27,7 @@ export default function CurrentPrice({ price }: CurrentPriceProps) {
         <span className="flex items-center">
           <span className="mr-1">{label}</span>
           <ButtonEmpty padding="0" width="fit-content" onClick={() => setShowInverted(!showInverted)}>
-            <SwitchIcon color={theme.text} />
+            <SwitchIcon className="text-text" />
           </ButtonEmpty>
         </span>
       ) : (

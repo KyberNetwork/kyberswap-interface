@@ -12,7 +12,6 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
@@ -43,7 +42,6 @@ import { toString } from 'utils/numbers'
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
-  const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const { account } = useActiveWeb3React()
@@ -334,10 +332,10 @@ const PositionDetail = () => {
           })
         }}
       >
-        <Share2 size={size || 16} color={theme.primary} />
+        <Share2 size={size || 16} className="text-primary" />
       </ShareButtonWrapper>
     ),
-    [theme.primary, position, aprInterval],
+    [position, aprInterval],
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null

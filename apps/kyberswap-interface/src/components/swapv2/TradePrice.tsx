@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { CSSProperties, ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
 
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -15,10 +15,10 @@ interface TradePriceProps {
   icon?: ReactNode
   style?: CSSProperties
   color?: string
+  className?: string
 }
 
-export default function TradePrice({ price, label, icon, style = {}, color }: TradePriceProps) {
-  const theme = useTheme()
+export default function TradePrice({ price, label, icon, style = {}, color, className }: TradePriceProps) {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
   try {
@@ -40,13 +40,13 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
 
   return (
     <span
-      className="flex h-[22px] cursor-pointer items-center text-xs font-medium"
-      style={{ color: color || theme.subText, ...style }}
+      className={cn('flex h-[22px] cursor-pointer items-center text-xs font-medium text-subText', className)}
+      style={color ? { color, ...style } : style}
       onClick={() => setShowInverted(!showInverted)}
     >
       {show ? (
         <>
-          {label && <>{label}&nbsp;</>} <span style={{ color }}>{value}</span>
+          {label && <>{label}&nbsp;</>} <span style={color ? { color } : undefined}>{value}</span>
           <StyledBalanceMaxMini>{icon || <Repeat size={12} color={color} />}</StyledBalanceMaxMini>
         </>
       ) : (

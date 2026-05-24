@@ -3,7 +3,6 @@ import { AlertCircle, Info } from 'react-feather'
 
 import Badge, { BadgeVariant } from 'components/Badge'
 import { MouseoverTooltip } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 
 export default function RangeBadge({
   removed,
@@ -16,7 +15,6 @@ export default function RangeBadge({
   hideText?: boolean
   size?: number
 }) {
-  const theme = useTheme()
   const padClass = hideText ? 'p-1' : undefined
   return (
     <div className="flex justify-end text-xs">
@@ -43,7 +41,7 @@ export default function RangeBadge({
           }
         >
           <Badge variant={BadgeVariant.PRIMARY} className={padClass}>
-            <Info size={size} color={theme.primary} />
+            <Info size={size} className="text-primary" />
             {!hideText && (
               <>
                 &nbsp;
@@ -64,7 +62,7 @@ export default function RangeBadge({
           }
         >
           <Badge variant={BadgeVariant.WARNING} className={padClass}>
-            <Info size={size} color={theme.warning} />
+            <Info size={size} className="text-warning" />
             {!hideText && (
               <>
                 &nbsp;

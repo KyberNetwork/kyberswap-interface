@@ -132,7 +132,7 @@ export const QuoteSelector = ({
                 <div className="mt-2 flex items-center text-sm text-subText">
                   <QuoteProviderName quote={quote} />
                   <span className="mx-2">|</span>
-                  <Clock size={14} />
+                  <Clock size={14} className="text-primary" />
                   <span className="ml-1 mr-2">{formatTime(quote.quote.timeEstimate)}</span>
                   {quote.quote.protocolFee > 0 ? (
                     <span className="ml-1 mr-2">
