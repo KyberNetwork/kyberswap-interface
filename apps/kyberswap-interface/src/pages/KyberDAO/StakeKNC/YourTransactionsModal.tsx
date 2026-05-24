@@ -19,7 +19,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { ActionType, StakerAction } from 'hooks/kyberdao/types'
 import useCopyClipboard from 'hooks/useCopyClipboard'
-import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -34,7 +33,6 @@ const tableCellClass =
 const formatAmount = (amount: number) => (amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString())
 
 export default function YourTransactionsModal() {
-  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { proposals, calculateVotingPower } = useVotingInfo()
   const modalOpen = useModalOpen(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
@@ -186,7 +184,7 @@ export default function YourTransactionsModal() {
                           </AutoColumn>
                         </div>
                         <div className={tableCellClass}>
-                          <AutoColumn justify="flex-end" style={{ width: '100%', color: theme.text }} gap="4px">
+                          <AutoColumn justify="flex-end" className="text-text" style={{ width: '100%' }} gap="4px">
                             {action.description}
                           </AutoColumn>
                         </div>

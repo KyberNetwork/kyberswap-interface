@@ -3,7 +3,7 @@ import { MouseEventHandler } from 'react'
 
 import { AnnouncementCTA } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
 function CtaButton({
   data,
@@ -16,7 +16,6 @@ function CtaButton({
   color: 'primary' | 'gray' | 'outline' | 'link'
   onClick?: MouseEventHandler<HTMLButtonElement>
 }) {
-  const theme = useTheme()
   if (!data) return null
   const { name } = data
   const props = { className, onClick }
@@ -38,13 +37,7 @@ function CtaButton({
       )
     default:
       return (
-        <ButtonEmpty
-          {...props}
-          style={{
-            background: theme.border,
-            color: theme.text,
-          }}
-        >
+        <ButtonEmpty {...props} className={cn('bg-border text-text', className)}>
           {displayName}
         </ButtonEmpty>
       )

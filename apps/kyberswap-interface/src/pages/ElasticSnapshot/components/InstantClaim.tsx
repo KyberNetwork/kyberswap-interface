@@ -3,7 +3,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { VerticalDivider } from 'pages/About/styleds'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
@@ -20,7 +19,6 @@ import InstantClaimModal from './InstantClaimModal'
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
 export default function InstantClaim() {
-  const theme = useTheme()
   const [phase, setShow] = useState<'1' | '2' | '2.5' | null>(null)
   const { account } = useActiveWeb3React()
 
@@ -79,9 +77,8 @@ export default function InstantClaim() {
             <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>{format(phase1Value)}</span>
             {phase1Value !== 0 && (
               <span
-                className="mb-0.5 cursor-pointer text-sm font-medium"
+                className="mb-0.5 cursor-pointer text-sm font-medium text-primary"
                 role="button"
-                style={{ color: theme.primary }}
                 onClick={() => {
                   setShow('1')
                 }}
@@ -102,9 +99,8 @@ export default function InstantClaim() {
             <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>{format(valuePhase2 || 0)}</span>
             {valuePhase2 !== 0 && (
               <span
-                className="mb-0.5 cursor-pointer text-sm font-medium"
+                className="mb-0.5 cursor-pointer text-sm font-medium text-primary"
                 role="button"
-                style={{ color: theme.primary }}
                 onClick={() => {
                   setShow(phase2Data ? '2' : '2.5')
                 }}

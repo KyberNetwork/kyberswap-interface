@@ -203,7 +203,7 @@ const PositionDetailHeader = () => {
                 <br />
                 <Trans>
                   View or manage it in{' '}
-                  <Link to={APP_PATHS.EARN_SMART_EXIT} style={{ color: theme.subText, textDecoration: 'underline' }}>
+                  <Link to={APP_PATHS.EARN_SMART_EXIT} className="text-subText" style={{ textDecoration: 'underline' }}>
                     View Smart Exit Orders
                   </Link>
                   .

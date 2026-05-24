@@ -171,7 +171,7 @@ export default function Profile() {
                 style={{ color: theme.subText, cursor: 'pointer' }}
                 disabled
                 value={shortenAddress(chainId, signedAccount, 17, false)}
-                icon={<CopyHelper toCopy={signedAccount} style={{ color: theme.subText }} />}
+                icon={<CopyHelper toCopy={signedAccount} className="text-subText" />}
               />
             </div>
 

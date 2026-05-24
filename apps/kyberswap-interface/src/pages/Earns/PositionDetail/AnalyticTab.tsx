@@ -7,7 +7,6 @@ import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { HistoryCard, HistorySectionHeader, PastActionsList } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
@@ -49,7 +48,6 @@ const shortenTxHash = (hash: string) => (hash ? `${hash.substring(0, 6)}...${has
 
 const AnalyticTab = () => {
   const { position, initialLoading } = usePositionDetailContext()
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
 
   const { rewardInfo } = useKemRewards({})
@@ -258,8 +256,8 @@ const AnalyticTab = () => {
                     {t`Tnx Hash`}
                   </span>
                   <span
-                    className="cursor-pointer text-sm"
-                    style={{ color: theme.blue2, fontFamily: "'Courier Prime', monospace" }}
+                    className="cursor-pointer text-sm text-blue2"
+                    style={{ fontFamily: "'Courier Prime', monospace" }}
                     onClick={() => window.open(explorerUrl + '/tx/' + liquiditySourceEntry.txHash, '_blank')}
                   >
                     {shortenTxHash(liquiditySourceEntry.txHash)}

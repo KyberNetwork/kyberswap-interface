@@ -276,7 +276,7 @@ export const TransactionHistory = () => {
               <span className="text-subText">{format(new Date(tx.timestamp), 'HH:mm:ss')}</span>
             </div>
             {tx.sender && (
-              <div className="mt-2 flex items-center gap-1 text-sm" style={{ color: theme.blue }}>
+              <div className="mt-2 flex items-center gap-1 text-sm text-blue">
                 <span className="text-subText">{t`Sender:`}</span>{' '}
                 {tx.sender.includes('.near') ? tx.sender : shortenHash(tx.sender)}
                 <CopyHelper toCopy={tx.sender} />

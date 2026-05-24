@@ -15,7 +15,6 @@ import { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFet
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import useTheme from 'hooks/useTheme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm, { Label, LimitOrderFormHandle } from './LimitOrderForm'
@@ -87,7 +86,6 @@ export default function EditOrderModal({
 
   const estimateGas = useEstimateFee({ orders })
 
-  const theme = useTheme()
   const isReviewOrder = step === Steps.REVIEW_ORDER
   const onBack = () => {
     setStep(Steps.EDIT_ORDER)
@@ -148,9 +146,13 @@ export default function EditOrderModal({
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <div className="flex w-full flex-col gap-4 px-[22px] py-5">
         <div className="flex items-center justify-between">
-          {showReview ? <ChevronLeft style={{ cursor: 'pointer', color: theme.subText }} onClick={onBack} /> : <div />}
+          {showReview ? (
+            <ChevronLeft className="text-subText" style={{ cursor: 'pointer' }} onClick={onBack} />
+          ) : (
+            <div />
+          )}
           <span>{showReview ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</span>
-          <X style={{ cursor: 'pointer', color: theme.subText }} onClick={onDismiss} />
+          <X className="text-subText" style={{ cursor: 'pointer' }} onClick={onDismiss} />
         </div>
 
         <Column gap="10px">

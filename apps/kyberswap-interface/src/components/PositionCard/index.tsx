@@ -373,8 +373,6 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
   const native0 = useCurrencyConvertedToNative(currency0 || undefined)
   const native1 = useCurrencyConvertedToNative(currency1 || undefined)
 
-  const theme = useTheme()
-
   return (
     <PositionCardWrapper style={border ? { border } : undefined}>
       <div className="flex justify-between">
@@ -409,10 +407,10 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               }
             >
               <IconWrapper
+                className="!bg-warning"
                 style={{
                   width: '24px',
                   height: '24px',
-                  background: theme.warning,
                 }}
               >
                 <AlertTriangle className="text-textReverse" size={16} />

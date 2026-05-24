@@ -84,7 +84,7 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
           style={{ color: theme.subText, cursor: 'pointer' }}
           disabled
           value={importToken}
-          icon={<CopyHelper ref={copyButtonRef} toCopy={importToken} style={{ color: theme.subText }} />}
+          icon={<CopyHelper ref={copyButtonRef} toCopy={importToken} className="text-subText" />}
           pattern={null}
         />
       </div>

@@ -18,7 +18,6 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
@@ -75,7 +74,6 @@ const TokenBoxInfo = ({
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
-  const theme = useTheme()
   const {
     selectedQuote,
     currencyIn,
@@ -362,7 +360,8 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               <span className="text-xs font-medium text-subText">{t`Recipient`}</span>
               <div className="flex items-center text-sm text-subText">
                 <ExternalLink
-                  style={{ textDecoration: 'none', color: theme.text }}
+                  className="text-text"
+                  style={{ textDecoration: 'none' }}
                   href={
                     toChainId === NonEvmChain.Solana
                       ? `https://solscan.io/account/${recipient}`

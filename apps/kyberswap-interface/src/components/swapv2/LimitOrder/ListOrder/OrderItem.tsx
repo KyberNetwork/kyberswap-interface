@@ -86,9 +86,8 @@ const Colum = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivEle
 )
 
 const TimeText = ({ time, style = {} }: { time: number; style?: CSSProperties }) => {
-  const theme = useTheme()
   return (
-    <div className="flex font-medium" style={{ color: theme.text, ...style }}>
+    <div className="flex font-medium text-text" style={style}>
       <span>{dayjs(time * 1000).format('DD/MM/YYYY')}</span>
       &nbsp; <span>{dayjs(time * 1000).format('HH:mm')}</span>
     </div>

@@ -8,7 +8,6 @@ import Divider from 'components/Divider'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { ProposalType, VoteDetail } from 'hooks/kyberdao/types'
-import useTheme from 'hooks/useTheme'
 import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
 import { cn } from 'utils/cn'
 import { getFullDisplayBalance } from 'utils/formatBalance'
@@ -71,8 +70,6 @@ const VotersListModal = ({
   sumPower: number | undefined
   option: string
 }) => {
-  const theme = useTheme()
-
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss}>
       <OptionWrapper isWonOption={isWonOption} style={{ width: '100%' }}>
@@ -102,7 +99,7 @@ const VotersListModal = ({
             return (
               <InfoRow key={vote.staker}>
                 <span>{vote.staker_name || vote.staker}</span>
-                <span style={{ color: theme.subText }}>{vote.power}</span>
+                <span className="text-subText">{vote.power}</span>
               </InfoRow>
             )
           })}
@@ -113,7 +110,6 @@ const VotersListModal = ({
 }
 
 export default function Participants({ proposalId }: { proposalId?: number }) {
-  const theme = useTheme()
   const [modalIndex, setModalIndex] = useState<number | null>(null)
 
   const { data: proposalInfo } = kyberDAOApi.useGetProposalByIdQuery({ id: proposalId }, { skip: !proposalId })
@@ -186,7 +182,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                     return (
                       <InfoRow key={vote.staker}>
                         <span>{vote.staker_name || vote.staker}</span>
-                        <span style={{ color: theme.subText }}>{vote.power}</span>
+                        <span className="text-subText">{vote.power}</span>
                       </InfoRow>
                     )
                   })}

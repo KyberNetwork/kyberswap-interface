@@ -22,7 +22,6 @@ import { usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
@@ -152,7 +151,6 @@ export default function PoolCombination() {
 }
 
 function MyPoolClassic() {
-  const theme = useTheme()
   const { account, networkInfo } = useActiveWeb3React()
 
   const under768 = useMedia('(max-width:768px)')
@@ -293,8 +291,8 @@ function MyPoolClassic() {
                 <ButtonPrimary
                   as={StyledInternalLink}
                   to={APP_PATHS.FIND_POOL}
+                  className="!text-textReverse"
                   style={{
-                    color: theme.textReverse,
                     padding: '10px 12px',
                     fontSize: '14px',
                     width: 'max-content',

@@ -8,7 +8,6 @@ import InfiniteLoader from 'react-window-infinite-loader'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
@@ -71,7 +70,6 @@ export function CurrencyRow({
   isFavorite?: boolean
   setTokenToShowInfo?: (t: Token) => void
 }) {
-  const theme = useTheme()
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
 
   const onClickRemove = (e: React.MouseEvent) => {
@@ -158,9 +156,7 @@ export function CurrencyRow({
           )}
         </div>
         {usdBalance !== undefined && !hideBalance && (
-          <span className="text-xs" style={{ color: theme.subText }}>
-            {formattedNum(usdBalance + '', true)}
-          </span>
+          <span className="text-xs text-subText">{formattedNum(usdBalance + '', true)}</span>
         )}
       </div>
     </div>

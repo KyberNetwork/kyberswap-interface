@@ -10,7 +10,7 @@ import { cn } from 'utils/cn'
 
 interface TradePriceProps {
   price: BaseTradeInfo | undefined
-  style: CSSProperties
+  style?: CSSProperties
   label?: string
   color?: string
   className?: string

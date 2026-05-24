@@ -11,7 +11,6 @@ import SearchInput from 'components/SearchInput'
 import { ZERO_ADDRESS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { useSafePalCampaignJoin } from 'pages/Campaign/hooks/useSafePalCampaignJoin'
 import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
@@ -48,7 +47,6 @@ const getTransactionExplorerLink = (chainId: number, txHash: string) => {
 }
 
 export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }: Props) {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
 
@@ -135,9 +133,9 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
               placeholder={t`Search wallet address`}
               value={searchAddressInput}
               onChange={setSearchAddressInput}
+              className="!bg-bg1"
               style={{
                 width: upToSmall ? '100%' : '360px',
-                background: theme.bg1,
               }}
             />
           </div>

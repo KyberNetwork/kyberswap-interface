@@ -15,7 +15,6 @@ import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useLogin from 'hooks/useLogin'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
@@ -49,7 +48,6 @@ function Web3StatusInner() {
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { signIn } = useLogin()
   const { ENSName } = useENSName(account ?? undefined)
-  const theme = useTheme()
 
   const allTransactions = useAllTransactions()
 
@@ -123,7 +121,8 @@ function Web3StatusInner() {
                     <Trans>
                       You are not signed in with this wallet address. If you wish, you can{' '}
                       <span
-                        style={{ cursor: 'pointer', fontSize: '12px', color: theme.primary }}
+                        className="text-primary"
+                        style={{ cursor: 'pointer', fontSize: '12px' }}
                         onClick={e => {
                           e.stopPropagation()
                           signIn({ account })

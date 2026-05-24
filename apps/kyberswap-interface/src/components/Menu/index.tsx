@@ -512,7 +512,8 @@ export default function Menu() {
               <ButtonEmpty
                 padding="0"
                 width="fit-content"
-                style={{ color: theme.text, textDecoration: 'none', fontSize: '14px' }}
+                className="text-text"
+                style={{ textDecoration: 'none', fontSize: '14px' }}
               >
                 {getLocaleLabel(userLocale, true)}&nbsp;&nbsp;
                 <ArrowRight fill={theme.text} />

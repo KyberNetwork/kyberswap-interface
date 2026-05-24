@@ -188,7 +188,7 @@ export default function NetworkModal({
       <>
         <Row gap="12px">
           <span className="flex-shrink-0 text-[10px] leading-6 text-subText">{title}</span>
-          <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
+          <hr className="w-full border-0 border-b border-solid border-border" />
         </Row>
         <div className="relative mb-3 flex-grow">
           <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
@@ -258,7 +258,7 @@ export default function NetworkModal({
             <span className="flex-shrink-0 text-[10px] leading-6 text-subText">
               <Trans>Favorite Chain(s)</Trans>
             </span>
-            <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
+            <hr className="w-full border-0 border-b border-solid border-border" />
           </Row>
           <div ref={favoriteDropRef} id={FAVORITE_DROPZONE_ID} style={{ position: 'relative' }}>
             <DropzoneOverlay show={isDraggingAddToFavorite} text={t`Add to favorite`} />

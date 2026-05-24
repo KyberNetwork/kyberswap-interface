@@ -201,7 +201,6 @@ export function TransactionErrorContent({
   dismissBtnStyle?: React.CSSProperties
   suggestionMessage?: React.ReactNode
 }) {
-  const theme = useTheme()
   const [showDetail, setShowDetail] = useState<boolean>(false)
 
   return (
@@ -215,9 +214,7 @@ export function TransactionErrorContent({
         </RowBetween>
         <AutoColumn style={{ marginTop: 20 }} gap="8px" justify="center">
           <Alert className="size-[108px]" />
-          <span className="w-[85%] text-center text-base font-medium leading-6" style={{ color: theme.red }}>
-            {friendlyError(message)}
-          </span>
+          <span className="w-[85%] text-center text-base font-medium leading-6 text-red">{friendlyError(message)}</span>
           {message !== friendlyError(message) && (
             <AutoColumn justify="center" style={{ width: '100%' }}>
               <span className="cursor-pointer text-sm text-primary" onClick={() => setShowDetail(prev => !prev)}>

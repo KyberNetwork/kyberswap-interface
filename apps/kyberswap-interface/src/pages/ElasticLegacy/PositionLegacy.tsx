@@ -9,7 +9,6 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { Position as SubgraphPosition, usePositionFees, useRemoveLiquidityLegacy } from 'hooks/useElasticLegacy'
-import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { cn } from 'utils/cn'
 import { formatDollarAmount } from 'utils/numbers'
@@ -88,7 +87,6 @@ const Row = ({
     usd,
   } = useRemoveLiquidityLegacy(item, tokenPrices, feeRewards)
 
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
 
   return (
@@ -150,7 +148,7 @@ const Row = ({
             placement="top"
             text={t`You need to withdraw your deposited liquidity position from the Farm first.`}
           >
-            <ButtonPrimary padding="6px 12px" style={{ background: theme.buttonGray, color: theme.border }}>
+            <ButtonPrimary padding="6px 12px" className="!bg-buttonGray !text-border">
               <span className="text-xs">
                 <Trans>Remove Liquidity</Trans>
               </span>

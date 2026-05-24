@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ButtonEmpty } from 'components/Button'
 import { LOCALE_INFO, SupportedLocale, getLocaleLabel } from 'constants/locales'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import useTheme from 'hooks/useTheme'
 import { useUserLocale } from 'state/user/hooks'
 import { cn } from 'utils/cn'
 
@@ -16,7 +15,6 @@ export default function LanguageSelector({
   setIsSelectingLanguage: (isSelectingLanguage: boolean) => void
   onLanguageChange?: (previousLanguage: string, newLanguage: string) => void
 }) {
-  const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const qs = useParsedQueryString()
@@ -39,7 +37,8 @@ export default function LanguageSelector({
         width="fit-content"
         padding="0"
         onClick={() => setIsSelectingLanguage(false)}
-        style={{ textDecoration: 'none', color: theme.text, marginBottom: '24px' }}
+        className="text-text"
+        style={{ textDecoration: 'none', marginBottom: '24px' }}
       >
         <ArrowLeft />
       </ButtonEmpty>

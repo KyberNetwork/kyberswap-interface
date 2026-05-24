@@ -18,7 +18,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { usePool } from 'hooks/usePools'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
@@ -172,7 +171,6 @@ function PositionListItem({
   const { priceLower, priceUpper } = getPriceOrderingFromPositionForUI(position)
 
   const removed = liquidity?.eq(0)
-  const theme = useTheme()
 
   const { trackingHandler } = useTracking()
 
@@ -250,7 +248,7 @@ function PositionListItem({
                 <span className="text-subText">
                   <Trans>My Farm APR</Trans>
                 </span>
-                <span style={{ color: theme.apr }}>
+                <span className="text-apr">
                   {farmAPR || farmV2APR ? (farmAPR || farmV2APR).toFixed(2) + '%' : '--'}
                 </span>
               </div>
@@ -273,7 +271,8 @@ function PositionListItem({
       <div className="mt-auto flex flex-col">
         {stakedLayout ? (
           <ButtonPrimary
-            style={{ marginBottom: '20px', textDecoration: 'none', color: theme.textReverse, fontSize: '14px' }}
+            className="!text-textReverse"
+            style={{ marginBottom: '20px', textDecoration: 'none', fontSize: '14px' }}
             padding="8px"
             as={StyledInternalLink}
             to={`${APP_PATHS.FARMS}/${networkInfo.route}?${new URLSearchParams({

@@ -1,7 +1,6 @@
 import { Label, RadioGroup, RadioGroupItem } from '@kyber/ui'
 import { Trans } from '@lingui/macro'
 
-import useTheme from 'hooks/useTheme'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import MetricSelect from 'pages/Earns/components/SmartExit/Metrics/MetricSelect'
 import { CustomBox } from 'pages/Earns/components/SmartExit/styles'
@@ -28,7 +27,6 @@ export default function Metrics({
   isLoading = false,
   revertPrice = false,
 }: MetricsProps) {
-  const theme = useTheme()
   const [metric1, metric2] = selectedMetrics
 
   const onChangeMetric1 = (value: SelectedMetric) =>
@@ -124,9 +122,9 @@ export default function Metrics({
       ) : (
         <div className="mt-4">
           <ButtonText
+            className="text-primary"
             style={{
               width: 'fit-content',
-              color: theme.primary,
             }}
             onClick={onAddMetric2}
           >

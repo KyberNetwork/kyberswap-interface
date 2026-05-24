@@ -1,7 +1,6 @@
 import { X as Xsvg } from 'react-feather'
 
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -53,8 +52,6 @@ export const ClaimInfoRow = ({
   tokenSymbol: string
   tokenUsdValue: number
 }) => {
-  const theme = useTheme()
-
   return (
     <div className="flex items-center gap-1.5">
       <div className="flex items-end">
@@ -67,7 +64,7 @@ export const ClaimInfoRow = ({
         })}
       </span>
       <span>{tokenSymbol}</span>
-      <span className="max-w-[85px]" style={{ ...LIMIT_TEXT_STYLES, color: theme.subText }}>
+      <span className="max-w-[85px] text-subText" style={LIMIT_TEXT_STYLES}>
         {formatDisplayNumber(tokenUsdValue, {
           style: 'currency',
           significantDigits: 4,

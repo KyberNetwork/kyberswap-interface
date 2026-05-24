@@ -8,7 +8,6 @@ import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import { NativeCurrencies } from 'constants/tokens'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
-import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 import { formatAmountOrder, formatRateLimitOrder } from '../helpers'
@@ -100,7 +99,6 @@ const MarketInfo = ({
   symbolIn: string | undefined
   symbolOut: string | undefined
 }) => {
-  const theme = useTheme()
   return (
     <div className="flex flex-col">
       <Row>
@@ -111,7 +109,7 @@ const MarketInfo = ({
           <TradePrice
             price={marketPrice}
             loading={false}
-            style={{ color: theme.text }}
+            className="!text-text"
             symbolIn={symbolIn}
             symbolOut={symbolOut}
           />

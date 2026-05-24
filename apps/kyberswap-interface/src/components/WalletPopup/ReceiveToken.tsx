@@ -107,7 +107,7 @@ export default function ReceiveToken() {
                 style={{ color: theme.subText, cursor: 'pointer' }}
                 disabled
                 value={shortenAddress(chainId, account, 17, false)}
-                icon={<CopyHelper ref={copyButtonRef} toCopy={account} style={{ color: theme.subText }} />}
+                icon={<CopyHelper ref={copyButtonRef} toCopy={account} className="text-subText" />}
               />
             </div>
           </MouseoverTooltip>
