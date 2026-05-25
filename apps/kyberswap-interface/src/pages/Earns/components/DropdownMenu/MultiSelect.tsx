@@ -10,6 +10,8 @@ import {
   DropdownWrapper,
   ItemIcon,
   MultiSelectDropdownContentItem,
+  MultiSelectItemActions,
+  OnlyButton,
 } from 'pages/Earns/components/DropdownMenu/styles'
 
 const AllOptionValue = ''
@@ -96,7 +98,19 @@ const MultiSelect = ({
             <MultiSelectDropdownContentItem key={option.value} onClick={() => handleSelectItem(option.value)}>
               {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
               {option.label}
-              {parsedValue.includes(option.value) && <Check size={14} />}
+              <MultiSelectItemActions>
+                {option.value !== AllOptionValue && (
+                  <OnlyButton
+                    onClick={e => {
+                      e.stopPropagation()
+                      onChange(option.value)
+                    }}
+                  >
+                    Only
+                  </OnlyButton>
+                )}
+                <Check size={14} style={{ visibility: parsedValue.includes(option.value) ? 'visible' : 'hidden' }} />
+              </MultiSelectItemActions>
             </MultiSelectDropdownContentItem>
           ))}
         </DropdownContent>

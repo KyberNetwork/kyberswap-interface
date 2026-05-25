@@ -164,6 +164,32 @@ export const DropdownContentItem = styled.div`
   }
 `
 
+export const MultiSelectItemActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+`
+
+export const OnlyButton = styled.span`
+  visibility: hidden;
+  font-size: 12px;
+  color: ${({ theme }) => theme.primary};
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: ${({ theme }) => rgba(theme.primary, 0.2)};
+  white-space: nowrap;
+
+  &:hover {
+    background: ${({ theme }) => rgba(theme.primary, 0.35)};
+  }
+`
+
 export const MultiSelectDropdownContentItem = styled(DropdownContentItem)`
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-self: stretch;
+
+  &:hover ${OnlyButton} {
+    visibility: visible;
+  }
 `
