@@ -6,17 +6,22 @@ import { ReactComponent as RewardIcon } from 'assets/svg/earn/ic_bag.svg'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { getParsedRewardAmount } from 'pages/Earns/PoolDetail/components/utils'
 import { Badge } from 'pages/Earns/PoolExplorer/styles'
 import { EarnPool } from 'pages/Earns/types'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
+
+const BLOCKS_PER_CYCLE = 2016
+const WEEK_SECONDS = 7 * 24 * 60 * 60
 
 type Props = {
   pool: EarnPool
   showEstimate?: boolean
 }
 
-const RewardTooltipContent = ({ egRewards, bonusRewards }: { egRewards: number; bonusRewards: number }) => {
+const RewardTooltipContent = ({ bonusRewards, egRewards }: { bonusRewards: number; egRewards: number }) => {
   return (
     <Stack className="gap-0.5">
       {egRewards > 0 && (
@@ -37,9 +42,36 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
   const egRewards = pool.egUsd || 0
   const bonusRewards = pool.merklOpportunity?.dailyRewards ?? 0
   const totalRewards = egRewards + bonusRewards
-  const hasRewards = totalRewards > 0
+  const depositAmount = 1_000
 
-  const depositAmount = 1000
+  const kemRewardTokens = useMemo(() => {
+    const cycleDuration = (pool.kemReward?.endTime || 0) - (pool.kemReward?.startTime || 0)
+    const depositShare = pool.tvl > 0 ? depositAmount / (pool.tvl + depositAmount) : 0
+
+    return (pool.kemReward?.rewardCfg || [])
+      .map(reward => {
+        const decimals = reward.tokenInfo?.decimals
+        const amountPerBlock = decimals !== undefined ? getParsedRewardAmount(reward.amountReward, decimals) : 0
+        const totalAmount = amountPerBlock * BLOCKS_PER_CYCLE
+        const weeklyTotalAmount = cycleDuration > 0 ? totalAmount * (WEEK_SECONDS / cycleDuration) : 0
+
+        return {
+          address: reward.tokenInfo?.address || reward.tokenAddress,
+          estWeeklyAmount: weeklyTotalAmount * depositShare,
+          logoURI: reward.tokenInfo?.logoURL,
+          symbol: reward.tokenInfo?.symbol,
+          totalAmount,
+          weeklyTotalAmount,
+        }
+      })
+      .filter(token => token.totalAmount > 0)
+  }, [depositAmount, pool.kemReward?.endTime, pool.kemReward?.rewardCfg, pool.kemReward?.startTime, pool.tvl])
+
+  const kemRewardTokenAddresses = useMemo(() => kemRewardTokens.map(token => token.address), [kemRewardTokens])
+  const kemRewardTokenPrices = useTokenPrices(kemRewardTokenAddresses, pool.chainId)
+
+  const hasRewards = totalRewards > 0 || kemRewardTokens.length > 0
+
   const merklTvl = pool.merklOpportunity?.tvl || 0
   const weeklyRewards = bonusRewards * 7
   const weeklyRewardsEst = (depositAmount / (merklTvl + depositAmount)) * weeklyRewards
@@ -66,7 +98,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
         <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>
       )}
 
-      {rewardTokens.length > 0 && showEstimate && weeklyRewards > 0 && (
+      {(rewardTokens.length > 0 || kemRewardTokens.length > 0) && (
         <HStack className="items-center justify-end gap-1">
           {rewardTokens.length > 0 && (
             <MouseoverTooltipDesktopOnly
@@ -93,6 +125,33 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
             </MouseoverTooltipDesktopOnly>
           )}
 
+          {kemRewardTokens.length > 0 && (
+            <MouseoverTooltipDesktopOnly
+              text={
+                <Stack className="gap-1">
+                  {kemRewardTokens.map(token => (
+                    <Stack className="gap-0.5" key={token.address}>
+                      <HStack className="items-center gap-1">
+                        {token.logoURI ? <TokenLogo src={token.logoURI} size={16} /> : null}
+                        <span>
+                          {formatDisplayNumber(token.totalAmount, { significantDigits: 6 })} {token.symbol}
+                        </span>
+                      </HStack>
+                    </Stack>
+                  ))}
+                </Stack>
+              }
+              width="fit-content"
+              placement="bottom"
+            >
+              <HStack className="flex-wrap items-center justify-end gap-1">
+                {kemRewardTokens.map(token => (
+                  <TokenLogo key={token.address} src={token.logoURI} size={16} />
+                ))}
+              </HStack>
+            </MouseoverTooltipDesktopOnly>
+          )}
+
           {showEstimate && weeklyRewards > 0 && (
             <MouseoverTooltipDesktopOnly
               text={
@@ -114,6 +173,35 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
               </Badge>
             </MouseoverTooltipDesktopOnly>
           )}
+
+          {showEstimate &&
+            kemRewardTokens.map(token => {
+              const tokenPrice = kemRewardTokenPrices[token.address] || 0
+              const weeklyTotalUsd = token.weeklyTotalAmount * tokenPrice
+
+              return (
+                <MouseoverTooltipDesktopOnly
+                  key={token.address}
+                  text={
+                    <p>
+                      <span className="font-medium text-blue3">
+                        {formatDisplayNumber(token.estWeeklyAmount, { significantDigits: 6 })} {token.symbol}/week
+                      </span>{' '}
+                      {`when adding $${depositAmount} liquidity (est)`}
+                    </p>
+                  }
+                  width="fit-content"
+                  placement="bottom"
+                >
+                  <Badge className="px-1.5 py-1">
+                    <RewardIcon width={16} height={16} />
+                    <span className="whitespace-nowrap">
+                      {formatDisplayNumber(weeklyTotalUsd, { style: 'currency', significantDigits: 4 })}/week
+                    </span>
+                  </Badge>
+                </MouseoverTooltipDesktopOnly>
+              )
+            })}
         </HStack>
       )}
     </Stack>

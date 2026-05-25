@@ -226,7 +226,7 @@ export default function Menu() {
             className="relative max-h-[calc(100vh-150px)] overflow-y-scroll"
           >
             {isMobile && (
-              <ButtonEmpty onClick={toggle} className="absolute -right-4 -top-4 w-fit">
+              <ButtonEmpty onClick={toggle} className="absolute right-0 top-0 w-fit p-0">
                 <X className="text-subText" />
               </ButtonEmpty>
             )}

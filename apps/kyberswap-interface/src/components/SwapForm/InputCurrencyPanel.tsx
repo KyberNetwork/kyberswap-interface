@@ -66,6 +66,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       showCommonBases={true}
       estimatedUsd={trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined}
       customChainId={customChainId}
+      trackingSource="swap"
     />
   )
 }

@@ -1,5 +1,4 @@
 import { ZapRouteDetail } from '@kyber/schema'
-import { MouseoverTooltip } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/number'
 import { Trans } from '@lingui/macro'
 import { skipToken } from '@reduxjs/toolkit/query'
@@ -7,7 +6,9 @@ import { useEstimatePositionAprQuery } from 'services/zapEarn'
 
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import { MouseoverTooltip } from 'components/Tooltip'
 import useDebounce from 'hooks/useDebounce'
+import { ExternalLink } from 'theme/components'
 
 const TooltipContent = ({ children }: { children: React.ReactNode }) => (
   <Stack className="gap-1 text-xs [&_a:hover]:text-primary [&_a]:border-b [&_a]:border-dotted [&_a]:border-subText [&_a]:no-underline">
@@ -96,13 +97,9 @@ const EstimatedPositionApr = ({
       <div>
         <i>
           <Trans>
-            <a
-              href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-fairflow/position-apr-estimation"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-fairflow/position-apr-estimation">
               See more details
-            </a>{' '}
+            </ExternalLink>{' '}
             on how this estimate is calculated.
           </Trans>
         </i>

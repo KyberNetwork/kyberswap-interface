@@ -4,7 +4,7 @@ import { TokenLogo } from '@kyber/ui'
 import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useCheckPairQuery } from 'services/marketOverview'
 import { useLazyPoolDetailQuery, useSupportedProtocolsQuery } from 'services/zapEarn'
 
@@ -14,8 +14,10 @@ import FeeTierControl from 'components/FeeTierControl'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import { Exchange } from 'pages/Earns/constants'
 import { fetchExistingPoolAddress } from 'pages/Earns/utils/zap'
@@ -83,6 +85,20 @@ interface Props {
 const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) => {
   const { account, chainId: activeChainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const { trackingHandler } = useTracking()
+
+  const handleTokenSelectorTrackEvent = useCallback(
+    (eventName: string, data?: Record<string, unknown>) => {
+      if (eventName !== 'TOKEN_SEARCHED') return
+      const { chain_id, ...rest } = (data ?? {}) as { chain_id?: number } & Record<string, unknown>
+      trackingHandler(TRACKING_EVENT_TYPE.TOKEN_SEARCHED, {
+        source: 'earn_create_pool',
+        ...rest,
+        chain: typeof chain_id === 'number' ? NETWORKS_INFO[chain_id as keyof typeof NETWORKS_INFO]?.name : undefined,
+      })
+    },
+    [trackingHandler],
+  )
 
   const { supportedChains } = useChainsConfig()
   const { data: supportedProtocols } = useSupportedProtocolsQuery()
@@ -358,6 +374,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
             positionOptions={{
               poolAddress: '',
             }}
+            onTrackEvent={handleTokenSelectorTrackEvent}
           />
         </Portal>
       )}

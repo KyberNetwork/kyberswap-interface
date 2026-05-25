@@ -248,6 +248,7 @@ const AddLiquidityTokenInput = ({
               initialSlippage: currentSlippage,
               onSelectLiquiditySource: onOpenZapMigration ? handleOpenZapMigration : undefined,
             }}
+            onTrackEvent={onTrackEvent}
           />,
           document.body,
         )}

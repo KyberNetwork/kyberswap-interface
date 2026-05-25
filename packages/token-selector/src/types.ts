@@ -227,6 +227,8 @@ export interface TokenSelectorModalProps {
   tokenOptions?: TokenOptions;
   /** Position/liquidity source options */
   positionOptions?: PositionOptions;
+  /** Optional analytics callback (e.g. for TOKEN_SEARCHED events) */
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void;
 }
 
 // Internal token with additional UI state

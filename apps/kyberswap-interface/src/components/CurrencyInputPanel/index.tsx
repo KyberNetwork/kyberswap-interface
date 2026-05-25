@@ -195,6 +195,7 @@ interface CurrencyInputPanelProps {
   styleSelect?: CSSProperties
   selectClassName?: string
   customChainId?: ChainId
+  trackingSource?: string
 }
 
 export default function CurrencyInputPanel({
@@ -236,6 +237,7 @@ export default function CurrencyInputPanel({
   styleSelect = {},
   selectClassName,
   customChainId,
+  trackingSource,
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
@@ -374,6 +376,7 @@ export default function CurrencyInputPanel({
             showCommonBases={showCommonBases}
             filterWrap={filterWrap}
             customChainId={customChainId}
+            trackingSource={trackingSource}
           />
         )}
       </InputPanel>

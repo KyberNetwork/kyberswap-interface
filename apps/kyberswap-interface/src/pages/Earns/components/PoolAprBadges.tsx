@@ -14,8 +14,11 @@ type Props = {
 }
 
 const PoolAprBadges = ({ pool }: Props) => {
-  const showEgReward = pool.programs?.includes(ProgramType.EG) && pool.kemEGApr > 0
-  const showLmReward = pool.programs?.includes(ProgramType.LM) && pool.kemLMApr > 0
+  const hasActiveApr = !!pool.activeApr
+  const egApr = hasActiveApr ? pool.activeEgApr || 0 : pool.kemEGApr
+  const lmApr = hasActiveApr ? pool.activeLmApr || 0 : pool.kemLMApr
+  const showEgReward = pool.programs?.includes(ProgramType.EG) && egApr > 0
+  const showLmReward = pool.programs?.includes(ProgramType.LM) && lmApr > 0
   const merklOpportunity = pool.merklOpportunity
 
   if (!showEgReward && !showLmReward && !merklOpportunity) return null
@@ -28,11 +31,11 @@ const PoolAprBadges = ({ pool }: Props) => {
         <MouseoverTooltipDesktopOnly
           placement="bottom"
           width="fit-content"
-          text={`${t`FairFlow EG Rewards`}: ${formatAprNumber(pool.kemEGApr)}%`}
+          text={`${t`FairFlow EG Rewards`}: ${formatAprNumber(egApr)}%`}
         >
           <Badge>
             <UniBonusIcon width={16} height={16} />
-            <span>+{formatAprNumber(pool.kemEGApr)}%</span>
+            <span>+{formatAprNumber(egApr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
@@ -40,11 +43,11 @@ const PoolAprBadges = ({ pool }: Props) => {
         <MouseoverTooltipDesktopOnly
           placement="bottom"
           width="fit-content"
-          text={`${t`LM Reward`}: ${formatAprNumber(pool.kemLMApr)}%`}
+          text={`${t`LM Reward`}: ${formatAprNumber(lmApr)}%`}
         >
           <Badge>
             <KyberBonusIcon width={16} height={16} />
-            <span>+{formatAprNumber(pool.kemLMApr)}%</span>
+            <span>+{formatAprNumber(lmApr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
