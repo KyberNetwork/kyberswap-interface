@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
 import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import {
   getFeeYieldCondition,
@@ -10,7 +9,6 @@ import {
   getTimeCondition,
 } from 'pages/Earns/components/SmartExit/utils/typeGuards'
 import { ConditionType, Metric, ParsedPosition, PriceCondition, SelectedMetric } from 'pages/Earns/types'
-import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export default function Condition({
@@ -24,8 +22,6 @@ export default function Condition({
   conditionType: ConditionType
   revertPrice?: boolean
 }) {
-  const theme = useTheme()
-
   const [metric1, metric2] = selectedMetrics
 
   const feeYieldCondition1 = getFeeYieldCondition(metric1)
@@ -58,10 +54,7 @@ export default function Condition({
     <>
       <div className="mt-4 flex flex-wrap items-center">
         <Trans>Remove</Trans>
-        <div
-          className="mx-2 flex items-center gap-1 rounded-2xl px-3 py-2"
-          style={{ background: hexAlpha(theme.white, 0.04) }}
-        >
+        <div className="mx-2 flex items-center gap-1 rounded-2xl bg-white-04 px-3 py-2">
           <ImageContainer>
             <TokenLogo src={position?.token0.logo} />
             <TokenLogo src={position?.token1.logo} translateLeft />

@@ -11,7 +11,6 @@ import { CustomSelect } from 'pages/Earns/components/SmartExit/styles'
 import { defaultTimeCondition } from 'pages/Earns/components/SmartExit/utils'
 import { getTimeCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
 import { SelectedMetric } from 'pages/Earns/types'
-import { hexAlpha } from 'utils/colorAlpha'
 
 export default function TimeInput({
   metric,
@@ -67,12 +66,11 @@ export default function TimeInput({
       </span>
       <HighlightWrapper isHighlighted={isHighlighted}>
         <div
-          className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2"
-          style={{ background: hexAlpha(theme.text, 0.04) }}
+          className="flex cursor-pointer items-center justify-between rounded-xl bg-text-04 px-3 py-2"
           role="button"
           onClick={() => setOpenDatePicker(true)}
         >
-          <span style={{ color: timeCondition.time === null ? theme.border : theme.text }}>
+          <span className={timeCondition.time === null ? 'text-border' : 'text-text'}>
             {timeCondition.time === null ? t`Pickup time` : dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}
           </span>
           <Calendar className="text-primary" size={20} />

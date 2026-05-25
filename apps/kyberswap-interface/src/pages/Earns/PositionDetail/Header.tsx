@@ -13,7 +13,6 @@ import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { TELEGRAM_BOT_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { DexInfoBadge, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
@@ -25,7 +24,6 @@ import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
-import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const TokenAddressRow = ({
@@ -53,7 +51,6 @@ const TokenAddressRow = ({
 
 const PositionDetailHeader = () => {
   const { position, loadingInterval: isLoading, initialLoading, hasActiveSmartExitOrder } = usePositionDetailContext()
-  const theme = useTheme()
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -183,7 +180,7 @@ const PositionDetailHeader = () => {
               onClick={onOpenPositionInDexSite}
             >
               <TokenLogo src={position?.dex.logo} size={16} />
-              <span className="whitespace-nowrap text-sm" style={{ color: hexAlpha(theme.white, 0.7) }}>
+              <span className="whitespace-nowrap text-sm text-white/70">
                 {position?.dex.name} | {formatDisplayNumber(position?.pool.fee, { significantDigits: 4 })}%
                 {!isUniv2 && ` | #${position?.tokenId}`}
               </span>
@@ -212,8 +209,7 @@ const PositionDetailHeader = () => {
             placement="bottom"
           >
             <div
-              className="flex size-8 cursor-pointer items-center justify-center rounded-[30px]"
-              style={{ backgroundColor: hexAlpha(theme.white, 0.04) }}
+              className="flex size-8 cursor-pointer items-center justify-center rounded-[30px] bg-white-04"
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation()
                 e.preventDefault()

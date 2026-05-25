@@ -11,7 +11,6 @@ import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
@@ -33,7 +32,6 @@ import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { EarnPool, ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { cn } from 'utils/cn'
-import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
 function TruncatedBadge({
@@ -42,14 +40,12 @@ function TruncatedBadge({
   fee,
   tokenId,
   isUniv2,
-  theme,
 }: {
   dexName: string
   dexLogo: string
   fee: number
   tokenId: string | number
   isUniv2: boolean
-  theme: ReturnType<typeof useTheme>
 }) {
   const textRef = useRef<HTMLDivElement>(null)
   const [isTruncated, setIsTruncated] = useState(false)
@@ -65,12 +61,7 @@ function TruncatedBadge({
 
   return (
     <MouseoverTooltipDesktopOnly text={label} width="fit-content" placement="bottom" disableTooltip={!isTruncated}>
-      <Badge
-        className="max-w-[300px]"
-        style={{
-          backgroundColor: hexAlpha(theme.white, 0.08),
-        }}
-      >
+      <Badge className="max-w-[300px] bg-white-08">
         <div className="flex items-center gap-1 overflow-hidden">
           <TokenLogo src={dexLogo} size={12} />
           <span ref={textRef} className="truncate text-[12px] text-subText">
@@ -119,7 +110,6 @@ export default function PositionRowItem({
   onMigrateToKem,
   onOpenSmartExit,
 }: PositionRowItemProps) {
-  const theme = useTheme()
   const navigate = useNavigate()
 
   const {
@@ -255,7 +245,6 @@ export default function PositionRowItem({
             fee={pool.fee}
             tokenId={tokenId}
             isUniv2={pool.isUniv2}
-            theme={theme}
           />
         </div>
       </PositionOverview>

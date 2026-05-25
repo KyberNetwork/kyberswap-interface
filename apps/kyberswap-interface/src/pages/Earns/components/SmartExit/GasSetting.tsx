@@ -4,12 +4,11 @@ import { ChevronDown } from 'react-feather'
 
 import Input from 'components/NumericalInput'
 import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
-import useTheme from 'hooks/useTheme'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { GAS_MULTIPLIER_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomOption } from 'pages/Earns/components/SmartExit/styles'
 import { SmartExitFee } from 'pages/Earns/types'
-import { hexAlpha } from 'utils/colorAlpha'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 interface GasSettingProps {
@@ -29,7 +28,6 @@ export default function GasSetting({
   setCustomGasPercent,
   isLoading = false,
 }: GasSettingProps) {
-  const theme = useTheme()
   const [feeSettingExpanded, setFeeSettingExpanded] = useState(false)
 
   const isWarningGas = feeInfo && customGasPercent && parseFloat(customGasPercent) < (feeInfo.gas.percentage || 0)
@@ -58,13 +56,13 @@ export default function GasSetting({
           <span>--</span>
         ) : (
           <div className="flex cursor-default items-center" onClick={() => setFeeSettingExpanded(e => !e)}>
-            <span style={{ color: isWarningGas ? hexAlpha(theme.warning, 0.9) : theme.text }}>
+            <span className={isWarningGas ? 'text-warning/90' : 'text-text'}>
               {customGasPercent
                 ? customGasPercent
                 : formatDisplayNumber(feeInfo.gas.percentage * multiplier, { significantDigits: 2 })}
               %
             </span>
-            <span className="ml-1.5" style={{ color: isWarningGas ? hexAlpha(theme.warning, 0.9) : theme.text }}>
+            <span className={cn('ml-1.5', isWarningGas ? 'text-warning/90' : 'text-text')}>
               (~
               {formatDisplayNumber(
                 feeInfo.gas.usd *
@@ -110,8 +108,7 @@ export default function GasSetting({
 
           <CustomOption
             key="custom"
-            className="flex flex-1 items-center gap-1"
-            style={{ color: customGasPercent ? theme.primary : undefined }}
+            className={cn('flex flex-1 items-center gap-1', customGasPercent && 'text-primary')}
           >
             <Input
               value={customGasPercent}
@@ -132,16 +129,13 @@ export default function GasSetting({
               {formatDisplayNumber(feeInfo.gas.usd, { significantDigits: 2, style: 'currency' })})
             </span>
           </div>
-          <span className="text-xs" style={{ color: isWarningGas ? hexAlpha(theme.warning, 0.9) : theme.subText }}>
+          <span className={cn('text-xs', isWarningGas ? 'text-warning/90' : 'text-subText')}>
             <Trans>
               The buffer amount is recommended. The order will <span className="font-semibold">not execute</span> if the
               actual cost exceeds this.
             </Trans>
           </span>
-          <span
-            className="text-xs font-semibold"
-            style={{ color: isWarningGas ? hexAlpha(theme.warning, 0.9) : theme.subText }}
-          >
+          <span className={cn('text-xs font-semibold', isWarningGas ? 'text-warning/90' : 'text-subText')}>
             <Trans>The actual gas cost will be deducted from your outputs when the order executes.</Trans>
           </span>
         </div>
