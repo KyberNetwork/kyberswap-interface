@@ -13,15 +13,15 @@ import { ExternalLink } from 'theme/components'
 
 const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total' | 'active' }) => {
   const theme = useTheme()
-  const isActive = type === 'active'
-  const lpApr = isActive ? pool.activeFeeApr : pool.lpApr
-  const egApr = isActive ? pool.activeEgApr : pool.kemEGApr
-  const lmApr = isActive ? pool.activeLmApr : pool.kemLMApr
+  const hasActiveApr = type === 'active'
+  const lpApr = hasActiveApr ? pool.activeFeeApr : pool.lpApr
+  const egApr = hasActiveApr ? pool.activeEgApr : pool.kemEGApr
+  const lmApr = hasActiveApr ? pool.activeLmApr : pool.kemLMApr
   const bonusApr = pool.bonusApr
 
   return (
     <Stack gap={2}>
-      {isActive ? (
+      {hasActiveApr ? (
         <Text>
           <Trans>
             Earning per{' '}
