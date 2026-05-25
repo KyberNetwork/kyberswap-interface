@@ -60,7 +60,7 @@
   }
   .ks-checkbox-border:disabled {
     cursor: not-allowed;
-    border-color: rgba(169, 169, 169, 0.25);
+    border-color: rgb(var(--ks-subText-rgb) / 0.25);
   }
 
   /* <Popover> container — invisible hover-bridge after-pseudo so the popover stays

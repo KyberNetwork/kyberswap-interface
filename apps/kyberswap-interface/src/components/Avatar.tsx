@@ -2,6 +2,7 @@ import { CSSProperties } from 'react'
 
 import Profile from 'components/Icons/Profile'
 import Loader from 'components/Loader'
+import { cn } from 'utils/cn'
 
 export default function Avatar({
   url,
@@ -26,7 +27,7 @@ export default function Avatar({
         <img
           src={url}
           onClick={onClick}
-          className="rounded-full object-cover"
+          className={cn('rounded-full object-cover', className)}
           style={{ width: size, height: size, ...style }}
         />
       ) : (

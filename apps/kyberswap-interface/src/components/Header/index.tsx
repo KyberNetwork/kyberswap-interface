@@ -25,14 +25,14 @@ const IconImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: stri
     src={src}
     alt={alt}
     className={cn(
-      'w-[140px] max-w-none max-sm:w-[114px] max-[500px]:w-[100px]',
+      'w-[140px] max-w-none max-sm:w-[114px] max-xs:w-[100px]',
       isChristmas ? 'mt-[-9px] max-sm:-mt-0.5' : 'mt-px',
     )}
   />
 )
 
 const LogoIcon = ({ children }: { children: React.ReactNode }) => (
-  <div className="transition-transform duration-300 hover:rotate-[-5deg] max-[500px]:hover:rotate-0">{children}</div>
+  <div className="transition-transform duration-300 hover:rotate-[-5deg] max-xs:hover:rotate-0">{children}</div>
 )
 
 export default function Header() {
@@ -63,12 +63,12 @@ export default function Header() {
         'relative top-0 grid w-full items-center justify-between border-b border-black/10',
         'grid-cols-[1fr_120px] flex-row p-4',
         'max-lg:grid-cols-[1fr]',
-        'max-[500px]:px-4 max-[500px]:py-2',
+        'max-xs:px-4 max-xs:py-2',
         hide && '!h-0 !overflow-hidden !p-0',
-        hide ? 'max-[500px]:!h-0' : 'max-[500px]:h-[60px]',
+        hide ? 'max-xs:!h-0' : 'max-xs:h-[60px]',
       )}
     >
-      <div className="flex flex-row flex-nowrap items-center max-md:w-full md:max-md:w-full">
+      <div className="flex flex-row flex-nowrap items-center max-md:w-full">
         {isPartnerSwap ? (
           <LogoIcon>
             <IconImage src={'/logo-dark.svg'} alt="logo" />

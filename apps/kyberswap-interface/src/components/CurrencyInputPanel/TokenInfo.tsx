@@ -114,7 +114,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
       </div>
       <div className="flex items-center gap-1">
         <span>{t`Buy`}:</span>
-        <span style={{ color: priceInfo?.buyPrice ? theme.primary : theme.warning }}>
+        <span className={priceInfo?.buyPrice ? 'text-primary' : 'text-warning'}>
           {priceInfo?.buyPrice
             ? formatDisplayNumber(priceInfo?.buyPrice, { significantDigits: 8, style: 'currency' })
             : t`N/A`}
@@ -122,7 +122,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
       </div>
       <div className="flex items-center gap-1">
         <span>{t`Sell`}:</span>
-        <span style={{ color: priceInfo?.sellPrice ? theme.blue : theme.warning }}>
+        <span className={priceInfo?.sellPrice ? 'text-blue' : 'text-warning'}>
           {priceInfo?.sellPrice
             ? formatDisplayNumber(priceInfo?.sellPrice, { significantDigits: 8, style: 'currency' })
             : t`N/A`}
@@ -131,7 +131,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
       {spreadCheck.display ? (
         <div className="flex items-center gap-1">
           <span>{t`Spread`}:</span>
-          <span style={{ color: spreadCheck.warning ? theme.warning : theme.text }}>
+          <span className={spreadCheck.warning ? 'text-warning' : 'text-text'}>
             {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : t`N/A`}
           </span>
         </div>

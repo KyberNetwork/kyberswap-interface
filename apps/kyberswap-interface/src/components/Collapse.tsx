@@ -25,8 +25,10 @@ export const CollapseItem: React.FC<Props> = ({
   arrowComponent,
   children,
   expandedOnMount = false,
-  style = {},
+  style,
+  activeStyle,
   className,
+  onExpand,
   headerStyle,
   headerBorderRadius,
   arrowStyle,
@@ -37,7 +39,10 @@ export const CollapseItem: React.FC<Props> = ({
   const [isExpanded, setExpanded] = useState(expandedOnMount)
 
   return (
-    <div style={style} className={cn('relative w-full bg-background px-6 py-4', className)}>
+    <div
+      style={{ ...style, ...(isExpanded ? activeStyle : null) }}
+      className={cn('relative w-full bg-background px-6 py-4', className)}
+    >
       <div
         className="flex w-full cursor-pointer select-none items-center justify-between"
         style={{
@@ -48,6 +53,7 @@ export const CollapseItem: React.FC<Props> = ({
         }}
         onClick={() => {
           setExpanded(e => !e)
+          onExpand?.()
         }}
       >
         {header}
@@ -64,12 +70,8 @@ export const CollapseItem: React.FC<Props> = ({
       </div>
       <div
         data-expanded={isExpanded}
-        className={cn(
-          'w-full overflow-hidden',
-          animation && '[transition:max-height_500ms_ease]',
-          'data-[expanded=false]:max-h-0',
-        )}
-        style={animation ? { maxHeight } : undefined}
+        className={cn('w-full overflow-hidden', animation && '[transition:max-height_500ms_ease]')}
+        style={animation ? { maxHeight: isExpanded ? maxHeight : 0 } : undefined}
       >
         {children}
       </div>

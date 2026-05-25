@@ -64,7 +64,7 @@ const HorizontalScroll = ({
       className="ks-horizontal-scroll relative flex h-fit w-full max-w-[calc(100vw-32px)] items-center justify-end max-sm:justify-start"
     >
       <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
-        <div ref={contentRef} style={style} className="flex flex-1 items-center gap-8">
+        <div ref={contentRef} style={style} className="flex flex-1 items-center gap-1">
           {(items ?? []).map(i => (
             <Fragment key={i}>{renderItem(i)}</Fragment>
           ))}

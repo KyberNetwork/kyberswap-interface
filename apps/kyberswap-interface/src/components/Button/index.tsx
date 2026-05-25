@@ -308,7 +308,7 @@ export const ButtonOutlined = forwardRef<HTMLElement, ButtonProps>(
         className={cn(
           BASE_CLASS,
           'disabled:!cursor-auto disabled:!text-border disabled:!shadow-none',
-          altDisabledStyle && 'disabled:!text-white',
+          altDisabledStyle && 'disabled:!text-white disabled:![border-color:white]',
           $disabled && '!cursor-auto !text-border !shadow-none',
           className,
         )}

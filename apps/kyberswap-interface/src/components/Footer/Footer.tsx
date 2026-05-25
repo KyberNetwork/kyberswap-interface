@@ -34,12 +34,7 @@ function Footer() {
 
   return (
     <div className="w-full bg-buttonGray/20 max-lg:mb-16">
-      <div
-        className={
-          'm-auto flex w-full flex-col-reverse items-center justify-between p-4 ' +
-          'sm:flex-row [@media(min-width:1000px)]:px-8 [@media(min-width:1366px)]:px-[215px] [@media(min-width:1500px)]:px-[252px]'
-        }
-      >
+      <div className="m-auto flex w-full flex-col-reverse items-center justify-between p-4 sm:flex-row [@media(min-width:1000px)]:px-8 [@media(min-width:1366px)]:px-[215px] [@media(min-width:1500px)]:px-[252px]">
         <div className="flex gap-4 text-xs text-subText/20 max-sm:mt-4 max-sm:gap-6">
           <div className="flex items-center text-subText max-sm:flex-col max-sm:gap-3">
             <span className="mr-1.5">

@@ -18,7 +18,7 @@ const AboutNavGroup = () => {
 
   if (upToSmall) return null
   return (
-    <span className="hidden xxs:inline-flex">
+    <span className="hidden xs:inline-flex">
       <NavGroup
         dropdownAlign={upToSmall ? 'right' : 'left'}
         isActive={isActive}

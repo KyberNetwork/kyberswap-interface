@@ -34,7 +34,7 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
   const copyIcon = (
     <>
       <div
-        className={cn('ks-copy-icon absolute left-0 flex items-center', isCopied && 'copied', className)}
+        className={cn('ks-copy-icon absolute left-0 flex items-center', isCopied && 'copied')}
         style={color ? { color } : undefined}
       >
         <CopyIcon size={size || 14} />
@@ -54,7 +54,10 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
         e.stopPropagation()
       }}
       style={{ marginLeft: margin || '4px', ...style }}
-      className="relative flex shrink-0 cursor-pointer items-center overflow-hidden no-underline hover:opacity-80 focus:opacity-80 active:opacity-80"
+      className={cn(
+        'relative flex shrink-0 cursor-pointer items-center overflow-hidden no-underline hover:opacity-80 focus:opacity-80 active:opacity-80',
+        className,
+      )}
     >
       {text ? (
         <RowFit>

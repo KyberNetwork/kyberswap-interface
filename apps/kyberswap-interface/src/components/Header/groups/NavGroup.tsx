@@ -31,7 +31,7 @@ const NavGroup: React.FC<Props> = ({
     <div
       id={id}
       className={cn(
-        'group relative inline-block w-fit select-none text-base font-medium leading-[normal] hover:brightness-90',
+        'group relative inline-block w-fit select-none text-base font-medium leading-[normal]',
         isActive ? 'text-primary' : 'text-subText',
         className,
       )}
@@ -39,7 +39,7 @@ const NavGroup: React.FC<Props> = ({
       onClick={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex cursor-pointer items-center gap-0.5">
+      <div className="flex cursor-pointer items-center gap-0.5 hover:brightness-90">
         {anchor}
         {dropdownContent && (
           <DropdownSVG className={cn('transition-transform duration-300', showDropdown && '-rotate-180')} />

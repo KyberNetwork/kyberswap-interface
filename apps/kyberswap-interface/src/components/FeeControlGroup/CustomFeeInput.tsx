@@ -17,7 +17,7 @@ const getFeeText = (fee: number) => {
 }
 
 const customOptionClasses =
-  'inline-flex h-full flex-1 basis-[24%] items-center gap-0.5 rounded-[20px] border border-transparent bg-tabBackground px-1 py-0 text-center text-xs font-normal leading-4 text-subText outline-none transition-all duration-150 ease-linear hover:border-bg4 focus:border-bg4 data-[active=true]:font-medium data-[active=true]:text-text'
+  'inline-flex h-full flex-1 basis-[24%] items-center gap-0.5 rounded-[20px] border border-transparent bg-tabBackground px-1 py-0 text-center text-xs font-normal leading-4 text-subText outline-none transition-all duration-150 ease-linear hover:border-bg4 focus:border-bg4 data-[active=true]:border-primary data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text'
 
 export type Props = {
   fee: number

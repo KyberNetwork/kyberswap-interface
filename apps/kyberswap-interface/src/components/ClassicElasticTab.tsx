@@ -13,7 +13,6 @@ import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
-import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { isInEnum } from 'utils/string'
@@ -27,7 +26,6 @@ const TAB_LABEL_CLASS = 'text-lg font-medium leading-tight xs:text-xl sm:text-2x
 
 function ClassicElasticTab() {
   const navigate = useNavigate()
-  const theme = useTheme()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
@@ -91,24 +89,12 @@ function ClassicElasticTab() {
     setSearchParams(newQs)
   }
 
-  const getColorOfElasticTab = () => {
-    if (!!notSupportedElasticMsg) {
-      return theme.disableText
-    }
-
+  const getClassNameOfElasticTab = () => {
+    if (notSupportedElasticMsg) return 'text-disableText'
     if (!showLegacyExplicit) {
-      if ([VERSION.ELASTIC, VERSION.ELASTIC_LEGACY].includes(tab)) {
-        return theme.primary
-      }
-
-      return theme.subText
+      return [VERSION.ELASTIC, VERSION.ELASTIC_LEGACY].includes(tab) ? 'text-primary' : 'text-subText'
     }
-
-    if (tab === VERSION.ELASTIC) {
-      return theme.primary
-    }
-
-    return theme.subText
+    return tab === VERSION.ELASTIC ? 'text-primary' : 'text-subText'
   }
 
   const getClassNameOfClassicTab = () => {
@@ -117,16 +103,13 @@ function ClassicElasticTab() {
     return 'text-subText'
   }
 
-  const getColorOfLegacyElasticTab = () => {
-    if (!!notSupportedElasticMsg) {
-      return theme.disableText
-    }
-
-    return tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText
+  const getClassNameOfLegacyElasticTab = () => {
+    if (notSupportedElasticMsg) return 'text-disableText'
+    return tab === VERSION.ELASTIC_LEGACY ? 'text-primary' : 'text-subText'
   }
 
-  const color = getColorOfElasticTab()
-  const legacyElasticColor = getColorOfLegacyElasticTab()
+  const elasticClass = getClassNameOfElasticTab()
+  const legacyElasticClass = getClassNameOfLegacyElasticTab()
 
   useEffect(() => {
     if (!!notSupportedClassicMsg && !!notSupportedElasticMsg) {
@@ -154,8 +137,10 @@ function ClassicElasticTab() {
             <div className="flex flex-col gap-4 p-2">
               <div
                 role="button"
-                className="flex cursor-pointer items-center gap-2 text-sm font-medium"
-                style={{ color: tab === VERSION.ELASTIC ? theme.primary : theme.subText }}
+                className={cn(
+                  'flex cursor-pointer items-center gap-2 text-sm font-medium',
+                  tab === VERSION.ELASTIC ? 'text-primary' : 'text-subText',
+                )}
                 onClick={() => handleSwitchTab(VERSION.ELASTIC)}
               >
                 <PoolElasticIcon size={16} />
@@ -164,8 +149,10 @@ function ClassicElasticTab() {
 
               <div
                 role="button"
-                className="flex cursor-pointer items-center gap-2 text-sm font-medium"
-                style={{ color: tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText }}
+                className={cn(
+                  'flex cursor-pointer items-center gap-2 text-sm font-medium',
+                  tab === VERSION.ELASTIC_LEGACY ? 'text-primary' : 'text-subText',
+                )}
                 onClick={() => handleSwitchTab(VERSION.ELASTIC_LEGACY)}
               >
                 <PoolElasticIcon size={16} />
@@ -184,21 +171,22 @@ function ClassicElasticTab() {
             } else handleSwitchTab(VERSION.ELASTIC)
           }}
         >
-          <PoolElasticIcon size={20} color={color} />
+          <PoolElasticIcon size={20} className={elasticClass} />
           <span
             role="button"
-            className={cn(TAB_LABEL_CLASS, 'ml-1 w-auto')}
-            style={{
-              color,
-              cursor: notSupportedElasticMsg ? 'not-allowed' : 'pointer',
-            }}
+            className={cn(
+              TAB_LABEL_CLASS,
+              'ml-1 w-auto',
+              elasticClass,
+              notSupportedElasticMsg ? 'cursor-not-allowed' : 'cursor-pointer',
+            )}
           >
             {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
           </span>
 
           {!showLegacyExplicit && tab === VERSION.ELASTIC_LEGACY && legacyTag()}
 
-          {!dontShowLegacy && !showLegacyExplicit && <DropdownSVG style={{ color }} />}
+          {!dontShowLegacy && !showLegacyExplicit && <DropdownSVG className={elasticClass} />}
         </div>
       </MouseoverTooltip>
       <span className={cn(TAB_LABEL_CLASS, 'mx-3 text-subText')}>|</span>
@@ -212,14 +200,15 @@ function ClassicElasticTab() {
                 handleSwitchTab(VERSION.ELASTIC_LEGACY)
               }}
             >
-              <PoolElasticIcon size={20} color={legacyElasticColor} />
+              <PoolElasticIcon size={20} className={legacyElasticClass} />
               <span
                 role="button"
-                className={cn(TAB_LABEL_CLASS, 'ml-1 w-auto')}
-                style={{
-                  color: legacyElasticColor,
-                  cursor: notSupportedElasticMsg ? 'not-allowed' : 'pointer',
-                }}
+                className={cn(
+                  TAB_LABEL_CLASS,
+                  'ml-1 w-auto',
+                  legacyElasticClass,
+                  notSupportedElasticMsg ? 'cursor-not-allowed' : 'cursor-pointer',
+                )}
               >
                 {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
               </span>

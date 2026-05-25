@@ -16,7 +16,7 @@ type Props = {
 }
 
 const ClaimThresholdControl: React.FC<Props> = ({ value, onChange, options = DEFAULT_CLAIM_THRESHOLD_OPTIONS }) => {
-  const [isCustom, setIsCustom] = React.useState(!options.includes(value as number))
+  const [isCustom, setIsCustom] = React.useState(value !== undefined && !options.includes(value))
   const [internalValue, setInternalValue] = React.useState(0)
 
   const isControlled = value !== undefined

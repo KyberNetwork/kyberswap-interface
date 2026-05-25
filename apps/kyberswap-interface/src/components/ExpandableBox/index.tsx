@@ -59,7 +59,7 @@ export default function ExpandableBox({
         padding,
         ...style,
       }}
-      className={cn('[&_*]:transition-all [&_*]:duration-300 [&_*]:ease-in-out', className)}
+      className={cn('[&>*]:transition-all [&>*]:duration-300 [&>*]:ease-in-out', className)}
     >
       <RowBetween
         onClick={handleChange}
