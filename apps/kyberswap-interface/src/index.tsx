@@ -39,7 +39,7 @@ import MulticallUpdater from './state/multicall/updater'
 import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
 import './tailwind.css'
-import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
+import ThemeProvider from './theme'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -91,7 +91,6 @@ const ReactApp = () => {
         writeKey={FORMO_WRITE_KEY}
         disabled={window.location.hostname.endsWith('.pr.kyberengineering.io')}
       >
-        <FixedGlobalStyle />
         <Provider store={store}>
           <BrowserRouter>
             <LanguageProvider>
@@ -100,7 +99,6 @@ const ReactApp = () => {
                   <NEARWalletProvider>
                     <Updaters />
                     <ThemeProvider>
-                      <ThemedGlobalStyle />
                       <SolanaProvider>
                         <App />
                       </SolanaProvider>

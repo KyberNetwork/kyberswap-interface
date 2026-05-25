@@ -27,7 +27,6 @@ import {
 import { MEDIA_WIDTHS } from 'theme'
 
 import TransactionItem from './TransactionItem'
-import './transactions.css'
 
 function RowItem({
   index,
@@ -139,9 +138,12 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   }, [chainId, listTab])
 
   const onRefChange = useCallback((node: HTMLDivElement) => {
-    if (!node?.classList.contains('scrollbar')) {
-      node?.classList.add('scrollbar')
+    if (!node) return
+    if (!node.classList.contains('ks-scrollbar')) {
+      node.classList.add('ks-scrollbar')
     }
+    // react-window's VariableSizeList sets overflow-x: auto inline; force hidden to match design.
+    node.style.overflowX = 'hidden'
   }, [])
 
   const setRowHeight = useCallback((index: number, size: number) => {
@@ -190,7 +192,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
       </Modal>
       <div className="flex w-full flex-1 flex-col gap-3 overflow-hidden">
         <Tab<TRANSACTION_GROUP | string> activeTab={activeTab} setActiveTab={setActiveTab} tabs={filterTab} />
-        <div className="ks-transactions-content w-full flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="w-full flex-1 overflow-y-auto overflow-x-hidden">
           {formatTransactions.length === 0 ? (
             <div className="mt-5 flex flex-col items-center gap-2.5 text-subText">
               <Info size={32} />

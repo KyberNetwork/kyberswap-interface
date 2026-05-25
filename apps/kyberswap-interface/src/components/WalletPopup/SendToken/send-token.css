@@ -1,8 +1,0 @@
-.ks-send-token-wrapper::-webkit-scrollbar {
-  display: block;
-  width: 4px;
-}
-
-.ks-send-token-wrapper::-webkit-scrollbar-thumb {
-  background: var(--ks-disableText);
-}

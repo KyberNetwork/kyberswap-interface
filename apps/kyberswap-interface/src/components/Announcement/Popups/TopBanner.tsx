@@ -12,8 +12,6 @@ import { cn } from 'utils/cn'
 import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
-import './TopBanner.css'
-
 const DEFAULT_ANIMATION_DURATION = 12
 const ICON_SIZE = 24
 const MARQUEE_GAP = 32

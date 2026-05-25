@@ -22,8 +22,6 @@ import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import './QuoteSelector.css'
-
 const QuoteRow = ({ selected, children, ...rest }: React.HTMLAttributes<HTMLDivElement> & { selected?: boolean }) => (
   <div
     {...rest}
@@ -68,7 +66,14 @@ export const QuoteSelector = ({
         <ScrollableWithSignal
           data-open="true"
           showArrow
-          className="ks-quote-selector-list flex max-h-full flex-col gap-3 overflow-y-auto pb-2 pr-2"
+          className="ks-scrollbar flex max-h-full flex-col gap-3 overflow-y-auto pb-2 pr-2"
+          style={
+            {
+              '--ks-scrollbar-width': '6px',
+              '--ks-scrollbar-thumb': 'rgba(169, 169, 169, 0.4)',
+              '--ks-scrollbar-radius': '999px',
+            } as React.CSSProperties
+          }
         >
           {quotes.map((quote, index) => {
             const ongoingTag = nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'

@@ -620,6 +620,37 @@
     line-height: 0;
   }
 
+  /* Visible thin scrollbar (overrides the global ::-webkit-scrollbar { display: none }).
+     Customize width/thumb/radius per consumer via inline CSS variables. */
+  .ks-scrollbar::-webkit-scrollbar {
+    display: block;
+    width: var(--ks-scrollbar-width, 4px);
+  }
+  .ks-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: var(--ks-scrollbar-radius, 0);
+  }
+  .ks-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--ks-scrollbar-thumb, var(--ks-border));
+    border-radius: var(--ks-scrollbar-radius, 0);
+  }
+
+  /* PositionDetail enter animations (rendered with arbitrary `animate-[ks-pd-*]` values). */
+  @keyframes ks-pd-fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ks-pd-slide-down {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TopBanner marquee — slide distance set via --ks-marquee-shift on the consumer. */
+  @keyframes ks-top-banner-marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(-1 * var(--ks-marquee-shift, 0px))); }
+  }
+
   /* Used by <Dots> — animates an ellipsis after some text (e.g. "Loading..."). */
   .animate-ellipsis::after {
     display: inline-block;

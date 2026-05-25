@@ -1,9 +1,7 @@
-import { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, forwardRef } from 'react'
+import { AnchorHTMLAttributes, ButtonHTMLAttributes, CSSProperties, HTMLAttributes, forwardRef } from 'react'
 
 import { ReactComponent as IconArrowLeftSvg } from 'assets/svg/ic_left_arrow.svg'
 import { cn } from 'utils/cn'
-
-import './styles.css'
 
 export const IconArrowLeft = ({ className, ...rest }: React.SVGProps<SVGSVGElement>) => (
   <IconArrowLeftSvg className={cn('cursor-pointer text-white2 hover:brightness-150', className)} {...rest} />
@@ -142,10 +140,17 @@ export const HistorySectionHeader = forwardRef<HTMLDivElement, HTMLAttributes<HT
 HistorySectionHeader.displayName = 'HistorySectionHeader'
 
 export const PastActionsList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => (
+  ({ className, style, ...rest }, ref) => (
     <div
       ref={ref}
-      className={cn('ks-pd-past-actions flex max-h-60 flex-col items-end gap-2 overflow-y-auto pr-1', className)}
+      className={cn('ks-scrollbar flex max-h-60 flex-col items-end gap-2 overflow-y-auto pr-1', className)}
+      style={
+        {
+          '--ks-scrollbar-thumb': 'rgba(255, 255, 255, 0.16)',
+          '--ks-scrollbar-radius': '2px',
+          ...style,
+        } as CSSProperties
+      }
       {...rest}
     />
   ),

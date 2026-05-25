@@ -1,6 +1,6 @@
 import { Currency, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Clipboard } from 'react-feather'
 
@@ -27,8 +27,6 @@ import { formattedNum, shortenAddress } from 'utils'
 import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-
-import './send-token.css'
 
 const Label = ({
   className,
@@ -203,7 +201,10 @@ export default function SendToken({
   }
 
   return (
-    <div className="ks-send-token-wrapper flex flex-1 basis-full flex-col justify-between gap-3.5 overflow-y-scroll">
+    <div
+      className="ks-scrollbar flex flex-1 basis-full flex-col justify-between gap-3.5 overflow-y-scroll"
+      style={{ '--ks-scrollbar-thumb': 'var(--ks-disableText)' } as CSSProperties}
+    >
       <div className="flex flex-col gap-[18px]">
         <Label>
           <Trans>Recipient</Trans>

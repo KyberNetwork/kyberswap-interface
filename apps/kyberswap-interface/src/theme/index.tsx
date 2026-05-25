@@ -23,9 +23,3 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   const value = useMemo(() => theme(), [])
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
-
-// Global styles (formerly FixedGlobalStyle / ThemedGlobalStyle styled-components)
-// now live in src/tailwind.css under @layer base. Keep these as no-op components so
-// existing JSX in src/index.tsx (<FixedGlobalStyle/>, <ThemedGlobalStyle/>) compiles.
-export const FixedGlobalStyle = () => null
-export const ThemedGlobalStyle = () => null
