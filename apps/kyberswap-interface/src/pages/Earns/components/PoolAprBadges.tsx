@@ -23,7 +23,7 @@ const PoolAprBadges = ({ pool }: Props) => {
   const tokenReward = merklOpportunity?.rewardsRecord.breakdowns[0]?.token
 
   return (
-    <HStack align="center" gap={4} wrap="nowrap">
+    <HStack className="flex-nowrap items-center gap-1">
       {showEgReward && (
         <MouseoverTooltipDesktopOnly
           placement="bottom"

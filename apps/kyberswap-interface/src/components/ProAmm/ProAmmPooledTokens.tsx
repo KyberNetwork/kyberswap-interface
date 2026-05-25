@@ -41,7 +41,7 @@ export default function ProAmmPooledTokens({
   const render =
     layout === 0 ? (
       <OutlineCard className="mt-4 p-4">
-        <AutoColumn gap="md">
+        <AutoColumn className="gap-3">
           <span className="text-xs font-medium">{title || <Trans>Your Liquidity</Trans>}</span>
 
           <Divider />
@@ -77,7 +77,7 @@ export default function ProAmmPooledTokens({
       </OutlineCard>
     ) : (
       <OutlineCard className="mt-4 p-4">
-        <AutoColumn gap="md">
+        <AutoColumn className="gap-3">
           <RowBetween>
             <span className="text-xs font-medium text-subText">
               <Trans>My Liquidity Balance</Trans>

@@ -29,7 +29,7 @@ export default function ImportRow({
       )}
     >
       <CurrencyLogo currency={token} size={'24px'} style={{ opacity: dim ? '0.6' : '1' }} />
-      <AutoColumn gap="4px" style={{ opacity: dim ? '0.6' : '1' }}>
+      <AutoColumn className="gap-1" style={{ opacity: dim ? '0.6' : '1' }}>
         <AutoRow>
           <p className="m-0 text-base font-medium leading-[normal] text-text">{token.symbol}</p>
           <div className="m-0 ml-2 font-light text-text3">

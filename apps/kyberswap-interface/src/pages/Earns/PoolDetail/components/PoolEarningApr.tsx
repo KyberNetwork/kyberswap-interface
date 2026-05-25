@@ -31,10 +31,10 @@ const PoolEarningApr = () => {
   const hasActiveApr = aprSummary?.activeApr !== undefined
 
   return (
-    <HStack align="stretch" gap={12} wrap="wrap">
-      <HStack align="center" gap={24} className="flex-1 basis-[320px]">
-        <Stack align="center" gap={8} className="flex-[0_0_128px]">
-          <HStack align="center" gap={4}>
+    <HStack className="flex-wrap items-stretch gap-3">
+      <HStack className="flex-1 basis-[320px] items-center gap-6">
+        <Stack className="flex-[0_0_128px] items-center gap-2">
+          <HStack className="items-center gap-1">
             <span className="text-sm font-medium text-text">APR</span>
             <InfoHelper text="Earning Per Total TVL" size={14} placement="top" />
           </HStack>
@@ -45,12 +45,12 @@ const PoolEarningApr = () => {
 
         <div className="w-px self-stretch bg-text-08" />
 
-        <Stack gap={8}>
-          <HStack align="baseline" gap={8}>
+        <Stack className="gap-2">
+          <HStack className="items-baseline gap-2">
             <span className="text-sm text-subText">Fee</span>
             <span className="font-medium text-text">{formatAprValue(aprSummary.feeApr)}</span>
           </HStack>
-          <HStack align="baseline" gap={8}>
+          <HStack className="items-baseline gap-2">
             <span className="text-sm text-subText">Rewards</span>
             <span className="font-medium text-text">{formatAprValue(aprSummary.rewardApr)}</span>
           </HStack>
@@ -58,9 +58,9 @@ const PoolEarningApr = () => {
       </HStack>
 
       {hasActiveApr ? (
-        <HStack align="center" gap={24} className="flex-1 basis-[320px]">
-          <Stack align="center" gap={8} className="flex-[0_0_128px]">
-            <HStack align="center" gap={4}>
+        <HStack className="flex-1 basis-[320px] items-center gap-6">
+          <Stack className="flex-[0_0_128px] items-center gap-2">
+            <HStack className="items-center gap-1">
               <span className="text-sm font-medium text-text">Active APR</span>
               <InfoHelper text="Earning Per Active TVL" size={14} placement="top" />
             </HStack>
@@ -71,12 +71,12 @@ const PoolEarningApr = () => {
 
           <div className="w-px self-stretch bg-text-08" />
 
-          <Stack gap={8}>
-            <HStack align="baseline" gap={8}>
+          <Stack className="gap-2">
+            <HStack className="items-baseline gap-2">
               <span className="text-sm text-subText">Fee</span>
               <span className="font-medium text-text">{formatAprValue(aprSummary.activeFeeApr)}</span>
             </HStack>
-            <HStack align="baseline" gap={8}>
+            <HStack className="items-baseline gap-2">
               <span className="text-sm text-subText">Rewards</span>
               <span className="font-medium text-text">{formatAprValue(aprSummary.activeRewardApr)}</span>
             </HStack>

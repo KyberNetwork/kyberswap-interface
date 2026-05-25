@@ -111,7 +111,7 @@ const AddLiquidityBody = ({
 
   return (
     <>
-      <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
+      <HStack className="w-full flex-wrap items-start gap-6">
         <PoolInformationColumn>
           {children}
           <AddLiquidityRoutePreview
@@ -366,7 +366,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   return (
     <AddLiquidityRuntimeProvider value={runtimeValue}>
       {!normalizedPool.data || normalizedPool.loading ? (
-        <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
+        <HStack className="w-full flex-wrap items-start gap-6">
           <PoolInformationColumn>
             {children}
             <AddLiquidityRoutePreview

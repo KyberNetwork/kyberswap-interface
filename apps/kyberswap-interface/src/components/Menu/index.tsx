@@ -200,7 +200,7 @@ export default function Menu() {
         hasArrow
       >
         {isSelectingLanguage ? (
-          <AutoColumn gap="md">
+          <AutoColumn className="gap-3">
             <LanguageSelector
               setIsSelectingLanguage={setIsSelectingLanguage}
               onLanguageChange={(prevLang, newLang) => {
@@ -470,7 +470,7 @@ export default function Menu() {
                 }}
               >
                 <Trans>KyberSwap Guide</Trans>
-                <Row justify="flex-end">
+                <Row className="justify-end">
                   <span className="text-text">
                     <Trans>View</Trans>
                   </span>
@@ -520,7 +520,7 @@ export default function Menu() {
 
             <Divider />
 
-            <AutoRow justify="center">
+            <AutoRow className="justify-center">
               <ButtonPrimary
                 disabled={!account || !networkInfo.classic.claimReward || pendingTx}
                 onClick={() => {

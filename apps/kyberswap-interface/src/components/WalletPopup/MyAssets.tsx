@@ -16,6 +16,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNativeBalance } from 'state/wallet/hooks'
+import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 
 const tokenItemStyle = { paddingLeft: 8, paddingRight: 8 }
@@ -59,7 +60,7 @@ export default function MyAssets({
   if (hasNetworkIssue)
     return (
       <div className={WRAPPER_CLASS}>
-        <Column style={{ gap: '12px', alignItems: 'center', marginTop: '16px' }}>
+        <Column className="mt-4 items-center gap-3">
           <AlertTriangle className="text-warning" />
           <span className="text-warning">Network is slow. Please try again later</span>
         </Column>
@@ -69,7 +70,7 @@ export default function MyAssets({
   if (loadingTokens) {
     return (
       <div className={WRAPPER_CLASS}>
-        <Row gap="6px" justify="center" marginTop="16px">
+        <Row className="mt-4 justify-center gap-1.5">
           <Loader /> <span className="text-subText">Loading tokens...</span>
         </Row>
       </div>
@@ -116,14 +117,10 @@ export default function MyAssets({
               )
             })}
             <Column
-              gap="6px"
-              style={{
-                alignItems: 'center',
-                borderTop: tokens.length ? `1px solid ${theme.border}` : 'none',
-                padding: '12px 0',
-                marginTop: tokens.length ? 8 : 0,
-                fontSize: 14,
-              }}
+              className={cn(
+                'items-center gap-1.5 py-3 text-sm',
+                tokens.length ? 'mt-2 border-t border-border' : 'mt-0',
+              )}
             >
               <Info className="text-subText" />
               <span className="text-subText">

@@ -92,7 +92,7 @@ const NearIntentCampaignStats = ({ selectedWeek }: { selectedWeek: number }) => 
                   </div>
                 }
                 dropdownContent={
-                  <Column gap="16px" className="p-3">
+                  <Column className="gap-4 p-3">
                     {Object.keys(logo).map(walletType => (
                       <div
                         key={walletType}

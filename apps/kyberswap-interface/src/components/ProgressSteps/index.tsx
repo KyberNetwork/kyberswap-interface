@@ -32,7 +32,7 @@ const Connector = ({ prevConfirmed, disabled }: { prevConfirmed?: boolean; disab
  */
 export default function ProgressCircles({ steps, disabled = false, ...rest }: ProgressCirclesProps) {
   return (
-    <AutoColumn justify="center" {...rest}>
+    <AutoColumn className="justify-items-center" {...rest}>
       <RowBetween className="w-1/2">
         {steps.map((step, i) => {
           const stepDisabled = disabled || (!steps[i - 1] && i !== 0)

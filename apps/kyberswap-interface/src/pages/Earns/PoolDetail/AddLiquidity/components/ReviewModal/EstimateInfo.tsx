@@ -14,6 +14,7 @@ import {
   getSlippageNotice,
   getZapFeePercent,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type EstimateInfoProps = {
@@ -68,9 +69,7 @@ const buildEstimate = ({
 }
 
 const MetricCard = ({ children }: { children: React.ReactNode }) => (
-  <Stack gap={4} className="min-w-0 flex-1 items-start rounded-xl bg-tabActive px-3 py-2">
-    {children}
-  </Stack>
+  <Stack className="min-w-0 flex-1 items-start gap-1 rounded-xl bg-tabActive px-3 py-2">{children}</Stack>
 )
 
 const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
@@ -82,19 +81,22 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
   )
 
   return (
-    <Stack gap={12} className="rounded-xl bg-buttonGray px-4 py-3">
-      <Stack gap={12}>
-        <HStack align="center" justify="space-between">
+    <Stack className="gap-3 rounded-xl bg-buttonGray px-4 py-3">
+      <Stack className="gap-3">
+        <HStack className="items-center justify-between">
           <span className="text-subText">Est. Liquidity Value</span>
           <span className="font-medium text-text">
             {formatDisplayNumber(estimate.totalUsd, { style: 'currency', significantDigits: 6 })}
           </span>
         </HStack>
 
-        <HStack align="flex-start" gap={12} wrap="wrap">
+        <HStack className="flex-wrap items-start gap-3">
           {estimate.items.map((item, index) => (
-            <Stack key={item.token.address} flex="1 1 0" gap={4} minWidth={0} align={index ? 'flex-end' : 'flex-start'}>
-              <HStack align="center" gap={4} minWidth={0} wrap="wrap">
+            <Stack
+              key={item.token.address}
+              className={cn('min-w-0 flex-[1_1_0] gap-1', index ? 'items-end' : 'items-start')}
+            >
+              <HStack className="min-w-0 flex-wrap items-center gap-1">
                 <TokenLogo src={item.token.logo} size={16} />
                 <span className="text-text">
                   {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}
@@ -111,8 +113,8 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
 
       <div className="h-px w-full bg-tabActive" />
 
-      <Stack gap={12}>
-        <HStack align="center" justify="space-between">
+      <Stack className="gap-3">
+        <HStack className="items-center justify-between">
           <TooltipText
             tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
             className="text-subText"
@@ -120,7 +122,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
           >
             Max Slippage
           </TooltipText>
-          <HStack align="center" gap={4}>
+          <HStack className="items-center gap-1">
             <span className="font-medium" style={{ color: slippageNotice ? theme.warning : theme.text }}>
               {formatBpsLabel(estimate.slippage)}
             </span>
@@ -136,7 +138,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
           </HStack>
         </HStack>
 
-        <HStack align="stretch" gap={8} wrap="wrap">
+        <HStack className="flex-wrap items-stretch gap-2">
           <MetricCard>
             <TooltipText
               tooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
@@ -162,11 +164,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
           <MetricCard>
             <TooltipText
               tooltip={
-                <Stack
-                  gap={4}
-                  align="flex-start"
-                  className="[&_a:hover]:opacity-80 [&_a]:text-primary [&_a]:no-underline"
-                >
+                <Stack className="items-start gap-1 [&_a:hover]:opacity-80 [&_a]:text-primary [&_a]:no-underline">
                   Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
                   fees.{' '}
                   <a href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener norefferer noreferrer">

@@ -40,7 +40,7 @@ export default function ProAmmPriceRange({
   const quoteSymbol = quoteCurrency?.symbol
   return (
     <OutlineCard className="mt-4 p-4">
-      <AutoColumn gap="12px">
+      <AutoColumn className="gap-3">
         <div className="flex">
           <span className="text-xs font-medium text-subText">
             <Trans>Selected Price Range</Trans>
@@ -67,7 +67,7 @@ export default function ProAmmPriceRange({
             </RowFixed>
           </div>
         </div>
-        <RowBetween style={{ gap: '12px' }}>
+        <RowBetween className="gap-3">
           <div className="flex">
             <span className="text-xs font-medium text-subText">
               <Trans>Min Price</Trans>
@@ -85,7 +85,7 @@ export default function ProAmmPriceRange({
             </Trans>
           </span>
         </RowBetween>
-        <RowBetween style={{ gap: '12px' }}>
+        <RowBetween className="gap-3">
           <div className="flex">
             <span className="text-xs font-medium text-subText">
               <Trans>Max Price</Trans>

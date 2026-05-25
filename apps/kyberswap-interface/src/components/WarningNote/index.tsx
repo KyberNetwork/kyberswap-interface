@@ -54,7 +54,7 @@ const WarningNote: React.FC<Props> = ({ className, level = 'warning', shortText,
           </div>
         )}
       </div>
-      {expanded && <Row padding="0 0 0 24px">{longText}</Row>}
+      {expanded && <Row className="pl-6">{longText}</Row>}
     </div>
   )
 }

@@ -155,7 +155,7 @@ export default function EditOrderModal({
           <X className="text-subText" style={{ cursor: 'pointer' }} onClick={onDismiss} />
         </div>
 
-        <Column gap="10px">
+        <Column className="gap-2.5">
           <Label className="mb-0">
             <Trans>
               Editing this order will automatically cancel your existing order and a new order will be created.

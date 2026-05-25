@@ -10,10 +10,7 @@ import { HStack, Stack } from 'components/Stack'
 import useDebounce from 'hooks/useDebounce'
 
 const TooltipContent = ({ children }: { children: React.ReactNode }) => (
-  <Stack
-    gap={4}
-    className="text-xs [&_a:hover]:text-primary [&_a]:border-b [&_a]:border-dotted [&_a]:border-subText [&_a]:no-underline"
-  >
+  <Stack className="gap-1 text-xs [&_a:hover]:text-primary [&_a]:border-b [&_a]:border-dotted [&_a]:border-subText [&_a]:no-underline">
     {children}
   </Stack>
 )
@@ -117,7 +114,7 @@ const EstimatedPositionApr = ({
     <div className="flex w-full items-center justify-between gap-3 rounded-xl border border-solid border-primary/[0.24] bg-primary-12 px-3 py-2">
       <span className="text-sm text-text">Est. Position APR</span>
       <MouseoverTooltip placement="top" width={aprValues ? '320px' : 'fit-content'} text={tooltipContent}>
-        <HStack minWidth={64} justify="flex-end">
+        <HStack className="min-w-16 justify-end">
           {isLoading ? (
             <div className="h-[17px]">
               <Skeleton width={48} height={17} />

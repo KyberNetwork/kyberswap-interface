@@ -431,7 +431,7 @@ export default function ConfirmSwapModalContent({
             <CloseIcon onClick={onDismiss} />
           </RowBetween>
 
-          <RowBetween mt="4px">
+          <RowBetween className="mt-1">
             <span className="text-xs font-normal text-subText">
               <Trans>Please review the details of your swap:</Trans>
             </span>

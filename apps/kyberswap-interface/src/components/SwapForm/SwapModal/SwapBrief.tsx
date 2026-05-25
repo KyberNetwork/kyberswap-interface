@@ -84,7 +84,7 @@ export default function SwapBrief({
   }
 
   return (
-    <AutoColumn gap="sm" style={{ marginTop: '4px', position: 'relative' }}>
+    <AutoColumn className="relative mt-1 gap-2">
       <div className="flex flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
         <span className="text-xs font-medium text-subText">
           <Trans>Input Amount</Trans>

@@ -94,7 +94,7 @@ const fetchTokens = async (
 
 export const NoResult = ({ msg }: { msg?: ReactNode }) => {
   return (
-    <Column style={{ padding: '20px', height: '100%' }} data-testid="no-token-result">
+    <Column className="h-full p-5" data-testid="no-token-result">
       <p className="m-0 mb-5 text-center font-medium text-text3">{msg || <Trans>No results found.</Trans>}</p>
     </Column>
   )
@@ -355,7 +355,7 @@ export function CurrencySearch({
 
   return (
     <ContentWrapper>
-      <PaddedColumn gap="14px">
+      <PaddedColumn className="gap-[14px]">
         <RowBetween>
           <span className="flex text-xl font-medium">
             {title || <Trans>Select a token</Trans>}

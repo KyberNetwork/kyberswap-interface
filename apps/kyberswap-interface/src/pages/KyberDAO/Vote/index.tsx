@@ -164,11 +164,11 @@ export default function Vote() {
       style={{ backgroundImage: `url(${bgimg})` }}
     >
       <div className="mx-auto flex min-h-[1200px] w-[1224px] flex-col gap-3 py-12 max-lg:w-full max-lg:px-4 max-lg:py-12">
-        <RowBetween marginBottom={isMobile ? 0 : 36}>
+        <RowBetween className={isMobile ? '' : 'mb-9'}>
           <span className={cn('flex-1 font-medium leading-7', isMobile ? 'text-[22px]' : 'text-2xl')}>
             <Trans>Vote - Earn Rewards</Trans>
           </span>
-          <RowFit gap="4px">
+          <RowFit className="gap-1">
             <KNCLogo size={20} />
             <span className="text-base leading-[normal]">KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</span>
           </RowFit>
@@ -199,7 +199,7 @@ export default function Vote() {
                   <Trans>APR</Trans>
                 </Text>
               </RowBetween>
-              <RowBetween marginBottom="8px">
+              <RowBetween className="mb-2">
                 <Text fontSize={20} fontWeight={500}>
                   {(+knc?.toFixed(0)).toLocaleString() ?? '--'} KNC
                 </Text>
@@ -225,7 +225,7 @@ export default function Vote() {
                 />
               </span>
 
-              <RowBetween marginBottom="8px">
+              <RowBetween className="mb-2">
                 <RowFit>
                   <span
                     className="text-xl font-medium leading-[normal]"
@@ -242,7 +242,7 @@ export default function Vote() {
                         className="text-warning"
                         size={14}
                         text={
-                          <AutoColumn gap="8px">
+                          <AutoColumn className="gap-2">
                             <span className="block w-[260px] leading-[14px] text-subText">
                               {hasPendingStakeAmount ? (
                                 <Trans>
@@ -311,7 +311,7 @@ export default function Vote() {
                     text={t`You have already delegated your voting power to this address.`}
                     placement="top"
                   >
-                    <RowFit gap="4px" className="text-subText">
+                    <RowFit className="gap-1 text-subText">
                       <VoteIcon size={14} />
                       <span className="text-xs">
                         {stakerInfo?.delegate.slice(0, 5) + '...' + stakerInfo?.delegate.slice(-4)}
@@ -331,7 +331,7 @@ export default function Vote() {
             </AutoColumn>
           </Card>
           <Card hasGreenBackground={isHasReward}>
-            <AutoColumn justify="space-between">
+            <AutoColumn className="justify-between">
               <span className="mb-5 text-sm text-subText">
                 <span
                   className={cn(
@@ -397,12 +397,7 @@ export default function Vote() {
             </AutoColumn>
           </Card>
         </RowBetween>
-        <AutoRow
-          fontSize={12}
-          flexDirection={isMobile ? 'column' : 'row'}
-          alignItems={isMobile ? 'start !important' : 'center'}
-          gap={isMobile ? '4px' : '0px'}
-        >
+        <AutoRow className={cn('text-xs', isMobile ? 'flex-col items-start gap-1' : 'flex-row items-center gap-0')}>
           <RowFit>
             <span>
               <Trans>In Progress: Epoch {daoInfo ? daoInfo.current_epoch : '--'}</Trans>

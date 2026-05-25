@@ -72,9 +72,9 @@ const VotersListModal = ({
 }) => {
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss}>
-      <OptionWrapper isWonOption={isWonOption} style={{ width: '100%' }}>
+      <OptionWrapper isWonOption={isWonOption} className="w-full">
         <RowBetween>
-          <RowFit height={19}>
+          <RowFit className="h-[19px]">
             {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
             <span className="overflow-hidden text-ellipsis">{option}</span>
           </RowFit>
@@ -155,7 +155,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                 hasHoverStyle
               >
                 <RowBetween>
-                  <RowFit height={19}>
+                  <RowFit className="h-[19px]">
                     {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
                     <span className={cn('overflow-hidden text-ellipsis', isLongText ? 'text-sm' : 'text-base')}>
                       {hardCodedTitle || optionTitle}
@@ -187,7 +187,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                     )
                   })}
                   {filteredParticipants.length > 5 && (
-                    <Row justify="center" marginTop="4px">
+                    <Row className="mt-1 justify-center">
                       <span className="text-xs text-primary">View more</span>
                     </Row>
                   )}

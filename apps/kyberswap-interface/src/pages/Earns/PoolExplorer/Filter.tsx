@@ -103,8 +103,8 @@ const Filter = ({
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
     if (selectedChains.length >= 1) {
       return (
-        <HStack align="center" gap={6}>
-          <HStack gap={0}>
+        <HStack className="items-center gap-1.5">
+          <HStack className="gap-0">
             {selectedChains.map((chain, index) => (
               <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
             ))}
@@ -305,8 +305,8 @@ const Filter = ({
           <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
         )}
       </HeadSection>
-      <Stack direction={upToMedium ? 'column' : 'row'} justify="space-between" gap="1rem">
-        <HStack gap="1rem" wrap="wrap">
+      <Stack className="flex-row justify-between gap-4 max-md:flex-col">
+        <HStack className="flex-wrap gap-4">
           <MultiSelectDropdownMenu
             highlightOnSelect
             label={selectedChainsLabel}
@@ -326,7 +326,7 @@ const Filter = ({
           )}
           <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
         </HStack>
-        <HStack align={upToMedium ? 'stretch' : 'center'} gap={12} wrap="wrap">
+        <HStack className="flex-wrap items-center gap-3 max-md:items-stretch">
           <Search
             placeholder={t`Search by token symbol or pool/token address`}
             searchValue={search}

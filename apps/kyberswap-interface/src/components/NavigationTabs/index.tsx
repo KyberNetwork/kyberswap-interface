@@ -44,7 +44,7 @@ export function FindPoolTabs() {
 
   return (
     <div className="flex flex-row flex-nowrap items-center justify-evenly rounded-[3rem]">
-      <RowBetween style={{ padding: '1rem' }}>
+      <RowBetween className="p-4">
         <ButtonEmpty width="fit-content" padding="0" onClick={goBack}>
           <ArrowLeft className="text-text" />
         </ButtonEmpty>

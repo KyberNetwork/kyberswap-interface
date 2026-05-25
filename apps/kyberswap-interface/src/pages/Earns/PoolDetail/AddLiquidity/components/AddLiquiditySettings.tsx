@@ -65,18 +65,17 @@ const AddLiquiditySettings = ({
 
         {isOpen && (
           <Stack
-            gap={8}
             className={cn(
+              'gap-2',
               'absolute right-[-8px] top-[calc(100%+12px)] z-20 w-[320px] rounded-xl border border-solid border-border bg-tableHeader p-4',
               "before:absolute before:right-4 before:top-[-8px] before:size-3 before:rotate-45 before:border-l before:border-t before:border-solid before:border-border before:bg-tableHeader before:content-['']",
             )}
           >
             <span className="font-medium text-text">Advanced Settings</span>
-            <Stack gap={4}>
+            <Stack className="gap-1">
               <HStack
-                align="center"
-                justify="space-between"
                 className={cn(
+                  'items-center justify-between',
                   '-mx-1.5 rounded-full border border-solid p-1 pl-1.5 transition-[background,padding,margin] duration-200 ease-linear',
                   highlightDegenMode ? 'border-warning/[0.24] bg-warning-10' : 'border-transparent bg-transparent',
                 )}

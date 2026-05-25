@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { useMedia } from 'react-use'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
@@ -19,7 +18,6 @@ import {
   X,
 } from 'pages/Earns/components/ClaimModal/styles'
 import { Exchange } from 'pages/Earns/constants'
-import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export enum ClaimType {
@@ -59,7 +57,6 @@ const ClaimModal = ({
   onCompound?: () => void
   onClose: () => void
 }) => {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { library, chainId } = useWeb3React()
   const { supportedChains } = useChainsConfig()
   const { changeNetwork } = useChangeNetwork()
@@ -132,7 +129,7 @@ const ClaimModal = ({
               ))}
           </ClaimInfo>
         </ClaimInfoWrapper>
-        <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
+        <Row className="flex-row gap-4 max-xs:flex-col-reverse">
           {compoundable && onCompound ? (
             <ButtonOutlined className="text-primary" gap="4px" disabled={isClaiming} onClick={onCompound}>
               {t`Compound`}

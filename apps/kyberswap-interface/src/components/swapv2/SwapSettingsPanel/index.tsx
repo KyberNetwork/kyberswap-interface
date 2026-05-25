@@ -92,7 +92,7 @@ const SettingsPanel: React.FC<Props> = ({
               <span className="text-base font-medium">
                 <Trans>Display Settings</Trans>
               </span>
-              <AutoColumn gap="md">
+              <AutoColumn className="gap-3">
                 {isSwapPage && (
                   <RowBetween>
                     <RowFixed>

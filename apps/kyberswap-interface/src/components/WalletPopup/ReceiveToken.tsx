@@ -80,7 +80,7 @@ export default function ReceiveToken() {
       }
     >
       <div className="flex flex-1 flex-col justify-center gap-8">
-        <Column style={{ justifyContent: 'center', alignItems: 'center', gap: 12 }}>
+        <Column className="items-center justify-center gap-3">
           {qrElement}
 
           {!error && !isMobile && (
@@ -93,7 +93,7 @@ export default function ReceiveToken() {
           )}
         </Column>
 
-        <Column gap="12px">
+        <Column className="gap-3">
           <label className="text-xs font-medium leading-4 text-subText">
             <Trans>Your Wallet Address</Trans>
           </label>

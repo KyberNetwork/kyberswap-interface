@@ -49,9 +49,9 @@ export default function SwitchToEthereumModal() {
   return (
     <Modal isOpen={modalOpen} onDismiss={closeModal} minHeight={false} maxHeight={90} maxWidth={500}>
       <div className="p-6">
-        <AutoColumn gap="20px">
+        <AutoColumn className="gap-5">
           <RowBetween>
-            <AutoRow gap="2px" className="text-primary">
+            <AutoRow className="gap-0.5 text-primary">
               <WarningIcon size="28px" />
               <span className="text-xl">
                 <Trans>Switch Network</Trans>

@@ -72,7 +72,7 @@ export default function CancelStatusCountDown({
 
   if (errorMessage || attemptingTxn)
     return (
-      <Column gap="14px">
+      <Column className="gap-[14px]">
         {contentCountDown}
         <CountDownWrapper className="min-h-[50px] flex-row justify-center">
           {errorMessage ? (

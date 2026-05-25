@@ -172,7 +172,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
     return (
       <WarningNote
         shortText={
-          <Row alignItems="center" style={{ gap: '0.5ch' }}>
+          <Row className="items-center gap-[0.5ch]">
             <Trans>
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
                 Price Impact

@@ -25,6 +25,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 
 import KNCLogo from '../kncLogo'
 import StakeKNCComponent from './StakeKNCComponent'
@@ -69,13 +70,13 @@ export default function StakeKNC() {
             <span className="text-2xl font-medium leading-7">
               <Trans>Stake KNC</Trans>
             </span>
-            <RowFit gap="4px">
+            <RowFit className="gap-1">
               <KNCLogo size={20} />
               <span className="text-base">KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</span>
             </RowFit>
           </RowBetween>
           <Divider className={isMobile ? 'my-5' : 'my-7'} />
-          <RowBetween align={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'} gap="12px">
+          <RowBetween className={cn('gap-3', isMobile ? 'flex-col items-start' : 'flex-row items-center')}>
             <span className="text-base font-normal leading-6 text-warning">
               <Trans>Note: Staking KNC is only available on Ethereum chain.</Trans>
             </span>
@@ -127,7 +128,7 @@ export default function StakeKNC() {
               <span className="text-xl font-medium leading-6 text-text">
                 <Trans>Migrate</Trans>
               </span>
-              <Row gap="4px">
+              <Row className="gap-1">
                 <span className="text-left text-xs font-medium leading-4 text-subText">
                   <Trans>Total KNC migrated from KNCL </Trans>
                 </span>
@@ -159,7 +160,7 @@ export default function StakeKNC() {
               <span className="text-xl font-medium leading-6 text-text">
                 <Trans>KNC Utility</Trans>
               </span>
-              <Row gap="4px">
+              <Row className="gap-1">
                 <span className="text-left text-xs font-medium leading-4 text-subText">
                   <Trans>
                     Discover more staking KNC utility and benefits{' '}

@@ -22,7 +22,7 @@ const PriceInfo = ({ pool, priceRange }: PriceInfoProps) => {
   })
 
   return (
-    <Stack gap={12} className="rounded-xl bg-buttonGray px-4 py-3">
+    <Stack className="gap-3 rounded-xl bg-buttonGray px-4 py-3">
       <CurrentPriceHeader
         pool={pool}
         poolPrice={priceRange.poolPrice}
@@ -32,7 +32,7 @@ const PriceInfo = ({ pool, priceRange }: PriceInfoProps) => {
       />
 
       {rangeToShow && (
-        <HStack gap={12}>
+        <HStack className="gap-3">
           <HStack className="min-w-0 flex-1 items-stretch rounded-xl bg-tabActive">
             <Stack className="justify-center rounded-l-xl bg-darkText px-3 py-2">
               <span className="text-xs text-subText">MIN</span>

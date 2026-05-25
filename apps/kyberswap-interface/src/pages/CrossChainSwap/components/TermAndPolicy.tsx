@@ -64,7 +64,7 @@ export default function TermAndPolicy({
     >
       <Wrapper>
         <UpperSection>
-          <RowBetween marginBottom="26px" gap="20px">
+          <RowBetween className="mb-[26px] gap-5">
             <span>{t`Connect your Wallet`}</span>
             <CloseIcon onClick={onClose}>
               <Close />

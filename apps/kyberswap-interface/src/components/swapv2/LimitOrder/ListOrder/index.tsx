@@ -3,7 +3,6 @@ import { Trans, t } from '@lingui/macro'
 import { HTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
@@ -23,7 +22,6 @@ import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import {
   subscribeNotificationOrderCancelled,
@@ -277,7 +275,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     window.onbeforeunload = () => (orderCancelling > 0 && ordersUpdating.length > 0 ? '' : null) // return null will not show confirm, else will show
   }, [totalOrderNotCancelling, orders, ordersUpdating])
 
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const filledPercent =
     currentOrder &&
     calcPercentFilledOrder(currentOrder.filledTakingAmount, currentOrder.takingAmount, currentOrder.takerAssetDecimals)
@@ -292,7 +289,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
       </div>
 
       <div className="flex justify-between gap-4 px-3 max-sm:flex-col">
-        <Row width={upToSmall ? '100%' : 'fit-content'} alignItems="center" gap="8px" justify={'space-between'}>
+        <Row className="w-fit items-center justify-between gap-2 max-sm:w-full">
           <Select
             className="h-9 min-w-full max-w-[50%] rounded-[40px] bg-background text-sm max-sm:min-w-0"
             key={orderType}

@@ -75,7 +75,7 @@ export function ListInfo({
   symbolOut: string | undefined
 }) {
   return (
-    <Column gap="8px">
+    <Column className="gap-2">
       {title && <Label className="mb-1">{title}</Label>}
       <div className="flex flex-col gap-3 rounded-xl bg-buttonBlack/30 p-4">
         {listData.map(item => (

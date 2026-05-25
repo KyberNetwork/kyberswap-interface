@@ -107,7 +107,7 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
             placement="bottom"
             width="fit-content"
           >
-            <Row width="fit-content" gap="6px" className="text-warning">
+            <Row className="w-fit gap-1.5 text-warning">
               <WarningIcon size="16" solid />
               <span className="font-medium text-warning">
                 <Trans>Not Reached</Trans>

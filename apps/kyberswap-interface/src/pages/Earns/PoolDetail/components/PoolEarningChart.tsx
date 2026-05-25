@@ -212,8 +212,8 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
   const hasChartData = chartData.length > 0
 
   return (
-    <Stack gap={16}>
-      <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
+    <Stack className="gap-4">
+      <HStack className="flex-wrap items-start justify-between gap-4">
         <span className="text-lg font-medium text-text">Earning History</span>
 
         <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />
@@ -228,7 +228,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
         isError={isError}
         isLoading={isLoading}
       >
-        <Stack gap={16}>
+        <Stack className="gap-4">
           <PoolChartWrapper $height={chartHeight}>
             <ResponsiveContainer height="100%" width="100%">
               <ComposedChart
@@ -292,15 +292,8 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
             </ResponsiveContainer>
           </PoolChartWrapper>
 
-          <Stack
-            align="center"
-            direction={upToSmall ? 'column' : 'row'}
-            gap={upToSmall ? 12 : 20}
-            justify="center"
-            className="mx-auto"
-            width={upToSmall ? '100%' : 'fit-content'}
-          >
-            <Stack height={breakdownChartSize} position="relative" className="shrink-0" width={breakdownChartSize}>
+          <Stack className="mx-auto flex-row items-center justify-center gap-5 max-sm:w-full max-sm:flex-col max-sm:gap-3 sm:w-fit">
+            <Stack className="relative shrink-0" style={{ height: breakdownChartSize, width: breakdownChartSize }}>
               <ResponsiveContainer height="100%" width="100%">
                 <PieChart>
                   <Pie
@@ -336,23 +329,17 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                 </PieChart>
               </ResponsiveContainer>
 
-              <Stack
-                align="center"
-                justify="center"
-                position="absolute"
-                className="pointer-events-none inset-0"
-                textAlign="center"
-              >
+              <Stack className="pointer-events-none absolute inset-0 items-center justify-center text-center">
                 <span className="text-sm text-subText">Total Earn</span>
                 <span className="text-lg font-medium text-text">{formatCompactUsd(totalEarned)}</span>
               </Stack>
             </Stack>
 
-            <Stack align={upToSmall ? 'center' : 'flex-start'} gap={12} width="fit-content" minWidth={180}>
+            <Stack className="w-fit min-w-[180px] items-start gap-3 max-sm:items-center">
               {breakdownItems.map(item => (
-                <HStack align="center" gap={12} justify="flex-start" key={item.key} width="fit-content">
+                <HStack key={item.key} className="w-fit items-center justify-start gap-3">
                   <LegendDot $color={item.color} />
-                  <HStack align="center" gap={8} justify="flex-start" wrap="wrap">
+                  <HStack className="flex-wrap items-center justify-start gap-2">
                     <span className="text-sm text-subText">{item.label}</span>
                     <span className="text-sm font-medium text-text">{formatUsd(item.value)}</span>
                   </HStack>

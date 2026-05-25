@@ -182,7 +182,7 @@ export default function Profile() {
                   onChange={toggleKeepCurrentProfile}
                   checked={isKeepCurrentProfile}
                 />
-                <Column gap="6px">
+                <Column className="gap-1.5">
                   <label htmlFor="keep-profile" className="text-sm font-medium text-text">
                     <Trans>Keep Current Profile</Trans>
                   </label>

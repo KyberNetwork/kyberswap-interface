@@ -21,7 +21,7 @@ const WarningSignMessage = () => {
   if (pendingAuthentication || !isSigInGuest) return null
   return (
     <div className="flex items-center gap-5 rounded-3xl bg-subText-20 px-3.5 py-2 max-md:flex-col max-md:gap-2.5 max-md:px-3.5 max-md:py-3">
-      <Row style={{ gap: '12px' }}>
+      <Row className="gap-3">
         {!upToMedium && <Info className="text-subText" size={18} style={{ minWidth: '18px' }} />}
         <span className="text-xs leading-4">
           <Trans>
@@ -38,7 +38,7 @@ const WarningSignMessage = () => {
           </Trans>
         </span>
       </Row>
-      <Row justify="space-between" width={upToMedium ? '100%' : 'fit-content'}>
+      <Row className="w-fit justify-between max-md:w-full">
         {upToMedium && (
           <ButtonOutlined width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => window.open(DOC_URL)}>
             <Trans>Read More</Trans>

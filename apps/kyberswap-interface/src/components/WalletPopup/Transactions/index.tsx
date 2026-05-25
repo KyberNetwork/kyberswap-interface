@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, X } from 'react-feather'
-import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
 
@@ -24,7 +23,6 @@ import {
   TransactionExtraInfo1Token,
   TransactionExtraInfo2Token,
 } from 'state/transactions/type'
-import { MEDIA_WIDTHS } from 'theme'
 
 import TransactionItem from './TransactionItem'
 
@@ -84,7 +82,6 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
 
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>(storedActiveTab)
   const [openClearTxModal, setOpenClearTxModal] = useState(false)
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const listTokenAddress = useRef<string[]>([])
   const rowHeights = useRef<{ [key: string]: number }>({})
@@ -175,16 +172,16 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
     <>
       <Modal isOpen={openClearTxModal} onDismiss={toggleClearTxModal}>
         <div className="flex w-full flex-col items-center justify-center gap-6 rounded-[20px] bg-tableHeader p-5 text-subText">
-          <RowBetween align="start">
+          <RowBetween className="items-start">
             <span className="text-xl font-medium text-text">{t`Clear All Pending Transactions`}</span>
             <X className="text-text" style={{ cursor: 'pointer' }} onClick={toggleClearTxModal} />
           </RowBetween>
-          <Row gap="12px">
+          <Row className="gap-3">
             <span className="text-sm leading-4 text-text">
               {t`Are you sure you want to clear all pending transactions? This will remove them from your list but will not affect their status on-chain.`}
             </span>
           </Row>
-          <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
+          <Row className="flex-row gap-4 max-xs:flex-col">
             <ButtonOutlined onClick={toggleClearTxModal}>{t`Cancel`}</ButtonOutlined>
             <ButtonPrimary onClick={onClearAllPendingTransactions}>{t`Clear All`}</ButtonPrimary>
           </Row>

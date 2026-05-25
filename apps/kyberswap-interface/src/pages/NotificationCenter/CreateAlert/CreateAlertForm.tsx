@@ -331,7 +331,7 @@ export default function CreateAlert({
             </MiniLabel>
             <InputNote onChangeInput={val => onChangeInput('note', val)} value={formInput.note} />
           </RowBetween>
-          <Row gap="8px">
+          <Row className="gap-2">
             <CheckBox
               checked={disableAfterTrigger}
               id="disable-trigger"

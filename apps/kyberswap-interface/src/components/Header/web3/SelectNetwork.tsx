@@ -47,7 +47,7 @@ function SelectNetwork(): JSX.Element | null {
       )}
     >
       <div className="flex w-full min-w-fit items-center justify-between">
-        <Row gap="10px">
+        <Row className="gap-2.5">
           <img src={networkInfo.icon} alt={networkInfo.name + ' logo'} style={{ width: 20, height: 20 }} />
           <div className="whitespace-nowrap font-medium max-sm:hidden">{labelContent}</div>
         </Row>

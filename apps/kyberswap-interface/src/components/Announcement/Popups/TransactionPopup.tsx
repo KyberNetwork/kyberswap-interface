@@ -283,7 +283,7 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
         <div className="pr-4">
           {success ? <CheckCircle className="text-primary" size={'20px'} /> : <IconFailure className="text-red" />}
         </div>
-        <AutoColumn gap="8px">
+        <AutoColumn className="gap-2">
           <span className={success ? 'text-base font-medium text-primary' : 'text-base font-medium text-red'}>
             {title}
           </span>

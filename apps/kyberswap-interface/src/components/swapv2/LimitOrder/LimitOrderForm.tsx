@@ -922,7 +922,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           />
         </Tooltip>
 
-        <RowBetween gap="1rem" flexDirection={upToSmall ? 'column' : 'row'}>
+        <RowBetween className="flex-row gap-4 max-sm:flex-col">
           <InputWrapper>
             <div className="flex items-center justify-between">
               <DeltaRate

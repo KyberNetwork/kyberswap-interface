@@ -179,7 +179,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   if (!activeToken || !stableToken) return null
 
   const settlementPriceTooltip = (
-    <Stack gap={4} align="flex-start">
+    <Stack className="items-start gap-1">
       <span className="text-xs text-subText">
         <Trans>
           Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from
@@ -194,8 +194,8 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   )
 
   return (
-    <Stack gap={0} className="overflow-hidden rounded-xl border border-darkBorder">
-      <HStack align="center" gap={12} pr={16}>
+    <Stack className="gap-0 overflow-hidden rounded-xl border border-darkBorder">
+      <HStack className="items-center gap-3 pr-4">
         <div role="tablist" className="flex min-w-0 flex-1 items-center overflow-x-auto">
           {filteredTokens.map((token, index) => {
             const isActive = index === resolvedActiveTabIndex
@@ -248,15 +248,15 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
       </HStack>
 
       {isExpanded && (
-        <Stack p={16} className="border-t border-darkBorder">
-          <Stack gap={12} position="relative">
-            <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
+        <Stack className="border-t border-darkBorder p-4">
+          <Stack className="relative gap-3">
+            <HStack className="flex-wrap items-start justify-between gap-4">
               <Stack>
                 {currentPrice !== undefined && (
-                  <HStack align="baseline" gap={8} wrap="nowrap">
+                  <HStack className="flex-nowrap items-baseline gap-2">
                     <span className="text-xl font-medium text-text">{formatPrice(currentPrice)}</span>
 
-                    <HStack align="center" gap={4}>
+                    <HStack className="items-center gap-1">
                       <span className="text-sm font-medium" style={{ color: priceChangeColor }}>
                         {formatSignedPercent(priceChange)}
                       </span>
@@ -269,7 +269,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                 )}
               </Stack>
 
-              <Stack ml="auto">
+              <Stack className="ml-auto">
                 <SegmentedControl
                   onChange={setTimeFrame}
                   options={CHART_TIME_FRAME_OPTIONS}
@@ -281,11 +281,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
 
             <div className="relative rounded-lg">
               {shouldShowLowActivityWarning && (
-                <HStack
-                  align="center"
-                  justify="center"
-                  className="absolute top-0 z-10 rounded-lg border border-warning/25 bg-warning/10 p-2 text-warning"
-                >
+                <HStack className="absolute top-0 z-10 items-center justify-center rounded-lg border border-warning/25 bg-warning/10 p-2 text-warning">
                   <MouseoverTooltip
                     placement="top"
                     text={
@@ -324,10 +320,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
 
               {shouldHideChartForNoActivity && (
                 <Stack
-                  align="center"
-                  gap={8}
-                  justify="center"
-                  className="absolute inset-0 z-10 rounded-[inherit] border border-warning/25 p-3 text-center text-warning backdrop-blur-sm"
+                  className="absolute inset-0 z-10 items-center justify-center gap-2 rounded-[inherit] border border-warning/25 p-3 text-center text-warning backdrop-blur-sm"
                   style={{ backgroundColor: 'rgba(28,28,28,0.6)' }}
                 >
                   <AlertTriangle className="text-warning" size={28} />

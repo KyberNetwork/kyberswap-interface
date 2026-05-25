@@ -38,8 +38,8 @@ export const LiquidityChartSkeleton = () => {
   const barHeights = [15, 20, 5, 10, 15, 30, 10, 15, 60, 70, 85, 90, 100, 70, 80, 40, 55, 60, 15, 20, 25, 15, 10, 5]
 
   return (
-    <Stack height="224px">
-      <HStack align="flex-end" justify="center" width="100%" height="100%" gap={4} p="8px">
+    <Stack className="h-56">
+      <HStack className="size-full items-end justify-center gap-1 p-2">
         {barHeights.map((height, index) => (
           <Bar height={height * 0.8} key={index} />
         ))}

@@ -527,8 +527,8 @@ export default function ZapOut({
     const displaySlp = allowedSlippage / 100
 
     return (
-      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
-        <AutoRow gap="4px">
+      <AutoColumn className="mt-5 gap-3">
+        <AutoRow className="gap-1">
           <CurrencyLogo currency={currencies[independentTokenField]} size={'24px'} />
           <span className="text-[24px] font-medium leading-[normal]">
             {parsedAmounts[independentTokenField]?.toSignificant(6)}
@@ -554,7 +554,7 @@ export default function ZapOut({
         <ModalDetailWrapper>
           {pair && (
             <>
-              <CurrentPriceWrapper style={{ paddingBottom: '8px' }}>
+              <CurrentPriceWrapper className="pb-2">
                 <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Current Price</Trans>
                 </p>
@@ -563,7 +563,7 @@ export default function ZapOut({
                 </p>
               </CurrentPriceWrapper>
 
-              <RowBetween style={{ paddingBottom: '12px' }}>
+              <RowBetween className="pb-3">
                 <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Price Impact</Trans>
                 </p>
@@ -572,7 +572,7 @@ export default function ZapOut({
                 </p>
               </RowBetween>
 
-              <RowBetween style={{ paddingBottom: '12px' }}>
+              <RowBetween className="pb-3">
                 <span className="text-[14px] leading-[normal] text-subText">
                   <Trans>LP Tokens Removed</Trans>
                 </span>
@@ -587,7 +587,7 @@ export default function ZapOut({
 
               {amountsMin && (
                 <>
-                  <RowBetween style={{ paddingBottom: '12px' }}>
+                  <RowBetween className="pb-3">
                     <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                       <Trans>Minimum Received</Trans>
                     </p>
@@ -648,11 +648,11 @@ export default function ZapOut({
           }
           pendingText={pendingText}
         />
-        <AutoColumn gap="md">
+        <AutoColumn className="gap-3">
           <GridColumn>
             <FirstColumn>
               <BlackCard className="rounded p-4">
-                <AutoColumn gap="1rem">
+                <AutoColumn className="gap-4">
                   <RowBetween>
                     <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Amount</Trans>
@@ -668,7 +668,7 @@ export default function ZapOut({
                       {t`LP Tokens`}
                     </span>
                   </RowBetween>
-                  <Row style={{ alignItems: 'flex-end' }}>
+                  <Row className="items-end">
                     <span className="text-[72px] font-medium leading-[normal]">
                       {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
                     </span>
@@ -676,7 +676,7 @@ export default function ZapOut({
 
                   <>
                     <Slider value={innerLiquidityPercentage} onChange={setInnerLiquidityPercentage} size={18} />
-                    <RowBetween style={{ gap: '4px' }}>
+                    <RowBetween className="gap-1">
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>25%</MaxButton>
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')}>50%</MaxButton>
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')}>75%</MaxButton>
@@ -754,7 +754,7 @@ export default function ZapOut({
               {pair && (
                 <DetailWrapper>
                   <DetailBox style={{ paddingBottom: '12px', borderBottom: `1px dashed ${theme.border}` }}>
-                    <AutoColumn gap="8px">
+                    <AutoColumn className="gap-2">
                       <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                         <UppercaseText>
                           <Trans>Price Impact</Trans>
@@ -766,7 +766,7 @@ export default function ZapOut({
                     </AutoColumn>
 
                     {amountsMin && (
-                      <AutoColumn gap="8px">
+                      <AutoColumn className="gap-2">
                         <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                           <UppercaseText>
                             <Trans>Minimum Received</Trans>
@@ -792,7 +792,7 @@ export default function ZapOut({
                     )}
                   </DetailBox>
 
-                  <DetailBox style={{ paddingTop: '12px' }}>
+                  <DetailBox className="pt-3">
                     <p className="m-0 flex items-center text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Current Price</Trans>
@@ -813,7 +813,7 @@ export default function ZapOut({
                 <ZapError message={t`Price impact is high`} warning={true} />
               ) : null}
 
-              <div style={{ position: 'relative' }}>
+              <div className="relative">
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
                     <Trans>Connect</Trans>

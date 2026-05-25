@@ -99,7 +99,7 @@ export default function YourTransactionsModal() {
                 return (
                   <>
                     --
-                    <RowFit fontSize={12} className="text-subText">
+                    <RowFit className="text-xs text-subText">
                       to {`${action?.meta?.d_addr?.slice(0, 6)}...${action?.meta?.d_addr?.slice(-4)}`}
                       <CopyHelper
                         toCopy={action?.meta?.d_addr || ''}
@@ -184,9 +184,7 @@ export default function YourTransactionsModal() {
                           </AutoColumn>
                         </div>
                         <div className={tableCellClass}>
-                          <AutoColumn justify="flex-end" className="text-text" style={{ width: '100%' }} gap="4px">
-                            {action.description}
-                          </AutoColumn>
+                          <AutoColumn className="w-full justify-end gap-1 text-text">{action.description}</AutoColumn>
                         </div>
                       </div>
                     )
@@ -201,7 +199,7 @@ export default function YourTransactionsModal() {
                         key={action.tx_hash}
                       >
                         <div className={tableCellClass}>
-                          <Row gap="4px">
+                          <Row className="gap-1">
                             <img
                               src={`${getTokenLogoURL(KNC_ADDRESS, ChainId.MAINNET)}`}
                               alt="knc-logo"
@@ -216,15 +214,13 @@ export default function YourTransactionsModal() {
                               <LaunchIcon />
                             </ExternalLink>
                           </Row>
-                          <Row gap="4px">
+                          <Row className="gap-1">
                             <span className="text-text">{dayjs(action.timestamp).format('MM/DD/YYYY')}</span>
                             <span className="text-subText">{dayjs(action.timestamp).format('hh:mm:ss')}</span>
                           </Row>
                         </div>
                         <div className={tableCellClass}>
-                          <AutoColumn justify="flex-end" style={{ width: '100%' }}>
-                            {action.description}
-                          </AutoColumn>
+                          <AutoColumn className="w-full justify-end">{action.description}</AutoColumn>
                         </div>
                       </div>
                     )

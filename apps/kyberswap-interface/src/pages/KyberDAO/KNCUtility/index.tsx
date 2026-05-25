@@ -37,11 +37,11 @@ export default function KNCUtility() {
     >
       <div className="max-w-[1224px]">
         <div className={rowClass}>
-          <Column gap="24px">
+          <Column className="gap-6">
             <span className="text-2xl font-medium" id="knc-utility">
               <Trans>KNC Utility</Trans>
             </span>
-            <Column gap="16px">
+            <Column className="gap-4">
               <div className="flex w-full items-center justify-between gap-2 rounded-[20px] border border-primary bg-background p-4">
                 <span className="text-sm leading-5 text-subText">
                   <Trans>Your Staked KNC</Trans>
@@ -75,7 +75,7 @@ export default function KNCUtility() {
           </div>
         </div>
         <div className={rowClass} style={{ paddingBottom: upToMedium ? '0' : undefined }}>
-          <RowBetween flexDirection="row" gap="16px">
+          <RowBetween className="flex-row gap-4">
             <span id="gas-refund-program" className={`self-start font-medium ${upToMedium ? 'text-xl' : 'text-2xl'}`}>
               <Trans>Gas Refund Program</Trans>
             </span>
@@ -94,7 +94,7 @@ export default function KNCUtility() {
             <GasRefundBox />
             <img src={kyberDao2} alt="Kyber DAO" width="100%" style={{ maxHeight: '491px', marginTop: '-30px' }} />
           </Column>
-          <Column gap="16px">
+          <Column className="gap-4">
             <span className="text-xl font-normal leading-8 text-text" id="how-to-participate">
               <Trans>How to participate</Trans>
             </span>
@@ -166,19 +166,19 @@ export default function KNCUtility() {
           </Column>
         </div>
         <div className={rowClass}>
-          <Column gap="16px" className="w-full">
+          <Column className="w-full gap-4">
             <span className="text-xl font-normal leading-8" id="faq">
               <Trans>FAQ</Trans>
             </span>
-            <Column gap="56px">
+            <Column className="gap-14">
               <FAQ />
             </Column>
           </Column>
-          <Column gap="16px" className="w-full">
+          <Column className="w-full gap-4">
             <span className="text-xl font-normal leading-8" id="tac">
               <Trans>Terms and Conditions</Trans>
             </span>
-            <Column gap="56px">
+            <Column className="gap-14">
               <ul style={{ paddingInlineStart: '20px', marginBlockStart: 0 }}>
                 <li>
                   <span className="text-sm font-normal leading-5">

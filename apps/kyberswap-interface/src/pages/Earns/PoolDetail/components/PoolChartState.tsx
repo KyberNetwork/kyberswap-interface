@@ -5,6 +5,7 @@ import ProgressBar from 'components/ProgressBar'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
 const DEFAULT_CHART_HEIGHT = 360
 
@@ -103,19 +104,10 @@ const PoolChartStateLayout = ({
   gap: number
   height?: number
 }) => {
-  const theme = useTheme()
-
   return (
     <Stack
-      align="center"
-      border={`1px dashed ${theme.border}`}
-      borderRadius={16}
-      gap={gap}
-      height={height}
-      justify="center"
-      p="20px"
-      textAlign="center"
-      width="100%"
+      className="w-full items-center justify-center rounded-2xl border border-dashed border-border p-5 text-center"
+      style={{ height, gap }}
     >
       {children}
     </Stack>
@@ -154,7 +146,7 @@ const BarChartSkeleton = ({ height }: { height: number }) => {
 
   return (
     <div style={{ height: `${Math.max(height - 64, 0)}px`, width: '100%' }}>
-      <HStack align="flex-end" gap={8} height="100%" justify="center" p="8px" width="100%">
+      <HStack className="size-full items-end justify-center gap-2 p-2">
         {barHeights.map((barHeight, index) => (
           <SkeletonBar $height={barHeight * 0.8} key={index}>
             <SkeletonBarShimmer />
@@ -260,11 +252,11 @@ export const PoolChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT, type = 'line'
 
 const LiquidityFlowChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: PoolChartSkeletonProps) => {
   return (
-    <Stack gap={12}>
+    <Stack className="gap-3">
       <PoolChartSkeleton height={height} type="bar" />
-      <HStack gap={16} justify="center" wrap="wrap">
+      <HStack className="flex-wrap justify-center gap-4">
         {Array.from({ length: 3 }).map((_, index) => (
-          <HStack align="center" gap={16} key={index}>
+          <HStack key={index} className="items-center gap-4">
             <Skeleton height={14.5} width={120} />
           </HStack>
         ))}
@@ -278,18 +270,16 @@ const EarningChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: PoolChartSkelet
   const breakdownChartSize = isCompact ? 160 : 180
 
   return (
-    <Stack gap={16}>
+    <Stack className="gap-4">
       <PoolChartSkeleton height={height} type="bar" />
       <Stack
-        align="center"
-        direction={isCompact ? 'column' : 'row'}
-        gap={isCompact ? 12 : 20}
-        justify="center"
-        className="mx-auto"
-        width={isCompact ? '100%' : 'fit-content'}
+        className={cn(
+          'mx-auto items-center justify-center',
+          isCompact ? 'w-full flex-col gap-3' : 'w-fit flex-row gap-5',
+        )}
       >
         <Skeleton circle height={breakdownChartSize} width={breakdownChartSize} />
-        <Stack gap={12} width="fit-content">
+        <Stack className="w-fit gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton height={17} key={index} width={120} />
           ))}

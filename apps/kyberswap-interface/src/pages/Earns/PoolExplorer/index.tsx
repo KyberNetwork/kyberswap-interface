@@ -232,8 +232,8 @@ const PoolExplorer = () => {
       <HiddenH2>
         Trading volume, TVL, and pool performance across networks - all from one interface without switching apps.
       </HiddenH2>
-      <Stack gap={8}>
-        <HStack align="center" gap={16}>
+      <Stack className="gap-2">
+        <HStack className="items-center gap-4">
           <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
             <IconArrowLeft />
           </BackButton>

@@ -35,8 +35,8 @@ export default function CommonBases({
   const isHeightSmall = window.outerHeight < HEIGHT_THRESHOLD
   if (!tokens.length) return null
   return (
-    <AutoColumn gap="md">
-      <AutoRow gap="4px">
+    <AutoColumn className="gap-3">
+      <AutoRow className="gap-1">
         {(tokens as Token[]).map((token: Token) => {
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
           const { symbol } = getDisplayTokenInfo(token)

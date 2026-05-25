@@ -85,7 +85,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
         </div>
       </Link>
       {canShowListChildren && (
-        <Column style={{ padding: '8px 0', marginLeft: '24px' }}>
+        <Column className="ml-6 py-2">
           {childs?.map((el, i) => {
             return (
               <Fragment key={i}>

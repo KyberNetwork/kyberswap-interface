@@ -269,7 +269,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
             style={{ width: 14, height: 14, minWidth: 14 }}
             onChange={() => onChangeTopic(topic.id)}
           />
-          <Column gap="10px">
+          <Column className="gap-2.5">
             <span className="text-sm" style={{ color: disabled ? theme.border : theme.text }}>
               {topic.name}
             </span>
@@ -313,7 +313,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
         )}
       </Column>
       <div className="w-full border-t border-border" />
-      <Column gap="16px">
+      <Column className="gap-4">
         {renderTableHeader()}
         <div className="flex w-full flex-row justify-between gap-4 max-md:flex-col max-md:gap-6">
           <div className="flex w-full flex-col gap-4">
@@ -346,7 +346,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           </div>
         </div>
         {totalTopic === 0 && (
-          <Row justify="center" align="center" gap="6px" marginTop={'20px'} width={'100%'}>
+          <Row className="mt-5 w-full items-center justify-center gap-1.5">
             <Loader />
             <span className="text-sm text-subText">
               <Trans>Loading topics ...</Trans>

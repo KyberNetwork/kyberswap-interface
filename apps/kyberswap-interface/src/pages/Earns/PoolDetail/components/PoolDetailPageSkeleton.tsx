@@ -2,7 +2,6 @@ import { useMedia } from 'react-use'
 
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
 import AddLiquidityWidgetSkeleton from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquidityWidgetSkeleton'
 import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
@@ -10,7 +9,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 const RoutePreviewSkeleton = () => {
   return (
-    <HStack width="100%" align="center" justify="space-between" gap={24}>
+    <HStack className="w-full items-center justify-between gap-6">
       <Skeleton width={240} height={66} />
       <Skeleton width={160} height={95} />
       <Skeleton width={240} height={66} />
@@ -19,20 +18,18 @@ const RoutePreviewSkeleton = () => {
 }
 
 const PoolInformationSkeleton = () => {
-  const theme = useTheme()
-
   return (
-    <Stack width="100%" gap={20} p={16} borderRadius={12} background={theme.background}>
-      <Stack gap={30}>
-        <HStack gap={24} wrap="wrap">
+    <Stack className="w-full gap-5 rounded-xl bg-background p-4">
+      <Stack className="gap-[30px]">
+        <HStack className="flex-wrap gap-6">
           <Skeleton width={96} height={24} />
           <Skeleton width={96} height={24} />
           <Skeleton width={96} height={24} />
         </HStack>
 
-        <HStack gap={12} wrap="wrap">
+        <HStack className="flex-wrap gap-3">
           {Array.from({ length: 5 }).map((_, index) => (
-            <Stack key={index} flex="1 1 160px" gap={8} p={16} borderRadius={16} background={theme.buttonGray}>
+            <Stack key={index} className="flex-[1_1_160px] gap-2 rounded-2xl bg-buttonGray p-4">
               <Skeleton width={80} height={16} />
               <Skeleton width={120} height={17} />
             </Stack>
@@ -40,8 +37,8 @@ const PoolInformationSkeleton = () => {
         </HStack>
       </Stack>
 
-      <Stack gap={16}>
-        <Stack gap={12}>
+      <Stack className="gap-4">
+        <Stack className="gap-3">
           <Skeleton width={200} height={18} />
           <Skeleton width={320} height={20} />
         </Stack>
@@ -54,9 +51,9 @@ const PoolInformationSkeleton = () => {
 
 const PoolHeaderSkeleton = () => {
   return (
-    <HStack align="center" gap={12} wrap="wrap" width="100%">
+    <HStack className="w-full flex-wrap items-center gap-3">
       <Skeleton width={36} height={36} circle />
-      <HStack align="center">
+      <HStack className="items-center">
         <Skeleton width={28} height={28} circle />
         <Skeleton width={28} height={28} circle />
       </HStack>
@@ -84,13 +81,13 @@ const PoolDetailPageSkeleton = () => {
     <PoolDetailWrapper>
       <PoolHeaderSkeleton />
 
-      <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
-        <Stack flex="1 1 480px" gap={24} minWidth={0}>
+      <HStack className="w-full flex-wrap items-start gap-6">
+        <Stack className="min-w-0 flex-[1_1_480px] gap-6">
           <PoolInformationSkeleton />
           <RoutePreviewSkeleton />
         </Stack>
 
-        <Stack flex="1 1 480px" gap={16} maxWidth="480px" minWidth={0}>
+        <Stack className="min-w-0 max-w-[480px] flex-[1_1_480px] gap-4">
           <AddLiquidityWidgetSkeleton />
         </Stack>
       </HStack>

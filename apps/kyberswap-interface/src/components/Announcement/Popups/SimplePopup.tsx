@@ -48,8 +48,8 @@ export default function SimplePopup({
   }
   return (
     <AutoRow className="flex-nowrap">
-      <div style={{ paddingRight: 10 }}>{icon || mapIcon[type]}</div>
-      <AutoColumn gap="8px">
+      <div className="pr-2.5">{icon || mapIcon[type]}</div>
+      <AutoColumn className="gap-2">
         <span className="text-base font-medium" style={{ color }}>
           {title}
         </span>

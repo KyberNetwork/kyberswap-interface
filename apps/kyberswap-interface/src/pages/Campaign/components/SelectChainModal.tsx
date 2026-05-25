@@ -28,7 +28,7 @@ export const SelectChainModal = ({
       width="240px"
     >
       <div className="flex w-full flex-col p-6">
-        <RowBetween gap="20px" mb="24px">
+        <RowBetween className="mb-6 gap-5">
           <span className="text-xl font-medium">
             <Trans>Select chain</Trans>
           </span>

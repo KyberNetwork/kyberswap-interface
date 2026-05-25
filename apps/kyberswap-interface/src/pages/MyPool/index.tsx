@@ -233,8 +233,8 @@ function MyPoolClassic() {
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
-        <AutoColumn gap="lg" justify="center">
-          <AutoColumn gap="lg" style={{ width: '100%' }}>
+        <AutoColumn className="justify-center gap-6">
+          <AutoColumn className="w-full gap-6">
             <AutoRow>
               <InstructionText>
                 <Trans>Here you can view all your liquidity and staked balances in the Classic Pools.</Trans>

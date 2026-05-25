@@ -14,7 +14,6 @@ import SendToken from 'components/WalletPopup/SendToken'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { useTokensHasBalance } from 'state/wallet/hooks'
@@ -53,7 +52,6 @@ export default function WalletView({
 }: Props) {
   const View = getView()
   const [view, setView] = useState<string>(storedView || View.ASSETS)
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const nodeRef = useRef<HTMLDivElement>(null)
   const [isMinimal, setMinimal] = useState(false)
@@ -80,7 +78,7 @@ export default function WalletView({
     'flex cursor-pointer select-none items-center gap-1 pb-2.5 font-medium text-subText hover:text-primary'
 
   const underTab = (
-    <Row gap="20px" style={{ borderBottom: `1px solid ${theme.border}` }}>
+    <Row className="gap-5 border-b border-border">
       <div
         className={cn(tabBase, view === View.ASSETS && 'text-primary')}
         onClick={() => {

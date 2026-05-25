@@ -21,7 +21,7 @@ const TooltipAddressRow = ({ token, chainInfo }: { token: PoolDetailToken; chain
   const tokenSymbol = isNativeToken ? chainInfo.nativeToken.symbol : token.symbol
 
   return (
-    <HStack align="center" gap={8} wrap="wrap">
+    <HStack className="flex-wrap items-center gap-2">
       <TokenLogo src={tokenLogo} size={20} />
       <span className="text-sm font-medium">{tokenSymbol}</span>
       <span className="text-sm">{isNativeToken ? 'Native Token' : shortenAddress(token.address, 4)}</span>
@@ -70,9 +70,9 @@ const PoolHeaderPage = () => {
   }
 
   const tooltipContent = (
-    <Stack minWidth={240} gap={4}>
-      <HStack align="center" gap={8} wrap="wrap">
-        <HStack flex="0 0 auto" align="center" gap={0}>
+    <Stack className="min-w-[240px] gap-1">
+      <HStack className="flex-wrap items-center gap-2">
+        <HStack className="flex-none items-center gap-0">
           <TokenLogo src={primaryToken.logoURI} size={20} />
           <TokenLogo src={secondaryToken.logoURI} size={20} translateLeft />
         </HStack>
@@ -89,7 +89,7 @@ const PoolHeaderPage = () => {
 
   return (
     <>
-      <HStack align="center" gap={8} wrap="wrap">
+      <HStack className="flex-wrap items-center gap-2">
         <button
           aria-label="Go back"
           onClick={() => navigate(-1)}
@@ -99,9 +99,9 @@ const PoolHeaderPage = () => {
           <IconArrowLeft />
         </button>
 
-        <HStack minWidth={0} align="center" gap={12} wrap="wrap">
-          <HStack minWidth={0} align="center" gap={12}>
-            <HStack flex="0 0 auto" align="flex-end">
+        <HStack className="min-w-0 flex-wrap items-center gap-3">
+          <HStack className="min-w-0 items-center gap-3">
+            <HStack className="flex-none items-end">
               <TokenLogo src={primaryToken.logoURI} size={28} />
               <TokenLogo src={secondaryToken.logoURI} size={28} translateLeft />
               <TokenLogo src={chainInfo.icon} size={16} translateLeft translateTop />
@@ -123,8 +123,8 @@ const PoolHeaderPage = () => {
             </Center>
           </HStack>
 
-          <HStack align="center" gap={8}>
-            <HStack align="center" gap={8} className="min-h-8 whitespace-nowrap rounded-xl bg-buttonGray px-3 py-2">
+          <HStack className="items-center gap-2">
+            <HStack className="min-h-8 items-center gap-2 whitespace-nowrap rounded-xl bg-buttonGray px-3 py-2">
               <img alt={dexInfo.name} src={dexInfo.logo} className="size-4 flex-none object-contain" />
               <span className="text-sm font-medium text-text">{dexInfo.name}</span>
               <span className="text-sm font-medium text-subText">
@@ -148,19 +148,19 @@ const PoolHeaderReview = () => {
   const { pool, primaryToken, secondaryToken, dexInfo } = usePoolDetailContext()
 
   return (
-    <HStack minWidth={0} align="center" gap={12}>
-      <HStack flex="0 0 auto" align="flex-end" gap={0}>
+    <HStack className="min-w-0 items-center gap-3">
+      <HStack className="flex-none items-end gap-0">
         <TokenLogo src={primaryToken.logoURI} size={36} />
         <TokenLogo src={secondaryToken.logoURI} size={36} translateLeft />
       </HStack>
 
-      <Stack gap={4}>
+      <Stack className="gap-1">
         <span className="text-base font-medium text-text">
           {primaryToken.symbol}/{secondaryToken.symbol}
         </span>
 
-        <HStack align="center" gap={8} wrap="wrap">
-          <HStack align="center" gap={4}>
+        <HStack className="flex-wrap items-center gap-2">
+          <HStack className="items-center gap-1">
             <img alt={dexInfo.name} src={dexInfo.logo} className="size-4 flex-none object-contain" />
             <span className="text-sm text-subText">{dexInfo.name}</span>
           </HStack>

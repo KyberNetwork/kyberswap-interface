@@ -94,7 +94,7 @@ export default function MigrateModal({
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={664} maxWidth={420}>
       <div className="p-6">
-        <AutoColumn gap="20px">
+        <AutoColumn className="gap-5">
           <RowBetween>
             <span className="text-xl text-text">
               <Trans>KNC Migration</Trans>
@@ -133,7 +133,7 @@ export default function MigrateModal({
             tokenName="KNC"
             disabled
           />
-          <Row gap="12px">
+          <Row className="gap-3">
             {account ? (
               <>
                 {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && !error && (

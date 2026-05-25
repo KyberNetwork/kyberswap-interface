@@ -182,7 +182,7 @@ const AddLiquidityTokenInput = ({
   )
 
   return (
-    <Stack gap={12}>
+    <Stack className="gap-3">
       {currentTokens.length ? (
         currentTokens.map((token, index) => (
           <TokenAmountInput

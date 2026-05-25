@@ -28,10 +28,10 @@ export const CurrentPriceHeader = ({
   const { baseToken, quoteToken } = getDisplayedPriceTokens(pool, revertPrice)
 
   return (
-    <HStack align="center" justify="space-between" gap={12}>
-      <HStack flex="1 1 auto" align="center" gap={8} wrap="wrap">
+    <HStack className="items-center justify-between gap-3">
+      <HStack className="flex-auto flex-wrap items-center gap-2">
         <span className="text-sm text-subText">Current Price</span>
-        <HStack gap={4} wrap="wrap" className="flex-wrap text-sm text-text">
+        <HStack className="flex-wrap gap-1 text-sm text-text">
           <span>1</span>
           <span>{baseToken.symbol}</span>
           <span>=</span>
@@ -55,7 +55,7 @@ export const CurrentPriceHeader = ({
 
 const PriceInfo = ({ pool, poolPrice, revertPrice, onRevertPriceToggle }: PriceInfoProps) => {
   return (
-    <Stack gap={8} className="rounded-xl border border-solid border-border px-3 py-2">
+    <Stack className="gap-2 rounded-xl border border-solid border-border px-3 py-2">
       <CurrentPriceHeader
         pool={pool}
         poolPrice={poolPrice}

@@ -103,7 +103,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
   const native1 = useCurrencyConvertedToNative(currency1 || undefined)
   return (
     <PositionCardWrapper style={border ? { border } : undefined}>
-      <AutoColumn gap="12px">
+      <AutoColumn className="gap-3">
         <FixedHeightRow>
           <RowFixed>
             <span className="text-base font-medium">
@@ -122,7 +122,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
             <span className="text-xl font-medium">{userPoolBalance ? userPoolBalance.toSignificant(4) : '-'} </span>
           </RowFixed>
         </FixedHeightRow>
-        <AutoColumn gap="4px">
+        <AutoColumn className="gap-1">
           <FixedHeightRow>
             <span className="text-base font-medium">
               <Trans>My pool share:</Trans>

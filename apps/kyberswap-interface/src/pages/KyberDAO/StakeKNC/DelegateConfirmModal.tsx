@@ -27,7 +27,7 @@ export default function DelegateConfirmModal({
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={90} maxWidth={500}>
       <div className="p-6">
-        <AutoColumn gap="20px">
+        <AutoColumn className="gap-5">
           <RowBetween>
             <span className="text-xl">{isUndelegate ? <Trans>Undelegate</Trans> : <Trans>Delegate</Trans>}</span>
             <div role="button" onClick={toggleModal} className="flex cursor-pointer">
@@ -52,7 +52,7 @@ export default function DelegateConfirmModal({
             disabled
             className="rounded-[20px] border-0 bg-buttonBlack px-3 py-2.5 text-sm text-subText outline-none"
           />
-          <RowBetween gap="24px">
+          <RowBetween className="gap-6">
             <ButtonOutlined onClick={toggleModal}>
               <span className="text-sm leading-5">
                 <Trans>Cancel</Trans>

@@ -90,7 +90,7 @@ export default function DetailAnnouncementPopup({
             className="break-words text-sm leading-5 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
           />
         </div>
-        <Row justify="center" className="gap-6 max-sm:gap-3">
+        <Row className="justify-center gap-6 max-sm:gap-3">
           {ctas.length > 0 &&
             ctas.map(item => (
               <CtaButton

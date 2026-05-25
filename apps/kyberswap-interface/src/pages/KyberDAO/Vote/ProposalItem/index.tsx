@@ -211,9 +211,8 @@ function ProposalItem({
     const manyOptions = proposal.options.length > 2
     return (
       <RowBetween
-        gap={isMobile ? '16px' : '20px'}
-        flexDirection={isMobile ? 'column' : 'row'}
         className={cn(
+          isMobile ? 'flex-col gap-4' : 'flex-row gap-5',
           manyOptions &&
             'flex-wrap !justify-start [&>*]:w-[calc(33.33%-40px/3)] [&>*]:max-md:w-[calc(50%-10px)] [&>*]:max-sm:w-full',
         )}
@@ -273,14 +272,14 @@ function ProposalItem({
         </RowBetween>
         {(show || isActive) && isMobile && (
           <RowBetween>
-            <RowFit gap="8px" flexWrap="wrap">
+            <RowFit className="flex-wrap gap-2">
               <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
                 {proposal.status}
               </StatusBadged>
               <IDBadged>ID #{proposal.proposal_id}</IDBadged>
             </RowFit>
             {isActive && (
-              <RowFit gap="4px" flexShrink={0}>
+              <RowFit className="shrink-0 gap-1">
                 <span className="text-xs text-subText">
                   <Trans>Voting ends in: </Trans>
                 </span>
@@ -292,7 +291,7 @@ function ProposalItem({
         {(show || isActive) && renderVotes}
         <RowBetween>
           {isActive ? (
-            <Column gap="4px">
+            <Column className="gap-1">
               <VoteButton
                 status={proposal.status}
                 onVoteClick={handleVote}
@@ -301,7 +300,7 @@ function ProposalItem({
               />
             </Column>
           ) : proposal.status === ProposalStatus.Pending ? (
-            <RowFit gap="4px">
+            <RowFit className="gap-1">
               <span className="text-xs text-subText">
                 <Trans>Voting starts in: </Trans>
               </span>
@@ -313,15 +312,15 @@ function ProposalItem({
             </span>
           )}
           {!((show || isActive) && isMobile) && (
-            <Column gap="8px">
-              <Row gap="8px" justify="flex-end">
+            <Column className="gap-2">
+              <Row className="justify-end gap-2">
                 <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
                   {proposal.status}
                 </StatusBadged>
                 <IDBadged>ID #{proposal.proposal_id}</IDBadged>
               </Row>
               {isActive && (
-                <Row gap="4px">
+                <Row className="gap-1">
                   <span className="text-xs text-subText">
                     <Trans>Voting ends in: </Trans>
                   </span>
@@ -334,8 +333,8 @@ function ProposalItem({
       </div>
       {show && (
         <div ref={contentRef as any} className="z-0 flex flex-col gap-5 py-6 transition-all duration-200">
-          <Row align="flex-start" gap="16px">
-            <div style={{ flex: 1 }}>
+          <Row className="items-start gap-4">
+            <div className="flex-1">
               {proposal?.link && proposal.link !== '0x0' && (
                 <a
                   href={proposal.link?.startsWith('http') ? proposal.link : 'http://' + proposal.link}
@@ -363,7 +362,7 @@ function ProposalItem({
               {isMobile && <VoteInformation proposal={proposal} />}
             </div>
             {!isMobile && (
-              <div style={{ width: '368px' }}>
+              <div className="w-[368px]">
                 <VoteInformation proposal={proposal} />
               </div>
             )}

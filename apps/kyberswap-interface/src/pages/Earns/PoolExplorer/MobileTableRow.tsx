@@ -58,8 +58,8 @@ const MobileTableRow = ({
   return (
     <MobileTableRowComponent onClick={e => handleOpenZapInWidget(e)}>
       <MobileTableCell alignItems="flex-start" justifyContent="space-between">
-        <Stack align="flex-start" gap={8}>
-          <HStack align="center" gap={8}>
+        <Stack className="items-start gap-2">
+          <HStack className="items-center gap-2">
             <HStack>
               <TokenLogo src={pool.tokens?.[0]?.logoURI} />
               <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
@@ -88,7 +88,7 @@ const MobileTableRow = ({
       <MobileTableBottomRow>
         <MobileTableCell alignItems="baseline" justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`APR`}</HeaderText>
-          <HStack align="center" gap={4}>
+          <HStack className="items-center gap-1">
             <PoolAprInfo pool={pool} />
             <PoolAprBadges pool={pool} />
           </HStack>

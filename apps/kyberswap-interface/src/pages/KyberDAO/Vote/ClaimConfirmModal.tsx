@@ -18,7 +18,7 @@ export default function ClaimConfirmModal({ amount, onConfirmClaim }: { amount: 
     <Modal isOpen={modalOpen} onDismiss={toggleModal}>
       <div className="flex flex-col gap-5 p-6">
         <RowBetween>
-          <AutoRow gap="2px">
+          <AutoRow className="gap-0.5">
             <span className="text-xl">
               <Trans>Claim your KNC rewards</Trans>
             </span>
@@ -36,7 +36,7 @@ export default function ClaimConfirmModal({ amount, onConfirmClaim }: { amount: 
         <span className="text-base font-normal leading-6 text-text">
           <Trans>If your wallet is eligible, you will be able to claim your reward below:</Trans>
         </span>
-        <RowFit gap="10px">
+        <RowFit className="gap-2.5">
           <KNCLogo size={28} /> <span className="text-[32px]">{amount} KNC</span>
         </RowFit>
         <ButtonPrimary onClick={onConfirmClaim}>Claim</ButtonPrimary>

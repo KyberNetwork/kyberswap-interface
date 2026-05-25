@@ -191,8 +191,8 @@ const AddLiquidityReviewModal = ({
 
   return (
     <Modal isOpen borderRadius="20px" maxWidth={480} mobileFullWidth onDismiss={handleDismiss}>
-      <Stack gap={16} className="w-full self-start p-6 text-sm max-sm:p-4">
-        <HStack align="center" justify="space-between" width="100%">
+      <Stack className="w-full gap-4 self-start p-6 text-sm max-sm:p-4">
+        <HStack className="w-full items-center justify-between">
           <span className="text-2xl font-medium">Add Liquidity via Zap</span>
           <CloseIcon className="text-subText" onClick={handleDismiss} size={28} />
         </HStack>
@@ -208,7 +208,7 @@ const AddLiquidityReviewModal = ({
         {error ? <NoteCard $tone="error">{translateZapMessage(error)}</NoteCard> : null}
 
         {warnings.length ? (
-          <Stack gap={12}>
+          <Stack className="gap-3">
             {warnings.map((warning, index) => (
               <NoteCard key={`${warning.tone}-${index}`} $tone={warning.tone}>
                 {translateZapMessage(warning.message)}

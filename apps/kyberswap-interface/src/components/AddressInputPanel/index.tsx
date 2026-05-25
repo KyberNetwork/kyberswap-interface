@@ -40,7 +40,7 @@ export function AddressInput({
   return (
     <div onClick={onClick} className={cn('flex items-center justify-center rounded-xl bg-buttonBlack', className)}>
       <div className="flex-1 p-3">
-        <Row gap="5px">
+        <Row className="gap-[5px]">
           <input
             style={style}
             disabled={disabled}
@@ -101,7 +101,7 @@ export default function AddressInputPanel({
 
   const error = Boolean((value || '').length > 0 && !loading && !address)
   return (
-    <AutoColumn gap="4px">
+    <AutoColumn className="gap-1">
       <div
         role="button"
         onClick={() => onChange(value === null ? '' : null)}

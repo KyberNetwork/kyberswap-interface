@@ -40,11 +40,11 @@ export function ConfirmationPendingContent({
         <div className="flex w-full flex-col items-center py-[30px]">
           <Loader size="90px" className="text-primary" strokeWidth="1" />
         </div>
-        <AutoColumn gap="12px" justify={'center'}>
+        <AutoColumn className="justify-items-center gap-3">
           <span className="text-xl font-medium">
             <Trans>Waiting For Confirmation</Trans>
           </span>
-          <AutoColumn gap="12px" justify={'center'}>
+          <AutoColumn className="justify-items-center gap-3">
             <span className="text-center text-sm font-semibold">{pendingText}</span>
           </AutoColumn>
           <span className="text-center text-xs text-[#565A69]">
@@ -125,7 +125,7 @@ export function TransactionSubmittedContent({
         <div className="flex w-full flex-col items-center py-[30px]">
           <ArrowUpCircle strokeWidth={0.5} size={90} className="text-primary" />
         </div>
-        <AutoColumn gap="16px" justify={'center'}>
+        <AutoColumn className="justify-items-center gap-4">
           <span className="text-xl font-medium">
             <Trans>Transaction Submitted</Trans>
           </span>
@@ -174,9 +174,7 @@ export function ConfirmationModalContent({
         {topContent()}
       </AutoColumn>
 
-      <AutoColumn gap="0" className={cn(SECTION_CLASS, 'rounded-b-[20px] pb-7 pt-0')}>
-        {bottomContent()}
-      </AutoColumn>
+      <AutoColumn className={cn(SECTION_CLASS, 'gap-0 rounded-b-[20px] pb-7 pt-0')}>{bottomContent()}</AutoColumn>
     </div>
   )
 }
@@ -209,11 +207,11 @@ export function TransactionErrorContent({
           </span>
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        <AutoColumn style={{ marginTop: 20 }} gap="8px" justify="center">
+        <AutoColumn className="mt-5 justify-items-center gap-2">
           <Alert className="size-[108px]" />
           <span className="w-[85%] text-center text-base font-medium leading-6 text-red">{friendlyError(message)}</span>
           {message !== friendlyError(message) && (
-            <AutoColumn justify="center" style={{ width: '100%' }}>
+            <AutoColumn className="w-full justify-items-center">
               <span className="cursor-pointer text-sm text-primary" onClick={() => setShowDetail(prev => !prev)}>
                 {showDetail ? t`Show less` : t`Show more details`}
               </span>
@@ -227,7 +225,7 @@ export function TransactionErrorContent({
           {suggestionMessage}
         </AutoColumn>
       </AutoColumn>
-      <AutoColumn gap="12px" className={cn(SECTION_CLASS, 'rounded-b-[20px] pb-7 pt-0')}>
+      <AutoColumn className={cn(SECTION_CLASS, 'gap-3 rounded-b-[20px] pb-7 pt-0')}>
         <div className="flex gap-4">
           {confirmAction && confirmText ? (
             <ButtonOutlined onClick={onDismiss} style={dismissBtnStyle}>

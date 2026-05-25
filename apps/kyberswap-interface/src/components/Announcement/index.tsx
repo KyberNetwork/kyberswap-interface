@@ -325,7 +325,7 @@ function AnnouncementComponent() {
   const content = (
     <Wrapper>
       <Container>
-        <RowBetween alignItems="center" gap="10px">
+        <RowBetween className="items-center gap-2.5">
           <Title>
             <NotificationIcon size={18} />
             <Trans>Notifications</Trans>

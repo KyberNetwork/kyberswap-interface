@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo } from 'react'
 import { X } from 'react-feather'
-import { useMedia } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -16,7 +15,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
-import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { ExternalLink } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 
 export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
@@ -26,7 +25,6 @@ export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
 }
 
 export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { addNewNetwork } = useChangeNetwork()
   const { trackingHandler } = useTracking()
   const { walletKey, chainId } = useActiveWeb3React()
@@ -79,7 +77,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
       zindex={Z_INDEXS.POPOVER_CONTAINER + 1}
     >
       <div className="flex w-full flex-col items-center justify-center gap-6 rounded-[20px] bg-tableHeader p-5 text-text [&_.time-frame-legend]:hidden">
-        <RowBetween align="start">
+        <RowBetween className="items-start">
           <span className="text-2xl font-medium text-text">
             <Trans>Add Custom RPC Endpoint</Trans>
           </span>
@@ -113,7 +111,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
             </span>
           </div>
         </div>
-        <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
+        <Row className="flex-row gap-4 max-xs:flex-col">
           <ButtonOutlined onClick={onClose}>{isUsingMetamask ? t`No, go back` : t`Dismiss`}</ButtonOutlined>
           {isUsingMetamask && (
             <ButtonPrimary onClick={onAdd}>

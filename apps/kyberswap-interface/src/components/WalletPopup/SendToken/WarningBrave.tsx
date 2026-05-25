@@ -28,7 +28,7 @@ const WarningBrave = ({ token }: { token: Currency | undefined }) => {
             transaction will be rejected. In this case, you can quickly import token with contract address below.
           </Trans>
         </span>
-        <Row justify="space-between">
+        <Row className="justify-between">
           <span>
             <Trans>Contract Address</Trans>
           </span>

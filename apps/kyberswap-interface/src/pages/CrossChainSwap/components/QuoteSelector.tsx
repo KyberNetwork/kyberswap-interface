@@ -160,7 +160,7 @@ export const QuoteSelector = ({
               .map((_, index) => {
                 return (
                   <QuoteRow key={index}>
-                    <Stack gap={12}>
+                    <Stack className="gap-3">
                       <Skeleton height="20px" width="200px" />
                       <Skeleton height="17px" width="160px" />
                     </Stack>

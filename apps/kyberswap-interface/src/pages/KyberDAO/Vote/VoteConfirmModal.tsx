@@ -22,7 +22,7 @@ export default function VoteConfirmModal({
     <Modal isOpen={isShow} onDismiss={toggle}>
       <div className="flex flex-col gap-5 p-5">
         <RowBetween>
-          <AutoRow gap="2px">
+          <AutoRow className="gap-0.5">
             <span className="text-xl">
               <Trans>Vote</Trans>
             </span>

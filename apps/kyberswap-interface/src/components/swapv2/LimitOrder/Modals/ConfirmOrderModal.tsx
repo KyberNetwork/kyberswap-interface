@@ -185,7 +185,7 @@ export default memo(function ConfirmOrderModal({
       <Note note={note} />
 
       {warningMessage?.length > 0 && (
-        <Column gap="16px">
+        <Column className="gap-4">
           {warningMessage?.map((mess, i) => (
             <ErrorWarningPanel key={i} type="warn" title={mess} />
           ))}

@@ -488,11 +488,11 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
   }, [chartData, volumeDownColor, volumeUpColor, window])
 
   return (
-    <Stack gap={16}>
-      <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
-        <Stack gap={12}>
-          <HStack align="center" wrap="wrap" gap={8}>
-            <HStack align="center" flex="0 0 auto" gap={0}>
+    <Stack className="gap-4">
+      <HStack className="flex-wrap items-start justify-between gap-4">
+        <Stack className="gap-3">
+          <HStack className="flex-wrap items-center gap-2">
+            <HStack className="flex-none items-center gap-0">
               <TokenLogo src={displayedToken0.logoURI} size={24} />
               <TokenLogo src={displayedToken1.logoURI} size={24} translateLeft />
             </HStack>
@@ -507,11 +507,11 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
           </HStack>
 
           {lastCandle && priceChange !== undefined ? (
-            <HStack align="baseline" gap={10} wrap="wrap">
+            <HStack className="flex-wrap items-baseline gap-2.5">
               <>
                 <span className="text-2xl font-medium text-text">{formatPrice(lastCandle.close)}</span>
 
-                <HStack align="center" gap={6}>
+                <HStack className="items-center gap-1.5">
                   <span className="text-base font-medium" style={{ color: priceChangeColor }}>
                     {formatSignedPercent(priceChange)}
                   </span>

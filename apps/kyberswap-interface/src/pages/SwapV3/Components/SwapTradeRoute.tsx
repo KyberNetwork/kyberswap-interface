@@ -9,7 +9,6 @@ import { ShieldChecked } from 'components/Icons'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { ClickTooltip } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { type SwapRouteV2, type SwapRouteV3 } from 'utils/aggregationRouting'
 import { cn } from 'utils/cn'
@@ -17,17 +16,16 @@ import { cn } from 'utils/cn'
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 
 const TradeRouteSkeleton = () => {
-  const theme = useTheme()
   return (
-    <Stack gap={40} py={12}>
-      <HStack align="center" justify="space-between" gap={16}>
+    <Stack className="gap-10 py-3">
+      <HStack className="items-center justify-between gap-4">
         <Skeleton height={24} variant="darkSubtle" width={108} />
         <Skeleton height={24} variant="darkSubtle" width={108} />
       </HStack>
 
-      <HStack justify="space-evenly" gap={12}>
+      <HStack className="justify-evenly gap-3">
         {[0, 1].map(index => (
-          <Stack key={index} gap={12} width={180} p={12} border={`1px solid ${theme.darkBorder}`} borderRadius={12}>
+          <Stack key={index} className="w-[180px] gap-3 rounded-xl border border-darkBorder p-3">
             <Skeleton height={20} variant="darkSubtle" width={96} />
             <Skeleton height={28} variant="darkSubtle" width="100%" />
           </Stack>

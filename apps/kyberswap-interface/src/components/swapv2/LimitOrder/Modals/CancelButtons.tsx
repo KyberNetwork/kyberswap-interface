@@ -40,7 +40,7 @@ const ButtonGroup = ({
 }) => {
   return (
     <ButtonWrapper style={style}>
-      <Column gap="8px" className="w-full">
+      <Column className="w-full gap-2">
         {buttonGasless}
         {showGaslessNote && (
           <span className="text-[10px] leading-[14px] text-subText">
@@ -52,7 +52,7 @@ const ButtonGroup = ({
           </span>
         )}
       </Column>
-      <Column gap="8px" className="w-full">
+      <Column className="w-full gap-2">
         {buttonHardEdit}
         <span className="text-[10px] leading-[14px] text-subText">
           {isEdit ? (

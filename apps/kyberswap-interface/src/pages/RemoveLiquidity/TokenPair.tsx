@@ -460,8 +460,8 @@ export default function TokenPair({
   function modalHeader() {
     const displaySlp = allowedSlippage / 100
     return (
-      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
-        <AutoRow gap="4px">
+      <AutoColumn className="mt-5 gap-3">
+        <AutoRow className="gap-1">
           <CurrencyLogo currency={currencyA} size={'28px'} />
           <span className="text-[32px] font-medium leading-[normal]">
             {parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
@@ -474,7 +474,7 @@ export default function TokenPair({
           )}
         </AutoRow>
 
-        <AutoRow gap="4px">
+        <AutoRow className="gap-1">
           <CurrencyLogo currency={currencyB} size={'28px'} />
           <span className="text-[32px] font-medium leading-[normal]">
             {parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
@@ -500,7 +500,7 @@ export default function TokenPair({
         <ModalDetailWrapper>
           {pair && (
             <>
-              <CurrentPriceWrapper style={{ paddingBottom: '8px' }}>
+              <CurrentPriceWrapper className="pb-2">
                 <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Current Price</Trans>
                 </p>
@@ -509,7 +509,7 @@ export default function TokenPair({
                 </p>
               </CurrentPriceWrapper>
 
-              <RowBetween style={{ paddingBottom: '12px' }}>
+              <RowBetween className="pb-3">
                 <span className="text-[14px] leading-[normal] text-subText">
                   <Trans>LP Tokens Removed</Trans>
                 </span>
@@ -524,7 +524,7 @@ export default function TokenPair({
 
               {amountsMin && (
                 <>
-                  <RowBetween style={{ paddingBottom: '12px' }}>
+                  <RowBetween className="pb-3">
                     <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                       <Trans>Minimum Received</Trans>
                     </p>
@@ -584,11 +584,11 @@ export default function TokenPair({
           }
           pendingText={pendingText}
         />
-        <AutoColumn gap="md">
+        <AutoColumn className="gap-3">
           <GridColumn>
             <FirstColumn>
               <BlackCard className="rounded p-4">
-                <AutoColumn gap="1rem">
+                <AutoColumn className="gap-4">
                   <RowBetween>
                     <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Amount</Trans>
@@ -604,7 +604,7 @@ export default function TokenPair({
                       LP Tokens
                     </span>
                   </RowBetween>
-                  <Row style={{ alignItems: 'flex-end' }}>
+                  <Row className="items-end">
                     <span className="text-[72px] font-medium leading-[normal]">
                       {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
                     </span>
@@ -612,7 +612,7 @@ export default function TokenPair({
 
                   <>
                     <Slider value={innerLiquidityPercentage} onChange={setInnerLiquidityPercentage} size={18} />
-                    <RowBetween style={{ gap: '4px' }}>
+                    <RowBetween className="gap-1">
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>25%</MaxButton>
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')}>50%</MaxButton>
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')}>75%</MaxButton>
@@ -649,7 +649,7 @@ export default function TokenPair({
 
             <SecondColumn>
               <>
-                <div style={{ marginBottom: '1.5rem' }}>
+                <div className="mb-6">
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_A]}
                     onUserInput={onCurrencyAInput}
@@ -705,7 +705,7 @@ export default function TokenPair({
 
               {pair && (
                 <DetailWrapper>
-                  <AutoRow justify="space-between" gap="4px" style={{ paddingBottom: '12px' }}>
+                  <AutoRow className="justify-between gap-1 pb-3">
                     <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Minimum Received</Trans>
@@ -731,7 +731,7 @@ export default function TokenPair({
                     </DetailBox>
                   )}
 
-                  <DetailBox style={{ paddingTop: '12px' }}>
+                  <DetailBox className="pt-3">
                     <p className="m-0 flex items-center text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Current Price</Trans>
@@ -744,7 +744,7 @@ export default function TokenPair({
                 </DetailWrapper>
               )}
 
-              <div style={{ position: 'relative' }}>
+              <div className="relative">
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
                     <Trans>Connect</Trans>

@@ -54,7 +54,7 @@ function ProposalListComponent({
 
   return (
     <div className="mt-2.5 flex flex-col items-stretch gap-3">
-      <RowBetween marginBottom={'10px'}>
+      <RowBetween className="mb-2.5">
         <div className="flex">
           <span className="text-xl text-primary">
             <Trans>KIPs</Trans>

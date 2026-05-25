@@ -186,20 +186,14 @@ export default function NetworkModal({
 
     return (
       <>
-        <Row gap="12px">
+        <Row className="gap-3">
           <span className="flex-shrink-0 text-[10px] leading-6 text-subText">{title}</span>
           <hr className="w-full border-0 border-b border-solid border-border" />
         </Row>
         <div className="relative mb-3 flex-grow">
           <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
           {displayChains.length === 0 ? (
-            <Row
-              className="border border-dashed border-text/20"
-              borderRadius="16px"
-              padding="16px 12px"
-              justify="center"
-              minHeight="60px"
-            >
+            <Row className="min-h-[60px] justify-center rounded-2xl border border-dashed border-text/20 px-3 py-4">
               <span className="text-[10px] leading-[14px] text-subText">
                 <Trans>Drag here to unfavorite chain(s).</Trans>
               </span>
@@ -232,7 +226,7 @@ export default function NetworkModal({
       bgColor={theme.background}
     >
       <Wrapper ref={wrapperRef}>
-        <RowBetween alignItems="center">
+        <RowBetween className="items-center">
           <span className="text-xl font-medium">
             {isWrongNetwork ? <Trans>Wrong Chain</Trans> : <Trans>Select a Chain</Trans>}
           </span>
@@ -251,8 +245,8 @@ export default function NetworkModal({
           </div>
         </RowBetween>
 
-        <Column gap="8px" className="mt-4 grow">
-          <Row gap="12px">
+        <Column className="mt-4 grow gap-2">
+          <Row className="gap-3">
             <span className="flex-shrink-0 text-[10px] leading-6 text-subText">
               <Trans>Favorite Chain(s)</Trans>
             </span>
@@ -262,13 +256,7 @@ export default function NetworkModal({
             <DropzoneOverlay show={isDraggingAddToFavorite} text={t`Add to favorite`} />
             {favoriteChains.filter(item => activeChainIds.map(i => i.toString()).includes(item)).length === 0 &&
             !isDraggingAddToFavorite ? (
-              <Row
-                className="border border-dashed border-text/20"
-                borderRadius="16px"
-                padding="16px 12px"
-                justify="center"
-                minHeight="60px"
-              >
+              <Row className="min-h-[60px] justify-center rounded-2xl border border-dashed border-text/20 px-3 py-4">
                 <span className="text-[10px] leading-[14px] text-subText">
                   <Trans>Drag your favourite chain(s) here</Trans>
                 </span>

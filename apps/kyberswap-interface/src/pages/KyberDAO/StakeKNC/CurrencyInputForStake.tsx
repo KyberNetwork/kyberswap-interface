@@ -34,7 +34,7 @@ export default function CurrencyInputForStake({
   return (
     <div className="flex flex-col gap-2.5 rounded-2xl bg-buttonBlack px-4 py-3 [filter:drop-shadow(0px_4px_4px_rgba(0,0,0,0.16))]">
       <RowBetween>
-        <AutoRow gap="2px">
+        <AutoRow className="gap-0.5">
           {!disabled && (
             <>
               <SmallButton
@@ -56,7 +56,7 @@ export default function CurrencyInputForStake({
             </>
           )}
         </AutoRow>
-        <AutoRow gap="3px" justify="flex-end" className="text-subText">
+        <AutoRow className="justify-end gap-[3px] text-subText">
           <Wallet />{' '}
           <span className="text-xs">
             {tokenBalance ? getFullDisplayBalance(tokenBalance.value, tokenBalance.decimals) : 0}

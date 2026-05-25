@@ -281,7 +281,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
         }}
       />
 
-      <AutoColumn gap="8px">
+      <AutoColumn className="gap-2">
         <div className="flex items-center justify-between px-2 text-xs text-subText">
           <div
             className="flex cursor-pointer items-center gap-1"

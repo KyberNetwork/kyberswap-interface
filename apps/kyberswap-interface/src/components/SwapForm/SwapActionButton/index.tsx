@@ -279,7 +279,7 @@ const SwapActionButton: React.FC<Props> = ({
     if (showApproveFlow) {
       return (
         <div>
-          <RowBetween style={{ gap: '1rem' }}>
+          <RowBetween className="gap-4">
             {permitState === PermitState.NOT_SIGNED && (
               <ButtonConfirmed
                 disabled={loading || approval === ApprovalState.PENDING}
@@ -292,7 +292,7 @@ const SwapActionButton: React.FC<Props> = ({
                   flex: 1,
                 }}
               >
-                <RowFit gap="4px">
+                <RowFit className="gap-1">
                   <InfoHelper
                     className="text-textReverse"
                     placement="top"
@@ -324,11 +324,11 @@ const SwapActionButton: React.FC<Props> = ({
               }}
             >
               {approval === ApprovalState.PENDING ? (
-                <AutoRow gap="6px" justify="center">
+                <AutoRow className="justify-center gap-1.5">
                   <Trans>Approving</Trans> <Loader className="text-border" />
                 </AutoRow>
               ) : (
-                <RowFit gap="4px">
+                <RowFit className="gap-1">
                   <InfoHelper
                     color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
                     placement="top"

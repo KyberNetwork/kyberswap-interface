@@ -326,7 +326,7 @@ export default function ClaimAllModal({
           </span>
         )}
 
-        <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
+        <Row className="flex-row gap-4 max-xs:flex-col-reverse">
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           <ButtonPrimary
             gap="4px"

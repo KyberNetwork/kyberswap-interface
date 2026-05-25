@@ -117,7 +117,7 @@ const RangePresetSelector = ({
   if (!priceRanges.length) return null
 
   return (
-    <HStack gap={0} className="rounded-[20px] border border-solid border-border">
+    <HStack className="gap-0 rounded-[20px] border border-solid border-border">
       {priceRanges.map(item => {
         const isActive = rangeSelected === item.range
 
@@ -133,7 +133,7 @@ const RangePresetSelector = ({
             )}
           >
             {item.range === FULL_PRICE_RANGE ? (
-              <HStack as="span" align="center" justify="center" gap={4}>
+              <HStack as="span" className="items-center justify-center gap-1">
                 Full Range
                 <InfoHelper
                   color={isActive ? theme.blue : theme.subText}

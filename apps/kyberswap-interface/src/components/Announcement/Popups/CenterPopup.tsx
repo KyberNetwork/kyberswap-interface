@@ -88,7 +88,7 @@ export default function CenterPopup({
         style={{ overflowY: isVertical ? 'auto' : undefined }}
         className="break-words text-sm leading-5 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1"
       />
-      <Row justify="center" className="gap-6 max-sm:gap-3">
+      <Row className="justify-center gap-6 max-sm:gap-3">
         {ctas.length > 0 ? (
           ctas.map(item => (
             <CtaButton
@@ -122,16 +122,15 @@ export default function CenterPopup({
       zindex={Z_INDEXS.MODAL}
     >
       <div className="flex max-h-full w-full flex-col gap-6 p-6 max-md:gap-5 max-md:p-5">
-        <RowBetween align="center">
+        <RowBetween className="items-center">
           <span className="break-words text-xl font-medium leading-6">{name}</span>
           <X
             cursor={'pointer'}
-            className="text-subText"
+            className="min-w-6 text-subText"
             onClick={() => {
               onDismiss()
               trackingClose()
             }}
-            style={{ minWidth: '24px' }}
           />
         </RowBetween>
         <div
@@ -151,7 +150,7 @@ export default function CenterPopup({
             )
           )}
           {isVertical ? (
-            <Column gap="14px" className="justify-between" style={{ width: '320px', height: VIDEO_SIZE }}>
+            <Column className="w-80 justify-between gap-[14px]" style={{ height: VIDEO_SIZE }}>
               {renderContent()}
             </Column>
           ) : (

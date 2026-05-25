@@ -32,8 +32,8 @@ export default function Header({
 
   return (
     <>
-      <ColumnCenter gap="sm">
-        <RowBetween minHeight={36}>
+      <ColumnCenter className="gap-2">
+        <RowBetween className="min-h-9">
           <Tabs activeTab={activeTab} setActiveTab={setActiveTab} customChainId={customChainId} />
           <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
         </RowBetween>

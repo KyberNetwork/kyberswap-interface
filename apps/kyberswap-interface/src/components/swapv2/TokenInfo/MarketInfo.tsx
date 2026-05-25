@@ -33,7 +33,7 @@ export default function MarketInfo({ token }: { token: Token | undefined }) {
           <Trans>Contract Address</Trans>
         </span>
 
-        <RowFit gap="4px">
+        <RowFit className="gap-1">
           {token ? (
             <>
               <CurrencyLogo currency={token} size="16px" />

@@ -40,7 +40,7 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
   const bonusApr = pool.bonusApr
 
   return (
-    <Stack gap={2}>
+    <Stack className="gap-0.5">
       <p>
         {t`Earning per`}{' '}
         <span style={{ color: isActive ? theme.blue : theme.primary }}>{isActive ? t`Active` : t`Total`}</span> {t`TVL`}
@@ -88,7 +88,7 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
   const activeAllApr = getActiveAllApr(pool)
 
   return (
-    <HStack align="center" gap={4} wrap="wrap">
+    <HStack className="flex-wrap items-center gap-1">
       <MouseoverTooltipDesktopOnly
         placement="left"
         width="fit-content"

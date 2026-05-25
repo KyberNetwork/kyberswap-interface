@@ -99,9 +99,9 @@ const AddLiquidityWidget = ({
   }, [highlightDegenMode])
 
   return (
-    <Stack gap={16} className="w-full rounded-xl bg-background p-4">
-      <Stack gap={12}>
-        <HStack align="center" justify="space-between">
+    <Stack className="w-full gap-4 rounded-xl bg-background p-4">
+      <Stack className="gap-3">
+        <HStack className="items-center justify-between">
           <span className="font-medium tracking-[0.06em]">ADD LIQUIDITY</span>
           <AddLiquiditySettings
             isOpen={isSettingsOpen}
@@ -199,7 +199,7 @@ const AddLiquidityWidget = ({
       />
 
       {feedback.page.warnings.length || previewError ? (
-        <Stack gap={12}>
+        <Stack className="gap-3">
           {feedback.page.warnings.map((warning, index) => (
             <NoteCard key={`${warning.kind}-${index}`} $tone={warning.tone}>
               {translateZapMessage(warning.message)}
@@ -212,7 +212,7 @@ const AddLiquidityWidget = ({
         </Stack>
       ) : null}
 
-      <HStack gap={16}>
+      <HStack className="gap-4">
         <PrimaryActionButton
           altDisabledStyle
           onClick={() => void actions.handlePrimaryAction()}

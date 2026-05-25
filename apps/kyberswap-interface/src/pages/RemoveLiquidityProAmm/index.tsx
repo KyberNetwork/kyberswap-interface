@@ -471,7 +471,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                   )}
 
                   <OutlineCard className="mt-4 p-4">
-                    <AutoColumn gap="md">
+                    <AutoColumn className="gap-3">
                       <div className="text-xs font-medium">
                         <Trans>More Information</Trans>
                       </div>
@@ -547,7 +547,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
         <Content>
           {position ? (
-            <AutoColumn gap="md" style={{ textAlign: 'left' }}>
+            <AutoColumn className="gap-3 text-left">
               <GridColumn>
                 <FirstColumn>
                   {positionSDK ? (

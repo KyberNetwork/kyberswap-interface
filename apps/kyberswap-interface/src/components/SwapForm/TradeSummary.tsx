@@ -157,7 +157,7 @@ const TradeSummary: React.FC<Props> = ({
         'data-[disabled=true]:text-subText',
       )}
     >
-      <AutoColumn gap="0.75rem">
+      <AutoColumn className="gap-3">
         <RowBetween>
           <span className="text-xs font-normal text-subText">
             <Trans>Rate</Trans>

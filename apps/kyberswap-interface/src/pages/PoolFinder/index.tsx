@@ -114,7 +114,7 @@ export default function PoolFinder() {
   return (
     <AppBody>
       <FindPoolTabs />
-      <AutoColumn gap="md">
+      <AutoColumn className="gap-3">
         <ButtonDropdownLight
           onClick={() => {
             setShowSearch(true)
@@ -156,7 +156,7 @@ export default function PoolFinder() {
         </ButtonDropdownLight>
         {pairs.filter(([pairState]) => pairState === PairState.LOADING).length > 0 && (
           <LightCard className="px-2.5 py-[45px]">
-            <AutoColumn gap="sm" justify="center">
+            <AutoColumn className="justify-center gap-2">
               <p className="text-center">
                 <Trans>Loading</Trans>
                 <Dots />
@@ -168,9 +168,7 @@ export default function PoolFinder() {
         {currency0 && currency1
           ? myPairs.length > 0 && (
               <>
-                <ColumnCenter
-                  style={{ justifyItems: 'center', backgroundColor: '', padding: '12px 0px', borderRadius: '12px' }}
-                >
+                <ColumnCenter className="rounded-xl px-0 py-3" style={{ justifyItems: 'center', backgroundColor: '' }}>
                   <p className="text-center font-medium">
                     <Trans>Pool Found!</Trans>
                   </p>

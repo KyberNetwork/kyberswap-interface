@@ -126,7 +126,7 @@ const MenuTitleWrapper = (props: { toggle: () => void; title?: string; children:
   if (!props.title) return <>{props.children}</>
 
   return (
-    <AutoColumn gap={isMobile ? '14px' : '10px'}>
+    <AutoColumn className={isMobile ? 'gap-[14px]' : 'gap-2.5'}>
       {isMobile && (
         <div
           onClick={props.toggle}

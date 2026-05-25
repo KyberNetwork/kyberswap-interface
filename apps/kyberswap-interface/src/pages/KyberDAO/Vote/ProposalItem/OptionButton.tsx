@@ -44,13 +44,13 @@ export default function OptionButton({
       )}
     >
       <div className="z-[4] w-full">
-        <RowBetween className="z-[1]" alignItems="center">
+        <RowBetween className="z-[1] items-center">
           <MouseoverTooltip
             text={type === 'Pending' && t`Cannot vote at this moment`}
             placement="top"
             width="fit-content"
           >
-            <RowFit gap="5px" className="overflow-hidden break-words text-xs">
+            <RowFit className="gap-[5px] overflow-hidden break-words text-xs">
               <div className="w-[18px] [&>svg]:block">
                 {isCheckBox ? (
                   checked ? (

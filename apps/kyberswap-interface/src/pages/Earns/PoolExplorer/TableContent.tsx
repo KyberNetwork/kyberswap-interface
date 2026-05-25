@@ -100,7 +100,7 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
       <RefetchIndicator visible={isFetching} />
 
       {upToMedium ? (
-        <Stack gap={16}>
+        <Stack className="gap-4">
           {tablePoolData.map(pool => (
             <MobileTableRow
               key={pool.address}

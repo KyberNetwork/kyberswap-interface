@@ -24,7 +24,7 @@ const InformationTab = () => {
   const liquidityValue = formatUsd(liquidityUsdValue)
 
   const rewardsValue = (
-    <HStack align="center" gap={4}>
+    <HStack className="items-center gap-1">
       <span className="font-medium text-text">{formatApr(rewardApr)}</span>
       {rewardApr > 0 ? <BagIcon height={20} width={20} /> : null}
     </HStack>
@@ -39,7 +39,7 @@ const InformationTab = () => {
   ]
 
   return (
-    <Stack gap={20}>
+    <Stack className="gap-5">
       <TopMetricsStrip items={topMetrics} split={true} />
 
       <AprHistoryChart chainId={chainId} poolAddress={poolAddress} />

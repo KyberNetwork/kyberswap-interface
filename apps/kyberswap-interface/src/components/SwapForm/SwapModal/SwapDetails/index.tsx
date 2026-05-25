@@ -134,12 +134,9 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
     <>
       <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
 
-      <AutoColumn
-        gap="0.5rem"
-        style={{ padding: '12px 16px', border: `1px solid ${theme.border}`, borderRadius: '16px' }}
-      >
-        <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
-          <RowFixed style={{ minWidth: 'max-content' }}>
+      <AutoColumn className="gap-2 rounded-2xl border border-border px-4 py-3">
+        <RowBetween className="h-5 items-center gap-4">
+          <RowFixed className="min-w-max">
             <TextDashed fontSize={12} fontWeight={400} className="text-subText" minWidth="max-content">
               <MouseoverTooltip
                 width="200px"
@@ -182,7 +179,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           />
         </RowBetween>
 
-        <RowBetween height="20px" style={{ gap: '16px' }}>
+        <RowBetween className="h-5 gap-4">
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip
@@ -233,7 +230,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           />
         </RowBetween>
 
-        <RowBetween style={{ gap: '16px' }} align="flex-start">
+        <RowBetween className="items-start gap-4">
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
@@ -310,8 +307,8 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           />
         </RowBetween>
 
-        <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
-          <RowFixed style={{ minWidth: 'max-content' }}>
+        <RowBetween className="h-5 items-center gap-4">
+          <RowFixed className="min-w-max">
             <span className="min-w-max text-[12px] font-normal leading-[normal] text-subText">
               <Trans>Maximum Receiving</Trans>
             </span>
@@ -330,7 +327,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
         </RowBetween>
 
         {!!feeAmount && feeAmount !== '0' && (
-          <RowBetween height="20px" style={{ gap: '16px' }}>
+          <RowBetween className="h-5 gap-4">
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                 <MouseoverTooltip
@@ -376,7 +373,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           </RowBetween>
         )}
 
-        <RowBetween height={addMevButton !== null ? '45px' : '20px'} style={{ gap: '16px' }} align="flex-start">
+        <RowBetween className={cn('items-start gap-4', addMevButton !== null ? 'h-[45px]' : 'h-5')}>
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip

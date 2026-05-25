@@ -83,7 +83,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
     >
       <div className="m-0 flex w-full flex-col flex-nowrap p-0">
         <UpperSection>
-          <RowBetween marginBottom="26px" gap="20px">
+          <RowBetween className="mb-[26px] gap-5">
             <span className="text-xl font-medium">
               {showLedgerType ? t`Select Derivation Path` : t`Connect your Bitcoin Wallet`}
             </span>

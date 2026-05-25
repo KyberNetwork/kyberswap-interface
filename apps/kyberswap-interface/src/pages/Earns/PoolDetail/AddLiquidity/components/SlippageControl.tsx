@@ -192,18 +192,15 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
   }
 
   return (
-    <Stack gap={8}>
-      <Stack
-        gap={8}
-        className="w-full rounded-xl border border-border bg-background px-3 py-2 text-text hover:bg-darkText"
-      >
+    <Stack className="gap-2">
+      <Stack className="w-full gap-2 rounded-xl border border-border bg-background px-3 py-2 text-text hover:bg-darkText">
         <button
           type="button"
           aria-expanded={isExpanded}
           onClick={() => setIsExpanded(prev => !prev)}
           className="flex w-full cursor-pointer items-center justify-between gap-2 border-none bg-transparent p-0 text-inherit"
         >
-          <HStack align="center" justify="space-between" width="100%" gap={16}>
+          <HStack className="w-full items-center justify-between gap-4">
             <TooltipText
               tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
               placement="bottom"
@@ -213,7 +210,7 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
             >
               Max Slippage
             </TooltipText>
-            <HStack as="span" align="center" gap={4}>
+            <HStack as="span" className="items-center gap-1">
               <span className="text-sm font-medium" style={{ color: valueColor }}>
                 {formatSlippageLabel(slippage)}
               </span>
@@ -307,7 +304,7 @@ const ZapImpact = ({ route }: { route?: ZapRouteDetail | null }) => {
 
   return (
     <>
-      <HStack align="center" justify="space-between" width="100%" gap={16}>
+      <HStack className="w-full items-center justify-between gap-4">
         <TooltipText
           tooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
           placement="bottom"

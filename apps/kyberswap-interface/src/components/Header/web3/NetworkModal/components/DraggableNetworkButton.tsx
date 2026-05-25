@@ -219,7 +219,7 @@ const DraggableNetworkButton = ({
           )}
         >
           <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px', borderRadius: '4px' }} />
-          <Row flexGrow={1} gap="6px">
+          <Row className="grow gap-1.5">
             <span className="relative text-left">
               {name}
               {deprecatedSoon && (

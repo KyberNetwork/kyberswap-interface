@@ -120,7 +120,7 @@ export default function WalletModal() {
   function getModalContent() {
     return (
       <UpperSection>
-        <RowBetween marginBottom="26px" gap="20px">
+        <RowBetween className="mb-[26px] gap-5">
           {(isSomeOptionPending || isError) && (
             <HoverText onClick={() => reset()} style={{ marginRight: '1rem', flex: 1 }}>
               <ChevronLeft className="text-primary" />

@@ -183,7 +183,7 @@ const DescriptionLimitOrder = (transaction: TransactionDetails) => {
       </PrimaryText>
     )
   return (
-    <Row gap="4px">
+    <Row className="gap-1">
       <DeltaTokenAmount symbol={tokenSymbolIn} amount={tokenAmountIn} />
       <PrimaryText>
         <Trans>to</Trans>
@@ -290,7 +290,7 @@ const TransactionItem = forwardRef<HTMLDivElement, Prop>(function TransactionIte
       {isStalled && <PendingWarning />}
 
       <div className="flex items-end justify-between">
-        <Row gap="6px">
+        <Row className="gap-1.5">
           {!isMinimal && (
             <div className="flex items-center text-text">
               <Icon txs={transaction} />

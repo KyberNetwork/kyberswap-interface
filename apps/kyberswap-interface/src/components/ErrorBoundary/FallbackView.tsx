@@ -68,7 +68,7 @@ const FallbackView: React.FC<Props> = ({ error }) => {
   return (
     <div className="z-[1] flex w-full flex-col items-center justify-center">
       <div className="m-auto w-full px-6 pb-[18px] pt-12">
-        <AutoColumn gap={'lg'} justify="center">
+        <AutoColumn className="justify-items-center gap-6">
           <p className="max-w-[600px] text-center text-2xl">
             {foundError?.title || <Trans>Oops! Something went wrong</Trans>}
           </p>

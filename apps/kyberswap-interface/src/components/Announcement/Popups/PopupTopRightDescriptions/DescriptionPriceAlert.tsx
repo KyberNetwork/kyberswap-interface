@@ -39,7 +39,7 @@ const DescriptionPriceAlert = (
     link: `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}?tab=${Tab.HISTORY}`,
     icon: <Clock size={20} className="text-primary" />,
     summary: (
-      <Row gap="6px" flexWrap={'wrap'} alignItems="center">
+      <Row className="flex-wrap items-center gap-1.5">
         <Logo srcs={[tokenInLogoURL]} style={logoStyle} />
         {tokenInAmount} {tokenInSymbol} <span className="text-subText">to</span>
         <Logo srcs={[tokenOutLogoURL]} style={logoStyle} /> {tokenOutSymbol} <span className="text-subText">goes</span>{' '}

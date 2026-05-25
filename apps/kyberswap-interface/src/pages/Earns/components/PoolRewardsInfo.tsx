@@ -18,7 +18,7 @@ type Props = {
 
 const RewardTooltipContent = ({ egRewards, bonusRewards }: { egRewards: number; bonusRewards: number }) => {
   return (
-    <Stack gap={2}>
+    <Stack className="gap-0.5">
       {egRewards > 0 && (
         <p>
           {t`FairFlow EG Rewards`}: {formatDisplayNumber(egRewards, { style: 'currency', significantDigits: 4 })}
@@ -53,7 +53,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
   }, [pool.merklOpportunity?.rewardsRecord?.breakdowns])
 
   return (
-    <Stack gap={8}>
+    <Stack className="gap-2">
       {hasRewards ? (
         <MouseoverTooltipDesktopOnly
           text={<RewardTooltipContent egRewards={egRewards} bonusRewards={bonusRewards} />}
@@ -67,13 +67,13 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
       )}
 
       {rewardTokens.length > 0 && showEstimate && weeklyRewards > 0 && (
-        <HStack align="center" gap={4} justify="flex-end">
+        <HStack className="items-center justify-end gap-1">
           {rewardTokens.length > 0 && (
             <MouseoverTooltipDesktopOnly
               text={
-                <Stack gap={4}>
+                <Stack className="gap-1">
                   {rewardTokens.map(token => (
-                    <HStack align="center" gap={4} key={`${token.chainId}-${token.address}`}>
+                    <HStack key={`${token.chainId}-${token.address}`} className="items-center gap-1">
                       {token.icon ? <TokenLogo src={token.icon} size={16} /> : null}
                       <span>
                         {token.amount} {token.symbol}
@@ -85,7 +85,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
               width="fit-content"
               placement="bottom"
             >
-              <HStack align="center" gap={4} wrap="wrap" justify="flex-end">
+              <HStack className="flex-wrap items-center justify-end gap-1">
                 {rewardTokens.map(token => (
                   <TokenLogo key={`${token.chainId}-${token.address}`} src={token.icon} size={16} />
                 ))}

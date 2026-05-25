@@ -252,7 +252,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
             <span>
               <Trans>Choose to create pool on</Trans>
             </span>
-            <Row gap="12px">
+            <Row className="gap-3">
               <DropdownMenu
                 fullWidth
                 options={chainOptions}
@@ -274,9 +274,9 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
             <span>
               <Trans>Choose Pool Pair</Trans>
             </span>
-            <Row gap="12px">
+            <Row className="gap-3">
               <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token0')}>
-                <Row gap="6px" style={{ flex: 1 }}>
+                <Row className="flex-1 gap-1.5">
                   {token0 && <TokenLogo src={token0.logo} size={20} />}
                   <span className="text-sm text-subText">{token0?.symbol || <Trans>Select Token</Trans>}</span>
                 </Row>
@@ -284,7 +284,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
               </TokenSelectWrapper>
 
               <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token1')}>
-                <Row gap="6px" style={{ flex: 1 }}>
+                <Row className="flex-1 gap-1.5">
                   {token1 && <TokenLogo src={token1.logo} size={20} />}
                   <span className="text-sm text-subText">{token1?.symbol || <Trans>Select Token</Trans>}</span>
                 </Row>

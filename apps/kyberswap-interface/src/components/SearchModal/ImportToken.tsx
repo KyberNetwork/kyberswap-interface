@@ -47,7 +47,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
 
   return (
     <div className="relative w-full overflow-auto">
-      <PaddedColumn gap="14px" style={{ width: '100%', flex: '1 1' }}>
+      <PaddedColumn className="w-full flex-1 gap-[14px]">
         <RowBetween>
           {onBack ? <ArrowLeft style={{ cursor: 'pointer' }} onClick={onBack} /> : <div></div>}
           <p className="m-0 text-xl font-medium leading-[normal]">
@@ -73,7 +73,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
             <Card className="bg-buttonBlack p-8" key={token.address}>
               <div className="flex gap-2.5">
                 <CurrencyLogo currency={token} size={'44px'} />
-                <AutoColumn gap="4px">
+                <AutoColumn className="gap-1">
                   <p className="m-0 text-xl font-medium leading-[normal] text-text">{token.symbol}</p>
                   <span className="text-sm font-normal text-subText">{token.name}</span>
                   <div className="flex items-center gap-[5px] text-text">

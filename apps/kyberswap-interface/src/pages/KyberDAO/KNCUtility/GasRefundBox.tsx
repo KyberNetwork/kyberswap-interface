@@ -47,7 +47,6 @@ export default function GasRefundBox() {
   const [isShowEligibleTx, setShowEligibleTx] = useState(false)
   const eligibleTxs = useEligibleTransactions(1, 1)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { userTier, gasRefundPercentage } = useGasRefundTier()
   const { data: nextCycleData } = useGetGasRefundNextCycleInfoQuery(undefined)
   const nextCycleStartTime = nextCycleData?.data.startTime
@@ -70,12 +69,7 @@ export default function GasRefundBox() {
   return (
     <div className="flex w-full flex-col gap-5 rounded-[20px] bg-tableHeader p-5">
       <div className="flex flex-col gap-4">
-        <RowBetween
-          width="100%"
-          flexDirection={upToExtraSmall ? 'column' : 'row'}
-          align={upToExtraSmall ? 'start' : 'center'}
-          className="gap-4"
-        >
+        <RowBetween className="w-full flex-row items-center gap-4 max-xs:flex-col max-xs:items-start">
           <div className="flex">
             <TextDashed>
               <MouseoverTooltip width="fit-content" text={<Trans>Rewards available to claim.</Trans>} placement="top">
@@ -122,7 +116,7 @@ export default function GasRefundBox() {
             </span>
           )}
         </RowBetween>
-        <RowBetween width="100%" flexDirection="row" className="gap-4" align="end">
+        <RowBetween className="w-full flex-row items-end gap-4">
           <div className="flex flex-col gap-2">
             <span className="flex items-center text-xl font-medium leading-6 text-text">
               {account ? formattedNum(reward?.knc.toString() || '0') : '--'} KNC
@@ -182,7 +176,7 @@ export default function GasRefundBox() {
         </RowBetween>
       </div>
       <hr className="m-0 h-px w-full border-none bg-border" />
-      <RowBetween flexDirection="row" className="gap-4">
+      <RowBetween className="flex-row gap-4">
         <div className="flex flex-col gap-4">
           <TextDashed fontSize={14} lineHeight="20px" fontWeight={500}>
             <MouseoverTooltip

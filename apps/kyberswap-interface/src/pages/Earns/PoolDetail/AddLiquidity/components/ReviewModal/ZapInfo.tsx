@@ -66,18 +66,18 @@ const ZapInfo = ({ chainId, route, tokenInput }: ZapInfoProps) => {
   )
 
   return (
-    <Stack gap={12} className="rounded-xl bg-buttonGray px-4 py-3">
-      <HStack align="center" justify="space-between">
+    <Stack className="gap-3 rounded-xl bg-buttonGray px-4 py-3">
+      <HStack className="items-center justify-between">
         <span className="text-subText">Zap-in Amount</span>
         <span className="font-medium text-text">
           {formatDisplayNumber(totalInputUsd, { style: 'currency', significantDigits: 6 })}
         </span>
       </HStack>
 
-      <Stack gap={8}>
+      <Stack className="gap-2">
         {items.map(item => (
-          <HStack key={item.token.address} align="center" gap={12} wrap="wrap">
-            <HStack align="center" gap={8} minWidth={0} wrap="wrap">
+          <HStack key={item.token.address} className="flex-wrap items-center gap-3">
+            <HStack className="min-w-0 flex-wrap items-center gap-2">
               <TokenLogo src={item.token.logo} size={18} />
               <span className="text-text">
                 {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}

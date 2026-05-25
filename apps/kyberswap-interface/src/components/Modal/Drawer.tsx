@@ -62,8 +62,8 @@ export default function Drawer({
               exit={{ x: -window.innerWidth }}
               transition={{ duration: 0.3 }}
             >
-              <Column gap="12px" className="w-full">
-                <Row width={'100%'} justify="space-between">
+              <Column className="w-full gap-3">
+                <Row className="w-full justify-between">
                   <span className="font-medium text-text">{title}</span>
                   <X style={{ cursor: 'pointer' }} size={18} className="text-subText" onClick={onDismiss} />
                 </Row>

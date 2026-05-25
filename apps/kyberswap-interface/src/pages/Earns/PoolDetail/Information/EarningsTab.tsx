@@ -8,12 +8,12 @@ const EarningsTab = () => {
   const { chainId, poolAddress } = usePoolDetailContext()
 
   return (
-    <Stack gap={20}>
+    <Stack className="gap-5">
       <PoolEarningChart chainId={chainId} poolAddress={poolAddress} />
 
       <div className="h-px bg-text/[0.06]" />
 
-      <Stack gap={24}>
+      <Stack className="gap-6">
         <PoolEarningApr />
         <PoolEarningReward />
       </Stack>

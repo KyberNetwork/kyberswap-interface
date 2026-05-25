@@ -152,7 +152,7 @@ export default function ProAmmFee({
   if (layout === 0) {
     return (
       <OutlineCard className="mt-4 p-4">
-        <AutoColumn gap="md">
+        <AutoColumn className="gap-3">
           <span className="text-xs font-medium">Your Fee Earnings</span>
           {text && <span className="text-xs text-subText">{text}</span>}
 
@@ -196,7 +196,7 @@ export default function ProAmmFee({
 
   return (
     <OutlineCard className="mt-4 p-4">
-      <AutoColumn gap="md">
+      <AutoColumn className="gap-3">
         <RowBetween>
           <div className="flex">
             <span className="text-xs font-medium text-subText">
