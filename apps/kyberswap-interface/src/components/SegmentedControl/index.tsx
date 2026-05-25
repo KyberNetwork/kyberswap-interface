@@ -1,6 +1,5 @@
+import { cva } from 'class-variance-authority'
 import { type ReactNode } from 'react'
-
-import { cn } from 'utils/cn'
 
 export type SegmentedControlOption<T extends string = string> = {
   label: ReactNode
@@ -14,6 +13,26 @@ type SegmentedControlProps<T extends string> = {
   size?: 'sm' | 'md'
   value?: T
 }
+
+const segment = cva(
+  'relative z-[1] min-w-12 rounded-full border-0 bg-transparent text-sm font-medium [transition:color_200ms_ease,background_200ms_ease] disabled:cursor-not-allowed disabled:opacity-50',
+  {
+    variants: {
+      size: {
+        sm: 'px-2 py-1',
+        md: 'px-3 py-2',
+      },
+      active: {
+        true: 'text-text',
+        false: 'cursor-pointer text-subText hover:bg-buttonGray',
+      },
+    },
+    defaultVariants: {
+      size: 'md',
+      active: false,
+    },
+  },
+)
 
 const SegmentedControl = <T extends string>({
   onChange,
@@ -49,11 +68,7 @@ const SegmentedControl = <T extends string>({
             onClick={() => !option.disabled && onChange?.(option.value)}
             role="tab"
             type="button"
-            className={cn(
-              'relative z-[1] min-w-12 rounded-full border-0 bg-transparent text-sm font-medium [transition:color_200ms_ease,background_200ms_ease] disabled:cursor-not-allowed disabled:opacity-50',
-              active ? 'text-text' : 'cursor-pointer text-subText hover:bg-buttonGray',
-              size === 'sm' ? 'px-2 py-1' : 'px-3 py-2',
-            )}
+            className={segment({ size, active })}
           >
             {option.label}
           </button>

@@ -1,3 +1,4 @@
+import { cva } from 'class-variance-authority'
 import React, { CSSProperties, HTMLProps, useCallback } from 'react'
 import { IconProps, ExternalLink as LinkIconFeather, X } from 'react-feather'
 import { Link, LinkProps } from 'react-router-dom'
@@ -45,24 +46,25 @@ export function LinkIcon({ color, className, style, ...rest }: IconProps & { col
 }
 
 // A button that triggers some onClick result, but looks like a link.
+const linkStyledButton = cva('border-none bg-transparent p-0 text-inherit no-underline outline-none', {
+  variants: {
+    disabled: {
+      true: 'cursor-default text-text2',
+      false: 'cursor-pointer text-primary hover:underline focus:underline active:no-underline',
+    },
+  },
+  defaultVariants: {
+    disabled: false,
+  },
+})
+
 export function LinkStyledButton({
   disabled,
   className,
   ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { disabled?: boolean }) {
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      className={cn(
-        'border-none bg-transparent p-0 text-inherit no-underline outline-none',
-        disabled
-          ? 'cursor-default text-text2'
-          : 'cursor-pointer text-primary hover:underline focus:underline active:no-underline',
-        className,
-      )}
-      {...rest}
-    />
+    <button type="button" disabled={disabled} className={cn(linkStyledButton({ disabled }), className)} {...rest} />
   )
 }
 
