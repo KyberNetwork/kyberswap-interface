@@ -246,7 +246,7 @@ export interface PoolEarningsBucket {
   lpFeeUsd: number
   lmUsd: number
   egUsd: number
-  bonusUsd: number
+  bonusUsd?: number
   totalUsd: number
 }
 
