@@ -10,11 +10,13 @@ export default function ArrowRotate({
   onClick,
   isVertical = false,
   style = {},
+  className,
 }: {
   rotate: boolean
   onClick?: () => void
   isVertical?: boolean
   style?: CSSProperties
+  className?: string
 }) {
   const rotation = isVertical ? (rotate ? '270deg' : '90deg') : rotate ? '180deg' : '0deg'
   return (
@@ -24,6 +26,7 @@ export default function ArrowRotate({
       className={cn(
         'flex size-10 items-center justify-center rounded-full bg-buttonBlack p-2 transition-transform duration-300',
         onClick && 'cursor-pointer hover:opacity-80',
+        className,
       )}
     >
       <SwapIcon size={24} className="text-subText" />

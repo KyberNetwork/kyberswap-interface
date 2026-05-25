@@ -183,18 +183,7 @@ const DraggableNetworkButton = ({
         variants={variants}
         style={{ position: 'relative', width: '100%', zIndex: 1 }}
       >
-        {dragging && (
-          <div
-            key="ghost"
-            style={{
-              width: '100%',
-              inset: '0',
-              backgroundColor: theme.tableHeader + '80',
-              borderRadius: '16px',
-              position: 'absolute',
-            }}
-          />
-        )}
+        {dragging && <div key="ghost" className="absolute inset-0 w-full rounded-2xl bg-tableHeader/50" />}
         <motion.div
           ref={ref}
           key={chainId.toString()}

@@ -94,7 +94,8 @@ export default function DateTimePicker({
   const theme = useTheme()
 
   const propsSelect: Partial<SelectProps> = {
-    style: { width: 120, borderRadius: 20, background: theme.background },
+    style: { width: 120, borderRadius: 20 },
+    className: 'bg-background',
     menuStyle: {
       height: 250,
       overflow: 'scroll',

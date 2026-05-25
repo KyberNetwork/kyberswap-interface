@@ -4,7 +4,6 @@ import { cn } from 'utils/cn'
 
 type LoaderProps = Omit<SVGAttributes<SVGSVGElement>, 'stroke'> & {
   size?: string
-  stroke?: string
   strokeWidth?: string
 }
 
@@ -12,7 +11,7 @@ type LoaderProps = Omit<SVGAttributes<SVGSVGElement>, 'stroke'> & {
  * Takes in custom size and stroke for circle color, default to primary color as fill,
  * need ...rest for layered styles on top.
  */
-export default function Loader({ size = '16px', stroke, strokeWidth = '2.5', className, style, ...rest }: LoaderProps) {
+export default function Loader({ size = '16px', strokeWidth = '2.5', className, style, ...rest }: LoaderProps) {
   const sWN = Number(strokeWidth)
   // viewbox for stroke width:
   // stroke width = 1 => viewbox = 1.5 1.5 21 21
@@ -29,7 +28,7 @@ export default function Loader({ size = '16px', stroke, strokeWidth = '2.5', cla
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={cn('animate-spin-slow text-primary', className)}
-      style={{ width: size, height: size, ...style, ...(stroke ? { color: stroke } : null) }}
+      style={{ width: size, height: size, ...style }}
       {...rest}
     >
       <path

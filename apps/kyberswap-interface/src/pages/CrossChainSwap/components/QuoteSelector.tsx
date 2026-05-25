@@ -10,7 +10,6 @@ import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import Skeleton from 'components/Skeleton'
 import { Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { Currency } from 'pages/CrossChainSwap/adapters'
@@ -51,7 +50,6 @@ export const QuoteSelector = ({
   const { allLoading, fromChainId, toChainId } = useCrossChainSwap()
   const { trackingHandler } = useTracking()
   const [show, setShow] = useState(false)
-  const theme = useTheme()
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -207,13 +205,13 @@ export const QuoteSelector = ({
       }
       hasArrow={false}
       toggle={() => setShow(prev => !prev)}
+      className="bg-background"
       style={{
         width: '100%',
         left: `calc(100% + 16px)`,
         top: 0,
         zIndex: 9999,
         height: '100%',
-        backgroundColor: theme.background,
         paddingRight: '12px',
       }}
     >

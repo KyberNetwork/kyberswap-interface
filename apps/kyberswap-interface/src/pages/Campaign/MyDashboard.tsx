@@ -272,13 +272,13 @@ const MyDashboard = () => {
                 toggle={() => setIsOpenMenu(prev => !prev)}
                 modalWhenMobile={false}
                 hasArrow={false}
+                className="bg-background"
                 style={{
                   minWidth: '240px',
                   top: 'calc(100% + 8px)',
                   right: 0,
                   padding: '8px',
                   borderRadius: '16px',
-                  backgroundColor: theme.background,
                 }}
                 trigger={
                   <ButtonIcon color={tab !== NEW_CAMPAIGN ? theme.primary : undefined}>

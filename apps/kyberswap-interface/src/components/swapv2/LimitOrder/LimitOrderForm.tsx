@@ -36,7 +36,6 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback from 'hooks/useWrapCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -159,7 +158,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     : walletChainId
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const theme = useTheme()
   const notify = useNotify()
   const { trackingHandler } = useTracking()
 
@@ -981,7 +979,8 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           <ArrowRotate
             rotate={rotate}
             onClick={isEdit ? undefined : handleRotateClick}
-            style={{ width: 25, height: 25, padding: 4, background: theme.buttonGray }}
+            style={{ width: 25, height: 25, padding: 4 }}
+            className="bg-buttonGray"
           />
         </RowBetween>
 

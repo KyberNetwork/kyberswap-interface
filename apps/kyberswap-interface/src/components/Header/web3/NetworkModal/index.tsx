@@ -194,7 +194,7 @@ export default function NetworkModal({
           <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
           {displayChains.length === 0 ? (
             <Row
-              border={'1px dashed ' + theme.text + '32'}
+              className="border border-dashed border-text/20"
               borderRadius="16px"
               padding="16px 12px"
               justify="center"
@@ -243,9 +243,7 @@ export default function NetworkModal({
               onChange={val => {
                 setSearchText(val)
               }}
-              style={{
-                backgroundColor: theme.buttonBlack,
-              }}
+              className="bg-buttonBlack"
             />
             <ButtonAction onClick={toggleNetworkModal}>
               <X />
@@ -265,7 +263,7 @@ export default function NetworkModal({
             {favoriteChains.filter(item => activeChainIds.map(i => i.toString()).includes(item)).length === 0 &&
             !isDraggingAddToFavorite ? (
               <Row
-                border={'1px dashed ' + theme.text + '32'}
+                className="border border-dashed border-text/20"
                 borderRadius="16px"
                 padding="16px 12px"
                 justify="center"
@@ -280,16 +278,7 @@ export default function NetworkModal({
                 <LayoutGroup>
                   {orders.map(chainId => {
                     if (chainId === 'ghost') {
-                      return (
-                        <div
-                          key="ghost"
-                          style={{
-                            height: '60px',
-                            backgroundColor: theme.tableHeader + '80',
-                            borderRadius: '16px',
-                          }}
-                        />
-                      )
+                      return <div key="ghost" className="h-[60px] rounded-2xl bg-tableHeader/50" />
                     }
                     const chainInfo = allChains.find(item => item.chainId.toString() === chainId)
 

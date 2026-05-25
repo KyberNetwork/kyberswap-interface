@@ -338,7 +338,7 @@ export default function ClaimAllModal({
             }
             onClick={handleClaim}
           >
-            {(isClaiming || isPendingTxSelectedMerkl || isSyncingSelectedMerkl) && <Loader stroke={theme.border} />}
+            {(isClaiming || isPendingTxSelectedMerkl || isSyncingSelectedMerkl) && <Loader className="text-border" />}
             {isClaiming || isPendingTxSelectedMerkl
               ? t`Claiming`
               : isSyncingSelectedMerkl

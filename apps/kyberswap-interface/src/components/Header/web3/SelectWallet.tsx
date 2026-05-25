@@ -109,7 +109,7 @@ function Web3StatusInner() {
             <Text>
               <Trans>{pendingLength} Pending</Trans>
             </Text>{' '}
-            <Loader stroke="white" />
+            <Loader className="text-white" />
           </RowBetween>
         ) : (
           <>

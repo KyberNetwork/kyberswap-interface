@@ -325,7 +325,7 @@ const SwapActionButton: React.FC<Props> = ({
             >
               {approval === ApprovalState.PENDING ? (
                 <AutoRow gap="6px" justify="center">
-                  <Trans>Approving</Trans> <Loader stroke={theme.border} />
+                  <Trans>Approving</Trans> <Loader className="text-border" />
                 </AutoRow>
               ) : (
                 <RowFit gap="4px">

@@ -141,7 +141,7 @@ const ClaimModal = ({
             <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           )}
           <ButtonPrimary gap="4px" disabled={isClaiming} onClick={handleClaim}>
-            {isClaiming && <Loader stroke={'#505050'} />}
+            {isClaiming && <Loader className="text-border" />}
             {isClaiming ? t`Claiming` : t`Claim only`}
           </ButtonPrimary>
         </Row>

@@ -437,7 +437,7 @@ export default function ConfirmSwapModalContent({
             </span>
             {isBuildingRoute && (
               <div className="flex h-full w-fit items-center gap-1">
-                <Loader size="14px" stroke={theme.primary} />
+                <Loader size="14px" className="text-primary" />
                 <span className="text-xs text-subText">
                   <Dots>
                     <Trans>Checking price</Trans>

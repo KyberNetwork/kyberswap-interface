@@ -195,7 +195,7 @@ const DropdownAction = ({
     {
       label: t`Claim Fees`,
       disabled: feesClaimDisabled,
-      icon: feesClaiming ? <Loader size={'16px'} stroke={'#7a7a7a'} /> : <IconClaimFees width={16} />,
+      icon: feesClaiming ? <Loader size={'16px'} className="text-[#7a7a7a]" /> : <IconClaimFees width={16} />,
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()
         if (!feesClaimDisabled) handleAction(e, onClaimFee)
@@ -206,7 +206,7 @@ const DropdownAction = ({
       label: t`Claim Rewards`,
       disabled: rewardsClaimDisabled,
       icon: rewardsClaiming ? (
-        <Loader size={'16px'} stroke={'#7a7a7a'} />
+        <Loader size={'16px'} className="text-[#7a7a7a]" />
       ) : (
         <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
       ),
