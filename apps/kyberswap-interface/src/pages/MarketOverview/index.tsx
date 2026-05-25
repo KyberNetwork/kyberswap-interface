@@ -16,6 +16,7 @@ import { MAINNET_NETWORKS } from 'constants/networks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 import SortIcon, { Direction } from './SortIcon'
 import TableContent from './TableContent'
@@ -68,9 +69,10 @@ export default function MarketOverview() {
       {MAINNET_NETWORKS.map(item => (
         <MouseoverTooltip text={NETWORKS_INFO[item].name} key={item} placement="top" width="fit-content">
           <div
-            className={`flex items-center rounded p-1 ${
-              filters.chainId === item ? 'border border-solid border-primary bg-primary-20' : 'border-none'
-            }`}
+            className={cn(
+              'flex items-center rounded p-1',
+              filters.chainId === item ? 'border border-solid border-primary bg-primary-20' : 'border-none',
+            )}
             role="button"
             onClick={() => {
               updateFilters('chainId', item.toString())
@@ -105,7 +107,7 @@ export default function MarketOverview() {
         </p>
       </div>
 
-      <div className={`flex justify-between gap-4 ${upToSmall ? 'flex-col' : 'flex-row'}`}>
+      <div className={cn('flex justify-between gap-4', upToSmall ? 'flex-col' : 'flex-row')}>
         <div className="flex flex-wrap gap-4">
           <Tag active={!tags.length} onClick={() => updateFilters('tags', '')} role="button">
             <Trans>All</Trans>

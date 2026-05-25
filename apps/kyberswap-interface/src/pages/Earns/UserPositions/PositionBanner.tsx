@@ -28,6 +28,7 @@ import { truncateSymbol } from 'pages/Earns/utils'
 import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -135,7 +136,7 @@ export default function PositionBanner({
     <>
       {shareModal}
 
-      <div className={`flex items-center ${!upToLarge ? 'flex-row gap-5' : 'flex-col gap-3'}`}>
+      <div className={cn('flex items-center', !upToLarge ? 'flex-row gap-5' : 'flex-col gap-3')}>
         <BannerContainer>
           <BannerWrapper>
             <BannerDataItem>
@@ -145,9 +146,10 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <p
-                  className={`max-w-[140px] text-[24px] ${
-                    totalValueUsd && totalValueUsd > 0 ? 'text-primary' : 'text-text'
-                  }`}
+                  className={cn(
+                    'max-w-[140px] text-[24px]',
+                    totalValueUsd && totalValueUsd > 0 ? 'text-primary' : 'text-text',
+                  )}
                   style={LIMIT_TEXT_STYLES}
                 >
                   <AnimatedNumber

@@ -11,9 +11,10 @@ import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
 import { MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
+import { cn } from 'utils/cn'
 
 export const Label: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', children, ...props }) => (
-  <div {...props} className={`border-b border-dashed border-border text-xs font-medium text-subText ${className}`}>
+  <div {...props} className={cn('border-b border-dashed border-border text-xs font-medium text-subText', className)}>
     {children}
   </div>
 )

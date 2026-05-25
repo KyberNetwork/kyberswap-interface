@@ -12,6 +12,7 @@ import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { StatCard } from 'pages/Campaign/styles'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import NearIntentCampaignStats from './NearIntentCampaignStats'
@@ -112,7 +113,7 @@ export default function CampaignStats({ type, selectedWeek }: Props) {
 
   return (
     <div className="mt-4 grid gap-3" style={{ gridTemplateColumns }}>
-      <div className={`flex w-full gap-3 ${upToSmall ? 'flex-col' : 'flex-row'}`}>
+      <div className={cn('flex w-full gap-3', upToSmall ? 'flex-col' : 'flex-row')}>
         {!isReferralCampaign && <WeekCountdown weekOptions={weeks} selectedWeek={selectedWeek} />}
 
         <StatCard style={{ flex: 1 }}>
@@ -132,7 +133,7 @@ export default function CampaignStats({ type, selectedWeek }: Props) {
       {type === CampaignType.NearIntents ? (
         <NearIntentCampaignStats selectedWeek={selectedWeek} />
       ) : (
-        <div className={`flex w-full gap-3 ${upToSmall ? 'flex-col' : 'flex-row'}`}>
+        <div className={cn('flex w-full gap-3', upToSmall ? 'flex-col' : 'flex-row')}>
           <StatCard style={{ flex: 1 }}>
             <span className="text-sm text-subText">{isReferralCampaign ? t`My referrals` : t`My Earned Points`}</span>
             <p className="mt-2 text-xl font-medium">

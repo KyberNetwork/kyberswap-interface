@@ -11,6 +11,7 @@ import Pagination from 'components/Pagination'
 import { useActiveWeb3React } from 'hooks'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
@@ -81,15 +82,19 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
       )}
 
       <div className="flex px-5 py-4 text-xs font-medium text-subText max-sm:px-0 max-sm:py-4">
-        {!isReferralCampaign && <span className={`${upToSmall ? 'w-[30px]' : 'w-[50px]'} text-center`}>{t`RANK`}</span>}
+        {!isReferralCampaign && (
+          <span className={cn(upToSmall ? 'w-[30px]' : 'w-[50px]', 'text-center')}>{t`RANK`}</span>
+        )}
 
-        <span className={`flex-1 ${isReferralCampaign ? 'ml-0' : 'ml-5'}`}>{t`WALLET`}</span>
+        <span className={cn('flex-1', isReferralCampaign ? 'ml-0' : 'ml-5')}>{t`WALLET`}</span>
 
-        <span className={`${isReferralCampaign ? 'w-[150px]' : 'w-[80px]'} ml-5 text-right`}>
+        <span className={cn(isReferralCampaign ? 'w-[150px]' : 'w-[80px]', 'ml-5 text-right')}>
           {isReferralCampaign ? t`NUMBER OF REFERRALS` : t`POINTS`}
         </span>
 
-        {showReward && <span className={`${!upToSmall ? 'w-[150px]' : 'w-[80px]'} ml-5 text-right`}>{t`REWARDS`}</span>}
+        {showReward && (
+          <span className={cn(!upToSmall ? 'w-[150px]' : 'w-[80px]', 'ml-5 text-right')}>{t`REWARDS`}</span>
+        )}
       </div>
 
       <Divider />
@@ -99,7 +104,7 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
       ) : !isReferralCampaign ? (
         data?.data?.leaderBoards.map((item, index) => (
           <div key={item.wallet} className="flex px-5 py-4 text-sm text-text max-sm:px-0 max-sm:py-4">
-            <span className={`${upToSmall ? 'w-[30px]' : 'w-[50px]'} text-center font-medium`}>
+            <span className={cn(upToSmall ? 'w-[30px]' : 'w-[50px]', 'text-center font-medium')}>
               {index + (page - 1) * 10 + 1}
             </span>
 
@@ -112,7 +117,7 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
             </span>
 
             {showReward && (
-              <span className={`ml-5 ${!upToSmall ? 'w-[150px]' : 'w-[70px]'} text-right`}>
+              <span className={cn('ml-5', !upToSmall ? 'w-[150px]' : 'w-[70px]', 'text-right')}>
                 {formatDisplayNumber(rewardAmount(item.reward), { significantDigits: 4 })} {reward.symbol}
               </span>
             )}

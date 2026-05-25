@@ -27,6 +27,7 @@ import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } f
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
@@ -277,7 +278,7 @@ export default function TableContent({
   const emptyPosition = (
     <EmptyPositionText>
       <IconEarnNotFound />
-      <div className={`mb-3 flex gap-1 ${upToSmall ? 'flex-col' : 'flex-row'}`}>
+      <div className={cn('mb-3 flex gap-1', upToSmall ? 'flex-col' : 'flex-row')}>
         <span className="text-subText">{t`You don't have any liquidity positions yet`}.</span>
         <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
       </div>

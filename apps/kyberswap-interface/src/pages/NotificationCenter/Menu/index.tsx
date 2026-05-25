@@ -23,6 +23,7 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useProfileInfo, useSignedAccountInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
 
@@ -139,7 +140,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
   }, [signedAccount, isSigInGuest, profile, toggleImportProfile, isSignInGuestDefault, menuItems])
 
   return (
-    <div className={`flex flex-col ${upToMedium ? 'p-0' : 'p-6'}`}>
+    <div className={cn('flex flex-col', upToMedium ? 'p-0' : 'p-6')}>
       {menuItemDeskTop.map((data, index) => (
         <MenuItem
           key={index}

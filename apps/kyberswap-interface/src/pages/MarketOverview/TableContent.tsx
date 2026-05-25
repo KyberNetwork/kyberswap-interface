@@ -17,6 +17,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import DetailModal, { Price, PriceChange } from './DetailModal'
@@ -414,7 +415,7 @@ export default function TableContent({
 
         return (
           <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
-            <div className={`flex items-start gap-2 ${upToMedium ? 'py-3' : 'p-3'}`}>
+            <div className={cn('flex items-start gap-2', upToMedium ? 'py-3' : 'p-3')}>
               <img
                 src={item.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
                 width="24px"

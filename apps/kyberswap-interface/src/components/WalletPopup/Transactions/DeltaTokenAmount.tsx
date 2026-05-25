@@ -9,7 +9,7 @@ import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 export const TokenAmountWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={`flex items-center gap-1 text-xs ${className ?? ''}`} {...rest}>
+  <div className={cn('flex items-center gap-1 text-xs', className)} {...rest}>
     {children}
   </div>
 )

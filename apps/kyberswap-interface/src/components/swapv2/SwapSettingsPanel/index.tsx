@@ -17,6 +17,7 @@ import {
   useToggleTradeRoutes,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
+import { cn } from 'utils/cn'
 
 import { CrossChainSourceSetting } from './CrossChainSourceSetting'
 import DegenModeSetting from './DegenModeSetting'
@@ -53,7 +54,7 @@ const SettingsPanel: React.FC<Props> = ({
   const toggleSuccessSound = useToggleSuccessSound()
 
   return (
-    <div className={`w-full ${className ?? ''}`} id={TutorialIds.TRADING_SETTING_CONTENT}>
+    <div className={cn('w-full', className)} id={TutorialIds.TRADING_SETTING_CONTENT}>
       <div className="mb-1 flex w-full flex-col">
         <div className="flex items-center gap-1">
           <ChevronLeft

@@ -3,6 +3,7 @@ import { AlertTriangle } from 'react-feather'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { CollapseItem } from 'components/Collapse'
+import { cn } from 'utils/cn'
 
 const ErrorWarningPanel = ({
   title,
@@ -22,7 +23,7 @@ const ErrorWarningPanel = ({
   if (!desc)
     return (
       <div
-        className={`flex min-h-[40px] items-center gap-2 rounded-[18px] px-3 py-2 ${bgClass} ${colorClass}`}
+        className={cn('flex min-h-[40px] items-center gap-2 rounded-[18px] px-3 py-2', bgClass, colorClass)}
         style={customStyle}
       >
         <AlertTriangle size={16} className="min-w-4" />
@@ -35,7 +36,7 @@ const ErrorWarningPanel = ({
       style={{ gap: '8px', borderRadius: '18px', padding: '8px 12px', ...customStyle }}
       className={bgClass}
       header={
-        <div className={`flex items-center gap-2 ${colorClass}`}>
+        <div className={cn('flex items-center gap-2', colorClass)}>
           <div>
             <AlertTriangle size={16} className="min-w-4" />
           </div>

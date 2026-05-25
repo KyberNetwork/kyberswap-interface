@@ -9,6 +9,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
+import { cn } from 'utils/cn'
 
 import CampaignStats from './components/CampaignStats'
 import RaffleCampaignStats from './components/CampaignStats/RaffleCampaignStats'
@@ -144,7 +145,7 @@ export default function CampaignPage() {
       </div>
 
       {!isReferralCampaign && (
-        <div className={`mt-4 flex items-center justify-between gap-4 ${upToExtraSmall ? 'flex-col' : 'flex-row'}`}>
+        <div className={cn('mt-4 flex items-center justify-between gap-4', upToExtraSmall ? 'flex-col' : 'flex-row')}>
           <WeekSelect type={type} selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
 
           {isSafePalCampaign && isSafePalJoined ? (

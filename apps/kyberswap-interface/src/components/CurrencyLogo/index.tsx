@@ -5,6 +5,7 @@ import Logo from 'components/Logo'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getNativeTokenLogo, getTokenLogoURL } from 'utils'
+import { cn } from 'utils/cn'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 const baseShadow = 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]'
@@ -52,7 +53,7 @@ function CurrencyLogo({
         src={getNativeTokenLogo(currency?.chainId)}
         style={{ width: size, height: size, minWidth: size, ...style }}
         alt={`${currency.symbol} Logo`}
-        className={`rounded-3xl ${baseShadow}`}
+        className={cn('rounded-3xl', baseShadow)}
       />
     )
   }
@@ -62,7 +63,7 @@ function CurrencyLogo({
       srcs={srcs}
       alt={`${currency?.symbol ?? 'token'} logo`}
       style={{ width: size, height: size, ...style }}
-      className={`rounded object-contain ${baseShadow}`}
+      className={cn('rounded object-contain', baseShadow)}
     />
   )
 }

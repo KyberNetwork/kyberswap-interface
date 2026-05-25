@@ -15,6 +15,7 @@ import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentS
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const tableGridClass = 'grid grid-cols-[40px_2fr_2fr] gap-4'
@@ -58,9 +59,10 @@ const NearIntentDashboard = () => {
       <div className="flex h-full min-h-[49px] items-center justify-between">
         {selectedWallet && address[selectedWallet] ? (
           <div
-            className={`flex w-full items-center gap-2 ${
-              upToSmall ? 'flex-col justify-start' : 'flex-row justify-around'
-            }`}
+            className={cn(
+              'flex w-full items-center gap-2',
+              upToSmall ? 'flex-col justify-start' : 'flex-row justify-around',
+            )}
           >
             <div className="flex w-full flex-1">
               <NavGroup
@@ -140,9 +142,10 @@ const NearIntentDashboard = () => {
             </div>
 
             <div
-              className={`flex w-full flex-1 gap-2 ${
-                upToSmall ? 'flex-row justify-between' : 'flex-col justify-start'
-              }`}
+              className={cn(
+                'flex w-full flex-1 gap-2',
+                upToSmall ? 'flex-row justify-between' : 'flex-col justify-start',
+              )}
             >
               <span className="text-subText">
                 <Trans>My Earned Points</Trans>
@@ -153,9 +156,10 @@ const NearIntentDashboard = () => {
             </div>
 
             <div
-              className={`flex w-full flex-1 gap-2 ${
-                upToSmall ? 'flex-row justify-between' : 'flex-col justify-start'
-              }`}
+              className={cn(
+                'flex w-full flex-1 gap-2',
+                upToSmall ? 'flex-row justify-between' : 'flex-col justify-start',
+              )}
             >
               <span className="text-subText">
                 <Trans>My Est. Rewards</Trans>
@@ -194,7 +198,7 @@ const NearIntentDashboard = () => {
 
       {!upToSmall && (
         <>
-          <div className={`${tableGridClass} py-4 text-xs font-medium text-subText`}>
+          <div className={cn(tableGridClass, 'py-4 text-xs font-medium text-subText')}>
             <span>
               <Trans>WEEK</Trans>
             </span>
@@ -258,7 +262,7 @@ const NearIntentDashboard = () => {
             )
           }
           return (
-            <div className={`${tableGridClass} items-center text-base font-normal text-text`} key={index}>
+            <div className={cn(tableGridClass, 'items-center text-base font-normal text-text')} key={index}>
               <span>{item.week - campaignConfig[CampaignType.NearIntents].baseWeek}</span>
               <span className="text-right">
                 {formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}

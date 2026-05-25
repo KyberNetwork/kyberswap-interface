@@ -15,6 +15,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { ContentChangable, TabItem } from './styles'
@@ -45,7 +46,7 @@ export default function DetailModal({
   return (
     <Modal isOpen={!!tokenToShow} onDismiss={onDismiss} width="100%" maxWidth="600px">
       {tokenToShow ? (
-        <div className={`flex w-full flex-col ${upToSmall ? 'p-4' : 'p-8'}`}>
+        <div className={cn('flex w-full flex-col', upToSmall ? 'p-4' : 'p-8')}>
           <div className="flex justify-between gap-1">
             <div className="flex flex-1 items-center gap-1.5">
               <img
@@ -75,9 +76,10 @@ export default function DetailModal({
           </div>
 
           <div
-            className={`mt-5 grid h-fit rounded-2xl bg-white-08 px-4 py-3 ${
-              upToSmall ? 'grid-cols-2 gap-3' : 'grid-cols-4 gap-6'
-            }`}
+            className={cn(
+              'mt-5 grid h-fit rounded-2xl bg-white-08 px-4 py-3',
+              upToSmall ? 'grid-cols-2 gap-3' : 'grid-cols-4 gap-6',
+            )}
           >
             <div>
               <span className="text-xs text-subText">
@@ -118,7 +120,7 @@ export default function DetailModal({
             </div>
           </div>
           {!upToSmall ? (
-            <div className={`mb-2 mt-6 grid ${rowGridClass}`}>
+            <div className={cn('mb-2 mt-6 grid', rowGridClass)}>
               <div />
               <span className="text-right text-xs text-subText">
                 <Trans>Buy Price</Trans>
@@ -178,7 +180,7 @@ export default function DetailModal({
                 : ''
 
               return (
-                <div key={token.chainId} className={`mb-4 grid items-center ${rowGridClass}`}>
+                <div key={token.chainId} className={cn('mb-4 grid items-center', rowGridClass)}>
                   <div className="flex items-center gap-3">
                     <div className="relative w-8">
                       <img

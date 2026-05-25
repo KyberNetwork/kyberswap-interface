@@ -4,6 +4,7 @@ import { ReactComponent as RecapIcon } from 'assets/recap/2025.svg'
 import { isRecapAvailable } from 'components/Recap/utils'
 import { useRecapModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 export default function RecapButton() {
   const toggleRecapModal = useRecapModalToggle()
@@ -34,9 +35,10 @@ export default function RecapButton() {
   return (
     <button
       onClick={toggleRecapModal}
-      className={`flex cursor-pointer items-center justify-center whitespace-nowrap border-none bg-primary-20 text-sm font-medium leading-5 text-primary transition-colors duration-200 ease-out hover:bg-primary-25 ${
-        showIconShape ? 'rounded-full p-0.5' : 'rounded-[20px] px-4 py-2.5'
-      }`}
+      className={cn(
+        'flex cursor-pointer items-center justify-center whitespace-nowrap border-none bg-primary-20 text-sm font-medium leading-5 text-primary transition-colors duration-200 ease-out hover:bg-primary-25',
+        showIconShape ? 'rounded-full p-0.5' : 'rounded-[20px] px-4 py-2.5',
+      )}
     >
       {btnText}
     </button>

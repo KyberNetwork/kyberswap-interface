@@ -16,6 +16,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionHeader = ({
@@ -88,7 +89,7 @@ const PositionHeader = ({
 
   return (
     <div
-      className={`mb-1 flex items-center justify-between gap-4 ${upToLarge ? 'flex-col' : 'flex-row'}`}
+      className={cn('mb-1 flex items-center justify-between gap-4', upToLarge ? 'flex-col' : 'flex-row')}
       style={style}
     >
       <Header>
@@ -105,7 +106,7 @@ const PositionHeader = ({
               <Link
                 to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
               >
-                <span className={`-ml-2.5 text-text ${upToSmall ? 'text-xl' : 'text-base'}`}>
+                <span className={cn('-ml-2.5 text-text', upToSmall ? 'text-xl' : 'text-base')}>
                   {position?.token0.symbol}/{position?.token1.symbol}
                 </span>
               </Link>
@@ -171,7 +172,7 @@ const PositionHeader = ({
           {isUniv2 ? null : initialLoading ? (
             <PositionSkeleton width={50} height={16} />
           ) : (
-            <span className={`text-subText ${upToSmall ? 'text-base' : 'text-sm'}`}>#{position?.tokenId}</span>
+            <span className={cn('text-subText', upToSmall ? 'text-base' : 'text-sm')}>#{position?.tokenId}</span>
           )}
 
           {upToSmall &&

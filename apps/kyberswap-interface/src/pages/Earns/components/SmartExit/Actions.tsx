@@ -3,6 +3,7 @@ import { useMedia } from 'react-use'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 export default function Actions({
   onDismiss,
@@ -20,7 +21,7 @@ export default function Actions({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
-    <div className={`mt-5 flex justify-center gap-5 ${upToSmall ? 'pb-5' : 'pb-0'}`}>
+    <div className={cn('mt-5 flex justify-center gap-5', upToSmall ? 'pb-5' : 'pb-0')}>
       <ButtonOutlined onClick={onDismiss} width="188px">
         <span className="text-sm leading-5">
           <Trans>Cancel</Trans>

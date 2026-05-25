@@ -24,6 +24,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, getTokenLogoURL } from 'utils'
+import { cn } from 'utils/cn'
 
 const gridCols = 'grid-cols-[5fr_3fr_3fr_3fr]'
 const gridColsMobile = 'max-sm:grid-cols-[1fr_1fr]'
@@ -134,7 +135,11 @@ export default function YourTransactionsModal() {
           </RowBetween>
           <div className="flex flex-1 flex-col">
             <div
-              className={`grid ${gridCols} rounded-t-lg bg-background shadow-[0px_4px_16px_rgba(0,0,0,0.08)] max-sm:hidden`}
+              className={cn(
+                'grid',
+                gridCols,
+                'rounded-t-lg bg-background shadow-[0px_4px_16px_rgba(0,0,0,0.08)] max-sm:hidden',
+              )}
             >
               <div className="p-4 text-xs uppercase text-subText">
                 <Trans>TXN HASH</Trans>
@@ -155,7 +160,12 @@ export default function YourTransactionsModal() {
                   {formattedActions.map((action: StakerAction & { hashText: string; description: ReactNode }) => {
                     return (
                       <div
-                        className={`grid ${gridCols} ${gridColsMobile} h-[55px] border-b border-border max-sm:h-[76px]`}
+                        className={cn(
+                          'grid',
+                          gridCols,
+                          gridColsMobile,
+                          'h-[55px] border-b border-border max-sm:h-[76px]',
+                        )}
                         key={action.tx_hash}
                       >
                         <div className={tableCellClass}>
@@ -195,7 +205,12 @@ export default function YourTransactionsModal() {
                   {formattedActions.map((action: StakerAction & { hashText: string; description: ReactNode }) => {
                     return (
                       <div
-                        className={`grid ${gridCols} ${gridColsMobile} h-[55px] border-b border-border max-sm:h-[76px]`}
+                        className={cn(
+                          'grid',
+                          gridCols,
+                          gridColsMobile,
+                          'h-[55px] border-b border-border max-sm:h-[76px]',
+                        )}
                         key={action.tx_hash}
                       >
                         <div className={tableCellClass}>

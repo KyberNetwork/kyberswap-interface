@@ -9,6 +9,7 @@ import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartE
 import { Badge, BadgeType } from 'pages/Earns/UserPositions/styles'
 import { ExecutionStatus, OrderStatus, SmartExitOrder } from 'pages/Earns/types'
 import { getEtherscanLink } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type OrderItemProps = {
@@ -83,7 +84,7 @@ const OrderItem = React.memo(({ order, index, upToMedium, onDelete }: OrderItemP
   )
 
   const receivedAmount = receivedAmounts ? (
-    <div className={`flex flex-col gap-1 ${upToMedium ? 'items-end' : 'items-start'}`}>
+    <div className={cn('flex flex-col gap-1', upToMedium ? 'items-end' : 'items-start')}>
       <span className="text-sm" style={{ color: '#05966B' }}>
         + {formatDisplayNumber(receivedAmounts[0]?.amount, { significantDigits: 6 })} {tokensInfo?.[0]?.symbol}
       </span>

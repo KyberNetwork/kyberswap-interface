@@ -1,5 +1,6 @@
 import WarningIcon from 'components/Icons/WarningIcon'
 import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
 import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
 
@@ -13,9 +14,10 @@ export const PiWarning = () => {
 
   return (
     <div
-      className={`inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs ${
-        isVeryHigh ? 'bg-red/10 text-red' : 'bg-warning/10 text-warning'
-      }`}
+      className={cn(
+        'inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs',
+        isVeryHigh ? 'bg-red/10 text-red' : 'bg-warning/10 text-warning',
+      )}
     >
       <WarningIcon color={color} size={18} />
       {warning.priceImpaceInfo?.message}

@@ -14,6 +14,7 @@ import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo } from 'hooks/kyberdao'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 import KNCLogo from '../kncLogo'
 import FAQ from './FAQ'
@@ -76,7 +77,7 @@ export default function KNCUtility() {
         </div>
         <div className={rowClass} style={{ paddingBottom: upToMedium ? '0' : undefined }}>
           <RowBetween className="flex-row gap-4">
-            <span id="gas-refund-program" className={`self-start font-medium ${upToMedium ? 'text-xl' : 'text-2xl'}`}>
+            <span id="gas-refund-program" className={cn('self-start font-medium', upToMedium ? 'text-xl' : 'text-2xl')}>
               <Trans>Gas Refund Program</Trans>
             </span>
             {isEnded && (

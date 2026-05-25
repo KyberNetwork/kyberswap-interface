@@ -56,6 +56,7 @@ import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const InformationTab = () => {
@@ -261,9 +262,10 @@ const InformationTab = () => {
                       <FarmingIcon width={20} height={20} />
                     ) : null}
                     <span
-                      className={`mr-2 text-[20px] ${
-                        position?.apr && position.apr[aprInterval] > 0 ? 'text-primary' : 'text-text'
-                      }`}
+                      className={cn(
+                        'mr-2 text-[20px]',
+                        position?.apr && position.apr[aprInterval] > 0 ? 'text-primary' : 'text-text',
+                      )}
                     >
                       <AnimatedNumber
                         value={`${formatAprNum((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%`}
@@ -333,7 +335,7 @@ const InformationTab = () => {
 
         {/* Current Price + MIN/MAX in one row */}
         {(price || initialLoading) && (
-          <div className={`flex items-stretch gap-2 ${upToLarge ? 'flex-col' : 'flex-row'}`}>
+          <div className={cn('flex items-stretch gap-2', upToLarge ? 'flex-col' : 'flex-row')}>
             <PriceSection className="min-w-0 flex-[1_1_0%]">
               <div className="flex flex-1 flex-wrap items-center gap-1">
                 <span className="text-[14px] text-subText">{t`Current Price`}</span>
@@ -456,9 +458,10 @@ const InformationTab = () => {
         {!isUniv2 && (
           <PositionActionWrapper>
             <div
-              className={`-mb-3 flex items-center gap-1 ${
-                !subActionDisabled ? 'cursor-pointer text-primary' : 'cursor-not-allowed text-subText'
-              }`}
+              className={cn(
+                '-mb-3 flex items-center gap-1',
+                !subActionDisabled ? 'cursor-pointer text-primary' : 'cursor-not-allowed text-subText',
+              )}
               onClick={e => {
                 if (!isOutRange ? repositionDisabled : increaseDisabled) return
                 if (!isOutRange) {

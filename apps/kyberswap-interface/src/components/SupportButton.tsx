@@ -9,6 +9,7 @@ import { ReactComponent as EmailIcon } from 'assets/svg/email_color.svg'
 import { ReactComponent as TeleIcon } from 'assets/svg/tele_color.svg'
 import { KYBER_NETWORK_TELEGRAM_URL } from 'constants/index'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 export default function SupportButton() {
   const [isHover, setIsHover] = useState(false)
@@ -45,9 +46,10 @@ export default function SupportButton() {
       className="fixed bottom-4 right-4 z-[1] max-lg:bottom-[75px]"
     >
       <div
-        className={`flex h-9 cursor-pointer items-center justify-center rounded-full bg-primary text-sm font-medium text-textReverse ${
-          upToSmall ? 'w-9 p-0' : 'w-max px-3 py-0'
-        }`}
+        className={cn(
+          'flex h-9 cursor-pointer items-center justify-center rounded-full bg-primary text-sm font-medium text-textReverse',
+          upToSmall ? 'w-9 p-0' : 'w-max px-3 py-0',
+        )}
       >
         <HelpCircle size={18} />
         {!upToSmall && (

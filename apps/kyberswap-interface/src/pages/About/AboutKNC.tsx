@@ -53,6 +53,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ExternalLink, StyledInternalLink } from 'theme'
+import { cn } from 'utils/cn'
 
 import {
   AboutPage,
@@ -130,7 +131,7 @@ function AboutKNC() {
         <Trans>Dynamic Token Model</Trans>
       </p>
 
-      <p className={`mt-6 leading-normal text-text ${above500 ? 'text-start' : 'text-center'}`}>
+      <p className={cn('mt-6 leading-normal text-text', above500 ? 'text-start' : 'text-center')}>
         <Trans>
           KNC enables KyberDAO to shape token behaviour and upgrades, making KNC much more adaptable and providing
           better support for innovation and growth.
@@ -152,7 +153,7 @@ function AboutKNC() {
         <Trans>Participation Rewards</Trans>
       </p>
 
-      <p className={`mt-6 leading-normal text-text ${above500 ? 'text-start' : 'text-center'}`}>
+      <p className={cn('mt-6 leading-normal text-text', above500 ? 'text-start' : 'text-center')}>
         <Trans>
           KNC holders can stake KNC in KyberDAO and vote on important decisions. Voters receive trading fees generated
           on KyberSwap and other benefits from ecosystem collaborations on Kyber.
@@ -228,7 +229,9 @@ function AboutKNC() {
             </GridWrapper>
           )}
 
-          <div className={`m-auto mt-10 flex justify-center sm:mt-12 ${above768 ? 'w-[236px] gap-6' : 'w-full gap-4'}`}>
+          <div
+            className={cn('m-auto mt-10 flex justify-center sm:mt-12', above768 ? 'w-[236px] gap-6' : 'w-full gap-4')}
+          >
             <BtnPrimary
               width="216px"
               as={Link as any}
@@ -242,7 +245,7 @@ function AboutKNC() {
             </BtnPrimary>
           </div>
 
-          <div className={`mt-[100px] flex items-center gap-6 sm:mt-[160px] ${above768 ? 'flex-row' : 'flex-col'}`}>
+          <div className={cn('mt-[100px] flex items-center gap-6 sm:mt-[160px]', above768 ? 'flex-row' : 'flex-col')}>
             <img width="85%" src={KyberDao} alt="KyberDao" style={{ display: above768 ? 'block' : 'none' }} />
             <div className="flex h-max w-full flex-col">
               <p className="text-[20px] font-medium text-primary sm:text-[24px]">
@@ -281,7 +284,7 @@ function AboutKNC() {
             </div>
           </div>
           <h2
-            className={`text-center text-[28px] font-medium sm:text-[36px] ${above768 ? 'mt-[160px]' : 'mt-[100px]'}`}
+            className={cn('text-center text-[28px] font-medium sm:text-[36px]', above768 ? 'mt-[160px]' : 'mt-[100px]')}
           >
             <Trans>Where you can buy KNC</Trans>
           </h2>
@@ -315,7 +318,7 @@ function AboutKNC() {
             </Swiper>
           )}
           <h2
-            className={`text-center text-[28px] font-medium sm:text-[36px] ${above768 ? 'mt-[160px]' : 'mt-[100px]'}`}
+            className={cn('text-center text-[28px] font-medium sm:text-[36px]', above768 ? 'mt-[160px]' : 'mt-[100px]')}
           >
             <Trans>Where you can store KNC</Trans>
           </h2>
@@ -353,11 +356,11 @@ function AboutKNC() {
           )}
 
           <MoreInfoWrapper>
-            <div className={`flex flex-col ${above768 ? 'mr-[180px] items-start' : 'mr-0 items-center'}`}>
+            <div className={cn('flex flex-col', above768 ? 'mr-[180px] items-start' : 'mr-0 items-center')}>
               <h2 className="text-[28px] font-medium sm:text-[36px]">
                 <Trans>More information about KNC is available on:</Trans>
               </h2>
-              <div className={`mt-12 items-center gap-12 ${above768 ? 'flex flex-row' : 'flex flex-col'}`}>
+              <div className={cn('mt-12 items-center gap-12', above768 ? 'flex flex-row' : 'flex flex-col')}>
                 <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
                   <img src={CoinGecko} alt="CoinGecko" width="165px" />
                 </ExternalLink>

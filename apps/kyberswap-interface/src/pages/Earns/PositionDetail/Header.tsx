@@ -24,6 +24,7 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -111,7 +112,7 @@ const PositionDetailHeader = () => {
   }
 
   return (
-    <div className={`flex justify-between gap-4 ${upToSmall ? 'flex-col items-start' : 'flex-row items-center'}`}>
+    <div className={cn('flex justify-between gap-4', upToSmall ? 'flex-col items-start' : 'flex-row items-center')}>
       <div className="flex flex-wrap items-center gap-3">
         <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />
 

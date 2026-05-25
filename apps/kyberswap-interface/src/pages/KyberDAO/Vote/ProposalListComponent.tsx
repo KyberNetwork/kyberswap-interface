@@ -13,6 +13,7 @@ import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
+import { cn } from 'utils/cn'
 
 import YourTransactionsModal from '../StakeKNC/YourTransactionsModal'
 import ProposalItem from './ProposalItem'
@@ -62,7 +63,7 @@ function ProposalListComponent({
         </div>
         <div className="flex gap-[30px]">
           {account && (
-            <RowFit onClick={toggleYourTransactions} className={`${TEXT_BUTTON_CLASS} justify-end`}>
+            <RowFit onClick={toggleYourTransactions} className={cn(TEXT_BUTTON_CLASS, 'justify-end')}>
               <History />
               <span className="text-sm" hidden={isMobile}>
                 {' '}

@@ -35,6 +35,7 @@ import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { isInSafeApp } from 'utils'
+import { cn } from 'utils/cn'
 
 export type SwapFormProps = {
   hidden: boolean
@@ -257,7 +258,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       recipient={recipient}
       isAdvancedMode={isDegenMode}
     >
-      <div className={`flex-col gap-4 ${hidden ? 'hidden' : 'flex'}`}>
+      <div className={cn('flex-col gap-4', hidden ? 'hidden' : 'flex')}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
           <div className="flex flex-col gap-3">
             {omniView ? <NetworkSelector chainId={chainId} /> : null}

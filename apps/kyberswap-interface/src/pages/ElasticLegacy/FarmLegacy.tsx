@@ -20,6 +20,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { calculateGasMargin } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDollarAmount } from 'utils/numbers'
 
 import { FeeTag } from './PositionLegacy'
@@ -281,7 +282,7 @@ export default function FarmLegacy({
         })}
       </div>
 
-      <div className={`mt-6 flex gap-3 ${numberOfPosition ? 'justify-end' : 'justify-center'}`}>
+      <div className={cn('mt-6 flex gap-3', numberOfPosition ? 'justify-end' : 'justify-center')}>
         {!!numberOfPosition && (
           <ButtonLight
             onClick={handleWithdraw}

@@ -6,6 +6,7 @@ import { FixedSizeGrid, GridChildComponentProps, areEqual } from 'react-window'
 
 import { MEDIA_WIDTHS } from 'theme'
 import { PositionDetails } from 'types/position'
+import { cn } from 'utils/cn'
 
 import PositionListItem from './PositionListItem'
 
@@ -153,7 +154,7 @@ export const outerElementType = forwardRef<HTMLElement, DocumentPropsType>(
     }
 
     return (
-      <div ref={containerRef} className={`relative ${className ?? ''}`} {...(rest as any)}>
+      <div ref={containerRef} className={cn('relative', className)} {...(rest as any)}>
         {children}
       </div>
     )

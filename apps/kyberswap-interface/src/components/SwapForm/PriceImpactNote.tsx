@@ -8,6 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { isSupportLimitOrder } from 'utils'
+import { cn } from 'utils/cn'
 import { checkPriceImpact } from 'utils/prices'
 
 type TextUnderlineColorProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
@@ -22,7 +23,7 @@ export const TextUnderlineColor = ({
 }: TextUnderlineColorProps) => (
   <Component
     {...rest}
-    className={`w-fit cursor-pointer border-b border-solid border-text font-medium text-text ${className ?? ''}`}
+    className={cn('w-fit cursor-pointer border-b border-solid border-text font-medium text-text', className)}
   >
     {children}
   </Component>

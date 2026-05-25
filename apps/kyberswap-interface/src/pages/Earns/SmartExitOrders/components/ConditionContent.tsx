@@ -9,6 +9,7 @@ import { MAX_VALID_TIMESTAMP } from 'pages/Earns/SmartExitOrders/constants'
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { ConditionType, OrderStatus, SmartExitLogReason, SmartExitOrder } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 /**
  * Get the cancellation reason message from order logs
@@ -108,14 +109,14 @@ const ConditionContent = ({ logical, position, status, logs }: ConditionContentP
   if (conditions.length > 1) {
     return (
       <div className="flex flex-col gap-2">
-        <div className={`flex gap-3 text-sm ${upToLarge ? 'flex-col items-stretch' : 'flex-row items-center'}`}>
+        <div className={cn('flex gap-3 text-sm', upToLarge ? 'flex-col items-stretch' : 'flex-row items-center')}>
           {conditions.map((c, i) => (
             <React.Fragment key={`${c.field.type}-${i}`}>
               <div className="flex min-w-0 flex-1">
                 <ConditionItem condition={c} position={position} />
               </div>
               {i !== conditions.length - 1 && (
-                <div className={`rounded-lg bg-white/[0.04] px-2 py-1 ${upToLarge ? 'self-start' : 'self-center'}`}>
+                <div className={cn('rounded-lg bg-white/[0.04] px-2 py-1', upToLarge ? 'self-start' : 'self-center')}>
                   <span className="shrink-0 text-xs font-medium text-text">
                     {op === ConditionType.And ? 'AND' : 'OR'}
                   </span>

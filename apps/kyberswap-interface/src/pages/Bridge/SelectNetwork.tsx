@@ -9,6 +9,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { isEvmChain } from 'utils'
+import { cn } from 'utils/cn'
 
 const SelectNetwork = forwardRef<
   {
@@ -53,7 +54,9 @@ const SelectNetwork = forwardRef<
           />
         )}
         <span className="whitespace-nowrap text-sm font-medium">{name}</span>
-        <DropdownSvg className={`text-text transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} />
+        <DropdownSvg
+          className={cn('text-text transition-transform duration-300', isOpen ? 'rotate-180' : 'rotate-0')}
+        />
       </div>
       <NetworkModal
         disabledMsg={tooltipNotSupportChain || t`The token cannot be bridged to this chain`}

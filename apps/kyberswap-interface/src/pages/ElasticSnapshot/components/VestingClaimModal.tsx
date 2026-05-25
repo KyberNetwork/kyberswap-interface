@@ -16,6 +16,7 @@ import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 
 import VestingAbi from '../data/abis/vestingAbi.json'
@@ -176,7 +177,7 @@ export default function VestingClaimModal({
 
   return (
     <Modal width="100%" maxWidth="680px" isOpen={true} onDismiss={onDismiss}>
-      <div className={`relative flex w-full flex-col bg-background leading-normal ${upToSmall ? 'p-4' : 'p-5'}`}>
+      <div className={cn('relative flex w-full flex-col bg-background leading-normal', upToSmall ? 'p-4' : 'p-5')}>
         <span className="text-center text-xl font-medium text-text">
           <Trans>Claim Asset</Trans>
         </span>

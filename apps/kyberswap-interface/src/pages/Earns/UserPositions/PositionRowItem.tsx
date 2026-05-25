@@ -32,6 +32,7 @@ import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { EarnPool, ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
+import { cn } from 'utils/cn'
 import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -192,7 +193,7 @@ export default function PositionRowItem({
             <TokenLogo src={token1.logo} translateLeft />
             <TokenLogo src={chain.logo} size={12} translateLeft translateTop />
           </ImageContainer>
-          <span className={`-ml-2 max-w-[160px] truncate ${upToSmall ? 'text-[15px]' : 'text-[16px]'}`}>
+          <span className={cn('-ml-2 max-w-[160px] truncate', upToSmall ? 'text-[15px]' : 'text-[16px]')}>
             {token0.symbol}/{token1.symbol}
           </span>
           {!isUnfinalized && (
@@ -449,9 +450,10 @@ export default function PositionRowItem({
 
         {token0.symbol && token1.symbol ? (
           <div
-            className={`flex w-full gap-[7.2px] overflow-hidden ${
-              upToSmall ? 'flex-row items-center' : 'flex-col items-start'
-            }`}
+            className={cn(
+              'flex w-full gap-[7.2px] overflow-hidden',
+              upToSmall ? 'flex-row items-center' : 'flex-col items-start',
+            )}
           >
             <div className="flex max-w-full items-center gap-1">
               <span className="flex-shrink-0 whitespace-nowrap">

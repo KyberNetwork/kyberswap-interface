@@ -28,6 +28,7 @@ import {
   isSafePalCampaignWinner,
 } from 'pages/Campaign/utils/safepalUtils'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const formatCountValue = (value?: number) => {
@@ -158,7 +159,7 @@ export const SafePalClaim = ({ selectedWeek }: { selectedWeek: number }) => {
 
   return (
     <div
-      className={`mt-4 flex items-center justify-between gap-3 px-4 py-2 ${upToSmall ? 'flex-col' : 'flex-row'}`}
+      className={cn('mt-4 flex items-center justify-between gap-3 px-4 py-2', upToSmall ? 'flex-col' : 'flex-row')}
       style={{
         borderRadius: '20px',
         border: '1px solid rgba(49, 203, 158, 0.28)',
@@ -167,12 +168,12 @@ export const SafePalClaim = ({ selectedWeek }: { selectedWeek: number }) => {
       }}
     >
       <div>
-        <p className={`text-text ${upToSmall ? 'text-[15px]' : 'text-base'}`}>
+        <p className={cn('text-text', upToSmall ? 'text-[15px]' : 'text-base')}>
           <Trans>
             You&apos;ve won 🎁 SafePal X1 Hardware Wallet in Week {displayWeekNumber} of the SafePal Campaign.
           </Trans>
         </p>
-        <p className={`mt-1 italic text-subText ${upToSmall ? 'text-[13px]' : 'text-sm'}`}>
+        <p className={cn('mt-1 italic text-subText', upToSmall ? 'text-[13px]' : 'text-sm')}>
           <Trans>Claim deadline: {formatClaimDeadline(claimWindow.end)}</Trans>
         </p>
       </div>

@@ -29,7 +29,7 @@ function CtaButton({
       return (
         <span
           {...props}
-          className={`cursor-pointer font-medium text-primary ${className}`}
+          className={cn('cursor-pointer font-medium text-primary', className)}
           onClick={onClick as React.MouseEventHandler<HTMLSpanElement> | undefined}
         >
           {displayName}

@@ -40,6 +40,7 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 const UserPositions = () => {
   const navigate = useNavigate()
@@ -286,7 +287,7 @@ const UserPositions = () => {
           <p className="text-[24px] font-medium">{t`My Liquidity Positions`}</p>
         </div>
 
-        <div className={`flex justify-between gap-2 ${upToSmall ? 'flex-col items-start' : 'flex-row items-center'}`}>
+        <div className={cn('flex justify-between gap-2', upToSmall ? 'flex-col items-start' : 'flex-row items-center')}>
           <MultiSelectDropdownMenu
             highlightOnSelect
             label={selectedChainsLabel || t`Select chains`}
