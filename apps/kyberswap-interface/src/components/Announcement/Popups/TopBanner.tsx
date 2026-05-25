@@ -112,11 +112,11 @@ function TopBanner() {
   const marqueeText = (
     <div
       ref={textWrapperRef}
-      className="flex min-w-0 max-w-[min(860px,calc(100vw-320px))] flex-[0_1_auto] items-center overflow-hidden text-[#ffffffeb] max-sm:max-w-[calc(100vw-84px)] max-sm:flex-1"
+      className="flex min-w-0 max-w-[min(860px,calc(100vw-320px))] flex-[0_1_auto] items-center overflow-hidden text-white/[0.92] max-sm:max-w-[calc(100vw-84px)] max-sm:flex-1"
     >
       <div
         className={cn(
-          'flex w-max items-center whitespace-nowrap text-sm font-normal leading-6 text-[#ffffffeb]',
+          'flex w-max items-center whitespace-nowrap text-sm font-normal leading-6 text-white/[0.92]',
           isOverflow ? 'animate-[ks-top-banner-marquee_var(--ks-marquee-duration)_linear_infinite] gap-8' : 'gap-0',
         )}
         style={
@@ -171,7 +171,7 @@ function TopBanner() {
             <X
               onClick={hideBanner}
               size={20}
-              className="shrink-0 cursor-pointer justify-self-end text-white-60 hover:text-[#ffffffe6]"
+              className="shrink-0 cursor-pointer justify-self-end text-white-60 hover:text-white/90"
             />
           )}
         </div>
@@ -180,7 +180,7 @@ function TopBanner() {
           <X
             onClick={hideBanner}
             size={20}
-            className="shrink-0 cursor-pointer justify-self-end text-white-60 hover:text-[#ffffffe6]"
+            className="shrink-0 cursor-pointer justify-self-end text-white-60 hover:text-white/90"
           />
         )}
         {isMobile && joinButton}

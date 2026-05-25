@@ -47,7 +47,7 @@ export function ConfirmationPendingContent({
           <AutoColumn className="justify-items-center gap-3">
             <span className="text-center text-sm font-semibold">{pendingText}</span>
           </AutoColumn>
-          <span className="text-center text-xs text-[#565A69]">
+          <span className="text-center text-xs text-text4">
             <Trans>Confirm this transaction in your wallet</Trans>
           </span>
         </AutoColumn>

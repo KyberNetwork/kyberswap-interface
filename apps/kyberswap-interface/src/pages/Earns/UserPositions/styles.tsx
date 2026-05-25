@@ -253,7 +253,7 @@ export const PriceRangeEl = ({
   <div
     className={cn(
       'absolute flex h-full items-center justify-between rounded',
-      outOfRange ? 'bg-[#737373]' : '[background:linear-gradient(90deg,#09ae7d_0%,#6368f1_100%)]',
+      outOfRange ? 'bg-gray' : '[background:linear-gradient(90deg,#09ae7d_0%,#6368f1_100%)]',
       className,
     )}
     {...rest}
@@ -271,7 +271,7 @@ export const LowerPriceIndicator = ({
   className,
   ...rest
 }: HTMLAttributes<HTMLDivElement> & { outOfRange: boolean }) => (
-  <div className={cn(indicatorBase, outOfRange ? 'bg-[#737373]' : 'bg-[#09ae7d]', className)} {...rest} />
+  <div className={cn(indicatorBase, outOfRange ? 'bg-gray' : 'bg-[#09ae7d]', className)} {...rest} />
 )
 
 export const UpperPriceIndicator = ({
@@ -279,7 +279,7 @@ export const UpperPriceIndicator = ({
   className,
   ...rest
 }: HTMLAttributes<HTMLDivElement> & { outOfRange: boolean }) => (
-  <div className={cn(indicatorBase, outOfRange ? 'bg-[#737373]' : 'bg-[#6368f1]', className)} {...rest} />
+  <div className={cn(indicatorBase, outOfRange ? 'bg-gray' : 'bg-[#6368f1]', className)} {...rest} />
 )
 
 export const IndicatorLabel = ({
@@ -289,7 +289,7 @@ export const IndicatorLabel = ({
 }: HTMLAttributes<HTMLDivElement> & { align?: 'left' | 'right' }) => (
   <div
     className={cn(
-      'absolute -top-5 whitespace-nowrap text-xs text-[#fafafa]',
+      'absolute -top-5 whitespace-nowrap text-xs text-white2',
       align === 'left' && 'left-0 translate-x-[-60%]',
       align === 'right' && 'left-0 translate-x-[-40%]',
       !align && 'translate-x-[-42%]',

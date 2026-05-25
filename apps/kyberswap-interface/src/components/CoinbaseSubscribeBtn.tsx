@@ -62,7 +62,7 @@ export default function CoinbaseSubscribeBtn({ onlyShowIfNotSubscribe = false }:
   if (!isCoinbase || (isSubscribed && onlyShowIfNotSubscribe)) return null
 
   return (
-    <span onClick={handleSubscribe} role="button" className="cursor-pointer text-sm text-[#2C9CE4]">
+    <span onClick={handleSubscribe} role="button" className="cursor-pointer text-sm text-blue2">
       {subscribeButtonText}
       {!isLoading && (
         <InfoHelper

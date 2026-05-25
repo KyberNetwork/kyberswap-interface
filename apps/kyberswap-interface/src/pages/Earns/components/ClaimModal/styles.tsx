@@ -34,7 +34,7 @@ export const ClaimInfoWrapper = ({ children, className, ...rest }: React.HTMLAtt
 )
 
 export const ClaimInfo = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-full flex-col gap-2.5 rounded-xl bg-[#0f0f0f] px-4 py-3', className)} {...rest}>
+  <div className={cn('flex w-full flex-col gap-2.5 rounded-xl bg-buttonBlack px-4 py-3', className)} {...rest}>
     {children}
   </div>
 )

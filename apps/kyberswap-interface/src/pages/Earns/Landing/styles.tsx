@@ -93,7 +93,7 @@ export const ListPoolWrapper: React.FC<React.HTMLAttributes<HTMLDivElement>> = (
 )
 
 export const PoolRow: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => (
-  <div {...rest} className={cn('flex items-center gap-3 rounded-[999px] px-4 py-2 hover:bg-[#31cb9e1a]', className)} />
+  <div {...rest} className={cn('flex items-center gap-3 rounded-[999px] px-4 py-2 hover:bg-primary-10', className)} />
 )
 
 export const Tag: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => (

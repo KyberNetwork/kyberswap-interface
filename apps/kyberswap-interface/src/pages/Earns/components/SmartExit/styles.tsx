@@ -44,7 +44,7 @@ export const CustomOption = ({
   <div
     className={cn(
       'cursor-pointer rounded-3xl border border-solid px-3 py-1 text-xs font-medium hover:bg-primary-10',
-      isSelected ? 'border-primary-20 bg-primary-20 text-white2' : 'border-text-08 bg-transparent text-[#737373]',
+      isSelected ? 'border-primary-20 bg-primary-20 text-white2' : 'border-text-08 bg-transparent text-gray',
       className,
     )}
     {...rest}

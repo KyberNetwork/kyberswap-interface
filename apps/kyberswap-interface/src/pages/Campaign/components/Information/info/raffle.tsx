@@ -9,7 +9,7 @@ import { StyledTable, TableWrapper, Td, Th, Tr } from './styles'
 import { CampaignContent, CampaignSectionComponent, FaqItem } from './types'
 
 const Quote = ({ children }: PropsWithChildren) => (
-  <div className="relative m-0 ml-10 before:absolute before:inset-y-1.5 before:-left-3 before:w-0.5 before:bg-[#a9a9a9a9] before:content-['']">
+  <div className="relative m-0 ml-10 before:absolute before:inset-y-1.5 before:-left-3 before:w-0.5 before:bg-subText/[0.66] before:content-['']">
     {children}
   </div>
 )

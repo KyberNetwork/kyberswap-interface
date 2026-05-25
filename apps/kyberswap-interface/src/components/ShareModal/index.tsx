@@ -185,7 +185,7 @@ export default function ShareModal({
             {t`Copy Link`}
             <span
               className={cn(
-                'invisible absolute -top-6 rounded-md bg-[#ddd] p-[3px] text-xs text-[#222] opacity-0 transition-all duration-300',
+                'invisible absolute -top-6 rounded-md bg-[#ddd] p-[3px] text-xs text-darkText opacity-0 transition-all duration-300',
                 isCopied && '!visible !opacity-90',
               )}
             >

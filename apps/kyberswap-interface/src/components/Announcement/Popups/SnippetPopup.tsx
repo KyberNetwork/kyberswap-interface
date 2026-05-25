@@ -53,7 +53,7 @@ function SnippetPopupItem({
   }
 
   return (
-    <div className="relative flex h-[124px] rounded-lg bg-[#313131f2]">
+    <div className="relative flex h-[124px] rounded-lg bg-tableHeader/95">
       <img
         onClick={toggle}
         src={thumbnailImageURL || NotificationImage}

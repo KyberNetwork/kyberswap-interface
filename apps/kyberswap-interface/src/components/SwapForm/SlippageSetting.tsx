@@ -25,8 +25,8 @@ export const DropdownIcon = ({
     className={cn(
       'ml-1.5 flex items-center justify-center rounded-full p-0.5 text-white2 transition-all duration-200 ease-in-out',
       'data-[flip=true]:rotate-180',
-      'data-[highlight=true]:animate-[ks-slippage-highlight_2s_infinite_alternate_ease-in-out] data-[highlight=true]:bg-[#31cb9e99]',
-      'data-[warning=true]:text-[#ff9901e6]',
+      'data-[highlight=true]:animate-[ks-slippage-highlight_2s_infinite_alternate_ease-in-out] data-[highlight=true]:bg-primary/60',
+      'data-[warning=true]:text-warning/90',
       className,
     )}
   >

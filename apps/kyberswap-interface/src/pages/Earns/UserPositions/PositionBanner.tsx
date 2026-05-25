@@ -412,7 +412,7 @@ const totalRewardTooltip = ({
   textColor: string
 }) => (
   <div className="flex flex-col gap-1">
-    <p className="text-[14px] leading-5 text-[#fafafa]">{t`KyberSwap Reward`}</p>
+    <p className="text-[14px] leading-5 text-white2">{t`KyberSwap Reward`}</p>
     <div className="pl-2">
       <p className="mb-0.5 text-[12px] leading-4">
         {t`LM Reward:`}
