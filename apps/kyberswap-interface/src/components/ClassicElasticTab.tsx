@@ -111,15 +111,10 @@ function ClassicElasticTab() {
     return theme.subText
   }
 
-  const getColorOfClassicTab = () => {
-    if (!!notSupportedClassicMsg) {
-      return theme.disableText
-    }
-
-    if (tab === VERSION.CLASSIC) {
-      return theme.primary
-    }
-    return theme.subText
+  const getClassNameOfClassicTab = () => {
+    if (notSupportedClassicMsg) return 'text-disableText'
+    if (tab === VERSION.CLASSIC) return 'text-primary'
+    return 'text-subText'
   }
 
   const getColorOfLegacyElasticTab = () => {
@@ -242,12 +237,8 @@ function ClassicElasticTab() {
             handleSwitchTab(VERSION.CLASSIC)
           }}
         >
-          <PoolClassicIcon size={20} color={getColorOfClassicTab()} />
-          <span
-            role="button"
-            className={cn(TAB_LABEL_CLASS, 'ml-1 w-auto cursor-pointer')}
-            style={{ color: getColorOfClassicTab() }}
-          >
+          <PoolClassicIcon size={20} className={getClassNameOfClassicTab()} />
+          <span role="button" className={cn(TAB_LABEL_CLASS, 'ml-1 w-auto cursor-pointer', getClassNameOfClassicTab())}>
             {isFarmPage ? <Trans>Classic Farms</Trans> : <Trans>Classic Pools</Trans>}
           </span>
         </div>

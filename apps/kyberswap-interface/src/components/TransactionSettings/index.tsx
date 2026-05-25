@@ -9,7 +9,6 @@ import Tooltip, { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
-import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import { useAggregatorForZapSetting, useDegenModeManager } from 'state/user/hooks'
@@ -25,7 +24,6 @@ type Props = {
 }
 
 export default function TransactionSettings({ isElastic, hoverBg }: Props) {
-  const theme = useTheme()
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
   const [isUseAggregatorForZap, toggleAggregatorForZap] = useAggregatorForZapSetting()
   const toggle = useToggleTransactionSettingsMenu()
@@ -84,7 +82,7 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
                   id="open-settings-dialog-button"
                   aria-label="Transaction Settings"
                 >
-                  <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
+                  <TransactionSettingsIcon className={isDegenMode ? 'text-warning' : 'text-subText'} />
                 </StyledActionButtonSwapForm>
               </div>
             </Tooltip>

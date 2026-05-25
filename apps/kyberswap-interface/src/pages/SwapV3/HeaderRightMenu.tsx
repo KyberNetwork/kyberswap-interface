@@ -10,7 +10,6 @@ import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { TAB } from 'pages/SwapV3/index'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
@@ -25,8 +24,6 @@ export default function HeaderRightMenu({
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
 }) {
-  const theme = useTheme()
-
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
@@ -89,7 +86,7 @@ export default function HeaderRightMenu({
             disableTooltip={isMobile}
           >
             <span id={TutorialIds.BUTTON_SETTING_SWAP_FORM} className="leading-none">
-              <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
+              <TransactionSettingsIcon className={isDegenMode ? 'text-warning' : 'text-subText'} />
             </span>
           </MouseoverTooltip>
         </StyledActionButtonSwapForm>

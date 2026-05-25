@@ -103,7 +103,7 @@ export const ShareGroupButtons = ({
         {(color: string) => (
           <>
             <ExternalLink href={facebook} className="flex">
-              <Facebook color={color} size={size} />
+              <Facebook style={{ color }} size={size} />
             </ExternalLink>
             {showLabel && <span>Facebook</span>}
           </>
