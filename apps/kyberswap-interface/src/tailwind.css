@@ -734,10 +734,10 @@
   @keyframes ks-slippage-highlight {
     0%,
     100% {
-      box-shadow: 0 0 0 0 #31cb9e66;
+      box-shadow: 0 0 0 0 rgb(var(--ks-primary-rgb) / 0.4);
     }
     70% {
-      box-shadow: 0 0 0 3px #31cb9e66;
+      box-shadow: 0 0 0 3px rgb(var(--ks-primary-rgb) / 0.4);
     }
   }
 
@@ -767,27 +767,27 @@
   /* MarketOverview / RefetchIndicator price pulse (green for up, red for down). */
   @keyframes ks-pulse-green {
     0% {
-      color: #31cb9e;
+      color: var(--ks-primary);
       opacity: 1;
     }
     50% {
       opacity: 0;
     }
     100% {
-      color: #ffffff;
+      color: var(--ks-white);
       opacity: 1;
     }
   }
   @keyframes ks-pulse-red {
     0% {
-      color: #ff6871;
+      color: var(--ks-red1);
       opacity: 1;
     }
     50% {
       opacity: 0;
     }
     100% {
-      color: #ffffff;
+      color: var(--ks-white);
       opacity: 1;
     }
   }
@@ -1191,7 +1191,7 @@
     --ks-warning: #ff9901;
     --ks-warning-10: #ff99011a;
     --ks-warning-20: #ff990133;
-    --ks-warning-25: rgba(255, 153, 1, 0.25);
+    --ks-warning-25: #ff990140;
     --ks-warning-30: #ff99014d;
     --ks-warning-35: #ff990159;
 

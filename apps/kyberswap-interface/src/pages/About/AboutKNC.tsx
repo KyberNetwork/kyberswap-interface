@@ -120,11 +120,8 @@ function AboutKNC() {
 
   const DynamicTokenModel = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-      minHeight="360px"
+      className={cn('min-h-[360px] flex-1 flex-col', above768 ? 'items-start' : 'items-center')}
+      style={{ width }}
     >
       <img width="64px" src={RocketIcon} alt="rocket_icon" />
       <p className="mt-7 text-[16px] font-medium uppercase text-primary">
@@ -142,11 +139,8 @@ function AboutKNC() {
 
   const ParticipationRewards = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-      minHeight="360px"
+      className={cn('min-h-[360px] flex-1 flex-col', above768 ? 'items-start' : 'items-center')}
+      style={{ width }}
     >
       <img width="64px" src={TrophyIcon} alt="trophy_icon" />
       <p className="mt-7 text-[16px] font-medium uppercase text-primary">

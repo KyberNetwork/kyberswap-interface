@@ -38,8 +38,8 @@ export function CloseIcon({ className, ...rest }: IconProps) {
 export function LinkIcon({ color, className, style, ...rest }: IconProps & { color?: string }) {
   return (
     <LinkIconFeather
-      className={cn('h-4 w-[18px]', className)}
-      style={{ stroke: color || 'var(--ks-primary)', ...style }}
+      className={cn('h-4 w-[18px] text-primary', className)}
+      style={color ? { stroke: color, ...style } : style}
       {...rest}
     />
   )

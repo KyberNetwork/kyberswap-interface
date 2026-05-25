@@ -44,11 +44,13 @@ export const OptionCardClickable = ({
   return (
     <div
       {...props}
+      data-disabled={disabled || undefined}
+      data-connected={!isDisabled && connected ? true : undefined}
       className={cn(
-        'flex h-9 w-full flex-row items-center gap-2 overflow-hidden whitespace-nowrap rounded-[18px] bg-tableHeader px-2.5 py-2 text-sm',
-        disabled ? 'cursor-not-allowed grayscale [&_.option-header-text]:!text-border' : 'cursor-pointer',
-        !disabled && 'hover:no-underline hover:brightness-90 [&:hover_.option-header-text]:!text-text',
-        !isDisabled && connected && '!bg-primary [&_.option-header-text]:!text-darkText',
+        'group flex h-9 w-full flex-row items-center gap-2 overflow-hidden whitespace-nowrap rounded-[18px] bg-tableHeader px-2.5 py-2 text-sm',
+        'cursor-pointer hover:no-underline hover:brightness-90',
+        'data-[disabled=true]:cursor-not-allowed data-[disabled=true]:grayscale',
+        'data-[connected=true]:!bg-primary',
         className,
       )}
     >
@@ -103,7 +105,9 @@ const Option = ({ connector }: { connector: Connector }) => {
         <img src={icon} alt={'Icon'} />
       </IconWrapper>
       <OptionCardLeft>
-        <HeaderText className="option-header-text">{name}</HeaderText>
+        <HeaderText className="group-hover:!text-text group-data-[connected=true]:!text-darkText group-data-[disabled=true]:!text-border">
+          {name}
+        </HeaderText>
       </OptionCardLeft>
     </OptionCardClickable>
   )

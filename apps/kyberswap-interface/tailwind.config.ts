@@ -173,10 +173,11 @@ const config: Config = {
         },
         // Warning-colored box-shadow pulse used by SlippageControl custom input highlight.
         'highlight-warning': {
-          '0%, 100%': { boxShadow: '0 0 0 0 rgba(255, 153, 1, 0)' },
-          '70%': { boxShadow: '0 0 0 1px rgba(255, 153, 1, 1)' },
+          '0%, 100%': { boxShadow: '0 0 0 0 rgb(var(--ks-warning-rgb) / 0)' },
+          '70%': { boxShadow: '0 0 0 1px rgb(var(--ks-warning-rgb) / 1)' },
         },
         // Drop-shadow pulse for TokenInfo when spread/price warning is active.
+        // Color is a slightly lighter orange than --ks-warning; keep as literal hex.
         'token-info-glow': {
           '0%, 100%': { filter: 'drop-shadow(0 0 2px rgba(255, 178, 55, 0.2))' },
           '50%': {

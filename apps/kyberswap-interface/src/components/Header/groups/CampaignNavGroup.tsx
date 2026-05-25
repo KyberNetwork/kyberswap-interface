@@ -29,7 +29,7 @@ const CampaignNavGroup = () => {
       dropdownAlign={upTo500 ? 'right' : 'left'}
       isActive={isActive}
       anchor={
-        <DropdownTextAnchor style={{ display: 'flex', position: 'relative', width: 'max-content' }}>
+        <DropdownTextAnchor className="relative flex w-max">
           <Trans>Campaigns</Trans>
           {showCampaignNew && <NewLabel isNew>{t`New`}</NewLabel>}
         </DropdownTextAnchor>
@@ -58,7 +58,7 @@ const CampaignNavGroup = () => {
 
           <StyledNavLink
             to={APP_PATHS.AGGREGATOR_CAMPAIGN}
-            style={{ paddingRight: '0' }}
+            className="!pr-0"
             onClick={e => {
               e.preventDefault()
               setShowStip(!showStip)
@@ -70,14 +70,11 @@ const CampaignNavGroup = () => {
           </StyledNavLink>
 
           <Column
-            style={{
-              padding: '0px 8px',
-              height: 'auto',
-              maxHeight: showStip ? '300px' : '0',
-              transition: 'all 0.3s ease-in-out',
-              overflow: 'hidden',
-              visibility: showStip ? 'visible' : 'hidden',
-            }}
+            className={cn(
+              'h-auto overflow-hidden px-2 transition-all duration-300 ease-in-out',
+              showStip ? 'visible' : 'invisible',
+            )}
+            style={{ maxHeight: showStip ? '300px' : 0 }}
           >
             <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} className="!gap-3 !text-sm">
               <li>{t`Aggregator Trading`}</li>
@@ -89,7 +86,7 @@ const CampaignNavGroup = () => {
               <li>{t`Referral`}</li>
             </StyledNavLink>
           </Column>
-          <StyledNavLink to={APP_PATHS.MY_DASHBOARD} style={{ gap: '12px' }}>
+          <StyledNavLink to={APP_PATHS.MY_DASHBOARD} className="!gap-3">
             <Trans>My Dashboard</Trans>
           </StyledNavLink>
         </Column>

@@ -15,7 +15,7 @@ type SegmentedControlProps<T extends string> = {
 }
 
 const segment = cva(
-  'relative z-[1] min-w-12 rounded-full border-0 bg-transparent text-sm font-medium [transition:color_200ms_ease,background_200ms_ease] disabled:cursor-not-allowed disabled:opacity-50',
+  'relative z-[1] min-w-12 cursor-pointer rounded-full border-0 bg-transparent text-sm font-medium [transition:color_200ms_ease,background_200ms_ease] disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       size: {
@@ -24,7 +24,7 @@ const segment = cva(
       },
       active: {
         true: 'text-text',
-        false: 'cursor-pointer text-subText hover:bg-buttonGray',
+        false: 'text-subText hover:bg-buttonGray',
       },
     },
     defaultVariants: {

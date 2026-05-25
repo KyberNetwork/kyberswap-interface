@@ -52,7 +52,7 @@ export const StyledNavExternalLink = ({ className, customActive, isCustomActive,
     className={cn(
       LINK_BASE_CLASS,
       'hover:!no-underline hover:brightness-90 focus:!text-subText focus:!no-underline',
-      'max-xxs:!hidden',
+      'max-xs:!hidden',
       (customActive ? isCustomActive : false) && 'rounded-xl font-semibold',
       className,
     )}

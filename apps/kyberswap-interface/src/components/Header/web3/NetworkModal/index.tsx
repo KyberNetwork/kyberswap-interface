@@ -14,7 +14,6 @@ import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { ApplicationModal } from 'state/application/actions'
@@ -77,7 +76,6 @@ export default function NetworkModal({
   customToggleModal?: () => void
   disabledMsg?: string
 }): JSX.Element | null {
-  const theme = useTheme()
   const { isWrongNetwork } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
   const { trackingHandler } = useTracking()
@@ -223,7 +221,7 @@ export default function NetworkModal({
       zindex={Z_INDEXS.MODAL}
       minHeight="550px"
       maxWidth="800px"
-      bgColor={theme.background}
+      bgColor="var(--ks-background)"
     >
       <Wrapper ref={wrapperRef}>
         <RowBetween className="items-center">

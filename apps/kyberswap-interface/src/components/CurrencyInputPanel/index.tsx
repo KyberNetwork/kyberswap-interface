@@ -120,10 +120,11 @@ export const StyledTokenName = ({
 }: React.HTMLAttributes<HTMLSpanElement> & { tight?: boolean; active?: boolean; fontSize?: string }) => (
   <span
     {...props}
-    style={{ fontSize: fontSize ? fontSize : active ? '20px' : '16px', ...style }}
+    style={fontSize ? { fontSize, ...style } : style}
     className={cn(
       'max-w-[120px] truncate',
       !tight && 'ml-2',
+      !fontSize && (active ? 'text-xl' : 'text-base'),
       '[@media(max-width:420px)]:max-w-[76px] [@media(max-width:445px)]:max-w-[102px]',
       className,
     )}

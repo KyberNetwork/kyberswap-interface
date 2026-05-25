@@ -117,12 +117,11 @@ function Web3StatusInner() {
               <MouseoverTooltip
                 placement="bottom"
                 text={
-                  <Text style={{ fontSize: '12px', textAlign: 'left', whiteSpace: 'normal' }}>
+                  <Text className="whitespace-normal text-left text-xs">
                     <Trans>
                       You are not signed in with this wallet address. If you wish, you can{' '}
                       <span
-                        className="text-primary"
-                        style={{ cursor: 'pointer', fontSize: '12px' }}
+                        className="cursor-pointer text-xs text-primary"
                         onClick={e => {
                           e.stopPropagation()
                           signIn({ account })

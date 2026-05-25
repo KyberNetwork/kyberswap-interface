@@ -1,30 +1,8 @@
-import { CSSProperties, ComponentProps, HTMLAttributes, forwardRef } from 'react'
+import { ComponentProps, HTMLAttributes, forwardRef } from 'react'
 
 import bgimg from 'assets/images/about_background.png'
 import { ButtonPrimary } from 'components/Button'
 import { cn } from 'utils/cn'
-
-type FlexShorthand = {
-  flexDirection?: CSSProperties['flexDirection']
-  flex?: CSSProperties['flex']
-  alignItems?: CSSProperties['alignItems']
-  justifyContent?: CSSProperties['justifyContent']
-  width?: CSSProperties['width']
-  height?: CSSProperties['height']
-  minHeight?: CSSProperties['minHeight']
-  maxHeight?: CSSProperties['maxHeight']
-}
-
-const pickFlexStyle = (p: FlexShorthand): CSSProperties => ({
-  ...(p.flexDirection ? { flexDirection: p.flexDirection } : {}),
-  ...(p.flex !== undefined ? { flex: p.flex } : {}),
-  ...(p.alignItems ? { alignItems: p.alignItems } : {}),
-  ...(p.justifyContent ? { justifyContent: p.justifyContent } : {}),
-  ...(p.width !== undefined ? { width: p.width } : {}),
-  ...(p.height !== undefined ? { height: p.height } : {}),
-  ...(p.minHeight !== undefined ? { minHeight: p.minHeight } : {}),
-  ...(p.maxHeight !== undefined ? { maxHeight: p.maxHeight } : {}),
-})
 
 export const Wrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
   <div
@@ -126,20 +104,11 @@ export const ForTraderDivider = forwardRef<HTMLDivElement, ForTraderDividerProps
 )
 ForTraderDivider.displayName = 'ForTraderDivider'
 
-type ForLiquidityProviderItemProps = HTMLAttributes<HTMLDivElement> & FlexShorthand
-
-export const ForLiquidityProviderItem = forwardRef<HTMLDivElement, ForLiquidityProviderItemProps>(
-  (
-    { className, style, flexDirection, flex, alignItems, justifyContent, width, height, minHeight, maxHeight, ...rest },
-    ref,
-  ) => (
+export const ForLiquidityProviderItem = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
     <div
       ref={ref}
       className={cn('flex w-full rounded-[20px] bg-background p-12 max-md:p-8 max-md:pb-12', className)}
-      style={{
-        ...pickFlexStyle({ flexDirection, flex, alignItems, justifyContent, width, height, minHeight, maxHeight }),
-        ...style,
-      }}
       {...rest}
     />
   ),
@@ -164,11 +133,14 @@ export const GridWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElem
 GridWrapper.displayName = 'GridWrapper'
 
 export const Footer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement> & { background?: string }>(
-  ({ className, background: _bg, style, ...rest }, ref) => (
+  ({ className, background: _bg, ...rest }, ref) => (
     <div
       ref={ref}
-      className={cn('w-full bg-background', 'max-lg:mb-16', className)}
-      style={{ filter: 'drop-shadow(0px -4px 16px rgba(0, 0, 0, 0.04))', ...style }}
+      className={cn(
+        'w-full bg-background [filter:drop-shadow(0px_-4px_16px_rgba(0,0,0,0.04))]',
+        'max-lg:mb-16',
+        className,
+      )}
       {...rest}
     />
   ),

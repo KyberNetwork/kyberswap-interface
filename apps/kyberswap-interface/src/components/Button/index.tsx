@@ -198,7 +198,7 @@ type ButtonVariantClass = string | ((props: ButtonProps) => string)
 // overrides). Consumer-supplied shorthand props (padding, width, etc.) become inline style and
 // override the Tailwind defaults at the inline-style level.
 const BASE_CLASS =
-  'relative z-10 flex w-full h-auto cursor-pointer items-center justify-center rounded-full border border-solid border-transparent p-3 text-center text-sm leading-[normal] font-medium text-white no-underline outline-none [&>*]:select-none hover:brightness-[0.8] disabled:cursor-auto disabled:hover:filter-none'
+  'relative z-10 flex w-full h-auto cursor-pointer items-center justify-center rounded-full border border-solid border-transparent p-3 text-center text-sm leading-[normal] font-medium text-white no-underline outline-none [&>*]:select-none hover:brightness-[0.8] disabled:cursor-auto disabled:hover:!filter-none'
 
 const buildBase = (variantClass: ButtonVariantClass, displayName: string) => {
   const Component = forwardRef<HTMLElement, ButtonProps>(
@@ -222,7 +222,7 @@ const buildBase = (variantClass: ButtonVariantClass, displayName: string) => {
           ref={ref}
           {...passthrough}
           style={merged}
-          className={cn(BASE_CLASS, variantResolved, $disabled && 'cursor-auto hover:filter-none', className)}
+          className={cn(BASE_CLASS, variantResolved, $disabled && 'cursor-auto hover:!filter-none', className)}
         />
       )
     },
@@ -257,7 +257,7 @@ export const ButtonWarning = buildBase(
 
 // ButtonLight: background uses ${color || primary}4d (30% alpha hex). Use inline `--btn-base` so consumer-supplied color works.
 export const ButtonLight = forwardRef<HTMLElement, ButtonProps>(
-  ({ as, className, style, color, $disabled, fontSize, ...props }, ref) => {
+  ({ as, className, style, color, $disabled, altDisabledStyle: _altDisabledStyle, fontSize, ...props }, ref) => {
     const As = (as ?? 'button') as React.ElementType
     const { style: inlineStyle, passthrough } = shorthandToStyle(props as Record<string, unknown>)
     const baseColor = color || 'var(--ks-primary)'
@@ -362,7 +362,7 @@ export function ButtonDropdownLight({
   ...rest
 }: { disabled?: boolean; children?: React.ReactNode } & ButtonProps) {
   return (
-    <ButtonOutlined {...rest} disabled={disabled} style={{ border: '1px solid var(--ks-border)', ...rest.style }}>
+    <ButtonOutlined {...rest} disabled={disabled}>
       <RowBetween>
         <div className="flex items-center">{children}</div>
         <ChevronDown size={24} />

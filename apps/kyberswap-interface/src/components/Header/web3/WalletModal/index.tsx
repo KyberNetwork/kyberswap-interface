@@ -78,13 +78,16 @@ export const OptionGrid = ({ children, className }: { children: React.ReactNode;
 const HoverText = ({
   children,
   onClick,
-  style,
+  className,
 }: {
   children: React.ReactNode
   onClick?: () => void
-  style?: React.CSSProperties
+  className?: string
 }) => (
-  <div onClick={onClick} style={style} className="flex cursor-pointer items-center gap-1 text-xl hover:cursor-pointer">
+  <div
+    onClick={onClick}
+    className={cn('flex cursor-pointer items-center gap-1 text-xl hover:cursor-pointer', className)}
+  >
     {children}
   </div>
 )
@@ -122,7 +125,7 @@ export default function WalletModal() {
       <UpperSection>
         <RowBetween className="mb-[26px] gap-5">
           {(isSomeOptionPending || isError) && (
-            <HoverText onClick={() => reset()} style={{ marginRight: '1rem', flex: 1 }}>
+            <HoverText onClick={() => reset()} className="mr-4 flex-1">
               <ChevronLeft className="text-primary" />
             </HoverText>
           )}
@@ -152,7 +155,7 @@ export default function WalletModal() {
               checked={isAcceptedTerm}
               onChange={() => {}}
               data-testid="accept-term"
-              style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
+              className="mr-3 size-3.5 min-w-3.5 cursor-pointer"
             />
             <span className="text-subText">
               <Trans>Accept </Trans>{' '}

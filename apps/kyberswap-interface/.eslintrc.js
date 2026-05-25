@@ -81,6 +81,22 @@ module.exports = {
     'tailwindcss/no-custom-classname': 'off',
     'tailwindcss/no-contradicting-classname': 'error',
     'tailwindcss/enforces-shorthand': 'warn',
+
+    // Block re-introduction of the libraries the migration removed.
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          { name: 'styled-components', message: 'Use Tailwind classes + cn() (utils/cn) instead.' },
+          { name: 'rebass', message: 'Use Tailwind classes + cn() (utils/cn) instead.' },
+          { name: 'polished', message: 'Use Tailwind opacity modifier (e.g. bg-X/N) or hexAlpha for runtime needs.' },
+        ],
+        patterns: [
+          { group: ['rebass/*'], message: 'Use Tailwind classes + cn() (utils/cn) instead.' },
+          { group: ['styled-components/*'], message: 'Use Tailwind classes + cn() (utils/cn) instead.' },
+        ],
+      },
+    ],
   },
   settings: {
     react: {

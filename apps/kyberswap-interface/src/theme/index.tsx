@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 
 import { ThemeContext } from 'hooks/useTheme'
-import { Colors, colors } from 'theme/color'
+import { colors } from 'theme/color'
 
 export * from 'theme/components'
 
@@ -15,11 +15,9 @@ export const MEDIA_WIDTHS = {
   upToXXL: 1800,
 }
 
-function theme(): Colors {
-  return colors()
-}
+// `colors()` returns a static object derived from CSS tokens; freeze a single instance.
+const themeValue = colors()
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const value = useMemo(() => theme(), [])
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  return <ThemeContext.Provider value={themeValue}>{children}</ThemeContext.Provider>
 }
