@@ -17,7 +17,6 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
 import useLogin from 'hooks/useLogin'
-import useTheme from 'hooks/useTheme'
 import { useValidateEmail } from 'pages/NotificationCenter/NotificationPreference'
 import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
 import AvatarEdit from 'pages/NotificationCenter/Profile/AvatarEdit'
@@ -48,7 +47,6 @@ const getCacheDataDefault = () =>
   )
 
 export default function Profile() {
-  const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { chainId } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
@@ -168,7 +166,7 @@ export default function Profile() {
               </label>
               <AddressInput
                 className="h-[42px] rounded-[20px] border border-border"
-                style={{ color: theme.subText, cursor: 'pointer' }}
+                inputClassName="cursor-pointer !text-subText"
                 disabled
                 value={shortenAddress(chainId, signedAccount, 17, false)}
                 icon={<CopyHelper toCopy={signedAccount} className="text-subText" />}
@@ -224,7 +222,7 @@ export default function Profile() {
                 </MouseoverTooltip>
               </label>
               <InputEmailWithVerification
-                style={{ color: theme.text }}
+                inputClassName="!text-text"
                 hasError={!!errorInput}
                 showVerifyModal={showVerifyModal}
                 onChange={onChangeEmailWrapp}

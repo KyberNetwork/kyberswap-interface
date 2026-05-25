@@ -16,6 +16,7 @@ type Props = {
   hasError?: boolean
   showVerifyModal?: () => void
   style?: CSSProperties
+  inputClassName?: string
   placement?: string
 }
 export function InputEmail({
@@ -26,6 +27,7 @@ export function InputEmail({
   disabled,
   hasError,
   style,
+  inputClassName,
   placement,
 }: Props) {
   const theme = useTheme()
@@ -40,7 +42,7 @@ export function InputEmail({
     >
       <div className="relative" style={style}>
         <Input
-          color={style?.color}
+          className={inputClassName}
           style={{ maxHeight: '100%' }}
           disabled={disabled}
           borderColor={hasError ? theme.red : theme.border}

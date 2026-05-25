@@ -7,7 +7,6 @@ import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Deposit from 'components/Icons/Deposit'
-import useTheme from 'hooks/useTheme'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 
 import { Label } from './styled'
@@ -22,7 +21,6 @@ type Props = {
 }
 
 export default function QRCodeContent({ dismissModal, importToken, forgotPasscode }: Props) {
-  const theme = useTheme()
   const copyButtonRef = useRef<HTMLDivElement>(null)
 
   const qrCodeProps: QRCodeProps | undefined = useMemo(() => {
@@ -81,7 +79,7 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
             copyButtonRef.current?.click?.()
           }}
           className="w-full"
-          style={{ color: theme.subText, cursor: 'pointer' }}
+          inputClassName="cursor-pointer !text-subText"
           disabled
           value={importToken}
           icon={<CopyHelper ref={copyButtonRef} toCopy={importToken} className="text-subText" />}

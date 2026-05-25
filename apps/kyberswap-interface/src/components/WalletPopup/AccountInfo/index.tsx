@@ -8,7 +8,6 @@ import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
 import MinimalActionButtonGroup from 'components/WalletPopup/AccountInfo/MinimalActionButtonGroup'
 import { useActiveWeb3React } from 'hooks'
 import { useRewards } from 'hooks/useRewards'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { formatNumberWithPrecisionRange } from 'utils'
 import { cn } from 'utils/cn'
@@ -39,7 +38,6 @@ export default function AccountInfo({
   toggleShowBalance,
   setView,
 }: Props) {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const {
@@ -119,7 +117,7 @@ export default function AccountInfo({
           >
             <div className="flex items-center justify-between">
               <div className="flex gap-1">
-                <Star size={16} className="text-subText" fill={theme.subText} />
+                <Star size={16} className="fill-subText text-subText" />
                 <span className="text-xs font-medium leading-4 text-subText">
                   <Trans>Total Available Rewards</Trans>
                 </span>

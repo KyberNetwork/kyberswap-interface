@@ -32,7 +32,7 @@ pnpm build
 
 - React 18 + TypeScript + Vite
 - pnpm workspaces + Turborepo
-- styled-components (no CSS modules, no inline styles)
+- Tailwind CSS (utility-first, via the `cn()` helper from `utils/cn`; avoid inline `style` and styled-components — both are deprecated in this app)
 - Redux Toolkit + RTK Query (app state), zustand (widget state)
 - ethers.js, wagmi, viem
 
@@ -65,8 +65,9 @@ Format all modified files with Prettier. Do **NOT** present code changes as comp
 
 ## Color & Styling Rules
 
-- **Always use theme colors** — never hardcode hex/rgb values. Use `${({ theme }) => theme.colorName}` in styled-components. Check `src/theme/color.ts` for existing tokens before introducing new colors.
-- Key tokens: `primary`, `text`, `subText`, `background`, `border`, `red1`, `warning`, `buttonBlack`, `buttonGray`, `tableHeader`, etc.
+- **Always use theme colors** — never hardcode hex/rgb values. Prefer Tailwind utility classes (e.g. `bg-primary`, `text-subText`, `border-border`); for runtime / chart-library color strings, read from `useTheme()` in `hooks/useTheme.ts`. Check `src/theme/color.ts` for existing tokens before introducing new colors.
+- Key tokens: `primary`, `text`, `subText`, `background`, `border`, `red`, `warning`, `buttonBlack`, `buttonGray`, `tableHeader`, etc. Alpha-blended variants exist (`subText-20`, `primary-15/20/25/30/50`, `red-10/20/25/30/35`, `warning-10/20/25/30/35`, `white-04/08/60`, etc.); see `tailwind.config.ts` for the full list.
+- For dynamic alpha not covered by a pre-defined token, use Tailwind's opacity modifier (`bg-buttonGray/70`, `border-border/40`) — supported on the major tokens whose Tailwind entries use the `<alpha-value>` placeholder.
 
 ## Number Formatting Rules
 

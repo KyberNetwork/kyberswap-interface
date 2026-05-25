@@ -193,6 +193,7 @@ interface CurrencyInputPanelProps {
   lockIcon?: boolean
   tight?: boolean
   styleSelect?: CSSProperties
+  selectClassName?: string
   customChainId?: ChainId
 }
 
@@ -233,6 +234,7 @@ export default function CurrencyInputPanel({
   tight: tightProp,
   loadingText,
   styleSelect = {},
+  selectClassName,
   customChainId,
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
@@ -323,7 +325,7 @@ export default function CurrencyInputPanel({
                 isDisable={disableCurrencySelect}
                 hideInput={hideInput}
                 selected={!!currency}
-                className="open-currency-select-button"
+                className={cn('open-currency-select-button', selectClassName)}
                 onClick={() => {
                   if (disableCurrencySelect) return
                   if (!isSwitchMode) {

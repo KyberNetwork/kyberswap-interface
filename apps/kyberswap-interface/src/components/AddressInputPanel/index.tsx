@@ -18,6 +18,7 @@ type Props = {
   icon?: ReactNode
   disabled?: boolean
   className?: string
+  inputClassName?: string
   style?: CSSProperties
 } & Pick<DOMAttributes<HTMLInputElement>, 'onBlur' | 'onFocus' | 'onChange' | 'onClick'>
 
@@ -33,6 +34,7 @@ export function AddressInput({
   disabled = false,
   style = {},
   className,
+  inputClassName,
   pattern = '^(0x[a-fA-F0-9]{40})$',
 }: Props) {
   return (
@@ -53,6 +55,7 @@ export function AddressInput({
               error
                 ? 'text-red [transition-timing-function:step-end]'
                 : 'text-text [transition-timing-function:step-start]',
+              inputClassName,
             )}
             type="text"
             autoComplete="off"

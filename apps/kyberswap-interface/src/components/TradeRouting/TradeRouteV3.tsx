@@ -191,6 +191,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
 
       <svg
         ref={svgRef}
+        className="text-primary"
         style={{
           zIndex: 10,
           position: 'absolute',
@@ -203,7 +204,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
       >
         <defs>
           <marker id="arrowhead" markerWidth="4" markerHeight="4" refX="4" refY="2" orient="auto">
-            <polygon points="0 0, 4 2, 0 4" fill={theme.primary} />
+            <polygon points="0 0, 4 2, 0 4" fill="currentColor" />
           </marker>
         </defs>
 
@@ -464,7 +465,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
             <React.Fragment key={node.address}>
               {finalEdges.length === 0 && (
                 <>
-                  <text x={x + 4} y={y + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
+                  <text x={x + 4} y={y + 3} fontSize="10" fontWeight="500" fill="currentColor">
                     100%
                   </text>
                   <path
@@ -493,7 +494,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
 
                 return (
                   <React.Fragment key={index}>
-                    <text x={labelX} y={labelY} fontSize="10" fontWeight="500" fill={theme.primary}>
+                    <text x={labelX} y={labelY} fontSize="10" fontWeight="500" fill="currentColor">
                       {item.percent}%
                     </text>
                     <path

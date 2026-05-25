@@ -18,7 +18,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -62,7 +61,6 @@ export default function SendToken({
   const { account, chainId } = useActiveWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const balance = useCurrencyBalance(currencyIn)
   const maxAmountInput = maxAmountSpend(balance)
@@ -213,7 +211,7 @@ export default function SendToken({
 
         <div>
           <AddressInput
-            style={{ color: theme.subText, textOverflow: 'unset' }}
+            inputClassName="!text-subText [text-overflow:unset]"
             error={!!recipientError}
             onChange={e => onChangeRecipient(e.currentTarget.value)}
             onFocus={onFocus}

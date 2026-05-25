@@ -6,14 +6,12 @@ import { useMedia } from 'react-use'
 import Divider from 'components/Divider'
 import { ButtonIcon } from 'components/PageWrappers'
 import { TERM_FILES_PATH } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { CampaignType } from 'pages/Campaign/constants'
 import { ExternalLink } from 'theme'
 
 import { campaignInfos } from './info'
 
 export default function Information({ type, selectedWeek }: { type: CampaignType; selectedWeek: number }) {
-  const theme = useTheme()
   const [isShowRule, setIsShowRule] = useState(true)
   const [isShowTimeline, setIsShowTimeline] = useState(true)
   const [isShowReward, setIsShowReward] = useState(true)
@@ -42,7 +40,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
     <div className="mt-5 rounded-[20px] bg-background p-6">
       <div className="flex justify-between">
         <div className="flex items-center gap-1 text-xl">
-          <Star className="text-warning" fill={theme.warning} />
+          <Star className="fill-warning text-warning" />
           {type === CampaignType.NearIntents || type === CampaignType.Raffle
             ? t`How to participate?`
             : t`How to earn points`}

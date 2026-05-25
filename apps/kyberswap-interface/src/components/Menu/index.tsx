@@ -31,7 +31,6 @@ import { FAUCET_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
@@ -112,7 +111,6 @@ const noop = () => {}
 
 export default function Menu() {
   const { chainId, account, networkInfo } = useActiveWeb3React()
-  const theme = useTheme()
 
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
@@ -516,7 +514,7 @@ export default function Menu() {
                 style={{ textDecoration: 'none', fontSize: '14px' }}
               >
                 {getLocaleLabel(userLocale, true)}&nbsp;&nbsp;
-                <ArrowRight fill={theme.text} />
+                <ArrowRight className="text-text" />
               </ButtonEmpty>
             </NavLinkBetween>
 
@@ -534,7 +532,7 @@ export default function Menu() {
               >
                 {pendingTx ? (
                   <>
-                    <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
+                    <Loader className="mr-[5px] text-disableText" /> <Trans>Claiming...</Trans>
                   </>
                 ) : (
                   <Trans>Claim Rewards</Trans>

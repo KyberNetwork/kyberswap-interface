@@ -10,7 +10,6 @@ import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { shortenAddress } from 'utils'
 
 const QR_SIZE = 200
@@ -54,8 +53,6 @@ export default function ReceiveToken() {
       console.error(error)
     }
   }
-
-  const theme = useTheme()
 
   let qrElement = null
   let error = true
@@ -104,7 +101,7 @@ export default function ReceiveToken() {
           <MouseoverTooltip placement="bottom" text={t`Copy address to clipboard`} width="fit-content">
             <div onClick={onCopy} role="button" className="flex w-full cursor-pointer flex-col">
               <AddressInput
-                style={{ color: theme.subText, cursor: 'pointer' }}
+                inputClassName="cursor-pointer !text-subText"
                 disabled
                 value={shortenAddress(chainId, account, 17, false)}
                 icon={<CopyHelper ref={copyButtonRef} toCopy={account} className="text-subText" />}

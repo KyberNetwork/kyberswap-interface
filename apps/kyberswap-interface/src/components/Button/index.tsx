@@ -397,7 +397,7 @@ export const ButtonWithInfoHelper = ({
     >
       <MouseoverTooltip width="300px" text={tooltipMsg} disableTooltip={loading}>
         <div className="flex h-11 items-center pl-0.5 pr-2" onClick={e => e.stopPropagation()}>
-          {loading ? <Loader stroke="white" /> : <Info size={20} />}
+          {loading ? <Loader className="text-white" /> : <Info size={20} />}
         </div>
       </MouseoverTooltip>
       <span className="text-left">{text}</span>

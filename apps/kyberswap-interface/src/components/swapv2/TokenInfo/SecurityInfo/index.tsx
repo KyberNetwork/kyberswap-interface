@@ -8,21 +8,20 @@ import { ReactComponent as ContractSecurity } from 'assets/svg/security_contract
 import { ReactComponent as TreadingSecurity } from 'assets/svg/security_trading.svg'
 import { CollapseItem } from 'components/Collapse'
 import { getSecurityTokenInfo } from 'components/swapv2/TokenInfo/utils'
-import useTheme from 'hooks/useTheme'
 
 import { Container } from '../index'
 import Content from './Content'
 import Header from './Header'
 
 export default function SecurityInfo({ token }: { token: Token | undefined }) {
-  const theme = useTheme()
   const style: CSSProperties = {
     background: 'var(--ks-black-20)',
     borderRadius: '16px',
     padding: '0',
   }
   const headerStyle: CSSProperties = { background: 'var(--ks-black-48)' }
-  const arrowStyle: CSSProperties = { marginRight: '6px', color: theme.subText }
+  const arrowStyle: CSSProperties = { marginRight: '6px' }
+  const arrowClassName = 'text-subText'
   const { data, isLoading, error } = useGetSecurityTokenInfoQuery(
     { chainId: token?.chainId as ChainId, address: token?.address ?? '' },
     { skip: !token?.address },
@@ -38,6 +37,7 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
         maxHeight="400px"
         expandedOnMount
         arrowStyle={arrowStyle}
+        arrowClassName={arrowClassName}
         headerStyle={headerStyle}
         style={style}
         headerBorderRadius="16px"
@@ -64,6 +64,7 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
         expandedOnMount
         maxHeight="400px"
         arrowStyle={arrowStyle}
+        arrowClassName={arrowClassName}
         headerStyle={headerStyle}
         style={style}
         headerBorderRadius="16px"

@@ -15,6 +15,7 @@ type Props = {
   headerStyle?: CSSProperties
   headerBorderRadius?: string
   arrowStyle?: CSSProperties
+  arrowClassName?: string
   animation?: boolean
   maxHeight?: string
 }
@@ -29,6 +30,7 @@ export const CollapseItem: React.FC<Props> = ({
   headerStyle,
   headerBorderRadius,
   arrowStyle,
+  arrowClassName,
   animation = false,
   maxHeight,
 }) => {
@@ -52,7 +54,10 @@ export const CollapseItem: React.FC<Props> = ({
         <div
           data-expanded={isExpanded}
           style={arrowStyle}
-          className="flex size-8 items-center justify-center text-text [&_svg]:transition-all [&_svg]:duration-150 [&_svg]:ease-in-out data-[expanded=true]:[&_svg]:rotate-180"
+          className={cn(
+            'flex size-8 items-center justify-center text-text [&_svg]:transition-all [&_svg]:duration-150 [&_svg]:ease-in-out data-[expanded=true]:[&_svg]:rotate-180',
+            arrowClassName,
+          )}
         >
           {arrowComponent || <ChevronDown />}
         </div>

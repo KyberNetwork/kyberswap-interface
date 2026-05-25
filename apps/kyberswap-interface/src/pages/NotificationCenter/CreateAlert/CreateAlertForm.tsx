@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { CSSProperties, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useCreatePriceAlertMutation } from 'services/priceAlert'
@@ -111,14 +111,7 @@ export default function CreateAlert({
 
   const theme = useTheme()
 
-  const styleCurrencySelect: CSSProperties = {
-    border: `1px solid ${theme.border}`,
-    borderRadius: 44,
-    width: 132,
-    height: 36,
-    fontSize: 14,
-    color: theme.text,
-  }
+  const currencySelectClassName = '!w-[132px] !h-9 !rounded-[44px] !border !border-border !text-sm !text-text'
 
   const resetForm = () => {
     setFormInput(defaultInput)
@@ -232,7 +225,7 @@ export default function CreateAlert({
                   otherCurrency={currencyOut}
                   id="alert-currency-input"
                   showCommonBases={true}
-                  styleSelect={styleCurrencySelect}
+                  selectClassName={currencySelectClassName}
                   fontSize={'14px'}
                   customChainId={selectedChain}
                 />
@@ -251,7 +244,7 @@ export default function CreateAlert({
                 hideBalance
                 onMax={null}
                 onHalf={null}
-                styleSelect={styleCurrencySelect}
+                selectClassName={currencySelectClassName}
                 onCurrencySelect={onChangeCurrencyOut}
                 otherCurrency={currencyIn}
                 id="alert-currency-out"

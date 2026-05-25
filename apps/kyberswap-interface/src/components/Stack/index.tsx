@@ -57,8 +57,6 @@ export type StackProps = HTMLAttributes<HTMLDivElement> &
     align?: StackStyleProps['alignItems']
     justify?: StackStyleProps['justifyContent']
     wrap?: StackStyleProps['flexWrap']
-    // rebass passthrough — permissive
-    sx?: CSSProperties | Record<string, unknown>
     m?: CSSProperties['margin']
     mt?: CSSProperties['marginTop']
     mb?: CSSProperties['marginBottom']
@@ -116,7 +114,6 @@ const STACK_SHORTHAND_KEYS = new Set([
   'align',
   'justify',
   'wrap',
-  'sx',
   'm',
   'mt',
   'mb',
@@ -144,7 +141,6 @@ const stripShorthandProps = (props: StackProps): HTMLAttributes<HTMLDivElement> 
 }
 
 const buildStackStyle = (p: StackProps, defaultDirection: CSSProperties['flexDirection']): CSSProperties => ({
-  ...(p.sx as CSSProperties | undefined),
   flexDirection: p.direction ?? p.flexDirection ?? defaultDirection,
   alignItems: p.alignItems ?? p.align ?? 'stretch',
   justifyContent: p.justifyContent ?? p.justify ?? 'flex-start',

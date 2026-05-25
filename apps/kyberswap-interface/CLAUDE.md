@@ -13,7 +13,7 @@ src/
 ├── services/            # API services
 ├── utils/               # Utility functions
 ├── constants/           # App constants, chain configs
-├── theme/               # Styled-components theme
+├── theme/               # Theme color tokens + global styles (consumed via Tailwind CSS vars)
 └── App.tsx              # Root component with route definitions
 ```
 

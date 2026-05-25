@@ -14,7 +14,6 @@ import { RowBetween, RowFixed } from 'components/Row'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
 import { CloseIcon } from 'theme/components'
@@ -31,8 +30,6 @@ export function ConfirmationPendingContent({
   onDismiss: () => void
   pendingText: string | React.ReactNode
 }) {
-  const theme = useTheme()
-
   return (
     <div className="w-full overflow-y-auto">
       <AutoColumn className={SECTION_CLASS}>
@@ -41,7 +38,7 @@ export function ConfirmationPendingContent({
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
         <div className="flex w-full flex-col items-center py-[30px]">
-          <Loader size="90px" stroke={theme.primary} strokeWidth="1" />
+          <Loader size="90px" className="text-primary" strokeWidth="1" />
         </div>
         <AutoColumn gap="12px" justify={'center'}>
           <span className="text-xl font-medium">

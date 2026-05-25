@@ -311,18 +311,16 @@ MobileTableRow.displayName = 'MobileTableRow'
 type MobileTableCellProps = HTMLAttributes<HTMLDivElement> & {
   alignItems?: CSSProperties['alignItems']
   justifyContent?: CSSProperties['justifyContent']
-  sx?: CSSProperties | Record<string, unknown>
 }
 
 export const MobileTableCell = forwardRef<HTMLDivElement, MobileTableCellProps>(
-  ({ className, alignItems, justifyContent, sx, style, ...rest }, ref) => (
+  ({ className, alignItems, justifyContent, style, ...rest }, ref) => (
     <div
       ref={ref}
       className={cn('box-border flex w-full min-w-0 p-2', className)}
       style={{
         ...(alignItems ? { alignItems } : {}),
         ...(justifyContent ? { justifyContent } : {}),
-        ...(sx as CSSProperties | undefined),
         ...style,
       }}
       {...rest}

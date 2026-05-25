@@ -16,7 +16,6 @@ import Modal from 'components/Modal'
 import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import { Exchange } from 'pages/Earns/constants'
 import { fetchExistingPoolAddress } from 'pages/Earns/utils/zap'
@@ -82,7 +81,6 @@ interface Props {
 }
 
 const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) => {
-  const theme = useTheme()
   const { account, chainId: activeChainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
@@ -322,7 +320,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
               style={{ borderRadius: '20px', height: 40 }}
             >
               {isLoading ? (
-                <Loader stroke={theme.textReverse} />
+                <Loader className="text-textReverse" />
               ) : tokensFOT.length > 0 ? (
                 <Trans>Token is not available</Trans>
               ) : isExistingPoolError ? (
