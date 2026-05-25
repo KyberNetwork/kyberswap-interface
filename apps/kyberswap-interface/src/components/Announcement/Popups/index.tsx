@@ -7,7 +7,6 @@ import { PopupType, PrivateAnnouncementType } from 'components/Announcement/type
 import { ButtonEmpty } from 'components/Button'
 import useNotificationLimitOrder from 'components/swapv2/LimitOrder/useNotificationLimitOrder'
 import { TIMES_IN_SECS } from 'constants/index'
-import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import {
   useActivePopups,
@@ -110,9 +109,8 @@ export default function Popups() {
     <>
       {topRightPopups.length > 0 && (
         <div
-          style={{ zIndex: Z_INDEXS.POPUP_NOTIFICATION }}
           className={cn(
-            'fixed right-4 flex flex-col items-end',
+            'fixed right-4 z-[9999] flex flex-col items-end',
             hasTopbarPopup ? 'top-[156px]' : 'top-[108px]',
             'max-md:inset-x-0 max-md:items-center',
             hasTopbarPopup ? 'max-md:top-[170px]' : 'max-md:top-[110px]',

@@ -274,13 +274,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
         <div className="text-center text-xl font-medium text-text">
           <Trans>Claim Asset</Trans>
         </div>
-        <ButtonEmpty
-          onClick={onDismiss}
-          width="36px"
-          height="36px"
-          padding="0"
-          style={{ position: 'absolute', right: '1rem', top: '1rem' }}
-        >
+        <ButtonEmpty onClick={onDismiss} width="36px" height="36px" padding="0" className="absolute right-4 top-4">
           <X className="text-text" />
         </ButtonEmpty>
 
@@ -317,15 +311,12 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
               need to Sign a message to confirm that you have read and accepted before claiming your assets.
             </div>
 
-            <TermAndCondition
-              onClick={() => setIsAcceptTerm(prev => !prev)}
-              style={{ marginTop: '24px', background: 'transparent', padding: 0 }}
-            >
+            <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} className="mt-6 !bg-transparent !p-0">
               <input
                 type="checkbox"
                 checked={isAcceptTerm}
                 data-testid="accept-term"
-                style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
+                className="mr-3 size-3.5 min-w-3.5 cursor-pointer"
               />
               <div>
                 Accept <ExternalLink href={ipfsLink}>KyberSwap’s Terms and Conditions</ExternalLink>
@@ -396,7 +387,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
                         </div>
                         <ButtonPrimary
                           disabled={claimed[index]}
-                          style={{ height: '36px' }}
+                          className="h-9"
                           width="max-content"
                           onClick={() => setSelectedNetworkToClaim(chain)}
                         >
@@ -428,7 +419,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
                       <div className="flex justify-end">
                         <ButtonPrimary
                           disabled={claimed[index]}
-                          style={{ height: '36px' }}
+                          className="h-9"
                           width="max-content"
                           onClick={() => setSelectedNetworkToClaim(chain)}
                         >

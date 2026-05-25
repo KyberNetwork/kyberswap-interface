@@ -100,7 +100,7 @@ function StatusIcon({
     <Repeat size={14} className="text-warning" />
   )
   return (
-    <span className="flex items-center gap-1" style={{ minWidth: 'unset' }}>
+    <span className="flex min-w-[unset] items-center gap-1">
       <PrimaryText className="text-text">
         {checkingStatus ? t`Checking` : isPendingState ? pendingText : success ? t`Completed` : t`Failed`}
       </PrimaryText>

@@ -288,9 +288,7 @@ const SwapActionButton: React.FC<Props> = ({
                   setLoading(true)
                   permitCallback().finally(() => setLoading(false))
                 }}
-                style={{
-                  flex: 1,
-                }}
+                className="flex-1"
               >
                 <RowFit className="gap-1">
                   <InfoHelper
@@ -318,10 +316,7 @@ const SwapActionButton: React.FC<Props> = ({
             <Approvebtn
               onClick={handleApproveClick}
               disabled={loading || approval === ApprovalState.PENDING}
-              style={{
-                border: 'none',
-                flex: 1,
-              }}
+              className="flex-1 border-none"
             >
               {approval === ApprovalState.PENDING ? (
                 <AutoRow className="justify-center gap-1.5">
@@ -343,7 +338,7 @@ const SwapActionButton: React.FC<Props> = ({
             <div />
             <Select
               value={approvalType}
-              style={{ marginTop: '1rem', fontSize: '14px', padding: 0, background: 'transparent' }}
+              className="mt-4 bg-transparent p-0 text-sm"
               optionStyle={{ fontSize: '14px' }}
               options={[
                 {

@@ -45,7 +45,7 @@ function Footer() {
             <span className="mr-1.5">
               <Trans>Powered By</Trans>
             </span>
-            <ExternalLink href="https://kyber.network" style={{ display: 'flex' }}>
+            <ExternalLink href="https://kyber.network" className="flex">
               <PoweredByIconDark width={48} />
             </ExternalLink>
           </div>
@@ -74,7 +74,7 @@ function Footer() {
             {above768 && <span className="mx-1.5">&</span>}
             <ExternalLink
               href="https://omniscia.io/reports/kyber-network-uniswap-v4-hooks-68163cf266222800187026b8/"
-              style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+              className="flex items-center gap-1 no-underline"
             >
               <img src={Omniscia} alt="" width={20} />
               <span className="text-subText">Omniscia</span>
@@ -82,7 +82,7 @@ function Footer() {
             {above768 && <span className="mx-1.5">&</span>}
             <ExternalLink
               href="https://github.com/spearbit/portfolio/blob/master/pdfs/Kyber-Hook-Uniswap-Foundation-Spearbit-Security-Review-October-2025.pdf"
-              style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+              className="flex items-center gap-1 no-underline"
             >
               <img src={Spearbit} alt="" height={20} />
               <span className="text-subText">Spearbit</span>
@@ -90,7 +90,7 @@ function Footer() {
             {above768 && <span className="mx-1.5">&</span>}
             <ExternalLink
               href="https://github.com/Hexens/Smart-Contract-Review-Public-Reports/blob/main/kyberswap-dec-25(Final).pdf"
-              style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+              className="flex items-center gap-1 no-underline"
             >
               <img src={Hexens} alt="" height={20} />
               <span className="text-subText">Hexens</span>

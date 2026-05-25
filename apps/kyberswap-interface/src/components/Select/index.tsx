@@ -203,10 +203,9 @@ export default function Select({
                     </span>
                     <input
                       placeholder={t`Search...`}
-                      style={{ background: 'transparent', outline: 'none', border: 'none' }}
                       value={searchValue}
                       onChange={e => setSearchValue(e.target.value)}
-                      className="w-full ps-10 leading-8 text-text"
+                      className="w-full border-none bg-transparent ps-10 leading-8 text-text outline-none"
                     />
                   </div>
                 )}

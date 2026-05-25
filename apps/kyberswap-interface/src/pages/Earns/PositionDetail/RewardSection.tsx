@@ -291,7 +291,7 @@ export const inProgressRewardTooltip = ({
         ') '
 
   return (
-    <ul style={{ marginTop: 4, marginBottom: 4, paddingLeft: 20 }}>
+    <ul className="my-1 pl-5">
       <li>
         {t`Current Cycle`}:{' '}
         <b>
@@ -303,7 +303,7 @@ export const inProgressRewardTooltip = ({
         {pendingTokens}
         {t`will move to "Vesting" when this cycle ends.`}
       </li>
-      <li style={{ marginTop: 4 }}>
+      <li className="mt-1">
         {t`Vesting`}:{' '}
         <b>
           {formatDisplayNumber(vestingUsdValue, {
@@ -315,7 +315,7 @@ export const inProgressRewardTooltip = ({
         {t`in a 2-day finalization period before they become claimable.`}
       </li>
       {waitingUsdValue > 0 ? (
-        <li style={{ marginTop: 4 }}>
+        <li className="mt-1">
           {t`Pending`}:{' '}
           <b>
             {formatDisplayNumber(waitingUsdValue, {

@@ -520,16 +520,16 @@ export default function ConfirmSwapModalContent({
           {errorWhileBuildRoute ? (
             isSlippageNotEnough && slippage <= defaultSlp ? (
               <div className="flex gap-4">
-                <ButtonOutlined onClick={onDismiss} style={{ flex: 1 }}>
+                <ButtonOutlined onClick={onDismiss} className="flex-1">
                   Dismiss
                 </ButtonOutlined>
                 {slippage < defaultSlp ? (
-                  <ButtonPrimary style={{ flex: 2 }} onClick={() => setRawSlippage(defaultSlp)}>
+                  <ButtonPrimary className="flex-[2]" onClick={() => setRawSlippage(defaultSlp)}>
                     Use Suggested Slippage
                   </ButtonPrimary>
                 ) : (
                   <ButtonPrimary
-                    style={{ flex: 1 }}
+                    className="flex-1"
                     onClick={() => {
                       searchParams.set('action', 'open-slippage-panel')
                       setSearchParams(searchParams)

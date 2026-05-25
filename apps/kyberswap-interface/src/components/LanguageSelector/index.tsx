@@ -37,8 +37,7 @@ export default function LanguageSelector({
         width="fit-content"
         padding="0"
         onClick={() => setIsSelectingLanguage(false)}
-        className="text-text"
-        style={{ textDecoration: 'none', marginBottom: '24px' }}
+        className="mb-6 text-text no-underline"
       >
         <ArrowLeft />
       </ButtonEmpty>
@@ -51,7 +50,7 @@ export default function LanguageSelector({
               key={locale}
               padding="0"
               onClick={() => handleSelectLanguage(locale)}
-              style={{ textDecoration: 'none', display: 'flex', justifyContent: 'space-between' }}
+              className="flex justify-between no-underline"
             >
               <div className={cn('text-sm', isSelected ? 'text-primary' : 'text-subText')}>
                 {getLocaleLabel(locale)}

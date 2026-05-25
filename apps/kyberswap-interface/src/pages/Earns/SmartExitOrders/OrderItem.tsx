@@ -21,7 +21,7 @@ type OrderItemProps = {
 const StatusContent = ({ order }: { order: SmartExitOrder }) => (
   <div className="flex items-center justify-start gap-1">
     <Badge
-      style={{ height: 'max-content' }}
+      className="h-max"
       type={
         order.status === OrderStatus.OrderStatusOpen
           ? BadgeType.PRIMARY

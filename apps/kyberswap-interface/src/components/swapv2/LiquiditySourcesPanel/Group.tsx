@@ -75,7 +75,7 @@ export const LiquiditySourceGroup = ({
 
       {filteredDexes.map(({ name, logoURL, id }) => {
         return (
-          <Source key={name} style={{ padding: '12px 48px' }}>
+          <Source key={name} className="px-12 py-3">
             <Checkbox checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />
 
             <ImageWrapper>

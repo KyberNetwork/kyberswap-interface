@@ -16,7 +16,7 @@ const BASE_WRAPPER_CLASS = cn(
   'relative flex cursor-pointer items-center gap-2 rounded-[10px] border border-border p-1.5',
   // Mobile-touch hover and selected state.
   '[@media(max-height:400px)]:gap-[5px] [@media(max-height:400px)]:px-[5px] [@media(max-height:400px)]:py-1',
-  'data-[selected=true]:bg-primary-12',
+  'data-[selected=true]:bg-primary-15',
   '[@media(hover:hover)]:hover:bg-buttonBlack [@media(hover:hover)]:hover:[&_.close-btn]:!block',
 )
 

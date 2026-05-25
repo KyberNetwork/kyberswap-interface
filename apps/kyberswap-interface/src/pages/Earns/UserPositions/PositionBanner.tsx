@@ -104,7 +104,7 @@ export default function PositionBanner({
         mobileAutoWidth
         outline
         onClick={onOpenClaimAllRewards}
-        style={{ position: 'relative', top: 2 }}
+        className="relative top-0.5"
       >
         <span>{t`Claim All`}</span>
       </PositionAction>
@@ -275,7 +275,7 @@ export default function PositionBanner({
             <RewardBannerWrapper>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <FarmingIcon width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
+                  <FarmingIcon width={KemImageSize} height={KemImageSize} className="relative top-0.5" />
                   <span className="text-subText">{t`Total Rewards`}</span>
                 </div>
 
@@ -299,7 +299,7 @@ export default function PositionBanner({
                       width="220px"
                       size={16}
                       fontSize={14}
-                      style={{ marginRight: 12 }}
+                      className="mr-3"
                     />
                     {shareBtn}
                   </div>
@@ -389,7 +389,7 @@ const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: str
           className="mt-1 flex flex-wrap items-center gap-1.5"
           key={`${token.chainId}-${token.address}-${token.symbol}`}
         >
-          <TokenLogo src={token.logo} size={16} style={{ position: 'relative', top: 1 }} />
+          <TokenLogo src={token.logo} size={16} className="relative top-px" />
           <span style={{ color: textColor }}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</span>
           <span style={{ color: textColor }}>{truncateSymbol(token.symbol)}</span>
         </div>

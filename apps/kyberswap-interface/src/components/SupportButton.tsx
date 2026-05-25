@@ -66,14 +66,14 @@ export default function SupportButton() {
         <div className="relative -mb-2.5 flex flex-col gap-4 rounded-xl bg-tableHeader px-6 py-3 after:pointer-events-none after:absolute after:bottom-full after:right-5 after:top-[calc(100%-10px)] after:-ml-2.5 after:size-0 after:border-[10px] after:border-solid after:border-transparent after:border-t-tableHeader after:content-['']">
           <ExternalLink
             href="https://discord.com/channels/608934314960224276/1192426056183972010"
-            style={{ textDecoration: 'none' }}
+            className="no-underline"
           >
             <div className="flex items-center gap-1.5">
               <DiscordIcon />
               <span className="text-sm font-medium text-text">Discord</span>
             </div>
           </ExternalLink>
-          <ExternalLink href={KYBER_NETWORK_TELEGRAM_URL} style={{ textDecoration: 'none' }}>
+          <ExternalLink href={KYBER_NETWORK_TELEGRAM_URL} className="no-underline">
             <div className="flex items-center gap-1.5">
               <TeleIcon />
               <span className="text-sm font-medium text-text">Telegram</span>

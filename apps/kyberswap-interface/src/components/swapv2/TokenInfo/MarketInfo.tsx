@@ -28,7 +28,7 @@ export default function MarketInfo({ token }: { token: Token | undefined }) {
         </RowBetween>
       ))}
 
-      <RowBetween style={{ borderBottom: 'none', paddingBottom: 0 }}>
+      <RowBetween className="border-b-0 pb-0">
         <span className="text-xs text-subText">
           <Trans>Contract Address</Trans>
         </span>

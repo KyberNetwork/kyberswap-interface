@@ -53,9 +53,7 @@ export default function DetailModal({
                 width="24px"
                 height="24px"
                 alt=""
-                style={{
-                  borderRadius: '50%',
-                }}
+                className="rounded-full"
               />
               <span className="min-w-max text-base">{tokenToShow.symbol}</span>
               <span className="truncate text-sm text-subText">{tokenToShow.name}</span>
@@ -67,11 +65,11 @@ export default function DetailModal({
                 cursor="pointer"
                 fill={tokenToShow.isFavorite ? theme.yellow1 : 'none'}
                 onClick={() => toggleFavorite(tokenToShow)}
-                style={{ minWidth: '16px' }}
+                className="min-w-4"
               />
             </div>
 
-            <ButtonEmpty onClick={onDismiss} width="fit-content" style={{ padding: 0 }}>
+            <ButtonEmpty onClick={onDismiss} width="fit-content" className="p-0">
               <X className="text-text" />
             </ButtonEmpty>
           </div>
@@ -188,9 +186,7 @@ export default function DetailModal({
                         width="32px"
                         height="32px"
                         alt=""
-                        style={{
-                          borderRadius: '50%',
-                        }}
+                        className="rounded-full"
                       />
 
                       <img
@@ -198,7 +194,7 @@ export default function DetailModal({
                         alt=""
                         width="16px"
                         height="16px"
-                        style={{ position: 'absolute', right: '-8px', bottom: 0 }}
+                        className="absolute -right-2 bottom-0"
                       />
                     </div>
                     <div className="flex-1 overflow-hidden">
@@ -231,11 +227,7 @@ export default function DetailModal({
 
                   <div className="flex items-center justify-end gap-3">
                     <ButtonOutlined
-                      className="text-primary"
-                      style={{
-                        width: 'fit-content',
-                        padding: '4px 12px',
-                      }}
+                      className="w-fit px-3 py-1 text-primary"
                       onClick={() => {
                         window.open(
                           `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?inputCurrency=${

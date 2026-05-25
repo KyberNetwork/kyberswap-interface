@@ -20,7 +20,6 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
 import { useTotalSupply } from 'data/TotalSupply'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { UserLiquidityPosition } from 'state/pools/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
@@ -158,8 +157,6 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
 }
 
 export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCardProps) {
-  const theme = useTheme()
-
   const currency0 = showUnwrapped ? pair.token0 : unwrappedToken(pair.token0)
   const currency1 = showUnwrapped ? pair.token1 : unwrappedToken(pair.token1)
 
@@ -200,7 +197,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
 
   return (
     <>
-      <div className="mx-4 py-4 text-base font-medium" style={{ borderBottom: `1px solid ${theme.border}` }}>
+      <div className="mx-4 border-b border-border py-4 text-base font-medium">
         <Trans>My Current Position</Trans>
       </div>
 
@@ -213,7 +210,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
         <div className={itemBase}>
           <RowFixed>
             <DoubleCurrencyLogo currency0={native0} currency1={native1} size={16} />
-            <UppercaseText style={{ marginLeft: '4px' }}>
+            <UppercaseText className="ml-1">
               <span className="text-xs font-medium text-subText">
                 {native0?.symbol}/{native1?.symbol} <Trans>LP Tokens</Trans>
               </span>
@@ -406,13 +403,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
                 )
               }
             >
-              <IconWrapper
-                className="!bg-warning"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                }}
-              >
+              <IconWrapper className="size-6 !bg-warning">
                 <AlertTriangle className="text-textReverse" size={16} />
               </IconWrapper>
             </MouseoverTooltip>
@@ -544,10 +535,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         <div className="mt-5 flex gap-4">
           {userDefaultPoolBalance?.greaterThan(JSBI.BigInt(0)) ? (
             <ButtonOutlined
-              style={{
-                padding: '10px',
-                fontSize: '14px',
-              }}
+              className="p-2.5 text-sm"
               as={Link}
               to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
                 currency1,
@@ -559,13 +547,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               </span>
             </ButtonOutlined>
           ) : (
-            <ButtonPrimary
-              disabled
-              style={{
-                padding: '10px',
-                fontSize: '14px',
-              }}
-            >
+            <ButtonPrimary disabled className="p-2.5 text-sm">
               <span className="w-max">
                 <Trans>Remove Liquidity</Trans>
               </span>
@@ -577,9 +559,9 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
       <Divider className="mt-5" />
 
       <div className="mt-4 flex items-center justify-between">
-        <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
+        <ButtonEmpty width="max-content" className="text-sm" padding="0">
           <ExternalLink
-            style={{ width: '100%', textAlign: 'center' }}
+            className="w-full text-center"
             href={`${DMM_ANALYTICS_URL[chainId]}/pool/${pair.address || ''}`}
           >
             <Trans>Analytics ↗</Trans>

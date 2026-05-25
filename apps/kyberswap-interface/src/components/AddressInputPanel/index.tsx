@@ -113,7 +113,7 @@ export default function AddressInputPanel({
           {address && (
             <ExternalLink
               href={getEtherscanLink(chainId, name ?? address, 'address')}
-              style={{ fontSize: '12px', marginLeft: '4px' }}
+              className="ml-1 text-xs"
               onClick={e => {
                 e.stopPropagation()
               }}

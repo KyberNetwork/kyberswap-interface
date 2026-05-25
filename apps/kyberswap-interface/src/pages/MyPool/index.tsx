@@ -135,7 +135,7 @@ export default function PoolCombination() {
   useSyncNetworkParamWithStore()
   return (
     <>
-      <PageWrapper style={{ paddingBottom: '24px' }}>
+      <PageWrapper className="pb-6">
         <ClassicElasticTab />
         {tab === VERSION.ELASTIC ? (
           <ProAmmPool />
@@ -232,7 +232,7 @@ function MyPoolClassic() {
 
   return (
     <>
-      <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
+      <PageWrapper className="mt-6 p-0">
         <AutoColumn className="justify-center gap-6">
           <AutoColumn className="w-full gap-6">
             <AutoRow>
@@ -291,14 +291,7 @@ function MyPoolClassic() {
                 <ButtonPrimary
                   as={StyledInternalLink}
                   to={APP_PATHS.FIND_POOL}
-                  className="!text-textReverse"
-                  style={{
-                    padding: '10px 12px',
-                    fontSize: '14px',
-                    width: 'max-content',
-                    height: '36px',
-                    textDecoration: 'none',
-                  }}
+                  className="h-9 w-max px-3 py-2.5 text-sm !text-textReverse no-underline"
                 >
                   <Withdraw />
                   <span className="ml-1">

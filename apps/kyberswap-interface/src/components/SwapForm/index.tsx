@@ -28,7 +28,6 @@ import { TOKEN_API_URL } from 'constants/env'
 import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
@@ -36,7 +35,6 @@ import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { isInSafeApp } from 'utils'
-import { hexAlpha } from 'utils/colorAlpha'
 
 export type SwapFormProps = {
   hidden: boolean
@@ -238,8 +236,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
-  const theme = useTheme()
-
   const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
 
   useEffect(() => {
@@ -327,7 +323,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
           )}
 
           {honeypot?.isFOT || honeypot?.isHoneypot ? (
-            <div className="flex gap-2 rounded-2xl px-3 py-2.5" style={{ background: hexAlpha(theme.warning, 0.3) }}>
+            <div className="flex gap-2 rounded-2xl bg-warning-30 px-3 py-2.5">
               <WarningIcon className="text-warning" size={20} />
               <span className="flex-1 text-sm">
                 {honeypot.isHoneypot ? (

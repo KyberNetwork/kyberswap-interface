@@ -321,7 +321,7 @@ export default function ClaimAllModal({
         </ClaimInfoWrapper>
 
         {isSyncingSelectedMerkl && (
-          <span className="text-xs text-warning" style={{ marginTop: '-4px' }}>
+          <span className="-mt-1 text-xs text-warning">
             {t`Syncing your last claim with Merkl — please wait a moment.`}
           </span>
         )}

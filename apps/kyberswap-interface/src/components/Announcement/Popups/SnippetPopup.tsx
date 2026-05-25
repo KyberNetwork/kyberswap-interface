@@ -12,9 +12,9 @@ import {
   PopupType,
 } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
-import { Z_INDEXS } from 'constants/styles'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDetailAnnouncement, useRemovePopup } from 'state/application/hooks'
+import { cn } from 'utils/cn'
 import { useNavigateToUrl } from 'utils/redirect'
 
 function SnippetPopupItem({
@@ -66,10 +66,7 @@ function SnippetPopupItem({
         >
           {name}
         </div>
-        <div
-          className="relative flex items-end gap-3"
-          style={{ justifyContent: hasCta ? 'space-between' : 'flex-start' }}
-        >
+        <div className={cn('relative flex items-end gap-3', hasCta ? 'justify-between' : 'justify-start')}>
           {hasCta && <CtaButton className="!text-sm" data={ctaInfo} color="link" onClick={onClickCta} />}
           <div
             onClick={toggle}
@@ -105,10 +102,7 @@ export default function SnippetPopup({
     trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: 'snippet_popups' })
 
   return (
-    <div
-      className="ks-snippet-popup fixed bottom-[30px] left-[30px] w-[470px] max-md:bottom-[74px] max-sm:inset-x-0 max-sm:w-full max-sm:px-4"
-      style={{ zIndex: Z_INDEXS.POPUP_NOTIFICATION }}
-    >
+    <div className="ks-snippet-popup fixed bottom-[30px] left-[30px] z-[9999] w-[470px] max-md:bottom-[74px] max-sm:inset-x-0 max-sm:w-full max-sm:px-4">
       <Swiper
         slidesPerView={1}
         navigation

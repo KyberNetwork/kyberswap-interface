@@ -86,7 +86,7 @@ export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to, 
 
 export const TableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...rest }, ref) => (
-    <div ref={ref} className={cn('relative overflow-hidden rounded-2xl bg-background-60', className)} {...rest} />
+    <div ref={ref} className={cn('relative overflow-hidden rounded-2xl bg-background/80', className)} {...rest} />
   ),
 )
 TableWrapper.displayName = 'TableWrapper'
@@ -95,7 +95,7 @@ export const PoolTableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDi
   ({ className, ...rest }, ref) => (
     <div
       ref={ref}
-      className={cn('relative overflow-hidden rounded-2xl bg-background-60 max-md:bg-transparent', className)}
+      className={cn('relative overflow-hidden rounded-2xl bg-background/80 max-md:bg-transparent', className)}
       {...rest}
     />
   ),
@@ -106,7 +106,7 @@ export const MigrateTableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTM
   ({ className, ...rest }, ref) => (
     <div
       ref={ref}
-      className={cn('relative !m-0 w-full overflow-hidden rounded-2xl bg-background-60', className)}
+      className={cn('relative !m-0 w-full overflow-hidden rounded-2xl bg-background/80', className)}
       {...rest}
     />
   ),

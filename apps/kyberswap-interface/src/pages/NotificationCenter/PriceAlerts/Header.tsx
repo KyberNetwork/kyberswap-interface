@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { CSSProperties } from 'react'
 import { useClearAllPriceAlertHistoryMutation } from 'services/announcement'
 import { useDeleteAllAlertsMutation, useGetAlertStatsQuery } from 'services/priceAlert'
 
@@ -18,13 +17,7 @@ const TabButton: React.FC<{ isActive: boolean; onClick: () => void; children: Re
 }) => {
   const props = {
     onClick,
-    style: {
-      flex: '0 0 fit-content',
-      height: '36px',
-      padding: '0 8px',
-      whiteSpace: 'nowrap',
-      flexWrap: 'nowrap',
-    } as CSSProperties,
+    className: 'h-9 flex-[0_0_fit-content] flex-nowrap whitespace-nowrap py-0 px-2',
   }
   if (isActive) return <ButtonLight {...props}> {children}</ButtonLight>
   return <ButtonOutlined {...props}>{children}</ButtonOutlined>

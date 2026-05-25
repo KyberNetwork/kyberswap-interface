@@ -262,7 +262,8 @@ function AboutKNC() {
                 width="100%"
                 src={KyberDao}
                 alt="KyberDao"
-                style={{ display: above768 ? 'none' : 'block', marginTop: '40px' }}
+                className="mt-10"
+                style={{ display: above768 ? 'none' : 'block' }}
               />
 
               <BtnPrimary
@@ -302,7 +303,7 @@ function AboutKNC() {
               pagination={{
                 clickable: true,
               }}
-              style={{ marginTop: '24px' }}
+              className="mt-6"
             >
               {LIST_EXCHANGES.map(exchange => (
                 <SwiperSlide key={exchange.name}>
@@ -327,7 +328,7 @@ function AboutKNC() {
           {above768 ? (
             <Exchange>
               {LIST_WALLETS.map(wallet => (
-                <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} style={{ margin: 'auto' }} width="100%" />
+                <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} className="m-auto" width="100%" />
               ))}
             </Exchange>
           ) : (
@@ -339,12 +340,12 @@ function AboutKNC() {
               pagination={{
                 clickable: true,
               }}
-              style={{ marginTop: '24px' }}
+              className="mt-6"
             >
               {LIST_WALLETS.map(wallet => (
                 <SwiperSlide key={wallet.logo}>
                   <ExchangeWrapper>
-                    <img src={wallet.logo} alt={wallet.logo} width="160px" style={{ margin: 'auto' }} />
+                    <img src={wallet.logo} alt={wallet.logo} width="160px" className="m-auto" />
                   </ExchangeWrapper>
                 </SwiperSlide>
               ))}

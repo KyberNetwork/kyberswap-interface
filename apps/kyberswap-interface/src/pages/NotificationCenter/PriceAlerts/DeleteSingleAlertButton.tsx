@@ -10,16 +10,7 @@ type Props = {
 const DeleteSingleAlertButton: React.FC<Props> = ({ isDisabled, onClick }) => {
   return (
     <ButtonEmpty
-      className="!text-red"
-      style={{
-        width: 'fit-content',
-        whiteSpace: 'nowrap',
-        height: '24px',
-        padding: 0,
-        gap: '4px',
-        fontSize: '14px',
-        flexWrap: 'nowrap',
-      }}
+      className="h-6 w-fit flex-nowrap gap-1 whitespace-nowrap p-0 text-sm !text-red"
       onClick={onClick}
       disabled={isDisabled}
     >

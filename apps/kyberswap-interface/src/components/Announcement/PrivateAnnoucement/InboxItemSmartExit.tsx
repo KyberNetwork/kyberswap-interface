@@ -80,7 +80,7 @@ const InboxItemSmartExit = ({
             logoUrl2={position.pool.token1.logo}
             size={16}
           />
-          <PrimaryText style={{ fontSize: 14 }}>
+          <PrimaryText className="text-sm">
             {position.pool.token0.symbol}/{position.pool.token1.symbol}
           </PrimaryText>
 

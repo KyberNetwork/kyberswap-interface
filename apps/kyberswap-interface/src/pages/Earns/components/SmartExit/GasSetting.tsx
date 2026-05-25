@@ -57,11 +57,7 @@ export default function GasSetting({
         {!feeInfo ? (
           <span>--</span>
         ) : (
-          <div
-            className="flex items-center"
-            onClick={() => setFeeSettingExpanded(e => !e)}
-            style={{ cursor: 'default' }}
-          >
+          <div className="flex cursor-default items-center" onClick={() => setFeeSettingExpanded(e => !e)}>
             <span style={{ color: isWarningGas ? hexAlpha(theme.warning, 0.9) : theme.text }}>
               {customGasPercent
                 ? customGasPercent
@@ -121,11 +117,7 @@ export default function GasSetting({
               value={customGasPercent}
               onUserInput={v => setCustomGasPercent(v)}
               placeholder={t`Custom`}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                fontSize: '12px',
-              }}
+              className="w-full bg-transparent text-xs"
             />
             <span className="text-xs text-inherit">%</span>
           </CustomOption>

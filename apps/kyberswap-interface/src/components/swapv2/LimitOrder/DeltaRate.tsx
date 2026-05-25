@@ -5,6 +5,7 @@ import InfoHelper from 'components/InfoHelper'
 import { Label } from 'components/swapv2/LimitOrder/LimitOrderForm'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
 import { RateInfo } from './type'
 
@@ -59,17 +60,14 @@ const DeltaRate = ({
 
   const { percent, profit } = useGetDeltaRateLimitOrder({ marketPrice, rateInfo })
   const color = profit ? theme.apr : theme.warning
-  const styledPercent = (
-    <span style={{ color }} className="font-medium">
-      {percent}
-    </span>
-  )
+  const colorClass = profit ? 'text-apr' : 'text-warning'
+  const styledPercent = <span className={cn('font-medium', colorClass)}>{percent}</span>
   return (
     <Label className="flex items-center whitespace-nowrap">
       {invert ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
       {percent ? (
         <>
-          <span style={{ color }}>&nbsp;{percent}</span>
+          <span className={colorClass}>&nbsp;{percent}</span>
           <InfoHelper
             color={color}
             text={

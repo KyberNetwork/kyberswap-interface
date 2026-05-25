@@ -97,12 +97,7 @@ export default function SingaporeWarningPopup() {
           </li>
         </ul>
 
-        <ButtonPrimary
-          onClick={handleAcknowledge}
-          width="auto"
-          style={{ alignSelf: 'center', padding: '12px 28px' }}
-          className="sm:!px-[42px]"
-        >
+        <ButtonPrimary onClick={handleAcknowledge} width="auto" className="self-center px-7 py-3 sm:!px-[42px]">
           <Trans>Acknowledge</Trans>
         </ButtonPrimary>
       </div>

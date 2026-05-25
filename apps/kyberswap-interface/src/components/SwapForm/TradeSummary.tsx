@@ -71,7 +71,6 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
 
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
   const labelColor = isFeeTampered ? theme.warning : theme.subText
-  const valueColor = isFeeTampered ? theme.warning : theme.text
 
   return (
     <RowBetween>
@@ -98,7 +97,7 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
       </RowFixed>
 
       <RowFixed>
-        <p className="m-0 text-[12px] font-medium" style={{ color: valueColor }}>
+        <p className={cn('m-0 text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>
           {isInSafeApp ? '0.1%' : feeAmountUsd || feeAmountWithSymbol || '--'}
         </p>
       </RowFixed>
@@ -122,7 +121,6 @@ const TradeSummary: React.FC<Props> = ({
   routeLoading,
   isFeeTampered,
 }) => {
-  const theme = useTheme()
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact } = routeSummary || {}
   const hasTrade = !!routeSummary?.route
@@ -237,10 +235,10 @@ const TradeSummary: React.FC<Props> = ({
             </TextDashed>
           </RowFixed>
           <p
-            className="m-0 text-[12px] font-medium"
-            style={{
-              color: priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text,
-            }}
+            className={cn(
+              'm-0 text-[12px] font-medium',
+              priceImpactResult.isVeryHigh ? 'text-red' : priceImpactResult.isHigh ? 'text-warning' : 'text-text',
+            )}
           >
             {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
           </p>

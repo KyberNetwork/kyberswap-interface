@@ -194,7 +194,7 @@ export default function CreateAlert({
               menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
               optionStyle={{ padding: 0 }}
               activeRender={item => (
-                <div className="flex items-center" style={{ gap: 6 }}>
+                <div className="flex items-center gap-1.5">
                   <NetworkLogo style={{ width: 20, height: 20 }} chainId={item?.value as ChainId} />
                   <span className="text-sm font-medium">{item?.label}</span>
                 </div>
@@ -266,7 +266,7 @@ export default function CreateAlert({
               onChange={setAlertType}
               optionStyle={{ padding: '10px 12px' }}
               optionRender={item => (
-                <div className="flex items-center" style={{ gap: 6 }}>
+                <div className="flex items-center gap-1.5">
                   {item?.value === PriceAlertType.ABOVE ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
                   {item?.label}
                 </div>
@@ -274,7 +274,7 @@ export default function CreateAlert({
               activeRender={item => {
                 const isAbove = item?.value === PriceAlertType.ABOVE
                 return (
-                  <div className="flex items-center" style={{ gap: 6, color: isAbove ? theme.primary : theme.red }}>
+                  <div className="flex items-center gap-1.5" style={{ color: isAbove ? theme.primary : theme.red }}>
                     {isAbove ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
                     <span className="text-sm font-medium">{item?.label}</span>
                   </div>
@@ -289,10 +289,9 @@ export default function CreateAlert({
           </FormControl>
 
           <TradePrice
-            style={{ width: 'fit-content', fontStyle: 'italic' }}
             label={t`Note: The current price is `}
             price={executionPrice}
-            className="text-text"
+            className="w-fit italic text-text"
             icon={<RefreshButton shouldDisable={!executionPrice} callback={getRoute} size={16} skipFirst />}
           />
         </LeftColumn>
@@ -318,7 +317,7 @@ export default function CreateAlert({
               menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
               optionStyle={{ textTransform: 'capitalize' }}
               activeRender={item => (
-                <div className="flex items-center capitalize" style={{ gap: 6 }}>
+                <div className="flex items-center gap-1.5 capitalize">
                   <Clock size={20} className="text-text" />
                   <span className="text-sm font-medium">{item?.label}</span>
                 </div>
@@ -336,7 +335,7 @@ export default function CreateAlert({
               checked={disableAfterTrigger}
               id="disable-trigger"
               borderStyle
-              style={{ width: 15, height: 15 }}
+              className="h-[15px] w-[15px]"
               onChange={() => setDisableAfterTrigger(v => !v)}
             />
             <label className="text-sm text-text" htmlFor="disable-trigger">

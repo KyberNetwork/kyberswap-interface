@@ -280,11 +280,7 @@ export default function CurrencyInputPanel({
               ) : (
                 <div />
               )}
-              <div
-                onClick={onMax ?? undefined}
-                style={{ cursor: onMax ? 'pointer' : undefined }}
-                className="flex items-center"
-              >
+              <div onClick={onMax ?? undefined} className={cn('flex items-center', onMax && 'cursor-pointer')}>
                 <Wallet className="text-subText" />
                 <span className="ml-1 font-medium text-subText" data-testid="balance">
                   {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0}
@@ -317,7 +313,7 @@ export default function CurrencyInputPanel({
                     </StyledBalanceMax>
                   )
                 )}
-                {lockIcon && <Lock className="text-subText" style={{ marginRight: 8, height: 16 }} />}
+                {lockIcon && <Lock className="mr-2 h-4 text-subText" />}
               </>
             )}
             {customCurrencySelect || (
@@ -343,11 +339,10 @@ export default function CurrencyInputPanel({
                     {currency && !hideLogo ? <CurrencyLogo currency={currency} size={'20px'} /> : null}
                     <StyledTokenName
                       tight={tight}
-                      className="token-symbol-container"
+                      className={cn('token-symbol-container', disableCurrencySelect ? 'pr-2' : 'pr-0')}
                       data-testid="token-symbol-container"
                       active={Boolean(currency && currency.symbol)}
                       fontSize={tight ? '14px' : fontSize}
-                      style={{ paddingRight: disableCurrencySelect ? '8px' : 0 }}
                     >
                       {(nativeCurrency?.symbol && maxCurrencySymbolLength
                         ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
@@ -358,9 +353,7 @@ export default function CurrencyInputPanel({
                   {!!nativeCurrency && (
                     <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />
                   )}
-                  {!disableCurrencySelect && !isSwitchMode && (
-                    <DropdownSVG style={{ marginLeft: tight ? '-8px' : undefined }} />
-                  )}
+                  {!disableCurrencySelect && !isSwitchMode && <DropdownSVG className={cn(tight && '-ml-2')} />}
                   {!disableCurrencySelect && isSwitchMode && (
                     <SwitchIcon
                       className={cn('h-[35%] [&_path]:stroke-current', currency ? 'text-subText' : 'text-primary')}

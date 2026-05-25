@@ -106,7 +106,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
               width="fit-content"
               placement="bottom"
             >
-              <Badge style={{ padding: '4px 6px' }}>
+              <Badge className="px-1.5 py-1">
                 <RewardIcon width={16} height={16} />
                 <span className="whitespace-nowrap">
                   {formatDisplayNumber(weeklyRewards, { style: 'currency', significantDigits: 4 })}/week

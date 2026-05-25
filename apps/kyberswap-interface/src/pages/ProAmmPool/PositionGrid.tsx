@@ -153,7 +153,7 @@ export const outerElementType = forwardRef<HTMLElement, DocumentPropsType>(
     }
 
     return (
-      <div ref={containerRef} className={className} style={{ position: 'relative' }} {...(rest as any)}>
+      <div ref={containerRef} className={`relative ${className ?? ''}`} {...(rest as any)}>
         {children}
       </div>
     )

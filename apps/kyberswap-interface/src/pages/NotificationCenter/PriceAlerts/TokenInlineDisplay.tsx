@@ -8,7 +8,7 @@ type Props = {
 const TokenInlineDisplay: React.FC<Props> = ({ symbol, logoUrl = '', amount }) => {
   return (
     <span className="inline-flex flex-nowrap items-center gap-1">
-      <Logo srcs={[logoUrl]} style={{ width: 16, height: 16, borderRadius: '50%' }} />
+      <Logo srcs={[logoUrl]} className="size-4 rounded-full" />
       <span className="text-sm font-medium text-text">
         {amount} {symbol}
       </span>

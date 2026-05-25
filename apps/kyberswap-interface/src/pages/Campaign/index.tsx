@@ -127,13 +127,13 @@ export default function CampaignPage() {
     <Wrapper>
       <HiddenH1>Earn bonus rewards and incentives while you swap, provide liquidity, or trade.</HiddenH1>
       <HiddenH2>Join active campaigns across supported chains - no lock-up required.</HiddenH2>
-      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
+      <img src={banner} width="100%" alt="banner" className="rounded-xl" />
       <div className="mt-6 flex items-center justify-between">
         <span className="text-2xl font-medium">{title}</span>
 
         {isReferralCampaign && <JoinReferral />}
         {isRaffleNotEligible && (
-          <StatCard style={{ padding: '8px 16px' }}>
+          <StatCard className="px-4 py-2">
             <span className="block text-right text-sm text-red">
               <Trans>
                 You are <span className="font-medium text-white">not eligible</span> for this campaign

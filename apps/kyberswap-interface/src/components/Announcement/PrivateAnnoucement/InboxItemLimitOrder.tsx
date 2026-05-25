@@ -215,7 +215,7 @@ function InboxItemLimitOrder({
 
       <MetaRow>
         {expiredAtLabel ? (
-          <DetailItem style={{ padding: 0 }}>
+          <DetailItem className="p-0">
             {t`Expired time:`} <DetailValue>{expiredAtLabel}</DetailValue>
           </DetailItem>
         ) : (

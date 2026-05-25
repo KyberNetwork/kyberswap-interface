@@ -67,7 +67,7 @@ export default function InstantClaim() {
           </span>
           <span className={cn('font-medium', upToMedium ? 'text-base' : 'text-xl')}>{format(totalValue)}</span>
         </div>
-        <VerticalDivider style={{ height: '100%' }} />
+        <VerticalDivider className="!h-full" />
 
         <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
           <span className="text-sm leading-5 text-subText">
@@ -89,7 +89,7 @@ export default function InstantClaim() {
           </div>
         </div>
 
-        <VerticalDivider style={{ height: '80%' }} />
+        <VerticalDivider className="!h-4/5" />
 
         <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
           <span className="text-sm leading-5 text-subText">

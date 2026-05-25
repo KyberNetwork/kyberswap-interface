@@ -831,9 +831,7 @@ export default function ZapOut({
                         userLiquidity.equalTo('0') ||
                         (priceImpactSeverity > 3 && !isDegenMode)
                       }
-                      margin="0 1rem 0 0"
-                      padding="16px"
-                      style={{ fontSize: '16px', fontWeight: 500 }}
+                      className="mr-4 p-4 text-base font-medium"
                     >
                       {approval === ApprovalState.PENDING ? (
                         <Dots>

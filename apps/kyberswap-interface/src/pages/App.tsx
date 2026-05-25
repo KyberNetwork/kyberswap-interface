@@ -345,7 +345,7 @@ export default function App() {
             </Routes>
           </BodyWrapper>
           {showFooter && <Footer />}
-          {!showFooter && <div style={{ marginBottom: '4rem' }} />}
+          {!showFooter && <div className="mb-16" />}
         </Suspense>
       </AppWrapper>
     </ErrorBoundary>

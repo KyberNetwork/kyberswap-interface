@@ -271,8 +271,7 @@ function PositionListItem({
       <div className="mt-auto flex flex-col">
         {stakedLayout ? (
           <ButtonPrimary
-            className="!text-textReverse"
-            style={{ marginBottom: '20px', textDecoration: 'none', fontSize: '14px' }}
+            className="mb-5 text-sm !text-textReverse no-underline"
             padding="8px"
             as={StyledInternalLink}
             to={`${APP_PATHS.FARMS}/${networkInfo.route}?${new URLSearchParams({
@@ -288,14 +287,7 @@ function PositionListItem({
             {reasonToDisableRemoveLiquidity ? (
               <MouseoverTooltip text={reasonToDisableRemoveLiquidity} placement="top">
                 <div className="flex w-full cursor-not-allowed">
-                  <ButtonOutlined
-                    style={{
-                      padding: '8px',
-                      width: '100%',
-                      pointerEvents: 'none',
-                    }}
-                    disabled
-                  >
+                  <ButtonOutlined className="pointer-events-none w-full p-2" disabled>
                     <span className="w-max text-sm">
                       <Trans>Remove Liquidity</Trans>
                     </span>
@@ -324,10 +316,7 @@ function PositionListItem({
             <ButtonPrimary
               id="increase-liquidity-button"
               padding="8px"
-              style={{
-                borderRadius: '18px',
-                fontSize: '14px',
-              }}
+              className="rounded-[18px] text-sm"
               as={Link}
               to={`/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(
                 currency0,
@@ -349,9 +338,9 @@ function PositionListItem({
         )}
         <Divider className="mb-5" />
         <RowBetween>
-          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
+          <ButtonEmpty width="max-content" className="text-sm" padding="0">
             <ExternalLink
-              style={{ width: '100%', textAlign: 'center' }}
+              className="w-full text-center"
               href={`${PROMM_ANALYTICS_URL[chainId]}/pool/${positionDetails.poolId.toLowerCase()}`}
             >
               <Trans>Pool Analytics ↗</Trans>
@@ -359,11 +348,8 @@ function PositionListItem({
           </ButtonEmpty>
 
           {(hasUserDepositedInFarm || hasActiveFarm || hasActiveFarmV2) && (
-            <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
-              <StyledInternalLink
-                style={{ width: '100%', textAlign: 'center' }}
-                to={`${APP_PATHS.FARMS}/${networkInfo.route}`}
-              >
+            <ButtonEmpty width="max-content" className="text-sm" padding="0">
+              <StyledInternalLink className="w-full text-center" to={`${APP_PATHS.FARMS}/${networkInfo.route}`}>
                 <Trans>Go to Farms ↗</Trans>
               </StyledInternalLink>
             </ButtonEmpty>

@@ -88,7 +88,7 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
           <span className="text-lg font-medium">
             <Trans>Export Profile</Trans>
           </span>
-          <ButtonText onClick={onDismiss} style={{ lineHeight: '0' }}>
+          <ButtonText onClick={onDismiss} className="leading-[0]">
             <X className="text-text" />
           </ButtonText>
         </div>

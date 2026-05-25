@@ -134,7 +134,7 @@ export default function ProAmmPool() {
 
   return (
     <>
-      <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
+      <PageWrapper className="mt-6 p-0">
         <AutoColumn className="w-full gap-6">
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools.</Trans>

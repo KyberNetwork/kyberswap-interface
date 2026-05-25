@@ -15,11 +15,7 @@ const ReverseTokenSelectionButton: React.FC<Props> = ({ onClick }) => {
 
   return (
     <div className="z-10 mx-auto my-[-18px]">
-      <ArrowRotate
-        rotate={rotated}
-        onClick={handleClick}
-        style={{ width: 28, height: 28, padding: 4, background: 'var(--ks-background)' }}
-      />
+      <ArrowRotate rotate={rotated} onClick={handleClick} className="size-7 bg-background p-1" />
     </div>
   )
 }

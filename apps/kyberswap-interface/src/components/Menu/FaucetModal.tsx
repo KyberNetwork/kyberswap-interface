@@ -132,7 +132,7 @@ function FaucetModal() {
 
         {token && (
           <div className="flex items-center gap-1.5 text-[28px] font-medium leading-[38px]">
-            {tokenLogo && <Logo srcs={[tokenLogo]} alt={`${tokenSymbol ?? 'token'} logo`} style={{ width: '28px' }} />}{' '}
+            {tokenLogo && <Logo srcs={[tokenLogo]} alt={`${tokenSymbol ?? 'token'} logo`} className="w-7" />}{' '}
             {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
           </div>
         )}
@@ -145,7 +145,7 @@ function FaucetModal() {
               trackingHandler(TRACKING_EVENT_TYPE.FAUCET_REQUEST_INITIATED)
               toggle()
             }}
-            style={{ borderRadius: '24px', height: '44px' }}
+            className="h-11 rounded-3xl"
           >
             <Trans>Request</Trans>
           </ButtonPrimary>
@@ -154,7 +154,7 @@ function FaucetModal() {
             onClick={() => {
               toggleWalletModal()
             }}
-            style={{ borderRadius: '24px', height: '44px' }}
+            className="h-11 rounded-3xl"
           >
             <Trans>Connect</Trans>
           </ButtonPrimary>

@@ -46,10 +46,10 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
       <>
         <div className="flex flex-wrap items-center opacity-60">
           <ImageContainer>
-            <TokenLogo src={UnknownToken} size={24} style={{ opacity: 0.6 }} />
-            <TokenLogo src={UnknownToken} size={24} translateLeft style={{ opacity: 0.6 }} />
+            <TokenLogo src={UnknownToken} size={24} className="opacity-60" />
+            <TokenLogo src={UnknownToken} size={24} translateLeft className="opacity-60" />
             {chainInfo?.icon && (
-              <TokenLogo src={chainInfo.icon} size={12} translateLeft translateTop style={{ opacity: 0.6 }} />
+              <TokenLogo src={chainInfo.icon} size={12} translateLeft translateTop className="opacity-60" />
             )}
           </ImageContainer>
           <span className="mr-2 italic text-subText">
@@ -57,7 +57,7 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
           </span>
         </div>
         <div className="ml-4 mt-1 flex flex-wrap items-center gap-1 opacity-60">
-          {dexMapping?.dexInfo.logo && <TokenLogo src={dexMapping.dexInfo.logo} size={14} style={{ opacity: 0.6 }} />}
+          {dexMapping?.dexInfo.logo && <TokenLogo src={dexMapping.dexInfo.logo} size={14} className="opacity-60" />}
           {dexVersion && <span className="text-xs italic text-subText">{dexVersion}</span>}
         </div>
       </>
@@ -81,7 +81,7 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
           <TokenLogo src={posDetail.token1.logo} translateLeft />
           <TokenLogo src={posDetail.chain.logo} size={12} translateLeft translateTop />
         </ImageContainer>
-        <Link to={positionDetailUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to={positionDetailUrl} className="text-inherit no-underline">
           <span className="mr-2 cursor-pointer hover:opacity-80">
             {posDetail.token0.symbol}/{posDetail.token1.symbol}
           </span>

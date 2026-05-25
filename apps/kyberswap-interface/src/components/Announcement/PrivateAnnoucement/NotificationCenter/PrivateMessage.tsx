@@ -28,7 +28,7 @@ export default function AnnouncementItem({
       </div>
       <Desc
         dangerouslySetInnerHTML={{ __html: escapeScriptHtml(templateBody.content ?? '') }}
-        style={{ lineHeight: '18px' }}
+        className="leading-[18px]"
       />
     </Wrapper>
   )

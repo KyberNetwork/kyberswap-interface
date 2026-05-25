@@ -65,7 +65,7 @@ export default function Drawer({
               <Column className="w-full gap-3">
                 <Row className="w-full justify-between">
                   <span className="font-medium text-text">{title}</span>
-                  <X style={{ cursor: 'pointer' }} size={18} className="text-subText" onClick={onDismiss} />
+                  <X size={18} className="cursor-pointer text-subText" onClick={onDismiss} />
                 </Row>
                 <div>{children}</div>
               </Column>

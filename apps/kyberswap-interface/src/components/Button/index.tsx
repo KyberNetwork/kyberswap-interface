@@ -393,7 +393,7 @@ export const ButtonWithInfoHelper = ({
       altDisabledStyle={loading}
       confirmed={confirmed}
       onClick={onClick}
-      style={{ padding: 0, height: '44px', width: '48%' }}
+      className="h-11 w-[48%] p-0"
     >
       <MouseoverTooltip width="300px" text={tooltipMsg} disableTooltip={loading}>
         <div className="flex h-11 items-center pl-0.5 pr-2" onClick={e => e.stopPropagation()}>

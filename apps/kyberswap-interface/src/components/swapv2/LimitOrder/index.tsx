@@ -13,7 +13,7 @@ function LimitOrderComp() {
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   return (
-    <div style={{ padding: '16px' }}>
+    <div className="p-4">
       <LimitOrderForm
         flowState={flowState}
         setFlowState={setFlowState}

@@ -95,7 +95,7 @@ export default function CurrencySearchModal({
       minHeight={minHeight}
     >
       {tokenToShowInfo ? (
-        <div style={{ width: '100%' }}>
+        <div className="w-full">
           <TokenInfoTab
             currencies={{ [Field.INPUT]: tokenToShowInfo, [Field.OUTPUT]: tokenToShowInfo }}
             onBack={() => setTokenToShowInfo(null)}

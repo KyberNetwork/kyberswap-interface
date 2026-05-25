@@ -174,7 +174,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
         <div className="flex w-full flex-col items-center justify-center gap-6 rounded-[20px] bg-tableHeader p-5 text-subText">
           <RowBetween className="items-start">
             <span className="text-xl font-medium text-text">{t`Clear All Pending Transactions`}</span>
-            <X className="text-text" style={{ cursor: 'pointer' }} onClick={toggleClearTxModal} />
+            <X className="cursor-pointer text-text" onClick={toggleClearTxModal} />
           </RowBetween>
           <Row className="gap-3">
             <span className="text-sm leading-4 text-text">

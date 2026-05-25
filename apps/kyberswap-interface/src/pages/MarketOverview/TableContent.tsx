@@ -420,9 +420,7 @@ export default function TableContent({
                 width="24px"
                 height="24px"
                 alt=""
-                style={{
-                  borderRadius: '50%',
-                }}
+                className="rounded-full"
               />
               <div>
                 <div className="flex items-end text-[16px]">

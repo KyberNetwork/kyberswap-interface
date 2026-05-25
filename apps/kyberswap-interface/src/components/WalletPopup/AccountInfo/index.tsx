@@ -54,7 +54,7 @@ export default function AccountInfo({
         'data-[minimal=true]:[&_[data-action=minimal]]:flex data-[minimal=true]:[&_[data-action=minimal]]:self-end',
       )}
     >
-      <div style={{ marginLeft: '28px', marginTop: '-1rem' }}>
+      <div className="-mt-4 ml-7">
         <CoinbaseSubscribeBtn />
       </div>
       <div className="relative w-full">
@@ -111,10 +111,7 @@ export default function AccountInfo({
       <div className="relative w-full">
         <div className="flex flex-row content-center">
           <CardBackground noLogo />
-          <div
-            className="relative z-[2] flex size-full flex-col justify-between gap-1"
-            style={{ padding: '10px 12px' }}
-          >
+          <div className="relative z-[2] flex size-full flex-col justify-between gap-1 px-3 py-2.5">
             <div className="flex items-center justify-between">
               <div className="flex gap-1">
                 <Star size={16} className="fill-subText text-subText" />

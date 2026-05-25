@@ -266,7 +266,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
             borderStyle
             checked={selectedTopic.includes(topic.id)}
             id={`topic${topic.id}`}
-            style={{ width: 14, height: 14, minWidth: 14 }}
+            className="size-3.5 min-w-3.5"
             onChange={() => onChangeTopic(topic.id)}
           />
           <Column className="gap-2.5">
@@ -305,8 +305,8 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
         />
         {errorInput && (
           <p
-            className="text-xs font-medium leading-4"
-            style={{ color: errorInput ? theme.red : theme.border, margin: '7px 0px 0px 0px' }}
+            className="m-0 mt-[7px] text-xs font-medium leading-4"
+            style={{ color: errorInput ? theme.red : theme.border }}
           >
             {errorInput}
           </p>

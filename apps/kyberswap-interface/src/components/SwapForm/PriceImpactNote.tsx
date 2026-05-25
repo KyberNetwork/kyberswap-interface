@@ -114,7 +114,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
       <WarningNote
         level="serious"
         shortText={
-          <div className="flex items-center" style={{ gap: '0.5ch' }}>
+          <div className="flex items-center gap-[0.5ch]">
             <Trans>
               <span>
                 <TextUnderlineColor

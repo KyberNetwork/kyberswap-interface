@@ -9,8 +9,8 @@ import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/
 import { AnnouncementTemplatePriceAlert } from 'components/Announcement/type'
 import { ButtonLight } from 'components/Button'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
-import useTheme from 'hooks/useTheme'
 import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/const'
+import { cn } from 'utils/cn'
 import { useNavigateToUrl } from 'utils/redirect'
 
 export const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
@@ -33,7 +33,6 @@ function InboxItemBridge({
   onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplatePriceAlert>) {
   const { templateBody, isRead, templateType } = announcement
-  const theme = useTheme()
 
   const {
     tokenInLogoURL,
@@ -67,7 +66,7 @@ function InboxItemBridge({
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>
-          <ButtonLight height={'24px'} style={{ display: 'flex', gap: '6px', padding: '12px 10px' }}>
+          <ButtonLight height={'24px'} className="gap-1.5 px-2.5 py-3">
             <Repeat size={16} /> <Trans>Swap</Trans>
           </ButtonLight>
         </RowItem>
@@ -90,10 +89,7 @@ function InboxItemBridge({
 
       <InboxItemRow>
         <div className="flex items-center gap-1">
-          <div
-            className="flex items-center gap-1"
-            style={{ color: type === PriceAlertType.ABOVE ? theme.primary : theme.red }}
-          >
+          <div className={cn('flex items-center gap-1', type === PriceAlertType.ABOVE ? 'text-primary' : 'text-red')}>
             {type === PriceAlertType.ABOVE ? <ArrowUp size={16} /> : <ArrowDown size={16} />} {type}
           </div>
           {threshold} {tokenOutSymbol}

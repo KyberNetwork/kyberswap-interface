@@ -168,7 +168,7 @@ export default function PoolFinder() {
         {currency0 && currency1
           ? myPairs.length > 0 && (
               <>
-                <ColumnCenter className="rounded-xl px-0 py-3" style={{ justifyItems: 'center', backgroundColor: '' }}>
+                <ColumnCenter className="justify-items-center rounded-xl px-0 py-3">
                   <p className="text-center font-medium">
                     <Trans>Pool Found!</Trans>
                   </p>

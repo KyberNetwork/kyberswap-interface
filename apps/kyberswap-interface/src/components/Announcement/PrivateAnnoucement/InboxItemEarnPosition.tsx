@@ -145,7 +145,7 @@ const InboxItemEarnPosition = ({
             logoUrl2={token1LogoURL}
             size={16}
           />
-          <PrimaryText style={{ fontSize: 14 }}>
+          <PrimaryText className="text-sm">
             {token0Symbol}/{token1Symbol}
           </PrimaryText>
 

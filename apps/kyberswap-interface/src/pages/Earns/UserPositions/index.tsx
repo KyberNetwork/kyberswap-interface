@@ -262,7 +262,7 @@ const UserPositions = () => {
       placement="top-end"
       width="280px"
       size={14}
-      style={{ position: 'relative', top: '1px', height: 12 }}
+      className="relative top-px h-3"
     />
   )
 

@@ -236,7 +236,7 @@ export default function ProAmmFee({
             </span>
           </RowFixed>
         </RowBetween>
-        <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
+        <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} className="p-2.5 text-sm">
           <div className="flex items-center gap-2">
             <QuestionHelper
               placement="top"

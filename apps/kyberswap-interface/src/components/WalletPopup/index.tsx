@@ -104,7 +104,7 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
   if (!isPinned) {
     return (
       <Modal isOpen={isModalOpen && !isPinned} onDismiss={onDismissModal} minHeight={false}>
-        <div className="absolute bottom-0 right-0 flex" style={{ width: defaultWidth, height: defaultHeight }}>
+        <div className="absolute bottom-0 right-0 flex h-[680px] w-[410px]">
           <WalletView
             {...commonProps}
             blurBackground

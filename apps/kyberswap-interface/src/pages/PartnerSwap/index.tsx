@@ -174,7 +174,7 @@ export default function PartnerSwap() {
           <SwapFormWrapper>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} customChainId={expectedChainId} />
 
-            <AppBodyWrapped style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}>
+            <AppBodyWrapped className={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? '!p-0' : undefined}>
               {isSwapPage && <SwapForm {...props} />}
               {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
               {activeTab === TAB.SETTINGS && (
@@ -190,7 +190,7 @@ export default function PartnerSwap() {
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={expectedChainId} />
               )}
               {activeTab === TAB.LIMIT && (
-                <div style={{ padding: '16px' }}>
+                <div className="p-4">
                   <LimitOrderForm
                     flowState={flowState}
                     setFlowState={setFlowState}

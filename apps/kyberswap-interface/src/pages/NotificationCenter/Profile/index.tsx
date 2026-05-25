@@ -178,7 +178,7 @@ export default function Profile() {
                 <CheckBox
                   id="keep-profile"
                   borderStyle
-                  style={{ width: 15, height: 15 }}
+                  className="h-[15px] w-[15px]"
                   onChange={toggleKeepCurrentProfile}
                   checked={isKeepCurrentProfile}
                 />
@@ -235,7 +235,7 @@ export default function Profile() {
             </div>
           </Column>
 
-          <div className={formGroupClass} style={{ width: isMobile ? '120px' : AVATAR_SIZE, alignItems: 'center' }}>
+          <div className={`${formGroupClass} items-center`} style={{ width: isMobile ? '120px' : AVATAR_SIZE }}>
             <label className={`${labelClass} text-center`}>
               <Trans>Profile Picture</Trans>
             </label>
@@ -245,7 +245,7 @@ export default function Profile() {
 
         <div className="flex gap-5 max-sm:justify-between max-sm:gap-3">
           <ButtonSave onClick={saveProfile} disabled={disableBtnSave}>
-            <Save size={16} style={{ marginRight: '4px' }} />
+            <Save size={16} className="mr-1" />
             {loading ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
           </ButtonSave>
           {isSigInGuest && <ExportAccountButton />}
@@ -256,7 +256,7 @@ export default function Profile() {
                 navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
               }}
             >
-              <LogOut size={16} style={{ marginRight: '4px' }} />
+              <LogOut size={16} className="mr-1" />
               <Trans>Sign Out</Trans>
             </ButtonLogout>
           )}

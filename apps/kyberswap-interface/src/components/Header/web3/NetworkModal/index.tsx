@@ -252,7 +252,7 @@ export default function NetworkModal({
             </span>
             <hr className="w-full border-0 border-b border-solid border-border" />
           </Row>
-          <div ref={favoriteDropRef} id={FAVORITE_DROPZONE_ID} style={{ position: 'relative' }}>
+          <div ref={favoriteDropRef} id={FAVORITE_DROPZONE_ID} className="relative">
             <DropzoneOverlay show={isDraggingAddToFavorite} text={t`Add to favorite`} />
             {favoriteChains.filter(item => activeChainIds.map(i => i.toString()).includes(item)).length === 0 &&
             !isDraggingAddToFavorite ? (

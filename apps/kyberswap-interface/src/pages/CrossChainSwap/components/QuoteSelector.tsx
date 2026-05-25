@@ -178,7 +178,7 @@ export const QuoteSelector = ({
         if (upToLarge) setShow(prev => !prev)
       }}
       role="button"
-      className="flex cursor-pointer items-center justify-center gap-1 rounded-full bg-subText-20 px-2 py-1 text-sm font-medium text-subText hover:bg-subText-40"
+      className="flex cursor-pointer items-center justify-center gap-1 rounded-full bg-subText/[0.08] px-2 py-1 text-sm font-medium text-subText hover:bg-subText/[0.12]"
     >
       <RouteIcon />
       {t`Route Options`}

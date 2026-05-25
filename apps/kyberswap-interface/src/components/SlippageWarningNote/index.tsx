@@ -33,8 +33,7 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
           href={SLIPPAGE_EXPLANATION_URL}
           target="_blank"
           rel="noreferrer"
-          style={{ minWidth: 'max-content' }}
-          className="inline w-fit cursor-pointer border-b border-text font-medium text-text"
+          className="inline w-fit min-w-max cursor-pointer border-b border-text font-medium text-text"
         >
           Slippage
         </a>

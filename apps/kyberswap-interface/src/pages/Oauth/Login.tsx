@@ -150,7 +150,7 @@ function Login() {
         {error ? (
           <TextDesc>{error}</TextDesc>
         ) : flowStatus.autoLoginMethod === LoginMethod.GOOGLE ? (
-          <TextDesc style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <TextDesc className="flex items-center gap-2.5">
             <Loader size="20px" /> Checking data ...
           </TextDesc>
         ) : showMsgSignInEth ? (

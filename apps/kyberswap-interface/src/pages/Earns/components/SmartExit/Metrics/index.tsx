@@ -103,7 +103,7 @@ export default function Metrics({
                   <Trans>And</Trans>
                 </Label>
 
-                <RadioGroupItem value={ConditionType.Or} id={ConditionType.Or} style={{ marginLeft: '24px' }} />
+                <RadioGroupItem value={ConditionType.Or} id={ConditionType.Or} className="ml-6" />
                 <Label htmlFor={ConditionType.Or}>
                   <Trans>Or</Trans>
                 </Label>
@@ -121,13 +121,7 @@ export default function Metrics({
         </>
       ) : (
         <div className="mt-4">
-          <ButtonText
-            className="text-primary"
-            style={{
-              width: 'fit-content',
-            }}
-            onClick={onAddMetric2}
-          >
+          <ButtonText className="w-fit text-primary" onClick={onAddMetric2}>
             + <Trans>Add Condition 2</Trans>
           </ButtonText>
         </div>

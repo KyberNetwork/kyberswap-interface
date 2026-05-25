@@ -153,7 +153,7 @@ const PositionDetailHeader = () => {
           >
             <Link
               to={`${APP_PATHS.ADD_LIQUIDITY}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
-              style={{ textDecoration: 'none' }}
+              className="no-underline"
             >
               <div className="flex cursor-pointer items-center gap-2">
                 <ImageContainer>
@@ -161,10 +161,7 @@ const PositionDetailHeader = () => {
                   <TokenLogo src={position?.token1.logo} size={28} translateLeft />
                   <TokenLogo src={position?.chain.logo} size={16} translateLeft translateTop />
                 </ImageContainer>
-                <span
-                  className="whitespace-nowrap text-2xl font-medium leading-7 text-text"
-                  style={{ marginLeft: '-10px' }}
-                >
+                <span className="-ml-2.5 whitespace-nowrap text-2xl font-medium leading-7 text-text">
                   {position?.token0.symbol}/{position?.token1.symbol}
                 </span>
               </div>
@@ -203,7 +200,7 @@ const PositionDetailHeader = () => {
                 <br />
                 <Trans>
                   View or manage it in{' '}
-                  <Link to={APP_PATHS.EARN_SMART_EXIT} className="text-subText" style={{ textDecoration: 'underline' }}>
+                  <Link to={APP_PATHS.EARN_SMART_EXIT} className="text-subText underline">
                     View Smart Exit Orders
                   </Link>
                   .
@@ -239,7 +236,7 @@ const PositionDetailHeader = () => {
           <ButtonLight
             width="36px"
             height="36px"
-            style={{ padding: 0 }}
+            className="!p-0"
             onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
           >
             <IconAlert />

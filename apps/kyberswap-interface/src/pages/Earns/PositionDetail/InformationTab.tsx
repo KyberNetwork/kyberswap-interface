@@ -334,8 +334,8 @@ const InformationTab = () => {
         {/* Current Price + MIN/MAX in one row */}
         {(price || initialLoading) && (
           <div className={`flex items-stretch gap-2 ${upToLarge ? 'flex-col' : 'flex-row'}`}>
-            <PriceSection style={{ flex: '1 1 0%', minWidth: 0 }}>
-              <div className="flex flex-wrap items-center gap-1" style={{ flex: 1 }}>
+            <PriceSection className="min-w-0 flex-[1_1_0%]">
+              <div className="flex flex-1 flex-wrap items-center gap-1">
                 <span className="text-[14px] text-subText">{t`Current Price`}</span>
                 {initialLoading ? (
                   <PositionSkeleton width={160} height={16} />
@@ -357,7 +357,7 @@ const InformationTab = () => {
             </PriceSection>
 
             {!isUniv2 && (
-              <div className="flex gap-2" style={{ flex: '1 1 0%' }}>
+              <div className="flex flex-[1_1_0%] gap-2">
                 <CompactPriceBox>
                   <CompactPriceLabel>MIN</CompactPriceLabel>
                   <CompactPriceValue>

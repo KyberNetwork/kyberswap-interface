@@ -30,7 +30,7 @@ export default function TermAndPolicyModal({
           width="36px"
           height="36px"
           padding="0"
-          style={{ position: 'absolute', right: '1rem', top: '1rem' }}
+          className="absolute right-4 top-4"
         >
           <X className="text-text" />
         </ButtonEmpty>

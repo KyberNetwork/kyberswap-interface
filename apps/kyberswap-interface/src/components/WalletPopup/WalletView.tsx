@@ -225,7 +225,7 @@ export default function WalletView({
         blurBackground && 'bg-tabActive/[0.92] backdrop-blur-sm',
       )}
     >
-      <div className={classNameForHandle} style={{ height: '100%', flex: '0 0 20px', cursor: cursorForHandle }} />
+      <div className={cn('h-full flex-none basis-5', classNameForHandle)} style={{ cursor: cursorForHandle }} />
 
       <div className="flex size-full flex-col">
         <div className={cn('mb-2 flex w-full flex-col', classNameForHandle)} style={{ cursor: cursorForHandle }}>
@@ -313,7 +313,7 @@ export default function WalletView({
         />
       </div>
 
-      <div className={classNameForHandle} style={{ height: '100%', flex: '0 0 20px', cursor: cursorForHandle }} />
+      <div className={cn('h-full flex-none basis-5', classNameForHandle)} style={{ cursor: cursorForHandle }} />
     </div>
   )
 }

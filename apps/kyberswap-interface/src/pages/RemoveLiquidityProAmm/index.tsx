@@ -510,7 +510,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         <div className="ml-3 flex-1 text-xs text-text">
                           <Trans>
                             <TextUnderlineColor
-                              style={{ minWidth: 'max-content' }}
+                              className="min-w-max"
                               href={SLIPPAGE_EXPLANATION_URL}
                               target="_blank"
                               rel="noreferrer"
@@ -656,7 +656,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         value={percentForSlider}
                         onChange={onPercentSelectForSlider}
                         size={16}
-                        style={{ width: '100%', margin: '1rem 0 0', padding: '0.75rem 0' }}
+                        className="my-0 mt-4 w-full px-0 py-3"
                       />
                     </BlackCard>
 
@@ -702,7 +702,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         <div className="ml-3 flex-1 text-xs text-text">
                           <Trans>
                             <TextUnderlineColor
-                              style={{ minWidth: 'max-content' }}
+                              className="min-w-max"
                               href={SLIPPAGE_EXPLANATION_URL}
                               target="_blank"
                               rel="noreferrer"
@@ -720,7 +720,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
                   <div className="flex justify-end">
                     <ButtonConfirmed
-                      style={{ marginTop: '16px', width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
+                      className="mt-4 min-w-[164px]"
+                      style={{ width: upToMedium ? '100%' : 'fit-content' }}
                       confirmed={false}
                       disabled={
                         removed ||

@@ -104,10 +104,10 @@ export default function DetailAnnouncementPopup({
         </Row>
         {announcements.length > 1 && (
           <>
-            <div onClick={onBack} className={PAGINATION_BTN_CLASS} style={{ left: 4 }}>
+            <div onClick={onBack} className={cn(PAGINATION_BTN_CLASS, 'left-1')}>
               <ChevronLeft size={18} />
             </div>
-            <div onClick={onNext} className={PAGINATION_BTN_CLASS} style={{ right: 4 }}>
+            <div onClick={onNext} className={cn(PAGINATION_BTN_CLASS, 'right-1')}>
               <ChevronRight size={18} />
             </div>
           </>

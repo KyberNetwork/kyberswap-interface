@@ -186,7 +186,7 @@ const MyDashboard = () => {
 
   return (
     <Wrapper>
-      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
+      <img src={banner} width="100%" alt="banner" className="rounded-xl" />
       <div className="my-6 flex gap-2.5">
         <div className="text-2xl font-medium">
           <Trans>My Dashboard</Trans>
@@ -272,14 +272,7 @@ const MyDashboard = () => {
                 toggle={() => setIsOpenMenu(prev => !prev)}
                 modalWhenMobile={false}
                 hasArrow={false}
-                className="bg-background"
-                style={{
-                  minWidth: '240px',
-                  top: 'calc(100% + 8px)',
-                  right: 0,
-                  padding: '8px',
-                  borderRadius: '16px',
-                }}
+                className="right-0 top-[calc(100%+8px)] min-w-[240px] rounded-2xl bg-background p-2"
                 trigger={
                   <ButtonIcon color={tab !== NEW_CAMPAIGN ? theme.primary : undefined}>
                     <MoreHorizontal size={16} />
@@ -342,7 +335,7 @@ const MyDashboard = () => {
                   alt={rewardTokenSymbol}
                   width="20px"
                   height="20px"
-                  style={{ borderRadius: '50%' }}
+                  className="rounded-full"
                 />
                 <div className="text-lg font-medium">
                   {formatDisplayNumber(totalRewardByCampaign.toFixed(4), { significantDigits: 6 })} {rewardTokenSymbol}{' '}
@@ -365,7 +358,7 @@ const MyDashboard = () => {
                   alt={rewardTokenSymbol}
                   width="20px"
                   height="20px"
-                  style={{ borderRadius: '50%' }}
+                  className="rounded-full"
                 />
 
                 <div className="text-lg font-medium">

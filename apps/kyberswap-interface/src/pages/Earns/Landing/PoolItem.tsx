@@ -52,7 +52,7 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
           src={NETWORKS_INFO[pool.chainId as ChainId].icon}
           size={12}
           translateLeft
-          style={{ alignSelf: 'flex-end', position: 'relative', top: 1 }}
+          className="relative top-px self-end"
         />
 
         <span className="truncate text-left">

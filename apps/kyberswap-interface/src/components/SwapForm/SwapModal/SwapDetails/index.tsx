@@ -21,7 +21,6 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
@@ -47,7 +46,6 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const { chainId, networkInfo, account } = useActiveWeb3React()
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
-  const theme = useTheme()
   const { slippage, routeSummary } = useSwapFormContext()
 
   const currencyOut = routeSummary?.parsedAmountOut?.currency
@@ -215,14 +213,10 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             isShowingSkeleton={isLoading}
             content={
               <p
-                className="m-0 text-[12px] font-medium leading-[normal]"
-                style={{
-                  color: priceImpactResult.isVeryHigh
-                    ? theme.red
-                    : priceImpactResult.isHigh
-                    ? theme.warning
-                    : theme.text,
-                }}
+                className={cn(
+                  'm-0 text-[12px] font-medium leading-[normal]',
+                  priceImpactResult.isVeryHigh ? 'text-red' : priceImpactResult.isHigh ? 'text-warning' : 'text-text',
+                )}
               >
                 {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
               </p>
@@ -260,12 +254,8 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                   </p>
                   {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
                     <ChevronDown
-                      className="text-subText"
+                      className={cn('cursor-pointer text-subText', showDetailGas && 'rotate-180')}
                       size={14}
-                      style={{
-                        transform: `rotate(${showDetailGas ? '180deg' : '0deg'})`,
-                        cursor: 'pointer',
-                      }}
                     />
                   )}
                 </div>
@@ -417,8 +407,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
               <img src={networkInfo.icon} alt="network icon" width="12px" height="12px" />
               <ExternalLink
                 href={`${networkInfo.etherscanUrl}/address/${recipient}`}
-                className="text-text"
-                style={{ textDecoration: 'underline', textDecorationStyle: 'dotted' }}
+                className="text-text underline [text-decoration-style:dotted]"
               >
                 <span className="text-[12px] leading-[normal]">{shortenAddress(chainId, recipient)}</span>
               </ExternalLink>
@@ -443,8 +432,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             <div className="flex items-center">
               <ExternalLink
                 href={`${networkInfo.etherscanUrl}/address/${buildData.routerAddress}`}
-                className="text-text"
-                style={{ textDecoration: 'underline', textDecorationStyle: 'dotted' }}
+                className="text-text underline [text-decoration-style:dotted]"
               >
                 <span className="text-[12px] leading-[normal]">{shortenAddress(chainId, buildData.routerAddress)}</span>
               </ExternalLink>

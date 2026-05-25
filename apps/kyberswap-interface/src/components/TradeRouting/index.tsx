@@ -147,7 +147,7 @@ const Routing = ({
   ) => {
     if (chainId && currency) {
       return (
-        <TokenLink as="div" reverse={reverseOrder} style={{ border: 'none' }}>
+        <TokenLink as="div" reverse={reverseOrder} className="border-none">
           <CurrencyLogo currency={currency} size="20px" />
           <span>{`${amount ? amount.toSignificant(8) : ''} ${currency.symbol}`}</span>
         </TokenLink>
@@ -209,7 +209,7 @@ const Routing = ({
                         <RouteBadge>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</RouteBadge>
                         <RouteConnector />
                         <HopRow route={route} chainId={chainId} />
-                        <RouteArrow style={{ marginRight: '2px' }}>
+                        <RouteArrow className="mr-0.5">
                           <ArrowHead />
                         </RouteArrow>
                       </RouteRow>
@@ -229,7 +229,7 @@ const HopTokenLink = ({ token }: { token: Token }) => {
   const currency = useCurrencyV2(token.wrapped.address, token.chainId)
   return (
     <TokenLink
-      style={{ marginRight: 0, fontSize: '12px', width: 'fit-content' }}
+      className="mr-0 w-fit text-xs"
       href={getEtherscanLink(token.chainId, token?.wrapped.address, 'token')}
       target="_blank"
     >

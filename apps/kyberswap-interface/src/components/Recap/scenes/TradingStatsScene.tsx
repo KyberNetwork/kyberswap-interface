@@ -62,7 +62,7 @@ function TradingStatsScene({ tradingVolume, txCount }: TradingStatsSceneProps) {
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}
           transition={{ delay: 1.4, duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-          style={{ transformOrigin: 'bottom' }}
+          className="origin-bottom"
         />
       </CandlestickChartWrapper>
     </TradingStatsContainer>

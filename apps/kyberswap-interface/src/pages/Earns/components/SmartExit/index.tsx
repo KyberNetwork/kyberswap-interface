@@ -99,7 +99,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
               <span className="text-xl font-medium">
                 <Trans>Set Up Smart Exit</Trans>
               </span>
-              <X onClick={onDismiss} style={{ cursor: 'pointer' }} />
+              <X onClick={onDismiss} className="cursor-pointer" />
             </div>
 
             <div className="flex items-center justify-between">

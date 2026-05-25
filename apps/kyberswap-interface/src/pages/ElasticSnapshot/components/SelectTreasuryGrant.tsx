@@ -227,7 +227,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               {phase3Info ? format(phase3Info.value) : isTotalNull ? 'N/A' : format(totalValue)}
             </span>
           </div>
-          <VerticalDivider style={{ height: '100%' }} />
+          <VerticalDivider className="!h-full" />
           <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
             <span className="text-sm leading-5 text-subText">
               <Trans>Phase 1</Trans>
@@ -236,7 +236,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               {phase3Info ? format(phase3Info.vestedAmount || 0) : format(userData?.value || 0)}
             </span>
           </div>
-          <VerticalDivider style={{ height: '80%' }} />
+          <VerticalDivider className="!h-4/5" />
           <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
             <span className="text-sm leading-5 text-subText">
               <Trans>Phase 2</Trans>
@@ -247,7 +247,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
           </div>
           {phase3Info && (
             <>
-              <VerticalDivider style={{ height: '80%' }} />
+              <VerticalDivider className="!h-4/5" />
               <div className={cn('flex flex-col justify-between gap-4', upToMedium ? 'mx-3' : 'mx-6')}>
                 <span className="text-sm leading-5 text-subText">
                   <Trans>Phase 3</Trans>
@@ -352,7 +352,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
             </span>
 
             {isKyc ? (
-              <ButtonLight style={{ width: 'fit-content', height: '36px', minWidth: '116px' }}>
+              <ButtonLight className="h-9 w-fit min-w-[116px]">
                 <Check size={18} />
                 <span className="ml-1">
                   <Trans>Verified</Trans>
@@ -361,7 +361,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
             ) : (
               <ButtonPrimary
                 width="fit-content"
-                style={{ minWidth: '116px', height: '36px' }}
+                className="h-9 min-w-[116px]"
                 disabled
                 onClick={() => {
                   if (chainId !== ChainId.MATIC) {
@@ -422,7 +422,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
 
             <ButtonPrimary
               width="fit-content"
-              style={{ height: '36px', minWidth: '116px' }}
+              className="h-9 min-w-[116px]"
               disabled={!isKyc || !!userSelectedOption || loadingZkme || loadingUserOption}
               onClick={() => setShowOptionsModal(true)}
             >
@@ -465,7 +465,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
 
                 <ButtonOutlined
                   width="fit-content"
-                  style={{ height: '36px' }}
+                  className="h-9"
                   disabled={userSelectedOption === 'C'}
                   onClick={() => {
                     const message = 'I confirm choosing Option C - Opt out.'

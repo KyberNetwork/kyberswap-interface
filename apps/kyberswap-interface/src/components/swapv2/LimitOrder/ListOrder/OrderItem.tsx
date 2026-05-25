@@ -94,8 +94,6 @@ const TimeText = ({ time, style = {} }: { time: number; style?: CSSProperties })
   )
 }
 
-const LOGO_SIZE = '17px'
-
 const TokenLogo = ({ srcs }: { srcs: string[] }) => <Logo srcs={srcs} className="mr-2 h-[17px] w-[17px] rounded-full" />
 
 const SingleAmountInfo = ({
@@ -466,11 +464,11 @@ export default function OrderItem({
           {transactions.map(txs => {
             const filledPercent = calcPercentFilledOrder(txs.takingAmount, takingAmount, takerAssetDecimals)
             return (
-              <ItemWrapper key={txs.txHash} hasBorder={false} style={{ paddingTop: 0, paddingBottom: 0 }}>
+              <ItemWrapper key={txs.txHash} hasBorder={false} className="!py-0">
                 <div className="flex items-center gap-[10px]">
                   <IndexText />
                   <div className="flex">
-                    <div style={{ width: LOGO_SIZE, marginRight: 8 }} />
+                    <div className="mr-2 w-[17px]" />
                     <DeltaAmount className="text-subText">
                       + {formatAmountOrder(txs.takingAmount, takerAssetDecimals)} {takerSymbol}
                     </DeltaAmount>

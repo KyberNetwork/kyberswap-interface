@@ -146,13 +146,9 @@ export default function EditOrderModal({
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <div className="flex w-full flex-col gap-4 px-[22px] py-5">
         <div className="flex items-center justify-between">
-          {showReview ? (
-            <ChevronLeft className="text-subText" style={{ cursor: 'pointer' }} onClick={onBack} />
-          ) : (
-            <div />
-          )}
+          {showReview ? <ChevronLeft className="cursor-pointer text-subText" onClick={onBack} /> : <div />}
           <span>{showReview ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</span>
-          <X className="text-subText" style={{ cursor: 'pointer' }} onClick={onDismiss} />
+          <X className="cursor-pointer text-subText" onClick={onDismiss} />
         </div>
 
         <Column className="gap-2.5">

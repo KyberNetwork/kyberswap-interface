@@ -155,7 +155,7 @@ function TopBanner() {
   return (
     <div className="w-full border-b border-white-08 bg-[linear-gradient(90deg,#12372b_0%,#113126_100%)]">
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 px-6 py-2 max-sm:flex max-sm:flex-col max-sm:items-stretch max-sm:gap-2 max-sm:px-3">
-        {!isMobile && <div className="size-6" style={{ width: ICON_SIZE, height: ICON_SIZE }} />}
+        {!isMobile && <div className="size-6" />}
 
         <div className="flex min-w-0 items-center justify-center gap-2 justify-self-center max-sm:w-full max-sm:justify-between">
           <div className="flex min-w-0 items-center gap-2 max-sm:flex-1">

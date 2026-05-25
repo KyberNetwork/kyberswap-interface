@@ -31,10 +31,10 @@ const ElasticHackedModal = ({ isOpen, onClose, onConfirm }: Props) => {
         </p>
 
         <div className="mt-5 flex gap-4">
-          <ButtonOutlined style={{ flex: 1, fontSize: '16px', padding: '10px' }} onClick={onClose}>
+          <ButtonOutlined className="flex-1 p-2.5 text-base" onClick={onClose}>
             <Trans>Close</Trans>
           </ButtonOutlined>
-          <ButtonConfirmed style={{ fontSize: '16px', flex: 1, padding: '10px' }} onClick={onConfirm}>
+          <ButtonConfirmed className="flex-1 p-2.5 text-base" onClick={onConfirm}>
             <Trans>Go to My Pool</Trans>
           </ButtonConfirmed>
         </div>

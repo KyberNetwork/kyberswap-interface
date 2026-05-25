@@ -82,7 +82,7 @@ export const ShareGroupButtons = ({
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
-            <ExternalLink href={telegram} style={{ display: 'flex' }}>
+            <ExternalLink href={telegram} className="flex">
               <Telegram size={size} color={color} />
             </ExternalLink>
             {showLabel && <span>Telegram</span>}
@@ -92,7 +92,7 @@ export const ShareGroupButtons = ({
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
-            <ExternalLink href={twitter} style={{ display: 'flex' }}>
+            <ExternalLink href={twitter} className="flex">
               <TwitterIcon width={size} height={size} color={color} />
             </ExternalLink>
             {showLabel && <span>Twitter</span>}
@@ -102,7 +102,7 @@ export const ShareGroupButtons = ({
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
-            <ExternalLink href={facebook} style={{ display: 'flex' }}>
+            <ExternalLink href={facebook} className="flex">
               <Facebook color={color} size={size} />
             </ExternalLink>
             {showLabel && <span>Facebook</span>}
@@ -112,7 +112,7 @@ export const ShareGroupButtons = ({
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
-            <ExternalLink href={discord} style={{ display: 'flex' }}>
+            <ExternalLink href={discord} className="flex">
               <Discord width={size} height={size} color={color} />
             </ExternalLink>
             {showLabel && <span>Discord</span>}
@@ -167,7 +167,7 @@ export default function ShareModal({
       <div className="flex w-full flex-col items-center p-6">
         <RowBetween>
           <span className="text-lg font-medium">{title}</span>
-          <ButtonText onClick={handleDismissModal} style={{ lineHeight: '0' }}>
+          <ButtonText onClick={handleDismissModal} className="leading-[0]">
             <X className="text-text" />
           </ButtonText>
         </RowBetween>

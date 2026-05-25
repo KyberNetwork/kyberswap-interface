@@ -761,8 +761,7 @@ export default function TokenPair({
                           !userLiquidity ||
                           userLiquidity.equalTo('0')
                         }
-                        margin="0 1rem 0 0"
-                        style={{ fontSize: '16px', fontWeight: 500 }}
+                        className="mr-4 text-base font-medium"
                       >
                         {approval === ApprovalState.PENDING ? (
                           <Dots>

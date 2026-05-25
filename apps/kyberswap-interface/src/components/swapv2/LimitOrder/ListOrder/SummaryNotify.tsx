@@ -44,12 +44,7 @@ export default function SummaryNotify({
 
   let msg: ReactNode
   const listOrderName = (
-    <ul
-      style={{
-        padding: '5px 0px 0px 15px',
-        margin: '0',
-      }}
-    >
+    <ul className="m-0 pb-0 pl-[15px] pr-0 pt-[5px]">
       {orders.map(order => (
         <li key={order.id}>
           {formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} {order.makerAssetSymbol} <Trans>to</Trans>{' '}
@@ -133,11 +128,7 @@ export default function SummaryNotify({
       break
   }
 
-  return (
-    <p className="leading-[18px] text-text" style={{ margin: 0 }}>
-      {message || msg}
-    </p>
-  )
+  return <p className="m-0 leading-[18px] text-text">{message || msg}</p>
 }
 
 export const SummaryNotifyOrderPlaced = ({
@@ -152,7 +143,7 @@ export const SummaryNotifyOrderPlaced = ({
   outputAmount: string
 }) => {
   return (
-    <p className="leading-[18px] text-text" style={{ margin: 0 }}>
+    <p className="m-0 leading-[18px] text-text">
       <Trans>
         You have successfully placed an order to pay{' '}
         <span className="font-medium">

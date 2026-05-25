@@ -189,19 +189,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
       <RouteDot />
       <RouteDot out />
 
-      <svg
-        ref={svgRef}
-        className="text-primary"
-        style={{
-          zIndex: 10,
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-        }}
-      >
+      <svg ref={svgRef} className="pointer-events-none absolute left-0 top-0 z-10 size-full text-primary">
         <defs>
           <marker id="arrowhead" markerWidth="4" markerHeight="4" refX="4" refY="2" orient="auto">
             <polygon points="0 0, 4 2, 0 4" fill="currentColor" />
@@ -600,7 +588,7 @@ const RouteNode = ({
               const swapContent = (
                 <>
                   {dex?.logoURL ? (
-                    <img src={dex.logoURL} alt="" width="12px" height="12px" style={{ borderRadius: '50%' }} />
+                    <img src={dex.logoURL} alt="" width="12px" height="12px" className="rounded-full" />
                   ) : null}
                   <span className="flex-1">{dex?.name || swap.exchange}</span>
                   <span className="ml-auto">{percent.toFixed(0)}%</span>

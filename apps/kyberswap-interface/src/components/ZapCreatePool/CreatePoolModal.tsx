@@ -310,14 +310,14 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
           </Section>
 
           <Footer>
-            <ButtonOutlined onClick={onDismiss} style={{ borderRadius: '20px', height: 40 }}>
+            <ButtonOutlined onClick={onDismiss} className="h-10 rounded-[20px]">
               <Trans>Cancel</Trans>
             </ButtonOutlined>
             <ButtonPrimary
               onClick={handleConfirm}
               disabled={!canSubmit || isLoading}
               altDisabledStyle
-              style={{ borderRadius: '20px', height: 40 }}
+              className="h-10 rounded-[20px]"
             >
               {isLoading ? (
                 <Loader className="text-textReverse" />

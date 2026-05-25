@@ -43,11 +43,10 @@ export default function AnnouncementItem({
         className="max-h-[92px] w-[140px] rounded-lg [object-fit:scale-down]"
       />
       <div
-        className="flex flex-1 flex-col items-start justify-between gap-2.5 overflow-hidden"
+        className="flex max-w-full flex-1 flex-col items-start justify-between gap-2.5 overflow-hidden"
         style={{
           height: HEIGHT,
           maxHeight: expand ? 'unset' : '100%',
-          maxWidth: '100%',
           ...(expand && { height: 'auto' }),
         }}
       >

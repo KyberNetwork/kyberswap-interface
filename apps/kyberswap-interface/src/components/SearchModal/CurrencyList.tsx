@@ -109,7 +109,7 @@ export function CurrencyRow({
         !hoverColor && '[@media(hover:hover)]:hover:bg-buttonBlack',
       )}
     >
-      <div className="flex items-center" style={{ gap: 8 }}>
+      <div className="flex items-center gap-2">
         <CurrencyLogo currency={currency} size={'24px'} />
         <div className="flex flex-col gap-0.5">
           <span title={currency.name} className="font-medium" data-testid="token-symbol">
@@ -122,7 +122,7 @@ export function CurrencyRow({
       </div>
 
       <div className="flex flex-col items-end gap-0.5">
-        <div className="flex flex-shrink-0 items-center justify-self-end" style={{ gap: 15 }}>
+        <div className="flex flex-shrink-0 items-center gap-[15px] justify-self-end">
           {showImported ? (
             <Trash
               onClick={onClickRemove}
@@ -277,7 +277,7 @@ function CurrencyList({
   const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
   return (
-    <div style={{ flex: 1 }}>
+    <div className="flex-1">
       <AutoSizer>
         {({ height, width }) => (
           <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>

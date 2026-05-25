@@ -83,7 +83,7 @@ const SwapButtonWithPriceImpact = ({
   return (
     <ButtonPrimary
       id="swap-button"
-      className={BUTTON_CLASS}
+      className={cn(BUTTON_CLASS, 'gap-1')}
       disabled={shouldDisable}
       onClick={() => {
         if (shouldDisableByPriceImpact && !isDegenMode) {
@@ -93,7 +93,6 @@ const SwapButtonWithPriceImpact = ({
           onClick()
         }
       }}
-      style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
     >
       {shouldDisableByPriceImpact && showTooltipPriceImpact ? (
         <MouseoverTooltip

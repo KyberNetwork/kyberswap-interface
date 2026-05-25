@@ -6,8 +6,6 @@ import { cn } from 'utils/cn'
 import { escapeScriptHtml } from 'utils/string'
 import { formatTime } from 'utils/time'
 
-const HEIGHT = '92px'
-
 export default function AnnouncementItem({
   announcement,
   onRead,
@@ -33,10 +31,7 @@ export default function AnnouncementItem({
         src={thumbnailImageURL || NotificationImage}
         className="max-h-[92px] w-[140px] rounded-lg [object-fit:scale-down]"
       />
-      <div
-        className="flex flex-1 flex-col items-start justify-between gap-1.5 overflow-hidden"
-        style={{ height: HEIGHT, maxHeight: '100%', maxWidth: '100%' }}
-      >
+      <div className="flex h-[92px] max-h-full max-w-full flex-1 flex-col items-start justify-between gap-1.5 overflow-hidden">
         <div className="flex w-full items-center gap-2">
           <div
             className={cn(

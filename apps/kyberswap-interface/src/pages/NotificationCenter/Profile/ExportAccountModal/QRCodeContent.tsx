@@ -87,23 +87,13 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
         />
       </div>
 
-      <ButtonEmpty
-        style={{
-          padding: 0,
-          width: 'fit-content',
-          alignSelf: 'center',
-          fontWeight: 400,
-          fontSize: '14px',
-          lineHeight: '20px',
-        }}
-        onClick={forgotPasscode}
-      >
+      <ButtonEmpty className="w-fit self-center p-0 text-sm font-normal leading-5" onClick={forgotPasscode}>
         <Trans>Forgot your Passcode?</Trans>
       </ButtonEmpty>
 
       <div className="flex w-full items-center justify-between gap-4">
         <ButtonExport onClick={downloadQR} className="!h-9 flex-1 text-sm font-medium leading-5">
-          <Deposit width={18} height={18} style={{ marginRight: '4px' }} />
+          <Deposit width={18} height={18} className="mr-1" />
           Download QR
         </ButtonExport>
 

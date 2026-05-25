@@ -19,8 +19,6 @@ import { cn } from 'utils/cn'
 import { useNavigateToUrl, validateRedirectURL } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
-const VIDEO_SIZE = `360px`
-
 const whitelistDomains = ['drive.google.com', 'www.youtube.com']
 const Video = ({ url, title }: { url: string; title: string }) => {
   try {
@@ -150,9 +148,7 @@ export default function CenterPopup({
             )
           )}
           {isVertical ? (
-            <Column className="w-80 justify-between gap-[14px]" style={{ height: VIDEO_SIZE }}>
-              {renderContent()}
-            </Column>
+            <Column className="h-[360px] w-80 justify-between gap-[14px]">{renderContent()}</Column>
           ) : (
             renderContent()
           )}

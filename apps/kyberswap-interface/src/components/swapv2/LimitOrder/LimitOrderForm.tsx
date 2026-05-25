@@ -5,7 +5,6 @@ import JSBI from 'jsbi'
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -44,7 +43,6 @@ import { useNotify } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { MEDIA_WIDTHS } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getCookieValue } from 'utils'
 import { cn } from 'utils/cn'
@@ -85,7 +83,6 @@ const Set2Market = ({ children, className, ...rest }: React.HTMLAttributes<HTMLD
     {children}
   </Label>
 )
-const INPUT_HEIGHT = 28
 
 type Props = {
   currencyIn: Currency | undefined
@@ -157,7 +154,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       : walletChainId
     : walletChainId
 
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const notify = useNotify()
   const { trackingHandler } = useTracking()
 
@@ -940,7 +936,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             <div className="flex items-center rounded-xl bg-buttonBlack">
               <NumericalInput
                 maxLength={50}
-                style={{ fontSize: 14, height: INPUT_HEIGHT }}
+                className="h-7 text-sm"
                 data-testid="input-selling-rate"
                 value={displayRate}
                 onUserInput={onChangeRate}
@@ -966,8 +962,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           {currencyIn && currencyOut ? (
             <TradePrice
               price={tradeInfo}
-              style={{ width: 'fit-content', fontStyle: 'italic' }}
-              className="text-text"
+              className="w-fit italic text-text"
               label={t`Est. Market Price:`}
               loading={loadingTrade}
               symbolIn={currencyIn?.symbol}
@@ -979,8 +974,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           <ArrowRotate
             rotate={rotate}
             onClick={isEdit ? undefined : handleRotateClick}
-            style={{ width: 25, height: 25, padding: 4 }}
-            className="bg-buttonGray"
+            className="size-[25px] bg-buttonGray p-1"
           />
         </RowBetween>
 

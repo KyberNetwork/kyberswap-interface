@@ -208,7 +208,7 @@ const DropdownAction = ({
       icon: rewardsClaiming ? (
         <Loader size={'16px'} className="text-[#7a7a7a]" />
       ) : (
-        <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
+        <IconClaimRewards width={14} className="mr-0.5" />
       ),
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()

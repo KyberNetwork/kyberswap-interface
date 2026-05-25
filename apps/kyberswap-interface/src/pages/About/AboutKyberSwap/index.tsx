@@ -259,7 +259,8 @@ function AboutKyberSwap() {
                 width="75%"
                 src={KNCGraphic}
                 alt="KNCGraphic"
-                style={{ display: above768 ? 'none' : 'block', margin: 'auto', marginTop: '40px' }}
+                className="m-auto mt-10"
+                style={{ display: above768 ? 'none' : 'block' }}
               />
               <BtnPrimary as={Link as never} to="/about/knc" margin="48px 0">
                 <KNCBlack />

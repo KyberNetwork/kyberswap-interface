@@ -48,7 +48,7 @@ export const NetworkSelector = ({
           onClick={() => setIsOpenNetworkModal(true)}
           className="flex cursor-pointer items-center gap-2 rounded-full bg-buttonBlack px-3 py-1.5 text-sm font-medium text-subText"
         >
-          <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ height: '20px', width: '20px' }} />
+          <img src={NETWORKS_INFO[chainId].icon} alt="Network" className="size-5" />
           <span>{NETWORKS_INFO[chainId].name}</span>
           <DropdownSVG />
         </div>

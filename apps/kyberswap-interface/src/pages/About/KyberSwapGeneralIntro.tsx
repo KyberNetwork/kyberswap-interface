@@ -30,7 +30,7 @@ const KyberSwapGeneralIntro = () => {
         onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
         as={Link}
         to={`${APP_PATHS.SWAP}/${networkInfo.route}?highlightBox=true`}
-        style={{ width: '216px', padding: '10px 12px', borderRadius: '32px' }}
+        className="w-[216px] rounded-[32px] px-3 py-2.5"
       >
         <Repeat size={20} />
         <span className="ml-2 text-sm">
@@ -42,10 +42,7 @@ const KyberSwapGeneralIntro = () => {
 
   if (above768) {
     return (
-      <div
-        className="mt-8 grid w-full justify-items-center px-16"
-        style={{ gap: '24px 72px', gridTemplateColumns: '1fr', gridTemplateRows: '1fr auto' }}
-      >
+      <div className="mt-8 grid w-full grid-cols-[1fr] grid-rows-[1fr_auto] justify-items-center gap-x-[72px] gap-y-6 px-16">
         {renderKyberSwapIntroDEX()}
         {renderSwapNowButton()}
       </div>
@@ -53,8 +50,8 @@ const KyberSwapGeneralIntro = () => {
   }
 
   return (
-    <div className="mt-8 flex w-full flex-col px-8" style={{ rowGap: '48px' }}>
-      <div className="flex flex-col items-center" style={{ rowGap: '16px' }}>
+    <div className="mt-8 flex w-full flex-col gap-y-12 px-8">
+      <div className="flex flex-col items-center gap-y-4">
         {renderKyberSwapIntroDEX()}
         {renderSwapNowButton()}
       </div>

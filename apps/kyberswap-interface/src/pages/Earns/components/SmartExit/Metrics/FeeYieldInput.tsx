@@ -50,10 +50,9 @@ export default function FeeYieldInput({
               </div>
             }
             placement="bottom"
-            className="text-text"
+            className="!ml-0 text-text"
             width="315px"
             size={14}
-            style={{ marginLeft: 0 }}
           />
           <span> ≥</span>
         </div>

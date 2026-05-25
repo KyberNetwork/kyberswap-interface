@@ -34,10 +34,7 @@ const AppHaveUpdate = () => {
       <div>
         <Trans>New contents are available.</Trans>
       </div>
-      <ButtonPrimary
-        style={{ width: 'fit-content', padding: '8px 20px', margin: 'auto', marginTop: '1rem' }}
-        onClick={updateServiceWorker}
-      >
+      <ButtonPrimary className="m-auto mt-4 w-fit px-5 py-2" onClick={updateServiceWorker}>
         <Trans>Reload</Trans>
       </ButtonPrimary>
     </div>

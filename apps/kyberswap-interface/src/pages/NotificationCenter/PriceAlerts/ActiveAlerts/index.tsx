@@ -63,7 +63,7 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
       </div>
 
       <CommonPagination
-        style={{ margin: 0 }}
+        className="m-0"
         onPageChange={setPage}
         totalCount={data?.pagination?.totalItems || 0}
         currentPage={page}

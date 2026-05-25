@@ -34,7 +34,7 @@ export const TextDesc = ({ children, className, ...rest }: React.HTMLAttributes<
 )
 
 export const KyberLogo = () => {
-  return <img src={'/logo-dark.svg'} alt="loading-icon" style={{ width: 230, maxWidth: '90vw' }} />
+  return <img src={'/logo-dark.svg'} alt="loading-icon" className="w-[230px] max-w-[90vw]" />
 }
 
 export function PageContainer({ msg }: { msg: ReactNode }) {
@@ -42,7 +42,7 @@ export function PageContainer({ msg }: { msg: ReactNode }) {
     <Container>
       <Content>
         <KyberLogo />
-        <TextDesc style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <TextDesc className="flex items-center gap-2.5">
           <Loader size="20px" /> {msg}
         </TextDesc>
       </Content>

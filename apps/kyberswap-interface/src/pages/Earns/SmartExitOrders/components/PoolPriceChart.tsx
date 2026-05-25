@@ -110,7 +110,7 @@ const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProp
           className="absolute -bottom-1.5 z-[2]"
           style={{ left: `${targetPricePosition}%`, transform: 'translateX(-50%) scale(0.95)' }}
         >
-          <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible', display: 'block' }}>
+          <svg width="22" height="35" viewBox="-11 0 22 35" className="block overflow-visible">
             <path d={brushHandlePath(35)} fill="transparent" stroke={handleColor} strokeWidth={1.5} />
           </svg>
         </div>

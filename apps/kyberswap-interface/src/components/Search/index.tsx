@@ -73,8 +73,8 @@ const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchP
           }}
         />
         {searchValue && (
-          <ButtonEmpty onClick={() => onSearch('')} style={{ padding: '2px 4px', width: 'max-content' }}>
-            <X className="text-subText" size={14} style={{ minWidth: '14px' }} />
+          <ButtonEmpty onClick={() => onSearch('')} className="w-max px-1 py-0.5">
+            <X className="min-w-[14px] text-subText" size={14} />
           </ButtonEmpty>
         )}
         <SearchIcon className="text-subText" onClick={() => onSearch(searchValue)} />

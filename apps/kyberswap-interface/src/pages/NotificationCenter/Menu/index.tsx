@@ -62,7 +62,7 @@ const getMenuItems: () => MenuItemType[] = () =>
         },
         {
           route: PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION,
-          icon: <AllIcon style={{ width: 16 }} />,
+          icon: <AllIcon className="w-4" />,
           title: t`All Notifications`,
           type: 'ALL',
         },

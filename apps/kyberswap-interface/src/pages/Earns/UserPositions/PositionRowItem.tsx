@@ -65,9 +65,9 @@ function TruncatedBadge({
   return (
     <MouseoverTooltipDesktopOnly text={label} width="fit-content" placement="bottom" disableTooltip={!isTruncated}>
       <Badge
+        className="max-w-[300px]"
         style={{
           backgroundColor: hexAlpha(theme.white, 0.08),
-          maxWidth: '300px',
         }}
       >
         <div className="flex items-center gap-1 overflow-hidden">
@@ -225,10 +225,9 @@ export default function PositionRowItem({
                       </div>
                     </div>
                   }
-                  className="text-warning"
+                  className="ml-1 text-warning"
                   placement="top"
                   width="280px"
-                  style={{ marginLeft: 4 }}
                 />
               ) : null}
             </Badge>
@@ -450,8 +449,9 @@ export default function PositionRowItem({
 
         {token0.symbol && token1.symbol ? (
           <div
-            className={`flex w-full overflow-hidden ${upToSmall ? 'flex-row items-center' : 'flex-col items-start'}`}
-            style={{ gap: '7.2px' }}
+            className={`flex w-full gap-[7.2px] overflow-hidden ${
+              upToSmall ? 'flex-row items-center' : 'flex-col items-start'
+            }`}
           >
             <div className="flex max-w-full items-center gap-1">
               <span className="flex-shrink-0 whitespace-nowrap">

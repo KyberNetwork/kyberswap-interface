@@ -71,11 +71,7 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
 
         <div className="mt-6 flex justify-center gap-4">
           <ButtonOutlined
-            style={{
-              flex: 1,
-              fontSize: '16px',
-              padding: '10px',
-            }}
+            className="flex-1 p-2.5 text-base"
             onClick={() => {
               setConfirmText('')
               setShow(false)
@@ -85,7 +81,7 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
           </ButtonOutlined>
           <ButtonWarning
             disabled={confirmText.trim().toLowerCase() !== 'confirm'}
-            style={{ fontSize: '16px', flex: 1, padding: '10px' }}
+            className="flex-1 p-2.5 text-base"
             onClick={handleConfirm}
           >
             <Trans>Confirm</Trans>

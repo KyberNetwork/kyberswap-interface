@@ -10,15 +10,14 @@ import Logo, { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 import { PROFILE_MANAGE_ROUTES, PriceAlertType } from 'pages/NotificationCenter/const'
+import { cn } from 'utils/cn'
 
 const DescriptionPriceAlert = (
   content: AnnouncementTemplatePriceAlert,
   templateType: PrivateAnnouncementType,
 ): SimplePopupProps => {
-  const theme = useTheme()
   const {
     chainId: rawChainId,
     tokenInAmount,
@@ -43,7 +42,7 @@ const DescriptionPriceAlert = (
         <Logo srcs={[tokenInLogoURL]} style={logoStyle} />
         {tokenInAmount} {tokenInSymbol} <span className="text-subText">to</span>
         <Logo srcs={[tokenOutLogoURL]} style={logoStyle} /> {tokenOutSymbol} <span className="text-subText">goes</span>{' '}
-        <span className="flex items-center gap-1" style={{ color: isAbove ? theme.primary : theme.red }}>
+        <span className={cn('flex items-center gap-1', isAbove ? 'text-primary' : 'text-red')}>
           {isAbove ? <ArrowUp size={16} /> : <ArrowDown size={16} />} {type}
         </span>
         {threshold} {tokenOutSymbol} <span className="text-subText">on</span>{' '}

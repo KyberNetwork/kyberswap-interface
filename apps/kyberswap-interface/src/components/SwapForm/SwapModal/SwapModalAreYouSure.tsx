@@ -75,11 +75,7 @@ export default function SwapModalAreYouSure({
         />
         <div className="mt-7 flex justify-center gap-4">
           <ButtonOutlined
-            style={{
-              flex: 1,
-              fontSize: '14px',
-              padding: '10px',
-            }}
+            className="flex-1 p-2.5 text-sm"
             onClick={() => {
               setConfirmText('')
               setShow(false)
@@ -89,7 +85,7 @@ export default function SwapModalAreYouSure({
           </ButtonOutlined>
           <ButtonErrorStyle
             disabled={confirmText.trim().toLowerCase() !== 'confirm'}
-            style={{ fontSize: '14px', flex: 1, padding: '10px' }}
+            className="flex-1 p-2.5 text-sm"
             onClick={handleConfirm}
           >
             <Trans>Confirm</Trans>

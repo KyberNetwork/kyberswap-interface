@@ -34,9 +34,9 @@ export default function SearchInput({
         className="max-w-[calc(100%-20px)] flex-1 truncate border-none bg-inherit text-text outline-none placeholder:text-disableText"
       />
       {value ? (
-        <X className="cursor-pointer text-subText" size={16} style={{ minWidth: 16 }} onClick={() => onChange('')} />
+        <X className="min-w-4 cursor-pointer text-subText" size={16} onClick={() => onChange('')} />
       ) : (
-        <Search className="text-subText" size={16} style={{ minWidth: 16 }} />
+        <Search className="min-w-4 text-subText" size={16} />
       )}
     </div>
   )

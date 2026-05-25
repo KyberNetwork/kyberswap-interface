@@ -49,7 +49,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
     <div className="relative w-full overflow-auto">
       <PaddedColumn className="w-full flex-1 gap-[14px]">
         <RowBetween>
-          {onBack ? <ArrowLeft style={{ cursor: 'pointer' }} onClick={onBack} /> : <div></div>}
+          {onBack ? <ArrowLeft className="cursor-pointer" onClick={onBack} /> : <div></div>}
           <p className="m-0 text-xl font-medium leading-[normal]">
             {tokens.length > 1 ? t`Import Tokens` : t`Import Token`}
           </p>

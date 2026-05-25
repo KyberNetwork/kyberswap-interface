@@ -5,7 +5,6 @@ import { AutoColumn } from 'components/Column'
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useAllTransactions } from 'state/transactions/hooks'
 import {
   EarnAddLiquidityExtraInfo,
@@ -19,6 +18,7 @@ import {
 } from 'state/transactions/type'
 import { ExternalLink, HideSmall } from 'theme'
 import { findTx, getEtherscanLink } from 'utils'
+import { cn } from 'utils/cn'
 import getShortenAddress from 'utils/getShortenAddress'
 import { getTransactionStatus } from 'utils/transaction'
 
@@ -269,7 +269,6 @@ const getSummary = (transaction: TransactionDetails) => {
 
 export default function TransactionPopup({ hash, notiType }: { hash: string; notiType: NotificationType }) {
   const { chainId } = useActiveWeb3React()
-  const theme = useTheme()
   const success = notiType === NotificationType.SUCCESS
   const transactions = useAllTransactions(true)
   const transaction = findTx(transactions, hash)
@@ -290,10 +289,10 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
           <span className="text-sm font-normal leading-[1.6] text-text">{summary}</span>
         </AutoColumn>
       </div>
-      <HideSmall style={{ margin: '8px 0 0 40px', display: 'block' }}>
+      <HideSmall className="ml-10 mt-2 block">
         <ExternalLink
           href={getEtherscanLink(chainId, hash, 'transaction')}
-          style={{ color: success ? theme.primary : theme.red, fontSize: 14 }}
+          className={cn('text-sm', success ? 'text-primary' : 'text-red')}
         >
           <Trans>View transaction</Trans>
         </ExternalLink>

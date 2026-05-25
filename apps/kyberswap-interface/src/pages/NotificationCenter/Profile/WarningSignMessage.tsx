@@ -22,7 +22,7 @@ const WarningSignMessage = () => {
   return (
     <div className="flex items-center gap-5 rounded-3xl bg-subText-20 px-3.5 py-2 max-md:flex-col max-md:gap-2.5 max-md:px-3.5 max-md:py-3">
       <Row className="gap-3">
-        {!upToMedium && <Info className="text-subText" size={18} style={{ minWidth: '18px' }} />}
+        {!upToMedium && <Info className="min-w-[18px] text-subText" size={18} />}
         <span className="text-xs leading-4">
           <Trans>
             You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will

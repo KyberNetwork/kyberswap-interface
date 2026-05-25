@@ -40,7 +40,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div id="reader" style={{ display: 'none' }}></div>
+      <div id="reader" className="hidden"></div>
       <span className="text-sm font-normal leading-5">
         <Trans>
           You can keep your information synced across all of your devices by importing your profile. Learn more about
@@ -81,17 +81,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
       </div>
 
       <FileInput onImgChange={handleFileChange} image width="100%">
-        <ButtonEmpty
-          style={{
-            padding: 0,
-            width: 'fit-content',
-            alignSelf: 'center',
-            fontWeight: 400,
-            fontSize: '14px',
-            lineHeight: '20px',
-            margin: 'auto',
-          }}
-        >
+        <ButtonEmpty className="m-auto w-fit self-center p-0 text-sm font-normal leading-5">
           <Trans>Or upload QR Code</Trans>
         </ButtonEmpty>
       </FileInput>

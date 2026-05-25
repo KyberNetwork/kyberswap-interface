@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import { cn } from 'utils/cn'
 
 type Props = {
   className?: string
@@ -14,13 +15,7 @@ const CreateAlertButton: React.FC<Props> = ({ className }) => {
 
   return (
     <ButtonPrimary
-      className={className}
-      style={{
-        padding: '0 8px 0 6px',
-        gap: '4px',
-        flex: '0 0 fit-content',
-        height: '36px',
-      }}
+      className={cn('h-9 flex-[0_0_fit-content] gap-1 py-0 pl-1.5 pr-2', className)}
       onClick={() => {
         navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}`)
       }}

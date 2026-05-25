@@ -176,20 +176,11 @@ export default function VestingClaimModal({
 
   return (
     <Modal width="100%" maxWidth="680px" isOpen={true} onDismiss={onDismiss}>
-      <div
-        className={`relative flex w-full flex-col bg-background ${upToSmall ? 'p-4' : 'p-5'}`}
-        style={{ lineHeight: 1.5 }}
-      >
+      <div className={`relative flex w-full flex-col bg-background leading-normal ${upToSmall ? 'p-4' : 'p-5'}`}>
         <span className="text-center text-xl font-medium text-text">
           <Trans>Claim Asset</Trans>
         </span>
-        <ButtonEmpty
-          onClick={onDismiss}
-          width="36px"
-          height="36px"
-          padding="0"
-          style={{ position: 'absolute', right: '1rem', top: '1rem' }}
-        >
+        <ButtonEmpty onClick={onDismiss} width="36px" height="36px" padding="0" className="absolute right-4 top-4">
           <X className="text-text" />
         </ButtonEmpty>
 
@@ -212,15 +203,12 @@ export default function VestingClaimModal({
           to Sign a message to confirm that you have read and accepted before claiming your assets.
         </span>
 
-        <TermAndCondition
-          onClick={() => setIsAcceptTerm(prev => !prev)}
-          style={{ marginTop: '24px', background: 'transparent', padding: 0 }}
-        >
+        <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} className="mt-6 !bg-transparent !p-0">
           <input
             type="checkbox"
             checked={isAcceptTerm}
             data-testid="accept-term"
-            style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
+            className="mr-3 size-3.5 min-w-3.5 cursor-pointer"
           />
           <span>
             Accept <ExternalLink href={tcLink}>KyberSwap’s Terms and Conditions</ExternalLink>

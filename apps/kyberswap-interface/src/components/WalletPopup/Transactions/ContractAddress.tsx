@@ -15,7 +15,7 @@ const ContractAddress = ({ transaction }: { transaction: TransactionDetails }) =
   const prefix = type === TRANSACTION_TYPE.TRANSFER_TOKEN ? t`to` : t`contract`
 
   return extraInfo.contract ? (
-    <PrimaryText className="!text-text" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+    <PrimaryText className="flex items-center gap-1 !text-text">
       <ExternalLink
         href={getEtherscanLink(chainId, extraInfo.contract, 'address')}
         className="!text-text hover:!text-text hover:!no-underline"

@@ -156,7 +156,7 @@ const Row = memo(
             </span>
           </div>
 
-          <TabContainer style={{ marginTop: '1rem' }}>
+          <TabContainer className="mt-4">
             <Tab isActive={tab === 'liquidity'} onClick={() => setTab('liquidity')}>
               <Trans>My Liquidity</Trans>
             </Tab>
@@ -261,15 +261,11 @@ const Row = memo(
           )}
 
           <div className="mt-4 flex gap-3">
-            <ButtonPrimary
-              style={{ height: '36px' }}
-              disabled={p.liquidity === '0'}
-              onClick={() => removeLiquidity(true)}
-            >
+            <ButtonPrimary className="h-9" disabled={p.liquidity === '0'} onClick={() => removeLiquidity(true)}>
               <Trans>Remove Liquidity</Trans>
             </ButtonPrimary>
             <ButtonOutlined
-              style={{ height: '36px' }}
+              className="h-9"
               disabled={feeValue0.equalTo('0') && feeValue1.equalTo('0')}
               onClick={() => {
                 collectFee()

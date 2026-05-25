@@ -101,8 +101,16 @@ export const NewLabel = ({ isNew, children }: { isNew?: boolean; children: React
 
 const Divider = () => <div className="my-2.5 border-t border-border" />
 
-const Title = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
-  <li style={style} className={cn(MENU_ITEM_CLASS, 'text-base !text-text', '[&_svg]:mr-2 [&_svg]:size-4')}>
+const Title = ({
+  children,
+  style,
+  className,
+}: {
+  children: React.ReactNode
+  style?: React.CSSProperties
+  className?: string
+}) => (
+  <li style={style} className={cn(MENU_ITEM_CLASS, 'text-base !text-text', '[&_svg]:mr-2 [&_svg]:size-4', className)}>
     {children}
   </li>
 )
@@ -218,15 +226,12 @@ export default function Menu() {
             className="relative max-h-[calc(100vh-150px)] overflow-y-scroll"
           >
             {isMobile && (
-              <ButtonEmpty
-                onClick={toggle}
-                style={{ position: 'absolute', width: 'fit-content', top: '-16px', right: '-16px' }}
-              >
+              <ButtonEmpty onClick={toggle} className="absolute -right-4 -top-4 w-fit">
                 <X className="text-subText" />
               </ButtonEmpty>
             )}
 
-            <Title style={{ paddingTop: 0 }}>
+            <Title className="pt-0">
               <Trans>Legacy</Trans>
             </Title>
 
@@ -246,7 +251,7 @@ export default function Menu() {
 
             <Divider />
 
-            <Title style={{ paddingTop: 0 }}>
+            <Title className="pt-0">
               <Trans>Menu</Trans>
             </Title>
             {FAUCET_NETWORKS.includes(chainId) && (
@@ -507,12 +512,7 @@ export default function Menu() {
               }}
             >
               <Trans>Language</Trans>
-              <ButtonEmpty
-                padding="0"
-                width="fit-content"
-                className="text-text"
-                style={{ textDecoration: 'none', fontSize: '14px' }}
-              >
+              <ButtonEmpty padding="0" width="fit-content" className="text-sm text-text no-underline">
                 {getLocaleLabel(userLocale, true)}&nbsp;&nbsp;
                 <ArrowRight className="text-text" />
               </ButtonEmpty>
@@ -527,8 +527,7 @@ export default function Menu() {
                   trackingHandler(TRACKING_EVENT_TYPE.CLAIM_REWARDS_INITIATED)
                   toggleClaimPopup()
                 }}
-                className={cn('mt-2.5 w-max text-sm', !isMobile && 'mx-auto')}
-                style={{ padding: '11px' }}
+                className={cn('mt-2.5 w-max p-[11px] text-sm', !isMobile && 'mx-auto')}
               >
                 {pendingTx ? (
                   <>
@@ -542,8 +541,10 @@ export default function Menu() {
 
             <span className="mt-4 block text-center text-[10px] font-light text-subText">kyberswap@{TAG}</span>
             <div
-              style={{ visibility: showScroll ? 'visible' : 'hidden' }}
-              className="sticky z-[2] w-full text-center [animation:floating_1s_ease_infinite_alternate-reverse]"
+              className={cn(
+                'sticky z-[2] w-full text-center [animation:floating_1s_ease_infinite_alternate-reverse]',
+                showScroll ? 'visible' : 'invisible',
+              )}
             >
               <ChevronDown className="text-text4" />
             </div>

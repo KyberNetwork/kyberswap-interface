@@ -137,7 +137,7 @@ export function TransactionSubmittedContent({
             </ExternalLink>
           )}
           {tokenAddToMetaMask?.address && <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />}
-          <ButtonPrimary onClick={onDismiss} style={{ margin: '24px 0 0 0' }}>
+          <ButtonPrimary onClick={onDismiss} className="mt-6">
             <span className="text-sm font-medium">
               <Trans>Close</Trans>
             </span>
