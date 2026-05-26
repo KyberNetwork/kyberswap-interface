@@ -81,7 +81,7 @@ const AprHistoryTooltip = ({
             <Text color={theme.subText} fontSize={12}>
               Active APR
             </Text>
-            <Text color={theme.blue} fontSize={12} fontWeight={500} textAlign="right">
+            <Text color={theme.primary} fontSize={12} fontWeight={500} textAlign="right">
               {formatAprNumber(point.activeApr)}%
             </Text>
           </>
@@ -89,7 +89,7 @@ const AprHistoryTooltip = ({
         <Text color={theme.subText} fontSize={12}>
           APR
         </Text>
-        <Text color={theme.primary} fontSize={12} fontWeight={500} textAlign="right">
+        <Text color={theme.blue} fontSize={12} fontWeight={500} textAlign="right">
           {formatAprNumber(point.totalApr)}%
         </Text>
         {point.volumeUsd || point.volumeUsd === 0 ? (
@@ -122,8 +122,8 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
   const chartHeight = upToSmall ? 280 : 360
 
   const activeDotStroke = theme.buttonBlack
-  const aprLineColor = theme.primary
-  const activeAprLineColor = theme.blue
+  const aprLineColor = theme.blue
+  const activeAprLineColor = theme.primary
   const volumeUpColor = rgba(theme.darkGreen, 0.8)
   const volumeDownColor = rgba(theme.red, 0.5)
   const cursorColor = rgba(theme.text, 0.12)
@@ -176,7 +176,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 {positionId ? 'Position Active APR' : 'Active APR'}
               </Text>
-              <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
+              <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
                 {formatAprValue(latestActiveApr)}
               </Text>
               <Text color={theme.subText} fontSize={14}>
@@ -188,7 +188,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 APR
               </Text>
-              <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
+              <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
                 {formatAprValue(latestTotalApr)}
               </Text>
               <Text color={theme.subText} fontSize={14}>
