@@ -1,9 +1,12 @@
 const MAX_FEE_USD = 100_000
-const MAX_SIDE_USD = 500_000_000
+const MAX_SIDE_USD = 100_000_000
 const RATIO_CLAMP_MIN_SIDE = 10
 const RATIO_CLAMP_MAX_RATIO = 100
 const ONE_SIDE_NEAR_ZERO_THRESHOLD = 10
 const ONE_SIDE_LARGE_THRESHOLD = 100_000
+const VOLUME_OVER_REF_RATIO = 100
+const VOLUME_REF_MIN_USD = 1
+const PRICE_IMPACT_SUSPICIOUS = 50
 
 const USD_FIELD_PATTERN = /usd$/i
 const VOLUME_FIELD_PATTERN = /^volume/i
@@ -45,6 +48,31 @@ export const sanitizeFormoPayload = (properties?: Record<string, any>): Record<s
     } else if (amountOut < ONE_SIDE_NEAR_ZERO_THRESHOLD && amountIn > ONE_SIDE_LARGE_THRESHOLD) {
       writeBack(sanitized, 'amount_in_usd', 0)
     }
+  }
+
+  // `volume` is usually oracle-priced and can diverge from route-priced amount_*_usd
+  // when the oracle is stale or pool liquidity is thin — clamp to the route value.
+  const volume = parseUsd(sanitized.volume)
+  const inAfter = parseUsd(sanitized.amount_in_usd)
+  const outAfter = parseUsd(sanitized.amount_out_usd)
+  const refUsd = Math.max(
+    inAfter !== undefined && Number.isFinite(inAfter) ? inAfter : 0,
+    outAfter !== undefined && Number.isFinite(outAfter) ? outAfter : 0,
+  )
+  if (
+    volume !== undefined &&
+    Number.isFinite(volume) &&
+    refUsd > VOLUME_REF_MIN_USD &&
+    Math.abs(volume) / refUsd > VOLUME_OVER_REF_RATIO
+  ) {
+    writeBack(sanitized, 'volume', refUsd)
+  }
+
+  // High price impact means pool price diverged sharply from oracle price — the
+  // oracle-derived `volume` is unreliable in this regime, drop it.
+  const priceImpact = parseUsd(sanitized.price_impact)
+  if (priceImpact !== undefined && Number.isFinite(priceImpact) && priceImpact > PRICE_IMPACT_SUSPICIOUS) {
+    writeBack(sanitized, 'volume', 0)
   }
 
   for (const key of Object.keys(sanitized)) {
