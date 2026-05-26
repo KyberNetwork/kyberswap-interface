@@ -1,7 +1,7 @@
 import { ShareOption, ShareType } from '@/components/ShareModal/types';
 
 export const shareOptions: Record<ShareType, ShareOption[]> = {
-  [ShareType.POOL_INFO]: [ShareOption.TOTAL_APR, ShareOption.LM_APR, ShareOption.EG_APR, ShareOption.ACTIVE_APR],
+  [ShareType.POOL_INFO]: [ShareOption.ACTIVE_APR, ShareOption.TOTAL_APR, ShareOption.LM_APR, ShareOption.EG_APR],
   [ShareType.POSITION_INFO]: [
     ShareOption.TOTAL_APR,
     ShareOption.LM_APR,
