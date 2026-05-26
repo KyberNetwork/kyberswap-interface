@@ -118,14 +118,22 @@ const useZapOutWidget = (
             ...zapOutPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapOutRpcUrl,
-            signTypedData: async (account: string, typedDataJson: string) => {
-              const parsedTypedData = JSON.parse(typedDataJson)
-              return signTypedDataRaw({
-                chainId: chainId,
-                account: account.toLowerCase() as Address,
-                typedData: parsedTypedData,
-              })
-            },
+            // Skip the permit path for smart-wallet connectors (Porto, Safe).
+            // Their signatures are EIP-1271 contract signatures; the on-chain
+            // NFT `permit()` recovers them via ecrecover and gets a different
+            // address than the wallet, so estimateGas reverts with
+            // NOT_AUTHORIZED. Omitting `signTypedData` makes the widget fall
+            // back to the approve flow, which works for smart wallets.
+            signTypedData: isSmartConnector
+              ? undefined
+              : async (account: string, typedDataJson: string) => {
+                  const parsedTypedData = JSON.parse(typedDataJson)
+                  return signTypedDataRaw({
+                    chainId: chainId,
+                    account: account.toLowerCase() as Address,
+                    typedData: parsedTypedData,
+                  })
+                },
             referral: refCode,
             connectedAccount: {
               address: account,

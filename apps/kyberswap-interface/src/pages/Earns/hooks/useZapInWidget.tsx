@@ -188,14 +188,19 @@ const useZapInWidget = ({
             ...addLiquidityPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapInRpcUrl,
-            signTypedData: async (account: string, typedDataJson: string) => {
-              const parsedTypedData = JSON.parse(typedDataJson)
-              return signTypedDataRaw({
-                chainId: chainId,
-                account: account.toLowerCase() as Address,
-                typedData: parsedTypedData,
-              })
-            },
+            // See useZapOutWidget for the smart-connector permit rationale —
+            // permit signatures from Porto/Safe don't verify via ecrecover on
+            // the NFT contract, so we let the widget fall back to approve.
+            signTypedData: isSmartConnector
+              ? undefined
+              : async (account: string, typedDataJson: string) => {
+                  const parsedTypedData = JSON.parse(typedDataJson)
+                  return signTypedDataRaw({
+                    chainId: chainId,
+                    account: account.toLowerCase() as Address,
+                    typedData: parsedTypedData,
+                  })
+                },
             referral: refCode,
             txStatus,
             txHashMapping: originalToCurrentHash,
