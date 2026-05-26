@@ -19,6 +19,7 @@ interface PoolState {
 interface getPoolsProps {
   chainId: ChainId;
   rePositionMode?: boolean;
+  initialRevertPrice?: boolean;
   source: {
     poolAddress: string;
     poolType: PoolType;
@@ -53,7 +54,7 @@ const initState: Omit<PoolState, 'getPools' | 'toggleRevertPrice' | 'reset'> = {
 export const usePoolRawStore = create<PoolState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
-  getPools: async ({ chainId, source, target, rePositionMode }: getPoolsProps) => {
+  getPools: async ({ chainId, source, target, rePositionMode, initialRevertPrice }: getPoolsProps) => {
     if (!target && !rePositionMode) {
       set({ error: POOL_ERROR.MISSING_TARGET_POOL });
       return;
@@ -87,7 +88,11 @@ export const usePoolRawStore = create<PoolState>((set, get) => ({
     }
 
     if (targetPool) {
-      const revertPrice = getDefaultRevertPrice({ pool: targetPool, chainId });
+      const currentState = get();
+      const isSameTargetPool = currentState.targetPool?.address.toLowerCase() === targetPool.address.toLowerCase();
+      const revertPrice = isSameTargetPool
+        ? currentState.revertPrice
+        : (initialRevertPrice ?? getDefaultRevertPrice({ pool: targetPool, chainId }));
       const price = getPoolPrice({ pool: targetPool, revertPrice });
       set({ targetPool, revertPrice, targetPoolPrice: price });
     }

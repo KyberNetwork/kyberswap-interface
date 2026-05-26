@@ -17,6 +17,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     theme: themeProps,
     rePositionMode,
     initialSlippage,
+    initialRevertPrice,
     connectedAccount,
     client,
     rpcUrl,
@@ -117,14 +118,14 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
 
   useEffect(() => {
     if (!hasReseted) return;
-    getPools({ chainId, source: from, target: to, rePositionMode });
+    getPools({ chainId, source: from, target: to, rePositionMode, initialRevertPrice });
 
     const getPoolsInterval = setInterval(() => {
-      getPools({ chainId, source: from, target: to, rePositionMode });
+      getPools({ chainId, source: from, target: to, rePositionMode, initialRevertPrice });
     }, 15_000);
 
     return () => clearInterval(getPoolsInterval);
-  }, [chainId, getPools, from, to, rePositionMode, hasReseted]);
+  }, [chainId, getPools, from, to, rePositionMode, initialRevertPrice, hasReseted]);
 
   useEffect(() => {
     if (!hasReseted) return;
