@@ -36,7 +36,7 @@ const Text = ({
   children: React.ReactNode
   style?: React.CSSProperties
 }) => (
-  <p style={style} className={cn('m-0 ml-2 mr-1 w-fit flex-auto truncate text-base font-medium', className)}>
+  <p style={style} className={cn('m-0 ml-2 mr-1 w-max shrink-0 whitespace-nowrap text-base font-medium', className)}>
     {children}
   </p>
 )
