@@ -52,11 +52,11 @@ export default function SwapBrief({
     }
 
     if (!outputAmountFromBuild) {
-      return <span className="overflow-hidden text-ellipsis text-2xl font-medium">--</span>
+      return <span className="min-w-0 flex-1 truncate text-2xl font-medium">--</span>
     }
 
     return (
-      <span className="overflow-hidden text-ellipsis text-2xl font-medium">
+      <span className="min-w-0 flex-1 truncate text-2xl font-medium">
         {outputAmountFromBuild.toSignificant(RESERVE_USD_DECIMALS)}
       </span>
     )
@@ -84,13 +84,13 @@ export default function SwapBrief({
   }
 
   return (
-    <AutoColumn className="relative mt-1 gap-2">
-      <div className="flex flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
+    <AutoColumn className="relative mt-1 min-w-0 gap-2">
+      <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
         <span className="text-xs font-medium text-subText">
           <Trans>Input Amount</Trans>
         </span>
-        <div className="flex w-full items-center justify-between">
-          <span className="overflow-hidden text-ellipsis text-2xl font-medium">{typedValue}</span>
+        <div className="flex w-full items-center justify-between gap-2">
+          <span className="min-w-0 flex-1 truncate text-2xl font-medium">{typedValue}</span>
           <div className="flex min-w-fit items-center gap-2">
             <span className="text-sm font-medium text-subText">~{formattedNum(amountInUsd, true)}</span>
             <CurrencyLogo currency={inputAmount.currency} size="24px" />
@@ -103,7 +103,7 @@ export default function SwapBrief({
         <ArrowDown size="12" className="text-subText" />
       </div>
 
-      <div className="flex flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
+      <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
         <div className="flex items-center gap-1">
           <span className="text-xs font-medium text-subText">
             {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
@@ -114,7 +114,7 @@ export default function SwapBrief({
           </span>
           <UpdatedBadge $level={$level} outputAmount={outputAmount} />
         </div>
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-between gap-2">
           {renderOutputAmount()}
           <div className="flex min-w-fit items-center gap-2">
             {renderAmountOutUsd()}
