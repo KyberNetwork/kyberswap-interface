@@ -25,7 +25,7 @@ import { shortenAddress } from 'utils'
 import { cn } from 'utils/cn'
 
 const STATUS_BASE_CLASS =
-  'flex w-fit flex-row flex-nowrap cursor-pointer select-none items-center rounded-full px-3 py-2.5 font-medium focus:outline-none'
+  'flex w-fit flex-row flex-nowrap cursor-pointer select-none items-center rounded-full px-3 py-2 font-medium focus:outline-none'
 
 const Text = ({
   className,
@@ -137,11 +137,7 @@ function Web3StatusInner() {
                 <WarningInfo width={20} height={20} />
               </MouseoverTooltip>
             ) : (
-              walletKey && (
-                <div className="flex flex-col items-center justify-center [&>*]:size-4">
-                  <img src={icon} alt="" />
-                </div>
-              )
+              walletKey && <img src={icon} alt="" className="size-5 shrink-0 rounded-full" />
             )}
             <Text>{ENSName || shortenAddress(chainId, account, uptoMedium ? 2 : undefined)}</Text>
             <CoinbaseSubscribeBtn onlyShowIfNotSubscribe />
@@ -153,7 +149,7 @@ function Web3StatusInner() {
   return (
     <ButtonLight
       onClick={toggleWalletModal}
-      padding="10px 12px"
+      padding="12px 12px"
       id={TutorialIds.BUTTON_CONNECT_WALLET}
       data-testid="button-connect-wallet"
     >
