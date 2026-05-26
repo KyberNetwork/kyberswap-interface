@@ -19,7 +19,12 @@ const InformationTab = () => {
   )
 
   const poolStats = pool.poolStats
-  const rewardApr = (poolStats?.kemEGApr ?? 0) + (poolStats?.kemLMApr ?? 0) + (poolStats?.bonusApr ?? 0)
+  const bonusApr = poolStats?.bonusApr ?? 0
+  const currentApr = {
+    totalApr: poolStats?.allApr24h,
+    activeApr: poolStats?.activeApr ? poolStats.activeApr + bonusApr : undefined,
+  }
+  const rewardApr = (poolStats?.kemEGApr ?? 0) + (poolStats?.kemLMApr ?? 0) + bonusApr
   const liquidityUsdValue = getPoolLiquidityUsd(pool, tokenPrices)
 
   const tvlValue = formatUsd(poolStats?.tvl)
@@ -32,7 +37,7 @@ const InformationTab = () => {
       <Text as="span" color={theme.text} fontWeight={500}>
         {formatApr(rewardApr)}
       </Text>
-      {rewardApr > 0 ? <BagIcon height={20} width={20} /> : null}
+      {rewardApr > 0 ? <BagIcon height={18} width={18} /> : null}
     </HStack>
   )
 
@@ -48,7 +53,7 @@ const InformationTab = () => {
     <Stack gap={20}>
       <TopMetricsStrip items={topMetrics} split={true} />
 
-      <AprHistoryChart chainId={chainId} poolAddress={poolAddress} />
+      <AprHistoryChart chainId={chainId} currentApr={currentApr} poolAddress={poolAddress} />
     </Stack>
   )
 }

@@ -112,7 +112,7 @@ const PoolHeaderPage = () => {
         token0: { symbol: primaryToken.symbol, logo: primaryToken.logoURI || '' },
         token1: { symbol: secondaryToken.symbol, logo: secondaryToken.logoURI || '' },
         apr: {
-          fees: (poolStats?.apr24h || 0) + bonusApr,
+          fees: (poolStats?.lpApr24h || 0) + bonusApr,
           eg: poolStats?.kemEGApr24h || 0,
           lm: poolStats?.kemLMApr24h || 0,
           activeTotal,
