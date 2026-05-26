@@ -5,7 +5,6 @@ import { useMemo } from 'react'
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
 import NetworkModal from 'components/Header/web3/NetworkModal'
-import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
@@ -47,10 +46,10 @@ function SelectNetwork(): JSX.Element | null {
       )}
     >
       <div className="flex w-full min-w-fit items-center justify-between">
-        <Row className="gap-2.5">
+        <div className="flex w-max shrink-0 items-center gap-2.5">
           <img src={networkInfo.icon} alt={networkInfo.name + ' logo'} style={{ width: 20, height: 20 }} />
           <div className="whitespace-nowrap font-medium max-sm:hidden">{labelContent}</div>
-        </Row>
+        </div>
         <DropdownSvg
           className={cn('min-w-[24px] text-text transition-transform duration-300', networkModalOpen && 'rotate-180')}
         />
