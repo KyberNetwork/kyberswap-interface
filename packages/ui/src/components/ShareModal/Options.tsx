@@ -1,13 +1,8 @@
 import { useLingui } from '@lingui/react';
 
-import {
-  MAX_SELECTED_OPTIONS,
-  NON_FARMING_EXCLUDED_OPTIONS,
-  conflictOptions,
-  shareOptions,
-} from '@/components/ShareModal/constants';
-import { ShareOption, ShareType } from '@/components/ShareModal/types';
-import { getShareOptionLabel } from '@/components/ShareModal/utils';
+import { MAX_SELECTED_OPTIONS, conflictOptions, shareOptions } from '@/components/ShareModal/constants';
+import { ShareModalProps, ShareOption, ShareType } from '@/components/ShareModal/types';
+import { getShareOptionLabel, getValueByOption } from '@/components/ShareModal/utils';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -17,35 +12,46 @@ interface OptionsProps {
   setSelectedOptions: (options: Set<ShareOption>) => void;
   isFarming?: boolean;
   hasActiveApr?: boolean;
+  pool?: ShareModalProps['pool'];
+  position?: ShareModalProps['position'];
+  reward?: ShareModalProps['reward'];
 }
 
-export default function Options({ type, selectedOptions, setSelectedOptions, isFarming, hasActiveApr }: OptionsProps) {
+export default function Options({
+  type,
+  selectedOptions,
+  setSelectedOptions,
+  hasActiveApr,
+  pool,
+  position,
+  reward,
+}: OptionsProps) {
   const { i18n } = useLingui();
 
   const handleOptionChange = (option: ShareOption, checked: boolean) => {
     const newSelectedOptions = new Set(selectedOptions);
-    if (checked) {
-      newSelectedOptions.add(option);
-    } else {
+
+    if (!checked) {
       newSelectedOptions.delete(option);
+      setSelectedOptions(newSelectedOptions);
+      return;
     }
 
-    const sortedOptions = new Set<ShareOption>();
-
-    // Always add TOTAL_EARNINGS first if it exists in the selected options
-    if (newSelectedOptions.has(ShareOption.TOTAL_EARNINGS)) {
-      sortedOptions.add(ShareOption.TOTAL_EARNINGS);
-    }
-
-    // Add remaining options in the order they appear in shareOptions[type]
-    const typeOptions = shareOptions[type];
-    typeOptions.forEach(optionType => {
-      if (newSelectedOptions.has(optionType) && optionType !== ShareOption.TOTAL_EARNINGS) {
-        sortedOptions.add(optionType);
-      }
+    conflictOptions[type][option]?.forEach(conflictOption => {
+      newSelectedOptions.delete(conflictOption);
     });
 
-    setSelectedOptions(sortedOptions);
+    newSelectedOptions.delete(option);
+    newSelectedOptions.add(option);
+
+    while (newSelectedOptions.size > MAX_SELECTED_OPTIONS) {
+      const oldestOption = newSelectedOptions.values().next().value;
+      if (oldestOption) {
+        newSelectedOptions.delete(oldestOption);
+      }
+    }
+
+    setSelectedOptions(newSelectedOptions);
   };
 
   const visibleOptions = shareOptions[type].filter(option => option !== ShareOption.ACTIVE_APR || hasActiveApr);
@@ -53,30 +59,13 @@ export default function Options({ type, selectedOptions, setSelectedOptions, isF
   return (
     <div className="flex items-center justify-center flex-wrap gap-6 py-3">
       {visibleOptions.map(option => {
-        const isExcluded = !isFarming && NON_FARMING_EXCLUDED_OPTIONS.includes(option);
-        const isMaxSelected = selectedOptions.size === MAX_SELECTED_OPTIONS && !selectedOptions.has(option);
-        const isConflict = conflictOptions[type][option]?.some(o => selectedOptions.has(o));
-        const isDisabled = isExcluded || isMaxSelected || isConflict;
-        const conflictOptionLabels =
-          conflictOptions[type][option]?.map(conflictOption => getShareOptionLabel(i18n, conflictOption)) ?? [];
-
-        const message = isExcluded
-          ? i18n._('This option is not available for non-farming pools')
-          : isMaxSelected
-            ? i18n._('You can only select up to {count} options', { count: MAX_SELECTED_OPTIONS })
-            : isConflict && conflictOptionLabels.length > 0
-              ? i18n._('This option is not available when you select {options}', {
-                  options: conflictOptionLabels.join(', '),
-                })
-              : undefined;
-
         const optionLabel = getShareOptionLabel(i18n, option);
+        const optionValue = getValueByOption({ type, option, selectedOptions, pool, position, reward });
 
         return (
-          <MouseoverTooltip text={message} placement="top" key={option}>
+          <MouseoverTooltip key={option} text={`${optionLabel}: ${optionValue}`} placement="top">
             <Checkbox
               label={optionLabel}
-              disabled={isDisabled}
               checked={selectedOptions.has(option)}
               onChange={checked => handleOptionChange(option, checked)}
             />
