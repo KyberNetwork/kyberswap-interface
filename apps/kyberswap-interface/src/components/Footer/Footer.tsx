@@ -79,7 +79,7 @@ function Footer() {
               href="https://github.com/spearbit/portfolio/blob/master/pdfs/Kyber-Hook-Uniswap-Foundation-Spearbit-Security-Review-October-2025.pdf"
               className="flex items-center gap-1 no-underline"
             >
-              <img src={Spearbit} alt="" height={20} />
+              <img src={Spearbit} alt="" className="h-5 w-auto" />
               <span className="text-subText">Spearbit</span>
             </ExternalLink>
             {above768 && <span className="mx-1.5">&</span>}
@@ -87,7 +87,7 @@ function Footer() {
               href="https://github.com/Hexens/Smart-Contract-Review-Public-Reports/blob/main/kyberswap-dec-25(Final).pdf"
               className="flex items-center gap-1 no-underline"
             >
-              <img src={Hexens} alt="" height={20} />
+              <img src={Hexens} alt="" className="h-5 w-auto" />
               <span className="text-subText">Hexens</span>
             </ExternalLink>
           </div>

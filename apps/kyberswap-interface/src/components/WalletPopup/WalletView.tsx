@@ -250,7 +250,7 @@ export default function WalletView({
               <div className="flex items-center gap-2 text-subText">
                 {walletKey && (
                   <div className="flex size-5 items-center justify-center">
-                    <img height={18} src={icon} alt="" />
+                    <img src={icon} alt="" className="h-[18px] w-auto" />
                   </div>
                 )}
                 <span className="font-medium">{shortenAddress(chainId, account, 5, false)}</span>

@@ -241,7 +241,12 @@ function AboutKyberSwap() {
           </ForTrader>
 
           <AboutKNC>
-            <img height="400px" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'block' : 'none' }} />
+            <img
+              src={KNCGraphic}
+              alt="KNCGraphic"
+              className="h-[400px] w-auto"
+              style={{ display: above768 ? 'block' : 'none' }}
+            />
             <div className="flex h-max w-full flex-col self-center">
               <span className="text-base font-medium text-primary sm:text-xl">
                 <Trans>ABOUT KNC</Trans>
@@ -303,7 +308,7 @@ function AboutKyberSwap() {
               </div>
 
               <div className="flex !w-auto items-center gap-3">
-                <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" height="80px" />
+                <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" className="h-20 w-auto" />
                 <span>Roninchain</span>
               </div>
               <img src="https://www.etherlink.com/logo-desktop.svg" alt="Etherlink" width="100%" />
