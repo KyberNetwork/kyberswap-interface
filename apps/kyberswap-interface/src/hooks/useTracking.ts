@@ -447,7 +447,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           } = (payload || {}) as {
             gasUsd: number | string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
@@ -467,7 +466,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps?: number
             route_split?: boolean
             chain?: string
-            volume?: number
           }
 
           const body: Record<string, any> = {
@@ -491,7 +489,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           }
 
           if (feeInfo) {
