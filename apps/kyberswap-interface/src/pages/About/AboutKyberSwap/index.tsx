@@ -293,7 +293,7 @@ function AboutKyberSwap() {
 
               <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
 
-              <div className="flex w-auto items-center gap-3">
+              <div className="flex !w-auto items-center gap-3">
                 <img
                   src="https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png"
                   alt="Bera"
@@ -302,12 +302,12 @@ function AboutKyberSwap() {
                 <span>Berachain</span>
               </div>
 
-              <div className="flex w-auto items-center gap-3">
+              <div className="flex !w-auto items-center gap-3">
                 <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" height="80px" />
                 <span>Roninchain</span>
               </div>
               <img src="https://www.etherlink.com/logo-desktop.svg" alt="Etherlink" width="100%" />
-              <div className="flex w-auto items-center gap-3">
+              <div className="flex !w-auto items-center gap-3">
                 <img
                   src="https://storage.googleapis.com/ks-setting-1d682dca/9cdb1542-1d9a-4cf0-b67b-b68b1a29b09d1758725874771.png"
                   alt="Plasma"
@@ -315,11 +315,11 @@ function AboutKyberSwap() {
                 />
                 <span>Plasma</span>
               </div>
-              <div className="flex w-auto items-center gap-3">
+              <div className="flex !w-auto items-center gap-3">
                 <img src={monadIcon} alt="Monad" width="80px" />
                 <span>Monad</span>
               </div>
-              <div className="flex w-auto items-center gap-3">
+              <div className="flex !w-auto items-center gap-3">
                 <img src={megaEthIcon} alt="MegaETH" width="80px" />
                 <span>MegaETH</span>
               </div>

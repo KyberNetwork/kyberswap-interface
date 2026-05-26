@@ -1,17 +1,24 @@
 import type { Config } from 'tailwindcss'
+import tailwindcssAnimate from 'tailwindcss-animate'
 
 const config: Config = {
   // App is dark-only; no theme switching. `dark:` variants intentionally not configured.
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
+    // Screens are intentionally MEDIA_WIDTHS + 1 so Tailwind's `max-{bp}:` variant
+    // (which compiles to `max-width: screens.bp - 0.02px`) lines up with the
+    // original `theme.mediaWidth.upTo*` helpers and JS `useMedia('(max-width: Npx)')`
+    // calls — all of which are inclusive at the boundary (e.g. applies at vw=1200).
+    // The +1 also shifts min-width `{bp}:` activation by 1px, which is acceptable
+    // for the small number of min-width usages in this codebase.
     screens: {
-      xxs: '420px',
-      xs: '576px',
-      sm: '768px',
-      md: '992px',
-      lg: '1200px',
-      xl: '1400px',
-      '2xl': '1800px',
+      xxs: '421px',
+      xs: '577px',
+      sm: '769px',
+      md: '993px',
+      lg: '1201px',
+      xl: '1401px',
+      '2xl': '1801px',
     },
     extend: {
       colors: {
@@ -204,7 +211,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [tailwindcssAnimate],
 }
 
 export default config

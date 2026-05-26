@@ -68,7 +68,7 @@ export default function Header() {
         hide ? 'max-xs:!h-0' : 'max-xs:h-[60px]',
       )}
     >
-      <div className="flex flex-row flex-nowrap items-center max-md:w-full">
+      <div className="flex w-fit flex-row flex-nowrap items-center justify-self-start max-md:w-full">
         {isPartnerSwap ? (
           <LogoIcon>
             <IconImage src={'/logo-dark.svg'} alt="logo" />
