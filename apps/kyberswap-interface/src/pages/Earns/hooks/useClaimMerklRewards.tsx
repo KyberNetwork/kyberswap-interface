@@ -9,6 +9,7 @@ import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 import { encodeFunctionData } from 'utils/viem'
 
@@ -94,7 +95,7 @@ const useClaimMerklRewards = () => {
           notify({
             title: t`Error`,
             type: NotificationType.ERROR,
-            summary: error.message,
+            summary: friendlyError(error),
           })
         },
       })

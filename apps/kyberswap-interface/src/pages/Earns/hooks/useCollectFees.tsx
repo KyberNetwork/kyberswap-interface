@@ -14,6 +14,7 @@ import { getUniv3CollectCallData, getUniv4CollectCallData } from 'pages/Earns/ut
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type UseCollectFeesProps = {
@@ -82,7 +83,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
-          summary: error.message.includes('user rejected transaction') ? 'User rejected transaction' : error.message,
+          summary: friendlyError(error),
         })
       },
     })
@@ -92,9 +93,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
-          summary: error?.message?.includes('user rejected transaction')
-            ? 'User rejected transaction'
-            : error?.message || 'Transaction failed',
+          summary: friendlyError(error),
         })
       throw new Error(error?.message || 'Transaction failed')
     }
