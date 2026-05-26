@@ -49,6 +49,7 @@ type AddLiquidityWidgetProps = {
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
     initialTick?: { tickUpper: number; tickLower: number },
+    initialRevertPrice?: boolean,
     initialSlippage?: number,
   ) => void
 }
@@ -141,6 +142,7 @@ const AddLiquidityWidget = ({
             slippage: state.slippage.value,
             tickLower: state.priceRange.tickLower,
             tickUpper: state.priceRange.tickUpper,
+            revertPrice: state.priceRange.revertPrice,
           }}
           onTrackEvent={onTrackEvent}
           onOpenZapMigration={onOpenZapMigration}

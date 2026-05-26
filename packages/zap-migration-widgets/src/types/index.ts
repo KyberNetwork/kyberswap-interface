@@ -55,6 +55,7 @@ export interface ZapMigrationProps {
     tickLower: number;
     tickUpper: number;
   };
+  initialRevertPrice?: boolean;
   connectedAccount: {
     address: string | undefined;
     chainId: number;

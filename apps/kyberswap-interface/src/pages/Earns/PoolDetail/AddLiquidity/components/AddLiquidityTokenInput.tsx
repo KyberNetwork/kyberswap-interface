@@ -86,11 +86,13 @@ interface AddLiquidityTokenInputProps {
     slippage?: number
     tickLower?: number | null
     tickUpper?: number | null
+    revertPrice?: boolean
   }
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
     initialTick?: { tickUpper: number; tickLower: number },
+    initialRevertPrice?: boolean,
     initialSlippage?: number,
   ) => void
   onTokensChange?: (nextTokens: Token[]) => void
@@ -121,6 +123,7 @@ const AddLiquidityTokenInput = ({
   const currentSlippage = value?.slippage
   const tickLower = value?.tickLower
   const tickUpper = value?.tickUpper
+  const revertPrice = value?.revertPrice
   const amountList = useMemo(() => currentAmounts.split(','), [currentAmounts])
 
   const onCloseTokenSelectModal = useCallback(() => {
@@ -201,10 +204,11 @@ const AddLiquidityTokenInput = ({
       onOpenZapMigration(
         position,
         typeof tickLower === 'number' && typeof tickUpper === 'number' ? { tickLower, tickUpper } : undefined,
+        revertPrice,
         initialSlippage,
       )
     },
-    [chainId, onOpenZapMigration, onTrackEvent, pool, poolType, tickLower, tickUpper],
+    [chainId, onOpenZapMigration, onTrackEvent, pool, poolType, revertPrice, tickLower, tickUpper],
   )
 
   return (
