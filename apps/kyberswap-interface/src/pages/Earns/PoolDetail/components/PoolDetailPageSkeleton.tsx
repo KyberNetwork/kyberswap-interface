@@ -23,18 +23,18 @@ const PoolInformationSkeleton = () => {
 
   return (
     <Stack width="100%" gap={20} p={16} borderRadius={12} background={theme.background}>
-      <Stack gap={30}>
+      <Stack gap={32}>
         <HStack gap={24} wrap="wrap">
           <Skeleton width={96} height={24} />
           <Skeleton width={96} height={24} />
           <Skeleton width={96} height={24} />
         </HStack>
 
-        <HStack gap={12} wrap="wrap">
+        <HStack gap={12}>
           {Array.from({ length: 5 }).map((_, index) => (
             <Stack key={index} flex="1 1 160px" gap={8} p={16} borderRadius={16} background={theme.buttonGray}>
               <Skeleton width={80} height={16} />
-              <Skeleton width={120} height={17} />
+              <Skeleton width={120} height={16} />
             </Stack>
           ))}
         </HStack>
@@ -42,7 +42,7 @@ const PoolInformationSkeleton = () => {
 
       <Stack gap={16}>
         <Stack gap={12}>
-          <Skeleton width={200} height={18} />
+          <Skeleton width={200} height={16} />
           <Skeleton width={320} height={20} />
         </Stack>
 

@@ -32,7 +32,7 @@ const InformationTab = () => {
       <Text as="span" color={theme.text} fontWeight={500}>
         {formatApr(rewardApr)}
       </Text>
-      {rewardApr > 0 ? <BagIcon height={20} width={20} /> : null}
+      {rewardApr > 0 ? <BagIcon height={18} width={18} /> : null}
     </HStack>
   )
 

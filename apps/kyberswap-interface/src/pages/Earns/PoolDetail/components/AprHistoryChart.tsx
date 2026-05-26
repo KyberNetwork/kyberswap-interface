@@ -154,39 +154,22 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],
   )
 
-  const intervalMaxApr = useMemo(() => {
-    const values = chartData
-      .map(point => point.totalApr)
-      .filter((value): value is number => value !== undefined && !Number.isNaN(value))
-    return values.length ? Math.max(...values) : undefined
-  }, [chartData])
-
   const { hasActiveApr, latestActiveApr, latestTotalApr } = useMemo(() => getLatestAprValues(chartData), [chartData])
 
   return (
     <Stack gap={16}>
       <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
-        <Stack gap={12}>
-          <HStack align="center" gap="12px 24px" wrap="wrap">
-            {hasActiveApr && latestTotalApr !== undefined ? (
-              <BaselineRow gap={4}>
-                <Text color={theme.subText} fontSize={14}>
-                  APR
-                </Text>
-                <Text color={theme.text} fontSize={14} fontWeight={500}>
-                  {formatAprValue(latestTotalApr)}
-                </Text>
-              </BaselineRow>
-            ) : null}
+        <Stack gap={4} minHeight={48}>
+          {hasActiveApr && latestTotalApr !== undefined && (
             <BaselineRow gap={4}>
               <Text color={theme.subText} fontSize={14}>
-                Max APR
+                APR
               </Text>
               <Text color={theme.text} fontSize={14} fontWeight={500}>
-                {formatAprValue(intervalMaxApr)}
+                {formatAprValue(latestTotalApr)}
               </Text>
             </BaselineRow>
-          </HStack>
+          )}
 
           {hasActiveApr ? (
             <BaselineRow gap={8} wrap="wrap">
