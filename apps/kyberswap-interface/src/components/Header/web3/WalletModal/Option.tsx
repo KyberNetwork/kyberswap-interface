@@ -136,12 +136,27 @@ const Option = ({ connector }: { connector: Connector }) => {
       },
       onError: e => {
         console.log(e)
-        // Some connectors hardcode their supported chain list (e.g. Porto)
-        // and throw on connect when the active chain isn't in it. Surface a
-        // user-friendly notification instead of letting the click fail
-        // silently.
-        const message = (e as Error)?.message ?? ''
-        if (/compatible .* chain on the given chain configuration/i.test(message)) {
+        // Surface a user-friendly notification when the wallet can't be used
+        // on the current chain. Two known patterns:
+        //   - Porto throws "Could not find a compatible Porto chain on the
+        //     given chain configuration" — its supported chain list is
+        //     hardcoded in the SDK.
+        //   - Compass (and similar Cosmos-EVM extensions) throw "Compass does
+        //     not support 'wallet_addEthereumChain' method as of now" — they
+        //     can't add a new chain because they only target one chain.
+        // Walk the error chain so we catch the reason even when wagmi wraps
+        // it inside a UserRejectedRequestError.
+        const extractErrorText = (err: unknown): string => {
+          if (!err) return ''
+          if (typeof err === 'string') return err
+          const e = err as { message?: string; details?: string; cause?: unknown }
+          return [e.message, e.details, extractErrorText(e.cause)].filter(Boolean).join(' ')
+        }
+        const text = extractErrorText(e)
+        const isChainIncompatible =
+          /compatible .* chain on the given chain configuration/i.test(text) ||
+          /does not support .*wallet_(add|switch)ethereumchain/i.test(text)
+        if (isChainIncompatible) {
           const walletName = connector.name
           const chainName = isSupportedChainId(chainId) ? NETWORKS_INFO[chainId]?.name : ''
           notify({
