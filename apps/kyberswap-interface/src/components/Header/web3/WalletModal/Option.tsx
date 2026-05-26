@@ -1,12 +1,14 @@
+import { t } from '@lingui/macro'
 import { darken } from 'polished'
 import React, { useRef } from 'react'
 import styled, { css } from 'styled-components'
 import { Connector, useConnect, useSwitchChain } from 'wagmi'
 
+import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
-import { isSupportedChainId } from 'constants/networks'
+import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useCloseModal } from 'state/application/hooks'
+import { useCloseModal, useNotify } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 
@@ -104,6 +106,7 @@ const Option = ({ connector }: { connector: Connector }) => {
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
   const { chainId } = useActiveWeb3React()
+  const notify = useNotify()
 
   const { name } = connector
   const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
@@ -133,6 +136,22 @@ const Option = ({ connector }: { connector: Connector }) => {
       },
       onError: e => {
         console.log(e)
+        // Some connectors hardcode their supported chain list (e.g. Porto)
+        // and throw on connect when the active chain isn't in it. Surface a
+        // user-friendly notification instead of letting the click fail
+        // silently.
+        const message = (e as Error)?.message ?? ''
+        if (/compatible .* chain on the given chain configuration/i.test(message)) {
+          const walletName = connector.name
+          const chainName = isSupportedChainId(chainId) ? NETWORKS_INFO[chainId]?.name : ''
+          notify({
+            type: NotificationType.ERROR,
+            title: t`Wallet not supported on this chain`,
+            summary: chainName
+              ? t`${walletName} does not support ${chainName} yet. Please switch chain or try a different wallet.`
+              : t`${walletName} does not support the selected chain. Please switch chain or try a different wallet.`,
+          })
+        }
       },
     },
   })
