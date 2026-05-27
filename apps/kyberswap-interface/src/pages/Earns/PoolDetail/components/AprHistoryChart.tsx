@@ -22,17 +22,6 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 export const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
 
-export const getLatestAprValues = (points?: PoolAprHistoryPoint[]) => {
-  const latestTotalApr = [...(points ?? [])].reverse().find(point => point.totalApr !== undefined)?.totalApr
-  const latestActiveApr = [...(points ?? [])].reverse().find(point => point.activeApr !== undefined)?.activeApr
-
-  return {
-    hasActiveApr: latestActiveApr !== undefined,
-    latestActiveApr,
-    latestTotalApr,
-  }
-}
-
 const AprHistoryTooltip = ({
   active,
   point,
@@ -56,11 +45,11 @@ const AprHistoryTooltip = ({
         {point.activeApr ? (
           <>
             <span className="text-xs text-subText">Active APR</span>
-            <span className="text-right text-xs font-medium text-blue">{formatAprNumber(point.activeApr)}%</span>
+            <span className="text-right text-xs font-medium text-primary">{formatAprNumber(point.activeApr)}%</span>
           </>
         ) : null}
         <span className="text-xs text-subText">APR</span>
-        <span className="text-right text-xs font-medium text-primary">{formatAprNumber(point.totalApr)}%</span>
+        <span className="text-right text-xs font-medium text-blue">{formatAprNumber(point.totalApr)}%</span>
         {point.volumeUsd || point.volumeUsd === 0 ? (
           <>
             <span className="text-xs text-subText">Vol</span>
@@ -78,9 +67,13 @@ type AprHistoryChartProps = {
   chainId: number
   poolAddress?: string
   positionId?: string
+  currentApr?: {
+    totalApr?: number
+    activeApr?: number
+  }
 }
 
-const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartProps) => {
+const AprHistoryChart = ({ chainId, poolAddress, positionId, currentApr }: AprHistoryChartProps) => {
   const theme = useTheme()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
@@ -89,8 +82,8 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
   const chartHeight = upToSmall ? 280 : 360
 
   const activeDotStroke = theme.buttonBlack
-  const aprLineColor = theme.primary
-  const activeAprLineColor = theme.blue
+  const aprLineColor = theme.blue
+  const activeAprLineColor = theme.primary
   const volumeUpColor = `${theme.darkGreen}cc`
   const volumeDownColor = `${theme.red}80`
   const cursorColor = `${theme.text}1f`
@@ -121,44 +114,33 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],
   )
 
-  const intervalMaxApr = useMemo(() => {
-    const values = chartData
-      .map(point => point.totalApr)
-      .filter((value): value is number => value !== undefined && !Number.isNaN(value))
-    return values.length ? Math.max(...values) : undefined
-  }, [chartData])
-
-  const { hasActiveApr, latestActiveApr, latestTotalApr } = useMemo(() => getLatestAprValues(chartData), [chartData])
+  const hasActiveApr = currentApr?.activeApr !== undefined
+  const activeApr = currentApr?.activeApr
+  const totalApr = currentApr?.totalApr
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            {hasActiveApr && latestTotalApr !== undefined ? (
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm text-subText">APR</span>
-                <span className="text-sm font-medium text-text">{formatAprValue(latestTotalApr)}</span>
-              </div>
-            ) : null}
+        <div className="flex min-h-12 flex-col gap-1">
+          {hasActiveApr && totalApr !== undefined && (
             <div className="flex items-baseline gap-1">
-              <span className="text-sm text-subText">Max APR</span>
-              <span className="text-sm font-medium text-text">{formatAprValue(intervalMaxApr)}</span>
+              <span className="text-sm text-subText">APR</span>
+              <span className="text-sm font-medium text-text">{formatAprValue(totalApr)}</span>
             </div>
-          </div>
+          )}
 
           {hasActiveApr ? (
             <div className="flex flex-wrap items-baseline gap-2">
               <span className="text-base font-medium text-text">
                 {positionId ? 'Position Active APR' : 'Active APR'}
               </span>
-              <span className="text-xl font-medium leading-none text-blue">{formatAprValue(latestActiveApr)}</span>
+              <span className="text-xl font-medium leading-none text-primary">{formatAprValue(activeApr)}</span>
               <span className="text-sm text-subText">(Earning Per Active TVL)</span>
             </div>
           ) : (
             <div className="flex flex-wrap items-baseline gap-2">
               <span className="text-base font-medium text-text">APR</span>
-              <span className="text-xl font-medium leading-none text-primary">{formatAprValue(latestTotalApr)}</span>
+              <span className="text-xl font-medium leading-none text-blue">{formatAprValue(totalApr)}</span>
               <span className="text-sm text-subText">(Earning Per Total TVL)</span>
             </div>
           )}

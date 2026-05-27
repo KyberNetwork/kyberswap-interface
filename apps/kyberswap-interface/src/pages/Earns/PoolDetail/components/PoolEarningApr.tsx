@@ -38,8 +38,8 @@ const PoolEarningApr = () => {
             <span className="text-sm font-medium text-text">APR</span>
             <InfoHelper text="Earning Per Total TVL" size={14} placement="top" />
           </HStack>
-          <Stack className="rounded-xl bg-primary-12 px-3 py-1">
-            <span className="text-2xl font-semibold text-primary">{formatAprValue(aprSummary.totalApr)}</span>
+          <Stack className="rounded-xl bg-blue/[0.12] px-3 py-1">
+            <span className="text-2xl font-semibold text-blue">{formatAprValue(aprSummary.totalApr)}</span>
           </Stack>
         </Stack>
 
@@ -64,8 +64,8 @@ const PoolEarningApr = () => {
               <span className="text-sm font-medium text-text">Active APR</span>
               <InfoHelper text="Earning Per Active TVL" size={14} placement="top" />
             </HStack>
-            <Stack className="rounded-xl bg-blue/[0.12] px-3 py-1">
-              <span className="text-2xl font-semibold text-blue">{formatAprValue(aprSummary.activeApr)}</span>
+            <Stack className="rounded-xl bg-primary-12 px-3 py-1">
+              <span className="text-2xl font-semibold text-primary">{formatAprValue(aprSummary.activeApr)}</span>
             </Stack>
           </Stack>
 

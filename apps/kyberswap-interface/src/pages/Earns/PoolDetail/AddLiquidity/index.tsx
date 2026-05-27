@@ -50,6 +50,7 @@ type AddLiquidityBodyProps = AddLiquidityProps & {
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
     initialTick?: { tickUpper: number; tickLower: number },
+    initialRevertPrice?: boolean,
     initialSlippage?: number,
   ) => void
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
@@ -352,6 +353,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     (
       position: { exchange: string; poolId: string; positionId: string | number },
       initialTick?: { tickUpper: number; tickLower: number },
+      initialRevertPrice?: boolean,
       initialSlippage?: number,
     ) => {
       openZapMigrationWidget({
@@ -368,6 +370,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
         },
         chainId,
         initialTick,
+        initialRevertPrice,
         initialSlippage,
       })
     },

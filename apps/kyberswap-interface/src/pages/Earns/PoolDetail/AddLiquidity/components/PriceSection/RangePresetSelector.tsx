@@ -1,5 +1,5 @@
 import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType } from '@kyber/schema'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import InfoHelper from 'components/InfoHelper'
 import { HStack } from 'components/Stack'
@@ -88,7 +88,7 @@ const RangePresetSelector = ({
     ],
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       revertPrice !== previousRevertPrice.current &&
       rangeSelected !== previousRangeSelected.current &&

@@ -20,7 +20,7 @@ const RoutePreviewSkeleton = () => {
 const PoolInformationSkeleton = () => {
   return (
     <Stack className="w-full gap-5 rounded-xl bg-background p-4">
-      <Stack className="gap-[30px]">
+      <Stack className="gap-8">
         <HStack className="flex-wrap gap-6">
           <Skeleton width={96} height={24} />
           <Skeleton width={96} height={24} />
@@ -31,7 +31,7 @@ const PoolInformationSkeleton = () => {
           {Array.from({ length: 5 }).map((_, index) => (
             <Stack key={index} className="flex-[1_1_160px] gap-2 rounded-2xl bg-buttonGray p-4">
               <Skeleton width={80} height={16} />
-              <Skeleton width={120} height={17} />
+              <Skeleton width={120} height={16} />
             </Stack>
           ))}
         </HStack>
@@ -39,7 +39,7 @@ const PoolInformationSkeleton = () => {
 
       <Stack className="gap-4">
         <Stack className="gap-3">
-          <Skeleton width={200} height={18} />
+          <Skeleton width={200} height={16} />
           <Skeleton width={320} height={20} />
         </Stack>
 

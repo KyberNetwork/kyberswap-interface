@@ -25,7 +25,7 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
           <Trans>
             Earning per{' '}
             <ExternalLink
-              style={{ color: theme.blue }}
+              style={{ color: theme.primary }}
               href="https://docs.kyberswap.com/user-guide/kyber-earn/apr-metrics#active-apr"
             >
               Active TVL <Info size={12} style={{ marginBottom: -2 }} />
@@ -35,7 +35,7 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
       ) : (
         <p>
           <Trans>
-            Earning per <span className="text-primary">Total TVL</span>
+            Earning per <span className="text-blue">Total TVL</span>
           </Trans>
         </p>
       )}
@@ -86,7 +86,7 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
           width="fit-content"
           text={<AprTooltipContent pool={pool} type="active" />}
         >
-          <span className="text-blue">{formatAprNumber(pool.activeApr + (pool.bonusApr || 0))}%</span>
+          <span className="text-primary">{formatAprNumber(pool.activeApr + (pool.bonusApr || 0))}%</span>
         </MouseoverTooltipDesktopOnly>
       ) : (
         <MouseoverTooltipDesktopOnly
@@ -94,7 +94,7 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
           width="fit-content"
           text={<AprTooltipContent pool={pool} type="total" />}
         >
-          <span className="text-green">{formatAprNumber(pool.allApr)}%</span>
+          <span className="text-blue">{formatAprNumber(pool.allApr)}%</span>
         </MouseoverTooltipDesktopOnly>
       )}
 
