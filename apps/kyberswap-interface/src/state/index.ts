@@ -9,6 +9,7 @@ import safepalCampaignApi from 'services/campaignSafepal'
 import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
+import copyTradingApi from 'services/copyTrading'
 import crosschainApi from 'services/crossChain'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
@@ -123,6 +124,7 @@ const store = configureStore({
     [safepalCampaignApi.reducerPath]: safepalCampaignApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
+    [copyTradingApi.reducerPath]: copyTradingApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
     [smartExitApi.reducerPath]: smartExitApi.reducer,
@@ -163,6 +165,7 @@ const store = configureStore({
       .concat(safepalCampaignApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)
+      .concat(copyTradingApi.middleware)
       .concat(blackjackApi.middleware)
       .concat(marketOverviewApi.middleware)
       .concat(smartExitApi.middleware)

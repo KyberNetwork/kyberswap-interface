@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart, X } from 'react-feather'
+import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart, Users, X } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
@@ -268,14 +268,32 @@ export default function Menu() {
               </MenuItem>
             )}
             {upToExtraSmall && (
-              <NavLink to={APP_PATHS.MARKET_OVERVIEW}>
-                <MenuItem onClick={() => navigate(APP_PATHS.MARKET_OVERVIEW)}>
-                  <PieChart />
-                  <span>
-                    <Trans>Market</Trans>
-                  </span>
-                </MenuItem>
-              </NavLink>
+              <>
+                <NavLink to={APP_PATHS.COPY_TRADING}>
+                  <MenuItem
+                    onClick={() => {
+                      navigate(APP_PATHS.COPY_TRADING)
+                    }}
+                  >
+                    <Users />
+                    <span className="w-max">
+                      <Trans>Copy Trading</Trans>
+                    </span>
+                  </MenuItem>
+                </NavLink>
+                <NavLink to={APP_PATHS.MARKET_OVERVIEW}>
+                  <MenuItem
+                    onClick={() => {
+                      navigate(APP_PATHS.MARKET_OVERVIEW)
+                    }}
+                  >
+                    <PieChart />
+                    <span className="w-max">
+                      <Trans>Market</Trans>
+                    </span>
+                  </MenuItem>
+                </NavLink>
+              </>
             )}
 
             {upToMedium && (

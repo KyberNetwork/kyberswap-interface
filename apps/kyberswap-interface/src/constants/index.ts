@@ -131,6 +131,7 @@ export const APP_PATHS = {
   MY_POOLS: '/myPools',
   DISCOVER: '/discover',
   CROSS_CHAIN: '/cross-chain',
+  COPY_TRADING: '/copy-trading',
   KYBERDAO: '/kyberdao',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',

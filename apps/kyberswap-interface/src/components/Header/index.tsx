@@ -11,7 +11,7 @@ import SwapNavGroup from 'components/Header/groups/SwapNavGroup'
 import { StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
-import Menu from 'components/Menu'
+import Menu, { NewLabel } from 'components/Menu'
 import RecapButton from 'components/Recap/RecapButton'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
@@ -93,6 +93,14 @@ export default function Header() {
           <div className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end max-xxs:gap-0">
             <SwapNavGroup />
             <EarnNavGroup />
+            {!upToExtraSmall && (
+              <StyledNavLink to={`${APP_PATHS.COPY_TRADING}`}>
+                <Trans>Copy Trading</Trans>
+                <NewLabel isNew>
+                  <Trans>New</Trans>
+                </NewLabel>
+              </StyledNavLink>
+            )}
 
             {!upToExtraSmall && (
               <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>
