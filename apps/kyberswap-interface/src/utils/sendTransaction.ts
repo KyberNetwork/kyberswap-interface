@@ -104,17 +104,41 @@ export async function sendEVMTransaction({
 
   const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId)
 
+  // Pre-fill type and fee fields the way ethers v5 used to. Hardware wallets
+  // like SafePal can't decode an eth_sendTransaction payload that's missing
+  // `type` / `maxFeePerGas` / `maxPriorityFeePerGas` (error -104 "show tx
+  // info failed"). Software wallets (MetaMask, Rabby) auto-fill these so the
+  // regression only surfaces on hardware. We deliberately skip `nonce` —
+  // hardware wallets should source it themselves to avoid stale reads.
+  let preparedFees: { type?: 'eip1559'; maxFeePerGas?: bigint; maxPriorityFeePerGas?: bigint } = {}
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const prepared = await (publicClient as any).prepareTransactionRequest({
+      ...requestBase,
+      gas: gasLimit,
+      ...(accessList ? { accessList } : {}),
+      // Restrict to the fee/type fields — viem's default parameter set would
+      // also touch `nonce` and `chainId`, which we'd rather leave to the
+      // wallet.
+      parameters: ['fees', 'type'],
+    })
+    if (prepared?.maxFeePerGas !== undefined && prepared?.maxPriorityFeePerGas !== undefined) {
+      preparedFees = {
+        type: 'eip1559',
+        maxFeePerGas: prepared.maxFeePerGas,
+        maxPriorityFeePerGas: prepared.maxPriorityFeePerGas,
+      }
+    }
+  } catch {
+    // Best-effort: if fee estimation fails (RPC quirks, legacy chain), fall
+    // back to letting the wallet fill fees itself.
+  }
+
   try {
     const hash = await walletClient.sendTransaction({
       ...requestBase,
       gas: gasLimit,
-      // Explicitly tag as EIP-1559 when sending an access list. Without `type`,
-      // viem omits it from the eth_sendTransaction payload — the MetaMask
-      // Connect SDK then infers type=0x1 (EIP-2930) from the access list alone
-      // and rejects the tx because the wallet still attaches EIP-1559 fee
-      // fields (maxFeePerGas / maxPriorityFeePerGas). Pre-viem code set
-      // type=2 implicitly via ethers, which is why this only regressed
-      // post-migration.
+      ...preparedFees,
       ...(accessList ? { accessList, type: 'eip1559' as const } : {}),
     })
     return { hash }
