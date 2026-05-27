@@ -104,43 +104,41 @@ export async function sendEVMTransaction({
 
   const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId)
 
-  // Pre-fill type and fee fields the way ethers v5 used to. Hardware wallets
-  // like SafePal can't decode an eth_sendTransaction payload that's missing
-  // `type` / `maxFeePerGas` / `maxPriorityFeePerGas` (error -104 "show tx
-  // info failed"). Software wallets (MetaMask, Rabby) auto-fill these so the
-  // regression only surfaces on hardware. We deliberately skip `nonce` —
-  // hardware wallets should source it themselves to avoid stale reads.
-  let preparedFees: { type?: 'eip1559'; maxFeePerGas?: bigint; maxPriorityFeePerGas?: bigint } = {}
+  // Build the full eth_sendTransaction payload ethers v5 used to populate
+  // (type, chainId, fees, gas). Hardware wallets like SafePal can't decode a
+  // minimal viem-style payload missing these fields and fail at the device
+  // with "(-104) show tx info failed". Software wallets auto-fill the gaps,
+  // so the regression only surfaces on hardware. We let the wallet pick
+  // `nonce` to avoid racing the device's own counter.
+  const txParams: Record<string, unknown> = {
+    from: account.toLowerCase(),
+    to: contractAddress.toLowerCase(),
+    data: callData,
+    gas: `0x${gasLimit.toString(16)}`,
+    chainId: `0x${(chainId as number).toString(16)}`,
+  }
+  if (txValue !== undefined) {
+    txParams.value = `0x${txValue.toString(16)}`
+  }
+  if (accessList) {
+    txParams.accessList = accessList
+  }
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const prepared = await (publicClient as any).prepareTransactionRequest({
-      ...requestBase,
-      gas: gasLimit,
-      ...(accessList ? { accessList } : {}),
-      // Restrict to the fee/type fields — viem's default parameter set would
-      // also touch `nonce` and `chainId`, which we'd rather leave to the
-      // wallet.
-      parameters: ['fees', 'type'],
-    })
-    if (prepared?.maxFeePerGas !== undefined && prepared?.maxPriorityFeePerGas !== undefined) {
-      preparedFees = {
-        type: 'eip1559',
-        maxFeePerGas: prepared.maxFeePerGas,
-        maxPriorityFeePerGas: prepared.maxPriorityFeePerGas,
-      }
+    const fees = await (publicClient as PublicClient).estimateFeesPerGas()
+    if (fees?.maxFeePerGas !== undefined && fees?.maxPriorityFeePerGas !== undefined) {
+      txParams.type = '0x2'
+      txParams.maxFeePerGas = `0x${fees.maxFeePerGas.toString(16)}`
+      txParams.maxPriorityFeePerGas = `0x${fees.maxPriorityFeePerGas.toString(16)}`
     }
   } catch {
-    // Best-effort: if fee estimation fails (RPC quirks, legacy chain), fall
-    // back to letting the wallet fill fees itself.
+    // Legacy / non-EIP-1559 chain or RPC quirk — leave fees to the wallet.
   }
 
   try {
-    const hash = await walletClient.sendTransaction({
-      ...requestBase,
-      gas: gasLimit,
-      ...preparedFees,
-      ...(accessList ? { accessList, type: 'eip1559' as const } : {}),
-    })
+    const hash = (await walletClient.request({
+      method: 'eth_sendTransaction',
+      params: [txParams] as never,
+    })) as `0x${string}`
     return { hash }
   } catch (error) {
     throw new TransactionError(
