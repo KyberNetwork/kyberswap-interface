@@ -95,7 +95,7 @@ const getTopSegmentKey = (bucket: PoolEarningsBucket, breakdownConfig: EarningsB
   for (let i = breakdownConfig.length - 1; i >= 0; i--) {
     const item = breakdownConfig[i]
 
-    if (item && bucket[item.key] > 0) {
+    if (item && (bucket[item.key] ?? 0) > 0) {
       return item.key
     }
   }
@@ -170,7 +170,7 @@ const EarningsTooltip = ({
               {item.label}
             </Text>
             <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-              {formatUsd(point[item.key])}
+              {formatUsd(point[item.key] ?? 0)}
             </Text>
           </Fragment>
         ))}
@@ -202,19 +202,21 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
   const earningsData = isPositionChart ? positionEarningsQuery.data : poolEarningsQuery.data
   const isError = isPositionChart ? positionEarningsQuery.isError : poolEarningsQuery.isError
   const isLoading = isPositionChart ? positionEarningsQuery.isLoading : poolEarningsQuery.isLoading
+  const buckets = useMemo(() => earningsData?.buckets ?? [], [earningsData?.buckets])
+  const hasBonusUsd = buckets.some(bucket => bucket.bonusUsd !== undefined)
 
-  const breakdownConfig = useMemo<EarningsBreakdownConfigItem[]>(
-    () => [
+  const breakdownConfig = useMemo<EarningsBreakdownConfigItem[]>(() => {
+    const items: EarningsBreakdownConfigItem[] = [
       { key: 'lpFeeUsd', label: 'LP Fee', color: theme.blue },
       { key: 'lmUsd', label: 'LM Rewards', color: '#42B8AE' },
       { key: 'egUsd', label: 'EG Sharing', color: '#DFD56A' },
-      { key: 'bonusUsd', label: 'Bonus', color: '#9B7AE4' },
-    ],
-    [theme.blue],
-  )
+      { key: 'bonusUsd', label: 'Bonus', color: '#FF9B5C' },
+    ]
+
+    return hasBonusUsd ? items : items.filter(item => item.key !== 'bonusUsd')
+  }, [hasBonusUsd, theme.blue])
 
   const chartData = useMemo<EarningsChartPoint[]>(() => {
-    const buckets = earningsData?.buckets ?? []
     const visibleLabelStep = getVisibleLabelStep(buckets.length, upToSmall, window)
 
     return buckets.map((bucket, index) => ({
@@ -222,12 +224,12 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
       showTotalLabel: index % visibleLabelStep === 0 || index === buckets.length - 1,
       topSegmentKey: getTopSegmentKey(bucket, breakdownConfig),
     }))
-  }, [breakdownConfig, earningsData?.buckets, upToSmall, window])
+  }, [breakdownConfig, buckets, upToSmall, window])
 
   const breakdownItems = useMemo<EarningsBreakdownItem[]>(() => {
     return breakdownConfig.map(item => ({
       ...item,
-      value: chartData.reduce((sum, point) => sum + point[item.key], 0),
+      value: chartData.reduce((sum, point) => sum + (point[item.key] ?? 0), 0),
     }))
   }, [breakdownConfig, chartData])
 

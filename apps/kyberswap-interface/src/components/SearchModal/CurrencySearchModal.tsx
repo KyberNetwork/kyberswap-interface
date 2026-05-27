@@ -23,6 +23,7 @@ interface CurrencySearchModalProps {
   tooltip?: ReactNode
   onCurrencyImport?: (token: Token) => void
   customChainId?: ChainId
+  trackingSource?: string
 }
 
 enum CurrencyModalView {
@@ -42,6 +43,7 @@ export default function CurrencySearchModal({
   tooltip,
   onCurrencyImport,
   customChainId,
+  trackingSource,
 }: CurrencySearchModalProps) {
   const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.search)
   const lastOpen = useLast(isOpen)
@@ -115,6 +117,7 @@ export default function CurrencySearchModal({
           tooltip={tooltip}
           customChainId={customChainId}
           setTokenToShowInfo={setTokenToShowInfo}
+          trackingSource={trackingSource}
         />
       ) : modalView === CurrencyModalView.importToken && importToken ? (
         <ImportToken

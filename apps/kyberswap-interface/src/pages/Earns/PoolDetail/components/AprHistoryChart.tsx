@@ -46,17 +46,6 @@ const BaselineRow = styled(HStack)`
 
 export const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
 
-export const getLatestAprValues = (points?: PoolAprHistoryPoint[]) => {
-  const latestTotalApr = [...(points ?? [])].reverse().find(point => point.totalApr !== undefined)?.totalApr
-  const latestActiveApr = [...(points ?? [])].reverse().find(point => point.activeApr !== undefined)?.activeApr
-
-  return {
-    hasActiveApr: latestActiveApr !== undefined,
-    latestActiveApr,
-    latestTotalApr,
-  }
-}
-
 const AprHistoryTooltip = ({
   active,
   point,
@@ -81,7 +70,7 @@ const AprHistoryTooltip = ({
             <Text color={theme.subText} fontSize={12}>
               Active APR
             </Text>
-            <Text color={theme.blue} fontSize={12} fontWeight={500} textAlign="right">
+            <Text color={theme.primary} fontSize={12} fontWeight={500} textAlign="right">
               {formatAprNumber(point.activeApr)}%
             </Text>
           </>
@@ -89,7 +78,7 @@ const AprHistoryTooltip = ({
         <Text color={theme.subText} fontSize={12}>
           APR
         </Text>
-        <Text color={theme.primary} fontSize={12} fontWeight={500} textAlign="right">
+        <Text color={theme.blue} fontSize={12} fontWeight={500} textAlign="right">
           {formatAprNumber(point.totalApr)}%
         </Text>
         {point.volumeUsd || point.volumeUsd === 0 ? (
@@ -111,9 +100,13 @@ type AprHistoryChartProps = {
   chainId: number
   poolAddress?: string
   positionId?: string
+  currentApr?: {
+    totalApr?: number
+    activeApr?: number
+  }
 }
 
-const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartProps) => {
+const AprHistoryChart = ({ chainId, poolAddress, positionId, currentApr }: AprHistoryChartProps) => {
   const theme = useTheme()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
@@ -122,8 +115,8 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
   const chartHeight = upToSmall ? 280 : 360
 
   const activeDotStroke = theme.buttonBlack
-  const aprLineColor = theme.primary
-  const activeAprLineColor = theme.blue
+  const aprLineColor = theme.blue
+  const activeAprLineColor = theme.primary
   const volumeUpColor = rgba(theme.darkGreen, 0.8)
   const volumeDownColor = rgba(theme.red, 0.5)
   const cursorColor = rgba(theme.text, 0.12)
@@ -154,47 +147,32 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],
   )
 
-  const intervalMaxApr = useMemo(() => {
-    const values = chartData
-      .map(point => point.totalApr)
-      .filter((value): value is number => value !== undefined && !Number.isNaN(value))
-    return values.length ? Math.max(...values) : undefined
-  }, [chartData])
-
-  const { hasActiveApr, latestActiveApr, latestTotalApr } = useMemo(() => getLatestAprValues(chartData), [chartData])
+  const hasActiveApr = currentApr?.activeApr !== undefined
+  const activeApr = currentApr?.activeApr
+  const totalApr = currentApr?.totalApr
 
   return (
     <Stack gap={16}>
       <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
-        <Stack gap={12}>
-          <HStack align="center" gap="12px 24px" wrap="wrap">
-            {hasActiveApr && latestTotalApr !== undefined ? (
-              <BaselineRow gap={4}>
-                <Text color={theme.subText} fontSize={14}>
-                  APR
-                </Text>
-                <Text color={theme.text} fontSize={14} fontWeight={500}>
-                  {formatAprValue(latestTotalApr)}
-                </Text>
-              </BaselineRow>
-            ) : null}
+        <Stack gap={4} minHeight={48}>
+          {hasActiveApr && totalApr !== undefined && (
             <BaselineRow gap={4}>
               <Text color={theme.subText} fontSize={14}>
-                Max APR
+                APR
               </Text>
               <Text color={theme.text} fontSize={14} fontWeight={500}>
-                {formatAprValue(intervalMaxApr)}
+                {formatAprValue(totalApr)}
               </Text>
             </BaselineRow>
-          </HStack>
+          )}
 
           {hasActiveApr ? (
             <BaselineRow gap={8} wrap="wrap">
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 {positionId ? 'Position Active APR' : 'Active APR'}
               </Text>
-              <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
-                {formatAprValue(latestActiveApr)}
+              <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
+                {formatAprValue(activeApr)}
               </Text>
               <Text color={theme.subText} fontSize={14}>
                 (Earning Per Active TVL)
@@ -205,8 +183,8 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 APR
               </Text>
-              <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
-                {formatAprValue(latestTotalApr)}
+              <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
+                {formatAprValue(totalApr)}
               </Text>
               <Text color={theme.subText} fontSize={14}>
                 (Earning Per Total TVL)

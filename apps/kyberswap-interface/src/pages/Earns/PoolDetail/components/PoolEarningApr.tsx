@@ -10,13 +10,13 @@ import { formatAprValue } from 'pages/Earns/PoolDetail/components/AprHistoryChar
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 
 const AprBadge = styled(Stack)`
-  background: ${({ theme }) => rgba(theme.primary, 0.12)};
+  background: ${({ theme }) => rgba(theme.blue, 0.12)};
   border-radius: 12px;
   padding: 4px 12px;
 `
 
 const ActiveAprBadge = styled(AprBadge)`
-  background: ${({ theme }) => rgba(theme.blue, 0.12)};
+  background: ${({ theme }) => rgba(theme.primary, 0.12)};
 `
 
 const AprSection = styled(HStack)`
@@ -77,7 +77,7 @@ const PoolEarningApr = () => {
             <InfoHelper text="Earning Per Total TVL" size={14} placement="top" />
           </HStack>
           <AprBadge>
-            <Text color={theme.primary} fontSize={24} fontWeight={600}>
+            <Text color={theme.blue} fontSize={24} fontWeight={600}>
               {formatAprValue(aprSummary.totalApr)}
             </Text>
           </AprBadge>
@@ -115,7 +115,7 @@ const PoolEarningApr = () => {
               <InfoHelper text="Earning Per Active TVL" size={14} placement="top" />
             </HStack>
             <ActiveAprBadge>
-              <Text color={theme.blue} fontSize={24} fontWeight={600}>
+              <Text color={theme.primary} fontSize={24} fontWeight={600}>
                 {formatAprValue(aprSummary.activeApr)}
               </Text>
             </ActiveAprBadge>

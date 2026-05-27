@@ -51,6 +51,7 @@ type AddLiquidityBodyProps = AddLiquidityProps & {
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
     initialTick?: { tickUpper: number; tickLower: number },
+    initialRevertPrice?: boolean,
     initialSlippage?: number,
   ) => void
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
@@ -94,6 +95,7 @@ const AddLiquidityColumn = styled(Stack)`
 
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
+  TOKEN_SEARCHED: TRACKING_EVENT_TYPE.TOKEN_SEARCHED,
   LIQ_EXISTING_POSITION_SELECTED: TRACKING_EVENT_TYPE.LIQ_EXISTING_POSITION_SELECTED,
   LIQ_MAX_CLICKED: TRACKING_EVENT_TYPE.LIQ_MAX_CLICKED,
   LIQ_HALF_CLICKED: TRACKING_EVENT_TYPE.LIQ_HALF_CLICKED,
@@ -313,7 +315,17 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const handleTrackEvent = useCallback(
     (eventName: string, data?: Record<string, unknown>) => {
       const trackingType = TRACKING_EVENT_MAP[eventName]
-      if (trackingType !== undefined) trackingHandler(trackingType, data)
+      if (trackingType === undefined) return
+      if (eventName === 'TOKEN_SEARCHED') {
+        const { chain_id, ...rest } = (data ?? {}) as { chain_id?: number } & Record<string, unknown>
+        trackingHandler(trackingType, {
+          source: 'earn_add_liquidity',
+          ...rest,
+          chain: typeof chain_id === 'number' ? NETWORKS_INFO[chain_id as keyof typeof NETWORKS_INFO]?.name : undefined,
+        })
+        return
+      }
+      trackingHandler(trackingType, data)
     },
     [trackingHandler],
   )
@@ -356,6 +368,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     (
       position: { exchange: string; poolId: string; positionId: string | number },
       initialTick?: { tickUpper: number; tickLower: number },
+      initialRevertPrice?: boolean,
       initialSlippage?: number,
     ) => {
       openZapMigrationWidget({
@@ -372,6 +385,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
         },
         chainId,
         initialTick,
+        initialRevertPrice,
         initialSlippage,
       })
     },

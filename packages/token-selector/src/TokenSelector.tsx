@@ -47,6 +47,7 @@ enum MODAL_TAB {
 
 const MESSAGE_TIMEOUT = 4_000;
 const DEBOUNCE_DELAY = 150;
+const TRACKING_DEBOUNCE_DELAY = 1_000;
 
 /** Internal props for TokenSelector component (used by TokenModal) */
 interface TokenSelectorProps {
@@ -87,6 +88,9 @@ interface TokenSelectorProps {
   setSelectedTokens: (tokens: Token[]) => void;
   setTokenToShow: (token: Token) => void;
   setTokenToImport: (token: Token) => void;
+
+  // Analytics
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void;
 }
 
 const normalizeSpecialCharacters = (value: string) => value.replace(/₮/g, "T");
@@ -211,6 +215,7 @@ export default function TokenSelector({
   setTokenToImport,
   onClose,
   initialSlippage,
+  onTrackEvent,
 }: TokenSelectorProps) {
   const { i18n } = useLingui();
   const {
@@ -239,6 +244,9 @@ export default function TokenSelector({
   const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const trackingDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const initialTokensInAddress = useRef(
     new Set(tokensIn.map((token) => token.address.toLowerCase())),
   );
@@ -568,6 +576,26 @@ export default function TokenSelector({
       }
     };
   }, [searchTerm]);
+
+  useEffect(() => {
+    if (trackingDebounceRef.current) {
+      clearTimeout(trackingDebounceRef.current);
+    }
+    if (!searchTerm || !onTrackEvent) return;
+    trackingDebounceRef.current = setTimeout(() => {
+      onTrackEvent("TOKEN_SEARCHED", {
+        search_query: searchTerm,
+        chain_id: chainId,
+        is_address: isAddress(searchTerm.toLowerCase().trim()),
+      });
+    }, TRACKING_DEBOUNCE_DELAY);
+
+    return () => {
+      if (trackingDebounceRef.current) {
+        clearTimeout(trackingDebounceRef.current);
+      }
+    };
+  }, [searchTerm, chainId, onTrackEvent]);
 
   useEffect(() => {
     if (unImportedTokens?.length) {

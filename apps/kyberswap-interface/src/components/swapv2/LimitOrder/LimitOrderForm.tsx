@@ -928,6 +928,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             }
             positionLabel="in"
             customChainId={chainId}
+            trackingSource="limit_order"
           />
         </Tooltip>
 
@@ -1020,6 +1021,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             }
             positionLabel="in"
             customChainId={chainId}
+            trackingSource="limit_order"
           />
         </Tooltip>
 

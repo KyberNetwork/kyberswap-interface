@@ -230,6 +230,7 @@ export enum TRACKING_EVENT_TYPE {
 
   // Swap form interactions
   TOKEN_SELECTED,
+  TOKEN_SEARCHED,
   AMOUNT_ENTERED,
   TOKEN_PAIR_REVERSED,
   MAX_BALANCE_CLICKED,
@@ -445,7 +446,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           } = (payload || {}) as {
             gasUsd: number | string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
@@ -465,7 +465,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps?: number
             route_split?: boolean
             chain?: string
-            volume?: number
           }
 
           const body: Record<string, any> = {
@@ -489,7 +488,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           }
 
           if (feeInfo) {
@@ -1447,6 +1445,10 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         // Swap form interaction events
         case TRACKING_EVENT_TYPE.TOKEN_SELECTED: {
           formoTrack('Token Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TOKEN_SEARCHED: {
+          formoTrack('Token Searched', payload)
           break
         }
         case TRACKING_EVENT_TYPE.AMOUNT_ENTERED: {

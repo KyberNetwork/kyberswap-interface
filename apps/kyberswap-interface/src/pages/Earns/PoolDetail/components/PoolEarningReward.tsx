@@ -137,10 +137,11 @@ const buildMerklRewardCards = ({ merklOpportunity }: { merklOpportunity?: MerklO
 const PoolEarningReward = () => {
   const { chainId, chainInfo, dexInfo, pool, poolAddress } = usePoolDetailContext()
   const hasLmProgram = pool?.programs?.some(program => program === 'lm') ?? false
+  const kyberDataChain = chainInfo.ksSettingRoute || chainInfo.route
 
   const { data: cycleConfig } = useCycleConfigQuery(
-    { chain: chainInfo.route, poolAddress },
-    { skip: !pool || !hasLmProgram || !chainInfo.route },
+    { chain: kyberDataChain, poolAddress },
+    { skip: !pool || !hasLmProgram || !kyberDataChain },
   )
 
   const rewardTokenAddresses = useMemo(

@@ -51,6 +51,7 @@ interface MigrateLiquidityPureParams {
   }
   chainId: ZapMigrationChainId
   initialTick?: { tickUpper: number; tickLower: number }
+  initialRevertPrice?: boolean
   initialSlippage?: number
   rePositionMode?: boolean
 }
@@ -85,6 +86,7 @@ export interface ZapMigrationInfo {
   }
   chainId: number
   initialTick?: { tickUpper: number; tickLower: number }
+  initialRevertPrice?: boolean
   initialSlippage?: number
   rePositionMode?: boolean
 }
@@ -152,6 +154,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     to,
     chainId,
     initialTick,
+    initialRevertPrice,
     initialSlippage,
     rePositionMode,
   }: ZapMigrationInfo) => {
@@ -186,6 +189,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
         : undefined,
       chainId: chainId as ZapMigrationChainId,
       initialTick,
+      initialRevertPrice,
       initialSlippage,
       rePositionMode,
     })
