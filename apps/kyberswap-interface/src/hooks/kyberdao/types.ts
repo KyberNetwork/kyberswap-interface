@@ -67,16 +67,6 @@ export interface StakerInfo {
   stake_amount: number
 }
 
-export interface GasRefundTierInfo {
-  userTier: number
-  gasRefundPercentage: number
-}
-
-export interface RewardInfo {
-  knc: number
-  usd: number
-}
-
 interface TransactionInfo {
   tx: string
   timestamp: number

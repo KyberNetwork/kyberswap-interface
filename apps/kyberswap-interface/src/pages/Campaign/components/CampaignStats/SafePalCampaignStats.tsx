@@ -60,7 +60,7 @@ export default function SafePalCampaignStats({ selectedWeek }: { selectedWeek: n
       fromTs: selectedRange?.start || 0,
       toTs: selectedRange?.end || 0,
     },
-    { skip: !account || !selectedRange, pollingInterval: 10_000 },
+    { skip: !account || !selectedRange, pollingInterval: 30_000 },
   )
 
   const { data: joinedStats } = useGetSafePalCampaignJoinedStatsQuery(
@@ -68,7 +68,7 @@ export default function SafePalCampaignStats({ selectedWeek }: { selectedWeek: n
       fromTs: selectedRange?.start || 0,
       toTs: selectedRange?.end || 0,
     },
-    { skip: !selectedRange, pollingInterval: 10_000 },
+    { skip: !selectedRange, pollingInterval: 30_000 },
   )
 
   const { data: userStats } = useGetSafePalCampaignUserStatsQuery(
@@ -77,7 +77,7 @@ export default function SafePalCampaignStats({ selectedWeek }: { selectedWeek: n
       fromTs: selectedRange?.start || 0,
       toTs: selectedRange?.end || 0,
     },
-    { skip: !selectedRange || !account, pollingInterval: 10_000 },
+    { skip: !selectedRange || !account, pollingInterval: 30_000 },
   )
 
   return (
@@ -149,7 +149,7 @@ export const SafePalClaim = ({ selectedWeek }: { selectedWeek: number }) => {
 
   const { data: weekStatsData } = useGetSafePalCampaignWeeklyStatsQuery(
     { address: account || ZERO_ADDRESS, ...dashboardRange },
-    { skip: !account, pollingInterval: 10_000 },
+    { skip: !account, pollingInterval: 30_000 },
   )
   const weekItems = useMemo(() => weekStatsData?.items ?? [], [weekStatsData?.items])
   const winnerWeekValues = useMemo(() => {

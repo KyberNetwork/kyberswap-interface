@@ -1,19 +1,16 @@
 import { Contract } from '@ethersproject/contracts'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import contractQuery from 'services/contractQuery'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useMulticallContract } from 'hooks/useContract'
-import useInterval from 'hooks/useInterval'
 import { useKyberSwapConfig } from 'state/application/hooks'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { fetchChunk } from 'state/multicall/updater'
 import { TokenAmountLoading } from 'state/wallet/hooks'
-import { isTokenNative } from 'utils/tokenInfo'
 
 export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
   const { readProvider } = useKyberSwapConfig(chainId)
@@ -51,18 +48,6 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
   }, [chainId, readProvider, account])
 
   return balance
-}
-
-export const useTokenBalanceOfAnotherChain = (chainId?: ChainId, token?: WrappedTokenInfo) => {
-  const isNative = isTokenNative(token)
-  const param = useMemo(() => (token && !isNative ? [token] : []), [token, isNative])
-
-  const ethBalance = useEthBalanceOfAnotherChain(chainId)
-  const [balances] = useTokensBalanceOfAnotherChain(chainId, param)
-
-  return useMemo(() => {
-    return isNative ? ethBalance : balances?.[0]?.[0]
-  }, [balances, ethBalance, isNative])
 }
 
 export type FetchBalancesArg = {
@@ -115,27 +100,11 @@ export const useTokensBalanceOfAnotherChain = (
   return [balances, isLoading]
 }
 
-type TokenList = { anytoken: string; underlying: string }[]
-
-type PoolBridgeInfoMap = {
-  [address: string]: string
-}
-
 type CallParam = {
   callData: string
   target: string
   fragment: string
   key: string
-}
-
-function getCallParams(list: TokenList) {
-  const calls: CallParam[] = list.map(item => ({
-    callData: ERC20_INTERFACE.encodeFunctionData('balanceOf', [item.anytoken]),
-    target: item.underlying,
-    fragment: 'balanceOf',
-    key: item.anytoken,
-  }))
-  return calls
 }
 
 const formatResult = (responseData: any, calls: CallParam[], defaultValue?: any): any => {
@@ -158,44 +127,4 @@ const formatResult = (responseData: any, calls: CallParam[], defaultValue?: any)
     if (output) resultList[item.key] = output
   }
   return resultList
-}
-
-// get pool of list token of a chain
-export function useMultichainPool(chainId: ChainId | undefined, tokenList: TokenList) {
-  const [poolData, setPoolData] = useState<PoolBridgeInfoMap>()
-  const multicallContract = useMulticallContract(chainId)
-  const getEvmPoolsData = useCallback(async (): Promise<PoolBridgeInfoMap> => {
-    if (!chainId) return Promise.reject('Wrong input')
-    try {
-      const calls = getCallParams(tokenList)
-      const returnData = await multicallContract?.callStatic.tryBlockAndAggregate(
-        false,
-        calls.map(({ callData, target }) => ({ target, callData })),
-      )
-      return formatResult(returnData, calls, '0')
-    } catch (error) {
-      return Promise.reject(error)
-    }
-  }, [chainId, tokenList, multicallContract])
-
-  const fetchPoolCallback = useCallback(async () => {
-    try {
-      const newData: PoolBridgeInfoMap = await getEvmPoolsData()
-      // small object, no performance problem here
-      if (JSON.stringify(newData || {}) !== JSON.stringify(poolData || {})) {
-        setPoolData(newData)
-      }
-    } catch (e) {
-      console.log(e)
-    }
-  }, [getEvmPoolsData, poolData])
-
-  useEffect(() => {
-    fetchPoolCallback()
-  }, [fetchPoolCallback])
-
-  useInterval(fetchPoolCallback, 10_000)
-
-  const isStale = poolData && Object.keys(poolData).length && !tokenList.some(e => poolData[e.anytoken] !== undefined)
-  return !chainId || isStale ? undefined : poolData
 }

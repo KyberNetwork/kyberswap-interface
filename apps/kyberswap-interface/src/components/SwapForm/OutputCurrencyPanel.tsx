@@ -1,16 +1,15 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
-import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import Skeleton from 'components/Skeleton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { WrapType } from 'hooks/useWrapCallback'
 import { MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
@@ -48,7 +47,6 @@ const OutputCurrencyPanel: React.FC<Props> = ({
 }) => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
-  const theme = useTheme()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -74,19 +72,13 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   return (
     <Box sx={{ position: 'relative' }}>
       {routeLoading && (
-        <Flex sx={{ position: 'absolute', bottom: '24px', left: '12px', zIndex: 10 }} alignItems="center">
-          <Skeleton
-            height="24px"
-            width={upToSmall ? '110px' : '150px'}
-            baseColor={theme.background}
-            highlightColor={theme.buttonGray}
-            borderRadius="1rem"
-          />
+        <Flex sx={{ position: 'absolute', bottom: '18px', left: '12px', zIndex: 10 }}>
+          <Skeleton height={24} width={upToSmall ? 120 : 160} />
         </Flex>
       )}
       <CurrencyInputPanel
         disabledInput
-        value={routeLoading ? '' : getFormattedAmount()}
+        value={routeLoading ? ' ' : getFormattedAmount()}
         onMax={null}
         onHalf={null}
         currency={currencyOut}
@@ -126,6 +118,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         }
         positionLabel="in"
         customChainId={customChainId}
+        trackingSource="swap"
       />
     </Box>
   )

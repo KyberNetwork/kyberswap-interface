@@ -1,4 +1,5 @@
-import styled, { CSSProperties } from 'styled-components'
+import { rgba } from 'polished'
+import styled, { CSSProperties, css } from 'styled-components'
 
 import NotificationImage from 'assets/images/notification_default.png'
 import { Announcement } from 'components/Announcement/type'
@@ -7,7 +8,7 @@ import { formatTime } from 'utils/time'
 
 const HEIGHT = '92px'
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ isRead: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background-color: ${({ theme }) => theme.background};
   font-size: 12px;
@@ -16,15 +17,25 @@ const Wrapper = styled.div`
   display: flex;
   align-items: flex-start;
   cursor: pointer;
-  :hover {
-    background-color: ${({ theme }) => theme.buttonBlack};
-  }
+  ${({ isRead }) =>
+    !isRead
+      ? css`
+          background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
+          :hover {
+            background-color: ${({ theme }) => rgba(theme.primary, 0.12)};
+          }
+        `
+      : css`
+          :hover {
+            background-color: ${({ theme }) => theme.buttonBlack};
+          }
+        `}
 `
 
-const Title = styled.div`
+const Title = styled.div<{ isRead: boolean }>`
   font-size: 12px;
   font-weight: 500;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme, isRead }) => (isRead ? theme.text : theme.primary)};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -68,11 +79,26 @@ const RowItem = styled.div`
   height: ${HEIGHT};
 `
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+`
+
 const Image = styled.img`
   width: 140px;
   max-height: ${HEIGHT};
   border-radius: 8px;
   object-fit: scale-down;
+`
+
+const Dot = styled.span`
+  background-color: ${({ theme }) => theme.primary};
+  border-radius: 999px;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
 `
 
 export default function AnnouncementItem({
@@ -84,14 +110,17 @@ export default function AnnouncementItem({
   onRead: () => void
   style: CSSProperties
 }) {
-  const { templateBody } = announcement
+  const { templateBody, isRead } = announcement
 
   const { name, startAt, content, thumbnailImageURL } = templateBody
   return (
-    <Wrapper onClick={onRead} style={style}>
+    <Wrapper onClick={onRead} style={style} isRead={isRead}>
       <Image src={thumbnailImageURL || NotificationImage} />
       <RowItem style={{ maxWidth: '100%', maxHeight: '100%' }}>
-        <Title>{name} </Title>
+        <TitleRow>
+          <Title isRead={isRead}>{name}</Title>
+          {!isRead && <Dot />}
+        </TitleRow>
         <Desc dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }} />
         <Time>{formatTime(startAt)}</Time>
       </RowItem>

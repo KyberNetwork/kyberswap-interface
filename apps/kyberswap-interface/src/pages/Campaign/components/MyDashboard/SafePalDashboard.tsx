@@ -93,7 +93,7 @@ export default function SafePalDashboard() {
 
   const { data, isLoading } = useGetSafePalCampaignWeeklyStatsQuery(
     { address: account || ZERO_ADDRESS, ...dashboardRange },
-    { skip: !account, pollingInterval: 10_000 },
+    { skip: !account, pollingInterval: 30_000 },
   )
 
   const weekItems = useMemo(() => {

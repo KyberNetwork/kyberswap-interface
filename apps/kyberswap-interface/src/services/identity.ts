@@ -75,7 +75,6 @@ const identityApi = createApi({
 })
 
 export const {
-  useConnectWalletToProfileMutation,
   useGetOrCreateProfileMutation,
   useSendOtpMutation,
   useVerifyOtpMutation,

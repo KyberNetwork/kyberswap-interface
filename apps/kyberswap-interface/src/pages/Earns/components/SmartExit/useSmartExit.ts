@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
@@ -7,8 +8,10 @@ import {
 } from 'services/smartExit'
 
 import { NotificationType } from 'components/Announcement/type'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useSuccessSound } from 'hooks/useSuccessSound'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { SmartExitState } from 'pages/Earns/components/SmartExit/constants'
 import { buildConditions } from 'pages/Earns/components/SmartExit/utils'
 import { EARN_DEXES } from 'pages/Earns/constants'
@@ -26,6 +29,7 @@ export interface UseSmartExitParams {
 
 export const useSmartExit = ({ position, selectedMetrics, conditionType, deadline }: UseSmartExitParams) => {
   const notify = useNotify()
+  const { trackingHandler } = useTracking()
   const playSuccessSound = useSuccessSound()
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -83,6 +87,22 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
     }
   }, [account, conditionType, deadline, dexType, position, positionLiquidity, selectedMetrics])
 
+  const getSmartExitTrackingPayload = useCallback(() => {
+    if (!position) return {}
+
+    const conditions = selectedMetrics.filter(m => m !== null) as SelectedMetric[]
+    return {
+      position_id: position.positionId,
+      chain: NETWORKS_INFO[position.chain.id as ChainId]?.name,
+      pool: position.pool.address,
+      token_pair: `${position.token0.symbol}/${position.token1.symbol}`,
+      condition_mode: conditions.length > 1 ? 'multi' : 'single',
+      condition_type: conditions.map(c => c.metric).join(','),
+      condition_1_value: conditions[0] ? JSON.stringify(conditions[0].condition) : undefined,
+      condition_2_value: conditions[1] ? JSON.stringify(conditions[1].condition) : undefined,
+    }
+  }, [position, selectedMetrics])
+
   const createSmartExitOrder = useCallback(
     async (opts: { maxGas: number; permitData: string }): Promise<boolean> => {
       if (!library || !baseParams || !account) return false
@@ -114,6 +134,14 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
 
         setState(SmartExitState.SUCCESS)
 
+        trackingHandler(TRACKING_EVENT_TYPE.EARN_SMART_EXIT_CREATED, {
+          ...getSmartExitTrackingPayload(),
+          smart_exit_id: result.orderId || result.id,
+          max_gas_value: opts.maxGas,
+          max_gas_unit: 'percentage',
+          completion_time_ms: Date.now(),
+        })
+
         notify({
           type: NotificationType.SUCCESS,
           title: t`Smart Exit Order Created`,
@@ -127,6 +155,15 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         console.error('Smart exit order creation error:', { message, error })
 
         setState(SmartExitState.ERROR)
+
+        trackingHandler(TRACKING_EVENT_TYPE.EARN_SMART_EXIT_FAILED, {
+          ...getSmartExitTrackingPayload(),
+          failure_reason: message,
+          max_gas_value: opts.maxGas,
+          max_gas_unit: 'percentage',
+          completion_time_ms: Date.now(),
+        })
+
         notify({
           title: t`Smart Exit Order Error`,
           summary: message,
@@ -136,7 +173,17 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         return false
       }
     },
-    [account, baseParams, createOrderMutation, getSignMessage, library, notify, playSuccessSound],
+    [
+      account,
+      baseParams,
+      createOrderMutation,
+      getSignMessage,
+      getSmartExitTrackingPayload,
+      library,
+      notify,
+      playSuccessSound,
+      trackingHandler,
+    ],
   )
 
   const estimateFee = useCallback(async (): Promise<SmartExitFee | null> => {

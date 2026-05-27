@@ -1,4 +1,5 @@
 import { useWeb3Provider } from "@/hooks/useProvider";
+import { rpcFetch } from "@kyber/rpc-client/fetch";
 import {
   calculateGasMargin,
   decodeAddress,
@@ -11,12 +12,12 @@ import { useCallback, useEffect, useState } from "react";
 let intervalCheckApproval: ReturnType<typeof setTimeout> | null;
 
 export function useNftApproval({
-  rpcUrl,
+  chainId,
   nftManagerContract,
   nftId,
   spender,
 }: {
-  rpcUrl: string;
+  chainId: number;
   nftManagerContract: string;
   nftId?: number;
   spender?: string;
@@ -41,7 +42,7 @@ export function useNftApproval({
       value: "0x0",
     };
 
-    const gasEstimation = await estimateGas(rpcUrl, txData);
+    const gasEstimation = await estimateGas(chainId, txData);
     const txHash = await walletClient.sendTransaction({
       account,
       to: nftManagerContract as `0x${string}`,
@@ -51,24 +52,28 @@ export function useNftApproval({
       chain: undefined,
     });
     setPendingTx(txHash);
-  }, [account, nftId, nftManagerContract, rpcUrl, spender, walletClient]);
+  }, [account, chainId, nftId, nftManagerContract, spender, walletClient]);
 
   useEffect(() => {
     if (pendingTx) {
       const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, pendingTx).then((res) => {
-          if (res) {
-            setPendingTx("");
-            setIsApproved(res.status);
-          }
-        });
+        isTransactionSuccessful(chainId, pendingTx)
+          .then((res) => {
+            if (res) {
+              setPendingTx("");
+              setIsApproved(res.status);
+            }
+          })
+          .catch(() => {
+            /* ignore — will retry on next tick */
+          });
       }, 8_000);
 
       return () => {
         clearInterval(i);
       };
     }
-  }, [pendingTx, rpcUrl]);
+  }, [chainId, pendingTx]);
 
   const checkApproval = useCallback(async () => {
     if (!spender || !account || !nftId || pendingTx) return;
@@ -78,29 +83,16 @@ export function useNftApproval({
     const encodedTokenId = nftId.toString(16).padStart(64, "0");
     const data = "0x" + methodSignature + encodedTokenId;
 
-    fetch(rpcUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    rpcFetch<string>(chainId, "eth_call", [
+      {
+        to: nftManagerContract,
+        data,
       },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "eth_call",
-        params: [
-          {
-            to: nftManagerContract,
-            data,
-          },
-          "latest",
-        ],
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setIsChecking(false);
+      "latest",
+    ])
+      .then((result) => {
         if (
-          decodeAddress((res?.result || "").slice(2))?.toLowerCase() ===
+          decodeAddress((result || "").slice(2))?.toLowerCase() ===
           spender.toLowerCase()
         )
           setIsApproved(true);
@@ -109,7 +101,7 @@ export function useNftApproval({
       .finally(() => {
         setIsChecking(false);
       });
-  }, [account, nftId, nftManagerContract, pendingTx, rpcUrl, spender]);
+  }, [account, chainId, nftId, nftManagerContract, pendingTx, spender]);
 
   useEffect(() => {
     checkApproval();

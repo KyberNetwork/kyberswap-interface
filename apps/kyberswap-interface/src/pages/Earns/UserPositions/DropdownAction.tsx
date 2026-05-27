@@ -93,7 +93,7 @@ const BottomDrawer = styled.div<{ open: boolean }>`
   background: ${({ theme }) => theme.tabActive};
   border-radius: 20px 20px 0 0;
   padding: 16px;
-  transform: translateY(${({ open }) => (open ? '-60px' : '100%')});
+  transform: translateY(${({ open }) => (open ? '0' : '100%')});
   transition: transform 0.3s ease-in-out;
   z-index: 1000;
 `
@@ -365,14 +365,16 @@ const DropdownAction = ({
           </DropdownContent>,
           document.body,
         )}
-      {upToExtraSmall && (
-        <>
-          <Overlay open={open} onClick={onClickOverlay} />
-          <BottomDrawer open={open}>
-            <DrawerContent>{renderActionItems()}</DrawerContent>
-          </BottomDrawer>
-        </>
-      )}
+      {upToExtraSmall &&
+        createPortal(
+          <>
+            <Overlay open={open} onClick={onClickOverlay} />
+            <BottomDrawer open={open}>
+              <DrawerContent>{renderActionItems()}</DrawerContent>
+            </BottomDrawer>
+          </>,
+          document.body,
+        )}
     </DropdownWrapper>
   )
 }

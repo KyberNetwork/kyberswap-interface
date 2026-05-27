@@ -26,8 +26,8 @@ const KyberSwapGeneralIntro = () => {
         }}
       >
         <Trans>
-          KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with{' '}
-          <b>superior token prices</b> by analyzing rates across thousands of exchanges instantly!
+          KyberSwap is a decentralized platform. We provide our traders with <b>superior token prices</b> by analyzing
+          rates across thousands of exchanges instantly!
         </Trans>
       </Text>
     )

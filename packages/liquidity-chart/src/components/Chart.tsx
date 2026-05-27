@@ -8,6 +8,7 @@ import AxisBottom from '@/components/AxisBottom';
 import Brush from '@/components/Brush';
 import Line from '@/components/Line';
 import Zoom from '@/components/Zoom';
+import { MIN_PRICE } from '@/constants';
 import type { ChartEntry, ChartProps } from '@/types';
 
 const xAccessor = (d: ChartEntry) => d.price;
@@ -51,7 +52,11 @@ export default function Chart({
 
     if (zoom) {
       const newXscale = zoom.rescaleX(scales.xScale);
-      scales.xScale.domain(newXscale.domain());
+      const domain = newXscale.domain();
+      // Clamp domain minimum to prevent negative prices
+      if (domain[0] < 0) domain[0] = 0;
+      if (domain[1] < MIN_PRICE) domain[1] = MIN_PRICE;
+      scales.xScale.domain(domain);
     }
 
     return scales;

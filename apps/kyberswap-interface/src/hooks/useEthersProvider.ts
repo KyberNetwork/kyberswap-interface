@@ -46,9 +46,3 @@ export function useEthersProvider({ chainId }: { chainId?: number } = {}) {
     [account.chainId, chainId, client, disconnectedClient],
   )
 }
-
-/** Hook to convert a connected viem Client to an ethers.js Provider. */
-export function useEthersWeb3Provider({ chainId }: { chainId?: number } = {}) {
-  const { data: client } = useConnectorClient({ chainId: chainId as any })
-  return useMemo(() => clientToProvider(client, chainId), [chainId, client])
-}

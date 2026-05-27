@@ -1,13 +1,15 @@
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
+import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
+import { HStack, Stack } from 'components/Stack'
 import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
@@ -18,11 +20,12 @@ import Filter from 'pages/Earns/PoolExplorer/Filter'
 import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import TableHeader from 'pages/Earns/PoolExplorer/TableHeader'
 import {
+  BackButton,
   ContentWrapper,
   Disclaimer,
   NavigateButton,
   PoolPageWrapper,
-  TableWrapper,
+  PoolTableWrapper,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
@@ -63,11 +66,29 @@ const PoolExplorer = () => {
     onOpenSmartExit,
   })
   const { widget: zapCreatePoolWidget, open: openZapCreatePoolWidget } = useZapCreatePoolWidget()
-  const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
+  const { data: poolData, isError, isFetching } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const pendingSearchRef = useRef('')
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+
+  const showRewards = useMemo(() => {
+    const pools = poolData?.data?.pools || []
+    if (!pools.length) return true
+
+    return pools.some(pool => {
+      if (pool.egUsd || pool.merklOpportunity?.rewardsRecord?.total) return true
+      if (pool.kemReward?.rewardCfg) return true
+      return false
+    })
+  }, [poolData?.data?.pools])
+
+  const showPoolPrice = useMemo(() => {
+    const pools = poolData?.data?.pools || []
+    if (!pools.length) return true
+
+    return pools.some(pool => pool.sparkline?.some(value => Number.isFinite(value) && value !== 0))
+  }, [poolData?.data?.pools])
 
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
@@ -101,6 +122,7 @@ const PoolExplorer = () => {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleOpenZapInWithParams = useCallback(
     ({ pool, initialTick }: ZapInInfo) => {
       const { dex, chainId, address } = pool
@@ -111,6 +133,20 @@ const PoolExplorer = () => {
       handleOpenZapIn({ pool, initialTick })
     },
     [handleOpenZapIn, searchParams, setSearchParams],
+  )
+
+  const handleNavigateToAddLiquidity = useCallback(
+    ({ pool, initialTick }: ZapInInfo) => {
+      const params = new URLSearchParams()
+      params.set('exchange', pool.dex)
+      params.set('poolChainId', pool.chainId.toString())
+      params.set('poolAddress', pool.address)
+      if (initialTick?.tickLower !== undefined) params.set('tickLower', initialTick.tickLower.toString())
+      if (initialTick?.tickUpper !== undefined) params.set('tickUpper', initialTick.tickUpper.toString())
+
+      navigate({ pathname: APP_PATHS.ADD_LIQUIDITY, search: `?${params.toString()}` })
+    },
+    [navigate],
   )
 
   const handleRemoveUrlParams = useCallback(() => {
@@ -199,17 +235,23 @@ const PoolExplorer = () => {
       {zapCreatePoolWidget}
       {smartExitWidget}
 
-      <div>
-        <Flex alignItems="center" sx={{ gap: 3 }}>
-          <IconArrowLeft onClick={() => navigate(-1)} />
-          <Text as="h1" fontSize={24} fontWeight="500">
+      <HiddenH1>Explore and compare yield opportunities across top DeFi protocols on multiple chains.</HiddenH1>
+      <HiddenH2>
+        Trading volume, TVL, and pool performance across networks - all from one interface without switching apps.
+      </HiddenH2>
+      <Stack gap={8}>
+        <HStack align="center" gap={16}>
+          <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
+            <IconArrowLeft />
+          </BackButton>
+          <Text fontSize={24} fontWeight="500">
             {t`Earning with Smart Liquidity Providing`}
           </Text>
-        </Flex>
-        <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
+        </HStack>
+        <Text color={theme.subText} fontStyle={'italic'}>
           {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </Text>
-      </div>
+      </Stack>
 
       <Filter
         filters={filters}
@@ -218,6 +260,7 @@ const PoolExplorer = () => {
         setSearch={setSearch}
         onOpenCreatePool={() => setIsCreateModalOpen(true)}
         totalItems={poolData?.data?.pagination?.totalItems}
+        isFetching={isFetching}
       />
 
       {upToLarge && (
@@ -229,10 +272,20 @@ const PoolExplorer = () => {
         />
       )}
 
-      <TableWrapper>
+      <PoolTableWrapper>
         <ContentWrapper>
-          <TableHeader onSortChange={onSortChange} filters={filters} />
-          <TableContent onOpenZapInWidget={handleOpenZapInWithParams} filters={filters} />
+          <TableHeader
+            onSortChange={onSortChange}
+            filters={filters}
+            showRewards={showRewards}
+            showPoolPrice={showPoolPrice}
+          />
+          <TableContent
+            onOpenZapInWidget={handleNavigateToAddLiquidity}
+            filters={filters}
+            showRewards={showRewards}
+            showPoolPrice={showPoolPrice}
+          />
         </ContentWrapper>
         {!isError && (
           <Pagination
@@ -242,7 +295,7 @@ const PoolExplorer = () => {
             pageSize={filters.limit || 10}
           />
         )}
-      </TableWrapper>
+      </PoolTableWrapper>
 
       <CreatePoolModal
         isOpen={isCreateModalOpen}

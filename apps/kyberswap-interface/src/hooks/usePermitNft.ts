@@ -15,7 +15,6 @@ export enum PermitNftState {
   READY_TO_SIGN = 'ready_to_sign',
   SIGNING = 'signing',
   SIGNED = 'signed',
-  ERROR = 'error',
 }
 
 export interface PermitNftParams {
@@ -49,7 +48,6 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
   const notify = useNotify()
   const [isSigningInProgress, setIsSigningInProgress] = useState(false)
   const [permitData, setPermitData] = useState<PermitNftResult | null>(null)
-  const [detectedVersion, setDetectedVersion] = useState<'v3' | 'v4' | null>(null)
 
   const nftContract = useReadingContract(contractAddress, NFT_PERMIT_ABI)
 
@@ -66,20 +64,11 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
   const actualVersion = useMemo(() => {
     if (version !== 'auto') return version
 
-    if (detectedVersion) return detectedVersion
+    if (noncesState?.result && !noncesState.error) return 'v4'
+    if (positionsState?.result && !positionsState.error) return 'v3'
 
-    if (noncesState?.result && !noncesState.error) {
-      setDetectedVersion('v4')
-      return 'v4'
-    }
-
-    // Try to detect based on available data
-    if (positionsState?.result && !positionsState.error) {
-      setDetectedVersion('v3')
-      return 'v3'
-    }
     return 'v4' // Default to v4 if uncertain
-  }, [version, detectedVersion, positionsState, noncesState])
+  }, [version, positionsState, noncesState])
 
   const permitState = useMemo(() => {
     if (!account || !contractAddress || !tokenId || !spender) {

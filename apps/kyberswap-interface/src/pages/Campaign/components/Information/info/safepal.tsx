@@ -35,6 +35,12 @@ const SafePalHowToSection = (): CampaignSectionComponent => {
       </li>
       <li>
         <Trans>
+          Each address can participate across multiple weeks, but can only claim a maximum of one SafePal wallet
+          throughout the entire campaign.
+        </Trans>
+      </li>
+      <li>
+        <Trans>
           Participants receive points from activities with Swap, Zap, Cross-Chain, Limit Order and Smart Exit Orders on{' '}
           <ExternalLink href="https://kyberswap.com">kyberswap.com</ExternalLink>.
         </Trans>
@@ -320,7 +326,12 @@ const SafePalFaqListSection = (): CampaignSectionComponent => {
     },
     {
       q: <Trans>Can I participate in multiple weeks?</Trans>,
-      a: <Trans>Yes, you can participate in multiple weeks.</Trans>,
+      a: (
+        <Trans>
+          Yes, each address can participate across multiple weeks, but can only claim a maximum of one SafePal wallet
+          throughout the entire campaign.
+        </Trans>
+      ),
     },
     {
       q: <Trans>How do I claim my SafePal X1 Hardware Wallet?</Trans>,

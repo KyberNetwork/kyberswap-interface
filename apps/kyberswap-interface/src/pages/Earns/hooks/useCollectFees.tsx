@@ -46,7 +46,15 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
   })
 
   const handleClaim = useCallback(async () => {
-    if (!library || !claimInfo?.dex || !EARN_DEXES[claimInfo.dex].collectFeeSupported) return
+    if (!library || !claimInfo?.dex) return
+    if (!EARN_DEXES[claimInfo.dex].collectFeeSupported) {
+      notify({
+        title: t`Error`,
+        type: NotificationType.ERROR,
+        summary: t`Collect fees is not supported on this dex`,
+      })
+      return
+    }
 
     const contract = getNftManagerContract(claimInfo.dex, claimInfo.chainId)
     if (!contract) return

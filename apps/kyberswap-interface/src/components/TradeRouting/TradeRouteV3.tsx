@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { getDexInfoByPool, selectPointsOnRectEdge } from 'components/TradeRouting/helpers'
-import { StyledDot } from 'components/TradeRouting/styled'
+import { RouteDot } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
@@ -19,25 +19,27 @@ interface SwapRouteV3Props {
   tokenIn: Token
 }
 
-const NodeWrapper = styled.div`
-  border: 1px solid ${rgba('#fff', 0.06)};
-  border-radius: 12px;
+const NodeCard = styled.div`
+  border: 1px solid ${({ theme }) => rgba(theme.white, 0.06)};
+  border-radius: 8px;
+  background: transparent;
   padding: 12px;
   width: 168px;
   position: relative;
 `
 
-const ListPool = styled.div`
+const NodePoolList = styled.div`
   margin-top: 12px;
-  border-radius: 12px;
-  padding: 12px 8px;
-  background: ${rgba('#fff', 0.06)};
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: ${({ theme }) => rgba(theme.white, 0.06)};
   display: flex;
   flex-direction: column;
   gap: 8px;
 `
 
 type Edge = { source: Token; target: Token; swaps: SwapRouteV3[] }
+type PathPoint = { x: number; y: number }
 
 // find the non overlap between the source rect and middle rects
 function findNonOverlapRanges(mainLine: [number, number], overlappingLines: [number, number][]): [number, number][] {
@@ -78,6 +80,43 @@ function findNonOverlapRanges(mainLine: [number, number], overlappingLines: [num
   }
 
   return availableRanges
+}
+
+const getPathPoints = (path: string): PathPoint[] => {
+  const matches = [...path.matchAll(/[ML]\s*([-\d.]+)\s+([-\d.]+)/g)]
+  return matches.map(([, x, y]) => ({ x: Number(x), y: Number(y) }))
+}
+
+const getDistanceBetweenPoints = (start: PathPoint, end: PathPoint) => Math.hypot(end.x - start.x, end.y - start.y)
+
+const getPointOnPathAtRatio = (path: string, ratio: number): PathPoint | null => {
+  const points = getPathPoints(path)
+  if (points.length < 2) return null
+
+  const segmentLengths = points.slice(1).map((point, index) => getDistanceBetweenPoints(points[index], point))
+  const totalLength = segmentLengths.reduce((sum, segmentLength) => sum + segmentLength, 0)
+  if (!totalLength) return null
+
+  const targetLength = totalLength * ratio
+  let traversedLength = 0
+
+  for (let index = 0; index < segmentLengths.length; index++) {
+    const segmentLength = segmentLengths[index]
+    const segmentStart = points[index]
+    const segmentEnd = points[index + 1]
+
+    if (traversedLength + segmentLength >= targetLength) {
+      const segmentRatio = (targetLength - traversedLength) / segmentLength
+      return {
+        x: segmentStart.x + (segmentEnd.x - segmentStart.x) * segmentRatio,
+        y: segmentStart.y + (segmentEnd.y - segmentStart.y) * segmentRatio,
+      }
+    }
+
+    traversedLength += segmentLength
+  }
+
+  return points[points.length - 1] ?? null
 }
 
 const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn }) => {
@@ -136,6 +175,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
   nodes.sort((a, b) => (maximumPathLengths[a.address] || 0) - (maximumPathLengths[b.address] || 0))
 
   const theme = useTheme()
+  const routePathColor = rgba(theme.white, 0.06)
   const svgRef = useRef<SVGSVGElement>(null)
 
   const [force, updateState] = useState(1)
@@ -167,8 +207,8 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
         forceUpdate()
       }}
     >
-      <StyledDot />
-      <StyledDot out />
+      <RouteDot />
+      <RouteDot out />
 
       <svg
         ref={svgRef}
@@ -450,7 +490,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   </text>
                   <path
                     d={`M ${x} ${y} L ${svgRect.width - 10} ${y}`}
-                    stroke={rgba('#fff', 0.06)}
+                    stroke={routePathColor}
                     strokeWidth="1.5"
                     markerEnd="url(#arrowhead)"
                     fill="none"
@@ -458,24 +498,28 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
 
                   <path
                     d={`M ${svgRect.width - 10} ${y} L ${svgRect.width - 10} 10`}
-                    stroke={rgba('#fff', 0.06)}
+                    stroke={routePathColor}
                     strokeWidth="1.5"
                     fill="none"
                   />
                 </>
               )}
               {isStartNode && lowestYForStartNode && (
-                <line x1={10} x2={10} y1={lowestYForStartNode} y2={10} stroke={rgba('#fff', 0.06)} strokeWidth="1.5" />
+                <line x1={10} x2={10} y1={lowestYForStartNode} y2={10} stroke={routePathColor} strokeWidth="1.5" />
               )}
               {finalEdges.map((item: any, index) => {
+                const labelPoint = isStartNode ? getPointOnPathAtRatio(item.path, 0.3) : null
+                const labelX = (labelPoint?.x ?? item.startX) + 4
+                const labelY = (labelPoint?.y ?? item.startY) + 3
+
                 return (
                   <React.Fragment key={index}>
-                    <text x={item.startX + 4} y={item.startY + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
+                    <text x={labelX} y={labelY} fontSize="10" fontWeight="500" fill={theme.primary}>
                       {item.percent}%
                     </text>
                     <path
                       d={item.path}
-                      stroke={rgba('#fff', 0.06)}
+                      stroke={routePathColor}
                       strokeWidth="1.5"
                       markerEnd="url(#arrowhead)"
                       fill="none"
@@ -492,7 +536,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
         justifyContent="space-evenly"
         ref={contentRef}
         sx={{
-          padding: '0 48px 120px',
+          padding: '0 48px 36px',
           gap: '48px',
           minWidth: maxLevel * 168 + (maxLevel + 1) * 48,
         }}
@@ -554,7 +598,7 @@ const RouteNode = ({
   }, [setNodeRects, node.address, tradeComposition])
 
   return (
-    <NodeWrapper ref={ref}>
+    <NodeCard ref={ref}>
       <Flex sx={{ gap: '4px' }} alignItems="center">
         <CurrencyLogo currency={node} size="20px" />
         <Text color={theme.subText} fontSize={12} fontWeight={500}>
@@ -565,7 +609,7 @@ const RouteNode = ({
       {edgesIn.map(edge => {
         const totalAmount = edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
         return (
-          <ListPool key={edge.source.address + edge.target.address}>
+          <NodePoolList key={edge.source.address + edge.target.address}>
             <Flex alignItems="center" sx={{ gap: '4px', fontSize: '12px' }} color={theme.subText}>
               {edge.source.symbol} → {edge.target.symbol}
             </Flex>
@@ -596,9 +640,9 @@ const RouteNode = ({
                 </Flex>
               )
             })}
-          </ListPool>
+          </NodePoolList>
         )
       })}
-    </NodeWrapper>
+    </NodeCard>
   )
 }

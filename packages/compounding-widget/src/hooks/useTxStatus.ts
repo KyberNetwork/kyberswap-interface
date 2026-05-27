@@ -11,13 +11,11 @@ import { TxStatus } from '@/types/index';
 export default function useTxStatus({ txHash }: { txHash?: string }) {
   const {
     chainId,
-    rpcUrl,
     txStatus: txStatusFromApp,
     txHashMapping,
   } = useWidgetStore(
     useShallow(s => ({
       chainId: s.chainId,
-      rpcUrl: s.rpcUrl,
       txStatus: s.txStatus,
       txHashMapping: s.txHashMapping,
     })),
@@ -54,7 +52,7 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
 
     const checkTxStatus = () => {
       if (txStatus !== '') return;
-      isTransactionSuccessful(rpcUrl, currentTxHash).then(res => {
+      isTransactionSuccessful(chainId, currentTxHash).then(res => {
         if (!res) return;
 
         if (res.status) {
@@ -69,7 +67,7 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
     return () => {
       clearInterval(interval);
     };
-  }, [chainId, rpcUrl, currentTxHash, txStatus, txStatusFromApp]);
+  }, [chainId, currentTxHash, txStatus, txStatusFromApp]);
 
   return { txStatus, currentTxHash };
 }

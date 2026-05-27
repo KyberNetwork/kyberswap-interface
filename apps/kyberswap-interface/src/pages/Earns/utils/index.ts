@@ -1,4 +1,5 @@
 import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
+import { Token } from '@kyber/schema'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
@@ -43,14 +44,20 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, exchang
 }
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
-  EARN_CHAINS[chainId as EarnChain].nativeAddress === tokenAddress.toLowerCase() ||
-  (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase())
+  EARN_CHAINS[chainId as EarnChain].nativeAddress === tokenAddress.toLowerCase()
 
-export const isUniswapExchange = (dex: Exchange) =>
-  dex === Exchange.DEX_UNISWAPV2 ||
-  dex === Exchange.DEX_UNISWAPV3 ||
-  dex === Exchange.DEX_UNISWAP_V4 ||
-  dex === Exchange.DEX_UNISWAP_V4_FAIRFLOW
+export const isWrappedNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
+  WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase()
+
+export const getDefaultRevertPrice = (pool: { token0: Token; token1: Token } | null, chainId: number) => {
+  if (!pool) return false
+
+  const isToken0Native = isWrappedNativeToken(pool.token0.address, chainId as keyof typeof WETH)
+  const isToken0Stable = pool.token0.isStable
+  const isToken1Stable = pool.token1.isStable
+
+  return Boolean(isToken0Stable || (isToken0Native && !isToken1Stable))
+}
 
 export const submitTransaction = async ({
   library,
@@ -74,6 +81,14 @@ export const submitTransaction = async ({
       error: null,
     }
   } catch (error) {
+    const txHash = (error as any)?.transactionHash as string | undefined
+    if (txHash) {
+      return {
+        txHash,
+        error: null,
+      }
+    }
+
     console.error('Submit transaction error:', error)
     if (onError) onError(error as Error)
     return {
@@ -98,3 +113,6 @@ export const getNftManagerContract = (dex: Exchange, chainId: number) => {
 
   return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi, chainId as ChainId)
 }
+
+export const truncateSymbol = (symbol: string, maxLength = 10) =>
+  symbol.length > maxLength ? symbol.slice(0, maxLength) + '...' : symbol

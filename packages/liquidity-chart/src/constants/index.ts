@@ -2,6 +2,9 @@ import { POOL_CATEGORY } from '@kyber/schema';
 
 export const PRICE_FIXED_DIGITS = 8;
 
+// Keep the brush strictly positive without collapsing very small-price pools into the visible range.
+export const MIN_PRICE = 1 / 10 ** 30;
+
 export const DEFAULT_DIMENSIONS = { width: 400, height: 200 };
 
 export const DEFAULT_MARGINS = {

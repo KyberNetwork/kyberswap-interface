@@ -1,0 +1,97 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://aggregator-api.kyberswap.com",
+      "service-desc": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/aggregator-api/aggregator-api-specification/evm-swaps.md",
+          "type": "text/markdown"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/aggregator-api/aggregator-api-specification",
+          "type": "text/html"
+        },
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/aggregator-api/aggregator-api-specification/evm-swaps",
+          "type": "text/html"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/start-here/rate-limits-and-client-id",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://kyber.statuspage.io",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://limit-order.kyberswap.com",
+      "service-desc": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/limit-order-api/api-reference.md",
+          "type": "text/markdown"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/limit-order-api/api-reference",
+          "type": "text/html"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/limit-order-api/api-reference/error-code-reference",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://kyber.statuspage.io",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://zap-api.kyberswap.com",
+      "service-desc": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/api-reference.md",
+          "type": "text/markdown"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/api-reference",
+          "type": "text/html"
+        },
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/api-reference/zaas-http-api",
+          "type": "text/html"
+        },
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/api-reference/zaas-grpc-api",
+          "type": "text/html"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://docs.kyberswap.com/developer-guide/zap-as-a-service-zaas-api/zaps-supported-chains-dexes",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://kyber.statuspage.io",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}

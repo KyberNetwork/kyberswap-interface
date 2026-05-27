@@ -95,6 +95,12 @@ export interface RpcClientConfig {
 
   /** Event handlers for telemetry and monitoring */
   eventHandlers?: RpcEventHandlers;
+
+  /** Max block lag allowed before marking an endpoint as stale (default: 50) */
+  maxBlockLag?: number;
+
+  /** Interval in ms between background block freshness probes (default: 60000). Set to 0 to disable. */
+  probeIntervalMs?: number;
 }
 
 /**
@@ -124,7 +130,14 @@ export class AllEndpointsFailedError extends Error {
     public readonly chainId: number,
     public readonly errors: Array<{ endpoint: string; error: Error }>,
   ) {
-    super(`All RPC endpoints failed for chain ${chainId}`);
+    // Inner error.message already carries the `Rpc issue: [method @ host] ...`
+    // prefix from the client's throw sites. Strip it so the composed message
+    // keeps a single leading "Rpc issue:" instead of nesting it per-endpoint.
+    const reasons = errors.map(({ error }) => error.message.replace(/^Rpc issue:\s*/, '')).join(' | ');
+    super(
+      `Rpc issue: all ${errors.length} RPC endpoint${errors.length === 1 ? '' : 's'} failed for chain ${chainId}` +
+        (reasons ? ` — ${reasons}` : ''),
+    );
     this.name = 'AllEndpointsFailedError';
   }
 }

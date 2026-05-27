@@ -1,31 +1,25 @@
 import { useFormo } from '@formo/analytics'
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel, { crossChainMixpanel } from 'libs/mixpanel'
-import { useCallback, useEffect, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
-import { useLocation } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
 import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { RANGE } from 'state/mint/proamm/type'
+import { sanitizeFormoPayload } from 'hooks/sanitizeFormoPayload'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
 export enum TRACKING_EVENT_TYPE {
-  PAGE_VIEWED,
-  WALLET_CONNECTED,
   WALLET_CONNECT_CLICK,
   WALLET_CONNECT_ACCEPT_TERM_CLICK,
   WALLET_CONNECT_WALLET_CLICK,
   SWAP_INITIATED,
   SWAP_CONFIRMED,
   SWAP_COMPLETED,
-  SWAP_TYPED_ON_THE_TEXT_BOX,
-  SWAP_INPUT_AMOUNT,
   SWAP_SETTINGS_CLICK,
   SWAP_TUTORIAL_CLICK,
   SWAP_TOKEN_INFO_CLICK,
@@ -42,7 +36,6 @@ export enum TRACKING_EVENT_TYPE {
   TRADING_ROUTE_ON_MOBILE,
   TOKEN_INFO_CHECKED,
   TOKEN_SWAP_LINK_SHARED,
-  CHAIN_SWITCHED,
   ADD_FAVORITE_CHAIN,
   REMOVE_FAVORITE_CHAIN,
   CREATE_POOL_INITITATED,
@@ -114,10 +107,6 @@ export enum TRACKING_EVENT_TYPE {
   DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON,
   DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS,
   DISCOVER_UNSUBSCRIBE_TRENDING_SOON_SUCCESS,
-  TRANSAK_BUY_CRYPTO_CLICKED,
-  TRANSAK_DOWNLOAD_WALLET_CLICKED,
-  TRANSAK_SWAP_NOW_CLICKED,
-  SWAP_BUY_CRYPTO_CLICKED,
 
   // for tutorial swap
   TUTORIAL_CLICK_START,
@@ -203,8 +192,6 @@ export enum TRACKING_EVENT_TYPE {
   // Menu header
   MENU_MENU_CLICK,
   MENU_PREFERENCE_CLICK,
-  MENU_CLAIM_REWARDS_CLICK,
-  SUPPORT_CLICK,
 
   // price alert
   PA_CLICK_TAB_IN_NOTI_CENTER,
@@ -217,14 +204,6 @@ export enum TRACKING_EVENT_TYPE {
   PERMIT_FAILED_TOO_MANY_TIMES,
 
   ACCEPT_NEW_AMOUNT,
-
-  // cross chain
-  CROSS_CHAIN_CLICK_DISCLAIMER,
-  CROSS_CHAIN_SWAP_INIT,
-  CROSS_CHAIN_SWAP_CONFIRMED,
-  CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX,
-  CROSS_CHAIN_TXS_SUBMITTED,
-  CROSS_CHAIN_CLICK_SUBSCRIBE,
 
   // earning dashboard
   EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON,
@@ -251,6 +230,7 @@ export enum TRACKING_EVENT_TYPE {
 
   // Swap form interactions
   TOKEN_SELECTED,
+  TOKEN_SEARCHED,
   AMOUNT_ENTERED,
   TOKEN_PAIR_REVERSED,
   MAX_BALANCE_CLICKED,
@@ -297,6 +277,32 @@ export enum TRACKING_EVENT_TYPE {
   LIQ_ADD_FAILED,
   LIQ_ADD_CANCELLED,
 
+  // Earn: Migrate
+  EARN_MIGRATE_INITIATED,
+  EARN_MIGRATE_COMPLETED,
+  EARN_MIGRATE_FAILED,
+
+  // Earn: Reposition
+  EARN_REPOSITION_INITIATED,
+  EARN_REPOSITION_COMPLETED,
+  EARN_REPOSITION_FAILED,
+
+  // Earn: Zap Out
+  EARN_ZAP_OUT_INITIATED,
+  EARN_ZAP_OUT_COMPLETED,
+  EARN_ZAP_OUT_FAILED,
+
+  // Earn: Manual Remove
+  EARN_MANUAL_REMOVE_INITIATED,
+  EARN_MANUAL_REMOVE_COMPLETED,
+  EARN_MANUAL_REMOVE_FAILED,
+
+  // Earn: Smart Exit
+  EARN_SMART_EXIT_CREATED,
+  EARN_SMART_EXIT_COMPLETED,
+  EARN_SMART_EXIT_FAILED,
+  EARN_SMART_EXIT_CANCELLED,
+
   // Earn: Pool Discovery
   POOL_CATEGORY_SELECTED,
   POOL_FILTER_APPLIED,
@@ -313,7 +319,6 @@ export enum TRACKING_EVENT_TYPE {
   WALLET_EXTERNAL_LINK_CLICKED,
   WALLET_PINNED,
   BALANCE_VISIBILITY_TOGGLED,
-  WALLET_BUY_CLICKED,
   WALLET_RECEIVE_CLICKED,
   WALLET_SEND_CLICKED,
   WALLET_SEND_INITIATED,
@@ -375,7 +380,6 @@ export const useCrossChainMixpanel = () => {
 
 export default function useTracking(currencies?: { [field in Field]?: Currency }) {
   const { account, networkInfo } = useActiveWeb3React()
-  const network = networkInfo.name
   const analytics = useFormo()
 
   const inputCurrencyFromHook = useInputCurrency()
@@ -390,7 +394,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
 
   const formoTrack = useCallback(
     (eventName: string, properties?: Record<string, any>) => {
-      analytics?.track(eventName, properties)
+      analytics?.track(eventName, sanitizeFormoPayload(properties))
     },
     [analytics],
   )
@@ -399,11 +403,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
     (type: TRACKING_EVENT_TYPE, payload?: any) => {
       // Anonymous events
       switch (type) {
-        case TRACKING_EVENT_TYPE.PAGE_VIEWED: {
-          const { page } = payload
-          page && formoTrack(page + ' Page Viewed')
-          break
-        }
         case TRACKING_EVENT_TYPE.WALLET_CONNECT_CLICK: {
           formoTrack('Wallet Connect - Connect Wallet Button Click')
           break
@@ -416,28 +415,12 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Wallet Connect - Wallet click', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.CHAIN_SWITCHED: {
-          const { old_network, new_network } = payload
-          formoTrack('Chain Switched', {
-            old_network,
-            new_network,
-          })
-          break
-        }
       }
       if (!account) {
         return
       }
       // Need connect wallet events
       switch (type) {
-        case TRACKING_EVENT_TYPE.WALLET_CONNECTED:
-          formoTrack('Wallet Connected', {
-            wallet_address: account,
-            platform: isMobile ? 'Mobile' : 'Web',
-            network,
-            source: location.pathname,
-          })
-          break
         case TRACKING_EVENT_TYPE.ADD_FAVORITE_CHAIN:
           formoTrack('Favourite Chain - Add chain over favourite list success', payload)
           break
@@ -464,7 +447,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           } = (payload || {}) as {
             gasUsd: number | string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
@@ -484,7 +466,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps?: number
             route_split?: boolean
             chain?: string
-            volume?: number
           }
 
           const body: Record<string, any> = {
@@ -508,7 +489,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           }
 
           if (feeInfo) {
@@ -1016,22 +996,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Faucet feature - Request faucet Completed')
           break
         }
-        case TRACKING_EVENT_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED: {
-          formoTrack('Buy Crypto - Download a wallet "Download Wallet”')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_BUY_CRYPTO_CLICKED: {
-          formoTrack('Buy Crypto - To purchase crypto on Transak "Buy Now”')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_SWAP_NOW_CLICKED: {
-          formoTrack('Buy Crypto - Swap token on KyberSwap "Swap" button')
-          break
-        }
-        case TRACKING_EVENT_TYPE.SWAP_BUY_CRYPTO_CLICKED: {
-          formoTrack('Buy Crypto - Click on Buy Crypto on KyberSwap')
-          break
-        }
         case TRACKING_EVENT_TYPE.TUTORIAL_CLICK_START: {
           formoTrack('On-Screen Guide - User click on "View" in Setting to view guide')
           break
@@ -1327,7 +1291,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           const { token_1, token_2, range } = payload as {
             token_1: string
             token_2: string
-            range: RANGE
+            range: string
           }
           formoTrack('Elastic - Add Liquidity page - Select range for pool', {
             token_1,
@@ -1387,31 +1351,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.ACCEPT_NEW_AMOUNT: {
           formoTrack('Accept New Amount Button Click', payload)
-          break
-        }
-
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER: {
-          mixpanel.track('Cross-chain - Disclaimer click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX: {
-          mixpanel.track('Cross chain - Disclaimer checkbox click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE: {
-          mixpanel.track('Cross chain - Subscribe click')
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_INIT: {
-          mixpanel.track('Cross chain - Swap Initiated', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_SWAP_CONFIRMED: {
-          mixpanel.track('Cross chain - Swap Confirmed', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.CROSS_CHAIN_TXS_SUBMITTED: {
-          mixpanel.track('Cross chain - Transaction Submitted', payload)
           break
         }
 
@@ -1507,6 +1446,10 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         // Swap form interaction events
         case TRACKING_EVENT_TYPE.TOKEN_SELECTED: {
           formoTrack('Token Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TOKEN_SEARCHED: {
+          formoTrack('Token Searched', payload)
           break
         }
         case TRACKING_EVENT_TYPE.AMOUNT_ENTERED: {
@@ -1660,6 +1603,80 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           break
         }
 
+        // Earn: Migrate
+        case TRACKING_EVENT_TYPE.EARN_MIGRATE_INITIATED: {
+          formoTrack('Earn Migrate Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_MIGRATE_COMPLETED: {
+          formoTrack('Earn Migrate Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_MIGRATE_FAILED: {
+          formoTrack('Earn Migrate Failed', payload)
+          break
+        }
+
+        // Earn: Reposition
+        case TRACKING_EVENT_TYPE.EARN_REPOSITION_INITIATED: {
+          formoTrack('Earn Reposition Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_REPOSITION_COMPLETED: {
+          formoTrack('Earn Reposition Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_REPOSITION_FAILED: {
+          formoTrack('Earn Reposition Failed', payload)
+          break
+        }
+
+        // Earn: Zap Out
+        case TRACKING_EVENT_TYPE.EARN_ZAP_OUT_INITIATED: {
+          formoTrack('Earn Zap Out Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_ZAP_OUT_COMPLETED: {
+          formoTrack('Earn Zap Out Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_ZAP_OUT_FAILED: {
+          formoTrack('Earn Zap Out Failed', payload)
+          break
+        }
+
+        // Earn: Manual Remove
+        case TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_INITIATED: {
+          formoTrack('Earn Manual Remove Initiated', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_COMPLETED: {
+          formoTrack('Earn Manual Remove Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_MANUAL_REMOVE_FAILED: {
+          formoTrack('Earn Manual Remove Failed', payload)
+          break
+        }
+
+        // Earn: Smart Exit
+        case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_CREATED: {
+          formoTrack('Earn Smart Exit Created', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_COMPLETED: {
+          formoTrack('Earn Smart Exit Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_FAILED: {
+          formoTrack('Earn Smart Exit Failed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_CANCELLED: {
+          formoTrack('Earn Smart Exit Cancelled', payload)
+          break
+        }
+
         case TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED: {
           formoTrack('Pool Category Selected', payload)
           break
@@ -1712,10 +1729,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.BALANCE_VISIBILITY_TOGGLED: {
           formoTrack('Balance Visibility Toggled', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.WALLET_BUY_CLICKED: {
-          formoTrack('Wallet Buy Clicked', payload)
           break
         }
         case TRACKING_EVENT_TYPE.WALLET_RECEIVE_CLICKED: {
@@ -1771,7 +1784,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
       }
     },
     /* eslint-disable */
-    [currencies, network, account, mixpanel.hasOwnProperty('get_distinct_id'), formoTrack],
+    [currencies, account, mixpanel.hasOwnProperty('get_distinct_id'), formoTrack],
     /* eslint-enable */
   )
   return { trackingHandler }
@@ -1779,14 +1792,8 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
 
 export const useGlobalTrackingEvents = () => {
   const { account, chainId } = useActiveWeb3React()
-  const { trackingHandler } = useTracking()
   const analytics = useFormo()
   const oldNetwork = usePrevious(chainId)
-  const location = useLocation()
-  const pathName = useMemo(() => {
-    if (location.pathname.split('/')[1] !== 'elastic') return location.pathname.split('/')[1]
-    return 'elastic/' + location.pathname.split('/')[2]
-  }, [location])
 
   useEffect(() => {
     if (account && isAddress(account)) {
@@ -1826,8 +1833,6 @@ export const useGlobalTrackingEvents = () => {
       crossChainMixpanel?.people.set(params)
       crossChainMixpanel?.people.set_once(first_params)
       crossChainMixpanel?.register_once(params)
-
-      trackingHandler(TRACKING_EVENT_TYPE.WALLET_CONNECTED)
     }
     return () => {
       if (account) {
@@ -1840,43 +1845,8 @@ export const useGlobalTrackingEvents = () => {
 
   useEffect(() => {
     if (oldNetwork) {
-      trackingHandler(TRACKING_EVENT_TYPE.CHAIN_SWITCHED, {
-        new_network: chainId && NETWORKS_INFO[chainId].name,
-        old_network: oldNetwork && NETWORKS_INFO[oldNetwork as ChainId].name,
-      })
       crossChainMixpanel?.register({ network: chainId && NETWORKS_INFO[chainId].name })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
-
-  useEffect(() => {
-    if (pathName) {
-      const map: { [key: string]: string } = {
-        swap: 'Swap',
-        find: 'Pool Finder',
-        pools: 'Pools',
-        farms: 'Farms',
-        myPools: 'My Pools',
-        migration: 'Migration',
-        create: 'Create Pool',
-        add: 'Add Liquidity',
-        remove: 'Remove Liquidity',
-        about: 'About',
-        discover: 'Discover',
-        'elastic/remove': 'Elastic - Remove Liquidity',
-        'elastic/add': 'Elastic - Add Liquidity',
-        'elastic/increase': 'Elastic - Increase Liquidity',
-        'buy-crypto': 'Buy Crypto',
-        bridge: 'Bridge',
-        '/kyberdao/stake-knc': 'KyberDAO Stake',
-        '/kyberdao/vote': 'KyberDAO Vote',
-        limit: 'Limit Order',
-        'cross-chain': 'Cross Chain',
-        'notification-center': 'Notification',
-      }
-      const pageName = map[pathName] || map[location.pathname]
-      pageName && trackingHandler(TRACKING_EVENT_TYPE.PAGE_VIEWED, { page: pageName })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathName, account, chainId, location.pathname])
 }

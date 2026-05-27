@@ -31,7 +31,6 @@ import X from "@/assets/x.svg";
 import ErrorIcon from "@/assets/error.svg";
 import {
   MAX_ZAP_IN_TOKENS,
-  NetworkInfo,
   POSITION_MANAGER_CONTRACT,
   CoreProtocol,
 } from "@/constants";
@@ -89,7 +88,7 @@ export default function Content({
     pendingTx: pendingTxNft,
     checkApproval: checkNftApproval,
   } = useNftApproval({
-    rpcUrl: NetworkInfo[chainId].defaultRpc,
+    chainId,
     nftManagerContract,
     nftId: positionId ? +positionId : undefined,
     spender: zapInfo?.routerAddress,

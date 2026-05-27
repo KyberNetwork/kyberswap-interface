@@ -4,6 +4,7 @@ import type { BrushBehavior, D3BrushEvent } from 'd3';
 import { brushX, select } from 'd3';
 
 import { OffScreenHandle, brushHandlePath } from '@/components/svg';
+import { MIN_PRICE } from '@/constants';
 import usePreviousValue from '@/hooks/usePreviousValue';
 import type { BrushProps } from '@/types';
 import { compare } from '@/utils';
@@ -46,6 +47,12 @@ export default function Brush({
 
       const scaled = (selection as [number, number]).map(xScale.invert) as [number, number];
 
+      // Clamp to prevent negative prices
+      if (scaled[0] < MIN_PRICE) scaled[0] = MIN_PRICE;
+      if (scaled[1] < MIN_PRICE) scaled[1] = MIN_PRICE;
+      // Ensure left < right after clamping to avoid degenerate range
+      if (scaled[0] >= scaled[1]) return;
+
       // avoid infinite render loop by checking for change
       if (type === 'end' && !compare(brushExtent, scaled, xScale) && zoomInited && setBrushExtent) {
         setBrushExtent(scaled, mode);
@@ -68,7 +75,7 @@ export default function Brush({
 
     brushBehavior.current = brushX<SVGGElement>()
       .extent([
-        [Math.max(0 + BRUSH_EXTENT_MARGIN_PX, xScale(0)), 0],
+        [Math.max(BRUSH_EXTENT_MARGIN_PX, xScale(0)), 0],
         [innerWidth - BRUSH_EXTENT_MARGIN_PX, innerHeight],
       ])
       .handleSize(30)

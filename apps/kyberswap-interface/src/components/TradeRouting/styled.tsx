@@ -1,17 +1,74 @@
-import { rgba } from 'polished'
 import styled, { css } from 'styled-components'
 
-export const StyledContainer = styled.div`
+const fadeOverlayBase = css`
+  content: '';
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+`
+
+const tradeRoutePoolItemStyles = css`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 12px;
+  color: ${({ theme }) => theme.subText};
+  font-size: 10px;
+  line-height: 20px;
+  white-space: nowrap;
+  text-decoration: none;
+
+  & > .img--sm {
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+  }
+`
+
+export const RoutingFadeY = styled.div<{ backgroundColor?: string }>`
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+
+  &:before,
+  &:after {
+    ${fadeOverlayBase};
+    left: 50%;
+    z-index: 3;
+    width: 100%;
+    height: 50px;
+    transform: translateX(-50%);
+    transition: all 0.2s ease;
+  }
+
+  &:before {
+    top: 0;
+    background: linear-gradient(to bottom, ${({ backgroundColor }) => backgroundColor}, transparent);
+  }
+
+  &:after {
+    bottom: 0;
+    background: linear-gradient(to top, ${({ backgroundColor }) => backgroundColor}, transparent);
+  }
+
+  &.top:before,
+  &.bottom:after {
+    opacity: 1;
+  }
+`
+
+export const RoutingViewport = styled.div`
   flex: 1;
-  max-height: 100%;
-  max-width: 100%;
   margin-left: 0;
-  overflow-y: scroll;
+  max-width: 100%;
+  max-height: 100%;
   overflow-x: hidden;
+  overflow-y: scroll;
 
   &::-webkit-scrollbar {
-    width: 6px;
     height: 6px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-thumb {
@@ -29,110 +86,45 @@ export const StyledContainer = styled.div`
   }
 `
 
-export const Shadow = styled.div<{ backgroundColor?: string }>`
+export const PairRow = styled.div`
   position: relative;
-  min-height: 0;
-  overflow: hidden;
-
-  &:before,
-  &:after {
-    content: '';
-    display: block;
-    z-index: 3;
-    pointer-events: none;
-    position: absolute;
-    height: 50px;
-    width: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: all 0.2s ease;
-    opacity: 0;
-  }
-
-  &:before {
-    background: linear-gradient(to bottom, ${({ backgroundColor }) => backgroundColor}, transparent);
-    top: 0;
-  }
-
-  &:after {
-    background: linear-gradient(to top, ${({ backgroundColor }) => backgroundColor}, transparent);
-    bottom: 0;
-  }
-
-  &.top:before,
-  &.bottom:after {
-    opacity: 1;
-  }
-`
-export const StyledPercent = styled.div<{ backgroundColor?: string }>`
-  font-size: 12px;
-  line-height: 14px;
-  font-weight: 700;
-  position: absolute;
-  top: calc(50% - 15px);
-  left: 8px;
-  transform: translateY(50%);
-  z-index: 2;
-  color: ${({ theme }) => theme.primary};
-  background: ${({ backgroundColor }) => backgroundColor};
-`
-export const StyledDot = styled.i<{ out?: boolean }>`
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 100%;
-  position: absolute;
-  top: 0;
-  left: ${({ out }) => (out ? 'unset' : '6.5px')};
-  right: ${({ out }) => (out ? '6.5px' : 'unset')};
-  z-index: 1;
-  background-color: ${({ theme }) => theme.primary};
-`
-
-export const StyledPair = styled.div`
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding-top: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 `
 
-export const StyledPairLine = styled.div`
-  flex: auto;
-  min-width: 50px;
-  border-bottom: 1px solid ${rgba('#fff', 0.1)};
-  height: 1px;
-`
-export const StyledWrapToken = styled.div`
+export const PairTokenSlot = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 100px;
   width: max-content;
-  font-size: 16px;
-  font-weight: 500;
-  white-space: nowrap;
+  min-width: 100px;
   min-height: 38px;
   border-radius: 0.5rem;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 500;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     min-width: 120px;
   `}
 `
-export const StyledToken = styled.a<{ reverse?: boolean }>`
-  width: 100%;
+
+export const TokenLink = styled.a<{ reverse?: boolean }>`
   display: flex;
   align-items: center;
+  width: 100%;
+  padding-bottom: 8px;
   white-space: nowrap;
-  text-decoration: none;
   color: ${({ theme }) => theme.subText};
+  text-decoration: none;
   ${({ reverse }) =>
     reverse &&
     css`
       flex-direction: row-reverse;
       justify-content: flex-start;
     `}
-  padding-bottom: 7px;
 
   & > span {
     margin-left: 4px;
@@ -140,37 +132,51 @@ export const StyledToken = styled.a<{ reverse?: boolean }>`
   }
 `
 
-export const StyledRoutes = styled.div`
-  margin: auto;
-  width: 100%;
+export const RouteList = styled.div`
   position: relative;
+  width: 100%;
+  margin: auto;
   padding: 20px 10px 0;
 
   &:before {
-    position: absolute;
-    display: block;
     content: '';
-    top: 0;
+    position: absolute;
     right: 0;
+    top: 0;
+    display: block;
   }
 `
-export const StyledRoute = styled.div`
-  display: flex;
-  justify-content: flex-end;
+
+export const RouteDot = styled.i<{ out?: boolean }>`
+  position: absolute;
+  top: 0;
+  left: ${({ out }) => (out ? 'unset' : '6.5px')};
+  right: ${({ out }) => (out ? '6.5px' : 'unset')};
+  z-index: 1;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 100%;
+  background-color: ${({ theme }) => theme.primary};
+`
+
+export const RouteRow = styled.div`
   position: relative;
+  display: flex;
   align-items: center;
+  justify-content: flex-end;
 
   &:before,
   &:after {
     content: '';
+    position: absolute;
     display: block;
-    border-left: 1px solid ${({ theme }) => theme.border};
     width: 100%;
     height: calc(50% + 20px);
-    position: absolute;
-    border-right: 1px solid ${({ theme }) => theme.border};
     box-sizing: border-box;
     pointer-events: none;
+    border-right: 1px solid ${({ theme }) => theme.buttonGray};
+    border-left: 1px solid ${({ theme }) => theme.buttonGray};
   }
 
   &:before {
@@ -185,101 +191,52 @@ export const StyledRoute = styled.div`
     display: none;
   }
 `
-export const StyledRouteLine = styled.div`
+
+export const RouteBadge = styled.div`
   position: absolute;
-  border-bottom: 1px solid ${rgba('#fff', 0.1)};
-  width: calc(100% - 68px);
-  left: 43px;
-`
-export const StyledHops = styled.div<{ length: string | number }>`
-  z-index: 1;
-  display: flex;
-  align-items: center;
+  top: calc(50% - 15px);
+  left: 8px;
+  z-index: 2;
+  padding: 0 4px;
+  transform: translateY(50%);
+  background: ${({ theme }) => theme.buttonBlack};
+  color: ${({ theme }) => theme.primary};
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 14px;
 `
 
-export const StyledHop = styled.div`
-  padding: 12px;
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border: 1px solid ${rgba('#fff', 0.1)};
-  height: fit-content;
-  position: relative;
-  flex: 0 0 146px;
-  margin: auto;
-  transition: filter 0.15s ease;
-  cursor: pointer;
-
-  :hover {
-    filter: brightness(130%);
-  }
-`
-export const StyledExchange = styled.a`
-  display: flex;
-  align-items: center;
+export const RouteConnector = styled.div`
+  position: absolute;
+  left: 0px;
   width: 100%;
-  font-size: 10px;
-  border-radius: 12px;
-  color: ${({ theme }) => theme.subText};
-  line-height: 20px;
-  white-space: nowrap;
-  text-decoration: none;
-
-  &:hover {
-    color: ${({ theme }) => theme.white};
-  }
-
-  & > .img--sm {
-    width: 14px;
-    height: 14px;
-    margin-right: 4px;
-  }
-`
-export const StyledExchangeStatic = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  font-size: 10px;
-  border-radius: 12px;
-  color: ${({ theme }) => theme.subText};
-  line-height: 20px;
-  white-space: nowrap;
-  text-decoration: none;
-
-  & > .img--sm {
-    width: 14px;
-    height: 14px;
-    margin-right: 4px;
-  }
+  border-bottom: 1px solid ${({ theme }) => theme.buttonGray};
 `
 
-export const StyledWrap = styled.div<{ backgroundColor?: string }>`
-  width: calc(100% - 68px);
+export const RoutingFadeX = styled.div<{ backgroundColor?: string }>`
   margin: 10px 0 10px 6px;
+  width: calc(100% - 68px);
 
   &:after,
   &:before {
-    transition: all 0.1s ease;
-    content: '';
-    display: block;
-    z-index: 2;
-    pointer-events: none;
-    position: absolute;
+    ${fadeOverlayBase};
     inset: 0 0 auto auto;
+    top: 50%;
+    z-index: 2;
     width: 40px;
     height: calc(100% - 20px);
-    top: 50%;
     transform: translateY(-50%);
-    opacity: 0;
+    transition: all 0.1s ease;
   }
 
   &:after {
-    background: linear-gradient(to right, ${({ backgroundColor }) => backgroundColor}, transparent);
     left: 42px;
+    background: linear-gradient(to right, ${({ backgroundColor }) => backgroundColor}, transparent);
   }
 
   &:before {
-    background: linear-gradient(to left, ${({ backgroundColor }) => backgroundColor}, transparent);
     right: 24px;
+    background: linear-gradient(to left, ${({ backgroundColor }) => backgroundColor}, transparent);
   }
 
   &.left-visible:after,
@@ -288,17 +245,56 @@ export const StyledWrap = styled.div<{ backgroundColor?: string }>`
   }
 `
 
-export const StyledHopChevronRight = styled.div`
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 5px solid ${({ theme }) => theme.primary};
+export const HopList = styled.div`
+  display: flex;
+  align-items: center;
+  z-index: 1;
 `
 
-export const StyledHopChevronWrapper = styled.div`
-  min-width: 24px;
-  height: 24px;
+export const HopCard = styled.div`
+  position: relative;
+  flex: 0 0 168px;
+  height: fit-content;
+  margin: auto;
+  padding: 12px;
+  border: 1px solid ${({ theme }) => theme.buttonGray};
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.buttonBlack};
+`
+
+export const PoolList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: ${({ theme }) => theme.background};
+`
+
+export const PoolLink = styled.a`
+  ${tradeRoutePoolItemStyles};
+
+  &:hover {
+    color: ${({ theme }) => theme.white};
+  }
+`
+
+export const PoolLabel = styled.div`
+  ${tradeRoutePoolItemStyles};
+`
+
+export const RouteArrow = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 24px;
+  height: 24px;
   z-index: 1;
+`
+
+export const ArrowHead = styled.div`
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid ${({ theme }) => theme.primary};
 `

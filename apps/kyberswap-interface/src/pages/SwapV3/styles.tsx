@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import { highlight } from 'components/swapv2/styleds'
 import { BodyWrapper } from 'pages/AppBody'
 
@@ -21,41 +20,16 @@ export const SwitchLocaleLinkWrapper = styled.div`
 `}
 `
 
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 27px;
-  width: 27px;
-  margin-right: 10px;
-  path {
-    fill: ${({ theme }) => theme.subText} !important;
-  }
-`
-
 export const BannerWrapper = styled.div`
   width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   gap: 20px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
   overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
-  `}
-`
-
-export const TrendingWrapper = styled.div`
-  width: 40%;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    width: 100%;
-  `}
-`
-
-export const FarmingWrapper = styled.div`
-  width: calc(60% - 20px);
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    width: 100%;
+    display: none;
   `}
 `

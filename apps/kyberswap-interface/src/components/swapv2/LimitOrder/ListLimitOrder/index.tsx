@@ -11,15 +11,13 @@ import TabSelector from './TabSelector'
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
-  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.darkBorder};
   overflow: hidden;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-left: -16px;
     width: 100vw;
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
+    border-radius: 0px;
     border: none;
   `};
 `

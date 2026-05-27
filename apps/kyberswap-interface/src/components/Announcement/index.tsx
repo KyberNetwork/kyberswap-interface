@@ -83,8 +83,12 @@ function AnnouncementComponent() {
     announcements: generalAnnouncements,
     preview: generalPreview,
     total: generalTotal,
+    unread: generalUnread,
+    isMarkAllLoading: isReadingAllGeneral,
     fetchList: fetchGeneralAnnouncements,
     fetchPreview: fetchGeneralPreview,
+    markAsRead: onGeneralAnnouncementRead,
+    markAllAsRead: onMarkAllGeneral,
     reset: resetGeneralAnnouncements,
   } = useGeneralAnnouncements()
 
@@ -261,6 +265,13 @@ function AnnouncementComponent() {
   const isAnnouncementsCategory = selectedCategory === Category.ANNOUNCEMENTS
   const selectedPrivateCategory =
     selectedCategory && !isAnnouncementsCategory ? privateCategoryMap[selectedCategory] : undefined
+  const selectedCategoryState = isAnnouncementsCategory
+    ? {
+        unread: generalUnread,
+        isMarkAllLoading: isReadingAllGeneral,
+        markAllAsRead: onMarkAllGeneral,
+      }
+    : selectedPrivateCategory
 
   const [currentAnnouncements, currentTotal, totalForView] = isAnnouncementsCategory
     ? [generalAnnouncements, generalTotal ?? 0, generalPreview.total ?? generalTotal ?? 0]
@@ -270,7 +281,7 @@ function AnnouncementComponent() {
         selectedPrivateCategory?.preview.total ?? selectedPrivateCategory?.total ?? 0,
       ]
 
-  const announcementCount = generalPreview.total ?? generalTotal ?? 0
+  const announcementCount = generalUnread ?? 0
   const previewPosition = getEarnPosition(earnPreview.first)
   const previewLimitOrder = getLimitOrderPreview(limitOrderPreview.first)
   const previewSmartExit = getSmartExitPreview(smartExitPreview.first)
@@ -295,12 +306,12 @@ function AnnouncementComponent() {
       : undefined
   }
 
-  const totalUnreadPrivate = (earnUnread ?? 0) + (limitOrderUnread ?? 0) + (smartExitUnread ?? 0)
-  const badgeText = totalUnreadPrivate > 0 ? formatNumberOfUnread(totalUnreadPrivate) : null
+  const totalUnread = (earnUnread ?? 0) + (limitOrderUnread ?? 0) + (smartExitUnread ?? 0) + (generalUnread ?? 0)
+  const badgeText = totalUnread > 0 ? formatNumberOfUnread(totalUnread) : null
 
   const bellIcon = (
     <StyledMenuButton
-      active={isOpenInbox || totalUnreadPrivate > 0}
+      active={isOpenInbox || totalUnread > 0}
       onClick={() => {
         toggleNotificationCenter()
         if (!isOpenInbox) trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_BELL_ICON_OPEN_POPUP)
@@ -325,7 +336,7 @@ function AnnouncementComponent() {
       <AnnouncementHeader
         isCategoryTab={isCategoryTab}
         selectedCategory={selectedCategory}
-        selectedPrivateCategory={selectedPrivateCategory}
+        selectedCategoryState={selectedCategoryState}
         account={account}
         onBack={() => onSetTab(Tab.CATEGORY)}
       />
@@ -350,6 +361,7 @@ function AnnouncementComponent() {
           toggleNotificationCenter={toggleNotificationCenter}
           showDetailAnnouncement={showDetailAnnouncement}
           selectedCategory={selectedCategory}
+          onAnnouncementRead={isAnnouncementsCategory ? onGeneralAnnouncementRead : undefined}
           onPrivateAnnouncementRead={selectedPrivateCategory?.markAsRead}
           onPrivateAnnouncementPin={selectedPrivateCategory?.pinAnnouncement}
           onPrivateAnnouncementDelete={selectedPrivateCategory?.deleteAnnouncement}

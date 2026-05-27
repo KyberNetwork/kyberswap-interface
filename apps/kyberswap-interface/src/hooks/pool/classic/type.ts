@@ -19,9 +19,3 @@ export interface ClassicPoolData {
   token0: Token
   token1: Token
 }
-
-export type CommonReturn = {
-  loading: boolean
-  error: Error | undefined
-  data: ClassicPoolData[]
-}

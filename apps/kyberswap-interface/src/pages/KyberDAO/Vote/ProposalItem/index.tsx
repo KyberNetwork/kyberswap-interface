@@ -286,7 +286,7 @@ function ProposalItem({
         if (selectedOptions.length === 0) {
           setSelectedOptions([option])
         } else {
-          const newOptions: number[] = [...selectedOptions] || []
+          const newOptions: number[] = [...selectedOptions]
           const index = newOptions.indexOf(option)
           if (index !== -1) {
             newOptions.splice(index, index + 1)

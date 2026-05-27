@@ -35,6 +35,8 @@ const DEX_PRIORITY_ORDER = [
   Exchange.DEX_KODIAK_V3,
   Exchange.DEX_UNISWAPV2,
   Exchange.DEX_AERODROMECL,
+  Exchange.DEX_AERODROMECL2,
+  Exchange.DEX_AERODROMECL3,
 ]
 
 const useSupportedDexesAndChains = (

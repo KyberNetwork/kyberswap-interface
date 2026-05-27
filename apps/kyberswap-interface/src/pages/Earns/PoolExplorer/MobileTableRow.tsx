@@ -1,44 +1,42 @@
-import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import { PoolQueryParams } from 'services/zapEarn'
+import { Text } from 'rebass'
 
-import CopyHelper from 'components/Copy'
+import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { kemFarming, uniReward } from 'pages/Earns/PoolExplorer/DesktopTableRow'
-import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
+import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import {
-  Apr,
   FeeTier,
+  HeaderText,
   MobileTableBottomRow,
+  MobileTableCell,
   MobileTableRow as MobileTableRowComponent,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
+import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
+import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
+import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const MobileTableRow = ({
   pool,
-  filters,
+  showRewards = true,
   onOpenZapInWidget,
   handleFavorite,
-  withoutBorder,
 }: {
   pool: ParsedEarnPool
-  filters: PoolQueryParams
+  showRewards?: boolean
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
-  withoutBorder: boolean
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
-  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
+  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
     trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
       pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
@@ -55,88 +53,77 @@ const MobileTableRow = ({
         chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
-      initialTick:
-        withPriceRange &&
-        pool.maxAprInfo &&
-        pool.maxAprInfo.tickLower !== undefined &&
-        pool.maxAprInfo.tickUpper !== undefined
-          ? {
-              tickLower: pool.maxAprInfo.tickLower,
-              tickUpper: pool.maxAprInfo.tickUpper,
-            }
-          : undefined,
     })
   }
 
   return (
     <MobileTableRowComponent onClick={e => handleOpenZapInWidget(e)}>
-      <Flex alignItems="flex-start" justifyContent="space-between">
-        <Flex sx={{ gap: 1 }}>
-          <Flex sx={{ position: 'relative', top: -1 }}>
-            <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-            <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
-            {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
-          </Flex>
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-            <Flex sx={{ gap: 1 }}>
-              <SymbolText>
-                {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
-              </SymbolText>
-              <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
-            </Flex>
-            <Flex sx={{ gap: 2 }}>
-              <TokenLogo src={pool.dexLogo} size={22} />
-              <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
-            </Flex>
-          </Flex>
-        </Flex>
-        <Flex alignItems="center" sx={{ gap: '12px' }}>
-          <Flex alignItems="center" sx={{ gap: '2px' }}>
-            <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
-            {kemFarming(pool)}
-            {uniReward(pool)}
-          </Flex>
-          <Star
-            size={16}
-            color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
-            fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
-            role="button"
-            cursor="pointer"
-            onClick={e => handleFavorite(e, pool)}
-            aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
-          />
-        </Flex>
-      </Flex>
-      <MobileTableBottomRow withoutBorder={withoutBorder}>
-        {isFarmingFiltered && (
-          <Flex justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
-            <Text color={theme.subText}>{t`Max APR`}</Text>
-            <Text>
-              {pool.maxAprInfo
-                ? formatAprNumber(
-                    Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
-                  ) + '%'
-                : '--'}
-            </Text>
-          </Flex>
-        )}
-        <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Earn Fees`}</Text>
+      <MobileTableCell alignItems="flex-start" justifyContent="space-between">
+        <Stack align="flex-start" gap={8}>
+          <HStack align="center" gap={8}>
+            <HStack>
+              <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+              <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+              {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
+            </HStack>
+            <SymbolText>
+              {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+            </SymbolText>
+            <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+          </HStack>
+          <FeeTier>
+            <TokenLogo src={pool.dexLogo} size={16} />
+            {pool.dexName}
+          </FeeTier>
+        </Stack>
+        <Star
+          size={16}
+          color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+          fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
+          role="button"
+          cursor="pointer"
+          onClick={e => handleFavorite(e, pool)}
+          aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
+        />
+      </MobileTableCell>
+      <MobileTableBottomRow>
+        <MobileTableCell alignItems="baseline" justifyContent="space-between" sx={{ gap: 1 }}>
+          <HeaderText color={theme.subText}>{t`APR`}</HeaderText>
+          <HStack align="center" gap={4}>
+            <PoolAprInfo pool={pool} />
+            <PoolAprBadges pool={pool} />
+          </HStack>
+        </MobileTableCell>
+        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
+          <HeaderText color={theme.subText}>{t`Fee`}</HeaderText>
           <Text>
-            {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+            {formatDisplayNumber(pool.earnFee, {
               style: 'currency',
               significantDigits: 6,
             })}
           </Text>
-        </Flex>
-        <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`TVL`}</Text>
+        </MobileTableCell>
+        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
+          <HeaderText color={theme.subText}>{t`TVL`}</HeaderText>
           <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
-        </Flex>
-        <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`Volume`}</Text>
+        </MobileTableCell>
+        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
+          <HeaderText color={theme.subText}>{t`Volume`}</HeaderText>
           <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
-        </Flex>
+        </MobileTableCell>
+        {showRewards && (
+          <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
+            <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
+            <PoolRewardsInfo pool={pool} showEstimate={false} />
+          </MobileTableCell>
+        )}
+        <MobileTableCell>
+          <SparklineChart
+            sparkline={pool.sparkline}
+            shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address}
+            height={48}
+          />
+        </MobileTableCell>
       </MobileTableBottomRow>
     </MobileTableRowComponent>
   )

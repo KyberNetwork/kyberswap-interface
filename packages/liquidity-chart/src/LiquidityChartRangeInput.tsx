@@ -74,6 +74,13 @@ export default function LiquidityChartRangeInput({
     )
       return;
 
+    // Full-range position: use pool category zoom levels to center around current price
+    if (ticksAtLimit[Bound.LOWER] && ticksAtLimit[Bound.UPPER]) {
+      return pool.category
+        ? ZOOM_LEVELS[pool.category as keyof typeof ZOOM_LEVELS] || ZOOM_LEVELS[POOL_CATEGORY.EXOTIC_PAIR]
+        : ZOOM_LEVELS[POOL_CATEGORY.EXOTIC_PAIR];
+    }
+
     const leftPrice = parseFloat(priceLower.toString().replace(/,/g, ''));
     const rightPrice = parseFloat(priceUpper.toString().replace(/,/g, ''));
     const priceToCalculate =
@@ -122,3 +129,4 @@ export default function LiquidityChartRangeInput({
 }
 
 export { Bound };
+export { MIN_PRICE } from '@/constants';

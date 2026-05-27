@@ -9,7 +9,6 @@ module.exports = {
     },
   },
   ignorePatterns: [
-    'cypress',
     'src/locales/**/*.js',
     'src/locales/**/en-US.po',
     'node_modules',
@@ -40,7 +39,6 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
     'plugin:prettier/recommended',
-    'plugin:storybook/recommended',
   ],
   plugins: ['better-styled-components', 'unused-imports', 'jsx-a11y', 'lingui'],
   rules: {

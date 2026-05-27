@@ -150,28 +150,30 @@ export default function Updater(): null {
         // take the last swap event
         const lastSwapEvent = swapLogs.slice(-1)[0]
 
-        // decode the data
-        const swapInterface = new ethers.utils.Interface([
-          'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
-        ])
-        const parsed = swapInterface.parseLog(lastSwapEvent)
+        if (lastSwapEvent) {
+          // decode the data
+          const swapInterface = new ethers.utils.Interface([
+            'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
+          ])
+          const parsed = swapInterface.parseLog(lastSwapEvent)
 
-        if (
-          (transaction.extraInfo as any)?.tokenAmountOut &&
-          transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
-        ) {
-          const extraInfo = { ...transaction.extraInfo }
-          ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
-            parsed.args.returnAmount.toString(),
-            transaction.extraInfo?.arbitrary?.outputDecimals,
-          )
-          dispatch(
-            modifyTransaction({
-              chainId: transaction.chainId,
-              hash: transaction.hash,
-              extraInfo,
-            }),
-          )
+          if (
+            (transaction.extraInfo as any)?.tokenAmountOut &&
+            transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
+          ) {
+            const extraInfo = { ...transaction.extraInfo }
+            ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
+              parsed.args.returnAmount.toString(),
+              transaction.extraInfo?.arbitrary?.outputDecimals,
+            )
+            dispatch(
+              modifyTransaction({
+                chainId: transaction.chainId,
+                hash: transaction.hash,
+                extraInfo,
+              }),
+            )
+          }
         }
 
         const arbitrary = transaction.extraInfo?.arbitrary
@@ -252,9 +254,26 @@ export default function Updater(): null {
             if (!transaction || !!res) return // !res this mean tx was drop (cancel/replace)
 
             const { sentAtBlock, from, to, nonce, data, addedTime } = transaction
-            const checkRemoveTxs = () => {
+            const checkRemoveTxs = async () => {
               // pending >1 days
-              if (Date.now() - addedTime > 86_400_000) dispatch(removeTx({ chainId, hash }))
+              if (Date.now() - addedTime > 86_400_000) {
+                dispatch(removeTx({ chainId, hash }))
+                return
+              }
+
+              // Nonce-based detection: if the account's current nonce has moved past
+              // this transaction's nonce, the tx is no longer valid (dropped, cancelled
+              // by wallet, or rejected by sequencer e.g. Base pre-validation).
+              if (from) {
+                try {
+                  const currentNonce = await readProvider.getTransactionCount(from, 'latest')
+                  if (nonce !== undefined && currentNonce > nonce) {
+                    dispatch(removeTx({ chainId, hash }))
+                  }
+                } catch {
+                  // RPC failure — skip, will retry on next block
+                }
+              }
             }
 
             if (sentAtBlock && from && to && nonce && data)

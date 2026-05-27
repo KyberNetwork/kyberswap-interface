@@ -36,6 +36,6 @@ const SocialApi = createApi({
   }),
 })
 
-export const { useUploadImageMutation, useCreateShareLinkMutation, usePatchShareLinkMutation } = SocialApi
+export const { useUploadImageMutation } = SocialApi
 
 export default SocialApi
