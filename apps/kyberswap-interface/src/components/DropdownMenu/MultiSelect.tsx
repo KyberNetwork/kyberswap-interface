@@ -34,7 +34,7 @@ const MultiSelect = ({
   options,
   value,
   width,
-  alignItems = 'flex-start',
+  alignItems = 'stretch',
   mobileFullWidth = false,
   mobileHalfWidth = false,
   highlightOnSelect = false,
@@ -115,7 +115,7 @@ const MultiSelect = ({
                     {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
                     {option.label}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="ml-auto flex items-center gap-2">
                     {option.value !== AllOptionValue && (
                       <button
                         type="button"
@@ -134,7 +134,7 @@ const MultiSelect = ({
                 <>
                   {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
                   {option.label}
-                  {parsedValue.includes(option.value) && <Check size={14} />}
+                  {parsedValue.includes(option.value) && <Check className="ml-auto" size={14} />}
                 </>
               )}
             </MultiSelectDropdownContentItem>

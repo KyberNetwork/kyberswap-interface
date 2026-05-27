@@ -125,7 +125,7 @@ export const DropdownContentWrapper = forwardRef<HTMLDivElement, DropdownContent
       ref={ref}
       className={cn(
         'z-[100] flex flex-col rounded-[18px] bg-background py-1 shadow-[0_8px_12px_var(--ks-shadow)] brightness-110',
-        $usePortal ? 'fixed' : 'absolute left-0 top-[calc(100%+4px)]',
+        $usePortal ? 'fixed' : 'absolute left-0 top-[calc(100%+4px)] min-w-full',
         className,
       )}
       {...rest}
@@ -165,7 +165,7 @@ export const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(
       ref={ref}
       style={{ alignItems: alignItems || 'flex-start' }}
       className={cn(
-        'flex max-h-[400px] w-max flex-col gap-1 overflow-y-auto px-2 py-1 text-sm text-text',
+        'flex max-h-[400px] w-max min-w-full flex-col gap-1 overflow-y-auto px-2 py-1 text-sm text-text',
         standalone &&
           'absolute left-0 top-[42px] z-[100] rounded-[18px] bg-background p-2 shadow-[0_8px_12px_var(--ks-shadow)] brightness-110',
         className,
@@ -181,7 +181,7 @@ DropdownContent.displayName = 'DropdownContent'
 export const DropdownContentItem = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex cursor-pointer items-center justify-center gap-2 rounded-xl p-2 capitalize hover:bg-tableHeader [&.selected]:bg-primary-20 [&.selected]:text-primary',
+      'flex cursor-pointer items-center justify-start gap-2 rounded-xl p-2 capitalize hover:bg-tableHeader [&.selected]:bg-primary-20 [&.selected]:text-primary',
       className,
     )}
     {...rest}
@@ -195,7 +195,7 @@ export const MultiSelectDropdownContentItem = ({
   className,
   ...rest
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <DropdownContentItem className={cn('justify-between', className)} {...rest}>
+  <DropdownContentItem className={cn('w-full justify-start', className)} {...rest}>
     {children}
   </DropdownContentItem>
 )
