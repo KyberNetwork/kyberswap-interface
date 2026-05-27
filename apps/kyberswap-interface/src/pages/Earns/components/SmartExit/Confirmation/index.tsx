@@ -1,10 +1,11 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetSmartExitConfigQuery } from 'services/smartExit'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -13,6 +14,7 @@ import Condition from 'pages/Earns/components/SmartExit/Confirmation/Condition'
 import MoreInfo from 'pages/Earns/components/SmartExit/Confirmation/MoreInfo'
 import Success from 'pages/Earns/components/SmartExit/Confirmation/Success'
 import { ConditionType, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { useNotify } from 'state/application/hooks'
 
 export default function Confirmation({
   selectedMetrics,
@@ -41,7 +43,9 @@ export default function Confirmation({
 }) {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { changeNetwork } = useChangeNetwork()
+  const notify = useNotify()
   const { data: smartExitConfig } = useGetSmartExitConfigQuery(position.chain.id)
   const { permitState, signPermitNft, permitData } = usePermitNft({
     contractAddress: position.positionId.split('-')[0],
@@ -85,6 +89,18 @@ export default function Confirmation({
           if (!maxGas) return
           if (chainId !== position.chain.id) {
             changeNetwork(position.chain.id)
+            return
+          }
+
+          if (isSmartConnector) {
+            // Smart wallets produce EIP-1271 signatures that the NFT contract's
+            // ecrecover-based permit can't verify, so the order would fail on
+            // execution even if we let it sign here.
+            notify({
+              type: NotificationType.ERROR,
+              title: t`Smart Wallet not supported`,
+              summary: t`Smart Exit requires a regular EOA wallet (e.g. MetaMask, Rabby) to sign the position permit. Please reconnect with a non-smart wallet.`,
+            })
             return
           }
 

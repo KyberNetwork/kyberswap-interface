@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
@@ -46,6 +46,7 @@ const NFT_PERMIT_ABI = parseAbi([
 
 export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, version = 'auto' }: PermitNftParams) => {
   const { account, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const notify = useNotify()
   const [isSigningInProgress, setIsSigningInProgress] = useState(false)
   const [permitData, setPermitData] = useState<PermitNftResult | null>(null)
@@ -75,6 +76,13 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     if (!account || !contractAddress || !tokenId || !spender) {
       return PermitNftState.NOT_APPLICABLE
     }
+    // Smart-wallet connectors (Porto, Safe) return EIP-1271 contract
+    // signatures that aren't ECDSA. parseSignature crashes on them and
+    // ecrecover-based NFT permits would fail on-chain anyway, so opt the
+    // permit flow out entirely for these wallets.
+    if (isSmartConnector) {
+      return PermitNftState.NOT_APPLICABLE
+    }
     if (isSigningInProgress) {
       return PermitNftState.SIGNING
     }
@@ -82,7 +90,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
       return PermitNftState.SIGNED
     }
     return PermitNftState.READY_TO_SIGN
-  }, [account, contractAddress, tokenId, spender, isSigningInProgress, permitData])
+  }, [account, contractAddress, tokenId, spender, isSmartConnector, isSigningInProgress, permitData])
 
   // Get nonce based on version
   const getNonce = useCallback((): bigint | null => {
