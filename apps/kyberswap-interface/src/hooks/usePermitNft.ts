@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { friendlyError } from 'utils/errorMessage'
@@ -47,6 +48,7 @@ const NFT_PERMIT_ABI = parseAbi([
 export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, version = 'auto' }: PermitNftParams) => {
   const { account, chainId } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
+  const isSmartAccount = useIsSmartAccount()
   const notify = useNotify()
   const [isSigningInProgress, setIsSigningInProgress] = useState(false)
   const [permitData, setPermitData] = useState<PermitNftResult | null>(null)
@@ -76,11 +78,11 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     if (!account || !contractAddress || !tokenId || !spender) {
       return PermitNftState.NOT_APPLICABLE
     }
-    // Smart-wallet connectors (Porto, Safe) return EIP-1271 contract
-    // signatures that aren't ECDSA. parseSignature crashes on them and
-    // ecrecover-based NFT permits would fail on-chain anyway, so opt the
-    // permit flow out entirely for these wallets.
-    if (isSmartConnector) {
+    // Skip permit for smart-wallet connectors (Porto, Safe) and any account
+    // whose address has on-chain bytecode (Coinbase Smart Wallet via passkey,
+    // Argent, Ambire, ...). Their EIP-1271 contract signatures can't be
+    // verified via ecrecover, which is what the NFT manager's permit() uses.
+    if (isSmartConnector || isSmartAccount) {
       return PermitNftState.NOT_APPLICABLE
     }
     if (isSigningInProgress) {
@@ -90,7 +92,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
       return PermitNftState.SIGNED
     }
     return PermitNftState.READY_TO_SIGN
-  }, [account, contractAddress, tokenId, spender, isSmartConnector, isSigningInProgress, permitData])
+  }, [account, contractAddress, tokenId, spender, isSmartConnector, isSmartAccount, isSigningInProgress, permitData])
 
   // Get nonce based on version
   const getNonce = useCallback((): bigint | null => {

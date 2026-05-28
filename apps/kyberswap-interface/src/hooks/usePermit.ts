@@ -9,6 +9,7 @@ import { EIP_2612 } from 'constants/abis'
 import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PermitType } from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -32,6 +33,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const currency = currencyAmount?.currency.wrapped
   const { account, chainId } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
+  const isSmartAccount = useIsSmartAccount()
   const dispatch = useDispatch()
   const notify = useNotify()
   const eipContract = useReadingContract(currency?.address, EIP_2612)
@@ -53,8 +55,11 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   )
 
   const permitState = useMemo(() => {
-    // Do not allow permit when connected with smart connector
-    if (isSmartConnector) {
+    // Skip permit for smart-wallet connectors (Porto, Safe) and for any
+    // account whose on-chain address has bytecode (Coinbase Smart Wallet via
+    // passkey, Argent, Ambire, ...). Both produce EIP-1271 contract
+    // signatures that token contracts can't verify via ecrecover.
+    if (isSmartConnector || isSmartAccount) {
       return PermitState.NOT_APPLICABLE
     }
     if (!overwritedPermitData) {
@@ -72,7 +77,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       return PermitState.SIGNED
     }
     return PermitState.NOT_SIGNED
-  }, [permitData, currencyAmount, overwritedPermitData, isSmartConnector])
+  }, [permitData, currencyAmount, overwritedPermitData, isSmartConnector, isSmartAccount])
   const prevErrorCount = usePrevious(permitData?.errorCount)
   useEffect(() => {
     if (prevErrorCount === 2 && permitData?.errorCount === 3) {
