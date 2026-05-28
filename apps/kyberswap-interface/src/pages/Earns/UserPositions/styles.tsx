@@ -5,6 +5,7 @@ import styled, { css, keyframes } from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+import { MEDIA_WIDTHS } from 'theme'
 
 const fadeIn = keyframes`
   from {
@@ -18,15 +19,9 @@ const fadeIn = keyframes`
 `
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
-  padding: 24px 6rem 62px;
-
-  @media (max-width: 1300px) {
-    padding: 24px 6rem 60px;
+  @media (min-width: ${MEDIA_WIDTHS.upToSmall + 1}px) and (max-width: 1920px) {
+    padding: 32px 48px 64px;
   }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 24px 16px 100px;
-  `}
 `
 
 export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean; $index?: number }>`
