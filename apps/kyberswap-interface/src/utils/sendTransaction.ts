@@ -1,14 +1,22 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { getPublicClient } from '@wagmi/core'
+// eslint-disable-next-line no-restricted-imports
+import { getAccount, getPublicClient } from '@wagmi/core'
 import blackjackApi from 'services/blackjack'
 
-import { wagmiConfig } from 'components/Web3Provider'
+import { CONNECTION, wagmiConfig } from 'components/Web3Provider'
 import store from 'state'
 import { calculateGasMarginBigInt } from 'utils'
 import { createAccessListIfEnabled } from 'utils/accessList'
 import { BlacklistedWalletError, ErrorName, TransactionError } from 'utils/transactionError'
 import { Address, Hex, PublicClient } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
+
+// Wallets known to mishandle EIP-1559 transactions that carry an `accessList`.
+// SafePal's hardware can't sign the type-2 + accessList combo cleanly (-104
+// "show tx info failed", or the signature ends up not matching the
+// broadcasted tx data and the chain rejects it). Drop accessList for these
+// wallets — they lose the gas refund but the tx becomes signable.
+const ACCESS_LIST_INCOMPATIBLE_CONNECTORS = new Set<string>([CONNECTION.SAFEPAL])
 
 export interface SendEVMTransactionResult {
   hash: string
@@ -89,12 +97,15 @@ export async function sendEVMTransaction({
     ...(txValue !== undefined ? { value: txValue } : {}),
   }
 
-  const accessList = await createAccessListIfEnabled(publicClient, chainId, {
-    from: account,
-    to: contractAddress,
-    data: callData,
-    value: txValue,
-  })
+  const connectorId = getAccount(wagmiConfig).connector?.id
+  const accessList = ACCESS_LIST_INCOMPATIBLE_CONNECTORS.has(connectorId ?? '')
+    ? undefined
+    : await createAccessListIfEnabled(publicClient, chainId, {
+        from: account,
+        to: contractAddress,
+        data: callData,
+        value: txValue,
+      })
 
   let gasEstimate: bigint
   try {
