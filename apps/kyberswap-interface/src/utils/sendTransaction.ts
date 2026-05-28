@@ -18,6 +18,16 @@ export interface SendEVMTransactionResult {
 // https://www.base.dev/apps/6985b21e8dcaa0daf5755f6c/settings/builder-code
 const BASE_BUILDER_CODE = '62635f72377968616973350b0080218021802180218021802180218021'
 
+// 4-byte selectors whose calldata should NOT carry the Base builder-code
+// suffix. Hardware wallets (SafePal in particular) decode these via strict
+// ABI and refuse to render the tx when trailing bytes break the expected
+// argument length. Builder-code attribution only makes sense for the actual
+// swap/router call anyway.
+const NO_BUILDER_CODE_SELECTORS = new Set([
+  '0x095ea7b3', // ERC20 approve / ERC721 approve
+  '0xa22cb465', // setApprovalForAll
+])
+
 // Pre-send security gate invoked by the gated walletClient on every signing method.
 // Fails open on network errors so an unreachable Blackjack service doesn't block the
 // user's transaction.
@@ -53,8 +63,12 @@ export async function sendEVMTransaction({
 }): Promise<SendEVMTransactionResult | undefined> {
   if (!account) throw new Error('Invalid transaction')
 
+  const selector = encodedData.slice(0, 10).toLowerCase()
+  const skipBuilderCode = NO_BUILDER_CODE_SELECTORS.has(selector)
   const callData = (
-    !isSmartConnector && chainId === ChainId.BASE ? `${encodedData}${BASE_BUILDER_CODE}` : encodedData
+    !isSmartConnector && chainId === ChainId.BASE && !skipBuilderCode
+      ? `${encodedData}${BASE_BUILDER_CODE}`
+      : encodedData
   ) as Hex
 
   const txValue = value !== 0n ? value : undefined
