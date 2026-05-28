@@ -260,7 +260,7 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
                   }}
                   placeholder="Custom"
                   value={customInput}
-                  className="w-14 min-w-0 border-none bg-transparent p-0 text-right font-medium text-inherit outline-none"
+                  className="w-14 min-w-0 border-none bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit"
                 />
                 <span className="text-sm">%</span>
               </div>

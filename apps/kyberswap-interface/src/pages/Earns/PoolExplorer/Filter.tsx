@@ -335,7 +335,8 @@ const Filter = ({
             style={{ height: '36px', width: upToMedium ? '100%' : '280px' }}
           />
           <ButtonOutlined
-            className="gap-1 px-4 py-0 text-primary"
+            color="var(--ks-primary)"
+            className="gap-1 px-4 py-0"
             borderRadius="16px"
             height="32px"
             onClick={() => {

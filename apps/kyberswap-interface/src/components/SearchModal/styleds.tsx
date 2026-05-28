@@ -22,7 +22,7 @@ export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef
     <input
       ref={ref}
       className={cn(
-        'absolute flex w-full items-center whitespace-nowrap rounded-full border border-buttonBlack bg-buttonBlack px-4 pb-[13px] pr-[30px] pt-2.5 text-[17px] text-text outline-none transition-[border] duration-100 [-webkit-appearance:none]',
+        'absolute flex size-full items-center whitespace-nowrap rounded-full border border-buttonBlack bg-buttonBlack px-4 pb-[13px] pr-[30px] pt-2.5 text-[17px] leading-normal text-text outline-none transition-[border] duration-100 [-webkit-appearance:none]',
         'placeholder:text-[12.5px] placeholder:text-border sm:placeholder:text-[13.5px]',
         'focus:border-primary focus:outline-none',
         className,

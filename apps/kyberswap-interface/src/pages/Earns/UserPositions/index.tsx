@@ -370,7 +370,7 @@ const UserPositions = () => {
 
                 <PositionTableHeaderItem>{t`Price range`}</PositionTableHeaderItem>
 
-                <div className="flex h-full content-start justify-end">
+                <div className="flex h-full items-center justify-end whitespace-nowrap">
                   {t`Actions`}
                   {actionsInfoHelper}
                 </div>

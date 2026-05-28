@@ -36,7 +36,7 @@ export default function CommonBases({
   if (!tokens.length) return null
   return (
     <AutoColumn className="gap-3">
-      <AutoRow className="gap-1">
+      <AutoRow className="gap-2">
         {(tokens as Token[]).map((token: Token) => {
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
           const { symbol } = getDisplayTokenInfo(token)
@@ -49,7 +49,7 @@ export default function CommonBases({
               className={BASE_WRAPPER_CLASS}
             >
               <CurrencyLogo currency={token} size={isHeightSmall ? '15px' : '20px'} />
-              <div className="text-base font-medium [@media(max-height:400px)]:text-sm">{symbol}</div>
+              <div className="text-base font-medium leading-normal [@media(max-height:400px)]:text-sm">{symbol}</div>
               <XCircle
                 className={cn(
                   'close-btn absolute right-[-5px] top-[-5px] text-subText',

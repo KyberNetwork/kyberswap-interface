@@ -28,7 +28,7 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
               style={{ color: theme.primary }}
               href="https://docs.kyberswap.com/user-guide/kyber-earn/apr-metrics#active-apr"
             >
-              Active TVL <Info size={12} style={{ marginBottom: -2 }} />
+              Active TVL <Info className="inline align-text-bottom" size={12} />
             </ExternalLink>
           </Trans>
         </p>

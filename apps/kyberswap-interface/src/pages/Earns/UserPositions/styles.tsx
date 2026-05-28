@@ -5,8 +5,13 @@ import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 import { cn } from 'utils/cn'
 
-const POSITION_GRID =
-  'grid grid-cols-[minmax(260px,2.6fr)_minmax(80px,0.8fr)_minmax(90px,0.8fr)_minmax(100px,1fr)_minmax(120px,1fr)_24px_minmax(150px,0.4fr)_minmax(160px,1.8fr)_minmax(75px,auto)]'
+const POSITION_GRID = 'grid'
+// Inline gridTemplateColumns because Tailwind's arbitrary-value parser silently
+// drops the bare `24px` spacer column when it sits between `minmax(...)` entries,
+// resulting in 8 rendered columns instead of 9 and pushing the Actions cell
+// onto a second row.
+const POSITION_GRID_TEMPLATE_COLUMNS =
+  'minmax(260px, 2.6fr) minmax(80px, 0.8fr) minmax(90px, 0.8fr) minmax(100px, 1fr) minmax(120px, 1fr) 24px minmax(150px, 0.4fr) minmax(160px, 1.8fr) minmax(75px, auto)'
 
 type PositionPageWrapperProps = React.ComponentProps<typeof PoolPageWrapper>
 export const PositionPageWrapper = forwardRef<HTMLDivElement, PositionPageWrapperProps>(
@@ -43,7 +48,7 @@ export const PositionRow = forwardRef<HTMLAnchorElement, PositionRowProps>(
           $isUnfinalized ? 'max-sm:!bg-tableHeader/70' : 'max-sm:!bg-background/80',
           className,
         )}
-        style={{ animationDelay: `${delay}ms`, ...style }}
+        style={{ gridTemplateColumns: POSITION_GRID_TEMPLATE_COLUMNS, animationDelay: `${delay}ms`, ...style }}
         {...rest}
       />
     )
@@ -56,7 +61,7 @@ export const PositionOverview = ({ className, ...rest }: HTMLAttributes<HTMLDivE
 )
 
 export const ImageContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('relative top-0.5', className)} {...rest} />
+  <div className={cn('relative top-0.5 flex items-end', className)} {...rest} />
 )
 
 export enum BadgeType {
@@ -188,7 +193,7 @@ export const BannerDataItem = ({ className, ...rest }: HTMLAttributes<HTMLDivEle
 
 type PositionTableHeaderProps = React.ComponentProps<typeof TableHeader>
 export const PositionTableHeader = forwardRef<HTMLDivElement, PositionTableHeaderProps>(
-  ({ className, ...rest }, ref) => (
+  ({ className, style, ...rest }, ref) => (
     <TableHeader
       ref={ref}
       className={cn(
@@ -197,6 +202,7 @@ export const PositionTableHeader = forwardRef<HTMLDivElement, PositionTableHeade
         'after:absolute after:inset-x-7 after:bottom-0 after:h-px after:bg-tableHeader after:content-[""]',
         className,
       )}
+      style={{ gridTemplateColumns: POSITION_GRID_TEMPLATE_COLUMNS, ...style }}
       {...rest}
     />
   ),

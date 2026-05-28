@@ -55,7 +55,7 @@ const TableFooter = ({ children = [], isTabActive }: { children: ReactNode[]; is
   const totalChild = children.filter(Boolean).length
   return totalChild ? (
     <div
-      className="flex items-center gap-4 rounded-b-[20px] bg-subText-20 px-3 py-2.5 max-sm:flex-col-reverse"
+      className="flex items-center gap-4 bg-subText-20 px-3 py-2.5 max-sm:flex-col-reverse"
       style={{ justifyContent: totalChild === 1 && !isTabActive ? 'center' : 'space-between' }}
     >
       {children}
@@ -330,9 +330,10 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
             <TableFooter isTabActive={isTabActive}>
               {isTabActive && (
                 <ButtonLight
+                  color="var(--ks-red)"
                   onClick={onCancelAllOrder}
                   disabled={disabledBtnCancelAll}
-                  className="w-fit px-3.5 py-2 text-sm text-red max-sm:w-full max-sm:p-2.5"
+                  className="w-fit px-3.5 py-2 text-sm max-sm:w-full max-sm:p-2.5"
                 >
                   <Trash size={15} />
                   <span className="ml-[5px]">
