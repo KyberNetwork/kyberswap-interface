@@ -134,8 +134,6 @@ export default function PositionBanner({
 
   return (
     <>
-      {shareModal}
-
       <Flex
         flexDirection={!upToLarge ? 'row' : 'column'}
         alignItems="center"
@@ -277,6 +275,8 @@ export default function PositionBanner({
               </>
             )}
           </BannerWrapper>
+
+          {shareModal}
         </BannerContainer>
 
         {!upToSmall && (
