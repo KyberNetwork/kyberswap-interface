@@ -149,8 +149,8 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getKsApdater(),
       // CrossChainSwapFactory.getOrbiterAdapter(),
       CrossChainSwapFactory.getBungeeAdapter(),
-      // CrossChainSwapFactory.getKyberAcrossAdapter(),
-      // CrossChainSwapFactory.getKyberCrossChainAdapter(),
+      CrossChainSwapFactory.getKyberAcrossAdapter(),
+      CrossChainSwapFactory.getKyberCrossChainAdapter(),
     ]
   }
 
@@ -182,6 +182,8 @@ export class CrossChainSwapFactory {
       case 'bungee':
         return CrossChainSwapFactory.getBungeeAdapter()
       case 'kyberacross':
+        return CrossChainSwapFactory.getKyberAcrossAdapter()
+      case 'kybercross':
         return CrossChainSwapFactory.getKyberCrossChainAdapter()
       default:
         return undefined
