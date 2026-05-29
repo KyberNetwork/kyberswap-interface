@@ -158,6 +158,7 @@
     overflow-x: hidden;
     display: flex;
     align-self: center;
+    margin: 0 0 2rem 0;
   }
   .ks-dialog-content[data-reach-dialog-content][data-mobile='true'] {
     align-self: flex-end;

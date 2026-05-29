@@ -85,7 +85,6 @@ export default function Modal({
   const hasExplicitWidth = !!width
   const hasExplicitBorderRadius = borderRadius !== undefined && borderRadius !== '20px'
   const contentStyle: CSSProperties = {
-    margin: margin || '0 0 2rem 0',
     backgroundColor: bgColor || 'var(--ks-tableHeader)',
     boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.05)',
     padding: padding || '0',
@@ -93,6 +92,11 @@ export default function Modal({
     maxWidth: resolveDim(maxWidth, 'px'),
     maxHeight: maxHeight ? resolveDim(maxHeight, 'vh') : undefined,
     minHeight: minHeight ? resolveDim(minHeight, 'vh') : undefined,
+    // Only inline margin when the consumer overrode the default — otherwise let
+    // .ks-dialog-content's CSS (with mobile `margin: 0` media query) take effect.
+    // Setting it inline always would beat the media query via specificity and
+    // push the bottom-sheet popup 2rem up from the viewport edge on mobile.
+    ...(margin !== undefined && { margin }),
     ...(hasExplicitWidth && { width }),
     ...(hasExplicitBorderRadius && { borderRadius: borderRadius as string }),
   }
