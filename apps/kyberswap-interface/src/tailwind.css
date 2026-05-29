@@ -351,6 +351,15 @@
     font-weight: 500;
     font-size: 12px;
   }
+  /* react-date-picker bundles Calendar.css which sets a light-gray hover bg
+     on every enabled button (`#e6e6e6`). We want the visual hover state to
+     live on the inner `abbr` for tiles (see rule below) and we re-style the
+     navigation arrows ourselves, so clear the bundled hover/focus bg on
+     every calendar button. */
+  .ks-date-picker .custom-calendar button:enabled:hover,
+  .ks-date-picker .custom-calendar button:enabled:focus {
+    background-color: transparent;
+  }
   .ks-date-picker .custom-calendar button:disabled {
     color: var(--ks-subText);
     cursor: not-allowed;
