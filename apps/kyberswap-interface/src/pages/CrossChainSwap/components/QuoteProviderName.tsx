@@ -5,7 +5,8 @@ import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 
 const getStepProviders = (quote: Quote): SwapProvider[] => {
-  if (quote.adapter.getName().toLowerCase() !== 'kyberacross') return []
+  const adapterName = quote.adapter.getName().toLowerCase()
+  if (adapterName !== 'kyberacross' && adapterName !== 'kybercross') return []
 
   const steps = quote.quote.rawQuote?.steps
   if (!Array.isArray(steps)) return []
