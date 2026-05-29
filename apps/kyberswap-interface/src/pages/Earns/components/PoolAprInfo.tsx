@@ -75,7 +75,7 @@ const FarmingMarker = ({ pool }: { pool: ParsedEarnPool }) => {
   if (!isFarming) return null
 
   return isFarmingLm ? (
-    <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
+    <FarmingLmIcon width={20} height={20} style={{ marginLeft: 4 }} />
   ) : (
     <FarmingIcon width={20} height={20} style={{ marginLeft: 4 }} />
   )

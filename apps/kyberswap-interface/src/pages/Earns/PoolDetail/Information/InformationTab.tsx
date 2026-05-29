@@ -7,6 +7,7 @@ import { formatApr, formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetai
 import AprHistoryChart from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import TopMetricsStrip, { type TopMetricItem } from 'pages/Earns/PoolDetail/components/TopMetricsStrip'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import { ProgramType } from 'pages/Earns/types/pool'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
 const InformationTab = () => {
@@ -53,7 +54,12 @@ const InformationTab = () => {
     <Stack gap={20}>
       <TopMetricsStrip items={topMetrics} split={true} />
 
-      <AprHistoryChart chainId={chainId} currentApr={currentApr} poolAddress={poolAddress} />
+      <AprHistoryChart
+        chainId={chainId}
+        currentApr={currentApr}
+        poolAddress={poolAddress}
+        programs={pool.programs as ProgramType[]}
+      />
     </Stack>
   )
 }
