@@ -30,8 +30,11 @@ export const Input = function InnerInput({
     }
   }
 
+  // Only set fontSize inline when caller explicitly passes one — otherwise leave
+  // the size to the className (default `text-2xl` below) so consumers can
+  // override with `text-xs` / `text-sm` via the className prop.
   const inline: CSSProperties = {
-    fontSize: fontSize ?? '24px',
+    ...(fontSize ? { fontSize } : {}),
     textAlign: align,
     ...style,
   }
@@ -60,7 +63,7 @@ export const Input = function InnerInput({
       maxLength={maxLength}
       spellCheck="false"
       className={cn(
-        'relative w-0 flex-1 truncate border-none bg-buttonBlack p-0 font-medium outline-none placeholder:text-text4',
+        'relative w-0 flex-1 truncate border-none bg-buttonBlack p-0 text-2xl font-medium outline-none placeholder:text-text4',
         '[-webkit-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-search-decoration]:appearance-none',
         error ? 'text-red1' : disabled ? 'cursor-not-allowed text-disableText opacity-100' : 'text-text',
         className,
