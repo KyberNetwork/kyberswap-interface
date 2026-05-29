@@ -191,7 +191,7 @@ const PositionHeader = ({
                 onClick={onOpenPositionInDexSite}
               >
                 <TokenLogo src={position?.dex.logo} size={16} />
-                <span className="text-sm text-subText">{position?.dex.name}</span>
+                <span className="whitespace-nowrap text-sm text-subText">{position?.dex.name}</span>
               </DexInfo>
             </MouseoverTooltipDesktopOnly>
           )}

@@ -107,7 +107,7 @@ export const SettingButton = ({ children, className, ...rest }: React.ButtonHTML
 )
 
 export const PositionHeader = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex gap-2 max-sm:gap-3', className)} {...rest}>
+  <div className={cn('flex w-full flex-wrap items-center gap-2 max-sm:gap-3', className)} {...rest}>
     {children}
   </div>
 )
