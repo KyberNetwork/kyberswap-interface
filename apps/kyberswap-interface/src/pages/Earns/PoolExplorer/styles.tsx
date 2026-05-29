@@ -4,7 +4,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 export const PoolPageWrapper = styled.div`
-  padding: 32px 24px 68px;
+  padding: 32px 24px 64px;
   width: 100%;
   max-width: 1500px;
   display: flex;

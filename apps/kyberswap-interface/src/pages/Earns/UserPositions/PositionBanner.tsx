@@ -2,13 +2,16 @@ import { ShareModal, ShareModalProps, ShareType, TokenLogo } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
-import { Share2 } from 'react-feather'
+import { Info, Share2, X } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
+import Modal from 'components/Modal'
+import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { inProgressRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
@@ -31,6 +34,51 @@ import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
+
+const RewardTokenGrid = styled(Box)`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1fr;
+  `}
+`
+
+const RewardInfoButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-right: 12px;
+  border: 0;
+  background: transparent;
+  color: ${({ theme }) => theme.subText};
+  cursor: pointer;
+
+  &:hover {
+    color: ${({ theme }) => theme.text};
+  }
+`
+
+const RewardInfoModalClose = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: ${({ theme }) => theme.subText};
+  cursor: pointer;
+
+  &:hover {
+    color: ${({ theme }) => theme.text};
+  }
+`
 
 export const BannerSkeleton = ({
   width,
@@ -71,6 +119,7 @@ export default function PositionBanner({
   const theme = useTheme()
   const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
+  const [showTotalRewardModal, setShowTotalRewardModal] = useState(false)
 
   const {
     totalUsdValue: totalKemUsdValue,
@@ -132,10 +181,24 @@ export default function PositionBanner({
 
   const shareModal = shareInfo ? <ShareModal isFarming {...shareInfo} /> : null
 
+  const totalRewardModal = (
+    <Modal isOpen={showTotalRewardModal} maxWidth={460} onDismiss={() => setShowTotalRewardModal(false)}>
+      <Stack width="100%" padding="20px" borderRadius="20px" background={theme.background} color={theme.text} gap={20}>
+        <HStack align="center" justify="space-between">
+          <Text fontSize={20} fontWeight={500}>
+            {t`Total Rewards`}: {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+          </Text>
+          <RewardInfoModalClose type="button" aria-label={t`Close`} onClick={() => setShowTotalRewardModal(false)}>
+            <X size={20} />
+          </RewardInfoModalClose>
+        </HStack>
+        <TotalRewardInfo lmTokens={lmTokens} egTokens={egTokens} merklRewards={merklRewards} />
+      </Stack>
+    </Modal>
+  )
+
   return (
     <>
-      {shareModal}
-
       <Flex
         flexDirection={!upToLarge ? 'row' : 'column'}
         alignItems="center"
@@ -277,6 +340,9 @@ export default function PositionBanner({
               </>
             )}
           </BannerWrapper>
+
+          {shareModal}
+          {totalRewardModal}
         </BannerContainer>
 
         {!upToSmall && (
@@ -297,19 +363,13 @@ export default function PositionBanner({
                         value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
                       />
                     </Text>
-                    <InfoHelper
-                      text={totalRewardTooltip({
-                        lmTokens,
-                        egTokens,
-                        merklRewards,
-                        textColor: theme.text,
-                      })}
-                      placement="bottom"
-                      width="220px"
-                      size={16}
-                      fontSize={14}
-                      style={{ marginRight: 12 }}
-                    />
+                    <RewardInfoButton
+                      type="button"
+                      aria-label={t`View total rewards details`}
+                      onClick={() => setShowTotalRewardModal(true)}
+                    >
+                      <Info size={16} />
+                    </RewardInfoButton>
                     {shareBtn}
                   </Flex>
                 )}
@@ -383,78 +443,74 @@ export default function PositionBanner({
   )
 }
 
-const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string) => (
-  <Flex flexDirection="column" sx={{ gap: 1 }}>
-    <RewardLink
-      href="https://app.merkl.xyz/users"
-      target="_blank"
-      style={{ lineHeight: '20px', fontSize: 14, color: '#fafafa', width: 'fit-content' }}
-    >
-      {t`3rd Party (Merkl) Incentives`}
-    </RewardLink>
-    <Box sx={{ paddingLeft: '8px' }}>
-      {merklRewards.map(token => (
-        <Flex
-          alignItems="center"
-          sx={{ gap: '6px' }}
-          flexWrap="wrap"
-          key={`${token.chainId}-${token.address}-${token.symbol}`}
-          mt="4px"
-        >
-          <TokenLogo src={token.logo} size={16} style={{ position: 'relative', top: 1 }} />
-          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
-        </Flex>
-      ))}
-    </Box>
-  </Flex>
-)
-
-const totalRewardTooltip = ({
-  lmTokens,
-  egTokens,
-  merklRewards,
-  textColor,
-}: {
+type TotalRewardInfoProps = {
   lmTokens: Array<TokenRewardInfo>
   egTokens: Array<TokenRewardInfo>
   merklRewards?: Array<TokenRewardInfo>
-  textColor: string
-}) => (
-  <Flex flexDirection="column" sx={{ gap: 1 }}>
-    <Text lineHeight="20px" fontSize={14} color={'#fafafa'}>
-      {t`KyberSwap Reward`}
-    </Text>
-    <Box sx={{ paddingLeft: '8px' }}>
-      <Text lineHeight="16px" fontSize={12} mb="2px">
-        {t`LM Reward:`}
-        {!lmTokens.length ? ' 0' : ''}
-      </Text>
-      {lmTokens.map(token => (
-        <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
-          <TokenLogo src={token.logo} size={16} />
-          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
-        </Flex>
-      ))}
-      <Text lineHeight="16px" fontSize={12} mt="4px" mb="2px">
-        {t`EG Sharing Reward:`}
-        {!egTokens.length ? ' 0' : ''}
-      </Text>
-      {egTokens.map(token => (
-        <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" key={`${token.address}-${token.symbol}`}>
-          <TokenLogo src={token.logo} size={16} />
-          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-          <Text color={textColor}>{truncateSymbol(token.symbol)}</Text>
-        </Flex>
-      ))}
-    </Box>
+}
 
-    {!!merklRewards?.length && (
-      <>
-        <HorizontalDivider />
-        {merklRewardTooltip(merklRewards, textColor)}
-      </>
-    )}
-  </Flex>
-)
+const TotalRewardInfo = ({ lmTokens, egTokens, merklRewards }: TotalRewardInfoProps) => {
+  const theme = useTheme()
+
+  return (
+    <Stack gap={12}>
+      <Text fontWeight={500}>{t`KyberSwap Reward`}</Text>
+      <Stack gap={8} pl={2}>
+        <Text fontSize={14} fontWeight={500} color={theme.subText}>
+          {t`LM Reward:`}
+          {!lmTokens.length ? ' 0' : ''}
+        </Text>
+        {!!lmTokens.length && (
+          <RewardTokenGrid>
+            {lmTokens.map(token => (
+              <HStack key={`${token.address}-${token.symbol}`} align="center" gap="6px" style={{ minWidth: 0 }}>
+                <TokenLogo src={token.logo} size={16} />
+                <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+                <Text color={theme.text}>{truncateSymbol(token.symbol)}</Text>
+              </HStack>
+            ))}
+          </RewardTokenGrid>
+        )}
+      </Stack>
+      <Stack gap={8} pl={2}>
+        <Text fontSize={14} fontWeight={500} color={theme.subText}>
+          {t`EG Sharing Reward:`}
+          {!egTokens.length ? ' 0' : ''}
+        </Text>
+        {!!egTokens.length && (
+          <RewardTokenGrid>
+            {egTokens.map(token => (
+              <HStack key={`${token.address}-${token.symbol}`} align="center" gap={6}>
+                <TokenLogo src={token.logo} size={16} />
+                <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+                <Text color={theme.text}>{truncateSymbol(token.symbol)}</Text>
+              </HStack>
+            ))}
+          </RewardTokenGrid>
+        )}
+      </Stack>
+
+      {!!merklRewards?.length && (
+        <>
+          <HorizontalDivider />
+          <RewardLink
+            href="https://app.merkl.xyz/users"
+            target="_blank"
+            style={{ fontWeight: 500, color: '#fafafa', width: 'fit-content' }}
+          >
+            {t`3rd Party (Merkl) Incentives`}
+          </RewardLink>
+          <RewardTokenGrid pl={2}>
+            {merklRewards.map(token => (
+              <HStack key={`${token.chainId}-${token.address}-${token.symbol}`} align="center" gap={6}>
+                <TokenLogo src={token.logo} size={16} style={{ position: 'relative', top: 1 }} />
+                <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+                <Text color={theme.text}>{truncateSymbol(token.symbol)}</Text>
+              </HStack>
+            ))}
+          </RewardTokenGrid>
+        </>
+      )}
+    </Stack>
+  )
+}
