@@ -51,7 +51,11 @@ StatisticWrapper.displayName = 'StatisticWrapper'
 
 export const StatisticItem = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...rest }, ref) => (
-    <div ref={ref} className={cn('flex-1 rounded-lg bg-background py-5 text-center text-sm', className)} {...rest} />
+    <div
+      ref={ref}
+      className={cn('flex flex-1 flex-col rounded-lg bg-background py-5 text-center text-sm', className)}
+      {...rest}
+    />
   ),
 )
 StatisticItem.displayName = 'StatisticItem'

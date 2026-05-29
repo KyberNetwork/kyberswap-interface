@@ -133,7 +133,7 @@ function AboutKyberSwap() {
 
           <SupportedChain>
             {supportedChains.map(({ chainId: chain, icon, name }) => (
-              <img src={icon} alt={name} key={chain} width="36px" height="36px" />
+              <img className="size-9 object-contain" src={icon} alt={name} key={chain} />
             ))}
           </SupportedChain>
 
@@ -141,7 +141,7 @@ function AboutKyberSwap() {
 
           <StatisticWrapper>
             <StatisticItem>
-              <span className="text-2xl font-semibold sm:text-[28px]">
+              <span className="flex min-h-[1.2em] items-center justify-center text-2xl font-semibold sm:text-[28px]">
                 {dataToShow.totalTradingVolume ? (
                   formatBigLiquidity(dataToShow.totalTradingVolume, 2, true)
                 ) : (
@@ -153,7 +153,7 @@ function AboutKyberSwap() {
               </span>
             </StatisticItem>
             <StatisticItem>
-              <span className="text-2xl font-semibold sm:text-[28px]">
+              <span className="flex min-h-[1.2em] items-center justify-center text-2xl font-semibold sm:text-[28px]">
                 {dataToShow['24hTradingVolume'] ? (
                   formatBigLiquidity(dataToShow['24hTradingVolume'], 2, true)
                 ) : (
