@@ -149,8 +149,8 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getKsApdater(),
       // CrossChainSwapFactory.getOrbiterAdapter(),
       CrossChainSwapFactory.getBungeeAdapter(),
-      // CrossChainSwapFactory.getKyberAcrossAdapter(),
-      // CrossChainSwapFactory.getKyberCrossChainAdapter(),
+      CrossChainSwapFactory.getKyberAcrossAdapter(),
+      CrossChainSwapFactory.getKyberCrossChainAdapter(),
     ]
   }
 }
