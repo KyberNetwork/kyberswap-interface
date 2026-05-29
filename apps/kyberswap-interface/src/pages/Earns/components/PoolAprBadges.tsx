@@ -2,7 +2,6 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 
 import { ReactComponent as KyberBonusIcon } from 'assets/svg/kyber/kyber_bonus.svg'
-import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -34,7 +33,7 @@ const PoolAprBadges = ({ pool }: Props) => {
           text={`${t`FairFlow EG Rewards`}: ${formatAprNumber(egApr)}%`}
         >
           <Badge>
-            <UniBonusIcon width={16} height={16} />
+            <KyberBonusIcon width={16} height={16} />
             <span>+{formatAprNumber(egApr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>

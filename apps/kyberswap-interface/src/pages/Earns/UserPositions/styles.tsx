@@ -18,7 +18,10 @@ export const PositionPageWrapper = forwardRef<HTMLDivElement, PositionPageWrappe
   ({ className, ...rest }, ref) => (
     <PoolPageWrapper
       ref={ref}
-      className={cn('px-24 pb-[62px] pt-6 max-[1300px]:pb-[60px] max-sm:px-4 max-sm:pb-[100px]', className)}
+      // Override PoolPageWrapper's `px-6` to `px-12` between sm and 1920px,
+      // matching the styled-components rule `@media (min-width: 769px) and
+      // (max-width: 1920px) { padding: 32px 48px 64px }`.
+      className={cn('sm:px-12 min-[1921px]:px-6', className)}
       {...rest}
     />
   ),

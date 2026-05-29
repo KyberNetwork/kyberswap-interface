@@ -8,7 +8,7 @@ export const PoolPageWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDiv
     <div
       ref={ref}
       className={cn(
-        'flex w-full max-w-[1500px] flex-col gap-4 px-6 pb-[68px] pt-8 max-sm:px-4 max-sm:pb-[100px] max-sm:pt-6',
+        'flex w-full max-w-[1500px] flex-col gap-4 px-6 pb-16 pt-8 max-sm:px-4 max-sm:pb-[100px] max-sm:pt-6',
         className,
       )}
       {...rest}

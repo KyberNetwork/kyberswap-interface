@@ -1,12 +1,13 @@
 import { ShareModal, ShareModalProps, ShareType, TokenLogo } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { useState } from 'react'
-import { Share2 } from 'react-feather'
+import { Info, Share2, X } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
+import Modal from 'components/Modal'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { inProgressRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
@@ -68,9 +69,9 @@ export default function PositionBanner({
   isLoadingRewardInfo: boolean
   onOpenClaimAllRewards: () => void
 }) {
-  const theme = useTheme()
   const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
+  const [showTotalRewardModal, setShowTotalRewardModal] = useState(false)
 
   const {
     totalUsdValue: totalKemUsdValue,
@@ -132,9 +133,31 @@ export default function PositionBanner({
 
   const shareModal = shareInfo ? <ShareModal isFarming {...shareInfo} /> : null
 
+  const totalRewardModal = (
+    <Modal isOpen={showTotalRewardModal} maxWidth={460} onDismiss={() => setShowTotalRewardModal(false)}>
+      <div className="flex w-full flex-col gap-5 rounded-[20px] bg-background p-5 text-text">
+        <div className="flex items-center justify-between">
+          <span className="text-xl font-medium">
+            {t`Total Rewards`}: {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+          </span>
+          <button
+            type="button"
+            aria-label={t`Close`}
+            onClick={() => setShowTotalRewardModal(false)}
+            className="flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <TotalRewardInfo lmTokens={lmTokens} egTokens={egTokens} merklRewards={merklRewards} />
+      </div>
+    </Modal>
+  )
+
   return (
     <>
       {shareModal}
+      {totalRewardModal}
 
       <div className={cn('flex items-center', !upToLarge ? 'flex-row gap-5' : 'flex-col gap-3')}>
         <BannerContainer>
@@ -290,19 +313,14 @@ export default function PositionBanner({
                         value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
                       />
                     </p>
-                    <InfoHelper
-                      text={totalRewardTooltip({
-                        lmTokens,
-                        egTokens,
-                        merklRewards,
-                        textColor: theme.text,
-                      })}
-                      placement="bottom"
-                      width="220px"
-                      size={16}
-                      fontSize={14}
-                      className="mr-3"
-                    />
+                    <button
+                      type="button"
+                      aria-label={t`View total rewards details`}
+                      onClick={() => setShowTotalRewardModal(true)}
+                      className="mr-3 flex size-4 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
+                    >
+                      <Info size={16} />
+                    </button>
                     {shareBtn}
                   </div>
                 )}
@@ -376,72 +394,65 @@ export default function PositionBanner({
   )
 }
 
-const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string) => (
-  <div className="flex flex-col gap-1">
-    <RewardLink
-      href="https://app.merkl.xyz/users"
-      target="_blank"
-      style={{ lineHeight: '20px', fontSize: 14, color: '#fafafa', width: 'fit-content' }}
-    >
-      {t`3rd Party (Merkl) Incentives`}
-    </RewardLink>
-    <div className="pl-2">
-      {merklRewards.map(token => (
-        <div
-          className="mt-1 flex flex-wrap items-center gap-1.5"
-          key={`${token.chainId}-${token.address}-${token.symbol}`}
-        >
-          <TokenLogo src={token.logo} size={16} className="relative top-px" />
-          <span style={{ color: textColor }}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</span>
-          <span style={{ color: textColor }}>{truncateSymbol(token.symbol)}</span>
-        </div>
-      ))}
-    </div>
-  </div>
-)
-
-const totalRewardTooltip = ({
-  lmTokens,
-  egTokens,
-  merklRewards,
-  textColor,
-}: {
+type TotalRewardInfoProps = {
   lmTokens: Array<TokenRewardInfo>
   egTokens: Array<TokenRewardInfo>
   merklRewards?: Array<TokenRewardInfo>
-  textColor: string
-}) => (
-  <div className="flex flex-col gap-1">
-    <p className="text-[14px] leading-5 text-white2">{t`KyberSwap Reward`}</p>
-    <div className="pl-2">
-      <p className="mb-0.5 text-[12px] leading-4">
+}
+
+const RewardTokenRow = ({ token }: { token: TokenRewardInfo }) => (
+  <div className="flex min-w-0 items-center gap-1.5">
+    <TokenLogo src={token.logo} size={16} />
+    <span className="text-text">{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</span>
+    <span className="text-text">{truncateSymbol(token.symbol)}</span>
+  </div>
+)
+
+const TotalRewardInfo = ({ lmTokens, egTokens, merklRewards }: TotalRewardInfoProps) => (
+  <div className="flex flex-col gap-3">
+    <p className="m-0 font-medium">{t`KyberSwap Reward`}</p>
+    <div className="flex flex-col gap-2 pl-2">
+      <p className="m-0 text-sm font-medium text-subText">
         {t`LM Reward:`}
         {!lmTokens.length ? ' 0' : ''}
       </p>
-      {lmTokens.map(token => (
-        <div className="flex flex-wrap items-center gap-1" key={`${token.address}-${token.symbol}`}>
-          <TokenLogo src={token.logo} size={16} />
-          <span style={{ color: textColor }}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</span>
-          <span style={{ color: textColor }}>{truncateSymbol(token.symbol)}</span>
+      {!!lmTokens.length && (
+        <div className="grid grid-cols-2 gap-x-5 gap-y-2.5 max-xs:grid-cols-1">
+          {lmTokens.map(token => (
+            <RewardTokenRow key={`${token.address}-${token.symbol}`} token={token} />
+          ))}
         </div>
-      ))}
-      <p className="mb-0.5 mt-1 text-[12px] leading-4">
+      )}
+    </div>
+    <div className="flex flex-col gap-2 pl-2">
+      <p className="m-0 text-sm font-medium text-subText">
         {t`EG Sharing Reward:`}
         {!egTokens.length ? ' 0' : ''}
       </p>
-      {egTokens.map(token => (
-        <div className="flex flex-wrap items-center gap-1" key={`${token.address}-${token.symbol}`}>
-          <TokenLogo src={token.logo} size={16} />
-          <span style={{ color: textColor }}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</span>
-          <span style={{ color: textColor }}>{truncateSymbol(token.symbol)}</span>
+      {!!egTokens.length && (
+        <div className="grid grid-cols-2 gap-x-5 gap-y-2.5 max-xs:grid-cols-1">
+          {egTokens.map(token => (
+            <RewardTokenRow key={`${token.address}-${token.symbol}`} token={token} />
+          ))}
         </div>
-      ))}
+      )}
     </div>
 
     {!!merklRewards?.length && (
       <>
         <HorizontalDivider />
-        {merklRewardTooltip(merklRewards, textColor)}
+        <RewardLink
+          href="https://app.merkl.xyz/users"
+          target="_blank"
+          style={{ fontWeight: 500, color: '#fafafa', width: 'fit-content' }}
+        >
+          {t`3rd Party (Merkl) Incentives`}
+        </RewardLink>
+        <div className="grid grid-cols-2 gap-x-5 gap-y-2.5 pl-2 max-xs:grid-cols-1">
+          {merklRewards.map(token => (
+            <RewardTokenRow key={`${token.chainId}-${token.address}-${token.symbol}`} token={token} />
+          ))}
+        </div>
       </>
     )}
   </div>
