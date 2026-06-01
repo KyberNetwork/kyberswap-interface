@@ -308,11 +308,16 @@
       transform: translateY(100%);
     }
   }
+  .ks-check-icon {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
   .ks-copy-icon.copied {
     animation: ks-copy-flip 1.5s;
   }
   .ks-check-icon.copied {
-    animation: ks-check-flip 1.5s;
+    opacity: 1;
+    animation: ks-check-flip 1.5s forwards;
   }
 
   /* <DatePicker> — overrides for react-date-picker so its popup adopts our theme. */

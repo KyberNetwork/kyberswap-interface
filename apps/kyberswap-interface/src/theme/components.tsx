@@ -38,7 +38,7 @@ export function CloseIcon({ className, ...rest }: IconProps) {
 export function LinkIcon({ color, className, style, ...rest }: IconProps & { color?: string }) {
   return (
     <LinkIconFeather
-      className={cn('h-4 w-[18px] text-primary', className)}
+      className={cn('h-4 w-[18px]', className)}
       style={color ? { stroke: color, ...style } : style}
       {...rest}
     />
@@ -97,7 +97,7 @@ function LinkIconWrapper({ className, ...rest }: Omit<HTMLProps<HTMLAnchorElemen
   return (
     <a
       className={cn(
-        'flex cursor-pointer items-center justify-center no-underline hover:no-underline hover:opacity-70 focus:no-underline focus:outline-none active:no-underline',
+        'flex cursor-pointer items-center justify-center text-primary no-underline hover:no-underline hover:opacity-70 focus:no-underline focus:outline-none active:no-underline',
         className,
       )}
       {...rest}

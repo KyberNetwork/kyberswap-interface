@@ -39,7 +39,7 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
       >
         <CopyIcon size={size || 14} />
       </div>
-      <div className={cn('ks-check-icon -translate-y-full text-primary', isCopied && 'copied')}>
+      <div className={cn('ks-check-icon flex items-center text-primary', isCopied && 'copied')}>
         <CheckCircle size={size || 14} />
       </div>
     </>
@@ -55,7 +55,7 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
       }}
       style={{ marginLeft: margin || '4px', ...style }}
       className={cn(
-        'relative flex shrink-0 cursor-pointer items-center overflow-hidden no-underline hover:opacity-80 focus:opacity-80 active:opacity-80',
+        'relative flex h-fit shrink-0 cursor-pointer items-center self-center overflow-hidden no-underline hover:opacity-80 focus:opacity-80 active:opacity-80',
         className,
       )}
     >
