@@ -84,11 +84,20 @@ const SparklineChart = ({
     const today = dayjs()
     const totalPoints = normalizedSparkline.length
 
-    return normalizedSparkline.map((value, index) => ({
-      index,
-      dateLabel: today.subtract(totalPoints - 1 - index, 'day').format('MMM D'),
-      value: shouldInvert && value > 0 ? 1 / value : value,
-    }))
+    return (
+      normalizedSparkline
+        .map((value, index) => ({
+          index,
+          dateLabel: today.subtract(totalPoints - 1 - index, 'day').format('MMM D'),
+          value: shouldInvert && value > 0 ? 1 / value : value,
+        }))
+        // Drop non-finite values (NaN, ±Infinity) before recharts touches them.
+        // Recharts uses decimal.js internally to compute YAxis tick spacing and
+        // throws `[DecimalError] LN10 precision limit exceeded` when it tries to
+        // take `log()` of an infinite/NaN value — taking the whole /earn page
+        // down via the error boundary.
+        .filter(point => Number.isFinite(point.value))
+    )
   }, [normalizedSparkline, shouldInvert])
 
   const { domainMin, domainMax } = useMemo(() => {
