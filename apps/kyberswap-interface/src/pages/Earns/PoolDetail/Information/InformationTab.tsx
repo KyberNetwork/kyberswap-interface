@@ -80,7 +80,7 @@ const InformationTab = () => {
     { label: 'TVL', value: tvlValue },
     { label: '24h Volume', value: volumeValue },
     { label: '24h Fees', value: feesValue },
-    { label: '24h Rewards', value: rewardsValue },
+    ...(rewards24hUsd > 0 ? [{ label: '24h Rewards', value: rewardsValue }] : []),
     { label: 'Liquidity', value: liquidityValue },
   ]
 
