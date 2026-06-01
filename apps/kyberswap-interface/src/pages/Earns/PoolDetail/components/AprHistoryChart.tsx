@@ -12,6 +12,8 @@ import {
 } from 'services/zapEarn'
 import styled from 'styled-components'
 
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
@@ -21,6 +23,7 @@ import {
   formatTooltipTimeLabel,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import { ProgramType } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -41,10 +44,19 @@ const TooltipGrid = styled.div`
 `
 
 const BaselineRow = styled(HStack)`
-  align-items: baseline;
+  align-items: center;
 `
 
 export const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
+
+const FarmingMarker = ({ programs = [] }: { programs?: Array<ProgramType> }) => {
+  const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+  const isFarmingLm = programs.includes(ProgramType.LM)
+
+  if (!isFarming) return null
+
+  return isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />
+}
 
 const AprHistoryTooltip = ({
   active,
@@ -100,13 +112,14 @@ type AprHistoryChartProps = {
   chainId: number
   poolAddress?: string
   positionId?: string
+  programs?: Array<ProgramType>
   currentApr?: {
     totalApr?: number
     activeApr?: number
   }
 }
 
-const AprHistoryChart = ({ chainId, poolAddress, positionId, currentApr }: AprHistoryChartProps) => {
+const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentApr }: AprHistoryChartProps) => {
   const theme = useTheme()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
@@ -171,9 +184,12 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, currentApr }: AprHi
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 {positionId ? 'Position Active APR' : 'Active APR'}
               </Text>
-              <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
-                {formatAprValue(activeApr)}
-              </Text>
+              <HStack gap={4}>
+                <FarmingMarker programs={programs} />
+                <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
+                  {formatAprValue(activeApr)}
+                </Text>
+              </HStack>
               <Text color={theme.subText} fontSize={14}>
                 (Earning Per Active TVL)
               </Text>
@@ -183,9 +199,12 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, currentApr }: AprHi
               <Text color={theme.text} fontSize={16} fontWeight={500}>
                 APR
               </Text>
-              <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
-                {formatAprValue(totalApr)}
-              </Text>
+              <HStack gap={4}>
+                <FarmingMarker programs={programs} />
+                <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
+                  {formatAprValue(totalApr)}
+                </Text>
+              </HStack>
               <Text color={theme.subText} fontSize={14}>
                 (Earning Per Total TVL)
               </Text>

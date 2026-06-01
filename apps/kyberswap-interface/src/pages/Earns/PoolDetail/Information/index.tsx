@@ -1,6 +1,8 @@
 import { rgba } from 'polished'
 import styled from 'styled-components'
 
+import { ReactComponent as AnalyticsIcon } from 'assets/svg/earn/ic_analytics.svg'
+import { ReactComponent as BagIcon } from 'assets/svg/earn/ic_bag.svg'
 import { Stack } from 'components/Stack'
 import useTab from 'hooks/useTab'
 
@@ -9,9 +11,9 @@ import EarningsTab from './EarningsTab'
 import InformationTab from './InformationTab'
 
 const POOL_INFO_TABS = [
-  { id: 'information', label: 'INFORMATION' },
-  { id: 'earnings', label: 'EARNING(S)' },
-  { id: 'analytics', label: 'ANALYTICS' },
+  { id: 'information', label: 'INFORMATION', Icon: null },
+  { id: 'earnings', label: 'EARNING(S)', Icon: BagIcon },
+  { id: 'analytics', label: 'ANALYTICS', Icon: AnalyticsIcon },
 ] as const
 
 const Panel = styled(Stack)`
@@ -30,6 +32,9 @@ const PanelHeader = styled.div`
 const TabButton = styled.button<{ $active: boolean; $isLast: boolean }>`
   position: relative;
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 16px 16px;
   border: 0;
   border-right: ${({ theme, $isLast }) => ($isLast ? '0' : `1px solid ${theme.darkBorder}`)};
@@ -77,6 +82,7 @@ const PoolInformation = () => {
             role="tab"
             type="button"
           >
+            {tab.Icon ? <tab.Icon width={18} height={18} /> : null}
             {tab.label}
           </TabButton>
         ))}
