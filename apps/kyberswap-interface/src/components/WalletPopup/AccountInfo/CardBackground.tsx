@@ -22,8 +22,7 @@ const CardBackground: React.FC<Props> = ({ noLogo }) => {
       <div className="absolute inset-0 bg-tabActive" />
       {/* mix-blend-mode lives on the wrapper (not the individual layers) so
           the two gradients composite first, then the combined result blends
-          with the tabActive backdrop in a single overlay step — matching the
-          original styled-components compositing order exactly. */}
+          with the tabActive backdrop in a single overlay step. */}
       <div className="absolute inset-0" style={{ mixBlendMode: 'overlay' }}>
         <div
           className="absolute left-0 top-0 size-full opacity-80"

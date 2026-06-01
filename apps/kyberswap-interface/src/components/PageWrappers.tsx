@@ -27,8 +27,6 @@ IconWrapper.displayName = 'IconWrapper'
 
 type ButtonIconProps = ButtonHTMLAttributes<HTMLButtonElement> & { color?: string }
 
-// 0x33 = 20% alpha. The original used `polished.rgba(color, 0.2)` for bg.
-// Hover applies a brightness boost as a Tailwind-compatible approximation of `polished.lighten`.
 export const ButtonIcon = forwardRef<HTMLButtonElement, ButtonIconProps>(
   ({ color, className, style, ...rest }, ref) => (
     <button
@@ -38,6 +36,7 @@ export const ButtonIcon = forwardRef<HTMLButtonElement, ButtonIconProps>(
         className,
       )}
       style={{
+        // `33` is hex for ~20% alpha — keeps consumer-supplied color tinted like the default var(--ks-subText-20).
         background: color ? `${color}33` : 'var(--ks-subText-20)',
         color: color || 'var(--ks-subText)',
         ...style,

@@ -36,8 +36,6 @@ export const CurrencySelect = forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & CurrencySelectStyleProps
 >(({ tight, selected, hideInput, isDisable, className, children, ...rest }, ref) => {
-  // Original used polished's darken/lighten by 0.05 for hover/focus. Tailwind `brightness-95`
-  // approximates a 5% darker shade, `brightness-105` a 5% lighter shade.
   const hoverShift = isDisable
     ? '' // disabled hover keeps brightness unchanged
     : selected

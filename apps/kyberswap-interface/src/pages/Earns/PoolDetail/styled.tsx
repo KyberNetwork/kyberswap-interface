@@ -3,12 +3,9 @@ import { cn } from 'utils/cn'
 
 export type NoteCardTone = 'info' | 'warning' | 'error'
 
-export const PoolDetailWrapper = ({ children, className, style, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+export const PoolDetailWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <PoolPageWrapper
-    className={cn('mx-auto w-full px-6 pb-[68px] pt-8 max-sm:px-4 max-sm:pb-[100px] max-sm:pt-6', className)}
-    // gap is applied inline so it overrides PoolPageWrapper's styled-components `gap: 16px` —
-    // styled-components style tags are injected after Tailwind CSS so class-based overrides lose.
-    style={{ gap: '24px', ...style }}
+    className={cn('mx-auto w-full gap-6 px-6 pb-[68px] pt-8 max-sm:px-4 max-sm:pb-[100px] max-sm:pt-6', className)}
     {...rest}
   >
     {children}

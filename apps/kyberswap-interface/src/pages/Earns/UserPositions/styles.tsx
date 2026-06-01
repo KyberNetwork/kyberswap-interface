@@ -16,14 +16,7 @@ const POSITION_GRID_TEMPLATE_COLUMNS =
 type PositionPageWrapperProps = React.ComponentProps<typeof PoolPageWrapper>
 export const PositionPageWrapper = forwardRef<HTMLDivElement, PositionPageWrapperProps>(
   ({ className, ...rest }, ref) => (
-    <PoolPageWrapper
-      ref={ref}
-      // Override PoolPageWrapper's `px-6` to `px-12` between sm and 1920px,
-      // matching the styled-components rule `@media (min-width: 769px) and
-      // (max-width: 1920px) { padding: 32px 48px 64px }`.
-      className={cn('sm:px-12 min-[1921px]:px-6', className)}
-      {...rest}
-    />
+    <PoolPageWrapper ref={ref} className={cn('sm:px-12 min-[1921px]:px-6', className)} {...rest} />
   ),
 )
 PositionPageWrapper.displayName = 'PositionPageWrapper'

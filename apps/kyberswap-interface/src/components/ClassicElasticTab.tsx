@@ -20,8 +20,6 @@ import { isInEnum } from 'utils/string'
 import { PoolClassicIcon, PoolElasticIcon } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
 
-// Original used rebass responsive array fontSize={[18, 20, 24]} with rebass
-// breakpoints (40em=640, 52em=832). Approximated with Tailwind xs (576) / sm (768).
 const TAB_LABEL_CLASS = 'text-lg font-medium leading-tight xs:text-xl sm:text-2xl'
 
 function ClassicElasticTab() {
