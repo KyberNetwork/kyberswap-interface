@@ -55,7 +55,7 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
       )}
       {!!lmApr && (
         <Text>
-          {t`LM Reward`}: {formatAprNumber(lmApr)}%
+          {t`LM Rewards`}: {formatAprNumber(lmApr)}%
         </Text>
       )}
       {!!bonusApr && (
