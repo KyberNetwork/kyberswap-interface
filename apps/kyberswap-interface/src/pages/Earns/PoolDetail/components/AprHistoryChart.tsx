@@ -9,6 +9,8 @@ import {
   usePositionAprHistoryQuery,
 } from 'services/zapEarn'
 
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import SegmentedControl from 'components/SegmentedControl'
 import useTheme from 'hooks/useTheme'
 import {
@@ -17,10 +19,20 @@ import {
   formatTooltipTimeLabel,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import { ProgramType } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
+
+const FarmingMarker = ({ programs = [] }: { programs?: Array<ProgramType> }) => {
+  const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+  const isFarmingLm = programs.includes(ProgramType.LM)
+
+  if (!isFarming) return null
+
+  return isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />
+}
 
 const AprHistoryTooltip = ({
   active,
@@ -67,13 +79,14 @@ type AprHistoryChartProps = {
   chainId: number
   poolAddress?: string
   positionId?: string
+  programs?: Array<ProgramType>
   currentApr?: {
     totalApr?: number
     activeApr?: number
   }
 }
 
-const AprHistoryChart = ({ chainId, poolAddress, positionId, currentApr }: AprHistoryChartProps) => {
+const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentApr }: AprHistoryChartProps) => {
   const theme = useTheme()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
@@ -134,13 +147,19 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, currentApr }: AprHi
               <span className="text-base font-medium text-text">
                 {positionId ? 'Position Active APR' : 'Active APR'}
               </span>
-              <span className="text-xl font-medium leading-none text-primary">{formatAprValue(activeApr)}</span>
+              <div className="flex items-center gap-1">
+                <FarmingMarker programs={programs} />
+                <span className="text-xl font-medium leading-none text-primary">{formatAprValue(activeApr)}</span>
+              </div>
               <span className="text-sm text-subText">(Earning Per Active TVL)</span>
             </div>
           ) : (
             <div className="flex flex-wrap items-baseline gap-2">
               <span className="text-base font-medium text-text">APR</span>
-              <span className="text-xl font-medium leading-none text-blue">{formatAprValue(totalApr)}</span>
+              <div className="flex items-center gap-1">
+                <FarmingMarker programs={programs} />
+                <span className="text-xl font-medium leading-none text-blue">{formatAprValue(totalApr)}</span>
+              </div>
               <span className="text-sm text-subText">(Earning Per Total TVL)</span>
             </div>
           )}

@@ -25,12 +25,12 @@ export default function AprDetailTooltip({ feeApr, egApr, lmApr, merklApr, child
           )}
           {egApr !== undefined && (
             <span>
-              {t`FairFlow EG Reward`}: {formatAprNumber(egApr)}%
+              {t`FairFlow EG Rewards`}: {formatAprNumber(egApr)}%
             </span>
           )}
           {!!lmApr && (
             <span>
-              {t`LM Reward`}: {formatAprNumber(lmApr)}%
+              {t`LM Rewards`}: {formatAprNumber(lmApr)}%
             </span>
           )}
           {!!merklApr && (

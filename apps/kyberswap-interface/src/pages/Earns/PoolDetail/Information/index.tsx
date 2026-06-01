@@ -1,3 +1,5 @@
+import { ReactComponent as AnalyticsIcon } from 'assets/svg/earn/ic_analytics.svg'
+import { ReactComponent as BagIcon } from 'assets/svg/earn/ic_bag.svg'
 import { Stack } from 'components/Stack'
 import useTab from 'hooks/useTab'
 import { cn } from 'utils/cn'
@@ -7,9 +9,9 @@ import EarningsTab from './EarningsTab'
 import InformationTab from './InformationTab'
 
 const POOL_INFO_TABS = [
-  { id: 'information', label: 'INFORMATION' },
-  { id: 'earnings', label: 'EARNING(S)' },
-  { id: 'analytics', label: 'ANALYTICS' },
+  { id: 'information', label: 'INFORMATION', Icon: null },
+  { id: 'earnings', label: 'EARNING(S)', Icon: BagIcon },
+  { id: 'analytics', label: 'ANALYTICS', Icon: AnalyticsIcon },
 ] as const
 
 type PoolInfoTab = (typeof POOL_INFO_TABS)[number]['id']
@@ -35,13 +37,14 @@ const PoolInformation = () => {
               role="tab"
               type="button"
               className={cn(
-                'relative shrink-0 grow-0 cursor-pointer border-0 p-4 text-sm font-medium tracking-[0.04em]',
+                'relative flex shrink-0 grow-0 cursor-pointer items-center gap-1 border-0 p-4 text-sm font-medium tracking-[0.04em]',
                 !isLast && 'border-r border-solid border-darkBorder',
                 active
                   ? 'bg-primary-12 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary-12'
                   : 'bg-transparent text-subText hover:bg-tableHeader hover:text-text',
               )}
             >
+              {tab.Icon ? <tab.Icon width={18} height={18} /> : null}
               {tab.label}
             </button>
           )

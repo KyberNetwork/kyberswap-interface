@@ -42,7 +42,7 @@ const PoolAprBadges = ({ pool }: Props) => {
         <MouseoverTooltipDesktopOnly
           placement="bottom"
           width="fit-content"
-          text={`${t`LM Reward`}: ${formatAprNumber(lmApr)}%`}
+          text={`${t`LM Rewards`}: ${formatAprNumber(lmApr)}%`}
         >
           <Badge>
             <KyberBonusIcon width={16} height={16} />

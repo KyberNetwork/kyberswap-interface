@@ -4,6 +4,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { Exchange } from 'pages/Earns/constants'
 import {
   EarnPool,
+  KemReward,
   MerklOpportunity,
   PositionHistoryType,
   UserPosition,
@@ -146,6 +147,8 @@ export interface PoolDetail {
   reserves: Array<string>
   tokens: Array<PoolDetailToken>
   poolStats?: PoolDetailStats
+  egUsd?: number
+  kemReward?: KemReward
   merklOpportunity?: MerklOpportunity
   positionInfo: PoolDetailPositionInfo
 
