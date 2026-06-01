@@ -21,7 +21,7 @@ export default function AddLiquidityDescription(transaction: TransactionDetails)
           if (id) setTokenId(id.toString())
           else setTokenId(null)
         })
-        .catch(error => console.log('failed to get token id', error))
+        .catch(error => console.error('failed to get token id', error))
     }
   }, [chainId, transaction.hash, dex, positionId])
 

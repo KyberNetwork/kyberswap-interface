@@ -128,7 +128,7 @@ export default function VestingClaimModal({
       }
       onDismiss()
     } catch (e: any) {
-      console.log(e)
+      console.error(e)
       setSigning(false)
       notify({
         title: `Error`,

@@ -260,7 +260,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
         onDismiss()
       }
     } catch (e: any) {
-      console.log(e)
+      console.error(e)
       setSigning(false)
       notify({
         title: `Error`,

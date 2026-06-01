@@ -30,7 +30,7 @@ export default function MigrateLiquidityDescription(transaction: TransactionDeta
         if (id) setTokenId(id.toString())
         else setTokenId(null)
       })
-      .catch(error => console.log('failed to get token id', error))
+      .catch(error => console.error('failed to get token id', error))
   }, [chainId, transaction.hash, destinationDex, success])
 
   return !success ? null : (
