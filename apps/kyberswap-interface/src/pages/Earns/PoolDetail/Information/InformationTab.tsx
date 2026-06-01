@@ -19,8 +19,6 @@ const InformationTab = () => {
   const theme = useTheme()
   const { chainId, pool, poolAddress } = usePoolDetailContext()
 
-  console.log('pool ===', pool)
-
   const tokenPrices = useTokenPrices(
     pool.tokens.map(token => token.address),
     chainId,
