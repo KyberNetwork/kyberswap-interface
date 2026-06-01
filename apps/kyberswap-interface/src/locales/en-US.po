@@ -295,6 +295,10 @@ msgstr "Make swaps on the kyberswap.com"
 #~ msgid "Position {0}"
 #~ msgstr "Position {0}"
 
+#: src/pages/Earns/UserPositions/PositionBanner.tsx
+msgid "View total rewards details"
+msgstr "View total rewards details"
+
 #: src/components/EarnBanner/FarmingPoolBanner.tsx
 msgid "FARMING POOLS"
 msgstr "FARMING POOLS"
@@ -1312,8 +1316,8 @@ msgid "APR"
 msgstr "APR"
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
-msgid "Total"
-msgstr "Total"
+#~ msgid "Total"
+#~ msgstr "Total"
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "Example: You trade $100 of AIXBT for USDC. If you receive $99 worth of USDC, then your trade volume is counted as $99 ~ 99 points."
@@ -1600,8 +1604,8 @@ msgstr "CREATED | EXPIRY"
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
 #: src/pages/Earns/components/PoolAprInfo.tsx
-msgid "LM Reward"
-msgstr "LM Reward"
+#~ msgid "LM Reward"
+#~ msgstr "LM Reward"
 
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
@@ -2383,6 +2387,10 @@ msgstr "Please note that KyberSwap reserves the rights to change the rules & con
 msgid "Both tokens must be stablecoins (e.g., USDC-USDC, USDT-USDT, USDC-USDT…)"
 msgstr "Both tokens must be stablecoins (e.g., USDC-USDC, USDT-USDT, USDC-USDT…)"
 
+#: src/pages/Earns/components/PoolAprInfo.tsx
+msgid "Earning per <0>Total TVL</0>"
+msgstr "Earning per <0>Total TVL</0>"
+
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "Swaps"
 msgstr "Swaps"
@@ -2478,8 +2486,8 @@ msgid "{pendingLength} Pending"
 msgstr "{pendingLength} Pending"
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
-msgid "Active"
-msgstr "Active"
+#~ msgid "Active"
+#~ msgstr "Active"
 
 #: src/components/PoolPriceBar/index.tsx
 #~ msgid "Share of Pool"
@@ -2501,7 +2509,6 @@ msgstr "Fill:"
 msgid "Top 100 pools that have the high total earned fee in the last 7 days"
 msgstr "Top 100 pools that have the high total earned fee in the last 7 days"
 
-#: src/pages/Earns/components/PoolAprInfo.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -5169,8 +5176,8 @@ msgid "Saving ..."
 msgstr "Saving ..."
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
-msgid "Earning per"
-msgstr "Earning per"
+#~ msgid "Earning per"
+#~ msgstr "Earning per"
 
 #: src/pages/NotificationCenter/NotificationPreference/InputEmail.tsx
 msgid "Invalid email address"
@@ -5328,6 +5335,13 @@ msgstr "Pending request(s), please approve it in your wallet."
 #: src/pages/BuyCrypto/index.tsx
 #~ msgid "Step 1"
 #~ msgstr "Step 1"
+
+#: src/pages/Earns/components/AprDetailTooltip.tsx
+#: src/pages/Earns/components/PoolAprBadges.tsx
+#: src/pages/Earns/components/PoolAprInfo.tsx
+#: src/pages/Earns/components/PoolRewardsInfo.tsx
+msgid "LM Rewards"
+msgstr "LM Rewards"
 
 #: src/components/Tutorial/index.tsx
 msgid "To learn more about how to remove liquidity on KyberSwap Elastic, view <0> here</0>"
@@ -6834,8 +6848,8 @@ msgid "Expires in"
 msgstr "Expires in"
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
-msgid "FairFlow EG Reward"
-msgstr "FairFlow EG Reward"
+#~ msgid "FairFlow EG Reward"
+#~ msgstr "FairFlow EG Reward"
 
 #: src/pages/Earns/Landing/index.tsx
 msgid "Maximize Your Earnings in DeFi"
@@ -7122,6 +7136,7 @@ msgstr "Remove failed"
 msgid "Market Overview"
 msgstr "Market Overview"
 
+#: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
 #: src/pages/Earns/components/PoolAprInfo.tsx
 #: src/pages/Earns/components/PoolRewardsInfo.tsx
@@ -8150,6 +8165,7 @@ msgstr "Buy"
 
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
+#: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Total Rewards"
 msgstr "Total Rewards"
@@ -8892,6 +8908,10 @@ msgstr "Attention Item"
 msgid "In range"
 msgstr "In range"
 
+#: src/pages/Earns/components/PoolAprInfo.tsx
+msgid "Earning per <0>Active TVL <1/></0>"
+msgstr "Earning per <0>Active TVL <1/></0>"
+
 #: src/pages/Earns/components/SmartExit/Confirmation/Success.tsx
 msgid "Your Smart Exit condition has been created successfully."
 msgstr "Your Smart Exit condition has been created successfully."
@@ -9350,6 +9370,7 @@ msgstr "This order is not supported gasless cancel. Because it was created by ou
 #: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/pages/Campaign/components/RaffleRewardModal.tsx
+#: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "Close"
 msgstr "Close"

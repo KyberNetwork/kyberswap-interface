@@ -6,12 +6,10 @@ import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { ExternalLink } from 'theme/components'
 
 const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total' | 'active' }) => {
-  const theme = useTheme()
   const hasActiveApr = type === 'active'
   const lpApr = hasActiveApr ? pool.activeFeeApr : pool.lpApr
   const egApr = hasActiveApr ? pool.activeEgApr : pool.kemEGApr
@@ -24,10 +22,7 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
         <p>
           <Trans>
             Earning per{' '}
-            <ExternalLink
-              style={{ color: theme.primary }}
-              href="https://docs.kyberswap.com/user-guide/kyber-earn/apr-metrics#active-apr"
-            >
+            <ExternalLink href="https://docs.kyberswap.com/user-guide/kyber-earn/apr-metrics#active-apr">
               Active TVL <Info className="inline align-text-bottom" size={12} />
             </ExternalLink>
           </Trans>

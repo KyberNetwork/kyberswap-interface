@@ -295,6 +295,10 @@ msgstr "在 kyberswap.com 进行兑换"
 #~ msgid "Position {0}"
 #~ msgstr "仓位 {0}"
 
+#: src/pages/Earns/UserPositions/PositionBanner.tsx
+msgid "View total rewards details"
+msgstr ""
+
 #: src/components/EarnBanner/FarmingPoolBanner.tsx
 msgid "FARMING POOLS"
 msgstr "挖矿池"
@@ -1312,8 +1316,8 @@ msgid "APR"
 msgstr "年化收益率"
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
-msgid "Total"
-msgstr ""
+#~ msgid "Total"
+#~ msgstr ""
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "Example: You trade $100 of AIXBT for USDC. If you receive $99 worth of USDC, then your trade volume is counted as $99 ~ 99 points."
@@ -1600,8 +1604,8 @@ msgstr "创建 | 到期"
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
 #: src/pages/Earns/components/PoolAprInfo.tsx
-msgid "LM Reward"
-msgstr "挖矿奖励"
+#~ msgid "LM Reward"
+#~ msgstr "挖矿奖励"
 
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
@@ -2383,6 +2387,10 @@ msgstr "请注意，KyberSwap 保留自行调整规则与条件的权利。"
 msgid "Both tokens must be stablecoins (e.g., USDC-USDC, USDT-USDT, USDC-USDT…)"
 msgstr "两个代币都必须是稳定币（例如 USDC-USDC、USDT-USDT、USDC-USDT…）"
 
+#: src/pages/Earns/components/PoolAprInfo.tsx
+msgid "Earning per <0>Total TVL</0>"
+msgstr ""
+
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "Swaps"
 msgstr "兑换"
@@ -2478,8 +2486,8 @@ msgid "{pendingLength} Pending"
 msgstr "{pendingLength} 个待处理"
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
-msgid "Active"
-msgstr "进行中"
+#~ msgid "Active"
+#~ msgstr "进行中"
 
 #: src/components/PoolPriceBar/index.tsx
 #~ msgid "Share of Pool"
@@ -2501,7 +2509,6 @@ msgstr "成交："
 msgid "Top 100 pools that have the high total earned fee in the last 7 days"
 msgstr "过去 7 天手续费最高的前 100 个资金池"
 
-#: src/pages/Earns/components/PoolAprInfo.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -5169,8 +5176,8 @@ msgid "Saving ..."
 msgstr "保存中……"
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
-msgid "Earning per"
-msgstr ""
+#~ msgid "Earning per"
+#~ msgstr ""
 
 #: src/pages/NotificationCenter/NotificationPreference/InputEmail.tsx
 msgid "Invalid email address"
@@ -5328,6 +5335,13 @@ msgstr "存在待处理请求，请在钱包中批准"
 #: src/pages/BuyCrypto/index.tsx
 #~ msgid "Step 1"
 #~ msgstr "步骤 1"
+
+#: src/pages/Earns/components/AprDetailTooltip.tsx
+#: src/pages/Earns/components/PoolAprBadges.tsx
+#: src/pages/Earns/components/PoolAprInfo.tsx
+#: src/pages/Earns/components/PoolRewardsInfo.tsx
+msgid "LM Rewards"
+msgstr ""
 
 #: src/components/Tutorial/index.tsx
 msgid "To learn more about how to remove liquidity on KyberSwap Elastic, view <0> here</0>"
@@ -6834,8 +6848,8 @@ msgid "Expires in"
 msgstr "剩余有效期"
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
-msgid "FairFlow EG Reward"
-msgstr ""
+#~ msgid "FairFlow EG Reward"
+#~ msgstr ""
 
 #: src/pages/Earns/Landing/index.tsx
 msgid "Maximize Your Earnings in DeFi"
@@ -7122,6 +7136,7 @@ msgstr "移除失败"
 msgid "Market Overview"
 msgstr "市场概览"
 
+#: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
 #: src/pages/Earns/components/PoolAprInfo.tsx
 #: src/pages/Earns/components/PoolRewardsInfo.tsx
@@ -8150,6 +8165,7 @@ msgstr "买入"
 
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
+#: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Total Rewards"
 msgstr "奖励总额"
@@ -8892,6 +8908,10 @@ msgstr "注意事项"
 msgid "In range"
 msgstr "区间内"
 
+#: src/pages/Earns/components/PoolAprInfo.tsx
+msgid "Earning per <0>Active TVL <1/></0>"
+msgstr ""
+
 #: src/pages/Earns/components/SmartExit/Confirmation/Success.tsx
 msgid "Your Smart Exit condition has been created successfully."
 msgstr ""
@@ -9350,6 +9370,7 @@ msgstr "该订单不支持免 Gas 取消（由旧合约创建）"
 #: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/pages/Campaign/components/RaffleRewardModal.tsx
+#: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "Close"
 msgstr "关闭"
