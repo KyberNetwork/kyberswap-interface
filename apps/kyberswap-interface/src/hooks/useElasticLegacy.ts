@@ -273,14 +273,15 @@ export function usePositionFees(positions: Position[]) {
       setFeeRewards(
         returnData.reduce<{ [tokenId: string]: [string, string] }>((acc, item, index) => {
           if (item.success) {
+            // viem returns a positional array for multi-output functions, not named keys
             const tmp = decodeFunctionResult({
               abi: TickReaderABI.abi,
               functionName: 'getTotalFeesOwedToPosition',
               data: item.returnData,
-            }) as { token0Owed: bigint; token1Owed: bigint }
+            }) as readonly [bigint, bigint]
             return {
               ...acc,
-              [positions[index].id]: [tmp.token0Owed.toString(), tmp.token1Owed.toString()],
+              [positions[index].id]: [tmp[0].toString(), tmp[1].toString()],
             }
           }
           return { ...acc, [positions[index].id]: ['0', '0'] }
@@ -288,9 +289,9 @@ export function usePositionFees(positions: Position[]) {
       )
     }
 
-    getData()
+    getData().catch(e => console.error('useElasticLegacy: failed to load position fees', e))
     const i = setInterval(() => {
-      getData()
+      getData().catch(e => console.error('useElasticLegacy: failed to load position fees', e))
     }, 10_000)
 
     return () => clearInterval(i)
