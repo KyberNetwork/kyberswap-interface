@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
+import { didUserReject } from 'constants/connectors/utils'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
@@ -129,15 +130,25 @@ export function useApproveCallback(
             customAmount instanceof CurrencyAmount ? BigInt(customAmount.quotient.toString()) : maxUint256
           response = await sendApprove(initialAmount)
         } catch (e) {
+          // Abort the retry chain on user rejection — otherwise the wallet would
+          // re-prompt with the exact-amount fallback (and again with the USDT
+          // zero-reset), surfacing as 2-3 consecutive popups for one click.
+          if (didUserReject(e)) return
           try {
             response = await sendApprove(BigInt(amountToApprove.quotient.toString()))
-          } catch {
+          } catch (e2) {
+            if (didUserReject(e2)) return
             // Last-ditch fallback: reset allowance to 0 (USDT-style tokens reject
             // approve() when the current allowance is non-zero). The user will need
             // to retrigger approve to the desired amount — don't surface this as a
             // successful "Approve" in the wallet history, since the allowance is now
             // 0 and the caller's flow has not been granted.
-            await sendApprove(0n)
+            try {
+              await sendApprove(0n)
+            } catch (e3) {
+              if (didUserReject(e3)) return
+              throw e3
+            }
             return
           }
         }
