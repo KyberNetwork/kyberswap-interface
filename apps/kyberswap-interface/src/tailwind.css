@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Primary CTA emitted by `@kyber/token-selector` (e.g. the "Connect" button
+   inside the Liquidity Source modal). The package only emits the className
+   and expects the host app to style it. Kept unlayered + with `!` so it wins
+   against `@kyber/ui`'s unlayered `.ks-ui-style button { background: transparent }`
+   preflight reset (which would otherwise out-specify any layered rule). */
+.ks-primary-btn,
+.ks-ui-style .ks-primary-btn {
+  @apply !flex !cursor-pointer !items-center !justify-center !rounded-full !border !border-transparent !bg-primary !p-3 !text-center !text-sm !font-medium !leading-[normal] !text-textReverse;
+  @apply hover:enabled:!brightness-110;
+  @apply active:enabled:!brightness-90;
+  @apply disabled:!cursor-not-allowed disabled:!bg-buttonGray disabled:!text-border;
+}
+
 @layer components {
   /* Native browser checkbox tinted with theme primary; pseudo-elements handle the indeterminate state. */
   .ks-checkbox-native {
