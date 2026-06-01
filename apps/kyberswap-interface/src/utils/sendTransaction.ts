@@ -166,6 +166,15 @@ export async function sendEVMTransaction({
     })) as `0x${string}`
     return { hash }
   } catch (error) {
+    // Some wallets surface a transaction hash on the error object when the tx
+    // was actually broadcasted but the wallet/RPC then reported a failure (e.g.
+    // mobile/WC sessions dropping mid-response, providers throwing after the
+    // hash already returned). If we have a hash the tx is on-chain — treat as
+    // success so the app tracks it instead of letting the user re-submit and
+    // pay gas twice. Check the legacy ethers field and the two places viem
+    // typically nests it (cause / details).
+    const recovered = extractTxHashFromError(error)
+    if (recovered) return { hash: recovered }
     throw new TransactionError(
       errorInfo.name,
       'sendTransaction',
@@ -175,4 +184,21 @@ export async function sendEVMTransaction({
       errorInfo.wallet,
     )
   }
+}
+
+function extractTxHashFromError(error: unknown): `0x${string}` | undefined {
+  if (!error || typeof error !== 'object') return undefined
+  const e = error as { transactionHash?: unknown; cause?: unknown; data?: unknown; details?: unknown }
+  const candidates: unknown[] = [
+    e.transactionHash,
+    (e.cause as { transactionHash?: unknown })?.transactionHash,
+    (e.data as { transactionHash?: unknown })?.transactionHash,
+    (e.details as { transactionHash?: unknown })?.transactionHash,
+  ]
+  for (const c of candidates) {
+    if (typeof c === 'string' && /^0x[0-9a-fA-F]{64}$/.test(c)) {
+      return c as `0x${string}`
+    }
+  }
+  return undefined
 }
