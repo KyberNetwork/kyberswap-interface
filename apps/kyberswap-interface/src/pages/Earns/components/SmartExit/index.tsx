@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { useWeb3React } from 'hooks'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTheme from 'hooks/useTheme'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
 import Confirmation from 'pages/Earns/components/SmartExit/Confirmation'
@@ -36,6 +37,11 @@ interface SmartExitProps {
 export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitProps) => {
   const theme = useTheme()
   const { isSmartConnector } = useWeb3React()
+  const isSmartAccount = useIsSmartAccount()
+  // Cover both connector-level smart wallets (Porto, Safe) and account-level
+  // smart wallets detected via bytecode / EIP-5792 capabilities (Coinbase
+  // Smart Wallet via passkey, Argent, Ambire, EIP-7702 delegated EOAs).
+  const isSmartWallet = isSmartConnector || isSmartAccount
   const toggleWalletModal = useWalletModalToggle()
   const [selectedMetrics, setSelectedMetrics] = useState<Array<SelectedMetric | null>>([
     { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
@@ -79,12 +85,12 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
       mobileFullWidth
       onDismiss={onDismiss}
       width="100vw"
-      maxWidth={isSmartConnector ? 480 : showConfirm ? 450 : 800}
+      maxWidth={isSmartWallet ? 480 : showConfirm ? 450 : 800}
       bgColor={theme.background}
       padding="20px"
     >
       <Flex width="100%" flexDirection="column">
-        {isSmartConnector ? (
+        {isSmartWallet ? (
           <Flex flexDirection="column" sx={{ gap: '12px' }}>
             <Flex justifyContent="space-between" alignItems="center">
               <Text fontSize={18} fontWeight={500}>
@@ -94,8 +100,9 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             </Flex>
             <Text fontSize={14} color={theme.subText}>
               <Trans>
-                Porto and other smart wallets aren&apos;t compatible with Smart Exit. Switch to an EOA wallet (e.g.
-                MetaMask, Rabby) to use this feature.
+                Smart wallets (Porto, Safe, Coinbase Smart Wallet, Argent, Ambire, ...) aren&apos;t compatible with
+                Smart Exit because the position permit can&apos;t verify their contract signatures. Switch to an EOA
+                wallet (e.g. MetaMask, Rabby) to use this feature.
               </Trans>
             </Text>
             <Flex justifyContent="flex-end" mt="8px">

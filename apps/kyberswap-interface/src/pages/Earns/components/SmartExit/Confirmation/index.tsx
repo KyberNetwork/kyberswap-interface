@@ -6,6 +6,7 @@ import { useGetSmartExitConfigQuery } from 'services/smartExit'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -44,6 +45,13 @@ export default function Confirmation({
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
+  const isSmartAccount = useIsSmartAccount()
+  // Match usePermitNft's smart-account gate so the button doesn't sit on
+  // PermitNftState.NOT_APPLICABLE silently — clicking would no-op and leave
+  // the user stuck without an explanation. Covers Coinbase Smart Wallet via
+  // passkey, Argent, Ambire, EIP-7702 EOAs in addition to connector-level
+  // smart wallets (Porto, Safe).
+  const isSmartWallet = isSmartConnector || isSmartAccount
   const { changeNetwork } = useChangeNetwork()
   const notify = useNotify()
   const { data: smartExitConfig } = useGetSmartExitConfigQuery(position.chain.id)
@@ -92,7 +100,7 @@ export default function Confirmation({
             return
           }
 
-          if (isSmartConnector) {
+          if (isSmartWallet) {
             // Smart wallets produce EIP-1271 signatures that the NFT contract's
             // ecrecover-based permit can't verify, so the order would fail on
             // execution even if we let it sign here.
