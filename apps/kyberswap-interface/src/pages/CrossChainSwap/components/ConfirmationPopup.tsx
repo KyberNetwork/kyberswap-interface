@@ -9,7 +9,6 @@ import { ArrowDown, X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useLazyCheckBlackjackQuery } from 'services/blackjack'
 import { formatUnits } from 'viem'
-import { useWalletClient } from 'wagmi'
 
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -18,6 +17,7 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
@@ -86,7 +86,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     sender,
     receiver,
   } = useCrossChainSwap()
-  const { data: walletClient } = useWalletClient()
+  const { data: walletClient } = useGatedWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')

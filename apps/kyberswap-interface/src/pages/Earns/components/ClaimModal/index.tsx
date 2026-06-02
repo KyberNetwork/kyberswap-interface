@@ -6,7 +6,7 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
 import { NativeToken } from 'constants/networks/type'
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import {
@@ -57,7 +57,7 @@ const ClaimModal = ({
   onCompound?: () => void
   onClose: () => void
 }) => {
-  const { library, chainId } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { supportedChains } = useChainsConfig()
   const { changeNetwork } = useChangeNetwork()
 
@@ -65,9 +65,7 @@ const ClaimModal = ({
   const [isClaiming, setIsClaiming] = useState(false)
 
   const handleClaim = useCallback(async () => {
-    if (!library) return
-    const accounts = await library.listAccounts()
-    if (chainId !== claimInfo.chainId || !accounts.length) {
+    if (chainId !== claimInfo.chainId || !account) {
       if (chainId !== claimInfo.chainId) changeNetwork(claimInfo.chainId)
       setAutoClaim(true)
       return
@@ -79,7 +77,7 @@ const ClaimModal = ({
     } finally {
       setIsClaiming(false)
     }
-  }, [library, chainId, claimInfo.chainId, onClaim, changeNetwork])
+  }, [account, chainId, claimInfo.chainId, onClaim, changeNetwork])
 
   useEffect(() => {
     if (autoClaim && chainId === claimInfo.chainId) {

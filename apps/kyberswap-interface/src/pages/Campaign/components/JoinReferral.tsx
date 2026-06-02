@@ -17,12 +17,14 @@ import CopyHelper from 'components/Copy'
 import Input from 'components/Input'
 import Modal from 'components/Modal'
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 export default function JoinReferal() {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [searchParams] = useSearchParams()
 
   const [showRefModal, setShowRefModal] = useState(false)
@@ -56,12 +58,11 @@ export default function JoinReferal() {
   const [getNonce] = useLazyGetNonceQuery()
   const [joinCampaign] = useJoinCampaignMutation()
   const toggleWalletModal = useWalletModalToggle()
-  const { library } = useWeb3React()
 
   const notify = useNotify()
 
   const handleJoin = async (code: string) => {
-    if (!library) return
+    if (!account) return
     const res = await getNonce(account || '')
     const message = new SiweMessage({
       domain: 'kyberswap.com',
@@ -73,7 +74,12 @@ export default function JoinReferal() {
       nonce: res?.data?.data?.nonce || t`Nonce Retrieval Failed`,
     }).prepareMessage()
 
-    const signature = await library.getSigner().signMessage(message)
+    const walletClient = await getGatedWalletClient({ chainId: chainId })
+    if (!walletClient) throw new Error('Wallet client unavailable')
+    const signature = await walletClient.signMessage({
+      account: account as Address,
+      message,
+    })
 
     const joinCampaignRes = await joinCampaign({
       wallet: account,

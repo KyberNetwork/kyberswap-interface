@@ -1,16 +1,28 @@
-import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import { Token } from '@kyber/schema'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
-import { ethers } from 'ethers'
+import { getPublicClient } from '@wagmi/core'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
-import { calculateGasMargin } from 'utils'
-import { getReadingContractWithCustomChain } from 'utils/getContract'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { BlacklistedWalletError, ErrorName } from 'utils/transactionError'
+import { Hash, keccak256, toBytes } from 'utils/viem'
 
-export const getTokenId = async (provider: Web3Provider, txHash: string, exchange: Exchange) => {
+type LegacyTransactionRequest = {
+  from?: string
+  to?: string
+  data?: string
+  value?: string | number | bigint | { toString: () => string }
+  gasLimit?: string | number | bigint
+}
+
+export const getTokenId = async (chainId: number, txHash: string, exchange: Exchange) => {
   try {
-    const receipt = await provider.getTransactionReceipt(txHash)
+    const publicClient = getPublicClient(wagmiConfig, { chainId })
+    if (!publicClient) return
+
+    const receipt = await publicClient.getTransactionReceipt({ hash: txHash as Hash })
     if (!receipt || !receipt.logs) return
 
     const isUniV4 = EARN_DEXES[exchange].isForkFrom === CoreProtocol.UniswapV4
@@ -18,16 +30,18 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, exchang
     let hexTokenId
     if (!isUniV4) {
       const isQuickSwapV3 = exchange === Exchange.DEX_QUICKSWAPV3ALGEBRA
-      const increaseLidEventTopic = ethers.utils.id(
-        !isQuickSwapV3
-          ? 'IncreaseLiquidity(uint256,uint128,uint256,uint256)'
-          : 'IncreaseLiquidity(uint256,uint128,uint128,uint256,uint256,address)',
+      const increaseLidEventTopic = keccak256(
+        toBytes(
+          !isQuickSwapV3
+            ? 'IncreaseLiquidity(uint256,uint128,uint256,uint256)'
+            : 'IncreaseLiquidity(uint256,uint128,uint128,uint256,uint256,address)',
+        ),
       )
       const increaseLidLogs = receipt.logs.filter((log: any) => log.topics[0] === increaseLidEventTopic)
       const increaseLidEvent = increaseLidLogs?.length ? increaseLidLogs[0] : undefined
       hexTokenId = increaseLidEvent?.topics?.[1]
     } else {
-      const transferEventTopic = ethers.utils.id('Transfer(address,address,uint256)')
+      const transferEventTopic = keccak256(toBytes('Transfer(address,address,uint256)'))
       const transferLogsWithTokenId = receipt.logs.filter(
         (log: any) => log.topics[0] === transferEventTopic && log.topics.length === 4,
       )
@@ -36,7 +50,9 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, exchang
         : transferLogsWithTokenId[transferLogsWithTokenId.length - 1].topics[3]
     }
     if (!hexTokenId) return
-    return Number(hexTokenId)
+    // Use BigInt to preserve precision past 2^53. Callers stringify immediately
+    // (e.g. `getTokenId(...).toString()`), so returning a numeric string is safe.
+    return BigInt(hexTokenId).toString()
   } catch (error) {
     console.log('getTokenId error', error)
     return
@@ -60,35 +76,41 @@ export const getDefaultRevertPrice = (pool: { token0: Token; token1: Token } | n
 }
 
 export const submitTransaction = async ({
-  library,
+  account,
+  chainId,
   txData,
   onError,
+  isSmartConnector = false,
 }: {
-  library?: Web3Provider
-  txData: TransactionRequest
+  account: string | undefined
+  chainId: ChainId | number | undefined
+  txData: LegacyTransactionRequest
   onError?: (error: Error) => void
+  isSmartConnector?: boolean
 }) => {
-  if (!library) throw new Error('Library is not ready!')
+  if (!account) throw new Error('Wallet is not connected')
+  if (!chainId) throw new Error('Chain is not ready')
+  // Fail early with a clear message when the upstream API response is missing
+  // `to` — viem otherwise rejects at sendTransaction with an opaque error.
+  if (!txData.to) throw new Error('Missing contract address in transaction data')
   try {
-    const estimate = await library.getSigner().estimateGas(txData)
-    const res = await library.getSigner().sendTransaction({
-      ...txData,
-      gasLimit: calculateGasMargin(estimate),
+    const value = txData.value ? BigInt(txData.value.toString()) : 0n
+    const res = await sendEVMTransaction({
+      account,
+      contractAddress: txData.to as string,
+      encodedData: (txData.data ?? '0x') as string as `0x${string}`,
+      value,
+      errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+      isSmartConnector,
+      chainId: chainId as ChainId,
     })
 
     return {
-      txHash: res.hash,
+      txHash: res?.hash ?? null,
       error: null,
     }
   } catch (error) {
-    const txHash = (error as any)?.transactionHash as string | undefined
-    if (txHash) {
-      return {
-        txHash,
-        error: null,
-      }
-    }
-
+    if (error instanceof BlacklistedWalletError) throw error
     console.error('Submit transaction error:', error)
     if (onError) onError(error as Error)
     return {
@@ -104,14 +126,6 @@ export const getNftManagerContractAddress = (dex: Exchange, chainId: number) => 
   return typeof nftManagerContractElement === 'string'
     ? nftManagerContractElement
     : nftManagerContractElement[chainId as keyof typeof nftManagerContractElement]
-}
-
-export const getNftManagerContract = (dex: Exchange, chainId: number) => {
-  const nftManagerContractAddress = getNftManagerContractAddress(dex, chainId)
-  const nftManagerAbi = EARN_DEXES[dex].nftManagerContractAbi
-  if (!nftManagerAbi || !nftManagerContractAddress) return
-
-  return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi, chainId as ChainId)
 }
 
 export const truncateSymbol = (symbol: string, maxLength = 10) =>

@@ -1,5 +1,4 @@
 import { CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
-import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 
 import { BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
@@ -108,7 +107,6 @@ export const parseFraction = (value: FormatValue): Fraction => {
     if (
       typeof value === 'string' ||
       typeof value === 'number' ||
-      value instanceof BigNumber ||
       value instanceof CurrencyAmount ||
       value instanceof Percent ||
       value instanceof Price
@@ -116,7 +114,6 @@ export const parseFraction = (value: FormatValue): Fraction => {
       const valueStr = (() => {
         if (typeof value === 'string') return parseString(value).toFixed(100)
         if (typeof value === 'number') return toString(value)
-        if (value instanceof BigNumber) return value.toString()
         if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
         if (value instanceof Price) return value.toFixed(18)
         if (value instanceof Percent) return value.divide(100).toFixed(100)
@@ -134,7 +131,7 @@ export const parseFraction = (value: FormatValue): Fraction => {
   }
 }
 
-type FormatValue = string | number | bigint | JSBI | BigNumber | Fraction | undefined | null
+type FormatValue = string | number | bigint | JSBI | Fraction | undefined | null
 type FormatOptions = {
   style?: 'decimal' | 'currency' | 'percent'
   fractionDigits?: number // usually for percent  & currency styles

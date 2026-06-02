@@ -6,11 +6,10 @@ import Wallet from 'components/Icons/Wallet'
 import Input from 'components/NumericalInput'
 import { AutoRow, RowBetween } from 'components/Row'
 import useTokenBalance from 'hooks/useTokenBalance'
+import { KNCLogoWrapper, SmallButton } from 'pages/KyberDAO/StakeKNC/StakeKNCComponent'
 import { useKNCPrice } from 'state/application/hooks'
 import { getTokenLogoURL } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
-
-import { KNCLogoWrapper, SmallButton } from './StakeKNCComponent'
 
 export default function CurrencyInputForStake({
   value,
@@ -46,9 +45,7 @@ export default function CurrencyInputForStake({
               </SmallButton>
               <SmallButton
                 onClick={() =>
-                  setValue(
-                    getFullDisplayBalance(tokenBalance.value.div(2), tokenBalance.decimals, tokenBalance.decimals),
-                  )
+                  setValue(getFullDisplayBalance(tokenBalance.value / 2n, tokenBalance.decimals, tokenBalance.decimals))
                 }
               >
                 Half

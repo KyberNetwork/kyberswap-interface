@@ -34,7 +34,7 @@ pnpm build
 - pnpm workspaces + Turborepo
 - Tailwind CSS (utility-first, via the `cn()` helper from `utils/cn`; avoid inline `style` and styled-components — both are deprecated in this app)
 - Redux Toolkit + RTK Query (app state), zustand (widget state)
-- ethers.js, wagmi, viem
+- wagmi, viem
 
 ## Code Conventions
 

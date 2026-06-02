@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
-import 'inter-ui'
+import 'inter-ui/inter.css'
 import { initMixpanel } from 'libs/mixpanel'
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -35,7 +35,6 @@ import store from './state'
 import ApplicationUpdater from './state/application/updater'
 import CustomizeDexesUpdater from './state/customizeDexes/updater'
 import ListsUpdater from './state/lists/updater'
-import MulticallUpdater from './state/multicall/updater'
 import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
 import './tailwind.css'
@@ -67,7 +66,6 @@ function Updaters() {
       <UserUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />
-      <MulticallUpdater />
       <CustomizeDexesUpdater />
     </>
   )

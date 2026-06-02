@@ -33,6 +33,9 @@ import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/appli
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
+import { Address } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -88,7 +91,7 @@ const useZapInWidget = ({
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -108,11 +111,9 @@ const useZapInWidget = ({
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, dex: Exchange, poolId: string) => {
-      if (!library) return
-
-      navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
+      navigateToPositionAfterZap(txHash, chainId, dex, poolId, navigate)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const handleOpenZapIn = ({ pool, positionId, initialTick }: ZapInInfo) => {
@@ -187,10 +188,19 @@ const useZapInWidget = ({
             ...addLiquidityPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapInRpcUrl,
-            signTypedData: library
-              ? (account: string, typedDataJson: string) =>
-                  library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
-              : undefined,
+            // See useZapOutWidget for the smart-connector permit rationale —
+            // permit signatures from Porto/Safe don't verify via ecrecover on
+            // the NFT contract, so we let the widget fall back to approve.
+            signTypedData: isSmartConnector
+              ? undefined
+              : async (account: string, typedDataJson: string) => {
+                  const parsedTypedData = JSON.parse(typedDataJson)
+                  return signTypedDataRaw({
+                    chainId: chainId,
+                    account: account.toLowerCase() as Address,
+                    typedData: parsedTypedData,
+                  })
+                },
             referral: refCode,
             txStatus,
             txHashMapping: originalToCurrentHash,
@@ -249,14 +259,12 @@ const useZapInWidget = ({
             },
             onOpenZapMigration: handleOpenZapMigration,
             onSuccess: async (data: OnSuccessProps) => {
-              if (!library) return
-
               const dex = addLiquidityPureParams.dexId
               const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
 
               const nftId =
                 data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
+                (isUniv2 ? account || '' : ((await getTokenId(chainId, data.txHash, dex)) || '').toString())
 
               const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
@@ -351,10 +359,15 @@ const useZapInWidget = ({
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({
+                account,
+                chainId: addLiquidityPureParams.chainId,
+                txData,
+                isSmartConnector,
+              })
               const { txHash, error } = res
 
-              if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+              if (!txHash || error) throw new Error(error ? friendlyError(error) : 'Transaction failed')
 
               const dex = addLiquidityPureParams.dexId
               if (additionalInfo?.type === 'zap' && dex) {
@@ -417,8 +430,8 @@ const useZapInWidget = ({
       handleCloseZapInWidget,
       handleNavigateToPosition,
       handleOpenZapMigration,
+      isSmartConnector,
       isSmartExitSupported,
-      library,
       locale,
       onOpenSmartExit,
       onRefreshPosition,

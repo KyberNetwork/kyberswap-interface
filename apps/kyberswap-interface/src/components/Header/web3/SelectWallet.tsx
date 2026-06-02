@@ -88,7 +88,12 @@ function Web3StatusInner() {
       <button
         id={TutorialIds.BUTTON_ADDRESS_WALLET}
         data-testid="web3-status-connected"
-        onClick={() => {
+        onClick={e => {
+          // Blur the trigger before the modal mounts. WalletModal sets
+          // `bypassFocusLock={true}` (WalletConnect QR popup compatibility), so
+          // focus would otherwise stay on this button while @reach/dialog sets
+          // `aria-hidden` on its #app sibling — Chrome blocks that and warns.
+          ;(e.currentTarget as HTMLElement).blur()
           toggleWalletModal()
           trackingHandler(TRACKING_EVENT_TYPE.WUI_WALLET_CLICK)
           trackingHandler(TRACKING_EVENT_TYPE.WALLET_MODAL_OPENED, {
@@ -148,7 +153,12 @@ function Web3StatusInner() {
   }
   return (
     <ButtonLight
-      onClick={toggleWalletModal}
+      onClick={e => {
+        // See note above on Web3StatusConnected.onClick — blur to avoid the
+        // Chrome "blocked aria-hidden on a focused descendant" warning.
+        ;(e.currentTarget as HTMLElement).blur()
+        toggleWalletModal()
+      }}
       padding="12px 12px"
       id={TutorialIds.BUTTON_CONNECT_WALLET}
       data-testid="button-connect-wallet"

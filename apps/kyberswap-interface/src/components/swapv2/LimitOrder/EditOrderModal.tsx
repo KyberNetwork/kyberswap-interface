@@ -1,25 +1,31 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ethers } from 'ethers'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, X } from 'react-feather'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
 import Column from 'components/Column'
 import Modal from 'components/Modal'
+import LimitOrderForm, { Label, LimitOrderFormHandle } from 'components/swapv2/LimitOrder/LimitOrderForm'
 import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
+import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
+import {
+  CancelOrderFunction,
+  CancelOrderType,
+  EditOrderInfo,
+  LimitOrder,
+  LimitOrderStatus,
+  RateInfo,
+} from 'components/swapv2/LimitOrder/type'
 import { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-
-import LimitOrderForm, { Label, LimitOrderFormHandle } from './LimitOrderForm'
-import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
-import { CancelOrderFunction, CancelOrderType, EditOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
+import { formatUnits } from 'utils/viem'
 
 enum Steps {
   EDIT_ORDER,
@@ -50,8 +56,8 @@ export default function EditOrderModal({
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset, customChainId) ?? undefined
   const currencyOut = useCurrencyV2(takerAsset, customChainId) ?? undefined
-  const inputAmount = currencyIn ? ethers.utils.formatUnits(makingAmount, currencyIn.decimals) : ''
-  const outputAmount = currencyOut ? ethers.utils.formatUnits(takingAmount, currencyOut.decimals) : ''
+  const inputAmount = currencyIn ? formatUnits(BigInt(makingAmount), currencyIn.decimals) : ''
+  const outputAmount = currencyOut ? formatUnits(BigInt(takingAmount), currencyOut.decimals) : ''
 
   const formatIn = inputAmount ? removeTrailingZero(inputAmount) : inputAmount
   const formatOut = outputAmount ? removeTrailingZero(outputAmount) : outputAmount

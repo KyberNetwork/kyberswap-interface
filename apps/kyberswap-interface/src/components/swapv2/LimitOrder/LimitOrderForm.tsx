@@ -20,9 +20,23 @@ import { DefaultSlippageOption } from 'components/SlippageControl'
 import Tooltip, { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
+import ExpirePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import { DEFAULT_EXPIRED, getExpireOptions } from 'components/swapv2/LimitOrder/const'
+import {
+  calcInvert,
+  calcOutput,
+  calcRate,
+  calcUsdPrices,
+  formatAmountOrder,
+  getErrorMessage,
+  getPayloadCreateOrder,
+  parseFraction,
+  removeTrailingZero,
+} from 'components/swapv2/LimitOrder/helpers'
+import { CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
 import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
 import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
 import useWarningCreateOrder from 'components/swapv2/LimitOrder/useWarningCreateOrder'
@@ -31,7 +45,7 @@ import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useTokenAllowance } from 'data/Allowances'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -49,21 +63,6 @@ import { cn } from 'utils/cn'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatTimeDuration } from 'utils/time'
-
-import ExpirePicker from './ExpirePicker'
-import { DEFAULT_EXPIRED, getExpireOptions } from './const'
-import {
-  calcInvert,
-  calcOutput,
-  calcRate,
-  calcUsdPrices,
-  formatAmountOrder,
-  getErrorMessage,
-  getPayloadCreateOrder,
-  parseFraction,
-  removeTrailingZero,
-} from './helpers'
-import { CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from './type'
 
 const DropdownIcon = ({ className, ...rest }: React.SVGProps<SVGSVGElement> & { 'data-flip'?: boolean }) => (
   <DropdownSVG
@@ -217,7 +216,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const [customDateExpire, setCustomDateExpire] = useState<Date | undefined>(defaultExpire)
 
   const [approvalSubmitted, setApprovalSubmitted] = useState(false)
-  const { library } = useWeb3React()
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
@@ -577,7 +575,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
     try {
       const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
-      if (!library || !currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
+      if (!currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
         throw new Error('wrong input')
       }
 

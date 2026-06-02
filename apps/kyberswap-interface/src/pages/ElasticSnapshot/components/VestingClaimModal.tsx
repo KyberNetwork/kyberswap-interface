@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -12,16 +11,17 @@ import { TermAndCondition } from 'components/Header/web3/WalletModal'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import VestingAbi from 'pages/ElasticSnapshot/data/abis/vestingAbi.json'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
-
-import VestingAbi from '../data/abis/vestingAbi.json'
-
-const ContractInterface = new Interface(VestingAbi)
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Address, encodeFunctionData } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 export default function VestingClaimModal({
   onDismiss,
@@ -42,7 +42,7 @@ export default function VestingClaimModal({
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const [signing, setSigning] = useState(false)
   const notify = useNotify()
@@ -61,59 +61,41 @@ export default function VestingClaimModal({
     }
   }
 
-  const signAndClaim = useCallback(() => {
+  const signAndClaim = useCallback(async () => {
     setAutoSign(false)
     setSigning(true)
 
-    library
-      ?.send('eth_signTypedData_v4', [
-        account,
-        JSON.stringify({
-          types: {
-            EIP712Domain: [
-              {
-                name: 'name',
-                type: 'string',
-              },
-              {
-                name: 'version',
-                type: 'string',
-              },
-              {
-                name: 'chainId',
-                type: 'uint256',
-              },
-              {
-                name: 'verifyingContract',
-                type: 'address',
-              },
-            ],
-            Agreement: [
-              {
-                name: 'leafIndex',
-                type: 'uint256',
-              },
-              {
-                name: 'termsAndConditions',
-                type: 'string',
-              },
-            ],
-          },
-          primaryType: 'Agreement',
-          domain: {
-            name: 'Kyberswap Linear Vesting Grant',
-            version: '1',
-            chainId: ChainId.MATIC,
-            verifyingContract: contractAddress,
-          },
-          message: {
-            leafIndex,
-            termsAndConditions: `By confirming this transaction, I agree to the Terms and Conditions of KyberSwap Treasury Grant Program which can be found at this link ${tcLink}`,
-          },
-        }),
-      ])
-      .then(signature => {
-        const encodedData = ContractInterface.encodeFunctionData('claim', [
+    try {
+      if (!account) throw new Error('Wallet not connected')
+
+      const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+
+      const signature = await walletClient.signTypedData({
+        account: account as Address,
+        domain: {
+          name: 'Kyberswap Linear Vesting Grant',
+          version: '1',
+          chainId: ChainId.MATIC,
+          verifyingContract: contractAddress as Address,
+        },
+        types: {
+          Agreement: [
+            { name: 'leafIndex', type: 'uint256' },
+            { name: 'termsAndConditions', type: 'string' },
+          ],
+        },
+        primaryType: 'Agreement',
+        message: {
+          leafIndex: BigInt(leafIndex),
+          termsAndConditions: `By confirming this transaction, I agree to the Terms and Conditions of KyberSwap Treasury Grant Program which can be found at this link ${tcLink}`,
+        },
+      })
+
+      const encodedData = encodeFunctionData({
+        abi: VestingAbi,
+        functionName: 'claim',
+        args: [
           {
             index: leafIndex,
             receiver: account,
@@ -122,43 +104,39 @@ export default function VestingClaimModal({
           proof,
           signature,
           1, // mode
-        ])
-        library
-          ?.getSigner()
-          .sendTransaction({
-            to: contractAddress,
-            data: encodedData,
-          })
-          .then(tx => {
-            setSigning(false)
-            addTransactionWithType({
-              hash: tx.hash,
-              type: TRANSACTION_TYPE.CLAIM,
-            })
-            onDismiss()
-          })
-          .catch(e => {
-            console.log(e)
-            setSigning(false)
-            notify({
-              title: `Error`,
-              summary: friendlyError(e),
-              type: NotificationType.ERROR,
-            })
-          })
+        ],
       })
-      .catch(e => {
-        console.log(e)
-        setSigning(false)
-        notify({
-          title: `Error`,
-          summary: friendlyError(e),
-          type: NotificationType.ERROR,
+
+      const tx = await sendEVMTransaction({
+        account,
+        contractAddress,
+        encodedData,
+        value: 0n,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId: ChainId.MATIC,
+      })
+
+      setSigning(false)
+      if (tx?.hash) {
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.CLAIM,
         })
+      }
+      onDismiss()
+    } catch (e: any) {
+      console.error(e)
+      setSigning(false)
+      notify({
+        title: `Error`,
+        summary: friendlyError(e),
+        type: NotificationType.ERROR,
       })
+    }
   }, [
     account,
-    library,
+    isSmartConnector,
     notify,
     addTransactionWithType,
     onDismiss,

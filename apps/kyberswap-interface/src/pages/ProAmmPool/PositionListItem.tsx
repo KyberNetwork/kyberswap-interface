@@ -1,7 +1,6 @@
 import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import React, { ComponentProps, HTMLAttributes, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -19,6 +18,7 @@ import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { usePool } from 'hooks/usePools'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import ContentLoader from 'pages/ProAmmPool/ContentLoader'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -26,8 +26,6 @@ import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import ContentLoader from './ContentLoader'
 
 export const TabContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex rounded-full bg-tabBackground p-0.5', className)} {...rest} />
@@ -107,7 +105,7 @@ function PositionListItem({
   const hasActiveFarm = false
   const hasActiveFarmV2 = false
 
-  const [farmReward, _setFarmReward] = useState<BigNumber[] | null>(null)
+  const [farmReward, _setFarmReward] = useState<bigint[] | null>(null)
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -155,7 +153,7 @@ function PositionListItem({
     const temp = farmReward?.[index]
     return (
       usdValue +
-      +CurrencyAmount.fromRawAmount(currency, temp?.gt('0') ? temp?.toString() : '0').toExact() *
+      +CurrencyAmount.fromRawAmount(currency, temp && temp > 0n ? temp.toString() : '0').toExact() *
         prices[currency.wrapped.address]
     )
   }, 0)
@@ -170,7 +168,7 @@ function PositionListItem({
   // prices
   const { priceLower, priceUpper } = getPriceOrderingFromPositionForUI(position)
 
-  const removed = liquidity?.eq(0)
+  const removed = liquidity === 0n
 
   const { trackingHandler } = useTracking()
 

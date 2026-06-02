@@ -1,5 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
@@ -21,7 +19,9 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
+import { basisPointsToPercent, formattedNumLong } from 'utils'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
 
 export default function ProAmmFee({
   tokenId,
@@ -34,15 +34,15 @@ export default function ProAmmFee({
   totalFeeRewardUSD,
 }: {
   totalFeeRewardUSD: number
-  tokenId: BigNumber
+  tokenId: bigint
   position: Position
   layout?: number
   text?: string
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const token0Shown = feeValue0?.currency || position.pool.token0
   const token1Shown = feeValue1?.currency || position.pool.token1
   const addTransactionWithType = useTransactionAdder()
@@ -66,7 +66,7 @@ export default function ProAmmFee({
     setCollectFeeError('')
   }
 
-  const handleBroadcastClaimSuccess = (response: TransactionResponse) => {
+  const handleBroadcastClaimSuccess = (response: { hash: string }) => {
     const tokenAmountIn = feeValue0?.toSignificant(6)
     const tokenAmountOut = feeValue1?.toSignificant(6)
     const tokenSymbolIn = feeValue0?.currency.symbol ?? ''
@@ -97,7 +97,7 @@ export default function ProAmmFee({
     setShowPendingModal(true)
     setAttemptingTxn(true)
 
-    if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !library || !deadline || !layout) {
+    if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !deadline || !layout) {
       setAttemptingTxn(false)
       setCollectFeeError('Something went wrong!')
       return
@@ -118,28 +118,17 @@ export default function ProAmmFee({
       isPositionClosed: liquidity === '0',
     })
 
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
-    }
-
     try {
-      await library
-        .getSigner()
-        .estimateGas(txn)
-        .then((estimate: BigNumber) => {
-          const newTxn = {
-            ...txn,
-            gasLimit: calculateGasMargin(estimate),
-          }
-          return library
-            .getSigner()
-            .sendTransaction(newTxn)
-            .then((response: TransactionResponse) => {
-              handleBroadcastClaimSuccess(response)
-            })
-        })
+      const response = await sendEVMTransaction({
+        account,
+        contractAddress: positionManager.address,
+        encodedData: calldata as `0x${string}`,
+        value: BigInt(value),
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
+      })
+      if (response) handleBroadcastClaimSuccess(response)
     } catch (error: any) {
       setShowPendingModal(true)
       setAttemptingTxn(false)

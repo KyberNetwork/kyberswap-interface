@@ -6,9 +6,11 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import Modal from 'components/Modal'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { cn } from 'utils/cn'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 export default function ChooseGrantModal({
   isOpen,
@@ -40,12 +42,11 @@ export default function ChooseGrantModal({
     if (userSelectedOption) setSelectedOption(userSelectedOption)
   }, [userSelectedOption])
 
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [createOption] = useCreateOptionMutation()
   const notify = useNotify()
 
-  const signMessage = () => {
+  const signMessage = async () => {
     const message = (() => {
       switch (selectedOption) {
         case 'A':
@@ -58,41 +59,50 @@ export default function ChooseGrantModal({
       }
     })()
     setLoading(true)
-    library
-      ?.getSigner()
-      .signMessage(message)
-      .then(async signature => {
-        if (signature && account) {
-          const res = await createOption({
-            walletAddress: account,
-            signature,
-            message,
+    try {
+      const walletClient = await getGatedWalletClient({ chainId: chainId })
+      if (!walletClient || !account) {
+        notify({
+          title: t`Error`,
+          summary: t`Something went wrong`,
+          type: NotificationType.ERROR,
+        })
+        return
+      }
+      const signature = await walletClient.signMessage({
+        account: account as Address,
+        message,
+      })
+      if (signature && account) {
+        const res = await createOption({
+          walletAddress: account,
+          signature,
+          message,
+        })
+        if ((res as any)?.data?.code === 0) {
+          notify({
+            title: t`Choose option successfully`,
+            summary: t`You have chosen option ${selectedOption} for KyberSwap Elastic Exploit Treasury Grant Program`,
+            type: NotificationType.SUCCESS,
           })
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if ((res as any)?.data?.code === 0) {
-            notify({
-              title: t`Choose option successfully`,
-              summary: t`You have chosen option ${selectedOption} for KyberSwap Elastic Exploit Treasury Grant Program`,
-              type: NotificationType.SUCCESS,
-            })
-            onDismiss()
-          } else {
-            notify({
-              title: t`Error`,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              summary: (res as any).error?.data?.message || t`Something went wrong`,
-              type: NotificationType.ERROR,
-            })
-          }
+          onDismiss()
         } else {
           notify({
             title: t`Error`,
-            summary: t`Something went wrong`,
+            summary: (res as any).error?.data?.message || t`Something went wrong`,
             type: NotificationType.ERROR,
           })
         }
-      })
-      .finally(() => setLoading(false))
+      } else {
+        notify({
+          title: t`Error`,
+          summary: t`Something went wrong`,
+          type: NotificationType.ERROR,
+        })
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 
@@ -149,7 +148,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
     const breakdowns = pool.merklOpportunity?.rewardsRecord?.breakdowns || []
     return breakdowns.map(reward => ({
       ...reward.token,
-      amount: getFullDisplayBalance(BigNumber.from(reward.amount), reward.token.decimals, 2),
+      amount: getFullDisplayBalance(reward.amount, reward.token.decimals, 2),
     }))
   }, [pool.merklOpportunity?.rewardsRecord?.breakdowns])
 

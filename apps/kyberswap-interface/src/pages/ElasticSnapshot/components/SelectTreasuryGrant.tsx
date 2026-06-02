@@ -15,21 +15,22 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { VerticalDivider } from 'pages/About/styleds'
+import ChooseGrantModal from 'pages/ElasticSnapshot/components/ChooseGrantModal'
+import TermAndPolicyModal from 'pages/ElasticSnapshot/components/TermAndPolicyModal'
+import vesting3rdData from 'pages/ElasticSnapshot/data/pendle_dappos_vesting.json'
+import phase3 from 'pages/ElasticSnapshot/data/phase3.json'
+import vestingData from 'pages/ElasticSnapshot/data/vesting.json'
+import vestingOptionA from 'pages/ElasticSnapshot/data/vesting/optionA.json'
+import vestingOptionB from 'pages/ElasticSnapshot/data/vesting/optionB.json'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import vesting3rdData from '../data/pendle_dappos_vesting.json'
-import phase3 from '../data/phase3.json'
-import vestingData from '../data/vesting.json'
-import vestingOptionA from '../data/vesting/optionA.json'
-import vestingOptionB from '../data/vesting/optionB.json'
-import ChooseGrantModal from './ChooseGrantModal'
-import TermAndPolicyModal from './TermAndPolicyModal'
+import { Address, Hex } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
@@ -85,12 +86,11 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
   const [isKyc, setIsKyc] = useState(false)
   const [loadingZkme, setLoading] = useState(false)
 
-  const { library } = useWeb3React()
   const [getAccessTokenQuery] = useLazyGetAccessTokensQuery()
 
   const provider: Provider | null = useMemo(
     () =>
-      library && account && chainId === ChainId.MATIC
+      account && chainId === ChainId.MATIC
         ? {
             async getAccessToken() {
               // Request a new token from your backend service and return it to the widget
@@ -102,12 +102,22 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               return [account]
             },
             async delegateTransaction(tx) {
-              const txResponse = await library.getSigner().sendTransaction(tx as any)
-              return txResponse?.hash
+              // ZkMe widget hands us a tx in ethers `TransactionRequest` shape; forward it
+              // to viem `walletClient.sendTransaction`. ZkMe KYC runs on Polygon only.
+              if (!account) throw new Error('Wallet is not connected')
+              const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
+              if (!walletClient) throw new Error('Wallet client unavailable')
+              const t = tx as { to: string; data: string; value?: string | number | bigint }
+              const hash = await walletClient.sendTransaction({
+                to: t.to as Address,
+                data: t.data as Hex,
+                ...(t.value !== undefined ? { value: BigInt(t.value.toString()) } : {}),
+              })
+              return hash
             },
           }
         : null,
-    [library, account, getAccessTokenQuery, chainId],
+    [account, getAccessTokenQuery, chainId],
   )
 
   const zkMe = useMemo(() => {
@@ -467,40 +477,42 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
                   width="fit-content"
                   className="h-9"
                   disabled={userSelectedOption === 'C'}
-                  onClick={() => {
+                  onClick={async () => {
                     const message = 'I confirm choosing Option C - Opt out.'
-                    library
-                      ?.getSigner()
-                      .signMessage(message)
-                      .then(async signature => {
-                        if (signature && account) {
-                          const res = await createOption({
-                            walletAddress: account,
-                            signature,
-                            message,
-                          })
-                          if ((res as any)?.data?.code === 0) {
-                            notify({
-                              title: t`Choose option successfully`,
-                              summary: t`You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program`,
-                              type: NotificationType.SUCCESS,
-                            })
-                            refetch()
-                          } else {
-                            notify({
-                              title: t`Error`,
-                              summary: (res as any).error?.data?.message || t`Something went wrong`,
-                              type: NotificationType.ERROR,
-                            })
-                          }
-                        } else {
-                          notify({
-                            title: t`Error`,
-                            summary: t`Something went wrong`,
-                            type: NotificationType.ERROR,
-                          })
-                        }
+                    if (!account) return
+                    const walletClient = await getGatedWalletClient({ chainId: ChainId.MATIC })
+                    if (!walletClient) return
+                    const signature = await walletClient.signMessage({
+                      account: account as Address,
+                      message,
+                    })
+                    if (!signature) {
+                      notify({
+                        title: t`Error`,
+                        summary: t`Something went wrong`,
+                        type: NotificationType.ERROR,
                       })
+                      return
+                    }
+                    const res = await createOption({
+                      walletAddress: account,
+                      signature,
+                      message,
+                    })
+                    if ((res as any)?.data?.code === 0) {
+                      notify({
+                        title: t`Choose option successfully`,
+                        summary: t`You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program`,
+                        type: NotificationType.SUCCESS,
+                      })
+                      refetch()
+                    } else {
+                      notify({
+                        title: t`Error`,
+                        summary: (res as any).error?.data?.message || t`Something went wrong`,
+                        type: NotificationType.ERROR,
+                      })
+                    }
                   }}
                 >
                   <Trans>Opt Out</Trans>

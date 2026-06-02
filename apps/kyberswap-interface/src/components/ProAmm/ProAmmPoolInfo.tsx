@@ -1,6 +1,5 @@
 import { FeeAmount, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import { useCallback, useState } from 'react'
 import { useMedia } from 'react-use'
 
@@ -9,6 +8,7 @@ import { AutoColumn } from 'components/Column'
 import Copy from 'components/Copy'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { FarmTag } from 'components/FarmTag'
+import { RotateSwapIcon } from 'components/ProAmm/styles'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
@@ -17,8 +17,6 @@ import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { cn } from 'utils/cn'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { RotateSwapIcon } from './styles'
 
 export default function ProAmmPoolInfo({
   isFarmActive,
@@ -46,7 +44,7 @@ export default function ProAmmPoolInfo({
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
 
-  const removed = BigNumber.from(position.liquidity.toString()).eq(0)
+  const removed = BigInt(position.liquidity.toString()) === 0n
   const outOfRange = position.pool.tickCurrent < position.tickLower || position.pool.tickCurrent >= position.tickUpper
 
   const token0Shown = unwrappedToken(position.pool.token0)

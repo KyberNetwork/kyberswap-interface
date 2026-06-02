@@ -2,7 +2,10 @@ import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { X } from 'react-feather'
 
+import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
+import { useWeb3React } from 'hooks'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTheme from 'hooks/useTheme'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
 import Confirmation from 'pages/Earns/components/SmartExit/Confirmation'
@@ -22,6 +25,7 @@ import { ContentWrapper } from 'pages/Earns/components/SmartExit/styles'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { defaultFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils'
 import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 interface SmartExitProps {
   position: ParsedPosition | null
@@ -31,6 +35,13 @@ interface SmartExitProps {
 
 export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitProps) => {
   const theme = useTheme()
+  const { isSmartConnector } = useWeb3React()
+  const isSmartAccount = useIsSmartAccount()
+  // Cover both connector-level smart wallets (Porto, Safe) and account-level
+  // smart wallets detected via bytecode / EIP-5792 capabilities (Coinbase
+  // Smart Wallet via passkey, Argent, Ambire, EIP-7702 delegated EOAs).
+  const isSmartWallet = isSmartConnector || isSmartAccount
+  const toggleWalletModal = useWalletModalToggle()
   const [selectedMetrics, setSelectedMetrics] = useState<Array<SelectedMetric | null>>([
     { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
   ])
@@ -71,12 +82,40 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
       mobileFullWidth
       onDismiss={onDismiss}
       width="100vw"
-      maxWidth={showConfirm ? 450 : 800}
+      maxWidth={isSmartWallet ? 480 : showConfirm ? 450 : 800}
       bgColor={theme.background}
       padding="20px"
     >
       <div className="flex w-full flex-col">
-        {showConfirm && position ? (
+        {isSmartWallet ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-medium">
+                <Trans>Smart Exit unavailable with your current wallet</Trans>
+              </span>
+              <X onClick={onDismiss} className="cursor-pointer" />
+            </div>
+            <span className="text-sm text-subText">
+              <Trans>
+                Smart wallets (Porto, Safe, Coinbase Smart Wallet, Argent, Ambire, ...) aren&apos;t compatible with
+                Smart Exit because the position permit can&apos;t verify their contract signatures. Switch to an EOA
+                wallet (e.g. MetaMask, Rabby) to use this feature.
+              </Trans>
+            </span>
+            <div className="mt-2 flex justify-end">
+              <ButtonPrimary
+                width="fit-content"
+                padding="8px 16px"
+                onClick={() => {
+                  onDismiss()
+                  toggleWalletModal()
+                }}
+              >
+                <Trans>Switch wallet</Trans>
+              </ButtonPrimary>
+            </div>
+          </div>
+        ) : showConfirm && position ? (
           <Confirmation
             selectedMetrics={selectedMetrics.filter(metric => metric !== null) as SelectedMetric[]}
             conditionType={conditionType}

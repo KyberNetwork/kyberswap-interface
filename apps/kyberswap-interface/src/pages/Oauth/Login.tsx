@@ -5,16 +5,22 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Loader from 'components/Loader'
 import { didUserReject } from 'constants/connectors/utils'
 import { ENV_KEY } from 'constants/env'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { initializeOauthKyberSwap } from 'hooks/useLogin'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import AuthForm from 'pages/Oauth/AuthForm'
+import {
+  canAutoSignInEth,
+  createSignMessage,
+  extractAutoLoginMethod,
+  getSupportLoginMethods,
+} from 'pages/Oauth/helpers'
 import { Container, Content, KyberLogo, TextDesc } from 'pages/Oauth/styled'
 import getShortenAddress from 'utils/getShortenAddress'
 import { queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
-
-import AuthForm from './AuthForm'
-import { canAutoSignInEth, createSignMessage, extractAutoLoginMethod, getSupportLoginMethods } from './helpers'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 export const getIamErrorMsg = (error: any) => {
   const data = error?.response?.data
@@ -38,7 +44,6 @@ const getCsrfToken = (loginFlow: LoginFlow | undefined) =>
 
 function Login() {
   const { account, chainId } = useActiveWeb3React()
-  const { library: provider } = useWeb3React()
 
   const [authFormConfig, setAuthFormConfig] = useState<LoginFlow>()
   const [error, setError] = useState('')
@@ -61,7 +66,7 @@ function Login() {
   const signInWithEth = useCallback(async () => {
     try {
       const siweConfig = authFormConfig?.oauth_client?.metadata?.siwe_config
-      if (isMismatchEthAddress || !siweConfig || connectingWallet.current || !provider || !account || !chainId) {
+      if (isMismatchEthAddress || !siweConfig || connectingWallet.current || !account || !chainId) {
         return
       }
       setFlowStatus(v => ({ ...v, processingSignIn: true }))
@@ -75,7 +80,12 @@ function Login() {
         ...siweConfig,
       })
 
-      const signature = await provider.getSigner().signMessage(message)
+      const walletClient = await getGatedWalletClient({ chainId: chainId })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+      const signature = await walletClient.signMessage({
+        account: account as Address,
+        message,
+      })
       const resp = await KyberOauth2.oauthUi.loginEthereum({
         address: account,
         signature: formatSignature(signature),
@@ -95,7 +105,7 @@ function Login() {
       connectingWallet.current = false
       setFlowStatus(v => ({ ...v, processingSignIn: false }))
     }
-  }, [account, provider, authFormConfig, chainId, isMismatchEthAddress])
+  }, [account, authFormConfig, chainId, isMismatchEthAddress])
 
   useEffect(() => {
     const getFlowLogin = async () => {

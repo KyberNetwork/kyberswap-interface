@@ -1,9 +1,8 @@
-import { Interface } from '@ethersproject/abi'
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
-import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
+import { ProAmmPoolStateABI } from 'constants/abis'
 import { useActiveWeb3React } from 'hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 
@@ -14,7 +13,7 @@ export enum PoolState {
   INVALID = 'INVALID',
 }
 
-const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI.abi)
+const POOL_STATE_ABI = ProAmmPoolStateABI.abi
 
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][],
@@ -52,8 +51,8 @@ export function usePools(
     })
   }, [transformed, networkInfo, customFactory, customHash])
 
-  const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getPoolState')
-  const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getLiquidityState')
+  const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_ABI, 'getPoolState')
+  const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_ABI, 'getLiquidityState')
 
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
@@ -65,10 +64,18 @@ export function usePools(
       if (!slot0Valid || !liquidityValid) return [PoolState.INVALID, null]
 
       if (!slot0 || !liquidity) return [PoolState.NOT_EXISTS, null]
-      if (!slot0.sqrtP || slot0.sqrtP.eq(0)) return [PoolState.NOT_EXISTS, null]
+      if (!slot0.sqrtP) return [PoolState.NOT_EXISTS, null]
 
       try {
-        const pool = new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, liquidity.reinvestL, slot0.currentTick)
+        const pool = new Pool(
+          token0,
+          token1,
+          fee,
+          (slot0.sqrtP as bigint).toString(),
+          (liquidity.baseL as bigint).toString(),
+          (liquidity.reinvestL as bigint).toString(),
+          Number(slot0.currentTick),
+        )
 
         return [PoolState.EXISTS, pool]
       } catch (error) {

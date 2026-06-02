@@ -1,4 +1,3 @@
-import { formatUnits } from '@ethersproject/units'
 import {
   AddLiquidityAction,
   NATIVE_TOKEN_ADDRESS,
@@ -16,6 +15,7 @@ import {
 import { translateFriendlyErrorMessage } from '@kyber/ui'
 
 import { formatDisplayNumber } from 'utils/numbers'
+import { formatUnits } from 'utils/viem'
 
 export const ADD_LIQUIDITY_ERROR = {
   SELECT_TOKEN_IN: 'Select token in',
@@ -58,7 +58,7 @@ export const getInputTokenItems = (tokens: Token[], amounts: string) => {
 }
 
 export const parseRouteAmount = (amount: string | undefined, decimals: number) => {
-  const parsedAmount = Number(formatUnits(BigInt(amount || '0').toString(), decimals))
+  const parsedAmount = Number(formatUnits(BigInt(amount || '0'), decimals))
   return Number.isFinite(parsedAmount) ? parsedAmount : undefined
 }
 
@@ -178,7 +178,7 @@ export const validateAddLiquidityInput = ({
         token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
           ? NATIVE_TOKEN_ADDRESS.toLowerCase()
           : token.address.toLowerCase()
-      const balance = formatUnits(balances[balanceKey]?.toString() || '0', token.decimals)
+      const balance = formatUnits(BigInt(balances[balanceKey]?.toString() || '0'), token.decimals)
 
       if (countDecimals(amount) > token.decimals) {
         errors.push(ADD_LIQUIDITY_ERROR.INVALID_INPUT_AMOUNT)

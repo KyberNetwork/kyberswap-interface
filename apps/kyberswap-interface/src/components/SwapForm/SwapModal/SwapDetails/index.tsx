@@ -23,7 +23,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
-import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
+import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp, shortenAddress } from 'utils'
@@ -87,9 +87,6 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
     feeAmountFromBuild && currencyFromBuild?.symbol ? `${feeAmountFromBuild} ${currencyFromBuild.symbol}` : ''
 
   const feeAmount = routeSummary?.extraFee?.feeAmount
-
-  const [paymentToken] = usePaymentToken()
-  const isHold = paymentToken?.address.toLowerCase() === '0xed4040fD47629e7c8FBB7DA76bb50B3e7695F0f2'.toLowerCase()
 
   const { recipient: recipientAddressOrName } = useSwapFormContext()
   const { address: recipientAddress } = useENS(recipientAddressOrName)
@@ -228,7 +225,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                {paymentToken ? t`Est. Paymaster Gas Fee` : t`Estimated Total Gas`}
+                {t`Estimated Total Gas`}
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
@@ -242,15 +239,8 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             content={
               <div className="flex flex-col items-end gap-1">
                 <div className="flex gap-1" onClick={() => setShowDetailGas(prev => !prev)}>
-                  {isHold && !!gasUsd && (
-                    <span className="text-[12px] leading-[normal] text-subText line-through">
-                      {formattedNum(gasUsd, true)}
-                    </span>
-                  )}
                   <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
-                    {gasUsd
-                      ? formattedNum(isHold ? +gasUsd * 0.8 : +gasUsd + Number(buildData?.additionalCostUsd || 0), true)
-                      : '--'}
+                    {gasUsd ? formattedNum(+gasUsd + Number(buildData?.additionalCostUsd || 0), true) : '--'}
                   </p>
                   {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
                     <ChevronDown

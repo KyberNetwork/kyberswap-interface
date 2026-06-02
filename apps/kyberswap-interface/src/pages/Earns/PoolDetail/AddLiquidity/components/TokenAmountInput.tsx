@@ -1,6 +1,5 @@
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, Token } from '@kyber/schema'
 import { Trans } from '@lingui/macro'
-import { formatUnits } from 'ethers/lib/utils'
 import { ChangeEvent, useMemo } from 'react'
 
 import { ReactComponent as DropdownIcon } from 'assets/images/dropdown.svg'
@@ -10,6 +9,7 @@ import Skeleton from 'components/Skeleton'
 import TokenLogo from 'components/TokenLogo'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
+import { formatUnits } from 'utils/viem'
 
 const INPUT_AMOUNT_REGEX = /^\d*(?:[.]\d*)?$/
 
@@ -53,7 +53,7 @@ const TokenAmountInput = ({
       ? NATIVE_TOKEN_ADDRESS.toLowerCase()
       : token.address.toLowerCase()
   const balanceInWei = tokenBalances[balanceKey]?.toString() || '0'
-  const formattedBalance = formatUnits(balanceInWei, token.decimals)
+  const formattedBalance = formatUnits(BigInt(balanceInWei), token.decimals)
 
   const usdAmount = useMemo(
     () => (tokenPrices[token.address.toLowerCase()] || 0) * parseFloat(amount || '0'),
@@ -75,8 +75,8 @@ const TokenAmountInput = ({
     const rawBalance = BigInt(balanceInWei)
     const nextAmount =
       percentage === 100
-        ? formatUnits(rawBalance.toString(), token.decimals)
-        : formatUnits(((rawBalance * BigInt(percentage)) / 100n).toString(), token.decimals)
+        ? formatUnits(rawBalance, token.decimals)
+        : formatUnits((rawBalance * BigInt(percentage)) / 100n, token.decimals)
     const normalizedAmount = normalizeActionAmount(nextAmount)
 
     updateAmount(normalizedAmount)

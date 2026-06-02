@@ -222,6 +222,7 @@ export default function App() {
           )
           */}
 
+          <Popups />
           <BodyWrapper>
             <SingaporeWarningPopup />
             {isInSafeApp && !safeAppAcceptedTermOfUse && (
@@ -247,7 +248,6 @@ export default function App() {
                 </div>
               </Modal>
             )}
-            <Popups />
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />

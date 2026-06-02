@@ -8,6 +8,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { PROMM_FARM_ABI } from 'constants/abis'
 import { ELASTIC_BASE_FEE_UNIT, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -15,15 +16,16 @@ import { useAllTokens } from 'hooks/Tokens'
 import { useProMMFarmSigningContract } from 'hooks/useContract'
 import { Position as SubgraphPosition, config, parsePosition } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
+import { FeeTag } from 'pages/ElasticLegacy/PositionLegacy'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
-import { calculateGasMargin } from 'utils'
 import { cn } from 'utils/cn'
 import { formatDollarAmount } from 'utils/numbers'
-
-import { FeeTag } from './PositionLegacy'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { encodeFunctionData } from 'utils/viem'
 
 interface FarmPosition extends SubgraphPosition {
   pendingRewards: Array<{ amount: string; token_address: string }>
@@ -38,7 +40,7 @@ export default function FarmLegacy({
   claimInfo: { address: string; encodedData: string } | null
   pendingRewards: Array<{ amount: string; token_address: string }>
 }) {
-  const { chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const addresses = [
     ...new Set(
@@ -87,33 +89,35 @@ export default function FarmLegacy({
 
   const addTransactionWithType = useTransactionAdder()
 
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const handleClaimRewards = async () => {
-    if (library && claimInfo) {
+    if (claimInfo && account) {
       try {
         setShowConfirmModal('claim')
         setAttemptingTxn(true)
-        const gas = await library.getSigner().estimateGas({
-          to: claimInfo.address,
-          data: claimInfo.encodedData,
+        const response = await sendEVMTransaction({
+          account,
+          contractAddress: claimInfo.address,
+          encodedData: claimInfo.encodedData,
+          value: 0n,
+          errorInfo: { name: ErrorName.GasRefundClaimError, wallet: undefined },
+          isSmartConnector,
+          chainId,
         })
-
-        const { hash } = await library.getSigner().sendTransaction({
-          to: claimInfo.address,
-          data: claimInfo.encodedData,
-          gasLimit: calculateGasMargin(gas),
-        })
+        const hash = response?.hash ?? ''
 
         setAttemptingTxn(false)
-        setTxHash(hash || '')
+        setTxHash(hash)
 
-        addTransactionWithType({
-          hash,
-          type: TRANSACTION_TYPE.CLAIM_REWARD,
-          extraInfo: {
-            summary: t`Farming rewards`,
-          },
-        })
+        if (hash) {
+          addTransactionWithType({
+            hash,
+            type: TRANSACTION_TYPE.CLAIM_REWARD,
+            extraInfo: {
+              summary: t`Farming rewards`,
+            },
+          })
+        }
       } catch (e) {
         setAttemptingTxn(false)
         setErrorMessage(e?.message || JSON.stringify(e))
@@ -125,25 +129,36 @@ export default function FarmLegacy({
 
   const handleWithdraw = async () => {
     setShowConfirmModal('withdraw')
-    if (!farmContract) {
+    if (!farmContract || !account) {
       setErrorMessage(t`No contract found`)
       return
     }
 
     try {
-      const nftIds = farmPositions.map(item => item.id)
-      const estimateGas = await farmContract.estimateGas.emergencyWithdraw(nftIds)
-      const tx = await farmContract.emergencyWithdraw(nftIds, {
-        gasLimit: calculateGasMargin(estimateGas),
+      const nftIds = farmPositions.map(item => BigInt(item.id.toString()))
+      const tx = await sendEVMTransaction({
+        account,
+        contractAddress: farmContract.address,
+        encodedData: encodeFunctionData({
+          abi: PROMM_FARM_ABI,
+          functionName: 'emergencyWithdraw',
+          args: [nftIds],
+        }),
+        value: 0n,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
       })
       setAttemptingTxn(false)
-      setTxHash(tx.hash || '')
+      setTxHash(tx?.hash || '')
 
-      addTransactionWithType({
-        hash: tx.hash,
-        type: TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
-        extraInfo: { contract: config[chainId].farmContract },
-      })
+      if (tx?.hash) {
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
+          extraInfo: { contract: config[chainId].farmContract },
+        })
+      }
     } catch (e) {
       setAttemptingTxn(false)
       setErrorMessage(e?.message || JSON.stringify(e))
