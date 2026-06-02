@@ -1,11 +1,17 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { lighten } from 'polished'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { Repeat, X } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn, ColumnCenter } from 'components/Column'
@@ -39,6 +45,7 @@ import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { isAddress, shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { formatUnits, parseUnits } from 'utils/viem'
 
 enum STAKE_TAB {
@@ -46,164 +53,31 @@ enum STAKE_TAB {
   Unstake = 'Unstake',
   Delegate = 'Delegate',
 }
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 404px;
-  order: 4;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    order: 2;
-  `}
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    width: 100vw;
-    padding: 0 16px;
-  `}
-`
-const TabSelect = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  margin-bottom: 18px;
 
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    gap: inherit;
-    justify-content: space-between;
-  `}
-`
-const FormWrapper = styled.div`
-  background-color: ${({ theme }) => theme.background};
-  border-radius: 20px;
-  padding: 16px;
-  width: 100%;
-`
+export const SmallButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>(
+  ({ className, ...rest }, ref) => (
+    <button
+      ref={ref}
+      {...rest}
+      className={cn(
+        'cursor-pointer rounded-[10px] border-none bg-tableHeader px-2 py-[3px] text-xs leading-[normal] text-subText transition-all duration-100 ease-in-out hover:brightness-105 active:brightness-110',
+        className,
+      )}
+    />
+  ),
+)
+SmallButton.displayName = 'SmallButton'
 
-const InnerCard = styled.div`
-  border-radius: 16px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16));
-`
-
-export const SmallButton = styled.button`
-  padding: 3px 8px;
-  font-size: 12px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: all ease-in-out 0.1s;
-  ${({ theme }) => css`
-    background-color: ${theme.tableHeader};
-    color: ${theme.subText};
-    :hover {
-      background-color: ${lighten(0.05, theme.tableHeader)};
-    }
-    :active {
-      background-color: ${lighten(0.1, theme.tableHeader)};
-    }
-  `}
-`
-
-const TabOption = styled.div<{ $active?: boolean }>`
-  font-size: 20px;
-  line-height: 24px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  &:hover {
-    color: ${({ theme }) => lighten(0.1, theme.primary)};
-  }
-  color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    font-size: 16px;
-    line-height: 20px;
-    &:last-child {
-      margin-left: 0;
-    }
-  `}
-`
-const StakeFormWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 16px;
-  margin-bottom: 16px;
-`
-const YourStakedKNC = styled(FormWrapper)`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`
-const StakeForm = styled(FormWrapper)`
-  display: flex;
-  gap: 16px;
-  flex-direction: column;
-`
-
-const AddressInput = styled.input`
-  background: none;
-  border: none;
-  outline: none;
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
-  min-width: 0;
-  :disabled {
-    color: ${({ theme }) => theme.border};
-  }
-`
-
-export const KNCLogoWrapper = styled.div`
-  border-radius: 20px;
-  background: ${({ theme }) => theme.background};
-  padding: 8px 12px 8px 8px;
-  display: flex;
-  color: ${({ theme }) => theme.subText};
-  gap: 4px;
-  font-size: 20px;
-`
-
-const GetKNCButton = styled(Link)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  color: ${({ theme }) => theme.subText};
-`
-const HistoryButton = styled(RowFit)`
-  justify-content: flex-end;
-  gap: 4px;
-  cursor: pointer;
-  :hover {
-    color: ${({ theme }) => lighten(0.2, theme.primary)};
-  }
-`
-
-const DelegatedAddressBadge = styled.div`
-  font-size: 12px;
-  line-height: 16px;
-  padding: 4px 6px;
-  border-radius: 30px;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
-  user-select: none;
-  margin-bottom: -8px;
-  ${({ theme }) => css`
-    background-color: ${theme.tableHeader};
-    color: ${theme.subText};
-  `}
-
-  > svg:hover {
-    filter: brightness(1.2);
-  }
-`
+export const KNCLogoWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      {...rest}
+      className={cn('flex gap-1 rounded-[20px] bg-background py-2 pl-2 pr-3 text-xl text-subText', className)}
+    />
+  ),
+)
+KNCLogoWrapper.displayName = 'KNCLogoWrapper'
 
 export default function StakeKNCComponent() {
   const theme = useTheme()
@@ -419,71 +293,74 @@ export default function StakeKNCComponent() {
   }, [activeTab])
 
   return (
-    <Wrapper>
-      <TabSelect>
+    <div className="order-4 flex w-[404px] flex-col max-lg:order-2 max-xxs:w-screen max-xxs:px-4">
+      <div className="mb-[18px] flex items-center gap-7 max-xxs:justify-between max-xxs:gap-[inherit]">
         {Object.keys(STAKE_TAB).map((tab: string) => (
-          <TabOption key={tab} onClick={() => setActiveTab(tab as STAKE_TAB)} $active={activeTab === tab}>
+          <div
+            key={tab}
+            onClick={() => setActiveTab(tab as STAKE_TAB)}
+            className={cn(
+              'flex cursor-pointer items-center gap-1 text-xl font-medium leading-6 hover:brightness-110 max-xxs:text-base max-xxs:leading-5',
+              activeTab === tab ? 'text-primary' : 'text-subText',
+            )}
+          >
             {tab}
-          </TabOption>
+          </div>
         ))}
-      </TabSelect>
-      <YourStakedKNC>
-        <Text fontSize={12} lineHeight="16px" color={theme.subText}>
+      </div>
+      <div className="mb-4 flex w-full items-center justify-between rounded-[20px] bg-background p-4">
+        <span className="text-xs leading-4 text-subText">
           <Trans>Your Staked KNC</Trans>
-        </Text>
-        <Text
-          fontSize={16}
-          lineHeight="20px"
-          color={theme.text}
-          display="flex"
-          alignItems="center"
-          style={{ gap: '8px' }}
-        >
+        </span>
+        <span className="flex items-center gap-2 text-base leading-5 text-text">
           <KNCLogo size={20} /> {stakedBalanceFormatted} KNC
-        </Text>
-      </YourStakedKNC>
+        </span>
+      </div>
 
-      <StakeFormWrapper>
-        <StakeForm>
-          <RowBetween color={theme.subText}>
-            <GetKNCButton to="/swap/ethereum/eth-to-knc">
+      <div className="mb-4 flex w-full flex-col gap-4">
+        <div className="flex w-full flex-col gap-4 rounded-[20px] bg-background p-4">
+          <RowBetween className="text-subText">
+            <Link to="/swap/ethereum/eth-to-knc" className="flex items-center justify-center gap-1 text-subText">
               <Repeat size={16} />
-              <Text fontSize={14}>
+              <span className="text-sm">
                 <Trans>Get KNC</Trans>
-              </Text>
-            </GetKNCButton>
+              </span>
+            </Link>
             {account && (
-              <HistoryButton onClick={toggleYourTransactions}>
-                <HistoryIcon size={18} /> <Text fontSize={14}>History</Text>
-              </HistoryButton>
+              <RowFit
+                onClick={toggleYourTransactions}
+                className="cursor-pointer justify-end gap-1 hover:brightness-125"
+              >
+                <HistoryIcon size={18} /> <span className="text-sm">History</span>
+              </RowFit>
             )}
           </RowBetween>
           {(activeTab === STAKE_TAB.Stake || activeTab === STAKE_TAB.Unstake) && (
             <>
-              <InnerCard>
-                <RowBetween width={'100%'}>
-                  <AutoRow gap="2px">
+              <div className="flex flex-col gap-2.5 rounded-2xl bg-buttonBlack px-4 py-3 [filter:drop-shadow(0px_4px_4px_rgba(0,0,0,0.16))]">
+                <RowBetween className="w-full">
+                  <AutoRow className="gap-0.5">
                     <SmallButton onClick={() => handleMaxClick()}>Max</SmallButton>
                     <SmallButton onClick={() => handleMaxClick(true)}>Half</SmallButton>
                   </AutoRow>
                   {activeTab === STAKE_TAB.Stake && (
-                    <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
+                    <AutoRow className="justify-end gap-[3px] text-subText">
                       <Wallet />{' '}
-                      <Text fontSize={12}>{KNCBalance ? formatUnits(BigInt(KNCBalance.toString()), 18) : 0}</Text>
+                      <span className="text-xs">{KNCBalance ? formatUnits(BigInt(KNCBalance.toString()), 18) : 0}</span>
                     </AutoRow>
                   )}
                 </RowBetween>
                 <RowBetween>
                   <Input value={inputValue} onUserInput={setInputValue} />
-                  <span style={{ color: theme.border, fontSize: '14px', marginRight: '6px' }}>~${kncValueInUsd}</span>
+                  <span className="mr-1.5 text-sm text-border">~${kncValueInUsd}</span>
                   <KNCLogoWrapper>
                     <KNCLogo />
                     KNC
                   </KNCLogoWrapper>
                 </RowBetween>
-              </InnerCard>
+              </div>
               {account ? (
-                <Row gap="12px">
+                <Row className="gap-3">
                   {(approvalKNC === ApprovalState.NOT_APPROVED || approvalKNC === ApprovalState.PENDING) &&
                     activeTab === STAKE_TAB.Stake &&
                     [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
@@ -522,7 +399,7 @@ export default function StakeKNCComponent() {
                   <InfoHelper
                     size={20}
                     fontSize={12}
-                    color={theme.primary}
+                    className="text-primary"
                     text={t`Staking KNC is only available on Ethereum chain`}
                     style={{ marginRight: '5px' }}
                     placement="top"
@@ -535,56 +412,57 @@ export default function StakeKNCComponent() {
           {activeTab === STAKE_TAB.Delegate && (
             <>
               <RowBetween>
-                <Text color={theme.subText} fontSize={12} lineHeight="16px">
+                <span className="text-xs leading-4 text-subText">
                   <Trans>Delegate Address</Trans>
-                </Text>
+                </span>
                 {isDelegated && (
                   <MouseoverTooltip
                     text={t`You have already delegated your voting power to this address.`}
                     placement="top"
                   >
-                    <DelegatedAddressBadge>
+                    <div className="-mb-2 flex select-none items-center gap-1 rounded-[30px] bg-tableHeader px-1.5 py-1 text-xs leading-4 text-subText shadow-[0px_2px_2px_rgba(0,0,0,0.1)] [&>svg:hover]:brightness-125">
                       <VoteIcon /> {shortenAddress(ChainId.MAINNET, delegatedAddress)}{' '}
                       <X style={{ cursor: 'pointer' }} size={16} onClick={handleUndelegate} />
-                    </DelegatedAddressBadge>
+                    </div>
                   </MouseoverTooltip>
                 )}
               </RowBetween>
-              <InnerCard>
-                <AddressInput
+              <div className="flex flex-col gap-2.5 rounded-2xl bg-buttonBlack px-4 py-3 [filter:drop-shadow(0px_4px_4px_rgba(0,0,0,0.16))]">
+                <input
+                  className="min-w-0 border-none bg-transparent text-sm text-text outline-none disabled:text-border"
                   value={delegateAddress}
                   onChange={e => {
                     setDelegateAddress(e.target.value)
                   }}
                   placeholder="Ethereum Address"
                 />
-              </InnerCard>
-              <Text color={theme.subText} fontSize={12} lineHeight="14px" fontStyle="italic">
+              </div>
+              <span className="text-xs italic leading-[14px] text-subText">
                 <Trans>*Only delegate to Ethereum address</Trans>
-              </Text>
+              </span>
               <ExpandableBox
                 borderRadius="16px"
                 backgroundColor={theme.buttonBlack}
                 padding="16px"
-                color={theme.subText}
+                className="text-subText"
                 style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
                 headerContent={
                   <AutoRow>
-                    <ColumnCenter style={{ width: '30px', marginRight: '6px' }}>
+                    <ColumnCenter className="mr-1.5 w-[30px]">
                       <WarningIcon />
                     </ColumnCenter>
-                    <Text fontSize={12} lineHeight="16px" color={theme.subText}>
+                    <span className="text-xs leading-4 text-subText">
                       <Trans>Important Notice: Kyber Network does not hold your funds or manage this process.</Trans>
-                    </Text>
+                    </span>
                   </AutoRow>
                 }
                 expandContent={
-                  <Text margin={'0 20px 0 30px'} fontSize={12} lineHeight="16px">
+                  <div className="mx-[30px] mr-5 text-xs leading-4">
                     <Trans>
                       In this default delegation method, your delegate is responsible for voting on your behalf and
                       distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC
                     </Trans>
-                  </Text>
+                  </div>
                 }
               />
               {account ? (
@@ -596,7 +474,7 @@ export default function StakeKNCComponent() {
                   <InfoHelper
                     size={20}
                     fontSize={12}
-                    color={theme.primary}
+                    className="text-primary"
                     text={t`Delegate is only available on Ethereum chain`}
                     style={{ marginRight: '5px' }}
                     placement="top"
@@ -606,32 +484,32 @@ export default function StakeKNCComponent() {
               )}
             </>
           )}
-        </StakeForm>
-      </StakeFormWrapper>
+        </div>
+      </div>
       <ExpandableBox
         border={`1px solid ${theme.border}`}
         backgroundColor={theme.buttonBlack}
         borderRadius="16px"
-        color={theme.subText}
+        className="text-subText"
         padding={'12px 16px'}
         headerContent={
-          <Text fontSize={12} color={theme.text} style={{ textTransform: 'uppercase' }}>
+          <span className="text-xs uppercase text-text">
             <Trans>Stake Information</Trans>
-          </Text>
+          </span>
         }
         expandContent={
-          <AutoColumn gap="10px" style={{ fontSize: '12px' }}>
+          <AutoColumn className="gap-2.5 text-xs">
             <RowBetween>
-              <Text>
+              <span>
                 <Trans>Stake Amount</Trans>
-              </Text>
-              <Text>
+              </span>
+              <span>
                 {stakedBalanceFormatted} KNC
                 {activeTab !== STAKE_TAB.Delegate && (
                   <>
                     {' '}
                     &rarr;{' '}
-                    <span style={{ color: theme.text }}>
+                    <span className="text-text">
                       {Math.max(
                         +stakedBalanceFormatted +
                           (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0')),
@@ -641,24 +519,24 @@ export default function StakeKNCComponent() {
                     </span>
                   </>
                 )}
-              </Text>
+              </span>
             </RowBetween>
             <RowBetween>
-              <Text>
+              <span>
                 <Trans>Voting power</Trans>{' '}
                 <InfoHelper
                   text={t`Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%.`}
                 />
-              </Text>
-              <Text>
+              </span>
+              <span>
                 {currentVotingPower}%
                 {activeTab !== STAKE_TAB.Delegate && (
                   <>
                     {' '}
-                    &rarr; <span style={{ color: theme.text }}>{newVotingPower}%</span>
+                    &rarr; <span className="text-text">{newVotingPower}%</span>
                   </>
                 )}
-              </Text>
+              </span>
             </RowBetween>
           </AutoColumn>
         }
@@ -692,6 +570,6 @@ export default function StakeKNCComponent() {
         setTxHash={setTxHash}
         setTransactionError={setTransactionError}
       />
-    </Wrapper>
+    </div>
   )
 }

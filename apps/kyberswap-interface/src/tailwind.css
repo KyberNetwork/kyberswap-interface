@@ -1,0 +1,1264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Primary CTA emitted by `@kyber/token-selector` (e.g. the "Connect" button
+   inside the Liquidity Source modal). The package only emits the className
+   and expects the host app to style it. Kept unlayered + with `!` so it wins
+   against `@kyber/ui`'s unlayered `.ks-ui-style button { background: transparent }`
+   preflight reset (which would otherwise out-specify any layered rule). */
+.ks-primary-btn,
+.ks-ui-style .ks-primary-btn {
+  @apply !flex !cursor-pointer !items-center !justify-center !rounded-full !border !border-transparent !bg-primary !p-3 !text-center !text-sm !font-medium !leading-[normal] !text-textReverse;
+  @apply hover:enabled:!brightness-110;
+  @apply active:enabled:!brightness-90;
+  @apply disabled:!cursor-not-allowed disabled:!bg-buttonGray disabled:!text-border;
+}
+
+@layer components {
+  /* Native browser checkbox tinted with theme primary; pseudo-elements handle the indeterminate state. */
+  .ks-checkbox-native {
+    position: relative;
+    transform: scale(1.35);
+    accent-color: var(--ks-primary);
+  }
+  .ks-checkbox-native:indeterminate::before {
+    content: '';
+    display: block;
+    color: var(--ks-textReverse);
+    width: 13px;
+    height: 13px;
+    background-color: var(--ks-primary);
+    border-radius: 2px;
+  }
+  .ks-checkbox-native:indeterminate::after {
+    content: '';
+    display: block;
+    width: 7px;
+    height: 7px;
+    border: solid var(--ks-textReverse);
+    border-width: 2px 0 0 0;
+    position: absolute;
+    top: 5.5px;
+    left: 3px;
+  }
+  .ks-checkbox-native:disabled {
+    background-color: var(--ks-disableText);
+  }
+
+  /* Custom-drawn checkbox with primary fill and a checkmark via clip-path. */
+  .ks-checkbox-border {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border-radius: 0.15em;
+    display: grid;
+    place-content: center;
+    border: 1.5px solid var(--ks-text);
+  }
+  .ks-checkbox-border::before {
+    content: '';
+    width: 13px;
+    height: 13px;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    box-shadow: inset 1em 1em var(--ks-textReverse);
+  }
+  .ks-checkbox-border:checked {
+    background-color: var(--ks-primary);
+    border: none;
+  }
+  .ks-checkbox-border:checked::before {
+    transform: scale(1);
+  }
+  .ks-checkbox-border:disabled {
+    cursor: not-allowed;
+    border-color: rgb(var(--ks-subText-rgb) / 0.25);
+  }
+
+  /* <Popover> container — invisible hover-bridge after-pseudo so the popover stays
+     open when the cursor moves between the trigger and the popover body. */
+  .ks-popover-container::after {
+    content: '';
+    position: absolute;
+    background: transparent;
+  }
+  .ks-popover-container[data-popper-placement^='bottom']::after {
+    top: -12px;
+    right: 0;
+    left: 0;
+    height: 12px;
+  }
+  .ks-popover-container[data-popper-placement^='top']::after {
+    right: 0;
+    bottom: -12px;
+    left: 0;
+    height: 12px;
+  }
+  .ks-popover-container[data-popper-placement^='left']::after {
+    top: 0;
+    right: -12px;
+    bottom: 0;
+    width: 12px;
+  }
+  .ks-popover-container[data-popper-placement^='right']::after {
+    top: 0;
+    bottom: 0;
+    left: -12px;
+    width: 12px;
+  }
+
+  /* <Popover> arrow — a 10x10 rotated square that visually points at the trigger. */
+  .ks-popover-arrow {
+    width: 10px;
+    height: 10px;
+  }
+  .ks-popover-arrow::before {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    content: '';
+    border: 1px solid transparent;
+    transform: rotate(45deg);
+    background: var(--ks-tableHeader);
+  }
+  .ks-popover-arrow.arrow-top {
+    bottom: -5px;
+  }
+  .ks-popover-arrow.arrow-top::before {
+    border-top: none;
+    border-left: none;
+  }
+  .ks-popover-arrow.arrow-bottom {
+    top: -5px;
+  }
+  .ks-popover-arrow.arrow-bottom::before {
+    border-bottom: none;
+    border-right: none;
+  }
+  .ks-popover-arrow.arrow-left {
+    right: -5px;
+  }
+  .ks-popover-arrow.arrow-left::before {
+    border-bottom: none;
+    border-left: none;
+  }
+  .ks-popover-arrow.arrow-right {
+    left: -5px;
+  }
+  .ks-popover-arrow.arrow-right::before {
+    border-right: none;
+    border-top: none;
+  }
+
+  /* <Modal> / <Drawer> — overlay applies on reach-dialog's [data-reach-dialog-overlay]
+     attribute so the CSS overrides @reach/dialog/styles.css defaults. Z-index passed
+     via inline style; bg from theme. */
+  .ks-dialog-overlay[data-reach-dialog-overlay] {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--ks-bgModal);
+  }
+
+  /* <Modal> content. Dynamic width/height/maxWidth/etc. are applied via inline style;
+     this class handles the reach-dialog-content attribute selector + scroll behavior +
+     responsive width/border-radius defaults. Inline styles only fire when the consumer
+     explicitly overrode the default (signalled by data-has-explicit-width / -radius). */
+  .ks-dialog-content[data-reach-dialog-content] {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: flex;
+    align-self: center;
+    margin: 0 0 2rem 0;
+  }
+  .ks-dialog-content[data-reach-dialog-content][data-mobile='true'] {
+    align-self: flex-end;
+  }
+  /* Default width / border-radius. Skip when consumer set them explicitly. */
+  .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-width='true']) {
+    width: 50vw;
+  }
+  .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-radius='true']) {
+    border-radius: 20px;
+  }
+  @media (max-width: 992px) {
+    .ks-dialog-content[data-reach-dialog-content] {
+      margin: 0;
+    }
+    .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-width='true']) {
+      width: 65vw;
+    }
+  }
+  @media (max-width: 768px) {
+    .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-width='true']):not([data-mobile-full-width='true']) {
+      width: 85vw;
+    }
+    .ks-dialog-content[data-reach-dialog-content][data-mobile='true']:not([data-has-explicit-width='true']) {
+      width: 100vw;
+    }
+    /* Flat-bottom on mobile bottom-sheet — overrides the default border-radius via class
+       selector specificity. Consumer-set borderRadius via inline style wins over this. */
+    .ks-dialog-content[data-reach-dialog-content][data-mobile='true']:not([data-has-explicit-radius='true']) {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+  /* <ModalCenter> — when used inside isMobile, ignore default flex-end + use larger radius. */
+  .ks-dialog-content.ks-modal-center[data-mobile='true'] {
+    align-self: unset;
+  }
+  .ks-dialog-content.ks-modal-center[data-mobile='true']:not([data-has-explicit-radius='true']) {
+    border-radius: 24px;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+  }
+
+  /* <Drawer> — only applies its layout on mobile (≤ 992px / md breakpoint). */
+  @media (max-width: 992px) {
+    .ks-drawer-content[data-reach-dialog-content] {
+      padding: 20px 16px;
+      margin: 0 0 2rem 0;
+      background-color: var(--ks-tableHeader);
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05);
+      height: 100vh;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      max-width: 100vw;
+      display: flex;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 80vw;
+    }
+  }
+
+  /* <ScrollableWithSignal> — bottom fade + bouncing arrow indicating more content below.
+     Visibility gated by data-signal-visible and data-show-arrow/data-show-background. */
+  .ks-scrollable-with-signal::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+  }
+  .ks-scrollable-with-signal[data-signal-visible='true'][data-show-background='true']::after {
+    opacity: 1;
+  }
+  .ks-scrollable-with-signal::before {
+    content: '↓';
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--ks-text);
+    background: var(--ks-black);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    transform: translate(-50%, 0);
+    animation: ks-arrow-bounce 1.2s ease-in-out infinite;
+  }
+  .ks-scrollable-with-signal[data-signal-visible='true'][data-show-arrow='true']::before {
+    display: flex;
+    opacity: 1;
+  }
+  @keyframes ks-arrow-bounce {
+    0% {
+      transform: translate(-50%, 0);
+    }
+    50% {
+      transform: translate(-50%, -4px);
+    }
+    100% {
+      transform: translate(-50%, 0);
+    }
+  }
+
+  /* <CopyHelper> — vertical-flip animation: icon scrolls down/up out of frame and
+     a check icon slides in/out from above when copy succeeds. */
+  @keyframes ks-copy-flip {
+    0% {
+      transform: translateY(0);
+      visibility: visible;
+    }
+    20% {
+      transform: translateY(100%);
+      visibility: hidden;
+    }
+    80% {
+      transform: translateY(-100%);
+      visibility: hidden;
+    }
+    100% {
+      transform: translateY(0);
+      visibility: visible;
+    }
+  }
+  @keyframes ks-check-flip {
+    0% {
+      transform: translateY(-100%);
+    }
+    20% {
+      transform: translateY(0);
+    }
+    80% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+  .ks-check-icon {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  .ks-copy-icon.copied {
+    animation: ks-copy-flip 1.5s;
+  }
+  .ks-check-icon.copied {
+    opacity: 1;
+    animation: ks-check-flip 1.5s forwards;
+  }
+
+  /* <DatePicker> — overrides for react-date-picker so its popup adopts our theme. */
+  .ks-date-picker .custom-date-picker {
+    width: 100%;
+  }
+  .ks-date-picker .react-date-picker__wrapper {
+    height: 0;
+    width: 0;
+    opacity: 0;
+  }
+  .ks-date-picker .react-date-picker__wrapper span {
+    display: none;
+  }
+  .ks-date-picker .react-date-picker__calendar--closed {
+    display: block !important;
+  }
+  .ks-date-picker .react-date-picker__calendar--open {
+    height: fit-content !important;
+  }
+  .ks-date-picker .react-date-picker__calendar {
+    position: unset !important;
+    width: fit-content;
+  }
+  .ks-date-picker .custom-calendar {
+    text-align: center;
+    width: 100%;
+    background: transparent;
+    border: none;
+  }
+  .ks-date-picker .custom-calendar button {
+    background-color: transparent;
+    color: var(--ks-text);
+    margin: 0;
+    border: 0;
+    outline: none;
+    font-weight: 500;
+    font-size: 12px;
+  }
+  /* react-date-picker bundles Calendar.css which sets a light-gray hover bg
+     on every enabled button (`#e6e6e6`). We want the visual hover state to
+     live on the inner `abbr` for tiles (see rule below) and we re-style the
+     navigation arrows ourselves, so clear the bundled hover/focus bg on
+     every calendar button. */
+  .ks-date-picker .custom-calendar button:enabled:hover,
+  .ks-date-picker .custom-calendar button:enabled:focus {
+    background-color: transparent;
+  }
+  .ks-date-picker .custom-calendar button:disabled {
+    color: var(--ks-subText);
+    cursor: not-allowed;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__weekdays__weekday {
+    line-height: 16px;
+    color: var(--ks-subText);
+    text-transform: none;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__decade-view button.react-calendar__tile--hasActive,
+  .ks-date-picker .custom-calendar .react-calendar__decade-view button:not(:disabled):hover,
+  .ks-date-picker .custom-calendar .react-calendar__century-view button.react-calendar__tile--hasActive,
+  .ks-date-picker .custom-calendar .react-calendar__century-view button:not(:disabled):hover,
+  .ks-date-picker .custom-calendar .react-calendar__year-view button.react-calendar__tile--hasActive,
+  .ks-date-picker .custom-calendar .react-calendar__year-view button:not(:disabled):hover {
+    color: var(--ks-primary);
+    font-weight: bold;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__decade-view button,
+  .ks-date-picker .custom-calendar .react-calendar__century-view button,
+  .ks-date-picker .custom-calendar .react-calendar__year-view button {
+    padding: 14px 0.5em;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation {
+    margin: 0;
+    font-weight: 500;
+    height: auto;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__label {
+    height: 24px;
+    font-size: 14px;
+    color: var(--ks-text);
+    background-color: transparent;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__label:hover {
+    background-color: transparent;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__arrow {
+    font-size: 20px;
+    background-color: var(--ks-background);
+    color: var(--ks-text);
+    border-radius: 100%;
+    padding-bottom: 12px;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+    min-width: unset;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__arrow:disabled {
+    background-color: rgba(28, 28, 28, 0.4);
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button {
+    height: 34px;
+    padding: 0;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button abbr {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 100%;
+    display: block;
+    margin: auto;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button.react-calendar__tile--now abbr {
+    background-color: var(--ks-buttonGray);
+  }
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button.react-calendar__tile--active abbr,
+  .ks-date-picker .custom-calendar .react-calendar__month-view__days button:not(:disabled):hover abbr {
+    color: var(--ks-textReverse);
+    background-color: var(--ks-primary);
+  }
+  .ks-date-picker
+    .custom-calendar
+    .react-calendar__month-view__days
+    button.react-calendar__month-view__days__day--neighboringMonth {
+    font-style: italic;
+  }
+  @media (max-width: 992px) {
+    .ks-date-picker .custom-date-picker .custom-calendar .react-calendar__month-view__days button {
+      height: 48px;
+    }
+    .ks-date-picker .custom-date-picker .custom-calendar .react-calendar__month-view__days button abbr {
+      width: 48px;
+      height: 48px;
+      line-height: 48px;
+    }
+  }
+
+  /* <SnippetPopup> — Swiper carousel customization (themed nav arrows shown on hover). */
+  .ks-snippet-popup {
+    --swiper-navigation-size: 12px;
+  }
+  .ks-snippet-popup > div.swiper {
+    border-radius: 8px;
+  }
+  .ks-snippet-popup .swiper-button-prev,
+  .ks-snippet-popup .swiper-button-next {
+    color: var(--ks-text);
+    background: #505050cc;
+    width: 24px;
+    height: 24px;
+    margin-top: 0;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    visibility: hidden;
+  }
+  .ks-snippet-popup:hover .swiper-button-prev,
+  .ks-snippet-popup:hover .swiper-button-next {
+    visibility: visible;
+  }
+  .ks-snippet-popup .swiper-pagination {
+    display: none;
+  }
+  @media (max-width: 768px) {
+    .ks-snippet-popup {
+      --swiper-navigation-size: 10px;
+    }
+  }
+
+  /* <Banner> — Swiper carousel customization (color overrides + show nav arrows on hover). */
+  .ks-banner {
+    --swiper-navigation-size: 12px;
+  }
+  .ks-banner .swiper-button-prev,
+  .ks-banner .swiper-button-next {
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.25);
+    width: 32px;
+    height: 32px;
+    margin-top: 0;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    visibility: hidden;
+  }
+  .ks-banner .swiper-pagination-bullet {
+    height: 5px;
+    width: 5px;
+    background: #d5dbde;
+  }
+  .ks-banner .swiper-pagination-bullet-active {
+    width: 20px;
+    border-radius: 4px;
+    background: #ffffff;
+  }
+  .ks-banner:hover .swiper-button-prev,
+  .ks-banner:hover .swiper-button-next {
+    visibility: visible;
+  }
+
+  /* <HorizontalScroll> — fading shadows on left/right when content overflows.
+     Background color is supplied as the `--ks-hs-bg` CSS variable on the host. */
+  .ks-horizontal-scroll.left-visible::after,
+  .ks-horizontal-scroll.right-visible::before {
+    content: '';
+    display: block;
+    z-index: 2;
+    pointer-events: none;
+    position: absolute;
+    inset: 0 0 auto auto;
+    width: 40px;
+    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .ks-horizontal-scroll.left-visible::after {
+    background: linear-gradient(to right, var(--ks-hs-bg, var(--ks-buttonBlack)), transparent);
+    left: 0;
+  }
+  .ks-horizontal-scroll.right-visible::before {
+    background: linear-gradient(to left, var(--ks-hs-bg, var(--ks-buttonBlack)), transparent);
+    right: 0;
+  }
+
+  /* <Slider> — custom-styled native range input with vendor-prefix thumbs/tracks. */
+  .ks-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+    cursor: pointer;
+  }
+  .ks-slider:focus {
+    outline: none;
+  }
+  .ks-slider::-moz-focus-outer {
+    border: 0;
+  }
+  .ks-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: var(--ks-slider-size, 28px);
+    width: var(--ks-slider-size, 28px);
+    background-color: var(--ks-subText);
+    border-radius: 100%;
+    border: none;
+    transform: translateY(-50%);
+    color: var(--ks-subText);
+  }
+  .ks-slider::-webkit-slider-thumb:hover,
+  .ks-slider::-webkit-slider-thumb:focus {
+    box-shadow:
+      0 0 1px rgba(0, 0, 0, 0.1),
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 16px 24px rgba(0, 0, 0, 0.06),
+      0 24px 32px rgba(0, 0, 0, 0.04);
+  }
+  .ks-slider::-moz-range-thumb {
+    height: var(--ks-slider-size, 28px);
+    width: var(--ks-slider-size, 28px);
+    background-color: var(--ks-subText);
+    border-radius: 100%;
+    border: none;
+    color: var(--ks-subText);
+  }
+  .ks-slider::-moz-range-thumb:hover,
+  .ks-slider::-moz-range-thumb:focus {
+    box-shadow:
+      0 0 1px rgba(0, 0, 0, 0.1),
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 16px 24px rgba(0, 0, 0, 0.06),
+      0 24px 32px rgba(0, 0, 0, 0.04);
+  }
+  .ks-slider::-ms-thumb {
+    height: var(--ks-slider-size, 28px);
+    width: var(--ks-slider-size, 28px);
+    background-color: var(--ks-subText);
+    border-radius: 100%;
+    color: var(--ks-subText);
+  }
+  .ks-slider::-ms-thumb:hover,
+  .ks-slider::-ms-thumb:focus {
+    box-shadow:
+      0 0 1px rgba(0, 0, 0, 0.1),
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 16px 24px rgba(0, 0, 0, 0.06),
+      0 24px 32px rgba(0, 0, 0, 0.04);
+  }
+  .ks-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(90deg, var(--ks-subText), var(--ks-subText));
+    height: 2px;
+  }
+  .ks-slider::-moz-range-track {
+    background: linear-gradient(90deg, var(--ks-subText), var(--ks-subText));
+    height: 2px;
+  }
+  .ks-slider::-ms-track {
+    width: 100%;
+    border-color: transparent;
+    color: transparent;
+    background: var(--ks-subText);
+    height: 2px;
+  }
+  .ks-slider::-ms-fill-lower {
+    background: var(--ks-subText);
+  }
+  .ks-slider::-ms-fill-upper {
+    background: var(--ks-subText);
+  }
+
+  /* Used by <Skeleton> — applied to react-loading-skeleton's container span. */
+  .ks-skeleton-container {
+    display: block;
+    line-height: 0;
+  }
+
+  /* Visible thin scrollbar (overrides the global ::-webkit-scrollbar { display: none }).
+     Customize width/thumb/radius per consumer via inline CSS variables. */
+  .ks-scrollbar::-webkit-scrollbar {
+    display: block;
+    width: var(--ks-scrollbar-width, 4px);
+  }
+  .ks-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: var(--ks-scrollbar-radius, 0);
+  }
+  .ks-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--ks-scrollbar-thumb, var(--ks-border));
+    border-radius: var(--ks-scrollbar-radius, 0);
+  }
+
+  /* PositionDetail enter animations (rendered with arbitrary `animate-[ks-pd-*]` values). */
+  @keyframes ks-pd-fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ks-pd-slide-down {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TopBanner marquee — slide distance set via --ks-marquee-shift on the consumer. */
+  @keyframes ks-top-banner-marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(-1 * var(--ks-marquee-shift, 0px))); }
+  }
+
+  /* Used by <Dots> — animates an ellipsis after some text (e.g. "Loading..."). */
+  .animate-ellipsis::after {
+    display: inline-block;
+    animation: ellipsis 1.25s infinite;
+    content: '.';
+    width: 1em;
+    text-align: left;
+  }
+  @keyframes ellipsis {
+    0% {
+      content: '.';
+    }
+    33% {
+      content: '..';
+    }
+    66% {
+      content: '...';
+    }
+  }
+
+  /* Menu scroll-hint chevron bounce. */
+  @keyframes floating {
+    from {
+      bottom: 10px;
+    }
+    to {
+      bottom: -10px;
+    }
+  }
+
+  /* ContentLoader / Loading shimmer — sweeps background gradient across the bar. */
+  @keyframes ks-shine {
+    to {
+      background-position-x: -200%;
+    }
+  }
+
+  /* RefetchIndicator progress bar — slides from -100% to 400%. */
+  @keyframes ks-progress-slide {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(400%);
+    }
+  }
+
+  /* AnimatedNumber roll-in / roll-out — new value rolls up, old value rolls out. */
+  @keyframes ks-roll-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes ks-roll-out {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+  }
+
+  /* LiquidityChart skeleton shimmer — sweeps across each bar (-100% → 100%). */
+  @keyframes ks-shimmer-x {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* SlippageSetting dropdown — primary-tinted box-shadow pulse (40% alpha, 3px ring). */
+  @keyframes ks-slippage-highlight {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgb(var(--ks-primary-rgb) / 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 3px rgb(var(--ks-primary-rgb) / 0.4);
+    }
+  }
+
+  /* LimitOrder ListOrder — primary box-shadow pulse on highlighted row. */
+  @keyframes ks-order-highlight {
+    0% {
+      box-shadow: 0 0 0 0 var(--ks-primary);
+    }
+    70% {
+      box-shadow: 0 0 0 2px var(--ks-primary);
+    }
+    100% {
+      box-shadow: 0 0 0 0 var(--ks-primary);
+    }
+  }
+
+  /* OptionButton (KyberDAO Vote) — striped overlay animation for "Choosing" state. */
+  @keyframes ks-stripe-move {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 50px 0;
+    }
+  }
+
+  /* MarketOverview / RefetchIndicator price pulse (green for up, red for down). */
+  @keyframes ks-pulse-green {
+    0% {
+      color: var(--ks-primary);
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      color: var(--ks-white);
+      opacity: 1;
+    }
+  }
+  @keyframes ks-pulse-red {
+    0% {
+      color: var(--ks-red1);
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      color: var(--ks-white);
+      opacity: 1;
+    }
+  }
+
+  /* Earns Landing — BorderWrapper spin & RewardsNavigateButton border angle. */
+  @keyframes ks-earn-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes ks-earn-border-rotate {
+    0% {
+      --border-angle: 0deg;
+    }
+    100% {
+      --border-angle: 360deg;
+    }
+  }
+
+  /* EarnBanner — TrendingPoolBanner pulse on slide change. */
+  @keyframes ks-earn-pulse {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* EarnBanner — FarmingPool carousel slide animations. */
+  @keyframes ks-earn-move-forward {
+    0% {
+      left: -50%;
+    }
+    100% {
+      left: -100%;
+    }
+  }
+  @keyframes ks-earn-move-back {
+    0% {
+      left: -50%;
+    }
+    100% {
+      left: 0;
+    }
+  }
+  @keyframes ks-earn-move-forward-xs {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: -200%;
+    }
+  }
+  @keyframes ks-earn-move-back-xs {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 0;
+    }
+  }
+
+  /* TopRightPopup slide in/out (uses --ks-popup-delta for distance). */
+  @keyframes ks-popup-rtl {
+    from {
+      opacity: 0;
+      transform: translateX(var(--ks-popup-delta));
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes ks-popup-ltr {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(var(--ks-popup-delta));
+    }
+  }
+
+  /* MenuFlyout arrow on the top edge (default desktop) and bottom edge (upToLarge). */
+  .ks-menu-flyout-arrow::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    height: 0;
+    width: 0;
+    bottom: 100%;
+    right: 20px;
+    top: -20px;
+    border: solid transparent;
+    border-bottom-color: var(--ks-tableHeader);
+    border-width: 10px;
+    margin-left: -10px;
+  }
+  @media (max-width: 1200px) {
+    .ks-menu-flyout-arrow::after {
+      top: 100%;
+      border-top-color: var(--ks-tableHeader);
+      border-bottom-color: transparent;
+    }
+  }
+
+  /* TransactionSettings flyout: arrow flips above the panel at upToLarge. */
+  .ks-tx-settings-flyout > div::after {
+    margin-left: -10px;
+  }
+  @media (max-width: 1200px) {
+    .ks-tx-settings-flyout > div::after {
+      top: -40px;
+      border-top-color: transparent;
+      border-bottom-color: var(--ks-tableHeader);
+      border-width: 10px;
+    }
+  }
+
+  /* Transactions/Tab fade overlays for horizontal scroll edges. */
+  .ks-transactions-tab[data-scrollable='true'][data-scroll-left='true']::before,
+  .ks-transactions-tab[data-scrollable='true'][data-scroll-right='true']::after {
+    content: '';
+    width: 36px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+  }
+  .ks-transactions-tab[data-scrollable='true'][data-scroll-left='true']::before {
+    left: 0;
+    transform: translateX(-1px);
+    background: linear-gradient(
+      -90deg,
+      rgba(0, 0, 0, 0) 0%,
+      var(--ks-background) 90%,
+      var(--ks-background) 100%
+    );
+  }
+  .ks-transactions-tab[data-scrollable='true'][data-scroll-right='true']::after {
+    right: 0;
+    transform: translateX(1px);
+    justify-content: flex-end;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0) 0%,
+      var(--ks-background) 90%,
+      var(--ks-background) 100%
+    );
+  }
+}
+
+@layer base {
+  /* Formerly FixedGlobalStyle (theme/index.tsx) — base font, html/body reset,
+     link colors (primary + lightened hover), focus, smoothing, font feature settings. */
+  html,
+  input,
+  textarea,
+  button {
+    font-family: 'Work Sans', 'Inter', sans-serif;
+    font-display: fallback;
+  }
+
+  @supports (font-variation-settings: normal) {
+    html,
+    input,
+    textarea,
+    button {
+      font-family: 'Work Sans', 'Inter var', sans-serif;
+    }
+  }
+
+  @property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: none;
+  }
+
+  a {
+    color: var(--ks-primary);
+    text-decoration: none;
+  }
+  a:hover {
+    /* lighten(0.2, #31CB9E) pre-computed */
+    color: #7fe0bd;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  button {
+    user-select: none;
+  }
+
+  html {
+    font-size: 16px;
+    font-variant: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv03' on;
+  }
+
+  /* Formerly ThemedGlobalStyle (theme/index.tsx) — scrollbars off, html/body
+     colors, control overrides (input number, staked-only switch, language
+     selector, recaptcha badge, tv-lightweight-charts, zkme widget, coinbase
+     subscribe shadow-DOM parts). */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    outline: none;
+  }
+
+  html {
+    color: var(--ks-text);
+    background-color: var(--ks-buttonBlack);
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--ks-buttonBlack);
+  }
+
+  .staked-only-switch {
+    box-shadow: 0 0 0 2px;
+    background: var(--ks-background) !important;
+  }
+
+  .staked-only-switch[aria-checked='false'] div {
+    background: var(--ks-border) !important;
+  }
+
+  .staked-only-switch div {
+    background: var(--ks-primary);
+  }
+
+  #language-selector:focus-visible {
+    outline-width: 0;
+  }
+
+  .grecaptcha-badge {
+    visibility: hidden;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield; /* Firefox */
+    appearance: textfield;
+  }
+
+  .tv-lightweight-charts {
+    width: 100% !important;
+  }
+  .tv-lightweight-charts > * {
+    width: 100% !important;
+  }
+
+  .zkme-widget-mask {
+    position: fixed;
+  }
+
+  coinbasewallet-subscribe::part(modal-dialog) {
+    padding: 24px;
+    background: var(--ks-background);
+    color: var(--ks-text);
+  }
+
+  coinbasewallet-subscribe::part(modal-title) {
+    font-size: 24px;
+  }
+
+  coinbasewallet-subscribe::part(subscribe-toggle) {
+    background: var(--ks-primary);
+    color: var(--ks-textReverse);
+    font-size: 16px;
+  }
+
+  coinbasewallet-subscribe::part(close-button) {
+    top: 24px;
+    right: 24px;
+    filter: invert(96%) sepia(4%) saturate(18%) hue-rotate(177deg) brightness(105%) contrast(104%);
+  }
+
+  coinbasewallet-subscribe::part(qr-code) {
+    background: #ffffff;
+  }
+
+  coinbasewallet-subscribe::part(subscribe-confirmation) {
+    padding-right: 1.5rem;
+  }
+
+  :root {
+    /* base */
+    --ks-white: #ffffff;
+    --ks-white-04: #ffffff0a;
+    --ks-white-08: #ffffff14;
+    --ks-white-60: #ffffff99;
+    --ks-white2: #fafafa;
+    --ks-black: #000000;
+    --ks-black-20: #00000033;
+    --ks-black-40: #00000066;
+    --ks-black-48: #0000007a;
+
+    /* text */
+    --ks-text: #ffffff;
+    --ks-text-04: #ffffff0a;
+    --ks-text-08: #ffffff14;
+    --ks-text-12: #ffffff1f;
+    --ks-text-60: #ffffff99;
+    --ks-darkText: #222222;
+    --ks-textReverse: #222222;
+    --ks-subText: #a9a9a9;
+    --ks-subText-04: #a9a9a90a;
+    --ks-subText-20: #a9a9a933;
+    --ks-subText-40: #a9a9a966;
+    --ks-disableText: #373737;
+    --ks-text2: #c3c5cb;
+    --ks-text3: #6c7284;
+    --ks-text4: #565a69;
+    --ks-text5: #c9d2d7;
+    --ks-text6: #d8d8d8;
+
+    /* backgrounds */
+    --ks-background: #1c1c1c;
+    --ks-background-60: #1c1c1c99;
+    --ks-tabActive: #313131;
+    --ks-tabActive-80: #313131cc;
+    --ks-tabBackground: #0f0f0f;
+    --ks-tableHeader: #313131;
+    --ks-buttonBlack: #0f0f0f;
+    --ks-buttonBlack-40: #0f0f0f66;
+    --ks-buttonBlack-60: #0f0f0f99;
+    --ks-buttonGray: #292929;
+    --ks-bg1: #212429;
+    --ks-bg2: #222c31;
+    --ks-bg3: #40444f;
+    --ks-bg4: #565a69;
+    --ks-bg5: #31cb9e;
+    --ks-bg6: #1d7a5f;
+
+    /* gradients */
+    --ks-bgSuccess: linear-gradient(90deg, rgba(29, 122, 95, 0.5) 0%, rgba(29, 122, 95, 0) 100%);
+    --ks-bgError: linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%);
+    --ks-bgWarning: linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%);
+    --ks-bgModal: rgba(0, 0, 0, 0.425);
+    --ks-radialGradient: radial-gradient(#095143, #06291d);
+
+    /* primary */
+    --ks-primary: #31cb9e;
+
+    /* border */
+    --ks-border: #505050;
+    --ks-darkBorder: #373737;
+
+    /* shadow colors */
+    --ks-shadow: rgba(0, 0, 0, 0.2);
+    --ks-shadow1: #000000;
+
+    /* semantic */
+    --ks-red: #ff537b;
+    --ks-red1: #ff6871;
+    --ks-red2: #f82d3a;
+    --ks-red-10: #ff537b1a;
+    --ks-red-20: #ff537b33;
+    --ks-red-25: #ff537b40;
+    --ks-red-30: #ff537b4d;
+    --ks-red-35: #ff537b59;
+    --ks-primary-10: #31cb9e1a;
+    --ks-primary-12: #31cb9e1f;
+    --ks-primary-15: #31cb9e26;
+    --ks-primary-20: #31cb9e33;
+    --ks-primary-25: #31cb9e40;
+    --ks-primary-30: #31cb9e4d;
+    --ks-primary-40: #31cb9e66;
+    --ks-warning: #ff9901;
+    --ks-warning-10: #ff99011a;
+    --ks-warning-20: #ff990133;
+    --ks-warning-25: #ff990140;
+    --ks-warning-30: #ff99014d;
+    --ks-warning-35: #ff990159;
+
+    /* accents */
+    --ks-apr: #0faaa2;
+    --ks-lightGreen: #98e5ce;
+    --ks-darkerGreen: #1d7a5f;
+    --ks-darkGreen: #1d7a5f;
+    --ks-green: #31cb9e;
+    --ks-green1: #27ae60;
+    --ks-green1-50: #27ae6080;
+    --ks-primary-50: #31cb9e80;
+    --ks-yellow1: #ffe270;
+    --ks-yellow2: #f3841e;
+    --ks-gray: #737373;
+    --ks-blue: #08a1e7;
+    --ks-blue1: #31cb9e;
+    --ks-blue2: #2c9ce4;
+    --ks-blue3: #58b5ee;
+    --ks-darkBlue: #1183b7;
+
+    /* RGB channel duplicates — required for Tailwind `/N` opacity modifier on tokens. */
+    --ks-white-rgb: 255 255 255;
+    --ks-black-rgb: 0 0 0;
+    --ks-white2-rgb: 250 250 250;
+    --ks-text-rgb: 255 255 255;
+    --ks-subText-rgb: 169 169 169;
+    --ks-background-rgb: 28 28 28;
+    --ks-tabActive-rgb: 49 49 49;
+    --ks-tableHeader-rgb: 49 49 49;
+    --ks-buttonGray-rgb: 41 41 41;
+    --ks-buttonBlack-rgb: 15 15 15;
+    --ks-bg6-rgb: 29 122 95;
+    --ks-primary-rgb: 49 203 158;
+    --ks-border-rgb: 80 80 80;
+    --ks-red-rgb: 255 83 123;
+    --ks-warning-rgb: 255 153 1;
+    --ks-apr-rgb: 15 170 162;
+    --ks-gray-rgb: 115 115 115;
+    --ks-blue-rgb: 8 161 231;
+  }
+}

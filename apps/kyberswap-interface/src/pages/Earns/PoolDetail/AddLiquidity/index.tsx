@@ -2,9 +2,8 @@ import { type ApprovalAdditionalInfo } from '@kyber/hooks'
 import { NETWORKS_INFO, PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { BuildZapInData, prepareBuildZapInRouteRequest, useBuildZapInRouteMutation } from 'services/zap'
-import styled from 'styled-components'
 
-import { HStack, Stack } from 'components/Stack'
+import { HStack } from 'components/Stack'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -69,29 +68,15 @@ type AddLiquidityTracking = {
   addTransactionWithType: (transaction: TransactionHistory) => void
 }
 
-const PoolInformationColumn = styled(Stack)`
-  flex: 1 1 480px;
-  min-width: 0;
-  gap: 24px;
-  order: 1;
+const PoolInformationColumn = ({ children }: { children: React.ReactNode }) => (
+  <div className="order-1 flex min-w-0 flex-1 basis-[480px] flex-col gap-6 max-sm:order-2">{children}</div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    order: 2;
-  `}
-`
-
-const AddLiquidityColumn = styled(Stack)`
-  flex: 1 1 480px;
-  max-width: 480px;
-  min-width: 0;
-  gap: 16px;
-  order: 2;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    order: 1;
-    max-width: none;
-  `}
-`
+const AddLiquidityColumn = ({ children }: { children: React.ReactNode }) => (
+  <div className="order-2 flex min-w-0 max-w-[480px] flex-1 basis-[480px] flex-col gap-4 max-sm:order-1 max-sm:max-w-none">
+    {children}
+  </div>
+)
 
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
@@ -128,7 +113,7 @@ const AddLiquidityBody = ({
 
   return (
     <>
-      <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
+      <HStack className="w-full flex-wrap items-start gap-6">
         <PoolInformationColumn>
           {children}
           <AddLiquidityRoutePreview
@@ -395,7 +380,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   return (
     <AddLiquidityRuntimeProvider value={runtimeValue}>
       {!normalizedPool.data || normalizedPool.loading ? (
-        <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
+        <HStack className="w-full flex-wrap items-start gap-6">
           <PoolInformationColumn>
             {children}
             <AddLiquidityRoutePreview

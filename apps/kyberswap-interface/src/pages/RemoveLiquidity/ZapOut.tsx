@@ -12,7 +12,6 @@ import { Trans, t } from '@lingui/macro'
 import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -63,7 +62,7 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
-import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
+import { StyledInternalLink, UppercaseText } from 'theme'
 import { formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -555,25 +554,23 @@ export default function ZapOut({
     const displaySlp = allowedSlippage / 100
 
     return (
-      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
-        <AutoRow gap="4px">
+      <AutoColumn className="mt-5 gap-3">
+        <AutoRow className="gap-1">
           <CurrencyLogo currency={currencies[independentTokenField]} size={'24px'} />
-          <Text fontSize={24} fontWeight={500}>
+          <span className="text-[24px] font-medium leading-[normal]">
             {parsedAmounts[independentTokenField]?.toSignificant(6)}
-          </Text>
-          <Text fontSize={24} fontWeight={500}>
-            {independentToken?.symbol}
-          </Text>
+          </span>
+          <span className="text-[24px] font-medium leading-[normal]">{independentToken?.symbol}</span>
           {estimatedUsd && (
-            <Text color={theme.subText} marginLeft="4px" fontSize={18} fontWeight={500}>
+            <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
               (~{formattedNum(estimatedUsd.toString(), true) || undefined})
-            </Text>
+            </span>
           )}
         </AutoRow>
 
-        <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
+        <p className="m-0 text-left text-[12px] font-normal italic leading-[normal] text-subText">
           {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
-        </TYPE.italic>
+        </p>
       </AutoColumn>
     )
   }
@@ -584,47 +581,47 @@ export default function ZapOut({
         <ModalDetailWrapper>
           {pair && (
             <>
-              <CurrentPriceWrapper style={{ paddingBottom: '8px' }}>
-                <TYPE.subHeader fontSize={14} fontWeight={400} color={theme.subText}>
+              <CurrentPriceWrapper className="pb-2">
+                <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Current Price</Trans>
-                </TYPE.subHeader>
-                <TYPE.black fontSize={14} fontWeight={400}>
+                </p>
+                <p className="m-0 text-sm font-normal leading-[normal] text-text">
                   <CurrentPrice price={price} />
-                </TYPE.black>
+                </p>
               </CurrentPriceWrapper>
 
-              <RowBetween style={{ paddingBottom: '12px' }}>
-                <TYPE.subHeader fontSize={14} fontWeight={400} color={theme.subText}>
+              <RowBetween className="pb-3">
+                <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Price Impact</Trans>
-                </TYPE.subHeader>
-                <TYPE.black fontSize={14} fontWeight={400}>
+                </p>
+                <p className="m-0 text-sm font-normal leading-[normal] text-text">
                   <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
-                </TYPE.black>
+                </p>
               </RowBetween>
 
-              <RowBetween style={{ paddingBottom: '12px' }}>
-                <Text color={theme.subText} fontSize={14} fontWeight={400}>
+              <RowBetween className="pb-3">
+                <span className="text-[14px] leading-[normal] text-subText">
                   <Trans>LP Tokens Removed</Trans>
-                </Text>
+                </span>
 
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin={true} />
-                  <Text color={theme.text} fontSize={14} fontWeight={400}>
+                  <span className="text-[14px] leading-[normal] text-text">
                     {parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}
-                  </Text>
+                  </span>
                 </RowFixed>
               </RowBetween>
 
               {amountsMin && (
                 <>
-                  <RowBetween style={{ paddingBottom: '12px' }}>
-                    <TYPE.subHeader fontWeight={400} fontSize={14} color={theme.subText}>
+                  <RowBetween className="pb-3">
+                    <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                       <Trans>Minimum Received</Trans>
-                    </TYPE.subHeader>
+                    </p>
 
                     <TokenWrapper>
                       <CurrencyLogo currency={independentToken} size="16px" />
-                      <TYPE.black fontWeight={400} fontSize={14}>
+                      <p className="m-0 text-sm font-normal leading-[normal] text-text">
                         {formatJSBIValue(
                           independentTokenField === Field.CURRENCY_A
                             ? amountsMin[Field.CURRENCY_A]
@@ -632,7 +629,7 @@ export default function ZapOut({
                           independentToken?.decimals,
                         )}{' '}
                         {independentToken?.symbol}
-                      </TYPE.black>
+                      </p>
                     </TokenWrapper>
                   </RowBetween>
                 </>
@@ -642,9 +639,9 @@ export default function ZapOut({
         </ModalDetailWrapper>
 
         <ButtonPrimary disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)} onClick={onRemove}>
-          <Text fontWeight={500} fontSize={16}>
+          <span className="text-[16px] font-medium leading-[normal]">
             <Trans>Confirm</Trans>
-          </Text>
+          </span>
         </ButtonPrimary>
       </>
     )
@@ -678,17 +675,17 @@ export default function ZapOut({
           }
           pendingText={pendingText}
         />
-        <AutoColumn gap="md">
+        <AutoColumn className="gap-3">
           <GridColumn>
             <FirstColumn>
-              <BlackCard padding="1rem" borderRadius="4px">
-                <AutoColumn gap="1rem">
+              <BlackCard className="rounded p-4">
+                <AutoColumn className="gap-4">
                   <RowBetween>
-                    <Text fontSize={12} fontWeight={500}>
+                    <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Amount</Trans>
-                    </Text>
+                    </span>
 
-                    <Text fontSize={12} fontWeight={500}>
+                    <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Balance</Trans>:{' '}
                       {!userLiquidity ? (
                         <Loader />
@@ -696,17 +693,17 @@ export default function ZapOut({
                         formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
                       )}{' '}
                       {t`LP Tokens`}
-                    </Text>
+                    </span>
                   </RowBetween>
-                  <Row style={{ alignItems: 'flex-end' }}>
-                    <Text fontSize={72} fontWeight={500}>
+                  <Row className="items-end">
+                    <span className="text-[72px] font-medium leading-[normal]">
                       {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
-                    </Text>
+                    </span>
                   </Row>
 
                   <>
                     <Slider value={innerLiquidityPercentage} onChange={setInnerLiquidityPercentage} size={18} />
-                    <RowBetween style={{ gap: '4px' }}>
+                    <RowBetween className="gap-1">
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>25%</MaxButton>
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')}>50%</MaxButton>
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')}>75%</MaxButton>
@@ -751,7 +748,7 @@ export default function ZapOut({
                   isSwitchMode
                   estimatedUsd={formattedNum(estimatedUsd.toString(), true) || undefined}
                 />
-                <Flex justifyContent="flex-end" alignItems="center" marginTop="0.5rem">
+                <div className="mt-2 flex items-center justify-end">
                   {pairAddress &&
                     chainId &&
                     (selectedCurrencyIsETHER || selectedCurrencyIsWETH) &&
@@ -778,37 +775,37 @@ export default function ZapOut({
                         {selectedCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
                     )}
-                </Flex>
+                </div>
               </div>
 
               {pair && (
                 <DetailWrapper>
                   <DetailBox style={{ paddingBottom: '12px', borderBottom: `1px dashed ${theme.border}` }}>
-                    <AutoColumn gap="8px">
-                      <TYPE.subHeader fontWeight={500} fontSize={12} color={theme.subText}>
+                    <AutoColumn className="gap-2">
+                      <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                         <UppercaseText>
                           <Trans>Price Impact</Trans>
                         </UppercaseText>
-                      </TYPE.subHeader>
-                      <TYPE.black fontWeight={400} fontSize={14}>
+                      </p>
+                      <p className="m-0 text-sm font-normal leading-[normal] text-text">
                         <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
-                      </TYPE.black>
+                      </p>
                     </AutoColumn>
 
                     {amountsMin && (
-                      <AutoColumn gap="8px">
-                        <TYPE.subHeader fontWeight={500} fontSize={12} color={theme.subText}>
+                      <AutoColumn className="gap-2">
+                        <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                           <UppercaseText>
                             <Trans>Minimum Received</Trans>
                           </UppercaseText>
-                        </TYPE.subHeader>
+                        </p>
 
                         <TokenWrapper>
                           <CurrencyLogo
                             currency={independentTokenField === Field.CURRENCY_A ? currencyA : currencyB}
                             size="16px"
                           />
-                          <TYPE.black fontWeight={400} fontSize={14}>
+                          <p className="m-0 text-sm font-normal leading-[normal] text-text">
                             {formatJSBIValue(
                               independentTokenField === Field.CURRENCY_A
                                 ? amountsMin[Field.CURRENCY_A]
@@ -816,26 +813,21 @@ export default function ZapOut({
                               independentToken?.decimals,
                             )}{' '}
                             {independentToken?.symbol}
-                          </TYPE.black>
+                          </p>
                         </TokenWrapper>
                       </AutoColumn>
                     )}
                   </DetailBox>
 
-                  <DetailBox style={{ paddingTop: '12px' }}>
-                    <TYPE.subHeader
-                      fontWeight={500}
-                      fontSize={12}
-                      color={theme.subText}
-                      style={{ display: 'flex', alignItems: 'center' }}
-                    >
+                  <DetailBox className="pt-3">
+                    <p className="m-0 flex items-center text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Current Price</Trans>
                       </UppercaseText>
-                    </TYPE.subHeader>
-                    <TYPE.black fontWeight={400} fontSize={14}>
+                    </p>
+                    <p className="m-0 text-sm font-normal leading-[normal] text-text">
                       <CurrentPrice price={price} />
-                    </TYPE.black>
+                    </p>
                   </DetailBox>
                 </DetailWrapper>
               )}
@@ -848,7 +840,7 @@ export default function ZapOut({
                 <ZapError message={t`Price impact is high`} warning={true} />
               ) : null}
 
-              <div style={{ position: 'relative' }}>
+              <div className="relative">
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
                     <Trans>Connect</Trans>
@@ -866,9 +858,7 @@ export default function ZapOut({
                         userLiquidity.equalTo('0') ||
                         (priceImpactSeverity > 3 && !isDegenMode)
                       }
-                      margin="0 1rem 0 0"
-                      padding="16px"
-                      style={{ fontSize: '16px', fontWeight: 500 }}
+                      className="mr-4 p-4 text-base font-medium"
                     >
                       {approval === ApprovalState.PENDING ? (
                         <Dots>
@@ -896,7 +886,7 @@ export default function ZapOut({
                         (!isValid || priceImpactSeverity > 2)
                       }
                     >
-                      <Text fontSize={16} fontWeight={500}>
+                      <span className="text-[16px] font-medium leading-[normal]">
                         {error
                           ? error
                           : priceImpactSeverity > 3 && !isDegenMode
@@ -904,7 +894,7 @@ export default function ZapOut({
                           : priceImpactSeverity > 2
                           ? t`Remove Anyway`
                           : t`Remove`}
-                      </Text>
+                      </span>
                     </ButtonError>
                   </RowBetween>
                 )}

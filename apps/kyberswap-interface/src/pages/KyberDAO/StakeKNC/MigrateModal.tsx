@@ -2,8 +2,6 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -13,7 +11,6 @@ import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberDAOInfo, useKyberDaoStakeActions } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import CurrencyInputForStake from 'pages/KyberDAO/StakeKNC/CurrencyInputForStake'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
@@ -21,10 +18,6 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { parseUnits } from 'utils/viem'
-
-const Wrapper = styled.div`
-  padding: 24px;
-`
 
 export default function MigrateModal({
   setPendingText,
@@ -40,7 +33,6 @@ export default function MigrateModal({
   setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
 }) {
   const kyberDAOInfo = useKyberDAOInfo()
-  const theme = useTheme()
   const { chainId, account } = useActiveWeb3React()
   const modalOpen = useModalOpen(ApplicationModal.MIGRATE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
@@ -58,7 +50,6 @@ export default function MigrateModal({
 
   const oldKNCBalance = useTokenBalance(kyberDAOInfo?.KNCLAddress || '')
   useEffect(() => {
-    // Check if too many decimals
     try {
       parseUnits(value, 18)
     } catch {
@@ -101,17 +92,17 @@ export default function MigrateModal({
 
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={664} maxWidth={420}>
-      <Wrapper>
-        <AutoColumn gap="20px">
+      <div className="p-6">
+        <AutoColumn className="gap-5">
           <RowBetween>
-            <Text fontSize={20} color={theme.text}>
+            <span className="text-xl text-text">
               <Trans>KNC Migration</Trans>
-            </Text>
-            <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleModal}>
-              <X onClick={toggleModal} size={20} color={theme.subText} />
-            </Flex>
+            </span>
+            <div role="button" onClick={toggleModal} className="flex cursor-pointer">
+              <X onClick={toggleModal} size={20} className="text-subText" />
+            </div>
           </RowBetween>
-          <Text fontSize={12} lineHeight="16px" color={theme.subText}>
+          <span className="text-xs leading-4 text-subText">
             <Trans>
               Click Migrate to start the migration process from KNC Legacy to the new KNC. You will receive the new KNC
               tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC{' '}
@@ -121,7 +112,7 @@ export default function MigrateModal({
                 here ↗
               </ExternalLink>
             </Trans>
-          </Text>
+          </span>
           <CurrencyInputForStake
             value={value}
             setValue={setValue}
@@ -129,18 +120,8 @@ export default function MigrateModal({
             tokenName="KNCL"
           />
           <RowBetween>
-            <Text fontSize={12} color={theme.subText}>
-              1KNCL = 1KNC
-            </Text>
-            <AutoRow
-              style={{
-                height: '44px',
-                width: '44px',
-                borderRadius: '50%',
-                background: theme.buttonBlack,
-                padding: '10px',
-              }}
-            >
+            <span className="text-xs text-subText">1KNCL = 1KNC</span>
+            <AutoRow className="size-11 rounded-full bg-buttonBlack p-2.5">
               <ArrowDown />
             </AutoRow>
           </RowBetween>
@@ -151,7 +132,7 @@ export default function MigrateModal({
             tokenName="KNC"
             disabled
           />
-          <Row gap="12px">
+          <Row className="gap-3">
             {account ? (
               <>
                 {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && !error && (
@@ -160,7 +141,7 @@ export default function MigrateModal({
                   </ButtonPrimary>
                 )}
                 <ButtonPrimary disabled={approval !== ApprovalState.APPROVED || !!error} onClick={handleMigrate}>
-                  <Text fontSize={14}>{error || <Trans>Migrate</Trans>}</Text>
+                  <span className="text-sm">{error || <Trans>Migrate</Trans>}</span>
                 </ButtonPrimary>
               </>
             ) : (
@@ -170,7 +151,7 @@ export default function MigrateModal({
             )}
           </Row>
         </AutoColumn>
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

@@ -1,14 +1,11 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useGetUserRewardQuery } from 'services/campaign'
-import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import NavGroup from 'components/Header/groups/NavGroup'
-import useTheme from 'hooks/useTheme'
 import { SelectChainModal } from 'pages/Campaign/components/SelectChainModal'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentSelectedWallet'
@@ -16,16 +13,10 @@ import { StatCard } from 'pages/Campaign/styles'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const AddressText = styled(Text)`
-  :hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`
-
 const NearIntentCampaignStats = ({ selectedWeek }: { selectedWeek: number }) => {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { year, reward } = campaignConfig[CampaignType.NearIntents]
@@ -79,35 +70,33 @@ const NearIntentCampaignStats = ({ selectedWeek }: { selectedWeek: number }) => 
   return (
     <StatCard>
       {termAndPolicyModal}
-      <Flex alignItems="center" justifyContent="space-between" height="100%">
+      <div className="flex h-full items-center justify-between">
         {selectedWallet && address[selectedWallet] ? (
-          <Flex
-            width="100%"
-            alignItems="center"
-            sx={{ gap: '12px' }}
-            flexDirection={upToSmall ? 'column' : 'row'}
-            justifyContent={upToSmall ? 'flex-start' : 'space-around'}
+          <div
+            className={cn(
+              'flex w-full items-center gap-3',
+              upToSmall ? 'flex-col justify-start' : 'flex-row justify-around',
+            )}
           >
-            <Flex width="100%" flex="0.8">
+            <div className="flex w-full flex-[0.8]">
               <NavGroup
                 isActive={false}
                 anchor={
-                  <Flex alignItems="center" sx={{ gap: '4px', color: theme.subText }}>
+                  <div className="flex items-center gap-1 text-subText">
                     <img src={logo[selectedWallet]} width={20} height={20} alt="" style={{ borderRadius: '50%' }} />
-                    <Text fontSize={14} color={theme.subText}>
+                    <span className="text-sm text-subText">
                       {address[selectedWallet]?.includes('.near')
                         ? address[selectedWallet]
                         : shortenHash(address[selectedWallet] || '')}
-                    </Text>
-                  </Flex>
+                    </span>
+                  </div>
                 }
                 dropdownContent={
-                  <Column gap="16px" padding="12px">
+                  <Column className="gap-4 p-3">
                     {Object.keys(logo).map(walletType => (
-                      <Flex
+                      <div
                         key={walletType}
-                        justifyContent="space-between"
-                        sx={{ gap: '1.5rem' }}
+                        className="flex justify-between gap-6"
                         onClick={() => {
                           if (address[walletType]) {
                             setSelectedWallet(walletType)
@@ -117,7 +106,7 @@ const NearIntentCampaignStats = ({ selectedWeek }: { selectedWeek: number }) => 
                           }
                         }}
                       >
-                        <Flex sx={{ gap: '6px', alignItems: 'center' }}>
+                        <div className="flex items-center gap-1.5">
                           <img
                             src={logo[walletType]}
                             width={20}
@@ -125,18 +114,17 @@ const NearIntentCampaignStats = ({ selectedWeek }: { selectedWeek: number }) => 
                             alt={walletType}
                             style={{ borderRadius: '50%' }}
                           />
-                          <AddressText color={theme.subText} fontSize={14}>
+                          <span className="text-sm text-subText hover:text-primary">
                             {address[walletType]
                               ? address[walletType]?.includes('.near')
                                 ? address[walletType]
                                 : shortenHash(address[walletType] || '', 4)
                               : walletType[0].toUpperCase() + walletType.slice(1)}
-                          </AddressText>
-                        </Flex>
+                          </span>
+                        </div>
 
                         <ButtonText
-                          color={theme.primary}
-                          style={{ fontSize: '14px' }}
+                          style={{ fontSize: '14px', color: 'var(--ks-primary)' }}
                           onClick={e => {
                             if (address[walletType]) {
                               e.stopPropagation()
@@ -159,58 +147,56 @@ const NearIntentCampaignStats = ({ selectedWeek }: { selectedWeek: number }) => 
                         >
                           {address[walletType] ? <Trans>Disconnect</Trans> : <Trans>Connect</Trans>}
                         </ButtonText>
-                      </Flex>
+                      </div>
                     ))}
                   </Column>
                 }
               />
-            </Flex>
-            <Flex
-              flexDirection={upToSmall ? 'row' : 'column'}
-              width="100%"
-              sx={{ gap: '4px' }}
-              justifyContent={upToSmall ? 'space-between' : 'flex-start'}
-              style={{ flex: 1 }}
+            </div>
+            <div
+              className={cn(
+                'flex w-full flex-1 gap-1',
+                upToSmall ? 'flex-row justify-between' : 'flex-col justify-start',
+              )}
             >
-              <Text color={theme.subText}>
+              <span className="text-subText">
                 <Trans>My Earned Points</Trans>
-              </Text>
-              <Text fontSize={16} fontWeight={500}>
+              </span>
+              <span className="text-base font-medium">
                 {formatDisplayNumber(Math.floor(data[selectedWallet]?.point || 0), { significantDigits: 6 })}
-              </Text>
-            </Flex>
+              </span>
+            </div>
 
-            <Flex
-              flexDirection={upToSmall ? 'row' : 'column'}
-              width="100%"
-              sx={{ gap: '4px' }}
-              justifyContent={upToSmall ? 'space-between' : 'flex-start'}
-              style={{ flex: 1 }}
+            <div
+              className={cn(
+                'flex w-full flex-1 gap-1',
+                upToSmall ? 'flex-row justify-between' : 'flex-col justify-start',
+              )}
             >
-              <Text color={theme.subText}>
+              <span className="text-subText">
                 <Trans>My Est. Rewards</Trans>
-              </Text>
+              </span>
 
-              <Flex alignItems="center" sx={{ gap: '4px' }}>
+              <div className="flex items-center gap-1">
                 <img src={reward.logo} width={18} height={18} style={{ borderRadius: '50%' }} alt="" />
-                <Text fontWeight={500} fontSize={16}>
+                <span className="text-base font-medium">
                   {rewardAmount?.toSignificant(4) || '0'} {reward.symbol}
-                </Text>
-              </Flex>
-            </Flex>
-          </Flex>
+                </span>
+              </div>
+            </div>
+          </div>
         ) : (
           <>
-            <Text fontSize={14} color={theme.subText}>
+            <span className="text-sm text-subText">
               <Trans>Connect wallet to view your reward</Trans>
-            </Text>
+            </span>
 
-            <ButtonLight width="max-content" height="36px" onClick={() => setShowSelect(true)}>
+            <ButtonLight onClick={() => setShowSelect(true)} className="!h-9 w-max">
               <Trans>Connect Wallet</Trans>
             </ButtonLight>
           </>
         )}
-      </Flex>
+      </div>
       <BitcoinConnectModal
         isOpen={showBtcModal}
         onDismiss={() => {

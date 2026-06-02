@@ -1,61 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import styled, { css, keyframes } from 'styled-components'
 
-const rollUp = keyframes`
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-`
-
-const rollOut = keyframes`
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-`
-
-const Wrapper = styled.span`
-  display: inline-flex;
-  position: relative;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: bottom;
-  max-width: 100%;
-`
-
-const Value = styled.span<{ $animate: 'in' | 'out' | 'none' }>`
-  display: inline-block;
-  ${({ $animate }) =>
-    $animate === 'in' &&
-    css`
-      animation: ${rollUp} 0.4s ease-out forwards;
-
-      @media (prefers-reduced-motion: reduce) {
-        animation: none;
-      }
-    `}
-  ${({ $animate }) =>
-    $animate === 'out' &&
-    css`
-      position: absolute;
-      top: 0;
-      left: 0;
-      animation: ${rollOut} 0.4s ease-out forwards;
-
-      @media (prefers-reduced-motion: reduce) {
-        animation: none;
-      }
-    `}
-`
+import { cn } from 'utils/cn'
 
 export default function AnimatedNumber({
   value,
@@ -91,9 +36,23 @@ export default function AnimatedNumber({
   const isAnimating = prevValue !== null
 
   return (
-    <Wrapper className={className} style={style}>
-      {isAnimating && <Value $animate="out">{prevValue}</Value>}
-      <Value $animate={isAnimating ? 'in' : 'none'}>{displayValue}</Value>
-    </Wrapper>
+    <span
+      className={cn('relative inline-flex max-w-full overflow-hidden text-ellipsis align-bottom', className)}
+      style={style}
+    >
+      {isAnimating && (
+        <span className="absolute left-0 top-0 inline-block [animation:ks-roll-out_0.4s_ease-out_forwards] motion-reduce:animate-none">
+          {prevValue}
+        </span>
+      )}
+      <span
+        className={cn(
+          'inline-block',
+          isAnimating && '[animation:ks-roll-up_0.4s_ease-out_forwards] motion-reduce:animate-none',
+        )}
+      >
+        {displayValue}
+      </span>
+    </span>
   )
 }

@@ -2,8 +2,6 @@ import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
@@ -14,27 +12,12 @@ import { REWARD_SERVICE_API } from 'constants/env'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNotify, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
 import { getNativeTokenLogo, getTokenLogoURL, isAddress, shortenAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
-
-const AddressWrapper = styled.div`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 8px;
-  padding: 12px;
-  overflow: hidden;
-  p {
-    margin: 12px 0 0 0;
-    font-size: 24px;
-    line-height: 28px;
-    font-weight: 500;
-    color: ${({ theme }) => theme.disableText};
-  }
-`
 
 const getFullDisplayBalance = (balance: bigint, decimals = 18, significant = 6): string => {
   const amount = new Fraction(balance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -49,7 +32,6 @@ function FaucetModal() {
   const { chainId, account } = useActiveWeb3React()
   const open = useModalOpen(ApplicationModal.FAUCET_POPUP)
   const toggle = useToggleModal(ApplicationModal.FAUCET_POPUP)
-  const theme = useTheme()
   const [rewardData, setRewardData] = useState<{ amount: bigint; tokenAddress: string; program: number }>()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
@@ -81,9 +63,7 @@ function FaucetModal() {
     try {
       const rawResponse = await fetch(REWARD_SERVICE_API + '/rewards/claim', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ wallet: account, program: rewardData.program }),
       })
       const content = await rawResponse.json()
@@ -128,32 +108,32 @@ function FaucetModal() {
   }, [chainId, account])
   const modalContent = useMemo(() => {
     return (
-      <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
+      <div className="flex flex-col gap-[25px] px-6 py-[26px]">
         <RowBetween>
-          <Text fontSize={20} fontWeight={500} color={theme.text}>
+          <span className="text-xl font-medium text-text">
             <Trans>Faucet</Trans>
-          </Text>
+          </span>
           <CloseIcon onClick={toggle} />
         </RowBetween>
 
-        <AddressWrapper>
-          <Text color={theme.subText} fontSize={12}>
+        <div className="overflow-hidden rounded-lg bg-buttonBlack p-3 [&>p]:m-0 [&>p]:mt-3 [&>p]:text-2xl [&>p]:font-medium [&>p]:leading-7 [&>p]:text-disableText">
+          <span className="text-xs text-subText">
             <Trans>Your wallet address</Trans>
-          </Text>
+          </span>
           <p>{account && shortenAddress(chainId, account, 9)}</p>
-        </AddressWrapper>
-        <Text fontSize={16} lineHeight="24px" color={theme.text}>
+        </div>
+        <span className="text-base leading-6 text-text">
           <Trans>
             If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each
             wallet can only request for the tokens once. You can claim:
           </Trans>
-        </Text>
+        </span>
 
         {token && (
-          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={28} lineHeight="38px" fontWeight={500}>
-            {tokenLogo && <Logo srcs={[tokenLogo]} alt={`${tokenSymbol ?? 'token'} logo`} style={{ width: '28px' }} />}{' '}
+          <div className="flex items-center gap-1.5 text-[28px] font-medium leading-[38px]">
+            {tokenLogo && <Logo srcs={[tokenLogo]} alt={`${tokenSymbol ?? 'token'} logo`} className="w-7" />}{' '}
             {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
-          </Flex>
+          </div>
         )}
 
         {account ? (
@@ -164,7 +144,7 @@ function FaucetModal() {
               trackingHandler(TRACKING_EVENT_TYPE.FAUCET_REQUEST_INITIATED)
               toggle()
             }}
-            style={{ borderRadius: '24px', height: '44px' }}
+            className="h-11 rounded-3xl"
           >
             <Trans>Request</Trans>
           </ButtonPrimary>
@@ -173,12 +153,12 @@ function FaucetModal() {
             onClick={() => {
               toggleWalletModal()
             }}
-            style={{ borderRadius: '24px', height: '44px' }}
+            className="h-11 rounded-3xl"
           >
             <Trans>Connect</Trans>
           </ButtonPrimary>
         )}
-      </Flex>
+      </div>
     )
   }, [
     chainId,
@@ -186,7 +166,6 @@ function FaucetModal() {
     claimRewardCallBack,
     trackingHandler,
     rewardData?.amount,
-    theme,
     toggle,
     toggleWalletModal,
     token,
@@ -195,13 +174,7 @@ function FaucetModal() {
   ])
 
   return (
-    <Modal
-      isOpen={open}
-      onDismiss={() => {
-        toggle()
-      }}
-      maxHeight={90}
-    >
+    <Modal isOpen={open} onDismiss={() => toggle()} maxHeight={90}>
       {modalContent}
     </Modal>
   )

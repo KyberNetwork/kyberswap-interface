@@ -1,61 +1,38 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled, { keyframes } from 'styled-components'
 
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage, formatSlippage } from 'utils/slippage'
 
-const highlight = keyframes`
-  0% {
-    box-shadow: 0 0 0 0 #31CB9E66;
-  }
-
-  70% {
-    box-shadow: 0 0 0 3px #31CB9E66;
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 #31CB9E66;
-  }
-`
-
-//transition: transform 300ms;
-export const DropdownIcon = styled.div<{ size?: number }>`
-  margin-left: 6px;
-  border-radius: 50%;
-  width: ${({ size }) => size || 12}px;
-  height: ${({ size }) => size || 12}px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2px;
-
-  transition: all 0.2s ease-in-out;
-  color: ${({ theme }) => theme.white2};
-  &[data-flip='true'] {
-    transform: rotate(180deg);
-  }
-
-  &[data-highlight='true'] {
-    background: ${({ theme }) => rgba(theme.primary, 0.6)};
-    animation: ${highlight} 2s infinite alternate ease-in-out;
-  }
-
-  &[data-warning='true'] {
-    color: ${({ theme }) => rgba(theme.warning, 0.9)};
-  }
-`
+export const DropdownIcon = ({
+  size,
+  children,
+  className,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { size?: number }) => (
+  <div
+    {...rest}
+    style={{ width: size || 12, height: size || 12, ...rest.style }}
+    className={cn(
+      'ml-1.5 flex items-center justify-center rounded-full p-0.5 text-white2 transition-all duration-200 ease-in-out',
+      'data-[flip=true]:rotate-180',
+      'data-[highlight=true]:animate-[ks-slippage-highlight_2s_infinite_alternate_ease-in-out] data-[highlight=true]:bg-primary/60',
+      'data-[warning=true]:text-warning/90',
+      className,
+    )}
+  >
+    {children}
+  </div>
+)
 
 type Props = {
   rightComponent?: ReactNode
@@ -69,7 +46,6 @@ type Props = {
   }
 }
 const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
-  const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isHighlight, setIsHighlight] = useState(false)
@@ -124,37 +100,15 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   }
 
   return (
-    <Flex
-      sx={{
-        flexDirection: 'column',
-        width: '100%',
-      }}
-    >
-      <Flex
-        sx={{
-          alignItems: 'center',
-          color: theme.subText,
-          gap: '4px',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Flex sx={{ gap: '4px' }} alignItems="center">
-          <TextDashed
-            color={theme.subText}
-            fontSize={12}
-            fontWeight={500}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              lineHeight: '1',
-              height: 'fit-content',
-            }}
-          >
+    <div className="flex w-full flex-col">
+      <div className="flex items-center justify-between gap-1 text-subText">
+        <div className="flex items-center gap-1">
+          <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center leading-none text-subText">
             <MouseoverTooltip
               placement="right"
               text={
                 tooltip || (
-                  <Text>
+                  <span>
                     <Trans>
                       During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
                       <ExternalLink
@@ -165,30 +119,19 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
                         here ↗
                       </ExternalLink>
                     </Trans>
-                  </Text>
+                  </span>
                 )
               }
             >
               <Trans>Max Slippage</Trans>:
             </MouseoverTooltip>
           </TextDashed>
-          <Flex
-            sx={{
-              alignItems: 'center',
-              gap: '4px',
-              cursor: 'pointer',
-            }}
-            role="button"
-            onClick={() => setExpanded(e => !e)}
-          >
-            <Text
-              sx={{
-                fontSize: '14px',
-                fontWeight: 500,
-                lineHeight: '1',
-                color: isWarningSlippage ? theme.warning : theme.text,
-                borderBottom: isWarningSlippage ? `1px dashed ${theme.warning}` : 'none',
-              }}
+          <div role="button" onClick={() => setExpanded(e => !e)} className="flex cursor-pointer items-center gap-1">
+            <span
+              className={cn(
+                'text-sm font-medium leading-none',
+                isWarningSlippage ? 'border-b border-dashed border-warning text-warning' : 'text-text',
+              )}
             >
               {msg ? (
                 <MouseoverTooltip text={slippageInfo ? msg : t`Your slippage ${msg}`}>
@@ -197,7 +140,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
               ) : (
                 formatSlippage(rawSlippage)
               )}
-            </Text>
+            </span>
 
             <DropdownIcon data-flip={expanded} data-highlight={!expanded && defaultSlp !== rawSlippage}>
               <svg width="10" height="6" viewBox="0 0 6 4" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -207,19 +150,16 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
                 />
               </svg>
             </DropdownIcon>
-          </Flex>
-        </Flex>
+          </div>
+        </div>
         {rightComponent}
-      </Flex>
-      <Flex
-        sx={{
-          transition: 'all 100ms linear',
-          paddingTop: expanded ? '8px' : '0px',
-          height: expanded ? 'max-content' : '0px',
-          overflow: !isHighlight ? 'hidden' : 'visible',
-          flexDirection: 'column',
-          gap: '1rem',
-        }}
+      </div>
+      <div
+        className={cn(
+          'flex flex-col gap-4 transition-all duration-100 ease-linear',
+          expanded ? 'h-max pt-2' : 'h-0 pt-0',
+          isHighlight ? 'overflow-visible' : 'overflow-hidden',
+        )}
       >
         <SlippageControl
           isHighlight={isHighlight}
@@ -229,33 +169,28 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
           options={options}
         />
         {isDegenMode && expanded && (
-          <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px" marginTop="-12px">
+          <span className="-mt-3 px-1.5 py-1 text-xs font-medium text-subText">
             <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
-          </Text>
+          </span>
         )}
         {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
-          <Flex
-            fontSize={12}
-            color={theme.primary}
-            sx={{ gap: '4px', cursor: 'pointer' }}
-            alignItems="center"
-            marginTop="-12px"
-            paddingX="4px"
+          <div
             role="button"
             onClick={() => setRawSlippage(defaultSlp)}
+            className="-mt-3 flex cursor-pointer items-center gap-1 px-1 text-xs text-primary"
           >
             <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
-              <Text sx={{ borderBottom: `1px dotted ${theme.primary}` }}>
+              <span className="border-b border-dotted border-primary">
                 <Trans>Suggestion</Trans>
-              </Text>
+              </span>
             </MouseoverTooltip>
             {(defaultSlp * 100) / 10_000}%
-          </Flex>
+          </div>
         )}
 
         {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   )
 }
 

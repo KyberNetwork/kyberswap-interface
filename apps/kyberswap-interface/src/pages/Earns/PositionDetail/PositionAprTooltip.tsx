@@ -1,12 +1,10 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { PropsWithChildren, useMemo } from 'react'
-import { Flex, Text } from 'rebass'
 
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
 import { MerklOpportunity } from 'pages/Earns/types'
 
 type Props = PropsWithChildren<{
@@ -18,8 +16,6 @@ type Props = PropsWithChildren<{
 }>
 
 export default function PositionAprTooltip({ egApr, lmApr, dexLogo, dexName, merklOpportunity, children }: Props) {
-  const theme = useTheme()
-
   const campaignRows = useMemo(() => {
     if (!merklOpportunity?.campaigns.length) return []
 
@@ -45,32 +41,32 @@ export default function PositionAprTooltip({ egApr, lmApr, dexLogo, dexName, mer
       placement="top"
       width="fit-content"
       text={
-        <Flex flexDirection="column" sx={{ gap: '8px' }}>
+        <div className="flex flex-col gap-2">
           {!!egApr && (
-            <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <div className="flex items-center gap-1">
               <TokenLogo src={dexLogo} size={16} />
-              <Text fontSize={12} color={theme.subText}>
+              <span className="text-xs text-subText">
                 {dexName} EG | {formatAprNumber(egApr)}%
-              </Text>
-            </Flex>
+              </span>
+            </div>
           )}
           {!!lmApr && (
-            <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <div className="flex items-center gap-1">
               <TokenLogo src={dexLogo} size={16} />
-              <Text fontSize={12} color={theme.subText}>
+              <span className="text-xs text-subText">
                 {dexName} LM | {formatAprNumber(lmApr)}%
-              </Text>
-            </Flex>
+              </span>
+            </div>
           )}
           {campaignRows.map(row => (
-            <Flex key={row.id} alignItems="center" sx={{ gap: '4px' }}>
+            <div key={row.id} className="flex items-center gap-1">
               <TokenLogo src={row.icon} size={16} />
-              <Text fontSize={12} color={theme.subText}>
+              <span className="text-xs text-subText">
                 {row.name} | {formatAprNumber(row.apr)}%
-              </Text>
-            </Flex>
+              </span>
+            </div>
           ))}
-        </Flex>
+        </div>
       }
     >
       {children}

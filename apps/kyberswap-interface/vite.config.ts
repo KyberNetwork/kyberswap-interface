@@ -73,7 +73,7 @@ export default defineConfig({
     },
   },
   resolve: {
-    dedupe: ['styled-components', 'react', 'react-dom'],
+    dedupe: ['react', 'react-dom'],
     // Array form (rather than object) so we can use regex `find` for the
     // `eciesjs` entries below.
     alias: [

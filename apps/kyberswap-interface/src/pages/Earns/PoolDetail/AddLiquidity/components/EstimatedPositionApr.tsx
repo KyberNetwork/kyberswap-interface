@@ -2,33 +2,19 @@ import { ZapRouteDetail } from '@kyber/schema'
 import { formatAprNumber } from '@kyber/utils/number'
 import { Trans } from '@lingui/macro'
 import { skipToken } from '@reduxjs/toolkit/query'
-import { rgba } from 'polished'
-import { Box, Text } from 'rebass'
 import { useEstimatePositionAprQuery } from 'services/zapEarn'
-import styled from 'styled-components'
 
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useDebounce from 'hooks/useDebounce'
-import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme/components'
 
-const TooltipContent = styled(Stack)`
-  gap: 4px;
-  font-size: 12px;
-`
-
-const AprBanner = styled(HStack)`
-  align-items: center;
-  gap: 12px;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 12px;
-  border: 1px solid ${({ theme }) => rgba(theme.primary, 0.24)};
-  background: ${({ theme }) => rgba(theme.primary, 0.12)};
-`
+const TooltipContent = ({ children }: { children: React.ReactNode }) => (
+  <Stack className="gap-1 text-xs [&_a:hover]:text-primary [&_a]:border-b [&_a]:border-dotted [&_a]:border-subText [&_a]:no-underline">
+    {children}
+  </Stack>
+)
 
 type EstimatedPositionAprProps = {
   chainId?: number
@@ -47,7 +33,6 @@ const EstimatedPositionApr = ({
   tickUpper,
   route,
 }: EstimatedPositionAprProps) => {
-  const theme = useTheme()
   const hasInput = Boolean(route)
   const debouncedLower = useDebounce(tickLower, 150)
   const debouncedUpper = useDebounce(tickUpper, 150)
@@ -95,21 +80,21 @@ const EstimatedPositionApr = ({
     </TooltipContent>
   ) : (
     <TooltipContent>
-      <Text>
+      <div>
         <Trans>LP Fees: {formatAprNumber(aprValues.feeApr || 0)}%</Trans>
-      </Text>
-      <Text>
+      </div>
+      <div>
         <Trans>EG Sharing Reward: {formatAprNumber(aprValues.egApr || 0)}%</Trans>
-      </Text>
-      <Text>
+      </div>
+      <div>
         <Trans>LM Reward: {formatAprNumber(aprValues.lmApr || 0)}%</Trans>
-      </Text>
-      <Text>
+      </div>
+      <div>
         <i>
           <Trans>The APR estimation is not guaranteed and may differ from actual returns.</Trans>
         </i>
-      </Text>
-      <Text>
+      </div>
+      <div>
         <i>
           <Trans>
             <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-fairflow/position-apr-estimation">
@@ -118,29 +103,27 @@ const EstimatedPositionApr = ({
             on how this estimate is calculated.
           </Trans>
         </i>
-      </Text>
+      </div>
     </TooltipContent>
   )
 
   return (
-    <AprBanner>
-      <Text color={theme.text} fontSize={14}>
-        Est. Position APR
-      </Text>
+    <div className="flex w-full items-center justify-between gap-3 rounded-xl border border-solid border-primary/[0.24] bg-primary-12 px-3 py-2">
+      <span className="text-sm text-text">Est. Position APR</span>
       <MouseoverTooltip placement="top" width={aprValues ? '320px' : 'fit-content'} text={tooltipContent}>
-        <HStack minWidth={64} justify="flex-end">
+        <HStack className="min-w-16 justify-end">
           {isLoading ? (
-            <Box height={17}>
+            <div className="h-[17px]">
               <Skeleton width={48} height={17} />
-            </Box>
+            </div>
           ) : (
-            <Text color={theme.primary} fontSize={14} fontWeight={500}>
+            <span className="text-sm font-medium text-primary">
               {!aprValues ? '--' : aprValues.totalApr === 0 ? '~0%' : `${formatAprNumber(aprValues.totalApr)}%`}
-            </Text>
+            </span>
           )}
         </HStack>
       </MouseoverTooltip>
-    </AprBanner>
+    </div>
   )
 }
 

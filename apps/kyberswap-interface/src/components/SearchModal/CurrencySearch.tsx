@@ -1,18 +1,19 @@
 import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
-import { rgba } from 'polished'
 import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 import { usePrevious } from 'react-use'
-import { Flex, Text } from 'rebass'
 import ksSettingApi from 'services/ksSetting'
-import styled from 'styled-components'
 
 import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
+import CommonBases from 'components/SearchModal/CommonBases'
+import CurrencyList from 'components/SearchModal/CurrencyList'
+import { useTokenComparator } from 'components/SearchModal/sorting'
+import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
 import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
@@ -21,58 +22,25 @@ import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, formatAndCacheToken, useAllTokens, useFetchERC20TokenFromRPC } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
-import { ButtonText, CloseIcon, TYPE } from 'theme'
+import { ButtonText, CloseIcon } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { filterTokens } from 'utils/filtering'
 import { isTokenNative } from 'utils/tokenInfo'
-
-import CommonBases from './CommonBases'
-import CurrencyList from './CurrencyList'
-import { useTokenComparator } from './sorting'
-import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from './styleds'
 
 enum Tab {
   All,
   Imported,
 }
 
-export const ContentWrapper = styled(Column)`
-  width: 100%;
-  flex: 1 1;
-  position: relative;
-  padding-bottom: 10px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding-bottom: 0px;
-  `};
-`
-
-const TabButton = styled(ButtonText)`
-  height: 32px;
-  color: ${({ theme }) => theme.text};
-  &[data-active='true'] {
-    color: ${({ theme }) => theme.primary};
-  }
-
-  :focus {
-    text-decoration: none;
-  }
-`
-
-const ButtonClear = styled.div`
-  border-radius: 24px;
-  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  gap: 5px;
-  cursor: pointer;
-`
+export const ContentWrapper = ({ className, ...rest }: React.ComponentProps<typeof Column>) => (
+  <Column className={cn('relative w-full flex-1 pb-2.5 max-sm:pb-0', className)} {...rest} />
+)
 
 interface CurrencySearchProps {
   isOpen: boolean
@@ -127,12 +95,9 @@ const fetchTokens = async (
 }
 
 export const NoResult = ({ msg }: { msg?: ReactNode }) => {
-  const theme = useTheme()
   return (
-    <Column style={{ padding: '20px', height: '100%' }} data-testid="no-token-result">
-      <TYPE.main color={theme.text3} textAlign="center" mb="20px">
-        {msg || <Trans>No results found.</Trans>}
-      </TYPE.main>
+    <Column className="h-full p-5" data-testid="no-token-result">
+      <p className="m-0 mb-5 text-center font-medium text-text3">{msg || <Trans>No results found.</Trans>}</p>
     </Column>
   )
 }
@@ -154,7 +119,6 @@ export function CurrencySearch({
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const [activeTab, setActiveTab] = useState<Tab>(Tab.All)
 
@@ -406,9 +370,9 @@ export function CurrencySearch({
 
   return (
     <ContentWrapper>
-      <PaddedColumn gap="14px">
+      <PaddedColumn className="gap-[14px]">
         <RowBetween>
-          <Text fontWeight={500} fontSize={20} display="flex">
+          <span className="flex text-xl font-medium">
             {title || <Trans>Select a token</Trans>}
             <InfoHelper
               zIndexTooltip={Z_INDEXS.MODAL}
@@ -416,24 +380,24 @@ export function CurrencySearch({
               fontSize={14}
               text={
                 tooltip || (
-                  <Text>
+                  <span>
                     <Trans>
                       Find a token by searching for its name or symbol or by pasting its address below.
                       <br />
                       You can select and trade any token on KyberSwap.
                     </Trans>
-                  </Text>
+                  </span>
                 )
               }
             />
-          </Text>
+          </span>
           <CloseIcon onClick={onDismiss} data-testid="close-icon" />
         </RowBetween>
-        <Text style={{ color: theme.subText, fontSize: 12 }}>
+        <span className="text-xs text-subText">
           <Trans>
-            You can search and select <span style={{ color: theme.text }}>any token</span> on KyberSwap.
+            You can search and select <span className="text-text">any token</span> on KyberSwap.
           </Trans>
-        </Text>
+        </span>
 
         <SearchWrapper>
           <SearchInput
@@ -447,7 +411,7 @@ export function CurrencySearch({
             onKeyDown={handleEnter}
             autoComplete="off"
           />
-          <SearchIcon size={18} color={theme.border} />
+          <SearchIcon size={18} className="text-border" />
         </SearchWrapper>
 
         {showCommonBases && (
@@ -459,49 +423,53 @@ export function CurrencySearch({
           />
         )}
         {loadingCommon && (
-          <Flex justifyContent={'center'}>
-            <Text fontSize={12} color={theme.subText}>
-              Loading ...
-            </Text>
-          </Flex>
+          <div className="flex justify-center">
+            <span className="text-xs text-subText">Loading ...</span>
+          </div>
         )}
         <RowBetween>
-          <Flex
-            sx={{
-              columnGap: '24px',
-            }}
-          >
-            <TabButton data-active={activeTab === Tab.All} onClick={() => onChangeTab(Tab.All)} data-testid="tab-all">
-              <Text as="span" fontSize={14} fontWeight={500}>
+          <div className="flex gap-x-6">
+            <ButtonText
+              data-active={activeTab === Tab.All}
+              onClick={() => onChangeTab(Tab.All)}
+              data-testid="tab-all"
+              className={cn('h-8 focus:no-underline', activeTab === Tab.All ? 'text-primary' : 'text-text')}
+            >
+              <span className="text-sm font-medium">
                 <Trans>All</Trans>
-              </Text>
-            </TabButton>
+              </span>
+            </ButtonText>
 
-            <TabButton data-active={isImportedTab} onClick={() => onChangeTab(Tab.Imported)} data-testid="tab-import">
-              <Text as="span" fontSize={14} fontWeight={500}>
+            <ButtonText
+              data-active={isImportedTab}
+              onClick={() => onChangeTab(Tab.Imported)}
+              data-testid="tab-import"
+              className={cn('h-8 focus:no-underline', isImportedTab ? 'text-primary' : 'text-text')}
+            >
+              <span className="text-sm font-medium">
                 <Trans>Imported</Trans>
-              </Text>
-            </TabButton>
-          </Flex>
+              </span>
+            </ButtonText>
+          </div>
         </RowBetween>
       </PaddedColumn>
 
       <Separator />
 
       {isImportedTab && visibleCurrencies.length > 0 && (
-        <Flex
-          justifyContent="space-between"
-          alignItems="center"
-          style={{ color: theme.subText, fontSize: 12, padding: '15px 20px 10px 20px' }}
-        >
+        <div className="flex items-center justify-between px-5 pb-2.5 pt-[15px] text-xs text-subText">
           <div>
             <Trans>{visibleCurrencies.length} Custom Tokens</Trans>
           </div>
-          <ButtonClear onClick={removeAllImportToken} data-testid="button-clear-all-import-token">
+          <div
+            className="flex cursor-pointer items-center gap-[5px] rounded-3xl bg-subText-20 px-2.5 py-[5px]"
+            onClick={removeAllImportToken}
+            data-testid="button-clear-all-import-token"
+          >
             <Trash size={13} />
             <Trans>Clear All</Trans>
-          </ButtonClear>
-        </Flex>
+          </div>
+        </div>
       )}
 
       {visibleCurrencies?.length > 0 ? (

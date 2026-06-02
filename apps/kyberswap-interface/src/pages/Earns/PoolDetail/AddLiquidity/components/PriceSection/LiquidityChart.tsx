@@ -2,11 +2,10 @@ import { Pool, univ3PoolNormalize } from '@kyber/schema'
 import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3'
 import { Bound, LiquidityChartRangeInput, MIN_PRICE } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
-import { rgba } from 'polished'
 import { useCallback, useMemo } from 'react'
-import styled, { keyframes } from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
+import { cn } from 'utils/cn'
 import { toString } from 'utils/numbers'
 
 const parseChartPrice = (value: string | null) => {
@@ -14,44 +13,14 @@ const parseChartPrice = (value: string | null) => {
   return parseFloat(value.replace(/,/g, ''))
 }
 
-const shimmer = keyframes`
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-`
-
-const Bar = styled.div<{ $height: number }>`
-  position: relative;
-  flex: 1 1 0;
-  min-width: 2px;
-  max-width: 8px;
-  height: ${({ $height }) => $height}%;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  background: ${({ theme }) => theme.tabActive};
-  overflow: hidden;
-`
-
-const Shimmer = styled.div`
-  position: absolute;
-  inset: 0;
-  background: ${({ theme }) =>
-    `linear-gradient(90deg, ${rgba(theme.text, 0)} 0%, ${rgba(theme.text, 0.12)} 50%, ${rgba(theme.text, 0)} 100%)`};
-  opacity: 0.6;
-  animation: ${shimmer} 1.8s linear infinite;
-`
-
-const ChartWrapper = styled.div<{ $disableBrush?: boolean }>`
-  ${({ $disableBrush }) =>
-    $disableBrush
-      ? `
-      .overlay,
-      .selection,
-      .handle {
-        pointer-events: none;
-        cursor: default;
-      }`
-      : ''}
-`
+const Bar = ({ height }: { height: number }) => (
+  <div
+    className="relative h-full min-w-[2px] max-w-[8px] flex-1 overflow-hidden rounded-t bg-tabActive"
+    style={{ height: `${height}%` }}
+  >
+    <div className="absolute inset-0 animate-[ks-shimmer-x_1.8s_linear_infinite] bg-gradient-to-r from-transparent via-text-12 to-transparent opacity-60" />
+  </div>
+)
 
 interface LiquidityChartProps {
   pool: Pool
@@ -69,12 +38,10 @@ export const LiquidityChartSkeleton = () => {
   const barHeights = [15, 20, 5, 10, 15, 30, 10, 15, 60, 70, 85, 90, 100, 70, 80, 40, 55, 60, 15, 20, 25, 15, 10, 5]
 
   return (
-    <Stack height="224px">
-      <HStack align="flex-end" justify="center" width="100%" height="100%" gap={4} p="8px">
+    <Stack className="h-56">
+      <HStack className="size-full items-end justify-center gap-1 p-2">
         {barHeights.map((height, index) => (
-          <Bar $height={height * 0.8} key={index}>
-            <Shimmer />
-          </Bar>
+          <Bar height={height * 0.8} key={index} />
         ))}
       </HStack>
     </Stack>
@@ -222,7 +189,12 @@ const LiquidityChart = ({
   }
 
   return (
-    <ChartWrapper $disableBrush={isFullRange}>
+    <div
+      className={cn(
+        isFullRange &&
+          '[&_.handle]:pointer-events-none [&_.handle]:cursor-default [&_.overlay]:pointer-events-none [&_.overlay]:cursor-default [&_.selection]:pointer-events-none [&_.selection]:cursor-default',
+      )}
+    >
       <LiquidityChartRangeInput
         id="pool-detail-add-liquidity-chart"
         pool={{
@@ -251,7 +223,7 @@ const LiquidityChart = ({
           gap: '8px',
         }}
       />
-    </ChartWrapper>
+    </div>
   )
 }
 

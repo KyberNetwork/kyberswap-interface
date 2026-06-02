@@ -1,22 +1,12 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { ReactNode, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { NavLink } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
-
-const Title = styled.span`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${({ theme }) => theme.text};
-  max-width: calc(100% - 20px - 8px);
-`
+import { cn } from 'utils/cn'
 
 enum Panel {
   Q_Join,
@@ -38,65 +28,30 @@ type PanelProps = {
 }
 
 const DetailPanel: React.FC<PanelProps> = ({ isExpanded, title, content, toggleExpand }) => {
-  const theme = useTheme()
-
   return (
     <>
-      <Flex
-        role="button"
-        onClick={() => {
-          toggleExpand()
-        }}
-        sx={{
-          height: '56px',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          cursor: 'pointer',
-        }}
-      >
-        <Title>{title}</Title>
+      <div role="button" onClick={toggleExpand} className="flex h-14 cursor-pointer items-center justify-between">
+        <span className="max-w-[calc(100%-20px-8px)] text-base font-medium leading-5 text-text">{title}</span>
 
-        <Flex
+        <div
           role="button"
           onClick={toggleExpand}
-          sx={{
-            width: '20px',
-            height: '20px',
-            cursor: 'pointer',
-            transition: 'all 150ms linear',
-            transform: isExpanded ? 'rotate(180deg)' : undefined,
-          }}
+          className={cn(
+            'flex size-5 cursor-pointer transition-all duration-150 ease-linear',
+            isExpanded && 'rotate-180',
+          )}
         >
-          <ChevronDown size="20" color={theme.text} />
-        </Flex>
-      </Flex>
+          <ChevronDown size="20" className="text-text" />
+        </div>
+      </div>
 
-      {isExpanded && (
-        <Text fontSize={14} marginBottom="16px" lineHeight="20px" color={theme.text}>
-          {content}
-        </Text>
-      )}
+      {isExpanded && <div className="mb-4 text-sm leading-5 text-text">{content}</div>}
     </>
   )
 }
 
-const DetailsContainer = styled.div`
-  padding: 16px 24px;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-  background: ${({ theme }) => rgba(theme.background, 0.8)};
-  border-radius: 20px;
-`
-
-const Separator = styled.div`
-  width: 100%;
-  height: 0;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  margin: 8px 0;
-`
-
 const FAQ: React.FC = () => {
+  const theme = useTheme()
   const [expandedPanel, setExpandedPanel] = useState<Panel | undefined>()
 
   const handleToggleExpand = (panel?: Panel) => {
@@ -107,8 +62,10 @@ const FAQ: React.FC = () => {
     }
   }
 
+  const Separator = () => <div className="my-2 h-0 w-full border-b border-solid border-border" />
+
   return (
-    <DetailsContainer>
+    <div className="flex h-fit flex-col rounded-[20px] px-6 py-4" style={{ background: `${theme.background}cc` }}>
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_Join)}
         isExpanded={expandedPanel === Panel.Q_Join}
@@ -197,7 +154,7 @@ const FAQ: React.FC = () => {
           <Trans>Each user wallet address is eligible for gas refund of up to $200 within two epoch cycles.</Trans>
         }
       />
-    </DetailsContainer>
+    </div>
   )
 }
 

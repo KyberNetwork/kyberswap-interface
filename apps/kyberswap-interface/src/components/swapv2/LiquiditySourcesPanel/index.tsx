@@ -2,83 +2,55 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import Checkbox from 'components/CheckBox'
+import { LiquiditySourceGroup } from 'components/swapv2/LiquiditySourcesPanel/Group'
+import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
+import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-
-import { LiquiditySourceGroup } from './Group'
-import SearchBar from './SearchBar'
-import { ImageWrapper, Source, SourceName } from './styles'
+import { cn } from 'utils/cn'
 
 type Props = {
   onBack: () => void
   chainId?: ChainId
 }
 
-export const BackIconWrapper = styled(ArrowLeft)`
-  height: 20px;
-  width: 20px;
-  margin-right: 10px;
-  cursor: pointer;
-  path {
-    stroke: ${({ theme }) => theme.text} !important;
-  }
-`
+export const BackIconWrapper: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...rest }) => (
+  <ArrowLeft {...rest} className={cn('mr-[10px] size-5 cursor-pointer [&_path]:!stroke-text', className)} />
+)
 
-const BackText = styled.span`
-  font-size: 18px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
+export const SourceList: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...rest }) => (
+  <div
+    {...rest}
+    className={cn(
+      'flex h-[300px] max-h-[300px] w-full flex-col gap-y-6 overflow-x-hidden overflow-y-scroll',
+      '[&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:rounded-[999px]',
+      '[&::-webkit-scrollbar-track]:rounded-[999px] [&::-webkit-scrollbar-track]:bg-transparent',
+      '[&::-webkit-scrollbar-thumb]:rounded-[999px] [&::-webkit-scrollbar-thumb]:bg-disableText',
+      className,
+    )}
+  >
+    {children}
+  </div>
+)
 
-export const SourceList = styled.div`
-  width: 100%;
-  height: 300px;
-  max-height: 300px;
-  overflow-y: scroll;
-  overflow-x: hidden;
-
-  display: flex;
-  flex-direction: column;
-  row-gap: 24px;
-
-  /* width */
-  ::-webkit-scrollbar {
-    display: unset;
-    width: 8px;
-    border-radius: 999px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 999px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.disableText};
-    border-radius: 999px;
-  }
-`
-
-export const LiquiditySourceHeader = styled.div`
-  border-top-right-radius: 8px;
-  border-top-left-radius: 8px;
-  background: ${({ theme }) => theme.tableHeader};
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 12px;
-  color: ${({ theme }) => theme.subText};
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-`
+export const LiquiditySourceHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
+  children,
+  ...rest
+}) => (
+  <div
+    {...rest}
+    className={cn(
+      'flex items-center gap-4 rounded-t-lg bg-tableHeader p-3 text-xs font-medium uppercase text-subText',
+      className,
+    )}
+  >
+    {children}
+  </div>
+)
 
 const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
   const [searchText, setSearchText] = useState('')
@@ -131,24 +103,12 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
   }
 
   return (
-    <Box width="100%">
-      <Flex
-        width={'100%'}
-        flexDirection={'column'}
-        sx={{
-          rowGap: '20px',
-        }}
-      >
-        <Flex
-          alignItems="center"
-          sx={{
-            // this is to make the arrow stay exactly where it stays in Swap panel
-            marginTop: '5px',
-          }}
-        >
-          <BackIconWrapper onClick={onBack}></BackIconWrapper>
-          <BackText>{t`Liquidity Sources`}</BackText>
-        </Flex>
+    <div className="w-full">
+      <div className="flex w-full flex-col gap-y-5">
+        <div className="mt-[5px] flex items-center">
+          <BackIconWrapper onClick={onBack} />
+          <span className="text-lg font-medium text-text">{t`Liquidity Sources`}</span>
+        </div>
 
         <SearchBar text={searchText} setText={setSearchText} />
 
@@ -163,9 +123,9 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
               }
             }}
           />
-          <Text>
+          <span>
             <Trans>Liquidity Sources</Trans>
-          </Text>
+          </span>
         </LiquiditySourceHeader>
 
         <SourceList>
@@ -187,8 +147,8 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
               </Source>
             ))}
         </SourceList>
-      </Flex>
-    </Box>
+      </div>
+    </div>
   )
 }
 

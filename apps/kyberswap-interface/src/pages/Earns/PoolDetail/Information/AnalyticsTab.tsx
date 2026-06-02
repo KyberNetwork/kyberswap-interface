@@ -7,7 +7,7 @@ const AnalyticsTab = () => {
   const { chainId, poolAddress } = usePoolDetailContext()
 
   return (
-    <Stack gap={20}>
+    <Stack className="gap-5">
       <PoolPriceChart chainId={chainId} poolAddress={poolAddress} />
 
       <LiquidityFlowsChart chainId={chainId} poolAddress={poolAddress} />

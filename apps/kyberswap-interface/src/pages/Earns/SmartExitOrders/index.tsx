@@ -1,18 +1,15 @@
 import TokenSelectorModal, { EarnPosition } from '@kyber/token-selector'
 import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
-import { rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import {
   useCancelSmartExitOrderMutation,
   useGetSmartExitCancelSignMessageMutation,
   useGetSmartExitOrdersQuery,
 } from 'services/smartExit'
-import styled from 'styled-components'
 
 import { ReactComponent as IconListSmartExit } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
@@ -23,7 +20,6 @@ import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { NavigateButton, PoolPageWrapper, StyledNavigateButton, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
@@ -38,82 +34,23 @@ import { OrderStatus, ParsedPosition, SmartExitOrder, UserPosition } from 'pages
 import { parsePosition } from 'pages/Earns/utils/position'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: ${ORDERS_TABLE_GRID_COLUMNS};
-  color: ${({ theme }) => theme.subText};
-  padding: 16px 0;
-  gap: 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-`
-
-const OrderListWrapper = styled.div<{ $showLastBorder?: boolean }>`
-  & > * {
-    border-bottom: 1px solid ${({ theme }) => theme.border};
-  }
-
-  ${({ $showLastBorder }) =>
-    !$showLastBorder &&
-    `
-    & > :last-child {
-      border-bottom: none;
-    }
-  `}
-`
-
-const EmptyStateWrapper = styled(Flex)`
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  gap: 16px;
-`
-
-const SetUpButtonOutline = styled(StyledNavigateButton)`
-  background-color: transparent;
-  border: 1px solid ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.primary};
-
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
-  }
-`
-
-const EmptyStateButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 18px;
-  border-radius: 16px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-`
-
-const MyPositionsButton = styled(EmptyStateButton)`
-  background-color: ${({ theme }) => rgba(theme.white, 0.08)};
-  color: ${({ theme }) => rgba(theme.white, 0.7)};
-`
-
-const SetUpSmartExitButton = styled(EmptyStateButton)`
-  background-color: ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.textReverse};
-
-  :hover {
-    filter: brightness(0.9);
-  }
-`
+const TableHeader = ({ children }: { children: React.ReactNode }) => (
+  <div
+    className="grid gap-4 border-b border-border py-4 text-subText"
+    style={{ gridTemplateColumns: ORDERS_TABLE_GRID_COLUMNS }}
+  >
+    {children}
+  </div>
+)
 
 const SMART_EXIT_ORDERS_PAGE_SIZE = 10
 
 const SmartExit = () => {
-  const theme = useTheme()
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
   const notify = useNotify()
@@ -263,89 +200,98 @@ const SmartExit = () => {
     [overlayLoading],
   )
 
-  const overlayBackgroundColor = useMemo(
-    () => (overlayLoading ? rgba(theme.black, 0.4) : rgba(theme.black, 0)),
-    [overlayLoading, theme.black],
-  )
-
   return (
     <PoolPageWrapper>
-      <Flex alignItems="center" justifyContent="space-between" flexWrap={'wrap'} sx={{ gap: 2 }}>
-        <Flex alignItems="center" sx={{ gap: 3 }}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-4">
           <IconArrowLeft onClick={() => navigate(-1)} />
-          <Text as="h1" fontSize={24} fontWeight="500">
+          <h1 className="text-2xl font-medium">
             <Trans>Smart Exit Orders</Trans>
-          </Text>
-        </Flex>
+          </h1>
+        </div>
         <NavigateButton
           mobileFullWidth
           icon={<IconUserEarnPosition />}
           text={t`My Positions`}
           to={APP_PATHS.EARN_POSITIONS}
         />
-      </Flex>
+      </div>
 
-      <Flex alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={{ gap: '12px' }}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Filter filters={filters} updateFilters={updateFilters} />
-        <SetUpButtonOutline onClick={handleOpenTokenSelector}>
+        <StyledNavigateButton
+          onClick={handleOpenTokenSelector}
+          className="border border-primary bg-transparent text-primary hover:bg-primary/10 hover:brightness-100"
+        >
           <Trans>Set Up Smart Exit</Trans>
-        </SetUpButtonOutline>
-      </Flex>
+        </StyledNavigateButton>
+      </div>
 
       <TableWrapper style={tableWrapperStyle}>
         {!upToMedium && (
           <TableHeader>
-            <Text>#</Text>
-            <Text>
+            <span>#</span>
+            <span>
               <Trans>Position</Trans>
-            </Text>
-            <Text>
+            </span>
+            <span>
               <Trans>Condition(s)</Trans>
-            </Text>
-            <Text textAlign="left" lineHeight="1.45">
+            </span>
+            <span className="text-left leading-[1.45]">
               <Trans>
                 Est. liquidity & <br /> earned fee
               </Trans>
-            </Text>
-            <Text textAlign="left" lineHeight="1.45">
+            </span>
+            <span className="text-left leading-[1.45]">
               <Trans>
                 Received <br /> amount
               </Trans>
-            </Text>
-            <Text textAlign="left">
+            </span>
+            <span className="text-left">
               <Trans>Max gas</Trans>
-            </Text>
-            <Text textAlign="left">
+            </span>
+            <span className="text-left">
               <Trans>Status</Trans>
-            </Text>
+            </span>
             <div></div>
           </TableHeader>
         )}
 
         {tableLoading ? (
-          <Flex justifyContent="center" padding="20px">
+          <div className="flex justify-center p-5">
             <LocalLoader />
-          </Flex>
+          </div>
         ) : shouldShowEmptyState ? (
-          <EmptyStateWrapper>
+          <div className="flex flex-col items-center justify-center gap-4 px-5 py-[60px]">
             <IconListSmartExit width={80} height={80} color="#134E4B" />
-            <Text color={theme.subText} fontSize={16} fontWeight={500} fontStyle="italic">
+            <span className="text-base font-medium italic text-subText">
               <Trans>No Smart Exit orders yet</Trans>
-            </Text>
-            <Text color={theme.gray} fontSize={14} textAlign="center" fontStyle="italic">
+            </span>
+            <span className="text-center text-sm italic text-gray">
               <Trans>Automate your exit by setting conditions based on price, time, or earnings.</Trans>
-            </Text>
-            <Flex sx={{ gap: '12px' }} marginTop="8px">
-              <MyPositionsButton onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}>
+            </span>
+            <div className="mt-2 flex gap-3">
+              <button
+                onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}
+                className="flex cursor-pointer items-center justify-center rounded-2xl border-0 bg-white/[0.08] px-[18px] py-2.5 text-sm font-medium text-white/70 transition-all duration-200"
+              >
                 <Trans>My Positions</Trans>
-              </MyPositionsButton>
-              <SetUpSmartExitButton onClick={handleOpenTokenSelector}>
+              </button>
+              <button
+                onClick={handleOpenTokenSelector}
+                className="flex cursor-pointer items-center justify-center rounded-2xl border-0 bg-primary px-[18px] py-2.5 text-sm font-medium text-textReverse transition-all duration-200 hover:brightness-90"
+              >
                 <Trans>Set Up Smart Exit</Trans>
-              </SetUpSmartExitButton>
-            </Flex>
-          </EmptyStateWrapper>
+              </button>
+            </div>
+          </div>
         ) : (
-          <OrderListWrapper $showLastBorder={totalItems > SMART_EXIT_ORDERS_PAGE_SIZE}>
+          <div
+            className={cn(
+              '[&>*]:border-b [&>*]:border-border',
+              totalItems <= SMART_EXIT_ORDERS_PAGE_SIZE && '[&>:last-child]:border-b-0',
+            )}
+          >
             {renderedOrders.map((order, index) => (
               <OrderItem
                 key={order.id}
@@ -355,12 +301,15 @@ const SmartExit = () => {
                 onDelete={handleDeleteRequest}
               />
             ))}
-          </OrderListWrapper>
+          </div>
         )}
 
-        <Flex justifyContent="center" alignItems="center" backgroundColor={overlayBackgroundColor} sx={overlayStyle}>
+        <div
+          className="flex items-center justify-center"
+          style={{ ...overlayStyle, backgroundColor: overlayLoading ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)' }}
+        >
           <LocalLoader />
-        </Flex>
+        </div>
 
         <Pagination
           onPageChange={handlePageChange}
@@ -372,15 +321,15 @@ const SmartExit = () => {
       </TableWrapper>
 
       <Modal isOpen={!!showCancelConfirm} onDismiss={handleDismissModal}>
-        <Flex width="100%" flexDirection="column" padding="20px" sx={{ gap: '24px' }}>
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize={20} fontWeight={500}>
+        <div className="flex w-full flex-col gap-6 p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-xl font-medium">
               <Trans>Removing a Smart Exit</Trans>
-            </Text>
+            </span>
             <X onClick={handleDismissModal} />
-          </Flex>
+          </div>
           <Trans>Are you sure you want to remove this Smart Exit?</Trans>
-          <Flex sx={{ gap: '1rem' }}>
+          <div className="flex gap-4">
             <ButtonOutlined onClick={handleDismissModal}>
               <Trans>Cancel</Trans>
             </ButtonOutlined>
@@ -393,8 +342,8 @@ const SmartExit = () => {
                 <Trans>Remove</Trans>
               )}
             </ButtonPrimary>
-          </Flex>
-        </Flex>
+          </div>
+        </div>
       </Modal>
 
       {showTokenSelector && (

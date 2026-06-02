@@ -1,10 +1,8 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
-import { Flex } from 'rebass'
 
+import { Chain, Currency } from 'pages/CrossChainSwap/adapters'
+import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
 import { getNativeTokenLogo, isEvmChain } from 'utils'
-
-import { Chain, Currency } from '../adapters'
-import { getNetworkInfo } from '../utils'
 
 export const TokenLogoWithChain = ({
   currency,
@@ -18,7 +16,7 @@ export const TokenLogoWithChain = ({
   chainLogoStyle?: React.CSSProperties
 }) => {
   return (
-    <Flex sx={{ position: 'relative', marginRight: '4px' }}>
+    <div className="relative mr-1 flex">
       {isEvmChain(chainId) ? (
         <img
           src={
@@ -26,30 +24,19 @@ export const TokenLogoWithChain = ({
           }
           width={size}
           height={size}
-          style={{ borderRadius: '50%' }}
+          className="rounded-full"
           alt={currency?.symbol}
         />
       ) : (
-        <img
-          src={(currency as any)?.logo}
-          width={size}
-          height={size}
-          style={{ borderRadius: '50%' }}
-          alt={currency?.symbol}
-        />
+        <img src={(currency as any)?.logo} width={size} height={size} className="rounded-full" alt={currency?.symbol} />
       )}
       <img
         src={getNetworkInfo(chainId).icon}
         width={size / 2 + 'px'}
         height={size / 2 + 'px'}
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: '-4px',
-          borderRadius: '50%',
-          ...chainLogoStyle,
-        }}
+        className="absolute right-[-4px] top-0 rounded-full"
+        style={chainLogoStyle}
       />
-    </Flex>
+    </div>
   )
 }

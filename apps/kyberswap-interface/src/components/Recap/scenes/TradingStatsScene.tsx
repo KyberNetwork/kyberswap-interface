@@ -1,5 +1,4 @@
 import { memo } from 'react'
-import { Flex } from 'rebass'
 
 import candleChart from 'assets/recap/candle-chart.svg'
 import {
@@ -43,10 +42,10 @@ function TradingStatsScene({ tradingVolume, txCount }: TradingStatsSceneProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.7, ease: 'easeOut' }}
         >
-          <Flex alignItems="flex-end" sx={{ gap: '6px' }}>
+          <div className="flex items-end gap-1.5">
             <TradingStatLabel>Executed</TradingStatLabel>
             <TradingStatValue2>{txCount.toLocaleString()}</TradingStatValue2>
-          </Flex>
+          </div>
           <TradingStatLabel2>specific trades</TradingStatLabel2>
         </TradingStatLine2>
       </TradingStatsTextWrapper>
@@ -63,7 +62,7 @@ function TradingStatsScene({ tradingVolume, txCount }: TradingStatsSceneProps) {
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}
           transition={{ delay: 1.4, duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-          style={{ transformOrigin: 'bottom' }}
+          className="origin-bottom"
         />
       </CandlestickChartWrapper>
     </TradingStatsContainer>

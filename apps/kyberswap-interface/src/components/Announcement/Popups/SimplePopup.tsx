@@ -1,8 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
@@ -11,10 +9,7 @@ import IconFailure from 'components/Icons/Failed'
 import WarningIcon from 'components/Icons/WarningIcon'
 import { AutoRow } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-
-const RowNoFlex = styled(AutoRow)`
-  flex-wrap: nowrap;
-`
+import { cn } from 'utils/cn'
 
 export type SimplePopupProps = {
   title: string
@@ -41,6 +36,8 @@ export default function SimplePopup({
     [NotificationType.ERROR]: theme.red,
   }
   const color = mapColor[type]
+  const colorClass =
+    type === NotificationType.SUCCESS ? 'text-primary' : type === NotificationType.WARNING ? 'text-warning' : 'text-red'
   const mapIcon = {
     [NotificationType.SUCCESS]: <CheckCircle color={color} size={'20px'} />,
     [NotificationType.WARNING]: <WarningIcon solid color={color} />,
@@ -53,23 +50,17 @@ export default function SimplePopup({
     onRemove?.()
   }
   return (
-    <RowNoFlex>
-      <div style={{ paddingRight: 10 }}>{icon || mapIcon[type]}</div>
-      <AutoColumn gap="8px">
-        <Text fontSize="16px" fontWeight={500} color={color}>
-          {title}
-        </Text>
-        {summary && (
-          <Text fontSize="14px" fontWeight={400} color={theme.text}>
-            {summary}
-          </Text>
-        )}
+    <AutoRow className="flex-nowrap">
+      <div className="pr-2.5">{icon || mapIcon[type]}</div>
+      <AutoColumn className="gap-2">
+        <span className={cn('text-base font-medium', colorClass)}>{title}</span>
+        {summary && <span className="text-sm font-normal text-text">{summary}</span>}
         {link && (
-          <Text style={{ color, fontSize: 14, fontWeight: '500', cursor: 'pointer' }} onClick={onClickLink}>
+          <span className={cn('cursor-pointer text-sm font-medium', colorClass)} onClick={onClickLink}>
             <Trans>See here</Trans>
-          </Text>
+          </span>
         )}
       </AutoColumn>
-    </RowNoFlex>
+    </AutoRow>
   )
 }

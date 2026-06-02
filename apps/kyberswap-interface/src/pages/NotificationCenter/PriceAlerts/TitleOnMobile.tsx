@@ -1,13 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
-import useTheme from 'hooks/useTheme'
 import CreateAlertButton from 'pages/NotificationCenter/PriceAlerts/CreateAlertButton'
 import { MEDIA_WIDTHS } from 'theme'
 
 const TitleOnMobile = () => {
-  const theme = useTheme()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   if (!upToMedium) {
@@ -15,19 +12,13 @@ const TitleOnMobile = () => {
   }
 
   return (
-    <Flex
-      padding="0 16px"
-      backgroundColor={theme.tableHeader}
-      height="60px"
-      alignItems="center"
-      justifyContent="space-between"
-    >
-      <Text as="span" fontWeight={500} color={theme.text}>
+    <div className="flex h-[60px] items-center justify-between bg-tableHeader px-4">
+      <span className="font-medium text-text">
         <Trans>Price Alert</Trans>
-      </Text>
+      </span>
 
       <CreateAlertButton />
-    </Flex>
+    </div>
   )
 }
 

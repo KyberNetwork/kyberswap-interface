@@ -1,72 +1,8 @@
 import { useMemo } from 'react'
-import { Box, Text } from 'rebass'
-import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const PoolPriceChartWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin-bottom: 6px;
-  `}
-`
-
-const PoolPriceChartContainer = styled.div`
-  position: relative;
-  height: 30px;
-  width: 100%;
-`
-
-const PoolPriceBar = styled.div`
-  height: 4px;
-  width: 100%;
-  background: ${({ theme }) => theme.border};
-  border-radius: 4px;
-  position: absolute;
-  bottom: 0;
-  overflow: hidden;
-`
-
-const PoolPriceRangeHighlight = styled.div<{ $left: number; $width: number; $color: string }>`
-  position: absolute;
-  top: 0;
-  height: 100%;
-  left: ${({ $left }) => $left}%;
-  width: ${({ $width }) => $width}%;
-  background: ${({ $color }) => $color};
-  opacity: 0.5;
-`
-
-const CurrentPriceLabel = styled.div<{ $left: number; $alignLeft?: boolean }>`
-  position: absolute;
-  bottom: 18px;
-  left: ${({ $left }) => $left}%;
-  transform: ${({ $alignLeft }) =>
-    $alignLeft === undefined ? 'translateX(-50%)' : $alignLeft ? 'translateX(-100%)' : 'translateX(0)'};
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  white-space: nowrap;
-`
-
-const TargetPriceLabel = styled.div<{ $left: number; $alignLeft: boolean }>`
-  position: absolute;
-  bottom: 11px;
-  left: ${({ $left }) => $left}%;
-  transform: ${({ $alignLeft }) => ($alignLeft ? 'translateX(calc(-100% - 10px))' : 'translateX(10px)')};
-  font-size: 12px;
-  color: ${({ theme }) => theme.text};
-  white-space: nowrap;
-`
-
-/**
- * Generates an SVG path for a brush-style handle with an oval top and straight stem.
- * Used for the target price indicator on the chart.
- */
 const brushHandlePath = (height: number): string => {
   return [
     `M 0.5 0`,
@@ -95,7 +31,6 @@ const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProp
   const { currentPricePosition, targetPricePosition, highlightLeft, highlightWidth, positionsTooClose } =
     useMemo(() => {
       if (currentPrice === undefined) {
-        // When no current price, show target in middle with highlight from edge
         return {
           currentPricePosition: undefined,
           targetPricePosition: 50,
@@ -105,9 +40,7 @@ const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProp
         }
       }
 
-      // Calculate range: use current price and target price to define the visible range
       const priceDiff = Math.abs(targetPrice - currentPrice)
-      // Use minimum padding to avoid overlapping indicators when prices are very close
       const padding = Math.max(priceDiff * 0.5, targetPrice * 0.01)
       const minP = Math.min(currentPrice, targetPrice) - padding
       const maxP = Math.max(currentPrice, targetPrice) + padding
@@ -119,11 +52,9 @@ const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProp
       const clampedCurrentPos = Math.max(5, Math.min(95, currentPos))
       const clampedTargetPos = Math.max(5, Math.min(95, targetPos))
 
-      // Calculate highlight: from left edge to target (lte) or from target to right edge (gte)
       const hlLeft = isLte ? 0 : clampedTargetPos
       const hlWidth = isLte ? clampedTargetPos : 100 - clampedTargetPos
 
-      // Check if positions are too close (within 15% of each other)
       const positionsTooClose = Math.abs(clampedCurrentPos - clampedTargetPos) < 15
 
       return {
@@ -135,98 +66,75 @@ const PoolPriceChart = ({ targetPrice, currentPrice, isLte }: PoolPriceChartProp
       }
     }, [currentPrice, targetPrice, isLte])
 
-  // Color logic: green (#31CB9E) for lte (≤), purple (#7289DA) for gte (≥) - matching price-slider
   const handleColor = isLte ? '#31CB9E' : '#7289DA'
 
+  let currentLabelTransform = 'translateX(-50%)'
+  if (currentPricePosition !== undefined && positionsTooClose) {
+    currentLabelTransform = currentPricePosition < targetPricePosition ? 'translateX(-100%)' : 'translateX(0)'
+  }
+
+  const targetAlignLeft = currentPricePosition !== undefined ? targetPricePosition < currentPricePosition : isLte
+  const targetLabelTransform = targetAlignLeft ? 'translateX(calc(-100% - 10px))' : 'translateX(10px)'
+
   return (
-    <PoolPriceChartWrapper>
-      <Text color={theme.subText} fontSize="12px" textAlign="left">
+    <div className="flex w-full flex-col gap-1 max-md:mb-1.5">
+      <span className="text-left text-xs text-subText">
         Pool Price is {isLte ? '≤' : '≥'}{' '}
-        <Text as="span" color={theme.text}>
-          {formatDisplayNumber(targetPrice, { significantDigits: 6 })}
-        </Text>
-      </Text>
-      <PoolPriceChartContainer>
-        {/* Current price label - positioned above current price indicator */}
-        {/* When too close to target, align to opposite side to avoid overlap */}
+        <span className="text-text">{formatDisplayNumber(targetPrice, { significantDigits: 6 })}</span>
+      </span>
+      <div className="relative h-[30px] w-full">
         {currentPricePosition !== undefined && currentPrice !== undefined && (
-          <CurrentPriceLabel
-            $left={currentPricePosition}
-            $alignLeft={positionsTooClose ? currentPricePosition < targetPricePosition : undefined}
+          <div
+            className="absolute bottom-[18px] whitespace-nowrap text-xs text-subText"
+            style={{ left: `${currentPricePosition}%`, transform: currentLabelTransform }}
           >
             {formatDisplayNumber(currentPrice, { significantDigits: 4 })}
-          </CurrentPriceLabel>
+          </div>
         )}
 
-        {/* Target price label - positioned beside handle (left if target < current, right otherwise) */}
-        <TargetPriceLabel
-          $left={targetPricePosition}
-          $alignLeft={currentPricePosition !== undefined ? targetPricePosition < currentPricePosition : isLte}
+        <div
+          className="absolute bottom-[11px] whitespace-nowrap text-xs text-text"
+          style={{ left: `${targetPricePosition}%`, transform: targetLabelTransform }}
         >
           {formatDisplayNumber(targetPrice, { significantDigits: 4 })}
-        </TargetPriceLabel>
+        </div>
 
-        {/* Track bar */}
-        <PoolPriceBar>
-          {/* Highlight range */}
-          <PoolPriceRangeHighlight $left={highlightLeft} $width={highlightWidth} $color={handleColor} />
-        </PoolPriceBar>
+        <div className="absolute bottom-0 h-1 w-full overflow-hidden rounded bg-border">
+          <div
+            className="absolute top-0 h-full opacity-50"
+            style={{ left: `${highlightLeft}%`, width: `${highlightWidth}%`, background: handleColor }}
+          />
+        </div>
 
-        {/* Target price handle (oval at top, straight stem - matches price-slider) */}
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: '-6px',
-            left: `${targetPricePosition}%`,
-            transform: 'translateX(-50%) scale(0.95)',
-            zIndex: 2,
-          }}
+        <div
+          className="absolute -bottom-1.5 z-[2]"
+          style={{ left: `${targetPricePosition}%`, transform: 'translateX(-50%) scale(0.95)' }}
         >
-          <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible', display: 'block' }}>
+          <svg width="22" height="35" viewBox="-11 0 22 35" className="block overflow-visible">
             <path d={brushHandlePath(35)} fill="transparent" stroke={handleColor} strokeWidth={1.5} />
           </svg>
-        </Box>
+        </div>
 
-        {/* Current price indicator (arrow style - centered on track, extends upward) */}
         {currentPricePosition !== undefined && (
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: '-6px',
-              left: `${currentPricePosition}%`,
-              transform: 'translateX(-50%)',
-              zIndex: 3,
-            }}
+          <div
+            className="absolute -bottom-1.5 z-[3]"
+            style={{ left: `${currentPricePosition}%`, transform: 'translateX(-50%)' }}
           >
-            {/* Vertical line with arrow head pointing down */}
-            <Box
-              sx={{
-                width: '2px',
-                height: '18px',
-                background: theme.subText,
-                borderRadius: '1px',
-                position: 'relative',
-              }}
-            >
-              {/* Arrow head */}
-              <Box
-                sx={{
-                  position: 'absolute',
+            <div className="relative h-[18px] w-0.5 rounded-[1px] bg-subText">
+              <div
+                className="absolute left-1/2 size-0 -translate-x-1/2"
+                style={{
                   top: '-5px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: 0,
-                  height: 0,
                   borderLeft: '5px solid transparent',
                   borderRight: '5px solid transparent',
                   borderTop: `5px solid ${theme.subText}`,
                 }}
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
         )}
-      </PoolPriceChartContainer>
-    </PoolPriceChartWrapper>
+      </div>
+    </div>
   )
 }
 

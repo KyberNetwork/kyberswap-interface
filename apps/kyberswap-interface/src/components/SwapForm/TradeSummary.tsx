@@ -1,9 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
 import WarningIcon from 'components/Icons/WarningIcon'
@@ -14,43 +11,13 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
 import { BIPS_BASE } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink, TYPE } from 'theme'
+import { ExternalLink } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp } from 'utils'
+import { cn } from 'utils/cn'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
-
-type WrapperProps = {
-  $visible: boolean
-  $disabled: boolean
-}
-
-const Wrapper = styled.div.attrs<WrapperProps>(props => ({
-  'data-visible': props.$visible,
-  'data-disabled': props.$disabled,
-}))<WrapperProps>`
-  display: none;
-  padding: 0;
-  width: 100%;
-  max-width: 425px;
-  border-radius: 16px;
-  max-height: 0;
-  transition: height 300ms ease-in-out, transform 300ms;
-  border: 1px solid ${({ theme }) => theme.border};
-  overflow: hidden;
-
-  &[data-visible='true'] {
-    display: block;
-    padding: 12px 12px;
-    max-height: max-content;
-    color: ${({ theme }) => theme.text};
-  }
-
-  &[data-disabled='true'] {
-    color: ${({ theme }) => theme.subText};
-  }
-`
 
 type TooltipTextOfSwapFeeProps = {
   feeBips: string | undefined
@@ -104,7 +71,6 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
 
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
   const labelColor = isFeeTampered ? theme.warning : theme.subText
-  const valueColor = isFeeTampered ? theme.warning : theme.text
 
   return (
     <RowBetween>
@@ -113,12 +79,12 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
           <MouseoverTooltip
             text={
               isInSafeApp ? (
-                <Text>
+                <span>
                   Learn more about the Platform Fee{' '}
                   <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-widget/widget-iframe-fee">
                     here ↗
                   </ExternalLink>
-                </Text>
+                </span>
               ) : (
                 <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
               )
@@ -131,9 +97,9 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
       </RowFixed>
 
       <RowFixed>
-        <TYPE.black color={valueColor} fontSize={12}>
+        <p className={cn('m-0 text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>
           {isInSafeApp ? '0.1%' : feeAmountUsd || feeAmountWithSymbol || '--'}
-        </TYPE.black>
+        </p>
       </RowFixed>
     </RowBetween>
   )
@@ -155,7 +121,6 @@ const TradeSummary: React.FC<Props> = ({
   routeLoading,
   isFeeTampered,
 }) => {
-  const theme = useTheme()
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact } = routeSummary || {}
   const hasTrade = !!routeSummary?.route
@@ -166,16 +131,9 @@ const TradeSummary: React.FC<Props> = ({
   const currencyOut = parsedAmountOut?.currency
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
-      <Text
-        as="span"
-        sx={{
-          color: theme.text,
-          fontWeight: '500',
-          whiteSpace: 'nowrap',
-        }}
-      >
+      <span className="whitespace-nowrap font-medium text-text">
         {formattedNum(minimumAmountOut.toSignificant(10), false, 10)} {currencyOut.symbol}
-      </Text>
+      </span>
     ) : (
       ''
     )
@@ -187,34 +145,43 @@ const TradeSummary: React.FC<Props> = ({
   }, [hasTrade])
 
   return (
-    <Wrapper $visible={alreadyVisible} $disabled={!hasTrade}>
-      <AutoColumn gap="0.75rem">
+    <div
+      data-visible={alreadyVisible}
+      data-disabled={!hasTrade}
+      className={cn(
+        'hidden w-full max-w-[425px] overflow-hidden rounded-2xl border border-solid border-border p-0 transition-[height,transform] duration-300 ease-in-out',
+        'max-h-0',
+        'data-[visible=true]:block data-[visible=true]:max-h-max data-[visible=true]:p-3 data-[visible=true]:text-text',
+        'data-[disabled=true]:text-subText',
+      )}
+    >
+      <AutoColumn className="gap-3">
         <RowBetween>
-          <Text fontSize={12} fontWeight={400} color={theme.subText}>
+          <span className="text-xs font-normal text-subText">
             <Trans>Rate</Trans>
-          </Text>
+          </span>
 
-          <Flex alignItems="center" sx={{ gap: '4px', my: -4 }}>
+          <div className="-my-1 flex items-center gap-1">
             <RefreshLoading
               refetchLoading={routeLoading}
               onRefresh={refreshCallback}
               disableRefresh={disableRefresh}
               clickable
             />
-            <TradePrice price={routeSummary?.executionPrice} color={theme.text} />
-          </Flex>
+            <TradePrice price={routeSummary?.executionPrice} className="text-text" />
+          </div>
         </RowBetween>
         <RowBetween>
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip
                 width="200px"
                 text={
                   <>
-                    <Text>
+                    <div>
                       <Trans>You will receive at least this amount, or your transaction will revert.</Trans>
-                    </Text>
-                    <Text>
+                    </div>
+                    <div>
                       <Trans>
                         Any{' '}
                         <a
@@ -226,7 +193,7 @@ const TradeSummary: React.FC<Props> = ({
                         </a>{' '}
                         will accrue to KyberSwap.
                       </Trans>
-                    </Text>
+                    </div>
                   </>
                 }
                 placement="right"
@@ -236,20 +203,18 @@ const TradeSummary: React.FC<Props> = ({
             </TextDashed>
           </RowFixed>
           <RowFixed>
-            <TYPE.black color={theme.text} fontSize={12}>
-              {minimumAmountOutStr || '--'}
-            </TYPE.black>
+            <p className="m-0 text-[12px] font-medium text-text">{minimumAmountOutStr || '--'}</p>
           </RowFixed>
         </RowBetween>
 
         <RowBetween>
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip
                 text={
                   <div>
                     <Trans>Estimated change in price due to the size of your transaction.</Trans>
-                    <Text fontSize={12}>
+                    <div className="text-xs">
                       <Trans>
                         Read more{' '}
                         <a
@@ -260,7 +225,7 @@ const TradeSummary: React.FC<Props> = ({
                           <b>here ↗</b>
                         </a>
                       </Trans>
-                    </Text>
+                    </div>
                   </div>
                 }
                 placement="right"
@@ -269,27 +234,22 @@ const TradeSummary: React.FC<Props> = ({
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
-          <TYPE.black
-            fontSize={12}
-            color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
+          <p
+            className={cn(
+              'm-0 text-[12px] font-medium',
+              priceImpactResult.isVeryHigh ? 'text-red' : priceImpactResult.isHigh ? 'text-warning' : 'text-text',
+            )}
           >
             {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
-          </TYPE.black>
+          </p>
         </RowBetween>
 
         <SwapFee isFeeTampered={isFeeTampered} />
 
         {isFeeTampered && (
-          <Flex
-            sx={{
-              borderRadius: '12px',
-              background: rgba(theme.warning, 0.3),
-              padding: '10px 12px',
-              gap: '8px',
-            }}
-          >
-            <WarningIcon color={theme.warning} size={16} />
-            <Text fontSize={12} flex={1}>
+          <div className="flex gap-2 rounded-xl bg-warning-30 px-3 py-2.5">
+            <WarningIcon className="text-warning" size={16} />
+            <span className="flex-1 text-xs">
               <Trans>
                 <b>Third-party fee detected</b>
                 <br />
@@ -297,11 +257,11 @@ const TradeSummary: React.FC<Props> = ({
                 not by KyberSwap. KyberSwap does not charge a flat fee for this trade by default. Please review your
                 browser extensions before proceeding.
               </Trans>
-            </Text>
-          </Flex>
+            </span>
+          </div>
         )}
       </AutoColumn>
-    </Wrapper>
+    </div>
   )
 }
 

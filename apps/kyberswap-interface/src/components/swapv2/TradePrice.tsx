@@ -1,15 +1,12 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { ReactNode, useState } from 'react'
+import { CSSProperties, ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
-import { Text } from 'rebass'
-import { CSSProperties } from 'styled-components'
 
-import useTheme from 'hooks/useTheme'
+import { Dots, StyledBalanceMaxMini } from 'components/swapv2/styleds'
+import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { Dots, StyledBalanceMaxMini } from './styleds'
 
 interface TradePriceProps {
   price: Price<Currency, Currency> | undefined
@@ -17,10 +14,10 @@ interface TradePriceProps {
   icon?: ReactNode
   style?: CSSProperties
   color?: string
+  className?: string
 }
 
-export default function TradePrice({ price, label, icon, style = {}, color }: TradePriceProps) {
-  const theme = useTheme()
+export default function TradePrice({ price, label, icon, style = {}, color, className }: TradePriceProps) {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
   try {
@@ -41,17 +38,14 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
     : `1 ${nativeBase?.symbol} = ${displayPrice} ${nativeQuote?.symbol}`
 
   return (
-    <Text
-      fontWeight={500}
-      fontSize={12}
-      color={color || theme.subText}
-      style={{ alignItems: 'center', display: 'flex', cursor: 'pointer', ...style }}
+    <span
+      className={cn('flex h-[22px] cursor-pointer items-center text-xs font-medium text-subText', className)}
+      style={color ? { color, ...style } : style}
       onClick={() => setShowInverted(!showInverted)}
-      height="22px"
     >
       {show ? (
         <>
-          {label && <>{label}&nbsp;</>} <Text color={color}>{value}</Text>
+          {label && <>{label}&nbsp;</>} <span style={color ? { color } : undefined}>{value}</span>
           <StyledBalanceMaxMini>{icon || <Repeat size={12} color={color} />}</StyledBalanceMaxMini>
         </>
       ) : (
@@ -59,6 +53,6 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
           <Trans>Calculating</Trans>
         </Dots>
       )}
-    </Text>
+    </span>
   )
 }

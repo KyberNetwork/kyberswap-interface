@@ -1,30 +1,18 @@
-import { rgba } from 'polished'
 import { AlertTriangle } from 'react-feather'
-import styled from 'styled-components'
 
-import useTheme from 'hooks/useTheme'
-
-const ZapErrorWrapper = styled.div<{ warning?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: ${({ theme, warning }) => rgba(warning ? theme.warning : theme.red, 0.35)};
-  padding: 1rem;
-  border-radius: 999px;
-  margin-bottom: 28px;
-  color: ${({ theme }) => theme.text};
-  font-size: 12px;
-  font-weight: 400;
-`
+import { cn } from 'utils/cn'
 
 const ZapError = ({ message, warning }: { message?: string; warning?: boolean }) => {
-  const theme = useTheme()
-
   return (
-    <ZapErrorWrapper warning={warning}>
-      <AlertTriangle color={warning ? theme.warning : theme.red} style={{ strokeWidth: 1.5 }} size={16} />
+    <div
+      className={cn(
+        'mb-7 flex items-center gap-2 rounded-full p-4 text-xs font-normal text-text',
+        warning ? 'bg-warning-35' : 'bg-red-35',
+      )}
+    >
+      <AlertTriangle className={warning ? 'text-warning' : 'text-red'} style={{ strokeWidth: 1.5 }} size={16} />
       {message}
-    </ZapErrorWrapper>
+    </div>
   )
 }
 

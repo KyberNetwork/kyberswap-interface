@@ -1,48 +1,45 @@
-import styled from 'styled-components'
+import { cn } from 'utils/cn'
 
-export const Table = styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-`
-export const Row = styled.div<{ $background?: string }>`
-  width: 100%;
-  height: 46px;
-  padding: 0 20px;
-  background: unset;
+const ROW_BASE_CLASS =
+  'grid h-[46px] w-full grid-cols-[2fr_1fr_1fr_1.5fr] items-center gap-x-4 border-t border-solid border-border bg-transparent px-5 max-md:grid-cols-[2fr_1fr_1fr_1fr] max-md:gap-x-2 max-[500px]:grid-cols-[1fr_1fr] [&[role=button]]:cursor-pointer'
 
-  display: grid;
-  align-items: center;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  column-gap: 16px;
-  border-top: 1px solid ${({ theme }) => theme.border};
+export const Table = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col', className)} {...rest}>
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    column-gap: 8px;
-  `}
+export const Row = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn(ROW_BASE_CLASS, className)} {...rest}>
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    grid-template-columns: 1fr 1fr;
-  `}
+export const TableHeader = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <Row className={cn('rounded-t-lg border-t-0 bg-background text-subText', className)} {...rest}>
+    {children}
+  </Row>
+)
 
-  &[role="button"] {
-    cursor: pointer;
-  }
-`
+export const TableRow = Row
 
-export const TableHeader = styled(Row)`
-  border-top: none;
-  background-color: ${({ theme }) => theme.background};
-  border-radius: 8px 8px 0px 0px;
-  color: ${({ theme }) => theme.subText};
-`
-export const TableRow = styled(Row)``
+export const Cell = ({
+  children,
+  className,
+  textAlign,
+  ...rest
+}: React.HTMLAttributes<HTMLSpanElement> & { textAlign?: 'left' | 'center' | 'right' }) => (
+  <span
+    className={cn(
+      'text-xs font-medium leading-4',
+      textAlign === 'center' && 'text-center',
+      textAlign === 'right' && 'text-right',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </span>
+)
 
-export const Cell = styled.span<{ textAlign?: 'left' | 'center' | 'right' }>`
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  text-align: ${({ textAlign }) => textAlign || 'left'};
-`
-export const HeaderCell = styled(Cell)``
+export const HeaderCell = Cell

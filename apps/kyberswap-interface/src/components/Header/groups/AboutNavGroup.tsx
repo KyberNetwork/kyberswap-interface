@@ -1,22 +1,12 @@
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
+import NavGroup from 'components/Header/groups/NavGroup'
+import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
-
-import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
-import NavGroup from './NavGroup'
-
-const AboutWrapper = styled.span`
-  display: inline-flex;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: none
-  `}
-`
 
 const AboutNavGroup = () => {
   const { pathname } = useLocation()
@@ -27,7 +17,7 @@ const AboutNavGroup = () => {
 
   if (upToSmall) return null
   return (
-    <AboutWrapper>
+    <span className="hidden xs:inline-flex">
       <NavGroup
         dropdownAlign={upToSmall ? 'right' : 'left'}
         isActive={isActive}
@@ -37,11 +27,7 @@ const AboutNavGroup = () => {
           </DropdownTextAnchor>
         }
         dropdownContent={
-          <Flex
-            sx={{
-              flexDirection: 'column',
-            }}
-          >
+          <div className="flex flex-col">
             <StyledNavLink id="about-kyberswap" to={`${APP_PATHS.ABOUT}/kyberswap`}>
               <Trans>KyberSwap</Trans>
             </StyledNavLink>
@@ -58,10 +44,10 @@ const AboutNavGroup = () => {
             >
               <Trans>Blog</Trans>
             </StyledNavExternalLink>
-          </Flex>
+          </div>
         }
       />
-    </AboutWrapper>
+    </span>
   )
 }
 

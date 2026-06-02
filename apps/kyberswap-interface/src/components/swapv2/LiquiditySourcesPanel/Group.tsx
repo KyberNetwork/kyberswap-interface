@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react'
 
 import Checkbox from 'components/CheckBox'
+import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-
-import { ImageWrapper, Source, SourceName } from './styles'
 
 export const LiquiditySourceGroup = ({
   tag,
@@ -75,7 +74,7 @@ export const LiquiditySourceGroup = ({
 
       {filteredDexes.map(({ name, logoURL, id }) => {
         return (
-          <Source key={name} style={{ padding: '12px 48px' }}>
+          <Source key={name} className="px-12 py-3">
             <Checkbox checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />
 
             <ImageWrapper>

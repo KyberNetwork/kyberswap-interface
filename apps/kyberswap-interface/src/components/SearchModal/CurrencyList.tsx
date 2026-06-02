@@ -1,95 +1,30 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { rgba } from 'polished'
 import React, { CSSProperties, ReactNode, memo, useCallback } from 'react'
 import { Info, Star, Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
-import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
-import { RowBetween, RowFixed } from 'components/Row'
+import ImportRow from 'components/SearchModal/ImportRow'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { formattedNum } from 'utils'
+import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { isTokenNative } from 'utils/tokenInfo'
 
-import ImportRow from './ImportRow'
-
-const StyledBalanceText = styled(Text)`
-  font-size: 16px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     font-size : 14px;
-  `}
-`
-
-const FavoriteButton = styled(Star)`
-  width: 20px;
-  height: 20px;
-  color: ${({ theme }) => theme.subText};
-
-  :hover {
-    color: ${({ theme }) => theme.primary};
-  }
-
-  &[data-active='true'] {
-    color: ${({ theme }) => theme.primary};
-    fill: currentColor;
-  }
-`
-
-const StyledInfo = styled(Info)`
-  color: ${({ theme }) => theme.subText};
-  :hover {
-    color: ${({ theme }) => theme.text};
-  }
-`
-
-const DeleteButton = styled(Trash)`
-  width: 16px;
-  height: 20px;
-  fill: currentColor;
-  color: ${({ theme }) => theme.subText};
-  :hover {
-    color: ${({ theme }) => theme.text};
-  }
-`
-
-const CurrencyRowWrapper = styled(RowBetween)<{ hoverColor?: string }>`
-  padding: 4px 20px;
-  height: 56px;
-  display: flex;
-  gap: 16px;
-  cursor: pointer;
-  border-radius: 8px;
-  &[data-selected='true'] {
-    background: ${({ theme }) => rgba(theme.bg6, 0.15)};
-  }
-
-  @media (hover: hover) {
-    :hover {
-      background: ${({ theme, hoverColor }) => hoverColor || theme.buttonBlack};
-    }
-  }
-`
-
 function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
-  return <StyledBalanceText title={balance.toExact()}>{balance.toSignificant(10)}</StyledBalanceText>
+  return (
+    <span className="text-base max-md:text-sm" title={balance.toExact()}>
+      {balance.toSignificant(10)}
+    </span>
+  )
 }
 
-const DescText = styled.div`
-  margin-left: 0;
-  font-size: 12px;
-  font-weight: 300;
-  color: ${({ theme }) => theme.subText};
-`
 export const getDisplayTokenInfo = (currency: Currency) => {
   return {
     symbol: isTokenNative(currency) ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
@@ -134,7 +69,6 @@ export function CurrencyRow({
   isFavorite?: boolean
   setTokenToShowInfo?: (t: Token) => void
 }) {
-  const theme = useTheme()
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
 
   const onClickRemove = (e: React.MouseEvent) => {
@@ -152,59 +86,79 @@ export function CurrencyRow({
   const { symbol } = getDisplayTokenInfo(currency)
 
   return (
-    <CurrencyRowWrapper
+    <div
       data-testid="token-item"
-      style={style}
-      hoverColor={hoverColor}
-      onClick={() => onSelect?.(currency)}
       data-selected={isSelected || otherSelected}
       role="button"
+      style={style}
+      onClick={() => onSelect?.(currency)}
+      onMouseEnter={e => {
+        if (hoverColor && window.matchMedia('(hover: hover)').matches) {
+          e.currentTarget.style.background = hoverColor
+        }
+      }}
+      onMouseLeave={e => {
+        if (hoverColor) {
+          e.currentTarget.style.background = ''
+        }
+      }}
+      className={cn(
+        'flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg px-5 py-1',
+        'data-[selected=true]:bg-bg6/15',
+        !hoverColor && '[@media(hover:hover)]:hover:bg-buttonBlack',
+      )}
     >
-      <Flex alignItems="center" style={{ gap: 8 }}>
+      <div className="flex items-center gap-2">
         <CurrencyLogo currency={currency} size={'24px'} />
-        <Column gap="2px">
-          <Text title={currency.name} fontWeight={500} data-testid="token-symbol">
+        <div className="flex flex-col gap-0.5">
+          <span title={currency.name} className="font-medium" data-testid="token-symbol">
             {customName || symbol}
-          </Text>
-          <DescText>{showImported ? balanceComponent : nativeCurrency?.name}</DescText>
-        </Column>
-      </Flex>
+          </span>
+          <div className="ml-0 text-xs font-light text-subText">
+            {showImported ? balanceComponent : nativeCurrency?.name}
+          </div>
+        </div>
+      </div>
 
-      <Column style={{ alignItems: 'flex-end', gap: 2 }}>
-        <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
+      <div className="flex flex-col items-end gap-0.5">
+        <div className="flex flex-shrink-0 items-center gap-[15px] justify-self-end">
           {showImported ? (
-            <DeleteButton onClick={onClickRemove} data-testid="button-remove-import-token" />
+            <Trash
+              onClick={onClickRemove}
+              data-testid="button-remove-import-token"
+              className="h-5 w-4 fill-current text-subText hover:text-text"
+            />
           ) : customBalance !== undefined ? (
             customBalance
           ) : (
             balanceComponent
           )}
           {showFavoriteIcon && (
-            <FavoriteButton
+            <Star
               onClick={e => handleClickFavorite?.(e, currency)}
               data-active={isFavorite}
               data-testid="button-favorite-token"
               role="button"
+              className="size-5 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
             />
           )}
           {setTokenToShowInfo && (
-            <StyledInfo
+            <Info
               role="button"
               onClick={e => {
                 e.stopPropagation()
                 setTokenToShowInfo(currency.wrapped)
               }}
               size={18}
+              className="text-subText hover:text-text"
             />
           )}
-        </RowFixed>
+        </div>
         {usdBalance !== undefined && !hideBalance && (
-          <Text fontSize={'12px'} color={theme.subText}>
-            {formattedNum(usdBalance + '', true)}
-          </Text>
+          <span className="text-xs text-subText">{formattedNum(usdBalance + '', true)}</span>
         )}
-      </Column>
-    </CurrencyRowWrapper>
+      </div>
+    </div>
   )
 }
 
@@ -322,7 +276,7 @@ function CurrencyList({
   const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
   return (
-    <div style={{ flex: 1 }}>
+    <div className="flex-1">
       <AutoSizer>
         {({ height, width }) => (
           <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>
@@ -339,9 +293,9 @@ function CurrencyList({
                 {({ index, style }: { index: number; style: CSSProperties }) => {
                   if (!isItemLoaded(index)) {
                     return (
-                      <Flex justifyContent={'center'} fontSize={13} marginBottom={10} style={style}>
-                        <Text>loading...</Text>
-                      </Flex>
+                      <div className="mb-2.5 flex justify-center text-[13px]" style={style}>
+                        <span>loading...</span>
+                      </div>
                     )
                   }
                   return (

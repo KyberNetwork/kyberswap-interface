@@ -1,9 +1,7 @@
 import Portal from '@reach/portal'
 import dayjs from 'dayjs'
 import { useId, useMemo, useRef } from 'react'
-import { Box, Text } from 'rebass'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts'
-import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -12,19 +10,6 @@ type SparklinePoint = {
   dateLabel: string
   value: number
 }
-
-const TooltipPill = styled.div<{ $left: number; $top: number }>`
-  position: fixed;
-  top: ${({ $top }) => `${$top}px`};
-  left: ${({ $left }) => `${$left}px`};
-  transform: translateX(-50%);
-  z-index: 999;
-  pointer-events: none;
-  background-color: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => theme.disableText};
-  border-radius: 20px;
-  padding: 4px 8px;
-`
 
 const SparklineTooltip = ({
   active,
@@ -37,7 +22,6 @@ const SparklineTooltip = ({
   container?: HTMLDivElement | null
   payload?: Array<{ payload?: SparklinePoint }>
 }) => {
-  const theme = useTheme()
   const point = payload?.[0]?.payload
 
   if (!active || !point || !coordinate || coordinate.x === undefined || coordinate.y === undefined || !container)
@@ -54,11 +38,14 @@ const SparklineTooltip = ({
 
   return (
     <Portal>
-      <TooltipPill $left={left} $top={top}>
-        <Text color={theme.subText} fontSize={11} sx={{ whiteSpace: 'nowrap' }}>
+      <div
+        style={{ top: `${top}px`, left: `${left}px` }}
+        className="pointer-events-none fixed z-[999] -translate-x-1/2 rounded-[20px] border border-solid border-disableText bg-background px-2 py-1"
+      >
+        <span className="whitespace-nowrap text-[11px] text-subText">
           {point.dateLabel} • {formatDisplayNumber(point.value, { significantDigits: 6 })}
-        </Text>
-      </TooltipPill>
+        </span>
+      </div>
     </Portal>
   )
 }
@@ -97,11 +84,20 @@ const SparklineChart = ({
     const today = dayjs()
     const totalPoints = normalizedSparkline.length
 
-    return normalizedSparkline.map((value, index) => ({
-      index,
-      dateLabel: today.subtract(totalPoints - 1 - index, 'day').format('MMM D'),
-      value: shouldInvert && value > 0 ? 1 / value : value,
-    }))
+    return (
+      normalizedSparkline
+        .map((value, index) => ({
+          index,
+          dateLabel: today.subtract(totalPoints - 1 - index, 'day').format('MMM D'),
+          value: shouldInvert && value > 0 ? 1 / value : value,
+        }))
+        // Drop non-finite values (NaN, ±Infinity) before recharts touches them.
+        // Recharts uses decimal.js internally to compute YAxis tick spacing and
+        // throws `[DecimalError] LN10 precision limit exceeded` when it tries to
+        // take `log()` of an infinite/NaN value — taking the whole /earn page
+        // down via the error boundary.
+        .filter(point => Number.isFinite(point.value))
+    )
   }, [normalizedSparkline, shouldInvert])
 
   const { domainMin, domainMax } = useMemo(() => {
@@ -131,7 +127,7 @@ const SparklineChart = ({
   const chartColor = lastValue < firstValue ? theme.red : theme.primary
 
   return (
-    <Box height={`${height}px`} width="100%" ref={containerRef}>
+    <div ref={containerRef} style={{ height: `${height}px` }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 0, right: 4, bottom: 0, left: 4 }}>
           <YAxis hide domain={[domainMin, domainMax]} />
@@ -168,7 +164,7 @@ const SparklineChart = ({
           />
         </AreaChart>
       </ResponsiveContainer>
-    </Box>
+    </div>
   )
 }
 

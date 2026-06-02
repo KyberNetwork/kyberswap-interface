@@ -1,144 +1,109 @@
-import React, { HTMLProps, useCallback } from 'react'
-import { ExternalLink as LinkIconFeather, X } from 'react-feather'
-import { Link } from 'react-router-dom'
-import styled, { css } from 'styled-components'
+import { cva } from 'class-variance-authority'
+import React, { CSSProperties, HTMLProps, useCallback } from 'react'
+import { IconProps, ExternalLink as LinkIconFeather, X } from 'react-feather'
+import { Link, LinkProps } from 'react-router-dom'
 
+import { cn } from 'utils/cn'
 import { navigateToUrl, validateRedirectURL } from 'utils/redirect'
 
-export const ButtonText = styled.button<{ color?: string; gap?: string }>`
-  outline: none;
-  border: none;
-  font-size: inherit;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  ${({ color }) =>
-    color &&
-    css`
-      color: ${color};
-    `}
-  ${({ gap }) =>
-    gap &&
-    css`
-      gap: ${gap};
-    `}
-  :hover {
-    opacity: 0.7;
-  }
-`
+type DivProps = React.HTMLAttributes<HTMLDivElement>
 
-export const CloseIcon = styled(X)<{ onClick?: () => void }>`
-  cursor: pointer;
+export function ButtonText({
+  color,
+  gap,
+  className,
+  style,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { color?: string; gap?: string }) {
+  const mergedStyle: CSSProperties = { ...style }
+  if (color) mergedStyle.color = color
+  if (gap) mergedStyle.gap = gap
+  return (
+    <button
+      type="button"
+      style={mergedStyle}
+      className={cn(
+        'm-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 text-inherit outline-none transition-all hover:opacity-70',
+        className,
+      )}
+      {...rest}
+    />
+  )
+}
 
-  :hover {
-    filter: brightness(1.2);
-  }
-`
+export function CloseIcon({ className, ...rest }: IconProps) {
+  return <X className={cn('cursor-pointer hover:brightness-125', className)} {...rest} />
+}
+
+export function LinkIcon({ color, className, style, ...rest }: IconProps & { color?: string }) {
+  return (
+    <LinkIconFeather
+      className={cn('h-4 w-[18px]', className)}
+      style={color ? { stroke: color, ...style } : style}
+      {...rest}
+    />
+  )
+}
 
 // A button that triggers some onClick result, but looks like a link.
-export const LinkStyledButton = styled.button<{ disabled?: boolean }>`
-  border: none;
-  text-decoration: none;
-  background: none;
+const linkStyledButton = cva('border-none bg-transparent p-0 text-inherit no-underline outline-none', {
+  variants: {
+    disabled: {
+      true: 'cursor-default text-text2',
+      false: 'cursor-pointer text-primary hover:underline focus:underline active:no-underline',
+    },
+  },
+  defaultVariants: {
+    disabled: false,
+  },
+})
 
-  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
-  color: ${({ theme, disabled }) => (disabled ? theme.text2 : theme.primary)};
-  font-weight: inherit;
-  font-size: inherit;
-  padding: 0;
-
-  :hover {
-    text-decoration: ${({ disabled }) => (disabled ? null : 'underline')};
-  }
-
-  :focus {
-    outline: none;
-    text-decoration: ${({ disabled }) => (disabled ? null : 'underline')};
-  }
-
-  :active {
-    text-decoration: none;
-  }
-`
+export function LinkStyledButton({
+  disabled,
+  className,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { disabled?: boolean }) {
+  return (
+    <button type="button" disabled={disabled} className={cn(linkStyledButton({ disabled }), className)} {...rest} />
+  )
+}
 
 // An internal link from the react-router-dom library that is correctly styled
-export const StyledInternalLink = styled(Link)`
-  text-decoration: none;
-  cursor: pointer;
-  color: ${({ theme }) => theme.primary};
-  font-weight: 500;
+export function StyledInternalLink({ className, ...rest }: LinkProps) {
+  return (
+    <Link
+      className={cn(
+        'cursor-pointer font-medium text-primary no-underline hover:underline focus:underline focus:outline-none active:no-underline',
+        className,
+      )}
+      {...rest}
+    />
+  )
+}
 
-  :hover {
-    text-decoration: underline;
-  }
+function StyledLink({ className, ...rest }: Omit<HTMLProps<HTMLAnchorElement>, 'as' | 'ref'> & { href: string }) {
+  return (
+    <a
+      className={cn(
+        'cursor-pointer font-medium text-primary no-underline focus:outline-none active:no-underline [@media(hover:hover)]:hover:underline',
+        className,
+      )}
+      {...rest}
+    />
+  )
+}
 
-  :focus {
-    outline: none;
-    text-decoration: underline;
-  }
-
-  :active {
-    text-decoration: none;
-  }
-`
-
-export const ExternalLinkNoLineHeight = styled(ExternalLink)`
-  line-height: 0;
-`
-
-const StyledLink = styled.a`
-  text-decoration: none;
-  cursor: pointer;
-  color: ${({ theme }) => theme.primary};
-  font-weight: 500;
-
-  @media (hover: hover) {
-    :hover {
-      text-decoration: underline;
-    }
-  }
-
-  :focus {
-    outline: none;
-  }
-
-  :active {
-    text-decoration: none;
-  }
-`
-
-const LinkIconWrapper = styled.a`
-  text-decoration: none;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  display: flex;
-
-  :hover {
-    text-decoration: none;
-    opacity: 0.7;
-  }
-
-  :focus {
-    outline: none;
-    text-decoration: none;
-  }
-
-  :active {
-    text-decoration: none;
-  }
-`
-
-export const LinkIcon = styled(LinkIconFeather)<{ color?: string }>`
-  height: 16px;
-  width: 18px;
-  stroke: ${({ theme, color }) => color || theme.primary};
-`
+function LinkIconWrapper({ className, ...rest }: Omit<HTMLProps<HTMLAnchorElement>, 'as' | 'ref'> & { href: string }) {
+  return (
+    <a
+      className={cn(
+        'flex cursor-pointer items-center justify-center text-primary no-underline hover:no-underline hover:opacity-70 focus:no-underline focus:outline-none active:no-underline',
+        className,
+      )}
+      {...rest}
+    />
+  )
+}
 
 /**
  * Outbound link that handles firing google analytics events
@@ -154,8 +119,7 @@ export function ExternalLink({
     (event: React.MouseEvent<HTMLAnchorElement>) => {
       onClick?.(event)
       // don't prevent default, don't redirect if it's a new tab
-      if (target === '_blank' || event.ctrlKey || event.metaKey) {
-      } else {
+      if (target !== '_blank' && !event.ctrlKey && !event.metaKey) {
         event.preventDefault()
       }
     },
@@ -170,6 +134,11 @@ export function ExternalLink({
       {...rest}
     />
   )
+}
+
+export function ExternalLinkNoLineHeight(props: Omit<HTMLProps<HTMLAnchorElement>, 'as' | 'ref'> & { href: string }) {
+  const { className, ...rest } = props
+  return <ExternalLink className={cn('leading-none', className)} {...rest} />
 }
 
 export function ExternalLinkIcon({
@@ -204,12 +173,10 @@ export function ExternalLinkIcon({
   )
 }
 
-export const HideSmall = styled.span`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `};
-`
+export function HideSmall({ className, ...rest }: DivProps) {
+  return <span className={cn('max-sm:hidden', className)} {...rest} />
+}
 
-export const UppercaseText = styled.span`
-  text-transform: uppercase;
-`
+export function UppercaseText({ className, ...rest }: DivProps) {
+  return <span className={cn('uppercase', className)} {...rest} />
+}

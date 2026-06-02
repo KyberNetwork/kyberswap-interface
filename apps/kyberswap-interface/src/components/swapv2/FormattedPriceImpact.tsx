@@ -1,20 +1,16 @@
 import { Percent } from '@kyberswap/ks-sdk-core'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ONE_BIPS } from 'constants/index'
+import { cn } from 'utils/cn'
 import { warningSeverity } from 'utils/prices'
 
-const ErrorText = styled(Text)<{ severity?: 0 | 1 | 2 | 3 | 4 }>`
-  color: ${({ theme, severity }) =>
-    severity === 3 || severity === 4
-      ? theme.red1
-      : severity === 2
-      ? theme.yellow2
-      : severity === 1
-      ? theme.text
-      : theme.green1};
-`
+const severityClass = (severity: 0 | 1 | 2 | 3 | 4): string => {
+  if (severity === 3 || severity === 4) return 'text-red1'
+  if (severity === 2) return 'text-yellow2'
+  if (severity === 1) return 'text-text'
+  return 'text-green1'
+}
+
 /**
  * Formatted version of price impact text with warning colors
  */
@@ -24,8 +20,8 @@ export default function FormattedPriceImpact({ priceImpact }: { priceImpact?: Pe
   }
 
   return (
-    <ErrorText fontWeight={500} fontSize={14} severity={warningSeverity(priceImpact)}>
+    <span className={cn('text-sm font-medium', severityClass(warningSeverity(priceImpact)))}>
       {priceImpact.lessThan(ONE_BIPS) ? '<0.01%' : `${priceImpact.toFixed(2)}%`}
-    </ErrorText>
+    </span>
   )
 }

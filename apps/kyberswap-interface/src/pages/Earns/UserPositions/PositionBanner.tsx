@@ -1,17 +1,13 @@
 import { ShareModal, ShareModalProps, ShareType, TokenLogo } from '@kyber/ui'
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useState } from 'react'
 import { Info, Share2, X } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
-import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { inProgressRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
@@ -33,52 +29,9 @@ import { truncateSymbol } from 'pages/Earns/utils'
 import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
+import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const RewardTokenGrid = styled(Box)`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    grid-template-columns: 1fr;
-  `}
-`
-
-const RewardInfoButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  margin-right: 12px;
-  border: 0;
-  background: transparent;
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-
-  &:hover {
-    color: ${({ theme }) => theme.text};
-  }
-`
-
-const RewardInfoModalClose = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-
-  &:hover {
-    color: ${({ theme }) => theme.text};
-  }
-`
 
 export const BannerSkeleton = ({
   width,
@@ -96,7 +49,7 @@ export const BannerSkeleton = ({
       width={width}
       height={height}
       baseColor={'#141d1b'}
-      highlightColor={rgba(theme.buttonGray, 0.5)}
+      highlightColor={hexAlpha(theme.buttonGray, 0.5)}
       borderRadius="1rem"
       style={style}
     />
@@ -116,7 +69,6 @@ export default function PositionBanner({
   isLoadingRewardInfo: boolean
   onOpenClaimAllRewards: () => void
 }) {
-  const theme = useTheme()
   const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
   const [showTotalRewardModal, setShowTotalRewardModal] = useState(false)
@@ -154,9 +106,9 @@ export default function PositionBanner({
         mobileAutoWidth
         outline
         onClick={onOpenClaimAllRewards}
-        style={{ position: 'relative', top: 2 }}
+        className="relative top-0.5"
       >
-        <Text>{t`Claim All`}</Text>
+        <span>{t`Claim All`}</span>
       </PositionAction>
     </MouseoverTooltipDesktopOnly>
   )
@@ -175,7 +127,7 @@ export default function PositionBanner({
         })
       }
     >
-      <Share2 size={14} color={theme.primary} />
+      <Share2 size={14} className="text-primary" />
     </ShareButtonWrapper>
   )
 
@@ -183,116 +135,117 @@ export default function PositionBanner({
 
   const totalRewardModal = (
     <Modal isOpen={showTotalRewardModal} maxWidth={460} onDismiss={() => setShowTotalRewardModal(false)}>
-      <Stack width="100%" padding="20px" borderRadius="20px" background={theme.background} color={theme.text} gap={20}>
-        <HStack align="center" justify="space-between">
-          <Text fontSize={20} fontWeight={500}>
+      <div className="flex w-full flex-col gap-5 rounded-[20px] bg-background p-5 text-text">
+        <div className="flex items-center justify-between">
+          <span className="text-xl font-medium">
             {t`Total Rewards`}: {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
-          </Text>
-          <RewardInfoModalClose type="button" aria-label={t`Close`} onClick={() => setShowTotalRewardModal(false)}>
+          </span>
+          <button
+            type="button"
+            aria-label={t`Close`}
+            onClick={() => setShowTotalRewardModal(false)}
+            className="flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
+          >
             <X size={20} />
-          </RewardInfoModalClose>
-        </HStack>
+          </button>
+        </div>
         <TotalRewardInfo lmTokens={lmTokens} egTokens={egTokens} merklRewards={merklRewards} />
-      </Stack>
+      </div>
     </Modal>
   )
 
   return (
     <>
-      <Flex
-        flexDirection={!upToLarge ? 'row' : 'column'}
-        alignItems="center"
-        sx={{ gap: !upToLarge ? '20px' : '12px' }}
-      >
+      {shareModal}
+      {totalRewardModal}
+
+      <div className={cn('flex items-center', !upToLarge ? 'flex-row gap-5' : 'flex-col gap-3')}>
         <BannerContainer>
           <BannerWrapper>
             <BannerDataItem>
-              <Text color={theme.subText}>{t`Total Value`}</Text>
+              <span className="text-subText">{t`Total Value`}</span>
 
               {initialLoading ? (
                 <BannerSkeleton width={90} height={28} />
               ) : (
-                <Text
-                  fontSize={24}
-                  color={totalValueUsd && totalValueUsd > 0 ? theme.primary : theme.text}
-                  sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
+                <p
+                  className={cn(
+                    'max-w-[140px] text-[24px]',
+                    totalValueUsd && totalValueUsd > 0 ? 'text-primary' : 'text-text',
+                  )}
+                  style={LIMIT_TEXT_STYLES}
                 >
                   <AnimatedNumber
                     value={formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
                   />
-                </Text>
+                </p>
               )}
             </BannerDataItem>
             <BannerDivider />
             <BannerDataItem>
-              <Text color={theme.subText}>{t`Earned Fees`}</Text>
+              <span className="text-subText">{t`Earned Fees`}</span>
 
               {initialLoading ? (
                 <BannerSkeleton width={90} height={28} />
               ) : (
-                <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
+                <p className="max-w-[140px] text-[24px]" style={LIMIT_TEXT_STYLES}>
                   <AnimatedNumber
                     value={formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
                   />
-                </Text>
+                </p>
               )}
             </BannerDataItem>
             <BannerDivider />
             <BannerDataItem>
-              <Text color={theme.subText}>{t`Total Unclaimed Fees`}</Text>
+              <span className="text-subText">{t`Total Unclaimed Fees`}</span>
 
               {initialLoading ? (
                 <BannerSkeleton width={90} height={28} />
               ) : (
-                <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
+                <p className="max-w-[140px] text-[24px]" style={LIMIT_TEXT_STYLES}>
                   <AnimatedNumber
                     value={formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
                   />
-                </Text>
+                </p>
               )}
             </BannerDataItem>
             {upToSmall && (
               <>
-                <Flex
-                  justifyContent={'space-between'}
-                  width={'100%'}
-                  paddingTop={16}
-                  sx={{ borderTop: `1px solid ${rgba(theme.white, 0.08)}` }}
-                >
-                  <Flex alignItems="center" sx={{ gap: 1 }}>
+                <div className="flex w-full justify-between border-t border-solid border-white/[0.08] pt-4">
+                  <div className="flex items-center gap-1">
                     <FarmingIcon width={KemImageSize} height={KemImageSize} />
-                    <Text color={theme.subText} marginRight={1}>{t`Total Rewards`}</Text>
+                    <span className="mr-1 text-subText">{t`Total Rewards`}</span>
                     {shareBtn}
-                  </Flex>
+                  </div>
 
                   {isLoadingKemRewards ? (
                     <BannerSkeleton width={90} height={28} />
                   ) : (
-                    <Text fontSize={24}>
+                    <p className="text-[24px]">
                       <AnimatedNumber
                         value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
                       />
-                    </Text>
+                    </p>
                   )}
-                </Flex>
-                <Flex flexDirection={'column'} sx={{ gap: '12px', width: '100%' }} paddingLeft={12} marginTop={'-8px'}>
+                </div>
+                <div className="-mt-2 flex w-full flex-col gap-3 pl-3">
                   <BannerDataItem>
-                    <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
+                    <span className="text-[14px] text-subText">{t`Claimed`}</span>
 
                     {isLoadingKemRewards ? (
                       <BannerSkeleton width={80} height={24} />
                     ) : (
-                      <Text fontSize={20}>
+                      <p className="text-[20px]">
                         <AnimatedNumber
                           value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
                         />
-                      </Text>
+                      </p>
                     )}
                   </BannerDataItem>
 
                   <BannerDataItem>
-                    <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                      <Text fontSize={14} color={theme.subText}>{t`In-Progress`}</Text>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[14px] text-subText">{t`In-Progress`}</span>
                       <InfoHelper
                         text={inProgressRewardTooltip({
                           pendingUsdValue,
@@ -304,94 +257,92 @@ export default function PositionBanner({
                         fontSize={12}
                         width="290px"
                       />
-                    </Flex>
+                    </div>
 
                     {isLoadingKemRewards ? (
                       <BannerSkeleton width={80} height={24} />
                     ) : (
-                      <Text fontSize={20}>
+                      <p className="text-[20px]">
                         <AnimatedNumber
                           value={formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
                         />
-                      </Text>
+                      </p>
                     )}
                   </BannerDataItem>
 
-                  <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
-                    <Flex flexDirection={'column'} alignItems={'flex-start'} sx={{ gap: 2 }}>
-                      <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
+                  <div className="flex items-end justify-between">
+                    <div className="flex flex-col items-start gap-2">
+                      <span className="text-[14px] text-subText">{t`Claimable`}</span>
 
                       {isLoadingKemRewards ? (
                         <BannerSkeleton width={80} height={24} />
                       ) : (
-                        <Text fontSize={20}>
+                        <p className="text-[20px]">
                           <AnimatedNumber
                             value={formatDisplayNumber(totalClaimableUsdValue, {
                               significantDigits: 4,
                               style: 'currency',
                             })}
                           />
-                        </Text>
+                        </p>
                       )}
-                    </Flex>
+                    </div>
                     {claimRewardButton}
-                  </Flex>
-                </Flex>
+                  </div>
+                </div>
               </>
             )}
           </BannerWrapper>
-
-          {shareModal}
-          {totalRewardModal}
         </BannerContainer>
 
         {!upToSmall && (
           <BannerContainer>
             <RewardBannerWrapper>
-              <Flex alignItems={'center'} sx={{ gap: 3 }}>
-                <Flex alignItems={'center'} sx={{ gap: 2 }}>
-                  <FarmingIcon width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
-                  <Text color={theme.subText}>{t`Total Rewards`}</Text>
-                </Flex>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <FarmingIcon width={KemImageSize} height={KemImageSize} className="relative top-0.5" />
+                  <span className="text-subText">{t`Total Rewards`}</span>
+                </div>
 
                 {isLoadingKemRewards ? (
                   <BannerSkeleton width={110} height={28} />
                 ) : (
-                  <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                    <Text fontSize={upToSmall ? 20 : 24}>
+                  <div className="flex items-center gap-1">
+                    <p className={upToSmall ? 'text-[20px]' : 'text-[24px]'}>
                       <AnimatedNumber
                         value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
                       />
-                    </Text>
-                    <RewardInfoButton
+                    </p>
+                    <button
                       type="button"
                       aria-label={t`View total rewards details`}
                       onClick={() => setShowTotalRewardModal(true)}
+                      className="mr-3 flex size-4 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
                     >
                       <Info size={16} />
-                    </RewardInfoButton>
+                    </button>
                     {shareBtn}
-                  </Flex>
+                  </div>
                 )}
-              </Flex>
+              </div>
               <RewardBannerDetailWrapper>
                 <BannerDataItem>
-                  <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
+                  <span className="text-[14px] text-subText">{t`Claimed`}</span>
 
                   {isLoadingKemRewards ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
-                    <Text fontSize={20}>
+                    <p className="text-[20px]">
                       <AnimatedNumber
                         value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
                       />
-                    </Text>
+                    </p>
                   )}
                 </BannerDataItem>
                 <BannerDivider />
                 <BannerDataItem>
-                  <Flex alignItems={'center'} sx={{ gap: '2px' }}>
-                    <Text fontSize={14} color={theme.subText}>{t`In-Progress`}</Text>
+                  <div className="flex items-center gap-0.5">
+                    <span className="text-[14px] text-subText">{t`In-Progress`}</span>
                     <InfoHelper
                       text={inProgressRewardTooltip({
                         pendingUsdValue,
@@ -403,33 +354,33 @@ export default function PositionBanner({
                       fontSize={12}
                       width="290px"
                     />
-                  </Flex>
+                  </div>
 
                   {isLoadingKemRewards ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
-                    <Text fontSize={20}>
+                    <p className="text-[20px]">
                       <AnimatedNumber
                         value={formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
                       />
-                    </Text>
+                    </p>
                   )}
                 </BannerDataItem>
                 <BannerDivider />
                 <BannerDataItem>
-                  <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
+                  <span className="text-[14px] text-subText">{t`Claimable`}</span>
 
                   {isLoadingKemRewards ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
-                    <Text fontSize={20}>
+                    <p className="text-[20px]">
                       <AnimatedNumber
                         value={formatDisplayNumber(totalClaimableUsdValue, {
                           style: 'currency',
                           significantDigits: 4,
                         })}
                       />
-                    </Text>
+                    </p>
                   )}
                 </BannerDataItem>
 
@@ -438,7 +389,7 @@ export default function PositionBanner({
             </RewardBannerWrapper>
           </BannerContainer>
         )}
-      </Flex>
+      </div>
     </>
   )
 }
@@ -449,68 +400,60 @@ type TotalRewardInfoProps = {
   merklRewards?: Array<TokenRewardInfo>
 }
 
-const TotalRewardInfo = ({ lmTokens, egTokens, merklRewards }: TotalRewardInfoProps) => {
-  const theme = useTheme()
+const RewardTokenRow = ({ token }: { token: TokenRewardInfo }) => (
+  <div className="flex min-w-0 items-center gap-1.5">
+    <TokenLogo src={token.logo} size={16} />
+    <span className="text-text">{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</span>
+    <span className="text-text">{truncateSymbol(token.symbol)}</span>
+  </div>
+)
 
-  return (
-    <Stack gap={12}>
-      <Text fontWeight={500}>{t`KyberSwap Reward`}</Text>
-      <Stack gap={8} pl={2}>
-        <Text fontSize={14} fontWeight={500} color={theme.subText}>
-          {t`LM Reward:`}
-          {!lmTokens.length ? ' 0' : ''}
-        </Text>
-        {!!lmTokens.length && (
-          <RewardTokenGrid>
-            {lmTokens.map(token => (
-              <HStack key={`${token.address}-${token.symbol}`} align="center" gap="6px" style={{ minWidth: 0 }}>
-                <TokenLogo src={token.logo} size={16} />
-                <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-                <Text color={theme.text}>{truncateSymbol(token.symbol)}</Text>
-              </HStack>
-            ))}
-          </RewardTokenGrid>
-        )}
-      </Stack>
-      <Stack gap={8} pl={2}>
-        <Text fontSize={14} fontWeight={500} color={theme.subText}>
-          {t`EG Sharing Reward:`}
-          {!egTokens.length ? ' 0' : ''}
-        </Text>
-        {!!egTokens.length && (
-          <RewardTokenGrid>
-            {egTokens.map(token => (
-              <HStack key={`${token.address}-${token.symbol}`} align="center" gap={6}>
-                <TokenLogo src={token.logo} size={16} />
-                <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-                <Text color={theme.text}>{truncateSymbol(token.symbol)}</Text>
-              </HStack>
-            ))}
-          </RewardTokenGrid>
-        )}
-      </Stack>
-
-      {!!merklRewards?.length && (
-        <>
-          <HorizontalDivider />
-          <RewardLink
-            href="https://app.merkl.xyz/users"
-            target="_blank"
-            style={{ fontWeight: 500, color: '#fafafa', width: 'fit-content' }}
-          >
-            {t`3rd Party (Merkl) Incentives`}
-          </RewardLink>
-          <RewardTokenGrid pl={2}>
-            {merklRewards.map(token => (
-              <HStack key={`${token.chainId}-${token.address}-${token.symbol}`} align="center" gap={6}>
-                <TokenLogo src={token.logo} size={16} style={{ position: 'relative', top: 1 }} />
-                <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-                <Text color={theme.text}>{truncateSymbol(token.symbol)}</Text>
-              </HStack>
-            ))}
-          </RewardTokenGrid>
-        </>
+const TotalRewardInfo = ({ lmTokens, egTokens, merklRewards }: TotalRewardInfoProps) => (
+  <div className="flex flex-col gap-3">
+    <p className="m-0 font-medium">{t`KyberSwap Reward`}</p>
+    <div className="flex flex-col gap-2 pl-2">
+      <p className="m-0 text-sm font-medium text-subText">
+        {t`LM Reward:`}
+        {!lmTokens.length ? ' 0' : ''}
+      </p>
+      {!!lmTokens.length && (
+        <div className="grid grid-cols-2 gap-x-5 gap-y-2.5 max-xs:grid-cols-1">
+          {lmTokens.map(token => (
+            <RewardTokenRow key={`${token.address}-${token.symbol}`} token={token} />
+          ))}
+        </div>
       )}
-    </Stack>
-  )
-}
+    </div>
+    <div className="flex flex-col gap-2 pl-2">
+      <p className="m-0 text-sm font-medium text-subText">
+        {t`EG Sharing Reward:`}
+        {!egTokens.length ? ' 0' : ''}
+      </p>
+      {!!egTokens.length && (
+        <div className="grid grid-cols-2 gap-x-5 gap-y-2.5 max-xs:grid-cols-1">
+          {egTokens.map(token => (
+            <RewardTokenRow key={`${token.address}-${token.symbol}`} token={token} />
+          ))}
+        </div>
+      )}
+    </div>
+
+    {!!merklRewards?.length && (
+      <>
+        <HorizontalDivider />
+        <RewardLink
+          href="https://app.merkl.xyz/users"
+          target="_blank"
+          style={{ fontWeight: 500, color: '#fafafa', width: 'fit-content' }}
+        >
+          {t`3rd Party (Merkl) Incentives`}
+        </RewardLink>
+        <div className="grid grid-cols-2 gap-x-5 gap-y-2.5 pl-2 max-xs:grid-cols-1">
+          {merklRewards.map(token => (
+            <RewardTokenRow key={`${token.chainId}-${token.address}-${token.symbol}`} token={token} />
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+)

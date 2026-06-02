@@ -1,12 +1,10 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import LocalLoader from 'components/LocalLoader'
 import { Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
 import RefetchIndicator from 'pages/Earns/PoolExplorer/RefetchIndicator'
@@ -32,8 +30,6 @@ type Props = {
 }
 
 const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPoolPrice = true }: Props) => {
-  const theme = useTheme()
-
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
   const {
     data: poolData,
@@ -97,11 +93,7 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
   }
 
   if (poolData?.data?.pools.length === 0 || isError) {
-    return (
-      <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
-        {t`No data found`}
-      </Text>
-    )
+    return <p className="m-12 mt-16 text-center text-subText">{t`No data found`}</p>
   }
 
   return (
@@ -109,7 +101,7 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
       <RefetchIndicator visible={isFetching} />
 
       {upToMedium ? (
-        <Stack gap={16}>
+        <Stack className="gap-4">
           {tablePoolData.map(pool => (
             <MobileTableRow
               key={pool.address}

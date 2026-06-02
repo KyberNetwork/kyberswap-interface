@@ -5,8 +5,6 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Repeat } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonLight } from 'components/Button'
@@ -35,11 +33,7 @@ import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { isEvmChain } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
+const Wrapper = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col gap-4">{children}</div>
 
 type CrossChainSwapProps = {
   onQuoteChange?: (quote: Quote) => void
@@ -187,7 +181,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
         }}
       />
 
-      <Flex justifyContent="space-between" alignItems="center">
+      <div className="flex items-center justify-between">
         <RefreshLoading
           refetchLoading={allLoading}
           clickable
@@ -195,17 +189,10 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
           onRefresh={getQuote}
         />
 
-        <Flex
-          color={theme.text}
-          flexWrap="wrap"
-          fontSize="14px"
-          alignItems="center"
-          sx={{ gap: '4px', flex: 1 }}
-          ml="4px"
-        >
-          <Text as="span" color={theme.subText}>
+        <div className="ml-1 flex flex-1 flex-wrap items-center gap-1 text-sm text-text">
+          <span className="text-subText">
             <Trans>Cross-chain rate:</Trans>
-          </Text>
+          </span>
           {loading ? (
             <Skeleton
               height="16px"
@@ -215,10 +202,9 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
               borderRadius="1rem"
             />
           ) : selectedQuote && toChainId ? (
-            <Flex
+            <div
               role="button"
-              flexWrap="wrap"
-              sx={{ alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+              className="flex cursor-pointer flex-wrap items-center gap-1"
               onClick={() => setRevertPrice(!revertPrice)}
             >
               1{' '}
@@ -234,12 +220,12 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
                 currency={revertPrice ? currencyIn : currencyOut}
                 chainId={revertPrice ? fromChainId : toChainId}
               />
-              <Repeat size={12} color={theme.subText} />
-            </Flex>
+              <Repeat size={12} className="text-subText" />
+            </div>
           ) : (
             '--'
           )}
-        </Flex>
+        </div>
 
         <ReverseTokenSelectionButton
           onClick={() => {
@@ -268,7 +254,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
             setSearchParams(searchParams)
           }}
         />
-      </Flex>
+      </div>
 
       <TokenPanel
         loading={loading}
@@ -295,11 +281,10 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
         }}
       />
 
-      <AutoColumn gap="8px">
-        <Flex justifyContent="space-between" fontSize={12} color={theme.subText} px="8px" alignItems="center">
-          <Flex
-            alignItems="center"
-            sx={{ gap: '4px', cursor: 'pointer' }}
+      <AutoColumn className="gap-2">
+        <div className="flex items-center justify-between px-2 text-xs text-subText">
+          <div
+            className="flex cursor-pointer items-center gap-1"
             role="button"
             onClick={() => {
               if (isEvmChain(fromChainId) && isToEvm) {
@@ -310,20 +295,20 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
               }
             }}
           >
-            <Text>
+            <span>
               {isEvmChain(fromChainId) && isToEvm ? (
                 <Trans>Send to other wallet</Trans>
               ) : (
                 t`Recipient (${networkName} address)`
               )}
-            </Text>
+            </span>
             {isEvmChain(fromChainId) &&
               isToEvm &&
               (showEvmRecipient ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
-          </Flex>
+          </div>
 
           {toChainId && (isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
-            <Flex sx={{ gap: '4px' }}>
+            <div className="flex gap-1">
               {isDifferentRecipient && (!isEvmChain(fromChainId) || !isToEvm) && (
                 <ButtonLight
                   padding="2px 8px"
@@ -340,9 +325,9 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
                   <Trans>Use my wallet</Trans>
                 </ButtonLight>
               )}
-            </Flex>
+            </div>
           )}
-        </Flex>
+        </div>
         {(isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
           <AddressInput
             placeholder={t`Enter ${networkName} receiving address`}
@@ -376,12 +361,12 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
       {selectedQuote && (
-        <Text fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
-          <Text as="span" mr="4px">
+        <div className="flex items-center text-xs italic text-gray">
+          <span className="mr-1">
             <Trans>Routed via</Trans>
-          </Text>
+          </span>
           <QuoteProviderName quote={selectedQuote} />
-        </Text>
+        </div>
       )}
 
       <PiWarning />

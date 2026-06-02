@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import styled from 'styled-components'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -11,23 +10,12 @@ import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { TAB } from 'pages/SwapV3'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatSlippage } from 'utils/slippage'
-
-const ActionPanel = styled.div`
-  display: flex;
-  align-items: center;
-  border-radius: 18px;
-`
-
-const TransactionSettingsIconWrapper = styled.span`
-  line-height: 0;
-`
 
 export default function HeaderRightMenu({
   activeTab,
@@ -36,8 +24,6 @@ export default function HeaderRightMenu({
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
 }) {
-  const theme = useTheme()
-
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
@@ -62,7 +48,7 @@ export default function HeaderRightMenu({
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   return (
-    <ActionPanel>
+    <div className="flex items-center rounded-[18px]">
       {!isCrossChainPage && (
         <TokenInfoIcon
           currencies={currencies}
@@ -98,12 +84,12 @@ export default function HeaderRightMenu({
             width="fit-content"
             disableTooltip={isMobile}
           >
-            <TransactionSettingsIconWrapper id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
-              <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
-            </TransactionSettingsIconWrapper>
+            <span id={TutorialIds.BUTTON_SETTING_SWAP_FORM} className="leading-none">
+              <TransactionSettingsIcon className={isDegenMode ? 'text-warning' : 'text-subText'} />
+            </span>
           </MouseoverTooltip>
         </StyledActionButtonSwapForm>
       )}
-    </ActionPanel>
+    </div>
   )
 }

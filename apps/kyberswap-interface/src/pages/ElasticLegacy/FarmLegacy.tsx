@@ -1,8 +1,6 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -23,45 +21,11 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDollarAmount } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { encodeFunctionData } from 'utils/viem'
-
-const Wrapper = styled.div`
-  border-radius: 1rem;
-  border: 1px solid ${({ theme }) => theme.border};
-  padding: 24px;
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.subText};
-  line-height: 1.5;
-  font-size: 14px;
-  text-align: center;
-  overflow-x: scroll;
-`
-const OverFlow = styled.div`
-  min-width: 860px;
-  overflow-x: scroll;
-`
-
-const TableHeader = styled.div`
-  display: grid;
-  font-size: 12px;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  grid-template-columns: 1fr 2fr 1fr 1fr;
-  font-weight: 500;
-  padding: 1rem;
-  background: ${({ theme }) => theme.tableHeader};
-  color: ${({ theme }) => theme.subText};
-  align-items: center;
-`
-const TableRow = styled(TableHeader)`
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  font-size: 14px;
-`
 
 interface FarmPosition extends SubgraphPosition {
   pendingRewards: Array<{ amount: string; token_address: string }>
@@ -202,81 +166,67 @@ export default function FarmLegacy({
   }
 
   return (
-    <Wrapper>
-      <Text>
+    <div className="overflow-x-scroll rounded-2xl border border-border bg-background p-6 text-center text-sm leading-normal text-subText">
+      <span>
         <Trans>
           We paused all our Elastic farms on 18 April 2023, 4pm UTC. Information on this can be found in our
           announcement{' '}
           <ExternalLink href="https://twitter.com/KyberNetwork/status/1648265647858790400?s=20">here</ExternalLink>
         </Trans>
-      </Text>
+      </span>
 
       {!!numberOfPosition && claimInfo ? (
-        <Text>
+        <span>
           <Trans>
-            You still have{' '}
-            <Text color={theme.warning} as="span">
-              {numberOfPosition}
-            </Text>{' '}
-            liquidity positions and{' '}
-            <Text color={theme.warning} as="span">
-              {formatDollarAmount(unclaimedUSD)}
-            </Text>{' '}
-            unclaimed farming rewards that you haven&apos;t withdrawn from the Elastic farms yet. You will first need to
-            withdraw all your liquidity positions by clicking on the &quot;Withdraw Positions&quot; button before you
-            can claim your reward by clicking the &quot;Claim Rewards&quot; button.
+            You still have <span className="text-warning">{numberOfPosition}</span> liquidity positions and{' '}
+            <span className="text-warning">{formatDollarAmount(unclaimedUSD)}</span> unclaimed farming rewards that you
+            haven&apos;t withdrawn from the Elastic farms yet. You will first need to withdraw all your liquidity
+            positions by clicking on the &quot;Withdraw Positions&quot; button before you can claim your reward by
+            clicking the &quot;Claim Rewards&quot; button.
           </Trans>
-        </Text>
+        </span>
       ) : !!numberOfPosition ? (
-        <Text>
+        <span>
           <Trans>
-            You still have{' '}
-            <Text as="span" color={theme.warning}>
-              {numberOfPosition}
-            </Text>{' '}
-            liquidity positions that you haven&apos;t withdrawn from the Elastic farms yet, please withdraw and remove
-            your funds on Elastic as soon as possible.
+            You still have <span className="text-warning">{numberOfPosition}</span> liquidity positions that you
+            haven&apos;t withdrawn from the Elastic farms yet, please withdraw and remove your funds on Elastic as soon
+            as possible.
           </Trans>
-        </Text>
+        </span>
       ) : (
-        <Text>
+        <span>
           <Trans>
-            You are eligible for{' '}
-            <Text as="span" color={theme.warning}>
-              {formatDollarAmount(unclaimedUSD)}
-            </Text>{' '}
-            unclaimed farming rewards, you can claim them by clicking the &quot;Claim Rewards&quot; button below.
+            You are eligible for <span className="text-warning">{formatDollarAmount(unclaimedUSD)}</span> unclaimed
+            farming rewards, you can claim them by clicking the &quot;Claim Rewards&quot; button below.
           </Trans>
-        </Text>
+        </span>
       )}
 
       {!!numberOfPosition && (
-        <Flex alignItems="center" sx={{ gap: '8px' }} justifyContent="flex-end" marginY="1rem">
-          <Text fontSize="12px">
+        <div className="my-4 flex items-center justify-end gap-2">
+          <span className="text-xs">
             <Trans>Total Rewards</Trans>
-          </Text>
-          <Text fontSize="1rem" fontWeight="500" color={theme.text}>
-            {formatDollarAmount(unclaimedUSD)}
-          </Text>
-        </Flex>
+          </span>
+          <span className="text-base font-medium text-text">{formatDollarAmount(unclaimedUSD)}</span>
+        </div>
       )}
 
-      <OverFlow>
+      <div className="min-w-[860px] overflow-x-scroll">
         {!!numberOfPosition && (
-          <TableHeader>
-            <Text textAlign="left">
+          <div className="grid grid-cols-[1fr_2fr_1fr_1fr] items-center rounded-t-lg bg-tableHeader p-4 text-xs font-medium text-subText">
+            <span className="text-left">
               <Trans>NFT ID</Trans>
-            </Text>
-            <Text textAlign="left">
+            </span>
+            <span className="text-left">
               <Trans>Farms</Trans>
-            </Text>
-            <Text textAlign="left">
+            </span>
+            <span className="text-left">
               <Trans>Staked liquidity</Trans>
-            </Text>
-            <Text textAlign="right">
+            </span>
+            <span className="text-right">
               <Trans>Reward</Trans>
-            </Text>
-          </TableHeader>
+            </span>
+          </div>
         )}
 
         {farmPositions.map(item => {
@@ -291,66 +241,67 @@ export default function FarmLegacy({
           })
 
           return (
-            <TableRow key={item.id}>
-              <Text textAlign="left" color={theme.subText}>
-                {item.id}
-              </Text>
-              <Flex alignItems="center">
+            <div
+              key={item.id}
+              className="grid grid-cols-[1fr_2fr_1fr_1fr] items-center border-b border-border bg-background p-4 text-sm text-text"
+            >
+              <span className="text-left text-subText">{item.id}</span>
+              <div className="flex items-center">
                 <DoubleCurrencyLogo currency0={token0} currency1={token1} />
-                <Text color={theme.primary}>
+                <span className="text-primary">
                   {token0.symbol} - {token1.symbol}
-                </Text>
+                </span>
                 <FeeTag>
                   <Trans>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</Trans>
                 </FeeTag>
-              </Flex>
-              <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
+              </div>
+              <div className="flex w-fit items-center justify-start">
                 <MouseoverTooltip
                   width="fit-content"
                   placement="bottom"
                   text={
-                    <Flex flexDirection="column">
-                      <Flex sx={{ gap: '4px' }} alignItems="center">
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1">
                         <CurrencyLogo currency={position.amount0.currency} size="16px" />
-                        <Text fontWeight="500">{position.amount0.toSignificant(6)}</Text>
-                        <Text fontWeight="500">{position.amount0.currency.symbol}</Text>
-                      </Flex>
+                        <span className="font-medium">{position.amount0.toSignificant(6)}</span>
+                        <span className="font-medium">{position.amount0.currency.symbol}</span>
+                      </div>
 
-                      <Flex sx={{ gap: '4px' }} alignItems="center" marginTop="6px">
+                      <div className="mt-1.5 flex items-center gap-1">
                         <CurrencyLogo currency={position.amount1.currency} size="16px" />
-                        <Text fontWeight="500">{position.amount1.toSignificant(6)}</Text>
-                        <Text fontWeight="500">{position.amount1.currency.symbol}</Text>
-                      </Flex>
-                    </Flex>
+                        <span className="font-medium">{position.amount1.toSignificant(6)}</span>
+                        <span className="font-medium">{position.amount1.currency.symbol}</span>
+                      </div>
+                    </div>
                   }
                 >
                   {formatDollarAmount(usd)}
                   <DropdownSvg />
                 </MouseoverTooltip>
-              </Flex>
+              </div>
 
-              <Flex justifyContent="flex-end" flexDirection="column" sx={{ gap: '8px' }}>
-                {!rws.length && <Text textAlign="right">--</Text>}
+              <div className="flex flex-col justify-end gap-2">
+                {!rws.length && <span className="text-right">--</span>}
                 {rws.map(
                   (rw, index) =>
                     rw && (
-                      <Flex key={index} sx={{ gap: '4px' }} justifyContent="flex-end" alignItems="center">
+                      <div key={index} className="flex items-center justify-end gap-1">
                         <CurrencyLogo currency={rw.currency} size="14px" />
                         {rw.toSignificant(6)}
-                      </Flex>
+                      </div>
                     ),
                 )}
-              </Flex>
-            </TableRow>
+              </div>
+            </div>
           )
         })}
-      </OverFlow>
+      </div>
 
-      <Flex marginTop="24px" sx={{ gap: '12px' }} justifyContent={numberOfPosition ? 'flex-end' : 'center'}>
+      <div className={cn('mt-6 flex gap-3', numberOfPosition ? 'justify-end' : 'justify-center')}>
         {!!numberOfPosition && (
           <ButtonLight
             onClick={handleWithdraw}
-            color={theme.red}
+            className="text-red"
             width="170px"
             padding="8px"
             style={{ border: `1px solid ${theme.red}` }}
@@ -363,7 +314,7 @@ export default function FarmLegacy({
             <Trans>Claim Rewards</Trans>
           </ButtonPrimary>
         )}
-      </Flex>
+      </div>
 
       <TransactionConfirmationModal
         isOpen={!!showConfirmModal}
@@ -372,11 +323,11 @@ export default function FarmLegacy({
         attemptingTxn={attemptingTxn}
         pendingText={t`Claiming rewards`}
         content={() => (
-          <Flex flexDirection={'column'} width="100%">
+          <div className="flex w-full flex-col">
             {errorMessage ? <TransactionErrorContent onDismiss={handleDismiss} message={errorMessage} /> : null}
-          </Flex>
+          </div>
         )}
       />
-    </Wrapper>
+    </div>
   )
 }

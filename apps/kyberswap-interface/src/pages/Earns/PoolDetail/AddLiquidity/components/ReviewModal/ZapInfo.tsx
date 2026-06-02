@@ -1,20 +1,11 @@
 import { NATIVE_TOKEN_ADDRESS, Token, ZapRouteDetail } from '@kyber/schema'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
 import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getInputTokenItems, getNetworkInfo } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const Card = styled(Stack)`
-  background: ${({ theme }) => theme.buttonGray};
-  border-radius: 12px;
-  padding: 12px 16px;
-`
 
 type ZapInfoProps = {
   chainId: number
@@ -59,7 +50,6 @@ const buildItems = ({
   }))
 
 const ZapInfo = ({ chainId, route, tokenInput }: ZapInfoProps) => {
-  const theme = useTheme()
   const wrappedNativeAddress = getNetworkInfo(chainId)?.wrappedToken.address?.toLowerCase()
   const tokens = tokenInput.tokens
   const amounts = tokenInput.amounts
@@ -76,31 +66,31 @@ const ZapInfo = ({ chainId, route, tokenInput }: ZapInfoProps) => {
   )
 
   return (
-    <Card gap={12}>
-      <HStack align="center" justify="space-between">
-        <Text color={theme.subText}>Zap-in Amount</Text>
-        <Text color={theme.text} fontWeight={500}>
+    <Stack className="gap-3 rounded-xl bg-buttonGray px-4 py-3">
+      <HStack className="items-center justify-between">
+        <span className="text-subText">Zap-in Amount</span>
+        <span className="font-medium text-text">
           {formatDisplayNumber(totalInputUsd, { style: 'currency', significantDigits: 6 })}
-        </Text>
+        </span>
       </HStack>
 
-      <Stack gap={8}>
+      <Stack className="gap-2">
         {items.map(item => (
-          <HStack key={item.token.address} align="center" gap={12} wrap="wrap">
-            <HStack align="center" gap={8} minWidth={0} wrap="wrap">
+          <HStack key={item.token.address} className="flex-wrap items-center gap-3">
+            <HStack className="min-w-0 flex-wrap items-center gap-2">
               <TokenLogo src={item.token.logo} size={18} />
-              <Text color={theme.text}>
+              <span className="text-text">
                 {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}
-              </Text>
+              </span>
             </HStack>
 
-            <Text color={theme.subText}>
+            <span className="text-subText">
               ~{formatDisplayNumber(item.usdValue, { style: 'currency', significantDigits: 6 })}
-            </Text>
+            </span>
           </HStack>
         ))}
       </Stack>
-    </Card>
+    </Stack>
   )
 }
 

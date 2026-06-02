@@ -1,9 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { darken, lighten } from 'polished'
 import { useMemo } from 'react'
 import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
-import styled from 'styled-components'
 
 import { ReactComponent as WarningInfo } from 'assets/svg/wallet_warning_icon.svg'
 import { ButtonLight } from 'components/Button'
@@ -17,7 +15,6 @@ import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useLogin from 'hooks/useLogin'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
@@ -25,82 +22,24 @@ import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 's
 import { TransactionDetails } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 
-const IconWrapper = styled.div<{ size?: number }>`
-  ${({ theme }) => theme.flexColumnNoWrap};
-  align-items: center;
-  justify-content: center;
-  & > * {
-    height: ${({ size }) => (size ? size + 'px' : '32px')};
-    width: ${({ size }) => (size ? size + 'px' : '32px')};
-  }
-`
+const STATUS_BASE_CLASS =
+  'flex w-fit flex-row flex-nowrap cursor-pointer select-none items-center rounded-full px-3 py-2 font-medium focus:outline-none'
 
-const Web3StatusGeneric = styled.button`
-  ${({ theme }) => theme.flexRowNoWrap}
-  width: fit-content;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  user-select: none;
-  :focus {
-    outline: none;
-  }
-`
-const Web3StatusError = styled(Web3StatusGeneric)`
-  background-color: ${({ theme }) => theme.red1};
-  border: 1px solid ${({ theme }) => theme.red1};
-  color: ${({ theme }) => theme.white};
-  font-weight: 500;
-  :hover,
-  :focus {
-    background-color: ${({ theme }) => darken(0.1, theme.red1)};
-  }
-`
-
-const Web3StatusConnected = styled(Web3StatusGeneric)<{ pending?: boolean }>`
-  background-color: ${({ pending, theme }) => (pending ? theme.primary : theme.background)};
-  border: 1px solid ${({ pending, theme }) => (pending ? theme.primary : theme.background)};
-  color: ${({ pending, theme }) => (pending ? theme.white : theme.subText)};
-  font-weight: 500;
-  :hover,
-  :focus {
-    background-color: ${({ pending, theme }) =>
-      pending ? darken(0.05, theme.primary) : lighten(0.05, theme.background)};
-    border: 1px solid ${({ theme }) => theme.primary};
-  }
-`
-
-const Text = styled.p`
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin: 0 0.25rem 0 0.5rem;
-  font-size: 1rem;
-  width: fit-content;
-  font-weight: 500;
-`
-
-const NetworkIcon = styled(Activity)`
-  margin-left: 0.25rem;
-  margin-right: 0.5rem;
-  width: 16px;
-  height: 16px;
-`
-
-const AccountElement = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  border-radius: 999px;
-  white-space: nowrap;
-  width: fit-content;
-  cursor: pointer;
-  pointer-events: auto;
-  height: 42px;
-`
+const Text = ({
+  className,
+  children,
+  style,
+}: {
+  className?: string
+  children: React.ReactNode
+  style?: React.CSSProperties
+}) => (
+  <p style={style} className={cn('m-0 ml-2 mr-1 w-max shrink-0 whitespace-nowrap text-base font-medium', className)}>
+    {children}
+  </p>
+)
 
 function Web3StatusInner() {
   const { chainId, account, walletKey, isWrongNetwork } = useActiveWeb3React()
@@ -109,7 +48,6 @@ function Web3StatusInner() {
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { signIn } = useLogin()
   const { ENSName } = useENSName(account ?? undefined)
-  const theme = useTheme()
 
   const allTransactions = useAllTransactions()
 
@@ -131,17 +69,23 @@ function Web3StatusInner() {
 
   if (isWrongNetwork) {
     return (
-      <Web3StatusError onClick={toggleNetworkModal}>
-        <NetworkIcon />
+      <button
+        onClick={toggleNetworkModal}
+        className={cn(
+          STATUS_BASE_CLASS,
+          'border border-red1 bg-red1 text-white hover:brightness-90 focus:brightness-90',
+        )}
+      >
+        <Activity className="ml-1 mr-2 size-4" />
         <Text>
           <Trans>Wrong Network</Trans>
         </Text>
-      </Web3StatusError>
+      </button>
     )
   }
   if (account) {
     return (
-      <Web3StatusConnected
+      <button
         id={TutorialIds.BUTTON_ADDRESS_WALLET}
         data-testid="web3-status-connected"
         onClick={e => {
@@ -157,14 +101,20 @@ function Web3StatusInner() {
             wallet_address: account,
           })
         }}
-        pending={hasPendingTransactions}
+        className={cn(
+          STATUS_BASE_CLASS,
+          'border hover:border-primary hover:brightness-105 focus:border-primary focus:brightness-105',
+          hasPendingTransactions
+            ? 'border-primary bg-primary text-white hover:brightness-90 focus:brightness-90'
+            : 'border-background bg-background text-subText',
+        )}
       >
         {hasPendingTransactions ? (
           <RowBetween>
             <Text>
               <Trans>{pendingLength} Pending</Trans>
             </Text>{' '}
-            <Loader stroke="white" />
+            <Loader className="text-white" />
           </RowBetween>
         ) : (
           <>
@@ -172,11 +122,11 @@ function Web3StatusInner() {
               <MouseoverTooltip
                 placement="bottom"
                 text={
-                  <Text style={{ fontSize: '12px', textAlign: 'left', whiteSpace: 'normal' }}>
+                  <Text className="whitespace-normal text-left text-xs">
                     <Trans>
                       You are not signed in with this wallet address. If you wish, you can{' '}
                       <span
-                        style={{ cursor: 'pointer', fontSize: '12px', color: theme.primary }}
+                        className="cursor-pointer text-xs text-primary"
                         onClick={e => {
                           e.stopPropagation()
                           signIn({ account })
@@ -192,17 +142,13 @@ function Web3StatusInner() {
                 <WarningInfo width={20} height={20} />
               </MouseoverTooltip>
             ) : (
-              walletKey && (
-                <IconWrapper size={16}>
-                  <img src={icon} alt="" />
-                </IconWrapper>
-              )
+              walletKey && <img src={icon} alt="" className="size-5 shrink-0 rounded-full" />
             )}
             <Text>{ENSName || shortenAddress(chainId, account, uptoMedium ? 2 : undefined)}</Text>
             <CoinbaseSubscribeBtn onlyShowIfNotSubscribe />
           </>
         )}
-      </Web3StatusConnected>
+      </button>
     )
   }
   return (
@@ -213,7 +159,7 @@ function Web3StatusInner() {
         ;(e.currentTarget as HTMLElement).blur()
         toggleWalletModal()
       }}
-      padding="10px 12px"
+      padding="12px 12px"
       id={TutorialIds.BUTTON_CONNECT_WALLET}
       data-testid="button-connect-wallet"
     >
@@ -224,9 +170,9 @@ function Web3StatusInner() {
 
 export default function SelectWallet() {
   return (
-    <AccountElement>
+    <div className="pointer-events-auto flex h-[42px] w-fit cursor-pointer flex-row items-center whitespace-nowrap rounded-full">
       <Web3StatusInner />
       <WalletModal />
-    </AccountElement>
+    </div>
   )
 }

@@ -1,28 +1,10 @@
 import { Placement } from '@popperjs/core'
 import { useCallback, useState } from 'react'
 import { Info } from 'react-feather'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-
-const QuestionWrapper = styled.div<{ useCurrentColor?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: none;
-  outline: none;
-  cursor: default;
-  border-radius: 36px;
-  color: ${({ theme, useCurrentColor }) => (useCurrentColor ? 'inherit' : theme.text2)};
-
-  :hover,
-  :focus {
-    opacity: 0.7;
-  }
-`
+import { cn } from 'utils/cn'
 
 export default function QuestionHelper({
   text,
@@ -44,12 +26,20 @@ export default function QuestionHelper({
   const theme = useTheme()
 
   return (
-    <Flex as="span" marginLeft="0.25rem" alignItems="center">
+    <span className="ml-1 inline-flex items-center">
       <Tooltip placement={placement} text={text} show={show}>
-        <QuestionWrapper onClick={open} onMouseEnter={open} onMouseLeave={close} useCurrentColor={useCurrentColor}>
+        <div
+          onClick={open}
+          onMouseEnter={open}
+          onMouseLeave={close}
+          className={cn(
+            'flex cursor-default items-center justify-center rounded-[36px] border-none bg-transparent outline-none hover:opacity-70 focus:opacity-70',
+            useCurrentColor ? 'text-inherit' : 'text-text2',
+          )}
+        >
           <Info size={size} color={useCurrentColor ? undefined : color || theme.subText} />
-        </QuestionWrapper>
+        </div>
       </Tooltip>
-    </Flex>
+    </span>
   )
 }

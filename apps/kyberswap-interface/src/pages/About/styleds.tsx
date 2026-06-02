@@ -1,285 +1,246 @@
-import { Flex } from 'rebass'
-import styled from 'styled-components'
+import { ComponentProps, HTMLAttributes, forwardRef } from 'react'
 
 import bgimg from 'assets/images/about_background.png'
 import { ButtonPrimary } from 'components/Button'
+import { cn } from 'utils/cn'
 
-export const Wrapper = styled.div`
-  max-width: 1228px;
-  margin: auto;
-  padding: 160px 12px 0;
-  padding-bottom: 160px;
-  background: transparent;
+export const Wrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'mx-auto max-w-[1228px] bg-transparent px-3 py-40 max-sm:py-[100px]',
+      '[&_.swiper]:!overflow-visible',
+      '[&_.swiper-pagination]:!-bottom-4',
+      '[&_.swiper-pagination-bullet]:w-2 [&_.swiper-pagination-bullet]:rounded-lg [&_.swiper-pagination-bullet]:bg-subText',
+      '[&_.swiper-pagination-bullet-active]:w-2 [&_.swiper-pagination-bullet-active]:rounded-lg [&_.swiper-pagination-bullet-active]:bg-primary',
+      className,
+    )}
+    {...rest}
+  />
+))
+Wrapper.displayName = 'Wrapper'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding-bottom: 100px;
-    padding-top: 100px
-  `};
+export const SupportedChain = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('m-auto mt-8 flex flex-wrap justify-center gap-5', className)} {...rest} />
+  ),
+)
+SupportedChain.displayName = 'SupportedChain'
 
-  .swiper-pagination-bullet {
-    width: 8px;
-    border-radius: 8px;
-    background: ${({ theme }) => theme.subText};
-  }
+export const BtnPrimary = forwardRef<HTMLButtonElement, ComponentProps<typeof ButtonPrimary>>(
+  ({ className, ...rest }, ref) => (
+    <ButtonPrimary
+      ref={ref}
+      className={cn('w-[216px] flex-1 rounded-[32px] px-3 py-2.5 max-sm:w-full', className)}
+      {...rest}
+    />
+  ),
+)
+BtnPrimary.displayName = 'BtnPrimary'
 
-  .swiper-pagination {
-    bottom: -16px !important;
-  }
+export const StatisticWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('m-auto mt-[100px] flex max-w-[900px] flex-row justify-center gap-4', className)}
+      {...rest}
+    />
+  ),
+)
+StatisticWrapper.displayName = 'StatisticWrapper'
 
-  .swiper-pagination-bullet-active {
-    width: 8px;
-    border-radius: 8px;
-    background: ${({ theme }) => theme.primary};
-  }
+export const StatisticItem = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex flex-1 flex-col rounded-lg bg-background py-5 text-center text-sm', className)}
+      {...rest}
+    />
+  ),
+)
+StatisticItem.displayName = 'StatisticItem'
 
-  .swiper {
-    overflow: unset;
-  }
-`
+export const ForTrader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('mt-40 flex gap-6 max-sm:mt-[100px] max-sm:flex-col', className)} {...rest} />
+))
+ForTrader.displayName = 'ForTrader'
 
-export const SupportedChain = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+export const ForTraderInfo = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'relative mt-5 flex items-center justify-center rounded-lg border border-primary bg-background py-5',
+        'max-lg:flex-col max-lg:gap-6 max-lg:px-4 max-lg:py-5',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+ForTraderInfo.displayName = 'ForTraderInfo'
 
-  gap: 20px;
-  margin: auto;
-  margin-top: 32px;
-`
+export const ForTraderInfoShadow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'absolute -inset-y-px -right-3 left-0 rounded-lg bg-primary-20',
+        'max-lg:-inset-x-px max-lg:-bottom-3 max-lg:top-0',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+ForTraderInfoShadow.displayName = 'ForTraderInfoShadow'
 
-export const BtnPrimary = styled(ButtonPrimary)`
-  width: 216px;
-  padding: 10px 12px;
-  flex: 1;
-  border-radius: 32px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `};
-`
+type ForTraderDividerProps = HTMLAttributes<HTMLDivElement> & { horizontal?: boolean }
 
-export const StatisticWrapper = styled.div`
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-direction: row;
-  margin: auto;
-  margin-top: 100px;
-  max-width: 900px;
-`
+export const ForTraderDivider = forwardRef<HTMLDivElement, ForTraderDividerProps>(
+  ({ className, horizontal, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('bg-border', horizontal ? 'h-px w-full' : 'h-[50px] w-px max-md:h-auto', className)}
+      {...rest}
+    />
+  ),
+)
+ForTraderDivider.displayName = 'ForTraderDivider'
 
-export const StatisticItem = styled.div`
-  background-color: ${({ theme }) => theme.background};
-  flex: 1;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
-  padding: 20px 0px;
-`
+export const ForLiquidityProviderItem = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex w-full rounded-[20px] bg-background p-12 max-md:p-8 max-md:pb-12', className)}
+      {...rest}
+    />
+  ),
+)
+ForLiquidityProviderItem.displayName = 'ForLiquidityProviderItem'
 
-export const ForTrader = styled.div`
-  margin-top: 160px;
-  gap: 24px;
-  display: flex;
+export const GridWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('mt-10 grid gap-4 overflow-x-auto pb-4', className)}
+      style={{
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gridAutoFlow: 'column',
+        gridAutoColumns: 'minmax(300px, 1fr)',
+        ...style,
+      }}
+      {...rest}
+    />
+  ),
+)
+GridWrapper.displayName = 'GridWrapper'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    margin-top: 100px;
-  `}
-`
+export const Footer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement> & { background?: string }>(
+  ({ className, background: _bg, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'w-full bg-background [filter:drop-shadow(0px_-4px_16px_rgba(0,0,0,0.04))]',
+        'max-lg:mb-16',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+Footer.displayName = 'Footer'
 
-export const ForTraderInfo = styled(Flex)`
-  margin-top: 20px;
-  background-color: ${({ theme }) => theme.background};
-  padding: 20px 0;
-  border-radius: 8px;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid ${({ theme }) => theme.primary};
-  position: relative;
+export const FooterContainer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'm-auto flex max-w-[1244px] items-center justify-between gap-6 p-6 text-sm',
+        '[&_a]:text-subText',
+        'max-sm:flex-col max-sm:justify-center',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+FooterContainer.displayName = 'FooterContainer'
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex-direction: column;
-    padding: 20px 16px;
-    gap: 24px;
-  `}
-`
+export const Powered = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'mt-12 flex flex-wrap items-center justify-center gap-[52px]',
+      '[&>*]:w-[calc(100%/5-52px)]',
+      '[&_svg]:max-w-full',
+      'max-md:[&>*]:w-[calc(25%-52px)]',
+      'max-sm:[&>*]:w-[calc(100%/3-52px)]',
+      'max-[500px]:[&>*]:w-[calc(50%-52px)]',
+      className,
+    )}
+    {...rest}
+  />
+))
+Powered.displayName = 'Powered'
 
-export const ForTraderInfoShadow = styled.div`
-  position: absolute;
-  border-radius: 8px;
-  background: ${({ theme }) => `${theme.primary}33`};
-  top: -1px;
-  right: -12px;
-  bottom: -1px;
-  left: 0;
+export const Exchange = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn('mt-12 grid grid-cols-4 items-center gap-[52px]', '[&_svg]:max-w-full', className)}
+    {...rest}
+  />
+))
+Exchange.displayName = 'Exchange'
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: 0;
-    bottom: -12px;
-    left: -1px;
-    right: -1px;
-  `}
-`
+export const AboutPage = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('z-[1] w-full bg-transparent', className)}
+      style={{
+        backgroundImage: `url(${bgimg}), url(${bgimg})`,
+        backgroundSize: 'contain, contain',
+        backgroundRepeat: 'no-repeat, no-repeat',
+        backgroundPosition: 'top, bottom',
+        ...style,
+      }}
+      {...rest}
+    />
+  ),
+)
+AboutPage.displayName = 'AboutPage'
 
-export const ForTraderDivider = styled.div<{ horizontal?: boolean }>`
-  background-color: ${({ theme }) => theme.border};
-  width: ${({ horizontal }) => (horizontal ? '100%' : '1px')};
-  height: ${({ horizontal }) => (horizontal ? '1px' : '50px')};
+export const VerticalDivider = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('h-0 w-px bg-border max-sm:h-auto', className)} {...rest} />
+  ),
+)
+VerticalDivider.displayName = 'VerticalDivider'
 
-  ${({ theme, horizontal }) => theme.mediaWidth.upToMedium`
-    ${!horizontal && 'height: auto;'}
-  `}
-`
+export const AboutKNC = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('mt-40 flex gap-[76px] max-sm:mt-[100px] max-sm:flex-col', className)} {...rest} />
+))
+AboutKNC.displayName = 'AboutKNC'
 
-export const ForLiquidityProviderItem = styled(Flex)`
-  padding: 48px;
-  border-radius: 20px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.background};
+export const ExchangeWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('my-7 flex h-[152px] rounded-lg bg-background', className)} {...rest} />
+  ),
+)
+ExchangeWrapper.displayName = 'ExchangeWrapper'
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 32px;
-    padding-bottom: 48px;
-  `};
-`
-
-export const GridWrapper = styled.div`
-  display: grid;
-  grid-gap: 16px;
-  margin-top: 40px;
-  padding-bottom: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(300px, 1fr);
-  overflow-x: auto;
-`
-
-export const Footer = styled.div<{ background: string }>`
-  background: ${({ theme }) => theme.background};
-  width: 100%;
-  filter: drop-shadow(0px -4px 16px rgba(0, 0, 0, 0.04));
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin-bottom: 4rem;
-  `};
-`
-
-export const FooterContainer = styled.div`
-  margin: auto;
-  max-width: 1244px;
-  padding: 24px;
-  font-size: 14px;
-  gap: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  a {
-    color: ${({ theme }) => theme.subText};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    justify-content: center;
-  `};
-`
-
-export const Powered = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 48px;
-  align-items: center;
-  justify-content: center;
-  gap: 52px;
-  & > * {
-    width: calc(100% / 5 - 52px);
-  }
-  svg {
-    max-width: 100%;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    & > * {
-      width: calc(25% - 52px);
-    }
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    & > * {
-      width: calc(100% / 3 - 52px);
-    }
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    & > * {
-      width: calc(50% - 52px);
-    }
-  `}
-`
-
-export const Exchange = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 48px;
-  gap: 52px;
-  align-items: center;
-
-  svg {
-    max-width: 100%;
-  }
-`
-
-export const AboutPage = styled.div`
-  width: 100%;
-  background-image: url(${bgimg}), url(${bgimg});
-  background-size: contain, contain;
-  background-repeat: no-repeat, no-repeat;
-  z-index: 1;
-  background-color: transparent, transparent;
-  background-position: top, bottom;
-`
-
-export const VerticalDivider = styled.div`
-  width: 1px;
-  height: 0;
-  background: ${({ theme }) => theme.border};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    height: auto;
-  `}
-`
-
-export const AboutKNC = styled.div`
-  margin-top: 160px;
-  gap: 76px;
-  display: flex;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    margin-top: 100px;
-  `}
-`
-
-export const ExchangeWrapper = styled.div`
-  margin: 28px 0px;
-  height: 152px;
-  background: ${({ theme }) => theme.background};
-  display: flex;
-  border-radius: 8px;
-`
-
-export const MoreInfoWrapper = styled.div`
-  display: flex;
-  border-radius: 20px;
-  background: ${({ theme }) => theme.background};
-  width: 100%;
-  padding: 64px;
-  margin-top: 100px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding:48px;
-    flex-direction:column;
-    align-items:center;
-    text-align:center;
-  `}
-`
+export const MoreInfoWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'mt-[100px] flex w-full rounded-[20px] bg-background p-16',
+        'max-sm:flex-col max-sm:items-center max-sm:p-12 max-sm:text-center',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+MoreInfoWrapper.displayName = 'MoreInfoWrapper'

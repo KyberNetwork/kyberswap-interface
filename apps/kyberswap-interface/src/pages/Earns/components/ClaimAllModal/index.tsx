@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
@@ -183,9 +182,7 @@ export default function ClaimAllModal({
     <Modal isOpen onDismiss={onClose} maxWidth={460}>
       <Wrapper>
         <ModalHeader>
-          <Text fontSize={20} fontWeight={500}>
-            {t`Claim Rewards`}
-          </Text>
+          <span className="text-xl font-medium">{t`Claim Rewards`}</span>
           <X onClick={onClose} />
         </ModalHeader>
 
@@ -207,13 +204,13 @@ export default function ClaimAllModal({
         )}
 
         <ClaimInfoWrapper>
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-            <Flex alignItems={'center'} justifyContent={'space-between'}>
-              <Text>{t`Claimable Reward`}</Text>
-              <Text>{formatDisplayNumber(currentTotalValue, { significantDigits: 4, style: 'currency' })}</Text>
-            </Flex>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span>{t`Claimable Reward`}</span>
+              <span>{formatDisplayNumber(currentTotalValue, { significantDigits: 4, style: 'currency' })}</span>
+            </div>
 
-            <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+            <div className="flex flex-col gap-1">
               {[...currentChains]
                 .filter(chain => chain.claimableUsdValue > 0)
                 .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
@@ -223,7 +220,7 @@ export default function ClaimAllModal({
                   return (
                     <ChainRewardItem key={chain.chainId} isSelected={isSelected}>
                       <ChainRewardTitle onClick={() => handleSelectChain(chain.chainId)}>
-                        <Flex alignItems="center" sx={{ gap: 2 }}>
+                        <div className="flex items-center gap-2">
                           <CustomRadio
                             type="radio"
                             isSelected={isSelected}
@@ -231,11 +228,11 @@ export default function ClaimAllModal({
                             onChange={() => handleSelectChain(chain.chainId)}
                           />
                           <TokenLogo src={chain.chainLogo} size={16} alt={chain.chainName} />
-                          <Text>{chain.chainName}</Text>
-                        </Flex>
-                        <Text fontSize={upToExtraSmall ? 16 : 18}>
+                          <span>{chain.chainName}</span>
+                        </div>
+                        <span className={upToExtraSmall ? 'text-base' : 'text-lg'}>
                           {formatDisplayNumber(chain.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
-                        </Text>
+                        </span>
                       </ChainRewardTitle>
                       <ChainRewardTokens
                         data-open={isSelected ? 'true' : 'false'}
@@ -258,8 +255,8 @@ export default function ClaimAllModal({
                     </ChainRewardItem>
                   )
                 })}
-            </Flex>
-          </Flex>
+            </div>
+          </div>
 
           {activeTab === 'ks' && (
             <RewardsFilterSetting
@@ -273,7 +270,7 @@ export default function ClaimAllModal({
           {!!selectedRewardChain && (
             <FilteredChainWrapper>
               <FilteredChainTitle onClick={() => setSelectedChainExpanded(expanded => !expanded)}>
-                <Text>{t`You are currently claiming`}</Text>
+                <span>{t`You are currently claiming`}</span>
                 {isLoadingUserPositions && activeTab === 'ks' ? (
                   <Skeleton
                     width={60}
@@ -282,18 +279,18 @@ export default function ClaimAllModal({
                     borderRadius="1rem"
                   />
                 ) : (
-                  <Text color={theme.text}>
+                  <span className="text-text">
                     {formatDisplayNumber(selectedRewardChain.claimableUsdValue, {
                       significantDigits: 4,
                       style: 'currency',
                     })}
-                  </Text>
+                  </span>
                 )}
-                <Text>{t`on`}</Text>
-                <Text>{selectedRewardChain.chainName}</Text>
+                <span>{t`on`}</span>
+                <span>{selectedRewardChain.chainName}</span>
                 <ChevronDown
                   size={16}
-                  color={theme.subText}
+                  className="text-subText"
                   style={{
                     transform: selectedChainExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease',
@@ -323,12 +320,12 @@ export default function ClaimAllModal({
         </ClaimInfoWrapper>
 
         {isSyncingSelectedMerkl && (
-          <Text fontSize={12} color={theme.warning} sx={{ marginTop: '-4px' }}>
+          <span className="-mt-1 text-xs text-warning">
             {t`Syncing your last claim with Merkl — please wait a moment.`}
-          </Text>
+          </span>
         )}
 
-        <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
+        <Row className="flex-row gap-4 max-xs:flex-col-reverse">
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           <ButtonPrimary
             gap="4px"
@@ -340,7 +337,7 @@ export default function ClaimAllModal({
             }
             onClick={handleClaim}
           >
-            {(isClaiming || isPendingTxSelectedMerkl || isSyncingSelectedMerkl) && <Loader stroke={theme.border} />}
+            {(isClaiming || isPendingTxSelectedMerkl || isSyncingSelectedMerkl) && <Loader className="text-border" />}
             {isClaiming || isPendingTxSelectedMerkl
               ? t`Claiming`
               : isSyncingSelectedMerkl

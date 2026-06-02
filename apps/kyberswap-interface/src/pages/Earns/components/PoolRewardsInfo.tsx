@@ -1,12 +1,10 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
 
 import { ReactComponent as RewardIcon } from 'assets/svg/earn/ic_bag.svg'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { getParsedRewardAmount } from 'pages/Earns/PoolDetail/components/utils'
 import { Badge } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
@@ -61,28 +59,27 @@ const RewardTooltipContent = ({
   lmRewards: number
 }) => {
   return (
-    <Stack gap={2}>
+    <Stack className="gap-0.5">
       {egRewards > 0 && (
-        <Text>
+        <p>
           {t`FairFlow EG Rewards`}: {formatDisplayNumber(egRewards, { style: 'currency', significantDigits: 4 })}
-        </Text>
+        </p>
       )}
       {lmRewards > 0 && (
-        <Text>
+        <p>
           {t`LM Rewards`}: {formatDisplayNumber(lmRewards, { style: 'currency', significantDigits: 4 })}
-        </Text>
+        </p>
       )}
       {bonusRewards > 0 && (
-        <Text>
+        <p>
           {t`Bonus Rewards`}: {formatDisplayNumber(bonusRewards, { style: 'currency', significantDigits: 4 })}
-        </Text>
+        </p>
       )}
     </Stack>
   )
 }
 
 const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
-  const theme = useTheme()
   const { filters } = useFilter()
 
   const depositAmount = 1_000
@@ -160,31 +157,31 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
   const estWeeklyRewards = (depositAmount / (merklTvl + depositAmount)) * merklWeeklyRewards
 
   return (
-    <Stack gap={8}>
+    <Stack className="gap-2">
       {totalRewards > 0 ? (
         <MouseoverTooltipDesktopOnly
           text={<RewardTooltipContent egRewards={egRewards} lmRewards={lmRewards} bonusRewards={bonusRewards} />}
           width="fit-content"
           placement="left"
         >
-          <Text>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</Text>
+          <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>
         </MouseoverTooltipDesktopOnly>
       ) : (
-        <Text>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</Text>
+        <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>
       )}
 
       {(merklRewardTokens.length > 0 || kemRewardTokens.length > 0) && (
-        <HStack align="center" gap={4} justify="flex-end">
+        <HStack className="items-center justify-end gap-1">
           {merklRewardTokens.length > 0 && (
             <MouseoverTooltipDesktopOnly
               text={
-                <Stack gap={4}>
+                <Stack className="gap-1">
                   {merklRewardTokens.map(token => (
-                    <HStack align="center" gap={4} key={`${token.chainId}-${token.address}`}>
+                    <HStack key={`${token.chainId}-${token.address}`} className="items-center gap-1">
                       {token.icon ? <TokenLogo src={token.icon} size={16} /> : null}
-                      <Text>
-                        {formatDisplayNumber(token.amount, { significantDigits: 6 })} {token.symbol}
-                      </Text>
+                      <span>
+                        {token.amount} {token.symbol}
+                      </span>
                     </HStack>
                   ))}
                 </Stack>
@@ -192,7 +189,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
               width="fit-content"
               placement="bottom"
             >
-              <HStack align="center" gap={4} wrap="wrap" justify="flex-end">
+              <HStack className="flex-wrap items-center justify-end gap-1">
                 {merklRewardTokens.map(token => (
                   <TokenLogo key={`${token.chainId}-${token.address}`} src={token.icon} size={16} />
                 ))}
@@ -203,14 +200,14 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
           {kemRewardTokens.length > 0 && (
             <MouseoverTooltipDesktopOnly
               text={
-                <Stack gap={4}>
+                <Stack className="gap-1">
                   {kemRewardTokens.map(token => (
-                    <Stack gap={2} key={token.address}>
-                      <HStack align="center" gap={4}>
+                    <Stack className="gap-0.5" key={token.address}>
+                      <HStack className="items-center gap-1">
                         {token.logoURI ? <TokenLogo src={token.logoURI} size={16} /> : null}
-                        <Text>
+                        <span>
                           {formatDisplayNumber(token.totalAmount, { significantDigits: 6 })} {token.symbol}
-                        </Text>
+                        </span>
                       </HStack>
                     </Stack>
                   ))}
@@ -219,7 +216,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
               width="fit-content"
               placement="bottom"
             >
-              <HStack align="center" gap={4} wrap="wrap" justify="flex-end">
+              <HStack className="flex-wrap items-center justify-end gap-1">
                 {kemRewardTokens.map(token => (
                   <TokenLogo key={token.address} src={token.logoURI} size={16} />
                 ))}
@@ -230,25 +227,21 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
           {showEstimate && merklWeeklyRewards > 0 && (
             <MouseoverTooltipDesktopOnly
               text={
-                <Text>
-                  <Text as="span" color={theme.blue3} fontWeight={500}>
-                    {formatDisplayNumber(estWeeklyRewards, {
-                      style: 'currency',
-                      significantDigits: 4,
-                    })}
-                    /week
-                  </Text>{' '}
+                <p>
+                  <span className="font-medium text-blue3">
+                    {formatDisplayNumber(estWeeklyRewards, { style: 'currency', significantDigits: 4 })}/week
+                  </span>{' '}
                   {`when adding $${depositAmount} liquidity (est)`}
-                </Text>
+                </p>
               }
               width="fit-content"
               placement="bottom"
             >
-              <Badge style={{ padding: '4px 6px' }}>
+              <Badge className="px-1.5 py-1">
                 <RewardIcon width={16} height={16} />
-                <Text sx={{ whiteSpace: 'nowrap' }}>
+                <span className="whitespace-nowrap">
                   {formatDisplayNumber(merklWeeklyRewards, { style: 'currency', significantDigits: 4 })}/week
-                </Text>
+                </span>
               </Badge>
             </MouseoverTooltipDesktopOnly>
           )}
@@ -262,21 +255,21 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
                 <MouseoverTooltipDesktopOnly
                   key={token.address}
                   text={
-                    <Text>
-                      <Text as="span" color={theme.blue3} fontWeight={500}>
+                    <p>
+                      <span className="font-medium text-blue3">
                         {formatDisplayNumber(token.estWeeklyAmount, { significantDigits: 6 })} {token.symbol}/week
-                      </Text>{' '}
+                      </span>{' '}
                       {`when adding $${depositAmount} liquidity (est)`}
-                    </Text>
+                    </p>
                   }
                   width="fit-content"
                   placement="bottom"
                 >
-                  <Badge style={{ padding: '4px 6px' }}>
+                  <Badge className="px-1.5 py-1">
                     <RewardIcon width={16} height={16} />
-                    <Text sx={{ whiteSpace: 'nowrap' }}>
+                    <span className="whitespace-nowrap">
                       {formatDisplayNumber(weeklyTotalUsd, { style: 'currency', significantDigits: 4 })}/week
-                    </Text>
+                    </span>
                   </Badge>
                 </MouseoverTooltipDesktopOnly>
               )

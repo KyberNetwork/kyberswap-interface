@@ -1,109 +1,15 @@
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, Token } from '@kyber/schema'
 import { Trans } from '@lingui/macro'
 import { ChangeEvent, useMemo } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownIcon } from 'assets/images/dropdown.svg'
 import { ReactComponent as CloseIcon } from 'assets/images/x.svg'
 import { ReactComponent as WalletIcon } from 'assets/svg/earn/ic_add_liquidity_wallet.svg'
 import Skeleton from 'components/Skeleton'
-import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
-
-const Card = styled(Stack)<{ $isRemovable?: boolean }>`
-  position: relative;
-  padding: 12px;
-  border-radius: 12px;
-  border-top-right-radius: ${({ $isRemovable }) => ($isRemovable ? '4px' : '12px')};
-  background: ${({ theme }) => theme.buttonGray};
-`
-
-const QuickActionButton = styled.button`
-  padding: 4px 8px;
-  border: none;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-  font-size: 12px;
-
-  :hover {
-    filter: brightness(1.12);
-  }
-`
-
-const BalanceButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-  font-size: 12px;
-
-  :hover {
-    filter: brightness(1.12);
-  }
-`
-
-const AmountInput = styled.input`
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 0;
-  font-size: 28px;
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.text};
-  outline: none;
-
-  ::placeholder {
-    color: ${({ theme }) => theme.subText};
-  }
-`
-
-const TokenButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: ${({ theme }) => theme.tabActive};
-  border: none;
-  border-radius: 999px;
-  color: ${({ theme }) => theme.text};
-  cursor: pointer;
-  white-space: nowrap;
-
-  :hover {
-    filter: brightness(1.12);
-  }
-`
-
-const RemoveButton = styled.button`
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  top: 0px;
-  right: 0px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-
-  :hover {
-    color: ${({ theme }) => theme.text};
-  }
-`
 
 const INPUT_AMOUNT_REGEX = /^\d*(?:[.]\d*)?$/
 
@@ -124,6 +30,10 @@ interface TokenAmountInputProps {
   onTokenSelectOpen?: (address: string) => void
 }
 
+const cardBaseClass = 'relative flex flex-col gap-3 rounded-xl bg-buttonGray p-3'
+const quickActionButtonClass =
+  'cursor-pointer rounded-full border-none bg-background px-2 py-1 text-xs text-subText hover:brightness-110'
+
 const TokenAmountInput = ({
   token,
   amount = '',
@@ -138,7 +48,6 @@ const TokenAmountInput = ({
   onTokenRemove,
   onTokenSelectOpen,
 }: TokenAmountInputProps) => {
-  const theme = useTheme()
   const balanceKey =
     token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
       ? NATIVE_TOKEN_ADDRESS.toLowerCase()
@@ -186,56 +95,74 @@ const TokenAmountInput = ({
     }
   }
 
-  return (
-    <Card $isRemovable={tokensCount > 1} gap={12}>
-      <HStack align="center" justify="space-between" gap={12}>
-        <HStack align="center" gap={8} wrap="wrap">
-          <QuickActionButton type="button" onClick={() => applyPercentage(25)}>
-            <Trans>25%</Trans>
-          </QuickActionButton>
-          <QuickActionButton type="button" onClick={() => applyPercentage(50)}>
-            <Trans>50%</Trans>
-          </QuickActionButton>
-          <QuickActionButton type="button" onClick={() => applyPercentage(75)}>
-            <Trans>75%</Trans>
-          </QuickActionButton>
-          <QuickActionButton type="button" onClick={() => applyPercentage(100)}>
-            <Trans>100%</Trans>
-          </QuickActionButton>
-        </HStack>
+  const isRemovable = tokensCount > 1
 
-        <BalanceButton type="button" onClick={() => updateAmount(normalizeActionAmount(formattedBalance))}>
+  return (
+    <div className={cn(cardBaseClass, isRemovable ? 'rounded-tr-[4px]' : '')}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" className={quickActionButtonClass} onClick={() => applyPercentage(25)}>
+            <Trans>25%</Trans>
+          </button>
+          <button type="button" className={quickActionButtonClass} onClick={() => applyPercentage(50)}>
+            <Trans>50%</Trans>
+          </button>
+          <button type="button" className={quickActionButtonClass} onClick={() => applyPercentage(75)}>
+            <Trans>75%</Trans>
+          </button>
+          <button type="button" className={quickActionButtonClass} onClick={() => applyPercentage(100)}>
+            <Trans>100%</Trans>
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className="flex cursor-pointer items-center gap-1.5 border-none bg-transparent p-0 text-xs text-subText hover:brightness-110"
+          onClick={() => updateAmount(normalizeActionAmount(formattedBalance))}
+        >
           <WalletIcon width={14} height={14} />
           {formatDisplayNumber(formattedBalance, { significantDigits: 8 })}
-        </BalanceButton>
-      </HStack>
+        </button>
+      </div>
 
-      <HStack align="flex-end" gap={12}>
-        <AmountInput inputMode="decimal" onChange={handleAmountChange} placeholder="0.0" value={amount} />
+      <div className="flex items-end gap-3">
+        <input
+          inputMode="decimal"
+          onChange={handleAmountChange}
+          placeholder="0.0"
+          value={amount}
+          className="min-w-0 flex-1 border-none bg-transparent p-0 text-[28px] text-text outline-none placeholder:text-subText"
+        />
         {!!usdAmount && (
-          <Text color={theme.subText} fontSize={12} p="4px 0px">
+          <span className="px-0 py-1 text-xs text-subText">
             ~
             {formatDisplayNumber(usdAmount, {
               significantDigits: 6,
               style: 'currency',
             })}
-          </Text>
+          </span>
         )}
-        <TokenButton onClick={() => onTokenSelectOpen?.(token.address)} type="button">
+        <button
+          type="button"
+          onClick={() => onTokenSelectOpen?.(token.address)}
+          className="inline-flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border-none bg-tabActive px-3 py-2 text-text hover:brightness-110"
+        >
           <TokenLogo src={token.logo} size={20} />
-          <Text fontSize={14} fontWeight={500}>
-            {token.symbol}
-          </Text>
+          <span className="text-sm font-medium">{token.symbol}</span>
           <DropdownIcon />
-        </TokenButton>
-      </HStack>
+        </button>
+      </div>
 
-      {tokensCount > 1 && (
-        <RemoveButton type="button" onClick={() => onTokenRemove?.(tokenIndex)}>
+      {isRemovable && (
+        <button
+          type="button"
+          onClick={() => onTokenRemove?.(tokenIndex)}
+          className="absolute right-0 top-0 flex size-4 cursor-pointer items-center justify-center rounded-none border-none bg-transparent p-0 text-subText hover:text-text"
+        >
           <CloseIcon width={14} height={14} />
-        </RemoveButton>
+        </button>
       )}
-    </Card>
+    </div>
   )
 }
 
@@ -243,21 +170,21 @@ export default TokenAmountInput
 
 /** Perfect pixel with TokenAmountInput */
 export const TokenAmountInputSkeleton = () => (
-  <Card gap={12}>
-    <HStack align="center" justify="space-between" gap={12}>
-      <HStack align="center" gap={8} wrap="wrap">
+  <div className={cardBaseClass}>
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         {[0, 1, 2, 3].map(item => (
           <Skeleton key={item} width={40 + item} height={22.5} />
         ))}
-      </HStack>
+      </div>
       <Skeleton width={80} height={14} />
-    </HStack>
+    </div>
 
-    <HStack align="flex-end" gap={12}>
-      <Stack flex={1} minWidth={0} gap={8}>
+    <div className="flex items-end gap-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         <Skeleton width="40%" height={34} />
-      </Stack>
+      </div>
       <Skeleton width={96} height={36} />
-    </HStack>
-  </Card>
+    </div>
+  </div>
 )

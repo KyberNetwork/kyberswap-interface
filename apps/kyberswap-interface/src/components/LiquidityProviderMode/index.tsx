@@ -1,13 +1,8 @@
 import { Trans } from '@lingui/macro'
-import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import { TabContainer, TabItem } from 'components/PoolList/styled'
 import useTheme from 'hooks/useTheme'
-
-const Tab = styled(TabItem)`
-  padding: 8px;
-`
 
 const LiquidityProviderMode = ({
   activeTab,
@@ -22,11 +17,11 @@ const LiquidityProviderMode = ({
 }) => {
   const theme = useTheme()
   return (
-    <TabContainer style={{ padding: '4px' }}>
-      <Tab active={activeTab === 0} onClick={() => setActiveTab(0)} role="button">
+    <TabContainer className="p-1">
+      <TabItem active={activeTab === 0} onClick={() => setActiveTab(0)} role="button" className="p-2">
         <Trans>Token Pair</Trans>
-      </Tab>
-      <Tab active={activeTab === 1} onClick={() => setActiveTab(1)} role="button">
+      </TabItem>
+      <TabItem active={activeTab === 1} onClick={() => setActiveTab(1)} role="button" className="p-2">
         {zapout ? <Trans>Zap Out</Trans> : <Trans>Zap In</Trans>}
         <InfoHelper
           text={singleTokenInfo}
@@ -34,7 +29,7 @@ const LiquidityProviderMode = ({
           isActive={activeTab === 1}
           color={activeTab === 1 ? theme.text : theme.subText}
         />
-      </Tab>
+      </TabItem>
     </TabContainer>
   )
 }

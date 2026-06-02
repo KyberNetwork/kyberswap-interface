@@ -1,19 +1,9 @@
 import { ReactNode } from 'react'
-import styled from 'styled-components'
 
-const HiddenHeading = styled.div`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-`
+// Visually hidden but accessible to screen-readers / SEO crawlers.
+const hiddenClasses =
+  'absolute m-[-1px] h-px w-px overflow-hidden whitespace-nowrap border-0 p-0 [clip-path:inset(50%)] [clip:rect(0_0_0_0)]'
 
-export const HiddenH1 = ({ children }: { children: ReactNode }) => <HiddenHeading as="h1">{children}</HiddenHeading>
+export const HiddenH1 = ({ children }: { children: ReactNode }) => <h1 className={hiddenClasses}>{children}</h1>
 
-export const HiddenH2 = ({ children }: { children: ReactNode }) => <HiddenHeading as="h2">{children}</HiddenHeading>
+export const HiddenH2 = ({ children }: { children: ReactNode }) => <h2 className={hiddenClasses}>{children}</h2>

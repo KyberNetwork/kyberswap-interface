@@ -2,8 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import Skeleton from 'react-loading-skeleton'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
 import governancePNG from 'assets/images/kyberdao/governance.png'
@@ -29,95 +27,17 @@ import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 import { formatLongNumber } from 'utils/formatBalance'
 import { formatUnits } from 'utils/viem'
 
-const Wrapper = styled.div`
-  width: 100%;
-  background-image: url(${bgimg}), url(${bgimg});
-  background-size: 100% auto;
-  background-repeat: no-repeat, no-repeat;
-  z-index: 1;
-  background-color: transparent, transparent;
-  background-position: top, bottom;
-`
-const Container = styled.div`
-  margin: auto;
-  width: 1224px;
-  min-height: 1100px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  align-content: flex-start;
-  justify-content: flex-start;
-  gap: 40px;
-  padding-top: 60px;
-  padding-bottom: 160px;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex-direction: column;
-    width: 100%;
-    align-items: center;
-    align-content: center;
-  `}
-`
+const Card = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex w-full gap-3 rounded-[20px] border border-border px-4 py-6 backdrop-blur-[25px]">{children}</div>
+)
 
-const Information = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 772px;
-  order: 1;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100vw;
-    padding: 0 16px;
-  `}
-`
-const CardGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 772px;
-  order: 3;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100vw;
-    padding: 0 16px;
-  `}
-`
-const Card = styled.div<{ background?: string }>`
-  display: flex;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 20px;
-  gap: 12px;
-  width: 100%;
-  padding: 24px 16px;
-  backdrop-filter: blur(25px);
-  ${({ background }) =>
-    background &&
-    css`
-      background: ${background};
-    `}
-  backdrop-filter: blur(25px);
-`
-const Image = styled.img`
-  height: 44px;
-  width: 44px;
-`
-const KyberImageWrapper = styled.div`
-  width: 404px;
-  display: flex;
-  justify-content: center;
-  order: 2;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    display: none;
-  `}
-`
-const CardInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-`
+const CardInfo = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-1 flex-col gap-1">{children}</div>
+)
 
 export default function StakeKNC() {
   const theme = useTheme()
@@ -135,53 +55,61 @@ export default function StakeKNC() {
   const { userTier, gasRefundPercentage } = useGasRefundTier()
 
   return (
-    <Wrapper>
-      <Container>
-        <Information>
+    <div
+      className="z-[1] w-full bg-transparent"
+      style={{
+        backgroundImage: `url(${bgimg}), url(${bgimg})`,
+        backgroundSize: '100% auto',
+        backgroundRepeat: 'no-repeat, no-repeat',
+        backgroundPosition: 'top, bottom',
+      }}
+    >
+      <div className="m-auto flex min-h-[1100px] w-[1224px] flex-wrap place-content-start items-start gap-10 pb-40 pt-[60px] max-lg:w-full max-lg:flex-col max-lg:content-center max-lg:items-center">
+        <div className="order-1 flex w-[772px] flex-col max-sm:w-screen max-sm:px-4">
           <RowBetween>
-            <Text fontSize={24} lineHeight="28px" fontWeight={500}>
+            <span className="text-2xl font-medium leading-7">
               <Trans>Stake KNC</Trans>
-            </Text>
-            <RowFit gap="4px">
+            </span>
+            <RowFit className="gap-1">
               <KNCLogo size={20} />
-              <Text fontSize={16}>KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</Text>
+              <span className="text-base">KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</span>
             </RowFit>
           </RowBetween>
-          <Divider margin={isMobile ? '20px 0' : '28px 0'} />
-          <RowBetween align={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'} gap="12px">
-            <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.warning}>
+          <Divider className={isMobile ? 'my-5' : 'my-7'} />
+          <RowBetween className={cn('gap-3', isMobile ? 'flex-col items-start' : 'flex-row items-center')}>
+            <span className="text-base font-normal leading-6 text-warning">
               <Trans>Note: Staking KNC is only available on Ethereum chain.</Trans>
-            </Text>
+            </span>
             <NavLink to={APP_PATHS.ABOUT + '/knc'}>
               <Trans>Read about KNC ↗</Trans>
             </NavLink>
           </RowBetween>
-        </Information>
-        <KyberImageWrapper>
+        </div>
+        <div className="order-2 flex w-[404px] justify-center max-lg:hidden">
           <img src={kyberCrystal} alt="KyberDAO" width="186px" />
-        </KyberImageWrapper>
-        <CardGroup>
+        </div>
+        <div className="order-3 flex w-[772px] flex-col gap-6 max-sm:w-screen max-sm:px-4">
           <Card>
-            <Image src={governancePNG} alt={t`DAO Governance`} />
+            <img src={governancePNG} alt={t`DAO Governance`} className="size-11" />
             <CardInfo>
-              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
+              <span className="text-xl font-medium leading-6 text-text">
                 <Trans>DAO Governance</Trans>
-              </Text>
-              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
+              </span>
+              <span className="text-xs font-medium leading-4 text-subText">
                 <Trans>KNC holders can stake their tokens to vote on proposals and receive rewards in KNC. </Trans>{' '}
                 <ExternalLink href={'https://docs.kyberswap.com/kyber-dao/kyber-dao-introduction'}>FAQ ↗</ExternalLink>
-              </Text>
+              </span>
             </CardInfo>
           </Card>
           <Card>
-            <Image src={stakevotePNG} alt={t`Stake + Vote`} />
+            <img src={stakevotePNG} alt={t`Stake + Vote`} className="size-11" />
             <CardInfo>
-              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
+              <span className="text-xl font-medium leading-6 text-text">
                 <Trans>Stake + Vote</Trans>
-              </Text>
-              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
+              </span>
+              <span className="text-xs font-medium leading-4 text-subText">
                 <Trans>The more you stake and vote, the more KNC you will earn. </Trans>
-              </Text>
+              </span>
             </CardInfo>
             <ButtonPrimary
               onClick={() => {
@@ -195,19 +123,19 @@ export default function StakeKNC() {
             </ButtonPrimary>
           </Card>
           <Card>
-            <Image src={migratePNG} alt={t`Migrate`} />
+            <img src={migratePNG} alt={t`Migrate`} className="size-11" />
             <CardInfo>
-              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
+              <span className="text-xl font-medium leading-6 text-text">
                 <Trans>Migrate</Trans>
-              </Text>
-              <Row gap="4px">
-                <Text fontSize={12} lineHeight="16px" fontWeight={500} textAlign="left" color={theme.subText}>
+              </span>
+              <Row className="gap-1">
+                <span className="text-left text-xs font-medium leading-4 text-subText">
                   <Trans>Total KNC migrated from KNCL </Trans>
-                </Text>
+                </span>
                 {totalMigratedKNC ? (
-                  <Text fontSize={12} lineHeight="16px">
+                  <span className="text-xs leading-4">
                     {formatLongNumber(formatUnits(totalMigratedKNC, 18).split('.')[0]) + ' KNC'}
-                  </Text>
+                  </span>
                 ) : (
                   <div style={{ lineHeight: 1 }}>
                     <Skeleton
@@ -227,13 +155,13 @@ export default function StakeKNC() {
             </ButtonLight>
           </Card>
           <Card>
-            <Image src={kncUtilityPNG} alt={t`KNC Utility`} />
+            <img src={kncUtilityPNG} alt={t`KNC Utility`} className="size-11" />
             <CardInfo>
-              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
+              <span className="text-xl font-medium leading-6 text-text">
                 <Trans>KNC Utility</Trans>
-              </Text>
-              <Row gap="4px">
-                <Text fontSize={12} lineHeight="16px" fontWeight={500} textAlign="left" color={theme.subText}>
+              </span>
+              <Row className="gap-1">
+                <span className="text-left text-xs font-medium leading-4 text-subText">
                   <Trans>
                     Discover more staking KNC utility and benefits{' '}
                     <NavLink
@@ -248,7 +176,7 @@ export default function StakeKNC() {
                     </NavLink>
                     .
                   </Trans>
-                </Text>
+                </span>
               </Row>
             </CardInfo>
             <MouseoverTooltip
@@ -279,12 +207,10 @@ export default function StakeKNC() {
             </MouseoverTooltip>
           </Card>
           <Card>
-            <Image src={kyberdaoPNG} alt="KyberDAO v1" />
+            <img src={kyberdaoPNG} alt="KyberDAO v1" className="size-11" />
             <CardInfo>
-              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
-                KyberDAO v1
-              </Text>
-              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
+              <span className="text-xl font-medium leading-6 text-text">KyberDAO v1</span>
+              <span className="text-xs font-medium leading-4 text-subText">
                 <Trans>
                   You can access legacy KyberDAO v1 to read about previous KIPs{' '}
                   <ExternalLink href="https://legacy.kyber.org/vote" target="_blank" rel="noreferrer">
@@ -292,12 +218,12 @@ export default function StakeKNC() {
                   </ExternalLink>
                   .
                 </Trans>
-              </Text>
+              </span>
             </CardInfo>
           </Card>
-        </CardGroup>
+        </div>
         <StakeKNCComponent />
-      </Container>
-    </Wrapper>
+      </div>
+    </div>
   )
 }

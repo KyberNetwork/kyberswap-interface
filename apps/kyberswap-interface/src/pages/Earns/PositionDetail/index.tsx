@@ -5,7 +5,6 @@ import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -15,7 +14,6 @@ import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
@@ -47,7 +45,6 @@ import { type Address } from 'utils/viem'
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
-  const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const { account } = useActiveWeb3React()
@@ -298,15 +295,15 @@ const PositionDetail = () => {
     () => (
       <EmptyPositionText>
         <IconEarnNotFound />
-        <Text>{t`No position found!`}</Text>
-        <Flex sx={{ gap: 2 }} marginTop={12}>
+        <span>{t`No position found!`}</span>
+        <div className="mt-3 flex gap-2">
           <NavigateButton
             icon={<RocketIcon width={20} height={20} />}
             text={t`Explorer Pools`}
             to={APP_PATHS.EARN_POOLS}
           />
           <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
-        </Flex>
+        </div>
       </EmptyPositionText>
     ),
     [],
@@ -345,10 +342,10 @@ const PositionDetail = () => {
           })
         }}
       >
-        <Share2 size={size || 16} color={theme.primary} />
+        <Share2 size={size || 16} className="text-primary" />
       </ShareButtonWrapper>
     ),
-    [theme.primary, position, aprInterval],
+    [position, aprInterval],
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
@@ -419,33 +416,33 @@ const PositionDetail = () => {
             <>
               <PositionDetailHeader />
 
-              <Flex flexDirection="column" sx={{ gap: '12px' }}>
+              <div className="flex flex-col gap-3">
                 {!position?.pool.isFarming &&
                   (!!position?.suggestionPool ||
                     (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
                   position.status !== PositionStatus.CLOSED && (
                     <MigrationLiquidityRecommend>
-                      <Text color={'#fafafa'} lineHeight={'18px'}>
+                      <p className="leading-[18px] text-white2">
                         {!!position.suggestionPool
                           ? position.pool.fee === position.suggestionPool.feeTier
                             ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
                             : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} to start earning farming rewards.`
                           : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
-                      </Text>
-                      <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
+                      </p>
+                      <p className="cursor-pointer text-primary" onClick={handleMigrateToKem}>
                         {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
-                      </Text>
+                      </p>
                     </MigrationLiquidityRecommend>
                   )}
 
                 {isNotAccountOwner && (
                   <MigrationLiquidityRecommend>
-                    <Text color={'#fafafa'} lineHeight={'18px'}>
+                    <p className="leading-[18px] text-white2">
                       {t`This position is currently being used in another protocol. Fee claim and liquidity actions are unavailable.`}
-                    </Text>
+                    </p>
                   </MigrationLiquidityRecommend>
                 )}
-              </Flex>
+              </div>
 
               <PositionDetailWrapper>
                 {!isUniv2 && <LeftSection />}

@@ -1,97 +1,58 @@
 import { Trans } from '@lingui/macro'
 import { useMemo, useState } from 'react'
-import { Text } from 'rebass'
 import kyberDAOApi from 'services/kyberDAO'
-import styled, { css } from 'styled-components'
 
 import Gold from 'assets/svg/gold_icon.svg'
 import Divider from 'components/Divider'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { ProposalType, VoteDetail } from 'hooks/kyberdao/types'
-import useTheme from 'hooks/useTheme'
 import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
+import { cn } from 'utils/cn'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
-const Wrapper = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 20px;
-  & > * {
-    width: calc(25% - 20px * 3 / 4);
-  }
-  flex-wrap: wrap;
+const WON_OPTION_BG =
+  'linear-gradient(180deg, rgba(41, 41, 41, 0) 0%, rgba(41, 41, 41, 0.12) 54.69%, rgba(41, 41, 41, 0.7) 100%), linear-gradient(90deg, rgba(228, 181, 86, 0.25) 0%, rgba(241, 192, 94, 0.127155) 69.27%, rgba(255, 204, 102, 0) 100%)'
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     & > * {
-      width: calc(33.33% - 20px * 2 / 3);
-    }
-  `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     & > * {
-      width: calc(50% - 20px / 2);
-    }
-  `}
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-     & > * {
-      width: 100%;
-    }
-  `}
-`
-const OptionWrapper = styled.div<{ isWonOption?: boolean; hasHoverStyle?: boolean }>`
-  border-radius: 20px;
-  padding: 12px 16px;
-  transition: all 0.1s ease;
-  ${({ hasHoverStyle }) =>
-    hasHoverStyle &&
-    css`
-      cursor: pointer;
-      :hover {
-        filter: brightness(1.2);
-        box-shadow: 0 2px 5px 2px ${({ theme }) => theme.buttonBlack};
-      }
-    `}
-  ${({ theme, isWonOption }) => css`
-    border: 1px solid ${theme.border};
-    background-color: ${theme.buttonBlack};
-    ${isWonOption &&
-    `background: linear-gradient(180deg, rgba(41, 41, 41, 0) 0%, rgba(41, 41, 41, 0.12) 54.69%, rgba(41, 41, 41, 0.7) 100%), linear-gradient(90deg, rgba(228, 181, 86, 0.25) 0%, rgba(241, 192, 94, 0.127155) 69.27%, rgba(255, 204, 102, 0) 100%);`}
-  `}
-`
-const ParticipantWrapper = styled.div`
-  height: 150px;
-  overflow: auto;
-  user-select: none;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-     height: 130px;
-  `}
-`
-const InfoRow = styled(RowBetween)`
-  font-size: 12px;
-  padding: 6px 0;
-  & > * {
-    flex: 1;
-  }
-  & > *:nth-child(2) {
-    text-align: center;
-  }
-  & > *:last-child {
-    text-align: right;
-  }
-`
+const OptionWrapper = ({
+  isWonOption,
+  hasHoverStyle,
+  children,
+  className,
+  onClick,
+  style,
+}: {
+  isWonOption?: boolean
+  hasHoverStyle?: boolean
+  children: React.ReactNode
+  className?: string
+  onClick?: () => void
+  style?: React.CSSProperties
+}) => (
+  <div
+    onClick={onClick}
+    style={isWonOption ? { background: WON_OPTION_BG, ...style } : style}
+    className={cn(
+      'rounded-[20px] border border-border bg-buttonBlack px-4 py-3 transition-all duration-100',
+      hasHoverStyle && 'cursor-pointer hover:shadow-[0_2px_5px_2px_var(--ks-buttonBlack)] hover:brightness-125',
+      className,
+    )}
+  >
+    {children}
+  </div>
+)
 
-const TableHeaderWrapper = styled(RowBetween)`
-  & > * {
-    flex: 1;
-  }
-  & > *:nth-child(2) {
-    text-align: center;
-  }
-  & > *:last-child {
-    text-align: right;
-  }
-`
+const TableHeaderWrapper = ({ children }: { children: React.ReactNode }) => (
+  <RowBetween className="text-xs text-subText [&>*:last-child]:text-right [&>*:nth-child(2)]:text-center [&>*]:flex-1">
+    {children}
+  </RowBetween>
+)
+
+const InfoRow = ({ children }: { children: React.ReactNode }) => (
+  <RowBetween className="py-1.5 text-xs [&>*:last-child]:text-right [&>*:nth-child(2)]:text-center [&>*]:flex-1">
+    {children}
+  </RowBetween>
+)
 
 const VotersListModal = ({
   isOpen,
@@ -108,48 +69,46 @@ const VotersListModal = ({
   sumPower: number | undefined
   option: string
 }) => {
-  const theme = useTheme()
-
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss}>
-      <OptionWrapper isWonOption={isWonOption} style={{ width: '100%' }}>
+      <OptionWrapper isWonOption={isWonOption} className="w-full">
         <RowBetween>
-          <RowFit height={19}>
+          <RowFit className="h-[19px]">
             {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
-            <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{option}</Text>
+            <span className="overflow-hidden text-ellipsis">{option}</span>
           </RowFit>
 
-          <Text style={{ paddingLeft: '10px', flexShrink: 0 }}>
-            {sumPower ? Math.round(sumPower).toLocaleString() : '--'}
-          </Text>
+          <span className="shrink-0 pl-2.5">{sumPower ? Math.round(sumPower).toLocaleString() : '--'}</span>
         </RowBetween>
-        <Divider margin="10px 0" />
-        <TableHeaderWrapper fontSize={12} color={theme.subText}>
-          <Text>
+        <Divider className="my-2.5" />
+        <TableHeaderWrapper>
+          <span>
             <Trans>Wallet</Trans>
-          </Text>
-          <Text>
+          </span>
+          <span>
             <Trans>Amount</Trans>
-          </Text>
+          </span>
         </TableHeaderWrapper>
-        <Divider margin="10px 0" />
-        <ParticipantWrapper style={{ height: 'fit-content', maxHeight: '70vh', minHeight: '200px' }}>
+        <Divider className="my-2.5" />
+        <div
+          className="select-none overflow-auto"
+          style={{ height: 'fit-content', maxHeight: '70vh', minHeight: '200px' }}
+        >
           {participants.map(vote => {
             return (
               <InfoRow key={vote.staker}>
-                <Text>{vote.staker_name || vote.staker}</Text>
-                <Text color={theme.subText}>{vote.power}</Text>
+                <span>{vote.staker_name || vote.staker}</span>
+                <span className="text-subText">{vote.power}</span>
               </InfoRow>
             )
           })}
-        </ParticipantWrapper>
+        </div>
       </OptionWrapper>
     </Modal>
   )
 }
 
 export default function Participants({ proposalId }: { proposalId?: number }) {
-  const theme = useTheme()
   const [modalIndex, setModalIndex] = useState<number | null>(null)
 
   const { data: proposalInfo } = kyberDAOApi.useGetProposalByIdQuery({ id: proposalId }, { skip: !proposalId })
@@ -171,14 +130,13 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
     (option, index) => (proposalId ? HARDCODED_OPTION_TITLE[proposalId] : {})?.[index] || option,
   )
 
-  // flag to reduce fontsize when contents are too long
   const isLongText = useMemo(() => {
     if (!options) return false
     return options.some(o => o.length > 30)
   }, [options])
 
   return (
-    <Wrapper>
+    <div className="flex flex-wrap items-start justify-start gap-5 [&>*]:w-[calc(25%-15px)] max-md:[&>*]:w-[calc(33.33%-40px/3)] max-sm:[&>*]:w-[calc(50%-10px)] max-[500px]:[&>*]:w-full">
       {options && participants
         ? options.map((optionTitle, index) => {
             const sumPower = proposalInfo?.vote_stats.options.find(option => option.option === index)?.vote_count
@@ -196,48 +154,43 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                 hasHoverStyle
               >
                 <RowBetween>
-                  <RowFit height={19}>
+                  <RowFit className="h-[19px]">
                     {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
-                    <Text
-                      fontSize={isLongText ? '14px' : '16px'}
-                      style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-                    >
+                    <span className={cn('overflow-hidden text-ellipsis', isLongText ? 'text-sm' : 'text-base')}>
                       {hardCodedTitle || optionTitle}
-                    </Text>
+                    </span>
                   </RowFit>
 
-                  <Text fontSize={isLongText ? '14px' : '16px'} style={{ paddingLeft: '10px', flexShrink: 0 }}>
+                  <span className={cn('shrink-0 pl-2.5', isLongText ? 'text-sm' : 'text-base')}>
                     {sumPower ? Math.round(sumPower).toLocaleString() : '--'}
-                  </Text>
+                  </span>
                 </RowBetween>
-                <Divider margin="10px 0" />
-                <TableHeaderWrapper fontSize={12} color={theme.subText}>
-                  <Text>
+                <Divider className="my-2.5" />
+                <TableHeaderWrapper>
+                  <span>
                     <Trans>Wallet</Trans>
-                  </Text>
-                  <Text>
+                  </span>
+                  <span>
                     <Trans>Amount</Trans>
-                  </Text>
+                  </span>
                 </TableHeaderWrapper>
-                <Divider margin="10px 0" />
+                <Divider className="my-2.5" />
 
-                <ParticipantWrapper>
+                <div className="h-[150px] select-none overflow-auto max-[500px]:h-[130px]">
                   {filteredParticipants.slice(0, 5).map(vote => {
                     return (
                       <InfoRow key={vote.staker}>
-                        <Text>{vote.staker_name || vote.staker}</Text>
-                        <Text color={theme.subText}>{vote.power}</Text>
+                        <span>{vote.staker_name || vote.staker}</span>
+                        <span className="text-subText">{vote.power}</span>
                       </InfoRow>
                     )
                   })}
                   {filteredParticipants.length > 5 && (
-                    <Row justify="center" marginTop="4px">
-                      <Text fontSize="12px" color={theme.primary}>
-                        View more
-                      </Text>
+                    <Row className="mt-1 justify-center">
+                      <span className="text-xs text-primary">View more</span>
                     </Row>
                   )}
-                </ParticipantWrapper>
+                </div>
                 <VotersListModal
                   participants={filteredParticipants}
                   isOpen={index === modalIndex}
@@ -250,6 +203,6 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
             )
           })
         : null}
-    </Wrapper>
+    </div>
   )
 }

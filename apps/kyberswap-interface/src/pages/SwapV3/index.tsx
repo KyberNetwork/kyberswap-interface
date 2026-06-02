@@ -1,6 +1,5 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { Flex } from 'rebass'
 
 import Banner from 'components/Banner'
 import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
@@ -190,18 +189,18 @@ export default function Swap() {
 
             {isLimitPage && <ListLimitOrder />}
             {isCrossChainPage && (
-              <Flex flexDirection="column" sx={{ gap: '16px' }}>
+              <div className="flex flex-col gap-4">
                 <QuoteSteps quote={selectedQuote} />
                 <TransactionHistory />
-              </Flex>
+              </div>
             )}
           </InfoComponents>
         </Container>
-        <Flex justifyContent="center">
+        <div className="flex justify-center">
           <SwitchLocaleLinkWrapper>
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
-        </Flex>
+        </div>
       </PageWrapper>
     </>
   )

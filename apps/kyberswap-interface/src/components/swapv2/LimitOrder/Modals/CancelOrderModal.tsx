@@ -1,23 +1,21 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Text } from 'rebass'
 
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
+import { Container, Header, Label, ListInfo, Note, Rate, Value } from 'components/swapv2/LimitOrder/Modals/styled'
+import { calcPercentFilledOrder, formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
+import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { NativeCurrencies } from 'constants/tokens'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-
-import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
-import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
-import { Container, Header, Label, ListInfo, Note, Rate, Value } from './styled'
 
 export enum CancelStatus {
   WAITING,
@@ -115,9 +113,9 @@ function CancelOrderModal({
         content: (
           <Value>
             <Logo srcs={[makerAssetLogoURL]} style={styleLogo} />
-            <Text>
+            <span>
               {formatAmountOrder(makingAmount, makerAssetDecimals)} {makerAssetSymbol}
-            </Text>
+            </span>
           </Value>
         ),
       },
@@ -131,9 +129,9 @@ function CancelOrderModal({
               ]}
               style={styleLogo}
             />
-            <Text>
+            <span>
               {formatAmountOrder(takingAmount, takerAssetDecimals)} {takerSymbol}
-            </Text>
+            </span>
           </Value>
         ),
       },

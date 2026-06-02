@@ -1,13 +1,10 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { transparentize } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Info, Repeat } from 'react-feather'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useGetListOrdersQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { calculatePriceImpact } from 'services/route/utils'
-import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -17,7 +14,10 @@ import { RowBetween } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import SwapBrief from 'components/SwapForm/SwapModal/SwapBrief'
+import SwapDetails, { Props as SwapDetailsProps } from 'components/SwapForm/SwapModal/SwapDetails'
 import { Level } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
+import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSure'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -35,28 +35,15 @@ import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
-import { TYPE } from 'theme'
 import { CloseIcon } from 'theme/components'
+import { cn } from 'utils/cn'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
 import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
 
-import SwapBrief from './SwapBrief'
-import SwapDetails, { Props as SwapDetailsProps } from './SwapDetails'
-import ValueWithLoadingSkeleton from './SwapDetails/ValueWithLoadingSkeleton'
-
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
 const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
 const SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD = -10
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 24px;
-  gap: 16px;
-  border-radius: 20px;
-`
 
 function ExecutionPrice({
   executionPrice,
@@ -77,29 +64,31 @@ function ExecutionPrice({
     ? `1 ${outputSymbol} = ${formattedPrice} ${inputSymbol}`
     : `1 ${inputSymbol} = ${formattedPrice} ${outputSymbol}`
 
-  return (
-    <Text fontWeight={500} style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
-      {value}
-    </Text>
-  )
+  return <span className="min-w-max whitespace-nowrap font-medium">{value}</span>
 }
 
-const PriceUpdateWarning = styled.div<{ isAccepted: boolean; $level: 'warning' | 'error' }>`
-  margin-top: 1rem;
-  border-radius: 16px;
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  background: ${({ $level, theme, isAccepted }) =>
-    isAccepted
-      ? transparentize(0.8, theme.subText)
-      : $level === 'warning'
-      ? transparentize(0.7, theme.warning)
-      : transparentize(0.7, theme.red)};
-  color: ${({ theme, isAccepted }) => (isAccepted ? theme.subText : theme.text)};
-`
+const PriceUpdateWarning = ({
+  isAccepted,
+  level,
+  children,
+}: {
+  isAccepted: boolean
+  level: 'warning' | 'error'
+  children: React.ReactNode
+}) => (
+  <div
+    className={cn(
+      'mt-4 flex items-center gap-2 rounded-2xl px-3 py-2 text-xs',
+      isAccepted
+        ? 'bg-subText/20 text-subText'
+        : level === 'warning'
+        ? 'bg-warning/30 text-text'
+        : 'bg-red/30 text-text',
+    )}
+  >
+    {children}
+  </div>
+)
 
 type Props = {
   buildResult: BuildRouteResult | undefined
@@ -160,28 +149,28 @@ export default function ConfirmSwapModalContent({
     if (!errorWhileBuildRoute) return
     if (errorWhileBuildRoute.toLowerCase().includes('permit')) {
       return (
-        <Text>
+        <div>
           <Trans>
             There was an issue while trying to confirm your price. <b>Permit signature invalid</b>
           </Trans>
-        </Text>
+        </div>
       )
     }
 
     if (honeypot?.isHoneypot) {
       return (
-        <Text>
+        <div>
           This token might be a honeypot token and could be unsellable. Please consult the project team for further
           assistance
-        </Text>
+        </div>
       )
     }
 
     if (honeypot?.isFOT) {
       return (
-        <Text>
+        <div>
           This token has a Fee-on-Transfer. Please increase the slippage to at least {honeypot.tax * 100}% to proceed.
-        </Text>
+        </div>
       )
     }
 
@@ -191,12 +180,12 @@ export default function ConfirmSwapModalContent({
       errorWhileBuildRoute.includes('smaller')
     ) {
       return (
-        <Text>
+        <div>
           <Trans>
             There was an issue while confirming your price and minimum amount received. You may consider adjusting your{' '}
             <b>Max Slippage</b> and then trying to swap again.
           </Trans>
-        </Text>
+        </div>
       )
     }
     if (
@@ -204,12 +193,12 @@ export default function ConfirmSwapModalContent({
         'Please use a different wallet to fill an order that you created via the KyberSwap Limit Order',
       )
     )
-      return <Text>{errorWhileBuildRoute}</Text>
+      return <div>{errorWhileBuildRoute}</div>
 
     return (
-      <Text>
+      <div>
         <Trans>There was an issue while trying to confirm your price. Please try to swap again.</Trans>
-      </Text>
+      </div>
     )
   }, [errorWhileBuildRoute, honeypot?.isHoneypot, honeypot?.isFOT, honeypot?.tax])
 
@@ -313,10 +302,7 @@ export default function ConfirmSwapModalContent({
     )
   }
 
-  const warningStyle =
-    priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
-      ? { background: theme.red, color: theme.text }
-      : undefined
+  const showWarningStyle = priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
 
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isAdvancedMode, priceImpactFromBuild)
 
@@ -407,7 +393,7 @@ export default function ConfirmSwapModalContent({
         suggestionMessage={
           retry < 1 &&
           slippage !== dynamicSuggestedSlippage && (
-            <Text marginTop="8px" fontSize={16} color={theme.text}>
+            <div className="mt-2 text-base text-text">
               <Trans>New Suggested Slippage:</Trans> {(dynamicSuggestedSlippage * 100) / 10_000}%{' '}
               <InfoHelper
                 text={
@@ -417,7 +403,7 @@ export default function ConfirmSwapModalContent({
                   </Trans>
                 }
               />{' '}
-            </Text>
+            </div>
           )
         }
       />
@@ -435,38 +421,38 @@ export default function ConfirmSwapModalContent({
         formattedOutputChangePercent={formattedOutputChangePercent}
       />
 
-      <Wrapper>
+      <div className="flex w-full flex-col gap-4 rounded-[20px] p-6">
         <AutoColumn>
           <RowBetween>
-            <Text fontWeight={500} fontSize={20}>
+            <span className="text-xl font-medium">
               <Trans>Confirm Swap Details</Trans>
-            </Text>
+            </span>
             <CloseIcon onClick={onDismiss} />
           </RowBetween>
 
-          <RowBetween mt="4px">
-            <Text fontWeight={400} fontSize={12} color={theme.subText}>
+          <RowBetween className="mt-1">
+            <span className="text-xs font-normal text-subText">
               <Trans>Please review the details of your swap:</Trans>
-            </Text>
+            </span>
             {isBuildingRoute && (
-              <Flex width="fit-content" height="100%" alignItems="center" sx={{ gap: '4px' }}>
-                <Loader size="14px" stroke={theme.primary} />
-                <Text as="span" fontSize={12} color={theme.subText}>
+              <div className="flex h-full w-fit items-center gap-1">
+                <Loader size="14px" className="text-primary" />
+                <span className="text-xs text-subText">
                   <Dots>
                     <Trans>Checking price</Trans>
                   </Dots>
-                </Text>
-              </Flex>
+                </span>
+              </div>
             )}
           </RowBetween>
 
           {outputChangePercent < 0 && (
             <PriceUpdateWarning
-              $level={outputChangePercent <= AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD ? 'error' : 'warning'}
+              level={outputChangePercent <= AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD ? 'error' : 'warning'}
               isAccepted={hasAcceptedNewAmount}
             >
-              {hasAcceptedNewAmount && <Check size={20} color={theme.text} />}
-              <Text flex={1} color={theme.text}>
+              {hasAcceptedNewAmount && <Check size={20} className="text-text" />}
+              <div className="flex-1 text-text">
                 {hasAcceptedNewAmount ? (
                   <Trans>New Amount Accepted</Trans>
                 ) : (
@@ -478,14 +464,14 @@ export default function ConfirmSwapModalContent({
                     {isShowAcceptNewAmount ? '. Please accept the new amount before swapping' : ''}
                   </Trans>
                 )}
-              </Text>
+              </div>
             </PriceUpdateWarning>
           )}
 
-          <Flex alignItems="center" sx={{ gap: '4px' }} mt="12px">
-            <Text fontWeight={400} fontSize={12} color={theme.subText} minWidth="max-content">
+          <div className="mt-3 flex items-center gap-1">
+            <span className="min-w-max text-xs font-normal text-subText">
               <Trans>Rate:</Trans>
-            </Text>
+            </span>
             <ValueWithLoadingSkeleton
               skeletonStyle={{
                 width: '160px',
@@ -494,66 +480,55 @@ export default function ConfirmSwapModalContent({
               isShowingSkeleton={isBuildingRoute}
               content={
                 getSwapDetailsProps().executionPrice ? (
-                  <Flex
-                    fontWeight={500}
-                    fontSize={12}
-                    color={theme.text}
-                    sx={{
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      textAlign: 'right',
-                    }}
-                  >
+                  <div className="flex items-center justify-center text-right text-xs font-medium text-text">
                     <ExecutionPrice executionPrice={getSwapDetailsProps().executionPrice} showInverted={showInverted} />
                     <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
-                      <Repeat size={14} color={theme.text} />
+                      <Repeat size={14} className="text-text" />
                     </StyledBalanceMaxMini>
-                  </Flex>
+                  </div>
                 ) : (
-                  <TYPE.black fontSize={12}>--</TYPE.black>
+                  <p className="m-0 text-[12px] font-medium text-text">--</p>
                 )
               }
             />
-          </Flex>
+          </div>
 
           {renderSwapBrief()}
         </AutoColumn>
 
         <SwapDetails {...getSwapDetailsProps()} />
 
-        <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
+        <div className="flex flex-col gap-4">
           <SlippageWarningNote rawSlippage={slippage} />
 
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
           {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
           {showLOWwarning && (
-            <Text fontStyle="italic" fontSize={12} color={theme.subText} fontWeight={500}>
-              <Text fontWeight="500" color={theme.text} as="span">
-                Notice
-              </Text>
-              : Some of your {currencyIn?.symbol} is already reserved by an open Limit Order—review it{' '}
+            <span className="text-xs font-medium italic text-subText">
+              <span className="font-medium text-text">Notice</span>: Some of your {currencyIn?.symbol} is already
+              reserved by an open Limit Order—review it{' '}
               <Link
                 to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?activeTab=${LimitOrderTab.MY_ORDER}&search=${currencyIn?.wrapped.address}&highlight=true`}
               >
                 here.
               </Link>
-            </Text>
+            </span>
           )}
 
           {errorWhileBuildRoute ? (
             isSlippageNotEnough && slippage <= defaultSlp ? (
-              <Flex sx={{ gap: '16px' }}>
-                <ButtonOutlined onClick={onDismiss} style={{ flex: 1 }}>
+              <div className="flex gap-4">
+                <ButtonOutlined onClick={onDismiss} className="flex-1">
                   Dismiss
                 </ButtonOutlined>
                 {slippage < defaultSlp ? (
-                  <ButtonPrimary style={{ flex: 2 }} onClick={() => setRawSlippage(defaultSlp)}>
+                  <ButtonPrimary className="flex-[2]" onClick={() => setRawSlippage(defaultSlp)}>
                     Use Suggested Slippage
                   </ButtonPrimary>
                 ) : (
                   <ButtonPrimary
-                    style={{ flex: 1 }}
+                    className="flex-1"
                     onClick={() => {
                       searchParams.set('action', 'open-slippage-panel')
                       setSearchParams(searchParams)
@@ -563,7 +538,7 @@ export default function ConfirmSwapModalContent({
                     Set Custom Slippage
                   </ButtonPrimary>
                 )}
-              </Flex>
+              </div>
             ) : (
               <ButtonPrimary
                 onClick={() => {
@@ -574,13 +549,13 @@ export default function ConfirmSwapModalContent({
                   onDismiss()
                 }}
               >
-                <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
+                <span className="text-sm font-medium leading-none">
                   {honeypot?.isFOT ? 'Adjust Settings' : 'Dismiss'}
-                </Text>
+                </span>
               </ButtonPrimary>
             )
           ) : (
-            <Flex sx={{ gap: '8px', width: '100%' }}>
+            <div className="flex w-full gap-2">
               {isShowAcceptNewAmount && (
                 <ButtonPrimary
                   style={
@@ -606,17 +581,12 @@ export default function ConfirmSwapModalContent({
                 onClick={onSwap}
                 disabled={disableSwap}
                 id="confirm-swap-or-send"
-                style={{
-                  ...(disableSwap ? undefined : warningStyle),
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
+                className={cn('flex items-center gap-1', !disableSwap && showWarningStyle && '!bg-red !text-text')}
               >
                 {shouldDisableConfirmButton ? (
-                  <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
+                  <span className="text-sm font-medium leading-none">
                     <Trans>Swap</Trans>
-                  </Text>
+                  </span>
                 ) : disableSwap ? (
                   <>
                     {shouldDisableByPriceImpact && (
@@ -631,20 +601,20 @@ export default function ConfirmSwapModalContent({
                         <Info size={14} />
                       </MouseoverTooltip>
                     )}
-                    <Text>
+                    <span>
                       {shouldDisableByPriceImpact ? <Trans>Swap Disabled</Trans> : <Trans>Confirm Swap</Trans>}
-                    </Text>
+                    </span>
                   </>
                 ) : (
-                  <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
+                  <span className="text-sm font-medium leading-none">
                     <Trans>Confirm Swap</Trans>
-                  </Text>
+                  </span>
                 )}
               </ButtonPrimary>
-            </Flex>
+            </div>
           )}
-        </Flex>
-      </Wrapper>
+        </div>
+      </div>
     </>
   )
 }

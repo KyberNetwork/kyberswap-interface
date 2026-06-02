@@ -1,28 +1,14 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import React, { memo, useCallback, useMemo } from 'react'
-import styled from 'styled-components'
 
 import Logo from 'components/Logo'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getNativeTokenLogo, getTokenLogoURL } from 'utils'
+import { cn } from 'utils/cn'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
-const StyledNativeCurrencyLogo = styled.img<{ size: string }>`
-  width: ${({ size }) => size};
-  height: ${({ size }) => size};
-  min-width: ${({ size }) => size};
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.075);
-  border-radius: 24px;
-`
-
-const StyledLogo = styled(Logo)<{ size: string }>`
-  width: ${({ size }) => size};
-  height: ${({ size }) => size};
-  border-radius: 4px;
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.075);
-  object-fit: contain;
-`
+const baseShadow = 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]'
 
 function CurrencyLogo({
   currency,
@@ -40,7 +26,6 @@ function CurrencyLogo({
       if (!useProxy || !uri) {
         return uri
       }
-
       return getProxyTokenLogo(uri)
     },
     [useProxy],
@@ -64,15 +49,23 @@ function CurrencyLogo({
 
   if (currency?.isNative) {
     return (
-      <StyledNativeCurrencyLogo
+      <img
         src={getNativeTokenLogo(currency?.chainId)}
-        size={size}
-        style={style}
+        style={{ width: size, height: size, minWidth: size, ...style }}
         alt={`${currency.symbol} Logo`}
+        className={cn('rounded-3xl', baseShadow)}
       />
     )
   }
 
-  return <StyledLogo size={size} srcs={srcs} alt={`${currency?.symbol ?? 'token'} logo`} style={style} />
+  return (
+    <Logo
+      srcs={srcs}
+      alt={`${currency?.symbol ?? 'token'} logo`}
+      style={{ width: size, height: size, ...style }}
+      className={cn('rounded object-contain', baseShadow)}
+    />
+  )
 }
+
 export default memo(CurrencyLogo)

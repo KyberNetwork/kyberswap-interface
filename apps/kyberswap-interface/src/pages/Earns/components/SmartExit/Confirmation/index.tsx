@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { useGetSmartExitConfigQuery } from 'services/smartExit'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -8,7 +7,6 @@ import { ButtonPrimary } from 'components/Button'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Condition from 'pages/Earns/components/SmartExit/Confirmation/Condition'
@@ -42,7 +40,6 @@ export default function Confirmation({
   isSuccess: boolean
   revertPrice?: boolean
 }) {
-  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
   const isSmartAccount = useIsSmartAccount()
@@ -66,15 +63,15 @@ export default function Confirmation({
 
   return (
     <>
-      <Flex justifyContent="space-between" alignItems="center">
-        <Flex alignItems="center" sx={{ gap: '8px' }}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <IconArrowLeft onClick={onDismiss} />
-          <Text fontSize={20} fontWeight={500}>
+          <span className="text-xl font-medium">
             <Trans>Confirmation</Trans>
-          </Text>
-        </Flex>
+          </span>
+        </div>
         <X onClick={onDismiss} />
-      </Flex>
+      </div>
 
       <Condition
         position={position}
@@ -84,12 +81,12 @@ export default function Confirmation({
       />
       <MoreInfo deadline={deadline} protocolFee={protocolFee} maxGas={maxGas} />
 
-      <Text fontStyle="italic" fontSize={14} color={theme.subText} my="1rem">
+      <p className="my-4 text-sm italic text-subText">
         <Trans>
           The information is intended solely for your reference at the time you are viewing. It is your responsibility
           to verify all information before making decisions
         </Trans>
-      </Text>
+      </p>
 
       <ButtonPrimary
         disabled={Boolean(permitState === PermitNftState.SIGNING || isCreating || !maxGas)}

@@ -2,8 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { ArrowLeft, ChevronLeft, Trash } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import { ButtonEmpty } from 'components/Button'
@@ -16,98 +14,46 @@ import Tutorial, { TutorialType } from 'components/Tutorial'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 
-const Tabs = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: center;
-  border-radius: 3rem;
-  justify-content: space-evenly;
-`
-
-const Wrapper = styled(RowBetween)`
-  padding: 1rem 0 4px;
-
-  @media only screen and (min-width: 768px) {
-    padding: 1rem 0;
-  }
-`
-
-const ActiveText = styled.div`
-  font-weight: 500;
-  font-size: 20px;
-`
-
-const StyledArrowLeft = styled(ArrowLeft)`
-  color: ${({ theme }) => theme.text};
-`
-
-const ButtonBack = styled(ButtonEmpty)`
-  width: 28px;
-  height: 28px;
-  justify-content: center;
-  :hover,
-  :focus {
-    cursor: pointer;
-    outline: none;
-    background-color: ${({ theme }) => theme.buttonBlack};
-  }
-  margin-right: 8px;
-`
-
-export const StyledMenuButton = styled.button<{ active?: boolean }>`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border: none;
-  background-color: transparent;
-  margin: 0;
-  padding: 0;
-  height: 36px;
-  width: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: ${({ theme }) => theme.subText};
-
-  border-radius: 999px;
-
-  :hover {
-    cursor: pointer;
-    outline: none;
-    background-color: ${({ theme }) => theme.buttonBlack};
-  }
-
-  ${({ active }) =>
-    active
-      ? css`
-          cursor: pointer;
-          outline: none;
-          background-color: ${({ theme }) => theme.buttonBlack};
-        `
-      : ''}
-`
+export const StyledMenuButton = ({
+  active,
+  className,
+  children,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { active?: boolean }) => (
+  <button
+    {...rest}
+    className={cn(
+      'relative m-0 flex size-9 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 text-subText hover:bg-buttonBlack hover:outline-none',
+      active && 'bg-buttonBlack outline-none',
+      className,
+    )}
+  >
+    {children}
+  </button>
+)
 
 export function FindPoolTabs() {
   const navigate = useNavigate()
   const location = useLocation()
   const goBack = () => {
-    // https://github.com/remix-run/react-router/discussions/9922
     if (location.key === 'default') navigate('/')
     else navigate(-1)
   }
 
   return (
-    <Tabs>
-      <RowBetween style={{ padding: '1rem' }}>
+    <div className="flex flex-row flex-nowrap items-center justify-evenly rounded-[3rem]">
+      <RowBetween className="p-4">
         <ButtonEmpty width="fit-content" padding="0" onClick={goBack}>
-          <StyledArrowLeft />
+          <ArrowLeft className="text-text" />
         </ButtonEmpty>
-        <ActiveText>
+        <div className="text-xl font-medium">
           <Trans>Import Pool</Trans>
-        </ActiveText>
+        </div>
         <QuestionHelper text={t`Use this tool to find pairs that don't automatically appear in the interface`} />
       </RowBetween>
-    </Tabs>
+    </div>
   )
 }
 
@@ -150,20 +96,24 @@ export function AddRemoveTabs({
   const location = useLocation()
   const below768 = useMedia('(max-width: 768px)')
   const goBack = () => {
-    // https://github.com/remix-run/react-router/discussions/9922
     if (location.key === 'default') navigate('/')
     else navigate(-1)
   }
 
   const theme = useTheme()
   const arrow = (
-    <ButtonBack width="fit-content" padding="0" onClick={!!onBack ? onBack : goBack}>
-      {alignTitle === 'left' ? <ChevronLeft color={theme.subText} /> : <StyledArrowLeft />}
-    </ButtonBack>
+    <ButtonEmpty
+      width="fit-content"
+      padding="0"
+      onClick={!!onBack ? onBack : goBack}
+      className="!mr-2 !h-7 !w-7 !justify-center hover:!cursor-pointer hover:!bg-buttonBlack hover:!outline-none focus:!outline-none"
+    >
+      {alignTitle === 'left' ? <ChevronLeft className="text-subText" /> : <ArrowLeft className="text-text" />}
+    </ButtonEmpty>
   )
   const title = (
-    <Flex>
-      <ActiveText>
+    <div className="flex">
+      <div className="text-xl font-medium">
         {action === LiquidityAction.CREATE
           ? t`Create a new pool`
           : action === LiquidityAction.ADD
@@ -171,7 +121,7 @@ export function AddRemoveTabs({
           : action === LiquidityAction.INCREASE
           ? t`Increase Liquidity`
           : t`Remove Liquidity`}
-      </ActiveText>
+      </div>
       {showTooltip && (
         <QuestionHelper
           size={16}
@@ -189,35 +139,28 @@ export function AddRemoveTabs({
           }
         />
       )}
-    </Flex>
+    </div>
   )
   return (
-    <Tabs>
-      <Wrapper>
+    <div className="flex flex-row flex-nowrap items-center justify-evenly rounded-[3rem]">
+      <RowBetween className="pb-1 pt-4 sm:py-4">
         {below768 || alignTitle === 'left' ? (
-          <Flex alignItems={'center'}>
+          <div className="flex items-center">
             {arrow}
             {title}
-          </Flex>
+          </div>
         ) : (
           <>
             {arrow}
             {title}
           </>
         )}
-        <Flex style={{ gap: '0px' }}>
+        <div className="flex gap-0">
           {showOwner && owner && (
-            <Text
-              fontSize="12px"
-              fontWeight="500"
-              color={theme.subText}
-              display="flex"
-              alignItems="center"
-              marginRight="8px"
-            >
+            <span className="mr-2 flex items-center text-xs font-medium text-subText">
               <Trans>The owner of this liquidity position is {shortenAddress(chainId, owner)}</Trans>
               <Copy toCopy={owner}></Copy>
-            </Text>
+            </span>
           )}
 
           {tutorialType && (
@@ -237,8 +180,8 @@ export function AddRemoveTabs({
           )}
           <TransactionSettings isElastic={isElastic} hoverBg={theme.buttonBlack} />
           {!hideShare && <ShareButtonWithModal onShared={onShared} title={t`Share with your friends!`} />}
-        </Flex>
-      </Wrapper>
-    </Tabs>
+        </div>
+      </RowBetween>
+    </div>
   )
 }

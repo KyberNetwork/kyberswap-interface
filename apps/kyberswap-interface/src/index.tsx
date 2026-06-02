@@ -37,7 +37,8 @@ import CustomizeDexesUpdater from 'state/customizeDexes/updater'
 import ListsUpdater from 'state/lists/updater'
 import TransactionUpdater from 'state/transactions/updater'
 import UserUpdater from 'state/user/updater'
-import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from 'theme'
+import 'tailwind.css'
+import ThemeProvider from 'theme'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -88,7 +89,6 @@ const ReactApp = () => {
         writeKey={FORMO_WRITE_KEY}
         disabled={window.location.hostname.endsWith('.pr.kyberengineering.io')}
       >
-        <FixedGlobalStyle />
         <Provider store={store}>
           <BrowserRouter>
             <LanguageProvider>
@@ -97,7 +97,6 @@ const ReactApp = () => {
                   <NEARWalletProvider>
                     <Updaters />
                     <ThemeProvider>
-                      <ThemedGlobalStyle />
                       <SolanaProvider>
                         <App />
                       </SolanaProvider>

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { Text } from 'rebass'
 
 import InfoHelper from 'components/InfoHelper'
 import { useActiveWeb3React } from 'hooks'
@@ -63,7 +62,7 @@ export default function CoinbaseSubscribeBtn({ onlyShowIfNotSubscribe = false }:
   if (!isCoinbase || (isSubscribed && onlyShowIfNotSubscribe)) return null
 
   return (
-    <Text onClick={handleSubscribe} sx={{ cursor: 'pointer', color: '#2C9CE4' }} role="button" fontSize={14}>
+    <span onClick={handleSubscribe} role="button" className="cursor-pointer text-sm text-blue2">
       {subscribeButtonText}
       {!isLoading && (
         <InfoHelper
@@ -76,6 +75,6 @@ export default function CoinbaseSubscribeBtn({ onlyShowIfNotSubscribe = false }:
           }
         />
       )}
-    </Text>
+    </span>
   )
 }

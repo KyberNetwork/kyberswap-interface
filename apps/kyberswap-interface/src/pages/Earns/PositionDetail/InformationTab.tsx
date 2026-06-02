@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, PlusCircle } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { usePoolDetailQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
@@ -21,7 +20,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
-import useTheme from 'hooks/useTheme'
 import { timings } from 'pages/Earns/PoolExplorer/Filter'
 import LiquidityChart, { LiquidityChartSkeleton } from 'pages/Earns/PositionDetail/LiquidityChart'
 import PositionAprTooltip from 'pages/Earns/PositionDetail/PositionAprTooltip'
@@ -58,6 +56,7 @@ import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const InformationTab = () => {
@@ -81,7 +80,6 @@ const InformationTab = () => {
   } = usePositionDetailContext()
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
-  const theme = useTheme()
   const navigate = useNavigate()
   const { exchange, chainId, positionId } = useParams()
 
@@ -184,67 +182,63 @@ const InformationTab = () => {
 
       <TabContentArea>
         {/* Total Liquidity + APR row */}
-        <Flex flexWrap="wrap" alignItems="stretch" sx={{ gap: '12px' }}>
+        <div className="flex flex-wrap items-stretch gap-3">
           <TotalLiquiditySection>
-            <Flex flexDirection="column" alignContent="flex-start" sx={{ gap: '6px' }}>
-              <Flex alignItems="center" sx={{ gap: '6px' }}>
-                <Text fontSize={14} color={theme.subText}>
-                  {t`Total Liquidity`}
-                </Text>
+            <div className="flex flex-col content-start gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[14px] text-subText">{t`Total Liquidity`}</span>
                 {position?.isValueUpdating && (
                   <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
                     <Loader2 size={12} />
                   </MouseoverTooltipDesktopOnly>
                 )}
-              </Flex>
+              </div>
               {initialLoading ? (
                 <PositionSkeleton width={95} height={24} />
               ) : (
-                <Text fontSize={20}>
+                <p className="text-[20px]">
                   <AnimatedNumber
                     value={formatDisplayNumber(position?.totalProvidedValue, {
                       style: 'currency',
                       significantDigits: 4,
                     })}
                   />
-                </Text>
+                </p>
               )}
-            </Flex>
+            </div>
             <VerticalDivider />
-            <Flex flexDirection="column" alignContent="flex-end" sx={{ gap: 2 }}>
+            <div className="flex flex-col content-end gap-2">
               {initialLoading ? (
                 <PositionSkeleton width={120} height={19} />
               ) : isUnfinalized ? (
                 <PositionSkeleton width={120} height={19} text={t`Finalizing...`} />
               ) : (
-                <Flex alignItems="center" sx={{ gap: '6px' }} fontSize={16}>
+                <div className="flex items-center gap-1.5 text-[16px]">
                   <TokenLogo src={position?.token0.logo} size={16} />
-                  <Text>{formatDisplayNumber(position?.token0.currentAmount, { significantDigits: 4 })}</Text>
-                  <Text>{position?.token0.symbol}</Text>
-                </Flex>
+                  <span>{formatDisplayNumber(position?.token0.currentAmount, { significantDigits: 4 })}</span>
+                  <span>{position?.token0.symbol}</span>
+                </div>
               )}
               {initialLoading ? (
                 <PositionSkeleton width={120} height={19} />
               ) : isUnfinalized ? (
                 <PositionSkeleton width={120} height={19} text={t`Finalizing...`} />
               ) : (
-                <Flex alignItems="center" sx={{ gap: '6px' }} fontSize={16}>
+                <div className="flex items-center gap-1.5 text-[16px]">
                   <TokenLogo src={position?.token1.logo} size={16} />
-                  <Text>{formatDisplayNumber(position?.token1.currentAmount, { significantDigits: 4 })}</Text>
-                  <Text>{position?.token1.symbol}</Text>
-                </Flex>
+                  <span>{formatDisplayNumber(position?.token1.currentAmount, { significantDigits: 4 })}</span>
+                  <span>{position?.token1.symbol}</span>
+                </div>
               )}
-            </Flex>
+            </div>
           </TotalLiquiditySection>
 
           <AprSection>
-            <Flex alignItems="center" flexWrap="wrap" sx={{ gap: '12px' }}>
+            <div className="flex flex-wrap items-center gap-3">
               {/* Left: header + APR value */}
-              <Flex flexDirection="column" sx={{ gap: '4px' }}>
-                <Flex alignItems="center" sx={{ gap: '2px' }}>
-                  <Text fontSize={14} color={theme.subText} marginRight={0.5}>
-                    {t`Total APR`}
-                  </Text>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-0.5">
+                  <span className="mr-0.5 text-[14px] text-subText">{t`Total APR`}</span>
                   <DropdownMenuComponent
                     width={30}
                     flatten
@@ -253,7 +247,7 @@ const InformationTab = () => {
                     value={aprInterval}
                     onChange={value => setAprInterval(value as '24h' | '7d')}
                   />
-                </Flex>
+                </div>
                 {initialLoading ? (
                   <PositionSkeleton width={70} height={24} />
                 ) : isUnfinalized ? (
@@ -261,39 +255,36 @@ const InformationTab = () => {
                 ) : isWaitingForRewards ? (
                   <RewardSyncing width={70} height={24} />
                 ) : (
-                  <Flex alignItems="center" sx={{ gap: 1 }}>
+                  <div className="flex items-center gap-1">
                     {position?.pool.isFarmingLm ? (
                       <FarmingLmIcon width={20} height={20} />
                     ) : position?.pool.isFarming ? (
                       <FarmingIcon width={20} height={20} />
                     ) : null}
-                    <Text
-                      fontSize={20}
-                      color={position?.apr && position.apr[aprInterval] > 0 ? theme.primary : theme.text}
-                      mr="8px"
+                    <span
+                      className={cn(
+                        'mr-2 text-[20px]',
+                        position?.apr && position.apr[aprInterval] > 0 ? 'text-primary' : 'text-text',
+                      )}
                     >
                       <AnimatedNumber
                         value={`${formatAprNum((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%`}
                       />
-                    </Text>
+                    </span>
                     {position?.status !== PositionStatus.CLOSED && shareBtn(12, [ShareOption.TOTAL_APR])}
-                  </Flex>
+                  </div>
                 )}
-              </Flex>
+              </div>
 
               {/* Vertical divider */}
               <VerticalDivider height="40px" />
 
               {/* Right: Fee + Rewards breakdown */}
-              <Flex flexDirection="column" sx={{ gap: '4px' }}>
-                <Flex alignItems="center" sx={{ gap: '16px' }}>
-                  <Text fontSize={14} color={theme.subText}>
-                    {t`Fee`}
-                  </Text>
-                  <Text fontSize={14} color={theme.text}>
-                    {formatAprNum(position?.feeApr?.[aprInterval] || 0)}%
-                  </Text>
-                </Flex>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-4">
+                  <span className="text-[14px] text-subText">{t`Fee`}</span>
+                  <span className="text-[14px] text-text">{formatAprNum(position?.feeApr?.[aprInterval] || 0)}%</span>
+                </div>
                 {position && (position?.pool.isFarming || (position?.bonusApr || 0) > 0) && !isUnfinalized && (
                   <PositionAprTooltip
                     egApr={position.kemEGApr[aprInterval] || 0}
@@ -302,32 +293,26 @@ const InformationTab = () => {
                     dexName={position.dex.name}
                     merklOpportunity={pool?.merklOpportunity}
                   >
-                    <Flex alignItems="center" sx={{ gap: '16px', cursor: 'pointer' }}>
-                      <Text fontSize={14} color={theme.subText}>
-                        {t`Rewards`}
-                      </Text>
-                      <Text fontSize={14} color={theme.text}>
+                    <div className="flex cursor-pointer items-center gap-4">
+                      <span className="text-[14px] text-subText">{t`Rewards`}</span>
+                      <span className="text-[14px] text-text">
                         {formatAprNum(
                           (position.kemEGApr[aprInterval] || 0) +
                             (position.kemLMApr[aprInterval] || 0) +
                             (position.bonusApr || 0),
                         )}
                         %
-                      </Text>
-                    </Flex>
+                      </span>
+                    </div>
                   </PositionAprTooltip>
                 )}
-              </Flex>
-            </Flex>
+              </div>
+            </div>
           </AprSection>
-        </Flex>
+        </div>
 
         {/* Price Range */}
-        {!isUniv2 && (
-          <Text fontSize={16} fontWeight={500} color={theme.text}>
-            {t`Price Range`}
-          </Text>
-        )}
+        {!isUniv2 && <p className="text-[16px] font-medium text-text">{t`Price Range`}</p>}
 
         {!isUniv2 && (
           <>
@@ -350,33 +335,31 @@ const InformationTab = () => {
 
         {/* Current Price + MIN/MAX in one row */}
         {(price || initialLoading) && (
-          <Flex alignItems="stretch" flexDirection={upToLarge ? 'column' : 'row'} sx={{ gap: '8px' }}>
-            <PriceSection style={{ flex: '1 1 0%', minWidth: 0 }}>
-              <Flex alignItems="center" sx={{ gap: 1 }} flexWrap="wrap" style={{ flex: 1 }}>
-                <Text fontSize={14} color={theme.subText}>
-                  {t`Current Price`}
-                </Text>
+          <div className={cn('flex items-stretch gap-2', upToLarge ? 'flex-col' : 'flex-row')}>
+            <PriceSection className="min-w-0 flex-[1_1_0%]">
+              <div className="flex flex-1 flex-wrap items-center gap-1">
+                <span className="text-[14px] text-subText">{t`Current Price`}</span>
                 {initialLoading ? (
                   <PositionSkeleton width={160} height={16} />
                 ) : isUnfinalized ? (
                   <PositionSkeleton width={160} height={16} text={t`Finalizing...`} />
                 ) : (
                   position && (
-                    <Text fontSize={14}>
+                    <span className="text-[14px]">
                       1 {!revert ? position.token0.symbol : position.token1.symbol} ={' '}
                       {formatDisplayNumber(price, { significantDigits: 8 })}{' '}
                       {!revert ? position.token1.symbol : position.token0.symbol}
-                    </Text>
+                    </span>
                   )
                 )}
-              </Flex>
+              </div>
               <RevertIconWrapper onClick={() => setRevert(!revert)}>
                 <RevertPriceIcon width={12} height={12} />
               </RevertIconWrapper>
             </PriceSection>
 
             {!isUniv2 && (
-              <Flex sx={{ gap: '8px', flex: '1 1 0%' }}>
+              <div className="flex flex-[1_1_0%] gap-2">
                 <CompactPriceBox>
                   <CompactPriceLabel>MIN</CompactPriceLabel>
                   <CompactPriceValue>
@@ -386,7 +369,7 @@ const InformationTab = () => {
                       <PositionSkeleton width={60} height={18} text={t`Finalizing...`} />
                     ) : (
                       <>
-                        <Text fontSize={16} fontWeight={500}>
+                        <span className="text-[16px] font-medium">
                           {(!revert && position?.priceRange.isMinPrice) || (revert && position?.priceRange.isMaxPrice)
                             ? '0'
                             : position?.priceRange?.min && position?.priceRange?.max
@@ -394,7 +377,7 @@ const InformationTab = () => {
                                 significantDigits: 8,
                               })
                             : ''}
-                        </Text>
+                        </span>
                         {(() => {
                           const isFullRange = position?.priceRange.isMinPrice && position?.priceRange.isMaxPrice
                           if (isFullRange) return null
@@ -430,7 +413,7 @@ const InformationTab = () => {
                       <PositionSkeleton width={60} height={18} text={t`Finalizing...`} />
                     ) : (
                       <>
-                        <Text fontSize={16} fontWeight={500}>
+                        <span className="text-[16px] font-medium">
                           {(!revert && position?.priceRange.isMaxPrice) || (revert && position?.priceRange.isMinPrice)
                             ? '∞'
                             : position?.priceRange?.min && position?.priceRange?.max
@@ -438,7 +421,7 @@ const InformationTab = () => {
                                 significantDigits: 8,
                               })
                             : ''}
-                        </Text>
+                        </span>
                         {(() => {
                           const isFullRange = position?.priceRange.isMinPrice && position?.priceRange.isMaxPrice
                           if (isFullRange) return null
@@ -466,19 +449,19 @@ const InformationTab = () => {
                     )}
                   </CompactPriceValue>
                 </CompactPriceBox>
-              </Flex>
+              </div>
             )}
-          </Flex>
+          </div>
         )}
 
         {/* Sub-action: Reposition / Increase Liquidity link */}
         {!isUniv2 && (
           <PositionActionWrapper>
-            <Flex
-              color={!subActionDisabled ? theme.primary : theme.subText}
-              alignItems="center"
-              marginBottom={-3}
-              sx={{ gap: 1, cursor: !subActionDisabled ? 'pointer' : 'not-allowed' }}
+            <div
+              className={cn(
+                '-mb-3 flex items-center gap-1',
+                !subActionDisabled ? 'cursor-pointer text-primary' : 'cursor-not-allowed text-subText',
+              )}
               onClick={e => {
                 if (!isOutRange ? repositionDisabled : increaseDisabled) return
                 if (!isOutRange) {
@@ -489,8 +472,8 @@ const InformationTab = () => {
               }}
             >
               {!isOutRange ? <IconReposition width={16} /> : <PlusCircle width={16} />}
-              <Text fontSize={14}>{!isOutRange ? t`Reposition to new range` : t`Increase Liquidity`}</Text>
-            </Flex>
+              <span className="text-[14px]">{!isOutRange ? t`Reposition to new range` : t`Increase Liquidity`}</span>
+            </div>
           </PositionActionWrapper>
         )}
 

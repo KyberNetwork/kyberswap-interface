@@ -1,18 +1,14 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { SafePalCampaignWeekStats, useGetSafePalCampaignWeeklyStatsQuery } from 'services/campaignSafepal'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import LocalLoader from 'components/LocalLoader'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import SafePalClaimModal from 'pages/Campaign/components/SafePalClaimModal'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { safepalClaimWeeks } from 'pages/Campaign/timelines'
@@ -25,44 +21,21 @@ import {
   isSafePalCampaignWinner,
 } from 'pages/Campaign/utils/safepalUtils'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 120px;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  padding: 1rem 0;
-  gap: 1rem;
-  font-weight: 500;
-`
+const TABLE_GRID_CLASS = 'grid grid-cols-[1.6fr_1fr_1fr_120px] gap-4'
 
-const TableRow = styled(TableHeader)`
-  font-size: 1rem;
-  font-weight: 400;
-  color: ${({ theme }) => theme.text};
-  align-items: center;
-`
-
-const SummaryDivider = styled.div`
-  width: 1px;
-  align-self: stretch;
-  background: ${({ theme }) => theme.border};
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `}
-`
-
-const StatusBadge = styled.div<{ $isWinner: boolean }>`
-  background-color: ${({ theme, $isWinner }) => rgba($isWinner ? theme.primary : theme.subText, 0.16)};
-  border-radius: 999px;
-  color: ${({ theme, $isWinner }) => ($isWinner ? theme.primary : theme.subText)};
-  font-size: 14px;
-  font-weight: 500;
-  min-width: 120px;
-  padding: 8px 12px;
-  text-align: center;
-`
+const StatusBadge = ({ isWinner, children }: { isWinner: boolean; children: React.ReactNode }) => (
+  <div
+    className={cn(
+      'min-w-[120px] rounded-full px-3 py-2 text-center text-sm font-medium',
+      isWinner ? 'bg-primary-15 text-primary' : 'bg-subText-20 text-subText',
+    )}
+  >
+    {children}
+  </div>
+)
 
 const formatClaimDeadline = (timestamp: number) =>
   dayjs(timestamp * 1000)
@@ -83,7 +56,6 @@ const formatWeekLabel = (item: SafePalCampaignWeekStats) => {
 }
 
 export default function SafePalDashboard() {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useWeb3React()
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
@@ -120,38 +92,37 @@ export default function SafePalDashboard() {
   }, [currentClaimWeek, weekItems])
 
   return (
-    <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
+    <div className="mt-5 rounded-[20px] bg-background p-6">
       {!account ? (
-        <Text textAlign="center" color={theme.subText}>
+        <div className="text-center text-subText">
           <Trans>Please connect wallet to view your Dashboard</Trans>
-        </Text>
+        </div>
       ) : isLoading ? (
         <LocalLoader />
       ) : (
         <>
-          <Flex
-            justifyContent="flex-start"
-            alignItems={upToSmall ? 'flex-start' : 'center'}
-            flexDirection={upToSmall ? 'column' : 'row'}
-            sx={{ gap: '1rem' }}
-            mb="20px"
+          <div
+            className={cn(
+              'mb-5 flex justify-start gap-4',
+              upToSmall ? 'flex-col items-start' : 'flex-row items-center',
+            )}
           >
-            <Flex alignItems={upToSmall ? 'flex-start' : 'center'} sx={{ gap: '1.5rem' }} flex={1} flexWrap="wrap">
-              <Box minWidth={140}>
-                <Text color={theme.subText}>
+            <div className={cn('flex flex-1 flex-wrap gap-6', upToSmall ? 'items-start' : 'items-center')}>
+              <div className="min-w-[140px]">
+                <div className="text-subText">
                   <Trans>Total Wins</Trans>
-                </Text>
-                <Text marginTop="8px" fontSize={18} fontWeight="500" color={theme.text}>
+                </div>
+                <div className="mt-2 text-lg font-medium text-text">
                   {totalWinWeeks} <Trans>Weeks</Trans>
-                </Text>
-              </Box>
+                </div>
+              </div>
 
               {currentClaimWeek && (
                 <>
-                  <SummaryDivider />
+                  <div className="w-px self-stretch bg-border max-sm:hidden" />
 
-                  <Box flex={1} minWidth={260}>
-                    <Text color={theme.text} fontSize={upToSmall ? 15 : 16}>
+                  <div className="min-w-[260px] flex-1">
+                    <div className={cn('text-text', upToSmall ? 'text-[15px]' : 'text-base')}>
                       {isCurrentClaimWeekWinner ? (
                         <Trans>
                           You&apos;ve won 🎁 SafePal X1 Hardware Wallet in Week {currentClaimWeekNumber} SafePal
@@ -160,15 +131,15 @@ export default function SafePalDashboard() {
                       ) : (
                         <Trans>Trade to enter Top 667 and become a Winner in the SafePal Campaign.</Trans>
                       )}
-                    </Text>
-                    <Text color={theme.subText} fontStyle="italic" marginTop="6px" fontSize={14}>
+                    </div>
+                    <div className="mt-1.5 text-sm italic text-subText">
                       {isCurrentClaimWeekWinner ? (
                         <Trans>Claim deadline: {formatClaimDeadline(currentClaimWeek.end)}</Trans>
                       ) : (
                         <Trans>Top 667 each week are marked as Winner.</Trans>
                       )}
-                    </Text>
-                  </Box>
+                    </div>
+                  </div>
                   {isCurrentClaimWeekWinner && (
                     <ButtonPrimary
                       width="fit-content"
@@ -188,71 +159,69 @@ export default function SafePalDashboard() {
                   )}
                 </>
               )}
-            </Flex>
-          </Flex>
+            </div>
+          </div>
 
           <Divider />
 
           {!upToSmall && (
             <>
-              <TableHeader>
-                <Text>
+              <div className={cn(TABLE_GRID_CLASS, 'py-4 text-xs font-medium text-subText')}>
+                <span>
                   <Trans>WEEK</Trans>
-                </Text>
-                <Text textAlign="right">
+                </span>
+                <span className="text-right">
                   <Trans>ELIGIBLE TRANSACTIONS</Trans>
-                </Text>
-                <Text textAlign="right">
+                </span>
+                <span className="text-right">
                   <Trans>POINTS</Trans>
-                </Text>
-                <Text textAlign="center">
+                </span>
+                <span className="text-center">
                   <Trans>STATUS</Trans>
-                </Text>
-              </TableHeader>
+                </span>
+              </div>
               <Divider />
             </>
           )}
 
           {!weekItems.length ? (
-            <Text textAlign="center" color={theme.subText} mt="24px">
+            <div className="mt-6 text-center text-subText">
               <Trans>No data found</Trans>
-            </Text>
+            </div>
           ) : upToSmall ? (
             weekItems.map(item => {
               const hasStatus = isCampaignWeekEnded(findCampaignWeekByValue(weeks, item.cycle))
               const winner = isSafePalCampaignWinner(item)
 
               return (
-                <Box key={item.cycle} paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }}>
-                  <Text color={theme.text} fontSize={18} fontWeight={500}>
-                    {formatWeekLabel(item)}
-                  </Text>
+                <div key={item.cycle} className="border-b border-border py-4">
+                  <div className="text-lg font-medium text-text">{formatWeekLabel(item)}</div>
 
-                  <Flex justifyContent="space-between" alignItems="center" mt="1rem">
-                    <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-xs font-medium text-subText">
                       <Trans>ELIGIBLE TRANSACTIONS</Trans>
-                    </Text>
-                    <Text>{formatCountValue(item.cycle_eligible_tx)}</Text>
-                  </Flex>
+                    </span>
+                    <span>{formatCountValue(item.cycle_eligible_tx)}</span>
+                  </div>
 
-                  <Flex justifyContent="space-between" alignItems="center" mt="0.75rem">
-                    <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs font-medium text-subText">
                       <Trans>POINTS</Trans>
-                    </Text>
-                    <Text>{item.total_points}</Text>
-                  </Flex>
+                    </span>
+                    <span>{item.total_points}</span>
+                  </div>
 
-                  <Flex justifyContent="space-between" alignItems="center" mt="0.75rem">
-                    <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs font-medium text-subText">
                       <Trans>STATUS</Trans>
-                    </Text>
+                    </span>
                     {hasStatus ? (
-                      <StatusBadge $isWinner={winner}>{winner ? t`Winner` : t`Not a winner`}</StatusBadge>
+                      <StatusBadge isWinner={winner}>{winner ? t`Winner` : t`Not a winner`}</StatusBadge>
                     ) : (
-                      <Text color={theme.subText}>--</Text>
+                      <span className="text-subText">--</span>
                     )}
-                  </Flex>
-                </Box>
+                  </div>
+                </div>
               )
             })
           ) : (
@@ -261,23 +230,23 @@ export default function SafePalDashboard() {
               const winner = isSafePalCampaignWinner(item)
 
               return (
-                <TableRow key={item.cycle}>
-                  <Text color={theme.subText}>{formatWeekLabel(item)}</Text>
-                  <Text textAlign="right">{formatCountValue(item.cycle_eligible_tx)}</Text>
-                  <Text textAlign="right">{item.total_points}</Text>
-                  <Flex justifyContent="center">
+                <div key={item.cycle} className={cn(TABLE_GRID_CLASS, 'items-center text-base font-normal text-text')}>
+                  <span className="text-subText">{formatWeekLabel(item)}</span>
+                  <span className="text-right">{formatCountValue(item.cycle_eligible_tx)}</span>
+                  <span className="text-right">{item.total_points}</span>
+                  <div className="flex justify-center">
                     {hasStatus ? (
-                      <StatusBadge $isWinner={winner}>{winner ? t`Winner` : t`Not a winner`}</StatusBadge>
+                      <StatusBadge isWinner={winner}>{winner ? t`Winner` : t`Not a winner`}</StatusBadge>
                     ) : (
                       '--'
                     )}
-                  </Flex>
-                </TableRow>
+                  </div>
+                </div>
               )
             })
           )}
         </>
       )}
-    </Box>
+    </div>
   )
 }

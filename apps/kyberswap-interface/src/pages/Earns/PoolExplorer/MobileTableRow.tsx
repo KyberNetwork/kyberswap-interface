@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
-import { Text } from 'rebass'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
@@ -59,8 +58,8 @@ const MobileTableRow = ({
   return (
     <MobileTableRowComponent onClick={e => handleOpenZapInWidget(e)}>
       <MobileTableCell alignItems="flex-start" justifyContent="space-between">
-        <Stack align="flex-start" gap={8}>
-          <HStack align="center" gap={8}>
+        <Stack className="items-start gap-2">
+          <HStack className="items-center gap-2">
             <HStack>
               <TokenLogo src={pool.tokens?.[0]?.logoURI} />
               <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
@@ -87,33 +86,33 @@ const MobileTableRow = ({
         />
       </MobileTableCell>
       <MobileTableBottomRow>
-        <MobileTableCell alignItems="baseline" justifyContent="space-between" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{t`APR`}</HeaderText>
-          <HStack align="center" gap={4}>
+        <MobileTableCell alignItems="baseline" justifyContent="space-between" className="gap-1">
+          <HeaderText className="text-subText">{t`APR`}</HeaderText>
+          <HStack className="items-center gap-1">
             <PoolAprInfo pool={pool} />
             <PoolAprBadges pool={pool} />
           </HStack>
         </MobileTableCell>
-        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{t`Fee`}</HeaderText>
-          <Text>
+        <MobileTableCell justifyContent="space-between" className="gap-1">
+          <HeaderText className="text-subText">{t`Fee`}</HeaderText>
+          <span>
             {formatDisplayNumber(pool.earnFee, {
               style: 'currency',
               significantDigits: 6,
             })}
-          </Text>
+          </span>
         </MobileTableCell>
-        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{t`TVL`}</HeaderText>
-          <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
+        <MobileTableCell justifyContent="space-between" className="gap-1">
+          <HeaderText className="text-subText">{t`TVL`}</HeaderText>
+          <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
         </MobileTableCell>
-        <MobileTableCell justifyContent="space-between" sx={{ gap: 1 }}>
-          <HeaderText color={theme.subText}>{t`Volume`}</HeaderText>
-          <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+        <MobileTableCell justifyContent="space-between" className="gap-1">
+          <HeaderText className="text-subText">{t`Volume`}</HeaderText>
+          <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
         </MobileTableCell>
         {showRewards && (
-          <MobileTableCell justifyContent="space-between" alignItems="flex-start" sx={{ gap: 1 }}>
-            <HeaderText color={theme.subText}>{t`Rewards`}</HeaderText>
+          <MobileTableCell justifyContent="space-between" alignItems="flex-start" className="gap-1">
+            <HeaderText className="text-subText">{t`Rewards`}</HeaderText>
             <PoolRewardsInfo pool={pool} showEstimate={false} />
           </MobileTableCell>
         )}

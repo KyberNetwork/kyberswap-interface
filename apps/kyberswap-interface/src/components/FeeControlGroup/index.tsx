@@ -1,66 +1,22 @@
 import { Trans } from '@lingui/macro'
 import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
+import CustomFeeInput from 'components/FeeControlGroup/CustomFeeInput'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { ClientNameMapping, DEFAULT_TIPS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
-import CustomFeeInput from './CustomFeeInput'
-
-const feeOptionCSS = css`
-  height: 100%;
-  padding: 0;
-  border-radius: 20px;
-  border: 1px solid transparent;
-
-  background-color: ${({ theme }) => theme.tabBackground};
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  cursor: pointer;
-
-  :hover {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-  :focus {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-
-    font-weight: 500;
-  }
-`
-
-const DefaultFeeOption = styled.button`
-  ${feeOptionCSS};
-  flex: 0 0 18%;
-
-  @media only screen and (max-width: 375px) {
-    font-size: 10px;
-    flex: 0 0 15%;
-  }
-`
+const feeOptionClasses =
+  'h-full rounded-[20px] border border-transparent bg-tabBackground p-0 text-center text-xs font-normal leading-4 text-subText outline-none cursor-pointer hover:border-bg4 focus:border-bg4 data-[active=true]:border-primary data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text'
 
 const FeeControlGroup = () => {
-  const theme = useTheme()
   const { feeAmount, enableTip, clientId } = useGetFeeConfig() ?? {}
   const [searchParams, setSearchParams] = useSearchParams()
   const feeValue = Number.parseFloat(feeAmount ?? '0')
 
-  const handleFeeChange = (feeValue: number) => {
+  const handleFeeChange = (next: number) => {
     if (enableTip) {
-      searchParams.set('feeAmount', feeValue.toString())
+      searchParams.set('feeAmount', next.toString())
       setSearchParams(searchParams)
     }
   }
@@ -72,46 +28,28 @@ const FeeControlGroup = () => {
   const clientName = ClientNameMapping[clientId || ''] || clientId
 
   return (
-    <Flex
-      sx={{
-        flexDirection: 'column',
-        width: '100%',
-        padding: '0 8px',
-      }}
-    >
-      <Text color={theme.subText} fontSize={12} fontWeight={500}>
+    <div className="flex w-full flex-col px-2">
+      <p className="text-xs font-medium text-subText">
         <Trans>Tip</Trans>:
-      </Text>
-      <Text color={theme.subText} fontSize={12} fontWeight={500}>
+      </p>
+      <p className="text-xs font-medium text-subText">
         <Trans>No hidden fees - Your optional tips support {clientName}!</Trans>
-      </Text>
+      </p>
 
-      <Flex
-        sx={{
-          justifyContent: 'space-between',
-          width: '100%',
-          maxWidth: '100%',
-          height: '28px',
-          borderRadius: '20px',
-          background: theme.tabBackground,
-          padding: '2px',
-          marginTop: '8px',
-        }}
-      >
+      <div className="mt-2 flex h-7 w-full max-w-full justify-between rounded-[20px] bg-tabBackground p-0.5">
         {DEFAULT_TIPS.map(tip => (
-          <DefaultFeeOption
+          <button
             key={tip}
-            onClick={() => {
-              handleFeeChange(tip)
-            }}
+            onClick={() => handleFeeChange(tip)}
             data-active={tip === feeValue}
+            className={cn(feeOptionClasses, 'basis-[18%] max-[375px]:basis-[15%] max-[375px]:text-[10px]')}
           >
             {tip ? `${tip / 100}%` : <Trans>No tip</Trans>}
-          </DefaultFeeOption>
+          </button>
         ))}
         <CustomFeeInput fee={feeValue} onFeeChange={handleFeeChange} />
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   )
 }
 

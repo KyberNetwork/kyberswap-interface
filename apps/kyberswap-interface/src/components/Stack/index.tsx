@@ -1,65 +1,20 @@
-import type { CSSProperties, ComponentProps } from 'react'
-import { Box } from 'rebass/styled-components'
-import styled from 'styled-components'
+import { HTMLAttributes, createElement, forwardRef } from 'react'
 
-const getSpacing = (value?: CSSProperties['gap']) => {
-  if (typeof value === 'number') {
-    return `${value}px`
-  }
-  return value
+import { cn } from 'utils/cn'
+
+export type StackProps = HTMLAttributes<HTMLDivElement> & {
+  /** Render as a different HTML element. */
+  as?: keyof JSX.IntrinsicElements
 }
 
-const getLength = (value?: CSSProperties['borderRadius']) => {
-  if (typeof value === 'number') return `${value}px`
-  return value
+const makeStack = (baseClassName: string, displayName: string) => {
+  const Component = forwardRef<HTMLDivElement, StackProps>(({ as = 'div', className, ...rest }, ref) =>
+    createElement(as, { ref, className: cn(baseClassName, className), ...rest }),
+  )
+  Component.displayName = displayName
+  return Component
 }
 
-type BoxProps = ComponentProps<typeof Box>
-
-type StackStyleProps = Pick<
-  CSSProperties,
-  | 'alignItems'
-  | 'background'
-  | 'border'
-  | 'borderRadius'
-  | 'columnGap'
-  | 'flexDirection'
-  | 'flexWrap'
-  | 'gap'
-  | 'justifyContent'
-  | 'position'
-  | 'rowGap'
->
-
-export type StackProps = BoxProps &
-  StackStyleProps & {
-    direction?: StackStyleProps['flexDirection']
-    spacing?: StackStyleProps['gap']
-    align?: StackStyleProps['alignItems']
-    justify?: StackStyleProps['justifyContent']
-    wrap?: StackStyleProps['flexWrap']
-  }
-
-export const Stack = styled(Box)<StackProps>`
-  display: flex;
-  position: ${({ position }) => position};
-  flex-direction: ${({ direction }) => direction || 'column'};
-  align-items: ${({ alignItems, align }) => alignItems || align || 'stretch'};
-  justify-content: ${({ justifyContent, justify }) => justifyContent || justify || 'flex-start'};
-  flex-wrap: ${({ wrap }) => wrap || 'nowrap'};
-  gap: ${({ gap, spacing }) => getSpacing(gap || spacing)};
-  row-gap: ${({ rowGap }) => getSpacing(rowGap)};
-  column-gap: ${({ columnGap }) => getSpacing(columnGap)};
-  background: ${({ background }) => background};
-  border: ${({ border }) => border};
-  border-radius: ${({ borderRadius }) => getLength(borderRadius)};
-`
-
-export const HStack = styled(Stack)`
-  flex-direction: row;
-`
-
-export const Center = styled(Stack)`
-  align-items: center;
-  justify-content: center;
-`
+export const Stack = makeStack('flex flex-col', 'Stack')
+export const HStack = makeStack('flex flex-row', 'HStack')
+export const Center = makeStack('flex flex-col items-center justify-center', 'Center')
