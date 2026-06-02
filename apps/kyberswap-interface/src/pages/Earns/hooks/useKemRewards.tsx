@@ -25,6 +25,7 @@ import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { enumToArrayOfValues } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type UseKemRewardsProps = {
@@ -50,7 +51,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   const allTransactions = useAllTransactions(true)
 
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { supportedChains } = useChainsConfig()
   const { filters } = useFilter()
   const { refetchAfterCollect } = props ?? {}
@@ -212,7 +213,9 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     const { calldata, contractAddress } = encodeData.data
 
     const res = await submitTransaction({
-      library,
+      account,
+      chainId,
+      isSmartConnector,
       txData: {
         to: contractAddress,
         data: `0x${calldata}`,
@@ -221,7 +224,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
-          summary: error.message,
+          summary: friendlyError(error),
         })
         setOpenClaimModal(false)
       },
@@ -244,7 +247,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           .join(', ')}`,
       },
     })
-  }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, library, notify])
+  }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, isSmartConnector, notify])
 
   const handleClaimAll = useCallback(async () => {
     if (!account || !chainId || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) return
@@ -276,7 +279,9 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     const { calldata, contractAddress } = encodeData.data
 
     const res = await submitTransaction({
-      library,
+      account,
+      chainId,
+      isSmartConnector,
       txData: {
         to: contractAddress,
         data: `0x${calldata}`,
@@ -285,7 +290,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
-          summary: error.message,
+          summary: friendlyError(error),
         })
       },
     })
@@ -309,7 +314,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           .join(', ')}`,
       },
     })
-  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, filteredRewardInfo, library, notify])
+  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, filteredRewardInfo, isSmartConnector, notify])
 
   const onOpenClaim = (position?: ParsedPosition) => {
     if (!position) return

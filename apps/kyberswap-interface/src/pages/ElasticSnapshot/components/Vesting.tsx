@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -8,15 +9,15 @@ import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
+import { wagmiConfig } from 'components/Web3Provider'
 import { useActiveWeb3React } from 'hooks'
-import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
+import VestingClaimModal from 'pages/ElasticSnapshot/components/VestingClaimModal'
+import abi from 'pages/ElasticSnapshot/data/abis/vestingAbi.json'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import abi from '../data/abis/vestingAbi.json'
-import VestingClaimModal from './VestingClaimModal'
+import { Address } from 'utils/viem'
 
 const Details = styled.div`
   margin-top: 24px;
@@ -57,7 +58,7 @@ const Claimed = styled.div<{ width: string }>`
   height: 12px;
   left: 0;
   top: 0;
-  botton: 0;
+  bottom: 0;
   width: ${({ width }) => width};
 `
 const Unlocked = styled.div<{ width: string }>`
@@ -67,7 +68,7 @@ const Unlocked = styled.div<{ width: string }>`
   height: 12px;
   left: 0;
   top: 0;
-  botton: 0;
+  bottom: 0;
   width: ${({ width }) => width};
 `
 
@@ -120,17 +121,21 @@ export default function Vesting({
   const [endTime, setEndTime] = useState(0)
   const [vestedAmount, setVestedAmount] = useState(0)
 
-  const vestingContract = useReadingContract(contractAddress, abi, ChainId.MATIC)
-
   const [, setRender] = useState(0)
   const getVestedData = useCallback(() => {
-    if (vestingContract && userVestingData) {
-      vestingContract.claimed(userVestingData.claimData.index).then((res: any) => {
-        setVestedAmount(+res?.toString() / 10 ** 6)
+    if (contractAddress && userVestingData) {
+      readContract(wagmiConfig, {
+        address: contractAddress as Address,
+        abi: abi,
+        functionName: 'claimed',
+        args: [BigInt(userVestingData.claimData.index)],
+        chainId: ChainId.MATIC,
+      }).then(res => {
+        setVestedAmount(Number((res as bigint).toString()) / 10 ** 6)
         setRender(prev => prev + 1)
       })
     }
-  }, [vestingContract, userVestingData])
+  }, [contractAddress, userVestingData])
 
   useEffect(() => {
     const i = setInterval(() => {
@@ -142,18 +147,34 @@ export default function Vesting({
   }, [getVestedData])
 
   useEffect(() => {
-    if (vestingContract && userVestingData) {
+    if (contractAddress && userVestingData) {
       Promise.all([
-        vestingContract.claimed(userVestingData.claimData.index),
-        vestingContract.vestingStartTime(),
-        vestingContract.vestingEndTime(),
+        readContract(wagmiConfig, {
+          address: contractAddress as Address,
+          abi: abi,
+          functionName: 'claimed',
+          args: [BigInt(userVestingData.claimData.index)],
+          chainId: ChainId.MATIC,
+        }),
+        readContract(wagmiConfig, {
+          address: contractAddress as Address,
+          abi: abi,
+          functionName: 'vestingStartTime',
+          chainId: ChainId.MATIC,
+        }),
+        readContract(wagmiConfig, {
+          address: contractAddress as Address,
+          abi: abi,
+          functionName: 'vestingEndTime',
+          chainId: ChainId.MATIC,
+        }),
       ]).then(([vested, start, end]) => {
-        setVestedAmount(+vested.toString() / 10 ** 6)
-        setStartTime(start)
-        setEndTime(end)
+        setVestedAmount(Number((vested as bigint).toString()) / 10 ** 6)
+        setStartTime(Number(start))
+        setEndTime(Number(end))
       })
     }
-  }, [vestingContract, userVestingData])
+  }, [contractAddress, userVestingData])
 
   const [show, setShow] = useState(false)
 

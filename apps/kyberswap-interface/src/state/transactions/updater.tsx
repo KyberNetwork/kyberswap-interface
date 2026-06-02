@@ -1,17 +1,16 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
-import { ethers } from 'ethers'
-import { TxValidationError, findReplacementTx } from 'find-replacement-tx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { TransactionNotFoundError, TransactionReceiptNotFoundError } from 'viem'
+import { usePublicClient } from 'wagmi'
 
 import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
-import { AppDispatch, AppState } from 'state/index'
+import { AppDispatch, AppState } from 'state'
+import { useBlockNumber, useTransactionNotify } from 'state/application/hooks'
 import { revokePermit } from 'state/swap/actions'
 import {
   checkedTransaction,
@@ -27,8 +26,58 @@ import {
   TransactionExtraInfo1Token,
 } from 'state/transactions/type'
 import { findTx } from 'utils'
+import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
 
 const appsSdk = new SafeAppsSDK()
+
+// Viem-native replacement detector. Mirrors what `find-replacement-tx` used to do:
+// scan blocks since `sentAtBlock` for a transaction from the same sender with the
+// same nonce as the original; if a match is found whose hash differs from the
+// original, that is the replacement tx. A self-transfer with empty data signifies a
+// wallet-side cancellation. Returns `null` if no replacement is detected.
+//
+// Block scan is bounded to 256 blocks to avoid runaway RPC pressure on long-pending
+// transactions; nonce-advancement detection in `checkRemoveTxs` covers the tail.
+async function findReplacementViaViem(args: {
+  publicClient: any
+  originalHash: string
+  from: string
+  nonce: number
+  sentAtBlock: number
+}): Promise<{ hash: string } | 'cancelled' | null> {
+  const { publicClient, originalHash, from, nonce, sentAtBlock } = args
+  const fromLower = from.toLowerCase()
+  try {
+    const currentNonce = await publicClient.getTransactionCount({
+      address: from as Address,
+      blockTag: 'latest',
+    })
+    if (currentNonce <= nonce) return null
+
+    const latestBlock = await publicClient.getBlockNumber()
+    const startBlock = BigInt(Math.max(sentAtBlock, Number(latestBlock) - 256))
+
+    for (let blockNumber = startBlock; blockNumber <= latestBlock; blockNumber++) {
+      let block
+      try {
+        block = await publicClient.getBlock({ blockNumber, includeTransactions: true })
+      } catch {
+        continue
+      }
+      const match = block?.transactions?.find(
+        (tx: any) => tx?.from?.toLowerCase?.() === fromLower && Number(tx?.nonce) === nonce,
+      )
+      if (!match) continue
+      if (match.hash?.toLowerCase?.() === originalHash.toLowerCase()) return null
+      const isSelfTransferEmpty =
+        match.to && (match.to as string).toLowerCase() === fromLower && (!match.input || match.input === '0x')
+      return isSelfTransferEmpty ? 'cancelled' : { hash: match.hash as string }
+    }
+    return null
+  } catch {
+    return null
+  }
+}
 
 const toSafeReceipt = (hash: string, receipt: any) =>
   receipt
@@ -65,7 +114,7 @@ function shouldCheck(
 export default function Updater(): null {
   const { chainId, account, networkInfo } = useActiveWeb3React()
   const { connector } = useWeb3React()
-  const { readProvider } = useKyberSwapConfig(chainId)
+  const publicClient = usePublicClient({ chainId: chainId as number })
 
   const lastBlockNumber = useBlockNumber()
   const dispatch = useDispatch<AppDispatch>()
@@ -126,13 +175,19 @@ export default function Updater(): null {
 
       const transaction = findTx(transactionsRef.current, receipt.transactionHash)
       if (!transaction) return
+      // viem `getTransactionReceipt` returns `status: 'success' | 'reverted'`.
+      // The Safe path (`toSafeReceipt`) already normalizes to numeric 0/1.
+      // SerializableTransactionReceipt + downstream consumers (e.g.
+      // `getTransactionStatus`) expect the ethers-style numeric form, so
+      // normalize here as well.
+      const numericStatus = receipt.status === 'success' || receipt.status === 1 ? 1 : 0
       dispatch(
         finalizeTransaction({
           chainId,
           hash: receipt.transactionHash,
           receipt: {
             blockHash: receipt.blockHash,
-            status: receipt.status,
+            status: numericStatus,
           },
           needCheckSubgraph: NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES.includes(transaction.type),
         }),
@@ -140,30 +195,32 @@ export default function Updater(): null {
 
       transactionNotify({
         hash: receipt.transactionHash,
-        type: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
+        type: numericStatus === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
         account: accountRef.current ?? '',
       })
-      if (receipt.status === 1) {
+      if (numericStatus === 1) {
         // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
-        const swapEventTopic = ethers.utils.id('Swapped(address,address,address,address,uint256,uint256)')
+        const swapEventTopic = keccak256(toBytes('Swapped(address,address,address,address,uint256,uint256)'))
         const swapLogs = receipt.logs.filter((log: any) => log.topics[0] === swapEventTopic)
         // take the last swap event
         const lastSwapEvent = swapLogs.slice(-1)[0]
 
         if (lastSwapEvent) {
-          // decode the data
-          const swapInterface = new ethers.utils.Interface([
-            'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
-          ])
-          const parsed = swapInterface.parseLog(lastSwapEvent)
+          const parsed = decodeEventLog({
+            abi: parseAbi([
+              'event Swapped(address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
+            ]),
+            data: lastSwapEvent.data as `0x${string}`,
+            topics: lastSwapEvent.topics as [signature: `0x${string}`, ...args: `0x${string}`[]],
+          })
 
           if (
             (transaction.extraInfo as any)?.tokenAmountOut &&
             transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
           ) {
             const extraInfo = { ...transaction.extraInfo }
-            ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
-              parsed.args.returnAmount.toString(),
+            ;(extraInfo as any).tokenAmountOut = formatUnits(
+              parsed.args.returnAmount,
               transaction.extraInfo?.arbitrary?.outputDecimals,
             )
             dispatch(
@@ -185,8 +242,8 @@ export default function Updater(): null {
             }
             trackingHandler(TRACKING_EVENT_TYPE.SWAP_COMPLETED, {
               arbitrary,
-              actual_gas: receipt.gasUsed || BigNumber.from(0),
-              gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
+              actual_gas: receipt.gasUsed || 0n,
+              gas_price: receipt.effectiveGasPrice || 0n,
               tx_hash: receipt.transactionHash,
               feeInfo: arbitrary.feeInfo,
             })
@@ -238,22 +295,33 @@ export default function Updater(): null {
   )
 
   useEffect(() => {
-    if (!readProvider || !lastBlockNumber) return
+    if (!publicClient || !lastBlockNumber) return
 
     uniqueTransactions
       .filter(hash => shouldCheck(lastBlockNumber, findTx(transactions, hash)))
       .forEach(hash => {
         let txHash = hash
 
-        // Check if tx was replaced
-        readProvider
-          .getTransaction(hash)
+        // Check if tx was replaced. viem throws when the tx isn't yet seen; treat that as
+        // "no result" so the replacement-detection path below kicks in (matches old ethers
+        // behaviour where `getTransaction` returned `null`).
+        publicClient
+          .getTransaction({ hash: hash as Hash })
+          .catch(error => {
+            // viem throws when the tx/receipt isn't yet seen; treat that as null
+            // (matches the old ethers contract). Re-throw genuine RPC errors so
+            // the outer `.catch` logs them.
+            if (error instanceof TransactionNotFoundError || error instanceof TransactionReceiptNotFoundError) {
+              return null
+            }
+            throw error
+          })
           .then(res => {
             const transaction = findTx(transactions, hash)
 
             if (!transaction || !!res) return // !res this mean tx was drop (cancel/replace)
 
-            const { sentAtBlock, from, to, nonce, data, addedTime } = transaction
+            const { sentAtBlock, from, nonce, addedTime } = transaction
             const checkRemoveTxs = async () => {
               // pending >1 days
               if (Date.now() - addedTime > 86_400_000) {
@@ -266,7 +334,10 @@ export default function Updater(): null {
               // by wallet, or rejected by sequencer e.g. Base pre-validation).
               if (from) {
                 try {
-                  const currentNonce = await readProvider.getTransactionCount(from, 'latest')
+                  const currentNonce = await publicClient.getTransactionCount({
+                    address: from as Address,
+                    blockTag: 'latest',
+                  })
                   if (nonce !== undefined && currentNonce > nonce) {
                     dispatch(removeTx({ chainId, hash }))
                   }
@@ -276,34 +347,34 @@ export default function Updater(): null {
               }
             }
 
-            if (sentAtBlock && from && to && nonce && data)
-              findReplacementTx(readProvider, sentAtBlock, {
+            if (sentAtBlock && from && nonce !== undefined) {
+              findReplacementViaViem({
+                publicClient,
+                originalHash: hash,
                 from,
-                to,
                 nonce,
-                data,
+                sentAtBlock,
               })
-                .then(newTx => {
-                  if (newTx) {
-                    txHash = newTx.hash
+                .then(replacement => {
+                  if (replacement === 'cancelled') {
+                    dispatch(removeTx({ chainId, hash }))
+                    return
+                  }
+                  if (replacement) {
+                    txHash = replacement.hash
                     dispatch(
                       replaceTx({
                         chainId,
                         oldHash: hash,
-                        newHash: newTx.hash,
+                        newHash: replacement.hash,
                       }),
                     )
+                    return
                   }
+                  checkRemoveTxs()
                 })
-                .catch((error: unknown) => {
-                  // Transaction was canceled (sent 0 ETH to self with empty data)
-                  if (error instanceof TxValidationError && error.message === 'Transaction canceled.') {
-                    dispatch(removeTx({ chainId, hash }))
-                  } else {
-                    checkRemoveTxs()
-                  }
-                })
-            else {
+                .catch(checkRemoveTxs)
+            } else {
               checkRemoveTxs()
             }
           })
@@ -319,8 +390,17 @@ export default function Updater(): null {
               console.error(`failed to check transaction hash: ${txHash}`, error)
             })
         } else {
-          readProvider
-            .getTransactionReceipt(txHash)
+          publicClient
+            .getTransactionReceipt({ hash: txHash as Hash })
+            .catch(error => {
+              // viem throws when the tx/receipt isn't yet seen; treat that as null
+              // (matches the old ethers contract). Re-throw genuine RPC errors so
+              // the outer `.catch` logs them.
+              if (error instanceof TransactionNotFoundError || error instanceof TransactionReceiptNotFoundError) {
+                return null
+              }
+              throw error
+            })
             .then(receipt => {
               handleTransactionReceipt(txHash, receipt)
             })
@@ -331,7 +411,7 @@ export default function Updater(): null {
       })
 
     // eslint-disable-next-line
-  }, [chainId, readProvider, transactions, lastBlockNumber, dispatch])
+  }, [chainId, publicClient, transactions, lastBlockNumber, dispatch])
 
   // Fast polling: poll every 2s only when there are pending transactions
   // This is independent of block-based polling and provides faster tx status detection
@@ -340,7 +420,7 @@ export default function Updater(): null {
   const hasPendingTxs = pendingTxHashes.length > 0
 
   useEffect(() => {
-    if (!readProvider || !hasPendingTxs) return
+    if (!publicClient || !hasPendingTxs) return
 
     const isSafe = connector?.id === CONNECTION.SAFE_CONNECTOR_ID
 
@@ -356,8 +436,17 @@ export default function Updater(): null {
               console.warn(`fast-poll: failed to check safe tx: ${hash}`, error)
             })
         } else {
-          readProvider
-            .getTransactionReceipt(hash)
+          publicClient
+            .getTransactionReceipt({ hash: hash as Hash })
+            .catch(error => {
+              // viem throws when the tx/receipt isn't yet seen; treat that as null
+              // (matches the old ethers contract). Re-throw genuine RPC errors so
+              // the outer `.catch` logs them.
+              if (error instanceof TransactionNotFoundError || error instanceof TransactionReceiptNotFoundError) {
+                return null
+              }
+              throw error
+            })
             .then(receipt => {
               if (receipt) handleTransactionReceipt(hash, receipt)
             })
@@ -370,7 +459,7 @@ export default function Updater(): null {
 
     return () => clearInterval(intervalId)
     // eslint-disable-next-line
-  }, [readProvider, hasPendingTxs, connector?.id, handleTransactionReceipt])
+  }, [publicClient, hasPendingTxs, connector?.id, handleTransactionReceipt])
 
   return null
 }

@@ -1,6 +1,5 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat, X } from 'react-feather'
@@ -32,15 +31,15 @@ import {
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import DelegateConfirmModal from 'pages/KyberDAO/StakeKNC/DelegateConfirmModal'
+import MigrateModal from 'pages/KyberDAO/StakeKNC/MigrateModal'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import YourTransactionsModal from 'pages/KyberDAO/StakeKNC/YourTransactionsModal'
+import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { isAddress, shortenAddress } from 'utils'
-
-import KNCLogo from '../kncLogo'
-import DelegateConfirmModal from './DelegateConfirmModal'
-import MigrateModal from './MigrateModal'
-import { useSwitchToEthereum } from './SwitchToEthereumModal'
-import YourTransactionsModal from './YourTransactionsModal'
+import { formatUnits, parseUnits } from 'utils/viem'
 
 enum STAKE_TAB {
   Stake = 'Stake',
@@ -241,8 +240,8 @@ export default function StakeKNCComponent() {
     if (!inputValue || isNaN(parseFloat(inputValue)) || parseFloat(inputValue) <= 0) {
       setErrorMessage(t`Invalid amount`)
     } else if (
-      (parseUnits(inputValue, 18).gt(KNCBalance) && activeTab === STAKE_TAB.Stake) ||
-      (parseUnits(inputValue, 18).gt(stakedBalance) && activeTab === STAKE_TAB.Unstake)
+      (parseUnits(inputValue, 18) > BigInt((KNCBalance || 0).toString()) && activeTab === STAKE_TAB.Stake) ||
+      (parseUnits(inputValue, 18) > BigInt((stakedBalance || 0).toString()) && activeTab === STAKE_TAB.Unstake)
     ) {
       setErrorMessage(t`Insufficient amount`)
     } else if (activeTab === STAKE_TAB.Delegate && !isAddress(chainId, delegateAddress)) {
@@ -281,9 +280,10 @@ export default function StakeKNCComponent() {
     kyberDAOInfo?.staking,
   )
 
-  const currentVotingPower = calculateVotingPower(formatUnits(stakedBalance))
+  const stakedBalanceFormatted = formatUnits(BigInt((stakedBalance || 0).toString()), 18)
+  const currentVotingPower = calculateVotingPower(stakedBalanceFormatted)
   const newVotingPower = parseFloat(
-    calculateVotingPower(formatUnits(stakedBalance), (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue),
+    calculateVotingPower(stakedBalanceFormatted, (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue),
   )
   const deltaVotingPower = Math.abs(newVotingPower - parseFloat(currentVotingPower)).toPrecision(3)
   const refetchGasRefundInfo = useRefetchGasRefundInfo()
@@ -407,8 +407,8 @@ export default function StakeKNCComponent() {
 
   const handleMaxClick = useCallback(
     (half?: boolean) => {
-      const balance = activeTab === STAKE_TAB.Stake ? KNCBalance : stakedBalance
-      setInputValue(formatUnits(balance.div(!!half ? 2 : 1)))
+      const balance = (activeTab === STAKE_TAB.Stake ? KNCBalance : stakedBalance) as bigint
+      setInputValue(formatUnits(balance / (half ? 2n : 1n), 18))
     },
     [activeTab, KNCBalance, stakedBalance],
   )
@@ -439,7 +439,7 @@ export default function StakeKNCComponent() {
           alignItems="center"
           style={{ gap: '8px' }}
         >
-          <KNCLogo size={20} /> {formatUnits(stakedBalance)} KNC
+          <KNCLogo size={20} /> {stakedBalanceFormatted} KNC
         </Text>
       </YourStakedKNC>
 
@@ -468,7 +468,8 @@ export default function StakeKNCComponent() {
                   </AutoRow>
                   {activeTab === STAKE_TAB.Stake && (
                     <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
-                      <Wallet /> <Text fontSize={12}>{KNCBalance ? formatUnits(KNCBalance) : 0}</Text>
+                      <Wallet />{' '}
+                      <Text fontSize={12}>{KNCBalance ? formatUnits(BigInt(KNCBalance.toString()), 18) : 0}</Text>
                     </AutoRow>
                   )}
                 </RowBetween>
@@ -625,14 +626,14 @@ export default function StakeKNCComponent() {
                 <Trans>Stake Amount</Trans>
               </Text>
               <Text>
-                {formatUnits(stakedBalance)} KNC
+                {stakedBalanceFormatted} KNC
                 {activeTab !== STAKE_TAB.Delegate && (
                   <>
                     {' '}
                     &rarr;{' '}
                     <span style={{ color: theme.text }}>
                       {Math.max(
-                        +formatUnits(stakedBalance) +
+                        +stakedBalanceFormatted +
                           (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0')),
                         0,
                       )}{' '}

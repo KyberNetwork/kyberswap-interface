@@ -1,5 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { TransactionResponse } from '@ethersproject/providers'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
@@ -34,8 +32,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
-import FarmV2ABI from 'constants/abis/v2/farmv2.json'
+import { FarmV2ABI, FarmV21ABI, farmV1ABI } from 'constants/abis'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import {
   useProAmmNFTPositionManagerReadingContract,
@@ -47,20 +44,6 @@ import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { MaxButton as MaxBtn } from 'pages/RemoveLiquidity/styled'
-import { useWalletModalToggle } from 'state/application/hooks'
-import { Field } from 'state/burn/proamm/actions'
-import { useBurnProAmmActionHandlers, useBurnProAmmState, useDerivedProAmmBurnInfo } from 'state/burn/proamm/hooks'
-import { useSingleCallResult } from 'state/multicall/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
-import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin, formattedNum, isAddressString } from 'utils'
-import { formatDollarAmount } from 'utils/numbers'
-import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
-import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-
 import {
   AmoutToRemoveContent,
   Container,
@@ -70,7 +53,23 @@ import {
   SecondColumn,
   TokenId,
   TokenInputWrapper,
-} from './styled'
+} from 'pages/RemoveLiquidityProAmm/styled'
+import { useWalletModalToggle } from 'state/application/hooks'
+import { Field } from 'state/burn/proamm/actions'
+import { useBurnProAmmActionHandlers, useBurnProAmmState, useDerivedProAmmBurnInfo } from 'state/burn/proamm/hooks'
+import { useSingleCallResult } from 'state/multicall/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
+import { basisPointsToPercent, buildFlagsForFarmV21, formattedNum, isAddressString } from 'utils'
+import { formatDollarAmount } from 'utils/numbers'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
+import { ErrorName } from 'utils/transactionError'
+import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
+import { encodeFunctionData } from 'utils/viem'
 
 const TextUnderlineColor = styled(Text)`
   border-bottom: 1px solid ${({ theme }) => theme.text};
@@ -133,20 +132,21 @@ export default function RemoveLiquidityProAmm() {
 
   const location = useLocation()
   const parsedTokenId = useMemo(() => {
+    if (!tokenId) return null
     try {
-      return BigNumber.from(tokenId)
+      return BigInt(tokenId)
     } catch {
       return null
     }
   }, [tokenId])
 
-  if (parsedTokenId === null || parsedTokenId.eq(0)) {
+  if (parsedTokenId === null || parsedTokenId === 0n) {
     return <Navigate to={{ ...location, pathname: '/myPools' }} />
   }
   return <Remove tokenId={parsedTokenId} />
 }
 
-function Remove({ tokenId }: { tokenId: BigNumber }) {
+function Remove({ tokenId }: { tokenId: bigint }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerReadingContract()
   const theme = useTheme()
@@ -154,11 +154,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const { networkInfo, account, chainId } = useActiveWeb3React()
 
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
-  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
+  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const isFarmV2 = networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
   const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
   const isDynamicFarm = networkInfo.elastic.farms.flat().includes(isAddressString(owner))
@@ -200,7 +200,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const currency1IsETHER = !!(chainId && liquidityValue1?.currency.isNative)
   const currency1IsWETH = !!(chainId && liquidityValue1?.currency.equals(WETH[chainId]))
   const { onUserInput } = useBurnProAmmActionHandlers()
-  const removed = position?.liquidity?.eq(0)
+  const removed = position?.liquidity === 0n
 
   const poolAddress = useProAmmPoolInfo(
     positionSDK?.pool?.token0,
@@ -267,7 +267,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const farmV2Contract = useSigningContract(farmV2Address, FarmV2ABI)
   const farmV21Contract = useSigningContract(isFarmV21 ? owner : undefined, FarmV21ABI)
 
-  const handleBroadcastRemoveSuccess = (response: TransactionResponse) => {
+  const handleBroadcastRemoveSuccess = (response: { hash: string }) => {
     setAttemptingTxn(false)
     const tokenAmountIn = liquidityValue0?.toSignificant(6)
     const tokenAmountOut = liquidityValue1?.toSignificant(6)
@@ -292,8 +292,17 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const burnFromFarm = async () => {
     const contract = isFarmV21 ? farmV21Contract : isFarmV2 ? farmV2Contract : farmV1Contract
+    const abi = isFarmV21 ? FarmV21ABI : isFarmV2 ? FarmV2ABI : farmV1ABI
 
-    if (!contract || !liquidityValue0 || !liquidityValue1 || !deadline || !positionSDK || !liquidityPercentage) {
+    if (
+      !contract ||
+      !liquidityValue0 ||
+      !liquidityValue1 ||
+      !deadline ||
+      !positionSDK ||
+      !liquidityPercentage ||
+      !account
+    ) {
       return
     }
 
@@ -301,47 +310,57 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       const amount0Min = liquidityValue0?.subtract(liquidityValue0.multiply(basisPointsToPercent(allowedSlippage)))
       const amount1Min = liquidityValue1?.subtract(liquidityValue1.multiply(basisPointsToPercent(allowedSlippage)))
 
-      const params = isFarmV21
+      const tokenIdArg = tokenId
+      const liquidityArg = BigInt(liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString())
+      const amount0MinArg = BigInt(amount0Min.quotient.toString())
+      const amount1MinArg = BigInt(amount1Min.quotient.toString())
+      const deadlineArg = BigInt(deadline.toString())
+
+      const args: unknown[] = isFarmV21
         ? [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
-            buildFlagsForFarmV21({
-              isClaimFee: false,
-              isSyncFee: false,
-              isClaimReward: false,
-              isReceiveNative: !receiveWETH,
-            }),
+            tokenIdArg,
+            liquidityArg,
+            amount0MinArg,
+            amount1MinArg,
+            deadlineArg,
+            BigInt(
+              buildFlagsForFarmV21({
+                isClaimFee: false,
+                isSyncFee: false,
+                isClaimReward: false,
+                isReceiveNative: !receiveWETH,
+              }),
+            ),
           ]
         : isFarmV2
         ? [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
+            tokenIdArg,
+            liquidityArg,
+            amount0MinArg,
+            amount1MinArg,
+            deadlineArg,
             false, // isClaimFee
             !receiveWETH,
           ]
-        : [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
-            !receiveWETH,
-            [false, false],
-          ]
+        : [tokenIdArg, liquidityArg, amount0MinArg, amount1MinArg, deadlineArg, !receiveWETH, [false, false]]
 
-      const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
-
-      const tx = await contract.removeLiquidity(...params, {
-        gasLimit: calculateGasMargin(gasEstimation),
+      const tx = await sendEVMTransaction({
+        account,
+        contractAddress: contract.address,
+        encodedData: encodeFunctionData({
+          abi,
+          functionName: 'removeLiquidity',
+          args,
+        }),
+        value: 0n,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
       })
 
-      handleBroadcastRemoveSuccess(tx)
+      if (tx?.hash) {
+        handleBroadcastRemoveSuccess(tx)
+      }
     } catch (e) {
       setAttemptingTxn(false)
       setRemoveLiquidityError(e?.message || JSON.stringify(e))
@@ -360,8 +379,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       !feeValue0 ||
       !feeValue1 ||
       !positionSDK ||
-      !liquidityPercentage ||
-      !library
+      !liquidityPercentage
     ) {
       setAttemptingTxn(false)
       setRemoveLiquidityError('Some things went wrong')
@@ -386,26 +404,17 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         havingFee: claimFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
       },
     })
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
-    }
-
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then(async (estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            handleBroadcastRemoveSuccess(response)
-          })
+    sendEVMTransaction({
+      account,
+      contractAddress: positionManager.address,
+      encodedData: calldata as `0x${string}`,
+      value: BigInt(value),
+      errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+      isSmartConnector,
+      chainId,
+    })
+      .then(response => {
+        if (response) handleBroadcastRemoveSuccess(response)
       })
       .catch((error: any) => {
         console.log('error', error)

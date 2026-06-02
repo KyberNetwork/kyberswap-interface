@@ -1,9 +1,6 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { splitSignature } from '@ethersproject/bytes'
-import { Contract } from '@ethersproject/contracts'
-import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -24,6 +21,8 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
+import { wagmiConfig } from 'components/Web3Provider'
+import { KS_ROUTER_STATIC_FEE_ABI, ROUTER_DYNAMIC_FEE_ABI, ROUTER_STATIC_FEE_ABI } from 'constants/abis'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -35,26 +34,6 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Wrapper } from 'pages/MyPool/styleds'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { Field } from 'state/burn/actions'
-import { useBurnActionHandlers, useBurnState, useDerivedBurnInfo } from 'state/burn/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
-import { currencyId } from 'utils/currencyId'
-import { friendlyError } from 'utils/errorMessage'
-import { formatJSBIValue } from 'utils/formatBalance'
-import {
-  getDynamicFeeRouterContract,
-  getOldStaticFeeRouterContract,
-  getStaticFeeRouterContract,
-} from 'utils/getContract'
-import { formatDisplayNumber } from 'utils/numbers'
-import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-
 import {
   CurrentPriceWrapper,
   DetailBox,
@@ -65,7 +44,25 @@ import {
   ModalDetailWrapper,
   SecondColumn,
   TokenWrapper,
-} from './styled'
+} from 'pages/RemoveLiquidity/styled'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { Field } from 'state/burn/actions'
+import { useBurnActionHandlers, useBurnState, useDerivedBurnInfo } from 'state/burn/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
+import { calculateSlippageAmount, formattedNum } from 'utils'
+import { currencyId } from 'utils/currencyId'
+import { friendlyError } from 'utils/errorMessage'
+import { formatJSBIValue } from 'utils/formatBalance'
+import { formatDisplayNumber } from 'utils/numbers'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName, TransactionError } from 'utils/transactionError'
+import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
+import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 export default function TokenPair({
   currencyIdA,
@@ -78,7 +75,7 @@ export default function TokenPair({
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
   const { account, chainId, networkInfo } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const nativeA = currencyA as Currency
   const nativeB = currencyB as Currency
@@ -133,7 +130,7 @@ export default function TokenPair({
   }
 
   // pair contract
-  const pairContract: Contract | null = usePairContract(pair?.liquidityToken?.address)
+  const pairContract = usePairContract(pair?.liquidityToken?.address)
 
   // allowance handling
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
@@ -149,7 +146,7 @@ export default function TokenPair({
 
   async function onAttemptToApprove() {
     if (!chainId) throw new Error('missing chain')
-    if (!pairContract || !pair || !library || !deadline) throw new Error('missing dependencies')
+    if (!pairContract || !pair || !deadline) throw new Error('missing dependencies')
     const liquidityAmount = parsedAmounts[Field.LIQUIDITY]
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
@@ -158,7 +155,13 @@ export default function TokenPair({
     }
 
     // try to gather a signature for permission
-    const nonce = await pairContract.nonces(account)
+    const nonce = (await readContract(wagmiConfig, {
+      address: pairContract.address,
+      abi: pairContract.abi,
+      functionName: 'nonces',
+      args: [account],
+      chainId: chainId as number,
+    })) as bigint
 
     const domain = {
       name: isStaticFeePair ? 'KyberSwap LP' : 'KyberDMM LP',
@@ -177,10 +180,10 @@ export default function TokenPair({
       owner: account,
       spender: contractAddress,
       value: liquidityAmount.quotient.toString(),
-      nonce: nonce.toHexString(),
-      deadline: deadline.toNumber(),
+      nonce: `0x${nonce.toString(16)}`,
+      deadline: Number(deadline),
     }
-    const data = JSON.stringify({
+    const typedData = {
       types: {
         EIP712Domain,
         Permit,
@@ -188,20 +191,21 @@ export default function TokenPair({
       domain,
       primaryType: 'Permit',
       message,
-    })
+    }
 
     try {
-      await library
-        .send('eth_signTypedData_v4', [account, data])
-        .then(splitSignature)
-        .then(signature => {
-          setSignatureData({
-            v: signature.v,
-            r: signature.r,
-            s: signature.s,
-            deadline: deadline.toNumber(),
-          })
-        })
+      const rawSignature = await signTypedDataRaw({
+        chainId: chainId as number,
+        account: account as Address,
+        typedData,
+      })
+      const signature = parseSignature(rawSignature as `0x${string}`)
+      setSignatureData({
+        v: Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
+        r: signature.r,
+        s: signature.s,
+        deadline: Number(deadline),
+      })
     } catch (error) {
       if (didUserReject(error)) {
         notify(
@@ -243,16 +247,17 @@ export default function TokenPair({
   // tx sending
   const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
-    if (!library || !account || !deadline) throw new Error('missing dependencies')
+    if (!account || !deadline) throw new Error('missing dependencies')
+    if (!contractAddress) throw new Error('missing router address')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
     }
-    const routerContract = isStaticFeePair
+    const routerAbi = isStaticFeePair
       ? isOldStaticFeeContract
-        ? getOldStaticFeeRouterContract(chainId, library, account)
-        : getStaticFeeRouterContract(chainId, library, account)
-      : getDynamicFeeRouterContract(chainId, library, account)
+        ? ROUTER_STATIC_FEE_ABI
+        : KS_ROUTER_STATIC_FEE_ABI
+      : ROUTER_DYNAMIC_FEE_ABI
 
     const amountsMin = {
       [Field.CURRENCY_A]: calculateSlippageAmount(currencyAmountA, allowedSlippage)[0],
@@ -268,34 +273,41 @@ export default function TokenPair({
 
     if (!tokenA || !tokenB) throw new Error('could not wrap')
 
-    let methodNames: string[], args: Array<string | string[] | number | boolean>
+    const deadlineArg = BigInt(deadline.toString())
+    const liquidityArg = BigInt(liquidityAmount.quotient.toString())
+
+    let methodNames: string[]
+    let methodArgs: unknown[][]
     // we have approval, use normal remove liquidity
     if (approval === ApprovalState.APPROVED) {
       // removeLiquidityETH
       if (oneCurrencyIsETH) {
         methodNames = ['removeLiquidityETH', 'removeLiquidityETHSupportingFeeOnTransferTokens']
-        args = [
+        const sharedArgs = [
           currencyBIsETH ? tokenA.address : tokenB.address,
           pairAddress,
-          liquidityAmount.quotient.toString(),
-          amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
-          amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),
+          liquidityArg,
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString()),
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString()),
           account,
-          deadline.toHexString(),
+          deadlineArg,
         ]
+        methodArgs = [sharedArgs, sharedArgs]
       }
       // removeLiquidity
       else {
         methodNames = ['removeLiquidity']
-        args = [
-          tokenA.address,
-          tokenB.address,
-          pairAddress,
-          liquidityAmount.quotient.toString(),
-          amountsMin[Field.CURRENCY_A].toString(),
-          amountsMin[Field.CURRENCY_B].toString(),
-          account,
-          deadline.toHexString(),
+        methodArgs = [
+          [
+            tokenA.address,
+            tokenB.address,
+            pairAddress,
+            liquidityArg,
+            BigInt(amountsMin[Field.CURRENCY_A].toString()),
+            BigInt(amountsMin[Field.CURRENCY_B].toString()),
+            account,
+            deadlineArg,
+          ],
         ]
       }
     }
@@ -304,114 +316,125 @@ export default function TokenPair({
       // removeLiquidityETHWithPermit
       if (oneCurrencyIsETH) {
         methodNames = ['removeLiquidityETHWithPermit', 'removeLiquidityETHWithPermitSupportingFeeOnTransferTokens']
-        args = [
+        const sharedArgs = [
           currencyBIsETH ? tokenA.address : tokenB.address,
           pairAddress,
-          liquidityAmount.quotient.toString(),
-          amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
-          amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),
+          liquidityArg,
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString()),
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString()),
           account,
-          signatureData.deadline,
+          BigInt(signatureData.deadline),
           false,
           signatureData.v,
           signatureData.r,
           signatureData.s,
         ]
+        methodArgs = [sharedArgs, sharedArgs]
       }
       // removeLiquidityETHWithPermit
       else {
         methodNames = ['removeLiquidityWithPermit']
-        args = [
-          tokenA.address,
-          tokenB.address,
-          pairAddress,
-          liquidityAmount.quotient.toString(),
-          amountsMin[Field.CURRENCY_A].toString(),
-          amountsMin[Field.CURRENCY_B].toString(),
-          account,
-          signatureData.deadline,
-          false,
-          signatureData.v,
-          signatureData.r,
-          signatureData.s,
+        methodArgs = [
+          [
+            tokenA.address,
+            tokenB.address,
+            pairAddress,
+            liquidityArg,
+            BigInt(amountsMin[Field.CURRENCY_A].toString()),
+            BigInt(amountsMin[Field.CURRENCY_B].toString()),
+            account,
+            BigInt(signatureData.deadline),
+            false,
+            signatureData.v,
+            signatureData.r,
+            signatureData.s,
+          ],
         ]
       }
     } else {
       throw new Error('Attempting to confirm without approval or a signature. Please contact support.')
     }
 
-    const safeGasEstimates: (BigNumber | undefined)[] = await Promise.all(
-      methodNames.map(methodName =>
-        routerContract.estimateGas[methodName](...args)
-          .then(calculateGasMargin)
-          .catch(error => {
-            console.error(`estimateGas failed`, methodName, args, error)
-            setRemoveLiquidityError(error?.message || JSON.stringify(error))
-            return undefined
+    setAttemptingTxn(true)
+    let response: Awaited<ReturnType<typeof sendEVMTransaction>>
+    let lastError: unknown
+    for (let i = 0; i < methodNames.length; i++) {
+      try {
+        response = await sendEVMTransaction({
+          account,
+          contractAddress,
+          encodedData: encodeFunctionData({
+            abi: routerAbi,
+            functionName: methodNames[i],
+            args: methodArgs[i],
           }),
-      ),
-    )
-
-    const indexOfSuccessfulEstimation = safeGasEstimates.findIndex(safeGasEstimate =>
-      BigNumber.isBigNumber(safeGasEstimate),
-    )
-
-    // all estimations failed...
-    if (indexOfSuccessfulEstimation === -1) {
-      console.error('This transaction would fail. Please contact support.')
-    } else {
-      const methodName = methodNames[indexOfSuccessfulEstimation]
-      const safeGasEstimate = safeGasEstimates[indexOfSuccessfulEstimation]
-
-      setAttemptingTxn(true)
-      await routerContract[methodName](...args, {
-        gasLimit: safeGasEstimate,
-      })
-        .then((response: TransactionResponse) => {
-          if (!!currencyA && !!currencyB) {
-            setAttemptingTxn(false)
-            const tokenAmountIn = parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? ''
-            const tokenAmountOut = parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? ''
-            const tokenSymbolIn = currencyAIsWETH ? NativeCurrencies[chainId].symbol : currencyA.symbol
-            const tokenSymbolOut = currencyBIsWETH ? NativeCurrencies[chainId].symbol : currencyB.symbol
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
-              extraInfo: {
-                tokenAmountIn,
-                tokenAmountOut,
-                tokenSymbolIn,
-                tokenSymbolOut,
-                tokenAddressIn: currencyA.wrapped.address,
-                tokenAddressOut: currencyB.wrapped.address,
-                contract: pairAddress,
-                arbitrary: {
-                  poolAddress: pairAddress,
-                  token_1: currencyA.symbol,
-                  token_2: currencyB.symbol,
-                  remove_liquidity_method: 'token pair',
-                  amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
-                },
-              },
-            })
-
-            setTxHash(response.hash)
-          }
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+          isSmartConnector,
+          chainId,
         })
-        .catch((error: Error) => {
+        if (response) break
+      } catch (error) {
+        lastError = error
+        console.error(`sendTransaction failed`, methodNames[i], methodArgs[i], error)
+        // Only retry the next method when the failure was at gas estimation —
+        // the wallet hasn't been prompted yet, so falling back to the alternate
+        // method (e.g. supportingFeeOnTransfer variant) is free. If the failure
+        // was at `sendTransaction` the user has already seen (and likely
+        // rejected) a wallet prompt; retrying would pop a second one.
+        const isEstimateFailure = error instanceof TransactionError && error.type === 'estimateGas'
+        const shouldRetry = isEstimateFailure && i < methodNames.length - 1
+        if (!shouldRetry) {
           setAttemptingTxn(false)
-
-          const message = error.message.includes('INSUFFICIENT')
+          const err = error as Error
+          const message = err?.message?.includes('INSUFFICIENT')
             ? t`Insufficient liquidity available. Please reload page or increase max slippage and try again!`
-            : error.message
-
+            : err?.message || JSON.stringify(error)
           setRemoveLiquidityError(message)
-
           if (!didUserReject(error)) {
             console.error('Remove Classic Liquidity Error:', { message, error })
           }
-        })
+          return
+        }
+      }
     }
+
+    if (!response?.hash) {
+      setAttemptingTxn(false)
+      if (lastError) {
+        const err = lastError as Error
+        setRemoveLiquidityError(err?.message || JSON.stringify(lastError))
+      }
+      return
+    }
+
+    setAttemptingTxn(false)
+    const tokenAmountIn = parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? ''
+    const tokenAmountOut = parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? ''
+    const tokenSymbolIn = currencyAIsWETH ? NativeCurrencies[chainId].symbol : currencyA.symbol
+    const tokenSymbolOut = currencyBIsWETH ? NativeCurrencies[chainId].symbol : currencyB.symbol
+    addTransactionWithType({
+      hash: response.hash,
+      type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
+      extraInfo: {
+        tokenAmountIn,
+        tokenAmountOut,
+        tokenSymbolIn,
+        tokenSymbolOut,
+        tokenAddressIn: currencyA.wrapped.address,
+        tokenAddressOut: currencyB.wrapped.address,
+        contract: pairAddress,
+        arbitrary: {
+          poolAddress: pairAddress,
+          token_1: currencyA.symbol,
+          token_2: currencyB.symbol,
+          remove_liquidity_method: 'token pair',
+          amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+        },
+      },
+    })
+
+    setTxHash(response.hash)
   }
 
   const tokenAddresses: string[] = useMemo(

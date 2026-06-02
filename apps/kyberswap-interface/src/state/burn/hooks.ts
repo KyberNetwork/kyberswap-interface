@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Percent, Price, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
@@ -10,14 +9,13 @@ import { usePairByAddress } from 'data/Reserves'
 import { useTotalSupply } from 'data/TotalSupply'
 import { useActiveWeb3React } from 'hooks'
 import { useZapOutAmount } from 'hooks/useZap'
+import { AppState } from 'state'
+import { Field, switchTokenField, typeInput } from 'state/burn/actions'
 import { useAppDispatch } from 'state/hooks'
-import { AppState } from 'state/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { calculateSlippageAmount } from 'utils'
-
-import { Field, switchTokenField, typeInput } from './actions'
 
 export function useBurnState(): AppState['burn'] {
   return useSelector<AppState, AppState['burn']>(state => state.burn)
@@ -334,7 +332,7 @@ export function useDerivedZapOutInfo(
 
   const lpQty = useMemo(() => {
     if (!userLiquidity) {
-      return BigNumber.from('0')
+      return 0n
     }
 
     const liquidityToRemove = JSBI.divide(
@@ -342,7 +340,7 @@ export function useDerivedZapOutInfo(
       percentToRemove.denominator,
     )
 
-    return BigNumber.from(liquidityToRemove.toString())
+    return BigInt(liquidityToRemove.toString())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLiquidity?.quotient.toString(), percentToRemove.numerator.toString(), percentToRemove.denominator.toString()])
 

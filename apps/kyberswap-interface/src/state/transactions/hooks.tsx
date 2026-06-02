@@ -1,20 +1,27 @@
-import { TransactionResponse } from '@ethersproject/abstract-provider'
+import { getPublicClient } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { TransactionNotFoundError } from 'viem'
 
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useBlockNumber, useKyberSwapConfig } from 'state/application/hooks'
-import { AppDispatch, AppState } from 'state/index'
+import { wagmiConfig } from 'components/Web3Provider'
+import { useActiveWeb3React } from 'hooks'
+import { AppDispatch, AppState } from 'state'
+import { useBlockNumber } from 'state/application/hooks'
+import { addTransaction } from 'state/transactions/actions'
+import {
+  GroupedTxsByHash,
+  TransactionDetails,
+  TransactionExtraInfo1Token,
+  TransactionHistory,
+} from 'state/transactions/type'
 import { findTx } from 'utils'
+import { Hash } from 'utils/viem'
 
-import { addTransaction } from './actions'
-import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo1Token, TransactionHistory } from './type'
+type LegacyTx = { to?: string | null; nonce?: number; data?: string }
 
-// helper that can take a ethers library transaction response and add it to the list of transactions
+// helper that can take a viem transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const { chainId, account } = useActiveWeb3React()
-  const { readProvider } = useKyberSwapConfig(chainId)
-  const { library } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const blockNumber = useBlockNumber()
 
@@ -27,17 +34,33 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
     async ({ hash, desiredChainId, type, firstTxHash, extraInfo }: TransactionHistory) => {
       if (!account) return
 
-      let tx: TransactionResponse | undefined
+      // Resolve the publicClient for the chain the tx was actually sent on
+      // (`desiredChainId`) — otherwise cross-chain replacements look up the wrong
+      // chain and `to/nonce/data` come back empty, breaking replacement-tx detection
+      // in `state/transactions/updater.tsx` (gates on `sentAtBlock && from && nonce`).
+      const lookupChainId = (desiredChainId ?? chainId) as number
+      const publicClient = getPublicClient(wagmiConfig, { chainId: lookupChainId })
+
+      let tx: LegacyTx | undefined
       try {
-        tx = await library?.getTransaction(hash)
-        if (!tx) tx = await readProvider?.getTransaction(hash)
+        if (publicClient) {
+          const viemTx = await publicClient.getTransaction({ hash: hash as Hash }).catch(error => {
+            if (error instanceof TransactionNotFoundError) return null
+            throw error
+          })
+          // viem stores calldata under `input`; ethers used `data`. Normalize for the
+          // downstream `addTransaction` payload shape.
+          if (viemTx) {
+            tx = { to: viemTx.to ?? undefined, nonce: viemTx.nonce, data: viemTx.input }
+          }
+        }
       } catch (error) {}
 
       dispatch(
         addTransaction({
           hash,
           from: account,
-          to: tx?.to,
+          to: tx?.to ?? undefined,
           nonce: tx?.nonce,
           data: tx?.data,
           sentAtBlock: blockNumberRef.current,
@@ -48,7 +71,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch, readProvider, library],
+    [account, chainId, dispatch],
   )
 }
 

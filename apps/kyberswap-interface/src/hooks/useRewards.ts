@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
 
 import { REWARD_TYPE } from 'components/WalletPopup/type'
+import { useClaimGasRefundRewards, useClaimVotingRewards, useGasRefundInfo, useVotingInfo } from 'hooks/kyberdao'
 import { useKNCPrice } from 'state/application/hooks'
 import { aggregateValue } from 'utils/array'
 import { formatUnitsToFixed } from 'utils/formatBalance'
-
-import { useClaimGasRefundRewards, useClaimVotingRewards, useGasRefundInfo, useVotingInfo } from './kyberdao'
 
 export const useRewards = () => {
   const kncPrice = useKNCPrice()
@@ -16,16 +15,17 @@ export const useRewards = () => {
   const claimGasRefund = useClaimGasRefundRewards()
   const claimVotingRewards = useClaimVotingRewards()
 
-  const rewards: { [key in REWARD_TYPE]: { knc: number; usd: number; claim: () => Promise<string> } } = useMemo(() => {
-    return {
-      [REWARD_TYPE.GAS_REFUND]: { knc: knc || 0, usd: usd || 0, claim: claimGasRefund },
-      [REWARD_TYPE.VOTING_REWARDS]: {
-        knc: +formatUnitsToFixed(remainingCumulativeAmount),
-        usd: +formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0'),
-        claim: claimVotingRewards,
-      },
-    }
-  }, [knc, kncPrice, remainingCumulativeAmount, usd, claimVotingRewards, claimGasRefund])
+  const rewards: { [key in REWARD_TYPE]: { knc: number; usd: number; claim: () => Promise<string | undefined> } } =
+    useMemo(() => {
+      return {
+        [REWARD_TYPE.GAS_REFUND]: { knc: knc || 0, usd: usd || 0, claim: claimGasRefund },
+        [REWARD_TYPE.VOTING_REWARDS]: {
+          knc: +formatUnitsToFixed(remainingCumulativeAmount),
+          usd: +formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0'),
+          claim: claimVotingRewards,
+        },
+      }
+    }, [knc, kncPrice, remainingCumulativeAmount, usd, claimVotingRewards, claimGasRefund])
 
   const totalReward = useMemo(() => {
     const rewardsValues = Object.values(rewards)

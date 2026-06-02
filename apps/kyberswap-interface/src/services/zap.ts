@@ -1,4 +1,3 @@
-import { parseUnits } from '@ethersproject/units'
 import {
   CHAIN_ID_TO_CHAIN,
   PoolType,
@@ -9,6 +8,8 @@ import {
   univ3Types,
 } from '@kyber/schema'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+
+import { parseUnits } from 'utils/viem'
 
 export type ZapRouteApiResponse = {
   data?: ZapRouteDetail

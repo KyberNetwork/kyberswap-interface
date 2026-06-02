@@ -1,14 +1,15 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
-import { defaultAbiCoder, splitSignature } from 'ethers/lib/utils'
 import { useCallback, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { friendlyError } from 'utils/errorMessage'
+import { Address, encodeAbiParameters, parseAbi, parseAbiParameters, parseSignature } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 export enum PermitNftState {
   NOT_APPLICABLE = 'not_applicable',
@@ -27,24 +28,27 @@ export interface PermitNftParams {
 
 export interface PermitNftResult {
   deadline: number
-  nonce: BigNumber
+  nonce: bigint
   signature: string
   permitData: string
 }
 
-// NFT Position Manager ABI for permit functionality
-const NFT_PERMIT_ABI = [
+// NFT Position Manager ABI for permit functionality. Parsed via viem `parseAbi`
+// so the multicall bridge (which expects object-form AbiItems for function
+// lookup) can discover these reads.
+const NFT_PERMIT_ABI = parseAbi([
   'function name() view returns (string)',
   'function nonces(address owner, uint256 word) view returns (uint256 bitmap)', // V4 unordered nonces
   'function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)', // V3 ordered nonces
   'function DOMAIN_SEPARATOR() view returns (bytes32)', // V3 domain separator
   'function PERMIT_TYPEHASH() view returns (bytes32)', // V3 permit typehash
   'function permit(address spender, uint256 tokenId, uint256 deadline, uint256 nonce, bytes signature) payable',
-]
+])
 
 export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, version = 'auto' }: PermitNftParams) => {
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
+  const isSmartAccount = useIsSmartAccount()
   const notify = useNotify()
   const [isSigningInProgress, setIsSigningInProgress] = useState(false)
   const [permitData, setPermitData] = useState<PermitNftResult | null>(null)
@@ -74,6 +78,13 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     if (!account || !contractAddress || !tokenId || !spender) {
       return PermitNftState.NOT_APPLICABLE
     }
+    // Skip permit for smart-wallet connectors (Porto, Safe) and any account
+    // whose address has on-chain bytecode (Coinbase Smart Wallet via passkey,
+    // Argent, Ambire, ...). Their EIP-1271 contract signatures can't be
+    // verified via ecrecover, which is what the NFT manager's permit() uses.
+    if (isSmartConnector || isSmartAccount) {
+      return PermitNftState.NOT_APPLICABLE
+    }
     if (isSigningInProgress) {
       return PermitNftState.SIGNING
     }
@@ -81,22 +92,22 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
       return PermitNftState.SIGNED
     }
     return PermitNftState.READY_TO_SIGN
-  }, [account, contractAddress, tokenId, spender, isSigningInProgress, permitData])
+  }, [account, contractAddress, tokenId, spender, isSmartConnector, isSmartAccount, isSigningInProgress, permitData])
 
   // Get nonce based on version
-  const getNonce = useCallback((): BigNumber | null => {
+  const getNonce = useCallback((): bigint | null => {
     if (actualVersion === 'v3') {
       // Use ordered nonce from positions function
       if (positionsState?.result?.[0] !== undefined) {
-        return BigNumber.from(positionsState.result[0])
+        return BigInt(positionsState.result[0])
       }
-    } else if (actualVersion === 'v4') return BigNumber.from(Math.floor(Date.now() / 1000))
+    } else if (actualVersion === 'v4') return BigInt(Math.floor(Date.now() / 1000))
 
     return null
   }, [actualVersion, positionsState?.result])
 
   const signPermitNft = useCallback(async (): Promise<PermitNftResult | null> => {
-    if (!library || !account || !chainId || !nameState?.result?.[0]) {
+    if (!account || !chainId || !nameState?.result?.[0]) {
       console.error('Missing required data for NFT permit')
       return null
     }
@@ -109,7 +120,9 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
       console.error('Missing V3 contract data for NFT permit')
       return null
     }
-    if (actualVersion === 'v4' && !noncesState?.result?.[0]) {
+    if (actualVersion === 'v4' && noncesState?.result?.[0] === undefined) {
+      // A fresh account legitimately returns `0n` (all bits free); use an
+      // explicit undefined check instead of falsiness.
       console.error('Missing nonces data for V4 NFT permit')
       return null
     }
@@ -124,7 +137,9 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     try {
       const nonce = getNonce()
 
-      if (!nonce) {
+      // V3 nonce can legitimately be 0n for never-permitted positions; only
+      // bail when the lookup itself failed.
+      if (nonce === null) {
         throw new Error(`Failed to get nonce for ${actualVersion}`)
       }
 
@@ -142,7 +157,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
           name: contractName,
           version: '1',
           chainId,
-          verifyingContract: contractAddress,
+          verifyingContract: contractAddress as Address,
         }
 
         const types = {
@@ -155,37 +170,30 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         }
 
         const message = {
-          spender,
-          tokenId,
-          nonce: nonce.toString(),
-          deadline: permitDeadline,
+          spender: spender as Address,
+          tokenId: BigInt(tokenId),
+          nonce: nonce,
+          deadline: BigInt(permitDeadline),
         }
 
-        const typedData = JSON.stringify({
-          types: {
-            EIP712Domain: [
-              { name: 'name', type: 'string' },
-              { name: 'version', type: 'string' },
-              { name: 'chainId', type: 'uint256' },
-              { name: 'verifyingContract', type: 'address' },
-            ],
-            ...types,
-          },
+        const walletClient = await getGatedWalletClient({ chainId: chainId })
+        if (!walletClient) throw new Error('Wallet client unavailable')
+        const flatSig = await walletClient.signTypedData({
+          account: account as Address,
           domain,
+          types,
           primaryType: 'Permit',
           message,
         })
 
-        console.log(`Signing ${actualVersion} NFT permit with data:`, typedData)
-
-        const flatSig = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
-
-        const sig = splitSignature(flatSig)
+        const sig = parseSignature(flatSig)
         // V3 permit data: encode(deadline, v, r, s)
-        permitData = defaultAbiCoder.encode(
-          ['uint256', 'uint8', 'bytes32', 'bytes32'],
-          [permitDeadline, sig.v, sig.r, sig.s],
-        )
+        permitData = encodeAbiParameters(parseAbiParameters('uint256, uint8, bytes32, bytes32'), [
+          BigInt(permitDeadline),
+          Number(sig.v ?? (sig.yParity === 0 ? 27 : 28)),
+          sig.r,
+          sig.s,
+        ])
         signature = flatSig
       } else {
         // V4 uses EIP-712 typed data signing (keep existing working implementation)
@@ -194,7 +202,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         const domain = {
           name: contractName,
           chainId,
-          verifyingContract: contractAddress,
+          verifyingContract: contractAddress as Address,
         }
 
         const types = {
@@ -207,32 +215,28 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         }
 
         const message = {
-          spender,
-          tokenId,
-          nonce: nonce.toString(),
-          deadline: permitDeadline,
+          spender: spender as Address,
+          tokenId: BigInt(tokenId),
+          nonce: nonce,
+          deadline: BigInt(permitDeadline),
         }
 
-        const typedData = JSON.stringify({
-          types: {
-            EIP712Domain: [
-              { name: 'name', type: 'string' },
-              { name: 'chainId', type: 'uint256' },
-              { name: 'verifyingContract', type: 'address' },
-            ],
-            ...types,
-          },
+        const walletClient = await getGatedWalletClient({ chainId: chainId })
+        if (!walletClient) throw new Error('Wallet client unavailable')
+        signature = await walletClient.signTypedData({
+          account: account as Address,
           domain,
+          types,
           primaryType: 'Permit',
           message,
         })
 
-        console.log(`Signing ${actualVersion} NFT permit with data:`, typedData)
-
-        signature = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
-
         // V4 permit data: encode(deadline, nonce, signature) - keep existing working format
-        permitData = defaultAbiCoder.encode(['uint256', 'uint256', 'bytes'], [permitDeadline, nonce, signature])
+        permitData = encodeAbiParameters(parseAbiParameters('uint256, uint256, bytes'), [
+          BigInt(permitDeadline),
+          nonce,
+          signature as `0x${string}`,
+        ])
       }
 
       const v = actualVersion.toUpperCase()
@@ -268,7 +272,6 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
   }, [
     account,
     chainId,
-    library,
     contractAddress,
     tokenId,
     spender,

@@ -22,7 +22,7 @@ import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { NavigateButton, PoolPageWrapper, StyledNavigateButton, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
@@ -39,6 +39,8 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
+import { Address } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 const TableHeader = styled.div`
   display: grid;
@@ -114,7 +116,6 @@ const SmartExit = () => {
   const theme = useTheme()
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
@@ -130,7 +131,7 @@ const SmartExit = () => {
 
   const { changeNetwork } = useChangeNetwork()
   const handleRemove = useCallback(async () => {
-    if (!showCancelConfirm || !account || !library) return
+    if (!showCancelConfirm || !account) return
 
     if (showCancelConfirm?.chainId && +chainId !== +showCancelConfirm.chainId) {
       changeNetwork(+showCancelConfirm.chainId)
@@ -152,7 +153,11 @@ const SmartExit = () => {
         throw new Error('Failed to get valid typed data from API')
       }
 
-      const signature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
+      const signature = await signTypedDataRaw({
+        chainId: chainId,
+        account: account as Address,
+        typedData,
+      })
 
       await cancelOrder({
         orderId: +showCancelConfirm.id,
@@ -180,7 +185,7 @@ const SmartExit = () => {
     } finally {
       setRemoving(false)
     }
-  }, [account, cancelOrder, changeNetwork, chainId, getCancelSignMsg, library, notify, showCancelConfirm])
+  }, [account, cancelOrder, changeNetwork, chainId, getCancelSignMsg, notify, showCancelConfirm])
 
   const {
     currentPage,

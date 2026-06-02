@@ -1,6 +1,5 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -16,12 +15,12 @@ import { useKyberDAOInfo, useKyberDaoStakeActions } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
+import CurrencyInputForStake from 'pages/KyberDAO/StakeKNC/CurrencyInputForStake'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-
-import CurrencyInputForStake from './CurrencyInputForStake'
-import { useSwitchToEthereum } from './SwitchToEthereumModal'
+import { parseUnits } from 'utils/viem'
 
 const Wrapper = styled.div`
   padding: 24px;
@@ -68,7 +67,7 @@ export default function MigrateModal({
     }
     if (!value || isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
       setError(t`Invalid amount`)
-    } else if (!oldKNCBalance.value.gte(parseUnits(value, 18))) {
+    } else if (oldKNCBalance.value < parseUnits(value, 18)) {
       setError(t`Insufficient KNCL balance!`)
       return
     } else {

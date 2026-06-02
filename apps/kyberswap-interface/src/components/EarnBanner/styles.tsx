@@ -44,7 +44,7 @@ export const pulse = keyframes`
   }
 `
 
-export const PoolWrapper = styled(Link)<{ animate: boolean }>`
+export const PoolWrapper = styled(Link)<{ $animate: boolean }>`
   width: 100%;
   display: flex;
   align-items: center;
@@ -52,8 +52,8 @@ export const PoolWrapper = styled(Link)<{ animate: boolean }>`
   text-decoration: none;
   color: inherit;
 
-  ${({ animate }) =>
-    animate &&
+  ${({ $animate }) =>
+    $animate &&
     css`
       animation: ${pulse} 0.6s;
     `}
@@ -146,14 +146,14 @@ export const moveBackExtraSmall = keyframes`
   }
 `
 
-export const FarmingPoolWrapper = styled.div<{ animateMoveForward: boolean; animateMoveBack: boolean }>`
+export const FarmingPoolWrapper = styled.div<{ $animateMoveForward: boolean; $animateMoveBack: boolean }>`
   display: flex;
   align-items: center;
   position: relative;
   left: -50%;
 
-  ${({ animateMoveForward }) =>
-    animateMoveForward &&
+  ${({ $animateMoveForward }) =>
+    $animateMoveForward &&
     css`
       animation: ${moveForward} 0.8s;
 
@@ -162,8 +162,8 @@ export const FarmingPoolWrapper = styled.div<{ animateMoveForward: boolean; anim
       `}
     `}
 
-  ${({ animateMoveBack }) =>
-    animateMoveBack &&
+  ${({ $animateMoveBack }) =>
+    $animateMoveBack &&
     css`
       animation: ${moveBack} 0.8s;
 

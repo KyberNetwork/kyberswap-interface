@@ -13,9 +13,9 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { TAB } from 'pages/SwapV3/index'
+import { TAB } from 'pages/SwapV3'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useDegenModeManager, usePaymentToken, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
+import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatSlippage } from 'utils/slippage'
 
@@ -58,7 +58,6 @@ export default function HeaderRightMenu({
   const [isDegenMode] = useDegenModeManager()
   const [slippage] = useUserSlippageTolerance()
   const [transactionTimeout] = useUserTransactionTTL()
-  const [paymentToken] = usePaymentToken()
   const { networkInfo } = useActiveWeb3React()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
@@ -87,7 +86,7 @@ export default function HeaderRightMenu({
               trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK, {
                 current_max_slippage: formatSlippage(slippage, false),
                 current_transaction_time_limit: transactionTimeout / 60,
-                current_gas_token: paymentToken?.symbol || networkInfo.nativeToken.symbol,
+                current_gas_token: networkInfo.nativeToken.symbol,
               })
             }
           }}

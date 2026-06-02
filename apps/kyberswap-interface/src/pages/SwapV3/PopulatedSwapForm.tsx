@@ -14,9 +14,8 @@ type Props = {
   routeSummary: DetailedRouteSummary | undefined
   setRouteSummary: React.Dispatch<React.SetStateAction<DetailedRouteSummary | undefined>>
   hidden: boolean
-  onOpenGasToken: () => void
 }
-const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, hidden, onOpenGasToken }) => {
+const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, hidden }) => {
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
 
@@ -77,7 +76,6 @@ const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, hid
     permit: permitData?.rawSignature,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
-    onOpenGasToken,
   }
 
   return <SwapForm {...props} />

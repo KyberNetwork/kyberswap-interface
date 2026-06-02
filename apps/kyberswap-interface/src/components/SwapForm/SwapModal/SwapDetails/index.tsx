@@ -26,7 +26,7 @@ import useENS from 'hooks/useENS'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
-import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
+import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp, shortenAddress } from 'utils'
@@ -90,9 +90,6 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
     feeAmountFromBuild && currencyFromBuild?.symbol ? `${feeAmountFromBuild} ${currencyFromBuild.symbol}` : ''
 
   const feeAmount = routeSummary?.extraFee?.feeAmount
-
-  const [paymentToken] = usePaymentToken()
-  const isHold = paymentToken?.address.toLowerCase() === '0xed4040fD47629e7c8FBB7DA76bb50B3e7695F0f2'.toLowerCase()
 
   const { recipient: recipientAddressOrName } = useSwapFormContext()
   const { address: recipientAddress } = useENS(recipientAddressOrName)
@@ -234,7 +231,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                {paymentToken ? t`Est. Paymaster Gas Fee` : t`Estimated Total Gas`}
+                {t`Estimated Total Gas`}
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
@@ -248,15 +245,8 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             content={
               <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
                 <Flex sx={{ gap: '4px' }} onClick={() => setShowDetailGas(prev => !prev)}>
-                  {isHold && !!gasUsd && (
-                    <Text sx={{ textDecoration: 'line-through' }} fontSize={12} color={theme.subText}>
-                      {formattedNum(gasUsd, true)}
-                    </Text>
-                  )}
                   <TYPE.black color={theme.text} fontSize={12}>
-                    {gasUsd
-                      ? formattedNum(isHold ? +gasUsd * 0.8 : +gasUsd + Number(buildData?.additionalCostUsd || 0), true)
-                      : '--'}
+                    {gasUsd ? formattedNum(+gasUsd + Number(buildData?.additionalCostUsd || 0), true) : '--'}
                   </TYPE.black>
                   {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
                     <ChevronDown

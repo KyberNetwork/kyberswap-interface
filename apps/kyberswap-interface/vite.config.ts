@@ -1,11 +1,21 @@
 import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
 import lingui from '@lingui/vite-plugin'
 import react from '@vitejs/plugin-react-swc'
-import path, { resolve } from 'path'
+import { realpathSync } from 'fs'
+import { createRequire } from 'module'
+import path, { dirname, resolve } from 'path'
 import { defineConfig } from 'vite'
 import checker from 'vite-plugin-checker'
 import svgrPlugin from 'vite-plugin-svgr'
 import viteTsconfigPaths from 'vite-tsconfig-paths'
+
+// Anchor `createRequire` at `connect-evm`'s real path so we can resolve
+// MetaMask SDK transitive deps that pnpm doesn't symlink into the app.
+const connectEvmRealPath = realpathSync(resolve(__dirname, 'node_modules/@metamask/connect-evm'))
+const requireFromSdk = createRequire(connectEvmRealPath + '/package.json')
+
+const mwpCoreEsm = dirname(requireFromSdk.resolve('@metamask/mobile-wallet-protocol-core/package.json'))
+const eciesjsEntry = requireFromSdk.resolve('eciesjs')
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -37,38 +47,62 @@ export default defineConfig({
     // cannot parse. Exclude from pre-bundling — the dynamic import inside is never reached
     // because we don't register the baseAccount() connector.
     exclude: ['@base-org/account'],
+    // Force ESM pre-bundle for the MetaMask SDK chain — CJS-only packages
+    // dynamically imported by the SDK otherwise come back with undefined
+    // named exports at runtime.
+    include: [
+      '@metamask/mobile-wallet-protocol-core',
+      '@metamask/mobile-wallet-protocol-dapp-client',
+      '@metamask/connect-multichain',
+    ],
     esbuildOptions: {
       define: {
         global: 'globalThis',
       },
       plugins: [
+        // Cast: GlobalPolyFill returns an esbuild@0.24 Plugin, but Vite 4 types
+        // `esbuildOptions.plugins` against esbuild@0.18 (its bundled version).
+        // The `PluginBuild.initialOptions.packages` union differs between the
+        // two — runtime is fine, only TS errors. Drop the cast once Vite is on
+        // esbuild 0.21+.
         GlobalPolyFill({
           process: true,
           buffer: true,
-        }),
+        }) as any,
       ],
     },
   },
   resolve: {
     dedupe: ['styled-components', 'react', 'react-dom'],
-    alias: {
-      querystring: 'query-string',
-      process: 'process/browser',
-      stream: 'stream-browserify',
-      zlib: 'browserify-zlib',
-      util: 'util',
-      'react-redux': 'react-redux/dist/react-redux.js',
-      '@': path.resolve(__dirname, './src/'),
-      'react-dom/client': 'react-dom/profiling',
-      // WalletConnect ethereum-provider 2.21+ renamed the ESM bundle from index.es.js to
-      // index.js — point the alias at the new path so Vite's pre-bundle resolver finds it.
-      '@walletconnect/ethereum-provider': resolve(
-        __dirname,
-        'node_modules/@walletconnect/ethereum-provider/dist/index.js',
-      ),
-
-      //'@web3-react/core': path.resolve(__dirname, 'src/connection/web3reactShim.ts'),
-    },
+    // Array form (rather than object) so we can use regex `find` for the
+    // `eciesjs` entries below.
+    alias: [
+      { find: 'querystring', replacement: 'query-string' },
+      { find: /^process$/, replacement: 'process/browser' },
+      { find: /^stream$/, replacement: 'stream-browserify' },
+      { find: /^zlib$/, replacement: 'browserify-zlib' },
+      { find: /^util$/, replacement: 'util' },
+      { find: 'react-redux', replacement: 'react-redux/dist/react-redux.js' },
+      { find: '@', replacement: path.resolve(__dirname, './src/') },
+      { find: 'react-dom/client', replacement: 'react-dom/profiling' },
+      // WalletConnect 2.21+ renamed the ESM bundle from index.es.js to index.js.
+      {
+        find: '@walletconnect/ethereum-provider',
+        replacement: resolve(__dirname, 'node_modules/@walletconnect/ethereum-provider/dist/index.js'),
+      },
+      // mwp-core ships both CJS and ESM but declares only "main" — force the .mjs.
+      {
+        find: '@metamask/mobile-wallet-protocol-core',
+        replacement: resolve(mwpCoreEsm, 'dist/index.mjs'),
+      },
+      // eciesjs uses `Object.defineProperty(exports, X, { get })` for its
+      // named exports, which esbuild's CJS-to-ESM analyzer doesn't extract.
+      // Route through a local proxy that captures the getter values via
+      // namespace import. Exact-match regex so the proxy's own sub-path
+      // import (resolved by the next entry) isn't rewritten back here.
+      { find: /^eciesjs$/, replacement: resolve(__dirname, 'src/types/eciesjsProxy.ts') },
+      { find: /^eciesjs\/dist\/index\.js$/, replacement: eciesjsEntry },
+    ],
   },
   server: {
     port: 3000,

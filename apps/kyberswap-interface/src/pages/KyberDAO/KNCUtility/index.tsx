@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { formatUnits } from 'ethers/lib/utils'
 import { transparentize } from 'polished'
 import { NavLink } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -17,12 +16,12 @@ import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
+import FAQ from 'pages/KyberDAO/KNCUtility/FAQ'
+import GasRefundBox from 'pages/KyberDAO/KNCUtility/GasRefundBox'
+import { HeaderCell, Table, TableHeader, TableRow } from 'pages/KyberDAO/KNCUtility/Table'
+import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-
-import KNCLogo from '../kncLogo'
-import FAQ from './FAQ'
-import GasRefundBox from './GasRefundBox'
-import { HeaderCell, Table, TableHeader, TableRow } from './Table'
+import { formatUnits } from 'utils/viem'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -133,7 +132,7 @@ export default function KNCUtility() {
                   style={{ gap: '8px' }}
                   fontWeight={500}
                 >
-                  <KNCLogo size={20} /> {account ? formatUnits(stakedBalance) : '--'} KNC
+                  <KNCLogo size={20} /> {account ? formatUnits(BigInt((stakedBalance || 0).toString()), 18) : '--'} KNC
                 </Text>
               </YourStakedKNC>
               <Flex alignSelf="flex-end">

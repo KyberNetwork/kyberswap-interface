@@ -11,7 +11,7 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
 import TokenLogo from 'components/TokenLogo'
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { TokenRewardRow } from 'pages/Earns/components/ClaimAllModal/TokenRewardRow'
@@ -91,7 +91,7 @@ export default function ClaimAllModal({
 }: Props) {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const { library, chainId } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
   const effectiveRewardInfo = rewardInfo ?? emptyRewardInfo
@@ -120,9 +120,8 @@ export default function ClaimAllModal({
     activeTab === 'bonus' && !!selectedChainId && merklSyncingChainIds.includes(selectedChainId)
 
   const handleClaim = useCallback(async () => {
-    if (!library || !selectedChainId) return
-    const accounts = await library.listAccounts()
-    if (chainId !== selectedChainId || !accounts.length) {
+    if (!selectedChainId) return
+    if (chainId !== selectedChainId || !account) {
       if (chainId !== selectedChainId) changeNetwork(selectedChainId)
       setAutoClaim(true)
       return
@@ -138,7 +137,7 @@ export default function ClaimAllModal({
     } finally {
       setClaimingByChain(prev => ({ ...prev, [selectedChainId]: false }))
     }
-  }, [chainId, changeNetwork, library, onClaimAll, onClaimMerkl, selectedChainId, activeTab])
+  }, [account, chainId, changeNetwork, onClaimAll, onClaimMerkl, selectedChainId, activeTab])
 
   const handleSelectChain = (cId: number) => {
     if (cId !== selectedChainId) {

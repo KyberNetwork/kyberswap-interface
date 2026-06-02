@@ -2,7 +2,7 @@ import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswa
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 
-import ERC20_INTERFACE from 'constants/abis/erc20'
+import { ERC20_ABI } from 'constants/abis'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -62,14 +62,13 @@ function useTokensBalanceEVM(tokens?: Token[]): TokenAmountLoading[] {
   const { account } = useActiveWeb3React()
 
   const validatedTokenAddresses = useMemo(() => tokens?.map(token => token?.address) ?? [], [tokens])
-  const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_INTERFACE, 'balanceOf', [account])
+  const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_ABI, 'balanceOf', [account])
   return useMemo(
     () =>
       balances.map((balanceCall, i) => {
+        const raw = balanceCall.result?.[0]
         const amount =
-          balanceCall.result?.[0] && tokens?.[i]
-            ? TokenAmount.fromRawAmount(tokens?.[i], balanceCall.result?.[0])
-            : undefined
+          raw !== undefined && tokens?.[i] ? TokenAmount.fromRawAmount(tokens[i], raw.toString()) : undefined
         return [amount, balanceCall.loading]
       }),
     [balances, tokens],

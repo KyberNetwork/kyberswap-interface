@@ -23,12 +23,10 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
       return false
     }
 
-    // SafePal's custom connector is always registered so it can act as an install/deep-link option,
-    // but it should not count as an injected wallet unless its provider actually exists.
-    if (c.id === CONNECTION.SAFEPAL && !window.safepalProvider) {
-      return false
-    }
-
+    // SafePal's custom connector pins SafePal's EIP-6963 rdns, so wagmi's mipd dedup
+    // collapses the announced provider onto it instead of creating a second URL-keyed
+    // connector. Always surface this one — its own `connect()` opens the download page
+    // when no provider has injected yet, mirroring HardCodedConnectors install behavior.
     return c.type === CONNECTION.INJECTED_CONNECTOR_TYPE && c.id !== CONNECTION.INJECTED_CONNECTOR_ID
   })
 

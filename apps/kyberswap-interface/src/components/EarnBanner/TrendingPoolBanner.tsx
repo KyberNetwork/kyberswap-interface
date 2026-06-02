@@ -94,7 +94,7 @@ export default function TrendingPoolBanner() {
       </BannerHeaderLink>
       {!!pool ? (
         <PoolWrapper
-          animate={animate}
+          $animate={animate}
           onClick={() => handlePoolClickTracking(pool)}
           onMouseEnter={() => setIsSlideHovered(true)}
           onMouseLeave={() => setIsSlideHovered(false)}

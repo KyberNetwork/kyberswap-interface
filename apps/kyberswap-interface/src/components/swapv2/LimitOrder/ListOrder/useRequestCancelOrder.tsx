@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
+import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   useCancelOrdersMutation,
@@ -8,42 +8,51 @@ import {
   useInsertCancellingOrderMutation,
 } from 'services/limitOrder'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
+import { formatAmountOrder, getErrorMessage, getPayloadTracking } from 'components/swapv2/LimitOrder/helpers'
+import {
+  CancelOrderFunction,
+  CancelOrderResponse,
+  CancelOrderType,
+  LimitOrder,
+} from 'components/swapv2/LimitOrder/type'
 import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
 import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
-import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
+import { LIMIT_ORDER_ABI } from 'constants/abis'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useKyberSwapConfig } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { getReadingContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { formatSignature } from 'utils/transaction'
 import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
-
-import { formatAmountOrder, getErrorMessage, getPayloadTracking } from '../helpers'
-import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder } from '../type'
+import { Address } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 const useGetEncodeLimitOrder = () => {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [getEncodeData] = useGetEncodeDataMutation()
-  const { readProvider } = useKyberSwapConfig()
 
   return useCallback(
     async ({ orders, isCancelAll }: { orders: LimitOrder[]; isCancelAll: boolean | undefined }) => {
-      if (!readProvider) throw new Error()
+      if (!account) throw new Error()
       if (isCancelAll) {
         const contracts = [...new Set(orders.map(e => e.contractAddress))]
         const result = []
         for (const address of contracts) {
-          const limitOrderContract = getReadingContract(address, LIMIT_ORDER_ABI, readProvider)
           const [{ encodedData }, nonce] = await Promise.all([
             getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
-            limitOrderContract?.nonce?.(account),
+            readContract(wagmiConfig, {
+              address: address as Address,
+              abi: LIMIT_ORDER_ABI,
+              functionName: 'nonce',
+              args: [account],
+              chainId: chainId as number,
+            }),
           ])
           result.push({ encodedData, nonce, contractAddress: address })
         }
@@ -55,7 +64,7 @@ const useGetEncodeLimitOrder = () => {
       }).unwrap()
       return [{ encodedData, contractAddress: orders[0]?.contractAddress, nonce: '' }]
     },
-    [account, getEncodeData, readProvider],
+    [account, chainId, getEncodeData],
   )
 }
 
@@ -70,7 +79,7 @@ const useRequestCancelOrder = ({
 }) => {
   const { setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
   const { account, chainId, networkInfo, walletKey } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
   const [createCancelSignature] = useCreateCancelOrderSignatureMutation()
@@ -79,21 +88,21 @@ const useRequestCancelOrder = ({
   const getEncodeData = useGetEncodeLimitOrder()
 
   const requestHardCancelOrder = async (order: LimitOrder | undefined) => {
-    if (!library || !account) return Promise.reject('Wrong input')
+    if (!account) return Promise.reject('Wrong input')
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
 
     const sendTransaction = async (encodedData: string, contract: string, payload: any) => {
       const response = await sendEVMTransaction({
         account,
-        library,
         contractAddress: contract,
         encodedData,
-        value: BigNumber.from(0),
+        value: 0n,
         isSmartConnector,
         errorInfo: {
           name: ErrorName.LimitOrderError,
           wallet: walletKey,
         },
+        chainId,
       })
       if (response?.hash) {
         insertCancellingOrder({
@@ -119,7 +128,7 @@ const useRequestCancelOrder = ({
         const amountIn = order ? formatAmountOrder(makingAmount, makerAssetDecimals) : ''
         const amountOut = order ? formatAmountOrder(takingAmount, takerAssetDecimals) : ''
         addTransactionWithType({
-          ...response,
+          hash: response.hash,
           type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
           extraInfo: order
             ? {
@@ -140,7 +149,7 @@ const useRequestCancelOrder = ({
       const data = await getEncodeData({ isCancelAll, orders })
       for (const item of data) {
         const { contractAddress, nonce, encodedData } = item
-        await sendTransaction(encodedData, contractAddress, { nonce: nonce.toNumber() })
+        await sendTransaction(encodedData, contractAddress, { nonce: Number(nonce as bigint) })
       }
     } else {
       const data = await getEncodeData({ isCancelAll, orders: order ? [order] : [] })
@@ -152,12 +161,16 @@ const useRequestCancelOrder = ({
   }
 
   const requestGasLessCancelOrder = async (orders: LimitOrder[]) => {
-    if (!library || !account) return Promise.reject('Wrong input')
+    if (!account) return Promise.reject('Wrong input')
     const orderIds = orders.map(e => e.id)
     const cancelPayload = { chainId: chainId.toString(), maker: account, orderIds }
     const messagePayload = await createCancelSignature(cancelPayload).unwrap()
 
-    const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
+    const rawSignature = await signTypedDataRaw({
+      chainId: chainId,
+      account: account as Address,
+      typedData: messagePayload,
+    })
     const signature = formatSignature(rawSignature)
     const resp = await cancelOrderRequest({ ...cancelPayload, signature }).unwrap()
 

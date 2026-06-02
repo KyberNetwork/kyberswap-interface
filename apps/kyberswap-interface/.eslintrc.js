@@ -77,5 +77,55 @@ module.exports = {
     'lingui/no-expression-in-message': 2,
     'lingui/no-single-tag-to-translate': 2,
     'lingui/no-trans-inside-trans': 2,
+
+    // ethers.js → viem migration guardrail. The codebase is clean, so this is
+    // an error to prevent regressions.
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: '@wagmi/core',
+            importNames: ['getWalletClient'],
+            message:
+              'Use `getGatedWalletClient` / `signTypedDataSafe` from src/utils/walletClient.ts so the Blackjack compliance gate runs at the EIP-1193 boundary.',
+          },
+          {
+            name: 'wagmi',
+            importNames: ['useWalletClient'],
+            message:
+              'Use `useGatedWalletClient` from src/hooks/useGatedWalletClient.ts so the Blackjack compliance gate runs at the EIP-1193 boundary.',
+          },
+          { name: 'ethers', message: 'Use viem (see src/utils/viem.ts).' },
+          { name: 'ethers/lib/utils', message: 'Use parseUnits/formatUnits/etc. from src/utils/viem.ts.' },
+          { name: '@ethersproject/units', message: 'Use parseUnits/formatUnits from src/utils/viem.ts.' },
+          {
+            name: '@ethersproject/bignumber',
+            message: 'Use native bigint.',
+          },
+          {
+            name: '@ethersproject/abi',
+            message: 'Use encodeFunctionData/decodeFunctionResult from src/utils/viem.ts.',
+          },
+          {
+            name: '@ethersproject/contracts',
+            message: 'Use wagmi useReadContract / @wagmi/core readContract instead.',
+          },
+          {
+            name: '@ethersproject/providers',
+            message: 'Use viem PublicClient via wagmi (usePublicClient / getPublicClient).',
+          },
+          { name: '@ethersproject/abstract-provider', message: 'Use viem types from src/utils/viem.ts.' },
+          { name: '@ethersproject/address', message: 'Use getAddress/isAddress from src/utils/viem.ts.' },
+          { name: '@ethersproject/bytes', message: 'Use viem byte helpers (toBytes/toHex) from src/utils/viem.ts.' },
+          {
+            name: '@ethersproject/constants',
+            message: 'Inline the constant or use viem (zeroAddress, maxUint256, ...).',
+          },
+          { name: '@ethersproject/solidity', message: 'Use viem encodePacked.' },
+          { name: '@ethersproject/strings', message: 'Use viem string helpers.' },
+        ],
+      },
+    ],
   },
 }
