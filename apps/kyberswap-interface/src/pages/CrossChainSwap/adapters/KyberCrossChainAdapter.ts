@@ -40,6 +40,7 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   QuoteParams,
+  SwapProvider,
   SwapStatus,
 } from './BaseSwapAdapter'
 
@@ -82,6 +83,9 @@ type KyberCrossResponseData = {
 type KyberCrossRawQuote = {
   request_id?: string
   data?: KyberCrossResponseData | Hex
+  steps?: {
+    provider?: string
+  }[]
   build?: {
     tx?: KyberCrossTx
   }
@@ -94,6 +98,11 @@ type KyberCrossRawQuote = {
 
 const getResponseData = (rawQuote: KyberCrossRawQuote): KyberCrossResponseData | undefined =>
   typeof rawQuote.data === 'object' ? rawQuote.data : undefined
+
+const normalizeProvider = (provider?: string) => provider?.toLowerCase().replace(/\s+/g, '')
+
+const getRouteProvider = (rawQuote: KyberCrossRawQuote, responseData?: KyberCrossResponseData) =>
+  responseData?.route_plan?.provider || rawQuote.steps?.find(step => step.provider)?.provider
 
 // ============================================
 // Progress Tracking Types
@@ -145,6 +154,10 @@ export interface ExecuteParams {
 // ============================================
 
 export class KyberCrossChainAdapter extends BaseSwapAdapter {
+  constructor(private readonly getAdapterByName?: (name?: string) => SwapProvider | undefined) {
+    super()
+  }
+
   getName(): string {
     return 'KyberCross'
   }
@@ -190,8 +203,8 @@ export class KyberCrossChainAdapter extends BaseSwapAdapter {
   ): Promise<NormalizedTxResponse> {
     const rawQuote = quote.quote.rawQuote as KyberCrossRawQuote
     const responseData = getResponseData(rawQuote)
-
-    console.log('KyberCrossChainAdapter rawQuote ======== ', rawQuote)
+    const routePlan = responseData?.route_plan
+    const routeProvider = getRouteProvider(rawQuote, responseData)
 
     const tx = responseData?.build?.tx || rawQuote.build?.tx || rawQuote.tx || rawQuote
 
@@ -254,6 +267,8 @@ export class KyberCrossChainAdapter extends BaseSwapAdapter {
               amountOutUsd: quote.quote.outputUsd,
               platformFeePercent: quote.quote.platformFeePercent,
               recipient: quote.quote.quoteParams.recipient,
+              bridgeProvider: routeProvider,
+              routeId: routePlan?.route_id,
             })
           }
         },
@@ -422,9 +437,17 @@ export class KyberCrossChainAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
-    // KyberCross does not expose a provider-agnostic status endpoint in this adapter yet.
-    // Keep cross-chain transactions Processing after the source tx is mined, and only mark
-    // Failed when the source tx itself reverted.
+    const provider = normalizeProvider(params.bridgeProvider)
+    const adapter = this.getAdapterByName?.(provider)
+
+    if (adapter && normalizeProvider(adapter.getName()) !== normalizeProvider(this.getName())) {
+      return adapter.getTransactionStatus({
+        ...params,
+        adapter: adapter.getName(),
+        id: params.routeId || params.id,
+      })
+    }
+
     const sourceChain = chainIdToViemChain[params.sourceChain as ChainId]
     const rpcUrl = NETWORKS_INFO[params.sourceChain as ChainId]?.defaultRpcUrl
 
