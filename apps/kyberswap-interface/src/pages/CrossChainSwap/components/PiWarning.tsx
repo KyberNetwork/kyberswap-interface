@@ -1,8 +1,7 @@
 import WarningIcon from 'components/Icons/WarningIcon'
 import useTheme from 'hooks/useTheme'
+import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { cn } from 'utils/cn'
-
-import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
 
 export const PiWarning = () => {
   const { warning } = useCrossChainSwap()

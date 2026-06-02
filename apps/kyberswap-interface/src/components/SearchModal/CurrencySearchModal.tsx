@@ -4,12 +4,11 @@ import { isMobile } from 'react-device-detect'
 import { usePrevious } from 'react-use'
 
 import Modal from 'components/Modal'
+import { CurrencySearch } from 'components/SearchModal/CurrencySearch'
+import { ImportToken } from 'components/SearchModal/ImportToken'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import useLast from 'hooks/useLast'
 import { Field } from 'state/swap/actions'
-
-import { CurrencySearch } from './CurrencySearch'
-import { ImportToken } from './ImportToken'
 
 interface CurrencySearchModalProps {
   isOpen: boolean

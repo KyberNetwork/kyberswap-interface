@@ -5,6 +5,13 @@ import { useState } from 'react'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
+import {
+  ArrowWrapper,
+  Desc,
+  Time,
+  Title,
+  Wrapper,
+} from 'components/Announcement/PrivateAnnoucement/NotificationCenter/styled'
 import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
@@ -13,8 +20,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { useNavigateToUrl } from 'utils/redirect'
 import { formatTime } from 'utils/time'
-
-import { ArrowWrapper, Desc, Time, Title, Wrapper } from './styled'
 
 export default function AnnouncementItem({
   announcement,

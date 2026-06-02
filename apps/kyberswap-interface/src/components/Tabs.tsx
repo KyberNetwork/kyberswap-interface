@@ -1,8 +1,7 @@
 import { CSSProperties, FC, ReactNode } from 'react'
 
+import HorizontalScroll from 'components/HorizontalScroll'
 import { cn } from 'utils/cn'
-
-import HorizontalScroll from './HorizontalScroll'
 
 interface TabsProps {
   activeKey: string | number

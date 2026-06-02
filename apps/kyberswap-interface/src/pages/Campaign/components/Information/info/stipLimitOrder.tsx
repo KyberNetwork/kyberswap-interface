@@ -1,10 +1,14 @@
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 
+import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
+import {
+  CampaignContent,
+  CampaignSectionComponent,
+  CampaignSectionProps,
+  FaqItem,
+} from 'pages/Campaign/components/Information/info/types'
 import { ExternalLink } from 'theme'
-
-import CampaignFaqSection from './CampaignFaqSection'
-import { CampaignContent, CampaignSectionComponent, CampaignSectionProps, FaqItem } from './types'
 
 const LimitOrderHowToSection = ({ week = 0 }: CampaignSectionProps): CampaignSectionComponent => (
   <>

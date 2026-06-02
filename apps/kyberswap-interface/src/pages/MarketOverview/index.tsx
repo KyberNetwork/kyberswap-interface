@@ -15,13 +15,21 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import TableContent from 'pages/MarketOverview/TableContent'
+import {
+  ContentWrapper,
+  PriceSelectionField,
+  SubHeaderRow,
+  Tab,
+  TableHeader,
+  TableWrapper,
+  Tabs,
+  Tag,
+} from 'pages/MarketOverview/styles'
+import useFilter from 'pages/MarketOverview/useFilter'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
-
-import SortIcon, { Direction } from './SortIcon'
-import TableContent from './TableContent'
-import { ContentWrapper, PriceSelectionField, SubHeaderRow, Tab, TableHeader, TableWrapper, Tabs, Tag } from './styles'
-import useFilter from './useFilter'
 
 const filterTags = [
   { label: 'Defi', value: 'defi' },

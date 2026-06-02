@@ -4,14 +4,13 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 
 import Checkbox from 'components/CheckBox'
+import { LiquiditySourceGroup } from 'components/swapv2/LiquiditySourcesPanel/Group'
+import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
+import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 import { cn } from 'utils/cn'
-
-import { LiquiditySourceGroup } from './Group'
-import SearchBar from './SearchBar'
-import { ImageWrapper, Source, SourceName } from './styles'
 
 type Props = {
   onBack: () => void

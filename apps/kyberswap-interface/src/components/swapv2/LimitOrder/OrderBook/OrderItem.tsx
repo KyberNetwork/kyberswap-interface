@@ -3,12 +3,11 @@ import { CSSProperties, useMemo } from 'react'
 import { useMedia } from 'react-use'
 
 import CurrencyLogo from 'components/CurrencyLogo'
+import { LimitOrderFromTokenPairFormatted } from 'components/swapv2/LimitOrder/type'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
-
-import { LimitOrderFromTokenPairFormatted } from '../type'
 
 export const ItemWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div

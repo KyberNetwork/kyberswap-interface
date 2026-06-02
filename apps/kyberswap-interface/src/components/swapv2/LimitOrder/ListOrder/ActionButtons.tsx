@@ -6,15 +6,14 @@ import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
 import WarningIcon from 'components/Icons/WarningIcon'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { isActiveStatus } from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import { formatRemainTime } from 'utils/time'
-
-import { isActiveStatus } from '../helpers'
-import { LimitOrder, LimitOrderStatus } from '../type'
 
 const IconWrap = ({
   children,

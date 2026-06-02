@@ -6,10 +6,9 @@ import { useMedia } from 'react-use'
 import Divider from 'components/Divider'
 import { ButtonIcon } from 'components/PageWrappers'
 import { TERM_FILES_PATH } from 'constants/index'
+import { campaignInfos } from 'pages/Campaign/components/Information/info'
 import { CampaignType } from 'pages/Campaign/constants'
 import { ExternalLink } from 'theme'
-
-import { campaignInfos } from './info'
 
 export default function Information({ type, selectedWeek }: { type: CampaignType; selectedWeek: number }) {
   const [isShowRule, setIsShowRule] = useState(true)

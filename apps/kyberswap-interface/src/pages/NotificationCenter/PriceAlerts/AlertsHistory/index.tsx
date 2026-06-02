@@ -4,10 +4,9 @@ import { useGetListPriceAlertHistoryQuery } from 'services/announcement'
 
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import NoData from 'pages/NotificationCenter/NoData'
+import SingleAlert from 'pages/NotificationCenter/PriceAlerts/AlertsHistory/SingleAlert'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
-
-import SingleAlert from './SingleAlert'
 
 const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const [page, setPage] = useState(1)

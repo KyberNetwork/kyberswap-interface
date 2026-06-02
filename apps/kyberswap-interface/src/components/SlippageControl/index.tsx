@@ -1,13 +1,11 @@
 import React, { ButtonHTMLAttributes, forwardRef, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
+import CustomSlippageInput, { Props as CustomSlippageInputProps } from 'components/SlippageControl/CustomSlippageInput'
 import { APP_PATHS, DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
 import { cn } from 'utils/cn'
-
-import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
 
 const slippageOptionClasses =
   'h-full rounded-[20px] border border-transparent bg-tabBackground p-0 text-center text-xs font-normal leading-4 text-subText outline-none cursor-pointer hover:border-bg4 focus:border-bg4 data-[active=true]:border-primary data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text data-[warning=true]:border-warning'

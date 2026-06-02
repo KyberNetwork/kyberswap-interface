@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react'
 
 import Checkbox from 'components/CheckBox'
+import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-
-import { ImageWrapper, Source, SourceName } from './styles'
 
 export const LiquiditySourceGroup = ({
   tag,

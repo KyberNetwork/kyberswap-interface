@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 
 import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
+import TopRightPopup from 'components/Announcement/Popups/TopRightPopup'
 import { PopupType, PrivateAnnouncementType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import useNotificationLimitOrder from 'components/swapv2/LimitOrder/useNotificationLimitOrder'
@@ -22,8 +23,6 @@ import {
   subscribePrivateAnnouncement,
   subscribePrivateAnnouncementProfile,
 } from 'utils/firebase'
-
-import TopRightPopup from './TopRightPopup'
 
 const MAX_NOTIFICATION = 4
 

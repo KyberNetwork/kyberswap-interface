@@ -7,6 +7,7 @@ import InfiniteLoader from 'react-window-infinite-loader'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
+import ImportRow from 'components/SearchModal/ImportRow'
 import { useActiveWeb3React } from 'hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
@@ -15,8 +16,6 @@ import { formattedNum } from 'utils'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { isTokenNative } from 'utils/tokenInfo'
-
-import ImportRow from './ImportRow'
 
 function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
   return (

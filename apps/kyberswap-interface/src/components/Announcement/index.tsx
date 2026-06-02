@@ -10,6 +10,15 @@ import { formatNumberOfUnread } from 'components/Announcement/helper'
 import { getEarnPosition, getLimitOrderPreview, getSmartExitPreview } from 'components/Announcement/helpers'
 import { useGeneralAnnouncements } from 'components/Announcement/hooks/useGeneralAnnouncements'
 import { usePrivateAnnouncements } from 'components/Announcement/hooks/usePrivateAnnouncements'
+import {
+  ANNOUNCEMENT_FLYOUT_CLASS,
+  Badge,
+  Container,
+  StyledMenu,
+  StyledMenuButton,
+  Title,
+  Wrapper,
+} from 'components/Announcement/styles'
 import { Announcement, AnnouncementTemplatePopup, PrivateAnnouncementType } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
@@ -20,8 +29,6 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { MEDIA_WIDTHS } from 'theme'
-
-import { ANNOUNCEMENT_FLYOUT_CLASS, Badge, Container, StyledMenu, StyledMenuButton, Title, Wrapper } from './styles'
 
 function AnnouncementComponent() {
   const [activeTab, setActiveTab] = useState(Tab.CATEGORY)

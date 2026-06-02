@@ -4,11 +4,10 @@ import React, { CSSProperties, ComponentType, forwardRef, memo, useMemo, useRef 
 import { useMedia } from 'react-use'
 import { FixedSizeGrid, GridChildComponentProps, areEqual } from 'react-window'
 
+import PositionListItem from 'pages/ProAmmPool/PositionListItem'
 import { MEDIA_WIDTHS } from 'theme'
 import { PositionDetails } from 'types/position'
 import { cn } from 'utils/cn'
-
-import PositionListItem from './PositionListItem'
 
 const GRID_SCROLLBAR_CLASS =
   '!overflow-x-hidden ' +

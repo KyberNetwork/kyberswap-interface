@@ -7,9 +7,8 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import DatePicker from 'components/DatePicker'
 import Modal from 'components/Modal'
 import Select, { SelectProps } from 'components/Select'
+import { MIN_TIME_MINUTES, getExpireOptions } from 'components/swapv2/LimitOrder/const'
 import useTheme from 'hooks/useTheme'
-
-import { MIN_TIME_MINUTES, getExpireOptions } from './const'
 
 const HOURS = Array.from({ length: 24 }, (_, i) => ({ label: i, value: i }))
 const MINS = Array.from({ length: 60 }, (_, i) => ({ label: i, value: i }))

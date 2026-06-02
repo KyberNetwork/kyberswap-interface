@@ -7,10 +7,9 @@ import InfiniteLoader from 'react-window-infinite-loader'
 
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
 import InboxItem from 'components/Announcement/PrivateAnnoucement'
+import { ListAnnouncement } from 'components/Announcement/styles'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
-
-import { ListAnnouncement } from './styles'
 
 export enum Tab {
   CATEGORY,

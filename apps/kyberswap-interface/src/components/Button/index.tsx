@@ -4,11 +4,10 @@ import React, { ButtonHTMLAttributes, CSSProperties, ReactNode, forwardRef, useR
 import { ChevronDown, Info } from 'react-feather'
 
 import Loader from 'components/Loader'
+import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { cn } from 'utils/cn'
-
-import { RowBetween } from '../Row'
 
 const toCssLength = (v: string | number | undefined): string | undefined => {
   if (v === undefined || v === null || v === '') return undefined

@@ -1,10 +1,9 @@
 import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
 
+import { ItemWrapper } from 'components/swapv2/LimitOrder/OrderBook/OrderItem'
 import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-import { ItemWrapper } from './OrderItem'
 
 export default function TableHeader() {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)

@@ -1,10 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useSearchParams } from 'react-router-dom'
 
-import ListMyOrder from '../ListOrder'
-import OrderBook from '../OrderBook'
-import { LimitOrderTab } from '../type'
-import TabSelector from './TabSelector'
+import TabSelector from 'components/swapv2/LimitOrder/ListLimitOrder/TabSelector'
+import ListMyOrder from 'components/swapv2/LimitOrder/ListOrder'
+import OrderBook from 'components/swapv2/LimitOrder/OrderBook'
+import { LimitOrderTab } from 'components/swapv2/LimitOrder/type'
 
 export default function ListLimitOrder({ customChainId }: { customChainId?: ChainId }) {
   const [searchParams, setSearchParams] = useSearchParams()

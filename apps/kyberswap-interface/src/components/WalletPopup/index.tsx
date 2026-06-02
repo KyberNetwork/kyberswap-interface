@@ -4,11 +4,10 @@ import { createPortal } from 'react-dom'
 import { Rnd } from 'react-rnd'
 
 import Modal from 'components/Modal'
+import WalletView, { HANDLE_CLASS_NAME } from 'components/WalletPopup/WalletView'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-
-import WalletView, { HANDLE_CLASS_NAME } from './WalletView'
 
 const PinnedGlobalStyle = ({ pinned }: { pinned: boolean }) => {
   // Override react-rnd's inline positioning so the popup snaps to bottom-right

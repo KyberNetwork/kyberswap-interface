@@ -4,11 +4,10 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import NetworkModal from 'components/Header/web3/NetworkModal'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { isNonEvmChain } from 'utils'
-
-import NetworkModal from './Header/web3/NetworkModal'
 
 export const NetworkSelector = ({
   chainId,

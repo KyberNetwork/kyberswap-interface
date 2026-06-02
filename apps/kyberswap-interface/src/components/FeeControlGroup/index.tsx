@@ -1,11 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { useSearchParams } from 'react-router-dom'
 
+import CustomFeeInput from 'components/FeeControlGroup/CustomFeeInput'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { ClientNameMapping, DEFAULT_TIPS } from 'constants/index'
 import { cn } from 'utils/cn'
-
-import CustomFeeInput from './CustomFeeInput'
 
 const feeOptionClasses =
   'h-full rounded-[20px] border border-transparent bg-tabBackground p-0 text-center text-xs font-normal leading-4 text-subText outline-none cursor-pointer hover:border-bg4 focus:border-bg4 data-[active=true]:border-primary data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text'

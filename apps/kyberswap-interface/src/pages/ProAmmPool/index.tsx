@@ -19,11 +19,10 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/MyPool'
+import ContentLoader from 'pages/ProAmmPool/ContentLoader'
+import PositionGrid from 'pages/ProAmmPool/PositionGrid'
 import { StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
-
-import ContentLoader from './ContentLoader'
-import PositionGrid from './PositionGrid'
 
 interface AddressSymbolMapInterface {
   [key: string]: string

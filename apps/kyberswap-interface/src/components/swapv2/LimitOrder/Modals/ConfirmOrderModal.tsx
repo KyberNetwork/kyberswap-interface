@@ -7,16 +7,15 @@ import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { Container, Header, ListInfo, Note, Rate, Value } from 'components/swapv2/LimitOrder/Modals/styled'
 import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
+import { formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
+import { CancelOrderType, EditOrderInfo, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { formatAmountOrder } from '../helpers'
-import { CancelOrderType, EditOrderInfo, RateInfo } from '../type'
-import { Container, Header, ListInfo, Note, Rate, Value } from './styled'
 
 const styleLogo = { width: 20, height: 20 }
 

@@ -6,11 +6,10 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import FileInput from 'components/FileInput'
 import Input from 'components/Input'
+import { Label } from 'pages/NotificationCenter/Profile/ExportAccountModal/styled'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-
-import { Label } from '../ExportAccountModal/styled'
 
 const BTN_CLASS = 'h-9 flex-1 text-sm font-medium leading-5'
 

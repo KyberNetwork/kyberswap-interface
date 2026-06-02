@@ -13,13 +13,12 @@ import { MAINNET_NETWORKS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import { ContentChangable, TabItem } from 'pages/MarketOverview/styles'
+import useFilter from 'pages/MarketOverview/useFilter'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { ContentChangable, TabItem } from './styles'
-import useFilter from './useFilter'
 
 export default function DetailModal({
   tokenToShow,

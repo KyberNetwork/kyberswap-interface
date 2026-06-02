@@ -16,15 +16,14 @@ import {
   useGasRefundTier,
 } from 'hooks/kyberdao'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import EligibleTxModal from 'pages/KyberDAO/KNCUtility/EligibleTxModal'
+import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 import { cn } from 'utils/cn'
-
-import { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
-import TimerCountdown from '../TimerCountdown'
-import EligibleTxModal from './EligibleTxModal'
-import { KNCUtilityTabs } from './type'
 
 const Tab = ({ active, children, onClick }: { active?: boolean; children: React.ReactNode; onClick?: () => void }) => (
   <span

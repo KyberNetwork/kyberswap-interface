@@ -4,14 +4,13 @@ import { useNavigate } from 'react-router-dom'
 
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
+import { Desc, Time, Title, Wrapper } from 'components/Announcement/PrivateAnnoucement/NotificationCenter/styled'
 import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import Logo from 'components/Logo'
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { formatTime } from 'utils/time'
-
-import { Desc, Time, Title, Wrapper } from './styled'
 
 export default function AnnouncementItem({
   announcement,

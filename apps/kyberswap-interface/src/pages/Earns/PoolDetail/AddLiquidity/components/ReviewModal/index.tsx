@@ -6,17 +6,19 @@ import { BuildZapInData } from 'services/zap'
 import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
+import EstimateInfo from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal/EstimateInfo'
+import PriceInfo from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal/PriceInfo'
+import ZapInfo from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal/ZapInfo'
+import {
+  ReviewTransactionStatusPhase,
+  useReviewTransaction,
+} from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal/useReviewTransaction'
 import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getStatusErrorMessage } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { TransactionHistory } from 'state/transactions/type'
 import { CloseIcon } from 'theme/components'
-
-import EstimateInfo from './EstimateInfo'
-import PriceInfo from './PriceInfo'
-import ZapInfo from './ZapInfo'
-import { ReviewTransactionStatusPhase, useReviewTransaction } from './useReviewTransaction'
 
 type ReviewWarningItem = {
   kind: 'remaining' | 'zap_impact' | 'out_of_range' | 'price_deviation'

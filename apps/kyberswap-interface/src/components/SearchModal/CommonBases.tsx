@@ -6,9 +6,8 @@ import { Edit2, XCircle } from 'react-feather'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { AutoRow } from 'components/Row'
+import { getDisplayTokenInfo } from 'components/SearchModal/CurrencyList'
 import { cn } from 'utils/cn'
-
-import { getDisplayTokenInfo } from './CurrencyList'
 
 const HEIGHT_THRESHOLD = 400
 

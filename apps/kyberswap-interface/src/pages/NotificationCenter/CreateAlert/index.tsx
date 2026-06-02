@@ -5,10 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import { useGetAlertStatsQuery } from 'services/priceAlert'
 
 import { APP_PATHS } from 'constants/index'
+import ConfirmModal from 'pages/NotificationCenter/CreateAlert/ConfirmModal'
+import CreateAlertForm from 'pages/NotificationCenter/CreateAlert/CreateAlertForm'
 import { ConfirmAlertModalData, PROFILE_MANAGE_ROUTES, PriceAlertStat } from 'pages/NotificationCenter/const'
-
-import ConfirmModal from './ConfirmModal'
-import CreateAlertForm from './CreateAlertForm'
 
 export default function CreateAlert() {
   const [modalData, setModalData] = useState<ConfirmAlertModalData>()

@@ -7,6 +7,8 @@ import { useMedia } from 'react-use'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import ElasticHackedModal from 'components/ElasticHackedModal'
+import { PoolClassicIcon, PoolElasticIcon } from 'components/Icons'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED } from 'constants/networks'
 import { VERSION } from 'constants/v2'
@@ -16,9 +18,6 @@ import useElasticLegacy from 'hooks/useElasticLegacy'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { isInEnum } from 'utils/string'
-
-import { PoolClassicIcon, PoolElasticIcon } from './Icons'
-import { MouseoverTooltip } from './Tooltip'
 
 const TAB_LABEL_CLASS = 'text-lg font-medium leading-tight xs:text-xl sm:text-2xl'
 

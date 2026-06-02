@@ -4,11 +4,10 @@ import { Link } from 'react-router-dom'
 import LocalLoader from 'components/LocalLoader'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
+import AllPositionLegacy from 'pages/ElasticLegacy/AllPositionLegacy'
+import FarmLegacy from 'pages/ElasticLegacy/FarmLegacy'
+import PositionLegacy from 'pages/ElasticLegacy/PositionLegacy'
 import { ExternalLink } from 'theme'
-
-import AllPositionLegacy from './AllPositionLegacy'
-import FarmLegacy from './FarmLegacy'
-import PositionLegacy from './PositionLegacy'
 
 const Notice = ({ isFarm }: { isFarm?: boolean }) => (
   <div className="rounded-3xl border border-solid border-border bg-background px-5 py-3 text-sm leading-normal text-subText">

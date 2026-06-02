@@ -10,6 +10,10 @@ import ksSettingApi from 'services/ksSetting'
 import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
+import CommonBases from 'components/SearchModal/CommonBases'
+import CurrencyList from 'components/SearchModal/CurrencyList'
+import { useTokenComparator } from 'components/SearchModal/sorting'
+import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
 import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
@@ -28,11 +32,6 @@ import { filterTruthy, isAddress } from 'utils'
 import { cn } from 'utils/cn'
 import { filterTokens } from 'utils/filtering'
 import { isTokenNative } from 'utils/tokenInfo'
-
-import CommonBases from './CommonBases'
-import CurrencyList from './CurrencyList'
-import { useTokenComparator } from './sorting'
-import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from './styleds'
 
 enum Tab {
   All,

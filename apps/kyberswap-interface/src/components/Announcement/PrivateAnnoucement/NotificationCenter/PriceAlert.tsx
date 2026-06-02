@@ -3,12 +3,11 @@ import { Trans } from '@lingui/macro'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { getSwapUrlPriceAlert } from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
+import { Desc, Time, Title, Wrapper } from 'components/Announcement/PrivateAnnoucement/NotificationCenter/styled'
 import { AnnouncementTemplatePriceAlert } from 'components/Announcement/type'
 import AlertCondition from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
 import { useNavigateToUrl } from 'utils/redirect'
 import { formatTime } from 'utils/time'
-
-import { Desc, Time, Title, Wrapper } from './styled'
 
 const PriceAlertAnnouncement: React.FC<PrivateAnnouncementPropCenter<AnnouncementTemplatePriceAlert>> = ({
   announcement,

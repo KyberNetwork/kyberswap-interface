@@ -2,8 +2,13 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 
-import { calcPercentFilledOrder, calcRate, formatAmountOrder, formatRateLimitOrder } from '../helpers'
-import { LimitOrder, LimitOrderStatus } from '../type'
+import {
+  calcPercentFilledOrder,
+  calcRate,
+  formatAmountOrder,
+  formatRateLimitOrder,
+} from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 
 export default function SummaryNotify({
   type,

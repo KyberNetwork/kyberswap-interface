@@ -9,6 +9,14 @@ import { useMedia } from 'react-use'
 import InfoHelper from 'components/InfoHelper'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
+import ActionButtons from 'components/swapv2/LimitOrder/ListOrder/ActionButtons'
+import {
+  calcPercentFilledOrder,
+  formatAmountOrder,
+  formatRateLimitOrder,
+  isActiveStatus,
+} from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
@@ -16,10 +24,6 @@ import { useTokenBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { toCurrencyAmount } from 'utils/currencyAmount'
-
-import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder, isActiveStatus } from '../helpers'
-import { LimitOrder, LimitOrderStatus } from '../type'
-import ActionButtons from './ActionButtons'
 
 type Theme = ReturnType<typeof useTheme>
 

@@ -29,12 +29,11 @@ import { useWebVitals } from 'hooks/useWebVitals'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
+import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
-
-import VerifyAuth from './Verify/VerifyAuth'
 
 const Login = lazy(() => import('./Oauth/Login'))
 const Logout = lazy(() => import('./Oauth/Logout'))

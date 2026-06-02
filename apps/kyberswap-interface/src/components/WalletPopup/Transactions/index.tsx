@@ -9,6 +9,7 @@ import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import Tab from 'components/WalletPopup/Transactions/Tab'
+import TransactionItem from 'components/WalletPopup/Transactions/TransactionItem'
 import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
 import useCancellingOrders, { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { useActiveWeb3React } from 'hooks'
@@ -23,8 +24,6 @@ import {
   TransactionExtraInfo1Token,
   TransactionExtraInfo2Token,
 } from 'state/transactions/type'
-
-import TransactionItem from './TransactionItem'
 
 function RowItem({
   index,

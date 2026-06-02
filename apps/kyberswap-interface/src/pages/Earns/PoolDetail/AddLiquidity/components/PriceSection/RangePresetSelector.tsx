@@ -4,9 +4,12 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import InfoHelper from 'components/InfoHelper'
 import { HStack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
+import {
+  FULL_PRICE_RANGE,
+  getDefaultRangePreset,
+  getRangePresetOptions,
+} from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection/utils'
 import { cn } from 'utils/cn'
-
-import { FULL_PRICE_RANGE, getDefaultRangePreset, getRangePresetOptions } from './utils'
 
 interface RangePresetSelectorProps {
   chainId: number

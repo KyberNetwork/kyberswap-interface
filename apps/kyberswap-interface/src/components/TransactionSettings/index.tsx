@@ -6,14 +6,13 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Toggle from 'components/Toggle'
 import Tooltip, { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
 import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import { useAggregatorForZapSetting, useDegenModeManager } from 'state/user/hooks'
-
-import AdvanceModeModal from './AdvanceModeModal'
 
 const TX_SETTINGS_FLYOUT_CLASS =
   'ks-tx-settings-flyout !min-w-[322px] !right-[-10px] !top-[3.25rem] max-lg:!bottom-auto'

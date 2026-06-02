@@ -5,12 +5,11 @@ import { useCallback, useState } from 'react'
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
+import { RotateSwapIcon } from 'components/ProAmm/styles'
 import { RowBetween, RowFixed } from 'components/Row'
 import { Bound } from 'state/mint/proamm/type'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { RotateSwapIcon } from './styles'
 
 export default function ProAmmPriceRange({
   position,

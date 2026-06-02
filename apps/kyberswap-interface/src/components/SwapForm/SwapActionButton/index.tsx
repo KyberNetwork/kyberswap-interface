@@ -7,7 +7,7 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
-import SwapOnlyButton from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
+import SwapOnlyButton, { Props as SwapOnlyButtonProps } from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
@@ -20,8 +20,6 @@ import { WrapType } from 'hooks/useWrapCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { DetailedRouteSummary } from 'types/route'
-
-import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
 
 enum AllowanceType {
   EXACT = 'EXACT',

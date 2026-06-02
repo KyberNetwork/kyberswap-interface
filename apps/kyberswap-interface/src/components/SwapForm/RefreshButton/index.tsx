@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 
+import LoadingIcon from 'components/SwapForm/RefreshButton/LoadingIcon'
 import { ENABLE_CLICK_TO_REFRESH_GET_ROUTE, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
-
-import LoadingIcon from './LoadingIcon'
 
 type Props = {
   shouldDisable: boolean

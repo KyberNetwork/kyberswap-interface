@@ -1,5 +1,5 @@
-import InstantClaim from './InstantClaim'
-import SelectTreasuryGrant from './SelectTreasuryGrant'
+import InstantClaim from 'pages/ElasticSnapshot/components/InstantClaim'
+import SelectTreasuryGrant from 'pages/ElasticSnapshot/components/SelectTreasuryGrant'
 
 export default function TreasuryGrantAndInstantClaim({ userHaveVestingData }: { userHaveVestingData: boolean }) {
   return (

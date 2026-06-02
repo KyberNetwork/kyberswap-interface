@@ -7,6 +7,11 @@ import { RowBetween, RowFixed } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import { CrossChainSourceSetting } from 'components/swapv2/SwapSettingsPanel/CrossChainSourceSetting'
+import DegenModeSetting from 'components/swapv2/SwapSettingsPanel/DegenModeSetting'
+import LiquiditySourcesSetting from 'components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting'
+import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
+import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import {
   useShowPricingChart,
@@ -18,12 +23,6 @@ import {
   useUserSlippageTolerance,
 } from 'state/user/hooks'
 import { cn } from 'utils/cn'
-
-import { CrossChainSourceSetting } from './CrossChainSourceSetting'
-import DegenModeSetting from './DegenModeSetting'
-import LiquiditySourcesSetting from './LiquiditySourcesSetting'
-import SlippageSetting from './SlippageSetting'
-import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
 
 type Props = {
   className?: string

@@ -1,11 +1,10 @@
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
+import { Desc, Time, Title, Wrapper } from 'components/Announcement/PrivateAnnoucement/NotificationCenter/styled'
 import { AnnouncementTemplatePopup } from 'components/Announcement/type'
 import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 import { formatTime } from 'utils/time'
-
-import { Desc, Time, Title, Wrapper } from './styled'
 
 export default function AnnouncementItem({
   announcement,

@@ -10,10 +10,9 @@ import { RowBetween } from 'components/Row'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useEligibleTransactions } from 'hooks/kyberdao'
+import { HeaderCell, Table, TableHeader, TableRow } from 'pages/KyberDAO/KNCUtility/TxTable'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { formattedNum, getEtherscanLink } from 'utils'
-
-import { HeaderCell, Table, TableHeader, TableRow } from './TxTable'
 
 export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolean; closeModal: () => void }) {
   const { chainId, networkInfo } = useActiveWeb3React()

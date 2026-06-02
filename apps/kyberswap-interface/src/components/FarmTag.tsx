@@ -2,13 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 
+import { MoneyBag } from 'components/Icons'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { cn } from 'utils/cn'
-
-import { MoneyBag } from './Icons'
-import { MouseoverTooltip } from './Tooltip'
 
 export const FarmTag = ({
   address,

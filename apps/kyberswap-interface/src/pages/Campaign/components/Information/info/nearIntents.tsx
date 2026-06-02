@@ -2,10 +2,9 @@ import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 
 import nearCampaignGuide from 'pages/Campaign/assets/near_campaign_guide.png'
-
-import CampaignFaqSection from './CampaignFaqSection'
-import { StyledTable, TableWrapper, Td, Th, Tr } from './styles'
-import { CampaignContent, CampaignSectionComponent, FaqItem } from './types'
+import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
+import { StyledTable, TableWrapper, Td, Th, Tr } from 'pages/Campaign/components/Information/info/styles'
+import { CampaignContent, CampaignSectionComponent, FaqItem } from 'pages/Campaign/components/Information/info/types'
 
 const NearIntentsHowToSection = (): CampaignSectionComponent => {
   const nearIntentTableData = [

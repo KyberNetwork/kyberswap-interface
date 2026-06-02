@@ -2,11 +2,10 @@ import { Trans } from '@lingui/macro'
 import { PropsWithChildren } from 'react'
 import { Link } from 'react-router-dom'
 
+import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
+import { StyledTable, TableWrapper, Td, Th, Tr } from 'pages/Campaign/components/Information/info/styles'
+import { CampaignContent, CampaignSectionComponent, FaqItem } from 'pages/Campaign/components/Information/info/types'
 import { ExternalLink } from 'theme'
-
-import CampaignFaqSection from './CampaignFaqSection'
-import { StyledTable, TableWrapper, Td, Th, Tr } from './styles'
-import { CampaignContent, CampaignSectionComponent, FaqItem } from './types'
 
 const Quote = ({ children }: PropsWithChildren) => (
   <div className="relative m-0 ml-10 before:absolute before:inset-y-1.5 before:-left-3 before:w-0.5 before:bg-subText/[0.66] before:content-['']">

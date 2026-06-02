@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react'
 
+import CustomFeeTierInput from 'components/FeeTierControl/CustomFeeTierInput'
 import { cn } from 'utils/cn'
-
-import CustomFeeTierInput from './CustomFeeTierInput'
 
 const optionBaseClasses =
   'h-full rounded-[20px] border-transparent bg-transparent px-3 text-center text-xs font-normal leading-4 text-subText outline-none hover:bg-background-60 data-[active=true]:bg-background data-[active=true]:font-medium data-[active=true]:text-text data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50 disabled:cursor-not-allowed disabled:opacity-50'

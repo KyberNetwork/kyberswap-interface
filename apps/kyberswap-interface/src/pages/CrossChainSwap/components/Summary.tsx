@@ -3,13 +3,12 @@ import { formatUnits } from 'viem'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import { Currency } from 'pages/CrossChainSwap/adapters'
+import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { Quote } from 'pages/CrossChainSwap/registry'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { Currency } from '../adapters'
-import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
-import { Quote } from '../registry'
 
 const DOTTED_LABEL = 'border-b border-dotted border-border text-subText'
 

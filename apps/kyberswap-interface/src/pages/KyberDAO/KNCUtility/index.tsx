@@ -12,14 +12,13 @@ import { RowBetween } from 'components/Row'
 import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo } from 'hooks/kyberdao'
+import FAQ from 'pages/KyberDAO/KNCUtility/FAQ'
+import GasRefundBox from 'pages/KyberDAO/KNCUtility/GasRefundBox'
+import { HeaderCell, Table, TableHeader, TableRow } from 'pages/KyberDAO/KNCUtility/Table'
+import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatUnits } from 'utils/viem'
-
-import KNCLogo from '../kncLogo'
-import FAQ from './FAQ'
-import GasRefundBox from './GasRefundBox'
-import { HeaderCell, Table, TableHeader, TableRow } from './Table'
 
 const rowClass =
   'w-full mx-auto flex justify-between items-start gap-12 py-6 max-md:w-full max-md:flex-col max-md:items-center max-md:gap-12 [&>*]:flex-1 [&>*]:max-w-[588px] [&>*]:w-full max-md:[&>*]:max-w-[700px]'

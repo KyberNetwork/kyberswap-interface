@@ -9,11 +9,10 @@ import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
 import Menu from 'pages/NotificationCenter/Menu'
 import Overview from 'pages/NotificationCenter/NotificationPreference'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
+import PrivateAnnouncement from 'pages/NotificationCenter/PrivateAnnouncement'
 import Profile from 'pages/NotificationCenter/Profile'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
-
-import PrivateAnnouncement from './PrivateAnnouncement'
 
 function NotificationCenter({ redirectRoute }: { redirectRoute?: PROFILE_MANAGE_ROUTES }) {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)

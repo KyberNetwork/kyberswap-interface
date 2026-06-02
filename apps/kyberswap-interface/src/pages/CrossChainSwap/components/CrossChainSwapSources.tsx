@@ -6,10 +6,9 @@ import { BackIconWrapper, LiquiditySourceHeader, SourceList } from 'components/s
 import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
 import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { updateExcludedSources } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
-
-import { CrossChainSwapFactory } from '../factory'
 
 export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { trackingHandler } = useTracking()

@@ -5,10 +5,9 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
+import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-
-import KNCLogo from '../kncLogo'
 
 export default function ClaimConfirmModal({ amount, onConfirmClaim }: { amount: string; onConfirmClaim: () => void }) {
   const { account } = useActiveWeb3React()

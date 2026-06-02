@@ -9,12 +9,11 @@ import { AutoColumn } from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { RowBetween } from 'components/Row'
+import { PaddedColumn } from 'components/SearchModal/styleds'
 import { useAddUserToken } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 import { ExternalLinkIcon } from 'theme/components'
 import { getEtherscanLink, shortenAddress } from 'utils'
-
-import { PaddedColumn } from './styleds'
 
 interface ImportProps {
   enterToImport?: boolean

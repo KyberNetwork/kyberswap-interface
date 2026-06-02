@@ -20,6 +20,9 @@ import MailIcon from 'components/Icons/MailIcon'
 import VoteIcon from 'components/Icons/Vote'
 import LanguageSelector from 'components/LanguageSelector'
 import Loader from 'components/Loader'
+import ClaimRewardModal from 'components/Menu/ClaimRewardModal'
+import FaucetModal from 'components/Menu/FaucetModal'
+import NavDropDown from 'components/Menu/NavDropDown'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { AutoRow } from 'components/Row'
 import Toggle from 'components/Toggle'
@@ -40,10 +43,6 @@ import { useHolidayMode, useUserLocale } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isChristmasTime } from 'utils'
 import { cn } from 'utils/cn'
-
-import ClaimRewardModal from './ClaimRewardModal'
-import FaucetModal from './FaucetModal'
-import NavDropDown from './NavDropDown'
 
 // Base style for each menu list item — color/font, hover, embedded icon spacing.
 const MENU_ITEM_CLASS = cn(

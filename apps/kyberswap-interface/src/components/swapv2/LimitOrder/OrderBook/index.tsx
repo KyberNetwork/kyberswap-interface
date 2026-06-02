@@ -8,18 +8,17 @@ import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import LocalLoader from 'components/LocalLoader'
 import RefreshLoading from 'components/RefreshLoading'
+import { NoResultWrapper } from 'components/swapv2/LimitOrder/ListOrder'
+import OrderItem, { ChainImage } from 'components/swapv2/LimitOrder/OrderBook/OrderItem'
+import TableHeader from 'components/swapv2/LimitOrder/OrderBook/TableHeader'
+import { groupToMap } from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { NoResultWrapper } from '../ListOrder'
-import { groupToMap } from '../helpers'
-import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from '../type'
-import OrderItem, { ChainImage } from './OrderItem'
-import TableHeader from './TableHeader'
 
 const ITEMS_DISPLAY = 10
 const ITEM_HEIGHT = 44

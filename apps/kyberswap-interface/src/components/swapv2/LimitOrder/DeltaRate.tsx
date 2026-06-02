@@ -3,11 +3,10 @@ import { useMemo } from 'react'
 
 import InfoHelper from 'components/InfoHelper'
 import { Label } from 'components/swapv2/LimitOrder/LimitOrderForm'
+import { RateInfo } from 'components/swapv2/LimitOrder/type'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
-
-import { RateInfo } from './type'
 
 export type DeltaRateLimitOrder = { rawPercent: number | undefined; percent: string; profit: boolean }
 

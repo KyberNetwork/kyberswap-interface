@@ -1,8 +1,7 @@
 import { t } from '@lingui/macro'
 
+import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { cn } from 'utils/cn'
-
-import { LimitOrderStatus } from '../type'
 
 const TabButton = ({ active, ...props }: { active: boolean } & React.HTMLAttributes<HTMLDivElement>) => (
   <div

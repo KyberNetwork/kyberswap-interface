@@ -1,13 +1,12 @@
 import { LoginFlow, LoginMethod } from '@kyberswap/oauth2'
 import React, { Fragment, useMemo } from 'react'
 
+import AuthFormFieldMessage from 'pages/Oauth/AuthForm/AuthFormMessage'
 import ButtonEth from 'pages/Oauth/AuthForm/ButtonEth'
 import ButtonGoogle from 'pages/Oauth/AuthForm/ButtonGoogle'
 import EmailLoginForm from 'pages/Oauth/AuthForm/EmailLoginForm'
 import { FlowStatus } from 'pages/Oauth/Login'
-
-import { getSupportLoginMethods } from '../helpers'
-import AuthFormFieldMessage from './AuthFormMessage'
+import { getSupportLoginMethods } from 'pages/Oauth/helpers'
 
 interface AuthFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
   formConfig: LoginFlow | undefined

@@ -3,11 +3,10 @@ import { Trans } from '@lingui/macro'
 import { CSSProperties, ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
 
+import { Dots, StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { Dots, StyledBalanceMaxMini } from './styleds'
 
 interface TradePriceProps {
   price: Price<Currency, Currency> | undefined

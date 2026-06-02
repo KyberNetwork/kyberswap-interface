@@ -5,16 +5,15 @@ import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
+import Tab from 'components/WalletPopup/Transactions/Tab'
+import { REWARD_TYPE } from 'components/WalletPopup/type'
 import { useRewards } from 'hooks/useRewards'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { useNotify } from 'state/application/hooks'
 import { formatNumberWithPrecisionRange } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
-
-import CardBackground from './AccountInfo/CardBackground'
-import Tab from './Transactions/Tab'
-import { REWARD_TYPE } from './type'
 
 export default function RewardCenter() {
   const { trackingHandler } = useTracking()

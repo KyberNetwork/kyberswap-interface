@@ -5,12 +5,11 @@ import { useMedia } from 'react-use'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Column from 'components/Column'
+import NavGroup from 'components/Header/groups/NavGroup'
+import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 import { cn } from 'utils/cn'
-
-import { DropdownTextAnchor, StyledNavLink } from '../styleds'
-import NavGroup from './NavGroup'
 
 const showCampaignNew = new Date() < new Date('2026-05-04T23:59:59Z')
 

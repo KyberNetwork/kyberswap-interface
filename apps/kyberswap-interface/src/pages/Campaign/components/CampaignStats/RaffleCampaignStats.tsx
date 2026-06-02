@@ -3,14 +3,13 @@ import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 
 import InfoHelper from 'components/InfoHelper'
+import { WeekCountdown } from 'pages/Campaign/components/CampaignStats/WeekCountdown'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { useRaffleCampaignJoin } from 'pages/Campaign/hooks/useRaffleCampaignJoin'
 import { StatCard } from 'pages/Campaign/styles'
 import { CampaignWeek } from 'pages/Campaign/timelines'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { WeekCountdown } from './WeekCountdown'
 
 const formatLabelValue = (data: Record<string, any> | undefined, key: string) => {
   return data?.[key] !== undefined ? formatDisplayNumber(data[key], { significantDigits: 6 }) : '--'

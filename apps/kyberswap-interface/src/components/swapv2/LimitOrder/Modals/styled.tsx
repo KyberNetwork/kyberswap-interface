@@ -6,12 +6,11 @@ import { X } from 'react-feather'
 import Column from 'components/Column'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import { formatAmountOrder, formatRateLimitOrder } from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import { cn } from 'utils/cn'
-
-import { formatAmountOrder, formatRateLimitOrder } from '../helpers'
-import { LimitOrder, RateInfo } from '../type'
 
 export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div

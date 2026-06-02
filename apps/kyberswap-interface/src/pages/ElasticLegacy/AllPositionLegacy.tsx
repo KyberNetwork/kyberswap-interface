@@ -21,6 +21,7 @@ import {
   useRemoveLiquidityLegacy,
 } from 'hooks/useElasticLegacy'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
+import { FeeTag } from 'pages/ElasticLegacy/PositionLegacy'
 import { outerElementType } from 'pages/ProAmmPool/PositionGrid'
 import { Tab, TabContainer } from 'pages/ProAmmPool/PositionListItem'
 import { Bound } from 'state/mint/proamm/type'
@@ -30,8 +31,6 @@ import { shortenAddress } from 'utils'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { FeeTag } from './PositionLegacy'
 
 export default function AllPositionLegacy({ positions }: { positions: SubgraphPosition[] }) {
   const feeRewards = usePositionFees(positions)

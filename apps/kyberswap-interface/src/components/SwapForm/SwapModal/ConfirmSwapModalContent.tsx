@@ -14,7 +14,10 @@ import { RowBetween } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import SwapBrief from 'components/SwapForm/SwapModal/SwapBrief'
+import SwapDetails, { Props as SwapDetailsProps } from 'components/SwapForm/SwapModal/SwapDetails'
 import { Level } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
+import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSure'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -37,10 +40,6 @@ import { cn } from 'utils/cn'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
 import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
-
-import SwapBrief from './SwapBrief'
-import SwapDetails, { Props as SwapDetailsProps } from './SwapDetails'
-import ValueWithLoadingSkeleton from './SwapDetails/ValueWithLoadingSkeleton'
 
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
 const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5

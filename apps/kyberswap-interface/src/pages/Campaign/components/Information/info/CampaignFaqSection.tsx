@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { Minus, Plus } from 'react-feather'
 
 import { ButtonIcon } from 'components/PageWrappers'
-
-import { FaqItem } from './types'
+import { FaqItem } from 'pages/Campaign/components/Information/info/types'
 
 function FaqRow({ q, a }: FaqItem) {
   const [show, setShow] = useState(false)

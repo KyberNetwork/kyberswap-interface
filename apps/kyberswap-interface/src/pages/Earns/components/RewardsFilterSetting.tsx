@@ -4,9 +4,11 @@ import { ChevronDown } from 'react-feather'
 
 import ClaimThresholdControl from 'components/ClaimThresholdControl'
 import { formatThresholdValue } from 'components/ClaimThresholdControl/CustomClaimThresholdInput'
+import PositionStatusControl, {
+  POSITION_STATUS_OPTIONS,
+  PositionStatus,
+} from 'pages/Earns/components/PositionStatusControl'
 import { cn } from 'utils/cn'
-
-import PositionStatusControl, { POSITION_STATUS_OPTIONS, PositionStatus } from './PositionStatusControl'
 
 type Props = {
   thresholdValue?: number

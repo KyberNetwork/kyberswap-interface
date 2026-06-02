@@ -5,6 +5,8 @@ import { ChevronLeft } from 'react-feather'
 import { useConnect } from 'wagmi'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
+import Option from 'components/Header/web3/WalletModal/Option'
+import { useOrderedConnections } from 'components/Header/web3/WalletModal/useConnections'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
@@ -22,9 +24,6 @@ import {
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
-
-import Option from './Option'
-import { useOrderedConnections } from './useConnections'
 
 export const CloseIcon = ({
   children,

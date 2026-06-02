@@ -5,12 +5,11 @@ import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAler
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import useDebounce from 'hooks/useDebounce'
 import NoData from 'pages/NotificationCenter/NoData'
+import SingleAlert from 'pages/NotificationCenter/PriceAlerts/ActiveAlerts/SingleAlert'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 import { useSessionInfo } from 'state/authen/hooks'
 import { subscribePrivateAnnouncementProfile } from 'utils/firebase'
-
-import SingleAlert from './SingleAlert'
 
 const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const { userInfo } = useSessionInfo()

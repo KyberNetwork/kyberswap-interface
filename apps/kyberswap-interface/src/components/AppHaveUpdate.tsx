@@ -1,9 +1,8 @@
 import { Trans } from '@lingui/macro'
 
+import { ButtonPrimary } from 'components/Button'
 import { Z_INDEXS } from 'constants/styles'
 import { useServiceWorkerRegistration } from 'state/application/hooks'
-
-import { ButtonPrimary } from './Button'
 
 const AppHaveUpdate = () => {
   const serviceWorkerRegistration = useServiceWorkerRegistration()

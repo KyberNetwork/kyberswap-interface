@@ -8,15 +8,14 @@ import { useGetDashboardQuery, useGetParticipantQuery } from 'services/referral'
 import InfoHelper from 'components/InfoHelper'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
+import NearIntentCampaignStats from 'pages/Campaign/components/CampaignStats/NearIntentCampaignStats'
+import { WeekCountdown } from 'pages/Campaign/components/CampaignStats/WeekCountdown'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { StatCard } from 'pages/Campaign/styles'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import NearIntentCampaignStats from './NearIntentCampaignStats'
-import { WeekCountdown } from './WeekCountdown'
 
 type Props = {
   type: CampaignType

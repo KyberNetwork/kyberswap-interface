@@ -4,17 +4,16 @@ import { useMedia } from 'react-use'
 
 import { useActiveWeb3React } from 'hooks'
 import { VerticalDivider } from 'pages/About/styleds'
+import InstantClaimModal from 'pages/ElasticSnapshot/components/InstantClaimModal'
+import avalanche from 'pages/ElasticSnapshot/data/instant/avalanche.json'
+import ethereum from 'pages/ElasticSnapshot/data/instant/ethereum.json'
+import optimism from 'pages/ElasticSnapshot/data/instant/optimism.json'
+import userPhase2 from 'pages/ElasticSnapshot/data/instant/pendle_dappos_instant_polygon.json'
+import userPhase2_5 from 'pages/ElasticSnapshot/data/instant/phase2.5.json'
+import polygon from 'pages/ElasticSnapshot/data/instant/polygon.json'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import avalanche from '../data/instant/avalanche.json'
-import ethereum from '../data/instant/ethereum.json'
-import optimism from '../data/instant/optimism.json'
-import userPhase2 from '../data/instant/pendle_dappos_instant_polygon.json'
-import userPhase2_5 from '../data/instant/phase2.5.json'
-import polygon from '../data/instant/polygon.json'
-import InstantClaimModal from './InstantClaimModal'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 

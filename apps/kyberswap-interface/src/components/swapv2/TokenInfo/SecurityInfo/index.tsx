@@ -7,11 +7,10 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as ContractSecurity } from 'assets/svg/security_contract.svg'
 import { ReactComponent as TreadingSecurity } from 'assets/svg/security_trading.svg'
 import { CollapseItem } from 'components/Collapse'
+import { Container } from 'components/swapv2/TokenInfo'
+import Content from 'components/swapv2/TokenInfo/SecurityInfo/Content'
+import Header from 'components/swapv2/TokenInfo/SecurityInfo/Header'
 import { getSecurityTokenInfo } from 'components/swapv2/TokenInfo/utils'
-
-import { Container } from '../index'
-import Content from './Content'
-import Header from './Header'
 
 export default function SecurityInfo({ token }: { token: Token | undefined }) {
   const style: CSSProperties = {

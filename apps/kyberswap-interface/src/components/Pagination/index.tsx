@@ -2,10 +2,9 @@ import { CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'react-feather'
 import { useMedia } from 'react-use'
 
+import PaginationInputOnMobile from 'components/Pagination/PaginationInputOnMobile'
+import { PaginationButton, PaginationContainer, PaginationItem } from 'components/Pagination/styles'
 import { DOTS, usePagination } from 'components/Pagination/usePagination'
-
-import PaginationInputOnMobile from './PaginationInputOnMobile'
-import { PaginationButton, PaginationContainer, PaginationItem } from './styles'
 
 export default function Pagination({
   onPageChange,

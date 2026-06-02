@@ -14,16 +14,15 @@ import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/typ
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
+import OptionButton from 'pages/KyberDAO/Vote/ProposalItem/OptionButton'
+import Participants from 'pages/KyberDAO/Vote/ProposalItem/Participants'
+import VoteInformation from 'pages/KyberDAO/Vote/ProposalItem/VoteInformation'
+import VoteConfirmModal from 'pages/KyberDAO/Vote/VoteConfirmModal'
 import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 import { hexAlpha } from 'utils/colorAlpha'
 import { escapeScriptHtml } from 'utils/string'
-
-import VoteConfirmModal from '../VoteConfirmModal'
-import OptionButton from './OptionButton'
-import Participants from './Participants'
-import VoteInformation from './VoteInformation'
 
 const BADGE_BASE = 'flex h-5 items-center justify-center rounded-[10px] px-3.5 py-0.5 text-xs'
 

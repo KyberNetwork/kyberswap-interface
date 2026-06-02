@@ -1,9 +1,8 @@
 import { ReactNode } from 'react'
 
 import Loader from 'components/Loader'
+import backgroundImage from 'pages/Oauth/background-gradient.png'
 import { cn } from 'utils/cn'
-
-import backgroundImage from './background-gradient.png'
 
 export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div

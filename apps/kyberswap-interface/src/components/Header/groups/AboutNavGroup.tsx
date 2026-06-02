@@ -2,12 +2,11 @@ import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
+import NavGroup from 'components/Header/groups/NavGroup'
+import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
-
-import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
-import NavGroup from './NavGroup'
 
 const AboutNavGroup = () => {
   const { pathname } = useLocation()

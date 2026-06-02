@@ -5,6 +5,7 @@ import { useMedia } from 'react-use'
 
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
+import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import { NewLabel } from 'components/Menu'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
@@ -13,8 +14,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
-
-import NavGroup from './NavGroup'
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="flex size-4 flex-[0_0_16px] items-center">{children}</div>

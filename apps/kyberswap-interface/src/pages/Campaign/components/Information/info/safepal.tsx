@@ -2,10 +2,9 @@ import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 
 import safePalPoints from 'pages/Campaign/assets/safepal_points.png'
+import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
+import { CampaignContent, CampaignSectionComponent, FaqItem } from 'pages/Campaign/components/Information/info/types'
 import { ExternalLink } from 'theme'
-
-import CampaignFaqSection from './CampaignFaqSection'
-import { CampaignContent, CampaignSectionComponent, FaqItem } from './types'
 
 const SafePalHardwareWallet = ({ link }: { link?: boolean }) => {
   if (link) {

@@ -1,8 +1,7 @@
 import React from 'react'
 
+import CustomClaimThresholdInput from 'components/ClaimThresholdControl/CustomClaimThresholdInput'
 import { cn } from 'utils/cn'
-
-import CustomClaimThresholdInput from './CustomClaimThresholdInput'
 
 const DEFAULT_CLAIM_THRESHOLD_OPTIONS = [0, 5, 10, 50]
 

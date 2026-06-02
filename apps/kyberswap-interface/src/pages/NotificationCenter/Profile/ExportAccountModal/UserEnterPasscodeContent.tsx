@@ -3,10 +3,9 @@ import { useState } from 'react'
 
 import { ButtonPrimary } from 'components/Button'
 import Input from 'components/Input'
+import { Label } from 'pages/NotificationCenter/Profile/ExportAccountModal/styled'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 import { ExternalLink } from 'theme'
-
-import { Label } from './styled'
 
 const BTN_CLASS = 'h-9 flex-1 text-sm font-medium leading-5'
 

@@ -11,14 +11,13 @@ import { RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
+import YourTransactionsModal from 'pages/KyberDAO/StakeKNC/YourTransactionsModal'
+import ProposalItem from 'pages/KyberDAO/Vote/ProposalItem'
+import SearchProposal from 'pages/KyberDAO/Vote/SearchProposal'
+import SelectProposalStatus from 'pages/KyberDAO/Vote/SelectProposalStatus'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { cn } from 'utils/cn'
-
-import YourTransactionsModal from '../StakeKNC/YourTransactionsModal'
-import ProposalItem from './ProposalItem'
-import SearchProposal from './SearchProposal'
-import SelectProposalStatus from './SelectProposalStatus'
 
 const TEXT_BUTTON_CLASS = 'flex cursor-pointer items-center gap-1 text-sm text-subText hover:!brightness-125'
 

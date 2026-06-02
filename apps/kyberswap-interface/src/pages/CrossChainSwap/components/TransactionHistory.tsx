@@ -17,14 +17,13 @@ import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossCh
 import { NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenHash } from 'utils'
 import { cn } from 'utils/cn'
 import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { getChainName } from '../utils'
 
 const PAGE_SIZE = 5
 

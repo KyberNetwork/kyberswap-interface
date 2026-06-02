@@ -2,16 +2,15 @@ import { Trans } from '@lingui/macro'
 import { CSSProperties, ReactNode, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { ButtonPrimary } from 'components/Button'
 import NotificationIcon from 'components/Icons/NotificationIcon'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { cn } from 'utils/cn'
-
-import { ButtonPrimary } from '../Button'
-import { MouseoverTooltipDesktopOnly } from '../Tooltip'
 
 export default function SubscribeNotificationButton({
   subscribeTooltip,

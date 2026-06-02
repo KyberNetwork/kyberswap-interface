@@ -7,9 +7,8 @@ import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Deposit from 'components/Icons/Deposit'
+import { Label } from 'pages/NotificationCenter/Profile/ExportAccountModal/styled'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
-
-import { Label } from './styled'
 
 const QR_SIZE = 200
 const QR_ID = 'react-qrcode-logo'

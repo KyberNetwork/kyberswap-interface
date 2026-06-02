@@ -6,13 +6,12 @@ import Loader from 'components/Loader'
 import ActionButtonGroup from 'components/WalletPopup/AccountInfo/ActionButtonGroup'
 import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
 import MinimalActionButtonGroup from 'components/WalletPopup/AccountInfo/MinimalActionButtonGroup'
+import { View } from 'components/WalletPopup/type'
 import { useActiveWeb3React } from 'hooks'
 import { useRewards } from 'hooks/useRewards'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { formatNumberWithPrecisionRange } from 'utils'
 import { cn } from 'utils/cn'
-
-import { View } from '../type'
 
 type Props = {
   totalBalanceInUsd: number | null | string

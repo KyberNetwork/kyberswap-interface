@@ -13,7 +13,22 @@ import Pagination from 'components/Pagination'
 import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
+import EditOrderModal from 'components/swapv2/LimitOrder/EditOrderModal'
+import OrderItem from 'components/swapv2/LimitOrder/ListOrder/OrderItem'
+import TabSelector from 'components/swapv2/LimitOrder/ListOrder/TabSelector'
+import TableHeader from 'components/swapv2/LimitOrder/ListOrder/TableHeader'
 import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
+import CancelOrderModal from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
+import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from 'components/swapv2/LimitOrder/const'
+import {
+  calcPercentFilledOrder,
+  formatAmountOrder,
+  formatRateLimitOrder,
+  getPayloadTracking,
+  isActiveStatus,
+} from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { APP_PATHS, EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
@@ -28,22 +43,6 @@ import {
   subscribeNotificationOrderExpired,
   subscribeNotificationOrderFilled,
 } from 'utils/firebase'
-
-import EditOrderModal from '../EditOrderModal'
-import CancelOrderModal from '../Modals/CancelOrderModal'
-import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
-import {
-  calcPercentFilledOrder,
-  formatAmountOrder,
-  formatRateLimitOrder,
-  getPayloadTracking,
-  isActiveStatus,
-} from '../helpers'
-import { LimitOrder, LimitOrderStatus } from '../type'
-import useCancellingOrders from '../useCancellingOrders'
-import OrderItem from './OrderItem'
-import TabSelector from './TabSelector'
-import TableHeader from './TableHeader'
 
 const PAGE_SIZE = 10
 
