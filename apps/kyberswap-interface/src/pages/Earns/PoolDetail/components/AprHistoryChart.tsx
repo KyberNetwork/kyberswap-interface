@@ -37,10 +37,12 @@ const FarmingMarker = ({ programs = [] }: { programs?: Array<ProgramType> }) => 
 const AprHistoryTooltip = ({
   active,
   point,
+  showActiveApr,
   window,
 }: {
   active?: boolean
   point?: PoolAprHistoryPoint
+  showActiveApr: boolean
   window: PoolAnalyticsWindow
 }) => {
   const theme = useTheme()
@@ -54,7 +56,7 @@ const AprHistoryTooltip = ({
     >
       <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
-        {point.activeApr ? (
+        {showActiveApr && point.activeApr !== undefined ? (
           <>
             <span className="text-xs text-subText">Active APR</span>
             <span className="text-right text-xs font-medium text-primary">{formatAprNumber(point.activeApr)}%</span>
@@ -127,26 +129,26 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],
   )
 
-  const hasActiveApr = currentApr?.activeApr !== undefined
-  const activeApr = currentApr?.activeApr
-  const totalApr = currentApr?.totalApr
+  const latestAprPoint = chartData[chartData.length - 1]
+  const activeApr = currentApr?.activeApr ?? latestAprPoint?.activeApr
+  const totalApr = currentApr?.totalApr ?? latestAprPoint?.totalApr
+  const hasActiveApr = activeApr !== undefined
+  const showActiveApr = !isPositionChart && hasActiveApr
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-h-12 flex-col gap-1">
-          {hasActiveApr && totalApr !== undefined && (
+          {showActiveApr && totalApr !== undefined && (
             <div className="flex items-baseline gap-1">
               <span className="text-sm text-subText">APR</span>
-              <span className="text-sm font-medium text-text">{formatAprValue(totalApr)}</span>
+              <span className="text-sm font-medium text-blue">{formatAprValue(totalApr)}</span>
             </div>
           )}
 
-          {hasActiveApr ? (
+          {showActiveApr ? (
             <div className="flex flex-wrap items-baseline gap-2">
-              <span className="text-base font-medium text-text">
-                {positionId ? 'Position Active APR' : 'Active APR'}
-              </span>
+              <span className="text-base font-medium text-text">Active APR</span>
               <div className="flex items-center gap-1">
                 <FarmingMarker programs={programs} />
                 <span className="text-xl font-medium leading-none text-primary">{formatAprValue(activeApr)}</span>
@@ -160,7 +162,9 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
                 <FarmingMarker programs={programs} />
                 <span className="text-xl font-medium leading-none text-blue">{formatAprValue(totalApr)}</span>
               </div>
-              <span className="text-sm text-subText">(Earning Per Total TVL)</span>
+              <span className="text-sm text-subText">
+                {isPositionChart ? '(Earning Per Position Liquidity)' : '(Earning Per Total TVL)'}
+              </span>
             </div>
           )}
         </div>
@@ -207,7 +211,12 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
               />
               <Tooltip
                 content={({ active, payload }) => (
-                  <AprHistoryTooltip active={active} point={payload?.[0]?.payload} window={window} />
+                  <AprHistoryTooltip
+                    active={active}
+                    point={payload?.[0]?.payload}
+                    showActiveApr={showActiveApr}
+                    window={window}
+                  />
                 )}
                 cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
               />
@@ -216,7 +225,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
                   <Cell key={`${point.ts}-volumeUsd`} fill={point.volumeBarColor} />
                 ))}
               </Bar>
-              {hasActiveApr && (
+              {showActiveApr && (
                 <Line
                   activeDot={{ fill: activeAprLineColor, r: 4, stroke: activeDotStroke, strokeWidth: 2 }}
                   dataKey="activeApr"
