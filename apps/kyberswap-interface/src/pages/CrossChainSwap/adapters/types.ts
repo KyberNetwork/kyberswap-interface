@@ -115,6 +115,8 @@ export interface NormalizedTxResponse {
   targetTxHash?: string
   timestamp: number
   status?: 'Processing' | 'Success' | 'Failed' | 'Refunded'
+  bridgeProvider?: string
+  routeId?: string
   // Enriched fields for data analysis
   amountInUsd: number
   amountOutUsd: number

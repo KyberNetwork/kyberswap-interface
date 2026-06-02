@@ -16,6 +16,8 @@ import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
 import { OrbiterAdapter } from './adapters/OrbiterAdapter'
 
+const normalizeAdapterName = (name: string) => name.toLowerCase().replace(/\s+/g, '')
+
 // Factory for creating swap provider instances
 export class CrossChainSwapFactory {
   // Singleton instances (lazy loaded)
@@ -129,7 +131,9 @@ export class CrossChainSwapFactory {
 
   static getKyberCrossChainAdapter(): KyberCrossChainAdapter {
     if (!CrossChainSwapFactory.kyberCrossChainInstance) {
-      CrossChainSwapFactory.kyberCrossChainInstance = new KyberCrossChainAdapter()
+      CrossChainSwapFactory.kyberCrossChainInstance = new KyberCrossChainAdapter(name =>
+        name ? CrossChainSwapFactory.getAdapterByName(name) : undefined,
+      )
     }
     return CrossChainSwapFactory.kyberCrossChainInstance
   }
@@ -156,14 +160,14 @@ export class CrossChainSwapFactory {
 
   // Get adapter by name
   static getAdapterByName(name: string): SwapProvider | undefined {
-    switch (name.toLowerCase()) {
+    switch (normalizeAdapterName(name)) {
       case 'across':
         return CrossChainSwapFactory.getAcrossAdapter()
       case 'relay':
         return CrossChainSwapFactory.getRelayAdapter()
       case 'xyfinance':
         return CrossChainSwapFactory.getXyFinanceAdapter()
-      case 'near intents':
+      case 'nearintents':
         return CrossChainSwapFactory.getNearIntentsAdapter()
       case 'mayan':
         return CrossChainSwapFactory.getMayanAdapter()
