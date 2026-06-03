@@ -118,6 +118,8 @@ export const APP_PATHS = {
   ABOUT: '/about',
   SWAP: '/swap',
   PARTNER_SWAP: '/partner-swap',
+  USER_SWAP: '/user-swap',
+  USER_SWAP_CREATE_TIPS: '/user-swap/create-tips',
   FIND_POOL: '/find',
   POOLS: '/pools',
   ADD_LIQUIDITY: '/pools/add-liquidity',

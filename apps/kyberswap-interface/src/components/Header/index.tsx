@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import Announcement from 'components/Announcement'
@@ -16,6 +16,7 @@ import RecapButton from 'components/Recap/RecapButton'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
+import usePageLocation from 'hooks/usePageLocation'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
@@ -38,15 +39,14 @@ const LogoIcon = ({ children }: { children: React.ReactNode }) => (
 export default function Header() {
   const { networkInfo } = useActiveWeb3React()
   const [holidayMode] = useHolidayMode()
-  const { pathname } = useLocation()
-  const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const { isEmbeddedSwap } = usePageLocation()
 
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
-  const hide = isPartnerSwap && upToLarge
+  const hide = isEmbeddedSwap && upToLarge
 
   const menu = (
     <div className="flex items-center gap-2 rounded-[36px] border border-background bg-background px-1.5 text-subText hover:border-primary hover:brightness-105 focus:border-primary focus:brightness-105">
@@ -69,7 +69,7 @@ export default function Header() {
       )}
     >
       <div className="flex w-fit flex-row flex-nowrap items-center justify-self-start max-md:w-full">
-        {isPartnerSwap ? (
+        {isEmbeddedSwap ? (
           <LogoIcon>
             <IconImage src={'/logo-dark.svg'} alt="logo" />
           </LogoIcon>
@@ -89,7 +89,7 @@ export default function Header() {
             )}
           </Link>
         )}
-        {!isPartnerSwap && (
+        {!isEmbeddedSwap && (
           <div className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end max-xxs:gap-0">
             <SwapNavGroup />
             <EarnNavGroup />
@@ -121,7 +121,7 @@ export default function Header() {
           'max-[500px]:px-2 max-[500px]:py-4',
         )}
       >
-        {isPartnerSwap ? (
+        {isEmbeddedSwap ? (
           <div className="flex w-full justify-between">
             {upToLarge && (
               <LogoIcon>

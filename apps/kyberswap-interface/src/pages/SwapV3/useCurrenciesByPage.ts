@@ -1,18 +1,16 @@
 import { useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import usePageLocation from 'hooks/usePageLocation'
 import { useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
 
 const useCurrenciesByPage = () => {
-  const { pathname } = useLocation()
   const { networkInfo, chainId } = useActiveWeb3React()
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || pathname.startsWith(APP_PATHS.PARTNER_SWAP)
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
+  const { isSwapPage, isCrossChain: isCrossChainPage } = usePageLocation()
 
   const currencyInSwap = useInputCurrency()
   const currencyOutSwap = useOutputCurrency()

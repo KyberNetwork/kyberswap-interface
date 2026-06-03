@@ -29,9 +29,10 @@ import {
 } from 'components/swapv2/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
-import { APP_PATHS, EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
+import usePageLocation from 'hooks/usePageLocation'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -131,7 +132,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     setCurPage(1)
   }, [])
 
-  const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
+  const { isPartnerSwap } = usePageLocation()
   const navigate = useNavigate()
   const onSelectTab = (type: LimitOrderStatus) => {
     setOrderType(type)

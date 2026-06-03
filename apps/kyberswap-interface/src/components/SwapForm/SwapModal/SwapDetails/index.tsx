@@ -18,9 +18,9 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
+import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
@@ -108,7 +108,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const { rawSlippage } = useSlippageSettingByPage()
   const slippageStatus = checkRangeSlippage(rawSlippage, cat)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
-  const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const { isPartnerSwap } = usePageLocation()
   const addMevButton =
     KYBER_SWAP_RPC[chainId] &&
     active &&

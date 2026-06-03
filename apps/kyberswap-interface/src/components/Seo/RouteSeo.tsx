@@ -178,7 +178,7 @@ const resolveSeoConfig = (pathname: string, search: string): SeoConfig => {
     }
   }
 
-  if (normalizedPath === APP_PATHS.CROSS_CHAIN || normalizedPath === APP_PATHS.PARTNER_SWAP) {
+  if (normalizedPath === APP_PATHS.CROSS_CHAIN) {
     return {
       title: DEFAULT_TITLE,
       description: CROSS_CHAIN_DESCRIPTION,

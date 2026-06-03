@@ -1,10 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { TAB } from 'pages/SwapV3'
 import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
@@ -43,10 +44,9 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
   const { trackingHandler } = useTracking()
   const chainId = customChainId || walletChainId
 
-  const { pathname } = useLocation()
   const { currency: currencyParam } = useParams()
 
-  const isParnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const { pathname, isPartnerSwap } = usePageLocation()
 
   const [searchParams] = useSearchParams()
   let features = (searchParams.get('features') || '')
@@ -54,7 +54,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     .filter(item => [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN].includes(item))
   if (!features.length) features = [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN]
 
-  const show = (tab: TAB) => (isParnerSwap ? features.includes(tab) : true)
+  const show = (tab: TAB) => (isPartnerSwap ? features.includes(tab) : true)
 
   const onClickTab = (tab: TAB) => {
     if (activeTab === tab) {
@@ -66,7 +66,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
         previous_tab: activeTab,
       })
     }
-    if (isParnerSwap) {
+    if (isPartnerSwap) {
       setActiveTab(tab)
       return
     }

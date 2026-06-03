@@ -1,9 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
-import { APP_PATHS } from 'constants/index'
+import usePageLocation from 'hooks/usePageLocation'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency, usePermitData, useSwapActionHandlers } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
@@ -29,9 +29,8 @@ const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, hid
 
   const { onCurrencySelection } = useSwapActionHandlers()
 
-  const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const { isPartnerSwap } = usePageLocation()
 
   const outId =
     searchParams.get('outputCurrency') || (currencyOut?.isNative ? currencyOut.symbol : currencyOut?.wrapped.address)

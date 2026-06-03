@@ -1,8 +1,9 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
+import { useGetTipLinkQuery } from 'services/tipLink'
 
 import Banner from 'components/Banner'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
@@ -31,7 +32,7 @@ import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { DetailedRouteSummary } from 'types/route'
+import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { cn } from 'utils/cn'
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
@@ -53,29 +54,69 @@ export const SwitchLocaleLinkWrapper = ({ children, className, ...rest }: React.
   </div>
 )
 
-export default function PartnerSwap() {
+const getSupportedChainId = (chainId?: string | null) => {
+  const parsed = Number(chainId)
+  return SUPPORTED_NETWORKS.includes(parsed) ? parsed : undefined
+}
+
+const getTipCurrencyParam = (currency: string | undefined, chainId: number) => {
+  if (!currency) return currency
+  const native = NativeCurrencies[chainId as ChainId]
+  const wrappedNative = WETH[chainId as ChainId]
+  return wrappedNative?.address?.toLowerCase() === currency.toLowerCase() ? native.symbol || currency : currency
+}
+
+type Props = {
+  mode?: 'partner' | 'user'
+}
+
+export default function PartnerSwap({ mode = 'partner' }: Props) {
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { tipsId = '' } = useParams()
+  const isUserSwap = mode === 'user'
 
-  const chainIdFromParam = searchParams.get('chainId')
-  const inputTokenFromParam = searchParams.get('inputCurrency')
-  const outputTokenFromParam = searchParams.get('outputCurrency')
-  const expectedChainId =
-    chainIdFromParam && SUPPORTED_NETWORKS.includes(+chainIdFromParam) ? +chainIdFromParam : ChainId.MAINNET
+  const { data: tipConfig } = useGetTipLinkQuery(tipsId, { skip: !isUserSwap || !tipsId })
+  const appliedTipRef = useRef('')
+
+  const chainIdFromUrl = getSupportedChainId(searchParams.get('chainId'))
+  const chainIdFromTip = isUserSwap ? getSupportedChainId(tipConfig?.chainId) : undefined
+  const swapChainId = chainIdFromUrl || chainIdFromTip || ChainId.MAINNET
+
+  const tipInputCurrency = isUserSwap ? getTipCurrencyParam(tipConfig?.inputCurrency, swapChainId) : undefined
+  const tipOutputCurrency = isUserSwap ? getTipCurrencyParam(tipConfig?.outputCurrency, swapChainId) : undefined
+  const inputCurrencyId = searchParams.get('inputCurrency') || tipInputCurrency
+  const outputCurrencyId = searchParams.get('outputCurrency') || tipOutputCurrency
+
+  useEffect(() => {
+    if (!isUserSwap || !tipsId || !tipConfig || appliedTipRef.current === tipsId) return
+
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set('chainId', String(swapChainId))
+    nextSearchParams.set('inputCurrency', tipInputCurrency || '')
+    nextSearchParams.set('outputCurrency', tipOutputCurrency || '')
+    nextSearchParams.set('enableTip', 'true')
+    nextSearchParams.set('feeReceiver', tipConfig.tipReceiver)
+    if (tipConfig.creatorName) nextSearchParams.set('creatorName', tipConfig.creatorName)
+    if (!nextSearchParams.get('feeAmount')) nextSearchParams.set('feeAmount', '0')
+    if (!nextSearchParams.get('chargeFeeBy')) nextSearchParams.set('chargeFeeBy', ChargeFeeBy.CURRENCY_OUT)
+
+    appliedTipRef.current = tipsId
+    setSearchParams(nextSearchParams, { replace: true })
+  }, [isUserSwap, searchParams, setSearchParams, swapChainId, tipConfig, tipInputCurrency, tipOutputCurrency, tipsId])
 
   // sync form chainId and wallet chainId when disconnected
   useEffect(() => {
-    if (!account && walletChainId !== expectedChainId) {
-      changeNetwork(expectedChainId)
+    if (!account && walletChainId !== swapChainId) {
+      changeNetwork(swapChainId)
     }
-  }, [account, walletChainId, expectedChainId, changeNetwork])
+  }, [account, walletChainId, swapChainId, changeNetwork])
 
   const currencyIn =
-    useCurrencyV2(inputTokenFromParam || undefined, expectedChainId) || NativeCurrencies[expectedChainId as ChainId]
+    useCurrencyV2(inputCurrencyId || undefined, swapChainId) || NativeCurrencies[swapChainId as ChainId]
   const currencyOut =
-    useCurrencyV2(outputTokenFromParam || undefined, expectedChainId) ||
-    DEFAULT_OUTPUT_TOKEN_BY_CHAIN[expectedChainId as ChainId]
+    useCurrencyV2(outputCurrencyId || undefined, swapChainId) || DEFAULT_OUTPUT_TOKEN_BY_CHAIN[swapChainId as ChainId]
 
   const currencies = useMemo(
     () => ({
@@ -98,9 +139,11 @@ export default function PartnerSwap() {
 
   const navigate = useNavigate()
   const clientId = searchParams.get('clientId')
+
   useEffect(() => {
+    if (isUserSwap) return
     if (!clientId) navigate('/')
-  }, [clientId, navigate])
+  }, [isUserSwap, clientId, navigate])
 
   const isSetting = isSettingTab(activeTab)
   const previousTab = usePreviousDistinct(!isSetting ? activeTab : undefined)
@@ -113,7 +156,7 @@ export default function PartnerSwap() {
 
   const [balanceIn, balanceOut] = useCurrencyBalances(
     useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
-    expectedChainId,
+    swapChainId,
   )
 
   const [ttl] = useUserTransactionTTL()
@@ -124,23 +167,23 @@ export default function PartnerSwap() {
   const onChangeCurrencyIn = useCallback(
     (c: Currency) => {
       const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
-      if (value === outputTokenFromParam) searchParams.set('outputCurrency', inputTokenFromParam || '')
+      if (value === outputCurrencyId) searchParams.set('outputCurrency', inputCurrencyId || '')
       searchParams.set('inputCurrency', value)
       setSearchParams(searchParams)
     },
-    [searchParams, setSearchParams, inputTokenFromParam, outputTokenFromParam],
+    [searchParams, setSearchParams, inputCurrencyId, outputCurrencyId],
   )
 
   const onChangeCurrencyOut = useCallback(
     (c: Currency) => {
       const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
-      if (value.toLowerCase() === inputTokenFromParam?.toLowerCase()) {
-        searchParams.set('inputCurrency', outputTokenFromParam || '')
+      if (value.toLowerCase() === inputCurrencyId?.toLowerCase()) {
+        searchParams.set('inputCurrency', outputCurrencyId || '')
       }
       searchParams.set('outputCurrency', value)
       setSearchParams(searchParams)
     },
-    [searchParams, setSearchParams, inputTokenFromParam, outputTokenFromParam],
+    [searchParams, setSearchParams, inputCurrencyId, outputCurrencyId],
   )
 
   const props: SwapFormProps = {
@@ -157,8 +200,8 @@ export default function PartnerSwap() {
     permit: permitData?.rawSignature,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
-    customChainId: expectedChainId,
-    omniView: true,
+    customChainId: swapChainId,
+    omniView: !isUserSwap,
   }
 
   // modal and loading
@@ -172,7 +215,7 @@ export default function PartnerSwap() {
         <Banner />
         <Container>
           <SwapFormWrapper>
-            <Header activeTab={activeTab} setActiveTab={setActiveTab} customChainId={expectedChainId} />
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} customChainId={swapChainId} />
 
             <AppBodyWrapped className={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? '!p-0' : undefined}>
               {isSwapPage && <SwapForm {...props} />}
@@ -187,7 +230,7 @@ export default function PartnerSwap() {
                 />
               )}
               {activeTab === TAB.LIQUIDITY_SOURCES && (
-                <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={expectedChainId} />
+                <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={swapChainId} />
               )}
               {activeTab === TAB.LIMIT && (
                 <div className="p-4">
@@ -213,7 +256,7 @@ export default function PartnerSwap() {
           </SwapFormWrapper>
 
           <InfoComponents>
-            {isLimitPage && <ListLimitOrder customChainId={expectedChainId} />}
+            {isLimitPage && <ListLimitOrder customChainId={swapChainId} />}
             {isCrossChainPage && <TransactionHistory />}
           </InfoComponents>
         </Container>
@@ -224,7 +267,7 @@ export default function PartnerSwap() {
         </div>
       </PageWrapper>
 
-      <Updater customChainId={expectedChainId} />
+      <Updater customChainId={swapChainId} />
     </>
   )
 }

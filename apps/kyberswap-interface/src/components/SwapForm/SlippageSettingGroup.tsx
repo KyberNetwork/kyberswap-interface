@@ -7,8 +7,8 @@ import { Shield } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddMEVProtectionModal'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -40,6 +40,8 @@ export default function SlippageSettingGroup({ isWrapOrUnwrap }: { isWrapOrUnwra
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const { trackingHandler } = useTracking()
+  const { isPartnerSwap } = usePageLocation()
+  const { isSlippageControlPinned } = useSlippageSettingByPage()
 
   const addMevProtectionHandler = useCallback(() => {
     setShowMevModal(true)
@@ -50,8 +52,6 @@ export default function SlippageSettingGroup({ isWrapOrUnwrap }: { isWrapOrUnwra
     setShowMevModal(false)
   }, [])
 
-  const { isSlippageControlPinned } = useSlippageSettingByPage()
-  const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const rightButton =
     KYBER_SWAP_RPC[chainId] && active && !isPartnerSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>

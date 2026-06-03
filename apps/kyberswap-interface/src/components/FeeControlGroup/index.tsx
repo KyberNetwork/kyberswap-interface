@@ -10,7 +10,7 @@ const feeOptionClasses =
   'h-full rounded-[20px] border border-transparent bg-tabBackground p-0 text-center text-xs font-normal leading-4 text-subText outline-none cursor-pointer hover:border-bg4 focus:border-bg4 data-[active=true]:border-primary data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text'
 
 const FeeControlGroup = () => {
-  const { feeAmount, enableTip, clientId } = useGetFeeConfig() ?? {}
+  const { feeAmount, enableTip, clientId, clientName } = useGetFeeConfig() ?? {}
   const [searchParams, setSearchParams] = useSearchParams()
   const feeValue = Number.parseFloat(feeAmount ?? '0')
 
@@ -25,7 +25,7 @@ const FeeControlGroup = () => {
     return null
   }
 
-  const clientName = ClientNameMapping[clientId || ''] || clientId
+  const tipRecipientName = clientName || ClientNameMapping[clientId || ''] || clientId || 'the creator'
 
   return (
     <div className="flex w-full flex-col px-2">
@@ -33,7 +33,9 @@ const FeeControlGroup = () => {
         <Trans>Tip</Trans>:
       </p>
       <p className="text-xs font-medium text-subText">
-        <Trans>No hidden fees - Your optional tips support {clientName}!</Trans>
+        <Trans>
+          No hidden fees - Your optional tips support <span className="text-text">{tipRecipientName}</span>!
+        </Trans>
       </p>
 
       <div className="mt-2 flex h-7 w-full max-w-full justify-between rounded-[20px] bg-tabBackground p-0.5">
