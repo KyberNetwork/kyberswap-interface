@@ -67,7 +67,7 @@ export const getCurrencyParam = (token: TokenSchema, chainId: ChainId) => {
 
 export const SectionLabel = ({ children, optional }: { children: React.ReactNode; optional?: boolean }) => (
   <div className="text-xs font-semibold uppercase text-subText">
-    {children} {optional && <span className="normal-case text-subText/70">Optional</span>}
+    {children} {optional && <span className="font-medium normal-case text-subText/70">Optional</span>}
   </div>
 )
 
@@ -82,7 +82,7 @@ export const TokenBadge = ({ token, onClick }: { token?: TokenSchema; onClick: (
     <FieldShell className="w-full justify-between transition-colors group-hover:bg-[#303030]">
       <HStack className="min-w-0 items-center gap-2">
         {token?.logo && <img src={token.logo} alt="" className="size-5 rounded-full" />}
-        <span className="truncate font-semibold">{token?.symbol || 'Select'}</span>
+        <span className="truncate font-medium">{token?.symbol || 'Select'}</span>
       </HStack>
       <ChevronDown size={14} className="shrink-0 text-subText transition-colors group-hover:text-text" />
     </FieldShell>

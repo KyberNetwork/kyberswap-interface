@@ -148,7 +148,7 @@ export default function TipConfigPreview({
                 onClick={handleCopyImage}
                 disabled={isCopyingImage}
                 className={cn(
-                  'h-8 items-center gap-1 rounded-full bg-white/10 px-3 text-xs font-semibold text-subText transition-colors hover:bg-white/15 hover:text-text disabled:cursor-not-allowed disabled:opacity-60',
+                  'h-8 items-center gap-1 rounded-full bg-white/10 px-3 text-xs font-medium text-subText transition-colors hover:bg-white/15 hover:text-text disabled:cursor-not-allowed disabled:opacity-60',
                   isImageCopied && 'bg-primary/15 text-primary',
                 )}
               >
@@ -166,7 +166,7 @@ export default function TipConfigPreview({
                 onClick={handleDownloadImage}
                 disabled={isDownloadingImage}
                 className={cn(
-                  'h-8 items-center gap-1 rounded-full bg-white/10 px-3 text-xs font-semibold text-subText transition-colors hover:bg-white/15 hover:text-text disabled:cursor-not-allowed disabled:opacity-60',
+                  'h-8 items-center gap-1 rounded-full bg-white/10 px-3 text-xs font-medium text-subText transition-colors hover:bg-white/15 hover:text-text disabled:cursor-not-allowed disabled:opacity-60',
                   isImageDownloaded && 'bg-primary/15 text-primary',
                 )}
               >
@@ -274,12 +274,12 @@ export default function TipConfigPreview({
                         event.stopPropagation()
                         onRemoveImage()
                       }}
-                      className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-subText transition-colors hover:bg-white/15 hover:text-text"
+                      className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-subText transition-colors hover:bg-white/15 hover:text-text"
                     >
                       Remove
                     </button>
                   ) : (
-                    <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-subText">Browse</div>
+                    <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-subText">Browse</div>
                   )}
                 </HStack>
               </FileInput>

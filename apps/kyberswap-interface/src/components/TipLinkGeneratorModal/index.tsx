@@ -271,7 +271,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
       <Stack className="max-h-[calc(100vh-96px)] overflow-hidden rounded-lg bg-[#1c1c1c] text-text shadow-2xl">
         <HStack className="shrink-0 items-start justify-between gap-4 p-4">
           <Stack className="gap-1">
-            <h2 className="text-xl font-semibold leading-6">Tip Link Generator</h2>
+            <h2 className="text-xl font-medium leading-6">Tip Link Generator</h2>
             <p className="text-xs text-subText">Generate a referral swap URL and earn optional tips</p>
           </Stack>
           <button

@@ -12,6 +12,7 @@ import {
   TokenSelectorTarget,
   getChainLabel,
 } from 'components/TipLinkGeneratorModal/shared'
+import Tooltip from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { cn } from 'utils/cn'
 
@@ -70,7 +71,7 @@ export default function TipConfigForm({
                 key={item}
                 onClick={() => onChainSelect(item)}
                 className={cn(
-                  'h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors',
+                  'h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors',
                   item === chainId
                     ? 'border-primary bg-primary/15 text-primary'
                     : 'border-transparent bg-[#252525] text-subText hover:border-border hover:bg-[#303030] hover:text-text',
@@ -86,7 +87,7 @@ export default function TipConfigForm({
               as="button"
               onClick={onOpenNetworkModal}
               className={cn(
-                'h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors',
+                'h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors',
                 selectedMoreChainInfo
                   ? 'border-primary bg-primary/15 text-primary'
                   : showNetworkModal
@@ -120,32 +121,33 @@ export default function TipConfigForm({
 
       <Stack className="gap-2">
         <SectionLabel>
-          Wallet Address <span className="normal-case text-subText/70">Receives tips</span>
+          Wallet Address <span className="font-medium normal-case text-subText/70">Receives tips</span>
         </SectionLabel>
-        <FieldShell className="gap-2 pr-1">
-          <input
-            value={receiver}
-            onChange={event => onReceiverChange(event.target.value)}
-            placeholder="0x... paste or connect wallet"
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-subText/60"
-          />
-          {!account ? (
-            <button
-              onClick={onWalletConnect}
-              className="h-6 rounded-full border border-primary px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
-            >
-              Connect
-            </button>
-          ) : !isUsingConnectedAddress ? (
-            <button
-              onClick={onUseConnectedAddress}
-              className="h-6 rounded-full border border-primary px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
-            >
-              Use Wallet
-            </button>
-          ) : null}
-        </FieldShell>
-        {!isReceiverValid && <div className="text-xs text-warning">Invalid receiver address</div>}
+        <Tooltip text="Invalid receiver address" show={!isReceiverValid} placement="bottom" width="fit-content">
+          <FieldShell className={cn('gap-2 border pr-1', isReceiverValid ? 'border-transparent' : 'border-warning/50')}>
+            <input
+              value={receiver}
+              onChange={event => onReceiverChange(event.target.value)}
+              placeholder="0x... paste or connect wallet"
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-subText/60"
+            />
+            {!account ? (
+              <button
+                onClick={onWalletConnect}
+                className="h-6 rounded-full border border-primary px-3 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+              >
+                Connect
+              </button>
+            ) : !isUsingConnectedAddress ? (
+              <button
+                onClick={onUseConnectedAddress}
+                className="h-6 rounded-full border border-primary px-3 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+              >
+                Use Wallet
+              </button>
+            ) : null}
+          </FieldShell>
+        </Tooltip>
       </Stack>
 
       <Stack className="gap-2">
