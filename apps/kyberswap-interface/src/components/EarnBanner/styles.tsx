@@ -55,7 +55,10 @@ export const AprText: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ class
 export const PoolApr: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => (
   <div
     {...rest}
-    className={cn('mb-px flex h-[27px] w-max rounded-2xl bg-black px-4 py-1 font-semibold text-primary', className)}
+    className={cn(
+      'mb-px flex h-[27px] w-max items-center rounded-2xl bg-black px-4 py-1 font-semibold text-primary',
+      className,
+    )}
   />
 )
 
@@ -110,7 +113,7 @@ export const FarmingPool = ({ className, ...rest }: LinkProps) => (
 )
 
 export const FarmingAprBadge: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => (
-  <div {...rest} className={cn('rounded-[20px] bg-[#221749] px-3 py-1 text-primary', className)} />
+  <div {...rest} className={cn('rounded-[20px] bg-[#221749] px-3 py-0.5 font-semibold text-primary', className)} />
 )
 
 export const MoveBackIcon: React.FC<ComponentProps<typeof MoveBackSvg>> = ({ className, ...rest }) => (

@@ -16,10 +16,7 @@ function TokenInfoIcon({
   size?: number
 }) {
   return (
-    <StyledActionButtonSwapForm
-      onClick={onClick}
-      style={{ width: size ? size * 1.5 + 'px' : undefined, height: size ? size * 1.5 + 'px' : undefined }}
-    >
+    <StyledActionButtonSwapForm onClick={onClick}>
       <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
         <Info className="text-subText" size={size || 20} />
       </MouseoverTooltip>
