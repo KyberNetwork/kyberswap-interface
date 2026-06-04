@@ -15,7 +15,7 @@ import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { MAX_FEE_IN_BIPS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -36,6 +36,7 @@ import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } 
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
+import { isAddress } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { cn } from 'utils/cn'
 
@@ -78,12 +79,18 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const { tipsId = '' } = useParams()
+
   const isUserSwap = mode === 'user'
   const defaultTokens = useAllTokens()
 
   const { data: tipConfig } = useGetTipLinkQuery(tipsId, { skip: !isUserSwap || !tipsId })
   const appliedTipRef = useRef('')
+
+  const clientId = searchParams.get('clientId')
+  const tabFromUrl = searchParams.get('tab')
+  const activeTab = Object.values(TAB).includes(tabFromUrl as TAB) ? (tabFromUrl as TAB) : TAB.SWAP
 
   const chainIdFromUrl = getSupportedChainId(searchParams.get('chainId'))
   const chainIdFromTip = isUserSwap ? getSupportedChainId(tipConfig?.chainId) : undefined
@@ -93,6 +100,24 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   const tipOutputCurrency = isUserSwap ? getTipCurrencyParam(tipConfig?.outputCurrency, swapChainId) : undefined
   const inputCurrencyId = searchParams.get('inputCurrency') || tipInputCurrency
   const outputCurrencyId = searchParams.get('outputCurrency') || tipOutputCurrency
+
+  const isInvalidFeeConfig = useMemo(() => {
+    const feeAmount = searchParams.get('feeAmount')
+    const feeReceiver = searchParams.get('feeReceiver')
+    const chargeFeeBy = searchParams.get('chargeFeeBy')
+    const hasFeeConfig = Boolean(
+      searchParams.get('enableTip') || searchParams.get('isInBps') || feeAmount || feeReceiver || chargeFeeBy,
+    )
+    if (!hasFeeConfig) return false
+
+    const parsedFeeAmount = Number(feeAmount)
+    const isFeeAmountNumber = !!feeAmount?.trim() && /^\d+$/.test(feeAmount) && Number.isSafeInteger(parsedFeeAmount)
+    const isValidFeeAmount = isFeeAmountNumber && parsedFeeAmount >= 0 && parsedFeeAmount <= MAX_FEE_IN_BIPS
+    const isValidFeeReceiver = Boolean(feeReceiver && isAddress(swapChainId, feeReceiver))
+    const isValidChargeFeeBy = chargeFeeBy === ChargeFeeBy.CURRENCY_IN || chargeFeeBy === ChargeFeeBy.CURRENCY_OUT
+
+    return !isValidFeeAmount || !isValidFeeReceiver || !isValidChargeFeeBy
+  }, [searchParams, swapChainId])
 
   useEffect(() => {
     if (!isUserSwap || !tipsId || !tipConfig || appliedTipRef.current === tipsId) return
@@ -111,6 +136,12 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     appliedTipRef.current = tipsId
     setSearchParams(nextSearchParams, { replace: true })
   }, [isUserSwap, searchParams, setSearchParams, swapChainId, tipConfig, tipInputCurrency, tipOutputCurrency, tipsId])
+
+  useEffect(() => {
+    if (isInvalidFeeConfig || (!isUserSwap && !clientId)) {
+      navigate('/', { replace: true })
+    }
+  }, [clientId, isInvalidFeeConfig, isUserSwap, navigate])
 
   // sync form chainId and wallet chainId when disconnected
   useEffect(() => {
@@ -150,9 +181,6 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   )
   const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[swapChainId])
 
-  const tabFromUrl = searchParams.get('tab')
-  const activeTab = Object.values(TAB).includes(tabFromUrl as TAB) ? (tabFromUrl as TAB) : TAB.SWAP
-
   const setActiveTab = useCallback(
     (tab: TAB) => {
       const nextSearchParams = new URLSearchParams(searchParams)
@@ -161,14 +189,6 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     },
     [searchParams, setSearchParams],
   )
-
-  const navigate = useNavigate()
-  const clientId = searchParams.get('clientId')
-
-  useEffect(() => {
-    if (isUserSwap) return
-    if (!clientId) navigate('/')
-  }, [isUserSwap, clientId, navigate])
 
   const isSetting = isSettingTab(activeTab)
   const previousTab = usePreviousDistinct(!isSetting ? activeTab : undefined)
