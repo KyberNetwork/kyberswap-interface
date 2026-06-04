@@ -17,15 +17,17 @@ import TokenInfoTab from 'components/swapv2/TokenInfo'
 import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
+import { useAllTokens, useCurrencyV2 } from 'hooks/Tokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 import { TAB, isSettingTab } from 'pages/SwapV3'
+import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
+import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
 import Updater from 'state/customizeDexes/updater'
 import { Field } from 'state/swap/actions'
@@ -34,6 +36,7 @@ import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } 
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
+import { getTradeComposition } from 'utils/aggregationRouting'
 import { cn } from 'utils/cn'
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
@@ -77,6 +80,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { tipsId = '' } = useParams()
   const isUserSwap = mode === 'user'
+  const defaultTokens = useAllTokens()
 
   const { data: tipConfig } = useGetTipLinkQuery(tipsId, { skip: !isUserSwap || !tipsId })
   const appliedTipRef = useRef('')
@@ -129,6 +133,22 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   )
 
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
+
+  const [isShowPricingChart, setIsShowPricingChart] = useState(false)
+  const [isShowTradeRoutes, setIsShowTradeRoutes] = useState(false)
+  const togglePricingChart = useCallback(() => setIsShowPricingChart(prev => !prev), [])
+  const toggleTradeRoutes = useCallback(() => setIsShowTradeRoutes(prev => !prev), [])
+
+  const tradeRouteComposition = useMemo(
+    () => getTradeComposition(swapChainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens),
+    [defaultTokens, routeSummary, swapChainId],
+  )
+
+  const isSmartSettlementActive = useMemo(
+    () => routeSummary?.route?.some(route => route.some(swap => swap.extra?._ce)),
+    [routeSummary?.route],
+  )
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[swapChainId])
 
   const activeTab = Object.values(TAB).includes(searchParams.get('tab')) ? (searchParams.get('tab') as TAB) : TAB.SWAP
   const setActiveTab = useCallback(
@@ -224,6 +244,12 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
               {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
               {activeTab === TAB.SETTINGS && (
                 <SettingsPanel
+                  displaySettings={{
+                    isShowPricingChart,
+                    isShowTradeRoutes,
+                    togglePricingChart,
+                    toggleTradeRoutes,
+                  }}
                   isCrossChainPage={isCrossChainPage}
                   isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
@@ -258,6 +284,18 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
           </SwapFormWrapper>
 
           <InfoComponents>
+            {isSwapPage && isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
+            {isSwapPage && isShowTradeRoutes && (
+              <SwapTradeRoute
+                tradeComposition={tradeRouteComposition}
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+                defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
+                inputAmount={routeSummary?.parsedAmountIn}
+                outputAmount={routeSummary?.parsedAmountOut}
+                isSmartSettlementActive={isSmartSettlementActive}
+              />
+            )}
             {isLimitPage && <ListLimitOrder customChainId={swapChainId} />}
             {isCrossChainPage && <TransactionHistory />}
           </InfoComponents>
