@@ -82,10 +82,10 @@ const CustomFeeInput = ({ value, isActive, onActiveChange, onChange }: Props) =>
     <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
       <div
         className={cn(
-          'flex h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-full border px-2 text-sm',
+          'flex h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 text-sm',
           isActive
-            ? cn('border-primary-50 bg-tabActive hover:bg-buttonGray', customTextClass)
-            : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',
+            ? cn('bg-tabActive hover:bg-buttonGray', customTextClass)
+            : 'bg-transparent text-subText hover:bg-buttonGray',
         )}
       >
         <input

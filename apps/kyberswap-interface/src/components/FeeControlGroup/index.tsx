@@ -47,7 +47,7 @@ const FeeControlGroup = () => {
         <span className="min-w-0 truncate text-text">{tipRecipientName}</span>
       </p>
 
-      <div className="flex items-stretch rounded-[20px] bg-tabBackground">
+      <div className="flex items-stretch rounded-[20px] border border-border bg-tabBackground">
         {DEFAULT_TIPS.map(tip => {
           const isActive = tip === feeValue && !isCustomActive
           return (
@@ -59,10 +59,8 @@ const FeeControlGroup = () => {
                 handleFeeChange(tip)
               }}
               className={cn(
-                'h-7 min-w-0 flex-1 cursor-pointer rounded-full border px-2 text-sm',
-                isActive
-                  ? 'border-primary-50 bg-tabActive text-text  hover:bg-buttonGray'
-                  : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',
+                'h-7 min-w-0 flex-1 cursor-pointer rounded-full px-2 text-sm hover:bg-buttonGray',
+                isActive ? 'bg-tabActive text-text ' : 'bg-transparent text-subText',
               )}
             >
               {tip ? `${tip / 100}%` : <Trans>No tip</Trans>}
