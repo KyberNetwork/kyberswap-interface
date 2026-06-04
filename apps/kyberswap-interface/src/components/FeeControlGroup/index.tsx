@@ -31,7 +31,9 @@ const FeeControlGroup = () => {
   }
 
   const configuredClientName = clientName && clientName !== clientId ? clientName : ''
-  const tipRecipientName = configuredClientName || ClientNameMapping[clientId || ''] || 'the link sharer'
+  const mappedClientName = ClientNameMapping[clientId || '']
+  const tipRecipientName = configuredClientName || mappedClientName || 'the link sharer'
+  const hasTipRecipientName = Boolean(configuredClientName || mappedClientName)
 
   return (
     <div className="flex w-full flex-col gap-2 rounded-lg bg-white-04 p-3">
@@ -42,7 +44,7 @@ const FeeControlGroup = () => {
           </Trans>
           &nbsp;
         </span>
-        <span className="min-w-0 truncate text-text">{tipRecipientName}</span>
+        <span className={cn('min-w-0 truncate', hasTipRecipientName && 'text-text')}>{tipRecipientName}</span>
       </p>
 
       <div className="flex items-stretch rounded-[20px] border border-border bg-background">
