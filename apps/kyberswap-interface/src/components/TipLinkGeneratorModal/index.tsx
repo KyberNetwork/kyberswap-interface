@@ -26,6 +26,7 @@ import {
   MAX_IMAGE_SIZE,
   SOLID_COLORS,
   TIP_LINK_CHAINS,
+  TIP_LINK_CLIENT_ID,
   TokenSelectorTarget,
   enablePreview,
   getCurrencyParam,
@@ -197,6 +198,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
         feeReceiver: trimmedReceiver,
         feeAmount: '0',
         chargeFeeBy: ChargeFeeBy.CURRENCY_OUT,
+        clientId: TIP_LINK_CLIENT_ID,
       })
       if (trimmedCreatorName) params.set('creatorName', trimmedCreatorName)
       setGeneratedLink(`${window.location.origin}${APP_PATHS.USER_SWAP}?${params.toString()}`)

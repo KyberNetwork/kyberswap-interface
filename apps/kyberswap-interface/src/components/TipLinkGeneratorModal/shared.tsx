@@ -24,6 +24,7 @@ export const TIP_LINK_CHAINS: ChainId[] = SUPPORTED_NETWORKS.filter(
 export const SOLID_COLORS: string[] = ['#235F52', '#244666', '#6D3345', '#715825', '#412762', '#6D3F70', '#3E653F']
 export const MAX_IMAGE_SIZE = 1024 * 1024
 export const LINK_PLACEHOLDER = `https://kyberswap.com${APP_PATHS.USER_SWAP}/...`
+export const TIP_LINK_CLIENT_ID = 'community'
 
 export type BackgroundMode = 'default' | 'solid' | 'image'
 export type TokenSelectorTarget = 'input' | 'output'

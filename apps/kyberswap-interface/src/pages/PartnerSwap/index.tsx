@@ -8,6 +8,7 @@ import { useGetTipLinkQuery } from 'services/tipLink'
 import Banner from 'components/Banner'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
+import { TIP_LINK_CLIENT_ID } from 'components/TipLinkGeneratorModal/shared'
 import LimitOrderForm from 'components/swapv2/LimitOrder/LimitOrderForm'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
@@ -98,6 +99,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     nextSearchParams.set('outputCurrency', tipOutputCurrency || '')
     nextSearchParams.set('enableTip', 'true')
     nextSearchParams.set('feeReceiver', tipConfig.tipReceiver)
+    nextSearchParams.set('clientId', TIP_LINK_CLIENT_ID)
     if (tipConfig.creatorName) nextSearchParams.set('creatorName', tipConfig.creatorName)
     if (!nextSearchParams.get('feeAmount')) nextSearchParams.set('feeAmount', '0')
     if (!nextSearchParams.get('chargeFeeBy')) nextSearchParams.set('chargeFeeBy', ChargeFeeBy.CURRENCY_OUT)
