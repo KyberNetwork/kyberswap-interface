@@ -120,7 +120,7 @@ const CustomSlippageInput: React.FC<Props> = ({
           isActive
             ? cn(
                 'bg-tabActive hover:bg-buttonGray',
-                isWarning ? 'border-warning' : 'border-primary-50',
+                isWarning ? 'border-warning/50' : 'border-primary-50',
                 customTextClass,
               )
             : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',

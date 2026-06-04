@@ -75,7 +75,10 @@ const SlippageControl: React.FC<Props> = props => {
             }}
             className={cn(
               isActive
-                ? cn('bg-tabActive text-text hover:bg-buttonGray', isWarning ? 'border-warning' : 'border-primary-50')
+                ? cn(
+                    'bg-tabActive text-text hover:bg-buttonGray',
+                    isWarning ? 'border-warning/50' : 'border-primary-50',
+                  )
                 : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',
             )}
           >
