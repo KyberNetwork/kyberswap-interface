@@ -8,6 +8,7 @@ import RefreshLoading from 'components/RefreshLoading'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
+import { TIP_LINK_CLIENT_ID } from 'components/TipLinkGeneratorModal/shared'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
 import { BIPS_BASE, ClientNameMapping } from 'constants/index'
@@ -37,6 +38,7 @@ export const formatSwapFeePercent = (feeBips: string | undefined) => {
 
 export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
   const [searchParams] = useSearchParams()
+  const feeConfig = useGetFeeConfig()
   const clientId = searchParams.get('clientId')
 
   const feePercent = formatSwapFeePercent(feeBips)
@@ -50,6 +52,17 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
 
   if (!feeAmountText || !feePercent) {
     return <Trans>Read more about the fees {hereLink}</Trans>
+  }
+
+  if (clientId === TIP_LINK_CLIENT_ID) {
+    const tipRecipientName = feeConfig?.clientName || 'the link sharer'
+    return (
+      <Trans>
+        You&apos;re adding a {feePercent} tip ({feeAmountText}) to this swap for {tipRecipientName}. This is deducted
+        from your output - the Est. Output above already includes it. Tips are optional and go directly to the link
+        sharer&apos;s wallet.
+      </Trans>
+    )
   }
 
   if (clientId) {
