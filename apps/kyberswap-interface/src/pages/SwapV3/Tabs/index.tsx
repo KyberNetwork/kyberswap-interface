@@ -46,7 +46,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
 
   const { currency: currencyParam } = useParams()
 
-  const { pathname, isPartnerSwap } = usePageLocation()
+  const { pathname, isEmbeddedSwap } = usePageLocation()
 
   const [searchParams] = useSearchParams()
   let features = (searchParams.get('features') || '')
@@ -54,7 +54,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     .filter(item => [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN].includes(item))
   if (!features.length) features = [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN]
 
-  const show = (tab: TAB) => (isPartnerSwap ? features.includes(tab) : true)
+  const show = (tab: TAB) => (isEmbeddedSwap ? features.includes(tab) : true)
 
   const onClickTab = (tab: TAB) => {
     if (activeTab === tab) {
@@ -66,7 +66,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
         previous_tab: activeTab,
       })
     }
-    if (isPartnerSwap) {
+    if (isEmbeddedSwap) {
       setActiveTab(tab)
       return
     }
