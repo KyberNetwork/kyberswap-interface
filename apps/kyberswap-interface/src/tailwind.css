@@ -758,14 +758,19 @@
     }
   }
 
-  /* SlippageSetting dropdown — primary-tinted box-shadow pulse (40% alpha, 3px ring). */
+  /* SlippageSetting dropdown — subtle primary pulse around the chevron. */
   @keyframes ks-slippage-highlight {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgb(var(--ks-primary-rgb) / 0.4);
+    0% {
+      box-shadow: 0 0 0 0 rgb(var(--ks-primary-rgb) / 0.85);
+      opacity: 1;
     }
-    70% {
-      box-shadow: 0 0 0 3px rgb(var(--ks-primary-rgb) / 0.4);
+    55% {
+      box-shadow: 0 0 0 2px rgb(var(--ks-primary-rgb) / 0.32);
+      opacity: 0.9;
+    }
+    100% {
+      box-shadow: 0 0 0 2px rgb(var(--ks-primary-rgb) / 0);
+      opacity: 0.25;
     }
   }
 
