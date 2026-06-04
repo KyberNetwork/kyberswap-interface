@@ -13,6 +13,7 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
 import { BIPS_BASE, ClientNameMapping } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp } from 'utils'
@@ -101,21 +102,30 @@ export const SwapFeeLabel = () => {
 const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
-  const feeConfig = useGetFeeConfig()
 
   const {
     formattedAmount: feeAmount = '',
-    formattedAmountUsd: feeAmountUsd = '',
+    currencyAmount = undefined,
     currency = undefined,
   } = routeSummary?.fee || {}
+  const feeTokenAddress = currency?.wrapped.address
+  const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currency?.chainId)
+  const feeTokenPrice = feeTokenAddress ? tokenPrices[feeTokenAddress] : 0
+  const feeAmountUsdText =
+    currencyAmount && feeTokenPrice
+      ? formatDisplayNumber(Number(currencyAmount.toExact()) * feeTokenPrice, {
+          style: 'currency',
+          significantDigits: 4,
+        })
+      : ''
 
   if (!feeAmount) {
     return null
   }
 
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
-  const feeValue = feeAmountUsd || feeAmountWithSymbol || '--'
-  const tipFeePercent = feeConfig?.enableTip ? formatSwapFeePercent(routeSummary?.extraFee?.feeAmount) : ''
+  const feePercent = formatSwapFeePercent(routeSummary?.extraFee?.feeAmount)
+  const feeValue = feePercent || feeAmountWithSymbol || '--'
   const labelColor = isFeeTampered ? theme.warning : theme.subText
 
   if (isInSafeApp) {
@@ -162,8 +172,14 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
       </RowFixed>
 
       <RowFixed>
-        <p className={cn('m-0 text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>
-          {`${tipFeePercent ? `(${tipFeePercent}) ` : ''}${feeValue}`}
+        <p
+          className={cn(
+            'm-0 flex flex-nowrap items-center gap-1 text-[12px] font-medium',
+            isFeeTampered ? 'text-warning' : 'text-text',
+          )}
+        >
+          <span>{feeValue}</span>
+          {feePercent && feeAmountUsdText && <span className="text-subText">(~{feeAmountUsdText})</span>}
         </p>
       </RowFixed>
     </RowBetween>

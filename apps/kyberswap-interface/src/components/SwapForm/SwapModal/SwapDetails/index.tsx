@@ -75,10 +75,9 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
 
   const priceImpactResult = checkPriceImpact(priceImpact)
 
-  const { formattedAmountUsd: feeAmountUsdFromGet = '' } = routeSummary?.fee || {}
+  const feeCurrencyAmountFromGet = routeSummary?.fee?.currencyAmount
   const {
     feeAmount: feeAmountFromBuild = '',
-    feeAmountUsd: feeAmountUsdFromBuild = '',
     currencyAmount: feeCurrencyAmountFromBuild = undefined,
     currency: currencyFromBuild = undefined,
   } = calculateFeeFromBuildData(routeSummary, buildData)
@@ -87,7 +86,12 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const feeAmountWithSymbol =
     feeAmountFromBuild && currencyFromBuild?.symbol ? `${feeAmountFromBuild} ${currencyFromBuild.symbol}` : ''
   const feePercent = formatSwapFeePercent(feeAmount)
-  const isFeeUpdated = Boolean(buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild)
+  const isFeeUpdated = Boolean(
+    buildData &&
+      feeCurrencyAmountFromGet &&
+      feeCurrencyAmountFromBuild &&
+      feeCurrencyAmountFromGet.toExact() !== feeCurrencyAmountFromBuild.toExact(),
+  )
 
   const feeTokenAddress = currencyFromBuild?.wrapped.address
   const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currencyFromBuild?.chainId)
@@ -98,7 +102,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           style: 'currency',
           significantDigits: 4,
         })
-      : feeAmountUsdFromBuild
+      : ''
 
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
   const slippageStatus = checkRangeSlippage(rawSlippage, cat)
