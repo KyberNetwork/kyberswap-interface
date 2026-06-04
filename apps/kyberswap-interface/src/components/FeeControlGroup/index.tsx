@@ -6,10 +6,9 @@ import CustomFeeInput from 'components/FeeControlGroup/CustomFeeInput'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { ClientNameMapping, DEFAULT_TIPS } from 'constants/index'
 import { cn } from 'utils/cn'
-import getShortenAddress from 'utils/getShortenAddress'
 
 const FeeControlGroup = () => {
-  const { feeAmount, enableTip, clientId, clientName, feeReceiver } = useGetFeeConfig() ?? {}
+  const { feeAmount, enableTip, clientId, clientName } = useGetFeeConfig() ?? {}
   const [searchParams, setSearchParams] = useSearchParams()
   const feeValue = Number.parseFloat(feeAmount ?? '0')
   const [isCustomActive, setIsCustomActive] = useState(!DEFAULT_TIPS.includes(feeValue))
@@ -32,8 +31,7 @@ const FeeControlGroup = () => {
   }
 
   const configuredClientName = clientName && clientName !== clientId ? clientName : ''
-  const tipRecipientName =
-    configuredClientName || ClientNameMapping[clientId || ''] || getShortenAddress(feeReceiver || '')
+  const tipRecipientName = configuredClientName || ClientNameMapping[clientId || ''] || 'the link sharer'
 
   return (
     <div className="flex w-full flex-col gap-2 rounded-lg bg-white-04 p-3">

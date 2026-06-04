@@ -17,7 +17,6 @@ import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
-import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
@@ -71,10 +70,7 @@ export const SwapFeeLabel = () => {
   if (feeConfig?.enableTip) {
     const configuredClientName =
       feeConfig.clientName && feeConfig.clientName !== feeConfig.clientId ? feeConfig.clientName : ''
-    const tipRecipientName =
-      configuredClientName ||
-      ClientNameMapping[feeConfig.clientId || ''] ||
-      getShortenAddress(feeConfig.feeReceiver || '')
+    const tipRecipientName = configuredClientName || ClientNameMapping[feeConfig.clientId || ''] || 'the link sharer'
 
     return (
       <span className="inline-flex min-w-0 max-w-[180px] items-center align-bottom">
