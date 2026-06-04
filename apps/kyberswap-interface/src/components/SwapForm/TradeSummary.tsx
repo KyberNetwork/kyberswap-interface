@@ -103,11 +103,7 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
 
-  const {
-    formattedAmount: feeAmount = '',
-    currencyAmount = undefined,
-    currency = undefined,
-  } = routeSummary?.fee || {}
+  const { formattedAmount: feeAmount = '', currencyAmount, currency } = routeSummary?.fee || {}
   const feeTokenAddress = currency?.wrapped.address
   const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currency?.chainId)
   const feeTokenPrice = feeTokenAddress ? tokenPrices[feeTokenAddress] : 0

@@ -71,6 +71,18 @@ const getTipCurrencyParam = (currency: string | undefined, chainId: number) => {
   return wrappedNative?.address?.toLowerCase() === currency.toLowerCase() ? native.symbol || currency : currency
 }
 
+const getFeeAmountFallback = (feeAmount: string | null) => {
+  const trimmedFeeAmount = feeAmount?.trim()
+  const parsedFeeAmount = Number(trimmedFeeAmount)
+  const isFeeAmountNumber =
+    !!trimmedFeeAmount && /^\d+$/.test(trimmedFeeAmount) && Number.isSafeInteger(parsedFeeAmount)
+
+  if (!isFeeAmountNumber) return '0'
+  if (parsedFeeAmount > MAX_FEE_IN_BIPS) return String(MAX_FEE_IN_BIPS)
+
+  return null
+}
+
 type Props = {
   mode?: 'partner' | 'user'
 }
@@ -110,13 +122,10 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     )
     if (!hasFeeConfig) return false
 
-    const parsedFeeAmount = Number(feeAmount)
-    const isFeeAmountNumber = !!feeAmount?.trim() && /^\d+$/.test(feeAmount) && Number.isSafeInteger(parsedFeeAmount)
-    const isValidFeeAmount = isFeeAmountNumber && parsedFeeAmount >= 0 && parsedFeeAmount <= MAX_FEE_IN_BIPS
     const isValidFeeReceiver = Boolean(feeReceiver && isAddress(swapChainId, feeReceiver))
     const isValidChargeFeeBy = chargeFeeBy === ChargeFeeBy.CURRENCY_IN || chargeFeeBy === ChargeFeeBy.CURRENCY_OUT
 
-    return !isValidFeeAmount || !isValidFeeReceiver || !isValidChargeFeeBy
+    return !isValidFeeReceiver || !isValidChargeFeeBy
   }, [searchParams, swapChainId])
 
   useEffect(() => {
@@ -138,10 +147,25 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   }, [isUserSwap, searchParams, setSearchParams, swapChainId, tipConfig, tipInputCurrency, tipOutputCurrency, tipsId])
 
   useEffect(() => {
+    const feeAmount = searchParams.get('feeAmount')
+    const feeReceiver = searchParams.get('feeReceiver')
+    const chargeFeeBy = searchParams.get('chargeFeeBy')
+    const hasFeeConfig = Boolean(
+      searchParams.get('enableTip') || searchParams.get('isInBps') || feeAmount || feeReceiver || chargeFeeBy,
+    )
+    const fallbackFeeAmount = hasFeeConfig ? getFeeAmountFallback(feeAmount) : null
+
+    if (fallbackFeeAmount !== null) {
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set('feeAmount', fallbackFeeAmount)
+      setSearchParams(nextSearchParams, { replace: true })
+      return
+    }
+
     if (isInvalidFeeConfig || (!isUserSwap && !clientId)) {
       navigate('/', { replace: true })
     }
-  }, [clientId, isInvalidFeeConfig, isUserSwap, navigate])
+  }, [clientId, isInvalidFeeConfig, isUserSwap, navigate, searchParams, setSearchParams])
 
   // sync form chainId and wallet chainId when disconnected
   useEffect(() => {
