@@ -46,7 +46,8 @@ export enum TAB {
   CROSS_CHAIN_SOURCES = 'cross_chain_sources',
 }
 
-export const isSettingTab = (tab: TAB) => [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY_SOURCES].includes(tab)
+export const isSettingTab = (tab: TAB) =>
+  [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY_SOURCES, TAB.CROSS_CHAIN_SOURCES].includes(tab)
 
 export default function Swap() {
   const { chainId } = useActiveWeb3React()

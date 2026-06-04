@@ -101,13 +101,15 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
             customChainId={customChainId}
           />
         )}
-        <Tab
-          onClick={() => onClickTab(TAB.CROSS_CHAIN)}
-          $isActive={activeTab === TAB.CROSS_CHAIN}
-          data-testid="cross-chain-tab"
-        >
-          <Trans>Cross-Chain</Trans>
-        </Tab>
+        {show(TAB.CROSS_CHAIN) && (
+          <Tab
+            onClick={() => onClickTab(TAB.CROSS_CHAIN)}
+            $isActive={activeTab === TAB.CROSS_CHAIN}
+            data-testid="cross-chain-tab"
+          >
+            <Trans>Cross-Chain</Trans>
+          </Tab>
+        )}
       </div>
     </div>
   )

@@ -150,11 +150,14 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   )
   const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[swapChainId])
 
-  const activeTab = Object.values(TAB).includes(searchParams.get('tab')) ? (searchParams.get('tab') as TAB) : TAB.SWAP
+  const tabFromUrl = searchParams.get('tab')
+  const activeTab = Object.values(TAB).includes(tabFromUrl as TAB) ? (tabFromUrl as TAB) : TAB.SWAP
+
   const setActiveTab = useCallback(
     (tab: TAB) => {
-      searchParams.set('tab', tab)
-      setSearchParams(searchParams)
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set('tab', tab)
+      setSearchParams(nextSearchParams)
     },
     [searchParams, setSearchParams],
   )
@@ -169,12 +172,13 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
 
   const isSetting = isSettingTab(activeTab)
   const previousTab = usePreviousDistinct(!isSetting ? activeTab : undefined)
+  const activeMainTab = isSetting ? previousTab || TAB.SWAP : activeTab
 
-  const isSwapPage = activeTab === TAB.SWAP || (previousTab === TAB.SWAP && isSetting)
-  const isLimitPage = activeTab === TAB.LIMIT || (previousTab === TAB.LIMIT && isSetting)
-  const isCrossChainPage = activeTab === TAB.CROSS_CHAIN || (previousTab === TAB.CROSS_CHAIN && isSetting)
+  const isSwapPage = activeMainTab === TAB.SWAP
+  const isLimitPage = activeMainTab === TAB.LIMIT
+  const isCrossChainPage = activeMainTab === TAB.CROSS_CHAIN
 
-  const onBackToSwapTab = () => setActiveTab(previousTab || TAB.SWAP)
+  const onBackToSwapTab = () => setActiveTab(activeMainTab)
 
   const [balanceIn, balanceOut] = useCurrencyBalances(
     useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
@@ -237,7 +241,12 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
         <Banner />
         <Container>
           <SwapFormWrapper>
-            <Header activeTab={activeTab} setActiveTab={setActiveTab} customChainId={swapChainId} />
+            <Header
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              customChainId={swapChainId}
+              activeMainTab={activeMainTab}
+            />
 
             <AppBodyWrapped className={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? '!p-0' : undefined}>
               {isSwapPage && <SwapForm {...props} />}

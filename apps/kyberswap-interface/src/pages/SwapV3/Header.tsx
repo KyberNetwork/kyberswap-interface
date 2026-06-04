@@ -17,25 +17,28 @@ export default function Header({
   activeTab,
   setActiveTab,
   customChainId,
+  activeMainTab,
 }: {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   customChainId?: ChainId
+  activeMainTab?: TAB
 }) {
   const [isDegenMode] = useDegenModeManager()
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
 
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeTab === TAB.LIMIT
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeTab == TAB.SWAP
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeTab === TAB.CROSS_CHAIN
+  const selectedTab = activeMainTab || activeTab
+  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT
+  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || selectedTab == TAB.SWAP
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || selectedTab === TAB.CROSS_CHAIN
 
   return (
     <>
       <ColumnCenter className="gap-2">
         <RowBetween className="min-h-9">
-          <Tabs activeTab={activeTab} setActiveTab={setActiveTab} customChainId={customChainId} />
-          <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
+          <Tabs activeTab={selectedTab} setActiveTab={setActiveTab} customChainId={customChainId} />
+          <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
         </RowBetween>
         <RowBetween>
           {isLimitPage && (
