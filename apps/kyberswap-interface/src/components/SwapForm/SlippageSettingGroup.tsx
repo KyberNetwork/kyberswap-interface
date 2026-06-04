@@ -56,7 +56,7 @@ export default function SlippageSettingGroup({ isWrapOrUnwrap }: { isWrapOrUnwra
     KYBER_SWAP_RPC[chainId] && active && !isPartnerSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
         <Shield size={14} className="text-subText" />
-        <span className="whitespace-nowrap text-subText">
+        <span className="inline-flex items-center whitespace-nowrap leading-[normal] text-subText">
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
           <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />
         </span>

@@ -120,7 +120,7 @@ export const StyledTokenName = ({
     {...props}
     style={fontSize ? { fontSize, ...style } : style}
     className={cn(
-      'max-w-[120px] truncate',
+      'max-w-[120px] truncate !leading-none',
       !tight && 'ml-2',
       !fontSize && (active ? 'text-xl' : 'text-base'),
       '[@media(max-width:420px)]:max-w-[76px] [@media(max-width:445px)]:max-w-[102px]',
@@ -262,7 +262,7 @@ export default function CurrencyInputPanel({
         {locked && PoolLockContent}
         <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
-            <div className="mb-3 flex items-center justify-between text-xs">
+            <div className="mb-3 flex min-h-5 items-center justify-between text-xs">
               {label && positionLabel === 'in' ? (
                 label
               ) : (onMax || onHalf) && positionMax === 'top' && currency && account ? (
