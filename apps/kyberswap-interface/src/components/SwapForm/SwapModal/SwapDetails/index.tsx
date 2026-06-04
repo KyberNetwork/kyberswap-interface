@@ -17,25 +17,35 @@ import { PriceAlertButton } from 'components/SwapForm/SlippageSettingGroup'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import { SwapFeeLabel, TooltipTextOfSwapFee, formatSwapFeePercent } from 'components/SwapForm/TradeSummary'
-import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { formattedNum, isInSafeApp, shortenAddress } from 'utils'
+import { isInSafeApp, shortenAddress } from 'utils'
 import { cn } from 'utils/cn'
 import { calculateFeeFromBuildData } from 'utils/fee'
+import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 type Optional<T> = {
   [key in keyof T]: T[key] | undefined
 }
+
+const CurrencyAmountText = ({ amount }: { amount: CurrencyAmount<Currency> }) => (
+  <div className="flex whitespace-nowrap font-medium text-text">
+    <TruncatedText style={{ width: '-webkit-fill-available' }}>
+      {formatDisplayNumber(amount.toSignificant(10), { significantDigits: 10 })}
+    </TruncatedText>
+    <span>&nbsp;{amount.currency.symbol}</span>
+  </div>
+)
 
 export type Props = {
   isLoading: boolean
@@ -46,57 +56,52 @@ export type Props = {
 export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, priceImpact, buildData }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
   const { active } = useWeb3React()
+  const { slippage, routeSummary, recipient: recipientAddressOrName } = useSwapFormContext()
+  const { address: recipientAddress } = useENS(recipientAddressOrName)
+  const { rawSlippage } = useSlippageSettingByPage()
+  const { isPartnerSwap } = usePageLocation()
+  const { trackingHandler } = useTracking()
+  const cat = usePairCategory()
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+
   const [showMevModal, setShowMevModal] = useState(false)
-  const { slippage, routeSummary } = useSwapFormContext()
+  const [showDetailGas, setShowDetailGas] = useState(false)
 
   const currencyOut = routeSummary?.parsedAmountOut?.currency
-
-  const minimumAmountOutStr =
-    minimumAmountOut && currencyOut ? (
-      <div className="flex whitespace-nowrap font-medium text-text">
-        <TruncatedText style={{ width: '-webkit-fill-available' }}>
-          {formattedNum(minimumAmountOut.toSignificant(10), false, 10)}
-        </TruncatedText>
-        <span>&nbsp;{currencyOut.symbol}</span>
-      </div>
-    ) : (
-      ''
-    )
-
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildData?.amountOut || '0')
-  const maximumAmountOutStr = amountOut && (
-    <div className="flex whitespace-nowrap font-medium text-text">
-      <TruncatedText style={{ width: '-webkit-fill-available' }}>
-        {formattedNum(amountOut.toSignificant(10), false, 10)}
-      </TruncatedText>
-      <span>&nbsp;{currencyOut.symbol}</span>
-    </div>
-  )
+
+  const minimumAmountOutText = minimumAmountOut ? <CurrencyAmountText amount={minimumAmountOut} /> : ''
+  const maximumAmountOutText = amountOut ? <CurrencyAmountText amount={amountOut} /> : ''
 
   const priceImpactResult = checkPriceImpact(priceImpact)
-  const cat = usePairCategory()
 
   const { formattedAmountUsd: feeAmountUsdFromGet = '' } = routeSummary?.fee || {}
-
   const {
     feeAmount: feeAmountFromBuild = '',
     feeAmountUsd: feeAmountUsdFromBuild = '',
+    currencyAmount: feeCurrencyAmountFromBuild = undefined,
     currency: currencyFromBuild = undefined,
   } = calculateFeeFromBuildData(routeSummary, buildData)
 
+  const feeAmount = routeSummary?.extraFee?.feeAmount
   const feeAmountWithSymbol =
     feeAmountFromBuild && currencyFromBuild?.symbol ? `${feeAmountFromBuild} ${currencyFromBuild.symbol}` : ''
+  const feePercent = formatSwapFeePercent(feeAmount)
+  const isFeeUpdated = Boolean(buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild)
 
-  const feeConfig = useGetFeeConfig()
-  const feeAmount = routeSummary?.extraFee?.feeAmount
-  const feeValue = feeAmountUsdFromBuild || feeAmountWithSymbol || '--'
-  const tipFeePercent = feeConfig?.enableTip ? formatSwapFeePercent(feeAmount) : ''
+  const feeTokenAddress = currencyFromBuild?.wrapped.address
+  const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currencyFromBuild?.chainId)
+  const feeTokenPrice = feeTokenAddress ? tokenPrices[feeTokenAddress] : 0
+  const feeAmountUsdText =
+    feeCurrencyAmountFromBuild && feeTokenPrice
+      ? formatDisplayNumber(Number(feeCurrencyAmountFromBuild.toExact()) * feeTokenPrice, {
+          style: 'currency',
+          significantDigits: 4,
+        })
+      : feeAmountUsdFromBuild
 
-  const { recipient: recipientAddressOrName } = useSwapFormContext()
-  const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
-
-  const { trackingHandler } = useTracking()
+  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
 
   const addMevProtectionHandler = useCallback(() => {
     setShowMevModal(true)
@@ -107,12 +112,6 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
     setShowMevModal(false)
   }, [])
 
-  const [showDetailGas, setShowDetailGas] = useState(false)
-
-  const { rawSlippage } = useSlippageSettingByPage()
-  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
-  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
-  const { isPartnerSwap } = usePageLocation()
   const addMevButton =
     KYBER_SWAP_RPC[chainId] &&
     active &&
@@ -173,7 +172,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             }}
             isShowingSkeleton={isLoading}
             content={
-              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{minimumAmountOutStr || '--'}</p>
+              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{minimumAmountOutText || '--'}</p>
             }
           />
         </RowBetween>
@@ -192,7 +191,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             }}
             isShowingSkeleton={isLoading}
             content={
-              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{maximumAmountOutStr || '--'}</p>
+              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{maximumAmountOutText || '--'}</p>
             }
           />
         </RowBetween>
@@ -263,7 +262,12 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
               <div className="flex flex-col items-end gap-1">
                 <div className="flex gap-1" onClick={() => setShowDetailGas(prev => !prev)}>
                   <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
-                    {gasUsd ? formattedNum(+gasUsd + Number(buildData?.additionalCostUsd || 0), true) : '--'}
+                    {gasUsd
+                      ? formatDisplayNumber(+gasUsd + Number(buildData?.additionalCostUsd || 0), {
+                          style: 'currency',
+                          significantDigits: 5,
+                        })
+                      : '--'}
                   </p>
                   {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
                     <ChevronDown
@@ -284,7 +288,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                       </RowFixed>
                       <div className="flex gap-1">
                         <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
-                          {gasUsd && formattedNum(gasUsd, true)}
+                          {gasUsd && formatDisplayNumber(gasUsd, { style: 'currency', significantDigits: 5 })}
                         </p>
                       </div>
                     </div>
@@ -299,7 +303,10 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                       </RowFixed>
                       <div className="flex gap-1">
                         <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
-                          {formattedNum(buildData.additionalCostUsd, true)}
+                          {formatDisplayNumber(buildData.additionalCostUsd, {
+                            style: 'currency',
+                            significantDigits: 5,
+                          })}
                         </p>
                       </div>
                     </div>
@@ -374,21 +381,21 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
         )}
 
         {!isInSafeApp && !!feeAmount && feeAmount !== '0' && (
-          <RowBetween className="h-5 gap-4">
-            <RowFixed>
+          <RowBetween className="items-start gap-4">
+            <RowFixed className="items-center gap-1">
               <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                 <MouseoverTooltip
-                  text={
-                    <TooltipTextOfSwapFee
-                      feeAmountText={feeAmountWithSymbol}
-                      feeBips={routeSummary?.extraFee?.feeAmount}
-                    />
-                  }
+                  text={<TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={feeAmount} />}
                   placement="right"
                 >
                   <SwapFeeLabel />
                 </MouseoverTooltip>
               </TextDashed>
+              {isFeeUpdated && (
+                <div className="flex rounded-[36px] bg-warning/30 px-1 py-0.5 text-[10px] leading-3 text-warning">
+                  <Trans>Updated</Trans>
+                </div>
+              )}
             </RowFixed>
 
             <ValueWithLoadingSkeleton
@@ -398,16 +405,10 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
               }}
               isShowingSkeleton={isLoading}
               content={
-                <div className="flex flex-nowrap items-center gap-1">
-                  {buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild && (
-                    <div className="flex rounded-[36px] bg-warning/30 px-1 py-0.5 text-[10px] leading-3 text-warning">
-                      <Trans>Updated</Trans>
-                    </div>
-                  )}
-                  <p className="m-0 text-right text-[12px] font-medium leading-[normal] text-text">
-                    {`${tipFeePercent ? `(${tipFeePercent}) ` : ''}${feeValue}`}
-                  </p>
-                </div>
+                <p className="m-0 flex flex-nowrap items-center gap-1 text-right text-[12px] font-medium leading-[normal]">
+                  <span className="text-text">{feePercent || '--'}</span>
+                  {feeAmountUsdText && <span className="text-subText">(~{feeAmountUsdText})</span>}
+                </p>
               }
             />
           </RowBetween>
