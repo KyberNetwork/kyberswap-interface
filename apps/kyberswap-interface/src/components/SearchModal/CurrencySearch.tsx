@@ -237,7 +237,7 @@ export function CurrencySearch({
   // menu ui
   const isImportedTab = activeTab === Tab.Imported
   const [open, toggle] = useToggle(false)
-  const node = useRef<HTMLDivElement>()
+  const node = useRef<HTMLDivElement | null>(null)
   useOnClickOutside(node, open ? toggle : undefined)
 
   const fetchFavoriteTokenFromAddress = useCallback(async () => {

@@ -4,7 +4,7 @@ import { ChevronDown } from 'react-feather'
 import { cn } from 'utils/cn'
 
 type Props = {
-  header: string | JSX.Element
+  header: string | React.JSX.Element
   expandedOnMount?: boolean
   style?: CSSProperties
   activeStyle?: CSSProperties

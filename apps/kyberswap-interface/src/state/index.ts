@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { type Middleware, combineReducers, configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
 import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
@@ -73,101 +73,104 @@ if ('user' in preloadedState) {
   }
 }
 
+const rootReducer = combineReducers({
+  application,
+  authen,
+  profile,
+  user,
+  transactions,
+  crossChainSwap,
+  swap,
+  limit,
+  mint,
+  mintV2,
+  burn,
+  burnProAmm,
+  lists,
+  pair,
+  pools,
+  [aggregatorStatsApi.reducerPath]: aggregatorStatsApi.reducer,
+  [announcementApi.reducerPath]: announcementApi.reducer,
+  [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
+  [notificationApi.reducerPath]: notificationApi.reducer,
+  [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
+  [coingeckoApi.reducerPath]: coingeckoApi.reducer,
+  [contractQuery.reducerPath]: contractQuery.reducer,
+  [limitOrderApi.reducerPath]: limitOrderApi.reducer,
+  [externalApi.reducerPath]: externalApi.reducer,
+
+  [kyberDAO.reducerPath]: kyberDAO.reducer,
+  [identifyApi.reducerPath]: identifyApi.reducer,
+  [ksSettingApi.reducerPath]: ksSettingApi.reducer,
+  [crosschainApi.reducerPath]: crosschainApi.reducer,
+  [priceAlertApi.reducerPath]: priceAlertApi.reducer,
+  [socialApi.reducerPath]: socialApi.reducer,
+  tutorial,
+  customizeDexes,
+  tokenPrices,
+  topTokens,
+  [zapApi.reducerPath]: zapApi.reducer,
+  [routeApi.reducerPath]: routeApi.reducer,
+  [tokenApi.reducerPath]: tokenApi.reducer,
+  [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
+  [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
+  [rewardMerklApi.reducerPath]: rewardMerklApi.reducer,
+  [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
+  [referralApi.reducerPath]: referralApi.reducer,
+  [raffleCampaignApi.reducerPath]: raffleCampaignApi.reducer,
+  [safepalCampaignApi.reducerPath]: safepalCampaignApi.reducer,
+  [campaignApi.reducerPath]: campaignApi.reducer,
+  [commonServiceApi.reducerPath]: commonServiceApi.reducer,
+  [blackjackApi.reducerPath]: blackjackApi.reducer,
+  [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
+  [smartExitApi.reducerPath]: smartExitApi.reducer,
+  [tokenChartApi.reducerPath]: tokenChartApi.reducer,
+})
+
+export type AppState = ReturnType<typeof rootReducer>
+
+const apiMiddlewares: Middleware[] = [
+  geckoTerminalApi,
+  coingeckoApi,
+  externalApi,
+  contractQuery,
+  limitOrderApi,
+  aggregatorStatsApi,
+  announcementApi,
+  publicAnnouncementApi,
+  notificationApi,
+  kyberDAO,
+  identifyApi,
+  ksSettingApi,
+  crosschainApi,
+  priceAlertApi,
+  routeApi,
+  socialApi,
+  tokenApi,
+  zapApi,
+  zapEarnServiceApi,
+  rewardServiceApi,
+  rewardMerklApi,
+  kyberdataServiceApi,
+  referralApi,
+  raffleCampaignApi,
+  safepalCampaignApi,
+  campaignApi,
+  commonServiceApi,
+  blackjackApi,
+  marketOverviewApi,
+  smartExitApi,
+  tokenChartApi,
+].map(api => api.middleware as Middleware)
+
 const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
-  reducer: {
-    application,
-    authen,
-    profile,
-    user,
-    transactions,
-    crossChainSwap,
-    swap,
-    limit,
-    mint,
-    mintV2,
-    burn,
-    burnProAmm,
-    lists,
-    pair,
-    pools,
-    [aggregatorStatsApi.reducerPath]: aggregatorStatsApi.reducer,
-    [announcementApi.reducerPath]: announcementApi.reducer,
-    [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
-    [notificationApi.reducerPath]: notificationApi.reducer,
-    [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
-    [coingeckoApi.reducerPath]: coingeckoApi.reducer,
-    [contractQuery.reducerPath]: contractQuery.reducer,
-    [limitOrderApi.reducerPath]: limitOrderApi.reducer,
-    [externalApi.reducerPath]: externalApi.reducer,
-
-    [kyberDAO.reducerPath]: kyberDAO.reducer,
-    [identifyApi.reducerPath]: identifyApi.reducer,
-    [ksSettingApi.reducerPath]: ksSettingApi.reducer,
-    [crosschainApi.reducerPath]: crosschainApi.reducer,
-    [priceAlertApi.reducerPath]: priceAlertApi.reducer,
-    [socialApi.reducerPath]: socialApi.reducer,
-    tutorial,
-    customizeDexes,
-    tokenPrices,
-    topTokens,
-    [zapApi.reducerPath]: zapApi.reducer,
-    [routeApi.reducerPath]: routeApi.reducer,
-    [tokenApi.reducerPath]: tokenApi.reducer,
-    [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
-    [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
-    [rewardMerklApi.reducerPath]: rewardMerklApi.reducer,
-    [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
-    [referralApi.reducerPath]: referralApi.reducer,
-    [raffleCampaignApi.reducerPath]: raffleCampaignApi.reducer,
-    [safepalCampaignApi.reducerPath]: safepalCampaignApi.reducer,
-    [campaignApi.reducerPath]: campaignApi.reducer,
-    [commonServiceApi.reducerPath]: commonServiceApi.reducer,
-    [blackjackApi.reducerPath]: blackjackApi.reducer,
-    [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
-    [smartExitApi.reducerPath]: smartExitApi.reducer,
-    [tokenChartApi.reducerPath]: tokenChartApi.reducer,
-  },
+  reducer: rootReducer,
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
-      .concat(
-        save({
-          states: PERSISTED_KEYS,
-          debounce: 100,
-        }),
-      )
-      .concat(geckoTerminalApi.middleware)
-      .concat(coingeckoApi.middleware)
-      .concat(externalApi.middleware)
-      .concat(contractQuery.middleware)
-      .concat(limitOrderApi.middleware)
-      .concat(aggregatorStatsApi.middleware)
-      .concat(announcementApi.middleware)
-      .concat(publicAnnouncementApi.middleware)
-      .concat(notificationApi.middleware)
-      .concat(kyberDAO.middleware)
-      .concat(identifyApi.middleware)
-      .concat(ksSettingApi.middleware)
-      .concat(crosschainApi.middleware)
-      .concat(priceAlertApi.middleware)
-      .concat(routeApi.middleware)
-      .concat(socialApi.middleware)
-      .concat(tokenApi.middleware)
-      .concat(zapApi.middleware)
-      .concat(zapEarnServiceApi.middleware)
-      .concat(rewardServiceApi.middleware)
-      .concat(rewardMerklApi.middleware)
-      .concat(kyberdataServiceApi.middleware)
-      .concat(referralApi.middleware)
-      .concat(raffleCampaignApi.middleware)
-      .concat(safepalCampaignApi.middleware)
-      .concat(campaignApi.middleware)
-      .concat(commonServiceApi.middleware)
-      .concat(blackjackApi.middleware)
-      .concat(marketOverviewApi.middleware)
-      .concat(smartExitApi.middleware)
-      .concat(tokenChartApi.middleware),
-  preloadedState,
+      .concat(save({ states: PERSISTED_KEYS, debounce: 100 }) as Middleware)
+      .concat(apiMiddlewares),
+  preloadedState: preloadedState as Partial<AppState>,
 })
 
 const PREFIX_REDUX_PERSIST = 'redux_localstorage_simple_'
@@ -197,7 +200,6 @@ export const removeAllReduxPersist = () => {
 store.dispatch(updateVersion())
 
 export default store
-export type AppState = ReturnType<typeof store.getState>
 
 /**
  * @see https://redux-toolkit.js.org/usage/usage-with-typescript#getting-the-dispatch-type

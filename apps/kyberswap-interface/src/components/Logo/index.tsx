@@ -47,8 +47,15 @@ export function NetworkLogo({ chainId, style = {} }: { chainId: Chain; style?: C
   return <img src={chainInfo.icon} alt="Switch Network" style={style} />
 }
 
-export function TokenLogoWithChain(data: { tokenLogo: string; chainId: ChainId; size: number | string }): JSX.Element
-export function TokenLogoWithChain(data: { size: number | string; currency: Currency | WrappedTokenInfo }): JSX.Element
+export function TokenLogoWithChain(data: {
+  tokenLogo: string
+  chainId: ChainId
+  size: number | string
+}): React.JSX.Element
+export function TokenLogoWithChain(data: {
+  size: number | string
+  currency: Currency | WrappedTokenInfo
+}): React.JSX.Element
 export function TokenLogoWithChain(data: any) {
   const { tokenLogo: tokenLogoParam, chainId: chainParam, size, currency } = data
 

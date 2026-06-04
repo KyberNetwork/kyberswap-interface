@@ -181,7 +181,7 @@ const useSwap = ({
   const [slippage, setSlippage] = useState(defaultSlippage || 50)
   const [deadline, setDeadline] = useState(20)
 
-  const controllerRef = useRef<AbortController | null>()
+  const controllerRef = useRef<AbortController | null>(null)
 
   const { chargeFeeBy, feeAmount, isInBps, feeReceiver } = feeSetting || {}
 

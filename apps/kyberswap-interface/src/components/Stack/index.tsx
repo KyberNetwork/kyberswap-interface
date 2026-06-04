@@ -4,7 +4,7 @@ import { cn } from 'utils/cn'
 
 export type StackProps = HTMLAttributes<HTMLDivElement> & {
   /** Render as a different HTML element. */
-  as?: keyof JSX.IntrinsicElements
+  as?: keyof React.JSX.IntrinsicElements
 }
 
 const makeStack = (baseClassName: string, displayName: string) => {

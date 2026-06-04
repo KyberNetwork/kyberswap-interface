@@ -74,7 +74,7 @@ export default function NetworkModal({
   customOnSelectNetwork?: (chain: Chain) => void
   customToggleModal?: () => void
   disabledMsg?: string
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   const { isWrongNetwork } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
   const { trackingHandler } = useTracking()

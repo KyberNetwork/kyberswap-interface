@@ -71,7 +71,7 @@ const DraggableNetworkButton = ({
   disabledMsg?: string
   isEdittingMobile?: boolean
   isAddButton?: boolean
-  dragConstraints?: RefObject<Element>
+  dragConstraints?: RefObject<Element | null>
   customToggleModal?: () => void
   customOnSelectNetwork?: (chainId: Chain) => void
   onChangedNetwork?: () => void

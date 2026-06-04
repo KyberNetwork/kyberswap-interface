@@ -26,7 +26,7 @@ const ButtonWithHoverEffect = ({
 }: {
   children: (color: string) => any
   onClick: () => void
-  renderItem?: (props: PropsItem) => JSX.Element
+  renderItem?: (props: PropsItem) => React.JSX.Element
 }) => {
   const theme = useTheme()
   const [isHovering, setIsHovering] = useState<boolean>(false)
@@ -66,7 +66,7 @@ export const ShareGroupButtons = ({
   shareUrl: string
   onShared?: () => void
   showLabel?: boolean
-  renderItem?: (props: PropsItem) => JSX.Element
+  renderItem?: (props: PropsItem) => React.JSX.Element
   size?: number
 }) => {
   const { telegram, twitter, facebook, discord } = getSocialShareUrls(shareUrl)

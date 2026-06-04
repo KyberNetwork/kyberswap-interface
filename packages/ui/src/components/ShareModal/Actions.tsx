@@ -16,7 +16,7 @@ import Loading from '@/components/loading';
 interface ActionsProps {
   type: ShareType;
   pool?: Pool;
-  shareBannerRef: React.RefObject<HTMLDivElement>;
+  shareBannerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const SuccessIcon = () => <CircleCheckIcon className="w-4 h-4 text-primary" />;

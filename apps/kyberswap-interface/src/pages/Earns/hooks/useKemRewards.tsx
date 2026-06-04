@@ -192,7 +192,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       erc721Id: claimInfo.nftId,
     })
 
-    if ('error' in encodeData) {
+    if (encodeData.error) {
       notify({
         title: t`Error`,
         type: NotificationType.ERROR,
@@ -259,7 +259,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       tokenIds: filteredRewardInfo?.nfts.filter(nft => nft.chainId === chainId).map(nft => nft.nftId),
     })
 
-    if ('error' in encodeData) {
+    if (encodeData.error) {
       notify({
         title: t`Error`,
         type: NotificationType.ERROR,

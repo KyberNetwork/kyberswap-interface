@@ -199,7 +199,7 @@ const STAGGERED_EFFECTS = [
 
 const SPECIAL_CHARS = ['$', '%'] as const;
 
-export const renderStaggeredNumber = (numberString: string): JSX.Element => {
+export const renderStaggeredNumber = (numberString: string): React.JSX.Element => {
   const chars = numberString.split('');
 
   return (

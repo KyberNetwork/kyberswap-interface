@@ -18,7 +18,7 @@ import { useNativeBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-function SelectNetwork(): JSX.Element | null {
+function SelectNetwork(): React.JSX.Element | null {
   const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()

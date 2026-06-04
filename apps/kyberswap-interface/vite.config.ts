@@ -82,7 +82,6 @@ export default defineConfig({
       { find: /^stream$/, replacement: 'stream-browserify' },
       { find: /^zlib$/, replacement: 'browserify-zlib' },
       { find: /^util$/, replacement: 'util' },
-      { find: 'react-redux', replacement: 'react-redux/dist/react-redux.js' },
       { find: '@', replacement: path.resolve(__dirname, './src/') },
       { find: 'react-dom/client', replacement: 'react-dom/profiling' },
       // WalletConnect 2.21+ renamed the ESM bundle from index.es.js to index.js.

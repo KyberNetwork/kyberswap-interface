@@ -168,7 +168,7 @@ export const TokenPanel = ({
   const toggleWalletModal = useWalletModalToggle()
   const [showMenu, toggleShowMenu] = useToggle(false)
 
-  const node = useRef<HTMLDivElement>()
+  const node = useRef<HTMLDivElement | null>(null)
   useOnClickOutside(node, showMenu ? toggleShowMenu : undefined)
 
   const disconnectWallet = useDisconnectWallet()

@@ -41,7 +41,7 @@ export default function ShareModal({
 
   const shareBannerRef = useRef<HTMLDivElement>(null);
 
-  const banner = (bannerRef?: React.RefObject<HTMLDivElement>, forDownload = false) => {
+  const banner = (bannerRef?: React.RefObject<HTMLDivElement | null>, forDownload = false) => {
     const options = shareOptions[type].filter(option => selectedOptions.has(option));
     const option1 = options[0];
     const option2 = options[1];
