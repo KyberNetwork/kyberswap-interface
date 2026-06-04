@@ -132,12 +132,12 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     setCurPage(1)
   }, [])
 
-  const { isPartnerSwap } = usePageLocation()
+  const { isEmbeddedSwap } = usePageLocation()
   const navigate = useNavigate()
   const onSelectTab = (type: LimitOrderStatus) => {
     setOrderType(type)
     onReset()
-    if (!isPartnerSwap) {
+    if (!isEmbeddedSwap) {
       navigate({ search: new URLSearchParams(qs).toString() }, { replace: true })
     }
   }

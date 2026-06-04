@@ -40,7 +40,7 @@ export default function SlippageSettingGroup({ isWrapOrUnwrap }: { isWrapOrUnwra
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const { trackingHandler } = useTracking()
-  const { isPartnerSwap } = usePageLocation()
+  const { isEmbeddedSwap } = usePageLocation()
   const { isSlippageControlPinned } = useSlippageSettingByPage()
 
   const addMevProtectionHandler = useCallback(() => {
@@ -53,7 +53,7 @@ export default function SlippageSettingGroup({ isWrapOrUnwrap }: { isWrapOrUnwra
   }, [])
 
   const rightButton =
-    KYBER_SWAP_RPC[chainId] && active && !isPartnerSwap && !isMobile && !isTablet ? (
+    KYBER_SWAP_RPC[chainId] && active && !isEmbeddedSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
         <Shield size={14} className="text-subText" />
         <span className="inline-flex items-center whitespace-nowrap leading-[normal] text-subText">

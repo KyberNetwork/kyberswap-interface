@@ -184,7 +184,7 @@ const RoutesWithNetworkPrefix = () => {
 export default function App() {
   const { account, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const { isPartnerSwap, isUserSwap } = usePageLocation()
+  const { isEmbeddedSwap } = usePageLocation()
   useAutoLogin()
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
@@ -203,7 +203,7 @@ export default function App() {
 
   useGlobalTrackingEvents()
   useWebVitals()
-  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap && !isUserSwap
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
   // const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
@@ -218,7 +218,7 @@ export default function App() {
       <RouteSeo />
       <AppWrapper>
         <ModalsGlobal />
-        {!isPartnerSwap && <TopBanner />}
+        {!isEmbeddedSwap && <TopBanner />}
         <HeaderWrapper>
           <SupportButton />
           <Header />

@@ -15,7 +15,7 @@ import { cn } from 'utils/cn'
 export default function SupportButton() {
   const [isHover, setIsHover] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { isPartnerSwap } = usePageLocation()
+  const { isEmbeddedSwap } = usePageLocation()
 
   const subMenuAnimate = {
     enter: {
@@ -39,7 +39,7 @@ export default function SupportButton() {
     },
   }
 
-  if (isPartnerSwap) return null
+  if (isEmbeddedSwap) return null
 
   return (
     <motion.div

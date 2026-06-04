@@ -46,8 +46,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
 
   const { currency: currencyParam } = useParams()
 
-  const { pathname, isPartnerSwap, isUserSwap } = usePageLocation()
-  const isEmbeddedSwap = isPartnerSwap || isUserSwap
+  const { pathname, isEmbeddedSwap } = usePageLocation()
 
   const [searchParams] = useSearchParams()
   let features = (searchParams.get('features') || '')

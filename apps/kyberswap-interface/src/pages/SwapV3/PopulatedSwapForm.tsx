@@ -30,7 +30,7 @@ const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, hid
   const { onCurrencySelection } = useSwapActionHandlers()
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const { isPartnerSwap } = usePageLocation()
+  const { isEmbeddedSwap } = usePageLocation()
 
   const outId =
     searchParams.get('outputCurrency') || (currencyOut?.isNative ? currencyOut.symbol : currencyOut?.wrapped.address)
@@ -39,26 +39,26 @@ const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, hid
 
   const onChangeCurrencyIn = useCallback(
     (c: Currency) => {
-      if (isPartnerSwap) {
+      if (isEmbeddedSwap) {
         const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
         if (value === outId) searchParams.set('outputCurrency', inId || '')
         searchParams.set('inputCurrency', value)
         setSearchParams(searchParams)
       } else onCurrencySelection(Field.INPUT, c)
     },
-    [searchParams, setSearchParams, isPartnerSwap, onCurrencySelection, inId, outId],
+    [searchParams, setSearchParams, isEmbeddedSwap, onCurrencySelection, inId, outId],
   )
 
   const onChangeCurrencyOut = useCallback(
     (c: Currency) => {
-      if (isPartnerSwap) {
+      if (isEmbeddedSwap) {
         const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
         if (value === inId) searchParams.set('inputCurrency', outId || '')
         searchParams.set('outputCurrency', value)
         setSearchParams(searchParams)
       } else onCurrencySelection(Field.OUTPUT, c)
     },
-    [searchParams, setSearchParams, isPartnerSwap, onCurrencySelection, inId, outId],
+    [searchParams, setSearchParams, isEmbeddedSwap, onCurrencySelection, inId, outId],
   )
 
   const props: SwapFormProps = {

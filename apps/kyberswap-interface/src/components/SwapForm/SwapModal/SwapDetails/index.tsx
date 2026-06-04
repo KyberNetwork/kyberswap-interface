@@ -59,7 +59,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const { slippage, routeSummary, recipient: recipientAddressOrName } = useSwapFormContext()
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const { rawSlippage } = useSlippageSettingByPage()
-  const { isPartnerSwap } = usePageLocation()
+  const { isEmbeddedSwap } = usePageLocation()
   const { trackingHandler } = useTracking()
   const cat = usePairCategory()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
@@ -119,7 +119,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const addMevButton =
     KYBER_SWAP_RPC[chainId] &&
     active &&
-    !isPartnerSwap &&
+    !isEmbeddedSwap &&
     slippageStatus === SLIPPAGE_STATUS.HIGH &&
     !isMobile &&
     !isTablet ? (

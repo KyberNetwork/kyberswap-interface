@@ -18,9 +18,7 @@ const usePageLocation = () => {
 
   return {
     pathname: location.pathname,
-    isPartnerSwap,
-    isUserSwap,
-    isEmbeddedSwap: isPartnerSwap,
+    isEmbeddedSwap: isPartnerSwap || isUserSwap,
     isSwapPage,
     isCrossChain: location.pathname.startsWith(APP_PATHS.CROSS_CHAIN),
   }
