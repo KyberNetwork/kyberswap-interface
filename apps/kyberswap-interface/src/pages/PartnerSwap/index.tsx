@@ -116,9 +116,9 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   const isInvalidFeeConfig = useMemo(() => {
     const feeAmount = searchParams.get('feeAmount')
     const feeReceiver = searchParams.get('feeReceiver')
-    const chargeFeeBy = searchParams.get('chargeFeeBy')
+    const chargeFeeBy = searchParams.get('chargeFeeBy') || ChargeFeeBy.CURRENCY_OUT
     const hasFeeConfig = Boolean(
-      searchParams.get('enableTip') || searchParams.get('isInBps') || feeAmount || feeReceiver || chargeFeeBy,
+      searchParams.get('enableTip') || searchParams.get('isInBps') || feeAmount || feeReceiver,
     )
     if (!hasFeeConfig) return false
 
@@ -149,9 +149,8 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   useEffect(() => {
     const feeAmount = searchParams.get('feeAmount')
     const feeReceiver = searchParams.get('feeReceiver')
-    const chargeFeeBy = searchParams.get('chargeFeeBy')
     const hasFeeConfig = Boolean(
-      searchParams.get('enableTip') || searchParams.get('isInBps') || feeAmount || feeReceiver || chargeFeeBy,
+      searchParams.get('enableTip') || searchParams.get('isInBps') || feeAmount || feeReceiver,
     )
     const fallbackFeeAmount = hasFeeConfig ? getFeeAmountFallback(feeAmount) : null
 
