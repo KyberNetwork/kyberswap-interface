@@ -59,9 +59,12 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
     const tipRecipientName = feeConfig?.clientName || 'the link sharer'
     return (
       <Trans>
-        You&apos;re adding a {feePercent} tip ({feeAmountText}) to this swap for {tipRecipientName}. This is deducted
-        from your output - the Est. Output above already includes it. Tips are optional and go directly to the link
-        sharer&apos;s wallet.
+        You&apos;re adding a {feePercent} tip ({feeAmountText}) to this swap for{' '}
+        <span title={tipRecipientName} className="inline-block max-w-[120px] truncate align-bottom">
+          {tipRecipientName}
+        </span>
+        . This is deducted from your output - the Est. Output above already includes it. Tips are optional and go
+        directly to the link sharer&apos;s wallet.
       </Trans>
     )
   }
