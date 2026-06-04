@@ -271,7 +271,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     onChangeCurrencyIn,
     onChangeCurrencyOut,
     customChainId: swapChainId,
-    omniView: !isUserSwap,
+    omniView: true,
   }
 
   // modal and loading
