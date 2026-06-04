@@ -47,7 +47,7 @@ const FeeControlGroup = () => {
         <span className="min-w-0 truncate text-text">{tipRecipientName}</span>
       </p>
 
-      <div className="flex items-stretch rounded-[20px] border border-border bg-tabBackground">
+      <div className="flex items-stretch rounded-[20px] border border-border bg-background">
         {DEFAULT_TIPS.map(tip => {
           const isActive = tip === feeValue && !isCustomActive
           return (
