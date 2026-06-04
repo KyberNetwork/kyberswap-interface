@@ -22,7 +22,7 @@ const WarningNote: React.FC<Props> = ({ className, level = 'warning', shortText,
   return (
     <div
       className={cn(
-        'flex w-full flex-col gap-2 rounded-[20px] px-4 py-3 text-xs font-normal leading-4',
+        'flex w-full flex-col gap-2 rounded-[16px] px-4 py-3 text-xs font-normal leading-4',
         level === 'serious' ? 'bg-red-30' : 'bg-warning-30',
         className,
       )}

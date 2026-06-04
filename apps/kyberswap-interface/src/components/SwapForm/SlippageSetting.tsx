@@ -152,41 +152,44 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
       </div>
       <div
         className={cn(
-          'flex flex-col gap-3 transition-all duration-100 ease-linear',
-          expanded ? 'h-max pt-2' : 'h-0 pt-0',
-          isHighlight ? 'overflow-visible' : 'overflow-hidden',
+          'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
+          expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
         )}
       >
-        <Stack className="gap-1">
-          <SlippageControl
-            isHighlight={isHighlight}
-            rawSlippage={rawSlippage}
-            setRawSlippage={setRawSlippage}
-            isWarning={isWarningSlippage}
-            options={options}
-          />
-          {isDegenMode && expanded && (
-            <span className="px-1.5 py-1 text-xs font-medium text-subText">
-              <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
-            </span>
-          )}
-          {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
-            <div
-              role="button"
-              onClick={() => setRawSlippage(defaultSlp)}
-              className="flex w-fit cursor-pointer items-center gap-1 px-1 text-xs text-primary"
-            >
-              <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
-                <span className="border-b border-dotted border-primary">
-                  <Trans>Suggestion</Trans>
+        <div className={cn('min-h-0', isHighlight ? 'overflow-visible' : 'overflow-hidden')}>
+          <Stack className="gap-3 pt-2">
+            <Stack className="gap-1">
+              <SlippageControl
+                isHighlight={isHighlight}
+                rawSlippage={rawSlippage}
+                setRawSlippage={setRawSlippage}
+                isWarning={isWarningSlippage}
+                options={options}
+              />
+              {isDegenMode && expanded && (
+                <span className="px-1.5 py-1 text-xs font-medium text-subText">
+                  <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
                 </span>
-              </MouseoverTooltip>
-              {(defaultSlp * 100) / 10_000}%
-            </div>
-          )}
-        </Stack>
+              )}
+              {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
+                <div
+                  role="button"
+                  onClick={() => setRawSlippage(defaultSlp)}
+                  className="flex w-fit cursor-pointer items-center gap-1 px-1 text-xs text-primary"
+                >
+                  <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
+                    <span className="border-b border-dotted border-primary">
+                      <Trans>Suggestion</Trans>
+                    </span>
+                  </MouseoverTooltip>
+                  {(defaultSlp * 100) / 10_000}%
+                </div>
+              )}
+            </Stack>
 
-        {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
+            {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
+          </Stack>
+        </div>
       </div>
     </div>
   )
