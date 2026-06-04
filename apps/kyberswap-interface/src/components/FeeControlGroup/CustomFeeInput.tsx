@@ -8,45 +8,43 @@ import { formatSlippage } from 'utils/slippage'
 
 const parseTipInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
 
-const getFeeText = (fee: number) => {
-  const isCustom = !DEFAULT_TIPS.includes(fee)
+const getFeeText = (fee: number, forceVisible = false) => {
+  const isCustom = forceVisible || !DEFAULT_TIPS.includes(fee)
   if (!isCustom) {
     return ''
   }
   return formatSlippage(fee, false)
 }
 
-const customOptionClasses =
-  'inline-flex h-full flex-1 basis-[24%] items-center gap-0.5 rounded-[20px] border border-transparent bg-tabBackground px-1 py-0 text-center text-xs font-normal leading-4 text-subText outline-none transition-all duration-150 ease-linear hover:border-bg4 focus:border-bg4 data-[active=true]:border-primary data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text'
-
 export type Props = {
-  fee: number
-  onFeeChange: (value: number) => void
+  value: number
+  isActive: boolean
+  onActiveChange: (value: boolean) => void
+  onChange: (value: number) => void
 }
 
-const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
-  const [text, setText] = useState(getFeeText(fee))
+const CustomFeeInput = ({ value, isActive, onActiveChange, onChange }: Props) => {
+  const [text, setText] = useState(getFeeText(value))
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const isCustomOptionActive = !DEFAULT_TIPS.includes(fee)
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTooltip('')
-    const value = e.target.value
+    const inputValue = e.target.value
 
-    if (value === '') {
-      setText(value)
-      onFeeChange(50)
+    if (inputValue === '') {
+      setText(inputValue)
+      onActiveChange(false)
       return
     }
 
     const numberRegex = /^(\d+)\.?(\d{1,2})?$/
-    if (!value.match(numberRegex)) {
+    if (!inputValue.match(numberRegex)) {
       e.preventDefault()
       return
     }
 
-    const parsedValue = parseTipInput(value)
+    const parsedValue = parseTipInput(inputValue)
     if (Number.isNaN(parsedValue)) {
       e.preventDefault()
       return
@@ -60,33 +58,48 @@ const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
       return
     }
 
-    setText(value)
-    onFeeChange(parsedValue)
+    setText(inputValue)
+    onActiveChange(true)
+    onChange(parsedValue)
   }
 
   const handleCommitChange = () => {
     setTooltip('')
-    setText(getFeeText(fee))
+    const hasCustomText = text !== ''
+    onActiveChange(hasCustomText || !DEFAULT_TIPS.includes(value))
+    setText(getFeeText(value, hasCustomText))
   }
 
   useEffect(() => {
     if (inputRef.current !== document.activeElement) {
-      setText(getFeeText(fee))
+      setText(getFeeText(value))
     }
-  }, [fee])
+  }, [value])
+
+  const customTextClass = text ? 'text-text' : 'text-subText'
 
   return (
     <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
-      <div data-active={isCustomOptionActive} className={cn(customOptionClasses)}>
+      <div
+        className={cn(
+          'flex h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-full border px-2 text-sm',
+          isActive
+            ? cn('border-primary-50 bg-tabActive hover:bg-buttonGray', customTextClass)
+            : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',
+        )}
+      >
         <input
           ref={inputRef}
           placeholder={t`Custom`}
           value={text}
           onChange={handleChangeInput}
           onBlur={handleCommitChange}
-          className="size-full rounded-[inherit] border-0 bg-transparent text-inherit outline-none placeholder:text-xs max-[375px]:text-[10px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          onFocus={() => {
+            onActiveChange(true)
+          }}
+          className="w-14 min-w-0 border-0 bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
-        <span className="basis-3">%</span>
+        <span className={cn('text-sm', isActive && 'text-text')}>%</span>
       </div>
     </Tooltip>
   )
