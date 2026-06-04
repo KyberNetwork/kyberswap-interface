@@ -54,23 +54,28 @@ import user, { UserState } from 'state/user/reducer'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainSwap.transactions']
 
-// Migrate from old version to new version, prevent lost favorite tokens of user
-const preloadedState: any = load({ states: PERSISTED_KEYS })
-if ('user' in preloadedState) {
-  const userState: UserState = preloadedState.user
-  if (userState.favoriteTokensByChainId) {
-    userState.favoriteTokensByChainIdv2 = Object.entries(userState.favoriteTokensByChainId).reduce(
-      (acc, [chainId, obj]) => {
-        acc[chainId] = {}
-        obj.addresses.forEach((address: string) => {
-          acc[chainId][address.toLowerCase()] = true
-        })
-        return acc
-      },
-      {} as any,
-    )
-    userState.favoriteTokensByChainId = undefined
+// Client-only: read persisted state from localStorage and migrate from old version to
+// new version, preventing lost favorite tokens of user. Returns {} under SSR/prerender.
+function getClientPreloadedState(): Partial<AppState> {
+  if (typeof window === 'undefined') return {}
+  const preloadedState: any = load({ states: PERSISTED_KEYS })
+  if ('user' in preloadedState) {
+    const userState: UserState = preloadedState.user
+    if (userState.favoriteTokensByChainId) {
+      userState.favoriteTokensByChainIdv2 = Object.entries(userState.favoriteTokensByChainId).reduce(
+        (acc, [chainId, obj]) => {
+          acc[chainId] = {}
+          obj.addresses.forEach((address: string) => {
+            acc[chainId][address.toLowerCase()] = true
+          })
+          return acc
+        },
+        {} as any,
+      )
+      userState.favoriteTokensByChainId = undefined
+    }
   }
+  return preloadedState
 }
 
 const rootReducer = combineReducers({
@@ -163,30 +168,37 @@ const apiMiddlewares: Middleware[] = [
   tokenChartApi,
 ].map(api => api.middleware as Middleware)
 
-const store = configureStore({
-  devTools: process.env.NODE_ENV !== 'production',
-  reducer: rootReducer,
-  middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
-      .concat(save({ states: PERSISTED_KEYS, debounce: 100 }) as Middleware)
-      .concat(apiMiddlewares),
-  preloadedState: preloadedState as Partial<AppState>,
-})
+export const makeStore = (preloadedState?: Partial<AppState>) =>
+  configureStore({
+    devTools: process.env.NODE_ENV !== 'production',
+    reducer: rootReducer,
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
+        .concat(save({ states: PERSISTED_KEYS, debounce: 100 }) as Middleware)
+        .concat(apiMiddlewares),
+    preloadedState,
+  })
+
+export type AppStore = ReturnType<typeof makeStore>
 
 const PREFIX_REDUX_PERSIST = 'redux_localstorage_simple_'
-// remove unused redux keys in local storage
-try {
-  Object.keys(localStorage).forEach(key => {
-    if (!key.startsWith(PREFIX_REDUX_PERSIST)) return
-    const name = key.replace(PREFIX_REDUX_PERSIST, '')
-    if (!PERSISTED_KEYS.includes(name)) {
-      localStorage.removeItem(key)
-    }
-  })
-} catch (error) {}
+// remove unused redux keys in local storage (client-only)
+function cleanupReduxPersist() {
+  if (typeof window === 'undefined') return
+  try {
+    Object.keys(localStorage).forEach(key => {
+      if (!key.startsWith(PREFIX_REDUX_PERSIST)) return
+      const name = key.replace(PREFIX_REDUX_PERSIST, '')
+      if (!PERSISTED_KEYS.includes(name)) {
+        localStorage.removeItem(key)
+      }
+    })
+  } catch (error) {}
+}
 
 // remove all redux keys in local storage
 export const removeAllReduxPersist = () => {
+  if (typeof window === 'undefined') return
   try {
     Object.keys(localStorage).forEach(key => {
       const name = key.replace(PREFIX_REDUX_PERSIST, '')
@@ -197,11 +209,23 @@ export const removeAllReduxPersist = () => {
   } catch (error) {}
 }
 
-store.dispatch(updateVersion())
+let clientStore: AppStore | undefined
+// Lazily create (once) the client-side store: hydrate from localStorage, prune stale
+// persisted keys, and run the version migration. Only invoked on the client.
+export const getClientStore = (): AppStore => {
+  if (!clientStore) {
+    clientStore = makeStore(getClientPreloadedState())
+    cleanupReduxPersist()
+    clientStore.dispatch(updateVersion())
+  }
+  return clientStore
+}
 
+// Default export: lazy client singleton in the browser; a fresh empty store under Node (prerender).
+const store: AppStore = typeof window !== 'undefined' ? getClientStore() : makeStore()
 export default store
 
 /**
  * @see https://redux-toolkit.js.org/usage/usage-with-typescript#getting-the-dispatch-type
  */
-export type AppDispatch = typeof store.dispatch
+export type AppDispatch = AppStore['dispatch']

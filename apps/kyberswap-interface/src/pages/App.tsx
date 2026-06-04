@@ -4,7 +4,6 @@ import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 
-import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
@@ -190,9 +189,6 @@ export default function App() {
   const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
   //const [holidayMode] = useHolidayMode()
-
-  const snowflake = new Image()
-  snowflake.src = snow
 
   const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
   const dispatch = useAppDispatch()

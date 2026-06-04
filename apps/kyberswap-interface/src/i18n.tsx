@@ -4,10 +4,10 @@ import * as uiEnUSCatalog from '@kyber/ui/locales/en-US.mjs'
 import * as uiZhCNCatalog from '@kyber/ui/locales/zh-CN.mjs'
 import { i18n } from '@lingui/core'
 import { I18nProvider } from '@lingui/react'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect } from 'react'
 
 import { SupportedLocale } from 'constants/locales'
-import { useActiveLocale, useSetLocaleFromUrl } from 'hooks/useActiveLocale'
+import { getInitialLocale, useActiveLocale, useSetLocaleFromUrl } from 'hooks/useActiveLocale'
 
 type CatalogModule = { messages?: Record<string, string>; default?: { messages?: Record<string, string> } }
 
@@ -18,35 +18,35 @@ const catalogs: Record<SupportedLocale, { ui: CatalogModule; app: CatalogModule 
 
 const extractMessages = (catalog?: CatalogModule) => catalog?.messages ?? catalog?.default?.messages ?? {}
 
-async function dynamicActivate(locale: SupportedLocale) {
-  const { ui, app } = catalogs[locale]
+function activate(locale: SupportedLocale) {
+  const target = catalogs[locale] ? locale : 'en-US'
+  const { ui, app } = catalogs[target]
   const messages = { ...extractMessages(ui), ...extractMessages(app) }
 
   if (!Object.keys(messages).length) {
-    throw new Error(`Missing translation catalog for locale "${locale}"`)
+    throw new Error(`Missing translation catalog for locale "${target}"`)
   }
 
-  i18n.load(locale, messages)
-  i18n.activate(locale)
+  i18n.load(target, messages)
+  i18n.activate(target)
 }
+
+// Activate the cookie/default locale synchronously at module load so the FIRST render
+// (server prerender or client) is already translated — no null-render gate needed.
+// Catalogs are statically imported, so this needs no async/await.
+export function activateInitialLocale() {
+  activate(getInitialLocale())
+}
+
+activateInitialLocale()
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   useSetLocaleFromUrl()
   const locale = useActiveLocale()
-  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    const targetLocale = catalogs[locale] ? locale : 'en-US'
-    dynamicActivate(targetLocale)
-      .then(() => {
-        setLoaded(true)
-      })
-      .catch(error => {
-        console.error('Failed to activate locale', targetLocale, error)
-      })
+    activate(locale)
   }, [locale])
-
-  if (!loaded) return null
 
   return <I18nProvider i18n={i18n}>{children}</I18nProvider>
 }

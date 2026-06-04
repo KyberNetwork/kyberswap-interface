@@ -36,7 +36,9 @@ export const initializeOauthKyberSwap = () => {
   })
 }
 
-initializeOauthKyberSwap()
+if (typeof window !== 'undefined') {
+  initializeOauthKyberSwap()
+}
 
 const useLogin = (autoLogin = false) => {
   const { account } = useActiveWeb3React()

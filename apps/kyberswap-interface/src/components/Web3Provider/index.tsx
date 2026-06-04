@@ -347,8 +347,8 @@ const WC_PARAMS = {
   projectId: WALLETCONNECT_PROJECT_ID,
   metadata: {
     name: 'KyberSwap',
-    description: document.title,
-    url: window.location.origin,
+    description: typeof document !== 'undefined' ? document.title : 'KyberSwap',
+    url: typeof window !== 'undefined' ? window.location.origin : 'https://kyberswap.com',
     icons: ['https://kyberswap.com/favicon.svg'],
   },
   qrModalOptions: {
@@ -457,7 +457,7 @@ export const wagmiConfig = createConfig({
     metaMask({
       dapp: {
         name: 'KyberSwap',
-        url: window.location.origin,
+        url: typeof window !== 'undefined' ? window.location.origin : 'https://kyberswap.com',
         iconUrl: 'https://kyberswap.com/favicon.svg',
       },
       // SDK default is `metamask://connect/mwp?id=<session>` via `window.location.href`,
@@ -482,7 +482,8 @@ export const wagmiConfig = createConfig({
       appLogoUrl: 'https://kyberswap.com/favicon.png',
     }),
     safepalConnector(),
-    porto(),
+    // porto sets up an iframe Dialog at connector setup, which cannot run during SSR/prerender.
+    ...(import.meta.env.SSR ? [] : [porto()]),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
