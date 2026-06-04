@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
+import { Stack } from 'components/Stack'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
@@ -23,7 +24,7 @@ export const DropdownIcon = ({
     {...rest}
     style={{ width: size || 12, height: size || 12, ...rest.style }}
     className={cn(
-      'ml-1.5 flex items-center justify-center rounded-full p-0.5 text-white2 transition-all duration-200 ease-in-out',
+      'ml-1 flex items-center justify-center rounded-full p-0.5 text-white2 transition-all duration-200 ease-in-out',
       'data-[flip=true]:rotate-180',
       'data-[highlight=true]:animate-[ks-slippage-highlight_2s_infinite_alternate_ease-in-out] data-[highlight=true]:bg-primary/60',
       'data-[warning=true]:text-warning/90',
@@ -127,12 +128,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
             </MouseoverTooltip>
           </TextDashed>
           <div role="button" onClick={() => setExpanded(e => !e)} className="flex cursor-pointer items-center gap-1">
-            <span
-              className={cn(
-                'text-sm font-medium leading-none',
-                isWarningSlippage ? 'border-b border-dashed border-warning text-warning' : 'text-text',
-              )}
-            >
+            <span className={cn('text-sm font-medium leading-none', isWarningSlippage ? 'text-warning' : 'text-text')}>
               {msg ? (
                 <MouseoverTooltip text={slippageInfo ? msg : t`Your slippage ${msg}`}>
                   {formatSlippage(rawSlippage)}
@@ -156,37 +152,39 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
       </div>
       <div
         className={cn(
-          'flex flex-col gap-4 transition-all duration-100 ease-linear',
+          'flex flex-col gap-3 transition-all duration-100 ease-linear',
           expanded ? 'h-max pt-2' : 'h-0 pt-0',
           isHighlight ? 'overflow-visible' : 'overflow-hidden',
         )}
       >
-        <SlippageControl
-          isHighlight={isHighlight}
-          rawSlippage={rawSlippage}
-          setRawSlippage={setRawSlippage}
-          isWarning={isWarningSlippage}
-          options={options}
-        />
-        {isDegenMode && expanded && (
-          <span className="-mt-3 px-1.5 py-1 text-xs font-medium text-subText">
-            <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
-          </span>
-        )}
-        {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
-          <div
-            role="button"
-            onClick={() => setRawSlippage(defaultSlp)}
-            className="-mt-3 flex cursor-pointer items-center gap-1 px-1 text-xs text-primary"
-          >
-            <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
-              <span className="border-b border-dotted border-primary">
-                <Trans>Suggestion</Trans>
-              </span>
-            </MouseoverTooltip>
-            {(defaultSlp * 100) / 10_000}%
-          </div>
-        )}
+        <Stack className="gap-1">
+          <SlippageControl
+            isHighlight={isHighlight}
+            rawSlippage={rawSlippage}
+            setRawSlippage={setRawSlippage}
+            isWarning={isWarningSlippage}
+            options={options}
+          />
+          {isDegenMode && expanded && (
+            <span className="px-1.5 py-1 text-xs font-medium text-subText">
+              <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
+            </span>
+          )}
+          {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
+            <div
+              role="button"
+              onClick={() => setRawSlippage(defaultSlp)}
+              className="flex w-fit cursor-pointer items-center gap-1 px-1 text-xs text-primary"
+            >
+              <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
+                <span className="border-b border-dotted border-primary">
+                  <Trans>Suggestion</Trans>
+                </span>
+              </MouseoverTooltip>
+              {(defaultSlp * 100) / 10_000}%
+            </div>
+          )}
+        </Stack>
 
         {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
       </div>
