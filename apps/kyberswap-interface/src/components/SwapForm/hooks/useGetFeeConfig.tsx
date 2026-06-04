@@ -18,7 +18,7 @@ const useGetFeeConfig = () => {
   }
 
   const clientId = searchParams.get('clientId') || ''
-  const chargeFeeByFromParam = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.NONE
+  const chargeFeeByFromParam = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.CURRENCY_OUT
   const preferredFeeTokensParam = searchParams.get('preferredFeeTokens') || ''
   const preferredFeeTokens = preferredFeeTokensParam
     .split(',')
