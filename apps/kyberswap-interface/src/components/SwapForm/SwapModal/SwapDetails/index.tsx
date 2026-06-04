@@ -16,7 +16,8 @@ import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddME
 import { PriceAlertButton } from 'components/SwapForm/SlippageSettingGroup'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
-import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
+import { SwapFeeLabel, TooltipTextOfSwapFee, formatSwapFeePercent } from 'components/SwapForm/TradeSummary'
+import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
@@ -86,7 +87,10 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const feeAmountWithSymbol =
     feeAmountFromBuild && currencyFromBuild?.symbol ? `${feeAmountFromBuild} ${currencyFromBuild.symbol}` : ''
 
+  const feeConfig = useGetFeeConfig()
   const feeAmount = routeSummary?.extraFee?.feeAmount
+  const feeValue = feeAmountUsdFromBuild || feeAmountWithSymbol || '--'
+  const tipFeePercent = feeConfig?.enableTip ? formatSwapFeePercent(feeAmount) : ''
 
   const { recipient: recipientAddressOrName } = useSwapFormContext()
   const { address: recipientAddress } = useENS(recipientAddressOrName)
@@ -170,6 +174,25 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             isShowingSkeleton={isLoading}
             content={
               <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{minimumAmountOutStr || '--'}</p>
+            }
+          />
+        </RowBetween>
+
+        <RowBetween className="h-5 items-center gap-4">
+          <RowFixed className="min-w-max">
+            <span className="min-w-max text-[12px] font-normal leading-[normal] text-subText">
+              <Trans>Maximum Receiving</Trans>
+            </span>
+          </RowFixed>
+
+          <ValueWithLoadingSkeleton
+            skeletonStyle={{
+              width: '108px',
+              height: '19px',
+            }}
+            isShowingSkeleton={isLoading}
+            content={
+              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{maximumAmountOutStr || '--'}</p>
             }
           />
         </RowBetween>
@@ -287,72 +310,6 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           />
         </RowBetween>
 
-        <RowBetween className="h-5 items-center gap-4">
-          <RowFixed className="min-w-max">
-            <span className="min-w-max text-[12px] font-normal leading-[normal] text-subText">
-              <Trans>Maximum Receiving</Trans>
-            </span>
-          </RowFixed>
-
-          <ValueWithLoadingSkeleton
-            skeletonStyle={{
-              width: '108px',
-              height: '19px',
-            }}
-            isShowingSkeleton={isLoading}
-            content={
-              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{maximumAmountOutStr || '--'}</p>
-            }
-          />
-        </RowBetween>
-
-        {!!feeAmount && feeAmount !== '0' && (
-          <RowBetween className="h-5 gap-4">
-            <RowFixed>
-              <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-                <MouseoverTooltip
-                  text={
-                    isInSafeApp ? (
-                      <p>
-                        Learn more about the Platform Fee{' '}
-                        <ExternalLink href="https://docs.kyberswap.com/">here ↗</ExternalLink>
-                      </p>
-                    ) : (
-                      <TooltipTextOfSwapFee
-                        feeAmountText={feeAmountWithSymbol}
-                        feeBips={routeSummary?.extraFee?.feeAmount}
-                      />
-                    )
-                  }
-                  placement="right"
-                >
-                  {isInSafeApp ? 'Platform Fee' : <Trans>Est. Swap Fee</Trans>}
-                </MouseoverTooltip>
-              </TextDashed>
-            </RowFixed>
-
-            <ValueWithLoadingSkeleton
-              skeletonStyle={{
-                width: '64px',
-                height: '19px',
-              }}
-              isShowingSkeleton={isLoading}
-              content={
-                <div className="flex flex-nowrap items-center gap-1">
-                  {buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild && (
-                    <div className="flex rounded-[36px] bg-warning/30 px-1 py-0.5 text-[10px] leading-3 text-warning">
-                      <Trans>Updated</Trans>
-                    </div>
-                  )}
-                  <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
-                    {isInSafeApp ? '0.1%' : feeAmountUsdFromBuild || feeAmountWithSymbol || '--'}
-                  </p>
-                </div>
-              }
-            />
-          </RowBetween>
-        )}
-
         <RowBetween className={cn('items-start gap-4', addMevButton !== null ? 'h-[45px]' : 'h-5')}>
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} className="text-subText">
@@ -386,6 +343,75 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             {addMevButton}
           </div>
         </RowBetween>
+
+        {isInSafeApp && !!feeAmount && feeAmount !== '0' && (
+          <RowBetween className="h-5 gap-4">
+            <RowFixed>
+              <TextDashed fontSize={12} fontWeight={400} className="text-subText">
+                <MouseoverTooltip
+                  text={
+                    <p>
+                      Learn more about the Platform Fee{' '}
+                      <ExternalLink href="https://docs.kyberswap.com/">here ↗</ExternalLink>
+                    </p>
+                  }
+                  placement="right"
+                >
+                  Platform Fee
+                </MouseoverTooltip>
+              </TextDashed>
+            </RowFixed>
+
+            <ValueWithLoadingSkeleton
+              skeletonStyle={{
+                width: '64px',
+                height: '19px',
+              }}
+              isShowingSkeleton={isLoading}
+              content={<p className="m-0 text-[12px] font-medium leading-[normal] text-text">0.1%</p>}
+            />
+          </RowBetween>
+        )}
+
+        {!isInSafeApp && !!feeAmount && feeAmount !== '0' && (
+          <RowBetween className="h-5 gap-4">
+            <RowFixed>
+              <TextDashed fontSize={12} fontWeight={400} className="text-subText">
+                <MouseoverTooltip
+                  text={
+                    <TooltipTextOfSwapFee
+                      feeAmountText={feeAmountWithSymbol}
+                      feeBips={routeSummary?.extraFee?.feeAmount}
+                    />
+                  }
+                  placement="right"
+                >
+                  <SwapFeeLabel />
+                </MouseoverTooltip>
+              </TextDashed>
+            </RowFixed>
+
+            <ValueWithLoadingSkeleton
+              skeletonStyle={{
+                width: '64px',
+                height: '19px',
+              }}
+              isShowingSkeleton={isLoading}
+              content={
+                <div className="flex flex-nowrap items-center gap-1">
+                  {buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild && (
+                    <div className="flex rounded-[36px] bg-warning/30 px-1 py-0.5 text-[10px] leading-3 text-warning">
+                      <Trans>Updated</Trans>
+                    </div>
+                  )}
+                  <p className="m-0 text-right text-[12px] font-medium leading-[normal] text-text">
+                    {`${tipFeePercent ? `(${tipFeePercent}) ` : ''}${feeValue}`}
+                  </p>
+                </div>
+              }
+            />
+          </RowBetween>
+        )}
 
         <Divider />
         {recipient && (
