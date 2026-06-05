@@ -21,7 +21,7 @@ import { shortenAddress } from 'utils'
 import { cn } from 'utils/cn'
 
 const STATUS_BASE_CLASS = cn(
-  'flex w-fit flex-row gap-2 flex-nowrap cursor-pointer select-none items-center rounded-full px-3 py-2 font-medium focus:outline-none',
+  'flex w-fit cursor-pointer select-none flex-row flex-nowrap items-center gap-2 rounded-full px-3 py-2 font-medium focus:outline-none',
 )
 
 const Text = ({
