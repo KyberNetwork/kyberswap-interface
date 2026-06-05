@@ -37,6 +37,7 @@ type AddLiquidityReviewModalProps = {
   tokenInput: ZapState['tokenInput']
   warnings: ReviewWarningItem[]
   onDismiss?: () => void
+  onRefreshRoute?: () => void
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onAddTrackedTxHash?: (hash: string) => void
   onAddTransactionWithType?: (transaction: TransactionHistory) => void
@@ -58,6 +59,11 @@ const getStatusDialogType = (statusPhase: ReviewTransactionStatusPhase) => {
   }
 }
 
+const isUserRejectedError = (message?: string | null) => {
+  const normalizedMessage = message?.toLowerCase() || ''
+  return normalizedMessage.includes('reject') || normalizedMessage.includes('denied')
+}
+
 const StatusContent = ({
   statusPhase,
   txError,
@@ -74,13 +80,14 @@ const StatusContent = ({
   const translatedErrorMessage = getStatusErrorMessage(txError)
   const canDismiss = statusPhase !== 'waiting_wallet'
   const canViewPosition = statusPhase === 'success' && Boolean(onViewPosition)
+  const showRefreshLabel = statusPhase === 'failed' && !isUserRejectedError(txError)
 
   const statusAction =
     canDismiss || canViewPosition ? (
       <>
         {canDismiss && (
           <Button className="h-10 flex-1 border-subText" variant="outline" onClick={onDismiss}>
-            Close
+            {showRefreshLabel ? 'Close & Refresh' : 'Close'}
           </Button>
         )}
         {canViewPosition && (
@@ -114,6 +121,7 @@ const AddLiquidityReviewModal = ({
   tokenInput,
   warnings,
   onDismiss,
+  onRefreshRoute,
   onTrackEvent,
   onAddTrackedTxHash,
   onAddTransactionWithType,
@@ -173,6 +181,12 @@ const AddLiquidityReviewModal = ({
     const shouldDismiss = transaction.statusPhase === 'processing' || transaction.statusPhase === 'success'
 
     transaction.resetTransactionState()
+
+    if (transaction.statusPhase === 'failed') {
+      onDismiss?.()
+      onRefreshRoute?.()
+      return
+    }
 
     if (shouldDismiss) {
       onDismiss?.()
