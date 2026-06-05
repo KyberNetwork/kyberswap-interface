@@ -2,12 +2,13 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart, X } from 'react-feather'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
+import { ReactComponent as TipLinkIcon } from 'assets/svg/earn/ic_tip_link.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
@@ -25,6 +26,7 @@ import FaucetModal from 'components/Menu/FaucetModal'
 import NavDropDown from 'components/Menu/NavDropDown'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { AutoRow } from 'components/Row'
+import TipLinkGeneratorModal from 'components/TipLinkGeneratorModal'
 import Toggle from 'components/Toggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { ENV_LEVEL, TAG } from 'constants/env'
@@ -115,6 +117,8 @@ const Title = ({
 )
 
 const noop = () => {}
+const TIP_LINK_MODAL_QUERY_KEY = 'modal'
+const TIP_LINK_MODAL_QUERY_VALUE = 'tip-link-generator'
 
 export default function Menu() {
   const { chainId, account, networkInfo } = useActiveWeb3React()
@@ -123,9 +127,11 @@ export default function Menu() {
   const toggle = useToggleModal(ApplicationModal.MENU)
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
+  const [showTipLinkGenerator, setShowTipLinkGenerator] = useState(false)
 
   const userLocale = useUserLocale()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const { trackingHandler } = useTracking()
   const navigate = useNavigate()
@@ -145,6 +151,26 @@ export default function Menu() {
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const toggleFaucetPopup = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const { pendingTx } = useClaimReward()
+
+  const openTipLinkGenerator = () => {
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set(TIP_LINK_MODAL_QUERY_KEY, TIP_LINK_MODAL_QUERY_VALUE)
+    setSearchParams(nextSearchParams, { replace: true })
+    setShowTipLinkGenerator(true)
+  }
+
+  const closeTipLinkGenerator = () => {
+    const nextSearchParams = new URLSearchParams(searchParams)
+    if (nextSearchParams.get(TIP_LINK_MODAL_QUERY_KEY) === TIP_LINK_MODAL_QUERY_VALUE) {
+      nextSearchParams.delete(TIP_LINK_MODAL_QUERY_KEY)
+      setSearchParams(nextSearchParams, { replace: true })
+    }
+    setShowTipLinkGenerator(false)
+  }
+
+  useEffect(() => {
+    setShowTipLinkGenerator(searchParams.get(TIP_LINK_MODAL_QUERY_KEY) === TIP_LINK_MODAL_QUERY_VALUE)
+  }, [searchParams])
 
   useEffect(() => {
     if (!open) setIsSelectingLanguage(false)
@@ -253,6 +279,19 @@ export default function Menu() {
             <Title className="pt-0">
               <Trans>Menu</Trans>
             </Title>
+            <MenuItem
+              onClick={() => {
+                openTipLinkGenerator()
+                handleMenuClickMixpanel('Tip Link Generator')
+                toggle()
+              }}
+              className="cursor-pointer hover:text-text"
+            >
+              <TipLinkIcon />
+              <span>
+                <Trans>Tip Link Generator</Trans>
+              </span>
+            </MenuItem>
             {FAUCET_NETWORKS.includes(chainId) && (
               <MenuItem
                 onClick={() => {
@@ -553,6 +592,7 @@ export default function Menu() {
 
       <ClaimRewardModal />
       {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
+      <TipLinkGeneratorModal isOpen={showTipLinkGenerator} onDismiss={closeTipLinkGenerator} />
     </div>
   )
 }

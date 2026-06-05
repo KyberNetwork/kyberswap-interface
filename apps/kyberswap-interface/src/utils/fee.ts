@@ -13,6 +13,7 @@ export const calculateFeeFromBuildData = (
 ): {
   feeAmount: string
   feeAmountUsd: string
+  currencyAmount?: CurrencyAmount<Currency>
   currency?: Currency
 } => {
   if (!routeSummary || !buildData || !routeSummary.extraFee.chargeFeeBy || !routeSummary.extraFee.feeAmount) {
@@ -35,16 +36,17 @@ export const calculateFeeFromBuildData = (
     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
   ).divide(BIPS_BASE)
 
-  const fee = routeSummary.extraFee.isInBps
-    ? currencyAmountToTakeFee.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
+  const feeCurrencyAmount = routeSummary.extraFee.isInBps
+    ? currencyAmountToTakeFee.multiply(feeAmountFraction)
     : CurrencyAmount.fromRawAmount(currencyAmountToTakeFee.currency, routeSummary.extraFee.feeAmount)
 
   const feeUsd = buildData.feeUsd
 
   return {
-    feeAmount: formatDisplayNumber(fee, { significantDigits: 10 }),
+    feeAmount: formatDisplayNumber(feeCurrencyAmount.toSignificant(RESERVE_USD_DECIMALS), { significantDigits: 10 }),
     feeAmountUsd:
       feeUsd && feeUsd !== '0' ? formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 10 }) : '',
+    currencyAmount: feeCurrencyAmount,
     currency: currencyAmountToTakeFee.currency,
   }
 }

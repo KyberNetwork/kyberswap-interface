@@ -1,9 +1,11 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ChevronDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
+import { Stack } from 'components/Stack'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
@@ -23,9 +25,11 @@ export const DropdownIcon = ({
     {...rest}
     style={{ width: size || 12, height: size || 12, ...rest.style }}
     className={cn(
-      'ml-1.5 flex items-center justify-center rounded-full p-0.5 text-white2 transition-all duration-200 ease-in-out',
+      'relative z-0 ml-1 flex items-center justify-center overflow-visible rounded-full p-0.5 text-white2 transition-all duration-200 ease-in-out [&>svg]:relative [&>svg]:z-[1]',
       'data-[flip=true]:rotate-180',
-      'data-[highlight=true]:animate-[ks-slippage-highlight_2s_infinite_alternate_ease-in-out] data-[highlight=true]:bg-primary/60',
+      'data-[highlight=true]:text-primary',
+      'data-[highlight=true]:after:pointer-events-none data-[highlight=true]:after:absolute data-[highlight=true]:after:-inset-px data-[highlight=true]:after:rounded-full data-[highlight=true]:after:bg-primary/25 data-[highlight=true]:after:content-[""]',
+      'data-[highlight=true]:after:animate-[ks-slippage-highlight_1.4s_infinite_ease-out]',
       'data-[warning=true]:text-warning/90',
       className,
     )}
@@ -127,12 +131,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
             </MouseoverTooltip>
           </TextDashed>
           <div role="button" onClick={() => setExpanded(e => !e)} className="flex cursor-pointer items-center gap-1">
-            <span
-              className={cn(
-                'text-sm font-medium leading-none',
-                isWarningSlippage ? 'border-b border-dashed border-warning text-warning' : 'text-text',
-              )}
-            >
+            <span className={cn('text-sm font-medium leading-none', isWarningSlippage ? 'text-warning' : 'text-text')}>
               {msg ? (
                 <MouseoverTooltip text={slippageInfo ? msg : t`Your slippage ${msg}`}>
                   {formatSlippage(rawSlippage)}
@@ -142,13 +141,8 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
               )}
             </span>
 
-            <DropdownIcon data-flip={expanded} data-highlight={!expanded && defaultSlp !== rawSlippage}>
-              <svg width="10" height="6" viewBox="0 0 6 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M3.70711 3.29289L5.29289 1.70711C5.92286 1.07714 5.47669 0 4.58579 0H1.41421C0.523309 0 0.0771406 1.07714 0.707105 1.70711L2.29289 3.29289C2.68342 3.68342 3.31658 3.68342 3.70711 3.29289Z"
-                  fill="#FAFAFA"
-                />
-              </svg>
+            <DropdownIcon size={14} data-flip={expanded} data-highlight={!expanded && defaultSlp !== rawSlippage}>
+              <ChevronDown size={14} strokeWidth={4} />
             </DropdownIcon>
           </div>
         </div>
@@ -156,39 +150,44 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
       </div>
       <div
         className={cn(
-          'flex flex-col gap-4 transition-all duration-100 ease-linear',
-          expanded ? 'h-max pt-2' : 'h-0 pt-0',
-          isHighlight ? 'overflow-visible' : 'overflow-hidden',
+          'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
+          expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
         )}
       >
-        <SlippageControl
-          isHighlight={isHighlight}
-          rawSlippage={rawSlippage}
-          setRawSlippage={setRawSlippage}
-          isWarning={isWarningSlippage}
-          options={options}
-        />
-        {isDegenMode && expanded && (
-          <span className="-mt-3 px-1.5 py-1 text-xs font-medium text-subText">
-            <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
-          </span>
-        )}
-        {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
-          <div
-            role="button"
-            onClick={() => setRawSlippage(defaultSlp)}
-            className="-mt-3 flex cursor-pointer items-center gap-1 px-1 text-xs text-primary"
-          >
-            <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
-              <span className="border-b border-dotted border-primary">
-                <Trans>Suggestion</Trans>
-              </span>
-            </MouseoverTooltip>
-            {(defaultSlp * 100) / 10_000}%
-          </div>
-        )}
+        <div className={cn('min-h-0', isHighlight ? 'overflow-visible' : 'overflow-hidden')}>
+          <Stack className="gap-3 pt-2">
+            <Stack className="gap-1">
+              <SlippageControl
+                isHighlight={isHighlight}
+                rawSlippage={rawSlippage}
+                setRawSlippage={setRawSlippage}
+                isWarning={isWarningSlippage}
+                options={options}
+              />
+              {isDegenMode && expanded && (
+                <span className="px-1.5 py-1 text-xs font-medium text-subText">
+                  <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
+                </span>
+              )}
+              {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
+                <div
+                  role="button"
+                  onClick={() => setRawSlippage(defaultSlp)}
+                  className="flex w-fit cursor-pointer items-center gap-1 px-1 text-xs text-primary"
+                >
+                  <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
+                    <span className="border-b border-dotted border-primary">
+                      <Trans>Suggestion</Trans>
+                    </span>
+                  </MouseoverTooltip>
+                  {(defaultSlp * 100) / 10_000}%
+                </div>
+              )}
+            </Stack>
 
-        {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
+            {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
+          </Stack>
+        </div>
       </div>
     </div>
   )

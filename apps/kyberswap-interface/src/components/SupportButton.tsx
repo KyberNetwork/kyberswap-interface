@@ -8,12 +8,14 @@ import { ReactComponent as DiscordIcon } from 'assets/svg/discord_color.svg'
 import { ReactComponent as EmailIcon } from 'assets/svg/email_color.svg'
 import { ReactComponent as TeleIcon } from 'assets/svg/tele_color.svg'
 import { KYBER_NETWORK_TELEGRAM_URL } from 'constants/index'
+import usePageLocation from 'hooks/usePageLocation'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
 export default function SupportButton() {
   const [isHover, setIsHover] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const { isEmbeddedSwap } = usePageLocation()
 
   const subMenuAnimate = {
     enter: {
@@ -37,7 +39,7 @@ export default function SupportButton() {
     },
   }
 
-  if (window.location.href.includes('/partner-swap')) return null
+  if (isEmbeddedSwap) return null
 
   return (
     <motion.div

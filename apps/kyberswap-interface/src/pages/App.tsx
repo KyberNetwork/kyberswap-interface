@@ -23,6 +23,7 @@ import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constant
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
+import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
 import { useWebVitals } from 'hooks/useWebVitals'
@@ -100,6 +101,20 @@ const SwapPage = () => {
   return <SwapV3 />
 }
 
+const RedirectToCreateTips = () => {
+  const { networkInfo } = useActiveWeb3React()
+
+  return (
+    <Navigate
+      to={{
+        pathname: `${APP_PATHS.SWAP}/${networkInfo.route}`,
+        search: 'modal=tip-link-generator',
+      }}
+      replace
+    />
+  )
+}
+
 const RedirectWithNetworkPrefix = () => {
   const { networkInfo } = useActiveWeb3React()
   const location = useLocation()
@@ -169,6 +184,7 @@ const RoutesWithNetworkPrefix = () => {
 export default function App() {
   const { account, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
+  const { isEmbeddedSwap } = usePageLocation()
   useAutoLogin()
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
@@ -187,9 +203,8 @@ export default function App() {
 
   useGlobalTrackingEvents()
   useWebVitals()
-  const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
-  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
-  //const [holidayMode] = useHolidayMode()
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
+  // const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
   snowflake.src = snow
@@ -203,7 +218,7 @@ export default function App() {
       <RouteSeo />
       <AppWrapper>
         <ModalsGlobal />
-        {!isPartnerSwap && <TopBanner />}
+        {!isEmbeddedSwap && <TopBanner />}
         <HeaderWrapper>
           <SupportButton />
           <Header />
@@ -251,6 +266,8 @@ export default function App() {
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
+              <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
+              <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />
               {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
               )}

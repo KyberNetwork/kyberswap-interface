@@ -304,7 +304,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
             <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} />
-            <FeeControlGroup />
+            {!isWrapOrUnwrap && <FeeControlGroup />}
           </div>
         </Wrapper>
         <div className="flex flex-col gap-5">

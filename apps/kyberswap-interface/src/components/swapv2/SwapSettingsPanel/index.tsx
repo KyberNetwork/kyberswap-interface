@@ -31,6 +31,12 @@ type Props = {
   onClickCrossChainSources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
+  displaySettings?: {
+    isShowPricingChart?: boolean
+    isShowTradeRoutes?: boolean
+    togglePricingChart?: () => void
+    toggleTradeRoutes?: () => void
+  }
 }
 
 const SettingsPanel: React.FC<Props> = ({
@@ -40,17 +46,22 @@ const SettingsPanel: React.FC<Props> = ({
   onBack,
   onClickLiquiditySources,
   onClickCrossChainSources,
+  displaySettings,
 }) => {
   const { trackingHandler } = useTracking()
   const [slippage] = useUserSlippageTolerance()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const isShowPricingChart = useShowPricingChart()
-  const isShowTradeRoutes = useShowTradeRoutes()
+  const globalShowPricingChart = useShowPricingChart()
+  const globalShowTradeRoutes = useShowTradeRoutes()
   const isSuccessSoundEnabled = useSuccessSoundEnabled()
-  const togglePricingChart = useTogglePricingChart()
-  const toggleTradeRoutes = useToggleTradeRoutes()
+  const globalTogglePricingChart = useTogglePricingChart()
+  const globalToggleTradeRoutes = useToggleTradeRoutes()
   const toggleSuccessSound = useToggleSuccessSound()
+  const isShowPricingChart = displaySettings?.isShowPricingChart ?? globalShowPricingChart
+  const isShowTradeRoutes = displaySettings?.isShowTradeRoutes ?? globalShowTradeRoutes
+  const togglePricingChart = displaySettings?.togglePricingChart ?? globalTogglePricingChart
+  const toggleTradeRoutes = displaySettings?.toggleTradeRoutes ?? globalToggleTradeRoutes
 
   return (
     <div className={cn('w-full', className)} id={TutorialIds.TRADING_SETTING_CONTENT}>

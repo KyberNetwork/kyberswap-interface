@@ -26,6 +26,7 @@ import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
 import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
+import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
 import tokenChartApi from 'services/tokenChart'
 import zapApi from 'services/zap'
@@ -126,6 +127,7 @@ const store = configureStore({
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
     [smartExitApi.reducerPath]: smartExitApi.reducer,
+    [tipLinkApi.reducerPath]: tipLinkApi.reducer,
     [tokenChartApi.reducerPath]: tokenChartApi.reducer,
   },
   middleware: getDefaultMiddleware =>
@@ -166,6 +168,7 @@ const store = configureStore({
       .concat(blackjackApi.middleware)
       .concat(marketOverviewApi.middleware)
       .concat(smartExitApi.middleware)
+      .concat(tipLinkApi.middleware)
       .concat(tokenChartApi.middleware),
   preloadedState,
 })
