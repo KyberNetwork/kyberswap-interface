@@ -39,7 +39,7 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
-import { Chain } from 'pages/CrossChainSwap/adapters'
+import useChainsConfig from 'hooks/useChainsConfig'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ChargeFeeBy } from 'types/route'
 import { isAddress } from 'utils'
@@ -51,6 +51,7 @@ const makeFileName = (file?: File) => {
 
 export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
   const { account, chainId: selectedChainId } = useActiveWeb3React()
+  const { supportedChains } = useChainsConfig()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const defaultChainId = TIP_LINK_CHAINS.includes(selectedChainId) ? selectedChainId : PRIMARY_CHAINS[0]
@@ -360,7 +361,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
         isOpen={showNetworkModal}
         customToggleModal={() => setShowNetworkModal(prev => !prev)}
         selectedId={chainId}
-        activeChainIds={TIP_LINK_CHAINS as Chain[]}
+        activeChainIds={supportedChains.map(item => item.chainId)}
         customOnSelectNetwork={selectedChain => {
           if (TIP_LINK_CHAINS.includes(selectedChain as ChainId)) {
             handleChainSelect(selectedChain as ChainId)
