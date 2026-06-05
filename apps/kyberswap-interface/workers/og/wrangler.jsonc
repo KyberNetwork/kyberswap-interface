@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kyberswap-og",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-05-01",
+
+  // workers-og bundles its own Satori + resvg/yoga wasm inside its dist, so NO `[[rules]]`
+  // CompiledWasm block and NO `nodejs_compat` flag are required here. Add nodejs_compat only if
+  // this worker's own code starts using a Node built-in.
+
+  // Bind the worker to the exact path groups it handles on the production zone. Every other path on
+  // kyberswap.com bypasses the worker entirely (no edge cost). Within these groups the worker still
+  // passes non-matching requests straight through to origin (see src/index.ts).
+  //
+  // NOTE: the zone is managed via Terraform (kyber-infra-v2/infra/shared/cloudflare/*). These routes
+  // document intent for `wrangler deploy`; the canonical production binding should be added to the
+  // Terraform worker-route module so it tracks the rest of the Cloudflare config-as-code. See README.
+  "routes": [
+    { "pattern": "kyberswap.com/og/*", "zone_name": "kyberswap.com" },
+    { "pattern": "kyberswap.com/swap/*", "zone_name": "kyberswap.com" },
+    { "pattern": "kyberswap.com/limit/*", "zone_name": "kyberswap.com" }
+  ],
+
+  // OG PNG generation (Satori layout + resvg rasterization) is pure CPU and exceeds the Free plan's
+  // 10ms cap, so this worker requires a Paid (Workers Standard) plan. A render is tens-to-low-hundreds
+  // of ms; generated PNGs are cached hard (1y) so the cost is paid once per unique pair per PoP. A
+  // CPU-limit kill is NOT a catchable JS exception (it bypasses the render try/catch), so keep
+  // headroom — 200ms (well under the 30s paid default) avoids killing a cold two-logo render.
+  "limits": { "cpu_ms": 200 },
+
+  "observability": { "enabled": true }
+}
