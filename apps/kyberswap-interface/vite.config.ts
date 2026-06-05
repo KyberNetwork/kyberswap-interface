@@ -41,6 +41,8 @@ export default defineConfig({
       'mipd',
       /^@lingui\//,
       '@formo/analytics',
+      'react-date-picker',
+      'react-calendar',
     ],
   },
   plugins: [

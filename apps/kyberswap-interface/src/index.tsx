@@ -112,11 +112,18 @@ const ReactApp = () => {
 }
 
 const container = document.getElementById('app') as HTMLElement
-if (container.firstElementChild) {
-  // Route was prerendered (static HTML present) — hydrate it.
+// Hydrate only when THIS exact route was prerendered. The home prerender doubles as the SPA-fallback
+// build/index.html, so a non-prerendered route (e.g. /find) is served the home HTML — there
+// `__PRERENDER_PATH__` ("/") won't match the current path, so we clear #app and client-render instead
+// of hydrating mismatched markup.
+const prerenderedPath = window.__PRERENDER_PATH__
+// Normalize a trailing slash (nginx `$uri/` may serve /about/kyberswap/ for the same file) so the
+// match isn't missed and the prerendered body is hydrated rather than discarded.
+const currentPath = window.location.pathname.replace(/\/+$/, '') || '/'
+if (container.firstElementChild && prerenderedPath === currentPath) {
   hydrateRoot(container, <ReactApp />)
 } else {
-  // Non-prerendered route (SPA fallback, empty #app) — client render.
+  container.innerHTML = ''
   createRoot(container).render(<ReactApp />)
 }
 

@@ -2,7 +2,7 @@ import { matchPath } from 'react-router-dom'
 
 import {
   APP_PATHS,
-  KYBERSWAP_DOMAIN,
+  KYBERSWAP_URL,
   KYBER_NETWORK_DISCORD_URL,
   KYBER_NETWORK_TELEGRAM_URL,
   KYBER_NETWORK_TWITTER_URL,
@@ -22,7 +22,7 @@ export type SeoConfig = {
   title: string
 }
 
-const SITE_URL = `https://${KYBERSWAP_DOMAIN}`
+const SITE_URL = KYBERSWAP_URL
 const DEFAULT_TITLE = 'KyberSwap - Limitless Access To DeFi'
 const DEFAULT_DESCRIPTION =
   'Non-custodial platform to swap, earn, and trade crypto at the best rates across chains. Powered by an advanced multi-chain aggregator engine.'

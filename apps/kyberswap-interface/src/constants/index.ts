@@ -7,6 +7,8 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 export const KYBERSWAP_DOMAIN = 'kyberswap.com'
+/** Canonical production base URL (no trailing slash). Use this instead of hardcoding the domain. */
+export const KYBERSWAP_URL = `https://${KYBERSWAP_DOMAIN}`
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []

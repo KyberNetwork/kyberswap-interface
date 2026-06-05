@@ -14,8 +14,7 @@ import { createServer } from 'vite'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const appRoot = resolve(__dirname, '..')
 
-// Phase 2 pilot: the static, index,follow About route whose SEO config already exists.
-const ROUTES = ['/about/kyberswap']
+// The route list (`prerenderRoutes`) is derived from app constants and read from the SSR module.
 
 // Minimal browser-global shim (mirrors test/smoke.setup.ts). Some BUILT workspace widgets and
 // third-party deps read window/document at module scope; the app's own Phase-1 typeof-window
@@ -46,6 +45,10 @@ function setupBrowserGlobals() {
   const localStorage = makeStorage()
   const sessionStorage = makeStorage()
   const noop = () => {}
+  // Stub origin for SSR `window.location` reads. Mirrors constants/index KYBERSWAP_URL (this runs
+  // before ssrLoadModule, so the app constant isn't importable here yet — keep the two in sync).
+  const SSR_ORIGIN = 'https://kyberswap.com'
+  const SSR_HOST = SSR_ORIGIN.replace(/^https?:\/\//, '')
   const documentShim = {
     title: 'KyberSwap',
     cookie: '',
@@ -67,12 +70,12 @@ function setupBrowserGlobals() {
     sessionStorage,
     document: documentShim,
     location: {
-      origin: 'https://kyberswap.com',
-      href: 'https://kyberswap.com/',
-      hostname: 'kyberswap.com',
+      origin: SSR_ORIGIN,
+      href: `${SSR_ORIGIN}/`,
+      hostname: SSR_HOST,
       pathname: '/',
       protocol: 'https:',
-      host: 'kyberswap.com',
+      host: SSR_HOST,
       search: '',
     },
     history: { pushState: noop, replaceState: noop, go: noop, back: noop, forward: noop, length: 0, state: null },
@@ -157,7 +160,8 @@ async function main() {
     // After the config has loaded (so the shim's window.location can't break Vite's URL internals),
     // but before module evaluation so module-scope browser access in built widgets is satisfied.
     setupBrowserGlobals()
-    const { render, buildHeadHtml } = await vite.ssrLoadModule('/src/entry-server.tsx')
+    const { render, buildHeadHtml, prerenderRoutes, sitemapRoutes, siteUrl } =
+      await vite.ssrLoadModule('/src/entry-server.tsx')
 
     // Validate the template placeholders up front so a bad template fails loudly (rather than the
     // post-replace `includes` check, which could false-fire if a rendered body contained the literal).
@@ -168,23 +172,44 @@ async function main() {
       throw new Error('Template is missing the `<!-- ssr-seo:start/end -->` markers (build/index.html)')
     }
 
-    for (const url of ROUTES) {
-      const body = rewriteAssetUrls(await render(url), manifest)
-      if (!body) throw new Error(`render(${url}) produced empty HTML`)
+    for (const { path: url, ssr } of prerenderRoutes) {
       const head = buildHeadHtml(url)
+      let html = template.replace(
+        /<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/,
+        `<!-- ssr-seo:start -->\n    ${head}\n    <!-- ssr-seo:end -->`,
+      )
 
-      const html = template
-        .replace(
-          /<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/,
-          `<!-- ssr-seo:start -->\n    ${head}\n    <!-- ssr-seo:end -->`,
+      let bodyLen = 0
+      if (ssr) {
+        // Full body: render server-side and tag the route so the client hydrates only when the
+        // served path matches (see src/index.tsx) — guards against the SPA fallback serving a
+        // prerendered file for a different route.
+        const body = rewriteAssetUrls(await render(url), manifest)
+        if (!body) throw new Error(`render(${url}) produced empty HTML`)
+        bodyLen = body.length
+        html = html.replace(
+          '<div id="app"></div>',
+          `<div id="app">${body}</div>\n    <script>window.__PRERENDER_PATH__=${JSON.stringify(url)}</script>`,
         )
-        .replace('<div id="app"></div>', `<div id="app">${body}</div>`)
+      }
+      // Head-only routes keep the empty <div id="app"></div>; the client createRoot-renders them.
 
       const outDir = resolve(appRoot, 'build', url.replace(/^\//, ''))
       mkdirSync(outDir, { recursive: true })
       writeFileSync(resolve(outDir, 'index.html'), html, 'utf8')
-      console.log(`✓ prerendered ${url} -> build${url}/index.html (${body.length} B body, ${head.length} B head)`)
+      console.log(`✓ prerendered ${url} (${ssr ? `body ${bodyLen} B` : 'head-only'}, head ${head.length} B)`)
     }
+
+    // Regenerate sitemap.xml from the index,follow route list so it tracks the prerendered set.
+    const SITE = siteUrl // = constants/index KYBERSWAP_URL, via entry-server re-export
+    const xmlEscape = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemapRoutes.map(p => `  <url>\n    <loc>${xmlEscape(`${SITE}${p === '/' ? '/' : p}`)}</loc>\n  </url>`).join('\n')}
+</urlset>
+`
+    writeFileSync(resolve(appRoot, 'build/sitemap.xml'), sitemap, 'utf8')
+    console.log(`✓ wrote build/sitemap.xml (${sitemapRoutes.length} URLs)`)
   } finally {
     await vite.close()
   }
