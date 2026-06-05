@@ -56,6 +56,7 @@ type AddLiquidityBodyProps = AddLiquidityProps & {
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onDismissReview: () => void
   onPreview: () => Promise<void>
+  onRefreshRoute?: () => void
   previewError?: string | null
   reviewState: ReviewState | null
   tracking: AddLiquidityTracking
@@ -103,6 +104,7 @@ const AddLiquidityBody = ({
   onTrackEvent,
   onDismissReview,
   onPreview,
+  onRefreshRoute,
   previewError,
   reviewState,
   normalizedPool,
@@ -158,6 +160,7 @@ const AddLiquidityBody = ({
           tokenInput={state.tokenInput}
           warnings={reviewState.warnings}
           onDismiss={onDismissReview}
+          onRefreshRoute={onRefreshRoute}
           onTrackEvent={onTrackEvent}
           onAddTrackedTxHash={tracking.addTrackedTxHash}
           onAddTransactionWithType={tracking.addTransactionWithType}
@@ -404,6 +407,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
           onTrackEvent={handleTrackEvent}
           onDismissReview={handleDismissReview}
           onPreview={handlePreview}
+          onRefreshRoute={state.route.refetch}
           previewError={previewError}
           reviewState={reviewState}
           normalizedPool={normalizedPool.data}
