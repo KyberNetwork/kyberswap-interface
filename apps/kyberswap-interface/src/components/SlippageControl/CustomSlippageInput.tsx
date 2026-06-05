@@ -23,6 +23,7 @@ export type Props = {
   value: number
   isActive: boolean
   onActiveChange: (value: boolean) => void
+  onFocusChange?: (value: boolean) => void
   onChange: (value: number) => void
   isWarning: boolean
   isHighlight?: boolean
@@ -33,6 +34,7 @@ const CustomSlippageInput: React.FC<Props> = ({
   value,
   isActive,
   onActiveChange,
+  onFocusChange,
   onChange,
   isWarning,
   isHighlight,
@@ -84,6 +86,7 @@ const CustomSlippageInput: React.FC<Props> = ({
 
   const handleCommitChange = () => {
     setTooltip('')
+    onFocusChange?.(false)
     const hasCustomText = rawText !== ''
     onActiveChange(hasCustomText || !options.includes(value))
     setRawText(getSlippageText(value, options, hasCustomText))
@@ -109,7 +112,7 @@ const CustomSlippageInput: React.FC<Props> = ({
     }
   }, [value, options])
 
-  const customTextClass = rawText ? 'text-text' : 'text-subText'
+  const shouldShowWarning = isWarning && rawText !== ''
 
   return (
     <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
@@ -120,13 +123,13 @@ const CustomSlippageInput: React.FC<Props> = ({
           isActive
             ? cn(
                 'bg-tabActive hover:bg-buttonGray',
-                isWarning ? 'border-warning/50' : 'border-primary-50',
-                customTextClass,
+                shouldShowWarning ? 'border-warning/50' : 'border-primary-50',
+                rawText ? 'text-text' : 'text-subText',
               )
             : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',
         )}
       >
-        {isActive && isWarning && (
+        {isActive && shouldShowWarning && (
           <span role="img" aria-label="warning" className="absolute left-1.5 top-1 text-xs text-warning max-sm:hidden">
             ⚠️
           </span>
@@ -138,6 +141,7 @@ const CustomSlippageInput: React.FC<Props> = ({
           onChange={handleChangeInput}
           onBlur={handleCommitChange}
           onFocus={() => {
+            onFocusChange?.(true)
             onActiveChange(true)
           }}
           className="w-14 min-w-0 border-0 bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"

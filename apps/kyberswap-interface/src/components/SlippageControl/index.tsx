@@ -42,12 +42,12 @@ const SlippageControl: React.FC<Props> = props => {
     [cat, props.options],
   )
   const [isCustomActive, setIsCustomActive] = useState(!options.includes(rawSlippage))
+  const [isCustomInputFocused, setIsCustomInputFocused] = useState(false)
 
   useEffect(() => {
-    if (!options.includes(rawSlippage)) {
-      setIsCustomActive(true)
-    }
-  }, [options, rawSlippage])
+    if (isCustomInputFocused) return
+    setIsCustomActive(!options.includes(rawSlippage))
+  }, [isCustomInputFocused, options, rawSlippage])
 
   return (
     <div className="flex w-full max-w-full items-stretch rounded-[20px] bg-tabBackground">
@@ -91,6 +91,7 @@ const SlippageControl: React.FC<Props> = props => {
         value={rawSlippage}
         isActive={isCustomActive}
         onActiveChange={setIsCustomActive}
+        onFocusChange={setIsCustomInputFocused}
         onChange={setRawSlippage}
         isWarning={isWarning}
         isHighlight={isHighlight}
