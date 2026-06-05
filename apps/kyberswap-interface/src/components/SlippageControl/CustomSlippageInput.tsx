@@ -25,7 +25,7 @@ export type Props = {
   onActiveChange: (value: boolean) => void
   onFocusChange?: (value: boolean) => void
   onChange: (value: number) => void
-  isWarning: boolean
+  isWarning?: boolean
   isHighlight?: boolean
   options: number[]
 }
@@ -36,7 +36,7 @@ const CustomSlippageInput: React.FC<Props> = ({
   onActiveChange,
   onFocusChange,
   onChange,
-  isWarning,
+  isWarning = false,
   isHighlight,
   options,
 }) => {

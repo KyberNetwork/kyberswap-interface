@@ -21,13 +21,13 @@ DefaultSlippageOption.displayName = 'DefaultSlippageOption'
 type Props = {
   rawSlippage: number
   setRawSlippage: (value: number) => void
-  isWarning: boolean
+  isWarning?: boolean
   isHighlight?: boolean
   options: number[]
 }
 
 const SlippageControl: React.FC<Props> = props => {
-  const { rawSlippage, setRawSlippage, isWarning, isHighlight } = props
+  const { rawSlippage, setRawSlippage, isWarning = false, isHighlight } = props
   const { trackingHandler } = useTracking()
   const { pathname } = useLocation()
   const isCrossChain = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
