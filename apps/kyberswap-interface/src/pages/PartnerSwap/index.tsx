@@ -13,6 +13,7 @@ import LimitOrderForm from 'components/swapv2/LimitOrder/LimitOrderForm'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
+import useRequiredDegenMode from 'components/swapv2/SwapSettingsPanel/useRequiredDegenMode'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
 import { MAX_FEE_IN_BIPS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
@@ -220,6 +221,8 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   const isSwapPage = activeMainTab === TAB.SWAP
   const isLimitPage = activeMainTab === TAB.LIMIT
   const isCrossChainPage = activeMainTab === TAB.CROSS_CHAIN
+
+  useRequiredDegenMode({ activeTab, setActiveTab })
 
   const onBackToSwapTab = () => setActiveTab(activeMainTab)
 

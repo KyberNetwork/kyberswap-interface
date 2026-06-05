@@ -9,6 +9,7 @@ import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
+import useRequiredDegenMode from 'components/swapv2/SwapSettingsPanel/useRequiredDegenMode'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
@@ -81,8 +82,6 @@ export default function Swap() {
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
   const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
 
-  const enableDegenMode = searchParams.get('enableDegenMode') === 'true'
-
   const getDefaultTab = useCallback(
     () => (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : TAB.CROSS_CHAIN),
     [isSwapPage, isLimitPage],
@@ -91,15 +90,7 @@ export default function Swap() {
   const [activeTab, setActiveTab] = useState<TAB>(getDefaultTab())
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
 
-  useEffect(() => {
-    if (enableDegenMode && activeTab !== TAB.SETTINGS) {
-      setActiveTab(TAB.SETTINGS)
-      setTimeout(() => {
-        searchParams.delete('enableDegenMode')
-        setSearchParams(searchParams)
-      }, 4000)
-    }
-  }, [enableDegenMode, activeTab, searchParams, setSearchParams])
+  useRequiredDegenMode({ activeTab, setActiveTab })
 
   useEffect(() => {
     setActiveTab(getDefaultTab())
