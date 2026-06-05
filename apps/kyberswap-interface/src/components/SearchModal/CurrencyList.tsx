@@ -293,8 +293,8 @@ function CurrencyList({
                 {({ index, style }: { index: number; style: CSSProperties }) => {
                   if (!isItemLoaded(index)) {
                     return (
-                      <div className="mb-2.5 flex justify-center text-[13px]" style={style}>
-                        <span>loading...</span>
+                      <div className="flex items-center justify-center" style={style}>
+                        <Loader size="20px" />
                       </div>
                     )
                   }

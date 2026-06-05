@@ -23,16 +23,16 @@ export default function ImportRow({
     <div
       style={style}
       className={cn(
-        'grid h-14 items-center gap-4 px-5 py-1',
+        'grid h-14 items-center gap-2 rounded-lg px-5 py-1 hover:bg-buttonBlack/60',
         '[grid-template-columns:auto_minmax(auto,1fr)_auto]',
-        dim && 'opacity-40',
+        dim && 'opacity-80',
       )}
     >
       <CurrencyLogo currency={token} size={'24px'} style={{ opacity: dim ? '0.6' : '1' }} />
       <AutoColumn className={cn('gap-1', dim ? 'opacity-60' : 'opacity-100')}>
         <AutoRow>
           <p className="m-0 text-base font-medium leading-[normal] text-text">{token.symbol}</p>
-          <div className="m-0 ml-2 font-light text-text3">
+          <div className="m-0 ml-2 text-subText">
             <div className="max-w-[140px] truncate text-xs" title={token.name}>
               {token.name}
             </div>

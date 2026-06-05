@@ -1,14 +1,26 @@
 import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { useInfiniteQuery, useQueries } from '@tanstack/react-query'
 import axios from 'axios'
-import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  MouseEvent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
-import { usePrevious } from 'react-use'
 import ksSettingApi from 'services/ksSetting'
 
 import Column from 'components/Column'
+import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
+import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import CommonBases from 'components/SearchModal/CommonBases'
 import CurrencyList from 'components/SearchModal/CurrencyList'
@@ -16,14 +28,17 @@ import { useTokenComparator } from 'components/SearchModal/sorting'
 import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
 import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
+import type { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { fetchListTokenByAddresses, formatAndCacheToken, useAllTokens, useFetchERC20TokenFromRPC } from 'hooks/Tokens'
+import { fetchListTokenByAddresses, fetchTokenInfoFromRpc, formatAndCacheToken, useAllTokens } from 'hooks/Tokens'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useToggle from 'hooks/useToggle'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
@@ -60,12 +75,7 @@ interface CurrencySearchProps {
 
 const PAGE_SIZE = 20
 
-const fetchTokens = async (
-  search: string | undefined,
-  page: number,
-  chainId: ChainId,
-  signal: AbortSignal,
-): Promise<WrappedTokenInfo[]> => {
+const fetchTokens = async (search: string | undefined, page: number, chainId: ChainId): Promise<WrappedTokenInfo[]> => {
   try {
     if (search && chainId && isAddress(chainId, search)) {
       const { data: token } = await store.dispatch(
@@ -86,7 +96,7 @@ const fetchTokens = async (
     const p = new URLSearchParams(stringParams)
     const url = `${KS_SETTING_API}/v1/tokens?${p.toString()}`
 
-    const response = await axios.get(url, { signal })
+    const response = await axios.get(url)
     const { tokens = [] } = response.data.data
     return filterTruthy(tokens.map(formatAndCacheToken))
   } catch (error) {
@@ -98,6 +108,60 @@ export const NoResult = ({ msg }: { msg?: ReactNode }) => {
   return (
     <Column className="h-full p-5" data-testid="no-token-result">
       <p className="m-0 mb-5 text-center font-medium text-text3">{msg || <Trans>No results found.</Trans>}</p>
+    </Column>
+  )
+}
+
+const SearchLoading = ({ msg }: { msg?: ReactNode }) => (
+  <Column className="h-full items-center gap-3 p-5 pt-8" data-testid="token-search-loading">
+    <Loader size="24px" />
+    <p className="m-0 text-center font-medium text-text3">{msg || <Trans>Loading...</Trans>}</p>
+  </Column>
+)
+
+const OtherChainTokenResult = ({ tokens, loading }: { tokens: WrappedTokenInfo[]; loading: boolean }) => {
+  const { changeNetwork } = useChangeNetwork()
+
+  if (loading && !tokens.length) {
+    return <SearchLoading />
+  }
+
+  if (!tokens.length) return null
+
+  return (
+    <Column className="h-full gap-2 p-5">
+      <p className="m-0 mb-3 shrink-0 text-center font-medium text-text3">
+        <Trans>Found on other chains</Trans>
+      </p>
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+        {tokens.map(token => {
+          const networkInfo = NETWORKS_INFO[token.chainId] as NetworkInfo
+
+          return (
+            <button
+              type="button"
+              key={`${token.chainId}-${token.address}`}
+              onClick={() => changeNetwork(token.chainId)}
+              className="group flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg bg-buttonBlack px-4 py-2 hover:bg-primary-15"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <CurrencyLogo currency={token} size="24px" />
+                <div className="flex min-w-0 flex-col items-start gap-0.5">
+                  <span className="truncate text-sm font-medium text-text">{token.symbol}</span>
+                  <span className="truncate text-xs text-subText">{token.name}</span>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <span className="hidden text-xs font-medium text-primary group-hover:inline">
+                  <Trans>Switch to</Trans>
+                </span>
+                <img src={networkInfo.icon} alt={networkInfo.name} className="size-4 rounded-full" />
+                <span className="text-xs font-medium text-subText">{networkInfo.name}</span>
+              </div>
+            </button>
+          )
+        })}
+      </div>
     </Column>
   )
 }
@@ -117,24 +181,24 @@ export function CurrencySearch({
   setTokenToShowInfo,
   trackingSource,
 }: CurrencySearchProps) {
+  // Network and modal state
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
+  const { supportedChains } = useChainsConfig()
   const { trackingHandler } = useTracking()
   const [activeTab, setActiveTab] = useState<Tab>(Tab.All)
+  const isImportedTab = activeTab === Tab.Imported
 
+  // Search input state
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
   const isQueryValidEVMAddress = !!isAddress(chainId, debouncedQuery)
 
+  // Token sources
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
-
   const defaultTokens = useAllTokens(false, chainId)
-
   const tokenImports = useUserAddedTokens(chainId)
-  const [pageCount, setPageCount] = useState(0)
-  const [fetchedTokens, setFetchedTokens] = useState<Token[]>(Object.values(defaultTokens))
-
   const tokenComparator = useTokenComparator(false, customChainId)
 
   const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
@@ -143,8 +207,6 @@ export function CurrencySearch({
   const tokenImportsFiltered = useMemo(() => {
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
-
-  const fetchERC20TokenFromRPC = useFetchERC20TokenFromRPC(chainId)
 
   // input eth => output filter weth, input weth => output filter eth
   const filterWrapFunc = useCallback(
@@ -164,6 +226,81 @@ export function CurrencySearch({
     return filterTokens(chainId, commonTokens as Token[], debouncedQuery).filter(filterWrapFunc)
   }, [commonTokens, debouncedQuery, chainId, filterWrapFunc])
 
+  // Search APIs: KS Setting first, then RPC for address-only fallback.
+  const {
+    data: tokenSearchData,
+    fetchNextPage,
+    hasNextPage,
+    isFetched: isFetchedTokenSearch,
+    isFetching: isFetchingTokenSearch,
+    isLoading: isLoadingTokenSearch,
+  } = useInfiniteQuery({
+    queryKey: ['currency-search-tokens', chainId, debouncedQuery],
+    initialPageParam: 1,
+    enabled: !!debouncedQuery && !isImportedTab,
+    queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainId),
+    getNextPageParam: (lastPage, allPages) =>
+      debouncedQuery && !isQueryValidEVMAddress && lastPage.length === PAGE_SIZE ? allPages.length + 1 : undefined,
+    retry: false,
+  })
+
+  const tokenSearchResults = useMemo(() => tokenSearchData?.pages.flatMap(page => page) ?? [], [tokenSearchData?.pages])
+
+  const rpcSearchChainIds = useMemo(
+    () => [
+      chainId,
+      ...supportedChains
+        .map(networkInfo => networkInfo.chainId)
+        .filter(supportedChainId => supportedChainId !== chainId && NETWORKS_INFO[supportedChainId]?.multicall),
+    ],
+    [chainId, supportedChains],
+  )
+
+  const shouldFetchRpcTokens =
+    !!debouncedQuery &&
+    !isImportedTab &&
+    isQueryValidEVMAddress &&
+    isFetchedTokenSearch &&
+    !isFetchingTokenSearch &&
+    !tokenSearchResults.length
+
+  const rpcTokenQueries = useQueries({
+    queries: rpcSearchChainIds.map(rpcChainId => ({
+      queryKey: ['currency-search-rpc-token', rpcChainId, debouncedQuery],
+      enabled: shouldFetchRpcTokens,
+      queryFn: async () => {
+        const rawToken = await fetchTokenInfoFromRpc(debouncedQuery, rpcChainId, {
+          silent: rpcChainId !== chainId,
+        })
+        return rawToken
+          ? new WrappedTokenInfo({
+              chainId: rawToken.chainId,
+              address: rawToken.address,
+              name: rawToken.name || 'Unknown Token',
+              decimals: rawToken.decimals,
+              symbol: rawToken.symbol || 'UNKNOWN',
+            })
+          : undefined
+      },
+      retry: false,
+    })),
+  })
+
+  const rpcTokens = useMemo(
+    () => (shouldFetchRpcTokens ? filterTruthy(rpcTokenQueries.map(query => query.data)) : []),
+    [rpcTokenQueries, shouldFetchRpcTokens],
+  )
+  const currentChainRpcToken = rpcTokens.find(token => token.chainId === chainId)
+  const otherChainTokens = rpcTokens.filter(token => token.chainId !== chainId)
+  const isFetchingRpcTokens = shouldFetchRpcTokens && rpcTokenQueries.some(query => query.isFetching)
+  const isLoadingRpcTokens = shouldFetchRpcTokens && rpcTokenQueries.some(query => query.isLoading)
+
+  const fetchedTokens = useMemo(
+    () =>
+      debouncedQuery ? tokenSearchResults.concat(filterTruthy([currentChainRpcToken])) : Object.values(defaultTokens),
+    [currentChainRpcToken, debouncedQuery, defaultTokens, tokenSearchResults],
+  )
+
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (!debouncedQuery) {
       // whitelist token
@@ -172,6 +309,10 @@ export function CurrencySearch({
     return fetchedTokens.filter(filterWrapFunc)
   }, [fetchedTokens, debouncedQuery, tokenComparator, filterWrapFunc])
 
+  const isLoadingTokens = isLoadingTokenSearch
+  const isCheckingOtherChains = isLoadingRpcTokens || isFetchingRpcTokens
+
+  // Selection and search input handlers
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
       onCurrencySelect(isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency)
@@ -221,9 +362,9 @@ export function CurrencySearch({
   )
 
   const handleClickFavorite = useCallback(
-    (e: React.MouseEvent, currency: any) => {
+    (e: MouseEvent, currency: Currency) => {
       e.stopPropagation()
-      const address = currency?.wrapped?.address || currency.address
+      const address = currency.wrapped.address
       if (!address) return
 
       toggleFavoriteToken({
@@ -235,11 +376,11 @@ export function CurrencySearch({
   )
 
   // menu ui
-  const isImportedTab = activeTab === Tab.Imported
   const [open, toggle] = useToggle(false)
   const node = useRef<HTMLDivElement>()
   useOnClickOutside(node, open ? toggle : undefined)
 
+  // Favorite/common token hydration
   const fetchFavoriteTokenFromAddress = useCallback(async () => {
     try {
       if (!Object.keys(defaultTokens).length) return
@@ -281,52 +422,12 @@ export function CurrencySearch({
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
-  const abortControllerRef = useRef(new AbortController())
-  const fetchListTokens = useCallback(
-    async (page?: number) => {
-      const nextPage = (page ?? pageCount) + 1
-      let tokens: WrappedTokenInfo[] = []
-      if (debouncedQuery && !isImportedTab) {
-        abortControllerRef.current.abort()
-        abortControllerRef.current = new AbortController()
-        tokens = await fetchTokens(debouncedQuery, nextPage, chainId, abortControllerRef.current.signal)
+  const fetchListTokens = useCallback(async () => {
+    if (!hasNextPage || isFetchingTokenSearch) return
+    await fetchNextPage()
+  }, [fetchNextPage, hasNextPage, isFetchingTokenSearch])
 
-        if (tokens.length === 0 && isQueryValidEVMAddress) {
-          const rawToken = await fetchERC20TokenFromRPC(debouncedQuery)
-
-          if (rawToken) {
-            tokens.push(
-              new WrappedTokenInfo({
-                chainId: rawToken.chainId,
-                address: rawToken.address,
-                name: rawToken.name || 'Unknown Token',
-                decimals: rawToken.decimals,
-                symbol: rawToken.symbol || 'UNKNOWN',
-              }),
-            )
-          }
-        }
-      } else {
-        tokens = isImportedTab ? [] : Object.values(defaultTokens)
-      }
-
-      setPageCount(nextPage)
-      setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(tokens))
-      setHasMoreToken(tokens.length === PAGE_SIZE && !!debouncedQuery)
-    },
-    [isImportedTab, chainId, debouncedQuery, defaultTokens, fetchERC20TokenFromRPC, isQueryValidEVMAddress, pageCount],
-  )
-
-  const [hasMoreToken, setHasMoreToken] = useState(false)
-
-  const prevQuery = usePrevious(debouncedQuery)
-  useEffect(() => {
-    if (prevQuery !== debouncedQuery) {
-      fetchListTokens(0)
-    }
-    // need call api when only debouncedQuery change
-  }, [debouncedQuery, prevQuery, fetchListTokens])
-
+  // Search tracking
   useEffect(() => {
     if (!trackingDebouncedQuery || !trackingSource) return
     trackingHandler(TRACKING_EVENT_TYPE.TOKEN_SEARCHED, {
@@ -362,9 +463,6 @@ export function CurrencySearch({
   }
 
   const onChangeTab = (tab: Tab) => {
-    if (!debouncedQuery && tab === Tab.All) {
-      setFetchedTokens(Object.values(defaultTokens))
-    }
     setActiveTab(tab)
   }
 
@@ -433,7 +531,7 @@ export function CurrencySearch({
               data-active={activeTab === Tab.All}
               onClick={() => onChangeTab(Tab.All)}
               data-testid="tab-all"
-              className={cn('h-8 focus:no-underline', activeTab === Tab.All ? 'text-primary' : 'text-text')}
+              className={cn('h-8 focus:no-underline', activeTab === Tab.All ? 'text-primary' : 'text-subText')}
             >
               <span className="text-sm font-medium">
                 <Trans>All</Trans>
@@ -444,7 +542,7 @@ export function CurrencySearch({
               data-active={isImportedTab}
               onClick={() => onChangeTab(Tab.Imported)}
               data-testid="tab-import"
-              className={cn('h-8 focus:no-underline', isImportedTab ? 'text-primary' : 'text-text')}
+              className={cn('h-8 focus:no-underline', isImportedTab ? 'text-primary' : 'text-subText')}
             >
               <span className="text-sm font-medium">
                 <Trans>Imported</Trans>
@@ -484,12 +582,22 @@ export function CurrencySearch({
           selectedCurrency={selectedCurrency}
           setImportToken={setImportToken}
           loadMoreRows={fetchListTokens}
-          hasMore={hasMoreToken}
+          hasMore={!!hasNextPage}
           customChainId={customChainId}
           setTokenToShowInfo={setTokenToShowInfo}
         />
       ) : (
-        <NoResult />
+        <div className="min-h-0 flex-1">
+          {isLoadingTokens ? (
+            <SearchLoading />
+          ) : isCheckingOtherChains ? (
+            <OtherChainTokenResult tokens={otherChainTokens} loading={isCheckingOtherChains} />
+          ) : otherChainTokens.length ? (
+            <OtherChainTokenResult tokens={otherChainTokens} loading={isCheckingOtherChains} />
+          ) : (
+            <NoResult />
+          )}
+        </div>
       )}
     </ContentWrapper>
   )

@@ -22,7 +22,7 @@ export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef
     <input
       ref={ref}
       className={cn(
-        'absolute flex size-full items-center whitespace-nowrap rounded-full border border-buttonBlack bg-buttonBlack px-4 pb-[13px] pr-[30px] pt-2.5 text-[17px] leading-normal text-text outline-none transition-[border] duration-100 [-webkit-appearance:none]',
+        'absolute flex size-full items-center whitespace-nowrap rounded-full border border-buttonBlack bg-buttonBlack px-4 py-3 pr-[30px] text-[17px] leading-normal text-text outline-none transition-[border] duration-100 [-webkit-appearance:none]',
         'placeholder:text-[12.5px] placeholder:text-border sm:placeholder:text-[13.5px]',
         'focus:border-primary focus:outline-none',
         className,
@@ -34,5 +34,5 @@ export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef
 SearchInput.displayName = 'SearchInput'
 
 export const Separator = ({ className, ...props }: ComponentPropsWithoutRef<'div'>) => (
-  <div className={cn('h-px w-full bg-border', className)} {...props} />
+  <div className={cn('h-px w-full shrink-0 bg-border', className)} {...props} />
 )
