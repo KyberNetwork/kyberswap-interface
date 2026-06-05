@@ -21,6 +21,27 @@ const eciesjsEntry = requireFromSdk.resolve('eciesjs')
 export default defineConfig({
   build: {
     outDir: 'build',
+    // Emit build/.vite/manifest.json so the prerender step (scripts/prerender.mjs) can rewrite the
+    // dev asset URLs that ssrLoadModule produces (/src/assets/x.svg) to the hashed production URLs
+    // (/assets/x-<hash>.svg) — fixing 404s and keeping <img src> identical to the client render.
+    manifest: true,
+  },
+  // For the build-time prerender (scripts/prerender.mjs loads src/entry-server.tsx via Vite's SSR
+  // transform): inline the workspace + browser-oriented ESM deps that ship extensionless imports /
+  // CSS imports, which Node's strict ESM resolver rejects when externalized. react/react-dom stay
+  // external (they're CJS — Node loads them fine; bundling them breaks on `module is not defined`).
+  // Only affects SSR (the client build ignores `ssr`).
+  ssr: {
+    noExternal: [
+      /^@kyber\//,
+      /^@kyberswap\//,
+      'wagmi',
+      '@wagmi/core',
+      'viem',
+      'mipd',
+      /^@lingui\//,
+      '@formo/analytics',
+    ],
   },
   plugins: [
     react({
