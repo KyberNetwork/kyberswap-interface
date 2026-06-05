@@ -15,6 +15,35 @@
   @apply disabled:!cursor-not-allowed disabled:!bg-buttonGray disabled:!text-border;
 }
 
+@keyframes ks-loading-dots {
+  0% {
+    content: '.';
+  }
+  33% {
+    content: '..';
+  }
+  66%,
+  100% {
+    content: '...';
+  }
+}
+
+.ks-loading-dots {
+  position: relative;
+  display: inline-block;
+}
+
+.ks-loading-dots::after {
+  content: '.';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: 1rem;
+  transform: translateY(-50%);
+  text-align: left;
+  animation: ks-loading-dots 1.2s steps(1, end) infinite;
+}
+
 @layer components {
   /* Native browser checkbox tinted with theme primary; pseudo-elements handle the indeterminate state. */
   .ks-checkbox-native {
