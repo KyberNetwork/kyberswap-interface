@@ -1191,7 +1191,7 @@
     --ks-bgSuccess: linear-gradient(90deg, rgba(29, 122, 95, 0.5) 0%, rgba(29, 122, 95, 0) 100%);
     --ks-bgError: linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%);
     --ks-bgWarning: linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%);
-    --ks-bgModal: rgba(0, 0, 0, 0.425);
+    --ks-bgModal: rgba(0, 0, 0, 0.6);
     --ks-radialGradient: radial-gradient(#095143, #06291d);
 
     /* primary */
