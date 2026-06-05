@@ -24,6 +24,7 @@ import TipConfigPreview from 'components/TipLinkGeneratorModal/TipConfigPreview'
 import {
   BackgroundMode,
   MAX_IMAGE_SIZE,
+  PRIMARY_CHAINS,
   SOLID_COLORS,
   TIP_LINK_CHAINS,
   TIP_LINK_CLIENT_ID,
@@ -37,6 +38,7 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
 import { Chain } from 'pages/CrossChainSwap/adapters'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ChargeFeeBy } from 'types/route'
@@ -48,11 +50,12 @@ const makeFileName = (file?: File) => {
 }
 
 export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
-  const { account } = useActiveWeb3React()
+  const { account, chainId: selectedChainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
+  const defaultChainId = TIP_LINK_CHAINS.includes(selectedChainId) ? selectedChainId : PRIMARY_CHAINS[0]
 
-  const [chainId, setChainId] = useState<ChainId>(ChainId.BASE)
+  const [chainId, setChainId] = useState<ChainId>(defaultChainId)
   const [receiver, setReceiver] = useState(account || '')
   const [creatorName, setCreatorName] = useState('')
   const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('default')
@@ -64,13 +67,14 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
   const [generatedLink, setGeneratedLink] = useState('')
   const [copied, setCopied] = useState(false)
   const [showNetworkModal, setShowNetworkModal] = useState(false)
-  const [inputToken, setInputToken] = useState<TokenSchema>(() => getDefaultInputToken(ChainId.BASE))
-  const [outputToken, setOutputToken] = useState<TokenSchema | undefined>(() => getDefaultOutputToken(ChainId.BASE))
+  const [inputToken, setInputToken] = useState<TokenSchema>(() => getDefaultInputToken(defaultChainId))
+  const [outputToken, setOutputToken] = useState<TokenSchema | undefined>(() => getDefaultOutputToken(defaultChainId))
   const [tokenSelectorTarget, setTokenSelectorTarget] = useState<TokenSelectorTarget | null>(null)
 
   const [getSignedUrl, { isLoading: isGettingSignedUrl }] = useGetTipLinkThumbnailSignedUrlMutation()
   const [createTipLink, { isLoading: isCreatingTipLink }] = useCreateTipLinkMutation()
 
+  const whitelistedTokens = useAllTokens(true, chainId)
   const networkInfo = NETWORKS_INFO[chainId]
   const isLoading = isGettingSignedUrl || isCreatingTipLink
   const trimmedReceiver = receiver.trim()
@@ -83,7 +87,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
   const customColorLabel = isCustomColor ? String(backgroundColor).toUpperCase() : '# Custom'
 
   const resetState = useCallback(() => {
-    setChainId(ChainId.BASE)
+    setChainId(defaultChainId)
     setReceiver(account || '')
     setCreatorName('')
     setBackgroundMode('default')
@@ -95,10 +99,10 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
     setGeneratedLink('')
     setCopied(false)
     setShowNetworkModal(false)
-    setInputToken(getDefaultInputToken(ChainId.BASE))
-    setOutputToken(getDefaultOutputToken(ChainId.BASE))
+    setInputToken(getDefaultInputToken(defaultChainId))
+    setOutputToken(getDefaultOutputToken(defaultChainId))
     setTokenSelectorTarget(null)
-  }, [account])
+  }, [account, defaultChainId])
 
   const handleDismiss = () => {
     resetState()
@@ -113,6 +117,14 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
     setInputToken(getDefaultInputToken(chainId))
     setOutputToken(getDefaultOutputToken(chainId))
   }, [chainId])
+
+  useEffect(() => {
+    setOutputToken(prev => {
+      if (!prev?.address || prev.logo) return prev
+      const logo = whitelistedTokens[prev.address.toLowerCase()]?.logoURI
+      return logo ? { ...prev, logo } : prev
+    })
+  }, [outputToken?.address, outputToken?.logo, whitelistedTokens])
 
   useEffect(() => {
     if (isOpen) {
