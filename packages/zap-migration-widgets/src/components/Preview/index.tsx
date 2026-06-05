@@ -84,8 +84,6 @@ export function Preview({
   // Call onSuccess when transaction is successful
   useOnSuccess({ txHash: txHash || '', txStatus });
 
-  if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
-
   const handleSlippage = () => {
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
     setBuildData(undefined);
@@ -107,7 +105,7 @@ export function Preview({
   };
 
   const handleConfirm = async () => {
-    if (!buildData) return;
+    if (!buildData || !account || !sourcePool || !targetPool) return;
 
     const txData = {
       from: account,
@@ -216,6 +214,8 @@ export function Preview({
       />
     );
   }
+
+  if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 
   return (
     <Dialog open={true} onOpenChange={onDismiss}>
