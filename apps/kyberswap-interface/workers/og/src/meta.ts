@@ -1,6 +1,16 @@
-import { KYBERSWAP_URL } from '@/constants'
+import { INDEX_ROBOTS, KYBERSWAP_URL } from '@/constants'
 import { chainFromSlug, type ChainInfo } from '@/networks'
+import { resolvePool } from '@/pools'
 import { resolveToken, type ResolvedToken } from '@/tokens'
+
+const POOL_ADDRESS_RE = /^0x[0-9a-f]{40}$/
+const MAX_PROTOCOL_LEN = 64
+
+// Trim float-representation noise from a fee-tier percentage so the title/meta match the app, which
+// renders fees via formatDisplayNumber(fee, { significantDigits: 4 }). E.g. 0.30000000000000004 -> "0.3".
+function formatFeeTier(fee: number): string {
+  return parseFloat(fee.toPrecision(4)).toString()
+}
 
 export interface ParsedPair {
   kind: 'swap' | 'limit'
@@ -54,6 +64,11 @@ export interface SwapMeta {
   image: string
   url: string
   imageAlt: string
+  // When set (pool pages), rewriteHead also overwrites <link rel="canonical"> + <meta name="robots">
+  // so non-JS crawlers get the self-canonical + index directive instead of the SPA-fallback homepage
+  // values. Left undefined for swap/limit (those stay noindex with the existing canonical).
+  canonical?: string
+  robots?: string
 }
 
 /**
@@ -107,6 +122,55 @@ export async function buildSwapMeta(
   return { title, description, image, url, imageAlt }
 }
 
+// ---- Pool detail (Phase 5) ----
+
+export interface ParsedPool {
+  slug: string
+  chain: ChainInfo
+  protocol: string
+  address: string
+}
+
+/**
+ * Match a path-based pool-detail URL `/pools/<chain>/<protocol>/<address>` and extract its parts.
+ * Returns null for the legacy `/pools/add-liquidity` (2 segments), `/pools`, or a bad address.
+ */
+export function parsePoolPath(pathname: string): ParsedPool | null {
+  const segs = pathname.split('/').filter(Boolean)
+  if (segs.length !== 4 || segs[0] !== 'pools') return null
+  const chain = chainFromSlug(segs[1])
+  if (!chain) return null
+  const protocol = segs[2].toLowerCase()
+  const address = segs[3].toLowerCase()
+  if (!protocol || protocol.length > MAX_PROTOCOL_LEN || !POOL_ADDRESS_RE.test(address)) return null
+  return { slug: segs[1].toLowerCase(), chain, protocol, address }
+}
+
+/**
+ * Resolve a pool's tokens and build its OG/Twitter meta. Returns null (→ serve the page unchanged)
+ * if the pool can't be resolved.
+ */
+export async function buildPoolMeta(parsed: ParsedPool, cache: Cache, ctx: ExecutionContext): Promise<SwapMeta | null> {
+  const { chain, slug, protocol, address } = parsed
+  const pool = await resolvePool(chain.chainId, address, protocol, cache, ctx)
+  if (!pool) return null
+
+  const s0 = pool.token0.symbol
+  const s1 = pool.token1.symbol
+  const feeText = typeof pool.feeTier === 'number' ? ` ${formatFeeTier(pool.feeTier)}%` : ''
+
+  const title = `${s0}/${s1}${feeText} Pool | KyberSwap`
+  const description = `Provide liquidity in the ${s0}/${s1}${feeText} pool on KyberSwap (${chain.name}) and earn fees across 20+ chains.`
+  const imageAlt = `${s0}/${s1} liquidity pool on KyberSwap`
+  const url = `${KYBERSWAP_URL}/pools/${slug}/${protocol}/${address}`
+  const imgParams = new URLSearchParams({ chain: slug, address, protocol })
+  const image = `${KYBERSWAP_URL}/og/pool?${imgParams.toString()}`
+
+  // Pool pages are the intended SEO landing per pool (not prerendered), so make crawlers see a
+  // self-canonical + index directive. The caller downgrades robots to noindex if the URL has a query.
+  return { title, description, image, url, imageAlt, canonical: url, robots: INDEX_ROBOTS }
+}
+
 // ---- HTMLRewriter handlers (Job A) ----
 
 class SetContent {
@@ -133,29 +197,39 @@ class AppendImageDims {
   }
 }
 
+class SetHref {
+  constructor(private value: string) {}
+  element(el: Element) {
+    el.setAttribute('href', this.value)
+  }
+}
+
 /**
- * Rewrite the origin HTML's <head> to carry the pair-specific OG/Twitter meta. Overwrites the
- * existing tags in place (they all exist exactly once in the served HTML) — no duplicates. Leaves
- * <link rel="canonical"> and robots untouched: pair routes stay noindex with canonical → the
- * network landing, matching the app's existing SEO pipeline. Crawlers read OG/Twitter for previews.
+ * Rewrite the origin HTML's <head> to carry the route-specific OG/Twitter meta + title. Overwrites
+ * existing tags in place (each exists once in the served HTML) — no duplicates. For swap/limit it
+ * leaves <link rel="canonical"> + robots untouched (those routes stay noindex with the existing
+ * canonical). For pool pages meta.canonical/robots are set, so the rewriter also makes crawlers see a
+ * self-canonical + index directive (the SPA-fallback HTML otherwise ships the homepage canonical).
  */
 export function rewriteHead(origin: Response, meta: SwapMeta): Response {
-  return (
-    new HTMLRewriter()
-      .on('title', new SetTitle(meta.title))
-      .on('meta[property="og:title"]', new SetContent(meta.title))
-      .on('meta[name="twitter:title"]', new SetContent(meta.title))
-      .on('meta[property="og:description"]', new SetContent(meta.description))
-      .on('meta[name="twitter:description"]', new SetContent(meta.description))
-      .on('meta[property="og:image"]', new SetContent(meta.image))
-      .on('meta[name="twitter:image"]', new SetContent(meta.image))
-      .on('meta[property="og:image:alt"]', new SetContent(meta.imageAlt))
-      .on('meta[name="twitter:image:alt"]', new SetContent(meta.imageAlt))
-      .on('meta[property="og:url"]', new SetContent(meta.url))
-      .on('meta[name="twitter:card"]', new SetContent('summary_large_image'))
-      .on('head', new AppendImageDims())
-      .transform(origin)
-  )
+  let rewriter = new HTMLRewriter()
+    .on('title', new SetTitle(meta.title))
+    .on('meta[property="og:title"]', new SetContent(meta.title))
+    .on('meta[name="twitter:title"]', new SetContent(meta.title))
+    .on('meta[property="og:description"]', new SetContent(meta.description))
+    .on('meta[name="twitter:description"]', new SetContent(meta.description))
+    .on('meta[property="og:image"]', new SetContent(meta.image))
+    .on('meta[name="twitter:image"]', new SetContent(meta.image))
+    .on('meta[property="og:image:alt"]', new SetContent(meta.imageAlt))
+    .on('meta[name="twitter:image:alt"]', new SetContent(meta.imageAlt))
+    .on('meta[property="og:url"]', new SetContent(meta.url))
+    .on('meta[name="twitter:card"]', new SetContent('summary_large_image'))
+    .on('head', new AppendImageDims())
+
+  if (meta.canonical) rewriter = rewriter.on('link[rel="canonical"]', new SetHref(meta.canonical))
+  if (meta.robots) rewriter = rewriter.on('meta[name="robots"]', new SetContent(meta.robots))
+
+  return rewriter.transform(origin)
 }
 
 export type { ResolvedToken }

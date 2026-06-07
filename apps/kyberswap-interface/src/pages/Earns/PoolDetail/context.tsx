@@ -1,6 +1,6 @@
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { ReactNode, createContext, useContext, useMemo } from 'react'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 import { PoolDetail, PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 
@@ -12,6 +12,7 @@ import { NoteCard, PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, EarnDexInfo, Exchange } from 'pages/Earns/constants'
 import { EarnPool } from 'pages/Earns/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { getChainIdFromSlug } from 'utils/string'
 
 interface PoolDetailContextValue {
   pool: PoolDetail
@@ -52,11 +53,13 @@ const mergePoolTokens = (
 }
 
 export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
-  const [searchParams] = useSearchParams()
+  // Path-based pool identity (Phase 5): /pools/<chain-slug>/<protocol>/<address>. The legacy
+  // ?exchange=&poolChainId=&poolAddress= form 301-redirects to this shape (see App.tsx).
+  const { chain, protocol, address } = useParams()
 
-  const exchange = searchParams.get('exchange') || ''
-  const poolAddress = searchParams.get('poolAddress') || ''
-  const poolChainId = Number(searchParams.get('poolChainId') || 0)
+  const exchange = protocol || ''
+  const poolAddress = address || ''
+  const poolChainId = getChainIdFromSlug(chain) ?? 0
 
   const { data: poolDetail, isLoading: isPoolLoading } = usePoolDetailQuery(
     {

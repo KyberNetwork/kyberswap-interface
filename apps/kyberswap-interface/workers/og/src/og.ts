@@ -1,6 +1,7 @@
 import { ImageResponse } from 'workers-og'
 
 import { loadFont, FONT_FAMILY } from '@/font'
+import type { PoolToken } from '@/pools'
 import type { ResolvedToken } from '@/tokens'
 
 // ---- brand ----
@@ -125,6 +126,39 @@ export interface SwapOgInput {
  * Render the 1200x630 swap-pair OG card as a PNG Response. Logos are inlined as data URIs (with a
  * div-circle fallback), so the card always renders even if a logo fetch fails.
  */
+// Shared card chrome: brand header (Kyber + Swap + "on <network>"), a center row, and a caption.
+function cardHtml(networkName: string, center: string, caption: string): string {
+  return `<div style="display:flex;flex-direction:column;justify-content:space-between;width:${WIDTH}px;height:${HEIGHT}px;padding:72px 80px;background:${BG};font-family:'${FONT_FAMILY}'">
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+      <div style="display:flex">
+        <div style="color:${GREEN};font-size:48px;font-weight:700">Kyber</div>
+        <div style="color:${WHITE};font-size:48px;font-weight:700">Swap</div>
+      </div>
+      <div style="display:flex;font-size:32px;color:${SUBTEXT}">on ${escapeHtml(networkName)}</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;width:100%">
+      ${center}
+    </div>
+    <div style="display:flex;font-size:32px;color:${MUTED}">${caption}</div>
+  </div>`
+}
+
+// Build the workers-og `fonts` option from the loaded weights, dropping any that failed to load. If
+// empty, the caller omits `fonts` so workers-og falls back to its bundled default rather than blank.
+function fontsOption(font700: ArrayBuffer | null, font400: ArrayBuffer | null) {
+  return [
+    font700 ? { name: FONT_FAMILY, data: font700, weight: 700 as const, style: 'normal' as const } : null,
+    font400 ? { name: FONT_FAMILY, data: font400, weight: 400 as const, style: 'normal' as const } : null,
+  ].filter((f): f is NonNullable<typeof f> => f !== null)
+}
+
+const ARROW = `<div style="display:flex;align-items:center;justify-content:center;font-size:88px;color:${GREEN};margin:0 16px">→</div>`
+const SLASH = `<div style="display:flex;align-items:center;justify-content:center;font-size:72px;color:${GREEN};margin:0 24px">/</div>`
+
+/**
+ * Render the 1200x630 swap-pair OG card as a PNG Response. Logos are inlined as data URIs (with a
+ * div-circle fallback), so the card always renders even if a logo fetch fails.
+ */
 export async function renderSwapOg(input: SwapOgInput, ctx: ExecutionContext): Promise<Response> {
   const { inToken, outToken, networkName, kind } = input
   // Caller guarantees at least one side. With both, render "logo → logo"; with one, a single token.
@@ -145,36 +179,47 @@ export async function renderSwapOg(input: SwapOgInput, ctx: ExecutionContext): P
         : `Swap ${syms[0]} for ${syms[1]} at the best rate across 20+ chains`
       : `${verbCap} ${syms[0]} on KyberSwap — best rates across 20+ chains`
 
-  const arrow = `<div style="display:flex;align-items:center;justify-content:center;font-size:88px;color:${GREEN};margin:0 16px">→</div>`
   const center =
     present.length === 2
-      ? `${tokenBlock(logos[0], present[0].symbol)}${arrow}${tokenBlock(logos[1], present[1].symbol)}`
+      ? `${tokenBlock(logos[0], present[0].symbol)}${ARROW}${tokenBlock(logos[1], present[1].symbol)}`
       : tokenBlock(logos[0], present[0].symbol)
 
-  const html = `<div style="display:flex;flex-direction:column;justify-content:space-between;width:${WIDTH}px;height:${HEIGHT}px;padding:72px 80px;background:${BG};font-family:'${FONT_FAMILY}'">
-    <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-      <div style="display:flex">
-        <div style="color:${GREEN};font-size:48px;font-weight:700">Kyber</div>
-        <div style="color:${WHITE};font-size:48px;font-weight:700">Swap</div>
-      </div>
-      <div style="display:flex;font-size:32px;color:${SUBTEXT}">on ${escapeHtml(networkName)}</div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:center;width:100%">
-      ${center}
-    </div>
-    <div style="display:flex;font-size:32px;color:${MUTED}">${caption}</div>
-  </div>`
-
-  const fonts = [
-    font700 ? { name: FONT_FAMILY, data: font700, weight: 700 as const, style: 'normal' as const } : null,
-    font400 ? { name: FONT_FAMILY, data: font400, weight: 400 as const, style: 'normal' as const } : null,
-  ].filter((f): f is NonNullable<typeof f> => f !== null)
-
-  return new ImageResponse(html, {
+  const fonts = fontsOption(font700, font400)
+  return new ImageResponse(cardHtml(networkName, center, caption), {
     width: WIDTH,
     height: HEIGHT,
-    // If both font loads failed, omit `fonts` so workers-og falls back to its bundled default rather
-    // than rendering blank text.
+    ...(fonts.length ? { fonts } : {}),
+  })
+}
+
+export interface PoolOgInput {
+  token0: PoolToken
+  token1: PoolToken
+  networkName: string
+  feeTier?: number
+}
+
+/**
+ * Render the 1200x630 pool OG card as a PNG Response: both token logos with a "/" separator + a
+ * fee/liquidity caption. Both tokens are always present for a pool.
+ */
+export async function renderPoolOg(input: PoolOgInput, ctx: ExecutionContext): Promise<Response> {
+  const { token0, token1, networkName, feeTier } = input
+
+  const [logos, font700, font400] = await Promise.all([
+    Promise.all([fetchLogoDataUri(token0.logoURI), fetchLogoDataUri(token1.logoURI)]),
+    loadFont(700, ctx),
+    loadFont(400, ctx),
+  ])
+
+  const feeText = typeof feeTier === 'number' ? ` · ${feeTier}% fee` : ''
+  const caption = `Provide liquidity & earn${feeText} on KyberSwap — across 20+ chains`
+  const center = `${tokenBlock(logos[0], token0.symbol)}${SLASH}${tokenBlock(logos[1], token1.symbol)}`
+
+  const fonts = fontsOption(font700, font400)
+  return new ImageResponse(cardHtml(networkName, center, caption), {
+    width: WIDTH,
+    height: HEIGHT,
     ...(fonts.length ? { fonts } : {}),
   })
 }

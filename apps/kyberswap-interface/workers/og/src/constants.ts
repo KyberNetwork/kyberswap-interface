@@ -22,9 +22,17 @@ export const DEFAULT_OG_IMAGE = `${KYBERSWAP_URL}/kyberswap-og-image.png?version
 /** Public, anonymously-callable ks-setting token-list endpoint. */
 export const KS_SETTING_TOKENS = 'https://ks-setting.kyberswap.com/api/v1/tokens'
 
+/** Public earn-service explorer endpoint — resolves a pool's tokens (symbol + logoURI) + feeTier. */
+export const EARN_SERVICE_POOLS = 'https://earn-service.kyberswap.com/api/v1/explorer/pools'
+
 /** Native-currency sentinel address (app ETHER_ADDRESS), lowercased; and the zero address. */
 export const NATIVE_SENTINEL = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 /** Synthetic origin for caches.default keys — a stable cache namespace, never hits the network. */
 export const CACHE_KEY_ORIGIN = 'https://kyberswap-og.internal'
+
+/** robots directives (mirrors src/components/Seo/seoConfig.ts). Used for pool pages, which the worker
+ * makes self-canonical + indexable for crawlers (the SPA-fallback HTML ships the homepage canonical). */
+export const INDEX_ROBOTS = 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
+export const NOINDEX_ROBOTS = 'noindex,follow'

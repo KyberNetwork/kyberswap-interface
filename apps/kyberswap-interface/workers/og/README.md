@@ -12,7 +12,9 @@ value phase: pasting a pair link into Telegram / X / Discord shows the two token
 | Path | Behavior |
 | --- | --- |
 | `/swap/<net>/<in>-to-<out>`, `/limit/<net>/<in>-to-<out>` (+ legacy `?inputCurrency=&outputCurrency=`) | **Job A** — fetch origin HTML, rewrite `<head>` OG/Twitter meta per request (title `Swap X → Y \| KyberSwap`, `og:image` → `/og/swap?…`). Body untouched; SPA still hydrates. |
-| `/og/swap`, `/og/limit` (`?chain=&in=&out=`) | **Job B** — generate a cached 1200×630 PNG (two token logos + symbols + brand). |
+| `/pools/<chain>/<protocol>/<address>` | **Job A (pool)** — rewrite `<head>` with per-pool meta (`USDC/WETH 0.05% Pool \| KyberSwap`, `og:image` → `/og/pool?…`). Tokens resolved from the earn-service explorer endpoint. |
+| `/pools/add-liquidity?exchange=&poolChainId=&poolAddress=` | **301** to the canonical `/pools/<chain>/<protocol>/<address>` (legacy URL → path form, for SEO consolidation). |
+| `/og/swap`, `/og/limit` (`?chain=&in=&out=`), `/og/pool` (`?chain=&address=&protocol=`) | **Job B** — generate a cached 1200×630 PNG (two token logos + symbols + brand). |
 | everything else (incl. bare `/swap/<net>` landing) | passes straight through to origin. |
 
 Token metadata (symbol + `logoURI`) is resolved at request time from the **public** ks-setting
@@ -28,9 +30,10 @@ Resolutions, logos, the font, and the generated PNG are all cached in `caches.de
 - **`networks.ts` is a hand-maintained copy** of the app's slug → `{chainId, nativeSymbol}` map
   (from `NETWORKS_INFO[chainId].route`). If a new **mainnet** chain ships in the app, add its row
   here too, or its pair links fall back to the default card.
-- **Pool OG (`/pools/...`) is intentionally out of scope here.** The current pool URL is still the
-  query-param form (`/pools/add-liquidity?…`); path-based pool URLs + pool OG land in Phase 5 tier 0,
-  which extends this worker.
+- **Pool OG (`/pools/<chain>/<protocol>/<address>`)** is handled (Phase 5 tier 0). Pool tokens come
+  from the public earn-service explorer endpoint (`/v1/explorer/pools?chainId=&q=<address>`, which
+  carries `logoURI` + `feeTier`). The legacy query-param pool URL 301-redirects to the path form.
+  Top-N pool prerender (tiers 1/2) stays deferred per the plan.
 - **`<head>` rewrite only touches OG/Twitter tags + `<title>`.** `<link rel="canonical">` and
   `robots` are left as-is, so pair routes keep the app's existing noindex + canonical-to-landing SEO.
 

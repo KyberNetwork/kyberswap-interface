@@ -1,6 +1,7 @@
 // Node smoke test of the worker's pure + network logic (no workerd). Bundled with esbuild and run
 // under node, which has global fetch. Provides minimal Cache/ctx stubs.
-import { parsePairPath, buildSwapMeta } from '@/meta'
+import { parsePairPath, buildSwapMeta, parsePoolPath, buildPoolMeta } from '@/meta'
+import { resolvePool } from '@/pools'
 import { resolveToken } from '@/tokens'
 
 const cache: Cache = {
@@ -79,6 +80,29 @@ async function main() {
     const m8 = await buildSwapMeta(p8, cache, ctx)
     check('one-sided og url keeps direction', !!m8 && m8.url === 'https://kyberswap.com/swap/ethereum/-to-usdc', m8?.url)
     check('one-sided title is single-token', !!m8 && m8.title === 'Swap USDC | KyberSwap' && !m8.title.includes('→'), m8?.title)
+  }
+
+  console.log('# parsePoolPath')
+  const usdcWeth = '0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640'
+  const pp1 = parsePoolPath(`/pools/ethereum/uniswapv3/${usdcWeth}`)
+  check('pool path parses', !!pp1 && pp1.chain.chainId === 1 && pp1.protocol === 'uniswapv3' && pp1.address === usdcWeth)
+  check('legacy /pools/add-liquidity -> null', parsePoolPath('/pools/add-liquidity') === null)
+  check('bad pool address -> null', parsePoolPath('/pools/ethereum/uniswapv3/notanaddress') === null)
+  check('unknown pool chain -> null', parsePoolPath(`/pools/notachain/uniswapv3/${usdcWeth}`) === null)
+
+  console.log('# resolvePool + buildPoolMeta (live earn-service)')
+  const pool = await resolvePool(1, usdcWeth, 'uniswapv3', cache, ctx)
+  check('pool resolves both tokens', !!pool && !!pool.token0.symbol && !!pool.token1.symbol, pool)
+  if (pp1) {
+    const pmeta = await buildPoolMeta(pp1, cache, ctx)
+    check('pool meta title', !!pmeta && pmeta.title.includes('Pool') && pmeta.title.includes('KyberSwap'), pmeta?.title)
+    check('pool meta image -> /og/pool', !!pmeta && pmeta.image.includes('/og/pool?') && pmeta.image.includes('chain=ethereum'), pmeta?.image)
+    check('pool meta canonical url', !!pmeta && pmeta.url === `https://kyberswap.com/pools/ethereum/uniswapv3/${usdcWeth}`, pmeta?.url)
+    check(
+      'pool meta is self-canonical + index',
+      !!pmeta && pmeta.canonical === pmeta.url && (pmeta.robots || '').startsWith('index,follow'),
+      { canonical: pmeta?.canonical, robots: pmeta?.robots },
+    )
   }
 
   console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL PASS')

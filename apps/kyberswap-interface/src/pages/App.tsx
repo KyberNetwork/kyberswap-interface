@@ -1,7 +1,7 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
 import { Suspense, lazy, useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 
 import Popups from 'components/Announcement/Popups'
@@ -26,6 +26,7 @@ import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
 import { useWebVitals } from 'hooks/useWebVitals'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
@@ -127,6 +128,21 @@ const RedirectWithNetworkSuffix = () => {
       replace
     />
   )
+}
+
+// Legacy pool-detail URL (`/pools/add-liquidity?exchange=&poolChainId=&poolAddress=`) ->
+// the canonical path form (`/pools/<chain>/<protocol>/<address>`). The Cloudflare edge worker also
+// 301s this for crawlers; this client-side redirect covers in-SPA navigation + direct hits.
+const RedirectAddLiquidityToPoolPath = () => {
+  const [searchParams] = useSearchParams()
+  const exchange = searchParams.get('exchange') || ''
+  const poolAddress = searchParams.get('poolAddress') || ''
+  const poolChainId = Number(searchParams.get('poolChainId') || 0)
+
+  if (!exchange || !poolAddress || !poolChainId) {
+    return <Navigate to={APP_PATHS.EARN_POOLS} replace />
+  }
+  return <Navigate to={getPoolDetailUrl(poolChainId, exchange, poolAddress)} replace />
 }
 
 const RoutesWithNetworkPrefix = () => {
@@ -328,7 +344,8 @@ export default function App() {
               <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
               <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
               <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
-              <Route path={APP_PATHS.ADD_LIQUIDITY} element={<PoolDetail />} />
+              <Route path={APP_PATHS.POOL_DETAIL} element={<PoolDetail />} />
+              <Route path={APP_PATHS.ADD_LIQUIDITY} element={<RedirectAddLiquidityToPoolPath />} />
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />

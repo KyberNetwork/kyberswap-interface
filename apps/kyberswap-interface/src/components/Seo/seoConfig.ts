@@ -168,6 +168,23 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
     }
   }
 
+  // Path-based pool detail (Phase 5): /pools/:chain/:protocol/:address. Unbounded catalog — NOT
+  // prerendered/sitemapped, but the clean self-canonical URL is the intended SEO landing per pool, so
+  // INDEX it (a deliberate departure from the noindex swap-pair). The per-pool <title> (tokens + fee)
+  // is upgraded client-side once pool data loads (see PoolDetail). Legacy junk query -> noindex.
+  const poolDetailMatch = matchPath(`${APP_PATHS.POOLS}/:chain/:protocol/:address`, normalizedPath)
+  if (poolDetailMatch?.params.chain && poolDetailMatch.params.protocol && poolDetailMatch.params.address) {
+    const { chain, protocol, address } = poolDetailMatch.params
+    const canonicalPath = `${APP_PATHS.POOLS}/${chain}/${protocol}/${address}`
+    return {
+      title: 'Liquidity Pool | KyberSwap',
+      description: EARN_POOLS_DESCRIPTION,
+      canonicalPath,
+      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(canonicalPath),
+    }
+  }
+
   if (normalizedPath === APP_PATHS.EARN_POSITIONS) {
     return {
       title: 'Liquidity Positions | KyberSwap',

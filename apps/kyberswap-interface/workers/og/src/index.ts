@@ -9,10 +9,11 @@
 // Everything else passes straight through to origin. No app code is imported; token metadata comes
 // from the public ks-setting token-list API. See README.md for deploy + validation.
 
-import { CACHE_KEY_ORIGIN, DEFAULT_OG_IMAGE } from '@/constants'
-import { parsePairPath, buildSwapMeta, rewriteHead } from '@/meta'
-import { chainFromSlug } from '@/networks'
-import { renderSwapOg } from '@/og'
+import { CACHE_KEY_ORIGIN, DEFAULT_OG_IMAGE, KYBERSWAP_URL, NOINDEX_ROBOTS } from '@/constants'
+import { parsePairPath, parsePoolPath, buildSwapMeta, buildPoolMeta, rewriteHead } from '@/meta'
+import { chainFromSlug, slugFromChainId } from '@/networks'
+import { renderSwapOg, renderPoolOg } from '@/og'
+import { resolvePool } from '@/pools'
 import { resolveToken } from '@/tokens'
 
 interface Env {}
@@ -127,6 +128,79 @@ async function handleOgImage(url: URL, kind: 'swap' | 'limit', ctx: ExecutionCon
   return response
 }
 
+// ---- Pool detail (Phase 5) ----
+
+// Legacy `/pools/add-liquidity?exchange=&poolChainId=&poolAddress=` -> 301 to the canonical path form
+// `/pools/<chain>/<protocol>/<address>`. Returns null (caller passes through) if it can't be built.
+function legacyPoolRedirect(url: URL): Response | null {
+  const exchange = (url.searchParams.get('exchange') || '').toLowerCase()
+  const poolAddress = (url.searchParams.get('poolAddress') || '').toLowerCase()
+  const poolChainId = Number(url.searchParams.get('poolChainId') || 0)
+  const slug = slugFromChainId(poolChainId)
+  if (!exchange || !poolAddress || !slug) return null
+  return Response.redirect(`${KYBERSWAP_URL}/pools/${slug}/${exchange}/${poolAddress}`, 301)
+}
+
+async function handlePoolHeadInjection(request: Request, url: URL, ctx: ExecutionContext): Promise<Response> {
+  const parsed = parsePoolPath(url.pathname)
+  const originPromise = fetch(request)
+  if (!parsed) return originPromise
+
+  const cache = caches.default
+  const [origin, meta] = await Promise.all([originPromise, withTimeout(buildPoolMeta(parsed, cache, ctx), HEAD_TIMEOUT_MS)])
+
+  const contentType = origin.headers.get('content-type') || ''
+  if (!meta || !origin.ok || !contentType.includes('text/html')) return origin
+
+  // Mirror seoConfig: a pool URL carrying query params (e.g. orphan ticks) is noindex to avoid
+  // indexing param-variant duplicates; the clean path stays index (set in buildPoolMeta).
+  if (url.search) meta.robots = NOINDEX_ROBOTS
+
+  return rewriteHead(origin, meta)
+}
+
+async function handlePoolOgImage(url: URL, ctx: ExecutionContext): Promise<Response> {
+  const slug = (url.searchParams.get('chain') || '').toLowerCase()
+  const address = (url.searchParams.get('address') || '').toLowerCase()
+  const protocol = (url.searchParams.get('protocol') || '').toLowerCase()
+
+  const chain = chainFromSlug(slug)
+  if (!chain || address.length > MAX_PARAM_LEN || protocol.length > MAX_PARAM_LEN) return defaultImage()
+
+  const cache = caches.default
+  // Key by chain + address only (resolvePool ignores protocol in its own key too).
+  const normalized = new URL(`${CACHE_KEY_ORIGIN}/og/pool`)
+  normalized.searchParams.set('chain', slug)
+  normalized.searchParams.set('address', address)
+  const cacheKey = new Request(normalized.toString())
+
+  const hit = await cache.match(cacheKey)
+  if (hit) return hit
+
+  const pool = await resolvePool(chain.chainId, address, protocol, cache, ctx)
+  if (!pool) return defaultImage()
+
+  let png: ArrayBuffer
+  try {
+    png = await renderPoolOg(
+      { token0: pool.token0, token1: pool.token1, networkName: chain.name, feeTier: pool.feeTier },
+      ctx,
+    ).then(r => r.arrayBuffer())
+  } catch {
+    return defaultImage()
+  }
+
+  const response = new Response(png, {
+    status: 200,
+    headers: {
+      'content-type': 'image/png',
+      'cache-control': 'public, max-age=31536000, immutable',
+    },
+  })
+  ctx.waitUntil(cache.put(cacheKey, response.clone()))
+  return response
+}
+
 export default {
   async fetch(request: Request, _env: Env, ctx: ExecutionContext): Promise<Response> {
     // Safety net: if anything throws uncaught (e.g. an origin connection reset), fall back to default
@@ -138,10 +212,17 @@ export default {
     // Job B — OG image endpoints.
     if (pathname === '/og/swap') return handleOgImage(url, 'swap', ctx)
     if (pathname === '/og/limit') return handleOgImage(url, 'limit', ctx)
+    if (pathname === '/og/pool') return handlePoolOgImage(url, ctx)
 
     // Job A — swap/limit pair head injection (GET HTML only).
     if (request.method === 'GET' && (pathname.startsWith('/swap/') || pathname.startsWith('/limit/'))) {
       return handleHeadInjection(request, pathname, url.searchParams, ctx)
+    }
+
+    // Pool detail (GET): 301 the legacy query-param URL, else inject per-pool head meta.
+    if (request.method === 'GET' && pathname.startsWith('/pools/')) {
+      if (pathname === '/pools/add-liquidity') return legacyPoolRedirect(url) ?? fetch(request)
+      return handlePoolHeadInjection(request, url, ctx)
     }
 
     // Everything else — straight to origin.

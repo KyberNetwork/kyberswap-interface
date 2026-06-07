@@ -39,3 +39,12 @@ export const SLUG_TO_CHAIN: Record<string, ChainInfo> = {
 export function chainFromSlug(slug: string): ChainInfo | undefined {
   return SLUG_TO_CHAIN[slug.toLowerCase()]
 }
+
+// Reverse map (chainId -> slug) for redirecting the legacy numeric-chainId pool URL to the slug form.
+const CHAIN_TO_SLUG: Record<number, string> = Object.fromEntries(
+  Object.entries(SLUG_TO_CHAIN).map(([slug, info]) => [info.chainId, slug]),
+)
+
+export function slugFromChainId(chainId: number): string | undefined {
+  return CHAIN_TO_SLUG[chainId]
+}

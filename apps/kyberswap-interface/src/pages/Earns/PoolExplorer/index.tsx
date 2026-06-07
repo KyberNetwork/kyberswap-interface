@@ -32,6 +32,7 @@ import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -134,14 +135,15 @@ const PoolExplorer = () => {
 
   const handleNavigateToAddLiquidity = useCallback(
     ({ pool, initialTick }: ZapInInfo) => {
+      const pathname = getPoolDetailUrl(pool.chainId, pool.dex, pool.address)
+      // tickLower/tickUpper stay as optional query params on the new path (currently unread by the
+      // detail page, but preserved so a future zap-migration reader can still pick them up).
       const params = new URLSearchParams()
-      params.set('exchange', pool.dex)
-      params.set('poolChainId', pool.chainId.toString())
-      params.set('poolAddress', pool.address)
       if (initialTick?.tickLower !== undefined) params.set('tickLower', initialTick.tickLower.toString())
       if (initialTick?.tickUpper !== undefined) params.set('tickUpper', initialTick.tickUpper.toString())
+      const search = params.toString()
 
-      navigate({ pathname: APP_PATHS.ADD_LIQUIDITY, search: `?${params.toString()}` })
+      navigate(search ? { pathname, search: `?${search}` } : pathname)
     },
     [navigate],
   )

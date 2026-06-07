@@ -18,7 +18,8 @@
   "routes": [
     { "pattern": "kyberswap.com/og/*", "zone_name": "kyberswap.com" },
     { "pattern": "kyberswap.com/swap/*", "zone_name": "kyberswap.com" },
-    { "pattern": "kyberswap.com/limit/*", "zone_name": "kyberswap.com" }
+    { "pattern": "kyberswap.com/limit/*", "zone_name": "kyberswap.com" },
+    { "pattern": "kyberswap.com/pools/*", "zone_name": "kyberswap.com" }
   ],
 
   // OG PNG generation (Satori layout + resvg rasterization) is pure CPU and exceeds the Free plan's
