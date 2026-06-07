@@ -1,14 +1,16 @@
-import { HTMLAttributes, createElement, forwardRef } from 'react'
+import { ButtonHTMLAttributes, HTMLAttributes, LabelHTMLAttributes, createElement, forwardRef } from 'react'
 
 import { cn } from 'utils/cn'
 
-export type StackProps = HTMLAttributes<HTMLDivElement> & {
-  /** Render as a different HTML element. */
-  as?: keyof React.JSX.IntrinsicElements
-}
+export type StackProps = HTMLAttributes<HTMLElement> &
+  ButtonHTMLAttributes<HTMLButtonElement> &
+  LabelHTMLAttributes<HTMLLabelElement> & {
+    /** Render as a different HTML element. */
+    as?: keyof React.JSX.IntrinsicElements
+  }
 
 const makeStack = (baseClassName: string, displayName: string) => {
-  const Component = forwardRef<HTMLDivElement, StackProps>(({ as = 'div', className, ...rest }, ref) =>
+  const Component = forwardRef<HTMLElement, StackProps>(({ as = 'div', className, ...rest }, ref) =>
     createElement(as, { ref, className: cn(baseClassName, className), ...rest }),
   )
   Component.displayName = displayName

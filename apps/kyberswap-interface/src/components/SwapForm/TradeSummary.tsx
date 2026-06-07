@@ -7,10 +7,13 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import RefreshLoading from 'components/RefreshLoading'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
+import { TIP_LINK_CLIENT_ID } from 'components/TipLinkGeneratorModal/shared'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
-import { BIPS_BASE } from 'constants/index'
+import { BIPS_BASE, ClientNameMapping } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, isInSafeApp } from 'utils'
@@ -23,14 +26,23 @@ type TooltipTextOfSwapFeeProps = {
   feeBips: string | undefined
   feeAmountText: string
 }
-export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
-  const [searchParams] = useSearchParams()
-  const clientId = searchParams.get('clientId')
 
-  const feePercent = formatDisplayNumber(Number(feeBips) / Number(BIPS_BASE.toString()), {
+export const formatSwapFeePercent = (feeBips: string | undefined) => {
+  const parsedFeeBips = Number(feeBips)
+  if (!Number.isFinite(parsedFeeBips)) return ''
+
+  return formatDisplayNumber(parsedFeeBips / Number(BIPS_BASE.toString()), {
     style: 'percent',
     fractionDigits: 2,
   })
+}
+
+export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
+  const [searchParams] = useSearchParams()
+  const feeConfig = useGetFeeConfig()
+  const clientId = searchParams.get('clientId')
+
+  const feePercent = formatSwapFeePercent(feeBips)
   const hereLink = (
     <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-superior-rates#swap-fees-supporting-transactions-on-low-trading-volume-chains">
       <b>
@@ -41,6 +53,20 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
 
   if (!feeAmountText || !feePercent) {
     return <Trans>Read more about the fees {hereLink}</Trans>
+  }
+
+  if (clientId === TIP_LINK_CLIENT_ID) {
+    const tipRecipientName = feeConfig?.clientName || 'the link sharer'
+    return (
+      <Trans>
+        You&apos;re adding a {feePercent} tip ({feeAmountText}) to this swap for{' '}
+        <span title={tipRecipientName} className="inline-block max-w-[120px] truncate align-bottom">
+          {tipRecipientName}
+        </span>
+        . This is deducted from your output - the Est. Output above already includes it. Tips are optional and go
+        directly to the link sharer&apos;s wallet.
+      </Trans>
+    )
   }
 
   if (clientId) {
@@ -55,22 +81,79 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
   )
 }
 
+export const SwapFeeLabel = () => {
+  const feeConfig = useGetFeeConfig()
+
+  if (feeConfig?.enableTip) {
+    const configuredClientName =
+      feeConfig.clientName && feeConfig.clientName !== feeConfig.clientId ? feeConfig.clientName : ''
+    const tipRecipientName = configuredClientName || ClientNameMapping[feeConfig.clientId || ''] || 'the link sharer'
+
+    return (
+      <span className="inline-flex min-w-0 max-w-[180px] items-center align-bottom">
+        <span className="shrink-0">
+          <Trans>Tip for</Trans>&nbsp;
+        </span>
+        <span className="min-w-0 truncate">{tipRecipientName}</span>
+      </span>
+    )
+  }
+
+  return <Trans>Est. Swap Fee</Trans>
+}
+
 const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
 
-  const {
-    formattedAmount: feeAmount = '',
-    formattedAmountUsd: feeAmountUsd = '',
-    currency = undefined,
-  } = routeSummary?.fee || {}
+  const { formattedAmount: feeAmount = '', currencyAmount, currency } = routeSummary?.fee || {}
+  const feeTokenAddress = currency?.wrapped.address
+  const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currency?.chainId)
+  const feeTokenPrice = feeTokenAddress ? tokenPrices[feeTokenAddress] : 0
+  const feeAmountUsdText =
+    currencyAmount && feeTokenPrice
+      ? formatDisplayNumber(Number(currencyAmount.toExact()) * feeTokenPrice, {
+          style: 'currency',
+          significantDigits: 4,
+        })
+      : ''
 
   if (!feeAmount) {
     return null
   }
 
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
+  const feePercent = formatSwapFeePercent(routeSummary?.extraFee?.feeAmount)
+  const feeValue = feePercent || feeAmountWithSymbol || '--'
   const labelColor = isFeeTampered ? theme.warning : theme.subText
+
+  if (isInSafeApp) {
+    return (
+      <RowBetween>
+        <RowFixed>
+          <TextDashed fontSize={12} fontWeight={400} color={labelColor}>
+            <MouseoverTooltip
+              text={
+                <span>
+                  Learn more about the Platform Fee{' '}
+                  <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-widget/widget-iframe-fee">
+                    here ↗
+                  </ExternalLink>
+                </span>
+              }
+              placement="right"
+            >
+              Platform Fee
+            </MouseoverTooltip>
+          </TextDashed>
+        </RowFixed>
+
+        <RowFixed>
+          <p className={cn('m-0 text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>0.1%</p>
+        </RowFixed>
+      </RowBetween>
+    )
+  }
 
   return (
     <RowBetween>
@@ -78,27 +161,24 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
         <TextDashed fontSize={12} fontWeight={400} color={labelColor}>
           <MouseoverTooltip
             text={
-              isInSafeApp ? (
-                <span>
-                  Learn more about the Platform Fee{' '}
-                  <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-widget/widget-iframe-fee">
-                    here ↗
-                  </ExternalLink>
-                </span>
-              ) : (
-                <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
-              )
+              <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
             }
             placement="right"
           >
-            {isInSafeApp ? 'Platform Fee' : <Trans>Est. Swap Fee</Trans>}
+            <SwapFeeLabel />
           </MouseoverTooltip>
         </TextDashed>
       </RowFixed>
 
       <RowFixed>
-        <p className={cn('m-0 text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>
-          {isInSafeApp ? '0.1%' : feeAmountUsd || feeAmountWithSymbol || '--'}
+        <p
+          className={cn(
+            'm-0 flex flex-nowrap items-center gap-1 text-[12px] font-medium',
+            isFeeTampered ? 'text-warning' : 'text-text',
+          )}
+        >
+          <span>{feeValue}</span>
+          {feePercent && feeAmountUsdText && <span className="text-subText">(~{feeAmountUsdText})</span>}
         </p>
       </RowFixed>
     </RowBetween>

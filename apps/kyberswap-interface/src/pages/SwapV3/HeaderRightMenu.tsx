@@ -20,23 +20,25 @@ import { formatSlippage } from 'utils/slippage'
 export default function HeaderRightMenu({
   activeTab,
   setActiveTab,
+  activeMainTab,
 }: {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
+  activeMainTab?: TAB
 }) {
   const { pathname } = useLocation()
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
+  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
+  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeMainTab === TAB.SWAP
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
+  const defaultTab =
+    activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP)
 
   const { currencies } = useCurrenciesByPage()
   const { trackingHandler } = useTracking(currencies)
 
   const onToggleActionTab = (tab: TAB) => {
     if (activeTab === tab) {
-      if (isSwapPage) setActiveTab(TAB.SWAP)
-      else if (isLimitPage) setActiveTab(TAB.LIMIT)
-      else if (isCrossChainPage) setActiveTab(TAB.CROSS_CHAIN)
+      setActiveTab(defaultTab)
     } else {
       setActiveTab(tab)
     }

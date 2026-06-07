@@ -26,6 +26,7 @@ import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
 import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
+import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
 import tokenChartApi from 'services/tokenChart'
 import zapApi from 'services/zap'
@@ -129,6 +130,7 @@ const rootReducer = combineReducers({
   [blackjackApi.reducerPath]: blackjackApi.reducer,
   [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
   [smartExitApi.reducerPath]: smartExitApi.reducer,
+  [tipLinkApi.reducerPath]: tipLinkApi.reducer,
   [tokenChartApi.reducerPath]: tokenChartApi.reducer,
 })
 
@@ -165,6 +167,7 @@ const apiMiddlewares: Middleware[] = [
   blackjackApi,
   marketOverviewApi,
   smartExitApi,
+  tipLinkApi,
   tokenChartApi,
 ].map(api => api.middleware as Middleware)
 

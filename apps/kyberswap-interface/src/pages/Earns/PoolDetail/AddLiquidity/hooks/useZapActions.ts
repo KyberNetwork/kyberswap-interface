@@ -75,13 +75,13 @@ export const useZapActions = ({
       return `Switch to ${NETWORKS_INFO[poolChainId as keyof typeof NETWORKS_INFO]?.name || poolChainId}`
     }
 
-    if (tokenApprovalPending) return 'Approving...'
-    if (previewLoading) return 'Building...'
+    if (tokenApprovalPending) return 'Approving'
+    if (previewLoading) return 'Building'
     if (validationError) return validationError
 
     if (nextTokenToApprove) return `Approve ${nextTokenToApprove.symbol}`
     if (isZapImpactBlocked) return 'Zap Anyway'
-    if (routeLoading && !route) return 'Fetching Route...'
+    if (routeLoading && !route) return 'Fetching Route'
     if (routeError) return 'No route found'
     if (!route && hasPositiveInput && !validationError && !routeLoading) return 'No route found'
     if (isHighZapImpact) return 'Zap Anyway'
@@ -104,6 +104,7 @@ export const useZapActions = ({
   ])
 
   const primaryActionVariant = !nextTokenToApprove && (isZapImpactBlocked || isHighZapImpact) ? 'error' : 'primary'
+  const showRouteLoadingDots = routeLoading && Boolean(route)
   const isPrimaryActionDisabled =
     !!account &&
     walletChainId === poolChainId &&
@@ -152,6 +153,7 @@ export const useZapActions = ({
   return {
     primaryActionText,
     primaryActionVariant,
+    showRouteLoadingDots,
     isPrimaryActionDisabled,
     handlePrimaryAction,
   }

@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import React, { useMemo } from 'react'
 
 import SlippageControl from 'components/SlippageControl'
@@ -8,7 +8,6 @@ import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } fro
 import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage } from 'utils/slippage'
 
 type Props = {
   shouldShowPinButton?: boolean
@@ -23,10 +22,6 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
     () => (pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
     [pairCategory],
   )
-
-  const slippageStatus = checkRangeSlippage(rawSlippage, pairCategory)
-  const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
-  const msg = SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || ''
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -53,22 +48,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
         {shouldShowPinButton && <PinButton isActive={isSlippageControlPinned} onClick={togglePinSlippage} />}
       </div>
 
-      <SlippageControl
-        rawSlippage={rawSlippage}
-        setRawSlippage={setRawSlippage}
-        isWarning={isWarning}
-        options={options}
-      />
-
-      {isWarning && (
-        <div
-          data-warning={true}
-          data-error={false}
-          className="text-xs font-normal leading-4 data-[error=true]:text-red1 data-[warning=true]:text-warning"
-        >
-          {t`Your slippage ${msg}`}
-        </div>
-      )}
+      <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} options={options} />
     </div>
   )
 }

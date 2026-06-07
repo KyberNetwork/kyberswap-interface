@@ -3,19 +3,18 @@ import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Repeat } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 import { useSearchParams } from 'react-router-dom'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import RefreshLoading from 'components/RefreshLoading'
+import Skeleton from 'components/Skeleton'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
@@ -59,7 +58,6 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
     setRecipient,
     warning,
   } = useCrossChainSwap()
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
@@ -194,13 +192,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
             <Trans>Cross-chain rate:</Trans>
           </span>
           {loading ? (
-            <Skeleton
-              height="16px"
-              width="120px"
-              baseColor={theme.disableText}
-              highlightColor={theme.buttonGray}
-              borderRadius="1rem"
-            />
+            <Skeleton height={16} width={120} />
           ) : selectedQuote && toChainId ? (
             <div
               role="button"
@@ -223,7 +215,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
               <Repeat size={12} className="text-subText" />
             </div>
           ) : (
-            '--'
+            <Skeleton height={16} width={120} />
           )}
         </div>
 
@@ -341,32 +333,36 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
         )}
       </AutoColumn>
 
-      <SlippageSetting
-        slippageInfo={warning?.slippageInfo}
-        rightComponent={
-          selectedQuote ? (
-            <QuoteSelector
-              quotes={quotes}
-              selectedQuote={selectedQuote}
-              onChange={newSelectedQuote => {
-                setSelectedAdapter(newSelectedQuote.adapter.getName())
-                onQuoteChange?.(newSelectedQuote)
-              }}
-              tokenOut={currencyOut}
-            />
-          ) : null
-        }
-      />
+      <div className="flex min-h-7 items-center">
+        <SlippageSetting
+          slippageInfo={warning?.slippageInfo}
+          rightComponent={
+            selectedQuote ? (
+              <QuoteSelector
+                quotes={quotes}
+                selectedQuote={selectedQuote}
+                onChange={newSelectedQuote => {
+                  setSelectedAdapter(newSelectedQuote.adapter.getName())
+                  onQuoteChange?.(newSelectedQuote)
+                }}
+                tokenOut={currencyOut}
+              />
+            ) : null
+          }
+        />
+      </div>
 
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
-      {selectedQuote && (
+      {selectedQuote ? (
         <div className="flex items-center text-xs italic text-gray">
           <span className="mr-1">
             <Trans>Routed via</Trans>
           </span>
           <QuoteProviderName quote={selectedQuote} />
         </div>
+      ) : (
+        <Skeleton height={16} width={140} />
       )}
 
       <PiWarning />

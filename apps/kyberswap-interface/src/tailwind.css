@@ -15,6 +15,35 @@
   @apply disabled:!cursor-not-allowed disabled:!bg-buttonGray disabled:!text-border;
 }
 
+@keyframes ks-loading-dots {
+  0% {
+    content: '.';
+  }
+  33% {
+    content: '..';
+  }
+  66%,
+  100% {
+    content: '...';
+  }
+}
+
+.ks-loading-dots {
+  position: relative;
+  display: inline-block;
+}
+
+.ks-loading-dots::after {
+  content: '.';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: 1rem;
+  transform: translateY(-50%);
+  text-align: left;
+  animation: ks-loading-dots 1.2s steps(1, end) infinite;
+}
+
 @layer components {
   /* Native browser checkbox tinted with theme primary; pseudo-elements handle the indeterminate state. */
   .ks-checkbox-native {
@@ -758,14 +787,19 @@
     }
   }
 
-  /* SlippageSetting dropdown — primary-tinted box-shadow pulse (40% alpha, 3px ring). */
+  /* SlippageSetting dropdown — subtle primary pulse around the chevron. */
   @keyframes ks-slippage-highlight {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgb(var(--ks-primary-rgb) / 0.4);
+    0% {
+      box-shadow: 0 0 0 0 rgb(var(--ks-primary-rgb) / 0.85);
+      opacity: 1;
     }
-    70% {
-      box-shadow: 0 0 0 3px rgb(var(--ks-primary-rgb) / 0.4);
+    55% {
+      box-shadow: 0 0 0 2px rgb(var(--ks-primary-rgb) / 0.32);
+      opacity: 0.9;
+    }
+    100% {
+      box-shadow: 0 0 0 2px rgb(var(--ks-primary-rgb) / 0);
+      opacity: 0.25;
     }
   }
 
@@ -1186,7 +1220,7 @@
     --ks-bgSuccess: linear-gradient(90deg, rgba(29, 122, 95, 0.5) 0%, rgba(29, 122, 95, 0) 100%);
     --ks-bgError: linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%);
     --ks-bgWarning: linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%);
-    --ks-bgModal: rgba(0, 0, 0, 0.425);
+    --ks-bgModal: rgba(0, 0, 0, 0.6);
     --ks-radialGradient: radial-gradient(#095143, #06291d);
 
     /* primary */

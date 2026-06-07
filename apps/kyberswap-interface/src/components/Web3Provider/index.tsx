@@ -274,7 +274,7 @@ const createPriorityConnector = ({ id, name, logo, url }: (typeof HardCodedConne
 // carries an `isSafePal: true` flag even when it shims MetaMask via
 // `isMetaMask: true` / `__isMetaMaskShim__`, so use that to discriminate from
 // other wallets that may be active under the same bootstrap.
-function getSafepalProvider(): typeof window.safepalProvider {
+export function getSafepalProvider(): typeof window.safepalProvider {
   if (typeof window === 'undefined') return undefined
   const active = window.__safepalEthereumBootstrap__?.activeProvider
   if (active?.isSafePal) return active as typeof window.safepalProvider

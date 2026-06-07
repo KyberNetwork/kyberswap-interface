@@ -220,7 +220,9 @@ const AddLiquidityWidget = ({
           onClick={() => void actions.handlePrimaryAction()}
           disabled={actions.isPrimaryActionDisabled}
         >
-          {actions.primaryActionText}
+          <span className={actions.showRouteLoadingDots ? 'ks-loading-dots' : undefined}>
+            {actions.primaryActionText}
+          </span>
         </PrimaryActionButton>
       </HStack>
     </Stack>
