@@ -150,6 +150,12 @@ async function main() {
     appType: 'custom',
     server: { middlewareMode: true },
     logLevel: 'warn',
+    // We only ssrLoadModule() here (on-demand SSR transform). The client dep optimizer (an esbuild
+    // scan/bundle of the import graph) is useless for prerendering and, with the monorepo's several
+    // esbuild versions, fails in CI with "Invalid command: on-resolve" (esbuild JS/native-binary
+    // protocol mismatch). Disabling it sidesteps that scan; the SSR transform still works (deps are
+    // externalized for Node), the prerender is just a bit slower without pre-bundling.
+    optimizeDeps: { disabled: true },
     // vite.config defines `process.env` -> the whole env object (a client-only workaround). Under
     // Node SSR that splices a giant literal into deps like @lingui/react and breaks parsing — and
     // Node already has a real `process.env`, so neutralize the replacement here (identity).
