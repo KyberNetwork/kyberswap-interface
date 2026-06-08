@@ -1,5 +1,5 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import React, { CSSProperties, ReactNode, memo, useCallback, useMemo } from 'react'
+import React, { CSSProperties, ReactNode, memo, useCallback } from 'react'
 import { Info, Star, Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -209,12 +209,10 @@ const CurrencyList = ({
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
 
-  const tokenPriceAddresses = useMemo(() => {
-    return currencies
-      .filter(currency => (currency as WrappedTokenInfo)?.isWhitelisted)
-      .map(currency => currency.wrapped.address)
-  }, [currencies])
-  const tokenPrices = useTokenPrices(tokenPriceAddresses, customChainId)
+  const tokenPrices = useTokenPrices(
+    currencies.map(currency => currency.wrapped.address),
+    customChainId,
+  )
   const currencyBalances = useCurrencyBalances(currencies, customChainId)
 
   const Row = useCallback(
