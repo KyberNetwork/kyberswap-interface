@@ -17,9 +17,9 @@ import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { isTokenNative } from 'utils/tokenInfo'
 
-function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
+function Balance({ balance, compact }: { balance: CurrencyAmount<Currency>; compact?: boolean }) {
   return (
-    <span className="text-base max-md:text-sm" title={balance.toExact()}>
+    <span className={cn(compact ? 'text-xs' : 'text-base max-md:text-sm')} title={balance.toExact()}>
       {balance.toSignificant(10)}
     </span>
   )
@@ -76,13 +76,12 @@ export function CurrencyRow({
     removeImportedToken?.(currency as Token)
   }
 
-  const balanceComponent = hideBalance ? (
-    '******'
-  ) : currencyBalance ? (
-    <Balance balance={currencyBalance} />
-  ) : showLoading ? (
-    <Loader />
-  ) : null
+  const renderBalance = (compact = false) => {
+    if (hideBalance) return <span className={cn(compact ? 'text-xs' : 'text-base max-md:text-sm')}>******</span>
+    if (currencyBalance) return <Balance balance={currencyBalance} compact={compact} />
+    if (showLoading) return <Loader size={compact ? '12px' : undefined} strokeWidth={compact ? '2' : undefined} />
+    return null
+  }
   const { symbol } = getDisplayTokenInfo(currency)
 
   return (
@@ -104,8 +103,9 @@ export function CurrencyRow({
       }}
       className={cn(
         'flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg px-5 py-1',
-        'data-[selected=true]:bg-bg6/15',
-        !hoverColor && '[@media(hover:hover)]:hover:bg-buttonBlack',
+        'data-[selected=true]:bg-primary-20',
+        !hoverColor &&
+          '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
       )}
     >
       <div className="flex items-center gap-2">
@@ -115,23 +115,23 @@ export function CurrencyRow({
             {customName || symbol}
           </span>
           <div className="ml-0 text-xs font-light text-subText">
-            {showImported ? balanceComponent : nativeCurrency?.name}
+            {showImported ? renderBalance(true) : nativeCurrency?.name}
           </div>
         </div>
       </div>
 
       <div className="flex flex-col items-end gap-0.5">
-        <div className="flex flex-shrink-0 items-center gap-[15px] justify-self-end">
+        <div className="flex flex-shrink-0 items-center gap-3 justify-self-end">
           {showImported ? (
             <Trash
               onClick={onClickRemove}
               data-testid="button-remove-import-token"
-              className="h-5 w-4 fill-current text-subText hover:text-text"
+              className="size-4 text-subText hover:text-text"
             />
           ) : customBalance !== undefined ? (
             customBalance
           ) : (
-            balanceComponent
+            renderBalance()
           )}
           {showFavoriteIcon && (
             <Star
@@ -139,7 +139,7 @@ export function CurrencyRow({
               data-active={isFavorite}
               data-testid="button-favorite-token"
               role="button"
-              className="size-5 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
+              className="size-4 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
             />
           )}
           {setTokenToShowInfo && (
@@ -149,7 +149,7 @@ export function CurrencyRow({
                 e.stopPropagation()
                 setTokenToShowInfo(currency.wrapped)
               }}
-              size={18}
+              size={16}
               className="text-subText hover:text-text"
             />
           )}

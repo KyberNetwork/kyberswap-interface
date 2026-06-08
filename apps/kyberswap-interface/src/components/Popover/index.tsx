@@ -75,7 +75,7 @@ export default function Popover({
             onMouseLeave={onMouseLeave}
             {...attributes.popper}
             className={cn(
-              'ks-popover-container rounded-lg border border-transparent bg-tableHeader text-text2 shadow-[0_4px_12px_rgba(0,0,0,0.32)]',
+              'ks-popover-container rounded-lg border border-transparent bg-tableHeader text-text2 shadow-[0_4px_24px_rgba(0,0,0,0.6)]',
               '[transition:visibility_150ms_linear,opacity_150ms_linear]',
             )}
           >

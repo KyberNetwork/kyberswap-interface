@@ -17,6 +17,7 @@ import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 import ksSettingApi from 'services/ksSetting'
 
+import { ButtonEmpty } from 'components/Button'
 import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
@@ -129,11 +130,11 @@ const OtherChainTokenResult = ({ tokens, loading }: { tokens: WrappedTokenInfo[]
   if (!tokens.length) return null
 
   return (
-    <Column className="h-full gap-2 p-5">
-      <p className="m-0 mb-3 shrink-0 text-center font-medium text-text3">
+    <Column className="h-full">
+      <div className="px-5 py-3 text-sm font-medium text-subText">
         <Trans>Found on other chains</Trans>
-      </p>
-      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-5 pb-3">
         {tokens.map(token => {
           const networkInfo = NETWORKS_INFO[token.chainId] as NetworkInfo
 
@@ -142,13 +143,13 @@ const OtherChainTokenResult = ({ tokens, loading }: { tokens: WrappedTokenInfo[]
               type="button"
               key={`${token.chainId}-${token.address}`}
               onClick={() => changeNetwork(token.chainId)}
-              className="group flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg bg-buttonBlack px-4 py-2 hover:bg-primary-15"
+              className="group flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg bg-subText-04 px-5 py-1 hover:bg-primary-15 active:bg-primary-20"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <CurrencyLogo currency={token} size="24px" />
                 <div className="flex min-w-0 flex-col items-start gap-0.5">
-                  <span className="truncate text-sm font-medium text-text">{token.symbol}</span>
-                  <span className="truncate text-xs text-subText">{token.name}</span>
+                  <span className="truncate font-medium text-text">{token.symbol}</span>
+                  <span className="truncate text-xs font-light text-subText">{token.name}</span>
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-1.5">
@@ -491,7 +492,7 @@ export function CurrencySearch({
           </span>
           <CloseIcon onClick={onDismiss} data-testid="close-icon" />
         </RowBetween>
-        <span className="text-xs text-subText">
+        <span className="text-xs font-medium text-subText">
           <Trans>
             You can search and select <span className="text-text">any token</span> on KyberSwap.
           </Trans>
@@ -555,18 +556,19 @@ export function CurrencySearch({
       <Separator />
 
       {isImportedTab && visibleCurrencies.length > 0 && (
-        <div className="flex items-center justify-between px-5 pb-2.5 pt-[15px] text-xs text-subText">
-          <div>
+        <div className="flex items-center justify-between px-5 py-3">
+          <div className="text-sm font-medium text-subText">
             <Trans>{visibleCurrencies.length} Custom Tokens</Trans>
           </div>
-          <div
-            className="flex cursor-pointer items-center gap-[5px] rounded-3xl bg-subText-20 px-2.5 py-[5px]"
+          <ButtonEmpty
+            type="button"
+            className="w-fit gap-[5px] rounded-3xl bg-subText-20 px-2.5 py-[5px] text-xs text-subText"
             onClick={removeAllImportToken}
             data-testid="button-clear-all-import-token"
           >
             <Trash size={13} />
             <Trans>Clear All</Trans>
-          </div>
+          </ButtonEmpty>
         </div>
       )}
 

@@ -23,7 +23,7 @@ export default function ImportRow({
     <div
       style={style}
       className={cn(
-        'grid h-14 items-center gap-2 rounded-lg px-5 py-1 hover:bg-buttonBlack/60',
+        'grid h-14 items-center gap-2 rounded-lg px-5 py-1 hover:bg-primary-15 active:bg-primary-20',
         '[grid-template-columns:auto_minmax(auto,1fr)_auto]',
         dim && 'opacity-80',
       )}
