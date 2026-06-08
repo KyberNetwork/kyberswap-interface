@@ -122,12 +122,16 @@ const DraggableNetworkButton = ({
       }
 
       changeNetwork(chainId, () => {
-        navigate(
-          {
-            search: new URLSearchParams(filteredParams).toString(),
-          },
-          { replace: true },
-        )
+        const nextSearch = new URLSearchParams(filteredParams).toString()
+
+        if (nextSearch !== window.location.search.replace(/^\?/, '')) {
+          navigate(
+            {
+              search: nextSearch,
+            },
+            { replace: true },
+          )
+        }
         onChangedNetwork?.()
       })
     }
