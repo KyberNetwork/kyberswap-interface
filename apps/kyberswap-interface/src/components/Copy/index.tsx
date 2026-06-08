@@ -17,7 +17,7 @@ type Props = {
 }
 
 const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
-  { toCopy, margin, style = {}, size, text, color, className },
+  { toCopy, margin, style = {}, size = 14, text, color, className },
   ref,
 ) {
   const [isCopied, setCopied] = useCopyClipboard(2000)
@@ -37,10 +37,10 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
         className={cn('ks-copy-icon absolute left-0 flex items-center', isCopied && 'copied')}
         style={color ? { color } : undefined}
       >
-        <CopyIcon size={size || 14} />
+        <CopyIcon size={size} />
       </div>
       <div className={cn('ks-check-icon flex items-center text-primary', isCopied && 'copied')}>
-        <CheckCircle size={size || 14} />
+        <CheckCircle size={size} />
       </div>
     </>
   )
@@ -60,8 +60,11 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
       )}
     >
       {text ? (
-        <RowFit>
-          {copyIcon}&nbsp;{text}
+        <RowFit className="gap-1">
+          <span className="relative flex shrink-0 items-center overflow-hidden" style={{ width: size, height: size }}>
+            {copyIcon}
+          </span>
+          <span>{text}</span>
         </RowFit>
       ) : (
         copyIcon
