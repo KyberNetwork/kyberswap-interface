@@ -17,6 +17,13 @@ const requireFromSdk = createRequire(connectEvmRealPath + '/package.json')
 const mwpCoreEsm = dirname(requireFromSdk.resolve('@metamask/mobile-wallet-protocol-core/package.json'))
 const eciesjsEntry = requireFromSdk.resolve('eciesjs')
 
+// scripts/prerender.mjs sets this before createServer. The browser process/Buffer polyfill
+// (GlobalPolyFill, below) is an esbuild@0.24 plugin; injected into Vite 4's esbuild@0.18 dep
+// optimizer it crashes the prerender's scan with "Invalid command: on-resolve". Node already has
+// process/Buffer, so the polyfill is unnecessary there — skip it for the prerender (dev server and
+// client build, which run in a browser context, still get it).
+const isSsrPrerender = process.env.SSR_PRERENDER === '1'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -83,17 +90,19 @@ export default defineConfig({
       define: {
         global: 'globalThis',
       },
-      plugins: [
-        // Cast: GlobalPolyFill returns an esbuild@0.24 Plugin, but Vite 4 types
-        // `esbuildOptions.plugins` against esbuild@0.18 (its bundled version).
-        // The `PluginBuild.initialOptions.packages` union differs between the
-        // two — runtime is fine, only TS errors. Drop the cast once Vite is on
-        // esbuild 0.21+.
-        GlobalPolyFill({
-          process: true,
-          buffer: true,
-        }) as any,
-      ],
+      plugins: isSsrPrerender
+        ? []
+        : [
+            // Cast: GlobalPolyFill returns an esbuild@0.24 Plugin, but Vite 4 types
+            // `esbuildOptions.plugins` against esbuild@0.18 (its bundled version).
+            // The `PluginBuild.initialOptions.packages` union differs between the
+            // two — runtime is fine, only TS errors. Drop the cast once Vite is on
+            // esbuild 0.21+.
+            GlobalPolyFill({
+              process: true,
+              buffer: true,
+            }) as any,
+          ],
     },
   },
   resolve: {

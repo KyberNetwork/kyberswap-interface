@@ -140,6 +140,11 @@ function rewriteAssetUrls(html, manifest) {
 }
 
 async function main() {
+  // Tell vite.config.ts to skip the browser process/Buffer polyfill (GlobalPolyFill): it's an
+  // esbuild@0.24 plugin that crashes Vite 4's esbuild@0.18 dep optimizer here ("Invalid command:
+  // on-resolve"). Must be set before createServer loads the config. Node has process/Buffer already.
+  process.env.SSR_PRERENDER = '1'
+
   const template = readFileSync(resolve(appRoot, 'build/index.html'), 'utf8')
   const manifest = JSON.parse(readFileSync(resolve(appRoot, 'build/manifest.json'), 'utf8'))
 
@@ -211,11 +216,17 @@ ${sitemapRoutes.map(p => `  <url>\n    <loc>${xmlEscape(`${SITE}${p === '/' ? '/
     writeFileSync(resolve(appRoot, 'build/sitemap.xml'), sitemap, 'utf8')
     console.log(`✓ wrote build/sitemap.xml (${sitemapRoutes.length} URLs)`)
   } finally {
-    await vite.close()
+    // Vite's dev server keeps esbuild/chokidar handles open. After the work is done these can keep
+    // Node's event loop alive so the process hangs instead of exiting — stalling CI's build step.
+    // Give close() a bounded window to flush, then fall through to the explicit exit below.
+    await Promise.race([vite.close(), new Promise(resolve => setTimeout(resolve, 5000))])
   }
 }
 
-main().catch(err => {
-  console.error('prerender failed:', err)
-  process.exit(1)
-})
+main()
+  // Force exit: lingering vite/esbuild handles otherwise keep the process alive after success.
+  .then(() => process.exit(0))
+  .catch(err => {
+    console.error('prerender failed:', err)
+    process.exit(1)
+  })
