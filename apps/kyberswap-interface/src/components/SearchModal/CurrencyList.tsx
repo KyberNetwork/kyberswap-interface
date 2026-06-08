@@ -285,7 +285,7 @@ function CurrencyList({
                 height={height}
                 width={width}
                 itemCount={itemCount}
-                itemSize={56}
+                itemSize={14 * 4 + 8}
                 onItemsRendered={onItemsRendered}
                 ref={ref}
                 outerRef={listTokenRef}
@@ -293,19 +293,23 @@ function CurrencyList({
                 {({ index, style }: { index: number; style: CSSProperties }) => {
                   if (!isItemLoaded(index)) {
                     return (
-                      <div className="flex items-center justify-center" style={style}>
-                        <Loader size="20px" />
+                      <div className="px-2 pt-2" style={style}>
+                        <div className="flex h-14 items-center justify-center">
+                          <Loader size="20px" />
+                        </div>
                       </div>
                     )
                   }
                   return (
-                    <Row
-                      index={index}
-                      currency={currencies[index]}
-                      key={currencies[index]?.wrapped.address || index}
-                      currencyBalance={currencyBalances[index]}
-                      style={style}
-                    />
+                    <div className="px-2 pt-2" style={style}>
+                      <Row
+                        index={index}
+                        currency={currencies[index]}
+                        key={currencies[index]?.wrapped.address || index}
+                        currencyBalance={currencyBalances[index]}
+                        style={{ height: 14 * 4 }}
+                      />
+                    </div>
                   )
                 }}
               </FixedSizeList>

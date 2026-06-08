@@ -134,7 +134,7 @@ const OtherChainTokenResult = ({ tokens, loading }: { tokens: WrappedTokenInfo[]
       <div className="px-5 py-3 text-sm font-medium text-subText">
         <Trans>Found on other chains</Trans>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-5 pb-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2">
         {tokens.map(token => {
           const networkInfo = NETWORKS_INFO[token.chainId] as NetworkInfo
 
@@ -143,7 +143,7 @@ const OtherChainTokenResult = ({ tokens, loading }: { tokens: WrappedTokenInfo[]
               type="button"
               key={`${token.chainId}-${token.address}`}
               onClick={() => changeNetwork(token.chainId)}
-              className="group flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg bg-subText-04 px-5 py-1 hover:bg-primary-15 active:bg-primary-20"
+              className="group flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg bg-subText-04 px-5 py-1 hover:bg-primary-15 active:bg-primary-20"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <CurrencyLogo currency={token} size="24px" />
@@ -556,7 +556,7 @@ export function CurrencySearch({
       <Separator />
 
       {isImportedTab && visibleCurrencies.length > 0 && (
-        <div className="flex items-center justify-between px-5 py-3">
+        <div className="flex items-center justify-between px-5 pb-1 pt-3">
           <div className="text-sm font-medium text-subText">
             <Trans>{visibleCurrencies.length} Custom Tokens</Trans>
           </div>
