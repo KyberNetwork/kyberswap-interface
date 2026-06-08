@@ -8,17 +8,14 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { AutoRow } from 'components/Row'
 import { cn } from 'utils/cn'
 
-export default function ImportRow({
-  token,
-  style,
-  dim,
-  setImportToken,
-}: {
+type ImportRowProps = {
   token: Token
   style?: CSSProperties
   dim?: boolean
   setImportToken: (token: Token) => void
-}) {
+}
+
+const ImportRow = ({ token, style, dim, setImportToken }: ImportRowProps) => {
   return (
     <div
       style={style}
@@ -52,3 +49,5 @@ export default function ImportRow({
     </div>
   )
 }
+
+export default ImportRow

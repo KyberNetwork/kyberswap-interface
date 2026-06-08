@@ -15,7 +15,7 @@ import { CloseIcon } from 'theme'
 import { ExternalLinkIcon } from 'theme/components'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
-interface ImportProps {
+type ImportTokenProps = {
   enterToImport?: boolean
   tokens: Token[]
   onBack?: () => void
@@ -23,7 +23,13 @@ interface ImportProps {
   handleCurrencySelect?: (currency: Currency[]) => void
 }
 
-export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, handleCurrencySelect }: ImportProps) {
+export const ImportToken = ({
+  enterToImport = false,
+  tokens,
+  onBack,
+  onDismiss,
+  handleCurrencySelect,
+}: ImportTokenProps) => {
   const addToken = useAddUserToken()
 
   const onClickImport = useCallback(() => {
@@ -32,9 +38,9 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
   }, [tokens, addToken, handleCurrencySelect])
 
   useEffect(() => {
-    function onKeydown(e: KeyboardEvent) {
-      if (e.key === 'Enter' && enterToImport) {
-        e.preventDefault()
+    const onKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && enterToImport) {
+        event.preventDefault()
         onClickImport()
       }
     }

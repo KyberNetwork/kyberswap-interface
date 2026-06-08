@@ -30,7 +30,7 @@ enum CurrencyModalView {
   importToken,
 }
 
-export default function CurrencySearchModal({
+const CurrencySearchModal = ({
   isOpen,
   onDismiss,
   onCurrencySelect,
@@ -43,7 +43,7 @@ export default function CurrencySearchModal({
   onCurrencyImport,
   customChainId,
   trackingSource,
-}: CurrencySearchModalProps) {
+}: CurrencySearchModalProps) => {
   const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.search)
   const lastOpen = useLast(isOpen)
 
@@ -131,3 +131,5 @@ export default function CurrencySearchModal({
     </Modal>
   )
 }
+
+export default CurrencySearchModal

@@ -23,7 +23,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
-import CommonBases from 'components/SearchModal/CommonBases'
+import { CommonBases } from 'components/SearchModal/CommonBases'
 import CurrencyList from 'components/SearchModal/CurrencyList'
 import { useTokenComparator } from 'components/SearchModal/sorting'
 import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
@@ -143,7 +143,7 @@ const OtherChainTokenResult = ({ tokens, loading }: { tokens: WrappedTokenInfo[]
               type="button"
               key={`${token.chainId}-${token.address}`}
               onClick={() => changeNetwork(token.chainId)}
-              className="group flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg bg-subText-04 px-5 py-1 hover:bg-primary-15 active:bg-primary-20"
+              className="group flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg bg-subText-04 px-3 py-1 hover:bg-primary-15 active:bg-primary-20"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <CurrencyLogo currency={token} size="24px" />
@@ -167,7 +167,7 @@ const OtherChainTokenResult = ({ tokens, loading }: { tokens: WrappedTokenInfo[]
   )
 }
 
-export function CurrencySearch({
+export const CurrencySearch = ({
   selectedCurrency,
   onCurrencySelect,
   otherSelectedCurrency,
@@ -181,35 +181,33 @@ export function CurrencySearch({
   tooltip,
   setTokenToShowInfo,
   trackingSource,
-}: CurrencySearchProps) {
-  // Network and modal state
+}: CurrencySearchProps) => {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
   const { supportedChains } = useChainsConfig()
   const { trackingHandler } = useTracking()
-  const [activeTab, setActiveTab] = useState<Tab>(Tab.All)
-  const isImportedTab = activeTab === Tab.Imported
+  const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
+  const removeToken = useRemoveUserAddedToken()
 
-  // Search input state
+  const [activeTab, setActiveTab] = useState<Tab>(Tab.All)
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
+  const [loadingCommon, setLoadingCommon] = useState(true)
+  const [open, toggle] = useToggle(false)
+
+  const inputRef = useRef<HTMLInputElement>(null)
+  const listTokenRef = useRef<HTMLDivElement>(null)
+  const node = useRef<HTMLDivElement>()
+
+  const isImportedTab = activeTab === Tab.Imported
   const debouncedQuery = useDebounce(searchQuery, 200)
   const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
   const isQueryValidEVMAddress = !!isAddress(chainId, debouncedQuery)
 
-  // Token sources
-  const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
   const defaultTokens = useAllTokens(false, chainId)
   const tokenImports = useUserAddedTokens(chainId)
   const tokenComparator = useTokenComparator(false, customChainId)
 
-  const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
-  const [loadingCommon, setLoadingCommon] = useState(true)
-
-  const tokenImportsFiltered = useMemo(() => {
-    return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
-  }, [debouncedQuery, chainId, tokenImports, tokenComparator])
-
-  // input eth => output filter weth, input weth => output filter eth
   const filterWrapFunc = useCallback(
     (token: Currency | undefined) => {
       if (filterWrap && otherSelectedCurrency?.equals(WETH[chainId])) {
@@ -223,11 +221,6 @@ export function CurrencySearch({
     [chainId, otherSelectedCurrency, filterWrap],
   )
 
-  const filteredCommonTokens = useMemo(() => {
-    return filterTokens(chainId, commonTokens as Token[], debouncedQuery).filter(filterWrapFunc)
-  }, [commonTokens, debouncedQuery, chainId, filterWrapFunc])
-
-  // Search APIs: KS Setting first, then RPC for address-only fallback.
   const {
     data: tokenSearchData,
     fetchNextPage,
@@ -246,6 +239,14 @@ export function CurrencySearch({
   })
 
   const tokenSearchResults = useMemo(() => tokenSearchData?.pages.flatMap(page => page) ?? [], [tokenSearchData?.pages])
+
+  const tokenImportsFiltered = useMemo(() => {
+    return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
+  }, [debouncedQuery, chainId, tokenImports, tokenComparator])
+
+  const filteredCommonTokens = useMemo(() => {
+    return filterTokens(chainId, commonTokens as Token[], debouncedQuery).filter(filterWrapFunc)
+  }, [commonTokens, debouncedQuery, chainId, filterWrapFunc])
 
   const rpcSearchChainIds = useMemo(
     () => [
@@ -313,7 +314,12 @@ export function CurrencySearch({
   const isLoadingTokens = isLoadingTokenSearch
   const isCheckingOtherChains = isLoadingRpcTokens || isFetchingRpcTokens
 
-  // Selection and search input handlers
+  const visibleCurrencies: Currency[] = useMemo(() => {
+    return isImportedTab || (!isImportedTab && !filteredSortedTokens.length)
+      ? tokenImportsFiltered
+      : filteredSortedTokens
+  }, [isImportedTab, filteredSortedTokens, tokenImportsFiltered])
+
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
       onCurrencySelect(isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency)
@@ -321,19 +327,6 @@ export function CurrencySearch({
     },
     [onDismiss, onCurrencySelect],
   )
-
-  // manage focus on modal show
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  // clear the input on open
-  useEffect(() => {
-    if (isOpen) {
-      setSearchQuery('')
-      if (!isMobile) inputRef.current?.focus()
-    }
-  }, [isOpen])
-
-  const listTokenRef = useRef<HTMLDivElement>(null)
 
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -363,8 +356,8 @@ export function CurrencySearch({
   )
 
   const handleClickFavorite = useCallback(
-    (e: MouseEvent, currency: Currency) => {
-      e.stopPropagation()
+    (event: MouseEvent, currency: Currency) => {
+      event.stopPropagation()
       const address = currency.wrapped.address
       if (!address) return
 
@@ -376,12 +369,11 @@ export function CurrencySearch({
     [chainId, toggleFavoriteToken],
   )
 
-  // menu ui
-  const [open, toggle] = useToggle(false)
-  const node = useRef<HTMLDivElement>()
-  useOnClickOutside(node, open ? toggle : undefined)
+  const fetchListTokens = useCallback(async () => {
+    if (!hasNextPage || isFetchingTokenSearch) return
+    await fetchNextPage()
+  }, [fetchNextPage, hasNextPage, isFetchingTokenSearch])
 
-  // Favorite/common token hydration
   const fetchFavoriteTokenFromAddress = useCallback(async () => {
     try {
       if (!Object.keys(defaultTokens).length) return
@@ -419,34 +411,6 @@ export function CurrencySearch({
     setLoadingCommon(false)
   }, [chainId, favoriteTokens, defaultTokens])
 
-  useEffect(() => {
-    fetchFavoriteTokenFromAddress()
-  }, [fetchFavoriteTokenFromAddress])
-
-  const fetchListTokens = useCallback(async () => {
-    if (!hasNextPage || isFetchingTokenSearch) return
-    await fetchNextPage()
-  }, [fetchNextPage, hasNextPage, isFetchingTokenSearch])
-
-  // Search tracking
-  useEffect(() => {
-    if (!trackingDebouncedQuery || !trackingSource) return
-    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_SEARCHED, {
-      source: trackingSource,
-      search_query: trackingDebouncedQuery,
-      chain: NETWORKS_INFO[chainId].name,
-      is_address: !!isAddress(chainId, trackingDebouncedQuery),
-    })
-  }, [trackingDebouncedQuery, trackingSource, chainId, trackingHandler])
-
-  const visibleCurrencies: Currency[] = useMemo(() => {
-    return isImportedTab || (!isImportedTab && !filteredSortedTokens.length)
-      ? tokenImportsFiltered
-      : filteredSortedTokens
-  }, [isImportedTab, filteredSortedTokens, tokenImportsFiltered])
-
-  const removeToken = useRemoveUserAddedToken()
-
   const removeImportedToken = useCallback(
     (token: Token) => {
       removeToken(chainId, token.address)
@@ -466,6 +430,29 @@ export function CurrencySearch({
   const onChangeTab = (tab: Tab) => {
     setActiveTab(tab)
   }
+
+  useOnClickOutside(node, open ? toggle : undefined)
+
+  useEffect(() => {
+    if (isOpen) {
+      setSearchQuery('')
+      if (!isMobile) inputRef.current?.focus()
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    fetchFavoriteTokenFromAddress()
+  }, [fetchFavoriteTokenFromAddress])
+
+  useEffect(() => {
+    if (!trackingDebouncedQuery || !trackingSource) return
+    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_SEARCHED, {
+      source: trackingSource,
+      search_query: trackingDebouncedQuery,
+      chain: NETWORKS_INFO[chainId].name,
+      is_address: !!isAddress(chainId, trackingDebouncedQuery),
+    })
+  }, [trackingDebouncedQuery, trackingSource, chainId, trackingHandler])
 
   return (
     <ContentWrapper>

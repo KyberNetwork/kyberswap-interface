@@ -6,30 +6,27 @@ import { Edit2, XCircle } from 'react-feather'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { AutoRow } from 'components/Row'
-import { getDisplayTokenInfo } from 'components/SearchModal/CurrencyList'
 import { cn } from 'utils/cn'
+import { isTokenNative } from 'utils/tokenInfo'
 
 const HEIGHT_THRESHOLD = 400
 
 const BASE_WRAPPER_CLASS = cn(
-  'relative flex cursor-pointer items-center gap-2 rounded-[10px] border border-border p-1.5',
+  'group/common-base relative flex cursor-pointer items-center gap-2 rounded-[10px] border border-border p-1.5',
   // Mobile-touch hover and selected state.
   '[@media(max-height:400px)]:gap-[5px] [@media(max-height:400px)]:px-[5px] [@media(max-height:400px)]:py-1',
   'data-[selected=true]:bg-primary-20',
-  '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25 [@media(hover:hover)]:hover:[&_.close-btn]:!block',
+  '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
 )
 
-export default function CommonBases({
-  onSelect,
-  selectedCurrency,
-  tokens = [],
-  handleToggleFavorite,
-}: {
+type CommonBasesProps = {
   selectedCurrency?: Currency | null
   tokens: Currency[]
   onSelect: (currency: Currency) => void
-  handleToggleFavorite: (e: React.MouseEvent, currency: Currency) => void
-}) {
+  handleToggleFavorite: (event: React.MouseEvent, currency: Currency) => void
+}
+
+export const CommonBases = ({ onSelect, selectedCurrency, tokens = [], handleToggleFavorite }: CommonBasesProps) => {
   const [isEditMode, setEditMode] = useState(false)
   const isHeightSmall = window.outerHeight < HEIGHT_THRESHOLD
   if (!tokens.length) return null
@@ -51,12 +48,13 @@ export default function CommonBases({
               <div className="text-base font-medium leading-normal [@media(max-height:400px)]:text-sm">{symbol}</div>
               <XCircle
                 className={cn(
-                  'close-btn absolute right-[-5px] top-[-5px] text-subText',
-                  isEditMode ? 'block' : 'hidden',
+                  'absolute right-[-5px] top-[-5px] z-10 hidden rounded-full bg-buttonGray text-subText',
+                  '[@media(hover:hover)]:hover:text-text',
+                  isEditMode ? 'block' : '[@media(hover:hover)]:group-hover/common-base:block',
                 )}
                 data-testid="close-btn"
                 size={16}
-                onClick={e => handleToggleFavorite(e, token)}
+                onClick={event => handleToggleFavorite(event, token)}
               />
             </div>
           )
@@ -75,4 +73,10 @@ export default function CommonBases({
       </AutoRow>
     </AutoColumn>
   )
+}
+
+export const getDisplayTokenInfo = (currency: Currency) => {
+  return {
+    symbol: isTokenNative(currency) ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
+  }
 }

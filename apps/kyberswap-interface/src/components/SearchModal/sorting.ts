@@ -1,8 +1,10 @@
+import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useAllTokenBalances, useNativeBalance } from 'state/wallet/hooks'
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -28,20 +30,35 @@ function balanceComparator(
   return 0
 }
 
+function usdValueOf(balance: TokenAmount | CurrencyAmount<Currency> | undefined, price: number | undefined): number {
+  if (!balance || !price || price <= 0) return 0
+  const amount = parseFloat(balance.toExact())
+  if (!Number.isFinite(amount) || amount <= 0) return 0
+  return amount * price
+}
+
 function getTokenComparator(
   balances: {
     [tokenAddress: string]: TokenAmount | undefined
   },
   ethBalance: CurrencyAmount<Currency> | undefined,
+  tokenPrices: {
+    [tokenAddress: string]: number
+  },
 ): (tokenA: Token, tokenB: Token) => number {
   return function sortTokens(tokenA: Token, tokenB: Token): number {
-    // -1 = a is first
-    // 1 = b is first
-
-    // sort by balances
-
+    // -1 = a is first; 1 = b is first
     const balanceA = isTokenNative(tokenA) ? ethBalance : balances[tokenA.address]
     const balanceB = isTokenNative(tokenB) ? ethBalance : balances[tokenB.address]
+
+    const priceA = tokenPrices[tokenA.address?.toLowerCase()] ?? tokenPrices[tokenA.address]
+    const priceB = tokenPrices[tokenB.address?.toLowerCase()] ?? tokenPrices[tokenB.address]
+    const usdBalanceA = usdValueOf(balanceA, priceA)
+    const usdBalanceB = usdValueOf(balanceB, priceB)
+
+    if (usdBalanceA > 0 || usdBalanceB > 0) {
+      if (usdBalanceA !== usdBalanceB) return usdBalanceB - usdBalanceA
+    }
 
     const balanceComp = balanceComparator(balanceA, balanceB)
     if (balanceComp !== 0) return balanceComp
@@ -61,11 +78,17 @@ export function useTokenComparator(inverted: boolean, customChain?: ChainId): (t
   const chainId = customChain || currentChain
   const balances = useAllTokenBalances(chainId)
   const ethBalance = useNativeBalance(chainId)
+  const tokenPriceAddresses = useMemo(
+    () => [...Object.keys(balances ?? EMPTY_OBJECT), NATIVE_TOKEN_ADDRESS],
+    [balances],
+  )
+  const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
+
   return useMemo(() => {
-    const comparator = getTokenComparator(balances ?? EMPTY_OBJECT, ethBalance)
+    const comparator = getTokenComparator(balances ?? EMPTY_OBJECT, ethBalance, tokenPrices)
     if (inverted) {
       return (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1
     }
     return comparator
-  }, [balances, inverted, ethBalance])
+  }, [balances, inverted, ethBalance, tokenPrices])
 }

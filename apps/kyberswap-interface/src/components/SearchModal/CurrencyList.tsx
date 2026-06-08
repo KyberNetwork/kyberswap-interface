@@ -1,5 +1,5 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import React, { CSSProperties, ReactNode, memo, useCallback } from 'react'
+import React, { CSSProperties, ReactNode, memo, useCallback, useMemo } from 'react'
 import { Info, Star, Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -7,17 +7,19 @@ import InfiniteLoader from 'react-window-infinite-loader'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
+import { getDisplayTokenInfo } from 'components/SearchModal/CommonBases'
 import ImportRow from 'components/SearchModal/ImportRow'
 import { useActiveWeb3React } from 'hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { formattedNum } from 'utils'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { formatDisplayNumber } from 'utils/numbers'
 import { isTokenNative } from 'utils/tokenInfo'
 
-function Balance({ balance, compact }: { balance: CurrencyAmount<Currency>; compact?: boolean }) {
+const Balance = ({ balance, compact }: { balance: CurrencyAmount<Currency>; compact?: boolean }) => {
   return (
     <span className={cn(compact ? 'text-xs' : 'text-base max-md:text-sm')} title={balance.toExact()}>
       {balance.toSignificant(10)}
@@ -25,12 +27,28 @@ function Balance({ balance, compact }: { balance: CurrencyAmount<Currency>; comp
   )
 }
 
-export const getDisplayTokenInfo = (currency: Currency) => {
-  return {
-    symbol: isTokenNative(currency) ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
-  }
+type CurrencyRowProps = {
+  showImported?: boolean
+  showFavoriteIcon?: boolean
+  currency: Currency
+  currencyBalance: CurrencyAmount<Currency>
+  onSelect?: (currency: Currency) => void
+  isSelected: boolean
+  otherSelected?: boolean
+  style?: CSSProperties
+  handleClickFavorite?: (event: React.MouseEvent, currency: Currency) => void
+  removeImportedToken?: (token: Token) => void
+  customName?: ReactNode
+  customBalance?: ReactNode
+  usdBalance?: number
+  hoverColor?: string
+  hideBalance?: boolean
+  showLoading?: boolean
+  isFavorite?: boolean
+  setTokenToShowInfo?: (token: Token) => void
 }
-export function CurrencyRow({
+
+export const CurrencyRow = ({
   currency,
   showImported,
   currencyBalance,
@@ -49,26 +67,7 @@ export function CurrencyRow({
   showLoading,
   isFavorite,
   setTokenToShowInfo,
-}: {
-  showImported?: boolean
-  showFavoriteIcon?: boolean
-  currency: Currency
-  currencyBalance: CurrencyAmount<Currency>
-  onSelect?: (currency: Currency) => void
-  isSelected: boolean
-  otherSelected?: boolean
-  style?: CSSProperties
-  handleClickFavorite?: (e: React.MouseEvent, currency: Currency) => void
-  removeImportedToken?: (token: Token) => void
-  customName?: ReactNode
-  customBalance?: ReactNode
-  usdBalance?: number
-  hoverColor?: string
-  hideBalance?: boolean
-  showLoading?: boolean
-  isFavorite?: boolean
-  setTokenToShowInfo?: (t: Token) => void
-}) {
+}: CurrencyRowProps) => {
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
 
   const onClickRemove = (e: React.MouseEvent) => {
@@ -102,74 +101,94 @@ export function CurrencyRow({
         }
       }}
       className={cn(
-        'flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg px-5 py-1',
+        'flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg px-3 py-1',
         'data-[selected=true]:bg-primary-20',
         !hoverColor &&
           '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        {showFavoriteIcon && (
+          <Star
+            onClick={e => handleClickFavorite?.(e, currency)}
+            data-active={isFavorite}
+            data-testid="button-favorite-token"
+            role="button"
+            className="size-4 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
+          />
+        )}
+
         <CurrencyLogo currency={currency} size={'24px'} />
-        <div className="flex flex-col gap-0.5">
+        <div className="flex min-w-0 flex-col gap-0.5">
           <span title={currency.name} className="font-medium" data-testid="token-symbol">
             {customName || symbol}
           </span>
-          <div className="ml-0 text-xs font-light text-subText">
+          <div className="ml-0 max-w-full truncate text-xs font-light text-subText">
             {showImported ? renderBalance(true) : nativeCurrency?.name}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col items-end gap-0.5">
-        <div className="flex flex-shrink-0 items-center gap-3 justify-self-end">
-          {showImported ? (
-            <Trash
-              onClick={onClickRemove}
-              data-testid="button-remove-import-token"
-              className="size-4 text-subText hover:text-text"
-            />
-          ) : customBalance !== undefined ? (
-            customBalance
-          ) : (
-            renderBalance()
-          )}
-          {showFavoriteIcon && (
-            <Star
-              onClick={e => handleClickFavorite?.(e, currency)}
-              data-active={isFavorite}
-              data-testid="button-favorite-token"
-              role="button"
-              className="size-4 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
-            />
-          )}
-          {setTokenToShowInfo && (
-            <Info
-              role="button"
-              onClick={e => {
-                e.stopPropagation()
-                setTokenToShowInfo(currency.wrapped)
-              }}
-              size={16}
-              className="text-subText hover:text-text"
-            />
-          )}
-        </div>
-        {usdBalance !== undefined && !hideBalance && (
-          <span className="text-xs text-subText">{formattedNum(usdBalance + '', true)}</span>
+      <div className="flex flex-shrink-0 items-center gap-3 justify-self-end">
+        {!showImported && (
+          <div className="flex flex-col items-end gap-0.5">
+            {customBalance !== undefined ? customBalance : renderBalance()}
+            {usdBalance !== undefined && !hideBalance && (
+              <span className="text-xs text-subText">
+                {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
+              </span>
+            )}
+          </div>
+        )}
+        {showImported && (
+          <Trash
+            onClick={onClickRemove}
+            data-testid="button-remove-import-token"
+            className="size-4 text-subText hover:text-text"
+          />
+        )}
+        {setTokenToShowInfo && (
+          <Info
+            role="button"
+            onClick={e => {
+              e.stopPropagation()
+              setTokenToShowInfo(currency.wrapped)
+            }}
+            size={16}
+            className="text-subText hover:text-text"
+          />
         )}
       </div>
     </div>
   )
 }
 
-interface TokenRowProps {
+type TokenRowProps = {
   currency: Currency | undefined
   currencyBalance: CurrencyAmount<Currency>
   index: number
   style: CSSProperties
 }
 
-function CurrencyList({
+type CurrencyListProps = {
+  showImported?: boolean
+  showFavoriteIcon?: boolean
+  hasMore?: boolean
+  currencies: Currency[]
+  selectedCurrency?: Currency | null
+  onCurrencySelect?: (currency: Currency) => void
+  otherCurrency?: Currency | null
+  setImportToken?: (token: Token) => void
+  handleClickFavorite?: (event: React.MouseEvent, currency: Currency) => void
+  removeImportedToken?: (token: Token) => void
+  loadMoreRows?: () => Promise<void>
+  listTokenRef?: React.Ref<HTMLDivElement>
+  itemStyle?: CSSProperties
+  customChainId?: ChainId
+  setTokenToShowInfo?: (token: Token) => void
+}
+
+const CurrencyList = ({
   currencies,
   selectedCurrency,
   showImported,
@@ -185,76 +204,67 @@ function CurrencyList({
   itemStyle = {},
   customChainId,
   setTokenToShowInfo,
-}: {
-  showFavoriteIcon?: boolean
-  showImported?: boolean
-  hasMore?: boolean
-  currencies: Currency[]
-  selectedCurrency?: Currency | null
-  onCurrencySelect?: (currency: Currency) => void
-  otherCurrency?: Currency | null
-  setImportToken?: (token: Token) => void
-  handleClickFavorite?: (e: React.MouseEvent, currency: Currency) => void
-  removeImportedToken?: (token: Token) => void
-  loadMoreRows?: () => Promise<void>
-  listTokenRef?: React.Ref<HTMLDivElement>
-  itemStyle?: CSSProperties
-  customChainId?: ChainId
-  setTokenToShowInfo?: (t: Token) => void
-}) {
-  const currencyBalances = useCurrencyBalances(currencies, customChainId)
+}: CurrencyListProps) => {
   const { account } = useActiveWeb3React()
-  const tokenImports = useUserAddedTokens(customChainId)
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
+  const tokenImports = useUserAddedTokens(customChainId)
+
+  const tokenPriceAddresses = useMemo(() => {
+    return currencies
+      .filter(currency => (currency as WrappedTokenInfo)?.isWhitelisted)
+      .map(currency => currency.wrapped.address)
+  }, [currencies])
+  const tokenPrices = useTokenPrices(tokenPriceAddresses, customChainId)
+  const currencyBalances = useCurrencyBalances(currencies, customChainId)
 
   const Row = useCallback(
-    function TokenRow({ style, currency, currencyBalance }: TokenRowProps) {
-      const isSelected = Boolean(currency && selectedCurrency?.equals(currency))
-      const otherSelected = Boolean(currency && otherCurrency?.equals(currency))
+    ({ style, currency, currencyBalance }: TokenRowProps) => {
+      if (!currency) return null
 
-      const token = currency?.wrapped
       const extendCurrency = currency as WrappedTokenInfo
+      const token = currency.wrapped
+      const isWhitelisted = !!extendCurrency?.isWhitelisted
 
       const showImport =
-        token &&
-        !extendCurrency?.isWhitelisted &&
+        !isWhitelisted &&
         !tokenImports.find(importedToken => importedToken.address === token.address) &&
         !isTokenNative(currency)
+
       if (showImport && token && setImportToken) {
         return <ImportRow style={style} token={token} setImportToken={setImportToken} dim={true} />
       }
 
-      if (currency) {
-        // whitelist
+      const isSelected = Boolean(selectedCurrency?.equals(currency))
+      const otherSelected = Boolean(otherCurrency?.equals(currency))
 
-        const isFavorite = (() => {
-          if (currency.isToken && favoriteTokens) {
-            const addr = (currency as Token).address ?? ''
-            return !!favoriteTokens?.includes(addr) || !!favoriteTokens?.includes(addr.toLowerCase())
-          }
-          return false
-        })()
+      const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
+      const isFavorite = favoriteTokenAddress
+        ? !!favoriteTokens?.includes(favoriteTokenAddress) ||
+          !!favoriteTokens?.includes(favoriteTokenAddress.toLowerCase())
+        : false
 
-        return (
-          <CurrencyRow
-            isFavorite={isFavorite}
-            showLoading={!!account}
-            showImported={showImported}
-            handleClickFavorite={handleClickFavorite}
-            removeImportedToken={removeImportedToken}
-            style={{ ...style, ...itemStyle }}
-            currency={currency}
-            currencyBalance={currencyBalance}
-            isSelected={isSelected}
-            showFavoriteIcon={showFavoriteIcon}
-            onSelect={onCurrencySelect}
-            otherSelected={otherSelected}
-            setTokenToShowInfo={setTokenToShowInfo}
-          />
-        )
-      }
+      const tokenPrice = tokenPrices[token.address]
+      const usdBalance =
+        isWhitelisted && currencyBalance && tokenPrice ? tokenPrice * parseFloat(currencyBalance.toExact()) : undefined
 
-      return null
+      return (
+        <CurrencyRow
+          isFavorite={isFavorite}
+          showLoading={!!account}
+          showImported={showImported}
+          handleClickFavorite={handleClickFavorite}
+          removeImportedToken={removeImportedToken}
+          style={{ ...style, ...itemStyle }}
+          currency={currency}
+          currencyBalance={currencyBalance}
+          isSelected={isSelected}
+          showFavoriteIcon={showFavoriteIcon}
+          onSelect={onCurrencySelect}
+          otherSelected={otherSelected}
+          setTokenToShowInfo={setTokenToShowInfo}
+          usdBalance={usdBalance}
+        />
+      )
     },
     [
       onCurrencySelect,
@@ -267,14 +277,17 @@ function CurrencyList({
       itemStyle,
       showFavoriteIcon,
       tokenImports,
+      tokenPrices,
       account,
       favoriteTokens,
       setTokenToShowInfo,
     ],
   )
+
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])
   const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
+
   return (
     <div className="flex-1">
       <AutoSizer>
@@ -320,4 +333,5 @@ function CurrencyList({
     </div>
   )
 }
+
 export default memo(CurrencyList)
