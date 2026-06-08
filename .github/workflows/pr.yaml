@@ -118,6 +118,45 @@ jobs:
         run: |
           pnpm build-package
 
+      # TEMP DIAGNOSTIC: the prerender crashes in CI with esbuild "Invalid command: on-resolve".
+      # Print esbuild/binary versions + reproduce the on-resolve plugin call to pinpoint the mismatch.
+      - name: Debug esbuild binary mismatch
+        working-directory: apps/kyberswap-interface
+        continue-on-error: true
+        run: |
+          echo "::group::esbuild + @esbuild/linux-x64 versions in store"
+          ls -d ../../node_modules/.pnpm/esbuild@* 2>/dev/null | sed 's#.*/esbuild@##' || true
+          echo "--- @esbuild/linux-x64 ---"
+          ls -d ../../node_modules/.pnpm/@esbuild+linux-x64@* 2>/dev/null | sed 's#.*/@esbuild+linux-x64@##' || true
+          echo "ESBUILD_BINARY_PATH=${ESBUILD_BINARY_PATH:-(unset)}"
+          echo "::endgroup::"
+          echo "::group::what the app's vite resolves"
+          node -e '
+            const path = require("path"), cwd = process.cwd();
+            const viteJson = require.resolve("vite/package.json", { paths: [cwd] });
+            const viteDir = path.dirname(viteJson);
+            console.log("vite:", require(viteJson).version);
+            const ebJson = require.resolve("esbuild/package.json", { paths: [viteDir, cwd] });
+            const ebDir = path.dirname(ebJson);
+            console.log("esbuild JS (from vite):", require(ebJson).version, "@", ebDir);
+            try { const b = require.resolve("@esbuild/linux-x64/package.json", { paths: [ebDir] });
+              console.log("  -> resolves binary @esbuild/linux-x64:", require(b).version, "@", b);
+            } catch (e) { console.log("  -> binary resolve ERR:", e.message); }
+          '
+          echo "::endgroup::"
+          echo "::group::reproduce the on-resolve plugin protocol"
+          node -e '
+            const path = require("path");
+            const eb = require(require.resolve("esbuild", { paths: [path.dirname(require.resolve("vite/package.json", { paths: [process.cwd()] }))] }));
+            eb.build({ entryPoints: ["probe"], bundle: true, write: false, plugins: [{ name: "p", setup(b) {
+              b.onResolve({ filter: /.*/ }, a => ({ path: a.path, namespace: "n" }));
+              b.onLoad({ filter: /.*/, namespace: "n" }, () => ({ contents: "export const x = 1" }));
+            } }] })
+              .then(() => console.log("ON-RESOLVE PLUGIN: OK (esbuild JS<->binary match)"))
+              .catch(e => console.log("ON-RESOLVE PLUGIN ERR:", e.message));
+          '
+          echo "::endgroup::"
+
       - name: Build interface
         env:
           CI: false
