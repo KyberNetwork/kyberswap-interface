@@ -179,3 +179,11 @@ jobs:
 
       - name: Run lint
         run: pnpm lint && pnpm type-check
+
+      # SSR-safety gate: render representative routes through prerenderToNodeStream on Node and fail
+      # if anything throws (e.g. module-scope window/document access that would break the prerender).
+      - name: Render smoke test
+        working-directory: apps/kyberswap-interface
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: pnpm test:smoke
