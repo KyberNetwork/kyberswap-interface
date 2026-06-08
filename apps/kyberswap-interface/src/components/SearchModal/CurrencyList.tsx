@@ -118,7 +118,7 @@ export const CurrencyRow = ({
           />
         )}
 
-        <CurrencyLogo currency={currency} size={'24px'} />
+        <CurrencyLogo currency={currency} size="24px" />
         <div className="flex min-w-0 flex-col gap-0.5">
           <span title={currency.name} className="font-medium" data-testid="token-symbol">
             {customName || symbol}
