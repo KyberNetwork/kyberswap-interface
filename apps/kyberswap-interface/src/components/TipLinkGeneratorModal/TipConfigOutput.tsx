@@ -1,16 +1,15 @@
-import { Check, Copy, Loader } from 'react-feather'
+import { ExternalLink, Loader } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
+import CopyHelper from 'components/Copy'
 import { HStack, Stack } from 'components/Stack'
 import { LINK_PLACEHOLDER, enablePreview } from 'components/TipLinkGeneratorModal/shared'
 import Toggle from 'components/Toggle'
 
 type Props = {
   canGenerate: boolean
-  copied: boolean
   generatedLink: string
   isLoading: boolean
-  onCopy: () => void
   onGenerate: () => void
   onShortLinkChange: () => void
   shortLink: boolean
@@ -18,10 +17,8 @@ type Props = {
 
 export default function TipConfigOutput({
   canGenerate,
-  copied,
   generatedLink,
   isLoading,
-  onCopy,
   onGenerate,
   onShortLinkChange,
   shortLink,
@@ -51,15 +48,29 @@ export default function TipConfigOutput({
         </HStack>
         <HStack className="items-center gap-2">
           <div className="min-w-0 flex-1 truncate text-sm text-subText">{generatedLink || LINK_PLACEHOLDER}</div>
-          <HStack
-            as="button"
-            onClick={onCopy}
-            disabled={!generatedLink}
-            className="h-7 items-center gap-1 rounded-full bg-white/10 px-3 text-xs font-medium text-text transition-colors hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white/10"
-          >
-            {copied ? <Check size={13} /> : <Copy size={13} />}
-            {copied ? 'Copied' : 'Copy'}
-          </HStack>
+          {generatedLink && (
+            <a
+              href={generatedLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open generated link in new tab"
+              title="Open in new tab"
+              className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-text transition-colors hover:bg-white/15"
+            >
+              <ExternalLink size={13} />
+            </a>
+          )}
+          <CopyHelper
+            toCopy={generatedLink}
+            margin="0"
+            size={13}
+            text="Copy"
+            className={
+              generatedLink
+                ? 'h-7 rounded-full bg-white/10 px-3 text-xs font-medium text-text transition-colors hover:bg-white/15'
+                : 'pointer-events-none h-7 cursor-not-allowed rounded-full bg-white/10 px-3 text-xs font-medium text-text opacity-50'
+            }
+          />
         </HStack>
       </Stack>
     </Stack>
