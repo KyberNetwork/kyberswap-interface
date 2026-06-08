@@ -769,7 +769,6 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
     }
   }
 
-  // getTransactionStatus is empty for now - will be added later
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
     try {
       const res = await fetch(`https://app.across.to/api/deposit/status?depositTxHash=${params.sourceTxHash}`).then(
@@ -781,6 +780,19 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
       }
     } catch (error) {
       console.error('Error fetching transaction status:', error)
+
+      const publicClient = this.acrossClient.getPublicClient(params.sourceChain as number)
+      const receipt = await publicClient.getTransactionReceipt({
+        hash: params.sourceTxHash as Hash,
+      })
+
+      if (receipt?.status === 'reverted') {
+        return {
+          txHash: '',
+          status: 'Failed',
+        }
+      }
+
       return {
         txHash: '',
         status: 'Processing',
