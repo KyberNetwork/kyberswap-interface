@@ -1,78 +1,10 @@
 import { Trans } from '@lingui/macro'
-import { lighten } from 'polished'
 import { useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { ProposalStatus } from 'hooks/kyberdao/types'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
-
-const Wrapper = styled.div`
-  position: relative;
-`
-const Select = styled.div`
-  cursor: pointer;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 12px;
-  width: min(140px, 30vw);
-  height: 36px;
-  z-index: 101;
-  position: inherit;
-  ${({ theme }) => css`
-    background-color: ${theme.background};
-    color: ${theme.border};
-    :hover {
-      background-color: ${lighten(0.1, theme.background)};
-    }
-  `}
-`
-const DropdownList = styled.div<{ show: boolean }>`
-  border-radius: 8px;
-  transition: 0.2s all ease;
-  position: absolute;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-  width: 140px;
-  z-index: 100;
-  overflow: hidden;
-  font-size: 14px;
-  font-weight: 500;
-  ${({ theme, show }) => css`
-    background-color: ${theme.tableHeader};
-    color: ${theme.subText};
-    ${show
-      ? css`
-          opacity: 1;
-          max-height: 500px;
-          top: calc(100% + 4px);
-        `
-      : css`
-          opacity: 0;
-          top: 0;
-          max-height: 0;
-        `};
-  `}
-`
-const DropdownItem = styled.div<{ active?: boolean }>`
-  padding: 6px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  ${({ theme, active }) => css`
-    :hover {
-      background-color: ${theme.buttonGray};
-    }
-    ${active && `color: ${theme.primary}`}
-  `}
-`
+import { cn } from 'utils/cn'
 
 export default function SelectProposalStatus({
   status,
@@ -81,44 +13,49 @@ export default function SelectProposalStatus({
   status?: string
   setStatus?: (s: string) => void
 }) {
-  const theme = useTheme()
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => setShow(false))
   return (
-    <>
-      <Wrapper ref={ref}>
-        <Select onClick={() => setShow(s => !s)}>
-          <Text color={!!status && status !== 'All' ? theme.text : undefined}>{status || 'All'}</Text>
-          <ChevronDown size={16} />
-        </Select>
-        <DropdownList show={show}>
-          <DropdownItem
-            key="All"
-            active={!status}
-            onClick={() => {
-              setShow(false)
-              setStatus?.('')
-            }}
-          >
-            <Trans>All</Trans>
-          </DropdownItem>
-          {Object.values(ProposalStatus).map(s => {
-            return (
-              <DropdownItem
-                key={s}
-                active={s === status}
-                onClick={() => {
-                  setShow(false)
-                  setStatus?.(s)
-                }}
-              >
-                {s}
-              </DropdownItem>
-            )
-          })}
-        </DropdownList>
-      </Wrapper>
-    </>
+    <div ref={ref} className="relative">
+      <div
+        onClick={() => setShow(s => !s)}
+        className="relative z-[101] flex h-9 w-[min(140px,30vw)] cursor-pointer items-center justify-between rounded-[20px] bg-background px-3 py-2 text-sm font-medium text-border hover:brightness-110"
+      >
+        <span className={cn(!!status && status !== 'All' && 'text-text')}>{status || 'All'}</span>
+        <ChevronDown size={16} />
+      </div>
+      <div
+        className={cn(
+          'absolute left-0 z-[100] flex w-[140px] flex-col overflow-hidden rounded-lg bg-tableHeader p-2 text-sm font-medium text-subText transition-all duration-200 ease-linear',
+          show ? 'top-[calc(100%+4px)] max-h-[500px] opacity-100' : 'top-0 max-h-0 opacity-0',
+        )}
+      >
+        <div
+          key="All"
+          onClick={() => {
+            setShow(false)
+            setStatus?.('')
+          }}
+          className={cn('cursor-pointer rounded px-2 py-1.5 hover:bg-buttonGray', !status && 'text-primary')}
+        >
+          <Trans>All</Trans>
+        </div>
+        {Object.values(ProposalStatus).map(s => {
+          return (
+            <div
+              key={s}
+              onClick={() => {
+                setShow(false)
+                setStatus?.(s)
+              }}
+              className={cn('cursor-pointer rounded px-2 py-1.5 hover:bg-buttonGray', s === status && 'text-primary')}
+            >
+              {s}
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }

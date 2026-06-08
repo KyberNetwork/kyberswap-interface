@@ -2,8 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -11,14 +9,9 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen, useModalOpenParams, useToggleModal } from 'state/application/hooks'
-
-const Wrapper = styled.div`
-  padding: 24px;
-`
 
 export const useSwitchToEthereum = () => {
   const { chainId } = useActiveWeb3React()
@@ -42,8 +35,6 @@ export const useSwitchToEthereum = () => {
 
 export default function SwitchToEthereumModal() {
   const { chainId } = useActiveWeb3React()
-
-  const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.SWITCH_TO_ETHEREUM)
   const closeModal = useCloseModal(ApplicationModal.SWITCH_TO_ETHEREUM)
   const params = useModalOpenParams(ApplicationModal.SWITCH_TO_ETHEREUM)
@@ -57,32 +48,32 @@ export default function SwitchToEthereumModal() {
   }, [changeNetwork, closeModal, chainId])
   return (
     <Modal isOpen={modalOpen} onDismiss={closeModal} minHeight={false} maxHeight={90} maxWidth={500}>
-      <Wrapper>
-        <AutoColumn gap="20px">
+      <div className="p-6">
+        <AutoColumn className="gap-5">
           <RowBetween>
-            <AutoRow gap="2px" color={theme.primary}>
+            <AutoRow className="gap-0.5 text-primary">
               <WarningIcon size="28px" />
-              <Text fontSize={20}>
+              <span className="text-xl">
                 <Trans>Switch Network</Trans>
-              </Text>
+              </span>
             </AutoRow>
-            <Flex sx={{ cursor: 'pointer' }} role="button" onClick={closeModal}>
-              <X onClick={closeModal} size={20} color={theme.subText} />
-            </Flex>
+            <div role="button" onClick={closeModal} className="flex cursor-pointer">
+              <X onClick={closeModal} size={20} className="text-subText" />
+            </div>
           </RowBetween>
-          <Text fontSize={14} lineHeight="20px">
+          <span className="text-sm leading-5">
             <Trans>
               {params?.featureText || t`This action`} is only available on Ethereum chain. Please switch network to
               continue.
             </Trans>
-          </Text>
+          </span>
           <ButtonPrimary onClick={handleChangeToEthereum}>
-            <Text fontSize={16}>
+            <span className="text-base">
               <Trans>Switch to Ethereum Network</Trans>
-            </Text>
+            </span>
           </ButtonPrimary>
         </AutoColumn>
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

@@ -1,61 +1,15 @@
 import { Trans } from '@lingui/macro'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonWarning } from 'components/Button'
 import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDegenModeManager } from 'state/user/hooks'
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 20px;
-  background-color: ${({ theme }) => theme.tableHeader};
-`
-
-const StyledInput = styled.input`
-  margin-top: 24px;
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500px;
-  line-height: 20px;
-  outline: none;
-  color: ${({ theme }) => theme.text};
-  border: none;
-  &::placeholder {
-    color: ${({ theme }) => theme.disableText};
-  }
-`
-
-const StyledCloseIcon = styled(X)`
-  height: 24px;
-  width: 24px;
-  :hover {
-    cursor: pointer;
-  }
-
-  > * {
-    stroke: ${({ theme }) => theme.text};
-  }
-`
-
-const ConfirmText = styled.span`
-  color: ${({ theme }) => theme.warning};
-  cursor: not-allowed;
-  user-select: none;
-`
 
 function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boolean) => void }) {
   const [, toggleDegenMode] = useDegenModeManager()
   const [confirmText, setConfirmText] = useState('')
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
 
   const handleConfirm = () => {
@@ -80,29 +34,31 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
       width="480px"
       maxWidth="unset"
     >
-      <ModalContentWrapper>
-        <Flex alignItems="center" justifyContent="space-between">
-          <Text fontSize="20px" fontWeight={500} lineHeight="24px">
+      <div className="flex w-full flex-col bg-tableHeader p-5">
+        <div className="flex items-center justify-between">
+          <span className="text-xl font-medium leading-6 text-text">
             <Trans>Are you sure?</Trans>
-          </Text>
+          </span>
 
-          <StyledCloseIcon onClick={() => setShow(false)} />
-        </Flex>
+          <X onClick={() => setShow(false)} className="size-6 cursor-pointer text-text [&>*]:stroke-current" />
+        </div>
 
-        <Text marginTop="24px" fontSize={14} fontWeight={500} lineHeight="20px" color={theme.subText}>
+        <p className="m-0 mt-6 text-sm font-medium leading-5 text-subText">
           <Trans>
             Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
             result in bad rates and loss of funds. Be cautious.
           </Trans>
-        </Text>
+        </p>
 
-        <Text marginTop="24px" fontSize={14} fontWeight={400} lineHeight="24px" color={theme.text}>
+        <p className="m-0 mt-6 text-sm font-normal leading-6 text-text">
           <Trans>
-            Please type the word <ConfirmText>Confirm</ConfirmText> below to enable Degen Mode
+            Please type the word <span className="cursor-not-allowed select-none text-warning">Confirm</span> below to
+            enable Degen Mode
           </Trans>
-        </Text>
+        </p>
 
-        <StyledInput
+        <input
+          className="mt-6 rounded-full border-none bg-buttonBlack px-4 py-2 text-sm font-medium leading-5 text-text outline-none placeholder:text-disableText"
           placeholder="Confirm"
           value={confirmText}
           onChange={e => setConfirmText(e.target.value)}
@@ -113,13 +69,9 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
           }}
         />
 
-        <Flex sx={{ gap: '16px' }} marginTop="24px" justifyContent={'center'}>
+        <div className="mt-6 flex justify-center gap-4">
           <ButtonOutlined
-            style={{
-              flex: 1,
-              fontSize: '16px',
-              padding: '10px',
-            }}
+            className="flex-1 p-2.5 text-base"
             onClick={() => {
               setConfirmText('')
               setShow(false)
@@ -129,13 +81,13 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
           </ButtonOutlined>
           <ButtonWarning
             disabled={confirmText.trim().toLowerCase() !== 'confirm'}
-            style={{ fontSize: '16px', flex: 1, padding: '10px' }}
+            className="flex-1 p-2.5 text-base"
             onClick={handleConfirm}
           >
             <Trans>Confirm</Trans>
           </ButtonWarning>
-        </Flex>
-      </ModalContentWrapper>
+        </div>
+      </div>
     </Modal>
   )
 }

@@ -10,12 +10,15 @@ export enum APPROVAL_STATE {
 }
 
 function useApproval(amountToApproveString: string, token: string, spender: string) {
-  const { connectedAccount, rpcUrl, onSubmitTx } = useActiveWeb3()
+  const { connectedAccount, chainId, rpcUrl, hasIntegratorRpcUrl, onSubmitTx } = useActiveWeb3()
   const { approvalStates, approve, loading } = useErc20Approvals({
     amounts: [amountToApproveString],
     addreses: [token],
     owner: connectedAccount.address || '',
     spender,
+    // When the integrator supplied an rpcUrl, prefer it (no rotation).
+    // Otherwise pass chainId so the hook routes through @kyber/rpc-client.
+    chainId: hasIntegratorRpcUrl ? undefined : chainId,
     rpcUrl,
     onSubmitTx,
   })

@@ -1,4 +1,6 @@
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO as SCHEMA_NETWORKS_INFO, ChainId as SchemaChainId } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -11,8 +13,6 @@ import { updatePrices } from '.'
 
 export enum PriceType {
   Average = 'Average',
-  Buy = 'Buy',
-  Sell = 'Sell',
 }
 
 interface PriceResponse {
@@ -28,6 +28,7 @@ const chunkList = (list: string[], chunkSize: number) => {
 }
 
 const CHUNK_SIZE = 100
+const NATIVE_TOKEN_PRICE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase()
 
 export const useTokenPricesWithLoading = (
   addresses: Array<string>,
@@ -39,20 +40,32 @@ export const useTokenPricesWithLoading = (
   fetchPrices: (value: string[]) => Promise<{ [key: string]: number | undefined }>
   refetch: () => void
 } => {
-  const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
+  const tokenPrices = useAppSelector(state => state.tokenPrices)
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
   const [loading, setLoading] = useState(true)
-  const addressKeys = addresses
+  const addressKeys = [...addresses]
     .sort()
     .map(x => x.toLowerCase())
     .join(',')
 
+  const wrappedNativeAddress = useMemo(
+    () => SCHEMA_NETWORKS_INFO[chainId as unknown as SchemaChainId]?.wrappedToken.address?.toLowerCase(),
+    [chainId],
+  )
+
   const tokenList = useMemo(() => {
-    return addressKeys.split(',').filter(Boolean)
-  }, [addressKeys])
+    const list = addressKeys.split(',').filter(Boolean)
+
+    if (list.includes(NATIVE_TOKEN_PRICE_KEY) && wrappedNativeAddress) {
+      list.push(wrappedNativeAddress)
+    }
+
+    return Array.from(new Set(list))
+  }, [addressKeys, wrappedNativeAddress])
 
   const unknownPriceList = useMemo(() => {
     return tokenList.filter(item => tokenPrices[`${item}_${chainId}`] === undefined)
@@ -60,35 +73,43 @@ export const useTokenPricesWithLoading = (
 
   const fetchPrices = useCallback(
     async (list: string[]) => {
-      if (list.length === 0) {
+      const normalizedList = Array.from(new Set(list.filter(Boolean).map(address => address.toLowerCase()))).sort()
+
+      if (!chainId || normalizedList.length === 0) {
+        setLoading(false)
         return {}
       }
 
       try {
         setLoading(true)
-        const chunks = chunkList(list, CHUNK_SIZE)
-        const responses = await Promise.all(
+        const chunks = chunkList(normalizedList, CHUNK_SIZE)
+        const responses = await Promise.all<PriceResponse>(
           chunks.map(chunk =>
-            fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-              method: 'POST',
-              body: JSON.stringify({
-                [chainId]: chunk,
-              }),
-            }).then(res => res.json()),
+            queryClient.fetchQuery({
+              queryKey: ['tokenPrices', chainId, chunk],
+              queryFn: async () => {
+                return fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    [chainId]: chunk,
+                  }),
+                }).then(res => res.json())
+              },
+              retry: false,
+            }),
           ),
         )
 
         const prices: { address: string; price: number }[] = responses.flatMap((r: PriceResponse) =>
-          Object.keys(r?.data?.[chainId] || {}).map(address => ({
-            address,
-            price:
-              priceType === PriceType.Average
-                ? (r.data[chainId][address].PriceBuy + r.data[chainId][address].PriceSell) / 2
-                : r.data[chainId][address].PriceBuy,
-          })),
+          Object.entries(r?.data?.[chainId] || {}).map(([address, price]) => {
+            return {
+              address,
+              price: priceType === PriceType.Average ? (price.PriceBuy + price.PriceSell) / 2 : price.PriceBuy,
+            }
+          }),
         )
 
-        const formattedPrices = list.map(address => {
+        const formattedPrices = normalizedList.map(address => {
           const price = prices.find(
             (p: { address: string; price: number }) => p.address.toLowerCase() === address.toLowerCase(),
           )
@@ -121,7 +142,7 @@ export const useTokenPricesWithLoading = (
         setLoading(false)
       }
     },
-    [chainId, dispatch, priceType],
+    [chainId, dispatch, priceType, queryClient],
   )
 
   useEffect(() => {
@@ -138,13 +159,19 @@ export const useTokenPricesWithLoading = (
   } = useMemo(() => {
     return tokenList.reduce((acc, address) => {
       const key = `${address}_${chainId}`
+      const wrappedNativeKey = `${wrappedNativeAddress}_${chainId}`
+      const price =
+        address === NATIVE_TOKEN_PRICE_KEY && wrappedNativeAddress
+          ? tokenPrices[key] || tokenPrices[wrappedNativeKey] || 0
+          : tokenPrices[key] || 0
+
       return {
         ...acc,
-        [address]: tokenPrices[key] || 0,
-        [isAddressString(address)]: tokenPrices[key] || 0,
+        [address]: price,
+        [isAddressString(address)]: price,
       }
     }, {})
-  }, [tokenList, chainId, tokenPrices])
+  }, [tokenList, chainId, tokenPrices, wrappedNativeAddress])
 
   return { data, loading, fetchPrices, refetch }
 }

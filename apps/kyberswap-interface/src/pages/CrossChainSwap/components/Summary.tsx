@@ -1,27 +1,17 @@
 import { Trans, t } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 import { formatUnits } from 'viem'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import { Currency } from 'pages/CrossChainSwap/adapters'
+import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { Quote } from 'pages/CrossChainSwap/registry'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { Currency } from '../adapters'
-import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
-import { Quote } from '../registry'
+const DOTTED_LABEL = 'border-b border-dotted border-border text-subText'
 
-const Wrapper = styled.div`
-  border-radius: 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  padding: 1rem;
-  font-size: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
 export const formatTime = (seconds: number) => {
   if (seconds <= 60) return `${seconds}s`
   const mins = Math.floor(seconds / 60)
@@ -42,108 +32,85 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
       : '--'
 
   return (
-    <Wrapper>
+    <div className="flex flex-col gap-3 rounded-2xl border border-solid border-border p-4 text-xs">
       {full && (
-        <Flex justifyContent="space-between">
-          <Text color={theme.subText}>{t`Current price`}</Text>
-          <Text>
+        <div className="flex justify-between">
+          <span className="text-subText">{t`Current price`}</span>
+          <span>
             1 {currencyIn?.symbol} = {formatDisplayNumber(quote?.quote.rate, { significantDigits: 8 })}{' '}
             {tokenOut?.symbol}
-          </Text>
-        </Flex>
+          </span>
+        </div>
       )}
 
-      <Flex justifyContent="space-between">
+      <div className="flex justify-between">
         <MouseoverTooltip text={t`You will receive at least this amount or your transaction will revert.`}>
-          <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            {t`Minimum Received`}
-          </Text>
+          <span className={DOTTED_LABEL}>{t`Minimum Received`}</span>
         </MouseoverTooltip>
-        <Text>
+        <span>
           {formatDisplayNumber(minimumReceived, { significantDigits: 8 })} {tokenOut?.symbol}
-        </Text>
-      </Flex>
-      <Flex justifyContent="space-between">
+        </span>
+      </div>
+      <div className="flex justify-between">
         <MouseoverTooltip text={t`Estimated processing time for your transaction.`}>
-          <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            {t`Estimated Processing Time`}
-          </Text>
+          <span className={DOTTED_LABEL}>{t`Estimated Processing Time`}</span>
         </MouseoverTooltip>
-        <Text>{quote ? `~${formatTime(quote.quote.timeEstimate)}` : '--'}</Text>
-      </Flex>
+        <span>{quote ? `~${formatTime(quote.quote.timeEstimate)}` : '--'}</span>
+      </div>
 
-      <Flex justifyContent="space-between">
+      <div className="flex justify-between">
         <MouseoverTooltip text={t`Estimated change in price due to the size of your transaction.`}>
-          <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            {t`Price Impact`}
-          </Text>
+          <span className={DOTTED_LABEL}>{t`Price Impact`}</span>
         </MouseoverTooltip>
-        <Text
-          color={
-            warning?.priceImpaceInfo?.isVeryHigh
+        <span
+          style={{
+            color: warning?.priceImpaceInfo?.isVeryHigh
               ? theme.red
               : warning?.priceImpaceInfo?.isHigh
               ? theme.warning
-              : undefined
-          }
+              : undefined,
+          }}
         >
           {quote
             ? !quote.quote.priceImpact
               ? '--'
               : `${quote.quote.priceImpact < 0.01 ? '<0.01' : Math.abs(quote.quote.priceImpact).toFixed(2)}%`
             : '--'}
-        </Text>
-      </Flex>
+        </span>
+      </div>
 
       {quote && quote.quote.protocolFee > 0 && (
-        <Flex justifyContent="space-between">
+        <div className="flex justify-between">
           <MouseoverTooltip text={<Trans>Additional fee charged by {quote.adapter.getName()}</Trans>}>
-            <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-              {t`Protocol Fee`}
-            </Text>
+            <span className={DOTTED_LABEL}>{t`Protocol Fee`}</span>
           </MouseoverTooltip>
-          <Text>{formatDisplayNumber(quote.quote.protocolFee, { style: 'currency', fractionDigits: 2 })}</Text>
-        </Flex>
+          <span>{formatDisplayNumber(quote.quote.protocolFee, { style: 'currency', fractionDigits: 2 })}</span>
+        </div>
       )}
 
-      <Flex justifyContent="space-between">
+      <div className="flex justify-between">
         <MouseoverTooltip
           text={
-            <Text>
+            <span>
               <Trans>
                 Check more details{' '}
                 <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/cross-chain-swap">
                   here
                 </ExternalLink>
               </Trans>
-            </Text>
+            </span>
           }
         >
-          <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            {t`Platform Fee`}
-          </Text>
+          <span className={DOTTED_LABEL}>{t`Platform Fee`}</span>
         </MouseoverTooltip>
-        <Text>{quote ? `${quote.quote.platformFeePercent.toFixed(2)}%` : '--'}</Text>
-      </Flex>
+        <span>{quote ? `${quote.quote.platformFeePercent.toFixed(2)}%` : '--'}</span>
+      </div>
 
-      {/*
-      <Flex justifyContent="space-between">
-        <MouseoverTooltip text="Estimated network fee for your transaction.">
-          <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            Est. Gas Fee
-          </Text>
-        </MouseoverTooltip>
-        <Text>
-          {quote ? `${formatDisplayNumber(quote.quote.gasFeeUsd, { style: 'currency', significantDigits: 4 })}` : '--'}
-        </Text>
-      </Flex>
-          */}
-
-      <Flex justifyContent="space-between">
+      <div className="flex justify-between">
         <MouseoverTooltip
           placement="right"
           text={
-            <Text>
+            <span>
               <Trans>
                 During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
                 <ExternalLink
@@ -152,27 +119,25 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
                   here ↗
                 </ExternalLink>
               </Trans>
-            </Text>
+            </span>
           }
         >
-          <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            {t`Max Slippage`}
-          </Text>
+          <span className={DOTTED_LABEL}>{t`Max Slippage`}</span>
         </MouseoverTooltip>
 
         <MouseoverTooltip text={warning?.slippageInfo.message}>
-          <Text
-            color={warning?.slippageInfo.message ? theme.warning : undefined}
-            sx={{
+          <span
+            style={{
+              color: warning?.slippageInfo.message ? theme.warning : undefined,
               textDecoration: warning?.slippageInfo.message ? 'underline' : undefined,
               textDecorationStyle: 'dotted',
               textUnderlineOffset: '4px',
             }}
           >
             {((slippage * 100) / 10_000).toFixed(2)}%
-          </Text>
+          </span>
         </MouseoverTooltip>
-      </Flex>
-    </Wrapper>
+      </div>
+    </div>
   )
 }

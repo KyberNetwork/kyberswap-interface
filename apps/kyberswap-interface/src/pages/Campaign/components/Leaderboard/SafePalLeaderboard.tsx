@@ -1,10 +1,7 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { useGetSafePalCampaignStatsQuery, useGetSafePalCampaignTransactionsQuery } from 'services/campaignSafepal'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
@@ -14,33 +11,24 @@ import SearchInput from 'components/SearchInput'
 import { ZERO_ADDRESS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { useSafePalCampaignJoin } from 'pages/Campaign/hooks/useSafePalCampaignJoin'
 import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { isCampaignWeekActive, isCampaignWeekEnded, isSafePalCampaignWinner } from 'pages/Campaign/utils/safepalUtils'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenHash } from 'utils'
+import { cn } from 'utils/cn'
 
-const Wrapper = styled.div`
-  border-radius: 20px;
-  padding: 20px;
-  background: ${({ theme }) => theme.background};
-  margin-top: 20px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 1rem;
-  `}
-`
-
-const StatusBadge = styled.div<{ $isWinner: boolean }>`
-  background-color: ${({ theme, $isWinner }) => rgba($isWinner ? theme.primary : theme.subText, 0.16)};
-  border-radius: 999px;
-  color: ${({ theme, $isWinner }) => ($isWinner ? theme.primary : theme.subText)};
-  font-size: 12px;
-  min-width: 120px;
-  padding: 6px 8px;
-  text-align: center;
-`
+const StatusBadge = ({ isWinner, children }: { isWinner: boolean; children: ReactNode }) => (
+  <div
+    className={cn(
+      'min-w-[120px] rounded-full px-2 py-1.5 text-center text-xs',
+      isWinner ? 'bg-primary-15 text-primary' : 'bg-subText-20 text-subText',
+    )}
+  >
+    {children}
+  </div>
+)
 
 type Props = {
   type?: 'leaderboard' | 'owner'
@@ -59,7 +47,6 @@ const getTransactionExplorerLink = (chainId: number, txHash: string) => {
 }
 
 export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }: Props) {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
 
@@ -96,7 +83,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
       userAddress: debouncedSearchAddress || undefined,
     },
     {
-      skip: isOwner || !selectedRange || !hasLeaderboardPoints,
+      skip: isOwner || !selectedRange,
       pollingInterval: 30_000,
     },
   )
@@ -117,46 +104,41 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
   const isLoading = isOwner ? isLoadingTransactions : isLoadingLeaderboard || (!!account && isLoadingUserStats)
   const totalCount = isOwner ? transactionsData?.total_items || 0 : leaderboardData?.total_items || 0
   const emptyStateMessage = isOwner ? t`No transactions found for this week.` : t`No participants found for this week.`
+  const hasLeaderboardEntries = !isOwner && !!leaderboardData?.entries.length
 
   const renderLabel = (label: ReactNode) =>
-    upToSmall ? (
-      <Text fontWeight="500" fontSize={13} color={theme.subText}>
-        {label}
-      </Text>
-    ) : null
+    upToSmall ? <span className="text-[13px] font-medium text-subText">{label}</span> : null
 
   const handlePageChange = (page: number) => {
     setCurrentPage(Math.max(1, page))
   }
 
+  const rowClass = cn('gap-5', upToSmall ? 'grid grid-cols-2 gap-2 py-4' : 'flex flex-row px-5 py-4')
+
   return (
-    <Wrapper>
-      {!isOwner && hasLeaderboardPoints && (
+    <div className="mt-5 rounded-[20px] bg-background p-5 max-sm:p-4">
+      {!isOwner && (
         <>
-          <Flex
-            justifyContent="space-between"
-            alignItems={upToSmall ? 'stretch' : 'center'}
-            flexDirection={upToSmall ? 'column' : 'row'}
-            sx={{ gap: '12px' }}
-            mb="1rem"
+          <div
+            className={cn(
+              'mb-4 flex justify-between gap-3',
+              upToSmall ? 'flex-col items-stretch' : 'flex-row items-center',
+            )}
           >
-            <Text fontSize={16} color={theme.subText}>
-              <Trans>Your rank</Trans>{' '}
-              <Text color={theme.text} fontWeight="500" as="span" fontSize={18}>
-                {userStats?.rank || '--'}
-              </Text>
-            </Text>
+            <span className="text-base text-subText">
+              <Trans>Your rank</Trans> <span className="text-lg font-medium text-text">{userStats?.rank || '--'}</span>
+            </span>
 
             <SearchInput
               placeholder={t`Search wallet address`}
               value={searchAddressInput}
               onChange={setSearchAddressInput}
+              className="!bg-bg1"
               style={{
                 width: upToSmall ? '100%' : '360px',
-                background: theme.bg1,
               }}
             />
-          </Flex>
+          </div>
 
           <Divider />
         </>
@@ -164,47 +146,73 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
 
       {!upToSmall && (
         <>
-          <Flex padding="1rem 1.25rem" fontSize={12} color={theme.subText} fontWeight="500" sx={{ gap: '1.25rem' }}>
+          <div className="flex gap-5 px-5 py-4 text-xs font-medium text-subText">
             {isOwner ? (
-              <Text width="160px">
+              <span className="w-[160px]">
                 <Trans>NETWORK</Trans>
-              </Text>
+              </span>
             ) : (
-              <Text width="50px" textAlign="center">
+              <span className="w-[50px] text-center">
                 <Trans>RANK</Trans>
-              </Text>
+              </span>
             )}
-            <Text flex={1}>{isOwner ? t`TX HASH` : t`WALLET`}</Text>
-            <Text width={isOwner ? '120px' : '80px'} textAlign="right">
+            <span className="flex-1">{isOwner ? t`TX HASH` : t`WALLET`}</span>
+            <span className={cn('text-right', isOwner ? 'w-[120px]' : 'w-20')}>
               <Trans>POINTS</Trans>
-            </Text>
+            </span>
             {!isOwner && (
-              <Text width="120px" textAlign="center">
+              <span className="w-[120px] text-center">
                 <Trans>STATUS</Trans>
-              </Text>
+              </span>
             )}
-          </Flex>
+          </div>
           <Divider />
         </>
       )}
 
       {isLoading ? (
         <LocalLoader />
+      ) : !isOwner && hasLeaderboardEntries ? (
+        leaderboardData.entries.map((entry, index) => {
+          const rank = entry.rank || index + 1 + (currentPage - 1) * 10
+          const isWinner = isSelectedWeekEnded && isSafePalCampaignWinner({ rank, total_points: entry.total_points })
+
+          return (
+            <div key={entry.user_address} className={cn(rowClass, 'text-sm text-text')}>
+              <div
+                className={cn('flex flex-col justify-center', upToSmall ? 'w-full text-left' : 'w-[50px] text-center')}
+              >
+                {renderLabel(<Trans>RANK</Trans>)}
+                <span className="font-medium">{rank}</span>
+              </div>
+              <div className="flex flex-1 flex-col justify-center">
+                {renderLabel(<Trans>WALLET</Trans>)}
+                <span className="font-medium">{shortenHash(entry.user_address, 4)}</span>
+              </div>
+              <div className={cn('flex flex-col justify-center', upToSmall ? 'w-full text-left' : 'w-20 text-right')}>
+                {renderLabel(<Trans>POINTS</Trans>)}
+                <span>{formatPointValue(entry.total_points)}</span>
+              </div>
+              <div className={cn('flex flex-col', upToSmall ? 'w-full items-start' : 'w-[120px] items-end')}>
+                {renderLabel(<Trans>STATUS</Trans>)}
+                {isSelectedWeekEnded ? (
+                  <StatusBadge isWinner={isWinner}>{isWinner ? t`Winner` : t`Not a winner`}</StatusBadge>
+                ) : (
+                  <span className="w-full text-center text-subText">--</span>
+                )}
+              </div>
+            </div>
+          )
+        })
       ) : !isJoinedByWeek ? (
-        <Flex
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          padding="32px 16px"
-          sx={{ gap: '20px' }}
-        >
-          <Text textAlign="center" color={theme.subText} fontSize={14}>
+        <div className="flex flex-col items-center justify-center gap-5 px-4 py-8">
+          <span className="text-center text-sm text-subText">
             {isOwner ? (
               <Trans>Join to start tracking - only joined wallets have transactions recorded.</Trans>
             ) : (
               <Trans>You haven&apos;t joined this week yet. Join now to appear on the leaderboard.</Trans>
             )}
-          </Text>
+          </span>
           <ButtonPrimary
             width={upToSmall ? '100%' : '160px'}
             height="40px"
@@ -213,120 +221,44 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
           >
             <Trans>Join Now</Trans>
           </ButtonPrimary>
-        </Flex>
+        </div>
       ) : !isOwner && !hasLeaderboardPoints ? (
-        <Text textAlign="center" color={theme.subText} padding="24px" marginTop="12px" fontSize={14}>
+        <span className="mt-3 block p-6 text-center text-sm text-subText">
           <Trans>You&apos;ve joined. Start trading this week to appear on the leaderboard.</Trans>
-        </Text>
+        </span>
       ) : isOwner ? (
         transactionsData?.items.length ? (
           transactionsData.items.map(tx => {
             const explorerLink = getTransactionExplorerLink(tx.chain_id, tx.tx_hash)
 
             return (
-              <Box
-                display={upToSmall ? 'grid' : 'flex'}
-                key={tx.id}
-                padding={upToSmall ? '1rem 0' : '1rem 1.25rem'}
-                fontSize={14}
-                color={theme.text}
-                flexDirection={upToSmall ? 'column' : 'row'}
-                sx={{
-                  gap: upToSmall ? '0.5rem' : '1.25rem',
-                  gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
-                }}
-              >
-                <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
+              <div key={tx.id} className={cn(rowClass, 'text-sm text-text')}>
+                <div className={cn('flex flex-col', upToSmall ? 'w-full' : 'w-[160px]')}>
                   {renderLabel(<Trans>NETWORK</Trans>)}
-                  <Text>{tx.chain_name || '--'}</Text>
-                </Flex>
-                <Flex flex={1} flexDirection="column">
+                  <span>{tx.chain_name || '--'}</span>
+                </div>
+                <div className="flex flex-1 flex-col">
                   {renderLabel(<Trans>TX HASH</Trans>)}
-                  <Flex alignItems="center" sx={{ gap: '6px' }}>
-                    <Text>{shortenHash(tx.tx_hash, 4)}</Text>
-                    {explorerLink && <ExternalLinkIcon color={theme.subText} href={explorerLink} />}
-                  </Flex>
-                </Flex>
-                <Flex
-                  width={upToSmall ? '100%' : '120px'}
-                  flexDirection="column"
-                  textAlign={upToSmall ? 'left' : 'right'}
-                >
+                  <div className="flex items-center gap-1.5">
+                    <span>{shortenHash(tx.tx_hash, 4)}</span>
+                    {explorerLink && <ExternalLinkIcon className="text-subText" href={explorerLink} />}
+                  </div>
+                </div>
+                <div className={cn('flex flex-col', upToSmall ? 'w-full text-left' : 'w-[120px] text-right')}>
                   {renderLabel(<Trans>POINTS</Trans>)}
-                  <Text fontWeight="500">{formatPointValue(tx.point)}</Text>
-                </Flex>
-              </Box>
+                  <span className="font-medium">{formatPointValue(tx.point)}</span>
+                </div>
+              </div>
             )
           })
         ) : (
-          <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px" fontSize={14}>
-            {emptyStateMessage}
-          </Text>
+          <span className="mt-3 block p-6 text-center text-sm text-subText">{emptyStateMessage}</span>
         )
-      ) : leaderboardData?.entries.length ? (
-        leaderboardData.entries.map((entry, index) => {
-          const rank = entry.rank || index + 1 + (currentPage - 1) * 10
-          const isWinner = isSelectedWeekEnded && isSafePalCampaignWinner({ rank, total_points: entry.total_points })
-
-          return (
-            <Box
-              display={upToSmall ? 'grid' : 'flex'}
-              key={entry.user_address}
-              padding={upToSmall ? '1rem 0' : '1rem 1.25rem'}
-              fontSize={14}
-              color={theme.text}
-              flexDirection={upToSmall ? 'column' : 'row'}
-              sx={{
-                gap: upToSmall ? '0.5rem' : '1.25rem',
-                gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
-              }}
-            >
-              <Flex
-                width={upToSmall ? '100%' : '50px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'center'}
-                justifyContent="center"
-              >
-                {renderLabel(<Trans>RANK</Trans>)}
-                <Text fontWeight="500">{rank}</Text>
-              </Flex>
-              <Flex flex={1} flexDirection="column" justifyContent="center">
-                {renderLabel(<Trans>WALLET</Trans>)}
-                <Text fontWeight="500">{shortenHash(entry.user_address, 4)}</Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '80px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'right'}
-                justifyContent="center"
-              >
-                {renderLabel(<Trans>POINTS</Trans>)}
-                <Text>{formatPointValue(entry.total_points)}</Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '120px'}
-                flexDirection="column"
-                alignItems={upToSmall ? 'flex-start' : 'flex-end'}
-              >
-                {renderLabel(<Trans>STATUS</Trans>)}
-                {isSelectedWeekEnded ? (
-                  <StatusBadge $isWinner={isWinner}>{isWinner ? t`Winner` : t`Not a winner`}</StatusBadge>
-                ) : (
-                  <Text width="100%" textAlign="center" color={theme.subText}>
-                    --
-                  </Text>
-                )}
-              </Flex>
-            </Box>
-          )
-        })
       ) : (
-        <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px" fontSize={14}>
-          {emptyStateMessage}
-        </Text>
+        <span className="mt-3 block p-6 text-center text-sm text-subText">{emptyStateMessage}</span>
       )}
 
-      {!isLoading && isJoinedByWeek && totalCount > 0 && (
+      {!isLoading && totalCount > 0 && (
         <Pagination
           onPageChange={handlePageChange}
           totalCount={totalCount}
@@ -335,6 +267,6 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
           style={{ marginTop: '12px' }}
         />
       )}
-    </Wrapper>
+    </div>
   )
 }

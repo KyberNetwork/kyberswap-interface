@@ -3,43 +3,42 @@ import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Repeat } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import RefreshLoading from 'components/RefreshLoading'
+import Skeleton from 'components/Skeleton'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
-import { QuoteSelector, Tag } from 'pages/CrossChainSwap/components/QuoteSelector'
+import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
+import { QuoteSelector } from 'pages/CrossChainSwap/components/QuoteSelector'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { SwapAction } from 'pages/CrossChainSwap/components/SwapAction'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { TokenPanel } from 'pages/CrossChainSwap/components/TokenPanel'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { CrossChainSwapRegistryProvider, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { Quote } from 'pages/CrossChainSwap/registry'
 import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { isEvmChain } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
+const Wrapper = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col gap-4">{children}</div>
 
-function CrossChainSwap() {
+type CrossChainSwapProps = {
+  onQuoteChange?: (quote: Quote) => void
+}
+
+export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
   const {
     amount,
     setAmount,
@@ -59,7 +58,6 @@ function CrossChainSwap() {
     setRecipient,
     warning,
   } = useCrossChainSwap()
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
@@ -113,6 +111,12 @@ function CrossChainSwap() {
   const isToEvm = toChainId && isEvmChain(toChainId)
   const isToSolana = toChainId === NonEvmChain.Solana
   const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : isToSolana ? 'Solana' : 'EVM'
+
+  useEffect(() => {
+    if (selectedQuote) {
+      onQuoteChange?.(selectedQuote)
+    }
+  }, [onQuoteChange, selectedQuote])
 
   useEffect(() => {
     if (isEvmChain(fromChainId) && isToEvm && !showEvmRecipient) {
@@ -175,7 +179,7 @@ function CrossChainSwap() {
         }}
       />
 
-      <Flex justifyContent="space-between" alignItems="center">
+      <div className="flex items-center justify-between">
         <RefreshLoading
           refetchLoading={allLoading}
           clickable
@@ -183,30 +187,16 @@ function CrossChainSwap() {
           onRefresh={getQuote}
         />
 
-        <Flex
-          color={theme.text}
-          flexWrap="wrap"
-          fontSize="14px"
-          alignItems="center"
-          sx={{ gap: '4px', flex: 1 }}
-          ml="4px"
-        >
-          <Text as="span" color={theme.subText}>
+        <div className="ml-1 flex flex-1 flex-wrap items-center gap-1 text-sm text-text">
+          <span className="text-subText">
             <Trans>Cross-chain rate:</Trans>
-          </Text>
+          </span>
           {loading ? (
-            <Skeleton
-              height="16px"
-              width="120px"
-              baseColor={theme.disableText}
-              highlightColor={theme.buttonGray}
-              borderRadius="1rem"
-            />
+            <Skeleton height={16} width={120} />
           ) : selectedQuote && toChainId ? (
-            <Flex
+            <div
               role="button"
-              flexWrap="wrap"
-              sx={{ alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+              className="flex cursor-pointer flex-wrap items-center gap-1"
               onClick={() => setRevertPrice(!revertPrice)}
             >
               1{' '}
@@ -222,12 +212,12 @@ function CrossChainSwap() {
                 currency={revertPrice ? currencyIn : currencyOut}
                 chainId={revertPrice ? fromChainId : toChainId}
               />
-              <Repeat size={12} color={theme.subText} />
-            </Flex>
+              <Repeat size={12} className="text-subText" />
+            </div>
           ) : (
-            '--'
+            <Skeleton height={16} width={120} />
           )}
-        </Flex>
+        </div>
 
         <ReverseTokenSelectionButton
           onClick={() => {
@@ -256,7 +246,7 @@ function CrossChainSwap() {
             setSearchParams(searchParams)
           }}
         />
-      </Flex>
+      </div>
 
       <TokenPanel
         loading={loading}
@@ -283,11 +273,10 @@ function CrossChainSwap() {
         }}
       />
 
-      <AutoColumn gap="8px">
-        <Flex justifyContent="space-between" fontSize={12} color={theme.subText} px="8px" alignItems="center">
-          <Flex
-            alignItems="center"
-            sx={{ gap: '4px', cursor: 'pointer' }}
+      <AutoColumn className="gap-2">
+        <div className="flex items-center justify-between px-2 text-xs text-subText">
+          <div
+            className="flex cursor-pointer items-center gap-1"
             role="button"
             onClick={() => {
               if (isEvmChain(fromChainId) && isToEvm) {
@@ -298,20 +287,20 @@ function CrossChainSwap() {
               }
             }}
           >
-            <Text>
+            <span>
               {isEvmChain(fromChainId) && isToEvm ? (
                 <Trans>Send to other wallet</Trans>
               ) : (
                 t`Recipient (${networkName} address)`
               )}
-            </Text>
+            </span>
             {isEvmChain(fromChainId) &&
               isToEvm &&
               (showEvmRecipient ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
-          </Flex>
+          </div>
 
           {toChainId && (isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
-            <Flex sx={{ gap: '4px' }}>
+            <div className="flex gap-1">
               {isDifferentRecipient && (!isEvmChain(fromChainId) || !isToEvm) && (
                 <ButtonLight
                   padding="2px 8px"
@@ -328,9 +317,9 @@ function CrossChainSwap() {
                   <Trans>Use my wallet</Trans>
                 </ButtonLight>
               )}
-            </Flex>
+            </div>
           )}
-        </Flex>
+        </div>
         {(isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
           <AddressInput
             placeholder={t`Enter ${networkName} receiving address`}
@@ -344,33 +333,36 @@ function CrossChainSwap() {
         )}
       </AutoColumn>
 
-      <SlippageSetting
-        slippageInfo={warning?.slippageInfo}
-        rightComponent={
-          selectedQuote ? (
-            <QuoteSelector
-              quotes={quotes}
-              selectedQuote={selectedQuote}
-              onChange={newSelectedQuote => {
-                setSelectedAdapter(newSelectedQuote.adapter.getName())
-              }}
-              tokenOut={currencyOut}
-            />
-          ) : null
-        }
-      />
+      <div className="flex min-h-7 items-center">
+        <SlippageSetting
+          slippageInfo={warning?.slippageInfo}
+          rightComponent={
+            selectedQuote ? (
+              <QuoteSelector
+                quotes={quotes}
+                selectedQuote={selectedQuote}
+                onChange={newSelectedQuote => {
+                  setSelectedAdapter(newSelectedQuote.adapter.getName())
+                  onQuoteChange?.(newSelectedQuote)
+                }}
+                tokenOut={currencyOut}
+              />
+            ) : null
+          }
+        />
+      </div>
 
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
-      {selectedQuote && (
-        <Text fontStyle="italic" color={'#737373'} fontSize={12} display="flex">
-          <Trans>Routed via {selectedQuote.adapter.getName()}</Trans>
-          {selectedQuote.adapter.getName() === 'Optimex' && (
-            <Tag>
-              <Trans>Beta</Trans>
-            </Tag>
-          )}
-        </Text>
+      {selectedQuote ? (
+        <div className="flex items-center text-xs italic text-gray">
+          <span className="mr-1">
+            <Trans>Routed via</Trans>
+          </span>
+          <QuoteProviderName quote={selectedQuote} />
+        </div>
+      ) : (
+        <Skeleton height={16} width={140} />
       )}
 
       <PiWarning />
@@ -386,10 +378,10 @@ function CrossChainSwap() {
   )
 }
 
-export default function CrossChainSwapPage() {
+export default function CrossChainSwapPage(props: CrossChainSwapProps) {
   return (
     <CrossChainSwapRegistryProvider>
-      <CrossChainSwap />
+      <CrossChainSwap {...props} />
     </CrossChainSwapRegistryProvider>
   )
 }

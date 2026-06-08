@@ -1,44 +1,11 @@
 import { ReactNode, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-
-const Wrapper = styled.div`
-  transition: all 0.2s ease;
-  overflow: hidden;
-  flex: 1;
-`
-const LinkContainer = styled.div<{ $isShow?: boolean; $height: number }>`
-  padding-left: 24px;
-  transition: all 0.3s ease;
-  ${({ $isShow, $height }) => ($isShow ? `height: ${$height}px;` : 'height: 0px;')}
-  > * {
-    padding: 12px 0;
-  }
-
-  > *:first-child {
-    padding-top: 24px;
-  }
-  > *:last-child {
-    padding-bottom: 0;
-  }
-`
-const DropdownIcon = styled(DropdownSVG)<{ $isShow?: boolean }>`
-  transition: all 0.2s ease;
-  height: 24px !important;
-  width: 24px !important;
-  ${({ $isShow }) => $isShow && 'transform: rotate(180deg);'}
-`
-
-const TitleWrapper = styled(NavLink)`
-  display: flex;
-  justify-content: space-between;
-`
+import { cn } from 'utils/cn'
 
 export default function NavDropDown({
   title,
@@ -61,13 +28,22 @@ export default function NavDropDown({
   }
 
   return (
-    <Wrapper>
-      <TitleWrapper to={link} onClick={handleClick}>
+    <div className="flex-1 overflow-hidden transition-all duration-200 ease-in-out">
+      <NavLink to={link} onClick={handleClick} className="flex justify-between">
         {icon}
-        <Text flex={1}>{title}</Text>
-        <DropdownIcon $isShow={isShowOptions} />
-      </TitleWrapper>
-      <LinkContainer $isShow={isShowOptions} ref={ref} $height={ref.current?.scrollHeight || 0}>
+        <span className="flex-1">{title}</span>
+        <DropdownSVG
+          className={cn('!h-6 !w-6 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
+        />
+      </NavLink>
+      <div
+        ref={ref}
+        style={{ height: isShowOptions ? `${ref.current?.scrollHeight || 0}px` : '0px' }}
+        className={cn(
+          'pl-6 transition-all duration-300 ease-in-out',
+          '[&>*:first-child]:pt-6 [&>*:last-child]:pb-0 [&>*]:py-3',
+        )}
+      >
         {options.map(item =>
           item.external ? (
             <ExternalLink key={item.link} href={item.link} onClick={toggle}>
@@ -79,7 +55,7 @@ export default function NavDropDown({
             </NavLink>
           ),
         )}
-      </LinkContainer>
-    </Wrapper>
+      </div>
+    </div>
   )
 }

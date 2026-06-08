@@ -1,31 +1,15 @@
-import styled from 'styled-components'
+import { HTMLAttributes } from 'react'
 
-export const Source = styled.div`
-  width: 100%;
-  height: 32px;
+import { cn } from 'utils/cn'
 
-  display: flex;
-  align-items: center;
-  column-gap: 16px;
-  padding: 12px;
-`
+export const Source = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex h-8 w-full items-center gap-x-4 p-3', className)} {...props} />
+)
 
-export const ImageWrapper = styled.div`
-  width: 32px;
-  height: 32px;
+export const ImageWrapper = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex size-8 items-center [&_img]:h-auto [&_img]:w-full', className)} {...props} />
+)
 
-  display: flex;
-  align-items: center;
-
-  img {
-    width: 100%;
-    height: auto;
-  }
-`
-
-export const SourceName = styled.span`
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  color: ${({ theme }) => theme.text};
-`
+export const SourceName = ({ className, ...props }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('text-sm font-normal leading-5 text-text', className)} {...props} />
+)

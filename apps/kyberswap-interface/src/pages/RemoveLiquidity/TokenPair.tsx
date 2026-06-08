@@ -1,13 +1,8 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { splitSignature } from '@ethersproject/bytes'
-import { Contract } from '@ethersproject/contracts'
-import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
+import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -25,6 +20,8 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
+import { wagmiConfig } from 'components/Web3Provider'
+import { KS_ROUTER_STATIC_FEE_ABI, ROUTER_DYNAMIC_FEE_ABI, ROUTER_STATIC_FEE_ABI } from 'constants/abis'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -36,27 +33,6 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Wrapper } from 'pages/MyPool/styleds'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { Field } from 'state/burn/actions'
-import { useBurnActionHandlers, useBurnState, useDerivedBurnInfo } from 'state/burn/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
-import { currencyId } from 'utils/currencyId'
-import { friendlyError } from 'utils/errorMessage'
-import { formatJSBIValue } from 'utils/formatBalance'
-import {
-  getDynamicFeeRouterContract,
-  getOldStaticFeeRouterContract,
-  getStaticFeeRouterContract,
-} from 'utils/getContract'
-import { formatDisplayNumber } from 'utils/numbers'
-import { ErrorName } from 'utils/sentry'
-import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-
 import {
   CurrentPriceWrapper,
   DetailBox,
@@ -67,7 +43,25 @@ import {
   ModalDetailWrapper,
   SecondColumn,
   TokenWrapper,
-} from './styled'
+} from 'pages/RemoveLiquidity/styled'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { Field } from 'state/burn/actions'
+import { useBurnActionHandlers, useBurnState, useDerivedBurnInfo } from 'state/burn/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { StyledInternalLink, UppercaseText } from 'theme'
+import { calculateSlippageAmount, formattedNum } from 'utils'
+import { currencyId } from 'utils/currencyId'
+import { friendlyError } from 'utils/errorMessage'
+import { formatJSBIValue } from 'utils/formatBalance'
+import { formatDisplayNumber } from 'utils/numbers'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName, TransactionError } from 'utils/transactionError'
+import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
+import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 export default function TokenPair({
   currencyIdA,
@@ -80,7 +74,7 @@ export default function TokenPair({
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
   const { account, chainId, networkInfo } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const nativeA = currencyA as Currency
   const nativeB = currencyB as Currency
@@ -135,7 +129,7 @@ export default function TokenPair({
   }
 
   // pair contract
-  const pairContract: Contract | null = usePairContract(pair?.liquidityToken?.address)
+  const pairContract = usePairContract(pair?.liquidityToken?.address)
 
   // allowance handling
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
@@ -151,7 +145,7 @@ export default function TokenPair({
 
   async function onAttemptToApprove() {
     if (!chainId) throw new Error('missing chain')
-    if (!pairContract || !pair || !library || !deadline) throw new Error('missing dependencies')
+    if (!pairContract || !pair || !deadline) throw new Error('missing dependencies')
     const liquidityAmount = parsedAmounts[Field.LIQUIDITY]
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
@@ -160,7 +154,13 @@ export default function TokenPair({
     }
 
     // try to gather a signature for permission
-    const nonce = await pairContract.nonces(account)
+    const nonce = (await readContract(wagmiConfig, {
+      address: pairContract.address,
+      abi: pairContract.abi,
+      functionName: 'nonces',
+      args: [account],
+      chainId: chainId as number,
+    })) as bigint
 
     const domain = {
       name: isStaticFeePair ? 'KyberSwap LP' : 'KyberDMM LP',
@@ -179,10 +179,10 @@ export default function TokenPair({
       owner: account,
       spender: contractAddress,
       value: liquidityAmount.quotient.toString(),
-      nonce: nonce.toHexString(),
-      deadline: deadline.toNumber(),
+      nonce: `0x${nonce.toString(16)}`,
+      deadline: Number(deadline),
     }
-    const data = JSON.stringify({
+    const typedData = {
       types: {
         EIP712Domain,
         Permit,
@@ -190,20 +190,21 @@ export default function TokenPair({
       domain,
       primaryType: 'Permit',
       message,
-    })
+    }
 
     try {
-      await library
-        .send('eth_signTypedData_v4', [account, data])
-        .then(splitSignature)
-        .then(signature => {
-          setSignatureData({
-            v: signature.v,
-            r: signature.r,
-            s: signature.s,
-            deadline: deadline.toNumber(),
-          })
-        })
+      const rawSignature = await signTypedDataRaw({
+        chainId: chainId as number,
+        account: account as Address,
+        typedData,
+      })
+      const signature = parseSignature(rawSignature as `0x${string}`)
+      setSignatureData({
+        v: Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
+        r: signature.r,
+        s: signature.s,
+        deadline: Number(deadline),
+      })
     } catch (error) {
       if (didUserReject(error)) {
         notify(
@@ -245,16 +246,17 @@ export default function TokenPair({
   // tx sending
   const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
-    if (!library || !account || !deadline) throw new Error('missing dependencies')
+    if (!account || !deadline) throw new Error('missing dependencies')
+    if (!contractAddress) throw new Error('missing router address')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
     }
-    const routerContract = isStaticFeePair
+    const routerAbi = isStaticFeePair
       ? isOldStaticFeeContract
-        ? getOldStaticFeeRouterContract(chainId, library, account)
-        : getStaticFeeRouterContract(chainId, library, account)
-      : getDynamicFeeRouterContract(chainId, library, account)
+        ? ROUTER_STATIC_FEE_ABI
+        : KS_ROUTER_STATIC_FEE_ABI
+      : ROUTER_DYNAMIC_FEE_ABI
 
     const amountsMin = {
       [Field.CURRENCY_A]: calculateSlippageAmount(currencyAmountA, allowedSlippage)[0],
@@ -270,34 +272,41 @@ export default function TokenPair({
 
     if (!tokenA || !tokenB) throw new Error('could not wrap')
 
-    let methodNames: string[], args: Array<string | string[] | number | boolean>
+    const deadlineArg = BigInt(deadline.toString())
+    const liquidityArg = BigInt(liquidityAmount.quotient.toString())
+
+    let methodNames: string[]
+    let methodArgs: unknown[][]
     // we have approval, use normal remove liquidity
     if (approval === ApprovalState.APPROVED) {
       // removeLiquidityETH
       if (oneCurrencyIsETH) {
         methodNames = ['removeLiquidityETH', 'removeLiquidityETHSupportingFeeOnTransferTokens']
-        args = [
+        const sharedArgs = [
           currencyBIsETH ? tokenA.address : tokenB.address,
           pairAddress,
-          liquidityAmount.quotient.toString(),
-          amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
-          amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),
+          liquidityArg,
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString()),
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString()),
           account,
-          deadline.toHexString(),
+          deadlineArg,
         ]
+        methodArgs = [sharedArgs, sharedArgs]
       }
       // removeLiquidity
       else {
         methodNames = ['removeLiquidity']
-        args = [
-          tokenA.address,
-          tokenB.address,
-          pairAddress,
-          liquidityAmount.quotient.toString(),
-          amountsMin[Field.CURRENCY_A].toString(),
-          amountsMin[Field.CURRENCY_B].toString(),
-          account,
-          deadline.toHexString(),
+        methodArgs = [
+          [
+            tokenA.address,
+            tokenB.address,
+            pairAddress,
+            liquidityArg,
+            BigInt(amountsMin[Field.CURRENCY_A].toString()),
+            BigInt(amountsMin[Field.CURRENCY_B].toString()),
+            account,
+            deadlineArg,
+          ],
         ]
       }
     }
@@ -306,121 +315,125 @@ export default function TokenPair({
       // removeLiquidityETHWithPermit
       if (oneCurrencyIsETH) {
         methodNames = ['removeLiquidityETHWithPermit', 'removeLiquidityETHWithPermitSupportingFeeOnTransferTokens']
-        args = [
+        const sharedArgs = [
           currencyBIsETH ? tokenA.address : tokenB.address,
           pairAddress,
-          liquidityAmount.quotient.toString(),
-          amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
-          amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),
+          liquidityArg,
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString()),
+          BigInt(amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString()),
           account,
-          signatureData.deadline,
+          BigInt(signatureData.deadline),
           false,
           signatureData.v,
           signatureData.r,
           signatureData.s,
         ]
+        methodArgs = [sharedArgs, sharedArgs]
       }
       // removeLiquidityETHWithPermit
       else {
         methodNames = ['removeLiquidityWithPermit']
-        args = [
-          tokenA.address,
-          tokenB.address,
-          pairAddress,
-          liquidityAmount.quotient.toString(),
-          amountsMin[Field.CURRENCY_A].toString(),
-          amountsMin[Field.CURRENCY_B].toString(),
-          account,
-          signatureData.deadline,
-          false,
-          signatureData.v,
-          signatureData.r,
-          signatureData.s,
+        methodArgs = [
+          [
+            tokenA.address,
+            tokenB.address,
+            pairAddress,
+            liquidityArg,
+            BigInt(amountsMin[Field.CURRENCY_A].toString()),
+            BigInt(amountsMin[Field.CURRENCY_B].toString()),
+            account,
+            BigInt(signatureData.deadline),
+            false,
+            signatureData.v,
+            signatureData.r,
+            signatureData.s,
+          ],
         ]
       }
     } else {
       throw new Error('Attempting to confirm without approval or a signature. Please contact support.')
     }
 
-    const safeGasEstimates: (BigNumber | undefined)[] = await Promise.all(
-      methodNames.map(methodName =>
-        routerContract.estimateGas[methodName](...args)
-          .then(calculateGasMargin)
-          .catch(error => {
-            console.error(`estimateGas failed`, methodName, args, error)
-            const e = new Error('Remove Classic Liquidity Error', { cause: error })
-            e.name = ErrorName.RemoveClassicLiquidityError
-            captureException(e, { extra: { methodName, args } })
-
-            setRemoveLiquidityError(error?.message || JSON.stringify(error))
-            return undefined
+    setAttemptingTxn(true)
+    let response: Awaited<ReturnType<typeof sendEVMTransaction>>
+    let lastError: unknown
+    for (let i = 0; i < methodNames.length; i++) {
+      try {
+        response = await sendEVMTransaction({
+          account,
+          contractAddress,
+          encodedData: encodeFunctionData({
+            abi: routerAbi,
+            functionName: methodNames[i],
+            args: methodArgs[i],
           }),
-      ),
-    )
-
-    const indexOfSuccessfulEstimation = safeGasEstimates.findIndex(safeGasEstimate =>
-      BigNumber.isBigNumber(safeGasEstimate),
-    )
-
-    // all estimations failed...
-    if (indexOfSuccessfulEstimation === -1) {
-      console.error('This transaction would fail. Please contact support.')
-    } else {
-      const methodName = methodNames[indexOfSuccessfulEstimation]
-      const safeGasEstimate = safeGasEstimates[indexOfSuccessfulEstimation]
-
-      setAttemptingTxn(true)
-      await routerContract[methodName](...args, {
-        gasLimit: safeGasEstimate,
-      })
-        .then((response: TransactionResponse) => {
-          if (!!currencyA && !!currencyB) {
-            setAttemptingTxn(false)
-            const tokenAmountIn = parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? ''
-            const tokenAmountOut = parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? ''
-            const tokenSymbolIn = currencyAIsWETH ? NativeCurrencies[chainId].symbol : currencyA.symbol
-            const tokenSymbolOut = currencyBIsWETH ? NativeCurrencies[chainId].symbol : currencyB.symbol
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
-              extraInfo: {
-                tokenAmountIn,
-                tokenAmountOut,
-                tokenSymbolIn,
-                tokenSymbolOut,
-                tokenAddressIn: currencyA.wrapped.address,
-                tokenAddressOut: currencyB.wrapped.address,
-                contract: pairAddress,
-                arbitrary: {
-                  poolAddress: pairAddress,
-                  token_1: currencyA.symbol,
-                  token_2: currencyB.symbol,
-                  remove_liquidity_method: 'token pair',
-                  amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
-                },
-              },
-            })
-
-            setTxHash(response.hash)
-          }
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+          isSmartConnector,
+          chainId,
         })
-        .catch((error: Error) => {
+        if (response) break
+      } catch (error) {
+        lastError = error
+        console.error(`sendTransaction failed`, methodNames[i], methodArgs[i], error)
+        // Only retry the next method when the failure was at gas estimation —
+        // the wallet hasn't been prompted yet, so falling back to the alternate
+        // method (e.g. supportingFeeOnTransfer variant) is free. If the failure
+        // was at `sendTransaction` the user has already seen (and likely
+        // rejected) a wallet prompt; retrying would pop a second one.
+        const isEstimateFailure = error instanceof TransactionError && error.type === 'estimateGas'
+        const shouldRetry = isEstimateFailure && i < methodNames.length - 1
+        if (!shouldRetry) {
           setAttemptingTxn(false)
-
-          const message = error.message.includes('INSUFFICIENT')
+          const err = error as Error
+          const message = err?.message?.includes('INSUFFICIENT')
             ? t`Insufficient liquidity available. Please reload page or increase max slippage and try again!`
-            : error.message
-
+            : err?.message || JSON.stringify(error)
           setRemoveLiquidityError(message)
-
           if (!didUserReject(error)) {
             console.error('Remove Classic Liquidity Error:', { message, error })
-            const e = new Error(friendlyError(error), { cause: error })
-            e.name = ErrorName.RemoveClassicLiquidityError
-            captureException(e, { extra: { args } })
           }
-        })
+          return
+        }
+      }
     }
+
+    if (!response?.hash) {
+      setAttemptingTxn(false)
+      if (lastError) {
+        const err = lastError as Error
+        setRemoveLiquidityError(err?.message || JSON.stringify(lastError))
+      }
+      return
+    }
+
+    setAttemptingTxn(false)
+    const tokenAmountIn = parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? ''
+    const tokenAmountOut = parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? ''
+    const tokenSymbolIn = currencyAIsWETH ? NativeCurrencies[chainId].symbol : currencyA.symbol
+    const tokenSymbolOut = currencyBIsWETH ? NativeCurrencies[chainId].symbol : currencyB.symbol
+    addTransactionWithType({
+      hash: response.hash,
+      type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
+      extraInfo: {
+        tokenAmountIn,
+        tokenAmountOut,
+        tokenSymbolIn,
+        tokenSymbolOut,
+        tokenAddressIn: currencyA.wrapped.address,
+        tokenAddressOut: currencyB.wrapped.address,
+        contract: pairAddress,
+        arbitrary: {
+          poolAddress: pairAddress,
+          token_1: currencyA.symbol,
+          token_2: currencyB.symbol,
+          remove_liquidity_method: 'token pair',
+          amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+        },
+      },
+    })
+
+    setTxHash(response.hash)
   }
 
   const tokenAddresses: string[] = useMemo(
@@ -470,40 +483,36 @@ export default function TokenPair({
   function modalHeader() {
     const displaySlp = allowedSlippage / 100
     return (
-      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
-        <AutoRow gap="4px">
+      <AutoColumn className="mt-5 gap-3">
+        <AutoRow className="gap-1">
           <CurrencyLogo currency={currencyA} size={'28px'} />
-          <Text fontSize={32} fontWeight={500}>
+          <span className="text-[32px] font-medium leading-[normal]">
             {parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
-          </Text>
-          <Text fontSize={32} fontWeight={500}>
-            {nativeA?.symbol}
-          </Text>
+          </span>
+          <span className="text-[32px] font-medium leading-[normal]">{nativeA?.symbol}</span>
           {!!estimatedUsdCurrencyA && (
-            <Text color={theme.subText} marginLeft="4px" fontSize={18} fontWeight={500}>
+            <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
               (~{formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined})
-            </Text>
+            </span>
           )}
         </AutoRow>
 
-        <AutoRow gap="4px">
+        <AutoRow className="gap-1">
           <CurrencyLogo currency={currencyB} size={'28px'} />
-          <Text fontSize={32} fontWeight={500}>
+          <span className="text-[32px] font-medium leading-[normal]">
             {parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
-          </Text>
-          <Text fontSize={32} fontWeight={500}>
-            {nativeB?.symbol}
-          </Text>
+          </span>
+          <span className="text-[32px] font-medium leading-[normal]">{nativeB?.symbol}</span>
           {!!estimatedUsdCurrencyB && (
-            <Text color={theme.subText} marginLeft="4px" fontSize={18} fontWeight={500}>
+            <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
               (~{formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined})
-            </Text>
+            </span>
           )}
         </AutoRow>
 
-        <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
+        <p className="m-0 text-left text-[12px] font-normal italic leading-[normal] text-subText">
           {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
-        </TYPE.italic>
+        </p>
       </AutoColumn>
     )
   }
@@ -514,40 +523,40 @@ export default function TokenPair({
         <ModalDetailWrapper>
           {pair && (
             <>
-              <CurrentPriceWrapper style={{ paddingBottom: '8px' }}>
-                <TYPE.subHeader fontSize={14} fontWeight={400} color={theme.subText}>
+              <CurrentPriceWrapper className="pb-2">
+                <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                   <Trans>Current Price</Trans>
-                </TYPE.subHeader>
-                <TYPE.black fontSize={14} fontWeight={400}>
+                </p>
+                <p className="m-0 text-sm font-normal leading-[normal] text-text">
                   <CurrentPrice price={price} />
-                </TYPE.black>
+                </p>
               </CurrentPriceWrapper>
 
-              <RowBetween style={{ paddingBottom: '12px' }}>
-                <Text color={theme.subText} fontSize={14} fontWeight={400}>
+              <RowBetween className="pb-3">
+                <span className="text-[14px] leading-[normal] text-subText">
                   <Trans>LP Tokens Removed</Trans>
-                </Text>
+                </span>
 
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin={true} />
-                  <Text color={theme.text} fontSize={14} fontWeight={400}>
+                  <span className="text-[14px] leading-[normal] text-text">
                     {parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}
-                  </Text>
+                  </span>
                 </RowFixed>
               </RowBetween>
 
               {amountsMin && (
                 <>
-                  <RowBetween style={{ paddingBottom: '12px' }}>
-                    <TYPE.subHeader fontWeight={400} fontSize={14} color={theme.subText}>
+                  <RowBetween className="pb-3">
+                    <p className="m-0 text-sm font-normal leading-[normal] text-subText">
                       <Trans>Minimum Received</Trans>
-                    </TYPE.subHeader>
+                    </p>
 
                     <TokenWrapper>
                       <CurrencyLogo currency={currencyA} size="16px" />
-                      <TYPE.black fontWeight={400} fontSize={14}>
+                      <p className="m-0 text-sm font-normal leading-[normal] text-text">
                         {formatJSBIValue(amountsMin[Field.CURRENCY_A], currencyA?.decimals)} {nativeA?.symbol}
-                      </TYPE.black>
+                      </p>
                     </TokenWrapper>
                   </RowBetween>
 
@@ -556,9 +565,9 @@ export default function TokenPair({
 
                     <TokenWrapper>
                       <CurrencyLogo currency={currencyB} size="16px" />
-                      <TYPE.black fontWeight={400} fontSize={14}>
+                      <p className="m-0 text-sm font-normal leading-[normal] text-text">
                         {formatJSBIValue(amountsMin[Field.CURRENCY_B], currencyB?.decimals)} {nativeB?.symbol}
-                      </TYPE.black>
+                      </p>
                     </TokenWrapper>
                   </RowBetween>
                 </>
@@ -568,9 +577,9 @@ export default function TokenPair({
         </ModalDetailWrapper>
 
         <ButtonPrimary disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)} onClick={onRemove}>
-          <Text fontWeight={500} fontSize={16}>
+          <span className="text-[16px] font-medium leading-[normal]">
             <Trans>Confirm</Trans>
-          </Text>
+          </span>
         </ButtonPrimary>
       </>
     )
@@ -598,17 +607,17 @@ export default function TokenPair({
           }
           pendingText={pendingText}
         />
-        <AutoColumn gap="md">
+        <AutoColumn className="gap-3">
           <GridColumn>
             <FirstColumn>
-              <BlackCard padding="1rem" borderRadius="4px">
-                <AutoColumn gap="1rem">
+              <BlackCard className="rounded p-4">
+                <AutoColumn className="gap-4">
                   <RowBetween>
-                    <Text fontSize={12} fontWeight={500}>
+                    <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Amount</Trans>
-                    </Text>
+                    </span>
 
-                    <Text fontSize={12} fontWeight={500}>
+                    <span className="text-[12px] font-medium leading-[normal]">
                       <Trans>Balance</Trans>:{' '}
                       {!userLiquidity ? (
                         <Loader />
@@ -616,17 +625,17 @@ export default function TokenPair({
                         formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
                       )}{' '}
                       LP Tokens
-                    </Text>
+                    </span>
                   </RowBetween>
-                  <Row style={{ alignItems: 'flex-end' }}>
-                    <Text fontSize={72} fontWeight={500}>
+                  <Row className="items-end">
+                    <span className="text-[72px] font-medium leading-[normal]">
                       {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
-                    </Text>
+                    </span>
                   </Row>
 
                   <>
                     <Slider value={innerLiquidityPercentage} onChange={setInnerLiquidityPercentage} size={18} />
-                    <RowBetween style={{ gap: '4px' }}>
+                    <RowBetween className="gap-1">
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>25%</MaxButton>
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')}>50%</MaxButton>
                       <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')}>75%</MaxButton>
@@ -663,7 +672,7 @@ export default function TokenPair({
 
             <SecondColumn>
               <>
-                <div style={{ marginBottom: '1.5rem' }}>
+                <div className="mb-6">
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_A]}
                     onUserInput={onCurrencyAInput}
@@ -676,7 +685,7 @@ export default function TokenPair({
                     id="remove-liquidity-tokena"
                     estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                   />
-                  <Flex justifyContent="flex-end" alignItems="center" marginTop="0.5rem">
+                  <div className="mt-2 flex items-center justify-end">
                     {pairAddress && chainId && (currencyAIsETHER || currencyAIsWETH) && (
                       <StyledInternalLink
                         replace
@@ -687,7 +696,7 @@ export default function TokenPair({
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
                     )}
-                  </Flex>
+                  </div>
                 </div>
 
                 <div>
@@ -702,7 +711,7 @@ export default function TokenPair({
                     id="remove-liquidity-tokenb"
                     estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                   />
-                  <Flex justifyContent="flex-end" alignItems="center" marginTop="0.5rem">
+                  <div className="mt-2 flex items-center justify-end">
                     {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
@@ -713,57 +722,52 @@ export default function TokenPair({
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
                     )}
-                  </Flex>
+                  </div>
                 </div>
               </>
 
               {pair && (
                 <DetailWrapper>
-                  <AutoRow justify="space-between" gap="4px" style={{ paddingBottom: '12px' }}>
-                    <TYPE.subHeader fontWeight={500} fontSize={12} color={theme.subText}>
+                  <AutoRow className="justify-between gap-1 pb-3">
+                    <p className="m-0 text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Minimum Received</Trans>
                       </UppercaseText>
-                    </TYPE.subHeader>
+                    </p>
                   </AutoRow>
 
                   {amountsMin && (
                     <DetailBox style={{ paddingBottom: '12px', borderBottom: `1px dashed ${theme.border}` }}>
                       <TokenWrapper>
                         <CurrencyLogo currency={currencyA} size="16px" />
-                        <TYPE.black fontWeight={400} fontSize={14}>
+                        <p className="m-0 text-sm font-normal leading-[normal] text-text">
                           {formatJSBIValue(amountsMin[Field.CURRENCY_A], currencyA?.decimals)} {nativeA?.symbol}
-                        </TYPE.black>
+                        </p>
                       </TokenWrapper>
 
                       <TokenWrapper>
                         <CurrencyLogo currency={currencyB} size="16px" />
-                        <TYPE.black fontWeight={400} fontSize={14}>
+                        <p className="m-0 text-sm font-normal leading-[normal] text-text">
                           {formatJSBIValue(amountsMin[Field.CURRENCY_B], currencyB?.decimals)} {nativeB?.symbol}
-                        </TYPE.black>
+                        </p>
                       </TokenWrapper>
                     </DetailBox>
                   )}
 
-                  <DetailBox style={{ paddingTop: '12px' }}>
-                    <TYPE.subHeader
-                      fontWeight={500}
-                      fontSize={12}
-                      color={theme.subText}
-                      style={{ display: 'flex', alignItems: 'center' }}
-                    >
+                  <DetailBox className="pt-3">
+                    <p className="m-0 flex items-center text-[12px] font-medium leading-[normal] text-subText">
                       <UppercaseText>
                         <Trans>Current Price</Trans>
                       </UppercaseText>
-                    </TYPE.subHeader>
-                    <TYPE.black fontWeight={400} fontSize={14}>
+                    </p>
+                    <p className="m-0 text-sm font-normal leading-[normal] text-text">
                       <CurrentPrice price={price} />
-                    </TYPE.black>
+                    </p>
                   </DetailBox>
                 </DetailWrapper>
               )}
 
-              <div style={{ position: 'relative' }}>
+              <div className="relative">
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
                     <Trans>Connect</Trans>
@@ -780,8 +784,7 @@ export default function TokenPair({
                           !userLiquidity ||
                           userLiquidity.equalTo('0')
                         }
-                        margin="0 1rem 0 0"
-                        style={{ fontSize: '16px', fontWeight: 500 }}
+                        className="mr-4 text-base font-medium"
                       >
                         {approval === ApprovalState.PENDING ? (
                           <Dots>
@@ -801,9 +804,7 @@ export default function TokenPair({
                       disabled={!isValid || (signatureData === null && approval !== ApprovalState.APPROVED)}
                       error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
                     >
-                      <Text fontSize={16} fontWeight={500}>
-                        {error || t`Remove`}
-                      </Text>
+                      <span className="text-[16px] font-medium leading-[normal]">{error || t`Remove`}</span>
                     </ButtonError>
                   </RowBetween>
                 )}

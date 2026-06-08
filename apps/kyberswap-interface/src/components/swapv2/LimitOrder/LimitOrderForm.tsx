@@ -5,10 +5,7 @@ import JSBI from 'jsbi'
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { NotificationType } from 'components/Announcement/type'
@@ -23,39 +20,11 @@ import { DefaultSlippageOption } from 'components/SlippageControl'
 import Tooltip, { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
+import ExpirePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
-import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
-import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
-import useWarningCreateOrder from 'components/swapv2/LimitOrder/useWarningCreateOrder'
-import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
-import { SUPPORTED_NETWORKS } from 'constants/networks'
-import { Z_INDEXS } from 'constants/styles'
-import { useTokenAllowance } from 'data/Allowances'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
-import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import useWrapCallback from 'hooks/useWrapCallback'
-import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
-import { useNotify } from 'state/application/hooks'
-import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
-import { tryParseAmount } from 'state/swap/hooks'
-import { useCurrencyBalance } from 'state/wallet/hooks'
-import { MEDIA_WIDTHS } from 'theme'
-import { TransactionFlowState } from 'types/TransactionFlowState'
-import { getCookieValue } from 'utils'
-import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { formatTimeDuration } from 'utils/time'
-
-import ExpirePicker from './ExpirePicker'
-import { DEFAULT_EXPIRED, getExpireOptions } from './const'
+import { DEFAULT_EXPIRED, getExpireOptions } from 'components/swapv2/LimitOrder/const'
 import {
   calcInvert,
   calcOutput,
@@ -66,29 +35,53 @@ import {
   getPayloadCreateOrder,
   parseFraction,
   removeTrailingZero,
-} from './helpers'
-import { CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from './type'
+} from 'components/swapv2/LimitOrder/helpers'
+import { CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
+import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
+import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
+import useWarningCreateOrder from 'components/swapv2/LimitOrder/useWarningCreateOrder'
+import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
+import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
+import { Z_INDEXS } from 'constants/styles'
+import { useTokenAllowance } from 'data/Allowances'
+import { useActiveWeb3React } from 'hooks'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import useWrapCallback from 'hooks/useWrapCallback'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
+import { useNotify } from 'state/application/hooks'
+import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
+import { tryParseAmount } from 'state/swap/hooks'
+import { useCurrencyBalance } from 'state/wallet/hooks'
+import { TransactionFlowState } from 'types/TransactionFlowState'
+import { getCookieValue } from 'utils'
+import { cn } from 'utils/cn'
+import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { formatTimeDuration } from 'utils/time'
 
-const DropdownIcon = styled(DropdownSVG)`
-  transition: transform 300ms;
-  color: ${({ theme }) => theme.subText};
-  &[data-flip='true'] {
-    transform: rotate(180deg);
-  }
-`
+const DropdownIcon = ({ className, ...rest }: React.SVGProps<SVGSVGElement> & { 'data-flip'?: boolean }) => (
+  <DropdownSVG
+    className={cn('text-subText transition-transform duration-300 data-[flip=true]:rotate-180', className)}
+    {...rest}
+  />
+)
 
-export const Label = styled.div`
-  font-weight: 500;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-`
-const Set2Market = styled(Label)`
-  color: ${({ theme }) => theme.primary};
-  cursor: pointer;
-  user-select: none;
-  margin: 0;
-`
-const INPUT_HEIGHT = 28
+export const Label = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-xs font-medium text-subText', className)} {...rest}>
+    {children}
+  </div>
+)
+
+const Set2Market = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <Label className={cn('m-0 cursor-pointer select-none text-primary', className)} {...rest}>
+    {children}
+  </Label>
+)
 
 type Props = {
   currencyIn: Currency | undefined
@@ -107,18 +100,11 @@ type Props = {
   useUrlParams?: boolean
 }
 
-const InputWrapper = styled.div`
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 12px;
-  flex: 1;
-  padding: 12px;
-  flex-direction: column;
-  gap: 0.5rem;
-  display: flex;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
-`
+const InputWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-1 flex-col gap-2 rounded-xl bg-buttonBlack p-3 max-sm:w-full', className)} {...rest}>
+    {children}
+  </div>
+)
 
 const useInputAmount = ({
   defaultInputAmount,
@@ -167,8 +153,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       : walletChainId
     : walletChainId
 
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const theme = useTheme()
   const notify = useNotify()
   const { trackingHandler } = useTracking()
 
@@ -232,7 +216,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const [customDateExpire, setCustomDateExpire] = useState<Date | undefined>(defaultExpire)
 
   const [approvalSubmitted, setApprovalSubmitted] = useState(false)
-  const { library } = useWeb3React()
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
@@ -592,7 +575,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
     try {
       const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
-      if (!library || !currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
+      if (!currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
         throw new Error('wrong input')
       }
 
@@ -896,7 +879,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     )
   return (
     <>
-      <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
+      <div className="flex flex-col gap-4">
         {useUrlParams ? <NetworkSelector chainId={chainId} /> : null}
         <Tooltip
           text={inputError}
@@ -933,12 +916,13 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             }
             positionLabel="in"
             customChainId={chainId}
+            trackingSource="limit_order"
           />
         </Tooltip>
 
-        <RowBetween gap="1rem" flexDirection={upToSmall ? 'column' : 'row'}>
+        <RowBetween className="flex-row gap-4 max-sm:flex-col">
           <InputWrapper>
-            <Flex justifyContent={'space-between'} alignItems="center">
+            <div className="flex items-center justify-between">
               <DeltaRate
                 invert={rateInfo.invert}
                 symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
@@ -950,11 +934,11 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                   <Trans>Market</Trans>
                 </Set2Market>
               )}
-            </Flex>
-            <Flex alignItems={'center'} style={{ background: theme.buttonBlack, borderRadius: 12 }}>
+            </div>
+            <div className="flex items-center rounded-xl bg-buttonBlack">
               <NumericalInput
                 maxLength={50}
-                style={{ fontSize: 14, height: INPUT_HEIGHT }}
+                className="h-7 text-sm"
                 data-testid="input-selling-rate"
                 value={displayRate}
                 onUserInput={onChangeRate}
@@ -962,17 +946,17 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                 onBlur={trackingPriceSetOnBlur}
               />
               {currencyIn && currencyOut && (
-                <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!rateInfo.invert)}>
+                <div className="flex cursor-pointer gap-1.5" onClick={() => onInvertRate(!rateInfo.invert)}>
                   <CurrencyLogo size={'18px'} currency={rateInfo.invert ? currencyIn : currencyOut} />
-                  <Text fontSize={14} color={theme.subText} sx={{ userSelect: 'none' }}>
+                  <span className="select-none text-sm text-subText">
                     {rateInfo.invert ? currencyIn?.symbol : currencyOut?.symbol}
-                  </Text>
+                  </span>
                   <div>
-                    <Repeat color={theme.subText} size={12} />
+                    <Repeat className="text-subText" size={12} />
                   </div>
-                </Flex>
+                </div>
               )}
-            </Flex>
+            </div>
           </InputWrapper>
         </RowBetween>
 
@@ -980,8 +964,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           {currencyIn && currencyOut ? (
             <TradePrice
               price={tradeInfo}
-              style={{ width: 'fit-content', fontStyle: 'italic' }}
-              color={theme.text}
+              className="w-fit italic text-text"
               label={t`Est. Market Price:`}
               loading={loadingTrade}
               symbolIn={currencyIn?.symbol}
@@ -993,7 +976,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           <ArrowRotate
             rotate={rotate}
             onClick={isEdit ? undefined : handleRotateClick}
-            style={{ width: 25, height: 25, padding: 4, background: theme.buttonGray }}
+            className="size-[25px] bg-buttonGray p-1"
           />
         </RowBetween>
 
@@ -1025,22 +1008,13 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             }
             positionLabel="in"
             customChainId={chainId}
+            trackingSource="limit_order"
           />
         </Tooltip>
 
         <div>
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
-            <TextDashed
-              color={theme.subText}
-              fontSize={12}
-              fontWeight={500}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                lineHeight: '1',
-                height: 'fit-content',
-              }}
-            >
+          <div className="flex items-center gap-1">
+            <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center leading-none text-subText">
               <MouseoverTooltip
                 placement="right"
                 text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
@@ -1048,50 +1022,14 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                 <Trans>Expires in</Trans>
               </MouseoverTooltip>
             </TextDashed>
-            <Flex
-              sx={{
-                alignItems: 'center',
-                gap: '4px',
-                cursor: 'pointer',
-              }}
-              role="button"
-              onClick={() => setExpanded(e => !e)}
-            >
-              <Text
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  lineHeight: '1',
-                  color: theme.text,
-                }}
-              >
-                <Text color={theme.text} fontSize={14}>
-                  {displayTime}
-                </Text>
-              </Text>
+            <div className="flex cursor-pointer items-center gap-1" role="button" onClick={() => setExpanded(e => !e)}>
+              <span className="text-sm font-medium leading-none text-text">{displayTime}</span>
               <DropdownIcon data-flip={expanded} />
-            </Flex>
-          </Flex>
+            </div>
+          </div>
 
-          <Flex
-            sx={{
-              transition: 'all 100ms linear',
-              paddingTop: expanded ? '8px' : '0px',
-              height: expanded ? '36px' : '0px',
-              overflow: 'hidden',
-            }}
-          >
-            <Flex
-              sx={{
-                justifyContent: 'space-between',
-                width: '100%',
-                maxWidth: '100%',
-                height: '28px',
-                borderRadius: '20px',
-                background: theme.tabBackground,
-                padding: '2px',
-              }}
-            >
+          <div className={cn('flex overflow-hidden transition-all duration-100', expanded ? 'h-9 pt-2' : 'h-0 pt-0')}>
+            <div className="flex h-7 w-full max-w-full justify-between rounded-[20px] bg-tabBackground p-0.5">
               {[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }].map((item: any) => {
                 return (
                   <DefaultSlippageOption
@@ -1106,8 +1044,8 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                   </DefaultSlippageOption>
                 )
               })}
-            </Flex>
-          </Flex>
+            </div>
+          </div>
         </div>
 
         {warningMessage.map((mess, i) => (
@@ -1115,7 +1053,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         ))}
 
         {renderActionBtn()}
-      </Flex>
+      </div>
 
       {renderConfirmModal()}
 

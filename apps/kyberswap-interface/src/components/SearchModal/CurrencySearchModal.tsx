@@ -4,12 +4,11 @@ import { isMobile } from 'react-device-detect'
 import { usePrevious } from 'react-use'
 
 import Modal from 'components/Modal'
+import { CurrencySearch } from 'components/SearchModal/CurrencySearch'
+import { ImportToken } from 'components/SearchModal/ImportToken'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import useLast from 'hooks/useLast'
 import { Field } from 'state/swap/actions'
-
-import { CurrencySearch } from './CurrencySearch'
-import { ImportToken } from './ImportToken'
 
 interface CurrencySearchModalProps {
   isOpen: boolean
@@ -23,6 +22,7 @@ interface CurrencySearchModalProps {
   tooltip?: ReactNode
   onCurrencyImport?: (token: Token) => void
   customChainId?: ChainId
+  trackingSource?: string
 }
 
 enum CurrencyModalView {
@@ -42,6 +42,7 @@ export default function CurrencySearchModal({
   tooltip,
   onCurrencyImport,
   customChainId,
+  trackingSource,
 }: CurrencySearchModalProps) {
   const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.search)
   const lastOpen = useLast(isOpen)
@@ -95,7 +96,7 @@ export default function CurrencySearchModal({
       minHeight={minHeight}
     >
       {tokenToShowInfo ? (
-        <div style={{ width: '100%' }}>
+        <div className="w-full">
           <TokenInfoTab
             currencies={{ [Field.INPUT]: tokenToShowInfo, [Field.OUTPUT]: tokenToShowInfo }}
             onBack={() => setTokenToShowInfo(null)}
@@ -115,6 +116,7 @@ export default function CurrencySearchModal({
           tooltip={tooltip}
           customChainId={customChainId}
           setTokenToShowInfo={setTokenToShowInfo}
+          trackingSource={trackingSource}
         />
       ) : modalView === CurrencyModalView.importToken && importToken ? (
         <ImportToken

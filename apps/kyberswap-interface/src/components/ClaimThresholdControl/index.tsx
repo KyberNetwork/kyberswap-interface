@@ -1,51 +1,12 @@
-import { rgba } from 'polished'
 import React from 'react'
-import styled, { css } from 'styled-components'
 
-import CustomClaimThresholdInput from './CustomClaimThresholdInput'
-
-const Container = styled.div`
-  display: flex;
-  align-items: stretch;
-  height: 36px;
-  border-radius: 20px;
-  border: ${({ theme }) => `1px solid ${theme.border}`};
-`
-
-const optionButtonCSS = css`
-  height: 100%;
-  padding: 0 12px;
-  border-radius: 20px;
-  border-color: transparent;
-
-  background-color: transparent;
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-  cursor: pointer;
-  outline: none;
-
-  &:hover {
-    background-color: ${({ theme }) => rgba(theme.tabActive, 0.8)};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    font-weight: 500;
-  }
-`
-
-const OptionButton = styled.button`
-  ${optionButtonCSS};
-  flex: 1;
-  min-height: 32px;
-`
+import CustomClaimThresholdInput from 'components/ClaimThresholdControl/CustomClaimThresholdInput'
+import { cn } from 'utils/cn'
 
 const DEFAULT_CLAIM_THRESHOLD_OPTIONS = [0, 5, 10, 50]
+
+const claimOptionClasses =
+  'h-full min-h-8 flex-1 rounded-[20px] border-transparent bg-transparent px-3 text-center text-sm font-normal leading-4 text-subText outline-none cursor-pointer hover:bg-tabActive-80 data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text'
 
 type Props = {
   value?: number
@@ -54,7 +15,7 @@ type Props = {
 }
 
 const ClaimThresholdControl: React.FC<Props> = ({ value, onChange, options = DEFAULT_CLAIM_THRESHOLD_OPTIONS }) => {
-  const [isCustom, setIsCustom] = React.useState(!options.includes(value))
+  const [isCustom, setIsCustom] = React.useState(value !== undefined && !options.includes(value))
   const [internalValue, setInternalValue] = React.useState(0)
 
   const isControlled = value !== undefined
@@ -66,9 +27,9 @@ const ClaimThresholdControl: React.FC<Props> = ({ value, onChange, options = DEF
   }
 
   return (
-    <Container>
+    <div className="flex h-9 items-stretch rounded-[20px] border border-border">
       {options.map(option => (
-        <OptionButton
+        <button
           type="button"
           key={option}
           onClick={() => {
@@ -76,9 +37,10 @@ const ClaimThresholdControl: React.FC<Props> = ({ value, onChange, options = DEF
             setIsCustom(false)
           }}
           data-active={option === currentValue && !isCustom}
+          className={cn(claimOptionClasses)}
         >
           ${option}
-        </OptionButton>
+        </button>
       ))}
       <CustomClaimThresholdInput
         value={currentValue}
@@ -90,7 +52,7 @@ const ClaimThresholdControl: React.FC<Props> = ({ value, onChange, options = DEF
         maxDecimalDigits={4}
         maxIntegerDigits={4}
       />
-    </Container>
+    </div>
   )
 }
 

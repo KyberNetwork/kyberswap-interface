@@ -2,50 +2,26 @@ import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { useState } from 'react'
 import { ArrowUpCircle, BarChart2 } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import { useWatchAsset } from 'wagmi'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import Banner from 'components/Banner'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
-import { AutoColumn, ColumnCenter } from 'components/Column'
+import { AutoColumn } from 'components/Column'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
 import { CloseIcon } from 'theme/components'
 import { getEtherscanLink, getTokenLogoURL } from 'utils'
+import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 
-const Wrapper = styled.div`
-  width: 100%;
-  overflow-y: auto;
-`
-const Section = styled(AutoColumn)`
-  padding: 20px;
-`
-
-const BottomSection = styled(Section)`
-  padding-top: 0;
-  padding-bottom: 28px;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-`
-
-const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 30px 0;
-`
-
-const StyledLogo = styled.img`
-  height: 16px;
-  width: 16px;
-  margin-left: 6px;
-`
+const SECTION_CLASS = 'p-5'
 
 export function ConfirmationPendingContent({
   onDismiss,
@@ -54,63 +30,54 @@ export function ConfirmationPendingContent({
   onDismiss: () => void
   pendingText: string | React.ReactNode
 }) {
-  const theme = useTheme()
-
   return (
-    <Wrapper>
-      <Section>
+    <div className="w-full overflow-y-auto">
+      <AutoColumn className={SECTION_CLASS}>
         <RowBetween>
           <div />
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        <ConfirmedIcon>
-          <Loader size="90px" stroke={theme.primary} strokeWidth="1" />
-        </ConfirmedIcon>
-        <AutoColumn gap="12px" justify={'center'}>
-          <Text fontWeight={500} fontSize={20}>
+        <div className="flex w-full flex-col items-center py-[30px]">
+          <Loader size="90px" className="text-primary" strokeWidth="1" />
+        </div>
+        <AutoColumn className="justify-items-center gap-3">
+          <span className="text-xl font-medium">
             <Trans>Waiting For Confirmation</Trans>
-          </Text>
-          <AutoColumn gap="12px" justify={'center'}>
-            <Text fontWeight={600} fontSize={14} color="" textAlign="center">
-              {pendingText}
-            </Text>
+          </span>
+          <AutoColumn className="justify-items-center gap-3">
+            <span className="text-center text-sm font-semibold">{pendingText}</span>
           </AutoColumn>
-          <Text fontSize={12} color="#565A69" textAlign="center">
+          <span className="text-center text-xs text-text4">
             <Trans>Confirm this transaction in your wallet</Trans>
-          </Text>
+          </span>
         </AutoColumn>
-      </Section>
-    </Wrapper>
+      </AutoColumn>
+    </div>
   )
 }
 
 function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: ChainId }) {
   const { connector } = useWeb3React()
-  const handleClick = async () => {
-    const tokenAddress = token.address
-    const tokenSymbol = token.symbol
-    const tokenDecimals = token.decimals
-    const tokenImage = getTokenLogoURL(token.address, chainId)
-
-    try {
-      const hasInjectedWallet = !!window.ethereum
-      if (hasInjectedWallet) {
-        await (window.ethereum as any).request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC20',
-            options: {
-              address: tokenAddress,
-              symbol: tokenSymbol,
-              decimals: tokenDecimals,
-              image: tokenImage,
-            },
-          },
-        })
-      }
-    } catch (error) {
-      console.log(error)
-    }
+  // Routes wallet_watchAsset through the active connector's provider so it works for the
+  // metaMask SDK on mobile (no window.ethereum) as well as desktop injected wallets.
+  const { mutate: watchAsset } = useWatchAsset()
+  const handleClick = () => {
+    watchAsset(
+      {
+        type: 'ERC20',
+        options: {
+          address: token.address,
+          symbol: token.symbol ?? '',
+          decimals: token.decimals,
+          image: getTokenLogoURL(token.address, chainId),
+        },
+      },
+      {
+        onError: error => {
+          console.error(error)
+        },
+      },
+    )
   }
 
   if (!connector || connector?.name === 'WalletConnect') return null
@@ -123,7 +90,7 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
         <Trans>
           Add {token.symbol} to {name}
         </Trans>{' '}
-        <StyledLogo src={icon} />
+        <img src={icon} className="ml-1.5 size-4" />
       </RowFixed>
     </ButtonLight>
   )
@@ -144,12 +111,9 @@ export function TransactionSubmittedContent({
   tokenAddToMetaMask?: Token
   showTxBanner?: boolean
 }) {
-  const theme = useTheme()
-  const hasInjectedWallet = !!window.ethereum
-
   return (
-    <Wrapper>
-      <Section>
+    <div className="w-full overflow-y-auto">
+      <AutoColumn className={SECTION_CLASS}>
         {!showTxBanner && (
           <RowBetween>
             <div />
@@ -158,31 +122,29 @@ export function TransactionSubmittedContent({
         )}
         {showTxBanner && <Banner isInModal />}
 
-        <ConfirmedIcon>
-          <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.primary} />
-        </ConfirmedIcon>
-        <AutoColumn gap="16px" justify={'center'}>
-          <Text fontWeight={500} fontSize={20}>
+        <div className="flex w-full flex-col items-center py-[30px]">
+          <ArrowUpCircle strokeWidth={0.5} size={90} className="text-primary" />
+        </div>
+        <AutoColumn className="justify-items-center gap-4">
+          <span className="text-xl font-medium">
             <Trans>Transaction Submitted</Trans>
-          </Text>
+          </span>
           {hash && (
             <ExternalLink href={scanLink || getEtherscanLink(chainId, hash, 'transaction')}>
-              <Text fontWeight={500} fontSize={14} color={theme.primary}>
+              <span className="text-sm font-medium text-primary">
                 <Trans>View transaction</Trans>
-              </Text>
+              </span>
             </ExternalLink>
           )}
-          {hasInjectedWallet && tokenAddToMetaMask?.address && (
-            <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />
-          )}
-          <ButtonPrimary onClick={onDismiss} style={{ margin: '24px 0 0 0' }}>
-            <Text fontWeight={500} fontSize={14}>
+          {tokenAddToMetaMask?.address && <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />}
+          <ButtonPrimary onClick={onDismiss} className="mt-6">
+            <span className="text-sm font-medium">
               <Trans>Close</Trans>
-            </Text>
+            </span>
           </ButtonPrimary>
         </AutoColumn>
-      </Section>
-    </Wrapper>
+      </AutoColumn>
+    </div>
   )
 }
 
@@ -200,49 +162,23 @@ export function ConfirmationModalContent({
   bottomContent: () => React.ReactNode
 }) {
   return (
-    <Wrapper>
-      <Section>
+    <div className="w-full overflow-y-auto">
+      <AutoColumn className={SECTION_CLASS}>
         <RowBetween>
-          <Text fontWeight={500} fontSize={20}>
-            {title}
-          </Text>
-          <Flex
-            sx={{
-              gap: '18px',
-              alignItems: 'center',
-            }}
-          >
+          <span className="text-xl font-medium">{title}</span>
+          <div className="flex items-center gap-[18px]">
             {showGridListOption && <ListGridViewGroup customIcons={{ [VIEW_MODE.GRID]: <BarChart2 size="28px" /> }} />}
             <CloseIcon onClick={onDismiss} />
-          </Flex>
+          </div>
         </RowBetween>
         {topContent()}
-      </Section>
+      </AutoColumn>
 
-      <BottomSection gap="0">{bottomContent()}</BottomSection>
-    </Wrapper>
+      <AutoColumn className={cn(SECTION_CLASS, 'gap-0 rounded-b-[20px] pb-7 pt-0')}>{bottomContent()}</AutoColumn>
+    </div>
   )
 }
 
-const ErrorDetail = styled(Section)`
-  padding: 12px;
-  word-break: break-word;
-  max-height: 200px;
-  overflow-y: scroll;
-  border-radius: 4px;
-  margin-top: 12px;
-  color: ${({ theme }) => theme.text};
-  background-color: ${({ theme }) => `${theme.buttonBlack}66`};
-  font-size: 10px;
-  width: 100%;
-  text-align: center;
-  line-height: 16px;
-`
-
-const StyledAlert = styled(Alert)`
-  height: 108px;
-  width: 108px;
-`
 export function TransactionErrorContent({
   message,
   onDismiss,
@@ -260,49 +196,37 @@ export function TransactionErrorContent({
   dismissBtnStyle?: React.CSSProperties
   suggestionMessage?: React.ReactNode
 }) {
-  const theme = useTheme()
   const [showDetail, setShowDetail] = useState<boolean>(false)
 
   return (
-    <Wrapper>
-      <Section>
+    <div className="w-full overflow-y-auto">
+      <AutoColumn className={SECTION_CLASS}>
         <RowBetween>
-          <Text fontWeight={500} fontSize={20}>
+          <span className="text-xl font-medium">
             <Trans>Error</Trans>
-          </Text>
+          </span>
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        <AutoColumn style={{ marginTop: 20 }} gap="8px" justify="center">
-          <StyledAlert />
-          <Text
-            fontWeight={500}
-            fontSize={16}
-            color={theme.red}
-            lineHeight={'24px'}
-            style={{ textAlign: 'center', width: '85%' }}
-          >
-            {friendlyError(message)}
-          </Text>
+        <AutoColumn className="mt-5 justify-items-center gap-2">
+          <Alert className="size-[108px]" />
+          <span className="w-[85%] text-center text-base font-medium leading-6 text-red">{friendlyError(message)}</span>
           {message !== friendlyError(message) && (
-            <AutoColumn justify="center" style={{ width: '100%' }}>
-              <Text
-                color={theme.primary}
-                fontSize="14px"
-                sx={{ cursor: `pointer` }}
-                onClick={() => setShowDetail(prev => !prev)}
-              >
+            <AutoColumn className="w-full justify-items-center">
+              <span className="cursor-pointer text-sm text-primary" onClick={() => setShowDetail(prev => !prev)}>
                 {showDetail ? t`Show less` : t`Show more details`}
-              </Text>
+              </span>
               {showDetail && (
-                <ErrorDetail>{typeof message === 'string' ? message : JSON.stringify(message)}</ErrorDetail>
+                <AutoColumn className="mt-3 max-h-[200px] w-full overflow-y-scroll break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] leading-4 text-text">
+                  {typeof message === 'string' ? message : JSON.stringify(message)}
+                </AutoColumn>
               )}
             </AutoColumn>
           )}
           {suggestionMessage}
         </AutoColumn>
-      </Section>
-      <BottomSection gap="12px">
-        <Flex sx={{ gap: '1rem' }}>
+      </AutoColumn>
+      <AutoColumn className={cn(SECTION_CLASS, 'gap-3 rounded-b-[20px] pb-7 pt-0')}>
+        <div className="flex gap-4">
           {confirmAction && confirmText ? (
             <ButtonOutlined onClick={onDismiss} style={dismissBtnStyle}>
               <Trans>Dismiss</Trans>
@@ -317,9 +241,9 @@ export function TransactionErrorContent({
               {confirmText}
             </ButtonPrimary>
           )}
-        </Flex>
-      </BottomSection>
-    </Wrapper>
+        </div>
+      </AutoColumn>
+    </div>
   )
 }
 

@@ -2,30 +2,19 @@ import { Trans, t } from '@lingui/macro'
 import { ReactNode } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Dots } from 'components/swapv2/styleds'
-import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
+import { cn } from 'utils/cn'
 import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
 
-const CustomPrimaryButton = styled(ButtonPrimary).attrs({
-  id: 'swap-button',
-})<{ $minimal?: boolean }>`
-  border: none;
-  font-weight: 500;
-  flex: 1;
-  &:disabled {
-    border: none;
-  }
-`
-export const SwapButtonWithPriceImpact = ({
+const BUTTON_CLASS = 'flex-1 border-none font-medium disabled:border-none'
+
+const SwapButtonWithPriceImpact = ({
   isProcessingSwap,
-  minimal,
   showLoading,
   onClick,
   priceImpact,
@@ -38,19 +27,18 @@ export const SwapButtonWithPriceImpact = ({
   showTooltipPriceImpact = true,
 }: {
   isProcessingSwap: boolean
-  minimal: boolean
   showLoading: boolean
   onClick: () => void
   priceImpact: number | undefined
   isApproved: boolean
   route: any
+  minimal?: boolean
   disabled?: boolean
   showNoteGetRoute?: boolean
   disabledText?: ReactNode
   text?: ReactNode
   showTooltipPriceImpact?: boolean
 }) => {
-  const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -58,21 +46,21 @@ export const SwapButtonWithPriceImpact = ({
 
   if (isProcessingSwap) {
     return (
-      <CustomPrimaryButton disabled $minimal={minimal}>
+      <ButtonPrimary id="swap-button" className={BUTTON_CLASS} disabled>
         <Dots>
           <Trans>Processing</Trans>
         </Dots>
-      </CustomPrimaryButton>
+      </ButtonPrimary>
     )
   }
 
   if (showLoading) {
     return (
-      <CustomPrimaryButton disabled $minimal={minimal}>
+      <ButtonPrimary id="swap-button" className={BUTTON_CLASS} disabled>
         <Dots>
           <Trans>Calculating</Trans>
         </Dots>
-      </CustomPrimaryButton>
+      </ButtonPrimary>
     )
   }
 
@@ -81,19 +69,21 @@ export const SwapButtonWithPriceImpact = ({
 
   if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
     return (
-      <CustomPrimaryButton
+      <ButtonPrimary
+        id="swap-button"
+        className={cn(BUTTON_CLASS, !shouldDisable && '!bg-red !text-text')}
         onClick={onClick}
         disabled={shouldDisable}
-        $minimal={minimal}
-        style={shouldDisable ? undefined : { background: theme.red, color: theme.text }}
       >
         <Trans>Swap Anyway</Trans>
-      </CustomPrimaryButton>
+      </ButtonPrimary>
     )
   }
 
   return (
-    <CustomPrimaryButton
+    <ButtonPrimary
+      id="swap-button"
+      className={cn(BUTTON_CLASS, 'gap-1')}
       disabled={shouldDisable}
       onClick={() => {
         if (shouldDisableByPriceImpact && !isDegenMode) {
@@ -103,8 +93,6 @@ export const SwapButtonWithPriceImpact = ({
           onClick()
         }
       }}
-      $minimal={minimal}
-      style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
     >
       {shouldDisableByPriceImpact && showTooltipPriceImpact ? (
         <MouseoverTooltip
@@ -129,12 +117,12 @@ export const SwapButtonWithPriceImpact = ({
           <Info size={14} />
         </MouseoverTooltip>
       ) : null}
-      <Text>
+      <span>
         {shouldDisable
           ? disabledText || t`Swap Disabled`
           : text || (shouldDisableByPriceImpact ? t`Swap Anyway` : t`Swap`)}
-      </Text>
-    </CustomPrimaryButton>
+      </span>
+    </ButtonPrimary>
   )
 }
 export default SwapButtonWithPriceImpact

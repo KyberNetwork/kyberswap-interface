@@ -1,64 +1,21 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Flex } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Toggle from 'components/Toggle'
 import Tooltip, { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
 import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
-import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import { useAggregatorForZapSetting, useDegenModeManager } from 'state/user/hooks'
 
-import AdvanceModeModal from './AdvanceModeModal'
-
-const StyledMenu = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  border: none;
-  text-align: left;
-`
-
-const SettingsWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-
-  ${Toggle} {
-    background: ${({ theme }) => theme.buttonBlack};
-    &[data-active='true'] {
-      background: ${({ theme }) => rgba(theme.primary, 0.2)};
-    }
-  }
-`
-
-const MenuFlyoutBrowserStyle = css`
-  min-width: 322px;
-  right: -10px;
-  top: 3.25rem;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: 3.25rem;
-    bottom: unset;
-    & > div:after {
-      top: -40px;
-      border-top-color: transparent;
-      border-bottom-color: ${({ theme }) => theme.tableHeader};
-      border-width: 10px;
-      margin-left: -10px;
-    }
-  `};
-`
+const TX_SETTINGS_FLYOUT_CLASS =
+  'ks-tx-settings-flyout !min-w-[322px] !right-[-10px] !top-[3.25rem] max-lg:!bottom-auto'
 
 type Props = {
   isElastic?: boolean
@@ -66,7 +23,6 @@ type Props = {
 }
 
 export default function TransactionSettings({ isElastic, hoverBg }: Props) {
-  const theme = useTheme()
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
   const [isUseAggregatorForZap, toggleAggregatorForZap] = useAggregatorForZapSetting()
   const toggle = useToggleTransactionSettingsMenu()
@@ -108,7 +64,7 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
     <>
       <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
       {/* https://github.com/DefinitelyTyped/DefinitelyTyped/issues/30451 */}
-      <StyledMenu>
+      <div className="relative flex items-center justify-center border-none text-left">
         <MenuFlyout
           trigger={
             <Tooltip
@@ -125,12 +81,12 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
                   id="open-settings-dialog-button"
                   aria-label="Transaction Settings"
                 >
-                  <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
+                  <TransactionSettingsIcon className={isDegenMode ? 'text-warning' : 'text-subText'} />
                 </StyledActionButtonSwapForm>
               </div>
             </Tooltip>
           }
-          customStyle={MenuFlyoutBrowserStyle}
+          className={TX_SETTINGS_FLYOUT_CLASS}
           isOpen={open}
           toggle={() => {
             toggle()
@@ -140,16 +96,16 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
             }
           }}
           title={t`Advanced Settings`}
-          mobileCustomStyle={{ paddingBottom: '40px' }}
+          mobileStyle={{ paddingBottom: '40px' }}
           hasArrow
         >
-          <SettingsWrapper>
+          <div className="mt-2 flex flex-col gap-3">
             <SlippageSetting shouldShowPinButton={false} />
             <TransactionTimeLimitSetting />
 
-            <Flex justifyContent="space-between">
-              <Flex width="fit-content" alignItems="center">
-                <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+            <div className="flex justify-between">
+              <div className="flex w-fit items-center">
+                <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                   <MouseoverTooltip
                     text={t`You can make trades with high price impact and without any confirmation prompts. Enable at your own risk`}
                     placement="right"
@@ -157,19 +113,20 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
                     <Trans>Degen Mode</Trans>
                   </MouseoverTooltip>
                 </TextDashed>
-              </Flex>
+              </div>
               <Toggle
                 id="toggle-expert-mode-button"
                 isActive={isDegenMode}
                 toggle={handleToggleAdvancedMode}
                 highlight={showSetting === 'true'}
+                className="bg-buttonBlack"
               />
-            </Flex>
+            </div>
 
             {isElastic && (
-              <Flex justifyContent="space-between">
-                <Flex width="fit-content" alignItems="center">
-                  <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+              <div className="flex justify-between">
+                <div className="flex w-fit items-center">
+                  <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                     <MouseoverTooltip
                       text={t`Zap will include DEX aggregator to find the best price.`}
                       placement="right"
@@ -177,17 +134,18 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
                       <Trans>Use Aggregator for Zaps</Trans>
                     </MouseoverTooltip>
                   </TextDashed>
-                </Flex>
+                </div>
                 <Toggle
                   id="toggle-aggregator-for-zap"
                   isActive={isUseAggregatorForZap}
                   toggle={toggleAggregatorForZap}
+                  className="bg-buttonBlack"
                 />
-              </Flex>
+              </div>
             )}
-          </SettingsWrapper>
+          </div>
         </MenuFlyout>
-      </StyledMenu>
+      </div>
     </>
   )
 }

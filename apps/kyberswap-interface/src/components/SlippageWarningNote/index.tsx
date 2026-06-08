@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { FC } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import WarningNote from 'components/WarningNote'
 import { PAIR_CATEGORY } from 'constants/index'
@@ -16,21 +14,6 @@ type Props = {
 export const SLIPPAGE_EXPLANATION_URL =
   'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
 
-const TextUnderlineColor = styled(Text)`
-  border-bottom: 1px solid ${({ theme }) => theme.text};
-  width: fit-content;
-  display: inline;
-  cursor: pointer;
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
-
-const TextUnderlineTransparent = styled(Text)`
-  border-bottom: 1px solid transparent;
-  width: fit-content;
-  display: inline;
-`
-
 const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
   const pairCategory = usePairCategory()
   const slippageStatus = checkRangeSlippage(rawSlippage, pairCategory)
@@ -44,18 +27,17 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
   const shortText = (
     <div>
       <Trans>
-        <TextUnderlineTransparent>Your </TextUnderlineTransparent>
+        <span className="inline w-fit border-b border-transparent">Your </span>
 
-        <TextUnderlineColor
-          style={{ minWidth: 'max-content' }}
-          as="a"
+        <a
           href={SLIPPAGE_EXPLANATION_URL}
           target="_blank"
           rel="noreferrer"
+          className="inline w-fit min-w-max cursor-pointer border-b border-text font-medium text-text"
         >
           Slippage
-        </TextUnderlineColor>
-        <TextUnderlineTransparent> {msg}</TextUnderlineTransparent>
+        </a>
+        <span className="inline w-fit border-b border-transparent"> {msg}</span>
       </Trans>
     </div>
   )

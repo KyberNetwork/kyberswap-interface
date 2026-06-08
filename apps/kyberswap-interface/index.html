@@ -1,32 +1,84 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark" translate="no">
   <head>
+    <!-- Basic document metadata -->
     <meta charset="utf-8" />
+    <title>KyberSwap - Limitless Access To DeFi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="theme-color" content="#31CB9E" />
+
+    <!-- Icons -->
     <link rel="shortcut icon" href="/favicon.ico?version=v" />
     <link rel="apple-touch-icon" type="image/png" href="/favicon.png?version=v1" />
     <link rel="icon" type="image/png" href="/favicon.png?version=v1" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="theme-color" content="#31CB9E" />
-    <meta name="fortmatic-site-verification" content="j93LgcVZk79qcgyo" />
-    <meta name="base:app_id" content="6985b21e8dcaa0daf5755f6c" />
+    <!-- Default SEO metadata -->
     <meta
       name="description"
-      content="KyberSwap is a multi-chain aggregator and DeFi hub that empowers users with the insights and tools to achieve financial autonomy. All the above while being fast, secure, and easy-to-use."
+      content="Non-custodial platform to swap, earn, and trade crypto at the best rates across chains. Powered by an advanced multi-chain aggregator engine."
     />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <link rel="canonical" href="https://kyberswap.com/" />
 
-    <meta property="og:image" content="/kyberswap-og-image.png?version=2023" />
+    <!-- Social sharing -->
+    <meta property="og:title" content="KyberSwap - Limitless Access To DeFi" />
+    <meta
+      property="og:description"
+      content="Non-custodial platform to swap, earn, and trade crypto at the best rates across chains. Powered by an advanced multi-chain aggregator engine."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kyberswap.com/" />
+    <meta property="og:site_name" content="KyberSwap" />
+    <meta property="og:image" content="https://kyberswap.com/kyberswap-og-image.png?version=2023" />
+    <meta property="og:image:alt" content="KyberSwap - Limitless Access To DeFi" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="KyberSwap - Limitless Access To DeFi" />
+    <meta
+      name="twitter:description"
+      content="Non-custodial platform to swap, earn, and trade crypto at the best rates across chains. Powered by an advanced multi-chain aggregator engine."
+    />
+    <meta name="twitter:image" content="https://kyberswap.com/kyberswap-og-image.png?version=2023" />
+    <meta name="twitter:image:alt" content="KyberSwap - Limitless Access To DeFi" />
 
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "name": "KyberSwap",
+            "url": "https://kyberswap.com/",
+            "logo": "https://kyberswap.com/favicon.png?version=v1",
+            "sameAs": [
+              "https://t.me/kybernetwork",
+              "https://x.com/KyberNetwork",
+              "https://discord.gg/kyberswap"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "name": "KyberSwap",
+            "url": "https://kyberswap.com/"
+          }
+        ]
+      }
+    </script>
+
+    <!-- Platform verification -->
+    <meta name="fortmatic-site-verification" content="j93LgcVZk79qcgyo" />
+    <meta name="base:app_id" content="6985b21e8dcaa0daf5755f6c" />
+
+    <!-- Cache behavior -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <!-- App manifest and assets -->
     <link rel="manifest" href="/manifest.json" />
     <link rel="preload" as="image" href="/logo-dark.svg" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap"
@@ -39,7 +91,6 @@
     />
     <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <title>KyberSwap - Limitless Access To DeFi</title>
     <script>
       window.global = window
     </script>
@@ -52,79 +103,6 @@
       window.process = process
       window.EventEmitter = EventEmitter
     </script>
-
-    <!-- <script> -->
-    <!--   var cookie3Options = { siteId: 301, additionalTracking: true, cookielessEnabled: true } -->
-    <!---->
-    <!--   window._paq = window._paq || [] -->
-    <!--   ;(function () { -->
-    <!--     var d = document, -->
-    <!--       g = d.createElement('script'), -->
-    <!--       s = d.getElementsByTagName('script')[0] -->
-    <!--     g.async = true -->
-    <!--     g.src = '/libs/cookie3.js' -->
-    <!--     s.parentNode.insertBefore(g, s) -->
-    <!--   })() -->
-    <!-- </script> -->
-
-    <!-- <script> -->
-    <!--   !(function () { -->
-    <!--     var analytics = (window.analytics = window.analytics || []) -->
-    <!--     if (!analytics.initialize) -->
-    <!--       if (analytics.invoked) window.console && console.error && console.error('Segment snippet included twice.') -->
-    <!--       else { -->
-    <!--         analytics.invoked = !0 -->
-    <!--         analytics.methods = [ -->
-    <!--           'trackSubmit', -->
-    <!--           'trackClick', -->
-    <!--           'trackLink', -->
-    <!--           'trackForm', -->
-    <!--           'pageview', -->
-    <!--           'identify', -->
-    <!--           'reset', -->
-    <!--           'group', -->
-    <!--           'track', -->
-    <!--           'ready', -->
-    <!--           'alias', -->
-    <!--           'debug', -->
-    <!--           'page', -->
-    <!--           'once', -->
-    <!--           'off', -->
-    <!--           'on', -->
-    <!--           'addSourceMiddleware', -->
-    <!--           'addIntegrationMiddleware', -->
-    <!--           'setAnonymousId', -->
-    <!--           'addDestinationMiddleware', -->
-    <!--         ] -->
-    <!--         analytics.factory = function (e) { -->
-    <!--           return function () { -->
-    <!--             if (window.analytics.initialized) return window.analytics[e].apply(window.analytics, arguments) -->
-    <!--             var i = Array.prototype.slice.call(arguments) -->
-    <!--             i.unshift(e) -->
-    <!--             analytics.push(i) -->
-    <!--             return analytics -->
-    <!--           } -->
-    <!--         } -->
-    <!--         for (var i = 0; i < analytics.methods.length; i++) { -->
-    <!--           var key = analytics.methods[i] -->
-    <!--           analytics[key] = analytics.factory(key) -->
-    <!--         } -->
-    <!--         analytics.load = function (key, i) { -->
-    <!--           var t = document.createElement('script') -->
-    <!--           t.type = 'text/javascript' -->
-    <!--           t.async = !0 -->
-    <!--           t.src = '/libs/red2.js' -->
-    <!--           var n = document.getElementsByTagName('script')[0] -->
-    <!--           n.parentNode.insertBefore(t, n) -->
-    <!--           analytics._loadOptions = i -->
-    <!--         } -->
-    <!--         analytics._writeKey = 'DgnqvAHbWsKaPnkdvC19EMC8DbXh1G52' -->
-    <!--         analytics.SNIPPET_VERSION = '4.16.1' -->
-    <!--         analytics.load('DgnqvAHbWsKaPnkdvC19EMC8DbXh1G52') -->
-    <!--         analytics.page() -->
-    <!--       } -->
-    <!--   })() -->
-    <!-- </script> -->
   </head>
 
   <body>
@@ -155,8 +133,6 @@
       }
 
       .preloadhtml-logo {
-        height: 51.38px;
-
         .kyber-logo {
           width: 140px;
           margin-top: 1px;
@@ -253,7 +229,7 @@
           <div class="preloadhtml-header-link-item mobile-hidden">
             <div class="preloadhtml-header-link-label">
               Campaigns
-              <span class="preloadhtml-new-label">New</span>
+              <!-- <span class="preloadhtml-new-label">New</span> -->
             </div>
             <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
           </div>
@@ -279,7 +255,6 @@
         />
       </div>
     </div>
-    <script src="/charting_library/charting_library.standalone.js"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

@@ -1,11 +1,9 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
 import { TruncatedText } from 'components'
@@ -18,25 +16,36 @@ import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddME
 import { PriceAlertButton } from 'components/SwapForm/SlippageSettingGroup'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
-import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
+import { SwapFeeLabel, TooltipTextOfSwapFee, formatSwapFeePercent } from 'components/SwapForm/TradeSummary'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
-import useTheme from 'hooks/useTheme'
+import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
-import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
-import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useSlippageSettingByPage } from 'state/user/hooks'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { formattedNum, isInSafeApp, shortenAddress } from 'utils'
+import { isInSafeApp, shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { calculateFeeFromBuildData } from 'utils/fee'
+import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 type Optional<T> = {
   [key in keyof T]: T[key] | undefined
 }
+
+const CurrencyAmountText = ({ amount }: { amount: CurrencyAmount<Currency> }) => (
+  <div className="flex whitespace-nowrap font-medium text-text">
+    <TruncatedText style={{ width: '-webkit-fill-available' }}>
+      {formatDisplayNumber(amount.toSignificant(10), { significantDigits: 10 })}
+    </TruncatedText>
+    <span>&nbsp;{amount.currency.symbol}</span>
+  </div>
+)
 
 export type Props = {
   isLoading: boolean
@@ -47,58 +56,56 @@ export type Props = {
 export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, priceImpact, buildData }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
   const { active } = useWeb3React()
+  const { slippage, routeSummary, recipient: recipientAddressOrName } = useSwapFormContext()
+  const { address: recipientAddress } = useENS(recipientAddressOrName)
+  const { rawSlippage } = useSlippageSettingByPage()
+  const { isEmbeddedSwap } = usePageLocation()
+  const { trackingHandler } = useTracking()
+  const cat = usePairCategory()
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+
   const [showMevModal, setShowMevModal] = useState(false)
-  const theme = useTheme()
-  const { slippage, routeSummary } = useSwapFormContext()
+  const [showDetailGas, setShowDetailGas] = useState(false)
 
   const currencyOut = routeSummary?.parsedAmountOut?.currency
-
-  const minimumAmountOutStr =
-    minimumAmountOut && currencyOut ? (
-      <Flex style={{ color: theme.text, fontWeight: 500, whiteSpace: 'nowrap' }}>
-        <TruncatedText style={{ width: '-webkit-fill-available' }}>
-          {formattedNum(minimumAmountOut.toSignificant(10), false, 10)}
-        </TruncatedText>
-        <Text style={{ minWidth: 'auto' }}>&nbsp;{currencyOut.symbol}</Text>
-      </Flex>
-    ) : (
-      ''
-    )
-
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildData?.amountOut || '0')
-  const maximumAmountOutStr = amountOut && (
-    <Flex style={{ color: theme.text, fontWeight: 500, whiteSpace: 'nowrap' }}>
-      <TruncatedText style={{ width: '-webkit-fill-available' }}>
-        {formattedNum(amountOut.toSignificant(10), false, 10)}
-      </TruncatedText>
-      <Text style={{ minWidth: 'auto' }}>&nbsp;{currencyOut.symbol}</Text>
-    </Flex>
-  )
+
+  const minimumAmountOutText = minimumAmountOut ? <CurrencyAmountText amount={minimumAmountOut} /> : ''
+  const maximumAmountOutText = amountOut ? <CurrencyAmountText amount={amountOut} /> : ''
 
   const priceImpactResult = checkPriceImpact(priceImpact)
-  const cat = usePairCategory()
 
-  const { formattedAmountUsd: feeAmountUsdFromGet = '' } = routeSummary?.fee || {}
-
+  const feeCurrencyAmountFromGet = routeSummary?.fee?.currencyAmount
   const {
     feeAmount: feeAmountFromBuild = '',
-    feeAmountUsd: feeAmountUsdFromBuild = '',
+    currencyAmount: feeCurrencyAmountFromBuild = undefined,
     currency: currencyFromBuild = undefined,
   } = calculateFeeFromBuildData(routeSummary, buildData)
 
+  const feeAmount = routeSummary?.extraFee?.feeAmount
   const feeAmountWithSymbol =
     feeAmountFromBuild && currencyFromBuild?.symbol ? `${feeAmountFromBuild} ${currencyFromBuild.symbol}` : ''
+  const feePercent = formatSwapFeePercent(feeAmount)
+  const isFeeUpdated = Boolean(
+    buildData &&
+      feeCurrencyAmountFromGet &&
+      feeCurrencyAmountFromBuild &&
+      feeCurrencyAmountFromGet.toExact() !== feeCurrencyAmountFromBuild.toExact(),
+  )
 
-  const feeAmount = routeSummary?.extraFee?.feeAmount
+  const feeTokenAddress = currencyFromBuild?.wrapped.address
+  const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currencyFromBuild?.chainId)
+  const feeTokenPrice = feeTokenAddress ? tokenPrices[feeTokenAddress] : 0
+  const feeAmountUsdText =
+    feeCurrencyAmountFromBuild && feeTokenPrice
+      ? formatDisplayNumber(Number(feeCurrencyAmountFromBuild.toExact()) * feeTokenPrice, {
+          style: 'currency',
+          significantDigits: 4,
+        })
+      : ''
 
-  const [paymentToken] = usePaymentToken()
-  const isHold = paymentToken?.address.toLowerCase() === '0xed4040fD47629e7c8FBB7DA76bb50B3e7695F0f2'.toLowerCase()
-
-  const { recipient: recipientAddressOrName } = useSwapFormContext()
-  const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
-
-  const { trackingHandler } = useTracking()
+  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
 
   const addMevProtectionHandler = useCallback(() => {
     setShowMevModal(true)
@@ -109,25 +116,19 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
     setShowMevModal(false)
   }, [])
 
-  const [showDetailGas, setShowDetailGas] = useState(false)
-
-  const { rawSlippage } = useSlippageSettingByPage()
-  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
-  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
-  const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const addMevButton =
     KYBER_SWAP_RPC[chainId] &&
     active &&
-    !isPartnerSwap &&
+    !isEmbeddedSwap &&
     slippageStatus === SLIPPAGE_STATUS.HIGH &&
     !isMobile &&
     !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
-        <Shield size={14} color={theme.subText} />
-        <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+        <Shield size={14} className="text-subText" />
+        <span className="inline-flex items-center whitespace-nowrap leading-[normal] text-subText">
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
           <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />
-        </Text>
+        </span>
       </PriceAlertButton>
     ) : null
 
@@ -135,21 +136,18 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
     <>
       <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
 
-      <AutoColumn
-        gap="0.5rem"
-        style={{ padding: '12px 16px', border: `1px solid ${theme.border}`, borderRadius: '16px' }}
-      >
-        <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
-          <RowFixed style={{ minWidth: 'max-content' }}>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
+      <AutoColumn className="gap-2 rounded-2xl border border-border px-4 py-3">
+        <RowBetween className="h-5 items-center gap-4">
+          <RowFixed className="min-w-max">
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText" minWidth="max-content">
               <MouseoverTooltip
                 width="200px"
                 text={
                   <>
-                    <Text>
+                    <p>
                       <Trans>You will receive at least this amount, or your transaction will revert.</Trans>
-                    </Text>
-                    <Text>
+                    </p>
+                    <p>
                       <Trans>
                         Any{' '}
                         <a
@@ -161,7 +159,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                         </a>{' '}
                         will accrue to KyberSwap.
                       </Trans>
-                    </Text>
+                    </p>
                   </>
                 }
                 placement="right"
@@ -178,21 +176,38 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black fontSize={12} fontWeight={500}>
-                {minimumAmountOutStr || '--'}
-              </TYPE.black>
+              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{minimumAmountOutText || '--'}</p>
             }
           />
         </RowBetween>
 
-        <RowBetween height="20px" style={{ gap: '16px' }}>
+        <RowBetween className="h-5 items-center gap-4">
+          <RowFixed className="min-w-max">
+            <span className="min-w-max text-[12px] font-normal leading-[normal] text-subText">
+              <Trans>Maximum Receiving</Trans>
+            </span>
+          </RowFixed>
+
+          <ValueWithLoadingSkeleton
+            skeletonStyle={{
+              width: '108px',
+              height: '19px',
+            }}
+            isShowingSkeleton={isLoading}
+            content={
+              <p className="m-0 text-[12px] font-medium leading-[normal] text-text">{maximumAmountOutText || '--'}</p>
+            }
+          />
+        </RowBetween>
+
+        <RowBetween className="h-5 gap-4">
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip
                 text={
                   <div>
                     <Trans>Estimated change in price due to the size of your transaction.</Trans>
-                    <Text fontSize={12}>
+                    <p className="m-0 text-[12px] leading-[normal]">
                       <Trans>
                         Read more{' '}
                         <a
@@ -203,7 +218,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                           <b>here ↗</b>
                         </a>
                       </Trans>
-                    </Text>
+                    </p>
                   </div>
                 }
                 placement="right"
@@ -220,21 +235,23 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black
-                fontSize={12}
-                color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
+              <p
+                className={cn(
+                  'm-0 text-[12px] font-medium leading-[normal]',
+                  priceImpactResult.isVeryHigh ? 'text-red' : priceImpactResult.isHigh ? 'text-warning' : 'text-text',
+                )}
               >
                 {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
-              </TYPE.black>
+              </p>
             }
           />
         </RowBetween>
 
-        <RowBetween style={{ gap: '16px' }} align="flex-start">
+        <RowBetween className="items-start gap-4">
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                {paymentToken ? t`Est. Paymaster Gas Fee` : t`Estimated Total Gas`}
+                {t`Estimated Total Gas`}
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
@@ -246,109 +263,112 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             }}
             isShowingSkeleton={isLoading}
             content={
-              <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
-                <Flex sx={{ gap: '4px' }} onClick={() => setShowDetailGas(prev => !prev)}>
-                  {isHold && !!gasUsd && (
-                    <Text sx={{ textDecoration: 'line-through' }} fontSize={12} color={theme.subText}>
-                      {formattedNum(gasUsd, true)}
-                    </Text>
-                  )}
-                  <TYPE.black color={theme.text} fontSize={12}>
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex gap-1" onClick={() => setShowDetailGas(prev => !prev)}>
+                  <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
                     {gasUsd
-                      ? formattedNum(isHold ? +gasUsd * 0.8 : +gasUsd + Number(buildData?.additionalCostUsd || 0), true)
+                      ? formatDisplayNumber(+gasUsd + Number(buildData?.additionalCostUsd || 0), {
+                          style: 'currency',
+                          significantDigits: 5,
+                        })
                       : '--'}
-                  </TYPE.black>
+                  </p>
                   {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
                     <ChevronDown
-                      color={theme.subText}
+                      className={cn('cursor-pointer text-subText', showDetailGas && 'rotate-180')}
                       size={14}
-                      style={{
-                        transform: `rotate(${showDetailGas ? '180deg' : '0deg'})`,
-                        cursor: 'pointer',
-                      }}
                     />
                   )}
-                </Flex>
+                </div>
                 {showDetailGas && buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
                   <>
-                    <Flex sx={{ gap: '8px' }} mr="18px">
+                    <div className="mr-[18px] flex gap-2">
                       <RowFixed>
-                        <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                           <MouseoverTooltip text={<Trans>L2 execution fee</Trans>} placement="right">
                             Est. L2 gas fee
                           </MouseoverTooltip>
                         </TextDashed>
                       </RowFixed>
-                      <Flex sx={{ gap: '4px' }}>
-                        <TYPE.black color={theme.text} fontSize={12}>
-                          {gasUsd && formattedNum(gasUsd, true)}
-                        </TYPE.black>
-                      </Flex>
-                    </Flex>
+                      <div className="flex gap-1">
+                        <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
+                          {gasUsd && formatDisplayNumber(gasUsd, { style: 'currency', significantDigits: 5 })}
+                        </p>
+                      </div>
+                    </div>
 
-                    <Flex sx={{ gap: '8px' }} mr="18px">
+                    <div className="mr-[18px] flex gap-2">
                       <RowFixed>
-                        <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                           <MouseoverTooltip text={<Trans>L1 fee that pays for rolls up cost</Trans>} placement="right">
                             Est. L1 gas fee
                           </MouseoverTooltip>
                         </TextDashed>
                       </RowFixed>
-                      <Flex sx={{ gap: '4px' }}>
-                        <TYPE.black color={theme.text} fontSize={12}>
-                          {formattedNum(buildData.additionalCostUsd, true)}
-                        </TYPE.black>
-                      </Flex>
-                    </Flex>
+                      <div className="flex gap-1">
+                        <p className="m-0 text-[12px] font-medium leading-[normal] text-text">
+                          {formatDisplayNumber(buildData.additionalCostUsd, {
+                            style: 'currency',
+                            significantDigits: 5,
+                          })}
+                        </p>
+                      </div>
+                    </div>
                   </>
                 )}
-              </Flex>
+              </div>
             }
           />
         </RowBetween>
 
-        <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
-          <RowFixed style={{ minWidth: 'max-content' }}>
-            <Text fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
-              <Trans>Maximum Receiving</Trans>
-            </Text>
+        <RowBetween className={cn('items-start gap-4', addMevButton !== null ? 'h-[45px]' : 'h-5')}>
+          <RowFixed>
+            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
+              <MouseoverTooltip
+                text={
+                  <p>
+                    <Trans>
+                      During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                      <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
+                        here ↗
+                      </ExternalLink>
+                    </Trans>
+                  </p>
+                }
+                placement="right"
+              >
+                <Trans>Max Slippage</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
           </RowFixed>
 
-          <ValueWithLoadingSkeleton
-            skeletonStyle={{
-              width: '108px',
-              height: '19px',
-            }}
-            isShowingSkeleton={isLoading}
-            content={
-              <TYPE.black fontSize={12} fontWeight={500}>
-                {maximumAmountOutStr || '--'}
-              </TYPE.black>
-            }
-          />
+          <div className="flex flex-col items-end gap-1.5">
+            <p
+              className={cn(
+                'm-0 text-[12px] font-medium leading-[normal] text-text',
+                checkWarningSlippage(slippage, cat) && 'text-warning',
+              )}
+            >
+              {formatSlippage(slippage)}
+            </p>
+            {addMevButton}
+          </div>
         </RowBetween>
 
-        {!!feeAmount && feeAmount !== '0' && (
-          <RowBetween height="20px" style={{ gap: '16px' }}>
+        {isInSafeApp && !!feeAmount && feeAmount !== '0' && (
+          <RowBetween className="h-5 gap-4">
             <RowFixed>
-              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+              <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                 <MouseoverTooltip
                   text={
-                    isInSafeApp ? (
-                      <Text>
-                        Learn more about the Platform Fee{' '}
-                        <ExternalLink href="https://docs.kyberswap.com/">here ↗</ExternalLink>
-                      </Text>
-                    ) : (
-                      <TooltipTextOfSwapFee
-                        feeAmountText={feeAmountWithSymbol}
-                        feeBips={routeSummary?.extraFee?.feeAmount}
-                      />
-                    )
+                    <p>
+                      Learn more about the Platform Fee{' '}
+                      <ExternalLink href="https://docs.kyberswap.com/">here ↗</ExternalLink>
+                    </p>
                   }
                   placement="right"
                 >
-                  {isInSafeApp ? 'Platform Fee' : <Trans>Est. Swap Fee</Trans>}
+                  Platform Fee
                 </MouseoverTooltip>
               </TextDashed>
             </RowFixed>
@@ -359,86 +379,65 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
                 height: '19px',
               }}
               isShowingSkeleton={isLoading}
-              content={
-                <Flex
-                  sx={{
-                    alignItems: 'center',
-                    flexWrap: 'nowrap',
-                    gap: '4px',
-                  }}
+              content={<p className="m-0 text-[12px] font-medium leading-[normal] text-text">0.1%</p>}
+            />
+          </RowBetween>
+        )}
+
+        {!isInSafeApp && !!feeAmount && feeAmount !== '0' && (
+          <RowBetween className="items-start gap-4">
+            <RowFixed className="items-center gap-1">
+              <TextDashed fontSize={12} fontWeight={400} className="text-subText">
+                <MouseoverTooltip
+                  text={<TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={feeAmount} />}
+                  placement="right"
                 >
-                  {buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild && (
-                    <Flex
-                      sx={{
-                        background: rgba(theme.warning, 0.3),
-                        color: theme.warning,
-                        borderRadius: '36px',
-                        fontSize: '10px',
-                        lineHeight: '12px',
-                        padding: '2px 4px',
-                      }}
-                    >
-                      <Trans>Updated</Trans>
-                    </Flex>
-                  )}
-                  <TYPE.black color={theme.text} fontWeight={500} fontSize={12}>
-                    {isInSafeApp ? '0.1%' : feeAmountUsdFromBuild || feeAmountWithSymbol || '--'}
-                  </TYPE.black>
-                </Flex>
+                  <SwapFeeLabel />
+                </MouseoverTooltip>
+              </TextDashed>
+              {isFeeUpdated && (
+                <div className="flex rounded-[36px] bg-warning/30 px-1 py-0.5 text-[10px] leading-3 text-warning">
+                  <Trans>Updated</Trans>
+                </div>
+              )}
+            </RowFixed>
+
+            <ValueWithLoadingSkeleton
+              skeletonStyle={{
+                width: '64px',
+                height: '19px',
+              }}
+              isShowingSkeleton={isLoading}
+              content={
+                <p className="m-0 flex flex-nowrap items-center gap-1 text-right text-[12px] font-medium leading-[normal]">
+                  <span className="text-text">{feePercent || '--'}</span>
+                  {feeAmountUsdText && <span className="text-subText">(~{feeAmountUsdText})</span>}
+                </p>
               }
             />
           </RowBetween>
         )}
 
-        <RowBetween height={addMevButton !== null ? '45px' : '20px'} style={{ gap: '16px' }} align="flex-start">
-          <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              <MouseoverTooltip
-                text={
-                  <Text>
-                    <Trans>
-                      During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-                      <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
-                        here ↗
-                      </ExternalLink>
-                    </Trans>
-                  </Text>
-                }
-                placement="right"
-              >
-                <Trans>Max Slippage</Trans>
-              </MouseoverTooltip>
-            </TextDashed>
-          </RowFixed>
-
-          <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: '6px' }}>
-            <TYPE.black fontSize={12} color={checkWarningSlippage(slippage, cat) ? theme.warning : undefined}>
-              {formatSlippage(slippage)}
-            </TYPE.black>
-            {addMevButton}
-          </Flex>
-        </RowBetween>
-
         <Divider />
         {recipient && (
           <RowBetween>
-            <Text fontSize={12} color={theme.subText}>
+            <span className="text-[12px] leading-[normal] text-subText">
               <Trans>Recipient</Trans>
-            </Text>
-            <Flex fontSize={12} fontWeight="501" alignItems="center" sx={{ gap: '4px' }}>
+            </span>
+            <div className="flex items-center gap-1 text-[12px] font-medium leading-[normal]">
               <img src={networkInfo.icon} alt="network icon" width="12px" height="12px" />
               <ExternalLink
                 href={`${networkInfo.etherscanUrl}/address/${recipient}`}
-                style={{ textDecoration: 'underline', color: theme.text, textDecorationStyle: 'dotted' }}
+                className="text-text underline [text-decoration-style:dotted]"
               >
-                <Text fontSize={12}>{shortenAddress(chainId, recipient)}</Text>
+                <span className="text-[12px] leading-[normal]">{shortenAddress(chainId, recipient)}</span>
               </ExternalLink>
-            </Flex>
+            </div>
           </RowBetween>
         )}
 
         <RowBetween>
-          <TextDashed fontSize={12} color={theme.subText}>
+          <TextDashed fontSize={12} className="text-subText">
             <MouseoverTooltip
               text={
                 <Trans>
@@ -451,14 +450,14 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             </MouseoverTooltip>
           </TextDashed>
           {buildData?.routerAddress && (
-            <Flex alignItems="center">
+            <div className="flex items-center">
               <ExternalLink
                 href={`${networkInfo.etherscanUrl}/address/${buildData.routerAddress}`}
-                style={{ textDecoration: 'underline', color: theme.text, textDecorationStyle: 'dotted' }}
+                className="text-text underline [text-decoration-style:dotted]"
               >
-                <Text fontSize={12}>{shortenAddress(chainId, buildData.routerAddress)}</Text>
+                <span className="text-[12px] leading-[normal]">{shortenAddress(chainId, buildData.routerAddress)}</span>
               </ExternalLink>
-            </Flex>
+            </div>
           )}
         </RowBetween>
       </AutoColumn>

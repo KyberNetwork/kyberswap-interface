@@ -1,5 +1,4 @@
 import { memo } from 'react'
-import { Flex } from 'rebass'
 
 import {
   EmptyItem,
@@ -44,10 +43,10 @@ function TopChainsScene({ nickname, topChains }: TopChainsSceneProps) {
             transition={{ delay: 0.3 + index * 0.2, duration: 0.6, ease: 'easeOut' }}
           >
             <TopListRank>{index + 1}</TopListRank>
-            <Flex alignItems="center" sx={{ gap: '8px' }}>
+            <div className="flex items-center gap-2">
               <TopListIcon src={chain.icon} alt={chain.name} />
               <TopListName>{chain.name}</TopListName>
-            </Flex>
+            </div>
           </TopListItem>
         ))}
         {topChains.length === 0 && (

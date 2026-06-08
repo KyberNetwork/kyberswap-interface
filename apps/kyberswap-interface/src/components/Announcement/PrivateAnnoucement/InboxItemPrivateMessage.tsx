@@ -1,5 +1,3 @@
-import styled from 'styled-components'
-
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import InboxActions from 'components/Announcement/PrivateAnnoucement/InboxActions'
@@ -8,24 +6,6 @@ import { AnnouncementTemplatePopup } from 'components/Announcement/type'
 import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
-const Desc = styled.div`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  word-break: break-word;
-  display: block;
-  display: -webkit-box;
-  max-width: 100%;
-  line-height: 16px;
-  height: 34px;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  > * {
-    margin: 0;
-  }
-`
 function InboxItemBridge({
   announcement,
   onRead,
@@ -60,7 +40,10 @@ function InboxItemBridge({
       </InboxItemRow>
 
       <InboxItemRow>
-        <Desc dangerouslySetInnerHTML={{ __html: escapeScriptHtml(templateBody.content ?? '') }} />
+        <div
+          className="block h-[34px] max-w-full overflow-hidden text-ellipsis break-words text-xs leading-4 text-subText [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [display:-webkit-box] [&>*]:m-0"
+          dangerouslySetInnerHTML={{ __html: escapeScriptHtml(templateBody.content ?? '') }}
+        />
       </InboxItemRow>
 
       <InboxItemRow>

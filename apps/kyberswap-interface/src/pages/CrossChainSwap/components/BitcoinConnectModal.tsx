@@ -1,9 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { darken } from 'polished'
 import { useEffect, useState } from 'react'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import { NotificationType } from 'components/Announcement/type'
@@ -20,59 +17,39 @@ import { RowBetween } from 'components/Row'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { DerivationPaths } from 'components/Web3Provider/BitcoinProvider/providers/ledger'
 import { TERM_FILES_PATH } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 
-const Wrapper = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap}
-  margin: 0;
-  padding: 0;
-  width: 100%;
-`
-
-const Option = styled.div<{ disabled?: boolean; selected?: boolean }>`
-  height: 36px;
-  width: 100%;
-  border-radius: 18px;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
-  cursor: ${({ disabled, selected }) => (disabled || selected ? 'not-allowed' : 'pointer')};
-  border-radius: 999px;
-  background-color: ${({ theme, selected }) => darken(selected ? 0.1 : 0, theme.tableHeader)};
-
-  &:hover {
-    text-decoration: none;
-    ${({ disabled }) =>
-      disabled
-        ? ''
-        : css`
-            background-color: ${({ theme }) => darken(0.1, theme.tableHeader)};
-            color: ${({ theme }) => theme.text} !important;
-          `}
-  }
-  ${({ disabled, theme }) =>
-    disabled
-      ? `
-      filter: grayscale(100%);
-      color: ${theme.border};
-    `
-      : ''}
-`
-const HeaderText = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap};
-  color: ${({ theme }) => theme.subText};
-  font-weight: 500;
-`
+const Option = ({
+  disabled,
+  selected,
+  children,
+  onClick,
+}: {
+  disabled?: boolean
+  selected?: boolean
+  children: React.ReactNode
+  onClick?: () => void
+}) => (
+  <div
+    role="button"
+    onClick={disabled ? undefined : onClick}
+    className={cn(
+      'flex h-9 w-full items-center justify-between gap-2 rounded-full bg-tableHeader px-2.5 py-2',
+      disabled || selected ? 'cursor-not-allowed' : 'cursor-pointer',
+      !disabled && 'hover:bg-[#171717] hover:!text-text hover:no-underline',
+      selected && 'bg-[#171717]',
+      disabled && 'text-border grayscale',
+    )}
+  >
+    {children}
+  </div>
+)
 
 export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
-  const theme = useTheme()
 
   const [showLedgerType, setShowLedgerType] = useState(false)
   const notify = useNotify()
@@ -104,12 +81,12 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
       bypassFocusLock={true}
       zindex={99999}
     >
-      <Wrapper>
+      <div className="m-0 flex w-full flex-col flex-nowrap p-0">
         <UpperSection>
-          <RowBetween marginBottom="26px" gap="20px">
-            <Text fontSize="20px" fontWeight="500">
+          <RowBetween className="mb-[26px] gap-5">
+            <span className="text-xl font-medium">
               {showLedgerType ? t`Select Derivation Path` : t`Connect your Bitcoin Wallet`}
-            </Text>
+            </span>
             <CloseIcon
               onClick={() => {
                 if (showLedgerType) {
@@ -137,7 +114,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                 data-testid="accept-term"
                 style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
               />
-              <Text color={theme.subText}>
+              <span className="text-subText">
                 <Trans>
                   Accept{' '}
                   <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
@@ -148,11 +125,11 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                     Privacy Policy
                   </ExternalLink>
                   {'. '}
-                  <Text fontSize={10} as="span">
+                  <span className="text-[10px]">
                     Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}
-                  </Text>
+                  </span>
                 </Trans>
-              </Text>
+              </span>
             </TermAndCondition>
           )}
 
@@ -161,11 +138,10 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
               <>
                 {Object.keys(DerivationPaths).map(item => {
                   return (
-                    <Flex
+                    <div
                       key={item}
-                      sx={{ gap: '4px', padding: '12px 0', cursor: 'pointer' }}
-                      alignItems="center"
                       role="button"
+                      className="flex cursor-pointer items-center gap-1 py-3"
                       onClick={() => {
                         ledgerWallet?.connect(DerivationPaths[item]).catch(error => {
                           console.log('Error connecting Ledger wallet:', error)
@@ -186,13 +162,9 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                         width={20}
                         height={20}
                       />
-                      <Text fontSize={16} fontWeight="500" ml="6px">
-                        {item}
-                      </Text>
-                      <Text fontSize={14} color={theme.subText}>
-                        {DerivationPaths[item]}
-                      </Text>
-                    </Flex>
+                      <span className="ml-1.5 text-base font-medium">{item}</span>
+                      <span className="text-sm text-subText">{DerivationPaths[item]}</span>
+                    </div>
                   )
                 })}
               </>
@@ -201,7 +173,6 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                 {availableWallets.map(wallet => {
                   return (
                     <Option
-                      role="button"
                       disabled={!isAcceptedTerm || (connectingWallet !== null && connectingWallet !== wallet.type)}
                       selected={connectingWallet === wallet.type}
                       key={wallet.type}
@@ -212,7 +183,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                         } else wallet.connect()
                       }}
                     >
-                      <Flex alignItems="center" width="100%" sx={{ gap: '8px' }}>
+                      <div className="flex w-full items-center gap-2">
                         <img
                           src={wallet.logo}
                           alt=""
@@ -222,12 +193,10 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                             borderRadius: '50%',
                           }}
                         />
-                        <HeaderText>{wallet.name}</HeaderText>
-                        {connectingWallet === wallet.type && <Loader color={theme.white} />}
-                      </Flex>
-                      <Text color={theme.subText} fontSize={12} minWidth="max-content">
-                        {wallet.isInstalled() && t`Detected`}
-                      </Text>
+                        <span className="flex flex-row flex-nowrap font-medium text-subText">{wallet.name}</span>
+                        {connectingWallet === wallet.type && <Loader className="text-white" />}
+                      </div>
+                      <span className="min-w-max text-xs text-subText">{wallet.isInstalled() && t`Detected`}</span>
                     </Option>
                   )
                 })}
@@ -235,7 +204,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
             )}
           </ContentWrapper>
         </UpperSection>
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

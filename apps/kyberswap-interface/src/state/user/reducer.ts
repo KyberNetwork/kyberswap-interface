@@ -1,4 +1,4 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
 import {
@@ -10,7 +10,6 @@ import {
 } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { updateVersion } from 'state/global/actions'
-
 import {
   SerializedPair,
   SerializedToken,
@@ -21,10 +20,11 @@ import {
   removeSerializedPair,
   removeSerializedToken,
   setCrossChainSetting,
-  setPaymentToken,
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleMyEarningChart,
+  togglePricingChart,
+  toggleSuccessSound,
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
@@ -37,7 +37,7 @@ import {
   updateUserDegenMode,
   updateUserLocale,
   updateUserSlippageTolerance,
-} from './actions'
+} from 'state/user/actions'
 
 const currentTimestamp = () => new Date().getTime()
 const AUTO_DISABLE_DEGEN_MODE_MINUTES = 30
@@ -106,13 +106,14 @@ export interface UserState {
   acceptedTermVersion: number | null
   safeAppAcceptedTermOfUse: boolean | null
   viewMode: VIEW_MODE
-  paymentToken: Token | null
   holidayMode: boolean
   isSlippageControlPinned: boolean
 
   crossChain: CrossChainSetting
   myEarningChart: boolean
+  showPricingChart: boolean
   showTradeRoutes: boolean
+  successSoundEnabled: boolean
   favoriteChains: string[]
 }
 
@@ -149,8 +150,9 @@ const initialState: UserState = {
   isSlippageControlPinned: true,
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
   myEarningChart: true,
-  paymentToken: null,
+  showPricingChart: true,
   showTradeRoutes: true,
+  successSoundEnabled: true,
   favoriteChains: [],
 }
 
@@ -171,6 +173,14 @@ export default createReducer(initialState, builder =>
       // noinspection SuspiciousTypeOfGuard
       if (typeof state.userDeadline !== 'number') {
         state.userDeadline = DEFAULT_DEADLINE_FROM_NOW
+      }
+
+      if (typeof state.showPricingChart !== 'boolean') {
+        state.showPricingChart = initialState.showPricingChart
+      }
+
+      if (typeof state.successSoundEnabled !== 'boolean') {
+        state.successSoundEnabled = initialState.successSoundEnabled
       }
 
       state.lastUpdateVersionTimestamp = currentTimestamp()
@@ -304,11 +314,14 @@ export default createReducer(initialState, builder =>
         state.useAggregatorForZap = !state.useAggregatorForZap
       }
     })
-    .addCase(setPaymentToken, (state, { payload }) => {
-      state.paymentToken = payload
+    .addCase(togglePricingChart, state => {
+      state.showPricingChart = !state.showPricingChart
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
+    })
+    .addCase(toggleSuccessSound, state => {
+      state.successSoundEnabled = !state.successSoundEnabled
     })
     .addCase(updateFavoriteChains, (state, { payload }) => {
       state.favoriteChains = payload

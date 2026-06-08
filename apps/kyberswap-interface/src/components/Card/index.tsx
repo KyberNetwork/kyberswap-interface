@@ -1,77 +1,33 @@
-import { rgba } from 'polished'
-import { CardProps, Text } from 'rebass'
-import { Box } from 'rebass/styled-components'
-import styled from 'styled-components'
+import { HTMLAttributes, forwardRef } from 'react'
 
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
-const Card = styled(Box)<{ padding?: string; border?: string; borderRadius?: string }>`
-  width: 100%;
-  border-radius: 20px;
-  padding: 1.25rem;
-  padding: ${({ padding }) => padding};
-  border: ${({ border }) => border};
-  border-radius: ${({ borderRadius }) => borderRadius};
-`
+type CardProps = HTMLAttributes<HTMLDivElement>
+
+const base = 'w-full rounded-[20px] p-5'
+
+const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, className)} {...rest} />
+))
+Card.displayName = 'Card'
 export default Card
 
-export const BlackCard = styled(Card)`
-  background-color: ${({ theme }) => theme.buttonBlack};
-`
+export const BlackCard = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, 'bg-buttonBlack', className)} {...rest} />
+))
+BlackCard.displayName = 'BlackCard'
 
-export const LightCard = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.bg2};
-  background-color: ${({ theme }) => theme.bg1};
-`
+export const LightCard = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, 'border border-bg2 bg-bg1', className)} {...rest} />
+))
+LightCard.displayName = 'LightCard'
 
-export const LightGreyCard = styled(Card)`
-  background-color: ${({ theme }) => theme.background};
-`
+export const OutlineCard = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, 'border border-border', className)} {...rest} />
+))
+OutlineCard.displayName = 'OutlineCard'
 
-export const GreyCard = styled(Card)`
-  background-color: ${({ theme }) => theme.buttonGray};
-`
-
-export const OutlineCard = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.border};
-`
-
-export const YellowCard = styled(Card)`
-  background-color: rgba(243, 132, 30, 0.05);
-  color: ${({ theme }) => theme.yellow2};
-  font-weight: 500;
-`
-
-export const SubTextCard = styled(Card)`
-  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
-
-export const WarningCard = styled(Card)`
-  background-color: ${({ theme }) => rgba(theme.warning, 0.25)};
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
-
-const BlueCardStyled = styled(Card)`
-  background-color: ${({ theme }) => `${theme.primary}33`};
-  color: ${({ theme }) => theme.text};
-  border-radius: 12px;
-  width: fit-content;
-`
-
-export const DarkCard = styled(Card)`
-  background-color: ${({ theme }) => theme.bg1};
-`
-
-export const BlueCard = ({ children, ...rest }: CardProps) => {
-  const theme = useTheme()
-  return (
-    <BlueCardStyled {...rest}>
-      <Text fontWeight={500} color={theme.text}>
-        {children}
-      </Text>
-    </BlueCardStyled>
-  )
-}
+export const WarningCard = forwardRef<HTMLDivElement, CardProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(base, 'bg-warning-25 font-medium text-text', className)} {...rest} />
+))
+WarningCard.displayName = 'WarningCard'

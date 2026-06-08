@@ -1,145 +1,204 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { TransactionResponse } from '@ethersproject/providers'
-import { SignerPaymaster } from '@holdstation/paymaster-helper'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ethers } from 'ethers'
+// eslint-disable-next-line no-restricted-imports
+import { getAccount, getPublicClient } from '@wagmi/core'
+import blackjackApi from 'services/blackjack'
 
-import { NETWORKS_INFO } from 'constants/networks'
-import { calculateGasMargin } from 'utils'
+import { CONNECTION, wagmiConfig } from 'components/Web3Provider'
+import store from 'state'
+import { calculateGasMarginBigInt } from 'utils'
+import { createAccessListIfEnabled } from 'utils/accessList'
+import { BlacklistedWalletError, ErrorName, TransactionError } from 'utils/transactionError'
+import { Address, Hex, PublicClient } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
-import { ErrorName, TransactionError } from './sentry'
+// Wallets known to mishandle EIP-1559 transactions that carry an `accessList`.
+// SafePal's hardware can't sign the type-2 + accessList combo cleanly (-104
+// "show tx info failed", or the signature ends up not matching the
+// broadcasted tx data and the chain rejects it). Drop accessList for these
+// wallets — they lose the gas refund but the tx becomes signable.
+const ACCESS_LIST_INCOMPATIBLE_CONNECTORS = new Set<string>([CONNECTION.SAFEPAL])
 
-const projectName = 'KyberSwap'
-const partnerCode = ethers.utils.formatBytes32String(projectName)
-
-const CUSTOM_PAYMASTER_ADDRESS = '0x069246dFEcb95A6409180b52C071003537B23c27'
+export interface SendEVMTransactionResult {
+  hash: string
+}
 
 // encoded from bc_r7yhais5
 // https://www.base.dev/apps/6985b21e8dcaa0daf5755f6c/settings/builder-code
 const BASE_BUILDER_CODE = '62635f72377968616973350b0080218021802180218021802180218021'
 
-export const paymasterExecute = (
-  paymentToken: string,
-  populateTransaction: ethers.PopulatedTransaction,
-  gasLimit: number,
-) => {
-  return SignerPaymaster.paymasterExecute({
-    network: 'mainnet',
-    populateTransaction,
-    // signer: library.getSigner(),
-    paymentToken,
-    innerInput: partnerCode,
-    paymasterAddress: CUSTOM_PAYMASTER_ADDRESS,
-    defaultGasLimit: gasLimit,
-  })
+// 4-byte selectors whose calldata should NOT carry the Base builder-code
+// suffix. Hardware wallets (SafePal in particular) decode these via strict
+// ABI and refuse to render the tx when trailing bytes break the expected
+// argument length. Builder-code attribution only makes sense for the actual
+// swap/router call anyway.
+const NO_BUILDER_CODE_SELECTORS = new Set([
+  '0x095ea7b3', // ERC20 approve / ERC721 approve
+  '0xa22cb465', // setApprovalForAll
+])
+
+// Pre-send security gate invoked by the gated walletClient on every signing method.
+// Fails open on network errors so an unreachable Blackjack service doesn't block the
+// user's transaction.
+export async function ensureNotBlacklisted(account: string) {
+  try {
+    const res = await store.dispatch(blackjackApi.endpoints.checkBlackjack.initiate(account))
+    if (res?.data?.blacklisted) throw new BlacklistedWalletError()
+  } catch (err) {
+    if (err instanceof BlacklistedWalletError) throw err
+    console.warn('Blackjack check skipped due to network error', err)
+  }
 }
 
 export async function sendEVMTransaction({
   account,
-  library,
   contractAddress,
   encodedData,
   value,
-  sentryInfo,
+  errorInfo,
   isSmartConnector,
   chainId,
-  paymentToken,
 }: {
   account: string
-  library: ethers.providers.Web3Provider | undefined
   contractAddress: string
   encodedData: string
-  value: BigNumber
-  sentryInfo: {
+  value: bigint
+  errorInfo: {
     name: ErrorName
     wallet: string | undefined
   }
   isSmartConnector: boolean
-  chainId?: ChainId
-  paymentToken?: string
-}): Promise<TransactionResponse | undefined> {
-  if (!account || !library) throw new Error('Invalid transaction')
+  chainId: ChainId
+}): Promise<SendEVMTransactionResult | undefined> {
+  if (!account) throw new Error('Invalid transaction')
 
-  let accessList: any[] | undefined
-  let effectiveChainId = chainId
-  try {
-    if (!effectiveChainId) {
-      const network = await library.getNetwork()
-      effectiveChainId = network.chainId as ChainId
-    }
-  } catch {}
+  const selector = encodedData.slice(0, 10).toLowerCase()
+  const skipBuilderCode = NO_BUILDER_CODE_SELECTORS.has(selector)
+  const callData = (
+    !isSmartConnector && chainId === ChainId.BASE && !skipBuilderCode
+      ? `${encodedData}${BASE_BUILDER_CODE}`
+      : encodedData
+  ) as Hex
 
-  const callData = !isSmartConnector && chainId === ChainId.BASE ? `${encodedData}${BASE_BUILDER_CODE}` : encodedData
+  const txValue = value !== 0n ? value : undefined
 
-  const baseTx = {
-    from: account,
-    to: contractAddress,
+  // viem walletClient + publicClient via wagmi. The wallet client is gated — its
+  // `request()` runs `ensureNotBlacklisted` for any signing method, so we don't need a
+  // separate inline check here.
+  const publicClient = getPublicClient(wagmiConfig, { chainId: chainId as number })
+  const walletClient = await getGatedWalletClient({ chainId: chainId })
+  if (!publicClient || !walletClient) {
+    throw new Error('Wallet client unavailable for the requested chain')
+  }
+
+  const requestBase = {
+    account: account as Address,
+    to: contractAddress as Address,
     data: callData,
-    ...(value && !value.eq(0) ? { value: ethers.utils.hexlify(value) } : {}),
-  }
-  if (effectiveChainId && NETWORKS_INFO[effectiveChainId]?.accessListEnabled) {
-    try {
-      const al = await library.send('eth_createAccessList', [baseTx, 'latest'])
-      if (al && Array.isArray(al.accessList)) {
-        accessList = al.accessList
-      }
-    } catch {
-      // best-effort; continue without accessList if RPC doesn't support it
-      accessList = undefined
-    }
+    ...(txValue !== undefined ? { value: txValue } : {}),
   }
 
-  const estimateGasOption = {
-    ...baseTx,
-    ...(accessList ? { accessList } : {}),
-  }
+  const connectorId = getAccount(wagmiConfig).connector?.id
+  const accessList = ACCESS_LIST_INCOMPATIBLE_CONNECTORS.has(connectorId ?? '')
+    ? undefined
+    : await createAccessListIfEnabled(publicClient, chainId, {
+        from: account,
+        to: contractAddress,
+        data: callData,
+        value: txValue,
+      })
 
-  let gasEstimate: ethers.BigNumber | undefined
+  let gasEstimate: bigint
   try {
-    gasEstimate = await library.getSigner().estimateGas(estimateGasOption)
-    if (!gasEstimate) throw new Error('gasEstimate is nullish value')
+    // viem's `estimateGas` argument type is a chain-specific union that
+    // overflows the TS instantiation depth at the wagmi-resolved publicClient.
+    // Runtime contract is the standard `{ to, data, value?, account, accessList? }`.
+    gasEstimate = await (publicClient as PublicClient).estimateGas({
+      ...requestBase,
+      ...(accessList ? { accessList } : {}),
+    })
   } catch (error) {
     throw new TransactionError(
-      sentryInfo.name,
+      errorInfo.name,
       'estimateGas',
-      error?.message,
-      estimateGasOption,
+      (error as Error)?.message,
+      { from: account, to: contractAddress, data: callData },
       { cause: error },
-      sentryInfo.wallet,
+      errorInfo.wallet,
     )
   }
 
-  const gasLimit = calculateGasMargin(gasEstimate, chainId)
-  const sendTransactionOption = {
-    ...estimateGasOption,
-    gasLimit,
+  const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId)
+
+  // Build the full eth_sendTransaction payload ethers v5 used to populate
+  // (type, chainId, fees, gas). Hardware wallets like SafePal can't decode a
+  // minimal viem-style payload missing these fields and fail at the device
+  // with "(-104) show tx info failed". Software wallets auto-fill the gaps,
+  // so the regression only surfaces on hardware. We let the wallet pick
+  // `nonce` to avoid racing the device's own counter.
+  const txParams: Record<string, unknown> = {
+    from: account.toLowerCase(),
+    to: contractAddress.toLowerCase(),
+    data: callData,
+    gas: `0x${gasLimit.toString(16)}`,
+    chainId: `0x${(chainId as number).toString(16)}`,
+  }
+  if (txValue !== undefined) {
+    txParams.value = `0x${txValue.toString(16)}`
+  }
+  if (accessList) {
+    txParams.accessList = accessList
+  }
+  try {
+    const fees = await (publicClient as PublicClient).estimateFeesPerGas()
+    if (fees?.maxFeePerGas !== undefined && fees?.maxPriorityFeePerGas !== undefined) {
+      txParams.type = '0x2'
+      txParams.maxFeePerGas = `0x${fees.maxFeePerGas.toString(16)}`
+      txParams.maxPriorityFeePerGas = `0x${fees.maxPriorityFeePerGas.toString(16)}`
+    }
+  } catch {
+    // Legacy / non-EIP-1559 chain or RPC quirk — leave fees to the wallet.
   }
 
   try {
-    const response = await (paymentToken
-      ? paymasterExecute(
-          paymentToken,
-          {
-            ...sendTransactionOption,
-            value: value ? ethers.BigNumber.from(value) : undefined,
-          },
-          gasLimit.toNumber(),
-        )
-      : library.getSigner().sendTransaction(sendTransactionOption))
-    return response
+    const hash = (await walletClient.request({
+      method: 'eth_sendTransaction',
+      params: [txParams] as never,
+    })) as `0x${string}`
+    return { hash }
   } catch (error) {
-    const txHash = (error as any)?.transactionHash as string | undefined
-    if (txHash) {
-      return { hash: txHash } as TransactionResponse
-    }
-
+    // Some wallets surface a transaction hash on the error object when the tx
+    // was actually broadcasted but the wallet/RPC then reported a failure (e.g.
+    // mobile/WC sessions dropping mid-response, providers throwing after the
+    // hash already returned). If we have a hash the tx is on-chain — treat as
+    // success so the app tracks it instead of letting the user re-submit and
+    // pay gas twice. Check the legacy ethers field and the two places viem
+    // typically nests it (cause / details).
+    const recovered = extractTxHashFromError(error)
+    if (recovered) return { hash: recovered }
     throw new TransactionError(
-      sentryInfo.name,
+      errorInfo.name,
       'sendTransaction',
-      error?.message,
-      sendTransactionOption,
+      (error as Error)?.message,
+      { from: account, to: contractAddress, data: callData, gasLimit },
       { cause: error },
-      sentryInfo.wallet,
+      errorInfo.wallet,
     )
   }
+}
+
+function extractTxHashFromError(error: unknown): `0x${string}` | undefined {
+  if (!error || typeof error !== 'object') return undefined
+  const e = error as { transactionHash?: unknown; cause?: unknown; data?: unknown; details?: unknown }
+  const candidates: unknown[] = [
+    e.transactionHash,
+    (e.cause as { transactionHash?: unknown })?.transactionHash,
+    (e.data as { transactionHash?: unknown })?.transactionHash,
+    (e.details as { transactionHash?: unknown })?.transactionHash,
+  ]
+  for (const c of candidates) {
+    if (typeof c === 'string' && /^0x[0-9a-fA-F]{64}$/.test(c)) {
+      return c as `0x${string}`
+    }
+  }
+  return undefined
 }

@@ -9,9 +9,12 @@ import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
 
 const useCurrenciesByPage = () => {
-  const { pathname } = useLocation()
   const { networkInfo, chainId } = useActiveWeb3React()
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const { pathname } = useLocation()
+  const isSwapPage =
+    pathname.startsWith(APP_PATHS.SWAP) ||
+    pathname.startsWith(APP_PATHS.PARTNER_SWAP) ||
+    pathname.startsWith(APP_PATHS.USER_SWAP)
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
 
   const currencyInSwap = useInputCurrency()

@@ -15,6 +15,13 @@ export const Wrapper = styled.div<WrapperProps>`
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.boxShadow};
   height: max-content;
+
+  svg {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    max-width: none !important;
+    flex-shrink: 0 !important;
+  }
 `
 
 export const Title = styled.div`
@@ -126,6 +133,7 @@ export const SelectTokenBtn = styled.button`
   color: ${({ theme }) => theme.subText};
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   font-weight: 500;
   cursor: pointer;
 

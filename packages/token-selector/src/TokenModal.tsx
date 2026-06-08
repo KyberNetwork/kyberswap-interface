@@ -53,6 +53,7 @@ const TokenModal = ({
   wallet,
   tokenOptions,
   positionOptions,
+  onTrackEvent,
 }: TokenSelectorModalProps) => {
   const { importToken } = useTokenState();
 
@@ -216,6 +217,7 @@ const TokenModal = ({
             setTokenToImport={handleSetTokenToImport}
             onClose={onClose}
             initialSlippage={initialSlippage}
+            onTrackEvent={onTrackEvent}
           />
         )}
       </DialogContent>

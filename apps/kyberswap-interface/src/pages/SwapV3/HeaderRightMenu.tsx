@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import styled from 'styled-components'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -11,46 +10,35 @@ import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { TAB } from 'pages/SwapV3/index'
+import { TAB } from 'pages/SwapV3'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useDegenModeManager, usePaymentToken, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
+import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatSlippage } from 'utils/slippage'
-
-const ActionPanel = styled.div`
-  display: flex;
-  align-items: center;
-  border-radius: 18px;
-`
-
-const TransactionSettingsIconWrapper = styled.span`
-  line-height: 0;
-`
 
 export default function HeaderRightMenu({
   activeTab,
   setActiveTab,
+  activeMainTab,
 }: {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
+  activeMainTab?: TAB
 }) {
-  const theme = useTheme()
-
   const { pathname } = useLocation()
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
+  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
+  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeMainTab === TAB.SWAP
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
+  const defaultTab =
+    activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP)
 
   const { currencies } = useCurrenciesByPage()
   const { trackingHandler } = useTracking(currencies)
 
   const onToggleActionTab = (tab: TAB) => {
     if (activeTab === tab) {
-      if (isSwapPage) setActiveTab(TAB.SWAP)
-      else if (isLimitPage) setActiveTab(TAB.LIMIT)
-      else if (isCrossChainPage) setActiveTab(TAB.CROSS_CHAIN)
+      setActiveTab(defaultTab)
     } else {
       setActiveTab(tab)
     }
@@ -58,12 +46,11 @@ export default function HeaderRightMenu({
   const [isDegenMode] = useDegenModeManager()
   const [slippage] = useUserSlippageTolerance()
   const [transactionTimeout] = useUserTransactionTTL()
-  const [paymentToken] = usePaymentToken()
   const { networkInfo } = useActiveWeb3React()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   return (
-    <ActionPanel>
+    <div className="flex items-center rounded-[18px]">
       {!isCrossChainPage && (
         <TokenInfoIcon
           currencies={currencies}
@@ -87,7 +74,7 @@ export default function HeaderRightMenu({
               trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK, {
                 current_max_slippage: formatSlippage(slippage, false),
                 current_transaction_time_limit: transactionTimeout / 60,
-                current_gas_token: paymentToken?.symbol || networkInfo.nativeToken.symbol,
+                current_gas_token: networkInfo.nativeToken.symbol,
               })
             }
           }}
@@ -99,12 +86,12 @@ export default function HeaderRightMenu({
             width="fit-content"
             disableTooltip={isMobile}
           >
-            <TransactionSettingsIconWrapper id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
-              <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
-            </TransactionSettingsIconWrapper>
+            <span id={TutorialIds.BUTTON_SETTING_SWAP_FORM} className="leading-none">
+              <TransactionSettingsIcon className={isDegenMode ? 'text-warning' : 'text-subText'} />
+            </span>
           </MouseoverTooltip>
         </StyledActionButtonSwapForm>
       )}
-    </ActionPanel>
+    </div>
   )
 }

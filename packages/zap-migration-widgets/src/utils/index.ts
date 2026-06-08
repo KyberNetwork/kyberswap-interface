@@ -24,24 +24,44 @@ export const buildRouteData = async ({
   permits?: {
     [key: string]: string;
   };
-}): Promise<BuildRouteData | null> => {
-  const buildData = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/migrate/route/build`, {
-    method: 'POST',
-    body: JSON.stringify({
-      sender,
-      route,
-      burnNft: false,
-      source,
-      referral,
-      deadline,
-      permits,
-    }),
-  })
-    .then(res => res.json())
-    .then(async res => {
-      const { data } = res || {};
-      return data;
+}): Promise<BuildRouteData> => {
+  const url = `${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/migrate/route/build`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        sender,
+        route,
+        burnNft: false,
+        source,
+        referral,
+        deadline,
+        permits,
+      }),
     });
+  } catch (e) {
+    throw new Error(`Build route step: network error calling build API — ${(e as Error).message || 'unknown error'}`);
+  }
 
-  return buildData;
+  let body: { data?: BuildRouteData; message?: string; error?: string } | null = null;
+  try {
+    body = await res.json();
+  } catch {
+    // Swallow — handled below based on HTTP status.
+  }
+
+  if (!res.ok) {
+    const apiMsg = body?.message || body?.error;
+    throw new Error(
+      `Build route step: build API returned HTTP ${res.status} ${res.statusText}${apiMsg ? ` — ${apiMsg}` : ''}`,
+    );
+  }
+
+  if (!body?.data) {
+    const apiMsg = body?.message || body?.error;
+    throw new Error(`Build route step: build API returned no data${apiMsg ? ` — ${apiMsg}` : ''}`);
+  }
+
+  return body.data;
 };

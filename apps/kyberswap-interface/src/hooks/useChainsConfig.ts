@@ -10,7 +10,6 @@ import { NetworkInfo } from 'constants/networks/type'
 export enum ChainState {
   NEW = 'new',
   ACTIVE = 'active',
-  INACTIVE = 'inactive',
   MAINTENANCE = 'maintained',
 }
 

@@ -1,26 +1,27 @@
-import { parseBytes32String } from '@ethersproject/strings'
 import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { multicall } from '@wagmi/core'
 import axios from 'axios'
-import { arrayify } from 'ethers/lib/utils'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import ksSettingApi from 'services/ksSetting'
 
-import ERC20_INTERFACE, { ERC20_BYTES32_INTERFACE } from 'constants/abis/erc20'
+import { wagmiConfig } from 'components/Web3Provider'
+import { ERC20_ABI } from 'constants/abis'
 import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks/index'
-import { useBytes32TokenContract, useMulticallContract, useTokenReadingContract } from 'hooks/useContract'
+import { useActiveWeb3React } from 'hooks'
+import { useBytes32TokenContract, useTokenReadingContract } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
 import { AppState } from 'state'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { NEVER_RELOAD, useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import { escapeQuoteString } from 'utils/tokenInfo'
-
-import useDebounce from './useDebounce'
+import { Address, hexToString, toBytes } from 'utils/viem'
 
 // reduce token map into standard address <-> Token mapping
 function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean, customChainId?: ChainId): TokenMap {
@@ -82,93 +83,9 @@ function parseStringOrBytes32(str: string | undefined, bytes32: string | undefin
   return str && str.length > 0
     ? str
     : // need to check for proper bytes string and valid terminator
-    bytes32 && BYTES32_REGEX.test(bytes32) && arrayify(bytes32)[31] === 0
-    ? parseBytes32String(bytes32)
+    bytes32 && BYTES32_REGEX.test(bytes32) && toBytes(bytes32 as `0x${string}`)[31] === 0
+    ? hexToString(bytes32 as `0x${string}`, { size: 32 })
     : defaultValue
-}
-
-export const useTokens = (addresses: string[]): TokenMap => {
-  const { chainId } = useActiveWeb3React()
-  const tokens = useAllTokens()
-
-  const knownTokens = useMemo(() => {
-    return addresses
-      .filter(address => address === ZERO_ADDRESS || tokens[address])
-      .map(address => (address === ZERO_ADDRESS ? NativeCurrencies[chainId] : tokens[address]))
-    // eslint-disable-next-line
-  }, [JSON.stringify(addresses), tokens, chainId])
-
-  const unKnowAddresses = useMemo(
-    () => addresses.filter(address => address !== ZERO_ADDRESS && !tokens[address]),
-    // eslint-disable-next-line
-    [JSON.stringify(addresses), tokens],
-  )
-
-  const nameResult = useMultipleContractSingleData(unKnowAddresses, ERC20_INTERFACE, 'name', undefined, NEVER_RELOAD)
-
-  const name32Result = useMultipleContractSingleData(
-    unKnowAddresses,
-    ERC20_BYTES32_INTERFACE,
-    'name',
-    undefined,
-    NEVER_RELOAD,
-  )
-
-  const symbolResult = useMultipleContractSingleData(
-    unKnowAddresses,
-    ERC20_INTERFACE,
-    'symbol',
-    undefined,
-    NEVER_RELOAD,
-  )
-
-  const symbol32Result = useMultipleContractSingleData(
-    unKnowAddresses,
-    ERC20_BYTES32_INTERFACE,
-    'symbol',
-    undefined,
-    NEVER_RELOAD,
-  )
-
-  const decimalResult = useMultipleContractSingleData(
-    unKnowAddresses,
-    ERC20_INTERFACE,
-    'decimals',
-    undefined,
-    NEVER_RELOAD,
-  )
-
-  return useMemo(() => {
-    const unknownTokens = unKnowAddresses.map((address, index) => {
-      try {
-        const name = nameResult?.[0].result?.[index]
-        const name32 = name32Result?.[0].result?.[index]
-        const symbol = symbolResult?.[0].result?.[index]
-        const symbol32 = symbol32Result?.[0].result?.[index]
-        const decimals = decimalResult?.[0].result?.[index]
-
-        if (!symbol || !decimals) return null
-
-        return new Token(
-          chainId,
-          address,
-          decimals,
-          parseStringOrBytes32(symbol, symbol32, 'UNKNOWN'),
-          parseStringOrBytes32(name, name32, 'Unknown Token'),
-        )
-      } catch (e) {
-        return null
-      }
-    })
-
-    return [...unknownTokens, ...knownTokens].reduce((acc, cur) => {
-      if (!cur) return acc
-      return {
-        ...acc,
-        [cur.isNative ? ZERO_ADDRESS : cur.address]: cur,
-      }
-    }, {})
-  }, [unKnowAddresses, name32Result, nameResult, symbol32Result, symbolResult, decimalResult, knownTokens, chainId])
 }
 
 // undefined if invalid or does not exist
@@ -238,14 +155,13 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
   const { chainId: activeChainId } = useActiveWeb3React()
   const chainId = customChainId || activeChainId
-  const multicallContract = useMulticallContract(chainId)
 
   const fetcher = useCallback(
     async (tokenAddress: string) => {
       try {
         const address = isAddress(chainId, tokenAddress)
 
-        if (!multicallContract) {
+        if (!NETWORKS_INFO[chainId]?.multicall) {
           console.error('No multicall contract found')
           return undefined
         }
@@ -255,26 +171,26 @@ export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
           return undefined
         }
 
-        const returnData = await multicallContract.callStatic
-          .tryBlockAndAggregate(false, [
-            {
-              target: address,
-              callData: ERC20_INTERFACE.encodeFunctionData('name'),
-            },
-            {
-              target: address,
-              callData: ERC20_INTERFACE.encodeFunctionData('symbol'),
-            },
-            {
-              target: address,
-              callData: ERC20_INTERFACE.encodeFunctionData('decimals'),
-            },
-          ])
-          .then(resp => resp.returnData.map((item: [boolean, string]) => item[1]))
+        const results = await multicall(wagmiConfig, {
+          allowFailure: true,
+          chainId: chainId as number,
+          contracts: [
+            { address: address as Address, abi: ERC20_ABI, functionName: 'name' },
+            { address: address as Address, abi: ERC20_ABI, functionName: 'symbol' },
+            { address: address as Address, abi: ERC20_ABI, functionName: 'decimals' },
+          ],
+        })
 
-        const name = ERC20_INTERFACE.decodeFunctionResult('name', returnData[0])[0]
-        const symbol = ERC20_INTERFACE.decodeFunctionResult('symbol', returnData[1])[0]
-        const decimals = ERC20_INTERFACE.decodeFunctionResult('decimals', returnData[2])[0]
+        // Decimals is the only field required to construct a valid Token; tolerate
+        // legacy ERC20s missing name()/symbol() (e.g. MKR returns bytes32) and
+        // fall back to empty strings to preserve pre-migration behavior.
+        if (results[2].status !== 'success') {
+          console.error('ERC20 metadata multicall: decimals read failed', results)
+          return undefined
+        }
+        const name = results[0].status === 'success' ? (results[0].result as string) : ''
+        const symbol = results[1].status === 'success' ? (results[1].result as string) : ''
+        const decimals = results[2].result as number
 
         return new Token(chainId, address, decimals, symbol, name)
       } catch (e) {
@@ -282,7 +198,7 @@ export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
         return undefined
       }
     },
-    [chainId, multicallContract],
+    [chainId],
   )
 
   return fetcher

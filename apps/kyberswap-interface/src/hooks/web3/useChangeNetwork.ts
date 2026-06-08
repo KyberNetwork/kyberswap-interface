@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
 import { useCallback } from 'react'
 import { useSwitchChain } from 'wagmi'
 
@@ -13,13 +12,14 @@ import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 import { friendlyError } from 'utils/errorMessage'
 import { wait } from 'utils/retry'
+import { getGatedWalletClient } from 'utils/walletClient'
 
-//import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
+//import { useLazyKyberswapConfig } from 'hooks/useKyberSwapConfig'
 
 let latestChainId: number | undefined
 export function useChangeNetwork() {
   const { isWrongNetwork, chainId: kyberChainId } = useActiveWeb3React()
-  const { chainId, connector, active, library } = useWeb3React()
+  const { chainId, active } = useWeb3React()
   //const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
@@ -86,12 +86,6 @@ export function useChangeNetwork() {
         message = t`Your wallet not support chain ${name}`
       } else {
         message = error?.message || message
-        const e = new Error(`[Activate chain] ${connector?.id} ${message}`)
-        e.name = 'Activate chain error'
-        captureException(e, {
-          level: 'warning',
-          extra: { error, wallet: connector?.id, chainId, desiredChainId, message },
-        })
       }
       notify({
         title,
@@ -100,7 +94,7 @@ export function useChangeNetwork() {
       })
       customFailureCallback?.(error)
     },
-    [chainId, connector, notify],
+    [notify],
   )
 
   const addNewNetwork = useCallback(
@@ -117,7 +111,7 @@ export function useChangeNetwork() {
       customFailureCallback?: (error: Error) => void,
       waitUtilUpdatedChainId = false,
     ) => {
-      if (!library?.provider?.request) return
+      if (!chainId) return
       const wrappedSuccessCallback = () => {
         successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
       }
@@ -136,9 +130,11 @@ export function useChangeNetwork() {
 
       const errors: Error[] = []
       try {
-        await library?.provider?.request({
-          method: 'wallet_addEthereumChain',
-          params: [addChainParameter],
+        const walletClient = await getGatedWalletClient({ chainId })
+        if (!walletClient) throw new Error('Wallet client unavailable')
+        await walletClient.request({
+          method: 'wallet_addEthereumChain' as any,
+          params: [addChainParameter] as any,
         })
         wrappedSuccessCallback()
         return
@@ -152,7 +148,7 @@ export function useChangeNetwork() {
 
       failureCallback(desiredChainId, errors.at(-1), customFailureCallback, customTexts)
     },
-    [failureCallback, library?.provider, successCallback],
+    [chainId, failureCallback, successCallback],
   )
 
   const changeNetwork = useCallback(

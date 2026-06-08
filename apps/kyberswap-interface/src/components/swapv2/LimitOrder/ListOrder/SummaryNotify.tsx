@@ -1,12 +1,14 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
-import { Text } from 'rebass'
 
-import useTheme from 'hooks/useTheme'
-
-import { calcPercentFilledOrder, calcRate, formatAmountOrder, formatRateLimitOrder } from '../helpers'
-import { LimitOrder, LimitOrderStatus } from '../type'
+import {
+  calcPercentFilledOrder,
+  calcRate,
+  formatAmountOrder,
+  formatRateLimitOrder,
+} from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 
 export default function SummaryNotify({
   type,
@@ -28,32 +30,26 @@ export default function SummaryNotify({
     makerAssetDecimals,
     takerAssetDecimals,
   } = order || ({} as LimitOrder)
-  const theme = useTheme()
   const rate = order ? formatRateLimitOrder(order, false) : ''
   const filledPercent = order ? calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals) : 0
   const mainMsg = order ? (
     <Trans>
-      <Text as="span" fontWeight={500}>
+      <span className="font-medium">
         {formatAmountOrder(makingAmount, makerAssetDecimals)} {makerAssetSymbol}
-      </Text>{' '}
+      </span>{' '}
       and receive{' '}
-      <Text as="span" fontWeight={500}>
+      <span className="font-medium">
         {formatAmountOrder(takingAmount, takerAssetDecimals)} {takerAssetSymbol}
-      </Text>{' '}
-      <Text as="span" color={theme.subText}>
+      </span>{' '}
+      <span className="text-subText">
         at {takerAssetSymbol} price of {rate} {makerAssetSymbol}
-      </Text>
+      </span>
     </Trans>
   ) : null
 
   let msg: ReactNode
   const listOrderName = (
-    <ul
-      style={{
-        padding: '5px 0px 0px 15px',
-        margin: '0',
-      }}
-    >
+    <ul className="m-0 pb-0 pl-[15px] pr-0 pt-[5px]">
       {orders.map(order => (
         <li key={order.id}>
           {formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} {order.makerAssetSymbol} <Trans>to</Trans>{' '}
@@ -137,11 +133,7 @@ export default function SummaryNotify({
       break
   }
 
-  return (
-    <Text color={theme.text} lineHeight="18px">
-      {message || msg}
-    </Text>
-  )
+  return <p className="m-0 leading-[18px] text-text">{message || msg}</p>
 }
 
 export const SummaryNotifyOrderPlaced = ({
@@ -155,23 +147,22 @@ export const SummaryNotifyOrderPlaced = ({
   inputAmount: string
   outputAmount: string
 }) => {
-  const theme = useTheme()
   return (
-    <Text color={theme.text} lineHeight="18px">
+    <p className="m-0 leading-[18px] text-text">
       <Trans>
         You have successfully placed an order to pay{' '}
-        <Text as="span" fontWeight={500}>
+        <span className="font-medium">
           {formatAmountOrder(inputAmount)} {currencyIn.symbol}
-        </Text>{' '}
+        </span>{' '}
         and receive{' '}
-        <Text as="span" fontWeight={500}>
+        <span className="font-medium">
           {formatAmountOrder(outputAmount)} {currencyOut.symbol}{' '}
-        </Text>
-        <Text as="span" color={theme.subText}>
+        </span>
+        <span className="text-subText">
           at {currencyIn.symbol} price of {calcRate(inputAmount, outputAmount, currencyOut.decimals)}{' '}
           {currencyOut.symbol}.
-        </Text>
+        </span>
       </Trans>
-    </Text>
+    </p>
   )
 }

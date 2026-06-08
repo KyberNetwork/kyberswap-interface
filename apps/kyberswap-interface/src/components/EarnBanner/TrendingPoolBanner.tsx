@@ -1,49 +1,64 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconTrending } from 'assets/svg/earn/ic_pool_high_apr.svg'
-import { AprText, PoolApr, PoolAprWrapper, PoolWrapper, TrendingWrapper } from 'components/EarnBanner/styles'
+import {
+  AprText,
+  BannerHeaderLink,
+  PoolApr,
+  PoolAprWrapper,
+  PoolWrapper,
+  TrendingWrapper,
+} from 'components/EarnBanner/styles'
+import Skeleton from 'components/Skeleton'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { type EarnPool } from 'pages/Earns/types/pool'
 
 let indexInterval: NodeJS.Timeout
 
 export default function TrendingPoolBanner() {
-  const theme = useTheme()
-  const navigate = useNavigate()
   const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
 
   const [index, setIndex] = useState(0)
   const [animate, setAnimate] = useState(false)
+  const [isSlideHovered, setIsSlideHovered] = useState(false)
 
   const pool = useMemo(() => data?.data.highlightedPools[index] || null, [data, index])
 
-  const handleClickBanner = () => {
+  const handleBannerTracking = () => {
     trackingHandler(TRACKING_EVENT_TYPE.EARN_BANNER_CLICK, {
       banner_name: 'HomePage_Earn_Banner',
       page: 'HomePage',
-      destination_url: '/earn',
+      destination_url: APP_PATHS.EARN,
     })
-    navigate({ pathname: APP_PATHS.EARN })
   }
 
-  const handleClickBannerPool = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!pool) return
-    e.stopPropagation()
+  const getPoolDetailHref = (pool: EarnPool) => {
+    const poolChainId = pool.chain?.id ?? pool.chainId
+    if (!poolChainId) return APP_PATHS.EARN_POOLS
+
+    return `${APP_PATHS.ADD_LIQUIDITY}?${new URLSearchParams({
+      exchange: pool.exchange,
+      poolAddress: pool.address,
+      poolChainId: String(poolChainId),
+    }).toString()}`
+  }
+
+  const handlePoolClickTracking = (pool: EarnPool) => {
+    const destinationUrl = getPoolDetailHref(pool)
+
     trackingHandler(TRACKING_EVENT_TYPE.EARN_BANNER_POOL_CLICK, {
       banner_name: 'HomePage_Pool_Banner',
       page: 'HomePage',
       pool_pair: `${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
-      destination_url: `/pools/${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
+      destination_url: destinationUrl,
     })
     trackingHandler(TRACKING_EVENT_TYPE.TRENDING_POOL_CLICKED, {
       pool_pair: `${pool.tokens[0].symbol}/${pool.tokens[1].symbol}`,
@@ -51,11 +66,12 @@ export default function TrendingPoolBanner() {
       pool_type: 'trending',
       chain: pool.chain?.name || '',
     })
-    navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}&type=highlighted` })
   }
 
   useEffect(() => {
     const handleIndexChange = () => {
+      if (isSlideHovered) return
+
       setAnimate(true)
       setTimeout(() => setIndex(prev => (prev >= 9 ? 0 : prev + 1)), 200)
       setTimeout(() => setAnimate(false), 1000)
@@ -63,30 +79,47 @@ export default function TrendingPoolBanner() {
     indexInterval = setInterval(handleIndexChange, 4_000)
 
     return () => indexInterval && clearInterval(indexInterval)
-  }, [])
+  }, [isSlideHovered])
+
+  const poolSymbol = `${pool?.tokens[0].symbol}/${pool?.tokens[1].symbol}`
 
   return (
-    <TrendingWrapper onClick={handleClickBanner}>
-      <Flex alignItems="center" sx={{ gap: '8px' }}>
-        <IconTrending width={24} height={24} color={theme.primary} />
-        <Text color={theme.primary}>{t`TRENDING POOLS`}</Text>
-      </Flex>
+    <TrendingWrapper>
+      <BannerHeaderLink onClick={handleBannerTracking} to={APP_PATHS.EARN}>
+        <IconTrending width={24} height={24} className="text-primary" />
+        <span className="font-medium text-primary">{t`TRENDING POOLS`}</span>
+      </BannerHeaderLink>
       {!!pool ? (
-        <PoolWrapper animate={animate} onClick={handleClickBannerPool}>
-          <Flex alignItems="center">
+        <PoolWrapper
+          animate={animate}
+          onClick={() => handlePoolClickTracking(pool)}
+          onMouseEnter={() => setIsSlideHovered(true)}
+          onMouseLeave={() => setIsSlideHovered(false)}
+          to={getPoolDetailHref(pool)}
+        >
+          <div className="flex items-center">
             <TokenLogo src={pool.tokens[0].logoURI} boxShadowColor="#0b2e24" />
             <TokenLogo src={pool.tokens[1].logoURI} boxShadowColor="#0b2e24" translateLeft />
-            <Text marginLeft={2} sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-              {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
-            </Text>
-          </Flex>
+            <span className="ml-2 truncate" title={poolSymbol}>
+              {poolSymbol}
+            </span>
+          </div>
           <PoolAprWrapper>
             <PoolApr>
               {formatAprNumber(pool.allApr)}% <AprText>{t`APR`}</AprText>
             </PoolApr>
           </PoolAprWrapper>
         </PoolWrapper>
-      ) : null}
+      ) : (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Skeleton circle height={24} variant="darkSubtle" width={24} />
+            <Skeleton circle height={24} style={{ marginLeft: -8 }} variant="darkSubtle" width={24} />
+            <Skeleton height={18} style={{ marginLeft: 8 }} variant="darkSubtle" width={88} />
+          </div>
+          <Skeleton height={28} borderRadius={16} variant="darkSubtle" width={120} />
+        </div>
+      )}
     </TrendingWrapper>
   )
 }

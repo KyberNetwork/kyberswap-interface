@@ -1,7 +1,6 @@
 import { t } from '@lingui/macro'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
-import styled, { css } from 'styled-components'
 
 import CtaButton from 'components/Announcement/Popups/CtaButton'
 import {
@@ -14,107 +13,11 @@ import Column from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import { Z_INDEXS } from 'constants/styles'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { useNavigateToUrl, validateRedirectURL } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
-
-const Wrapper = styled.div`
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-  max-height: 100%;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    gap: 20px;
-    padding: 20px;
-  `}
-`
-const ContentWrapper = styled.div<{ isVertical: boolean }>`
-  display: flex;
-  overflow-x: hidden;
-  gap: 24px;
-  flex: 1;
-  max-width: 100%;
-  ${({ isVertical }) =>
-    isVertical
-      ? css`
-          flex-direction: column;
-          overflow-y: auto;
-        `
-      : css`
-          flex-direction: row;
-          gap: 24px;
-          overflow-y: hidden;
-        `}
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    gap: 20px;
-  `}
-  a:focus-visible {
-    outline: none;
-  }
-`
-
-const Title = styled.div`
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 24px;
-  word-break: break-word;
-`
-
-const ButtonWrapper = styled(Row)`
-  gap: 24px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 12px;
-  `}
-`
-
-const Image = styled.img`
-  border-radius: 20px;
-  max-height: 50vh;
-  width: 100%;
-  object-fit: contain;
-  margin: auto;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-height: unset;
-  `}
-`
-
-const StyledCtaButton = styled(CtaButton)`
-  width: fit-content;
-  min-width: min(220px, 100%);
-  max-width: 100%;
-  height: 36px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: fit-content;
-    min-width: 100px;
-    max-width: 100%;
-  `}
-`
-
-const Desc = styled.div`
-  word-break: break-word;
-  font-size: 14px;
-  line-height: 20px;
-  &::-webkit-scrollbar {
-    display: block;
-    width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.border};
-  }
-`
-
-const VIDEO_SIZE = `360px`
-const VideoWrapper = styled.div`
-  width: 640px;
-  height: ${VIDEO_SIZE};
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-width: 100%;
-  `}
-`
 
 const whitelistDomains = ['drive.google.com', 'www.youtube.com']
 const Video = ({ url, title }: { url: string; title: string }) => {
@@ -126,7 +29,7 @@ const Video = ({ url, title }: { url: string; title: string }) => {
     return null
   }
   return (
-    <VideoWrapper>
+    <div className="h-[360px] w-[640px] max-sm:max-w-full">
       <iframe
         width="100%"
         height="100%"
@@ -136,9 +39,11 @@ const Video = ({ url, title }: { url: string; title: string }) => {
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
       />
-    </VideoWrapper>
+    </div>
   )
 }
+
+const CTA_BUTTON_CLASS = 'h-9 w-fit min-w-[min(220px,100%)] max-w-full max-sm:min-w-[100px]'
 
 export default function CenterPopup({
   onDismiss,
@@ -147,7 +52,6 @@ export default function CenterPopup({
   onDismiss: () => void
   data: PopupItemType<PopupContentAnnouncement>
 }) {
-  const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { trackingHandler } = useTracking()
 
@@ -177,15 +81,17 @@ export default function CenterPopup({
 
   const renderContent = () => (
     <>
-      <Desc
+      <div
         dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }}
         style={{ overflowY: isVertical ? 'auto' : undefined }}
+        className="break-words text-sm leading-5 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1"
       />
-      <ButtonWrapper justify="center">
+      <Row className="justify-center gap-6 max-sm:gap-3">
         {ctas.length > 0 ? (
           ctas.map(item => (
-            <StyledCtaButton
+            <CtaButton
               key={item.url}
+              className={CTA_BUTTON_CLASS}
               data={item}
               color="primary"
               onClick={() => {
@@ -194,9 +100,14 @@ export default function CenterPopup({
             />
           ))
         ) : (
-          <StyledCtaButton data={{ name: t`Close`, url: '' }} color="primary" onClick={() => onClickCta()} />
+          <CtaButton
+            className={CTA_BUTTON_CLASS}
+            data={{ name: t`Close`, url: '' }}
+            color="primary"
+            onClick={() => onClickCta()}
+          />
         )}
-      </ButtonWrapper>
+      </Row>
     </>
   )
 
@@ -208,34 +119,41 @@ export default function CenterPopup({
       onDismiss={onDismiss}
       zindex={Z_INDEXS.MODAL}
     >
-      <Wrapper>
-        <RowBetween align="center">
-          <Title>{name}</Title>
+      <div className="flex max-h-full w-full flex-col gap-6 p-6 max-md:gap-5 max-md:p-5">
+        <RowBetween className="items-center">
+          <span className="break-words text-xl font-medium leading-6">{name}</span>
           <X
             cursor={'pointer'}
-            color={theme.subText}
+            className="min-w-6 text-subText"
             onClick={() => {
               onDismiss()
               trackingClose()
             }}
-            style={{ minWidth: '24px' }}
           />
         </RowBetween>
-        <ContentWrapper isVertical={!isVertical}>
+        <div
+          className={cn(
+            'flex max-w-full flex-1 gap-6 overflow-x-hidden max-md:gap-5 [&_a:focus-visible]:outline-none',
+            !isVertical ? 'flex-col overflow-y-auto' : 'flex-row overflow-y-hidden',
+          )}
+        >
           {thumbnailVideoURL ? (
             <Video url={thumbnailVideoURL} title={name} />
           ) : (
-            thumbnailImageURL && <Image src={thumbnailImageURL} />
+            thumbnailImageURL && (
+              <img
+                src={thumbnailImageURL}
+                className="m-auto max-h-[50vh] w-full rounded-[20px] object-contain max-sm:max-h-none"
+              />
+            )
           )}
           {isVertical ? (
-            <Column width={'320px'} height={VIDEO_SIZE} gap="14px" justifyContent={'space-between'}>
-              {renderContent()}
-            </Column>
+            <Column className="h-[360px] w-80 justify-between gap-[14px]">{renderContent()}</Column>
           ) : (
             renderContent()
           )}
-        </ContentWrapper>
-      </Wrapper>
+        </div>
+      </div>
     </Modal>
   )
 }

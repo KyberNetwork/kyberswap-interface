@@ -1,43 +1,21 @@
 import { t } from '@lingui/macro'
 import { useParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import Loader from 'components/Loader'
+import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
-import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
+import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
-import { InfoLeftColumn, InfoSection, PositionAction, VerticalDivider } from 'pages/Earns/PositionDetail/styles'
+import { CardDivider, ClaimButton, DarkCard, LeftColumn } from 'pages/Earns/PositionDetail/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { EARN_DEXES, Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
-import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
-import { ParsedPosition } from 'pages/Earns/types'
-import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const LeftSection = ({
-  position,
-  totalLiquiditySection,
-  aprSection,
-  initialLoading,
-  isNotAccountOwner,
-  onFetchUnclaimedFee,
-  shareBtn,
-  refetchPositions,
-}: {
-  position?: ParsedPosition
-  totalLiquiditySection: React.ReactNode
-  aprSection: React.ReactNode
-  initialLoading: boolean
-  isNotAccountOwner: boolean
-  onFetchUnclaimedFee: () => void
-  shareBtn: (size?: number) => React.ReactNode
-  refetchPositions: () => void
-}) => {
-  const theme = useTheme()
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+const LeftSection = () => {
+  const { position, initialLoading, isNotAccountOwner, handleFetchUnclaimedFee } = usePositionDetailContext()
+
   const { exchange, chainId } = useParams()
 
   const {
@@ -45,206 +23,139 @@ const LeftSection = ({
     onOpenClaim: onOpenClaimFees,
     pendingClaimKeys: pendingFeeClaimKeys,
   } = useCollectFees({
-    refetchAfterCollect: () => onFetchUnclaimedFee(),
+    refetchAfterCollect: () => handleFetchUnclaimedFee(),
   })
 
-  const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
-  const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
   const nativeToken = chainId ? NETWORKS_INFO[Number(chainId) as keyof typeof NETWORKS_INFO]?.nativeToken : undefined
-
   const isUnfinalized = position?.isUnfinalized
+
   const claimKey = position ? `${position.chain.id}:${position.tokenId}` : ''
   const isFeesClaiming = claimKey ? pendingFeeClaimKeys.includes(claimKey) : false
+
+  const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
+  const showRewards =
+    position?.pool.isFarming ||
+    (initialLoading && isFarmingPossible) ||
+    Number(position?.rewards.inProgressUsdValue || 0) > 0 ||
+    Number(position?.rewards.claimableUsdValue || 0) > 0
 
   return (
     <>
       {claimFeesModal}
 
-      <InfoLeftColumn halfWidth={isUniv2}>
-        {/* Total Liquidity */}
-        {/* Est. Position APR */}
-        {upToSmall && (
-          <>
-            {totalLiquiditySection}
-            {aprSection}
-          </>
-        )}
-
-        {/* Fee Earn */}
-        <InfoSection>
-          <Text fontSize={14} color={theme.subText} marginBottom={3}>
-            {t`Fees Earn`}
-          </Text>
-          <Flex alignItems={'center'} justifyContent={'space-between'}>
-            <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-              <Text fontSize={14} color={theme.subText}>
-                1 {t`day`}
-              </Text>
-
+      <LeftColumn>
+        {EARN_DEXES[exchange as Exchange]?.collectFeeSupported && (
+          <DarkCard>
+            <div className="flex items-center justify-between">
+              <span className="text-base uppercase text-subText">{t`Fee Earn`}</span>
               {initialLoading ? (
-                <PositionSkeleton width={90} height={19} />
+                <PositionSkeleton width={80} height={24} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
-              ) : (position?.earning.in24h || position?.earning.in24h === 0) && !isUniv2 ? (
-                <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
-                  {formatDisplayNumber(position?.earning.in24h, { significantDigits: 4, style: 'currency' })}
-                </Text>
+                <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
               ) : (
-                '--'
+                <span className="text-base text-text">
+                  <AnimatedNumber
+                    value={
+                      position?.earning.earned !== undefined && position.earning.earned >= 0
+                        ? formatDisplayNumber(position.earning.earned, { style: 'currency', significantDigits: 4 })
+                        : '--'
+                    }
+                  />
+                </span>
               )}
-            </Flex>
-            <VerticalDivider />
-            <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-              <Text fontSize={14} color={theme.subText}>
-                7 {t`days`}
-              </Text>
+            </div>
 
+            <CardDivider />
+
+            <div className="flex items-center justify-between">
+              <span className="text-base uppercase text-subText">{t`Unclaimed Fee`}</span>
               {initialLoading ? (
-                <PositionSkeleton width={90} height={19} />
+                <PositionSkeleton width={80} height={24} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
-              ) : (position?.earning.in7d || position?.earning.in7d === 0) && !isUniv2 ? (
-                <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
-                  {formatDisplayNumber(position?.earning.in7d, { significantDigits: 4, style: 'currency' })}
-                </Text>
+                <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
               ) : (
-                '--'
+                <span className="text-xl font-medium text-text">
+                  <AnimatedNumber
+                    value={
+                      position?.unclaimedFees !== undefined
+                        ? formatDisplayNumber(position.unclaimedFees, { style: 'currency', significantDigits: 4 })
+                        : '--'
+                    }
+                  />
+                </span>
               )}
-            </Flex>
-            <VerticalDivider />
-            <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-              <Text fontSize={14} color={theme.subText}>
-                {t`All`}
-              </Text>
-              <Text
-                fontSize={18}
-                color={position?.earning.earned && position.earning.earned > 0 ? theme.primary : theme.text}
-              >
-                {initialLoading ? (
-                  <PositionSkeleton width={90} height={21} />
-                ) : isUnfinalized ? (
-                  <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
-                ) : (position?.earning.earned || position?.earning.earned === 0) && position?.earning.earned >= 0 ? (
-                  <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                    {formatDisplayNumber(position?.earning.earned, { style: 'currency', significantDigits: 4 })}
-                  </Text>
-                ) : position?.earning.earned && position?.earning.earned < 0 ? (
-                  0
-                ) : (
-                  '--'
-                )}
-              </Text>
-            </Flex>
-          </Flex>
-        </InfoSection>
+            </div>
 
-        {/* Claim Fees */}
-        {EARN_DEXES[exchange as Exchange].collectFeeSupported ? (
-          <InfoSection>
-            <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
-              <Text fontSize={14} color={theme.subText} marginTop={1}>
-                {t`Unclaimed Fees`}
-              </Text>
-
-              {initialLoading ? (
-                <PositionSkeleton width={90} height={21} />
-              ) : isUnfinalized ? (
-                <PositionSkeleton width={90} height={21} text={t`Finalizing...`} />
-              ) : (
-                <Text fontSize={18} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '160px' }}>
-                  {position?.unclaimedFees || position?.unclaimedFees === 0
-                    ? formatDisplayNumber(position?.unclaimedFees, {
-                        significantDigits: 4,
-                        style: 'currency',
-                      })
-                    : '--'}
-                </Text>
-              )}
-            </Flex>
-            <Flex alignItems={'center'} justifyContent={'space-between'}>
-              <div>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-1">
                 {initialLoading ? (
-                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} />
+                  <>
+                    <PositionSkeleton width={120} height={19} />
+                    <PositionSkeleton width={120} height={19} />
+                  </>
                 ) : isUnfinalized ? (
-                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} text={t`Finalizing...`} />
+                  <>
+                    <PositionSkeleton width={120} height={19} text={t`Finalizing...`} />
+                    <PositionSkeleton width={120} height={19} text={t`Finalizing...`} />
+                  </>
                 ) : (
-                  <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
-                    <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
-                      {formatDisplayNumber(position?.token0.unclaimedAmount, { significantDigits: 4 })}
-                    </Text>
-                    <Text>{position?.token0.isNative ? nativeToken?.symbol : position?.token0.symbol}</Text>
-                    <Text fontSize={14} color={theme.subText} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
-                      {formatDisplayNumber(position?.token0.unclaimedValue, {
-                        style: 'currency',
-                        significantDigits: 4,
-                      })}
-                    </Text>
-                  </Flex>
-                )}
-
-                {initialLoading ? (
-                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} />
-                ) : isUnfinalized ? (
-                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} text={t`Finalizing...`} />
-                ) : (
-                  <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-                    <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
-                      {formatDisplayNumber(position?.token1.unclaimedAmount, { significantDigits: 4 })}
-                    </Text>
-                    <Text>{position?.token1.isNative ? nativeToken?.symbol : position?.token1.symbol}</Text>
-                    <Text fontSize={14} color={theme.subText} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
-                      {formatDisplayNumber(position?.token1.unclaimedValue, {
-                        style: 'currency',
-                        significantDigits: 4,
-                      })}
-                    </Text>
-                  </Flex>
+                  <>
+                    <div className="flex items-center gap-2">
+                      <TokenLogo src={position?.token0.logo} size={16} />
+                      <span className="truncate text-base text-text">
+                        {formatDisplayNumber(position?.token0.unclaimedAmount, { significantDigits: 4 })}{' '}
+                        {position?.token0.isNative ? nativeToken?.symbol : position?.token0.symbol}
+                      </span>
+                      <span className="text-sm text-subText">
+                        {formatDisplayNumber(position?.token0.unclaimedValue, {
+                          style: 'currency',
+                          significantDigits: 4,
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <TokenLogo src={position?.token1.logo} size={16} />
+                      <span className="truncate text-base text-text">
+                        {formatDisplayNumber(position?.token1.unclaimedAmount, { significantDigits: 4 })}{' '}
+                        {position?.token1.isNative ? nativeToken?.symbol : position?.token1.symbol}
+                      </span>
+                      <span className="text-sm text-subText">
+                        {formatDisplayNumber(position?.token1.unclaimedValue, {
+                          style: 'currency',
+                          significantDigits: 4,
+                        })}
+                      </span>
+                    </div>
+                  </>
                 )}
               </div>
-              <PositionAction
-                small
-                outline
-                mobileAutoWidth
-                load={isFeesClaiming}
+
+              <ClaimButton
                 disabled={
+                  !position ||
                   initialLoading ||
                   isNotAccountOwner ||
                   isUnfinalized ||
-                  position?.unclaimedFees === 0 ||
+                  position.unclaimedFees === 0 ||
                   isFeesClaiming
                 }
-                onClick={() =>
-                  !initialLoading &&
-                  !isUnfinalized &&
-                  position?.unclaimedFees &&
-                  position?.unclaimedFees > 0 &&
-                  !isFeesClaiming &&
-                  onOpenClaimFees(position)
-                }
+                onClick={() => position && onOpenClaimFees(position)}
               >
-                {isFeesClaiming && <Loader size="14px" stroke={'#505050'} />}
-                {isFeesClaiming ? t`Claiming` : t`Claim`}
-              </PositionAction>
-            </Flex>
-          </InfoSection>
-        ) : null}
-
-        {/* Rewards */}
-        {(position?.pool.isFarming ||
-          (initialLoading && isFarmingPossible) ||
-          Number(position?.rewards.inProgressUsdValue || 0) > 0 ||
-          Number(position?.rewards.claimableUsdValue || 0) > 0) && (
-          <RewardSection
-            position={position}
-            initialLoading={initialLoading}
-            shareBtn={shareBtn}
-            refetchPositions={refetchPositions}
-          />
+                {isFeesClaiming ? (
+                  <div className="flex items-center gap-1">
+                    <Loader size="12px" />
+                    {t`Claiming`}
+                  </div>
+                ) : (
+                  t`Claim`
+                )}
+              </ClaimButton>
+            </div>
+          </DarkCard>
         )}
 
-        {/* Position History */}
-        {!isUniv2 && <PositionHistory position={position} />}
-      </InfoLeftColumn>
+        {showRewards && <RewardSection />}
+      </LeftColumn>
     </>
   )
 }

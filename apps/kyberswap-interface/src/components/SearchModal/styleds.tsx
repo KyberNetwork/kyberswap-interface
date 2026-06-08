@@ -1,58 +1,38 @@
+import { ComponentProps, ComponentPropsWithoutRef, forwardRef } from 'react'
 import { Search } from 'react-feather'
-import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
+import { cn } from 'utils/cn'
 
-export const PaddedColumn = styled(AutoColumn)`
-  padding: 20px;
-  padding-bottom: 12px;
-`
+export const PaddedColumn = forwardRef<HTMLDivElement, ComponentProps<typeof AutoColumn>>(
+  ({ className, ...props }, ref) => <AutoColumn ref={ref} className={cn('p-5 pb-3', className)} {...props} />,
+)
+PaddedColumn.displayName = 'PaddedColumn'
 
-export const SearchWrapper = styled.div`
-  position: relative;
-  height: 45px;
-`
+export const SearchWrapper = ({ className, ...props }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('relative h-[45px]', className)} {...props} />
+)
 
-export const SearchIcon = styled(Search)`
-  position: absolute;
-  right: 12px;
-  top: 12px;
-`
+export const SearchIcon = ({ className, ...props }: ComponentProps<typeof Search>) => (
+  <Search className={cn('absolute right-3 top-3', className)} {...props} />
+)
 
-export const SearchInput = styled.input`
-  position: absolute;
-  display: flex;
-  padding: 10px 30px 13px 16px;
-  align-items: center;
-  width: 100%;
-  white-space: nowrap;
-  background: none;
-  border: none;
-  outline: none;
-  border-radius: 999px;
-  color: ${({ theme }) => theme.text};
-  border-style: solid;
-  border: 1px solid ${({ theme }) => theme.buttonBlack};
-  background: ${({ theme }) => theme.buttonBlack};
-  -webkit-appearance: none;
+export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
+  ({ className, ...props }, ref) => (
+    <input
+      ref={ref}
+      className={cn(
+        'absolute flex size-full items-center whitespace-nowrap rounded-full border border-buttonBlack bg-buttonBlack px-4 pb-[13px] pr-[30px] pt-2.5 text-[17px] leading-normal text-text outline-none transition-[border] duration-100 [-webkit-appearance:none]',
+        'placeholder:text-[12.5px] placeholder:text-border sm:placeholder:text-[13.5px]',
+        'focus:border-primary focus:outline-none',
+        className,
+      )}
+      {...props}
+    />
+  ),
+)
+SearchInput.displayName = 'SearchInput'
 
-  font-size: 17px;
-
-  ::placeholder {
-    color: ${({ theme }) => theme.border};
-    font-size: 13.5px;
-    ${({ theme }) => theme.mediaWidth.upToSmall`
-      font-size: 12.5px;
-    `};
-  }
-  transition: border 100ms;
-  :focus {
-    border: 1px solid ${({ theme }) => theme.primary};
-    outline: none;
-  }
-`
-export const Separator = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color: ${({ theme }) => theme.border};
-`
+export const Separator = ({ className, ...props }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('h-px w-full bg-border', className)} {...props} />
+)

@@ -1,23 +1,9 @@
-import styled from 'styled-components'
+import { HTMLAttributes, forwardRef } from 'react'
 
-const Dots = styled.span`
-  &::after {
-    display: inline-block;
-    animation: ellipsis 1.25s infinite;
-    content: '.';
-    width: 1em;
-    text-align: left;
-  }
-  @keyframes ellipsis {
-    0% {
-      content: '.';
-    }
-    33% {
-      content: '..';
-    }
-    66% {
-      content: '...';
-    }
-  }
-`
+import { cn } from 'utils/cn'
+
+const Dots = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(({ className, ...rest }, ref) => (
+  <span ref={ref} className={cn('animate-ellipsis', className)} {...rest} />
+))
+Dots.displayName = 'Dots'
 export default Dots

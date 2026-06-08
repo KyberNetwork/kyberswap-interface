@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import dayjs from 'dayjs'
-import { Text } from 'rebass'
 
 import { CampaignWeek } from 'pages/Campaign/timelines'
 
@@ -80,12 +79,10 @@ const raffleCampaignApi = createApi({
             return {
               value: index,
               label: (
-                <Text>
-                  <Text as="span" color="#ffffff">
-                    Week {index + 1}
-                  </Text>{' '}
-                  {dayjs(week.start).utc().format('MMM D')} - {dayjs(week.end).utc().format('MMM D')}
-                </Text>
+                <span>
+                  <span className="text-white">Week {index + 1}</span> {dayjs(week.start).utc().format('MMM D')} -{' '}
+                  {dayjs(week.end).utc().format('MMM D')}
+                </span>
               ),
               start: startUnix,
               end: endUnix,

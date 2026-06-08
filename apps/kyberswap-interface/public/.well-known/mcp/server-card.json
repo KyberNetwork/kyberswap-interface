@@ -1,0 +1,31 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/server-card/v1.0",
+  "version": "1.0",
+  "protocolVersion": "2025-06-18",
+  "serverInfo": {
+    "name": "kyberswap-docs",
+    "title": "KyberSwap Documentation MCP",
+    "version": "1.0.0",
+    "description": "Documentation-only MCP server for searching and retrieving published KyberSwap documentation; it does not execute swaps or build transactions."
+  },
+  "transports": [
+    {
+      "type": "http",
+      "url": "https://docs.kyberswap.com/~gitbook/mcp"
+    }
+  ],
+  "auth": {
+    "type": "none"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": false,
+    "prompts": false
+  },
+  "documentationUrl": "https://docs.kyberswap.com/ai-agent-hub/read-the-docs-llms.txt-+-mcp",
+  "related": {
+    "aiAgentHub": "https://docs.kyberswap.com/ai-agent-hub/overview",
+    "operationalMcpDocs": "https://docs.kyberswap.com/ai-agent-hub/mcp-server-for-hosted-agents",
+    "operationalMcpRepository": "https://github.com/KyberNetwork/kyberswap-mcp"
+  }
+}

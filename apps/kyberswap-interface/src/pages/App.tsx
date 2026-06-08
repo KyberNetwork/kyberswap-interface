@@ -1,11 +1,8 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
@@ -19,24 +16,25 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
+import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
+import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
 import { useWebVitals } from 'hooks/useWebVitals'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
+import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
-
-import VerifyAuth from './Verify/VerifyAuth'
 
 const Login = lazy(() => import('./Oauth/Login'))
 const Logout = lazy(() => import('./Oauth/Logout'))
@@ -59,7 +57,6 @@ const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
 const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
 const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
-//const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
@@ -71,32 +68,21 @@ const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
 const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
+const PoolDetail = lazy(() => import('pages/Earns/PoolDetail'))
 
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
-const AppWrapper = styled.div`
-  display: flex;
-  flex-flow: column;
-  align-items: flex-start;
-`
+const AppWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-col items-start">{children}</div>
+)
 
-const HeaderWrapper = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
-  width: 100%;
-  justify-content: space-between;
-  z-index: 3;
-`
+const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="z-[3] flex w-full flex-row flex-nowrap justify-between">{children}</div>
+)
 
-const BodyWrapper = styled.div`
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  width: 100%;
-  align-items: center;
-  min-height: calc(100vh - 148px);
-  flex: 1;
-  z-index: 1;
-`
+const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="relative z-[1] flex min-h-[calc(100vh-148px)] w-full flex-1 flex-col items-center">{children}</div>
+)
 
 const preloadImages = () => {
   const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [NETWORKS_INFO[chainId].icon])
@@ -113,6 +99,20 @@ const preloadImages = () => {
 const SwapPage = () => {
   useSyncNetworkParamWithStore()
   return <SwapV3 />
+}
+
+const RedirectToCreateTips = () => {
+  const { networkInfo } = useActiveWeb3React()
+
+  return (
+    <Navigate
+      to={{
+        pathname: `${APP_PATHS.SWAP}/${networkInfo.route}`,
+        search: 'modal=tip-link-generator',
+      }}
+      replace
+    />
+  )
 }
 
 const RedirectWithNetworkPrefix = () => {
@@ -182,8 +182,9 @@ const RoutesWithNetworkPrefix = () => {
 }
 
 export default function App() {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
+  const { isEmbeddedSwap } = usePageLocation()
   useAutoLogin()
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
@@ -200,26 +201,10 @@ export default function App() {
     preloadImages()
   }, [])
 
-  useEffect(() => {
-    if (account) {
-      Sentry.setUser({ id: account })
-    }
-  }, [account])
-
-  useEffect(() => {
-    if (chainId) {
-      Sentry.setTags({
-        chainId: chainId,
-        network: networkInfo.name,
-      })
-    }
-  }, [chainId, networkInfo.name])
-
   useGlobalTrackingEvents()
   useWebVitals()
-  const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
-  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
-  //const [holidayMode] = useHolidayMode()
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
+  // const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
   snowflake.src = snow
@@ -230,9 +215,10 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
+      <RouteSeo />
       <AppWrapper>
         <ModalsGlobal />
-        {!isPartnerSwap && <TopBanner />}
+        {!isEmbeddedSwap && <TopBanner />}
         <HeaderWrapper>
           <SupportButton />
           <Header />
@@ -250,12 +236,13 @@ export default function App() {
           )
           */}
 
+          <Popups />
           <BodyWrapper>
             <SingaporeWarningPopup />
             {isInSafeApp && !safeAppAcceptedTermOfUse && (
               <Modal isOpen>
-                <Flex width="100%" padding="32px 24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
-                  <Text fontSize={16} lineHeight="24px" textAlign="center">
+                <div className="flex w-full flex-col items-center gap-6 px-6 py-8">
+                  <span className="text-center text-base leading-6">
                     By clicking Continue, you accept the{' '}
                     <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                       KyberSwap&lsquo;s Terms of Use
@@ -264,7 +251,7 @@ export default function App() {
                     <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
                       Privacy Policy
                     </ExternalLink>
-                  </Text>
+                  </span>
                   <ButtonPrimary
                     onClick={() => {
                       dispatch(updateSafeAppAcceptedTermOfUse(true))
@@ -272,14 +259,15 @@ export default function App() {
                   >
                     Continue
                   </ButtonPrimary>
-                </Flex>
+                </div>
               </Modal>
             )}
-            <Popups />
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
+              <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
+              <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />
               {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
               )}
@@ -312,7 +300,6 @@ export default function App() {
               <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
               <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
               <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-              {/*<Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />*/}
               <Route
                 path={`${APP_PATHS.PROFILE_MANAGE}`}
                 element={
@@ -362,6 +349,7 @@ export default function App() {
               <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
               <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
               <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
+              <Route path={APP_PATHS.ADD_LIQUIDITY} element={<PoolDetail />} />
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />
@@ -373,7 +361,7 @@ export default function App() {
             </Routes>
           </BodyWrapper>
           {showFooter && <Footer />}
-          {!showFooter && <div style={{ marginBottom: '4rem' }} />}
+          {!showFooter && <div className="mb-16" />}
         </Suspense>
       </AppWrapper>
     </ErrorBoundary>

@@ -5,17 +5,19 @@ interface CycleConfigParams {
   chain: string
 }
 
-interface CycleConfigResponse {
+export interface CycleConfigRewardConfig {
+  tokenAddress: string
+  amountReward: number
+  weightFee: number
+  weightAt: number
+  weightAtFee3: number
+  weightAt3Fee: number
+  weightFeeEg: number
+}
+
+export interface CycleConfigResponse {
   poolAddress: string
-  rewardCfg: Array<{
-    tokenAddress: string
-    amountReward: number
-    weightFee: number
-    weightAt: number
-    weightAtFee3: number
-    weightAt3Fee: number
-    weightFeeEg: number
-  }>
+  rewardCfg: CycleConfigRewardConfig[]
   startTime: number
   endTime: number
   egSharingPercentage: number

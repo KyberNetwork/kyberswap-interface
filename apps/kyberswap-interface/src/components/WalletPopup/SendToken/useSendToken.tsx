@@ -1,48 +1,62 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { ethers } from 'ethers'
+import { getPublicClient } from '@wagmi/core'
 import { useCallback, useEffect, useState } from 'react'
 
+import { wagmiConfig } from 'components/Web3Provider'
+import { ERC20_ABI } from 'constants/abis'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useTokenSigningContract } from 'hooks/useContract'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Address, Hex, PublicClient, encodeFunctionData, formatEther, parseEther, parseUnits } from 'utils/viem'
 
 export default function useSendToken(currency: Currency | undefined, recipient: string, amount: string) {
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const [estimateGas, setGasFee] = useState<number | null>(null)
-  const tokenContract = useTokenSigningContract(currency?.wrapped.address)
   const addTransactionWithType = useTransactionAdder()
   const [isSending, setIsSending] = useState(false)
 
   useEffect(() => {
-    if (!currency || !amount || !recipient) {
+    if (!currency || !amount || !recipient || !account) {
       setGasFee(null)
       return
     }
     async function getGasFee() {
       try {
-        if (!library || !tokenContract || !currency) {
+        const publicClient = getPublicClient(wagmiConfig, { chainId: chainId as number })
+        if (!publicClient || !currency || !account) {
           setGasFee(null)
           return
         }
-        const promise = currency?.isNative
-          ? library.getSigner().estimateGas({
-              from: account,
-              to: recipient,
-              value: ethers.utils.parseEther(amount),
-            })
-          : tokenContract.estimateGas.transfer(recipient, ethers.utils.parseUnits(amount, currency.decimals))
-
-        const [estimateGas, gasPrice] = await Promise.all([promise, library.getSigner().getGasPrice()])
-        const format = gasPrice && estimateGas ? ethers.utils.formatEther(estimateGas.mul(gasPrice)) : null
+        const estimateParams = currency.isNative
+          ? {
+              account: account as Address,
+              to: recipient as Address,
+              value: parseEther(amount),
+            }
+          : {
+              account: account as Address,
+              to: currency.wrapped.address as Address,
+              data: encodeFunctionData({
+                abi: ERC20_ABI,
+                functionName: 'transfer',
+                args: [recipient as Address, parseUnits(amount, currency.decimals)],
+              }),
+            }
+        const [gasEstimate, gasPrice] = await Promise.all([
+          (publicClient as PublicClient).estimateGas(estimateParams),
+          publicClient.getGasPrice(),
+        ])
+        const format = gasPrice && gasEstimate ? formatEther(gasEstimate * gasPrice) : null
         setGasFee(format ? parseFloat(format) : null)
       } catch (error) {
         setGasFee(null)
       }
     }
     getGasFee()
-  }, [library, account, amount, currency, recipient, tokenContract])
+  }, [account, amount, currency, recipient, chainId])
 
   const addTransaction = useCallback(
     (hash: string) => {
@@ -63,28 +77,39 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
 
   const sendTokenEvm = useCallback(async () => {
     try {
-      if (!account || !tokenContract || !library || !amount || !recipient || !currency) {
+      if (!account || !amount || !recipient || !currency) {
         return Promise.reject('wrong input')
       }
-      const currentGasPrice = await library.getSigner().getGasPrice()
-      const gasPrice = ethers.utils.hexlify(currentGasPrice)
       setIsSending(true)
-      let transaction
-      if (currency.isNative) {
-        const tx = { from: account, to: recipient, value: ethers.utils.parseEther(amount), gasPrice }
-        transaction = await library.getSigner().sendTransaction(tx)
-      } else {
-        const numberOfTokens = ethers.utils.parseUnits(amount, currency.decimals)
-        transaction = await tokenContract.transfer(recipient, numberOfTokens)
-      }
-      addTransaction(transaction.hash)
+      const isNative = currency.isNative
+      const contractAddress = isNative ? recipient : currency.wrapped.address
+      const value = isNative ? parseEther(amount) : 0n
+      const encodedData = (
+        isNative
+          ? '0x'
+          : encodeFunctionData({
+              abi: ERC20_ABI,
+              functionName: 'transfer',
+              args: [recipient as Address, parseUnits(amount, currency.decimals)],
+            })
+      ) as Hex
+      const transaction = await sendEVMTransaction({
+        account,
+        contractAddress,
+        encodedData,
+        value,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
+      })
+      if (transaction?.hash) addTransaction(transaction.hash)
       setIsSending(false)
     } catch (error) {
       setIsSending(false)
       throw error
     }
     return
-  }, [amount, account, currency, library, recipient, tokenContract, addTransaction])
+  }, [amount, account, currency, recipient, isSmartConnector, chainId, addTransaction])
 
   return { sendToken: sendTokenEvm, isSending, estimateGas }
 }

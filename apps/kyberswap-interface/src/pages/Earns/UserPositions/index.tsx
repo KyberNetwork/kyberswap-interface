@@ -1,8 +1,7 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
@@ -10,9 +9,9 @@ import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/UserPositions/Filter'
@@ -28,6 +27,7 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
+import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -40,9 +40,9 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 const UserPositions = () => {
-  const theme = useTheme()
   const navigate = useNavigate()
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -100,7 +100,15 @@ const UserPositions = () => {
     setLoading(true)
   })
 
-  const { rewardInfo } = useKemRewards()
+  const {
+    rewardInfo,
+    claimModal: claimRewardsModal,
+    onOpenClaim: onOpenClaimRewards,
+    pendingClaimKeys: pendingRewardClaimKeys,
+    claimAllRewardsModal,
+    onOpenClaimAllRewards,
+    isLoadingRewardInfo,
+  } = useKemRewards({ refetchAfterCollect: refetch })
 
   useAccountChanged(() => {
     refetch()
@@ -112,14 +120,14 @@ const UserPositions = () => {
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
     if (selectedChains.length >= 1) {
       return (
-        <Flex alignItems="center" sx={{ gap: '6px' }}>
-          <Flex>
+        <div className="flex items-center gap-1.5">
+          <div className="flex">
             {selectedChains.map((chain, index) => (
               <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
             ))}
-          </Flex>
+          </div>
           {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
-        </Flex>
+        </div>
       )
     }
     return AllChainsOption.label
@@ -167,19 +175,22 @@ const UserPositions = () => {
     return [...unfinalizedPositions, ...mergedPositions]
   }, [account, filters.chainIds, filters.page, filters.protocols, filters.statuses, parsedPositions])
 
-  const onSortChange = (sortBy: string) => {
-    if (!filters.sortBy || filters.sortBy !== sortBy) {
-      updateFilters('sortBy', sortBy)
+  const onSortChange = useCallback(
+    (sortBy: string) => {
+      if (!filters.sortBy || filters.sortBy !== sortBy) {
+        updateFilters('sortBy', sortBy)
+        updateFilters('orderBy', Direction.DESC)
+        return
+      }
+      if (filters.orderBy === Direction.DESC) {
+        updateFilters('orderBy', Direction.ASC)
+        return
+      }
+      updateFilters('sortBy', SortBy.VALUE)
       updateFilters('orderBy', Direction.DESC)
-      return
-    }
-    if (filters.orderBy === Direction.DESC) {
-      updateFilters('orderBy', Direction.ASC)
-      return
-    }
-    updateFilters('sortBy', SortBy.VALUE)
-    updateFilters('orderBy', Direction.DESC)
-  }
+    },
+    [filters.sortBy, filters.orderBy, updateFilters],
+  )
 
   useEffect(() => {
     if (!isFetching) setLoading(false)
@@ -197,64 +208,62 @@ const UserPositions = () => {
   }, [account])
 
   useEffect(() => {
+    if (feeInfoFromRpc.length === 0) return
+
     const interval = setInterval(() => {
-      setFeeInfoFromRpc(prev =>
-        prev
+      setFeeInfoFromRpc(prev => {
+        const updated = prev
           .filter(feeInfo => feeInfo.timeRemaining > 0)
-          .map(feeInfo => {
-            return {
-              ...feeInfo,
-              timeRemaining: feeInfo.timeRemaining - 1,
-            }
-          }),
-      )
+          .map(feeInfo => ({
+            ...feeInfo,
+            timeRemaining: feeInfo.timeRemaining - 1,
+          }))
+        // Stop interval naturally when all items expire
+        return updated
+      })
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [feeInfoFromRpc.length])
+
+  const updateFiltersWithLoading = useCallback(
+    (...args: Parameters<typeof updateFilters>) => {
+      updateFilters(...args)
+      setLoading(true)
+    },
+    [updateFilters],
+  )
 
   const actionsInfoHelper = (
     <InfoHelper
       text={
-        <Flex flexDirection="column" sx={{ gap: 1 }}>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Increase liquidity`}
-            </Text>
-            : {t`Add more liquidity to this position using any token(s).`}
-          </Text>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Smart Exit`}
-            </Text>
-            :{' '}
+        <div className="flex flex-col gap-1">
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Increase liquidity`}</u>:{' '}
+            {t`Add more liquidity to this position using any token(s).`}
+          </p>
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Smart Exit`}</u>:{' '}
             {t`Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s).`}
-          </Text>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Claim fees`}
-            </Text>
-            : {t`Claim your unclaimed fees from this position.`}
-          </Text>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Claim rewards`}
-            </Text>
-            : {t`Claim your claimable farming rewards from a position.`}
-          </Text>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Remove liquidity`}
-            </Text>
-            : {t`Remove liquidity from this position by zapping out to any token(s).`}
-          </Text>
-        </Flex>
+          </p>
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Claim fees`}</u>: {t`Claim your unclaimed fees from this position.`}
+          </p>
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Claim rewards`}</u>:{' '}
+            {t`Claim your claimable farming rewards from a position.`}
+          </p>
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Remove liquidity`}</u>:{' '}
+            {t`Remove liquidity from this position by zapping out to any token(s).`}
+          </p>
+        </div>
       }
       noArrow
       placement="top-end"
       width="280px"
-      size={16}
-      style={{ position: 'relative', top: '2px', height: 16 }}
+      size={14}
+      className="relative top-px h-3"
     />
   )
 
@@ -265,23 +274,21 @@ const UserPositions = () => {
       {zapInWidget}
       {zapMigrationWidget}
       {zapOutWidget}
+      {claimRewardsModal}
+      {claimAllRewardsModal}
 
       <PositionPageWrapper>
-        <Flex alignItems="center" sx={{ gap: 3 }}>
+        <HiddenH1>Track all your active liquidity positions in one dashboard.</HiddenH1>
+        <HiddenH2>
+          Monitor APR, rewards, and performance across protocols — no need to check each one separately.
+        </HiddenH2>
+        <div className="flex items-center gap-4">
           <IconArrowLeft onClick={() => navigate(-1)} />
-          <Text as="h1" fontSize={24} fontWeight="500">
-            {t`My Positions`}
-          </Text>
-        </Flex>
+          <p className="text-[24px] font-medium">{t`My Liquidity Positions`}</p>
+        </div>
 
-        <Flex
-          flexDirection={upToSmall ? 'column' : 'row'}
-          alignItems={upToSmall ? 'flex-start' : 'center'}
-          justifyContent={'space-between'}
-          sx={{ gap: 2 }}
-        >
+        <div className={cn('flex justify-between gap-2', upToSmall ? 'flex-col items-start' : 'flex-row items-center')}>
           <MultiSelectDropdownMenu
-            alignLeft
             highlightOnSelect
             label={selectedChainsLabel || t`Select chains`}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
@@ -295,13 +302,15 @@ const UserPositions = () => {
             text={t`Explore Pools`}
             to={APP_PATHS.EARN_POOLS}
           />
-        </Flex>
+        </div>
 
         {account && (
           <PositionBanner
-            positions={filteredPositions}
             positionsStats={positionsStats}
             initialLoading={initialLoading}
+            rewardInfo={rewardInfo}
+            isLoadingRewardInfo={isLoadingRewardInfo}
+            onOpenClaimAllRewards={onOpenClaimAllRewards}
           />
         )}
 
@@ -309,13 +318,11 @@ const UserPositions = () => {
           supportedChains={supportedChains}
           supportedDexes={supportedDexes}
           filters={filters}
-          updateFilters={(...args) => {
-            updateFilters(...args)
-            setLoading(true)
-          }}
+          updateFilters={updateFiltersWithLoading}
         />
 
         <PositionTableWrapper>
+          <RefetchIndicator visible={isFetching && !loading} />
           <ContentWrapper>
             {!upToCustomLarge && filteredPositions && filteredPositions.length > 0 && (
               <PositionTableHeader>
@@ -332,31 +339,30 @@ const UserPositions = () => {
                 </PositionTableHeaderFlexItem>
 
                 <PositionTableHeaderFlexItem
-                  flexDirection="column"
-                  alignItems="flex-start"
+                  className="flex-col items-start"
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
                   <Trans>
-                    <Text>Unclaimed</Text>
-                    <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                      <Text>fees</Text>
+                    <span>Unclaimed</span>
+                    <div className="flex items-center gap-1">
+                      <span>fees</span>
                       <SortIcon
                         sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
                       />
-                    </Flex>
+                    </div>
                   </Trans>
                 </PositionTableHeaderFlexItem>
 
-                <Flex sx={{ gap: '4px' }}>
+                <div className="flex gap-1">
                   <FarmingIcon width={24} height={24} />
-                  <PositionTableHeaderFlexItem flexDirection="column">
+                  <PositionTableHeaderFlexItem className="flex-col">
                     <Trans>
-                      <Text>Unclaimed</Text>
-                      <Text>rewards</Text>
+                      <span>Unclaimed</span>
+                      <span>rewards</span>
                     </Trans>
                   </PositionTableHeaderFlexItem>
-                </Flex>
+                </div>
 
                 {!upToCustomLarge && <div />}
 
@@ -364,10 +370,10 @@ const UserPositions = () => {
 
                 <PositionTableHeaderItem>{t`Price range`}</PositionTableHeaderItem>
 
-                <Flex alignContent="flex-start" justifyContent="flex-end" height="100%">
+                <div className="flex h-full items-center justify-end whitespace-nowrap">
                   {t`Actions`}
                   {actionsInfoHelper}
-                </Flex>
+                </div>
               </PositionTableHeader>
             )}
             {isFetching && loading ? (
@@ -375,11 +381,14 @@ const UserPositions = () => {
             ) : (
               <TableContent
                 positions={filteredPositions}
-                feeInfoFromRpc={feeInfoFromRpc}
                 setFeeInfoFromRpc={setFeeInfoFromRpc}
                 onOpenZapInWidget={handleOpenZapIn}
                 onOpenZapOut={handleOpenZapOut}
-                refetchPositions={refetch}
+                onOpenZapMigration={handleOpenZapMigration}
+                kemRewards={{
+                  onOpenClaim: onOpenClaimRewards,
+                  pendingClaimKeys: pendingRewardClaimKeys,
+                }}
               />
             )}
           </ContentWrapper>

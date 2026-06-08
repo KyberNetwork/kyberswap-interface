@@ -3,8 +3,6 @@ import { useMemo, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Download } from 'react-feather'
 import { QRCode, IProps as QRCodeProps } from 'react-qrcode-logo'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import KncLogo from 'assets/images/kyber_logo_for_qr.png'
 import { AddressInput } from 'components/AddressInputPanel'
@@ -12,37 +10,10 @@ import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { shortenAddress } from 'utils'
 
 const QR_SIZE = 200
 const QR_ID = 'react-qrcode-logo'
-
-const Label = styled.label<{ color?: string }>`
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
-  color: ${({ theme, color }) => color ?? theme.subText};
-`
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 100%;
-  gap: 14px;
-  justify-content: space-between;
-  overflow-y: scroll;
-  &::-webkit-scrollbar {
-    display: block;
-    width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.disableText};
-  }
-  #${QR_ID} {
-    border-radius: 16px;
-  }
-`
 
 export default function ReceiveToken() {
   const { account = '', chainId } = useActiveWeb3React()
@@ -58,8 +29,6 @@ export default function ReceiveToken() {
       logoWidth: 32,
       logoHeight: 32,
       size: QR_SIZE,
-      // `ethereum` is intentional. This QR is used to open the Send feature on the wallet (e.g. Metamask)
-      // Chain is not switched by this prefix
       value: `ethereum:${account}`,
       eyeColor: { outer: '#000000', inner: '#000000' },
       quietZone: 14,
@@ -85,91 +54,62 @@ export default function ReceiveToken() {
     }
   }
 
-  const theme = useTheme()
-
   let qrElement = null
   let error = true
   try {
     error = false
-    qrElement = qrCodeProps ? <QRCode {...qrCodeProps} /> : <Flex sx={{ width: '228px', height: '228px' }} />
+    qrElement = qrCodeProps ? <QRCode {...qrCodeProps} /> : <div className="h-[228px] w-[228px]" />
   } catch (e) {
     qrElement = (
-      <Flex
-        sx={{
-          // match size of QR
-          width: '228px',
-          height: '228px',
-          borderRadius: '16px',
-          justifyContent: 'center',
-          alignItems: 'center',
-          border: `2px solid ${theme.border}`,
-          textAlign: 'center',
-          color: theme.subText,
-          fontSize: '14px',
-        }}
-      >
+      <div className="flex h-[228px] w-[228px] items-center justify-center rounded-2xl border-2 border-solid border-border text-center text-sm text-subText">
         <Trans>
           Something went wrong,
           <br />
           please try again
         </Trans>
-      </Flex>
+      </div>
     )
   }
 
   return (
-    <Wrapper>
-      <Flex flexDirection={'column'} style={{ gap: 32, flex: 1, justifyContent: 'center' }}>
-        <Column
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
+    <div
+      className={
+        'flex flex-1 basis-full flex-col justify-between gap-3.5 overflow-y-scroll ' +
+        `[&_#${QR_ID}]:rounded-2xl ` +
+        '[&::-webkit-scrollbar-thumb]:bg-disableText [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1'
+      }
+    >
+      <div className="flex flex-1 flex-col justify-center gap-8">
+        <Column className="items-center justify-center gap-3">
           {qrElement}
 
           {!error && !isMobile && (
-            <Flex
-              onClick={downloadQR}
-              color={theme.primary}
-              fontSize="14px"
-              alignItems={'center'}
-              style={{ gap: 5, cursor: 'pointer' }}
-            >
-              <Text>
+            <div onClick={downloadQR} className="flex cursor-pointer items-center gap-[5px] text-sm text-primary">
+              <span>
                 <Trans>Download Image</Trans>
-              </Text>
+              </span>
               <Download size={14} />
-            </Flex>
+            </div>
           )}
         </Column>
 
-        <Column gap="12px">
-          <Label>
+        <Column className="gap-3">
+          <label className="text-xs font-medium leading-4 text-subText">
             <Trans>Your Wallet Address</Trans>
-          </Label>
+          </label>
 
           <MouseoverTooltip placement="bottom" text={t`Copy address to clipboard`} width="fit-content">
-            <Flex
-              onClick={onCopy}
-              role="button"
-              sx={{
-                flexDirection: 'column',
-                width: '100%',
-                cursor: 'pointer',
-              }}
-            >
+            <div onClick={onCopy} role="button" className="flex w-full cursor-pointer flex-col">
               <AddressInput
-                style={{ color: theme.subText, cursor: 'pointer' }}
+                inputClassName="cursor-pointer !text-subText"
                 disabled
                 value={shortenAddress(chainId, account, 17, false)}
-                icon={<CopyHelper ref={copyButtonRef} toCopy={account} style={{ color: theme.subText }} />}
+                icon={<CopyHelper ref={copyButtonRef} toCopy={account} className="text-subText" />}
               />
-            </Flex>
+            </div>
           </MouseoverTooltip>
         </Column>
-      </Flex>
-    </Wrapper>
+      </div>
+    </div>
   )
 }

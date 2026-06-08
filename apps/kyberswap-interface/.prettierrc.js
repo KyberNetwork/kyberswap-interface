@@ -4,7 +4,8 @@ module.exports = {
   printWidth: 120,
   trailingComma: 'all',
   arrowParens: 'avoid',
-  plugins: ['@trivago/prettier-plugin-sort-imports'],
+  // prettier-plugin-tailwindcss MUST be last so class sort runs after import sort
+  plugins: ['@trivago/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss'],
   importOrder: [
     '<THIRD_PARTY_MODULES>',
     '^(apollo|assets|components|connectors|constants|data|hooks|locales|pages|state|theme|types|utils)(/.+)?$',
@@ -12,4 +13,6 @@ module.exports = {
   ],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
+  tailwindConfig: './tailwind.config.ts',
+  tailwindFunctions: ['cn', 'cva', 'clsx', 'twMerge'],
 }

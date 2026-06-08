@@ -1,7 +1,6 @@
 import dayjs from 'dayjs'
 import { useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 
 import Select, { SelectOption } from 'components/Select'
@@ -9,6 +8,7 @@ import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 type Props = {
   type: CampaignType
@@ -68,9 +68,7 @@ const WeekSelect = ({ type, selectedWeek, setSelectedWeek }: Props) => {
       optionRender={value => {
         const isSelected = value?.value === selectedWeek
         return (
-          <Text color={isSelected ? theme.primary : theme.subText} display="flex" alignItems="center">
-            {value?.label}
-          </Text>
+          <span className={cn('flex items-center', isSelected ? 'text-primary' : 'text-subText')}>{value?.label}</span>
         )
       }}
     />

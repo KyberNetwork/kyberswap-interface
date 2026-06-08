@@ -1,125 +1,50 @@
 import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
 import { DEFAULT_TIPS, MAX_FEE_IN_BIPS } from 'constants/index'
+import { cn } from 'utils/cn'
 import { formatSlippage } from 'utils/slippage'
 
 const parseTipInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
 
-const getFeeText = (fee: number) => {
-  const isCustom = !DEFAULT_TIPS.includes(fee)
+const getFeeText = (fee: number, forceVisible = false) => {
+  const isCustom = forceVisible || !DEFAULT_TIPS.includes(fee)
   if (!isCustom) {
     return ''
   }
   return formatSlippage(fee, false)
 }
 
-const feeOptionCSS = css`
-  height: 100%;
-  padding: 0;
-  border-radius: 20px;
-  border: 1px solid transparent;
-
-  background-color: ${({ theme }) => theme.tabBackground};
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  cursor: pointer;
-
-  :hover {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-  :focus {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-
-    font-weight: 500;
-  }
-`
-
-const CustomFeeOption = styled.div`
-  ${feeOptionCSS};
-
-  flex: 0 0 24%;
-
-  display: inline-flex;
-  align-items: center;
-  padding: 0 4px;
-  column-gap: 2px;
-  flex: 1;
-
-  transition: all 150ms linear;
-
-  &[data-active='true'] {
-    color: ${({ theme }) => theme.text};
-    font-weight: 500;
-  }
-`
-
-const CustomInput = styled.input`
-  width: 100%;
-  height: 100%;
-  border: 0px;
-  border-radius: inherit;
-
-  color: inherit;
-  background: transparent;
-  outline: none;
-  text-align: right;
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-  &::placeholder {
-    font-size: 12px;
-  }
-  @media only screen and (max-width: 375px) {
-    font-size: 10px;
-  }
-`
-
 export type Props = {
-  fee: number
-  onFeeChange: (value: number) => void
+  value: number
+  isActive: boolean
+  onActiveChange: (value: boolean) => void
+  onChange: (value: number) => void
 }
 
-const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
-  const [text, setText] = useState(getFeeText(fee))
+const CustomFeeInput = ({ value, isActive, onActiveChange, onChange }: Props) => {
+  const [text, setText] = useState(getFeeText(value))
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const isCustomOptionActive = !DEFAULT_TIPS.includes(fee)
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTooltip('')
-    const value = e.target.value
+    const inputValue = e.target.value
 
-    if (value === '') {
-      setText(value)
-      onFeeChange(50)
+    if (inputValue === '') {
+      setText(inputValue)
+      onActiveChange(false)
       return
     }
 
     const numberRegex = /^(\d+)\.?(\d{1,2})?$/
-    if (!value.match(numberRegex)) {
+    if (!inputValue.match(numberRegex)) {
       e.preventDefault()
       return
     }
 
-    const parsedValue = parseTipInput(value)
+    const parsedValue = parseTipInput(inputValue)
     if (Number.isNaN(parsedValue)) {
       e.preventDefault()
       return
@@ -133,35 +58,49 @@ const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
       return
     }
 
-    setText(value)
-    onFeeChange(parsedValue)
+    setText(inputValue)
+    onActiveChange(true)
+    onChange(parsedValue)
   }
 
   const handleCommitChange = () => {
     setTooltip('')
-    setText(getFeeText(fee))
+    const hasCustomText = text !== ''
+    onActiveChange(hasCustomText || !DEFAULT_TIPS.includes(value))
+    setText(getFeeText(value, hasCustomText))
   }
 
   useEffect(() => {
     if (inputRef.current !== document.activeElement) {
-      setText(getFeeText(fee))
+      setText(getFeeText(value))
     }
-  }, [fee])
+  }, [value])
+
+  const customTextClass = text ? 'text-text' : 'text-subText'
 
   return (
     <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
-      <CustomFeeOption data-active={isCustomOptionActive}>
-        <CustomInput
+      <div
+        className={cn(
+          'flex h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 text-sm',
+          isActive
+            ? cn('bg-tabActive hover:bg-buttonGray', customTextClass)
+            : 'bg-transparent text-subText hover:bg-buttonGray',
+        )}
+      >
+        <input
           ref={inputRef}
           placeholder={t`Custom`}
           value={text}
           onChange={handleChangeInput}
           onBlur={handleCommitChange}
+          onFocus={() => {
+            onActiveChange(true)
+          }}
+          className="w-14 min-w-0 border-0 bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
-        <Text as="span" sx={{ flex: '0 0 12px' }}>
-          %
-        </Text>
-      </CustomFeeOption>
+        <span className={cn('text-sm', isActive && 'text-text')}>%</span>
+      </div>
     </Tooltip>
   )
 }

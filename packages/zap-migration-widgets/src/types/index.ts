@@ -55,6 +55,7 @@ export interface ZapMigrationProps {
     tickLower: number;
     tickUpper: number;
   };
+  initialRevertPrice?: boolean;
   connectedAccount: {
     address: string | undefined;
     chainId: number;
@@ -90,6 +91,7 @@ export interface ZapMigrationProps {
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
   onSuccess?: (props: OnSuccessProps) => void;
+  onCloseSuccess?: () => void;
   onBack?: () => void;
   onClose: () => void;
 }

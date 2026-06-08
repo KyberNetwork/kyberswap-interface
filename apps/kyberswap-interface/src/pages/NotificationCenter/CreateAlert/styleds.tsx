@@ -1,118 +1,81 @@
-import styled, { css } from 'styled-components'
-
-import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import Input from 'components/NumericalInput'
 import Select from 'components/Select'
+import { cn } from 'utils/cn'
 
-export const Label = styled.div`
-  color: ${({ theme }) => theme.text};
-  font-size: 12px;
-`
+const SHARE_INPUT_CLASS = 'h-9 rounded-[44px] border border-solid border-border px-3 py-2 text-sm text-text flex-grow-0'
 
-export const MiniLabel = styled.span`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-`
+const SHARE_BTN_CLASS = 'h-9 w-[140px] max-md:w-[164px]'
 
-export const Form = styled.div`
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 24px;
-  padding: 20px 16px;
-  display: flex;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column;
-    border-radius: 0px;
-  `}
-`
+export const Label = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-xs text-text', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const LeftColumn = styled.div`
-  width: 60%;
-  border-right: 1px solid ${({ theme }) => theme.border};
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-right: 16px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-    padding-right: 0;
-    border-right: none;
-    border-bottom: 1px solid ${({ theme }) => theme.border};
-    padding-bottom: 16px;
-  `}
-`
-export const RightColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-left: 16px;
-  flex: 1;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-    padding-left: 0;
-    padding-top: 16px;
-  `}
-`
+export const MiniLabel = ({ children, className, ...rest }: React.HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('text-sm text-subText', className)} {...rest}>
+    {children}
+  </span>
+)
 
-const shareStyleInput = css`
-  height: 36px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 44px;
-  font-size: 14px;
-  padding: 8px 12px;
-  color: ${({ theme }) => theme.text};
-  flex-grow: unset;
-`
+export const Form = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex rounded-3xl bg-buttonBlack px-4 py-5 max-md:flex-col max-md:rounded-none', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const StyledInputNumber = styled(Input)`
-  ${shareStyleInput}
-  width: 100px;
-`
+export const LeftColumn = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex w-3/5 flex-col gap-3 border-r border-solid border-border pr-4',
+      'max-md:w-full max-md:border-0 max-md:border-b max-md:border-solid max-md:border-border max-md:pb-4 max-md:pr-0',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const StyledInput = styled.textarea`
-  ${shareStyleInput};
-  width: 200px;
-  height: fit-content;
-  outline: none;
-  background: transparent;
-  height: 36px;
-  max-height: 50px;
-  resize: none;
-`
+export const RightColumn = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-1 flex-col gap-3 pl-4 max-md:w-full max-md:pl-0 max-md:pt-4', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const StyledSelect = styled(Select)`
-  ${shareStyleInput}
-  min-width: 132px;
-`
+export const StyledInputNumber = ({ className, ...rest }: React.ComponentProps<typeof Input>) => (
+  <Input className={cn(SHARE_INPUT_CLASS, 'w-[100px]', className)} {...rest} />
+)
 
-export const FormControl = styled.div`
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-`
+export const StyledInput = ({ className, ...rest }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
+  <textarea
+    className={cn(SHARE_INPUT_CLASS, 'h-9 max-h-[50px] w-[200px] resize-none bg-transparent outline-none', className)}
+    {...rest}
+  />
+)
 
-export const ActionGroup = styled.div`
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    justify-content: center;
-  `}
-`
-const shareStyleBtn = css`
-  width: 140px;
-  height: 36px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  width: 164px;
-`}
-`
+export const StyledSelect = ({ className, ...rest }: React.ComponentProps<typeof Select>) => (
+  <Select className={cn(SHARE_INPUT_CLASS, 'min-w-[132px]', className)} {...rest} />
+)
 
-export const ButtonSubmit = styled(ButtonPrimary)`
-  ${shareStyleBtn}
-  display: flex;
-  gap: 4px;
-`
-export const ButtonConnectWallet = styled(ButtonLight)`
-  width: 150px;
-  height: 36px;
-`
+export const FormControl = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-wrap items-center gap-3', className)} {...rest}>
+    {children}
+  </div>
+)
+
+export const ActionGroup = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex justify-end gap-3 max-md:justify-center', className)} {...rest}>
+    {children}
+  </div>
+)
+
+export const ButtonSubmit = ({ children, className, ...rest }: React.ComponentProps<typeof ButtonPrimary>) => (
+  <ButtonPrimary className={cn('flex gap-1', SHARE_BTN_CLASS, className)} {...rest}>
+    {children}
+  </ButtonPrimary>
+)

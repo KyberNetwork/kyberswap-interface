@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { X } from 'react-feather'
-import { Box, Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 import { HighlightWrapper, useGuidedHighlight } from 'pages/Earns/components/SmartExit/GuidedHighlight'
@@ -19,6 +18,7 @@ export default function MetricSelect({
   position,
   onRemove,
   isFirstMetric = false,
+  revertPrice = false,
 }: {
   metric: SelectedMetric | null
   setMetric: (value: SelectedMetric) => void
@@ -26,6 +26,7 @@ export default function MetricSelect({
   position: ParsedPosition
   onRemove?: () => void
   isFirstMetric?: boolean
+  revertPrice?: boolean
 }) {
   const theme = useTheme()
   const { currentStep } = useGuidedHighlight()
@@ -55,20 +56,16 @@ export default function MetricSelect({
   )
 
   return (
-    <Flex
-      flexDirection="column"
-      p="1rem"
-      sx={{ borderRadius: '12px', border: `1px solid ${theme.tabActive}`, gap: '12px', position: 'relative' }}
-    >
+    <div className="relative flex flex-col gap-3 rounded-xl border border-solid border-tabActive p-4">
       {onRemove && (
-        <Box sx={{ position: 'absolute', top: '4px', right: '4px', cursor: 'pointer' }}>
-          <X onClick={onRemove} size={14} color={theme.subText} />
-        </Box>
+        <div className="absolute right-1 top-1 cursor-pointer">
+          <X onClick={onRemove} size={14} className="text-subText" />
+        </div>
       )}
-      <Flex alignItems="center" sx={{ gap: '1rem' }} justifyContent="space-between">
-        <Text>
+      <div className="flex items-center justify-between gap-4">
+        <span>
           <Trans>Select Metric</Trans>
-        </Text>
+        </span>
         <HighlightWrapper isHighlighted={shouldHighlightDropdown}>
           <CustomSelect
             options={metricOptions}
@@ -87,14 +84,20 @@ export default function MetricSelect({
             arrowColor={theme.border}
           />
         </HighlightWrapper>
-      </Flex>
+      </div>
 
       {metric !== null && metric.metric === Metric.FeeYield && (
         <FeeYieldInput metric={metric} setMetric={setMetric} isHighlighted={shouldHighlightInput} />
       )}
 
       {metric !== null && metric.metric === Metric.PoolPrice && (
-        <PriceInput metric={metric} setMetric={setMetric} position={position} isHighlighted={shouldHighlightInput} />
+        <PriceInput
+          metric={metric}
+          setMetric={setMetric}
+          position={position}
+          isHighlighted={shouldHighlightInput}
+          revertPrice={revertPrice}
+        />
       )}
 
       {metric !== null && metric.metric === Metric.Time && (
@@ -105,6 +108,6 @@ export default function MetricSelect({
           isHighlighted={shouldHighlightInput}
         />
       )}
-    </Flex>
+    </div>
   )
 }

@@ -1,5 +1,3 @@
-/// <reference types="react-scripts" />
-
 interface Navigator {
   brave?: {
     isBrave: () => Promise<boolean | undefined>
@@ -46,6 +44,7 @@ interface Window {
   rabby?: any
   coinbaseWalletExtension?: any
   safepalProvider?: any
+  __safepalEthereumBootstrap__?: { activeProvider?: { isSafePal?: boolean } }
   dataLayer?: any[]
   chrome?: any
   opr?: any

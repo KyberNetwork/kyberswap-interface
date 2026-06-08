@@ -40,6 +40,10 @@ export interface SmartExitCondition {
   }
 }
 
+export enum ExecutionStatus {
+  Success = 'OrderExecutionStatusSuccess',
+}
+
 export interface SmartExitOrder {
   id: string
   chainId: number
@@ -61,6 +65,7 @@ export interface SmartExitOrder {
       receivedAmounts: Array<{ amount: string; amountUsd: string; amountWei: number }>
       tokensInfo: Array<{ address: string; symbol: string; decimals: number; priceUsd: string }>
     }
+    status: ExecutionStatus
   }>
   logs: Array<{
     detail: {

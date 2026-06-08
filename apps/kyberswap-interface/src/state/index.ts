@@ -26,30 +26,32 @@ import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
 import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
+import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
+import tokenChartApi from 'services/tokenChart'
+import zapApi from 'services/zap'
 import zapEarnServiceApi from 'services/zapEarn'
 
-import application from './application/reducer'
-import authen from './authen/reducer'
-import burnProAmm from './burn/proamm/reducer'
-import burn from './burn/reducer'
-import crossChainSwap from './crossChainSwap'
-import customizeDexes from './customizeDexes'
-import { updateVersion } from './global/actions'
-import limit from './limit/reducer'
-import lists from './lists/reducer'
-import mintV2 from './mint/proamm/reducer'
-import mint from './mint/reducer'
-import multicall from './multicall/reducer'
-import pair from './pair/reducer'
-import pools from './pools/reducer'
-import profile from './profile/reducer'
-import swap from './swap/reducer'
-import tokenPrices from './tokenPrices'
-import topTokens from './topTokens'
-import transactions from './transactions/reducer'
-import tutorial from './tutorial/reducer'
-import user, { UserState } from './user/reducer'
+import application from 'state/application/reducer'
+import authen from 'state/authen/reducer'
+import burnProAmm from 'state/burn/proamm/reducer'
+import burn from 'state/burn/reducer'
+import crossChainSwap from 'state/crossChainSwap'
+import customizeDexes from 'state/customizeDexes'
+import { updateVersion } from 'state/global/actions'
+import limit from 'state/limit/reducer'
+import lists from 'state/lists/reducer'
+import mintV2 from 'state/mint/proamm/reducer'
+import mint from 'state/mint/reducer'
+import pair from 'state/pair/reducer'
+import pools from 'state/pools/reducer'
+import profile from 'state/profile/reducer'
+import swap from 'state/swap/reducer'
+import tokenPrices from 'state/tokenPrices'
+import topTokens from 'state/topTokens'
+import transactions from 'state/transactions/reducer'
+import tutorial from 'state/tutorial/reducer'
+import user, { UserState } from 'state/user/reducer'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainSwap.transactions']
 
@@ -87,7 +89,6 @@ const store = configureStore({
     mintV2,
     burn,
     burnProAmm,
-    multicall,
     lists,
     pair,
     pools,
@@ -111,6 +112,7 @@ const store = configureStore({
     customizeDexes,
     tokenPrices,
     topTokens,
+    [zapApi.reducerPath]: zapApi.reducer,
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
@@ -125,6 +127,8 @@ const store = configureStore({
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
     [smartExitApi.reducerPath]: smartExitApi.reducer,
+    [tipLinkApi.reducerPath]: tipLinkApi.reducer,
+    [tokenChartApi.reducerPath]: tokenChartApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -151,6 +155,7 @@ const store = configureStore({
       .concat(routeApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
+      .concat(zapApi.middleware)
       .concat(zapEarnServiceApi.middleware)
       .concat(rewardServiceApi.middleware)
       .concat(rewardMerklApi.middleware)
@@ -162,7 +167,9 @@ const store = configureStore({
       .concat(commonServiceApi.middleware)
       .concat(blackjackApi.middleware)
       .concat(marketOverviewApi.middleware)
-      .concat(smartExitApi.middleware),
+      .concat(smartExitApi.middleware)
+      .concat(tipLinkApi.middleware)
+      .concat(tokenChartApi.middleware),
   preloadedState,
 })
 

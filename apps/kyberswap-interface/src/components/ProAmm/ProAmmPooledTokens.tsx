@@ -2,7 +2,6 @@ import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { Flex, Text } from 'rebass'
 
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -12,7 +11,6 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { formatDollarAmount } from 'utils/numbers'
 
 export default function ProAmmPooledTokens({
@@ -40,145 +38,127 @@ export default function ProAmmPooledTokens({
   farmAPR?: number
   farmRewardAmount?: Array<CurrencyAmount<Currency>>
 }) {
-  const theme = useTheme()
   const render =
     layout === 0 ? (
-      <OutlineCard marginTop="1rem" padding="1rem">
-        <AutoColumn gap="md">
-          <Text fontSize="12px" fontWeight="500">
-            {title || <Trans>Your Liquidity</Trans>}
-          </Text>
+      <OutlineCard className="mt-4 p-4">
+        <AutoColumn className="gap-3">
+          <span className="text-xs font-medium">{title || <Trans>Your Liquidity</Trans>}</span>
 
           <Divider />
           {liquidityValue0?.greaterThan(ZERO) && (
             <RowBetween>
-              <Text fontSize={12} fontWeight={500} color={theme.subText}>
+              <span className="text-xs font-medium text-subText">
                 {pooled && 'POOLED'} {liquidityValue0?.currency.symbol}
-              </Text>
+              </span>
               <RowFixed>
                 <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue0.currency} />
-                <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+                <span className="ml-1.5 text-xs font-medium">
                   {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}{' '}
                   {liquidityValue0?.currency.symbol}
-                </Text>
+                </span>
               </RowFixed>
             </RowBetween>
           )}
           {liquidityValue1?.greaterThan(ZERO) && (
             <RowBetween>
-              <Text fontSize={12} fontWeight={500} color={theme.subText}>
+              <span className="text-xs font-medium text-subText">
                 {pooled && 'POOLED'} {liquidityValue1?.currency.symbol}
-              </Text>
+              </span>
               <RowFixed>
                 <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue1.currency} />
-                <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+                <span className="ml-1.5 text-xs font-medium">
                   {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}{' '}
                   {liquidityValue1?.currency.symbol}
-                </Text>
+                </span>
               </RowFixed>
             </RowBetween>
           )}
         </AutoColumn>
       </OutlineCard>
     ) : (
-      <>
-        <OutlineCard marginTop="1rem" padding="1rem">
-          <AutoColumn gap="md">
-            <RowBetween>
-              <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                <Trans>My Liquidity Balance</Trans>
-              </Text>
-              <Text fontSize={12} fontWeight="500">
-                {formatDollarAmount(valueUSD || 0)}
-              </Text>
-            </RowBetween>
-            <RowBetween>
-              <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                <Trans>My Pooled {liquidityValue0?.currency?.symbol}</Trans>
-              </Text>
-              <RowFixed>
-                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue0?.currency} />
-                <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-                  {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}{' '}
-                  {liquidityValue0?.currency.symbol}
-                </Text>
-              </RowFixed>
-            </RowBetween>
-            <RowBetween>
-              <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                <Trans>My Pooled {liquidityValue1?.currency?.symbol}</Trans>
-              </Text>
-              <RowFixed>
-                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue1?.currency} />
-                <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-                  {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}{' '}
-                  {liquidityValue1?.currency.symbol}
-                </Text>
-              </RowFixed>
-            </RowBetween>
+      <OutlineCard className="mt-4 p-4">
+        <AutoColumn className="gap-3">
+          <RowBetween>
+            <span className="text-xs font-medium text-subText">
+              <Trans>My Liquidity Balance</Trans>
+            </span>
+            <span className="text-xs font-medium">{formatDollarAmount(valueUSD || 0)}</span>
+          </RowBetween>
+          <RowBetween>
+            <span className="text-xs font-medium text-subText">
+              <Trans>My Pooled {liquidityValue0?.currency?.symbol}</Trans>
+            </span>
+            <RowFixed>
+              <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue0?.currency} />
+              <span className="ml-1.5 text-xs font-medium">
+                {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}{' '}
+                {liquidityValue0?.currency.symbol}
+              </span>
+            </RowFixed>
+          </RowBetween>
+          <RowBetween>
+            <span className="text-xs font-medium text-subText">
+              <Trans>My Pooled {liquidityValue1?.currency?.symbol}</Trans>
+            </span>
+            <RowFixed>
+              <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue1?.currency} />
+              <span className="ml-1.5 text-xs font-medium">
+                {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}{' '}
+                {liquidityValue1?.currency.symbol}
+              </span>
+            </RowFixed>
+          </RowBetween>
 
-            <RowBetween>
-              <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                <Trans>My Staked Balance</Trans>
-              </Text>
-              <Text fontSize={12} fontWeight="500">
-                {formatDollarAmount(stakedUsd || 0)}
-              </Text>
-            </RowBetween>
+          <RowBetween>
+            <span className="text-xs font-medium text-subText">
+              <Trans>My Staked Balance</Trans>
+            </span>
+            <span className="text-xs font-medium">{formatDollarAmount(stakedUsd || 0)}</span>
+          </RowBetween>
 
-            <RowBetween>
-              <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                <Trans>My Pool APR</Trans>
-                {createdAt && (
-                  <InfoHelper
-                    placement="top"
-                    text={<Trans>Position was created at {dayjs(createdAt * 1000).format('YYYY-MM-DD HH:mm')}</Trans>}
-                  />
-                )}
-              </Text>
-              <Text fontSize={12} fontWeight="500" color={theme.apr}>
-                {positionAPR === '--' ? '--' : positionAPR + '%'}
-              </Text>
-            </RowBetween>
-
-            <RowBetween>
-              <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                <Trans>My Farm APR</Trans>
-              </Text>
-              {!!farmAPR && !!farmRewardAmount?.length ? (
-                <MouseoverTooltip
-                  width="fit-content"
-                  text={
-                    <Flex flexDirection="column" sx={{ gap: '8px' }}>
-                      {farmRewardAmount.map((item, index) => (
-                        <Flex key={index} alignItems="center" sx={{ gap: '4px' }}>
-                          <CurrencyLogo currency={item.currency} size="14px" />
-                          <Text>
-                            {item.toSignificant(6)} {item.currency.symbol}
-                          </Text>
-                        </Flex>
-                      ))}
-                    </Flex>
-                  }
-                >
-                  <Text
-                    fontSize={12}
-                    fontWeight="500"
-                    color={theme.apr}
-                    sx={{ borderBottom: `1px dotted ${theme.border}` }}
-                  >
-                    {farmAPR ? `${farmAPR.toFixed(2)}%` : '--'}
-                  </Text>
-                </MouseoverTooltip>
-              ) : (
-                <Text fontSize={12} fontWeight="500" color={theme.apr}>
-                  {farmAPR ? `${farmAPR.toFixed(2)}%` : '--'}
-                </Text>
+          <RowBetween>
+            <span className="text-xs font-medium text-subText">
+              <Trans>My Pool APR</Trans>
+              {createdAt && (
+                <InfoHelper
+                  placement="top"
+                  text={<Trans>Position was created at {dayjs(createdAt * 1000).format('YYYY-MM-DD HH:mm')}</Trans>}
+                />
               )}
-            </RowBetween>
-          </AutoColumn>
-        </OutlineCard>
-      </>
+            </span>
+            <span className="text-xs font-medium text-apr">{positionAPR === '--' ? '--' : positionAPR + '%'}</span>
+          </RowBetween>
+
+          <RowBetween>
+            <span className="text-xs font-medium text-subText">
+              <Trans>My Farm APR</Trans>
+            </span>
+            {!!farmAPR && !!farmRewardAmount?.length ? (
+              <MouseoverTooltip
+                width="fit-content"
+                text={
+                  <div className="flex flex-col gap-2">
+                    {farmRewardAmount.map((item, index) => (
+                      <div key={index} className="flex items-center gap-1">
+                        <CurrencyLogo currency={item.currency} size="14px" />
+                        <span>
+                          {item.toSignificant(6)} {item.currency.symbol}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                }
+              >
+                <span className="border-b border-dotted border-border text-xs font-medium text-apr">
+                  {farmAPR ? `${farmAPR.toFixed(2)}%` : '--'}
+                </span>
+              </MouseoverTooltip>
+            ) : (
+              <span className="text-xs font-medium text-apr">{farmAPR ? `${farmAPR.toFixed(2)}%` : '--'}</span>
+            )}
+          </RowBetween>
+        </AutoColumn>
+      </OutlineCard>
     )
   return render
 }

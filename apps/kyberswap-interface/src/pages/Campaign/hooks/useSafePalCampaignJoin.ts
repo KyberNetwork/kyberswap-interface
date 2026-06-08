@@ -4,11 +4,14 @@ import { useGetSafePalCampaignUserStatsQuery, useJoinSafePalCampaignMutation } f
 import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
+import { didUserReject } from 'constants/connectors/utils'
 import { ZERO_ADDRESS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 const SAFEPAL_JOINED_SESSION_KEY = 'safepal_joined_weeks'
 
@@ -71,7 +74,6 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
-  const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
 
   const { weeks } = campaignConfig[CampaignType.SafePal]
@@ -111,14 +113,6 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
       toggleWalletModal()
       return
     }
-    if (!library) {
-      notify({
-        title: t`Unable to access wallet`,
-        summary: t`Please reconnect your wallet and try again.`,
-        type: NotificationType.ERROR,
-      })
-      return
-    }
 
     try {
       const nonce = String(10_000_000 + Math.floor(Math.random() * 90_000_000))
@@ -132,7 +126,12 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
         issuedAt: new Date().toISOString(),
       }).prepareMessage()
 
-      const signature = await library.getSigner().signMessage(message)
+      const walletClient = await getGatedWalletClient({ chainId: chainId })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+      const signature = await walletClient.signMessage({
+        account: account as Address,
+        message,
+      })
       await joinCampaign({ userAddress: account, message, signature }).unwrap()
       saveJoinedWeekInSession(account, selectedWeekValue)
 
@@ -141,7 +140,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
         type: NotificationType.SUCCESS,
       })
     } catch (error) {
-      if (error.code === 4001) {
+      if (didUserReject(error)) {
         notify({
           title: t`Signature canceled`,
           type: NotificationType.ERROR,
@@ -156,7 +155,7 @@ export const useSafePalCampaignJoin = ({ selectedWeek, enabled }: Props) => {
     } finally {
       void refetchUserStats()
     }
-  }, [account, chainId, joinCampaign, library, notify, refetchUserStats, selectedWeekValue, toggleWalletModal])
+  }, [account, chainId, joinCampaign, notify, refetchUserStats, selectedWeekValue, toggleWalletModal])
 
   return {
     onJoin,

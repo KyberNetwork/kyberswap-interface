@@ -1,56 +1,8 @@
 import { CSSProperties, Fragment, ReactNode, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 import useThrottle from 'hooks/useThrottle'
-
-const ScrollContainerWithGradient = styled.div<{ backgroundColor?: string }>`
-  position: relative;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  height: fit-content;
-  width: 100%;
-  max-width: calc(100vw - 32px);
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    justify-content: flex-start;
-  `}
-
-  &.left-visible:after,
-  &.right-visible:before {
-    content: '';
-    display: block;
-    z-index: 2;
-    pointer-events: none;
-    position: absolute;
-    inset: 0 0 auto auto;
-    width: 40px;
-    height: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  &.left-visible:after {
-    background: linear-gradient(
-      to right,
-      ${({ theme, backgroundColor }) => backgroundColor ?? theme.buttonBlack},
-      transparent
-    );
-    left: 0;
-  }
-
-  &.right-visible:before {
-    background: linear-gradient(
-      to left,
-      ${({ theme, backgroundColor }) => backgroundColor ?? theme.buttonBlack},
-      transparent
-    );
-    right: 0;
-  }
-`
 
 const HorizontalScroll = ({
   items,
@@ -97,28 +49,29 @@ const HorizontalScroll = ({
   }, [items])
 
   const theme = useTheme()
+  const gradientColor = backgroundColor ?? theme.background
 
   return (
-    <ScrollContainerWithGradient
+    <div
       ref={shadowRef}
-      style={{ flex: 1, overflow: 'hidden', justifyContent: 'flex-start', ...style }}
-      backgroundColor={backgroundColor ?? theme.background}
+      style={{
+        flex: 1,
+        overflow: 'hidden',
+        justifyContent: 'flex-start',
+        ['--ks-hs-bg' as never]: gradientColor,
+        ...style,
+      }}
+      className="ks-horizontal-scroll relative flex h-fit w-full max-w-[calc(100vw-32px)] items-center justify-end max-sm:justify-start"
     >
       <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
-        <TagContainer style={style} ref={contentRef}>
+        <div ref={contentRef} style={style} className="flex flex-1 items-center gap-1">
           {(items ?? []).map(i => (
             <Fragment key={i}>{renderItem(i)}</Fragment>
           ))}
-        </TagContainer>
+        </div>
       </ScrollContainer>
-    </ScrollContainerWithGradient>
+    </div>
   )
 }
 
 export default HorizontalScroll
-
-const TagContainer = styled(Flex)`
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-`

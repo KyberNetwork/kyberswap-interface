@@ -1,32 +1,8 @@
 import React, { useEffect, useRef } from 'react'
-import styled from 'styled-components'
 
+import LoadingIcon from 'components/SwapForm/RefreshButton/LoadingIcon'
 import { ENABLE_CLICK_TO_REFRESH_GET_ROUTE, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 
-import LoadingIcon from './LoadingIcon'
-
-const IconButton = styled.button`
-  position: relative;
-  width: 16px;
-  height: 16px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: none;
-  background-color: transparent;
-  margin: 0;
-  padding: 0;
-  border-radius: 999px;
-  cursor: default;
-  outline: none;
-
-  :hover {
-    cursor: default;
-    outline: none;
-  }
-`
 type Props = {
   shouldDisable: boolean
   callback: () => void
@@ -64,13 +40,14 @@ const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size, skipFir
   }, [callback, shouldDisable, skipFirst])
 
   return (
-    <IconButton
+    <button
       onClick={() => {
         if (!ENABLE_CLICK_TO_REFRESH_GET_ROUTE) {
           return
         }
         callback()
       }}
+      className="relative m-0 flex size-4 cursor-default items-center justify-center rounded-full border-none bg-transparent p-0 outline-none hover:cursor-default hover:outline-none"
     >
       <LoadingIcon
         size={size}
@@ -78,7 +55,7 @@ const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size, skipFir
         clickable={ENABLE_CLICK_TO_REFRESH_GET_ROUTE}
         durationInSeconds={TIME_TO_REFRESH_SWAP_RATE}
       />
-    </IconButton>
+    </button>
   )
 }
 

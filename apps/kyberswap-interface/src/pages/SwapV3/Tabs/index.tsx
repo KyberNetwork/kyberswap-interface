@@ -1,76 +1,37 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { TAB } from 'pages/SwapV3'
 import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
 import { isSupportLimitOrder } from 'utils'
+import { cn } from 'utils/cn'
 
-const TabContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  @media only screen and (min-width: 768px) {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-`
-
-const TabWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  @media only screen and (min-width: 768px) {
-    margin-bottom: 0;
-  }
-`
-
-export const Tab = styled(ButtonEmpty)<{ isActive: boolean; isDisabled?: boolean }>`
-  width: fit-content;
-  font-weight: 500;
-  padding: 0px 0.5rem;
-  margin-bottom: 4px;
-  color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
-  position: relative;
-  border-radius: 0;
-  font-size: 18px;
-  border-left: 2px solid ${({ theme }) => theme.border};
-  :first-child {
-    border: none;
-    padding-left: 0;
-  }
-  &:hover {
-    text-decoration: none;
-  }
-
-  &:focus {
-    text-decoration: none;
-  }
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  ${({ theme, isDisabled }) =>
-    isDisabled &&
-    css`
-      color: ${theme.border};
-    `};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 14px;
-    padding: 0px 0.4rem;
-  `}
-`
+export const Tab = ({
+  children,
+  className,
+  $isActive,
+  $isDisabled,
+  ...rest
+}: React.ComponentProps<typeof ButtonEmpty> & { $isActive: boolean; $isDisabled?: boolean }) => (
+  <ButtonEmpty
+    className={cn(
+      'relative mb-1 mr-1.5 w-fit rounded-none p-0 text-lg font-medium leading-[normal] hover:no-underline focus:no-underline max-sm:px-1.5 max-sm:py-0 max-sm:text-sm',
+      "before:mr-2 before:h-[22px] before:w-0.5 before:rounded-sm before:bg-border before:content-['']",
+      'first:before:hidden',
+      $isDisabled ? 'text-border' : $isActive ? 'text-primary' : 'text-subText',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </ButtonEmpty>
+)
 
 type Props = {
   activeTab: TAB
@@ -83,10 +44,9 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
   const { trackingHandler } = useTracking()
   const chainId = customChainId || walletChainId
 
-  const { pathname } = useLocation()
   const { currency: currencyParam } = useParams()
 
-  const isParnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const { pathname, isEmbeddedSwap } = usePageLocation()
 
   const [searchParams] = useSearchParams()
   let features = (searchParams.get('features') || '')
@@ -94,7 +54,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     .filter(item => [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN].includes(item))
   if (!features.length) features = [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN]
 
-  const show = (tab: TAB) => (isParnerSwap ? features.includes(tab) : true)
+  const show = (tab: TAB) => (isEmbeddedSwap ? features.includes(tab) : true)
 
   const onClickTab = (tab: TAB) => {
     if (activeTab === tab) {
@@ -106,7 +66,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
         previous_tab: activeTab,
       })
     }
-    if (isParnerSwap) {
+    if (isEmbeddedSwap) {
       setActiveTab(tab)
       return
     }
@@ -124,13 +84,13 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
   }
 
   return (
-    <TabContainer>
-      <TabWrapper>
+    <div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between sm:mb-0">
         {show(TAB.SWAP) && (
-          <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={TAB.SWAP === activeTab}>
-            <Text fontWeight={500}>
+          <Tab onClick={() => onClickTab(TAB.SWAP)} $isActive={TAB.SWAP === activeTab}>
+            <span className="font-medium">
               <Trans>Swap</Trans>
-            </Text>
+            </span>
           </Tab>
         )}
         {show(TAB.LIMIT) && isSupportLimitOrder(chainId) && (
@@ -140,14 +100,16 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
             customChainId={customChainId}
           />
         )}
-        <Tab
-          onClick={() => onClickTab(TAB.CROSS_CHAIN)}
-          isActive={activeTab === TAB.CROSS_CHAIN}
-          data-testid="cross-chain-tab"
-        >
-          <Trans>Cross-Chain</Trans>
-        </Tab>
-      </TabWrapper>
-    </TabContainer>
+        {show(TAB.CROSS_CHAIN) && (
+          <Tab
+            onClick={() => onClickTab(TAB.CROSS_CHAIN)}
+            $isActive={activeTab === TAB.CROSS_CHAIN}
+            data-testid="cross-chain-tab"
+          >
+            <Trans>Cross-Chain</Trans>
+          </Tab>
+        )}
+      </div>
+    </div>
   )
 }

@@ -1,21 +1,18 @@
 import { Trans, t } from '@lingui/macro'
-import { Text } from 'rebass'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
-import useTheme from 'hooks/useTheme'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { ExternalLink } from 'theme'
 
 export default function PendingWarning() {
-  const theme = useTheme()
   const min = NUMBERS.STALLED_MINS
   return (
     <ErrorWarningPanel
       style={{ borderRadius: 20, padding: '10px 14px', height: NUMBERS.STALL_WARNING_HEIGHT }}
       type="error"
       title={
-        <Text color={theme.red}>
+        <span className="text-red">
           <Trans>
             Transaction stuck?{' '}
             <MouseoverTooltip
@@ -26,7 +23,7 @@ export default function PendingWarning() {
               </ExternalLink>
             </MouseoverTooltip>
           </Trans>
-        </Text>
+        </span>
       }
     />
   )

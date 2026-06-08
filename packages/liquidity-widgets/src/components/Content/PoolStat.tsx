@@ -190,7 +190,7 @@ export default function PoolStat() {
                     text={
                       <div className="flex flex-col gap-0.5">
                         <div>
-                          <Trans>Uniswap Bonus: {formatAprNumber(poolStat?.bonusApr || 0)}%</Trans>
+                          <Trans>Bonus APR: {formatAprNumber(poolStat?.bonusApr || 0)}%</Trans>
                         </div>
                       </div>
                     }

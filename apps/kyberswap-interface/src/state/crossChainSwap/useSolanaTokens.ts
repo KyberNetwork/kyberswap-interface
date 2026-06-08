@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import SolanaIcon from 'assets/images/SOL.png'
 import { SOLANA_NATIVE } from 'constants/index'
 
 const cached: Record<string, SolanaToken> = {}
@@ -9,8 +10,8 @@ const nativeSolana: SolanaToken = {
   id: SOLANA_NATIVE,
   name: 'Solana',
   symbol: 'SOL',
-  icon: 'https://solana.com/favicon.png',
-  logo: 'https://solana.com/favicon.png',
+  icon: SolanaIcon,
+  logo: SolanaIcon,
   decimals: 9,
   tokenProgram: '',
 }

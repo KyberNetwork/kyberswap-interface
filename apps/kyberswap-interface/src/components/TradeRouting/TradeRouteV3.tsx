@@ -1,43 +1,24 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { rgba } from 'polished'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { getDexInfoByPool, selectPointsOnRectEdge } from 'components/TradeRouting/helpers'
-import { StyledDot } from 'components/TradeRouting/styled'
+import { RouteDot } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV3 } from 'utils/aggregationRouting'
+import { hexAlpha } from 'utils/colorAlpha'
 
 interface SwapRouteV3Props {
   tradeComposition: SwapRouteV3[]
   tokenIn: Token
 }
 
-const NodeWrapper = styled.div`
-  border: 1px solid ${rgba('#fff', 0.06)};
-  border-radius: 12px;
-  padding: 12px;
-  width: 168px;
-  position: relative;
-`
-
-const ListPool = styled.div`
-  margin-top: 12px;
-  border-radius: 12px;
-  padding: 12px 8px;
-  background: ${rgba('#fff', 0.06)};
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
-
 type Edge = { source: Token; target: Token; swaps: SwapRouteV3[] }
+type PathPoint = { x: number; y: number }
 
 // find the non overlap between the source rect and middle rects
 function findNonOverlapRanges(mainLine: [number, number], overlappingLines: [number, number][]): [number, number][] {
@@ -78,6 +59,43 @@ function findNonOverlapRanges(mainLine: [number, number], overlappingLines: [num
   }
 
   return availableRanges
+}
+
+const getPathPoints = (path: string): PathPoint[] => {
+  const matches = [...path.matchAll(/[ML]\s*([-\d.]+)\s+([-\d.]+)/g)]
+  return matches.map(([, x, y]) => ({ x: Number(x), y: Number(y) }))
+}
+
+const getDistanceBetweenPoints = (start: PathPoint, end: PathPoint) => Math.hypot(end.x - start.x, end.y - start.y)
+
+const getPointOnPathAtRatio = (path: string, ratio: number): PathPoint | null => {
+  const points = getPathPoints(path)
+  if (points.length < 2) return null
+
+  const segmentLengths = points.slice(1).map((point, index) => getDistanceBetweenPoints(points[index], point))
+  const totalLength = segmentLengths.reduce((sum, segmentLength) => sum + segmentLength, 0)
+  if (!totalLength) return null
+
+  const targetLength = totalLength * ratio
+  let traversedLength = 0
+
+  for (let index = 0; index < segmentLengths.length; index++) {
+    const segmentLength = segmentLengths[index]
+    const segmentStart = points[index]
+    const segmentEnd = points[index + 1]
+
+    if (traversedLength + segmentLength >= targetLength) {
+      const segmentRatio = (targetLength - traversedLength) / segmentLength
+      return {
+        x: segmentStart.x + (segmentEnd.x - segmentStart.x) * segmentRatio,
+        y: segmentStart.y + (segmentEnd.y - segmentStart.y) * segmentRatio,
+      }
+    }
+
+    traversedLength += segmentLength
+  }
+
+  return points[points.length - 1] ?? null
 }
 
 const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn }) => {
@@ -136,6 +154,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
   nodes.sort((a, b) => (maximumPathLengths[a.address] || 0) - (maximumPathLengths[b.address] || 0))
 
   const theme = useTheme()
+  const routePathColor = hexAlpha(theme.white, 0.06)
   const svgRef = useRef<SVGSVGElement>(null)
 
   const [force, updateState] = useState(1)
@@ -167,24 +186,13 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
         forceUpdate()
       }}
     >
-      <StyledDot />
-      <StyledDot out />
+      <RouteDot />
+      <RouteDot out />
 
-      <svg
-        ref={svgRef}
-        style={{
-          zIndex: 10,
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-        }}
-      >
+      <svg ref={svgRef} className="pointer-events-none absolute left-0 top-0 z-10 size-full text-primary">
         <defs>
           <marker id="arrowhead" markerWidth="4" markerHeight="4" refX="4" refY="2" orient="auto">
-            <polygon points="0 0, 4 2, 0 4" fill={theme.primary} />
+            <polygon points="0 0, 4 2, 0 4" fill="currentColor" />
           </marker>
         </defs>
 
@@ -445,12 +453,12 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
             <React.Fragment key={node.address}>
               {finalEdges.length === 0 && (
                 <>
-                  <text x={x + 4} y={y + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
+                  <text x={x + 4} y={y + 3} fontSize="10" fontWeight="500" fill="currentColor">
                     100%
                   </text>
                   <path
                     d={`M ${x} ${y} L ${svgRect.width - 10} ${y}`}
-                    stroke={rgba('#fff', 0.06)}
+                    stroke={routePathColor}
                     strokeWidth="1.5"
                     markerEnd="url(#arrowhead)"
                     fill="none"
@@ -458,24 +466,28 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
 
                   <path
                     d={`M ${svgRect.width - 10} ${y} L ${svgRect.width - 10} 10`}
-                    stroke={rgba('#fff', 0.06)}
+                    stroke={routePathColor}
                     strokeWidth="1.5"
                     fill="none"
                   />
                 </>
               )}
               {isStartNode && lowestYForStartNode && (
-                <line x1={10} x2={10} y1={lowestYForStartNode} y2={10} stroke={rgba('#fff', 0.06)} strokeWidth="1.5" />
+                <line x1={10} x2={10} y1={lowestYForStartNode} y2={10} stroke={routePathColor} strokeWidth="1.5" />
               )}
               {finalEdges.map((item: any, index) => {
+                const labelPoint = isStartNode ? getPointOnPathAtRatio(item.path, 0.3) : null
+                const labelX = (labelPoint?.x ?? item.startX) + 4
+                const labelY = (labelPoint?.y ?? item.startY) + 3
+
                 return (
                   <React.Fragment key={index}>
-                    <text x={item.startX + 4} y={item.startY + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
+                    <text x={labelX} y={labelY} fontSize="10" fontWeight="500" fill="currentColor">
                       {item.percent}%
                     </text>
                     <path
                       d={item.path}
-                      stroke={rgba('#fff', 0.06)}
+                      stroke={routePathColor}
                       strokeWidth="1.5"
                       markerEnd="url(#arrowhead)"
                       fill="none"
@@ -488,20 +500,16 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
         })}
       </svg>
 
-      <Flex
-        justifyContent="space-evenly"
+      <div
         ref={contentRef}
-        sx={{
-          padding: '0 48px 120px',
-          gap: '48px',
-          minWidth: maxLevel * 168 + (maxLevel + 1) * 48,
-        }}
+        className="flex justify-evenly gap-12 px-12 pb-9"
+        style={{ minWidth: maxLevel * 168 + (maxLevel + 1) * 48 }}
       >
         {levels.map(level => {
           const nodesAtLevel = nodes.filter(node => maximumPathLengths[node.address] === level)
 
           return (
-            <Flex key={level} flexDirection="column" justifyContent="space-around" sx={{ gap: '24px' }}>
+            <div key={level} className="flex flex-col justify-around gap-6">
               {nodesAtLevel.map(node => {
                 const edgesIn = edges.filter(edge => edge.target.address === node.address)
 
@@ -515,10 +523,10 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   />
                 )
               })}
-            </Flex>
+            </div>
           )
         })}
-      </Flex>
+      </div>
     </ScrollContainer>
   )
 }
@@ -536,7 +544,6 @@ const RouteNode = ({
   setNodeRects: React.Dispatch<React.SetStateAction<{ [key: string]: DOMRect }>>
   tradeComposition: SwapRouteV3[]
 }) => {
-  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const allDexes = useAllDexes(chainId)
 
@@ -554,21 +561,22 @@ const RouteNode = ({
   }, [setNodeRects, node.address, tradeComposition])
 
   return (
-    <NodeWrapper ref={ref}>
-      <Flex sx={{ gap: '4px' }} alignItems="center">
+    <div ref={ref} className="relative w-[168px] rounded-lg border border-white/[0.06] bg-transparent p-3">
+      <div className="flex items-center gap-1">
         <CurrencyLogo currency={node} size="20px" />
-        <Text color={theme.subText} fontSize={12} fontWeight={500}>
-          {node.symbol}
-        </Text>
-      </Flex>
+        <span className="text-xs font-medium text-subText">{node.symbol}</span>
+      </div>
 
       {edgesIn.map(edge => {
         const totalAmount = edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
         return (
-          <ListPool key={edge.source.address + edge.target.address}>
-            <Flex alignItems="center" sx={{ gap: '4px', fontSize: '12px' }} color={theme.subText}>
+          <div
+            key={edge.source.address + edge.target.address}
+            className="mt-3 flex flex-col gap-2 rounded-lg bg-white/[0.06] px-3 py-2"
+          >
+            <div className="flex items-center gap-1 text-xs text-subText">
               {edge.source.symbol} → {edge.target.symbol}
-            </Flex>
+            </div>
             {edge.swaps.map(swap => {
               const dex = getDexInfoByPool(swap.exchange, allDexes)
               const poolId = swap.pool.split('-')?.[0]
@@ -577,28 +585,35 @@ const RouteNode = ({
               const percent =
                 Number((swap.swapAmount ? (BigInt(swap.swapAmount) * 100000n) / totalAmount : 0n).toString()) / 1000
 
-              return (
-                <Flex
-                  key={swap.pool}
-                  as={isAddressLink ? 'a' : 'div'}
-                  href={getEtherscanLink(chainId || 1, poolId, 'address')}
-                  alignItems="center"
-                  target="_blank"
-                  sx={{ gap: '4px', fontSize: '10px', color: theme.subText }}
-                >
+              const swapContent = (
+                <>
                   {dex?.logoURL ? (
-                    <img src={dex.logoURL} alt="" width="12px" height="12px" style={{ borderRadius: '50%' }} />
+                    <img src={dex.logoURL} alt="" width="12px" height="12px" className="rounded-full" />
                   ) : null}
-                  <Text flex={1} sx={{}}>
-                    {dex?.name || swap.exchange}
-                  </Text>
-                  <Text marginLeft="auto">{percent.toFixed(0)}%</Text>
-                </Flex>
+                  <span className="flex-1">{dex?.name || swap.exchange}</span>
+                  <span className="ml-auto">{percent.toFixed(0)}%</span>
+                </>
+              )
+
+              return isAddressLink ? (
+                <a
+                  key={swap.pool}
+                  href={getEtherscanLink(chainId || 1, poolId, 'address')}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1 text-[10px] text-subText"
+                >
+                  {swapContent}
+                </a>
+              ) : (
+                <div key={swap.pool} className="flex items-center gap-1 text-[10px] text-subText">
+                  {swapContent}
+                </div>
               )
             })}
-          </ListPool>
+          </div>
         )
       })}
-    </NodeWrapper>
+    </div>
   )
 }

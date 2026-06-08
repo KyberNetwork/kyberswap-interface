@@ -1,7 +1,6 @@
 import { t } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 
 import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview.svg'
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
@@ -35,22 +34,18 @@ const EarnNavGroup = () => {
       isActive={isActive}
       anchor={
         <DropdownTextAnchor>
-          <Flex sx={{ gap: 1 }} alignItems="center">
+          <div className="flex items-center gap-1">
             <KemIcon width={20} height={20} />
             {upToSmall ? (
               t`Earn`
             ) : (
               <StyledNavLink to={{ pathname: `${APP_PATHS.EARN}` }} style={{ padding: 0 }}>{t`Earn`}</StyledNavLink>
             )}
-          </Flex>
+          </div>
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <Flex
-          sx={{
-            flexDirection: 'column',
-          }}
-        >
+        <div className="flex flex-col">
           <StyledNavLink
             id="earn-landing-nav-link"
             data-testid="earn-landing-nav-link"
@@ -59,10 +54,10 @@ const EarnNavGroup = () => {
             customActive
             isCustomActive={pathname === APP_PATHS.EARN}
           >
-            <Flex sx={{ gap: '12px' }} alignItems="center">
+            <div className="flex items-center gap-3">
               <OverviewIcon width={16} height={16} />
               {t`Overview`}
-            </Flex>
+            </div>
           </StyledNavLink>
 
           <StyledNavLink
@@ -72,10 +67,10 @@ const EarnNavGroup = () => {
             customActive
             isCustomActive={pathname === APP_PATHS.EARN_POOLS && !search.includes(`tag=${FilterTag.FARMING_POOL}`)}
           >
-            <Flex sx={{ gap: '12px' }} alignItems="center">
+            <div className="flex items-center gap-3">
               <PoolsIcon width={16} height={16} />
               {t`All Pools`}
-            </Flex>
+            </div>
           </StyledNavLink>
 
           <StyledNavLink
@@ -85,10 +80,10 @@ const EarnNavGroup = () => {
             customActive
             isCustomActive={pathname === APP_PATHS.EARN_POOLS && search.includes(`tag=${FilterTag.FARMING_POOL}`)}
           >
-            <Flex sx={{ gap: '12px' }} alignItems="center">
+            <div className="flex items-center gap-3">
               <FarmingIcon width={16} height={16} />
-              <Flex sx={{ gap: '2px' }}>{t`Farming Pools`}</Flex>
-            </Flex>
+              <div className="flex gap-0.5">{t`Farming Pools`}</div>
+            </div>
           </StyledNavLink>
 
           <StyledNavLink
@@ -96,21 +91,21 @@ const EarnNavGroup = () => {
             data-testid="earn-positions-nav-link"
             to={{ pathname: `${APP_PATHS.EARN_POSITIONS}` }}
           >
-            <Flex sx={{ gap: '12px' }} alignItems="center">
+            <div className="flex items-center gap-3">
               <PositionsIcon width={16} height={16} />
               {t`My Positions`}
-            </Flex>
+            </div>
           </StyledNavLink>
           <StyledNavLink data-testid="earn-positions-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
-            <Flex sx={{ gap: '12px' }} alignItems="center">
+            <div className="flex items-center gap-3">
               <ListSmartExitIcon width={16} height={16} />
-              <Flex>
+              <div className="flex">
                 {t`Smart Exit Orders`}
                 <NewLabel>Beta</NewLabel>
-              </Flex>
-            </Flex>
+              </div>
+            </div>
           </StyledNavLink>
-        </Flex>
+        </div>
       }
     />
   )
