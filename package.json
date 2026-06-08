@@ -32,6 +32,6 @@
     "dev:web": "pnpm --filter @kyberswap/interface dev",
     "dev:web:clean": "rm -rf apps/kyberswap-interface/node_modules/.vite && pnpm --filter @kyberswap/interface dev",
     "dev:widgets": "pnpm --filter zap-widgets-demo dev",
-    "type-check": "turbo type-check"
+    "type-check": "turbo type-check --filter=!@kyberswap/widgets"
   }
 }

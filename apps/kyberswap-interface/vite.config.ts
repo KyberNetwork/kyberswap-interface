@@ -43,6 +43,7 @@ export default defineConfig({
       '@formo/analytics',
       'react-date-picker',
       'react-calendar',
+      'use-sound', // ESM-only; must be transformed for SSR (prerender loads the whole App graph)
     ],
   },
   plugins: [
