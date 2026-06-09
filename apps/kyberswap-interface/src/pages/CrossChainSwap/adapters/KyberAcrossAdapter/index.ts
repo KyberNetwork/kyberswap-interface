@@ -217,7 +217,7 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
 
       return {
         txHash: getAcrossFillTxHash(res),
-        status: mapAcrossDepositStatus(res),
+        status: mapAcrossDepositStatus(res, { txTimestamp: params.timestamp }),
       }
     } catch (error) {
       console.error('Error fetching transaction status:', error)
