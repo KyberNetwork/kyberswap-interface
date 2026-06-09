@@ -8,7 +8,6 @@ import RefreshLoading from 'components/RefreshLoading'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
-import { TIP_LINK_CLIENT_ID } from 'components/TipLinkGeneratorModal/shared'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
 import { BIPS_BASE, ClientNameMapping } from 'constants/index'
@@ -55,8 +54,8 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
     return <Trans>Read more about the fees {hereLink}</Trans>
   }
 
-  if (clientId === TIP_LINK_CLIENT_ID) {
-    const tipRecipientName = feeConfig?.clientName || 'the link sharer'
+  if (feeConfig?.enableTip) {
+    const tipRecipientName = feeConfig.clientName || 'the link sharer'
     return (
       <Trans>
         You&apos;re adding a {feePercent} tip ({feeAmountText}) to this swap for{' '}
