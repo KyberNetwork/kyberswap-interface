@@ -33,6 +33,7 @@ import {
   getCurrencyParam,
   getDefaultInputToken,
   getDefaultOutputToken,
+  isCreatorNameValid,
   isSameToken,
 } from 'components/TipLinkGeneratorModal/shared'
 import { APP_PATHS } from 'constants/index'
@@ -80,7 +81,8 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
   const trimmedReceiver = receiver.trim()
   const trimmedCreatorName = creatorName.trim()
   const isReceiverValid = !trimmedReceiver || Boolean(isAddress(chainId, trimmedReceiver))
-  const canGenerate = Boolean(trimmedReceiver && isReceiverValid && inputToken && outputToken)
+  const isDisplayNameValid = isCreatorNameValid(trimmedCreatorName)
+  const canGenerate = Boolean(trimmedReceiver && isReceiverValid && isDisplayNameValid && inputToken && outputToken)
   const selectedTokenAddress = tokenSelectorTarget === 'input' ? inputToken?.address : outputToken?.address
   const isUsingConnectedAddress = !!account && trimmedReceiver.toLowerCase() === account.toLowerCase()
   const isCustomColor = backgroundMode === 'solid' && !SOLID_COLORS.includes(backgroundColor)
@@ -285,6 +287,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
             chainId={chainId}
             creatorName={creatorName}
             inputToken={inputToken}
+            isCreatorNameValid={isDisplayNameValid}
             isReceiverValid={isReceiverValid}
             isUsingConnectedAddress={isUsingConnectedAddress}
             onChainSelect={handleChainSelect}
