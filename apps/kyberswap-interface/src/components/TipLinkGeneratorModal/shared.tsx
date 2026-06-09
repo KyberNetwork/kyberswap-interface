@@ -28,15 +28,15 @@ export const TIP_LINK_CLIENT_ID = 'kyberswap'
 
 export const isCreatorNameValid = (value: string) => {
   const normalized = value.toLowerCase().replace(/[^a-z0-9]/g, '')
-  const words = value.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
+  const words = value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
   const hasReservedKS = words.includes('ks') || words.some((word, index) => word === 'k' && words[index + 1] === 's')
 
   return (
     !normalized ||
-    (!normalized.includes('kyber') &&
-      !normalized.includes('kswap') &&
-      normalized !== 'ks' &&
-      !hasReservedKS)
+    (!normalized.includes('kyber') && !normalized.includes('kswap') && normalized !== 'ks' && !hasReservedKS)
   )
 }
 

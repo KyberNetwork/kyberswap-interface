@@ -10,7 +10,7 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
-import { BIPS_BASE, ClientNameMapping } from 'constants/index'
+import { BIPS_BASE } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink } from 'theme'
@@ -55,15 +55,11 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
   }
 
   if (feeConfig?.enableTip) {
-    const tipRecipientName = feeConfig.clientName || 'the link sharer'
     return (
       <Trans>
-        You&apos;re adding a {feePercent} tip ({feeAmountText}) to this swap for{' '}
-        <span title={tipRecipientName} className="inline-block max-w-[120px] truncate align-bottom">
-          {tipRecipientName}
-        </span>
-        . This is deducted from your output - the Est. Output above already includes it. Tips are optional and go
-        directly to the link sharer&apos;s wallet.
+        You&apos;re adding a {feePercent} tip ({feeAmountText}) to this swap for the link sharer. This is deducted from
+        your output - the Est. Output above already includes it. Tips are optional and go directly to the link
+        sharer&apos;s wallet.
       </Trans>
     )
   }
@@ -84,16 +80,12 @@ export const SwapFeeLabel = () => {
   const feeConfig = useGetFeeConfig()
 
   if (feeConfig?.enableTip) {
-    const configuredClientName =
-      feeConfig.clientName && feeConfig.clientName !== feeConfig.clientId ? feeConfig.clientName : ''
-    const tipRecipientName = configuredClientName || ClientNameMapping[feeConfig.clientId || ''] || 'the link sharer'
-
     return (
       <span className="inline-flex min-w-0 max-w-[180px] items-center align-bottom">
         <span className="shrink-0">
           <Trans>Tip for</Trans>&nbsp;
         </span>
-        <span className="min-w-0 truncate">{tipRecipientName}</span>
+        <span className="min-w-0 truncate">{feeConfig.creatorName || 'the link sharer'}</span>
       </span>
     )
   }

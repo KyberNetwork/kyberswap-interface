@@ -33,8 +33,8 @@ import {
   getCurrencyParam,
   getDefaultInputToken,
   getDefaultOutputToken,
-  isSameToken,
   isCreatorNameValid,
+  isSameToken,
 } from 'components/TipLinkGeneratorModal/shared'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
