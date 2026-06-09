@@ -4,6 +4,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useState } from 'react'
 
 import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
+import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import AddLiquiditySettings from 'pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings'
@@ -220,9 +221,9 @@ const AddLiquidityWidget = ({
           onClick={() => void actions.handlePrimaryAction()}
           disabled={actions.isPrimaryActionDisabled}
         >
-          <span className={actions.showRouteLoadingDots ? 'ks-loading-dots' : undefined}>
+          <Dots absolute loading={actions.showRouteLoadingDots}>
             {actions.primaryActionText}
-          </span>
+          </Dots>
         </PrimaryActionButton>
       </HStack>
     </Stack>
