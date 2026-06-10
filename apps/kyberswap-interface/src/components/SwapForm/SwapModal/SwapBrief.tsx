@@ -11,7 +11,7 @@ import UpdatedBadge, { Props as UpdatedBadgeProps } from 'components/SwapForm/Sw
 import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { formattedNum } from 'utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   inputAmount: CurrencyAmount<Currency>
@@ -80,7 +80,11 @@ export default function SwapBrief({
       return <span className="text-sm font-medium text-subText">--</span>
     }
 
-    return <span className="text-sm font-medium text-subText">~{formattedNum(amountOutUsdFromBuild, true)}</span>
+    return (
+      <span className="text-sm font-medium text-subText">
+        ~{formatDisplayNumber(amountOutUsdFromBuild, { style: 'currency', significantDigits: 4 })}
+      </span>
+    )
   }
 
   return (
@@ -92,7 +96,9 @@ export default function SwapBrief({
         <div className="flex w-full items-center justify-between gap-2">
           <span className="min-w-0 flex-1 truncate text-2xl font-medium">{typedValue}</span>
           <div className="flex min-w-fit items-center gap-2">
-            <span className="text-sm font-medium text-subText">~{formattedNum(amountInUsd, true)}</span>
+            <span className="text-sm font-medium text-subText">
+              ~{formatDisplayNumber(amountInUsd, { style: 'currency', significantDigits: 4 })}
+            </span>
             <CurrencyLogo currency={inputAmount.currency} size="24px" />
             <span className="text-xl font-medium text-subText">{inputAmount.currency.symbol}</span>
           </div>

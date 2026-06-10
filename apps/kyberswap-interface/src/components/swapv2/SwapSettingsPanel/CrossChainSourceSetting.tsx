@@ -1,7 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import { ChevronRight } from 'react-feather'
 
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { useAppSelector } from 'state/hooks'
 

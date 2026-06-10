@@ -17,7 +17,8 @@ import { NetworkSelector } from 'components/NetworkSelector'
 import NumericalInput from 'components/NumericalInput'
 import { RowBetween } from 'components/Row'
 import { DefaultSlippageOption } from 'components/SlippageControl'
-import Tooltip, { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
 import ExpirePicker from 'components/swapv2/LimitOrder/ExpirePicker'
@@ -892,7 +893,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             positionMax="top"
             onUserInput={onSetInput}
             onMax={handleMaxInput}
-            onHalf={null}
             otherCurrency={currencyOut}
             estimatedUsd={estimateUSD.input}
             onFocus={trackingTouchInput}
@@ -985,8 +985,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             currency={currencyOut}
             onUserInput={onSetOutput}
             otherCurrency={currencyIn}
-            onMax={null}
-            onHalf={null}
             estimatedUsd={estimateUSD.output}
             onFocus={trackingTouchInput}
             id="create-limit-order-input-tokenb"

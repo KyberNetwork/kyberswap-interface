@@ -3,7 +3,8 @@ import React from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronRight } from 'react-feather'
 
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 import { cn } from 'utils/cn'
 

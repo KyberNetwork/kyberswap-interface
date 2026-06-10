@@ -219,8 +219,6 @@ export default function CreateAlert({
                   value={''}
                   currency={currencyIn}
                   hideBalance
-                  onMax={null}
-                  onHalf={null}
                   onCurrencySelect={onChangeCurrencyIn}
                   otherCurrency={currencyOut}
                   id="alert-currency-input"
@@ -242,8 +240,6 @@ export default function CreateAlert({
                 value={''}
                 currency={currencyOut}
                 hideBalance
-                onMax={null}
-                onHalf={null}
                 selectClassName={currencySelectClassName}
                 onCurrencySelect={onChangeCurrencyOut}
                 otherCurrency={currencyIn}

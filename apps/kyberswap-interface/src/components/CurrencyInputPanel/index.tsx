@@ -125,7 +125,7 @@ const StyledBalanceMax = ({ className, ...props }: React.ButtonHTMLAttributes<HT
   <button
     {...props}
     className={cn(
-      'cursor-pointer rounded-full border-none bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText focus-visible:outline-none',
+      'cursor-pointer rounded-full border-none bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text focus-visible:text-text-60 focus-visible:outline-none',
       className,
     )}
   />
@@ -149,8 +149,8 @@ const PoolLockContent = (
 
 interface CurrencyInputPanelProps {
   value: string
-  onMax: (() => void) | null
-  onHalf: (() => void) | null
+  onMax?: () => void
+  onHalf?: () => void
   onUserInput?: (value: string) => void
   onFocus?: () => void
   onClickSelect?: () => void
@@ -273,9 +273,9 @@ export default function CurrencyInputPanel({
               ) : (
                 <div />
               )}
-              <div onClick={onMax ?? undefined} className={cn('flex items-center', onMax && 'cursor-pointer')}>
-                <Wallet className="text-subText" />
-                <span className="ml-1 font-medium text-subText" data-testid="balance">
+              <div onClick={onMax} className={cn('group flex items-center gap-1', onMax && 'cursor-pointer')}>
+                <Wallet className="text-subText group-hover:text-text" />
+                <span className="font-medium text-subText group-hover:text-text" data-testid="balance">
                   {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0}
                 </span>
               </div>

@@ -1,7 +1,8 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
 
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useUserTransactionTTL } from 'state/user/hooks'

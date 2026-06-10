@@ -197,7 +197,7 @@ type ButtonVariantClass = string | ((props: ButtonProps) => string)
 // overrides). Consumer-supplied shorthand props (padding, width, etc.) become inline style and
 // override the Tailwind defaults at the inline-style level.
 const BASE_CLASS =
-  'relative z-10 flex w-full h-auto cursor-pointer items-center justify-center rounded-full border border-solid border-transparent p-3 text-center text-sm leading-[normal] font-medium text-white no-underline outline-none [&>*]:select-none hover:brightness-[0.8] disabled:cursor-auto disabled:hover:!filter-none'
+  'relative z-10 flex w-full h-auto cursor-pointer items-center justify-center rounded-full border border-solid border-transparent p-3 text-center text-sm leading-[normal] font-medium text-white no-underline outline-none [&>*]:select-none hover:brightness-[1.2] disabled:cursor-auto disabled:hover:!filter-none'
 
 const buildBase = (variantClass: ButtonVariantClass, displayName: string) => {
   const Component = forwardRef<HTMLElement, ButtonProps>(
