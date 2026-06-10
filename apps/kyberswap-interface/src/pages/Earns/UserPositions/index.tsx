@@ -17,6 +17,7 @@ import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
+import { toPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import {
   PositionPageWrapper,
   PositionTableHeader,
@@ -57,17 +58,7 @@ const UserPositions = () => {
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const positionQueryParams = useMemo(() => {
-    return {
-      wallet: account || '',
-      chainIds: filters.chainIds,
-      protocols: filters.protocols,
-      statuses: filters.statuses,
-      keyword: filters.keyword,
-      positionIds: filters.positionId,
-      sorts: [filters.sortBy, filters.orderBy].filter(Boolean).join(':'),
-      page: filters.page,
-      pageSize: filters.pageSize,
-    }
+    return toPositionQueryParams(filters, account)
   }, [account, filters])
 
   const {

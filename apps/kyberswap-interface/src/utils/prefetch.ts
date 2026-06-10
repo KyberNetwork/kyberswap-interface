@@ -5,6 +5,7 @@ import zapEarnServiceApi from 'services/zapEarn'
 import { getInitialListOrdersArgs } from 'components/swapv2/LimitOrder/listOrdersArgs'
 import { APP_PATHS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
+import { getInitialPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import store from 'state'
 
 type ChunkLoader = () => Promise<unknown>
@@ -82,4 +83,41 @@ export function prefetchLimitOpenOrders(chainId: ChainId, account: string | unde
   store.dispatch(
     limitOrderApi.util.prefetch('getListOrders', getInitialListOrdersArgs(chainId, account), { ifOlderThan: 30 }),
   )
+}
+
+// My Positions prefetches already issued this session, keyed by account.
+const prefetchedPositions = new Set<string>()
+
+/**
+ * Prefetch the My Positions list on nav intent. Mirrors the EXACT args the page fires on a fresh visit
+ * (default filters → `getInitialPositionQueryParams`) so the page hits this cache instead of refetching.
+ * Needs a connected wallet — the query is keyed by `wallet` and the page skips it without an account.
+ * The args are chain-independent (the default `chainIds` is ''), so only `account` is required.
+ */
+export function prefetchMyPositions(account: string | undefined) {
+  if (!account) return
+  const key = account.toLowerCase()
+  if (prefetchedPositions.has(key)) return
+  prefetchedPositions.add(key)
+  store.dispatch(
+    zapEarnServiceApi.util.prefetch('userPositions', getInitialPositionQueryParams(account), { ifOlderThan: 30 }),
+  )
+}
+
+// Route prefix → its data prefetcher (parallel to ROUTE_CHUNKS). More specific prefixes first.
+const ROUTE_DATA_PREFETCH: { prefix: string; run: (account: string | undefined, chainId: ChainId) => void }[] = [
+  { prefix: APP_PATHS.LIMIT, run: (account, chainId) => prefetchLimitOpenOrders(chainId, account) },
+  { prefix: APP_PATHS.EARN_POSITIONS, run: account => prefetchMyPositions(account) },
+]
+
+/**
+ * Warm a destination route on nav intent: its lazy JS chunk + (if registered) its data. This is the
+ * single entry point every internal-navigation component (StyledNavLink, NavigateButton) calls via the
+ * `usePrefetchRoute` hook, so any link to a registered route prefetches without per-link wiring.
+ */
+export function prefetchRoute(toPath: string | undefined, account: string | undefined, chainId: ChainId) {
+  if (!toPath) return
+  prefetchRouteChunk(toPath)
+  const path = toPath.split('?')[0]
+  ROUTE_DATA_PREFETCH.find(route => path === route.prefix || path.startsWith(`${route.prefix}/`))?.run(account, chainId)
 }

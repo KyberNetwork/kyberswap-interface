@@ -2,17 +2,15 @@ import { CSSProperties, forwardRef } from 'react'
 import { NavLink as BaseNavLink, NavLinkProps } from 'react-router-dom'
 
 import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
+import usePrefetchRoute from 'hooks/usePrefetchRoute'
 import { ExternalLink } from 'theme/components'
 import { cn } from 'utils/cn'
-import { prefetchRouteChunk } from 'utils/prefetch'
 
 interface Props extends NavLinkProps {
   activeStyle?: CSSProperties
   $disabled?: boolean
   customActive?: boolean
   isCustomActive?: boolean
-  /** Optional data prefetch (e.g. an RTK Query) fired on the same hover/focus intent as the chunk prefetch. */
-  prefetchData?: () => void
 }
 
 // Base link styles shared by StyledNavLink and StyledNavExternalLink.
@@ -23,14 +21,13 @@ const ACTIVE_CLASS = 'rounded-xl font-semibold !text-primary'
 
 // react-router v6 removed activeClassName/activeStyle from NavLink; we recreate it via the className function form.
 export const StyledNavLink = forwardRef<HTMLAnchorElement, Props>(
-  ({ activeStyle, customActive, isCustomActive, $disabled, prefetchData, className, style, ...props }, ref) => {
+  ({ activeStyle, customActive, isCustomActive, $disabled, className, style, ...props }, ref) => {
     const { to, onMouseEnter, onMouseLeave, onFocus, onBlur, onTouchStart } = props
-    // Warm the destination route's lazy JS chunk (+ optional data) on hover/focus/touch; chunk prefetch
-    // is a no-op for external/unmapped targets. Compose with any caller-provided handlers.
-    const intent = usePrefetchOnIntent(() => {
-      if (typeof to === 'string') prefetchRouteChunk(to)
-      prefetchData?.()
-    })
+    // Warm the destination route's lazy JS chunk + its data (if registered) on hover/focus/touch; a no-op
+    // for external/unmapped targets. `to` may be a string or a { pathname } object.
+    const toPath = typeof to === 'string' ? to : to?.pathname
+    const prefetchRoute = usePrefetchRoute()
+    const intent = usePrefetchOnIntent(() => prefetchRoute(toPath))
     return (
       <BaseNavLink
         ref={ref}

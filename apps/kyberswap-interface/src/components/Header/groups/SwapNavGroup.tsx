@@ -14,14 +14,13 @@ import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
-import { prefetchLimitOpenOrders } from 'utils/prefetch'
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="flex size-4 flex-[0_0_16px] items-center">{children}</div>
 )
 
 const SwapNavGroup = () => {
-  const { networkInfo, chainId, account } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const upTo430 = useMedia('(max-width: 430px)')
 
@@ -58,7 +57,6 @@ const SwapNavGroup = () => {
             <StyledNavLink
               id="limit-order-nav-link"
               to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
-              prefetchData={() => prefetchLimitOpenOrders(chainId, account)}
               style={{ flexDirection: 'column', width: '100%' }}
             >
               <div className="flex items-center gap-3">

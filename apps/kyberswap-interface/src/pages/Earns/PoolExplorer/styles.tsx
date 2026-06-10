@@ -1,6 +1,8 @@
 import { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
+import usePrefetchRoute from 'hooks/usePrefetchRoute'
 import { cn } from 'utils/cn'
 
 export const PoolPageWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
@@ -75,9 +77,12 @@ interface NavigateButtonProps {
 
 export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to, mobileFullWidth }) => {
   const navigate = useNavigate()
+  // Warm the destination route's chunk + data on hover/focus, since clicking navigates there.
+  const prefetchRoute = usePrefetchRoute()
+  const intent = usePrefetchOnIntent(() => prefetchRoute(to))
 
   return (
-    <StyledNavigateButton mobileFullWidth={mobileFullWidth} onClick={() => navigate({ pathname: to })}>
+    <StyledNavigateButton mobileFullWidth={mobileFullWidth} onClick={() => navigate({ pathname: to })} {...intent}>
       {icon}
       <span className="w-max">{text}</span>
     </StyledNavigateButton>
