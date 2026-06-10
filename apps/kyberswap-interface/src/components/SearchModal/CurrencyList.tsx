@@ -31,7 +31,7 @@ type CurrencyRowProps = {
   showImported?: boolean
   showFavoriteIcon?: boolean
   currency: Currency
-  currencyBalance: CurrencyAmount<Currency>
+  currencyBalance?: CurrencyAmount<Currency>
   onSelect?: (currency: Currency) => void
   isSelected: boolean
   otherSelected?: boolean
@@ -165,7 +165,7 @@ export const CurrencyRow = ({
 
 type TokenRowProps = {
   currency: Currency | undefined
-  currencyBalance: CurrencyAmount<Currency>
+  currencyBalance?: CurrencyAmount<Currency>
   index: number
   style: CSSProperties
 }
@@ -241,9 +241,8 @@ const CurrencyList = ({
           !!favoriteTokens?.includes(favoriteTokenAddress.toLowerCase())
         : false
 
-      const tokenPrice = tokenPrices[token.address]
-      const usdBalance =
-        isWhitelisted && currencyBalance && tokenPrice ? tokenPrice * parseFloat(currencyBalance.toExact()) : undefined
+      const tokenPrice = tokenPrices[token.address] || 0
+      const usdBalance = tokenPrice * parseFloat(currencyBalance?.toExact() || '0')
 
       return (
         <CurrencyRow
