@@ -15,35 +15,6 @@
   @apply disabled:!cursor-not-allowed disabled:!bg-buttonGray disabled:!text-border;
 }
 
-@keyframes ks-loading-dots {
-  0% {
-    content: '.';
-  }
-  33% {
-    content: '..';
-  }
-  66%,
-  100% {
-    content: '...';
-  }
-}
-
-.ks-loading-dots {
-  position: relative;
-  display: inline-block;
-}
-
-.ks-loading-dots::after {
-  content: '.';
-  position: absolute;
-  left: 100%;
-  top: 50%;
-  width: 1rem;
-  transform: translateY(-50%);
-  text-align: left;
-  animation: ks-loading-dots 1.2s steps(1, end) infinite;
-}
-
 @layer components {
   /* Native browser checkbox tinted with theme primary; pseudo-elements handle the indeterminate state. */
   .ks-checkbox-native {
@@ -711,10 +682,20 @@
   /* Used by <Dots> — animates an ellipsis after some text (e.g. "Loading..."). */
   .animate-ellipsis::after {
     display: inline-block;
-    animation: ellipsis 1.25s infinite;
+    animation: ellipsis 1.25s steps(1, end) infinite;
     content: '.';
     width: 1em;
     text-align: left;
+  }
+  .animate-ellipsis-absolute {
+    position: relative;
+    display: inline-block;
+  }
+  .animate-ellipsis-absolute::after {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
   }
   @keyframes ellipsis {
     0% {
@@ -723,7 +704,8 @@
     33% {
       content: '..';
     }
-    66% {
+    66%,
+    100% {
       content: '...';
     }
   }

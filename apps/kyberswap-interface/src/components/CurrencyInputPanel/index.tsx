@@ -36,13 +36,6 @@ export const CurrencySelect = forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & CurrencySelectStyleProps
 >(({ tight, selected, hideInput, isDisable, className, children, ...rest }, ref) => {
-  const hoverShift = isDisable
-    ? '' // disabled hover keeps brightness unchanged
-    : selected
-    ? hideInput
-      ? 'hover:brightness-95 focus:brightness-95'
-      : 'hover:brightness-105 focus:brightness-105'
-    : 'hover:brightness-95 focus:brightness-95'
   return (
     <button
       ref={ref}
@@ -54,8 +47,7 @@ export const CurrencySelect = forwardRef<
         !selected && 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]',
         isDisable ? 'cursor-default' : 'cursor-pointer',
         hideInput && !tight ? 'pr-2' : 'pr-0',
-        hoverShift,
-        selected ? 'hover:text-subText focus:text-subText' : 'hover:text-textReverse focus:text-textReverse',
+        !isDisable && 'hover:brightness-125 focus:brightness-125',
         className,
       )}
     >

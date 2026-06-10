@@ -51,12 +51,6 @@ export const StyledBalanceMaxMini = ({ hover, className, children, ...rest }: St
   </button>
 )
 
-export const Dots = ({ children, className, ...rest }: React.HTMLAttributes<HTMLSpanElement>) => (
-  <span className={cn('animate-ellipsis', className)} {...rest}>
-    {children}
-  </span>
-)
-
 export function SwapCallbackError({ error, style = {} }: { error: string; style?: React.CSSProperties }) {
   const [showDetail, setShowDetail] = useState<boolean>(false)
   return (

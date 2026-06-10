@@ -33,6 +33,7 @@ import {
   getCurrencyParam,
   getDefaultInputToken,
   getDefaultOutputToken,
+  isCreatorNameValid,
   isSameToken,
 } from 'components/TipLinkGeneratorModal/shared'
 import { APP_PATHS } from 'constants/index'
@@ -66,7 +67,6 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
   const [showBackground, setShowBackground] = useState(false)
   const [shortLink, setShortLink] = useState(false)
   const [generatedLink, setGeneratedLink] = useState('')
-  const [copied, setCopied] = useState(false)
   const [showNetworkModal, setShowNetworkModal] = useState(false)
   const [inputToken, setInputToken] = useState<TokenSchema>(() => getDefaultInputToken(defaultChainId))
   const [outputToken, setOutputToken] = useState<TokenSchema | undefined>(() => getDefaultOutputToken(defaultChainId))
@@ -81,7 +81,8 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
   const trimmedReceiver = receiver.trim()
   const trimmedCreatorName = creatorName.trim()
   const isReceiverValid = !trimmedReceiver || Boolean(isAddress(chainId, trimmedReceiver))
-  const canGenerate = Boolean(trimmedReceiver && isReceiverValid && inputToken && outputToken)
+  const isDisplayNameValid = isCreatorNameValid(trimmedCreatorName)
+  const canGenerate = Boolean(trimmedReceiver && isReceiverValid && isDisplayNameValid && inputToken && outputToken)
   const selectedTokenAddress = tokenSelectorTarget === 'input' ? inputToken?.address : outputToken?.address
   const isUsingConnectedAddress = !!account && trimmedReceiver.toLowerCase() === account.toLowerCase()
   const isCustomColor = backgroundMode === 'solid' && !SOLID_COLORS.includes(backgroundColor)
@@ -98,7 +99,6 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
     setShowBackground(false)
     setShortLink(false)
     setGeneratedLink('')
-    setCopied(false)
     setShowNetworkModal(false)
     setInputToken(getDefaultInputToken(defaultChainId))
     setOutputToken(getDefaultOutputToken(defaultChainId))
@@ -135,7 +135,6 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
 
   useEffect(() => {
     setGeneratedLink('')
-    setCopied(false)
   }, [
     backgroundColor,
     backgroundMode,
@@ -247,21 +246,6 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
     }
   }
 
-  const handleCopy = async () => {
-    if (!generatedLink) return
-    try {
-      await navigator.clipboard.writeText(generatedLink)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 1200)
-    } catch {
-      notify({
-        title: t`Copy failed`,
-        summary: t`Please copy the generated link manually.`,
-        type: NotificationType.ERROR,
-      })
-    }
-  }
-
   const handleTokenSelect = (token: TokenSchema) => {
     if (tokenSelectorTarget === 'input') {
       if (isSameToken(token, outputToken)) setOutputToken(inputToken)
@@ -303,6 +287,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
             chainId={chainId}
             creatorName={creatorName}
             inputToken={inputToken}
+            isCreatorNameValid={isDisplayNameValid}
             isReceiverValid={isReceiverValid}
             isUsingConnectedAddress={isUsingConnectedAddress}
             onChainSelect={handleChainSelect}
@@ -346,10 +331,8 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
 
           <TipConfigOutput
             canGenerate={canGenerate}
-            copied={copied}
             generatedLink={generatedLink}
             isLoading={isLoading}
-            onCopy={handleCopy}
             onGenerate={handleGenerate}
             onShortLinkChange={() => setShortLink(prev => !prev)}
             shortLink={shortLink}
