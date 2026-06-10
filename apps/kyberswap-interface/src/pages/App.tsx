@@ -146,7 +146,7 @@ const RedirectWithNetworkSuffix = () => {
 }
 
 // Legacy pool-detail URL (`/pools/add-liquidity?exchange=&poolChainId=&poolAddress=`) ->
-// the canonical path form (`/pools/<chain>/<protocol>/<address>`). The Cloudflare edge worker also
+// the canonical path form (`/pools/<chain>/<protocol>/<address>`). The og-service also
 // 301s this for crawlers; this client-side redirect covers in-SPA navigation + direct hits.
 const RedirectAddLiquidityToPoolPath = () => {
   const [searchParams] = useSearchParams()
