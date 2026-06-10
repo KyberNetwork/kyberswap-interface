@@ -8,12 +8,12 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
-import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import EditOrderModal from 'components/swapv2/LimitOrder/EditOrderModal'
+import ListOrderSkeleton from 'components/swapv2/LimitOrder/ListOrder/ListOrderSkeleton'
 import OrderItem from 'components/swapv2/LimitOrder/ListOrder/OrderItem'
 import TabSelector from 'components/swapv2/LimitOrder/ListOrder/TabSelector'
 import TableHeader from 'components/swapv2/LimitOrder/ListOrder/TableHeader'
@@ -309,7 +309,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
         />
       </div>
       {loading ? (
-        <LocalLoader />
+        <ListOrderSkeleton />
       ) : (
         <div>
           <TableHeader />
