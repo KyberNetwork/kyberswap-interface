@@ -7,7 +7,6 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
-import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { APP_PATHS } from 'constants/index'
@@ -16,6 +15,7 @@ import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExpl
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
+import PositionListSkeleton from 'pages/Earns/UserPositions/PositionListSkeleton'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
 import { toPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import {
@@ -368,7 +368,7 @@ const UserPositions = () => {
               </PositionTableHeader>
             )}
             {isFetching && loading ? (
-              <LocalLoader />
+              <PositionListSkeleton />
             ) : (
               <TableContent
                 positions={filteredPositions}
