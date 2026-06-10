@@ -97,6 +97,9 @@ export default function Swap() {
     setActiveTab(getDefaultTab())
   }, [getDefaultTab])
 
+  const isSetting = isSettingTab(activeTab)
+  const activeMainTab = isSetting ? getDefaultTab() : activeTab
+
   const tabFromUrl = searchParams.get('tab')
   useEffect(() => {
     if (tabFromUrl === 'settings') {
@@ -124,7 +127,7 @@ export default function Swap() {
       <Banner />
       <Container>
         <SwapFormWrapper>
-          <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+          <Header activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
 
           <AppBodyWrapped
             data-highlight={shouldHighlightSwapBox}
