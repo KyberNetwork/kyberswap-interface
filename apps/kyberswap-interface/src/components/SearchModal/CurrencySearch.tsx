@@ -17,7 +17,7 @@ import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 import ksSettingApi from 'services/ksSetting'
 
-import { ButtonEmpty } from 'components/Button'
+import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
@@ -132,34 +132,39 @@ const OtherChainTokenResult = ({ tokens, loading }: { tokens: WrappedTokenInfo[]
   return (
     <Column className="h-full">
       <div className="px-5 py-3 text-sm font-medium text-subText">
-        <Trans>Found on other chains</Trans>
+        <Trans>Available on other chains</Trans>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2">
         {tokens.map(token => {
           const networkInfo = NETWORKS_INFO[token.chainId] as NetworkInfo
+          const isDimmed = !token.isWhitelisted
 
           return (
-            <button
-              type="button"
+            <div
               key={`${token.chainId}-${token.address}`}
-              onClick={() => changeNetwork(token.chainId)}
-              className="group flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg bg-subText-04 px-3 py-1 hover:bg-primary-15 active:bg-primary-20"
+              className="flex min-h-14 w-full items-center justify-between gap-4 rounded-lg bg-subText-04 px-3 py-1"
             >
               <div className="flex min-w-0 items-center gap-2">
-                <CurrencyLogo currency={token} size="24px" />
-                <div className="flex min-w-0 flex-col items-start gap-0.5">
+                <CurrencyLogo currency={token} size="24px" style={isDimmed ? { opacity: 0.6 } : undefined} />
+                <div className={cn('flex min-w-0 flex-col items-start gap-0.5', isDimmed && 'opacity-60')}>
                   <span className="truncate font-medium text-text">{token.symbol}</span>
-                  <span className="truncate text-xs font-light text-subText">{token.name}</span>
+                  <span className="flex min-w-0 items-center gap-1">
+                    <img src={networkInfo.icon} alt={networkInfo.name} className="size-3 rounded-full" />
+                    <span className="truncate text-xs font-light text-subText">{networkInfo.name}</span>
+                  </span>
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <span className="hidden text-xs font-medium text-primary group-hover:inline">
-                  <Trans>Switch to</Trans>
-                </span>
-                <img src={networkInfo.icon} alt={networkInfo.name} className="size-4 rounded-full" />
-                <span className="text-xs font-medium text-subText">{networkInfo.name}</span>
-              </div>
-            </button>
+              <ButtonPrimary
+                width="fit-content"
+                padding="6px 12px"
+                fontWeight={500}
+                fontSize="14px"
+                className={cn(isDimmed && 'opacity-60')}
+                onClick={() => changeNetwork(token.chainId)}
+              >
+                <Trans>Switch Chain</Trans>
+              </ButtonPrimary>
+            </div>
           )
         })}
       </div>
@@ -245,8 +250,8 @@ export const CurrencySearch = ({
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
 
   const filteredCommonTokens = useMemo(() => {
-    return filterTokens(chainId, commonTokens as Token[], debouncedQuery).filter(filterWrapFunc)
-  }, [commonTokens, debouncedQuery, chainId, filterWrapFunc])
+    return (commonTokens as Token[]).filter(filterWrapFunc)
+  }, [commonTokens, filterWrapFunc])
 
   const rpcSearchChainIds = useMemo(
     () => [
@@ -274,15 +279,20 @@ export const CurrencySearch = ({
         const rawToken = await fetchTokenInfoFromRpc(debouncedQuery, rpcChainId, {
           silent: rpcChainId !== chainId,
         })
-        return rawToken
-          ? new WrappedTokenInfo({
-              chainId: rawToken.chainId,
-              address: rawToken.address,
-              name: rawToken.name || 'Unknown Token',
-              decimals: rawToken.decimals,
-              symbol: rawToken.symbol || 'UNKNOWN',
-            })
-          : undefined
+        if (!rawToken) return undefined
+
+        const [tokenFromApi] = await fetchListTokenByAddresses([rawToken.address], rawToken.chainId as ChainId).catch(
+          () => [],
+        )
+        if (tokenFromApi) return tokenFromApi
+
+        return new WrappedTokenInfo({
+          chainId: rawToken.chainId,
+          address: rawToken.address,
+          name: rawToken.name || 'Unknown Token',
+          decimals: rawToken.decimals,
+          symbol: rawToken.symbol || 'UNKNOWN',
+        })
       },
       retry: false,
     })),

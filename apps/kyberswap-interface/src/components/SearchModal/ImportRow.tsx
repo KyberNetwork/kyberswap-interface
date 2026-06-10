@@ -22,11 +22,10 @@ const ImportRow = ({ token, style, dim, setImportToken }: ImportRowProps) => {
       className={cn(
         'grid h-14 items-center gap-2 rounded-lg px-5 py-1 hover:bg-primary-15 active:bg-primary-20',
         '[grid-template-columns:auto_minmax(auto,1fr)_auto]',
-        dim && 'opacity-80',
       )}
     >
-      <CurrencyLogo currency={token} size={'24px'} style={{ opacity: dim ? '0.6' : '1' }} />
-      <AutoColumn className={cn('gap-1', dim ? 'opacity-60' : 'opacity-100')}>
+      <CurrencyLogo currency={token} size={'24px'} style={dim ? { opacity: 0.6 } : undefined} />
+      <AutoColumn className={cn('gap-1', dim && 'opacity-60')}>
         <AutoRow>
           <p className="m-0 text-base font-medium leading-[normal] text-text">{token.symbol}</p>
           <div className="m-0 ml-2 text-subText">
@@ -42,6 +41,7 @@ const ImportRow = ({ token, style, dim, setImportToken }: ImportRowProps) => {
         padding="6px 12px"
         fontWeight={500}
         fontSize="14px"
+        className={cn(dim && 'opacity-60')}
         onClick={() => setImportToken(token)}
       >
         <Trans>Import</Trans>
