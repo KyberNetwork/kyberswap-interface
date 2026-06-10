@@ -29,6 +29,31 @@ export const TIP_LINK_CLIENT_ID = 'community'
 export type BackgroundMode = 'default' | 'solid' | 'image'
 export type TokenSelectorTarget = 'input' | 'output'
 
+export type TipLinkTradeType = 'swap' | 'limit_order' | 'cross_chain'
+
+export type TipLinkAttribution = {
+  tip_receiver: string
+  tip_client_id: string
+  tip_creator_name?: string
+}
+
+/**
+ * Derive tip-link attribution from the current swap URL params. Returns null for any
+ * trade that did not originate from a community tip link (a regular swap, or a partner
+ * swap with a different clientId), so callers can simply skip tracking on null.
+ */
+export const getTipLinkAttribution = (searchParams: URLSearchParams): TipLinkAttribution | null => {
+  const clientId = searchParams.get('clientId')
+  const feeReceiver = searchParams.get('feeReceiver')
+  if (clientId !== TIP_LINK_CLIENT_ID || !feeReceiver) return null
+  const creatorName = searchParams.get('creatorName')?.trim()
+  return {
+    tip_receiver: feeReceiver,
+    tip_client_id: clientId,
+    tip_creator_name: creatorName || undefined,
+  }
+}
+
 export const getChainLabel = (chainId: ChainId) => {
   return NETWORKS_INFO[chainId].name
 }
