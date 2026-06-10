@@ -9,16 +9,32 @@ import store from 'state'
 
 type ChunkLoader = () => Promise<unknown>
 
-// Destination route → its lazy JS chunk. Each loader imports the SAME module App.tsx lazy-loads, so
-// Vite serves the identical chunk (dedup by resolved module id) — prefetching never double-downloads.
-// Order matters: list more specific path prefixes before their parents (EARN_POOLS before EARN).
+// Destination route → its lazy JS chunk, covering every header nav link. Each loader imports the SAME
+// module App.tsx lazy-loads, so Vite serves the identical chunk (dedup by resolved module id) —
+// prefetching never double-downloads. Order matters: list more specific path prefixes before their
+// parents (e.g. every `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
 const ROUTE_CHUNKS: { prefix: string; load: ChunkLoader }[] = [
+  // Trade — swap / limit / cross-chain all render from the SwapV3 chunk.
   { prefix: APP_PATHS.SWAP, load: () => import('pages/SwapV3') },
   { prefix: APP_PATHS.LIMIT, load: () => import('pages/SwapV3') },
   { prefix: APP_PATHS.CROSS_CHAIN, load: () => import('pages/SwapV3') },
+  // Market
   { prefix: APP_PATHS.MARKET_OVERVIEW, load: () => import('pages/MarketOverview') },
+  // Earn — specific /earn/* routes must precede the /earn landing.
   { prefix: APP_PATHS.EARN_POOLS, load: () => import('pages/Earns/PoolExplorer') },
+  { prefix: APP_PATHS.EARN_POSITIONS, load: () => import('pages/Earns/UserPositions') },
+  { prefix: APP_PATHS.EARN_SMART_EXIT, load: () => import('pages/Earns/SmartExitOrders') },
   { prefix: APP_PATHS.EARN, load: () => import('pages/Earns/Landing') },
+  // KyberDAO
+  { prefix: APP_PATHS.KYBERDAO_STAKE, load: () => import('pages/KyberDAO/StakeKNC') },
+  { prefix: APP_PATHS.KYBERDAO_VOTE, load: () => import('pages/KyberDAO/Vote') },
+  { prefix: APP_PATHS.KYBERDAO_KNC_UTILITY, load: () => import('pages/KyberDAO/KNCUtility') },
+  // About (prerendered routes — warm the chunk for hydration + in-app nav).
+  { prefix: `${APP_PATHS.ABOUT}/kyberswap`, load: () => import('pages/About/AboutKyberSwap') },
+  { prefix: `${APP_PATHS.ABOUT}/knc`, load: () => import('pages/About/AboutKNC') },
+  // Campaigns — the dashboard has its own chunk; every other /campaigns/* is the Campaign page.
+  { prefix: APP_PATHS.MY_DASHBOARD, load: () => import('pages/Campaign/MyDashboard') },
+  { prefix: '/campaigns', load: () => import('pages/Campaign') },
 ]
 
 /** Warm the lazy JS chunk for the route a nav link points at. No-op for external/unmapped targets. */
