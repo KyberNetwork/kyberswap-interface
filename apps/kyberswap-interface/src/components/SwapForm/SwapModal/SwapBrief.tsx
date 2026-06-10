@@ -2,15 +2,14 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
 import { ArrowDown } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 
-import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
+import Skeleton from 'components/Skeleton'
+import { Stack } from 'components/Stack'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import UpdatedBadge, { Props as UpdatedBadgeProps } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
 import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
@@ -33,22 +32,12 @@ export default function SwapBrief({
   isLoading,
   currencyOut,
 }: Props) {
-  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { typedValue } = useSwapFormContext()
 
   const renderOutputAmount = () => {
     if (isLoading) {
-      return (
-        <Skeleton
-          width="108px"
-          // there's border of 1px
-          height="26.5px"
-          baseColor={theme.border}
-          highlightColor={theme.buttonGray}
-          borderRadius="80px"
-        />
-      )
+      return <Skeleton width="160px" height="32px" />
     }
 
     if (!outputAmountFromBuild) {
@@ -64,16 +53,7 @@ export default function SwapBrief({
 
   const renderAmountOutUsd = () => {
     if (isLoading) {
-      return (
-        <Skeleton
-          width="64px"
-          // there's border of 1px
-          height="15px"
-          baseColor={theme.border}
-          highlightColor={theme.buttonGray}
-          borderRadius="80px"
-        />
-      )
+      return <Skeleton width="60px" height="20px" />
     }
 
     if (!amountOutUsdFromBuild) {
@@ -88,7 +68,7 @@ export default function SwapBrief({
   }
 
   return (
-    <AutoColumn className="relative mt-1 min-w-0 gap-2">
+    <Stack className="min-w-0">
       <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
         <span className="text-xs font-medium text-subText">
           <Trans>Input Amount</Trans>
@@ -105,7 +85,7 @@ export default function SwapBrief({
         </div>
       </div>
 
-      <div className="absolute left-1/2 top-[calc(76px-6px)] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border border-solid border-border bg-buttonGray">
+      <div className="z-[1] my-[-6px] flex size-5 items-center justify-center self-center rounded-full border border-solid border-border bg-buttonGray">
         <ArrowDown size="12" className="text-subText" />
       </div>
 
@@ -129,6 +109,6 @@ export default function SwapBrief({
           </div>
         </div>
       </div>
-    </AutoColumn>
+    </Stack>
   )
 }

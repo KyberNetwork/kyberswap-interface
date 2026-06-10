@@ -246,10 +246,9 @@ export const ButtonPrimary = buildBase(
 export const ButtonWarning = buildBase(
   (props: ButtonProps) =>
     cn(
-      'bg-warning text-textReverse focus:shadow-[0_0_0_1pt_var(--ks-warning)] focus:brightness-95',
-      'active:shadow-[0_0_0_1pt_var(--ks-warning)] active:brightness-90',
-      'disabled:!cursor-auto disabled:!bg-warning-20 disabled:!text-warning',
-      props.$disabled && '!cursor-auto !bg-warning-20 !text-warning',
+      'bg-warning text-textReverse hover:!brightness-95 active:!brightness-90',
+      'disabled:!cursor-auto disabled:!bg-warning-20 disabled:!text-textReverse disabled:!shadow-none',
+      props.$disabled && '!cursor-auto !bg-warning-20 !text-textReverse !shadow-none',
     ),
   'ButtonWarning',
 )
