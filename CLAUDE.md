@@ -36,6 +36,11 @@ pnpm build
 - Redux Toolkit + RTK Query (app state), zustand (widget state)
 - wagmi, viem
 
+> **Note — `apps/og-service`:** a standalone **Node (Hono)** service (OG social-preview cards +
+> per-route `<head>` injection), not part of the React app. The stack above and the React / Tailwind /
+> styling / state / number-formatter rules below **do not apply** to it — it has its own conventions
+> in [`apps/og-service/CLAUDE.md`](apps/og-service/CLAUDE.md). Run it with `pnpm dev:og`.
+
 ## Code Conventions
 
 - Functional components with hooks only
