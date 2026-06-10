@@ -13,6 +13,7 @@ import { formatUnits } from 'viem'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { ETHER_ADDRESS } from 'constants/index'
@@ -293,6 +294,26 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       }
       crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT, swapDetails)
       trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_INITIATED, swapDetails)
+
+      // Tip is not charged on cross-chain swaps — attribute referral volume at initiation
+      // (completion fires from an off-page poller that has lost the tip-link URL context).
+      const tipLink = getTipLinkAttribution(searchParams)
+      if (tipLink) {
+        trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_TRADE, {
+          trade_type: 'cross_chain',
+          trade_status: 'initiated',
+          tip_charged: false,
+          ...tipLink,
+          input_token: currencyIn?.symbol,
+          output_token: currencyOut?.symbol,
+          pair: currencyIn?.symbol && currencyOut?.symbol ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+          chain: getChainName(fromChainId),
+          from_chain: getChainName(fromChainId),
+          to_chain: getChainName(toChainId),
+          volume: selectedQuote.quote.inputUsd,
+          tx_hash: res.sourceTxHash,
+        })
+      }
     }
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)

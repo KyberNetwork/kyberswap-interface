@@ -41,6 +41,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ChargeFeeBy } from 'types/route'
 import { isAddress } from 'utils'
@@ -55,6 +56,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
   const { supportedChains } = useChainsConfig()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
+  const { trackingHandler } = useTracking()
   const defaultChainId = TIP_LINK_CHAINS.includes(selectedChainId) ? selectedChainId : PRIMARY_CHAINS[0]
 
   const [chainId, setChainId] = useState<ChainId>(defaultChainId)
@@ -200,6 +202,17 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
 
   const handleGenerate = async () => {
     if (!canGenerate || !outputToken) return
+
+    trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_GENERATE_LINK_CLICK, {
+      receiver_wallet: trimmedReceiver,
+      input_token: inputToken.symbol,
+      input_token_address: inputToken.address,
+      output_token: outputToken.symbol,
+      output_token_address: outputToken.address,
+      pair: `${inputToken.symbol}/${outputToken.symbol}`,
+      chain_id: chainId,
+      chain: networkInfo.name,
+    })
 
     if (!enablePreview || !shortLink) {
       const params = new URLSearchParams({
