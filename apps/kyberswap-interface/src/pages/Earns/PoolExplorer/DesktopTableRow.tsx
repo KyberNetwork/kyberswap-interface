@@ -5,6 +5,7 @@ import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
@@ -15,6 +16,7 @@ import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
+import { prefetchPoolDetail } from 'utils/prefetch'
 
 const DesktopTableRow = ({
   pool,
@@ -33,6 +35,13 @@ const DesktopTableRow = ({
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
+
+  // The parent wires this row's onClick (onOpenZapInWidget) to open the pool's detail page, so warm
+  // that page's chunk + its poolDetail query on hover.
+  const prefetchDetail = usePrefetchOnIntent(
+    () => prefetchPoolDetail((pool.chain?.id || pool.chainId) as number, pool.address),
+    { delay: 120 },
+  )
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
@@ -55,7 +64,12 @@ const DesktopTableRow = ({
   }
 
   return (
-    <TableRow showRewards={showRewards} showPoolPrice={showPoolPrice} onClick={e => handleOpenZapInWidget(e)}>
+    <TableRow
+      showRewards={showRewards}
+      showPoolPrice={showPoolPrice}
+      onClick={e => handleOpenZapInWidget(e)}
+      {...prefetchDetail}
+    >
       <TableCell>
         <HStack className="items-center gap-2">
           <HStack className="relative items-end gap-0">

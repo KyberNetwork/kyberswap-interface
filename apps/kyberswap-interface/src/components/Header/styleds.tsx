@@ -1,14 +1,18 @@
 import { CSSProperties, forwardRef } from 'react'
 import { NavLink as BaseNavLink, NavLinkProps } from 'react-router-dom'
 
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import { ExternalLink } from 'theme/components'
 import { cn } from 'utils/cn'
+import { prefetchRouteChunk } from 'utils/prefetch'
 
 interface Props extends NavLinkProps {
   activeStyle?: CSSProperties
   $disabled?: boolean
   customActive?: boolean
   isCustomActive?: boolean
+  /** Optional data prefetch (e.g. an RTK Query) fired on the same hover/focus intent as the chunk prefetch. */
+  prefetchData?: () => void
 }
 
 // Base link styles shared by StyledNavLink and StyledNavExternalLink.
@@ -19,25 +23,54 @@ const ACTIVE_CLASS = 'rounded-xl font-semibold !text-primary'
 
 // react-router v6 removed activeClassName/activeStyle from NavLink; we recreate it via the className function form.
 export const StyledNavLink = forwardRef<HTMLAnchorElement, Props>(
-  ({ activeStyle, customActive, isCustomActive, $disabled, className, style, ...props }, ref) => (
-    <BaseNavLink
-      ref={ref}
-      {...props}
-      className={({ isActive }) =>
-        cn(
-          LINK_BASE_CLASS,
-          'hover:brightness-90',
-          (customActive ? isCustomActive : isActive) && ACTIVE_CLASS,
-          $disabled && 'pointer-events-none !text-border',
-          className as string | undefined,
-        )
-      }
-      style={({ isActive }) => ({
-        ...style,
-        ...((customActive ? isCustomActive : isActive) ? activeStyle : null),
-      })}
-    />
-  ),
+  ({ activeStyle, customActive, isCustomActive, $disabled, prefetchData, className, style, ...props }, ref) => {
+    const { to, onMouseEnter, onMouseLeave, onFocus, onBlur, onTouchStart } = props
+    // Warm the destination route's lazy JS chunk (+ optional data) on hover/focus/touch; chunk prefetch
+    // is a no-op for external/unmapped targets. Compose with any caller-provided handlers.
+    const intent = usePrefetchOnIntent(() => {
+      if (typeof to === 'string') prefetchRouteChunk(to)
+      prefetchData?.()
+    })
+    return (
+      <BaseNavLink
+        ref={ref}
+        {...props}
+        onMouseEnter={e => {
+          onMouseEnter?.(e)
+          intent.onMouseEnter()
+        }}
+        onMouseLeave={e => {
+          onMouseLeave?.(e)
+          intent.onMouseLeave()
+        }}
+        onFocus={e => {
+          onFocus?.(e)
+          intent.onFocus()
+        }}
+        onBlur={e => {
+          onBlur?.(e)
+          intent.onBlur()
+        }}
+        onTouchStart={e => {
+          onTouchStart?.(e)
+          intent.onTouchStart()
+        }}
+        className={({ isActive }) =>
+          cn(
+            LINK_BASE_CLASS,
+            'hover:brightness-90',
+            (customActive ? isCustomActive : isActive) && ACTIVE_CLASS,
+            $disabled && 'pointer-events-none !text-border',
+            className as string | undefined,
+          )
+        }
+        style={({ isActive }) => ({
+          ...style,
+          ...((customActive ? isCustomActive : isActive) ? activeStyle : null),
+        })}
+      />
+    )
+  },
 )
 StyledNavLink.displayName = 'StyledNavLink'
 

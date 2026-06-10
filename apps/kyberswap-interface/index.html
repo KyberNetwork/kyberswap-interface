@@ -81,6 +81,16 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="preload" as="image" href="/logo-dark.svg" />
 
+    <!-- Data APIs: warm DNS + TLS for the origins hit on initial load. JSON APIs are CORS fetches, so
+         they reuse a `crossorigin` connection; the image CDN is loaded without CORS, so no crossorigin. -->
+    <link rel="preconnect" href="https://ks-setting.kyberswap.com" crossorigin />
+    <link rel="preconnect" href="https://token-api.kyberswap.com" crossorigin />
+    <link rel="preconnect" href="https://aggregator-api.kyberswap.com" crossorigin />
+    <link rel="preconnect" href="https://storage.googleapis.com" />
+    <link rel="dns-prefetch" href="https://ethereum-rpc.kyberswap.com" />
+    <link rel="dns-prefetch" href="https://earn-service.kyberswap.com" />
+    <link rel="dns-prefetch" href="https://common-service.kyberswap.com" />
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
