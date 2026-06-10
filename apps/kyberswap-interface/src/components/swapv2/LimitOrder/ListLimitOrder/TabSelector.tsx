@@ -44,7 +44,7 @@ export default function TabSelector({
                   </Trans>
                 }
               >
-                <span className="ml-2 inline-block min-w-[20px] rounded-[20px] bg-warning-30 px-1.5 py-0.5 text-sm font-medium text-warning">
+                <span className="ml-2 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-warning-30 px-1.5 align-middle text-xs font-medium leading-none text-warning">
                   {numberOfInsufficientFundOrders}
                 </span>
               </MouseoverTooltip>
