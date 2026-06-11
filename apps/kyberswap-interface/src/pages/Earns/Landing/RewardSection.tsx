@@ -2,11 +2,11 @@ import { t } from '@lingui/macro'
 import { useMedia } from 'react-use'
 
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
+import ScrambleNumber from 'components/ScrambleNumber'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { RewardsNavigateButton } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -42,13 +42,16 @@ const RewardSection = () => {
         <span className={cn('relative top-px uppercase text-subText', upToSmall ? 'text-lg' : 'text-base')}>
           {t`Total rewards`}
         </span>
-        {isLoadingRewardInfo ? (
-          <PositionSkeleton width={120} height={32} />
-        ) : (
-          <span className="text-[28px]">
-            {formatDisplayNumber(totalRewardUsdValue, { significantDigits: 6, style: 'currency' })}
-          </span>
-        )}
+        {/* Fixed-width centered slot so the value appearing never reflows the label/button. The digits
+            scramble then lock to the real number — same string length + tabular-nums = constant width. */}
+        <div className="inline-flex min-w-[140px] items-center justify-center text-[28px]">
+          {!isLoadingRewardInfo && (
+            <ScrambleNumber
+              value={totalRewardUsdValue}
+              format={n => formatDisplayNumber(n, { significantDigits: 6, style: 'currency' })}
+            />
+          )}
+        </div>
       </div>
       <RewardsNavigateButton to={btnPath} onClick={handleClickBtn}>
         <span className="text-sm font-medium uppercase text-primary">{btnText}</span>
