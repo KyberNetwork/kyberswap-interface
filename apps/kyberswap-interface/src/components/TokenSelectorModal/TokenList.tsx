@@ -1,14 +1,19 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import React, { CSSProperties, ReactNode, memo, useCallback } from 'react'
+import { Trans } from '@lingui/macro'
+import React, { CSSProperties, ReactNode, memo, useCallback, useMemo } from 'react'
 import { Info, Star, Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 
+import { ButtonPrimary } from 'components/Button'
+import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
-import { getDisplayTokenInfo } from 'components/SearchModal/CommonBases'
-import ImportRow from 'components/SearchModal/ImportRow'
+import { AutoRow } from 'components/Row'
+import Skeleton from 'components/Skeleton'
+import { Center, HStack, Stack } from 'components/Stack'
+import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
 import { useActiveWeb3React } from 'hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -19,16 +24,15 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
 import { isTokenNative } from 'utils/tokenInfo'
 
-const Balance = ({ balance, compact }: { balance: CurrencyAmount<Currency>; compact?: boolean }) => {
+const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   return (
-    <span className={cn(compact ? 'text-xs' : 'text-base max-md:text-sm')} title={balance.toExact()}>
+    <span className="text-base max-md:text-sm" title={balance.toExact()}>
       {balance.toSignificant(10)}
     </span>
   )
 }
 
-type CurrencyRowProps = {
-  showRemoveImportIcon?: boolean
+type TokenRowProps = {
   showFavoriteIcon?: boolean
   currency: Currency
   currencyBalance?: CurrencyAmount<Currency>
@@ -36,8 +40,8 @@ type CurrencyRowProps = {
   isSelected: boolean
   otherSelected?: boolean
   style?: CSSProperties
-  handleClickFavorite?: (event: React.MouseEvent, currency: Currency) => void
-  removeImportedToken?: (token: Token) => void
+  onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
+  onRemoveImportedToken?: (token: Token) => void
   customName?: ReactNode
   customBalance?: ReactNode
   usdBalance?: number
@@ -45,19 +49,18 @@ type CurrencyRowProps = {
   hideBalance?: boolean
   showLoading?: boolean
   isFavorite?: boolean
-  setTokenToShowInfo?: (token: Token) => void
+  onShowTokenInfo?: (token: Token) => void
 }
 
-export const CurrencyRow = ({
+export const TokenRow = ({
   currency,
-  showRemoveImportIcon,
   currencyBalance,
   onSelect,
   isSelected,
   otherSelected,
   style = {},
-  handleClickFavorite,
-  removeImportedToken,
+  onToggleFavorite,
+  onRemoveImportedToken,
   showFavoriteIcon = true,
   customName,
   customBalance,
@@ -66,25 +69,27 @@ export const CurrencyRow = ({
   hideBalance,
   showLoading,
   isFavorite,
-  setTokenToShowInfo,
-}: CurrencyRowProps) => {
+  onShowTokenInfo,
+}: TokenRowProps) => {
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
+  const balanceSkeletonWidth = useMemo(() => Math.floor(Math.random() * 40) + 40, [])
 
   const onClickRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
-    removeImportedToken?.(currency as Token)
+    onRemoveImportedToken?.(currency as Token)
   }
 
-  const renderBalance = (compact = false) => {
-    if (hideBalance) return <span className={cn(compact ? 'text-xs' : 'text-base max-md:text-sm')}>******</span>
-    if (currencyBalance) return <Balance balance={currencyBalance} compact={compact} />
-    if (showLoading) return <Loader size={compact ? '12px' : undefined} strokeWidth={compact ? '2' : undefined} />
+  const renderBalance = () => {
+    if (hideBalance) return <span className="text-base max-md:text-sm">******</span>
+    if (currencyBalance) return <Balance balance={currencyBalance} />
+    if (showLoading)
+      return <Skeleton width={balanceSkeletonWidth} height={18} className="my-[3px]" variant="darkSubtle" />
     return null
   }
   const { symbol } = getDisplayTokenInfo(currency)
 
   return (
-    <div
+    <HStack
       data-testid="token-item"
       data-selected={isSelected || otherSelected}
       role="button"
@@ -107,10 +112,10 @@ export const CurrencyRow = ({
           '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
       )}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+      <HStack className="min-w-0 flex-1 items-center gap-3">
         {showFavoriteIcon && (
           <Star
-            onClick={e => handleClickFavorite?.(e, currency)}
+            onClick={e => onToggleFavorite?.(e, currency)}
             data-active={isFavorite}
             data-testid="button-favorite-token"
             role="button"
@@ -119,88 +124,128 @@ export const CurrencyRow = ({
         )}
 
         <CurrencyLogo currency={currency} size="24px" />
-        <div className="flex min-w-0 flex-col gap-0.5">
+        <Stack className="min-w-0 gap-0.5">
           <span title={currency.name} className="font-medium" data-testid="token-symbol">
             {customName || symbol}
           </span>
-          <div className="ml-0 max-w-full truncate text-xs font-light text-subText">{nativeCurrency?.name}</div>
-        </div>
-      </div>
+          <span className="max-w-full truncate text-xs font-light text-subText">{nativeCurrency?.name}</span>
+        </Stack>
+      </HStack>
 
-      <div className="flex flex-shrink-0 items-center gap-3 justify-self-end">
-        <div className="flex flex-col items-end gap-0.5">
+      <HStack className="shrink-0 items-center gap-3 justify-self-end">
+        <Stack className="items-end gap-0.5">
           {customBalance !== undefined ? customBalance : renderBalance()}
           {usdBalance !== undefined && !hideBalance && (
             <span className="text-xs text-subText">
               {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
             </span>
           )}
-        </div>
-        {showRemoveImportIcon && (
+        </Stack>
+        {onRemoveImportedToken && (
           <Trash
             onClick={onClickRemove}
             data-testid="button-remove-import-token"
             className="size-4 text-subText hover:text-text"
           />
         )}
-        {setTokenToShowInfo && (
+        {onShowTokenInfo && (
           <Info
             role="button"
             onClick={e => {
               e.stopPropagation()
-              setTokenToShowInfo(currency.wrapped)
+              onShowTokenInfo(currency.wrapped)
             }}
             size={16}
             className="text-subText hover:text-text"
           />
         )}
-      </div>
+      </HStack>
+    </HStack>
+  )
+}
+
+type ImportTokenRowProps = {
+  token: Token
+  style?: CSSProperties
+  dim?: boolean
+  onImportToken?: (token: Token) => void
+}
+
+const ImportTokenRow = ({ token, style, dim, onImportToken }: ImportTokenRowProps) => {
+  return (
+    <div
+      style={style}
+      className={cn(
+        'grid h-14 items-center gap-2 rounded-lg px-5 py-1 hover:bg-primary-15 active:bg-primary-20',
+        '[grid-template-columns:auto_minmax(auto,1fr)_auto]',
+      )}
+    >
+      <CurrencyLogo currency={token} size="24px" style={dim ? { opacity: 0.6 } : undefined} />
+      <AutoColumn className={cn('gap-1', dim && 'opacity-60')}>
+        <AutoRow>
+          <span className="text-base font-medium leading-[normal] text-text">{token.symbol}</span>
+          <span className="ml-2 text-subText">
+            <span className="block max-w-[140px] truncate text-xs" title={token.name}>
+              {token.name}
+            </span>
+          </span>
+        </AutoRow>
+      </AutoColumn>
+      <ButtonPrimary
+        data-testid="button-import-token"
+        width="fit-content"
+        padding="6px 12px"
+        fontWeight={500}
+        fontSize="14px"
+        className={cn(dim && 'opacity-60')}
+        onClick={() => onImportToken?.(token)}
+      >
+        <Trans>Import</Trans>
+      </ButtonPrimary>
     </div>
   )
 }
 
-type TokenRowProps = {
+type VirtualTokenRowProps = {
   currency: Currency | undefined
   currencyBalance?: CurrencyAmount<Currency>
   index: number
   style: CSSProperties
 }
 
-type CurrencyListProps = {
-  showRemoveImportIcon?: boolean
+type TokenListProps = {
   showFavoriteIcon?: boolean
   hasMore?: boolean
   currencies: Currency[]
   selectedCurrency?: Currency | null
   onCurrencySelect?: (currency: Currency) => void
   otherCurrency?: Currency | null
-  setImportToken?: (token: Token) => void
-  handleClickFavorite?: (event: React.MouseEvent, currency: Currency) => void
-  removeImportedToken?: (token: Token) => void
+  onImportToken?: (token: Token) => void
+  onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
+  onRemoveImportedToken?: (token: Token) => void
   loadMoreRows?: () => Promise<void>
   listTokenRef?: React.Ref<HTMLDivElement>
   itemStyle?: CSSProperties
   customChainId?: ChainId
-  setTokenToShowInfo?: (token: Token) => void
+  onShowTokenInfo?: (token: Token) => void
 }
 
-const CurrencyList = ({
+const TokenList = ({
   currencies,
   selectedCurrency,
-  showRemoveImportIcon,
   onCurrencySelect,
   otherCurrency,
-  setImportToken,
-  handleClickFavorite,
-  removeImportedToken,
+  onImportToken,
+  onToggleFavorite,
+  onRemoveImportedToken,
   loadMoreRows,
   hasMore,
   listTokenRef,
   showFavoriteIcon,
   itemStyle = {},
   customChainId,
-  setTokenToShowInfo,
-}: CurrencyListProps) => {
+  onShowTokenInfo,
+}: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
@@ -212,7 +257,7 @@ const CurrencyList = ({
   const currencyBalances = useCurrencyBalances(currencies, customChainId)
 
   const Row = useCallback(
-    ({ style, currency, currencyBalance }: TokenRowProps) => {
+    ({ style, currency, currencyBalance }: VirtualTokenRowProps) => {
       if (!currency) return null
 
       const extendCurrency = currency as WrappedTokenInfo
@@ -224,8 +269,8 @@ const CurrencyList = ({
         !tokenImports.find(importedToken => importedToken.address === token.address) &&
         !isTokenNative(currency)
 
-      if (showImport && token && setImportToken) {
-        return <ImportRow style={style} token={token} setImportToken={setImportToken} dim={true} />
+      if (showImport && token && onImportToken) {
+        return <ImportTokenRow style={style} token={token} onImportToken={onImportToken} dim={true} />
       }
 
       const isSelected = Boolean(selectedCurrency?.equals(currency))
@@ -241,12 +286,11 @@ const CurrencyList = ({
       const usdBalance = tokenPrice * parseFloat(currencyBalance?.toExact() || '0')
 
       return (
-        <CurrencyRow
+        <TokenRow
           isFavorite={isFavorite}
           showLoading={!!account}
-          showRemoveImportIcon={showRemoveImportIcon}
-          handleClickFavorite={handleClickFavorite}
-          removeImportedToken={removeImportedToken}
+          onToggleFavorite={onToggleFavorite}
+          onRemoveImportedToken={onRemoveImportedToken}
           style={{ ...style, ...itemStyle }}
           currency={currency}
           currencyBalance={currencyBalance}
@@ -254,7 +298,7 @@ const CurrencyList = ({
           showFavoriteIcon={showFavoriteIcon}
           onSelect={onCurrencySelect}
           otherSelected={otherSelected}
-          setTokenToShowInfo={setTokenToShowInfo}
+          onShowTokenInfo={onShowTokenInfo}
           usdBalance={usdBalance}
         />
       )
@@ -263,17 +307,16 @@ const CurrencyList = ({
       onCurrencySelect,
       otherCurrency,
       selectedCurrency,
-      setImportToken,
-      handleClickFavorite,
-      showRemoveImportIcon,
-      removeImportedToken,
+      onImportToken,
+      onToggleFavorite,
+      onRemoveImportedToken,
       itemStyle,
       showFavoriteIcon,
       tokenImports,
       tokenPrices,
       account,
       favoriteTokens,
-      setTokenToShowInfo,
+      onShowTokenInfo,
     ],
   )
 
@@ -300,9 +343,9 @@ const CurrencyList = ({
                   if (!isItemLoaded(index)) {
                     return (
                       <div className="px-2 pt-2" style={style}>
-                        <div className="flex h-14 items-center justify-center">
+                        <Center className="h-14">
                           <Loader size="20px" />
-                        </div>
+                        </Center>
                       </div>
                     )
                   }
@@ -327,4 +370,4 @@ const CurrencyList = ({
   )
 }
 
-export default memo(CurrencyList)
+export default memo(TokenList)

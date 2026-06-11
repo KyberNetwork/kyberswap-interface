@@ -920,7 +920,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             onFocus={trackingTouchInput}
             onCurrencySelect={handleInputSelect}
             currency={currencyIn}
-            showCommonBases
+            showPinnedTokens
             id="create-limit-order-input-tokena"
             dataTestId="limit-order-input-tokena"
             maxCurrencySymbolLength={6}
@@ -1015,7 +1015,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             dataTestId="limit-order-input-tokenb"
             onCurrencySelect={handleOutputSelect}
             positionMax="top"
-            showCommonBases
+            showPinnedTokens
             maxCurrencySymbolLength={6}
             filterWrap
             onClickSelect={trackingTouchSelectToken}

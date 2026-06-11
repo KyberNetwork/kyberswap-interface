@@ -84,7 +84,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         otherCurrency={currencyIn}
         id="swap-currency-output"
         dataTestId="swap-currency-output"
-        showCommonBases={true}
+        showPinnedTokens={true}
         estimatedUsd={routeLoading ? '' : getEstimatedUsd()}
         label={
           <Label>
