@@ -332,6 +332,10 @@ export enum TRACKING_EVENT_TYPE {
   MENU_LINK_CLICKED,
   NOTIFICATION_CENTER_OPENED,
   LANGUAGE_CHANGED,
+
+  // Tip Link Generator
+  TIP_LINK_GENERATE_LINK_CLICK,
+  TIP_LINK_TRADE,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -412,6 +416,16 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.WALLET_CONNECT_WALLET_CLICK: {
           formoTrack('Wallet Connect - Wallet click', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TIP_LINK_GENERATE_LINK_CLICK: {
+          formoTrack('Tip Link - Generate Link Click', payload)
+          break
+        }
+        // Tip-link attributed trade (swap / limit order / cross-chain). The trade type is
+        // carried in `payload.trade_type` so all three flows roll up into one event.
+        case TRACKING_EVENT_TYPE.TIP_LINK_TRADE: {
+          formoTrack('Tip Link Trade', payload)
           break
         }
       }

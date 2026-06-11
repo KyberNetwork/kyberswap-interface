@@ -1113,7 +1113,7 @@ msgstr ""
 msgid "Cancel order to pay {mainMsg} failed"
 msgstr "取消订单并支付 {mainMsg} 失败"
 
-#: src/components/SearchModal/ImportToken.tsx
+#: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "I understand"
 msgstr "我已了解"
 
@@ -1836,7 +1836,7 @@ msgstr "交易对"
 msgid "voting power"
 msgstr "投票权"
 
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 msgid "You can search and select <0>any token</0> on KyberSwap."
 msgstr "您可以在 KyberSwap 搜索并选择 <0>任意代币</0>"
 
@@ -2299,7 +2299,7 @@ msgstr "通过 Zap 将该仓位移除为任意代币"
 msgid "You may freely trade any pair composed of <0>eligible tokens</0>, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
 msgstr "您可以自由交易由 <0>合资格代币</0>组成的任何交易对，但不包括 WETH-ETH、WETH-USDC 和 ETH-USDC。"
 
-#: src/components/SearchModal/ImportToken.tsx
+#: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "Address"
 msgstr "地址"
 
@@ -2520,7 +2520,7 @@ msgstr "TVL总锁仓价值"
 msgid "Cancel without paying gas."
 msgstr "无需 Gas 取消"
 
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 msgid "{0} Custom Tokens"
 msgstr "{0} 个自定义代币"
 
@@ -2845,7 +2845,7 @@ msgstr "我质押的资金池"
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction"
 msgstr "我们将自动移除您的流动性并转换为目标代币"
 
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 msgid "Imported"
 msgstr "已导入"
 
@@ -3521,7 +3521,7 @@ msgstr ""
 msgid "Participants"
 msgstr "参与者"
 
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 msgid "No results found."
 msgstr "未找到结果"
 
@@ -3597,7 +3597,7 @@ msgstr "KNC 持有者可通过 KyberSwap 获益。质押 KNC 并参与投票即�
 msgid "Insufficient Balance"
 msgstr "余额不足"
 
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/pages/KyberDAO/Vote/SelectProposalStatus.tsx
 #: src/pages/MarketOverview/index.tsx
@@ -3886,7 +3886,7 @@ msgstr "暂无通知"
 msgid "Read more <0><1>here ↗</1></0>"
 msgstr "阅读更多 <0><1>这里 ↗</1></0>"
 
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below.<0/>You can select and trade any token on KyberSwap."
 msgstr "通过名称、符号或粘贴地址查找代币<0/>您可以在 KyberSwap 上交易任意代币"
 
@@ -4286,7 +4286,7 @@ msgid "Code will expire in {0}{1}"
 msgstr "验证码将在 {0}{1} 后过期"
 
 #: src/components/Announcement/Popups/index.tsx
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/pages/NotificationCenter/DeleteAllAlertsButton/index.tsx
 msgid "Clear All"
@@ -4554,7 +4554,7 @@ msgid "Remove from favorites"
 msgstr "从收藏中移除"
 
 #: src/components/CurrencyInputPanel/index.tsx
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 #: src/components/ZapCreatePool/CreatePoolModal.tsx
 #: src/pages/CrossChainSwap/components/TokenPanel.tsx
@@ -4763,7 +4763,7 @@ msgstr "您将授权 KyberSwap 无上限使用所选代币进行交易，除非�
 #~ msgid "MORE INFORMATION"
 #~ msgstr "更多信息"
 
-#: src/components/SearchModal/ImportToken.tsx
+#: src/components/TokenSelectorModal/ImportTokenView.tsx
 #: src/components/WalletPopup/MyAssets.tsx
 #: src/components/WalletPopup/MyAssets.tsx
 msgid "Import Tokens"
@@ -6424,7 +6424,7 @@ msgstr "我的池子"
 msgid "Approve {0}"
 msgstr "授权 {0}"
 
-#: src/components/SearchModal/CurrencySearch.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/pages/CrossChainSwap/components/TokenPanel.tsx
 msgid "Search by token name, token symbol or address"
 msgstr "按代币名称、符号或地址搜索"
@@ -7305,7 +7305,7 @@ msgstr ""
 msgid "The more you stake and vote, the more KNC you will earn."
 msgstr "质押和投票越多，您获得的 KNC 越多"
 
-#: src/components/SearchModal/ImportRow.tsx
+#: src/components/TokenSelectorModal/TokenList.tsx
 #: src/pages/NotificationCenter/Menu/index.tsx
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Import"
@@ -7541,7 +7541,7 @@ msgstr "交易越多，积分越多，排名越高，奖励越丰厚。"
 msgid "You will need to wrap your {inSymbol} to {wrapSymbol} before you can place a limit order. Your tokens will be exchanged 1 to 1."
 msgstr "在下限价单前需将 {inSymbol} 包装为 {wrapSymbol}，代币将按 1:1 兑换"
 
-#: src/components/SearchModal/ImportToken.tsx
+#: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "Import Token"
 msgstr "导入代币"
 
@@ -7549,7 +7549,7 @@ msgstr "导入代币"
 msgid "Invalid Ethereum address"
 msgstr "无效的以太坊地址"
 
-#: src/components/SearchModal/ImportToken.tsx
+#: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "This token isn’t frequently swapped. Please do your own research before trading."
 msgstr "该代币兑换交易不频繁，请自行做好研究"
 

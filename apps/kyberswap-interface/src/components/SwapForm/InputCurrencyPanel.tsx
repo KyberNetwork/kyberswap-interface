@@ -63,7 +63,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       otherCurrency={currencyOut}
       id="swap-currency-input"
       dataTestId="swap-currency-input"
-      showCommonBases={true}
+      showPinnedTokens={true}
       estimatedUsd={
         trade?.amountInUsd
           ? formatDisplayNumber(trade.amountInUsd, { style: 'currency', significantDigits: 4 })

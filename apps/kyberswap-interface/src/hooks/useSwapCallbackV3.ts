@@ -1,6 +1,8 @@
 import { useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
@@ -24,6 +26,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
 
   const [allowedSlippage] = useUserSlippageTolerance()
+  const [searchParams] = useSearchParams()
 
   const addTransactionWithType = useTransactionAdder()
 
@@ -87,6 +90,9 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           tradeRouteDexes: [...new Set(routeSummary?.route?.flat().map(r => r.exchange) || [])],
           chain: networkInfo.name,
           volume: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
+          // Persisted so the deferred `Swap Completed` updater can attribute the trade
+          // back to a community tip link (null for non-tip-link swaps).
+          tipLink: getTipLinkAttribution(searchParams) || undefined,
         },
       } as TransactionExtraInfo2Token,
     }
@@ -102,6 +108,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     recipient,
     recipientAddressOrName,
     routeSummary,
+    searchParams,
   ])
 
   const handleSwapResponse = useCallback(

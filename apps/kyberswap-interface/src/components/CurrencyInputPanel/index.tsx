@@ -11,7 +11,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
 import { Input as NumericalInput } from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
@@ -167,7 +167,7 @@ interface CurrencyInputPanelProps {
   otherCurrency?: Currency | null
   id: string
   dataTestId?: string
-  showCommonBases?: boolean
+  showPinnedTokens?: boolean
   customBalanceText?: string
   hideLogo?: boolean
   fontSize?: string
@@ -210,7 +210,7 @@ export default function CurrencyInputPanel({
   otherCurrency,
   id,
   dataTestId,
-  showCommonBases,
+  showPinnedTokens,
   customBalanceText,
   hideLogo = false,
   fontSize,
@@ -358,13 +358,13 @@ export default function CurrencyInputPanel({
           </InputRow>
         </Container>
         {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
-          <CurrencySearchModal
+          <TokenSelectorModal
             isOpen={modalOpen}
             onDismiss={handleDismissSearch}
             onCurrencySelect={onCurrencySelect}
             selectedCurrency={currency}
             otherSelectedCurrency={otherCurrency}
-            showCommonBases={showCommonBases}
+            showPinnedTokens={showPinnedTokens}
             filterWrap={filterWrap}
             customChainId={customChainId}
             trackingSource={trackingSource}

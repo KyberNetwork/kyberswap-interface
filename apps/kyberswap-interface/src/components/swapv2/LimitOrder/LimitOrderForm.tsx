@@ -18,6 +18,7 @@ import NumericalInput from 'components/NumericalInput'
 import { RowBetween } from 'components/Row'
 import { DefaultSlippageOption } from 'components/SlippageControl'
 import { TextDashed } from 'components/Text'
+import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
@@ -773,6 +774,27 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         order_id,
         volume: estimateUSD.rawInput || undefined,
       })
+
+      // Tip is not charged on limit orders, so this attributes referral volume only
+      // (tracked at placement — `Limit Order Filled` fires off-page with no tip context).
+      const tipLink = getTipLinkAttribution(searchParams)
+      if (tipLink) {
+        trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_TRADE, {
+          trade_type: 'limit_order',
+          trade_status: 'placed',
+          tip_charged: false,
+          ...tipLink,
+          input_token: currencyIn?.symbol,
+          output_token: currencyOut?.symbol,
+          input_token_address: getTokenAddress(currencyIn),
+          output_token_address: getTokenAddress(currencyOut),
+          pair: currencyIn && currencyOut ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+          chain: networkInfo.name,
+          chain_id: chainId,
+          volume: estimateUSD.rawInput || undefined,
+          order_id,
+        })
+      }
     }
   }
 
@@ -898,7 +920,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             onFocus={trackingTouchInput}
             onCurrencySelect={handleInputSelect}
             currency={currencyIn}
-            showCommonBases
+            showPinnedTokens
             id="create-limit-order-input-tokena"
             dataTestId="limit-order-input-tokena"
             maxCurrencySymbolLength={6}
@@ -991,7 +1013,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             dataTestId="limit-order-input-tokenb"
             onCurrencySelect={handleOutputSelect}
             positionMax="top"
-            showCommonBases
+            showPinnedTokens
             maxCurrencySymbolLength={6}
             filterWrap
             onClickSelect={trackingTouchSelectToken}
