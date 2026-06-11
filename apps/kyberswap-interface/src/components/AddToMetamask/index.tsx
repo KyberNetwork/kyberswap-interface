@@ -40,7 +40,7 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
   if (walletKey === CONNECTION.WALLET_CONNECT_CONNECTOR_ID) return null
   if (walletKey === CONNECTION.COINBASE_SDK_CONNECTOR_ID) return null
   return (
-    <ButtonEmpty mt="12px" padding="0" width="fit-content" onClick={addToMetaMask}>
+    <ButtonEmpty padding="0" width="fit-content" onClick={addToMetaMask}>
       <RowFixed>
         <img src={icon} className="size-4" alt="" />
       </RowFixed>
