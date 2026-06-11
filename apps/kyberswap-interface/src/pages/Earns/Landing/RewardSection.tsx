@@ -37,7 +37,7 @@ const RewardSection = () => {
   }
 
   return (
-    <div className={cn('flex justify-center', upToSmall ? 'flex-col items-center gap-7' : 'flex-row items-end gap-1')}>
+    <div className={cn('flex justify-center', upToSmall ? 'flex-col items-center gap-7' : 'flex-row items-end gap-4')}>
       <div className={cn('flex items-center', upToSmall ? 'flex-col gap-4' : 'flex-row gap-5')}>
         <span className={cn('relative top-px uppercase text-subText', upToSmall ? 'text-lg' : 'text-base')}>
           {t`Total rewards`}
