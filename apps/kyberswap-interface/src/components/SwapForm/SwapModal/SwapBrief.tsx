@@ -37,7 +37,7 @@ export default function SwapBrief({
 
   const renderOutputAmount = () => {
     if (isLoading) {
-      return <Skeleton width="160px" height="32px" />
+      return <Skeleton width="160px" height="32px" variant="darkSubtle" />
     }
 
     if (!outputAmountFromBuild) {
@@ -53,7 +53,7 @@ export default function SwapBrief({
 
   const renderAmountOutUsd = () => {
     if (isLoading) {
-      return <Skeleton width="60px" height="20px" />
+      return <Skeleton width="60px" height="20px" variant="darkSubtle" />
     }
 
     if (!amountOutUsdFromBuild) {

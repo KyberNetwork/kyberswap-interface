@@ -12,7 +12,7 @@ const ValueWithLoadingSkeleton: React.FC<Props> = ({ content, isShowingSkeleton,
   if (isShowingSkeleton) {
     const { height = '20px', ...style } = skeletonStyle || {}
 
-    return <Skeleton style={style} height={height} />
+    return <Skeleton style={style} height={height} variant="darkSubtle" />
   }
 
   return content
