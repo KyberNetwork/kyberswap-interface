@@ -6,30 +6,28 @@ import { Edit2, XCircle } from 'react-feather'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { AutoRow } from 'components/Row'
-import { getDisplayTokenInfo } from 'components/SearchModal/CurrencyList'
+import { HStack } from 'components/Stack'
 import { cn } from 'utils/cn'
+import { isTokenNative } from 'utils/tokenInfo'
 
 const HEIGHT_THRESHOLD = 400
 
 const BASE_WRAPPER_CLASS = cn(
-  'relative flex cursor-pointer items-center gap-2 rounded-[10px] border border-border p-1.5',
+  'group/pinned-token relative cursor-pointer items-center gap-2 rounded-[10px] border border-border p-1.5',
   // Mobile-touch hover and selected state.
   '[@media(max-height:400px)]:gap-[5px] [@media(max-height:400px)]:px-[5px] [@media(max-height:400px)]:py-1',
-  'data-[selected=true]:bg-primary-15',
-  '[@media(hover:hover)]:hover:bg-buttonBlack [@media(hover:hover)]:hover:[&_.close-btn]:!block',
+  'data-[selected=true]:bg-primary-20',
+  '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
 )
 
-export default function CommonBases({
-  onSelect,
-  selectedCurrency,
-  tokens = [],
-  handleToggleFavorite,
-}: {
+type PinnedTokensProps = {
   selectedCurrency?: Currency | null
   tokens: Currency[]
-  onSelect: (currency: Currency) => void
-  handleToggleFavorite: (e: React.MouseEvent, currency: Currency) => void
-}) {
+  onSelect?: (currency: Currency) => void
+  onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
+}
+
+export const PinnedTokens = ({ onSelect, selectedCurrency, tokens = [], onToggleFavorite }: PinnedTokensProps) => {
   const [isEditMode, setEditMode] = useState(false)
   const isHeightSmall = window.outerHeight < HEIGHT_THRESHOLD
   if (!tokens.length) return null
@@ -40,9 +38,9 @@ export default function CommonBases({
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
           const { symbol } = getDisplayTokenInfo(token)
           return (
-            <div
+            <HStack
               data-testid="favorite-token"
-              onClick={() => !selected && onSelect(token)}
+              onClick={() => !selected && onSelect?.(token)}
               data-selected={selected}
               key={(token.address || token?.wrapped?.address) + token.symbol}
               className={BASE_WRAPPER_CLASS}
@@ -51,18 +49,19 @@ export default function CommonBases({
               <div className="text-base font-medium leading-normal [@media(max-height:400px)]:text-sm">{symbol}</div>
               <XCircle
                 className={cn(
-                  'close-btn absolute right-[-5px] top-[-5px] text-subText',
-                  isEditMode ? 'block' : 'hidden',
+                  'absolute right-[-5px] top-[-5px] z-10 hidden rounded-full bg-buttonGray text-subText',
+                  '[@media(hover:hover)]:hover:text-text',
+                  isEditMode ? 'block' : '[@media(hover:hover)]:group-hover/pinned-token:block',
                 )}
                 data-testid="close-btn"
                 size={16}
-                onClick={e => handleToggleFavorite(e, token)}
+                onClick={event => onToggleFavorite?.(event, token)}
               />
-            </div>
+            </HStack>
           )
         })}
         {isMobile && (
-          <div
+          <HStack
             className={BASE_WRAPPER_CLASS}
             style={{ width: isHeightSmall ? 28 : 35, padding: isHeightSmall ? 5 : 8 }}
             onClick={() => {
@@ -70,9 +69,15 @@ export default function CommonBases({
             }}
           >
             <Edit2 size={isHeightSmall ? 14 : 16} className="text-subText" />
-          </div>
+          </HStack>
         )}
       </AutoRow>
     </AutoColumn>
   )
+}
+
+export const getDisplayTokenInfo = (currency: Currency) => {
+  return {
+    symbol: isTokenNative(currency) ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
+  }
 }

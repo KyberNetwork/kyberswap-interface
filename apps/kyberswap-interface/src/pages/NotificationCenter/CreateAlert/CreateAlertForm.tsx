@@ -224,7 +224,7 @@ export default function CreateAlert({
                   onCurrencySelect={onChangeCurrencyIn}
                   otherCurrency={currencyOut}
                   id="alert-currency-input"
-                  showCommonBases={true}
+                  showPinnedTokens={true}
                   selectClassName={currencySelectClassName}
                   fontSize={'14px'}
                   customChainId={selectedChain}
@@ -248,7 +248,7 @@ export default function CreateAlert({
                 onCurrencySelect={onChangeCurrencyOut}
                 otherCurrency={currencyIn}
                 id="alert-currency-out"
-                showCommonBases={true}
+                showPinnedTokens={true}
                 fontSize={'14px'}
                 customChainId={selectedChain}
               />

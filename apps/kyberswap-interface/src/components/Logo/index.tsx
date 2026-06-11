@@ -1,7 +1,7 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { CSSProperties, ImgHTMLAttributes, useState } from 'react'
-import { HelpCircle } from 'react-feather'
 
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -23,21 +23,17 @@ export default function Logo({ srcs, alt, ...rest }: LogoProps) {
 
   const src: string | undefined = srcs.find(s => !BAD_SRCS[s])
 
-  if (src) {
-    return (
-      <img
-        {...rest}
-        alt={alt}
-        src={src}
-        onError={() => {
-          if (src) BAD_SRCS[src] = true
-          refresh(i => i + 1)
-        }}
-      />
-    )
-  }
-
-  return <HelpCircle {...(rest as any)} />
+  return (
+    <img
+      {...rest}
+      alt={alt}
+      src={src || UnknownToken}
+      onError={() => {
+        if (src) BAD_SRCS[src] = true
+        refresh(i => i + 1)
+      }}
+    />
+  )
 }
 
 export function NetworkLogo({ chainId, style = {} }: { chainId: Chain; style?: CSSProperties }) {

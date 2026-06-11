@@ -13,7 +13,7 @@ import Dots from 'components/Dots'
 import { FindPoolTabs } from 'components/NavigationTabs'
 import { NarrowPositionCard } from 'components/PositionCard'
 import Row from 'components/Row'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import TokenSelectorModal from 'components/TokenSelectorModal'
 import { APP_PATHS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState, usePair } from 'data/Reserves'
@@ -184,11 +184,11 @@ export default function PoolFinder() {
           : prerequisiteMessage}
       </AutoColumn>
 
-      <CurrencySearchModal
+      <TokenSelectorModal
         isOpen={showSearch}
         onCurrencySelect={handleCurrencySelect}
         onDismiss={handleSearchDismiss}
-        showCommonBases
+        showPinnedTokens
         selectedCurrency={(activeField === Fields.TOKEN0 ? currency1 : currency0) ?? undefined}
       />
     </AppBody>

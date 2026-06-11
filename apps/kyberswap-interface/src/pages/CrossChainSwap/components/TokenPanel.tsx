@@ -16,8 +16,8 @@ import Wallet from 'components/Icons/Wallet'
 import Modal from 'components/Modal'
 import { Input as NumericalInput } from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
+import TokenSelectorModal from 'components/TokenSelectorModal'
+import { SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/TokenSelectorModal/components'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import { MAINNET_NETWORKS } from 'constants/networks'
@@ -41,7 +41,7 @@ import { isEvmChain, shortenHash } from 'utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const CurrencyRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+const TokenRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
       'flex h-14 cursor-pointer items-center justify-between gap-4 px-5 py-1 data-[selected=true]:bg-bg6/15 [@media(hover:hover)]:hover:bg-buttonBlack',
@@ -397,12 +397,12 @@ export const TokenPanel = ({
       {!evmLayout && balanceSection}
 
       {isEvm ? (
-        <CurrencySearchModal
+        <TokenSelectorModal
           isOpen={modalOpen}
           onDismiss={() => setModalOpen(false)}
           onCurrencySelect={onSelectCurrency as (currency: Currency) => void}
           selectedCurrency={selectedCurrency as EvmCurrency}
-          showCommonBases
+          showPinnedTokens
           customChainId={selectedChain as ChainId}
           trackingSource="cross_chain"
         />
@@ -438,7 +438,7 @@ export const TokenPanel = ({
             <div className="-mx-5 flex-1 overflow-y-scroll">
               {filteredTokens.map(item => {
                 return (
-                  <CurrencyRow
+                  <TokenRow
                     key={item.assetId}
                     role="button"
                     onClick={() => {
@@ -472,7 +472,7 @@ export const TokenPanel = ({
                             significantDigits: 8,
                           })}
                     </span>
-                  </CurrencyRow>
+                  </TokenRow>
                 )
               })}
             </div>

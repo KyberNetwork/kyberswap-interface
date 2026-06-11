@@ -743,7 +743,7 @@ export default function ZapOut({
                   id="zap-out-input"
                   label={t`Output`}
                   disableCurrencySelect={false}
-                  showCommonBases
+                  showPinnedTokens
                   positionMax="top"
                   isSwitchMode
                   estimatedUsd={formattedNum(estimatedUsd.toString(), true) || undefined}
