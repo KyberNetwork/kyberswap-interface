@@ -180,8 +180,8 @@ const ImportTokenRow = ({ token, style, dim, onImportToken }: ImportTokenRowProp
         '[grid-template-columns:auto_minmax(auto,1fr)_auto]',
       )}
     >
-      <CurrencyLogo currency={token} size="24px" style={dim ? { opacity: 0.6 } : undefined} />
-      <AutoColumn className={cn('gap-1', dim && 'opacity-60')}>
+      <CurrencyLogo currency={token} size="24px" style={dim ? { opacity: 0.5 } : undefined} />
+      <AutoColumn className={cn('gap-1', dim && 'opacity-50')}>
         <AutoRow>
           <span className="text-base font-medium leading-[normal] text-text">{token.symbol}</span>
           <span className="ml-2 text-subText">
@@ -197,7 +197,7 @@ const ImportTokenRow = ({ token, style, dim, onImportToken }: ImportTokenRowProp
         padding="6px 12px"
         fontWeight={500}
         fontSize="14px"
-        className={cn(dim && 'opacity-60')}
+        className={cn(dim && 'opacity-50')}
         onClick={() => onImportToken?.(token)}
       >
         <Trans>Import</Trans>

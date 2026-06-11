@@ -38,11 +38,11 @@ export const OtherChainTokens = ({ tokens, loading, loadingFallback }: OtherChai
           return (
             <HStack
               key={`${token.chainId}-${token.address}`}
-              className="min-h-14 w-full items-center justify-between gap-4 rounded-lg bg-subText-04 px-3 py-1"
+              className="min-h-14 w-full items-center justify-between gap-4 rounded-lg px-3 py-1 hover:bg-subText-04"
             >
               <HStack className="min-w-0 items-center gap-2">
-                <CurrencyLogo currency={token} size="24px" style={isDimmed ? { opacity: 0.6 } : undefined} />
-                <Stack className={cn('min-w-0 items-start gap-0.5', isDimmed && 'opacity-60')}>
+                <CurrencyLogo currency={token} size="24px" style={isDimmed ? { opacity: 0.5 } : undefined} />
+                <Stack className={cn('min-w-0 items-start gap-0.5', isDimmed && 'opacity-50')}>
                   <span className="truncate font-medium text-text">{token.symbol}</span>
                   <HStack as="span" className="min-w-0 items-center gap-1">
                     <img src={networkInfo.icon} alt={networkInfo.name} className="size-3 rounded-full" />
@@ -55,7 +55,7 @@ export const OtherChainTokens = ({ tokens, loading, loadingFallback }: OtherChai
                 padding="6px 12px"
                 fontWeight={500}
                 fontSize="14px"
-                className={cn(isDimmed && 'opacity-60')}
+                className={cn(isDimmed && 'opacity-50')}
                 onClick={() => changeNetwork(token.chainId)}
               >
                 <Trans>Switch Chain</Trans>
