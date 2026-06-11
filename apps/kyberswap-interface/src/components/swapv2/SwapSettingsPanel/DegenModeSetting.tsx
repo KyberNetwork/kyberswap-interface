@@ -2,10 +2,8 @@ import { Trans } from '@lingui/macro'
 import { Dispatch, FC, SetStateAction } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { TextDashed } from 'components/Text'
-import Toggle from 'components/Toggle'
-import { MouseoverTooltip } from 'components/Tooltip'
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
+import { SettingsLabel, SettingsRow, SettingsToggle } from 'components/swapv2/SwapSettingsPanel/components'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDegenModeManager } from 'state/user/hooks'
 
@@ -14,8 +12,9 @@ type Props = {
   setShowConfirmation: Dispatch<SetStateAction<boolean>>
 }
 const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) => {
-  const [isDegenMode, toggleDegenMode] = useDegenModeManager()
   const { trackingHandler } = useTracking()
+
+  const [isDegenMode, toggleDegenMode] = useDegenModeManager()
 
   const handleToggleDegenMode = () => {
     if (isDegenMode /* is already ON */) {
@@ -36,32 +35,22 @@ const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) 
 
   return (
     <>
-      <div
+      <SettingsRow
         data-highlight={enableDegenMode}
-        className="-m-2 flex justify-between rounded-lg p-2 data-[highlight=true]:animate-highlight"
+        className="-m-1 rounded-lg p-1 data-[highlight=true]:animate-highlight"
       >
-        <div className="flex w-fit items-center">
-          <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-            <MouseoverTooltip
-              text={
-                <Trans>
-                  Turn this on to make trades with very high price impact or to set very high slippage tolerance. This
-                  can result in bad rates and loss of funds. Be cautious.
-                </Trans>
-              }
-              placement="right"
-            >
-              <Trans>Degen Mode</Trans>
-            </MouseoverTooltip>
-          </TextDashed>
-        </div>
-        <Toggle
-          id="toggle-expert-mode-button"
-          isActive={isDegenMode}
-          toggle={handleToggleDegenMode}
-          className="bg-buttonBlack"
-        />
-      </div>
+        <SettingsLabel
+          tooltip={
+            <Trans>
+              Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
+              result in bad rates and loss of funds. Be cautious.
+            </Trans>
+          }
+        >
+          <Trans>Degen Mode</Trans>
+        </SettingsLabel>
+        <SettingsToggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleDegenMode} />
+      </SettingsRow>
 
       <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
     </>

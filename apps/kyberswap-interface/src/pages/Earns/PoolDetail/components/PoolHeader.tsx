@@ -6,6 +6,7 @@ import { Share2 } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { PoolDetailToken } from 'services/zapEarn'
 
+import IconButton from 'components/Button/IconButton'
 import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
@@ -90,14 +91,9 @@ const PoolHeaderPage = () => {
   return (
     <>
       <HStack className="flex-wrap items-center gap-2">
-        <button
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
-          type="button"
-          className="flex size-9 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-text hover:bg-tabActive"
-        >
-          <IconArrowLeft />
-        </button>
+        <IconButton aria-label="Go back" onClick={() => navigate(-1)} size={36}>
+          <IconArrowLeft className="cursor-auto hover:brightness-100" />
+        </IconButton>
 
         <HStack className="min-w-0 flex-wrap items-center gap-3">
           <HStack className="min-w-0 items-center gap-3">

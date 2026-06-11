@@ -1,18 +1,22 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 
-import { AutoColumn } from 'components/Column'
-import { RowBetween, RowFixed } from 'components/Row'
-import { TextDashed } from 'components/Text'
-import Toggle from 'components/Toggle'
-import { MouseoverTooltip } from 'components/Tooltip'
+import IconButton from 'components/Button/IconButton'
+import { HStack, Stack } from 'components/Stack'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { CrossChainSourceSetting } from 'components/swapv2/SwapSettingsPanel/CrossChainSourceSetting'
 import DegenModeSetting from 'components/swapv2/SwapSettingsPanel/DegenModeSetting'
 import LiquiditySourcesSetting from 'components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting'
 import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
+import {
+  SettingsDivider,
+  SettingsLabel,
+  SettingsRow,
+  SettingsSection,
+  SettingsToggle,
+} from 'components/swapv2/SwapSettingsPanel/components'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import {
   useShowPricingChart,
@@ -23,10 +27,8 @@ import {
   useToggleTradeRoutes,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
-import { cn } from 'utils/cn'
 
 type Props = {
-  className?: string
   onBack: () => void
   onClickLiquiditySources: () => void
   onClickCrossChainSources: () => void
@@ -40,10 +42,26 @@ type Props = {
   }
 }
 
+const DisplaySettingRow = ({
+  label,
+  tooltip,
+  isActive,
+  toggle,
+}: {
+  label: ReactNode
+  tooltip: ReactNode
+  isActive: boolean
+  toggle: () => void
+}) => (
+  <SettingsRow>
+    <SettingsLabel tooltip={tooltip}>{label}</SettingsLabel>
+    <SettingsToggle isActive={isActive} toggle={toggle} />
+  </SettingsRow>
+)
+
 const SettingsPanel: React.FC<Props> = ({
   isSwapPage,
   isCrossChainPage,
-  className,
   onBack,
   onClickLiquiditySources,
   onClickCrossChainSources,
@@ -65,86 +83,62 @@ const SettingsPanel: React.FC<Props> = ({
   const toggleTradeRoutes = displaySettings?.toggleTradeRoutes ?? globalToggleTradeRoutes
 
   return (
-    <div className={cn('w-full', className)} id={TutorialIds.TRADING_SETTING_CONTENT}>
-      <div className="mb-1 flex w-full flex-col">
-        <div className="flex items-center gap-1">
-          <ChevronLeft
-            onClick={() => {
-              if (isCrossChainPage) {
-                trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED, {
-                  current_max_slippage: slippage / 100,
-                })
-              }
-              onBack()
-            }}
-            className="text-subText"
-            cursor={'pointer'}
-            size={26}
-          />
-          <span className="text-xl font-medium text-text">{t`Settings`}</span>
-        </div>
+    <Stack className="w-full gap-4" id={TutorialIds.TRADING_SETTING_CONTENT}>
+      <HStack className="items-center gap-1">
+        <IconButton
+          aria-label={t`Back`}
+          onClick={() => {
+            if (isCrossChainPage) {
+              trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED, {
+                current_max_slippage: slippage / 100,
+              })
+            }
+            onBack()
+          }}
+        >
+          <ChevronLeft size={26} className="text-subText" />
+        </IconButton>
+        <span className="text-xl font-medium text-text">{t`Settings`}</span>
+      </HStack>
 
-        <div className="mt-[22px] flex w-full flex-col gap-3">
-          {(isSwapPage || isCrossChainPage) && (
-            <>
-              <span className="settingTitle">
-                <Trans>Advanced Settings</Trans>
-              </span>
+      <Stack className="w-full gap-4">
+        {(isSwapPage || isCrossChainPage) && (
+          <SettingsSection title={<Trans>Advanced Settings</Trans>}>
+            <SlippageSetting />
+            {isSwapPage && <TransactionTimeLimitSetting />}
+            <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
+            {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
+            {isCrossChainPage && <CrossChainSourceSetting onClick={onClickCrossChainSources} />}
+          </SettingsSection>
+        )}
 
-              <SlippageSetting />
-              {isSwapPage && <TransactionTimeLimitSetting />}
-              <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
-              {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
-              {isCrossChainPage && <CrossChainSourceSetting onClick={onClickCrossChainSources} />}
-            </>
-          )}
-
-          {isSwapPage && (
-            <div className="flex flex-col gap-3 border-t border-solid border-border pt-4">
-              <span className="text-base font-medium">
-                <Trans>Display Settings</Trans>
-              </span>
-              <AutoColumn className="gap-3">
-                {isSwapPage && (
-                  <RowBetween>
-                    <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-                        <MouseoverTooltip text={<Trans>Turn on to display pricing chart.</Trans>} placement="right">
-                          <Trans>Pricing Chart</Trans>
-                        </MouseoverTooltip>
-                      </TextDashed>
-                    </RowFixed>
-                    <Toggle isActive={isShowPricingChart} toggle={togglePricingChart} className="bg-buttonBlack" />
-                  </RowBetween>
-                )}
-                {(isSwapPage || isCrossChainPage) && (
-                  <RowBetween>
-                    <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-                        <MouseoverTooltip text={<Trans>Turn on to display trade route.</Trans>} placement="right">
-                          <Trans>Trade Route</Trans>
-                        </MouseoverTooltip>
-                      </TextDashed>
-                    </RowFixed>
-                    <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} className="bg-buttonBlack" />
-                  </RowBetween>
-                )}
-                <RowBetween>
-                  <RowFixed>
-                    <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-                      <MouseoverTooltip text={<Trans>Turn on to play success sound.</Trans>} placement="right">
-                        <Trans>Sound</Trans>
-                      </MouseoverTooltip>
-                    </TextDashed>
-                  </RowFixed>
-                  <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} className="bg-buttonBlack" />
-                </RowBetween>
-              </AutoColumn>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+        {isSwapPage && (
+          <>
+            <SettingsDivider />
+            <SettingsSection title={<Trans>Display Settings</Trans>}>
+              <DisplaySettingRow
+                label={<Trans>Pricing Chart</Trans>}
+                tooltip={<Trans>Turn on to display pricing chart.</Trans>}
+                isActive={isShowPricingChart}
+                toggle={togglePricingChart}
+              />
+              <DisplaySettingRow
+                label={<Trans>Trade Route</Trans>}
+                tooltip={<Trans>Turn on to display trade route.</Trans>}
+                isActive={isShowTradeRoutes}
+                toggle={toggleTradeRoutes}
+              />
+              <DisplaySettingRow
+                label={<Trans>Sound</Trans>}
+                tooltip={<Trans>Turn on to play success sound.</Trans>}
+                isActive={isSuccessSoundEnabled}
+                toggle={toggleSuccessSound}
+              />
+            </SettingsSection>
+          </>
+        )}
+      </Stack>
+    </Stack>
   )
 }
 

@@ -2,9 +2,9 @@ import { Trans } from '@lingui/macro'
 import React, { useMemo } from 'react'
 
 import SlippageControl from 'components/SlippageControl'
-import { TextDashed } from 'components/Text'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { HStack, Stack } from 'components/Stack'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
+import { SettingsLabel } from 'components/swapv2/SwapSettingsPanel/components'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
 import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
@@ -25,32 +25,29 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   )
 
   return (
-    <div className="flex flex-col gap-y-2">
-      <div className="flex items-center">
-        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-          <MouseoverTooltip
-            text={
-              <span>
-                <Trans>
-                  During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-                  <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
-                    here ↗
-                  </ExternalLink>
-                  .
-                </Trans>
-              </span>
-            }
-            placement="right"
-          >
-            <Trans>Max Slippage</Trans>
-          </MouseoverTooltip>
-        </TextDashed>
+    <Stack className="gap-1">
+      <HStack className="items-center gap-2">
+        <SettingsLabel
+          tooltip={
+            <span>
+              <Trans>
+                During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
+                  here ↗
+                </ExternalLink>
+                .
+              </Trans>
+            </span>
+          }
+        >
+          <Trans>Max Slippage</Trans>
+        </SettingsLabel>
 
         {shouldShowPinButton && <PinButton isActive={isSlippageControlPinned} onClick={togglePinSlippage} />}
-      </div>
+      </HStack>
 
       <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} options={options} />
-    </div>
+    </Stack>
   )
 }
 
