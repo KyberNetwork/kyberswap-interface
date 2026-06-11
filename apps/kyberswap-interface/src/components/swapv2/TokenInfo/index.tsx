@@ -52,14 +52,10 @@ type TokenTabButtonProps = {
 }
 
 const tabBaseClass =
-  'flex w-fit min-w-[80px] items-center justify-center gap-1 rounded-full px-2 py-1.5 text-xs font-medium hover:no-underline'
+  'relative z-[1] flex w-full min-w-[80px] items-center justify-center gap-1 rounded-full bg-transparent px-2 py-1.5 text-xs font-medium hover:no-underline'
 
 const TokenTabButton = ({ currency, isActive, onClick }: TokenTabButtonProps) => (
-  <ButtonEmpty
-    padding="0"
-    onClick={onClick}
-    className={cn(tabBaseClass, isActive ? 'bg-tabActive' : 'bg-tabBackground hover:bg-tabActive/40')}
-  >
+  <ButtonEmpty padding="0" onClick={onClick} className={cn(tabBaseClass, !isActive && 'hover:bg-tabActive/40')}>
     <CurrencyLogo currency={currency} size="16px" />
     <span className={cn('whitespace-nowrap', isActive ? 'text-text' : 'text-subText')}>{currency?.symbol}</span>
   </ButtonEmpty>
@@ -103,7 +99,13 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
           </HStack>
         )}
         {!isOneToken && (
-          <div className="flex min-w-[160px] rounded-full bg-tabBackground p-0.5">
+          <div className="relative grid min-w-[160px] grid-cols-2 rounded-full bg-tabBackground p-0.5">
+            <div
+              className={cn(
+                'pointer-events-none absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-full bg-tabActive transition-transform duration-200 ease-out',
+                isActiveTokenOut && 'translate-x-full',
+              )}
+            />
             <TokenTabButton
               currency={inputNativeCurrency}
               isActive={isActiveTokenIn}
