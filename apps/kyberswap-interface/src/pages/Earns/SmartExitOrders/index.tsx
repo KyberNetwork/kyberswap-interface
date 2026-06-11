@@ -15,7 +15,6 @@ import { ReactComponent as IconListSmartExit } from 'assets/svg/earn/ic_list_sma
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
-import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import { APP_PATHS } from 'constants/index'
@@ -25,9 +24,11 @@ import { NavigateButton, PoolPageWrapper, StyledNavigateButton, TableWrapper } f
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/SmartExitOrders/Filter'
 import OrderItem from 'pages/Earns/SmartExitOrders/OrderItem'
+import SmartExitOrdersSkeleton from 'pages/Earns/SmartExitOrders/SmartExitOrdersSkeleton'
 import { ORDERS_TABLE_GRID_COLUMNS } from 'pages/Earns/SmartExitOrders/constants'
 import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { useSmartExitOrdersData } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
+import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'
 import { SmartExit as SmartExitModal } from 'pages/Earns/components/SmartExit'
 import { SMART_EXIT_SUPPORTED_CHAINS, SMART_EXIT_SUPPORTED_EXCHANGES } from 'pages/Earns/constants'
 import { OrderStatus, ParsedPosition, SmartExitOrder, UserPosition } from 'pages/Earns/types'
@@ -187,19 +188,6 @@ const SmartExit = () => {
     [upToMedium],
   )
 
-  const overlayStyle = useMemo(
-    () => ({
-      position: 'absolute' as const,
-      inset: 0,
-      zIndex: 10,
-      backdropFilter: overlayLoading ? 'blur(1px)' : 'none',
-      opacity: overlayLoading ? 1 : 0,
-      pointerEvents: overlayLoading ? ('auto' as const) : ('none' as const),
-      transition: 'opacity 150ms ease-in-out, background-color 150ms ease-in-out',
-    }),
-    [overlayLoading],
-  )
-
   return (
     <PoolPageWrapper>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -228,6 +216,8 @@ const SmartExit = () => {
       </div>
 
       <TableWrapper style={tableWrapperStyle}>
+        <RefetchIndicator visible={overlayLoading} />
+
         {!upToMedium && (
           <TableHeader>
             <span>#</span>
@@ -258,9 +248,7 @@ const SmartExit = () => {
         )}
 
         {tableLoading ? (
-          <div className="flex justify-center p-5">
-            <LocalLoader />
-          </div>
+          <SmartExitOrdersSkeleton upToMedium={upToMedium} />
         ) : shouldShowEmptyState ? (
           <div className="flex flex-col items-center justify-center gap-4 px-5 py-[60px]">
             <IconListSmartExit width={80} height={80} color="#134E4B" />
@@ -297,19 +285,13 @@ const SmartExit = () => {
                 key={order.id}
                 order={order}
                 index={(currentPage - 1) * SMART_EXIT_ORDERS_PAGE_SIZE + index + 1}
+                rowIndex={index}
                 upToMedium={upToMedium}
                 onDelete={handleDeleteRequest}
               />
             ))}
           </div>
         )}
-
-        <div
-          className="flex items-center justify-center"
-          style={{ ...overlayStyle, backgroundColor: overlayLoading ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)' }}
-        >
-          <LocalLoader />
-        </div>
 
         <Pagination
           onPageChange={handlePageChange}
