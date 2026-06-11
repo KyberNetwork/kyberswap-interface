@@ -2,6 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+/**
+ * Thin primary progress bar pinned to the top of a `relative` table/card container, shown while a
+ * background refetch is in flight (existing data stays visible). When the refetch finishes mid-cycle the
+ * bar completes its current pass then disappears (no partial second pass).
+ */
 const RefetchIndicator = ({ visible: propVisible }: { visible: boolean }) => {
   const [visible, setVisible] = useState(false)
   const [fading, setFading] = useState(false)
