@@ -9,6 +9,7 @@ import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { PoolsPageWrapper } from 'components/PageWrappers'
 import Pagination from 'components/Pagination'
+import RefetchIndicator from 'components/RefetchIndicator'
 import Search from 'components/Search'
 import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -42,7 +43,7 @@ const filterTags = [
 export default function MarketOverview() {
   const [showMarketInfo, setShowMarketInfo] = useState(false)
   const { filters, updateFilters } = useFilter()
-  const { data } = useMarketOverviewQuery(filters)
+  const { data, isFetching, isLoading } = useMarketOverviewQuery(filters)
 
   const [sortCol, sortDirection] = (filters.sort || '').split(' ')
 
@@ -167,7 +168,8 @@ export default function MarketOverview() {
         />
       </div>
 
-      <TableWrapper>
+      <TableWrapper className="relative">
+        <RefetchIndicator visible={isFetching && !isLoading} />
         <ContentWrapper>
           {!upToMedium ? (
             <TableHeader>
