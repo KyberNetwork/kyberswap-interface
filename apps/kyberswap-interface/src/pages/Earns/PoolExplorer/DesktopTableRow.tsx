@@ -22,6 +22,7 @@ const DesktopTableRow = ({
   pool,
   showRewards = true,
   showPoolPrice = true,
+  rowIndex,
   onOpenZapInWidget,
   handleFavorite,
   favoriteLoading,
@@ -29,12 +30,17 @@ const DesktopTableRow = ({
   pool: ParsedEarnPool
   showRewards?: boolean
   showPoolPrice?: boolean
+  /** 0-based position within the current page — drives the staggered fade-in delay. */
+  rowIndex: number
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
   favoriteLoading: string[]
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
+
+  // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
+  const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
 
   // The parent wires this row's onClick (onOpenZapInWidget) to open the pool's detail page, so warm
   // that page's chunk + its poolDetail query on hover.
@@ -68,6 +74,8 @@ const DesktopTableRow = ({
       showRewards={showRewards}
       showPoolPrice={showPoolPrice}
       onClick={e => handleOpenZapInWidget(e)}
+      className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
+      style={{ animationDelay }}
       {...prefetchDetail}
     >
       <TableCell>

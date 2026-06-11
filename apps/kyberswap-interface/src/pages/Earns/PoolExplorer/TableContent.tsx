@@ -102,10 +102,11 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
 
       {upToMedium ? (
         <Stack className="gap-4">
-          {tablePoolData.map(pool => (
+          {tablePoolData.map((pool, index) => (
             <MobileTableRow
               key={pool.address}
               pool={pool}
+              rowIndex={index}
               showRewards={showRewards}
               onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
@@ -113,10 +114,11 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
           ))}
         </Stack>
       ) : (
-        tablePoolData.map(pool => (
+        tablePoolData.map((pool, index) => (
           <DesktopTableRow
             key={pool.address}
             pool={pool}
+            rowIndex={index}
             showRewards={showRewards}
             showPoolPrice={showPoolPrice}
             onOpenZapInWidget={onOpenZapInWidget}
