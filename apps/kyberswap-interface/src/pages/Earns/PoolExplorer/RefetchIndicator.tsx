@@ -25,10 +25,11 @@ const RefetchIndicator = ({ visible: propVisible }: { visible: boolean }) => {
   }, [propVisible, visible])
 
   const onAnimationIteration = useCallback(() => {
+    // Loading finished mid-cycle: hide as soon as the bar completes its current pass (it's already
+    // off-screen at the iteration boundary), so it never starts a partial, faded-out second pass.
     if (pendingHide.current) {
       pendingHide.current = false
-      setFading(true)
-      setTimeout(() => setVisible(false), 300)
+      setVisible(false)
     }
   }, [])
 
@@ -36,7 +37,7 @@ const RefetchIndicator = ({ visible: propVisible }: { visible: boolean }) => {
 
   return (
     <div
-      className="absolute inset-x-0 z-[2] h-0.5 overflow-hidden transition-opacity duration-300 ease-linear"
+      className="absolute inset-x-0 top-0 z-[2] h-0.5 overflow-hidden transition-opacity duration-300 ease-linear"
       style={{ opacity: fading ? 0 : 1 }}
     >
       <div
