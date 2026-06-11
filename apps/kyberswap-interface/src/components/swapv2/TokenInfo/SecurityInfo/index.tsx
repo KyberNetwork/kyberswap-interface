@@ -60,7 +60,7 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
   ]
 
   return (
-    <Container className="gap-4 py-4">
+    <Container className="gap-3 py-4">
       {sections.map(section => (
         <CollapseItem
           key={section.title}
