@@ -107,7 +107,7 @@ export const CurrencyRow = ({
           '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
       )}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         {showFavoriteIcon && (
           <Star
             onClick={e => handleClickFavorite?.(e, currency)}
