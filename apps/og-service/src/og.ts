@@ -11,6 +11,11 @@ import type { ResolvedToken } from '@/tokens';
 // Satori's `fonts` option type, derived from its signature (avoids importing an unstable named type).
 type SatoriFonts = NonNullable<Parameters<typeof satori>[1]>['fonts'];
 
+// satori-html's `html()` returns its own `VNode` — what Satori actually renders, but nominally distinct
+// from Satori's `ReactNode` element param (newer `@types/react` make `ReactPortal` require key/children).
+// Cast through Satori's own signature to bridge the two without depending on `react` types here.
+type SatoriElement = Parameters<typeof satori>[0];
+
 // ---- brand ----
 const GREEN = '#31CB9E';
 const BG = '#0D0D0D';
@@ -135,7 +140,7 @@ const SLASH = `<div style="display:flex;align-items:center;justify-content:cente
 // resvg (PNG). Throws if no font loaded (Satori needs ≥1) — the caller falls back to the default card.
 async function renderCardPng(cardHtmlStr: string, fonts: SatoriFonts): Promise<Buffer> {
   if (!fonts.length) throw new Error('no font available for render');
-  const svg = await satori(toVNode(cardHtmlStr), { width: WIDTH, height: HEIGHT, fonts });
+  const svg = await satori(toVNode(cardHtmlStr) as unknown as SatoriElement, { width: WIDTH, height: HEIGHT, fonts });
   const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH }, font: { loadSystemFonts: false } });
   return resvg.render().asPng();
 }
