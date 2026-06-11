@@ -303,7 +303,9 @@ export const CurrencySearch = ({
     [rpcTokenQueries, shouldFetchRpcTokens],
   )
   const currentChainRpcToken = rpcTokens.find(token => token.chainId === chainId)
-  const otherChainTokens = rpcTokens.filter(token => token.chainId !== chainId)
+  const otherChainTokens = rpcTokens
+    .filter(token => token.chainId !== chainId)
+    .sort((tokenA, tokenB) => Number(tokenB.isWhitelisted) - Number(tokenA.isWhitelisted))
   const isFetchingRpcTokens = shouldFetchRpcTokens && rpcTokenQueries.some(query => query.isFetching)
   const isLoadingRpcTokens = shouldFetchRpcTokens && rpcTokenQueries.some(query => query.isLoading)
 
@@ -574,7 +576,7 @@ export const CurrencySearch = ({
           listTokenRef={listTokenRef}
           removeImportedToken={removeImportedToken}
           currencies={visibleCurrencies}
-          showImported={isImportedTab}
+          showRemoveImportIcon={isImportedTab}
           handleClickFavorite={handleClickFavorite}
           onCurrencySelect={handleCurrencySelect}
           otherCurrency={otherSelectedCurrency}

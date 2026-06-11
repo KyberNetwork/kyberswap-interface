@@ -28,7 +28,7 @@ const Balance = ({ balance, compact }: { balance: CurrencyAmount<Currency>; comp
 }
 
 type CurrencyRowProps = {
-  showImported?: boolean
+  showRemoveImportIcon?: boolean
   showFavoriteIcon?: boolean
   currency: Currency
   currencyBalance?: CurrencyAmount<Currency>
@@ -50,7 +50,7 @@ type CurrencyRowProps = {
 
 export const CurrencyRow = ({
   currency,
-  showImported,
+  showRemoveImportIcon,
   currencyBalance,
   onSelect,
   isSelected,
@@ -123,24 +123,20 @@ export const CurrencyRow = ({
           <span title={currency.name} className="font-medium" data-testid="token-symbol">
             {customName || symbol}
           </span>
-          <div className="ml-0 max-w-full truncate text-xs font-light text-subText">
-            {showImported ? renderBalance(true) : nativeCurrency?.name}
-          </div>
+          <div className="ml-0 max-w-full truncate text-xs font-light text-subText">{nativeCurrency?.name}</div>
         </div>
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-3 justify-self-end">
-        {!showImported && (
-          <div className="flex flex-col items-end gap-0.5">
-            {customBalance !== undefined ? customBalance : renderBalance()}
-            {usdBalance !== undefined && !hideBalance && (
-              <span className="text-xs text-subText">
-                {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
-              </span>
-            )}
-          </div>
-        )}
-        {showImported && (
+        <div className="flex flex-col items-end gap-0.5">
+          {customBalance !== undefined ? customBalance : renderBalance()}
+          {usdBalance !== undefined && !hideBalance && (
+            <span className="text-xs text-subText">
+              {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
+            </span>
+          )}
+        </div>
+        {showRemoveImportIcon && (
           <Trash
             onClick={onClickRemove}
             data-testid="button-remove-import-token"
@@ -171,7 +167,7 @@ type TokenRowProps = {
 }
 
 type CurrencyListProps = {
-  showImported?: boolean
+  showRemoveImportIcon?: boolean
   showFavoriteIcon?: boolean
   hasMore?: boolean
   currencies: Currency[]
@@ -191,7 +187,7 @@ type CurrencyListProps = {
 const CurrencyList = ({
   currencies,
   selectedCurrency,
-  showImported,
+  showRemoveImportIcon,
   onCurrencySelect,
   otherCurrency,
   setImportToken,
@@ -248,7 +244,7 @@ const CurrencyList = ({
         <CurrencyRow
           isFavorite={isFavorite}
           showLoading={!!account}
-          showImported={showImported}
+          showRemoveImportIcon={showRemoveImportIcon}
           handleClickFavorite={handleClickFavorite}
           removeImportedToken={removeImportedToken}
           style={{ ...style, ...itemStyle }}
@@ -269,7 +265,7 @@ const CurrencyList = ({
       selectedCurrency,
       setImportToken,
       handleClickFavorite,
-      showImported,
+      showRemoveImportIcon,
       removeImportedToken,
       itemStyle,
       showFavoriteIcon,
