@@ -27,7 +27,7 @@ type CurrencySelectStyleProps = {
 
 export const InputRow = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('flex flex-row flex-nowrap items-center', className)} {...props} />
+    <div ref={ref} className={cn('flex flex-row flex-nowrap items-center gap-2', className)} {...props} />
   ),
 )
 InputRow.displayName = 'InputRow'
@@ -92,7 +92,7 @@ export const Container = ({
   <div
     {...props}
     className={cn(
-      'rounded-2xl border border-transparent',
+      'flex flex-col gap-3 rounded-2xl border border-transparent',
       hideInput ? 'bg-transparent p-0' : 'bg-buttonBlack p-3',
       error ? 'border-red' : $outline ? 'border-border' : '',
       className,
@@ -113,7 +113,6 @@ export const StyledTokenName = ({
     style={fontSize ? { fontSize, ...style } : style}
     className={cn(
       'max-w-[120px] truncate !leading-none',
-      !tight && 'ml-2',
       !fontSize && (active ? 'text-xl' : 'text-base'),
       '[@media(max-width:420px)]:max-w-[76px] [@media(max-width:445px)]:max-w-[102px]',
       className,
@@ -254,7 +253,7 @@ export default function CurrencyInputPanel({
         {locked && PoolLockContent}
         <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
-            <div className="mb-3 flex min-h-5 items-center justify-between text-xs">
+            <div className="flex min-h-5 items-center justify-between text-xs">
               {label && positionLabel === 'in' ? (
                 label
               ) : (onMax || onHalf) && positionMax === 'top' && currency && account ? (
@@ -295,7 +294,7 @@ export default function CurrencyInputPanel({
                   onFocus={onFocus}
                 />
                 {estimatedUsd ? (
-                  <span className="mr-2 text-sm font-medium text-border">~{estimatedUsd}</span>
+                  <span className="text-sm font-medium text-border">~{estimatedUsd}</span>
                 ) : (
                   account &&
                   currency &&
@@ -306,7 +305,7 @@ export default function CurrencyInputPanel({
                     </StyledBalanceMax>
                   )
                 )}
-                {lockIcon && <Lock className="mr-2 h-4 text-subText" />}
+                {lockIcon && <Lock className="h-4 text-subText" />}
               </>
             )}
             {customCurrencySelect || (
@@ -327,8 +326,8 @@ export default function CurrencyInputPanel({
                 tight={tight}
                 style={styleSelect}
               >
-                <Aligner>
-                  <RowFixed>
+                <Aligner className="gap-1">
+                  <RowFixed className="gap-2">
                     {currency && !hideLogo ? <CurrencyLogo currency={currency} size={'20px'} /> : null}
                     <StyledTokenName
                       tight={tight}
@@ -346,7 +345,7 @@ export default function CurrencyInputPanel({
                   {!!nativeCurrency && (
                     <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />
                   )}
-                  {!disableCurrencySelect && !isSwitchMode && <DropdownSVG className={cn(tight && '-ml-2')} />}
+                  {!disableCurrencySelect && !isSwitchMode && <DropdownSVG className="-ml-0.5 mr-0.5" />}
                   {!disableCurrencySelect && isSwitchMode && (
                     <SwitchIcon
                       className={cn('h-[35%] [&_path]:stroke-current', currency ? 'text-subText' : 'text-primary')}

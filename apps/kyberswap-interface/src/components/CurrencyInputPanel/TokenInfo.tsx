@@ -152,7 +152,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
 
   return (
     <div
-      className="-mb-px ml-1 flex size-fit"
+      className="flex size-fit"
       role="button"
       ref={infoRef}
       onClick={e => {
