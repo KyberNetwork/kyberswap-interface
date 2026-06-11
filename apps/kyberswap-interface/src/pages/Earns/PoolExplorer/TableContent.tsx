@@ -3,10 +3,10 @@ import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
-import LocalLoader from 'components/LocalLoader'
 import { Stack } from 'components/Stack'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
+import PoolListSkeleton from 'pages/Earns/PoolExplorer/PoolListSkeleton'
 import RefetchIndicator from 'pages/Earns/PoolExplorer/RefetchIndicator'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { EARN_DEXES } from 'pages/Earns/constants'
@@ -89,7 +89,7 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
   }, [poolData?.data?.pools, dexLookupMap, getFavoriteStatus])
 
   if (isLoading) {
-    return <LocalLoader />
+    return <PoolListSkeleton showRewards={showRewards} showPoolPrice={showPoolPrice} />
   }
 
   if (poolData?.data?.pools.length === 0 || isError) {
