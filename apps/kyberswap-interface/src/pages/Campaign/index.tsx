@@ -124,7 +124,7 @@ export default function CampaignPage() {
   }
 
   return (
-    <Wrapper>
+    <Wrapper className="animate-[fadeInUp_0.5s_ease-out_both] motion-reduce:animate-none">
       <HiddenH1>Earn bonus rewards and incentives while you swap, provide liquidity, or trade.</HiddenH1>
       <HiddenH2>Join active campaigns across supported chains - no lock-up required.</HiddenH2>
       <img src={banner} width="100%" alt="banner" className="rounded-xl" />

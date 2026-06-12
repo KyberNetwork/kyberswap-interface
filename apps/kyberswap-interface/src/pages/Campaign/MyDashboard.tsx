@@ -184,7 +184,7 @@ const MyDashboard = () => {
   )
 
   return (
-    <Wrapper>
+    <Wrapper className="animate-[fadeInUp_0.5s_ease-out_both] motion-reduce:animate-none">
       <img src={banner} width="100%" alt="banner" className="rounded-xl" />
       <div className="my-6 flex gap-2.5">
         <div className="text-2xl font-medium">
