@@ -12,7 +12,7 @@ import utc from 'dayjs/plugin/utc'
 import { LanguageProvider } from 'i18n'
 import 'inter-ui/inter.css'
 import { initMixpanel } from 'libs/mixpanel'
-import { StrictMode, useEffect } from 'react'
+import { StrictMode, useLayoutEffect } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import TagManager from 'react-gtm-module'
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -74,14 +74,16 @@ const preloadhtml = document.querySelector('.preloadhtml')
 const preloadhtmlStyle = document.querySelector('.preloadhtml-style')
 
 const hideLoader = () => {
-  setTimeout(() => {
-    preloadhtml?.remove()
-    preloadhtmlStyle?.remove()
-  }, 100)
+  preloadhtml?.remove()
+  preloadhtmlStyle?.remove()
 }
 
 const ReactApp = () => {
-  useEffect(hideLoader, [])
+  // Remove the static cold-load loader synchronously, before the browser paints the first React frame.
+  // The route-level <Suspense fallback> (RouteFallback) already covers the screen on mount, so a
+  // useEffect + 100ms delay left the loader visible *behind* the semi-transparent skeleton for ~100ms
+  // (it bled through). useLayoutEffect drops it before paint → clean preloader → skeleton handoff.
+  useLayoutEffect(hideLoader, [])
   return (
     <StrictMode>
       <FormoAnalyticsProvider
