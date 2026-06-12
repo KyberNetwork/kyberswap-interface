@@ -11,10 +11,10 @@ import { ButtonPrimary } from 'components/Button'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
-import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
+import RouteFallback from 'components/RouteFallback'
 import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
@@ -235,7 +235,7 @@ export default function App() {
           <SupportButton />
           <Header />
         </HeaderWrapper>
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={<RouteFallback />}>
           {/*
             holidayMode && (
             <Snowfall
