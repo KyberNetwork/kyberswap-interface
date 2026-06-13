@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart, X } from 'react-feather'
 import { NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -26,7 +26,6 @@ import FaucetModal from 'components/Menu/FaucetModal'
 import NavDropDown from 'components/Menu/NavDropDown'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { AutoRow } from 'components/Row'
-import TipLinkGeneratorModal from 'components/TipLinkGeneratorModal'
 import Toggle from 'components/Toggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { ENV_LEVEL, TAG } from 'constants/env'
@@ -45,6 +44,10 @@ import { useHolidayMode, useUserLocale } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isChristmasTime } from 'utils'
 import { cn } from 'utils/cn'
+
+// Lazy: keeps the TipLink generator and its heavy deps (@kyber/token-selector, schema, the share
+// banner) off the eager entry chunk — the modal loads only when the user opens it.
+const TipLinkGeneratorModal = lazy(() => import('components/TipLinkGeneratorModal'))
 
 // Base style for each menu list item — color/font, hover, embedded icon spacing.
 const MENU_ITEM_CLASS = cn(
@@ -592,7 +595,11 @@ export default function Menu() {
 
       <ClaimRewardModal />
       {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
-      <TipLinkGeneratorModal isOpen={showTipLinkGenerator} onDismiss={closeTipLinkGenerator} />
+      {showTipLinkGenerator && (
+        <Suspense fallback={null}>
+          <TipLinkGeneratorModal isOpen onDismiss={closeTipLinkGenerator} />
+        </Suspense>
+      )}
     </div>
   )
 }

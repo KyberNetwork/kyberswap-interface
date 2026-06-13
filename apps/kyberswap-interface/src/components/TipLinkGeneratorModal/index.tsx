@@ -13,7 +13,7 @@ import {
 } from 'services/tipLink'
 import { v4 as uuid } from 'uuid'
 
-import ShareBanner from 'assets/images/share-banner.png'
+import ShareBanner from 'assets/images/share-banner.jpg'
 import { NotificationType } from 'components/Announcement/type'
 import NetworkModal from 'components/Header/web3/NetworkModal'
 import Modal from 'components/Modal'

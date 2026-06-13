@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { useLingui } from '@lingui/react';
 
 import KyberLogo from '@/assets/icons/kyber_logo.svg?react';
-import ShareBanner from '@/assets/images/share-banner.png';
+import ShareBanner from '@/assets/images/share-banner.jpg';
 import Actions from '@/components/ShareModal/Actions';
 import Options from '@/components/ShareModal/Options';
 import { DEFAULT_SHARE_OPTION, shareOptions } from '@/components/ShareModal/constants';

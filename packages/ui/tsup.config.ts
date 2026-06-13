@@ -38,6 +38,7 @@ export default defineConfig({
     options.loader = {
       '.ttf': 'file',
       '.png': 'dataurl',
+      '.jpg': 'dataurl',
     };
   },
 });

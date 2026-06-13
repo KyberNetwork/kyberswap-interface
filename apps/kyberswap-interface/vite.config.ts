@@ -24,6 +24,13 @@ const eciesjsEntry = requireFromSdk.resolve('eciesjs')
 // client build, which run in a browser context, still get it).
 const isSsrPrerender = process.env.SSR_PRERENDER === '1'
 
+// React's profiling build adds profiler instrumentation (bigger + slower renders). Only alias to it
+// when explicitly profiling (VITE_PROFILE=1) — production must use the standard react-dom/client.
+const isProfiling = process.env.VITE_PROFILE === '1'
+
+// ANALYZE=1 writes build/stats.html — an interactive treemap of the bundle (run via `pnpm analyze`).
+const isAnalyze = process.env.ANALYZE === '1'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -67,6 +74,15 @@ export default defineConfig({
       },
       overlay: false,
     }),
+    // Dynamic import keeps Vite 4's CJS config loader from `require`-ing this ESM-only package
+    // (it only loads when ANALYZE=1). Vite awaits Promise entries in the plugins array.
+    ...(isAnalyze
+      ? [
+          import('rollup-plugin-visualizer').then(({ visualizer }) =>
+            visualizer({ filename: 'build/stats.html', template: 'treemap', gzipSize: true }),
+          ),
+        ]
+      : []),
   ],
   define: {
     'process.env': process.env, // help libs dont break
@@ -116,7 +132,7 @@ export default defineConfig({
       { find: /^zlib$/, replacement: 'browserify-zlib' },
       { find: /^util$/, replacement: 'util' },
       { find: '@', replacement: path.resolve(__dirname, './src/') },
-      { find: 'react-dom/client', replacement: 'react-dom/profiling' },
+      ...(isProfiling ? [{ find: 'react-dom/client', replacement: 'react-dom/profiling' }] : []),
       // WalletConnect 2.21+ renamed the ESM bundle from index.es.js to index.js.
       {
         find: '@walletconnect/ethereum-provider',
