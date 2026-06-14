@@ -55,7 +55,7 @@ const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
 const KyberDAOStakeKNC = lazy(() => import('pages/KyberDAO/StakeKNC'))
 const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
 const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
-const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
+const AboutKyberSwap = lazy(() => import('pages/About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))

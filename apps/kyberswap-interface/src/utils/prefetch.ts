@@ -44,6 +44,33 @@ export function prefetchRouteChunk(to: string) {
   ROUTE_CHUNKS.find(route => path === route.prefix || path.startsWith(`${route.prefix}/`))?.load()
 }
 
+// Bounded set of high-traffic, mostly-static destinations worth warming during browser idle time, so
+// navigating to them is instant by ANY means — keyboard, mobile tap, programmatic — not just on the
+// hover/focus that on-intent prefetch needs. Keep this SMALL: an unbounded list just rebuilds an eager
+// payload. Loaders come from ROUTE_CHUNKS so the import() identities match App.tsx exactly (one shared
+// chunk, never a duplicate).
+const EAGER_PRELOAD_PREFIXES: string[] = [`${APP_PATHS.ABOUT}/kyberswap`, `${APP_PATHS.ABOUT}/knc`, APP_PATHS.EARN]
+
+/**
+ * Warm the EAGER_PRELOAD_PREFIXES chunks during browser idle time. Client-only (no-op under
+ * SSR/prerender) and idle-gated so it never competes with the critical first-load resources. Idempotent
+ * — `import()` caches the module — so it's safe to call once after the app boots.
+ */
+export function preloadStaticRouteChunks() {
+  if (typeof window === 'undefined') return
+  for (const prefix of EAGER_PRELOAD_PREFIXES) {
+    const load = ROUTE_CHUNKS.find(route => route.prefix === prefix)?.load
+    if (!load) continue
+    // requestIdleCallback so it never competes with critical first-load work; the `timeout` guarantees it
+    // still fires on a perpetually-busy page (no idle window). setTimeout fallback for browsers lacking it.
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(() => void load(), { timeout: 3000 })
+    } else {
+      window.setTimeout(() => void load(), 1)
+    }
+  }
+}
+
 // Pool-detail prefetches already issued this session — avoids re-dispatching on every re-hover.
 const prefetchedPoolDetail = new Set<string>()
 

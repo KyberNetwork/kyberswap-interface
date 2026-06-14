@@ -38,6 +38,7 @@ import ListsUpdater from 'state/lists/updater'
 import TransactionUpdater from 'state/transactions/updater'
 import UserUpdater from 'state/user/updater'
 import ThemeProvider from 'theme'
+import { preloadStaticRouteChunks } from 'utils/prefetch'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -128,6 +129,10 @@ if (container.firstElementChild && prerenderedPath === currentPath) {
   container.innerHTML = ''
   createRoot(container).render(<ReactApp />)
 }
+
+// Warm a few high-traffic static route chunks so in-app nav to them is instant even without a hover
+// (keyboard / mobile tap). Idle-gated internally — see preloadStaticRouteChunks.
+preloadStaticRouteChunks()
 
 serviceWorkerRegistration.unregister()
 //serviceWorkerRegistration.register({
