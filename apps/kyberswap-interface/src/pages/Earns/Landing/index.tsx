@@ -109,7 +109,7 @@ const EarnLanding = () => {
               }}
             />
           </RevealOnScroll>
-          <RevealOnScroll delay={0.4}>
+          <RevealOnScroll delay={0.3}>
             <Card
               title={t`Staking/Compounding Strategies`}
               icon={StakingIcon}
@@ -179,7 +179,7 @@ const EarnLanding = () => {
             />
           </RevealOnScroll>
 
-          <RevealOnScroll delay={0.4}>
+          <RevealOnScroll delay={0.3}>
             <PoolSection
               title={t`Solid Earning`}
               tooltip={t`Top 100 pools that have the high total earned fee in the last 7 days`}
