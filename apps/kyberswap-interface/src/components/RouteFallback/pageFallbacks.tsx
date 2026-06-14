@@ -70,9 +70,14 @@ const TableShell = ({ children, className }: { children: React.ReactNode; classN
   <div className={cn('overflow-hidden rounded-2xl bg-background/80', className)}>{children}</div>
 )
 
-const TitleRow = ({ width }: { width: number }) => (
-  <div className="flex items-center gap-4">
-    <Circle size={36} />
+// Back control + page title. The real back control is a thin ~20px arrow icon (IconArrowLeft / a
+// transparent-bg BackButton), NOT a filled circle — approximate it with a small rounded square. `rowH`
+// reserves the real title-row height (36px on pools/positions/smart-exit — set by a size-9 BackButton,
+// the text-[24px] title, or the 36px right-hand button) so the loaded page doesn't shift down when it
+// replaces the skeleton.
+const TitleRow = ({ width, rowH = 36 }: { width: number; rowH?: number }) => (
+  <div className="flex items-center gap-4" style={{ height: rowH }}>
+    <Skeleton width={24} height={24} borderRadius={8} />
     <Skeleton width={width} height={32} />
   </div>
 )
@@ -125,32 +130,44 @@ const PoolMobileCard = () => (
 
 export const EarnPoolsFallback = () => (
   <PageWrapper>
-    <TitleRow width={360} />
-    <Skeleton width={520} height={16} />
+    {/* Title + subtitle share a gap-2 sub-stack (the real page wraps them in <Stack gap-2>). The subtitle
+        is one long line filling the content width on desktop. */}
+    <div className="flex flex-col gap-2">
+      <TitleRow width={450} />
+      {/* py-1 reserves the subtitle's 24px line box (16px text + leading) so nothing below shifts down. */}
+      <div className="py-1">
+        <Skeleton width="90%" height={16} containerClassName="block" />
+      </div>
+    </div>
 
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap gap-3">
-        {[84, 48, 140, 160, 116, 124, 140].map((w, i) => (
+    {/* Category tags (h-42, rounded-xl, gap-4) + My Positions button. */}
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap gap-4">
+        {[94, 50, 162, 181, 123, 152, 153].map((w, i) => (
           <Skeleton key={i} width={w} height={42} borderRadius={12} />
         ))}
       </div>
-      <Skeleton width={140} height={42} borderRadius={12} />
+      <Skeleton width={148} height={36} borderRadius={12} />
     </div>
+    {/* Chain / protocol / interval pills (gap-4) + 320px search pill + Create Pool button (h-32, r-16). */}
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex gap-3">
-        <Skeleton width={124} height={36} borderRadius={12} />
-        <Skeleton width={140} height={36} borderRadius={12} />
-        <Skeleton width={72} height={36} borderRadius={12} />
+      <div className="flex gap-4">
+        <Skeleton width={148} height={36} borderRadius={999} />
+        <Skeleton width={148} height={36} borderRadius={999} />
+        <Skeleton width={78} height={36} borderRadius={999} />
       </div>
       <div className="flex gap-3">
-        <Skeleton width={300} height={36} borderRadius={12} />
-        <Skeleton width={124} height={36} borderRadius={12} />
+        <Skeleton width={320} height={36} borderRadius={999} />
+        <Skeleton width={133} height={32} borderRadius={16} />
       </div>
     </div>
 
-    {/* Desktop table (≥993). */}
+    {/* Desktop table (≥993). Header is 60px tall: TableHeader p-3 + inner TableCell py-2 + text-sm line. */}
     <TableShell className="max-md:hidden">
-      <div className="grid items-center border-b border-tableHeader p-3" style={{ gridTemplateColumns: POOLS_GRID }}>
+      <div
+        className="grid h-[60px] items-center border-b border-tableHeader px-3"
+        style={{ gridTemplateColumns: POOLS_GRID }}
+      >
         {[44, 40, 36, 36, 56, 64, 72, 0].map((w, i) => (
           <Skeleton key={i} width={w} height={14} />
         ))}
@@ -197,7 +214,7 @@ export const EarnPoolsFallback = () => (
 // flex cards (≤768). Cell content matches the real skeleton (no labels — same as the page's own loader).
 const POSITION_ROW = cn(
   'relative grid grid-rows-[1fr] gap-y-2 bg-background px-7 py-4',
-  'after:absolute after:inset-x-7 after:bottom-0 after:h-px after:bg-tableHeader/50 after:content-[""] last:after:hidden',
+  'after:absolute after:inset-x-7 after:bottom-0 after:h-px after:bg-tableHeader after:content-[""] last:after:hidden',
   'max-[1300px]:mb-4 max-[1300px]:!grid-cols-3 max-[1300px]:grid-rows-[1fr_1fr] max-[1300px]:justify-start max-[1300px]:rounded-[20px] max-[1300px]:bg-background/80 max-[1300px]:after:hidden',
   'max-sm:!flex max-sm:flex-col max-sm:gap-y-4 max-sm:rounded-none max-sm:!bg-background/80 max-sm:p-4 max-sm:after:inset-x-4 max-sm:after:block',
 )
@@ -267,7 +284,7 @@ const BannerBar = ({ width, height, circle }: { width: number; height: number; c
 
 const VDivider = ({ h = 60 }: { h?: number }) => <div className="w-px shrink-0 bg-tabActive" style={{ height: h }} />
 
-const BannerStat = ({ labelW, valueW = 90, valueH = 26 }: { labelW: number; valueW?: number; valueH?: number }) => (
+const BannerStat = ({ labelW, valueW = 90, valueH = 28 }: { labelW: number; valueW?: number; valueH?: number }) => (
   <div className="flex flex-col gap-2">
     <BannerBar width={labelW} height={14} />
     <BannerBar width={valueW} height={valueH} />
@@ -279,27 +296,29 @@ const PositionSummary = () => (
     <div className="flex gap-5 max-lg:flex-col max-sm:hidden">
       <div className={cn(BANNER_BORDER, 'flex-1')}>
         <div className={cn(BANNER_BG, 'flex flex-wrap items-center gap-[26px] px-8 py-[32.5px]')}>
-          <BannerStat labelW={70} />
+          <BannerStat labelW={86} />
           <VDivider />
-          <BannerStat labelW={78} />
+          <BannerStat labelW={96} />
           <VDivider />
-          <BannerStat labelW={128} />
+          <BannerStat labelW={168} />
         </div>
       </div>
       <div className={cn(BANNER_BORDER, 'flex-1')}>
-        <div className={cn(BANNER_BG, 'flex flex-col gap-3 px-8 py-3.5')}>
-          <div className="flex items-center gap-2">
-            <BannerBar circle width={24} height={24} />
-            <BannerBar width={96} height={16} />
-            <BannerBar width={70} height={24} />
+        <div className={cn(BANNER_BG, 'flex flex-col gap-2 px-8 py-3.5')}>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <BannerBar circle width={24} height={24} />
+              <BannerBar width={96} height={16} />
+            </div>
+            <BannerBar width={110} height={28} />
           </div>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-            <BannerStat labelW={56} valueW={80} valueH={22} />
-            <VDivider h={40} />
-            <BannerStat labelW={74} valueW={80} valueH={22} />
-            <VDivider h={40} />
-            <BannerStat labelW={66} valueW={80} valueH={22} />
-            <BannerBar width={88} height={40} />
+            <BannerStat labelW={56} valueW={80} valueH={24} />
+            <VDivider />
+            <BannerStat labelW={78} valueW={80} valueH={24} />
+            <VDivider />
+            <BannerStat labelW={68} valueW={80} valueH={24} />
+            <BannerBar width={100} height={40} />
           </div>
         </div>
       </div>
@@ -307,23 +326,23 @@ const PositionSummary = () => (
     {/* ≤768: single merged banner card. */}
     <div className={cn(BANNER_BORDER, 'sm:hidden')}>
       <div className={cn(BANNER_BG, 'flex flex-col gap-4 p-4')}>
-        {[70, 78, 128].map((w, i) => (
+        {[86, 96, 168].map((w, i) => (
           <div key={i} className="flex items-center justify-between">
             <BannerBar width={w} height={14} />
             <BannerBar width={90} height={24} />
           </div>
         ))}
         <div className="flex items-center justify-between border-t border-white/[0.08] pt-4">
-          <BannerBar width={110} height={16} />
+          <BannerBar width={96} height={16} />
           <BannerBar width={80} height={24} />
         </div>
-        {[60, 74, 66].map((w, i) => (
+        {[56, 78, 68].map((w, i) => (
           <div key={i} className="flex items-center justify-between">
             <BannerBar width={w} height={14} />
-            <BannerBar width={80} height={22} />
+            <BannerBar width={80} height={24} />
           </div>
         ))}
-        <BannerBar width={88} height={40} />
+        <BannerBar width={100} height={40} />
       </div>
     </div>
   </>
@@ -331,36 +350,29 @@ const PositionSummary = () => (
 
 export const EarnPositionsFallback = () => (
   <PageWrapper className="sm:px-12 min-[1921px]:px-6">
-    <TitleRow width={280} />
+    <TitleRow width={256} />
 
-    {/* All Chains dropdown (left) + Explore Pools button (right) — above the banner. */}
+    {/* All Chains pill (left) + Explore Pools button (right) — above the banner. */}
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <Skeleton width={140} height={36} borderRadius={12} />
-      <Skeleton width={170} height={40} borderRadius={12} />
+      <Skeleton width={148} height={36} borderRadius={999} />
+      <Skeleton width={155} height={36} borderRadius={12} />
     </div>
 
     <PositionSummary />
 
-    {/* All Protocols + Position Status (left) + Search (right). */}
+    {/* All Protocols + Position Status pills (gap-2, left) + 320px search pill (right). */}
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap gap-3">
-        <Skeleton width={140} height={36} borderRadius={12} />
-        <Skeleton width={160} height={36} borderRadius={12} />
+      <div className="flex flex-wrap gap-2">
+        <Skeleton width={148} height={36} borderRadius={999} />
+        <Skeleton width={152} height={36} borderRadius={999} />
       </div>
-      <Skeleton width={360} height={36} borderRadius={12} />
+      <Skeleton width={320} height={36} borderRadius={999} />
     </div>
 
+    {/* Table = 5 rows, NO column header: the real page hides the header while loading (it only renders
+        once positions arrive), so the fallback mirrors that data-loading skeleton (PositionListSkeleton). */}
     <div className="overflow-hidden rounded-[20px] bg-background max-[1300px]:rounded-none max-[1300px]:bg-transparent max-sm:-mx-4">
-      {/* Column header — hidden once rows collapse to 3-col / cards (≤1300), matching the real page. */}
-      <div
-        className="grid items-center border-b border-tableHeader/50 px-7 py-4 max-[1300px]:hidden"
-        style={{ gridTemplateColumns: POSITIONS_GRID }}
-      >
-        {[70, 44, 56, 70, 80, 0, 60, 80, 56].map((w, i) => (
-          <Skeleton key={i} width={w} height={14} />
-        ))}
-      </div>
-      {Array.from({ length: 6 }, (_, r) => (
+      {Array.from({ length: 5 }, (_, r) => (
         <PositionRow key={r} />
       ))}
     </div>
@@ -430,28 +442,44 @@ const OrderMobileCard = () => (
 export const SmartExitFallback = () => (
   <PageWrapper>
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <TitleRow width={220} />
-      <Skeleton width={150} height={38} borderRadius={12} />
+      <TitleRow width={210} />
+      <Skeleton width={148} height={36} borderRadius={12} />
     </div>
 
+    {/* Chain / protocol / status pills (gap-2) + Set Up Smart Exit button (h-38, rounded-xl). */}
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex gap-3">
-        <Skeleton width={120} height={36} borderRadius={12} />
-        <Skeleton width={140} height={36} borderRadius={12} />
-        <Skeleton width={110} height={36} borderRadius={12} />
+      <div className="flex gap-2">
+        <Skeleton width={148} height={36} borderRadius={999} />
+        <Skeleton width={148} height={36} borderRadius={999} />
+        <Skeleton width={148} height={36} borderRadius={999} />
       </div>
-      <Skeleton width={150} height={36} borderRadius={12} />
+      <Skeleton width={157} height={38} borderRadius={12} />
     </div>
 
     {/* Desktop table (≥993). */}
     <div className="overflow-hidden rounded-2xl bg-background/80 px-5 pt-4 max-md:hidden">
-      <div className="grid gap-4 border-b border-tableHeader/30 py-4" style={{ gridTemplateColumns: ORDERS_GRID }}>
-        {[16, 64, 80, 70, 70, 56, 50, 0].map((w, i) => (
-          <Skeleton key={i} width={w} height={14} />
-        ))}
+      {/* Header is 78px tall: two columns wrap to 2 lines ("Est. liquidity & earned fee", "Received amount"). */}
+      <div
+        className="grid h-[78px] items-start gap-4 border-b border-border pt-4"
+        style={{ gridTemplateColumns: ORDERS_GRID }}
+      >
+        <Skeleton width={16} height={14} />
+        <Skeleton width={64} height={14} />
+        <Skeleton width={80} height={14} />
+        <div className="flex flex-col gap-1.5">
+          <Skeleton width={70} height={14} />
+          <Skeleton width={50} height={14} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Skeleton width={64} height={14} />
+          <Skeleton width={48} height={14} />
+        </div>
+        <Skeleton width={56} height={14} />
+        <Skeleton width={50} height={14} />
+        <div />
       </div>
-      <div className="[&>*]:border-b [&>*]:border-tableHeader/30 [&>:last-child]:border-b-0">
-        {Array.from({ length: 6 }, (_, r) => (
+      <div className="[&>*]:border-b [&>*]:border-border [&>:last-child]:border-b-0">
+        {Array.from({ length: 5 }, (_, r) => (
           <div key={r} className="grid items-center gap-4 py-4" style={{ gridTemplateColumns: ORDERS_GRID }}>
             <Skeleton width={16} height={14} />
             <OrderTitle />
@@ -481,16 +509,24 @@ export const SmartExitFallback = () => (
 // matching the real Market TableRow's `max-md:grid-cols-[1fr_1fr_1fr]`.
 export const MarketFallback = () => (
   <div className="flex w-full max-w-[1500px] flex-col gap-5 px-6 pb-12 pt-8 max-sm:px-4 max-sm:pt-6">
-    <Skeleton width={240} height={28} />
-    <Skeleton width={560} height={16} />
+    {/* Title + subtitle. h-9 / py-1 reserve the real 36px + 24px line boxes so nothing below shifts down. */}
+    <div>
+      <div className="flex h-9 items-center">
+        <Skeleton width={200} height={30} />
+      </div>
+      <div className="mt-2 py-1">
+        <Skeleton width="90%" height={16} containerClassName="block" />
+      </div>
+    </div>
 
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap gap-3">
-        {[60, 44, 70, 80, 50, 70, 80].map((w, i) => (
-          <Skeleton key={i} width={w} height={36} borderRadius={12} />
+    {/* Category tags (h-38, gap-4) + 320px search pill. */}
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap gap-4">
+        {[52, 48, 61, 75, 47, 65, 73].map((w, i) => (
+          <Skeleton key={i} width={w} height={38} borderRadius={12} />
         ))}
       </div>
-      <Skeleton width={360} height={36} borderRadius={12} />
+      <Skeleton width={320} height={36} borderRadius={999} />
     </div>
 
     <div className="overflow-hidden rounded-2xl bg-background/80 p-6 max-md:-mx-4 max-md:p-4">
@@ -516,19 +552,26 @@ export const MarketFallback = () => (
         </div>
       </div>
 
-      {/* Desktop top header (≥993). */}
-      <div className="grid items-center py-4 max-md:hidden" style={{ gridTemplateColumns: MARKET_HEADER_GRID }}>
-        <Skeleton width={50} height={16} />
-        <div className="flex justify-end px-4">
-          <Skeleton width={200} height={16} />
+      {/* Desktop top header (≥993) — 71px: Name | "On-chain Price" + chain logos | Market Overview. */}
+      <div className="grid h-[71px] items-center max-md:hidden" style={{ gridTemplateColumns: MARKET_HEADER_GRID }}>
+        <div className="px-3">
+          <Skeleton width={50} height={16} />
+        </div>
+        <div className="flex items-center justify-end gap-1.5 px-4">
+          <Skeleton width={110} height={16} />
+          <div className="flex max-w-[60%] flex-wrap justify-end gap-1.5">
+            {Array.from({ length: 16 }, (_, i) => (
+              <Circle key={i} size={20} />
+            ))}
+          </div>
         </div>
         <div className="flex justify-end px-4">
           <Skeleton width={120} height={16} />
         </div>
         <div />
       </div>
-      {/* Desktop sub-header (≥993). */}
-      <div className={cn(MARKET_ROW, 'border-b border-tableHeader py-3 max-md:hidden')}>
+      {/* Desktop sub-header (≥993) — 46px (the 24H period select boxes set the height). */}
+      <div className={cn(MARKET_ROW, 'h-[46px] border-b border-tableHeader max-md:hidden')}>
         <div />
         <Right width={56} height={14} />
         <Right width={40} height={14} />
@@ -539,7 +582,7 @@ export const MarketFallback = () => (
         <div />
       </div>
 
-      {Array.from({ length: 10 }, (_, r) => (
+      {Array.from({ length: 8 }, (_, r) => (
         <div key={r} className={cn(MARKET_ROW, 'py-3')}>
           <div className="flex items-center gap-2 p-3 max-md:px-0">
             <Circle size={24} />

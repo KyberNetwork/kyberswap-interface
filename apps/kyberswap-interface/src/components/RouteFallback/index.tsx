@@ -46,40 +46,55 @@ const Cards = ({ count, height }: { count: number; height: number }) => (
 const SwapPageSkeleton = () => (
   <div className="mx-auto w-full max-w-[1440px] px-6 pt-6 max-sm:px-4">
     <div className="flex gap-12 max-lg:flex-col max-lg:gap-6">
-      <div className="flex w-[425px] shrink-0 flex-col gap-3 max-lg:w-full">
-        <div className="flex items-center gap-4">
-          <Skeleton width={56} height={22} />
-          <Skeleton width={100} height={22} />
-          <Skeleton width={96} height={22} />
-          <Skeleton circle width={22} height={22} />
-          <Skeleton circle width={22} height={22} />
+      <div className="flex w-[425px] shrink-0 flex-col gap-4 max-lg:w-full">
+        {/* Tabs (Swap | Limit Order | Cross-Chain) on the left; info + settings icons aligned to the right. */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Skeleton width={48} height={20} />
+            <Skeleton width={90} height={20} />
+            <Skeleton width={96} height={20} />
+          </div>
+          <div className="flex items-center gap-4">
+            <Skeleton circle width={20} height={20} />
+            <Skeleton circle width={20} height={20} />
+          </div>
         </div>
-        <Skeleton width={240} height={14} />
-        <div className="mt-1 flex flex-col gap-3">
-          <Skeleton height={92} borderRadius={16} />
-          <div className="flex justify-center">
-            <Skeleton circle width={32} height={32} />
+        <Skeleton width={267} height={14} />
+        {/* Swap form card — bg-background + rounded-[20px] + p-4, exactly like the real widget. Inner
+            field skeletons use the darker buttonBlack base (the real input-field color) so they sit a
+            shade below the lighter card, matching the tone of the page's other skeletons. */}
+        <div className="rounded-[20px] bg-background p-4">
+          <div className="flex flex-col gap-3">
+            {/* Input + output fields (h-96), with the swap-direction arrow overlaid on the seam. */}
+            <div className="relative flex flex-col gap-2">
+              <Skeleton height={96} borderRadius={16} baseColor="var(--ks-buttonBlack)" />
+              <Skeleton height={96} borderRadius={16} baseColor="var(--ks-buttonBlack)" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <Skeleton circle width={28} height={28} baseColor="var(--ks-buttonBlack)" />
+              </div>
+            </div>
+            {/* Max Slippage line (label + value), left-aligned. */}
+            <div className="flex items-center gap-2">
+              <Skeleton width={96} height={14} baseColor="var(--ks-buttonBlack)" />
+              <Skeleton width={40} height={14} baseColor="var(--ks-buttonBlack)" />
+            </div>
+            {/* Action button (pill). */}
+            <Skeleton height={42} borderRadius={999} baseColor="var(--ks-buttonBlack)" />
           </div>
-          <Skeleton height={92} borderRadius={16} />
-          <div className="flex items-center justify-between">
-            <Skeleton width={120} height={14} />
-            <Skeleton width={90} height={14} />
-          </div>
-          <Skeleton height={116} borderRadius={16} />
-          <Skeleton height={48} borderRadius={16} />
         </div>
       </div>
-      <div className="flex flex-1 flex-col gap-4 max-lg:hidden">
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <Skeleton height={72} borderRadius={16} />
+      <div className="flex flex-1 flex-col gap-5 max-lg:hidden">
+        {/* Trending + farming pool cards (h-78) — the farming card is wider (≈2:3). */}
+        <div className="flex gap-5">
+          <div className="flex-[2]">
+            <Skeleton height={78} borderRadius={16} />
           </div>
-          <div className="flex-1">
-            <Skeleton height={72} borderRadius={16} />
+          <div className="flex-[3]">
+            <Skeleton height={78} borderRadius={16} />
           </div>
         </div>
-        <Skeleton height={480} borderRadius={16} />
-        <Skeleton height={56} borderRadius={16} />
+        <Skeleton height={480} borderRadius={12} />
+        <Skeleton height={46} borderRadius={12} />
       </div>
     </div>
   </div>
