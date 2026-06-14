@@ -2,7 +2,7 @@
 <!--
   Fallback sitemap for builds that skip the prerender step (dev/stg). Production (`pnpm build`)
   regenerates build/sitemap.xml from `sitemapRoutes` in src/entry-server.tsx — keep this file in
-  sync with that derived list (home + about + earn + per-network /swap landings).
+  sync with that derived list (home + about + earn + KyberDAO + per-network /swap landings).
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -19,6 +19,15 @@
   </url>
   <url>
     <loc>https://kyberswap.com/earn/pools</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/stake-knc</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/vote</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/knc-utility</loc>
   </url>
   <url>
     <loc>https://kyberswap.com/swap/ethereum</loc>

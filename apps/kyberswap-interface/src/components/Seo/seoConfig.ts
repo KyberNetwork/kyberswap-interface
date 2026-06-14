@@ -50,6 +50,12 @@ const CAMPAIGNS_DESCRIPTION =
   'Earn bonus rewards and incentives while you swap, provide liquidity, or trade. Join active campaigns across supported chains - no lock-up required.'
 const ABOUT_KNC_DESCRIPTION =
   'KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap - the multi-chain decentralized exchange (DEX) that provides superior rates for traders.'
+const KYBERDAO_STAKE_DESCRIPTION =
+  'Stake KNC to participate in KyberDAO governance and earn rewards. Voting power and gas refunds for active stakers - help shape the future of KyberSwap.'
+const KYBERDAO_VOTE_DESCRIPTION =
+  'Vote on KyberDAO governance proposals (KIPs) with your staked KNC. Decide protocol parameters and earn voting rewards each epoch on KyberSwap.'
+const KYBERDAO_KNC_UTILITY_DESCRIPTION =
+  'Stake KNC to get your KyberSwap trading gas fees refunded. The KyberDAO gas refund program rewards active traders based on their staked KNC.'
 
 const ORGANIZATION_SCHEMA: StructuredData = {
   '@context': 'https://schema.org',
@@ -211,6 +217,36 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
       description: CAMPAIGNS_DESCRIPTION,
       canonicalPath: normalizedPath,
       robots: NOINDEX_ROBOTS,
+    }
+  }
+
+  if (normalizedPath === APP_PATHS.KYBERDAO_STAKE) {
+    return {
+      title: 'Stake KNC | KyberSwap',
+      description: KYBERDAO_STAKE_DESCRIPTION,
+      canonicalPath: APP_PATHS.KYBERDAO_STAKE,
+      robots: INDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(APP_PATHS.KYBERDAO_STAKE),
+    }
+  }
+
+  if (normalizedPath === APP_PATHS.KYBERDAO_VOTE) {
+    return {
+      title: 'KyberDAO Governance & Voting | KyberSwap',
+      description: KYBERDAO_VOTE_DESCRIPTION,
+      canonicalPath: APP_PATHS.KYBERDAO_VOTE,
+      robots: INDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(APP_PATHS.KYBERDAO_VOTE),
+    }
+  }
+
+  if (normalizedPath === APP_PATHS.KYBERDAO_KNC_UTILITY) {
+    return {
+      title: 'KNC Gas Refund Program | KyberSwap',
+      description: KYBERDAO_KNC_UTILITY_DESCRIPTION,
+      canonicalPath: APP_PATHS.KYBERDAO_KNC_UTILITY,
+      robots: INDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(APP_PATHS.KYBERDAO_KNC_UTILITY),
     }
   }
 

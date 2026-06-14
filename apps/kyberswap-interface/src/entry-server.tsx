@@ -45,14 +45,18 @@ export const prerenderRoutes: PrerenderRoute[] = [
   { path: APP_PATHS.AGGREGATOR_CAMPAIGN, ssr: false },
   { path: APP_PATHS.LIMIT_ORDER_CAMPAIGN, ssr: false },
   { path: APP_PATHS.REFFERAL_CAMPAIGN, ssr: false },
+  // KyberDAO — public staking / governance / KNC-utility pages (wallet-driven bodies → head-only).
+  { path: APP_PATHS.KYBERDAO_STAKE, ssr: false },
+  { path: APP_PATHS.KYBERDAO_VOTE, ssr: false },
+  { path: APP_PATHS.KYBERDAO_KNC_UTILITY, ssr: false },
   ...Array.from(new Set(MAINNET_NETWORKS)).map(
     (chainId): PrerenderRoute => ({ path: `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}`, ssr: false }),
   ),
 ]
 
 /**
- * The index,follow URLs to list in sitemap.xml (home + about + earn + per-network swap). The
- * noindex routes (market-overview, campaigns) are prerendered for meta/first-paint but omitted
+ * The index,follow URLs to list in sitemap.xml (home + about + earn + KyberDAO + per-network swap).
+ * The noindex routes (market-overview, campaigns) are prerendered for meta/first-paint but omitted
  * here — a sitemap should only advertise indexable URLs.
  */
 export const sitemapRoutes: string[] = [
@@ -61,6 +65,9 @@ export const sitemapRoutes: string[] = [
   `${APP_PATHS.ABOUT}/knc`,
   APP_PATHS.EARN,
   APP_PATHS.EARN_POOLS,
+  APP_PATHS.KYBERDAO_STAKE,
+  APP_PATHS.KYBERDAO_VOTE,
+  APP_PATHS.KYBERDAO_KNC_UTILITY,
   ...Array.from(new Set(MAINNET_NETWORKS)).map(chainId => `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}`),
 ]
 
