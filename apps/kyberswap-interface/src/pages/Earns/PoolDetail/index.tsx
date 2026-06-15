@@ -21,7 +21,12 @@ const PoolSeoTitle = () => {
     if (!token0 || !token1) return
     // Format the fee like PoolHeader does (raw swapFee can carry float noise, e.g. 0.30000000000004).
     const feeText = typeof fee === 'number' ? ` ${formatDisplayNumber(fee, { significantDigits: 4 })}%` : ''
-    document.title = `${token0}/${token1}${feeText} Pool | KyberSwap`
+    const title = `${token0}/${token1}${feeText} Pool | KyberSwap`
+    document.title = title
+    // Mirror onto the social title tags so a client copy-share carries the per-pool title (crawlers get
+    // it via og-service). RouteSeo creates these tags + resets them on the next route, so no cleanup.
+    document.head.querySelector("meta[property='og:title']")?.setAttribute('content', title)
+    document.head.querySelector("meta[name='twitter:title']")?.setAttribute('content', title)
   }, [token0, token1, fee])
 
   return null

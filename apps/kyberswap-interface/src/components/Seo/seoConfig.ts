@@ -41,7 +41,7 @@ const CROSS_CHAIN_DESCRIPTION =
 const EARN_DESCRIPTION =
   'Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap technology—to help you maximize earnings from your liquidity across various DeFi protocols.'
 const EARN_POOLS_DESCRIPTION =
-  'Explore and compare yield opportunities across top DeFi protocols on multiple chains -  trading volume, TVL, and pool performance across networks - all from one interface without switching apps.'
+  'Explore and compare yield opportunities across top DeFi protocols on multiple chains - trading volume, TVL, and pool performance across networks - all from one interface without switching apps.'
 const EARN_POSITIONS_DESCRIPTION =
   'Track all your active liquidity positions in one dashboard. Monitor APR, rewards, and performance across protocols - no need to check each one separately.'
 const EARN_SMART_EXIT_DESCRIPTION =
@@ -303,7 +303,12 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
 }
 
 const escapeHtml = (value: string) =>
-  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
 
 /**
  * Build the route-specific <head> inner HTML (title + meta + canonical + structured data)

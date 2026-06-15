@@ -253,7 +253,7 @@ const pickSkeleton = (rawPathname: string) => {
     return <TablePageSkeleton />
   }
 
-  if (pathname.startsWith('/campaigns')) {
+  if (pathname.startsWith('/campaigns/')) {
     return <CampaignSkeleton />
   }
 

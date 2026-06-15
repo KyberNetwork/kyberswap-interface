@@ -120,19 +120,6 @@ const PoolExplorer = () => {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleOpenZapInWithParams = useCallback(
-    ({ pool, initialTick }: ZapInInfo) => {
-      const { dex, chainId, address } = pool
-      searchParams.set('exchange', dex)
-      searchParams.set('poolChainId', chainId.toString())
-      searchParams.set('poolAddress', address)
-      setSearchParams(searchParams)
-      handleOpenZapIn({ pool, initialTick })
-    },
-    [handleOpenZapIn, searchParams, setSearchParams],
-  )
-
   const handleNavigateToAddLiquidity = useCallback(
     ({ pool, initialTick }: ZapInInfo) => {
       const pathname = getPoolDetailUrl(pool.chainId, pool.dex, pool.address)

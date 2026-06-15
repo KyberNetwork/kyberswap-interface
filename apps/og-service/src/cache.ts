@@ -6,11 +6,16 @@ import { LRUCache } from 'lru-cache';
 // every value in `{ v }` so the stored type is always an object, and `null` round-trips correctly.
 const store = new LRUCache<string, { v: unknown }>({
   max: 5000,
+  // Byte bound: cached 1200x630 PNG buffers would otherwise grow the heap unbounded — the `max` entry
+  // count alone doesn't cap bytes. Buffers count their byte length; small wrapped values (resolved
+  // tokens/pools, negative-cache nulls) count as 1. With maxSize set every entry must yield a size.
+  maxSize: 256 * 1024 * 1024, // 256 MB
+  sizeCalculation: ({ v }) => (Buffer.isBuffer(v) ? v.length : 1),
   // Default 1h; every set() passes an explicit ttl, so this is just a safety bound.
   ttl: 60 * 60 * 1000,
   // Lazy expiry only (checked on get). `ttlAutopurge` would schedule a setTimeout per entry, which
-  // overflows for our 1-year image/font TTLs (> 2^31 ms) and spams TimeoutOverflowWarning. The LRU
-  // `max` bound caps memory; stale entries are dropped on access or evicted by capacity.
+  // overflows for our 1-year image/font TTLs (> 2^31 ms) and spams TimeoutOverflowWarning. Stale entries
+  // are dropped on access or evicted by capacity (entry count or bytes, whichever hits first).
   ttlAutopurge: false,
 });
 

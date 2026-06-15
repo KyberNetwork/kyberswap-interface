@@ -3,6 +3,7 @@ import { Star } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
@@ -20,6 +21,7 @@ import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
+import { prefetchPoolDetail } from 'utils/prefetch'
 
 const MobileTableRow = ({
   pool,
@@ -40,6 +42,13 @@ const MobileTableRow = ({
 
   // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
   const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
+
+  // Same as the desktop row: the row's onClick opens the pool's detail page, so warm that page's chunk +
+  // poolDetail query on touch-intent (onTouchStart is the only practically-relevant trigger on mobile).
+  const prefetchDetail = usePrefetchOnIntent(
+    () => prefetchPoolDetail((pool.chain?.id || pool.chainId) as number, pool.address),
+    { delay: 120 },
+  )
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
@@ -66,6 +75,7 @@ const MobileTableRow = ({
       onClick={e => handleOpenZapInWidget(e)}
       className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
       style={{ animationDelay }}
+      {...prefetchDetail}
     >
       <MobileTableCell alignItems="flex-start" justifyContent="space-between">
         <Stack className="items-start gap-2">
