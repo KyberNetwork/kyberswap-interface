@@ -7,7 +7,7 @@ import { ChevronDown } from 'react-feather'
 import { formatUnits } from 'viem'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import HelpIcon from 'assets/svg/help-circle.svg'
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
@@ -304,7 +304,7 @@ export const TokenPanel = ({
                           style={{ borderRadius: '50%' }}
                           onError={({ currentTarget }) => {
                             currentTarget.onerror = null
-                            currentTarget.src = HelpIcon
+                            currentTarget.src = UnknownToken
                           }}
                         />
                       )}
