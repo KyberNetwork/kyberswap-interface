@@ -219,7 +219,7 @@ export default function Menu() {
             aria-label="Menu"
             id={TutorialIds.BUTTON_MENU_HEADER}
             className={cn(
-              'm-0 flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 outline-none',
+              'm-0 flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 outline-none hover:text-text',
               open ? 'text-text' : 'text-subText',
             )}
           >

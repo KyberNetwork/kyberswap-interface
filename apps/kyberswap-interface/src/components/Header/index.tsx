@@ -46,7 +46,7 @@ export default function Header() {
   const hide = isEmbeddedSwap && upToLarge
 
   const menu = (
-    <div className="flex items-center gap-2 rounded-[36px] border border-background bg-background px-1.5 text-subText hover:border-primary hover:brightness-105 focus:border-primary focus:brightness-105">
+    <div className="flex items-center gap-2 rounded-[36px] border border-background bg-background px-1.5 text-subText hover:border-border-primary hover:brightness-105">
       <Announcement />
       <div style={{ height: '18px', borderLeft: '2px solid var(--ks-subText)' }} />
       <Menu />
