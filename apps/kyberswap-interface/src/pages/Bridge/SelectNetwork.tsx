@@ -45,7 +45,7 @@ const SelectNetwork = forwardRef<
       <div
         data-testid="network-button"
         onClick={() => chainIds.length && toggleNetworkModal()}
-        className="flex h-fit items-center justify-between rounded-3xl p-0 text-text hover:cursor-pointer"
+        className="flex h-fit items-center justify-between rounded-3xl p-0 text-text hover:cursor-pointer hover:brightness-75"
       >
         {selectedChainId && (
           <NetworkLogo

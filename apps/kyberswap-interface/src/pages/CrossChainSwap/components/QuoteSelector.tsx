@@ -199,7 +199,7 @@ export const QuoteSelector = ({
     <MenuFlyout
       isOpen={show}
       trigger={
-        <MouseoverTooltip text={t`More options`} width="fit-content">
+        <MouseoverTooltip text={t`More options`} width="fit-content" placement="top">
           {trigger}
         </MouseoverTooltip>
       }

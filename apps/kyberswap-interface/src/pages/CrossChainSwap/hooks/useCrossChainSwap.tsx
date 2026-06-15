@@ -33,9 +33,10 @@ import {
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
+import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
-import { NearToken, useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
@@ -406,7 +407,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     ? btcAddress || BTC_DEFAULT_RECEIVER
     : isFromNear
     ? signedAccountId || ZERO_ADDRESS
-    : walletClient?.data?.account.address || CROSS_CHAIN_FEE_RECEIVER
+    : walletClient?.data?.account?.address || CROSS_CHAIN_FEE_RECEIVER
 
   const receiver = isToSolana
     ? recipient || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
@@ -414,7 +415,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     ? recipient || BTC_DEFAULT_RECEIVER
     : isToNear
     ? recipient || signedAccountId || ZERO_ADDRESS
-    : recipient || walletClient?.data?.account.address || CROSS_CHAIN_FEE_RECEIVER
+    : recipient || walletClient?.data?.account?.address || CROSS_CHAIN_FEE_RECEIVER
 
   const getQuote = useCallback(async () => {
     if (showPreview) return

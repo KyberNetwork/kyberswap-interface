@@ -75,7 +75,7 @@ interface TokenSelectorContentProps {
 const NoResult = () => {
   return (
     <Stack className="h-full p-5" data-testid="no-token-result">
-      <p className="mb-5 text-center font-medium text-text3">
+      <p className="text-center font-medium text-text3">
         <Trans>No results found.</Trans>
       </p>
     </Stack>
@@ -339,7 +339,7 @@ export const TokenSelectorContent = ({
 
   return (
     <ContentWrapper>
-      <PaddedColumn className="gap-[14px]">
+      <PaddedColumn>
         <HStack className="items-center justify-between">
           <HStack as="span" className="text-xl font-medium">
             {title || <Trans>Select a token</Trans>}

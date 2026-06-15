@@ -325,7 +325,7 @@ const TokenList = ({
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 pb-2">
       <AutoSizer>
         {({ height, width }) => (
           <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>

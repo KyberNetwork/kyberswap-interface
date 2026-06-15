@@ -6,7 +6,7 @@ import { WalletClient, formatUnits } from 'viem'
 
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
-import { SolanaToken } from 'state/crossChainSwap'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { toBigIntSafe } from 'utils/bigint'
 
 import { Quote } from '../registry'

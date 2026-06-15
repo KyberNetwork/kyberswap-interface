@@ -20,7 +20,7 @@ import {
   CROSS_CHAIN_FEE_RECEIVER_SUI,
   ZERO_ADDRESS,
 } from 'constants/index'
-import { SolanaToken } from 'state/crossChainSwap'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 import { Quote } from '../registry'
 import {
