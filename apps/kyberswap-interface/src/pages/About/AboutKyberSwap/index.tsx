@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import aggregatorStatsApi from 'services/aggregatorStats'
 
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
@@ -41,7 +40,7 @@ import {
   VerticalDivider,
   Wrapper,
 } from 'pages/About/styleds'
-import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
+import { ExternalLink, StyledInternalLink } from 'theme'
 import { formatBigLiquidity } from 'utils/formatBalance'
 
 const KNCBlack = () => <KNCSVG className="[&_path]:fill-textReverse" />
@@ -55,7 +54,6 @@ const ForTraderInfoCell = ({ children }: { children: React.ReactNode }) => (
 )
 
 export const KSStatistic = () => {
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedChains } = useChainsConfig()
 
   return (
@@ -80,7 +78,8 @@ export const KSStatistic = () => {
           </ForTraderInfoCell>
         </ForTraderInfoRow>
 
-        <ForTraderDivider horizontal={upToLarge} />
+        {/* Between-rows divider: horizontal when the two rows stack (≤1200), vertical side-by-side (>1200). */}
+        <div className="h-px w-full bg-border lg:h-[50px] lg:w-px" />
 
         <ForTraderInfoRow>
           <ForTraderInfoCell>
@@ -105,10 +104,6 @@ export const KSStatistic = () => {
 function AboutKyberSwap() {
   const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
-  const above992 = useMedia('(min-width: 992px)')
-  const above768 = useMedia('(min-width: 768px)')
-  const above500 = useMedia('(min-width: 500px)')
-
   const { data: aggregatorData } = aggregatorStatsApi.useGetAggregatorVolumeQuery({})
 
   const { trackingHandler } = useTracking()
@@ -205,54 +200,44 @@ function AboutKyberSwap() {
                   </span>
                 </div>
 
-                {above500 && (
-                  <BtnPrimary
-                    margin="48px 0"
-                    width="216px"
-                    as={Link as never}
-                    to={APP_PATHS.SWAP + '/' + networkInfo.route}
-                    onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
-                  >
-                    <Repeat size={20} />
-                    <span className="ml-2 text-base">
-                      <Trans>Swap Now</Trans>
-                    </span>
-                  </BtnPrimary>
-                )}
-              </div>
-              <div className="flex flex-1 flex-col">
-                <img
-                  width="100%"
-                  src={ForTraderImage}
-                  alt="ForTrader"
-                  style={{ marginTop: above992 ? '0.25rem' : '40px' }}
-                />
-                <KSStatistic />
-              </div>
-              {!above500 && (
+                {/* ≥500: button sits in the text column. Rendered always; hidden <500 via CSS. */}
                 <BtnPrimary
-                  margin="40px 0"
+                  className="hidden min-[500px]:flex"
+                  margin="48px 0"
+                  width="216px"
                   as={Link as never}
                   to={APP_PATHS.SWAP + '/' + networkInfo.route}
                   onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
                 >
-                  <Repeat />
-                  <span className="ml-2 text-base sm:text-xl">
+                  <Repeat size={20} />
+                  <span className="ml-2 text-base">
                     <Trans>Swap Now</Trans>
                   </span>
                 </BtnPrimary>
-              )}
+              </div>
+              <div className="flex flex-1 flex-col">
+                <img width="100%" src={ForTraderImage} alt="ForTrader" className="mt-10 md:mt-1" />
+                <KSStatistic />
+              </div>
+              {/* <500: button moves below the image. Rendered always; hidden ≥500 via CSS. */}
+              <BtnPrimary
+                className="min-[500px]:hidden"
+                margin="40px 0"
+                as={Link as never}
+                to={APP_PATHS.SWAP + '/' + networkInfo.route}
+                onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
+              >
+                <Repeat />
+                <span className="ml-2 text-base sm:text-xl">
+                  <Trans>Swap Now</Trans>
+                </span>
+              </BtnPrimary>
             </ForTrader>
           </RevealOnScroll>
 
           <RevealOnScroll>
             <AboutKNC>
-              <img
-                src={KNCGraphic}
-                alt="KNCGraphic"
-                className="h-[400px] w-auto"
-                style={{ display: above768 ? 'block' : 'none' }}
-              />
+              <img src={KNCGraphic} alt="KNCGraphic" className="hidden h-[400px] w-auto sm:block" />
               <div className="flex h-max w-full flex-col self-center">
                 <span className="text-base font-medium text-primary sm:text-xl">
                   <Trans>ABOUT KNC</Trans>
@@ -266,13 +251,7 @@ function AboutKyberSwap() {
                     product KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem.
                   </Trans>
                 </span>
-                <img
-                  width="75%"
-                  src={KNCGraphic}
-                  alt="KNCGraphic"
-                  className="m-auto mt-10"
-                  style={{ display: above768 ? 'none' : 'block' }}
-                />
+                <img src={KNCGraphic} alt="KNCGraphic" width="75%" className="m-auto mt-10 block sm:hidden" />
                 <BtnPrimary as={Link as never} to="/about/knc" margin="48px 0">
                   <KNCBlack />
                   <span className="ml-2 text-sm sm:text-base">
@@ -357,7 +336,8 @@ function AboutKyberSwap() {
             <ExternalLink href={`https://gov.kyber.org`}>
               <Trans>Forum</Trans>
             </ExternalLink>
-            {!above500 ? <div /> : <VerticalDivider />}
+            <div className="min-[500px]:hidden" />
+            <VerticalDivider className="hidden min-[500px]:block" />
             <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
             <VerticalDivider />
             <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>

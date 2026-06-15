@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Archive, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
@@ -54,7 +53,6 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ExternalLink, StyledInternalLink } from 'theme'
-import { cn } from 'utils/cn'
 
 import {
   AboutPage,
@@ -114,22 +112,16 @@ const LIST_WALLETS = [
 function AboutKNC() {
   const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
-  const above768 = useMedia('(min-width: 768px)')
-  const above500 = useMedia('(min-width: 500px)')
-
   const { trackingHandler } = useTracking()
 
   const DynamicTokenModel = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      className={cn('min-h-[360px] flex-1 flex-col', above768 ? 'items-start' : 'items-center')}
-      style={{ width }}
-    >
+    <ForLiquidityProviderItem className="min-h-[360px] flex-1 flex-col items-center sm:items-start" style={{ width }}>
       <img width="64px" src={RocketIcon} alt="rocket_icon" />
       <p className="mt-7 text-[16px] font-medium uppercase text-primary">
         <Trans>Dynamic Token Model</Trans>
       </p>
 
-      <p className={cn('mt-6 leading-normal text-text', above500 ? 'text-start' : 'text-center')}>
+      <p className="mt-6 text-center leading-normal text-text min-[500px]:text-start">
         <Trans>
           KNC enables KyberDAO to shape token behaviour and upgrades, making KNC much more adaptable and providing
           better support for innovation and growth.
@@ -139,16 +131,13 @@ function AboutKNC() {
   )
 
   const ParticipationRewards = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      className={cn('min-h-[360px] flex-1 flex-col', above768 ? 'items-start' : 'items-center')}
-      style={{ width }}
-    >
+    <ForLiquidityProviderItem className="min-h-[360px] flex-1 flex-col items-center sm:items-start" style={{ width }}>
       <img width="64px" src={TrophyIcon} alt="trophy_icon" />
       <p className="mt-7 text-[16px] font-medium uppercase text-primary">
         <Trans>Participation Rewards</Trans>
       </p>
 
-      <p className={cn('mt-6 leading-normal text-text', above500 ? 'text-start' : 'text-center')}>
+      <p className="mt-6 text-center leading-normal text-text min-[500px]:text-start">
         <Trans>
           KNC holders can stake KNC in KyberDAO and vote on important decisions. Voters receive trading fees generated
           on KyberSwap and other benefits from ecosystem collaborations on Kyber.
@@ -215,21 +204,18 @@ function AboutKNC() {
               </Trans>
             </p>
 
-            {above768 ? (
-              <div className="mt-10 flex flex-row gap-6 sm:mt-12">
-                <ParticipationRewards width="392px" />
-                <DynamicTokenModel width="392px" />
-              </div>
-            ) : (
-              <GridWrapper>
-                <ParticipationRewards />
-                <DynamicTokenModel />
-              </GridWrapper>
-            )}
+            {/* ≥768: side-by-side fixed-width cards; <768: horizontally-scrollable grid. Both rendered,
+                toggled via CSS so server + client first render match (hydration-safe). */}
+            <div className="mt-10 hidden flex-row gap-6 sm:mt-12 sm:flex">
+              <ParticipationRewards width="392px" />
+              <DynamicTokenModel width="392px" />
+            </div>
+            <GridWrapper className="sm:hidden">
+              <ParticipationRewards />
+              <DynamicTokenModel />
+            </GridWrapper>
 
-            <div
-              className={cn('m-auto mt-10 flex justify-center sm:mt-12', above768 ? 'w-[236px] gap-6' : 'w-full gap-4')}
-            >
+            <div className="m-auto mt-10 flex w-full justify-center gap-4 sm:mt-12 sm:w-[236px] sm:gap-6">
               <BtnPrimary
                 width="216px"
                 as={Link as any}
@@ -245,8 +231,8 @@ function AboutKNC() {
           </RevealOnScroll>
 
           <RevealOnScroll>
-            <div className={cn('mt-[100px] flex items-center gap-6 sm:mt-[160px]', above768 ? 'flex-row' : 'flex-col')}>
-              <img width="85%" src={KyberDao} alt="KyberDao" style={{ display: above768 ? 'block' : 'none' }} />
+            <div className="mt-[100px] flex flex-col items-center gap-6 sm:mt-[160px] sm:flex-row">
+              <img width="85%" src={KyberDao} alt="KyberDao" className="hidden sm:block" />
               <div className="flex h-max w-full flex-col">
                 <p className="text-[20px] font-medium text-primary sm:text-[24px]">
                   <Trans>KYBER DAO</Trans>
@@ -261,16 +247,10 @@ function AboutKNC() {
                     KyberSwap through trading activities in Kyber Network.
                   </Trans>
                 </p>
-                <img
-                  width="100%"
-                  src={KyberDao}
-                  alt="KyberDao"
-                  className="mt-10"
-                  style={{ display: above768 ? 'none' : 'block' }}
-                />
+                <img width="100%" src={KyberDao} alt="KyberDao" className="mt-10 block sm:hidden" />
 
                 <BtnPrimary
-                  width={above768 ? '236px' : '100%'}
+                  className="w-full sm:w-[236px]"
                   margin="40px 0 0"
                   as={Link as any}
                   to={APP_PATHS.KYBERDAO_STAKE}
@@ -286,49 +266,37 @@ function AboutKNC() {
           </RevealOnScroll>
 
           <RevealOnScroll>
-            <h2
-              className={cn(
-                'text-center text-[28px] font-medium sm:text-[36px]',
-                above768 ? 'mt-[160px]' : 'mt-[100px]',
-              )}
-            >
+            <h2 className="mt-[100px] text-center text-[28px] font-medium sm:mt-[160px] sm:text-[36px]">
               <Trans>Where you can buy KNC</Trans>
             </h2>
 
-            {above768 ? (
-              <Exchange>
-                {LIST_EXCHANGES.map(exchange => (
-                  <div key={exchange.name} className="m-auto flex">
-                    {exchange.logo}
-                  </div>
-                ))}
-              </Exchange>
-            ) : (
-              <Swiper
-                slidesPerView={1}
-                spaceBetween={30}
-                modules={[Pagination]}
-                loop={true}
-                pagination={{
-                  clickable: true,
-                }}
-                className="mt-6"
-              >
-                {LIST_EXCHANGES.map(exchange => (
-                  <SwiperSlide key={exchange.name}>
-                    <ExchangeWrapper>
-                      <div className="m-auto flex">{exchange.logo}</div>
-                    </ExchangeWrapper>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            )}
-            <h2
-              className={cn(
-                'text-center text-[28px] font-medium sm:text-[36px]',
-                above768 ? 'mt-[160px]' : 'mt-[100px]',
-              )}
+            {/* ≥768: static grid; <768: carousel. Both rendered, toggled via CSS (hydration-safe). */}
+            <Exchange className="hidden sm:grid">
+              {LIST_EXCHANGES.map(exchange => (
+                <div key={exchange.name} className="m-auto flex">
+                  {exchange.logo}
+                </div>
+              ))}
+            </Exchange>
+            <Swiper
+              slidesPerView={1}
+              spaceBetween={30}
+              modules={[Pagination]}
+              loop={true}
+              pagination={{
+                clickable: true,
+              }}
+              className="mt-6 sm:hidden"
             >
+              {LIST_EXCHANGES.map(exchange => (
+                <SwiperSlide key={exchange.name}>
+                  <ExchangeWrapper>
+                    <div className="m-auto flex">{exchange.logo}</div>
+                  </ExchangeWrapper>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <h2 className="mt-[100px] text-center text-[28px] font-medium sm:mt-[160px] sm:text-[36px]">
               <Trans>Where you can store KNC</Trans>
             </h2>
             <p className="mt-10 text-center text-[16px] leading-6 text-text sm:mt-12">
@@ -337,39 +305,36 @@ function AboutKNC() {
               </Trans>
             </p>
 
-            {above768 ? (
-              <Exchange>
-                {LIST_WALLETS.map(wallet => (
-                  <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} className="m-auto" width="100%" />
-                ))}
-              </Exchange>
-            ) : (
-              <Swiper
-                slidesPerView={1}
-                spaceBetween={30}
-                modules={[Pagination]}
-                loop={true}
-                pagination={{
-                  clickable: true,
-                }}
-                className="mt-6"
-              >
-                {LIST_WALLETS.map(wallet => (
-                  <SwiperSlide key={wallet.logo}>
-                    <ExchangeWrapper>
-                      <img src={wallet.logo} alt={wallet.logo} width="160px" className="m-auto" />
-                    </ExchangeWrapper>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            )}
+            <Exchange className="hidden sm:grid">
+              {LIST_WALLETS.map(wallet => (
+                <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} className="m-auto" width="100%" />
+              ))}
+            </Exchange>
+            <Swiper
+              slidesPerView={1}
+              spaceBetween={30}
+              modules={[Pagination]}
+              loop={true}
+              pagination={{
+                clickable: true,
+              }}
+              className="mt-6 sm:hidden"
+            >
+              {LIST_WALLETS.map(wallet => (
+                <SwiperSlide key={wallet.logo}>
+                  <ExchangeWrapper>
+                    <img src={wallet.logo} alt={wallet.logo} width="160px" className="m-auto" />
+                  </ExchangeWrapper>
+                </SwiperSlide>
+              ))}
+            </Swiper>
 
             <MoreInfoWrapper>
-              <div className={cn('flex flex-col', above768 ? 'mr-[180px] items-start' : 'mr-0 items-center')}>
+              <div className="mr-0 flex flex-col items-center sm:mr-[180px] sm:items-start">
                 <h2 className="text-[28px] font-medium sm:text-[36px]">
                   <Trans>More information about KNC is available on:</Trans>
                 </h2>
-                <div className={cn('mt-12 items-center gap-12', above768 ? 'flex flex-row' : 'flex flex-col')}>
+                <div className="mt-12 flex flex-col items-center gap-12 sm:flex-row">
                   <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
                     <img src={CoinGecko} alt="CoinGecko" width="165px" />
                   </ExternalLink>
@@ -381,7 +346,7 @@ function AboutKNC() {
                   </ExternalLink>
                 </div>
               </div>
-              <img width={above768 ? '218px' : '287px'} src={KNCGraphic} alt="KNCGraphic" />
+              <img src={KNCGraphic} alt="KNCGraphic" className="w-[287px] sm:w-[218px]" />
             </MoreInfoWrapper>
           </RevealOnScroll>
         </Wrapper>
@@ -402,7 +367,8 @@ function AboutKNC() {
             <ExternalLink href={`https://gov.kyber.org`}>
               <Trans>Forum</Trans>
             </ExternalLink>
-            {!above500 ? <div /> : <VerticalDivider />}
+            <div className="min-[500px]:hidden" />
+            <VerticalDivider className="hidden min-[500px]:block" />
             <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
             <VerticalDivider />
             <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>

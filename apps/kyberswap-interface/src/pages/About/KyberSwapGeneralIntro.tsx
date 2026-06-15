@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { useMedia } from 'react-use'
 
 import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
@@ -10,7 +9,6 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 const KyberSwapGeneralIntro = () => {
   const { networkInfo } = useActiveWeb3React()
-  const above768 = useMedia('(min-width: 768px)')
   const { trackingHandler } = useTracking()
 
   const renderKyberSwapIntroDEX = () => {
@@ -40,21 +38,12 @@ const KyberSwapGeneralIntro = () => {
     )
   }
 
-  if (above768) {
-    return (
-      <div className="mt-8 grid w-full grid-cols-[1fr] grid-rows-[1fr_auto] justify-items-center gap-x-[72px] gap-y-6 px-16">
-        {renderKyberSwapIntroDEX()}
-        {renderSwapNowButton()}
-      </div>
-    )
-  }
-
+  // Responsive via CSS (was a useMedia `if (above768)` branch, which diverged server vs client-first
+  // render and broke hydration on the prerendered About page). ≥768: tighter gap + wider padding.
   return (
-    <div className="mt-8 flex w-full flex-col gap-y-12 px-8">
-      <div className="flex flex-col items-center gap-y-4">
-        {renderKyberSwapIntroDEX()}
-        {renderSwapNowButton()}
-      </div>
+    <div className="mt-8 flex w-full flex-col items-center gap-y-4 px-8 sm:gap-y-6 sm:px-16">
+      {renderKyberSwapIntroDEX()}
+      {renderSwapNowButton()}
     </div>
   )
 }
