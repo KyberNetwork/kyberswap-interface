@@ -2,20 +2,19 @@ import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { AutoColumn } from 'components/Column'
 import WarningIcon from 'components/Icons/WarningIcon'
 import RefreshLoading from 'components/RefreshLoading'
-import { RowBetween, RowFixed } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextHelper } from 'components/Text'
 import TradePrice from 'components/swapv2/TradePrice'
 import { BIPS_BASE } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { formattedNum, isInSafeApp } from 'utils'
+import { isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -120,48 +119,48 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
 
   if (isInSafeApp) {
     return (
-      <RowBetween>
-        <RowFixed>
-          <TextDashed fontSize={12} fontWeight={400} color={labelColor}>
-            <MouseoverTooltip
-              text={
-                <span>
-                  Learn more about the Platform Fee{' '}
-                  <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-widget/widget-iframe-fee">
-                    here ↗
-                  </ExternalLink>
-                </span>
-              }
-              placement="right"
-            >
-              Platform Fee
-            </MouseoverTooltip>
-          </TextDashed>
-        </RowFixed>
+      <HStack className="w-full items-center justify-between">
+        <HStack className="w-fit items-center">
+          <TextHelper
+            fontSize={12}
+            color={labelColor}
+            tooltip={
+              <span>
+                Learn more about the Platform Fee{' '}
+                <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-widget/widget-iframe-fee">
+                  here ↗
+                </ExternalLink>
+              </span>
+            }
+            placement="right"
+          >
+            Platform Fee
+          </TextHelper>
+        </HStack>
 
-        <RowFixed>
+        <HStack className="w-fit items-center">
           <p className={cn('m-0 text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>0.1%</p>
-        </RowFixed>
-      </RowBetween>
+        </HStack>
+      </HStack>
     )
   }
 
   return (
-    <RowBetween>
-      <RowFixed>
-        <TextDashed fontSize={12} fontWeight={400} color={labelColor}>
-          <MouseoverTooltip
-            text={
-              <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
-            }
-            placement="right"
-          >
-            <SwapFeeLabel />
-          </MouseoverTooltip>
-        </TextDashed>
-      </RowFixed>
+    <HStack className="w-full items-center justify-between">
+      <HStack className="w-fit items-center">
+        <TextHelper
+          fontSize={12}
+          color={labelColor}
+          tooltip={
+            <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
+          }
+          placement="right"
+        >
+          <SwapFeeLabel />
+        </TextHelper>
+      </HStack>
 
-      <RowFixed>
+      <HStack className="w-fit items-center">
         <p
           className={cn(
             'm-0 flex flex-nowrap items-center gap-1 text-[12px] font-medium',
@@ -171,8 +170,8 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
           <span>{feeValue}</span>
           {feePercent && feeAmountUsdText && <span className="text-subText">(~{feeAmountUsdText})</span>}
         </p>
-      </RowFixed>
-    </RowBetween>
+      </HStack>
+    </HStack>
   )
 }
 
@@ -203,7 +202,7 @@ const TradeSummary: React.FC<Props> = ({
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
       <span className="whitespace-nowrap font-medium text-text">
-        {formattedNum(minimumAmountOut.toSignificant(10), false, 10)} {currencyOut.symbol}
+        {formatDisplayNumber(minimumAmountOut.toSignificant(10), { significantDigits: 10 })} {currencyOut.symbol}
       </span>
     ) : (
       ''
@@ -226,8 +225,8 @@ const TradeSummary: React.FC<Props> = ({
         'data-[disabled=true]:text-subText',
       )}
     >
-      <AutoColumn className="gap-3">
-        <RowBetween>
+      <Stack className="gap-3">
+        <HStack className="min-h-[19px] w-full items-center justify-between">
           <span className="text-xs font-normal text-subText">
             <Trans>Rate</Trans>
           </span>
@@ -241,70 +240,72 @@ const TradeSummary: React.FC<Props> = ({
             />
             <TradePrice price={routeSummary?.executionPrice} className="text-text" />
           </div>
-        </RowBetween>
-        <RowBetween>
-          <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-              <MouseoverTooltip
-                width="200px"
-                text={
-                  <>
-                    <div>
-                      <Trans>You will receive at least this amount, or your transaction will revert.</Trans>
-                    </div>
-                    <div>
-                      <Trans>
-                        Any{' '}
-                        <a
-                          href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/aggregator-api-specification/evm-swaps#kyberswap-positive-slippage-surplus-collection"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          positive slippage
-                        </a>{' '}
-                        will accrue to KyberSwap.
-                      </Trans>
-                    </div>
-                  </>
-                }
-                placement="right"
-              >
-                <Trans>Minimum Received</Trans>
-              </MouseoverTooltip>
-            </TextDashed>
-          </RowFixed>
-          <RowFixed>
-            <p className="m-0 text-[12px] font-medium text-text">{minimumAmountOutStr || '--'}</p>
-          </RowFixed>
-        </RowBetween>
-
-        <RowBetween>
-          <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-              <MouseoverTooltip
-                text={
+        </HStack>
+        <HStack className="w-full items-center justify-between">
+          <HStack className="w-fit items-center">
+            <TextHelper
+              fontSize={12}
+              fontWeight={400}
+              className="text-subText"
+              tooltipWidth="280px"
+              tooltip={
+                <>
                   <div>
-                    <Trans>Estimated change in price due to the size of your transaction.</Trans>
-                    <div className="text-xs">
-                      <Trans>
-                        Read more{' '}
-                        <a
-                          href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <b>here ↗</b>
-                        </a>
-                      </Trans>
-                    </div>
+                    <Trans>You will receive at least this amount, or your transaction will revert.</Trans>
                   </div>
-                }
-                placement="right"
-              >
-                <Trans>Price Impact</Trans>
-              </MouseoverTooltip>
-            </TextDashed>
-          </RowFixed>
+                  <div>
+                    <Trans>
+                      Any{' '}
+                      <a
+                        href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/aggregator-api-specification/evm-swaps#kyberswap-positive-slippage-surplus-collection"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        positive slippage
+                      </a>{' '}
+                      will accrue to KyberSwap.
+                    </Trans>
+                  </div>
+                </>
+              }
+              placement="right"
+            >
+              <Trans>Minimum Received</Trans>
+            </TextHelper>
+          </HStack>
+          <HStack className="w-fit items-center">
+            <p className="m-0 text-[12px] font-medium text-text">{minimumAmountOutStr || '--'}</p>
+          </HStack>
+        </HStack>
+
+        <HStack className="w-full items-center justify-between">
+          <HStack className="w-fit items-center">
+            <TextHelper
+              fontSize={12}
+              fontWeight={400}
+              className="text-subText"
+              tooltip={
+                <div>
+                  <Trans>Estimated change in price due to the size of your transaction.</Trans>
+                  <div className="text-xs">
+                    <Trans>
+                      Read more{' '}
+                      <a
+                        href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <b>here ↗</b>
+                      </a>
+                    </Trans>
+                  </div>
+                </div>
+              }
+              placement="right"
+            >
+              <Trans>Price Impact</Trans>
+            </TextHelper>
+          </HStack>
           <p
             className={cn(
               'm-0 text-[12px] font-medium',
@@ -313,7 +314,7 @@ const TradeSummary: React.FC<Props> = ({
           >
             {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
           </p>
-        </RowBetween>
+        </HStack>
 
         <SwapFee isFeeTampered={isFeeTampered} />
 
@@ -331,7 +332,7 @@ const TradeSummary: React.FC<Props> = ({
             </span>
           </div>
         )}
-      </AutoColumn>
+      </Stack>
     </div>
   )
 }

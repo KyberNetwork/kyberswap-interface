@@ -6,7 +6,8 @@ import { useSearchParams } from 'react-router-dom'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { Stack } from 'components/Stack'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
@@ -107,7 +108,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
     <div className="flex w-full flex-col">
       <div className="flex items-center justify-between gap-1 text-subText">
         <div className="flex items-center gap-1">
-          <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center leading-none text-subText">
+          <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center text-subText">
             <MouseoverTooltip
               placement="right"
               text={
@@ -173,7 +174,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
                 <div
                   role="button"
                   onClick={() => setRawSlippage(defaultSlp)}
-                  className="flex w-fit cursor-pointer items-center gap-1 px-1 text-xs text-primary"
+                  className="flex w-fit cursor-pointer items-center gap-1 px-1 text-xs text-primary hover:brightness-125"
                 >
                   <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
                     <span className="border-b border-dotted border-primary">

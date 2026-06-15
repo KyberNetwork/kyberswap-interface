@@ -36,7 +36,9 @@ const Label = ({
 )
 
 const ItemWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex basis-[45%] items-center justify-between gap-1.5">{children}</div>
+  <div className="flex min-h-7 basis-[48%] items-center justify-between gap-1.5 rounded px-2 py-1 hover:bg-tabActive">
+    {children}
+  </div>
 )
 
 const NO_DATA = '--'
@@ -79,19 +81,16 @@ const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
   )
 }
 
-const Content = ({
-  data,
-  totalRisk,
-  totalWarning,
-  loading,
-}: {
+export type ContentProps = {
   data: ItemData[]
   totalRisk: number
   totalWarning: number
   loading: boolean
-}) => {
+}
+
+const Content = ({ data, totalRisk, totalWarning, loading }: ContentProps) => {
   return (
-    <div className="flex flex-wrap justify-between gap-3 px-5 py-4 max-md:flex-col">
+    <div className="flex flex-wrap justify-between gap-y-2 px-4 py-3 max-md:flex-col">
       <ItemWrapper>
         <div className="flex items-center gap-1.5">
           <AlertOctagon size={16} className="text-red" />

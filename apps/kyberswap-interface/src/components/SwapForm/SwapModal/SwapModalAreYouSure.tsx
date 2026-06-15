@@ -1,10 +1,11 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { Dispatch, SetStateAction, useState } from 'react'
-import { X } from 'react-feather'
 
 import { ButtonErrorStyle, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
+import { HStack, Stack } from 'components/Stack'
+import { CloseIcon } from 'theme/components'
 
 export default function SwapModalAreYouSure({
   show,
@@ -30,6 +31,7 @@ export default function SwapModalAreYouSure({
       setShow(false)
     }
   }
+
   return (
     <Modal
       isOpen={show}
@@ -38,42 +40,48 @@ export default function SwapModalAreYouSure({
         setShow(false)
       }}
       maxHeight={100}
+      width="480px"
+      maxWidth="unset"
     >
-      <div className="flex w-full flex-col bg-tableHeader p-6 pb-7">
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-medium">
+      <Stack className="w-full gap-6 bg-tableHeader p-5">
+        <HStack className="items-center justify-between">
+          <span className="text-xl font-medium text-text">
             <Trans>Are you sure?</Trans>
           </span>
 
-          <X className="size-7 cursor-pointer text-text" onClick={() => setShow(false)} />
-        </div>
+          <CloseIcon onClick={() => setShow(false)} />
+        </HStack>
 
-        <span className="mt-7 text-sm">
-          <Trans>
-            Due to market conditions, your output has been updated from {parsedAmountOut?.toSignificant(10)}{' '}
-            {parsedAmountOut?.currency?.symbol} to {parsedAmountOutFromBuild?.toSignificant(10)}{' '}
-            {parsedAmountOut?.currency?.symbol} ({formattedOutputChangePercent}%).
-          </Trans>
-        </span>
+        <Stack className="gap-4">
+          <span className="text-sm font-medium text-subText">
+            <Trans>
+              Due to market conditions, your output has been updated from {parsedAmountOut?.toSignificant(10)}{' '}
+              {parsedAmountOut?.currency?.symbol} to {parsedAmountOutFromBuild?.toSignificant(10)}{' '}
+              {parsedAmountOut?.currency?.symbol} ({formattedOutputChangePercent}%).
+            </Trans>
+          </span>
 
-        <span className="mt-7 text-sm">
-          <Trans>
-            If you&apos;re okay with this, please type the word &apos;confirm&apos; below to accept this new amount.
-          </Trans>
-        </span>
+          <span className="text-sm font-normal text-text">
+            <Trans>
+              Please type the word <span className="font-medium text-warning">Confirm</span> below to accept this new
+              amount.
+            </Trans>
+          </span>
 
-        <input
-          placeholder="confirm"
-          value={confirmText}
-          onChange={e => setConfirmText(e.target.value)}
-          onKeyUp={e => {
-            if (e.key === 'Enter') {
-              handleConfirm()
-            }
-          }}
-          className="mt-6 rounded-full border-0 bg-buttonBlack px-4 py-2 text-base text-text outline-none placeholder:text-disableText"
-        />
-        <div className="mt-7 flex justify-center gap-4">
+          <input
+            placeholder="Confirm"
+            value={confirmText}
+            onChange={e => setConfirmText(e.target.value)}
+            onKeyUp={e => {
+              if (e.key === 'Enter') {
+                handleConfirm()
+              }
+            }}
+            className="rounded-full border-none bg-buttonBlack px-4 py-2 text-sm font-medium text-text outline-none placeholder:text-disableText"
+          />
+        </Stack>
+
+        <HStack className="justify-center gap-4">
           <ButtonOutlined
             className="flex-1 p-2.5 text-sm"
             onClick={() => {
@@ -90,8 +98,8 @@ export default function SwapModalAreYouSure({
           >
             <Trans>Confirm</Trans>
           </ButtonErrorStyle>
-        </div>
-      </div>
+        </HStack>
+      </Stack>
     </Modal>
   )
 }

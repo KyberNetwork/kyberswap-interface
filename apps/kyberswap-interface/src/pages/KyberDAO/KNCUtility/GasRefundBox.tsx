@@ -6,7 +6,8 @@ import { useGetGasRefundNextCycleInfoQuery } from 'services/kyberDAO'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { RowBetween } from 'components/Row'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import {
   isSupportKyberDao,

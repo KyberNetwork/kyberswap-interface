@@ -1,6 +1,8 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useRef } from 'react'
 
 import Checkbox from 'components/CheckBox'
+import { HStack } from 'components/Stack'
 import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
@@ -8,11 +10,14 @@ import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 export const LiquiditySourceGroup = ({
   tag,
   debouncedSearchText,
+  chainId: customChainId,
 }: {
   tag: { id: number; name: string }
   debouncedSearchText: string
+  chainId?: ChainId
 }) => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   const dexes = useAllDexes(chainId)
 
   const dexByTag = useMemo(() => dexes.filter(item => item.tags?.some(t => t.id === tag.id)), [dexes, tag.id])
@@ -29,10 +34,10 @@ export const LiquiditySourceGroup = ({
   }
 
   const groupRef = useRef<HTMLInputElement>(null)
+  const selectedDexes = dexByTag?.filter(item => !excludeDexes.includes(item.id)) || []
+  const dexIds = dexByTag.map(item => item.id)
 
   useEffect(() => {
-    const selectedDexes = dexByTag?.filter(item => !excludeDexes.includes(item.id)) || []
-
     if (!groupRef.current) return
 
     if (selectedDexes.length === dexByTag?.length) {
@@ -45,37 +50,44 @@ export const LiquiditySourceGroup = ({
       groupRef.current.checked = false
       groupRef.current.indeterminate = true
     }
-  }, [excludeDexes, dexByTag])
+  }, [dexByTag?.length, selectedDexes.length])
 
   const filteredDexes = dexByTag.filter(item => item.name.toLowerCase().includes(debouncedSearchText))
+  const handleToggleGroup = (checked: boolean) => {
+    if (checked) {
+      setExcludeDexes(excludeDexes.filter(item => !dexIds.includes(item)))
+    } else {
+      setExcludeDexes([...excludeDexes.filter(item => !dexIds.includes(item)), ...dexIds])
+    }
+  }
 
   if (!filteredDexes.length) return null
 
   return (
     <>
-      <Source>
-        <Checkbox
-          ref={groupRef}
-          checked={!dexByTag.map(i => i.id).every(item => excludeDexes.includes(item))}
-          onChange={e => {
-            if (e.target.checked) {
-              setExcludeDexes(excludeDexes.filter(item => !dexByTag.map(d => d.id).includes(item)))
-            } else {
-              const newData = [
-                ...excludeDexes.filter(item => dexByTag.map(d => d.id).includes(item)),
-                ...dexByTag.map(item => item.id),
-              ]
-              setExcludeDexes(newData)
-            }
-          }}
-        />
-        <SourceName>{tag.name}</SourceName>
+      <Source onClick={() => handleToggleGroup(!groupRef.current?.checked)}>
+        <HStack className="min-w-0 flex-1 items-center gap-3">
+          <Checkbox
+            ref={groupRef}
+            checked={!dexIds.every(item => excludeDexes.includes(item))}
+            onChange={e => handleToggleGroup(e.target.checked)}
+            onClick={e => e.stopPropagation()}
+          />
+          <SourceName>{tag.name}</SourceName>
+        </HStack>
+        <span className="text-xs font-medium text-subText">
+          {selectedDexes.length}/{dexByTag.length}
+        </span>
       </Source>
 
       {filteredDexes.map(({ name, logoURL, id }) => {
         return (
-          <Source key={name} className="px-12 py-3">
-            <Checkbox checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />
+          <Source key={name} className="pl-10" onClick={() => handleToggleDex(id)}>
+            <Checkbox
+              checked={!excludeDexes.includes(id)}
+              onChange={() => handleToggleDex(id)}
+              onClick={e => e.stopPropagation()}
+            />
 
             <ImageWrapper>
               <img src={logoURL} alt="" />

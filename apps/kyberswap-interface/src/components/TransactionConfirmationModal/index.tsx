@@ -5,7 +5,6 @@ import { ArrowUpCircle, BarChart2 } from 'react-feather'
 import { useWatchAsset } from 'wagmi'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
-import Banner from 'components/Banner'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Loader from 'components/Loader'
@@ -22,6 +21,11 @@ import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 
 const SECTION_CLASS = 'p-5'
+const STATUS_SECTION_CLASS = cn(SECTION_CLASS, 'flex flex-col gap-5')
+const STATUS_MAIN_CLASS = 'flex flex-col items-center justify-center gap-4 text-center'
+const STATUS_ICON_CLASS = 'flex size-16 shrink-0 items-center justify-center'
+const STATUS_TEXT_CLASS = 'flex w-full flex-col items-center justify-center gap-3'
+const STATUS_ACTION_CLASS = 'flex w-full flex-col items-center gap-3'
 
 export function ConfirmationPendingContent({
   onDismiss,
@@ -32,26 +36,26 @@ export function ConfirmationPendingContent({
 }) {
   return (
     <div className="w-full overflow-y-auto">
-      <AutoColumn className={SECTION_CLASS}>
-        <RowBetween>
+      <div className={STATUS_SECTION_CLASS}>
+        <RowBetween className="min-h-6 shrink-0">
           <div />
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        <div className="flex w-full flex-col items-center py-[30px]">
-          <Loader size="90px" className="text-primary" strokeWidth="1" />
+        <div className={STATUS_MAIN_CLASS}>
+          <div className={STATUS_ICON_CLASS}>
+            <Loader size="64px" className="text-primary" strokeWidth="1" />
+          </div>
+          <div className={STATUS_TEXT_CLASS}>
+            <span className="text-xl font-medium">
+              <Trans>Waiting For Confirmation</Trans>
+            </span>
+            <span className="max-w-full text-sm font-semibold">{pendingText}</span>
+            <span className="text-sm font-medium text-subText-40">
+              <Trans>Confirm this transaction in your wallet</Trans>
+            </span>
+          </div>
         </div>
-        <AutoColumn className="justify-items-center gap-3">
-          <span className="text-xl font-medium">
-            <Trans>Waiting For Confirmation</Trans>
-          </span>
-          <AutoColumn className="justify-items-center gap-3">
-            <span className="text-center text-sm font-semibold">{pendingText}</span>
-          </AutoColumn>
-          <span className="text-center text-xs text-text4">
-            <Trans>Confirm this transaction in your wallet</Trans>
-          </span>
-        </AutoColumn>
-      </AutoColumn>
+      </div>
     </div>
   )
 }
@@ -85,7 +89,7 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
   const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
 
   return (
-    <ButtonLight mt="12px" padding="6px 12px" width="fit-content" onClick={handleClick}>
+    <ButtonLight padding="6px 12px" width="fit-content" onClick={handleClick}>
       <RowFixed>
         <Trans>
           Add {token.symbol} to {name}
@@ -101,7 +105,6 @@ export function TransactionSubmittedContent({
   chainId,
   hash,
   tokenAddToMetaMask,
-  showTxBanner = true,
   scanLink,
 }: {
   onDismiss: () => void
@@ -109,41 +112,42 @@ export function TransactionSubmittedContent({
   scanLink?: string
   chainId: ChainId
   tokenAddToMetaMask?: Token
-  showTxBanner?: boolean
 }) {
   return (
     <div className="w-full overflow-y-auto">
-      <AutoColumn className={SECTION_CLASS}>
-        {!showTxBanner && (
-          <RowBetween>
-            <div />
-            <CloseIcon onClick={onDismiss} />
-          </RowBetween>
-        )}
-        {showTxBanner && <Banner isInModal />}
+      <div className={STATUS_SECTION_CLASS}>
+        <RowBetween className="min-h-6 shrink-0">
+          <div />
+          <CloseIcon onClick={onDismiss} />
+        </RowBetween>
 
-        <div className="flex w-full flex-col items-center py-[30px]">
-          <ArrowUpCircle strokeWidth={0.5} size={90} className="text-primary" />
+        <div className={STATUS_MAIN_CLASS}>
+          <div className={STATUS_ICON_CLASS}>
+            <ArrowUpCircle strokeWidth={0.5} size={64} className="text-primary" />
+          </div>
+          <div className={STATUS_TEXT_CLASS}>
+            <span className="text-xl font-medium">
+              <Trans>Transaction Submitted</Trans>
+            </span>
+            {hash && (
+              <ExternalLink href={scanLink || getEtherscanLink(chainId, hash, 'transaction')}>
+                <span className="text-sm font-medium text-primary">
+                  <Trans>View transaction</Trans>
+                </span>
+              </ExternalLink>
+            )}
+          </div>
         </div>
-        <AutoColumn className="justify-items-center gap-4">
-          <span className="text-xl font-medium">
-            <Trans>Transaction Submitted</Trans>
-          </span>
-          {hash && (
-            <ExternalLink href={scanLink || getEtherscanLink(chainId, hash, 'transaction')}>
-              <span className="text-sm font-medium text-primary">
-                <Trans>View transaction</Trans>
-              </span>
-            </ExternalLink>
-          )}
+
+        <div className={STATUS_ACTION_CLASS}>
           {tokenAddToMetaMask?.address && <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />}
-          <ButtonPrimary onClick={onDismiss} className="mt-6">
+          <ButtonPrimary onClick={onDismiss}>
             <span className="text-sm font-medium">
               <Trans>Close</Trans>
             </span>
           </ButtonPrimary>
-        </AutoColumn>
-      </AutoColumn>
+        </div>
+      </div>
     </div>
   )
 }
@@ -200,32 +204,33 @@ export function TransactionErrorContent({
 
   return (
     <div className="w-full overflow-y-auto">
-      <AutoColumn className={SECTION_CLASS}>
-        <RowBetween>
-          <span className="text-xl font-medium">
+      <div className={cn(SECTION_CLASS, 'flex flex-col gap-5')}>
+        <RowBetween className="min-h-6 shrink-0">
+          <span className="text-xl font-medium leading-none">
             <Trans>Error</Trans>
           </span>
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        <AutoColumn className="mt-5 justify-items-center gap-2">
-          <Alert className="size-[108px]" />
-          <span className="w-[85%] text-center text-base font-medium leading-6 text-red">{friendlyError(message)}</span>
+        <div className="flex flex-col items-center gap-3 text-center">
+          <Alert className="size-16 shrink-0" />
+          <span className="w-[85%] text-base font-medium leading-6 text-red">{friendlyError(message)}</span>
           {message !== friendlyError(message) && (
-            <AutoColumn className="w-full justify-items-center">
-              <span className="cursor-pointer text-sm text-primary" onClick={() => setShowDetail(prev => !prev)}>
+            <div className="flex w-full flex-col items-center gap-3">
+              <span
+                className="cursor-pointer text-sm text-primary hover:text-primary/80"
+                onClick={() => setShowDetail(prev => !prev)}
+              >
                 {showDetail ? t`Show less` : t`Show more details`}
               </span>
               {showDetail && (
-                <AutoColumn className="mt-3 max-h-[200px] w-full overflow-y-scroll break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] leading-4 text-text">
+                <div className="max-h-[200px] w-full overflow-y-scroll break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] leading-4 text-text">
                   {typeof message === 'string' ? message : JSON.stringify(message)}
-                </AutoColumn>
+                </div>
               )}
-            </AutoColumn>
+            </div>
           )}
           {suggestionMessage}
-        </AutoColumn>
-      </AutoColumn>
-      <AutoColumn className={cn(SECTION_CLASS, 'gap-3 rounded-b-[20px] pb-7 pt-0')}>
+        </div>
         <div className="flex gap-4">
           {confirmAction && confirmText ? (
             <ButtonOutlined onClick={onDismiss} style={dismissBtnStyle}>
@@ -242,7 +247,7 @@ export function TransactionErrorContent({
             </ButtonPrimary>
           )}
         </div>
-      </AutoColumn>
+      </div>
     </div>
   )
 }
@@ -256,7 +261,6 @@ interface ConfirmationModalProps {
   attemptingTxnContent?: () => React.ReactNode
   pendingText: string | React.ReactNode
   tokenAddToMetaMask?: Currency
-  showTxBanner?: boolean
   maxWidth?: string | number
   width?: string
   scanLink?: string
@@ -272,7 +276,6 @@ export default function TransactionConfirmationModal({
   pendingText,
   content,
   tokenAddToMetaMask,
-  showTxBanner,
   maxWidth = 420,
   width,
 }: ConfirmationModalProps) {
@@ -294,7 +297,6 @@ export default function TransactionConfirmationModal({
         )
       ) : hash ? (
         <TransactionSubmittedContent
-          showTxBanner={showTxBanner}
           chainId={chainId}
           scanLink={scanLink}
           hash={hash}

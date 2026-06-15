@@ -1,7 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { TIMES_IN_SECS } from 'constants/index'
 import { FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
 import { formatDisplayNumber } from 'utils/numbers'

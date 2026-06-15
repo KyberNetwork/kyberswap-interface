@@ -197,7 +197,7 @@ type ButtonVariantClass = string | ((props: ButtonProps) => string)
 // overrides). Consumer-supplied shorthand props (padding, width, etc.) become inline style and
 // override the Tailwind defaults at the inline-style level.
 const BASE_CLASS =
-  'relative z-10 flex w-full h-auto cursor-pointer items-center justify-center rounded-full border border-solid border-transparent p-3 text-center text-sm leading-[normal] font-medium text-white no-underline outline-none [&>*]:select-none hover:brightness-[0.8] disabled:cursor-auto disabled:hover:!filter-none'
+  'relative z-10 flex w-full h-auto cursor-pointer items-center justify-center rounded-full border border-solid border-transparent p-3 text-center text-sm leading-[normal] font-medium text-white no-underline outline-none [&>*]:select-none hover:brightness-[1.2] disabled:cursor-auto disabled:hover:!filter-none'
 
 const buildBase = (variantClass: ButtonVariantClass, displayName: string) => {
   const Component = forwardRef<HTMLElement, ButtonProps>(
@@ -246,10 +246,9 @@ export const ButtonPrimary = buildBase(
 export const ButtonWarning = buildBase(
   (props: ButtonProps) =>
     cn(
-      'bg-warning text-textReverse focus:shadow-[0_0_0_1pt_var(--ks-warning)] focus:brightness-95',
-      'active:shadow-[0_0_0_1pt_var(--ks-warning)] active:brightness-90',
-      'disabled:!cursor-auto disabled:!bg-warning-20 disabled:!text-warning',
-      props.$disabled && '!cursor-auto !bg-warning-20 !text-warning',
+      'bg-warning text-textReverse hover:!brightness-95 active:!brightness-90',
+      'disabled:!cursor-auto disabled:!bg-warning-20 disabled:!text-textReverse disabled:!shadow-none',
+      props.$disabled && '!cursor-auto !bg-warning-20 !text-textReverse !shadow-none',
     ),
   'ButtonWarning',
 )
