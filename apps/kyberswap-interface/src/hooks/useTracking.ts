@@ -1,9 +1,12 @@
-import { useFormo } from '@formo/analytics'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import mixpanel, { crossChainMixpanel } from 'libs/mixpanel'
 import { useCallback, useEffect } from 'react'
 import { usePrevious } from 'react-use'
 
+// `useFormo` resolves from our local Formo context (components/Analytics/formoContext) rather than
+// `@formo/analytics` directly, so the heavy SDK stays out of this eager module's chunk and is only loaded by
+// the deferred provider. Same return shape (`IFormoAnalytics | null`) and `analytics?.x()` usage.
+import { useFormo } from 'components/Analytics/formoContext'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { sanitizeFormoPayload } from 'hooks/sanitizeFormoPayload'
@@ -1804,9 +1807,20 @@ export const useGlobalTrackingEvents = () => {
   const analytics = useFormo()
   const oldNetwork = usePrevious(chainId)
 
+  // Formo identify. `analytics` is deferred (loads on browser idle), so this must also depend on it —
+  // otherwise a wallet that connects before the Formo SDK finishes loading would never be identified (the
+  // [account] effect below would have run once while analytics was still null and never re-run). Kept
+  // separate from the mixpanel effect so a late Formo load doesn't reset the live mixpanel session.
+  useEffect(() => {
+    if (!analytics || !account || !isAddress(account, { strict: false })) return
+    analytics.identify({ address: account })
+    return () => {
+      analytics.reset()
+    }
+  }, [account, analytics])
+
   useEffect(() => {
     if (account && isAddress(account, { strict: false })) {
-      analytics?.identify({ address: account })
       crossChainMixpanel?.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
@@ -1845,7 +1859,6 @@ export const useGlobalTrackingEvents = () => {
     }
     return () => {
       if (account) {
-        analytics?.reset()
         crossChainMixpanel?.reset()
       }
     }

@@ -32,7 +32,16 @@ const isProfiling = process.env.VITE_PROFILE === '1'
 const isAnalyze = process.env.ANALYZE === '1'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // Strip debug logging from the production bundle only. Drop the NOISE (console.log/info/debug via
+  // `pure` — removed when their unused return makes the call dead) + all `debugger`, but KEEP
+  // console.error/warn: there's no Sentry/console-capture, so those are the only signal for prod
+  // failures (e.g. the lazy firebase init error handlers). dev/stg keep everything for debugging.
+  // `legalComments: 'none'` drops license/banner comments to trim the entry chunk.
+  esbuild:
+    mode === 'production'
+      ? { pure: ['console.log', 'console.info', 'console.debug'], drop: ['debugger'], legalComments: 'none' }
+      : {},
   build: {
     outDir: 'build',
     // Emit build/manifest.json so the prerender step (scripts/prerender.mjs) can rewrite the dev asset
@@ -158,4 +167,4 @@ export default defineConfig({
     host: '127.0.0.1',
     open: false,
   },
-})
+}))

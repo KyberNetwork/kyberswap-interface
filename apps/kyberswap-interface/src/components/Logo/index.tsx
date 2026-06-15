@@ -3,7 +3,7 @@ import { CSSProperties, ImgHTMLAttributes, useState } from 'react'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getNativeTokenLogo, isEvmChain } from 'utils'
 import { cn } from 'utils/cn'

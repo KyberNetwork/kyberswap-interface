@@ -2,6 +2,11 @@ import { defineConfig, mergeConfig } from 'vitest/config'
 
 import base from './vite.config'
 
+// vite.config now exports a config CALLBACK (`({ mode }) => config`) so it can gate esbuild on the build
+// mode. mergeConfig() rejects the function form ("Cannot merge config in form of callback"), so resolve it
+// to a plain object first. mode 'test' keeps esbuild console-stripping off, which is what we want here.
+const baseConfig = typeof base === 'function' ? base({ command: 'serve', mode: 'test' }) : base
+
 // SSR render smoke test (Phase 1). Runs in a `node` environment (no real DOM) so that
 // SSR-unsafe code surfaces, with a deliberately minimal browser-global shim in
 // test/smoke.setup.ts for third-party libraries that touch globals at import/render time
@@ -9,7 +14,7 @@ import base from './vite.config'
 // Reuses vite.config so svgr (`?react`), lingui (`.po`), tsconfig path aliases, and `define`
 // all apply. Kept separate from vite.config so vite-plugin-checker doesn't run on tests.
 export default mergeConfig(
-  base,
+  baseConfig,
   defineConfig({
     // Force the same flag a real Vite SSR/prerender build sets, so SSR-incompatible wallet SDKs
     // (e.g. porto's iframe Dialog) are excluded from the wagmi config during the smoke render.

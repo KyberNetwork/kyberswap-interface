@@ -4,6 +4,8 @@ import { Archive, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import 'swiper/swiper-bundle.min.css'
+import 'swiper/swiper.min.css'
 
 import GeckoterminalIcon from 'assets/images/geckoterminal_dark.png'
 import KNCGraphic from 'assets/images/knc-graphic.png'

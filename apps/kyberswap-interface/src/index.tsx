@@ -1,5 +1,3 @@
-import { FormoAnalyticsProvider } from '@formo/analytics'
-
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
 import '@zkmelabs/widget/dist/style.css'
@@ -19,15 +17,14 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import * as serviceWorkerRegistration from 'serviceWorkerRegistration'
-import 'swiper/swiper-bundle.min.css'
-import 'swiper/swiper.min.css'
 import 'tailwind.css'
 
+import DeferredFormoProvider from 'components/Analytics/DeferredFormoProvider'
 import Web3Provider from 'components/Web3Provider'
 import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
 import NEARWalletProvider from 'components/Web3Provider/NearProvider'
 import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
-import { ENV_LEVEL, FORMO_WRITE_KEY, GTM_ID } from 'constants/env'
+import { ENV_LEVEL, GTM_ID } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { useAffiliate } from 'hooks/useAffiliate'
 import App from 'pages/App'
@@ -44,7 +41,20 @@ dayjs.extend(utc)
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
-initMixpanel()
+// Mixpanel (~98KB) is never needed for first paint. Dynamically import + init it during browser idle so it
+// stays off the cold path; the queueing proxy in libs/mixpanel buffers any tracking calls fired before the
+// SDK finishes loading and replays them once ready, so no early events are lost. Mirrors the idle pattern
+// in utils/prefetch.ts (requestIdleCallback with a setTimeout fallback for browsers lacking it).
+const scheduleIdle = (cb: () => void) => {
+  if (typeof window === 'undefined') return
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(() => cb(), { timeout: 3000 })
+  } else {
+    window.setTimeout(cb, 200)
+  }
+}
+
+scheduleIdle(() => void initMixpanel())
 
 if (ENV_LEVEL === ENV_TYPE.PROD && GTM_ID) {
   TagManager.initialize({
@@ -87,10 +97,7 @@ const ReactApp = () => {
   useLayoutEffect(hideLoader, [])
   return (
     <StrictMode>
-      <FormoAnalyticsProvider
-        writeKey={FORMO_WRITE_KEY}
-        disabled={window.location.hostname.endsWith('.pr.kyberengineering.io')}
-      >
+      <DeferredFormoProvider>
         <Provider store={store}>
           <BrowserRouter>
             <LanguageProvider>
@@ -109,7 +116,7 @@ const ReactApp = () => {
             </LanguageProvider>
           </BrowserRouter>
         </Provider>
-      </FormoAnalyticsProvider>
+      </DeferredFormoProvider>
     </StrictMode>
   )
 }
