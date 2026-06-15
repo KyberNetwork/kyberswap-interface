@@ -280,8 +280,10 @@ export const useInputCurrency = () => {
   return inputCurrency || undefined
 }
 export const useOutputCurrency = () => {
+  const { chainId } = useActiveWeb3React()
   const { toCurrency } = useCurrencyFromUrl()
   const allTokens = useAllTokens()
+  const defaultOutputToken = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]
 
   const token = useMemo(() => {
     return Object.values(allTokens).find(
@@ -292,8 +294,12 @@ export const useOutputCurrency = () => {
   }, [allTokens, toCurrency])
 
   const outputCurrency = useCurrencyV2(token ? token.address : toCurrency)
+  const isDefaultOutputToken =
+    defaultOutputToken &&
+    (defaultOutputToken.symbol?.toLowerCase() === toCurrency.toLowerCase() ||
+      defaultOutputToken.address.toLowerCase() === toCurrency.toLowerCase())
 
-  return outputCurrency || undefined
+  return outputCurrency || (isDefaultOutputToken ? defaultOutputToken : undefined)
 }
 
 export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {
