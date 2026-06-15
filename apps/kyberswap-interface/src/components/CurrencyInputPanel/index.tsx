@@ -27,7 +27,7 @@ type CurrencySelectStyleProps = {
 
 export const InputRow = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('flex flex-row flex-nowrap items-center', className)} {...props} />
+    <div ref={ref} className={cn('flex flex-row flex-nowrap items-center gap-2', className)} {...props} />
   ),
 )
 InputRow.displayName = 'InputRow'
@@ -41,12 +41,11 @@ export const CurrencySelect = forwardRef<
       ref={ref}
       {...rest}
       className={cn(
-        'flex select-none items-center rounded-full px-2 py-1.5 text-xl font-medium leading-[normal] outline-none',
-        hideInput ? 'h-10 w-full bg-buttonBlack' : 'w-auto bg-background',
+        'flex min-h-[38px] select-none items-center rounded-full px-2 text-xl font-medium leading-[normal] outline-none',
+        hideInput ? 'w-full bg-buttonBlack' : 'w-auto bg-background',
         selected ? 'border border-transparent text-subText' : 'border border-primary text-primary',
         !selected && 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]',
         isDisable ? 'cursor-default' : 'cursor-pointer',
-        hideInput && !tight ? 'pr-2' : 'pr-0',
         !isDisable && 'hover:brightness-125 focus:brightness-125',
         className,
       )}
@@ -92,8 +91,9 @@ export const Container = ({
   <div
     {...props}
     className={cn(
-      'rounded-2xl border border-transparent',
-      hideInput ? 'bg-transparent p-0' : 'bg-buttonBlack p-3',
+      'flex flex-col gap-3 rounded-2xl border border-transparent',
+      hideInput ? 'bg-transparent' : 'bg-buttonBlack',
+      'p-4',
       error ? 'border-red' : $outline ? 'border-border' : '',
       className,
     )}
@@ -113,7 +113,6 @@ export const StyledTokenName = ({
     style={fontSize ? { fontSize, ...style } : style}
     className={cn(
       'max-w-[120px] truncate !leading-none',
-      !tight && 'ml-2',
       !fontSize && (active ? 'text-xl' : 'text-base'),
       '[@media(max-width:420px)]:max-w-[76px] [@media(max-width:445px)]:max-w-[102px]',
       className,
@@ -125,11 +124,178 @@ const StyledBalanceMax = ({ className, ...props }: React.ButtonHTMLAttributes<HT
   <button
     {...props}
     className={cn(
-      'cursor-pointer rounded-full border-none bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText focus-visible:outline-none',
+      'cursor-pointer rounded-full border-none bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text focus-visible:text-text-60 focus-visible:outline-none',
       className,
     )}
   />
 )
+
+type BalanceRowProps = {
+  account?: string | null
+  currency?: Currency | null
+  customBalanceText?: string
+  label?: ReactNode
+  onHalf?: () => void
+  onMax?: () => void
+  positionLabel: 'in' | 'out'
+  positionMax: 'inline' | 'top'
+  selectedCurrencyBalance?: { toSignificant: (digits: number) => string }
+}
+
+const BalanceRow = ({
+  account,
+  currency,
+  customBalanceText,
+  label,
+  onHalf,
+  onMax,
+  positionLabel,
+  positionMax,
+  selectedCurrencyBalance,
+}: BalanceRowProps) => {
+  const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
+  const balance = customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0
+
+  return (
+    <div className="flex min-h-5 items-center justify-between text-xs">
+      {label && positionLabel === 'in' ? (
+        label
+      ) : showTopActions ? (
+        <div className="flex items-center gap-1">
+          {onMax && (
+            <StyledBalanceMax onClick={onMax}>
+              <Trans>Max</Trans>
+            </StyledBalanceMax>
+          )}
+          {onHalf && (
+            <StyledBalanceMax onClick={onHalf}>
+              <Trans>Half</Trans>
+            </StyledBalanceMax>
+          )}
+        </div>
+      ) : (
+        <div />
+      )}
+
+      <div onClick={onMax} className={cn('group flex items-center gap-1', onMax && 'cursor-pointer')}>
+        <Wallet className="text-subText group-hover:text-text" />
+        <span className="font-medium text-subText group-hover:text-text" data-testid="balance">
+          {balance}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+type AmountInputControlsProps = {
+  account?: string | null
+  currency?: Currency | null
+  disabledInput?: boolean
+  error?: boolean
+  estimatedUsd?: string
+  lockIcon?: boolean
+  maxLength?: number
+  onFocus?: () => void
+  onMax?: () => void
+  onUserInput?: (value: string) => void
+  positionMax: 'inline' | 'top'
+  value: string
+}
+
+const AmountInputControls = ({
+  account,
+  currency,
+  disabledInput,
+  error,
+  estimatedUsd,
+  lockIcon,
+  maxLength,
+  onFocus,
+  onMax,
+  onUserInput,
+  positionMax,
+  value,
+}: AmountInputControlsProps) => {
+  const showInlineMax = account && currency && onMax && positionMax === 'inline'
+
+  return (
+    <>
+      <NumericalInput
+        error={error}
+        className="token-amount-input"
+        data-testid="token-amount-input"
+        value={value}
+        disabled={disabledInput}
+        maxLength={maxLength}
+        onUserInput={onUserInput}
+        onFocus={onFocus}
+      />
+      {estimatedUsd ? (
+        <span className="text-sm font-medium text-border">~{estimatedUsd}</span>
+      ) : (
+        showInlineMax && (
+          <StyledBalanceMax onClick={onMax}>
+            <Trans>MAX</Trans>
+          </StyledBalanceMax>
+        )
+      )}
+      {lockIcon && <Lock className="h-4 text-subText" />}
+    </>
+  )
+}
+
+type CurrencySelectContentProps = {
+  currency?: Currency | null
+  disableCurrencySelect: boolean
+  fontSize?: string
+  hideLogo: boolean
+  isSwitchMode: boolean
+  loadingText?: string
+  maxCurrencySymbolLength?: number
+  nativeCurrency?: Currency
+  tight: boolean
+}
+
+const CurrencySelectContent = ({
+  currency,
+  disableCurrencySelect,
+  fontSize,
+  hideLogo,
+  isSwitchMode,
+  loadingText,
+  maxCurrencySymbolLength,
+  nativeCurrency,
+  tight,
+}: CurrencySelectContentProps) => {
+  const displaySymbol =
+    nativeCurrency?.symbol && maxCurrencySymbolLength
+      ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
+      : nativeCurrency?.symbol
+  const tokenSymbol = displaySymbol || loadingText || <Trans>Select a token</Trans>
+
+  return (
+    <Aligner className="gap-1">
+      <RowFixed className="gap-2">
+        {currency && !hideLogo ? <CurrencyLogo currency={currency} size={'20px'} /> : null}
+        <StyledTokenName
+          tight={tight}
+          className="token-symbol-container"
+          data-testid="token-symbol-container"
+          active={Boolean(currency && currency.symbol)}
+          fontSize={tight ? '14px' : fontSize}
+        >
+          {tokenSymbol}
+        </StyledTokenName>
+      </RowFixed>
+
+      {!!nativeCurrency && <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />}
+      {!disableCurrencySelect && !isSwitchMode && <DropdownSVG className="-mx-1" />}
+      {!disableCurrencySelect && isSwitchMode && (
+        <SwitchIcon className={cn('h-[35%] [&_path]:stroke-current', currency ? 'text-subText' : 'text-primary')} />
+      )}
+    </Aligner>
+  )
+}
 
 const PoolLockContent = (
   <div className="absolute z-20 flex size-full items-center justify-center rounded-lg bg-buttonGray">
@@ -149,8 +315,8 @@ const PoolLockContent = (
 
 interface CurrencyInputPanelProps {
   value: string
-  onMax: (() => void) | null
-  onHalf: (() => void) | null
+  onMax?: () => void
+  onHalf?: () => void
   onUserInput?: (value: string) => void
   onFocus?: () => void
   onClickSelect?: () => void
@@ -254,61 +420,37 @@ export default function CurrencyInputPanel({
         {locked && PoolLockContent}
         <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
-            <div className="mb-3 flex min-h-5 items-center justify-between text-xs">
-              {label && positionLabel === 'in' ? (
-                label
-              ) : (onMax || onHalf) && positionMax === 'top' && currency && account ? (
-                <div className="flex items-center gap-1">
-                  {onMax && (
-                    <StyledBalanceMax onClick={onMax}>
-                      <Trans>Max</Trans>
-                    </StyledBalanceMax>
-                  )}
-                  {onHalf && (
-                    <StyledBalanceMax onClick={onHalf}>
-                      <Trans>Half</Trans>
-                    </StyledBalanceMax>
-                  )}
-                </div>
-              ) : (
-                <div />
-              )}
-              <div onClick={onMax ?? undefined} className={cn('flex items-center', onMax && 'cursor-pointer')}>
-                <Wallet className="text-subText" />
-                <span className="ml-1 font-medium text-subText" data-testid="balance">
-                  {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0}
-                </span>
-              </div>
-            </div>
+            <BalanceRow
+              account={account}
+              currency={currency}
+              customBalanceText={customBalanceText}
+              label={label}
+              onHalf={onHalf}
+              onMax={onMax}
+              positionLabel={positionLabel}
+              positionMax={positionMax}
+              selectedCurrencyBalance={selectedCurrencyBalance}
+            />
           )}
+
           <InputRow>
             {!hideInput && (
-              <>
-                <NumericalInput
-                  error={error}
-                  className="token-amount-input"
-                  data-testid="token-amount-input"
-                  value={value}
-                  disabled={disabledInput}
-                  maxLength={maxLength}
-                  onUserInput={onUserInput}
-                  onFocus={onFocus}
-                />
-                {estimatedUsd ? (
-                  <span className="mr-2 text-sm font-medium text-border">~{estimatedUsd}</span>
-                ) : (
-                  account &&
-                  currency &&
-                  onMax &&
-                  positionMax === 'inline' && (
-                    <StyledBalanceMax onClick={onMax ?? undefined}>
-                      <Trans>MAX</Trans>
-                    </StyledBalanceMax>
-                  )
-                )}
-                {lockIcon && <Lock className="mr-2 h-4 text-subText" />}
-              </>
+              <AmountInputControls
+                account={account}
+                currency={currency}
+                disabledInput={disabledInput}
+                error={error}
+                estimatedUsd={estimatedUsd}
+                lockIcon={lockIcon}
+                maxLength={maxLength}
+                onFocus={onFocus}
+                onMax={onMax}
+                onUserInput={onUserInput}
+                positionMax={positionMax}
+                value={value}
+              />
             )}
+
             {customCurrencySelect || (
               <CurrencySelect
                 isDisable={disableCurrencySelect}
@@ -327,32 +469,17 @@ export default function CurrencyInputPanel({
                 tight={tight}
                 style={styleSelect}
               >
-                <Aligner>
-                  <RowFixed>
-                    {currency && !hideLogo ? <CurrencyLogo currency={currency} size={'20px'} /> : null}
-                    <StyledTokenName
-                      tight={tight}
-                      className={cn('token-symbol-container', disableCurrencySelect ? 'pr-2' : 'pr-0')}
-                      data-testid="token-symbol-container"
-                      active={Boolean(currency && currency.symbol)}
-                      fontSize={tight ? '14px' : fontSize}
-                    >
-                      {(nativeCurrency?.symbol && maxCurrencySymbolLength
-                        ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
-                        : nativeCurrency?.symbol) ||
-                        loadingText || <Trans>Select a token</Trans>}
-                    </StyledTokenName>
-                  </RowFixed>
-                  {!!nativeCurrency && (
-                    <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />
-                  )}
-                  {!disableCurrencySelect && !isSwitchMode && <DropdownSVG className={cn(tight && '-ml-2')} />}
-                  {!disableCurrencySelect && isSwitchMode && (
-                    <SwitchIcon
-                      className={cn('h-[35%] [&_path]:stroke-current', currency ? 'text-subText' : 'text-primary')}
-                    />
-                  )}
-                </Aligner>
+                <CurrencySelectContent
+                  currency={currency}
+                  disableCurrencySelect={disableCurrencySelect}
+                  fontSize={fontSize}
+                  hideLogo={hideLogo}
+                  isSwitchMode={isSwitchMode}
+                  loadingText={loadingText}
+                  maxCurrencySymbolLength={maxCurrencySymbolLength}
+                  nativeCurrency={nativeCurrency}
+                  tight={tight}
+                />
               </CurrencySelect>
             )}
           </InputRow>

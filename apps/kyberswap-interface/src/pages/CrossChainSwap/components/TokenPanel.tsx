@@ -359,10 +359,10 @@ export const TokenPanel = ({
             }
             setModalOpen(true)
           }}
-          style={{ cursor: 'pointer', paddingRight: 0 }}
+          style={{ cursor: 'pointer' }}
         >
-          <Aligner>
-            <RowFixed>
+          <Aligner className="gap-1">
+            <RowFixed className="gap-2">
               {selectedCurrency && (
                 <>
                   {isEvm ? (
@@ -390,7 +390,7 @@ export const TokenPanel = ({
                 {selectedCurrency?.symbol || t`Select a token`}
               </StyledTokenName>
             </RowFixed>
-            <DropdownSVG />
+            <DropdownSVG className="-mx-1" />
           </Aligner>
         </CurrencySelect>
       </InputRow>

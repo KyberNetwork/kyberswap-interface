@@ -4,9 +4,9 @@ import { useMemo } from 'react'
 
 import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
+import { TextHelper } from 'components/Text'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import TooltipText from 'pages/Earns/PoolDetail/AddLiquidity/components/TooltipText'
 import {
   formatBpsLabel,
   formatPercent,
@@ -115,13 +115,13 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
 
       <Stack className="gap-3">
         <HStack className="items-center justify-between">
-          <TooltipText
+          <TextHelper
             tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
             className="text-subText"
             fontSize={14}
           >
             Max Slippage
-          </TooltipText>
+          </TextHelper>
           <HStack className="items-center gap-1">
             <span className="font-medium" style={{ color: slippageNotice ? theme.warning : theme.text }}>
               {formatBpsLabel(estimate.slippage)}
@@ -140,29 +140,29 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
 
         <HStack className="flex-wrap items-stretch gap-2">
           <MetricCard>
-            <TooltipText
+            <TextHelper
               tooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
               className="text-subText"
               fontSize={14}
             >
               Est. Remaining
-            </TooltipText>
+            </TextHelper>
             <span className="font-medium text-text">
               {formatDisplayNumber(estimate.remainingUsd, { style: 'currency', significantDigits: 6 })}
             </span>
           </MetricCard>
           <MetricCard>
-            <TooltipText
+            <TextHelper
               tooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
               className="text-subText"
               fontSize={14}
             >
               Zap Impact
-            </TooltipText>
+            </TextHelper>
             <span className="font-medium text-text">{estimate.zapImpact?.display}</span>
           </MetricCard>
           <MetricCard>
-            <TooltipText
+            <TextHelper
               tooltip={
                 <Stack className="items-start gap-1 [&_a:hover]:opacity-80 [&_a]:text-primary [&_a]:no-underline">
                   Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
@@ -176,7 +176,7 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
               fontSize={14}
             >
               Zap Fee
-            </TooltipText>
+            </TextHelper>
             <span className="font-medium text-text">{formatPercent(estimate.zapFeePercent)}</span>
           </MetricCard>
         </HStack>

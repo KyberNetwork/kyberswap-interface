@@ -3,8 +3,8 @@ import { SecurityInfo } from 'services/coingecko'
 
 import { ItemData, WarningType } from 'components/swapv2/TokenInfo/SecurityInfo/Content'
 import { TokenInfo } from 'hooks/useTokenInfo'
-import { formattedNum } from 'utils'
 import { formatLongNumber } from 'utils/formatBalance'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export const RISKY_THRESHOLD = {
   RISKY: 0.05,
@@ -155,10 +155,17 @@ export const getSecurityTokenInfo = (data: SecurityInfo | undefined) => {
 const NOT_AVAILABLE = '--'
 export const getMarketTokenInfo = (tokenInfo: TokenInfo) => {
   const listData = [
-    { label: t`Price`, value: tokenInfo.price ? formattedNum(tokenInfo.price.toString(), true) : NOT_AVAILABLE },
+    {
+      label: t`Price`,
+      value: tokenInfo.price
+        ? formatDisplayNumber(tokenInfo.price, { style: 'currency', significantDigits: 4 })
+        : NOT_AVAILABLE,
+    },
     {
       label: t`Market Cap Rank`,
-      value: tokenInfo.marketCapRank ? `#${formattedNum(tokenInfo.marketCapRank.toString())}` : NOT_AVAILABLE,
+      value: tokenInfo.marketCapRank
+        ? `#${formatDisplayNumber(tokenInfo.marketCapRank, { significantDigits: 20 })}`
+        : NOT_AVAILABLE,
     },
     {
       label: t`Trading Volume (24H)`,
@@ -170,11 +177,15 @@ export const getMarketTokenInfo = (tokenInfo: TokenInfo) => {
     },
     {
       label: t`All-Time High`,
-      value: tokenInfo.allTimeHigh ? formattedNum(tokenInfo.allTimeHigh.toString(), true) : NOT_AVAILABLE,
+      value: tokenInfo.allTimeHigh
+        ? formatDisplayNumber(tokenInfo.allTimeHigh, { style: 'currency', significantDigits: 4 })
+        : NOT_AVAILABLE,
     },
     {
       label: t`All-Time Low`,
-      value: tokenInfo.allTimeLow ? formattedNum(tokenInfo.allTimeLow.toString(), true) : NOT_AVAILABLE,
+      value: tokenInfo.allTimeLow
+        ? formatDisplayNumber(tokenInfo.allTimeLow, { style: 'currency', significantDigits: 4 })
+        : NOT_AVAILABLE,
     },
     {
       label: t`Circulating Supply`,

@@ -26,7 +26,7 @@ export const PriceAlertButton = ({
   <div
     onClick={onClick}
     className={cn(
-      'flex cursor-pointer select-none items-center gap-1 rounded-3xl bg-subText-20 px-1.5 py-1 text-xs font-medium',
+      'flex cursor-pointer select-none items-center gap-1 rounded-3xl bg-subText-20 px-1.5 py-1 text-xs font-medium hover:bg-subText/25',
       className,
     )}
   >

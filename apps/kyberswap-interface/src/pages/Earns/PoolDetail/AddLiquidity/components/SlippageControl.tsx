@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
+import { TextHelper } from 'components/Text'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import TooltipText from 'pages/Earns/PoolDetail/AddLiquidity/components/TooltipText'
 import { getSlippageNotice, getSlippageStorageKey } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -201,7 +201,7 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
           className="flex w-full cursor-pointer items-center justify-between gap-2 border-none bg-transparent p-0 text-inherit"
         >
           <HStack className="w-full items-center justify-between gap-4">
-            <TooltipText
+            <TextHelper
               tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
               placement="bottom"
               className="text-subText"
@@ -209,7 +209,7 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
               width="fit-content"
             >
               Max Slippage
-            </TooltipText>
+            </TextHelper>
             <HStack as="span" className="items-center gap-1">
               <span className="text-sm font-medium" style={{ color: valueColor }}>
                 {formatSlippageLabel(slippage)}
@@ -305,7 +305,7 @@ const ZapImpact = ({ route }: { route?: ZapRouteDetail | null }) => {
   return (
     <>
       <HStack className="w-full items-center justify-between gap-4">
-        <TooltipText
+        <TextHelper
           tooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
           placement="bottom"
           className="text-subText"
@@ -313,7 +313,7 @@ const ZapImpact = ({ route }: { route?: ZapRouteDetail | null }) => {
           width="fit-content"
         >
           Zap Impact
-        </TooltipText>
+        </TextHelper>
         <span className="text-sm font-medium" style={{ color: valueColor }}>
           {impact.display || '--'}
         </span>

@@ -5,8 +5,8 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
-import { formattedNum } from 'utils'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   wrapType: WrapType
@@ -64,7 +64,11 @@ const InputCurrencyPanel: React.FC<Props> = ({
       id="swap-currency-input"
       dataTestId="swap-currency-input"
       showPinnedTokens={true}
-      estimatedUsd={trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined}
+      estimatedUsd={
+        trade?.amountInUsd
+          ? formatDisplayNumber(trade.amountInUsd, { style: 'currency', significantDigits: 4 })
+          : undefined
+      }
       customChainId={customChainId}
       trackingSource="swap"
     />
