@@ -165,8 +165,9 @@ async function main() {
     // After the config has loaded (so the shim's window.location can't break Vite's URL internals),
     // but before module evaluation so module-scope browser access in built widgets is satisfied.
     setupBrowserGlobals()
-    const { render, renderRouteSkeleton, buildHeadHtml, prerenderRoutes, sitemapRoutes, siteUrl } =
-      await vite.ssrLoadModule('/src/entry-server.tsx')
+    const { renderRouteSkeleton, buildHeadHtml, prerenderRoutes, sitemapRoutes, siteUrl } = await vite.ssrLoadModule(
+      '/src/entry-server.tsx',
+    )
 
     // Validate the template placeholders up front so a bad template fails loudly (rather than the
     // post-replace `includes` check, which could false-fire if a rendered body contained the literal).
@@ -180,11 +181,11 @@ async function main() {
       throw new Error('Template is missing the `<!-- ssr-skeleton:start/end -->` markers (build/index.html)')
     }
 
-    for (const { path: url, ssr } of prerenderRoutes) {
+    for (const url of prerenderRoutes) {
       const head = buildHeadHtml(url)
-      // Every inject uses a replacement FUNCTION, not a string: rendered head/body/skeleton HTML can
-      // contain `$` sequences ($&, $', $<n>) that String.replace would otherwise interpret as special
-      // replacement patterns and silently corrupt the output. A function's return value is inserted verbatim.
+      // Every inject uses a replacement FUNCTION, not a string: rendered head/skeleton HTML can contain
+      // `$` sequences ($&, $', $<n>) that String.replace would otherwise interpret as special replacement
+      // patterns and silently corrupt the output. A function's return value is inserted verbatim.
       let html = template.replace(
         /<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/,
         () => `<!-- ssr-seo:start -->\n    ${head}\n    <!-- ssr-seo:end -->`,
@@ -192,36 +193,18 @@ async function main() {
 
       // Swap the generic cold-load logo for this route's page-shell skeleton (the same <RouteFallback>
       // the client shows while the lazy chunk downloads) so the cold load shows the page shape, not a
-      // spinner. Cosmetic only — the client createRoot clears #app on mount, so no hydration is involved.
+      // spinner. Cosmetic only — the body stays the empty <div id="app"></div>; the client createRoot-
+      // renders into it (no server-rendered body, no hydration).
       const skeleton = rewriteAssetUrls(renderRouteSkeleton(url), manifest)
       html = html.replace(
         /<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/,
         () => `<!-- ssr-skeleton:start -->\n      ${skeleton}\n      <!-- ssr-skeleton:end -->`,
       )
 
-      let bodyLen = 0
-      if (ssr) {
-        // Full body: render server-side and tag the route so the client hydrates only when the
-        // served path matches (see src/index.tsx) — guards against the SPA fallback serving a
-        // prerendered file for a different route.
-        const body = rewriteAssetUrls(await render(url), manifest)
-        if (!body) throw new Error(`render(${url}) produced empty HTML`)
-        bodyLen = body.length
-        html = html.replace(
-          '<div id="app"></div>',
-          () => `<div id="app">${body}</div>\n    <script>window.__PRERENDER_PATH__=${JSON.stringify(url)}</script>`,
-        )
-      }
-      // Head-only routes keep the empty <div id="app"></div>; the client createRoot-renders them.
-
       const outDir = resolve(appRoot, 'build', url.replace(/^\//, ''))
       mkdirSync(outDir, { recursive: true })
       writeFileSync(resolve(outDir, 'index.html'), html, 'utf8')
-      console.log(
-        `✓ prerendered ${url} (${ssr ? `body ${bodyLen} B` : 'head-only'}, head ${head.length} B, skeleton ${
-          skeleton.length
-        } B)`,
-      )
+      console.log(`✓ prerendered ${url} (head ${head.length} B, skeleton ${skeleton.length} B)`)
     }
 
     // Emit standalone page-shell skeleton fragments for the dynamic routes the og-service serves but the

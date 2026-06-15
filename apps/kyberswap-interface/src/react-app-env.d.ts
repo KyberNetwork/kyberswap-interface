@@ -52,6 +52,4 @@ interface Window {
 
   XverseProviders?: { BitcoinProvider: any }
   bitkeep?: any
-  /** Set by the build-time prerender (scripts/prerender.mjs) to the route a static HTML was rendered for. */
-  __PRERENDER_PATH__?: string
 }
