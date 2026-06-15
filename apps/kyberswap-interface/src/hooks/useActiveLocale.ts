@@ -20,7 +20,14 @@ export function parseLocale(maybeSupportedLocale: string): SupportedLocale | und
 /** Read the active locale from the ks_locale cookie (SSR-safe — no window/document required). */
 function readCookieLocale(): SupportedLocale | undefined {
   const raw = readLocaleCookie()
-  return raw ? parseLocale(decodeURIComponent(raw)) : undefined
+  if (!raw) return undefined
+  // decodeURIComponent throws URIError on a malformed percent-sequence; a corrupted cookie must
+  // not white-screen the app, because this runs at module scope (i18n activateInitialLocale).
+  try {
+    return parseLocale(decodeURIComponent(raw))
+  } catch {
+    return undefined
+  }
 }
 
 /** Fallback: read the locale persisted by redux-localstorage-simple (client-only). */

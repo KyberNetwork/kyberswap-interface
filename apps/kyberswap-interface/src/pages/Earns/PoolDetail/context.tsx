@@ -120,7 +120,7 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
 
   const value = {
     pool,
-    poolAddress: pool.address,
+    poolAddress: pool.address.toLowerCase(),
     chainId,
     exchange: exchangeValue,
     dexInfo: EARN_DEXES[exchangeValue],

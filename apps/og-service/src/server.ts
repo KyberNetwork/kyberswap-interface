@@ -22,7 +22,12 @@ const IMG_TTL_MS = 31_536_000_000; // 1 year
 const ADDRESS_RE = /^0x[0-9a-f]{40}$/;
 const EXCHANGE_RE = /^[a-z0-9_-]{1,60}$/;
 const PNG_HEADERS = { 'content-type': 'image/png', 'cache-control': 'public, max-age=31536000, immutable' };
-const HTML_HEADERS = { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=60' };
+const HTML_HEADERS = {
+  'content-type': 'text/html; charset=utf-8',
+  'cache-control': 'public, max-age=60',
+  'x-content-type-options': 'nosniff',
+  'x-frame-options': 'SAMEORIGIN',
+};
 
 // ---- default (fallback) card ----
 // Served when a pair/pool can't be resolved. Read from the static build (a real file), so there's no
@@ -31,18 +36,24 @@ const HTML_HEADERS = { 'content-type': 'text/html; charset=utf-8', 'cache-contro
 let defaultImagePromise: Promise<Buffer | null> | undefined;
 function loadDefaultImage(): Promise<Buffer | null> {
   if (!defaultImagePromise) {
-    defaultImagePromise = (async () => {
+    const loadOnce = async (): Promise<Buffer | null> => {
       try {
         return await readFile(join(STATIC_DIR, 'kyberswap-og-image.png'));
       } catch {
         try {
-          const r = await fetch(DEFAULT_OG_IMAGE);
+          const r = await fetch(DEFAULT_OG_IMAGE, { signal: AbortSignal.timeout(5000) });
           return r.ok ? Buffer.from(await r.arrayBuffer()) : null;
         } catch {
           return null;
         }
       }
-    })();
+    };
+    // Don't memoize failures: if the load resolves to null, reset the memo so a later request can
+    // retry. A successful load stays memoized, preserving the concurrent-burst dedupe.
+    defaultImagePromise = loadOnce().then(buf => {
+      if (!buf) defaultImagePromise = undefined;
+      return buf;
+    });
   }
   return defaultImagePromise;
 }
@@ -88,7 +99,7 @@ async function ogPoolImage(url: URL): Promise<Response> {
   const chain = chainFromSlug(slug);
   if (!chain || !ADDRESS_RE.test(address) || protocol.length > MAX_PARAM_LEN) return defaultImage();
 
-  const cacheKey = `img:pool:${slug}:${address}`;
+  const cacheKey = `img:pool:${slug}:${address}:${protocol}`;
   const hit = cache.get<Buffer>(cacheKey);
   if (hit) return new Response(hit, { headers: PNG_HEADERS });
 

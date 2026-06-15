@@ -131,6 +131,10 @@ export default function Menu() {
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
   const [showTipLinkGenerator, setShowTipLinkGenerator] = useState(false)
+  // Latches true on first open so the lazy modal stays mounted afterwards (its chunk still loads only on
+  // first open). Staying mounted lets the Modal's AnimatePresence play its exit animation on close instead
+  // of snapping shut when `showTipLinkGenerator` flips false.
+  const [tipLinkMounted, setTipLinkMounted] = useState(false)
 
   const userLocale = useUserLocale()
   const location = useLocation()
@@ -174,6 +178,10 @@ export default function Menu() {
   useEffect(() => {
     setShowTipLinkGenerator(searchParams.get(TIP_LINK_MODAL_QUERY_KEY) === TIP_LINK_MODAL_QUERY_VALUE)
   }, [searchParams])
+
+  useEffect(() => {
+    if (showTipLinkGenerator) setTipLinkMounted(true)
+  }, [showTipLinkGenerator])
 
   useEffect(() => {
     if (!open) setIsSelectingLanguage(false)
@@ -595,9 +603,9 @@ export default function Menu() {
 
       <ClaimRewardModal />
       {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
-      {showTipLinkGenerator && (
+      {tipLinkMounted && (
         <Suspense fallback={null}>
-          <TipLinkGeneratorModal isOpen onDismiss={closeTipLinkGenerator} />
+          <TipLinkGeneratorModal isOpen={showTipLinkGenerator} onDismiss={closeTipLinkGenerator} />
         </Suspense>
       )}
     </div>

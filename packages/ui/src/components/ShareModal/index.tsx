@@ -25,6 +25,7 @@ export default function ShareModal({
   position,
   reward,
   type,
+  url,
   isFarming,
   hasActiveApr,
   defaultOptions,
@@ -206,7 +207,7 @@ export default function ShareModal({
         </div>
 
         <DialogFooter className="block">
-          <Actions type={type} pool={pool} shareBannerRef={shareBannerRef} />
+          <Actions type={type} pool={pool} url={url} shareBannerRef={shareBannerRef} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

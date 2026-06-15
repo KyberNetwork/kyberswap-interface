@@ -20,15 +20,20 @@ const extractMessages = (catalog?: CatalogModule) => catalog?.messages ?? catalo
 
 function activate(locale: SupportedLocale) {
   const target = catalogs[locale] ? locale : 'en-US'
-  const { ui, app } = catalogs[target]
-  const messages = { ...extractMessages(ui), ...extractMessages(app) }
 
-  if (!Object.keys(messages).length) {
-    throw new Error(`Missing translation catalog for locale "${target}"`)
+  try {
+    const { ui, app } = catalogs[target]
+    const messages = { ...extractMessages(ui), ...extractMessages(app) }
+
+    if (!Object.keys(messages).length) {
+      throw new Error(`Missing translation catalog for locale "${target}"`)
+    }
+
+    i18n.load(target, messages)
+    i18n.activate(target)
+  } catch (error) {
+    console.warn('Failed to activate locale', target, error)
   }
-
-  i18n.load(target, messages)
-  i18n.activate(target)
 }
 
 // Activate the cookie/default locale synchronously at module load so the FIRST render

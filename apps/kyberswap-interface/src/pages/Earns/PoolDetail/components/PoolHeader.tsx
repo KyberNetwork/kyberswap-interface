@@ -14,6 +14,7 @@ import TokenLogo from 'components/TokenLogo'
 import { NetworkInfo } from 'constants/networks/type'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { IconArrowLeft, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const TooltipAddressRow = ({ token, chainInfo }: { token: PoolDetailToken; chainInfo: NetworkInfo }) => {
@@ -47,6 +48,7 @@ const PoolHeaderPage = () => {
       isFarming,
       hasActiveApr,
       type: ShareType.POOL_INFO,
+      url: `${window.location.origin}${getPoolDetailUrl(chainId, exchange, pool.address)}`,
       onClose: () => setShareInfo(undefined),
       pool: {
         feeTier: pool.swapFee,

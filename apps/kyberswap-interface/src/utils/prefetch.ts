@@ -41,7 +41,9 @@ const ROUTE_CHUNKS: { prefix: string; load: ChunkLoader }[] = [
 /** Warm the lazy JS chunk for the route a nav link points at. No-op for external/unmapped targets. */
 export function prefetchRouteChunk(to: string) {
   const path = to.split('?')[0]
-  ROUTE_CHUNKS.find(route => path === route.prefix || path.startsWith(`${route.prefix}/`))?.load()
+  ROUTE_CHUNKS.find(route => path === route.prefix || path.startsWith(`${route.prefix}/`))
+    ?.load()
+    ?.catch(() => undefined)
 }
 
 // Bounded set of high-traffic, mostly-static destinations worth warming during browser idle time, so
@@ -62,11 +64,12 @@ export function preloadStaticRouteChunks() {
     const load = ROUTE_CHUNKS.find(route => route.prefix === prefix)?.load
     if (!load) continue
     // requestIdleCallback so it never competes with critical first-load work; the `timeout` guarantees it
-    // still fires on a perpetually-busy page (no idle window). setTimeout fallback for browsers lacking it.
+    // still fires on a perpetually-busy page (no idle window). setTimeout fallback (small ~200ms deferral to
+    // push the warm past first paint) for browsers lacking requestIdleCallback.
     if (window.requestIdleCallback) {
-      window.requestIdleCallback(() => void load(), { timeout: 3000 })
+      window.requestIdleCallback(() => void load().catch(() => undefined), { timeout: 3000 })
     } else {
-      window.setTimeout(() => void load(), 1)
+      window.setTimeout(() => void load().catch(() => undefined), 200)
     }
   }
 }
@@ -82,7 +85,7 @@ const prefetchedPoolDetail = new Set<string>()
  * from the URL (see `getPoolDetailUrl`), so mirror both here. `ifOlderThan` skips refetching fresh data.
  */
 export function prefetchPoolDetail(chainId: number | undefined, address: string | undefined) {
-  void import('pages/Earns/PoolDetail')
+  void import('pages/Earns/PoolDetail').catch(() => undefined)
   if (!chainId || !address) return
   const normalizedAddress = address.toLowerCase()
   const key = `${chainId}:${normalizedAddress}`

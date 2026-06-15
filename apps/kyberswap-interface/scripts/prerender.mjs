@@ -253,7 +253,7 @@ ${sitemapRoutes.map(p => `  <url>\n    <loc>${xmlEscape(`${SITE}${p === '/' ? '/
     // Vite's dev server keeps esbuild/chokidar handles open. After the work is done these can keep
     // Node's event loop alive so the process hangs instead of exiting — stalling CI's build step.
     // Give close() a bounded window to flush, then fall through to the explicit exit below.
-    await Promise.race([vite.close(), new Promise(resolve => setTimeout(resolve, 5000))])
+    await Promise.race([vite.close(), new Promise(res => setTimeout(res, 5000))])
   }
 }
 

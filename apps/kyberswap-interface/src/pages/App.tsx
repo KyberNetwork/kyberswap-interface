@@ -152,7 +152,7 @@ const RedirectAddLiquidityToPoolPath = () => {
   const [searchParams] = useSearchParams()
   const exchange = searchParams.get('exchange') || ''
   const poolAddress = searchParams.get('poolAddress') || ''
-  const poolChainId = Number(searchParams.get('poolChainId') || 0)
+  const poolChainId = parseInt(searchParams.get('poolChainId') || '0', 10) || 0
 
   if (!exchange || !poolAddress || !poolChainId) {
     return <Navigate to={APP_PATHS.EARN_POOLS} replace />

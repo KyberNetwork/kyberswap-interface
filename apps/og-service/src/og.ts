@@ -2,7 +2,7 @@ import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
 import { html as toVNode } from 'satori-html';
 
-import { BROWSER_UA } from '@/constants';
+import { BROWSER_UA, readBoundedArrayBuffer } from '@/constants';
 import { FONT_FAMILY, loadFont } from '@/font';
 import { formatFeeTier } from '@/meta';
 import type { PoolToken } from '@/pools';
@@ -46,6 +46,10 @@ function shortSymbol(sym: string): string {
 const ALLOWED_LOGO_MIME = new Set(['image/png', 'image/jpeg']);
 const DATA_URI_RE = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 const LOGO_FETCH_TIMEOUT_MS = 1500;
+const MAX_LOGO_BYTES = 512 * 1024;
+// Cap an inline `data:` logo by its string length too — base64 is ~4/3 the byte size, so this bounds
+// the decoded image to ~MAX_LOGO_BYTES without decoding it (an unbounded URI would feed straight into satori).
+const MAX_DATA_URI_LEN = Math.ceil((MAX_LOGO_BYTES * 4) / 3) + 64; // +64 slack for the `data:<mime>;base64,` prefix
 
 // `logoURI` comes from the community-influenced ks-setting token list, so treat it as untrusted: only
 // fetch plain https URLs on the default port with a real (non-IP, non-localhost) hostname. At an
@@ -71,7 +75,7 @@ function isSafeLogoUrl(url: string): boolean {
 // origin deployment — `redirect: 'manual'` so a vetted host can't 302 us to an internal IP (SSRF).
 async function fetchLogoDataUri(url: string | undefined): Promise<string | null> {
   if (!url) return null;
-  if (url.startsWith('data:')) return DATA_URI_RE.test(url) ? url : null;
+  if (url.startsWith('data:')) return url.length <= MAX_DATA_URI_LEN && DATA_URI_RE.test(url) ? url : null;
   if (!isSafeLogoUrl(url)) return null;
   // Block hostnames that DNS-resolve to a private/internal IP (SSRF) before connecting.
   if (!(await isPublicHost(new URL(url).hostname))) return null;
@@ -84,8 +88,9 @@ async function fetchLogoDataUri(url: string | undefined): Promise<string | null>
     if (!res.ok) return null; // 3xx (manual redirect) is not ok -> rejected here too
     const mime = (res.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
     if (!ALLOWED_LOGO_MIME.has(mime)) return null;
-    const buf = await res.arrayBuffer();
-    if (buf.byteLength > 512 * 1024) return null;
+    // Stream-bounded read: aborts past MAX_LOGO_BYTES instead of buffering an unbounded (community-
+    // influenced) body first — readBoundedArrayBuffer throws over the cap, caught below as a null logo.
+    const buf = await readBoundedArrayBuffer(res, MAX_LOGO_BYTES);
     const dataUri = `data:${mime};base64,${Buffer.from(buf).toString('base64')}`;
     return DATA_URI_RE.test(dataUri) ? dataUri : null;
   } catch {
@@ -141,11 +146,15 @@ const SLASH = `<div style="display:flex;align-items:center;justify-content:cente
 // loop, so an attacker cycling unique valid pairs/pools could saturate it and degrade every route. Excess
 // renders queue (FIFO); a freed slot transfers directly to the next waiter so the active count is exact.
 const MAX_CONCURRENT_RENDERS = 4;
+// Bound the wait queue too: without this, a flood of requests piles up unbounded promises (memory DoS).
+// Past the cap we reject fast; the caller (server.ts) catches and serves the static default image.
+const MAX_QUEUED_RENDERS = 32;
 let activeRenders = 0;
 const renderWaiters: Array<() => void> = [];
 
 async function withRenderSlot<T>(fn: () => Promise<T>): Promise<T> {
   if (activeRenders >= MAX_CONCURRENT_RENDERS) {
+    if (renderWaiters.length >= MAX_QUEUED_RENDERS) throw new Error('render queue full');
     await new Promise<void>(resolve => renderWaiters.push(resolve)); // a freed slot is handed to us
   } else {
     activeRenders++;

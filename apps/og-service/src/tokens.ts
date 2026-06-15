@@ -3,7 +3,7 @@
 // negative misses) are LRU-cached.
 import { cache } from '@/cache';
 import { KS_SETTING_TOKENS } from '@/config';
-import { BROWSER_UA, NATIVE_SENTINEL, ZERO_ADDRESS } from '@/constants';
+import { BROWSER_UA, NATIVE_SENTINEL, ZERO_ADDRESS, readBoundedText } from '@/constants';
 
 const ADDRESS_RE = /^0x[0-9a-f]{40}$/;
 const TOKEN_TTL_MS = 86_400_000; // 1 day
@@ -50,7 +50,8 @@ async function fetchJson(url: string): Promise<TokenListResponse | null> {
       signal: AbortSignal.timeout(3000),
     });
     if (!res.ok) return null;
-    return (await res.json()) as TokenListResponse;
+    const body = await readBoundedText(res);
+    return body ? (JSON.parse(body) as TokenListResponse) : null;
   } catch {
     return null;
   }

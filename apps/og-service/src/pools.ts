@@ -1,7 +1,7 @@
 // Pool resolution against the public earn-service explorer endpoint (carries token logoURI + feeTier).
 import { cache } from '@/cache';
 import { EARN_SERVICE_POOLS } from '@/config';
-import { BROWSER_UA } from '@/constants';
+import { BROWSER_UA, readBoundedText } from '@/constants';
 
 const ADDRESS_RE = /^0x[0-9a-f]{40}$/;
 const MAX_PROTOCOL_LEN = 48;
@@ -56,7 +56,7 @@ export async function resolvePool(chainId: number, addressRaw: string, protocol:
   if (!ADDRESS_RE.test(address)) return null;
   const proto = (protocol || '').trim().toLowerCase().slice(0, MAX_PROTOCOL_LEN);
 
-  const cacheKey = `pool:${chainId}:${address}`;
+  const cacheKey = `pool:${chainId}:${address}:${proto}`;
   const cached = cache.get<ResolvedPool | null>(cacheKey);
   if (cached !== undefined) return cached;
 
@@ -71,7 +71,8 @@ export async function resolvePool(chainId: number, addressRaw: string, protocol:
       signal: AbortSignal.timeout(5000),
     });
     if (res.ok) {
-      const json = (await res.json()) as PoolsResponse;
+      const body = await readBoundedText(res);
+      const json = body ? (JSON.parse(body) as PoolsResponse) : null;
       const pool = json?.data?.pools?.[0];
       resolved = pool ? toResolved(pool) : null;
     }
