@@ -8,7 +8,7 @@ import { useGetTipLinkQuery } from 'services/tipLink'
 import Banner from 'components/Banner'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import { TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
+import { DEFAULT_TIP, TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
 import LimitOrderForm from 'components/swapv2/LimitOrder/LimitOrderForm'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
@@ -129,6 +129,9 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     return !isValidFeeReceiver || !isValidChargeFeeBy
   }, [searchParams, swapChainId])
 
+  // Hydrate short tip-link configs into regular swap URL params once. The swap form
+  // only reads fee/token attribution from the URL, so keep this as the bridge between
+  // the persisted tip-link payload and quote/build params.
   useEffect(() => {
     if (!isUserSwap || !tipsId || !tipConfig || appliedTipRef.current === tipsId) return
 
@@ -142,13 +145,18 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     const creatorName = tipConfig.creatorName?.trim()
     if (creatorName && isCreatorNameValid(creatorName)) nextSearchParams.set('creatorName', creatorName)
     else nextSearchParams.delete('creatorName')
-    if (!nextSearchParams.get('feeAmount')) nextSearchParams.set('feeAmount', '0')
+    if (!nextSearchParams.get('feeAmount')) {
+      nextSearchParams.set('feeAmount', String(DEFAULT_TIP))
+    }
     if (!nextSearchParams.get('chargeFeeBy')) nextSearchParams.set('chargeFeeBy', ChargeFeeBy.CURRENCY_OUT)
 
     appliedTipRef.current = tipsId
     setSearchParams(nextSearchParams, { replace: true })
   }, [isUserSwap, searchParams, setSearchParams, swapChainId, tipConfig, tipInputCurrency, tipOutputCurrency, tipsId])
 
+  // Normalize recoverable tip params in place, then reject configs that cannot produce
+  // a valid fee receiver/charge target. Partner swap also requires clientId so regular
+  // users do not accidentally enter this route without attribution.
   useEffect(() => {
     const feeAmount = searchParams.get('feeAmount')
     const feeReceiver = searchParams.get('feeReceiver')
@@ -172,7 +180,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     }
   }, [clientId, isInvalidFeeConfig, isUserSwap, navigate, searchParams, setSearchParams])
 
-  // sync form chainId and wallet chainId when disconnected
+  // Sync form chainId and wallet chainId when disconnected
   useEffect(() => {
     if (!account && walletChainId !== swapChainId) {
       changeNetwork(swapChainId)

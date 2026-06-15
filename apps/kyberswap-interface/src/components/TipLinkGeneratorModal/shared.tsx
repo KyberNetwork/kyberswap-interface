@@ -25,6 +25,7 @@ export const SOLID_COLORS: string[] = ['#235F52', '#244666', '#6D3345', '#715825
 export const MAX_IMAGE_SIZE = 1024 * 1024
 export const LINK_PLACEHOLDER = `https://kyberswap.com${APP_PATHS.USER_SWAP}/...`
 export const TIP_LINK_CLIENT_ID = 'kyberswap'
+export const DEFAULT_TIP = 10
 
 export const isCreatorNameValid = (value: string) => {
   const normalized = value.toLowerCase().replace(/[^a-z0-9]/g, '')
