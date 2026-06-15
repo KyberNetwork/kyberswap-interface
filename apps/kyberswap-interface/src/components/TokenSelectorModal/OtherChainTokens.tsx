@@ -26,7 +26,7 @@ export const OtherChainTokens = ({ tokens, loading, loadingFallback }: OtherChai
   if (!tokens.length) return null
 
   return (
-    <Stack className="h-full">
+    <Stack className="h-full pb-2">
       <div className="px-5 py-3 text-sm font-medium text-subText">
         <Trans>Available on other chains</Trans>
       </div>

@@ -68,7 +68,7 @@ const TokenSelectorModal = ({
   const [importToken, setImportToken] = useState<Token | undefined>()
 
   // change min height if not searching
-  const minHeight = modalView === TokenSelectorModalView.importToken ? 40 : 80
+  const minHeight = modalView === TokenSelectorModalView.importToken ? 'fit-content' : 80
 
   const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
 
@@ -92,8 +92,8 @@ const TokenSelectorModal = ({
       }}
       margin="auto"
       maxHeight={isMobileHorizontal ? 100 : 80}
-      height={isMobileHorizontal ? '95vh' : undefined}
       minHeight={minHeight}
+      height={isMobileHorizontal ? '95vh' : undefined}
     >
       {tokenToShowInfo ? (
         <div className="w-full">

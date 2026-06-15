@@ -51,30 +51,32 @@ export const ImportTokenView = ({
 
   return (
     <div className="relative w-full overflow-auto">
-      <PaddedColumn className="w-full flex-1 gap-[14px]">
+      <PaddedColumn className="w-full flex-1">
         <HStack className="items-center justify-between">
-          {onBack ? <ArrowLeft className="cursor-pointer" onClick={onBack} /> : <span className="size-6" />}
-          <span className="text-xl font-medium leading-[normal]">
-            {tokens.length > 1 ? t`Import Tokens` : t`Import Token`}
-          </span>
+          {onBack ? (
+            <ArrowLeft className="cursor-pointer hover:brightness-75" onClick={onBack} />
+          ) : (
+            <span className="size-6" />
+          )}
+          <span className="text-xl font-medium">{tokens.length > 1 ? t`Import Tokens` : t`Import Token`}</span>
           {onDismiss ? <CloseIcon onClick={onDismiss} /> : <span className="size-6" />}
         </HStack>
       </PaddedColumn>
       <div className="h-px w-full bg-bg3" />
       <Stack className="gap-4 p-4">
-        <Card className="w-fit rounded-[20px] bg-warning-20 p-[15px]">
+        <Card className="w-fit rounded-[20px] bg-warning-20 p-4">
           <HStack className="items-start gap-2">
             <span>
               <AlertTriangle size="17px" className="text-warning" />
             </span>
             <span className="text-sm font-medium text-warning">
-              <Trans>This token isn’t frequently swapped. Please do your own research before trading.</Trans>
+              <Trans>This token isn&apos;t frequently swapped. Please do your own research before trading.</Trans>
             </span>
           </HStack>
         </Card>
         {tokens.map(token => {
           return (
-            <Card className="bg-buttonBlack p-8" key={token.address}>
+            <Card className="bg-buttonBlack p-6" key={token.address}>
               <HStack className="gap-2.5">
                 <CurrencyLogo currency={token} size={'44px'} />
                 <Stack className="gap-1">
