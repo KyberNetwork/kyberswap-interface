@@ -14,6 +14,12 @@ import { createServer } from 'vite'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const appRoot = resolve(__dirname, '..')
 
+// Stub origin for the SSR `window.location` shim. Mirrors constants/index KYBERSWAP_URL — the shim is
+// installed before ssrLoadModule (so the app constant isn't importable yet), then asserted against the
+// app's re-exported `siteUrl` after the module loads (see main) so the two can't silently drift.
+const SSR_ORIGIN = 'https://kyberswap.com'
+const SSR_HOST = SSR_ORIGIN.replace(/^https?:\/\//, '')
+
 // The route list (`prerenderRoutes`) is derived from app constants and read from the SSR module.
 
 // Minimal browser-global shim (mirrors test/smoke.setup.ts). Some BUILT workspace widgets and
@@ -45,10 +51,6 @@ function setupBrowserGlobals() {
   const localStorage = makeStorage()
   const sessionStorage = makeStorage()
   const noop = () => {}
-  // Stub origin for SSR `window.location` reads. Mirrors constants/index KYBERSWAP_URL (this runs
-  // before ssrLoadModule, so the app constant isn't importable here yet — keep the two in sync).
-  const SSR_ORIGIN = 'https://kyberswap.com'
-  const SSR_HOST = SSR_ORIGIN.replace(/^https?:\/\//, '')
   const documentShim = {
     title: 'KyberSwap',
     cookie: '',
@@ -130,12 +132,16 @@ function setupBrowserGlobals() {
   }
 }
 
-// ssrLoadModule renders dev asset URLs (/src/assets/x.svg). Rewrite them to the hashed production
-// URLs from the client build's manifest so they 404 neither at first paint nor mismatch hydration.
+// ssrLoadModule renders dev asset URLs (/src/assets/x.svg). Rewrite them to the hashed production URLs
+// from the client build's manifest. A `/src/…` URL with no manifest entry would 404 in production, so we
+// throw (fail the build loudly) instead of emitting the dev URL — strip any `?query` suffix before lookup.
 function rewriteAssetUrls(html, manifest) {
   return html.replace(/\/src\/[^"')\s>]+/g, m => {
-    const entry = manifest[m.slice(1)] // strip leading '/'
-    return entry?.file ? `/${entry.file}` : m
+    const entry = manifest[m.slice(1).split('?')[0]] // strip leading '/' + any ?query suffix
+    if (!entry?.file) {
+      throw new Error(`Prerender emitted a dev asset URL with no manifest entry (would 404 in prod): ${m}`)
+    }
+    return `/${entry.file}`
   })
 }
 
@@ -168,6 +174,13 @@ async function main() {
     const { renderRouteSkeleton, buildHeadHtml, prerenderRoutes, sitemapRoutes, siteUrl } = await vite.ssrLoadModule(
       '/src/entry-server.tsx',
     )
+
+    // Fail loudly if the hardcoded shim origin drifts from the app's canonical domain (KYBERSWAP_URL,
+    // re-exported as siteUrl) — the two are kept in sync by hand because the shim is set up before the
+    // app constant is importable.
+    if (new URL(siteUrl).origin !== SSR_ORIGIN) {
+      throw new Error(`SSR_ORIGIN (${SSR_ORIGIN}) drifted from app siteUrl origin (${new URL(siteUrl).origin})`)
+    }
 
     // Validate the template placeholders up front so a bad template fails loudly (rather than the
     // post-replace `includes` check, which could false-fire if a rendered body contained the literal).

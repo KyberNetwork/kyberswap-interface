@@ -35,9 +35,10 @@ const isAnalyze = process.env.ANALYZE === '1'
 export default defineConfig({
   build: {
     outDir: 'build',
-    // Emit build/.vite/manifest.json so the prerender step (scripts/prerender.mjs) can rewrite the
-    // dev asset URLs that ssrLoadModule produces (/src/assets/x.svg) to the hashed production URLs
+    // Emit build/manifest.json so the prerender step (scripts/prerender.mjs) can rewrite the dev asset
+    // URLs that ssrLoadModule produces (/src/assets/x.svg) to the hashed production URLs
     // (/assets/x-<hash>.svg) — fixing 404s and keeping <img src> identical to the client render.
+    // (NB: on a Vite 5 upgrade the manifest moves to build/.vite/manifest.json — update the read path.)
     manifest: true,
   },
   // For the build-time prerender (scripts/prerender.mjs loads src/entry-server.tsx via Vite's SSR

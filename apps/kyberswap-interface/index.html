@@ -42,8 +42,9 @@
     <meta name="twitter:image" content="https://kyberswap.com/kyberswap-og-image.png?version=2023" />
     <meta name="twitter:image:alt" content="KyberSwap - Limitless Access To DeFi" />
 
-    <!-- Structured data -->
-    <script type="application/ld+json">
+    <!-- Structured data — id lets the client <RouteSeo> update THIS block in place on the (non-prerendered)
+         home route instead of appending a duplicate. Prerendered routes replace it via the ssr-seo markers. -->
+    <script type="application/ld+json" id="kyberswap-structured-data">
       {
         "@context": "https://schema.org",
         "@graph": [

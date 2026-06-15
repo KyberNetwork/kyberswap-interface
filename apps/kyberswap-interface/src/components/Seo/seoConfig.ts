@@ -80,7 +80,9 @@ const normalizePath = (pathname: string) => {
   return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname
 }
 
-export const toAbsoluteUrl = (path: string) => `${SITE_URL}${path === '/' ? '' : path}`
+// Home is `${SITE_URL}/` (trailing slash) to match index.html's canonical + sitemap.xml; other paths
+// already start with '/', so they append directly.
+export const toAbsoluteUrl = (path: string) => (path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`)
 
 const getDefaultStructuredData = (path: string): StructuredData[] => [
   ORGANIZATION_SCHEMA,

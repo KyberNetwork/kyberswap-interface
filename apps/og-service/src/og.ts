@@ -4,6 +4,7 @@ import { html as toVNode } from 'satori-html';
 
 import { BROWSER_UA } from '@/constants';
 import { FONT_FAMILY, loadFont } from '@/font';
+import { formatFeeTier } from '@/meta';
 import type { PoolToken } from '@/pools';
 import { isPublicHost } from '@/ssrf';
 import type { ResolvedToken } from '@/tokens';
@@ -197,7 +198,7 @@ export async function renderPoolOg(input: PoolOgInput): Promise<Buffer> {
     loadFont(400),
   ]);
 
-  const feeText = typeof feeTier === 'number' ? ` · ${feeTier}% fee` : '';
+  const feeText = typeof feeTier === 'number' ? ` · ${formatFeeTier(feeTier)}% fee` : '';
   const caption = `Provide liquidity & earn${feeText} on KyberSwap — across 20+ chains`;
   const center = `${tokenBlock(logos[0], token0.symbol)}${SLASH}${tokenBlock(logos[1], token1.symbol)}`;
 

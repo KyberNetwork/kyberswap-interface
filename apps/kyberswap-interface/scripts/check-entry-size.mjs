@@ -27,8 +27,10 @@ try {
   process.exit(1)
 }
 
-// The entry is the first hashed app chunk referenced by the document's module <script>.
-const entry = html.match(/assets\/index-[A-Za-z0-9]+\.js/)?.[0]
+// The entry is the hashed app chunk in the document's module <script> — match it specifically (not just
+// the first `index-*.js` anywhere) so a modulepreload <link> or another `index-*` chunk emitted earlier
+// in <head> can't make us measure the wrong file.
+const entry = html.match(/<script[^>]*\btype="module"[^>]*\bsrc="\/(assets\/index-[A-Za-z0-9]+\.js)"/)?.[1]
 if (!entry) {
   console.error('check-entry-size: could not locate the entry chunk (assets/index-*.js) in build/index.html.')
   process.exit(1)

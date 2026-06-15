@@ -10,7 +10,7 @@ const POOL_ADDRESS_RE = /^0x[0-9a-f]{40}$/;
 const MAX_PROTOCOL_LEN = 64;
 
 // Trim float-representation noise from a fee-tier percentage to match the app (significantDigits: 4).
-function formatFeeTier(fee: number): string {
+export function formatFeeTier(fee: number): string {
   return parseFloat(fee.toPrecision(4)).toString();
 }
 
