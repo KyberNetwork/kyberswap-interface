@@ -23,6 +23,7 @@ import TipConfigOutput from 'components/TipLinkGeneratorModal/TipConfigOutput'
 import TipConfigPreview from 'components/TipLinkGeneratorModal/TipConfigPreview'
 import {
   BackgroundMode,
+  DEFAULT_TIP,
   MAX_IMAGE_SIZE,
   PRIMARY_CHAINS,
   SOLID_COLORS,
@@ -221,7 +222,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
         outputCurrency: getCurrencyParam(outputToken, chainId),
         enableTip: 'true',
         feeReceiver: trimmedReceiver,
-        feeAmount: '0',
+        feeAmount: String(DEFAULT_TIP),
         chargeFeeBy: ChargeFeeBy.CURRENCY_OUT,
         clientId: TIP_LINK_CLIENT_ID,
       })
