@@ -206,7 +206,12 @@ const startsWithAny = (pathname: string, prefixes: string[]) => prefixes.some(p 
  * lazy chunk loads, instead of one global centered logo. Falls back to the logo loader for routes
  * without a tailored archetype.
  */
-const pickSkeleton = (pathname: string) => {
+const pickSkeleton = (rawPathname: string) => {
+  // Tolerate a trailing slash: a slashed cold load gives React Router `/earn/`, and the exact-match route
+  // below (`=== APP_PATHS.EARN`) would otherwise fall through to the logo Loader — so the prerendered
+  // overlay (EarnLandingFallback, built from `/earn`) would jump to the logo on mount. The startsWith
+  // routes already tolerate the slash; normalizing here keeps every archetype consistent.
+  const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, '') : rawPathname
   // Swap-style widget pages.
   if (
     startsWithAny(pathname, [

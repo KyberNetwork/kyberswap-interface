@@ -13,6 +13,7 @@ import { buildPairMeta, buildPoolMeta, parsePairPath, parsePoolPath } from '@/me
 import { chainFromSlug, slugFromChainId } from '@/networks';
 import { renderPoolOg, renderSwapOg } from '@/og';
 import { resolvePool } from '@/pools';
+import { injectSkeleton } from '@/skeleton';
 import { readAppHtml } from '@/static';
 import { resolveToken } from '@/tokens';
 
@@ -114,8 +115,13 @@ async function handlePair(url: URL): Promise<Response> {
   if (parsed) {
     const meta = await buildPairMeta(parsed);
     if (meta) {
-      const { html } = await readAppHtml(url.pathname);
-      return new Response(injectHead(html, meta), { headers: HTML_HEADERS });
+      const { html, prerendered } = await readAppHtml(url.pathname);
+      // A path-form pair (/swap/<net>/<pair>) isn't prerendered → SPA shell (generic logo): swap in the
+      // swap page-shell skeleton so a shared/cold-loaded link shows the right shape while JS downloads. The
+      // legacy query form (/swap/<net>?inputCurrency=) resolves to the prerendered network landing, which
+      // already carries that skeleton — don't re-inject it.
+      const withHead = injectHead(html, meta);
+      return new Response(prerendered ? withHead : await injectSkeleton(withHead, 'swap'), { headers: HTML_HEADERS });
     }
   }
   // Bare landing route, or unresolved pair — serve the static HTML as-is (prerendered or SPA shell).
@@ -145,8 +151,11 @@ async function handlePool(url: URL): Promise<Response> {
     if (meta) {
       // A pool URL carrying query params -> noindex (avoid indexing param-variant duplicates).
       if (url.search) meta.robots = NOINDEX_ROBOTS;
-      const { html } = await readAppHtml(url.pathname);
-      return new Response(injectHead(html, meta), { headers: HTML_HEADERS });
+      const { html, prerendered } = await readAppHtml(url.pathname);
+      // Pool URLs aren't prerendered → SPA shell: swap in the pool-detail page-shell skeleton. (Guard on
+      // `prerendered` for symmetry with handlePair — a prerendered file would already carry its skeleton.)
+      const withHead = injectHead(html, meta);
+      return new Response(prerendered ? withHead : await injectSkeleton(withHead, 'pool'), { headers: HTML_HEADERS });
     }
   }
   const { html } = await readAppHtml(url.pathname);

@@ -259,6 +259,8 @@
           </div>
         </div>
       </div>
+      <!-- ssr-skeleton:start — generic logo loader (SPA fallback / home); scripts/prerender.mjs replaces this
+           per-route with that route's page-shell skeleton (the same <RouteFallback> shown post-hydrate). -->
       <div style="height: 180px; display: flex">
         <img
           style="animation: pulse 800ms linear infinite; margin: auto"
@@ -267,6 +269,7 @@
           alt="DmmLogo"
         />
       </div>
+      <!-- ssr-skeleton:end -->
     </div>
     <!--
       This HTML file is a template.

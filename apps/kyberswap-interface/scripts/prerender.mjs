@@ -165,7 +165,7 @@ async function main() {
     // After the config has loaded (so the shim's window.location can't break Vite's URL internals),
     // but before module evaluation so module-scope browser access in built widgets is satisfied.
     setupBrowserGlobals()
-    const { render, buildHeadHtml, prerenderRoutes, sitemapRoutes, siteUrl } =
+    const { render, renderRouteSkeleton, buildHeadHtml, prerenderRoutes, sitemapRoutes, siteUrl } =
       await vite.ssrLoadModule('/src/entry-server.tsx')
 
     // Validate the template placeholders up front so a bad template fails loudly (rather than the
@@ -176,12 +176,27 @@ async function main() {
     if (!/<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/.test(template)) {
       throw new Error('Template is missing the `<!-- ssr-seo:start/end -->` markers (build/index.html)')
     }
+    if (!/<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/.test(template)) {
+      throw new Error('Template is missing the `<!-- ssr-skeleton:start/end -->` markers (build/index.html)')
+    }
 
     for (const { path: url, ssr } of prerenderRoutes) {
       const head = buildHeadHtml(url)
+      // Every inject uses a replacement FUNCTION, not a string: rendered head/body/skeleton HTML can
+      // contain `$` sequences ($&, $', $<n>) that String.replace would otherwise interpret as special
+      // replacement patterns and silently corrupt the output. A function's return value is inserted verbatim.
       let html = template.replace(
         /<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/,
-        `<!-- ssr-seo:start -->\n    ${head}\n    <!-- ssr-seo:end -->`,
+        () => `<!-- ssr-seo:start -->\n    ${head}\n    <!-- ssr-seo:end -->`,
+      )
+
+      // Swap the generic cold-load logo for this route's page-shell skeleton (the same <RouteFallback>
+      // the client shows while the lazy chunk downloads) so the cold load shows the page shape, not a
+      // spinner. Cosmetic only — the client createRoot clears #app on mount, so no hydration is involved.
+      const skeleton = rewriteAssetUrls(renderRouteSkeleton(url), manifest)
+      html = html.replace(
+        /<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/,
+        () => `<!-- ssr-skeleton:start -->\n      ${skeleton}\n      <!-- ssr-skeleton:end -->`,
       )
 
       let bodyLen = 0
@@ -194,7 +209,7 @@ async function main() {
         bodyLen = body.length
         html = html.replace(
           '<div id="app"></div>',
-          `<div id="app">${body}</div>\n    <script>window.__PRERENDER_PATH__=${JSON.stringify(url)}</script>`,
+          () => `<div id="app">${body}</div>\n    <script>window.__PRERENDER_PATH__=${JSON.stringify(url)}</script>`,
         )
       }
       // Head-only routes keep the empty <div id="app"></div>; the client createRoot-renders them.
@@ -202,7 +217,30 @@ async function main() {
       const outDir = resolve(appRoot, 'build', url.replace(/^\//, ''))
       mkdirSync(outDir, { recursive: true })
       writeFileSync(resolve(outDir, 'index.html'), html, 'utf8')
-      console.log(`✓ prerendered ${url} (${ssr ? `body ${bodyLen} B` : 'head-only'}, head ${head.length} B)`)
+      console.log(
+        `✓ prerendered ${url} (${ssr ? `body ${bodyLen} B` : 'head-only'}, head ${head.length} B, skeleton ${
+          skeleton.length
+        } B)`,
+      )
+    }
+
+    // Emit standalone page-shell skeleton fragments for the dynamic routes the og-service serves but the
+    // build can't enumerate (swap/limit pairs, pool-detail). og-service can't import app code, so it reads
+    // these artifacts and splices them into the SPA shell's cold-load placeholder — same <RouteFallback>
+    // source as the prerendered routes, so no drift. The representative URLs only pick the archetype
+    // (pickSkeleton): any /swap/<net>/<pair> → swap skeleton, any /pools/<...> → detail skeleton.
+    const ogSkeletons = {
+      swap: rewriteAssetUrls(renderRouteSkeleton('/swap/ethereum/eth-to-usdc'), manifest),
+      pool: rewriteAssetUrls(
+        renderRouteSkeleton('/pools/ethereum/uniswapv3/0x0000000000000000000000000000000000000001'),
+        manifest,
+      ),
+    }
+    const skeletonDir = resolve(appRoot, 'build/skeletons')
+    mkdirSync(skeletonDir, { recursive: true })
+    for (const [name, frag] of Object.entries(ogSkeletons)) {
+      writeFileSync(resolve(skeletonDir, `${name}.html`), frag, 'utf8')
+      console.log(`✓ wrote build/skeletons/${name}.html (${frag.length} B)`)
     }
 
     // Regenerate sitemap.xml from the index,follow route list so it tracks the prerendered set.

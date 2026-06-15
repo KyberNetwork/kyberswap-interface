@@ -44,6 +44,8 @@ const EARN_POOLS_DESCRIPTION =
   'Explore and compare yield opportunities across top DeFi protocols on multiple chains -  trading volume, TVL, and pool performance across networks - all from one interface without switching apps.'
 const EARN_POSITIONS_DESCRIPTION =
   'Track all your active liquidity positions in one dashboard. Monitor APR, rewards, and performance across protocols - no need to check each one separately.'
+const EARN_SMART_EXIT_DESCRIPTION =
+  'Set automatic exit conditions for your liquidity positions. KyberSwap Smart Exit closes a position on-chain when your target is reached - no manual monitoring required.'
 const MARKET_DESCRIPTION =
   'Live token on-chain prices, trading volume, and market trends across multiple chains. Spot opportunities and jump straight into a trade from one dashboard.'
 const CAMPAIGNS_DESCRIPTION =
@@ -198,6 +200,16 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
       canonicalPath: APP_PATHS.EARN_POSITIONS,
       robots: NOINDEX_ROBOTS,
       structuredData: getDefaultStructuredData(APP_PATHS.EARN_POSITIONS),
+    }
+  }
+
+  if (normalizedPath === APP_PATHS.EARN_SMART_EXIT) {
+    return {
+      title: 'Smart Exit Orders | KyberSwap',
+      description: EARN_SMART_EXIT_DESCRIPTION,
+      canonicalPath: APP_PATHS.EARN_SMART_EXIT,
+      robots: NOINDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(APP_PATHS.EARN_SMART_EXIT),
     }
   }
 

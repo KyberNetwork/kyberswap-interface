@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LanguageProvider, activateInitialLocale } from 'i18n'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { prerenderToNodeStream } from 'react-dom/static.node'
 import { Provider } from 'react-redux'
 import { StaticRouter } from 'react-router-dom/server'
 import { WagmiProvider } from 'wagmi'
 
+import RouteFallback from 'components/RouteFallback'
 import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS, KYBERSWAP_URL } from 'constants/index'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
@@ -49,6 +51,12 @@ export const prerenderRoutes: PrerenderRoute[] = [
   { path: APP_PATHS.KYBERDAO_STAKE, ssr: false },
   { path: APP_PATHS.KYBERDAO_VOTE, ssr: false },
   { path: APP_PATHS.KYBERDAO_KNC_UTILITY, ssr: false },
+  // Gated (wallet-required, noindex) list pages — prerendered head-only ONLY to bake their page-shell
+  // skeleton into the cold-load overlay, so a direct/bookmarked load shows the right shape instead of the
+  // generic logo. NOT for SEO: they stay noindex (see seoConfig) and are intentionally kept out of
+  // sitemapRoutes. Only static list paths qualify; the dynamic position-detail route stays SPA-fallback.
+  { path: APP_PATHS.EARN_POSITIONS, ssr: false },
+  { path: APP_PATHS.EARN_SMART_EXIT, ssr: false },
   ...Array.from(new Set(MAINNET_NETWORKS)).map(
     (chainId): PrerenderRoute => ({ path: `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}`, ssr: false }),
   ),
@@ -105,4 +113,22 @@ export async function render(url: string): Promise<string> {
   let html = ''
   for await (const chunk of prelude) html += chunk
   return html
+}
+
+/**
+ * Render a route's Suspense fallback (the page-shell skeleton from <RouteFallback>) to static HTML for
+ * the cold-load placeholder. Reuses the SAME React skeleton the app shows while a lazy chunk loads, so
+ * the build-baked cold-load shape and the post-hydrate fallback come from ONE source (no drift). The
+ * skeletons are pure presentational (no wallet/data/Trans), so only a router (RouteFallback reads
+ * useLocation) + ThemeProvider (Skeleton reads useTheme) are needed. renderToStaticMarkup emits no
+ * hydration markers — the client createRoot just clears #app and re-renders, so this is purely cosmetic.
+ */
+export function renderRouteSkeleton(url: string): string {
+  return renderToStaticMarkup(
+    <StaticRouter location={url}>
+      <ThemeProvider>
+        <RouteFallback />
+      </ThemeProvider>
+    </StaticRouter>,
+  )
 }
