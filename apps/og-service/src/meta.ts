@@ -1,7 +1,7 @@
 // Per-route <head> meta builders for swap/limit pairs and pool-detail pages. Pure data — the actual
 // HTML rewrite lives in headInject.ts.
 import { PUBLIC_BASE } from '@/config';
-import { INDEX_ROBOTS } from '@/constants';
+import { INDEX_ROBOTS, NOINDEX_ROBOTS } from '@/constants';
 import { type ChainInfo, chainFromSlug } from '@/networks';
 import { resolvePool } from '@/pools';
 import { resolveToken } from '@/tokens';
@@ -20,8 +20,11 @@ export interface HeadMeta {
   image: string;
   url: string;
   imageAlt: string;
-  // Set for pool pages (self-canonical + index). Left undefined for swap/limit pairs, which keep the
-  // served HTML's existing canonical + robots.
+  // Always set by the meta builders so injectHead writes them explicitly — the served HTML is often the
+  // SPA home shell (no prerendered file for a pair/pool path), whose root canonical + index-robots would
+  // otherwise leak onto the page. Pool = self-canonical + index; swap/limit pair = noindex + canonical to
+  // the bare network landing (mirrors src/components/Seo/seoConfig.ts). Optional only so a caller *can*
+  // omit them to keep the served HTML's existing tags.
   canonical?: string;
   robots?: string;
 }
@@ -92,8 +95,11 @@ export async function buildPairMeta(parsed: ParsedPair): Promise<HeadMeta | null
   const url = `${PUBLIC_BASE}/${kind}/${slug}/${inId}-to-${outId}`;
   const imgParams = new URLSearchParams({ chain: slug, in: inId, out: outId });
   const image = `${PUBLIC_BASE}/og/${kind === 'limit' ? 'limit' : 'swap'}?${imgParams.toString()}`;
+  // Pair permutations are unbounded → noindex, and canonical-consolidate to the indexable bare network
+  // landing (/swap/<net> or /limit/<net>), exactly as seoConfig.ts resolves a swap/limit pair path.
+  const canonical = `${PUBLIC_BASE}/${kind}/${slug}`;
 
-  return { title, description, image, url, imageAlt };
+  return { title, description, image, url, imageAlt, canonical, robots: NOINDEX_ROBOTS };
 }
 
 export interface ParsedPool {

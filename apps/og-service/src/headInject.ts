@@ -1,6 +1,7 @@
 // Rewrite the app HTML's <head> with per-route OG/Twitter meta via cheerio. Only the targeted tags
-// change; for swap/limit the existing <link rel="canonical"> + robots are left untouched (those keep
-// the app's noindex/canonical), while pool meta sets canonical + robots explicitly.
+// change. Both pair and pool meta set canonical + robots explicitly: the served HTML is usually the SPA
+// home shell (no prerendered file for a pair/pool path), whose root canonical + index-robots would
+// otherwise leak onto the page, so injectHead overwrites them whenever meta provides them.
 import { type CheerioAPI, load } from 'cheerio';
 
 import type { HeadMeta } from '@/meta';
