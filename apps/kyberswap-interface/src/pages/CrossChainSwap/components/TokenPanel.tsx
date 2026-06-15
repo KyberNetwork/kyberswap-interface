@@ -276,6 +276,7 @@ export const TokenPanel = ({
             )}
 
             <CurrencySelect
+              isDisable={isBitcoin}
               selected={!!selectedCurrency}
               onClick={() => {
                 if (!selectedChain) {
@@ -283,9 +284,10 @@ export const TokenPanel = ({
                   setAutoToggleTokenSelector(true)
                   return
                 }
-                setModalOpen(true)
+                if (!isBitcoin) {
+                  setModalOpen(true)
+                }
               }}
-              style={{ cursor: 'pointer' }}
             >
               <Aligner className="gap-1">
                 <RowFixed className="gap-2">
@@ -337,7 +339,7 @@ export const TokenPanel = ({
         />
       ) : (
         <TokenSelectorNonEvmModal
-          isOpen={modalOpen && !isBitcoin}
+          isOpen={modalOpen}
           onDismiss={() => setModalOpen(false)}
           onSelectCurrency={onSelectCurrency}
           nearBalances={balances}
