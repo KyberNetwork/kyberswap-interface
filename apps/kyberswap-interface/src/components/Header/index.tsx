@@ -21,11 +21,11 @@ import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
-const IconImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: string; alt: string }) => (
+const LogoImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: string; alt: string }) => (
   <img
     src={src}
     alt={alt}
-    className={cn('w-[140px] max-w-none max-sm:w-[100px]', isChristmas ? '-mt-3 max-sm:-mt-2' : '')}
+    className={cn('w-[140px] max-w-none max-sm:w-[100px]', isChristmas ? '-mt-3 max-sm:-mt-2' : '-mt-0.5')}
   />
 )
 
@@ -68,7 +68,7 @@ export default function Header() {
       <div className="flex w-fit flex-row flex-nowrap items-center gap-3 justify-self-start max-md:w-full">
         {isEmbeddedSwap ? (
           <LogoIcon>
-            <IconImage src={'/logo-dark.svg'} alt="logo" />
+            <LogoImage src={'/logo-dark.svg'} alt="logo" />
           </LogoIcon>
         ) : (
           <Link
@@ -77,11 +77,11 @@ export default function Header() {
           >
             {holidayMode ? (
               <LogoIcon>
-                <IconImage isChristmas src={'/christmas-logo-dark.svg?'} alt="logo" />
+                <LogoImage isChristmas src={'/christmas-logo-dark.svg?'} alt="logo" />
               </LogoIcon>
             ) : (
               <LogoIcon>
-                <IconImage src={'/logo-dark.svg'} alt="logo" />
+                <LogoImage src={'/logo-dark.svg'} alt="logo" />
               </LogoIcon>
             )}
           </Link>
@@ -122,7 +122,7 @@ export default function Header() {
           <div className="flex w-full justify-between">
             {upToLarge && (
               <LogoIcon>
-                <IconImage src={'/logo-dark.svg'} alt="logo" />
+                <LogoImage src={'/logo-dark.svg'} alt="logo" />
               </LogoIcon>
             )}
 
