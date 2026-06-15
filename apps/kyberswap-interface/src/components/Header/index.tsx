@@ -25,10 +25,7 @@ const IconImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: stri
   <img
     src={src}
     alt={alt}
-    className={cn(
-      'w-[140px] max-w-none max-sm:w-[114px] max-xs:w-[100px]',
-      isChristmas ? 'mt-[-9px] max-sm:-mt-0.5' : 'mt-px',
-    )}
+    className={cn('w-[140px] max-w-none max-sm:w-[100px]', isChristmas ? '-mt-3 max-sm:-mt-2' : '')}
   />
 )
 
@@ -68,7 +65,7 @@ export default function Header() {
         hide ? 'max-xs:!h-0' : 'max-xs:h-[60px]',
       )}
     >
-      <div className="flex w-fit flex-row flex-nowrap items-center justify-self-start max-md:w-full">
+      <div className="flex w-fit flex-row flex-nowrap items-center gap-3 justify-self-start max-md:w-full">
         {isEmbeddedSwap ? (
           <LogoIcon>
             <IconImage src={'/logo-dark.svg'} alt="logo" />
@@ -76,7 +73,7 @@ export default function Header() {
         ) : (
           <Link
             to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
-            className="mr-3 flex cursor-pointer items-center justify-self-start hover:cursor-pointer max-sm:justify-self-center"
+            className="flex cursor-pointer items-center justify-self-start hover:cursor-pointer max-sm:justify-self-center"
           >
             {holidayMode ? (
               <LogoIcon>
