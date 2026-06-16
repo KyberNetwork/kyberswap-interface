@@ -83,11 +83,15 @@ async function ogSwapImage(url: URL, kind: 'swap' | 'limit'): Promise<Response> 
     inId ? resolveToken(chain.chainId, inId, chain.nativeSymbol) : Promise.resolve(null),
     outId ? resolveToken(chain.chainId, outId, chain.nativeSymbol) : Promise.resolve(null),
   ]);
-  if ((inId && !inTok) || (outId && !outTok) || (!inTok && !outTok)) return defaultImage();
+  if ((inId && !inTok) || (outId && !outTok) || (!inTok && !outTok)) {
+    console.log(`[og] /og/${kind} chain=${slug} in=${inId || '-'} out=${outId || '-'} -> UNRESOLVED (default card)`);
+    return defaultImage();
+  }
 
   try {
     const png = await renderSwapOg({ inToken: inTok, outToken: outTok, networkName: chain.name, kind });
     cache.set(cacheKey, png, IMG_TTL_MS);
+    console.log(`[og] /og/${kind} chain=${slug} in=${inId || '-'} out=${outId || '-'} -> rendered`);
     return new Response(png, { headers: PNG_HEADERS });
   } catch {
     return defaultImage();
@@ -106,7 +110,12 @@ async function ogPoolImage(url: URL): Promise<Response> {
   if (hit) return new Response(hit, { headers: PNG_HEADERS });
 
   const pool = await resolvePool(chain.chainId, address, protocol);
-  if (!pool) return defaultImage();
+  if (!pool) {
+    console.log(
+      `[og] /og/pool chain=${slug} address=${address} protocol=${protocol || '-'} -> UNRESOLVED (default card)`,
+    );
+    return defaultImage();
+  }
 
   try {
     const png = await renderPoolOg({
@@ -116,6 +125,7 @@ async function ogPoolImage(url: URL): Promise<Response> {
       feeTier: pool.feeTier,
     });
     cache.set(cacheKey, png, IMG_TTL_MS);
+    console.log(`[og] /og/pool chain=${slug} address=${address} protocol=${protocol || '-'} -> rendered`);
     return new Response(png, { headers: PNG_HEADERS });
   } catch {
     return defaultImage();
@@ -134,8 +144,12 @@ async function handlePair(url: URL): Promise<Response> {
       // legacy query form (/swap/<net>?inputCurrency=) resolves to the prerendered network landing, which
       // already carries that skeleton — don't re-inject it.
       const withHead = injectHead(html, meta);
+      console.log(`[og] pair ${url.pathname} in=${parsed.inId || '-'} out=${parsed.outId || '-'} -> injected`);
       return new Response(prerendered ? withHead : await injectSkeleton(withHead, 'swap'), { headers: HTML_HEADERS });
     }
+    console.log(
+      `[og] pair ${url.pathname} in=${parsed.inId || '-'} out=${parsed.outId || '-'} -> UNRESOLVED (static fallback)`,
+    );
   }
   // Bare landing route, or unresolved pair — serve the static HTML as-is (prerendered or SPA shell).
   const { html } = await readAppHtml(url.pathname);
@@ -168,8 +182,10 @@ async function handlePool(url: URL): Promise<Response> {
       // Pool URLs aren't prerendered → SPA shell: swap in the pool-detail page-shell skeleton. (Guard on
       // `prerendered` for symmetry with handlePair — a prerendered file would already carry its skeleton.)
       const withHead = injectHead(html, meta);
+      console.log(`[og] pool ${url.pathname} -> injected`);
       return new Response(prerendered ? withHead : await injectSkeleton(withHead, 'pool'), { headers: HTML_HEADERS });
     }
+    console.log(`[og] pool ${url.pathname} -> UNRESOLVED (static fallback)`);
   }
   const { html } = await readAppHtml(url.pathname);
   return new Response(html, { headers: HTML_HEADERS });
@@ -197,6 +213,15 @@ async function safeImg(fn: () => Promise<Response>): Promise<Response> {
 }
 
 const app = new Hono();
+// Request log (skips /healthz noise): method, path, status, ms — surfaces every hit in `kubectl logs`.
+app.use('*', async (c, next) => {
+  const start = Date.now();
+  await next();
+  const { pathname } = new URL(c.req.url);
+  if (pathname !== '/healthz') {
+    console.log(`[og] ${c.req.method} ${pathname} -> ${c.res.status} (${Date.now() - start}ms)`);
+  }
+});
 app.get('/healthz', c => c.text('ok'));
 app.get('/og/swap', c => safeImg(() => ogSwapImage(new URL(c.req.url), 'swap')));
 app.get('/og/limit', c => safeImg(() => ogSwapImage(new URL(c.req.url), 'limit')));
