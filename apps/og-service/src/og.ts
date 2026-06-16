@@ -1,7 +1,10 @@
 import { Resvg } from '@resvg/resvg-js';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import satori from 'satori';
 import { html as toVNode } from 'satori-html';
 
+import { STATIC_DIR } from '@/config';
 import { BROWSER_UA, readBoundedArrayBuffer } from '@/constants';
 import { FONT_FAMILY, loadFont } from '@/font';
 import { formatFeeTier } from '@/meta';
@@ -28,6 +31,27 @@ const FALLBACK_CIRCLE = '#2A2A2A';
 const WIDTH = 1200;
 const HEIGHT = 630;
 const LOGO_SIZE = 180;
+const BRAND_LOGO_W = 160;
+const BRAND_LOGO_H = 53; // logo-dark.svg viewBox is 160x53
+
+// Brand wordmark for the card header. Reads public/logo-dark.svg from the baked interface build (white text +
+// green K, suits the dark card) and rasterizes it once to a PNG data URI — satori embeds PNG reliably, and
+// resvg renders this simple (solid-fill) logo correctly. Memoized; null -> cardHtml falls back to text.
+let logoPromise: Promise<string | null> | undefined;
+function loadBrandLogo(): Promise<string | null> {
+  if (!logoPromise) {
+    logoPromise = readFile(join(STATIC_DIR, 'logo-dark.svg'), 'utf8')
+      .then(svg => {
+        const png = new Resvg(svg, { fitTo: { mode: 'width', value: BRAND_LOGO_W * 2 } }).render().asPng();
+        return `data:image/png;base64,${png.toString('base64')}`;
+      })
+      .catch(() => {
+        logoPromise = undefined; // don't memoize a miss — retry on a later request
+        return null;
+      });
+  }
+  return logoPromise;
+}
 
 function escapeHtml(s: string): string {
   return s
@@ -115,13 +139,14 @@ function tokenBlock(dataUri: string | null, symbol: string): string {
 
 // Shared card chrome: brand header (Kyber + Swap + "on <network>"), a center row, and a caption.
 // NB: every <div> with >1 child needs explicit display:flex (a Satori requirement).
-function cardHtml(networkName: string, center: string, caption: string): string {
+function cardHtml(networkName: string, center: string, caption: string, logoUri: string | null): string {
+  // Brand mark: the KyberSwap logo image when available, otherwise the text wordmark.
+  const brand = logoUri
+    ? `<img src="${logoUri}" width="${BRAND_LOGO_W}" height="${BRAND_LOGO_H}" />`
+    : `<div style="display:flex"><div style="display:flex;color:${GREEN};font-size:48px;font-weight:700">Kyber</div><div style="display:flex;color:${WHITE};font-size:48px;font-weight:700">Swap</div></div>`;
   return `<div style="display:flex;flex-direction:column;justify-content:space-between;width:${WIDTH}px;height:${HEIGHT}px;padding:72px 80px;background:${BG};font-family:'${FONT_FAMILY}'">
     <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-      <div style="display:flex">
-        <div style="display:flex;color:${GREEN};font-size:48px;font-weight:700">Kyber</div>
-        <div style="display:flex;color:${WHITE};font-size:48px;font-weight:700">Swap</div>
-      </div>
+      ${brand}
       <div style="display:flex;font-size:32px;color:${SUBTEXT}">on ${escapeHtml(networkName)}</div>
     </div>
     <div style="display:flex;align-items:center;justify-content:center;width:100%">
@@ -200,10 +225,11 @@ export async function renderSwapOg(input: SwapOgInput): Promise<Buffer> {
   const { inToken, outToken, networkName, kind } = input;
   const present = [inToken, outToken].filter((t): t is ResolvedToken => t !== null);
 
-  const [logos, font700, font400] = await Promise.all([
+  const [logos, font700, font400, brandLogo] = await Promise.all([
     Promise.all(present.map(t => fetchLogoDataUri(t.logoURI))),
     loadFont(700),
     loadFont(400),
+    loadBrandLogo(),
   ]);
 
   const syms = present.map(t => escapeHtml(shortSymbol(t.symbol)));
@@ -220,7 +246,7 @@ export async function renderSwapOg(input: SwapOgInput): Promise<Buffer> {
       ? `${tokenBlock(logos[0], present[0].symbol)}${ARROW}${tokenBlock(logos[1], present[1].symbol)}`
       : tokenBlock(logos[0], present[0].symbol);
 
-  return renderCardPng(cardHtml(networkName, center, caption), fontsOption(font700, font400));
+  return renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
 }
 
 export interface PoolOgInput {
@@ -234,15 +260,16 @@ export interface PoolOgInput {
 export async function renderPoolOg(input: PoolOgInput): Promise<Buffer> {
   const { token0, token1, networkName, feeTier } = input;
 
-  const [logos, font700, font400] = await Promise.all([
+  const [logos, font700, font400, brandLogo] = await Promise.all([
     Promise.all([fetchLogoDataUri(token0.logoURI), fetchLogoDataUri(token1.logoURI)]),
     loadFont(700),
     loadFont(400),
+    loadBrandLogo(),
   ]);
 
   const feeText = typeof feeTier === 'number' ? ` · ${formatFeeTier(feeTier)}% fee` : '';
   const caption = `Provide liquidity & earn${feeText} on KyberSwap — across 20+ chains`;
   const center = `${tokenBlock(logos[0], token0.symbol)}${SLASH}${tokenBlock(logos[1], token1.symbol)}`;
 
-  return renderCardPng(cardHtml(networkName, center, caption), fontsOption(font700, font400));
+  return renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
 }
