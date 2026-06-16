@@ -4,19 +4,19 @@ import { isMobile } from 'react-device-detect'
 import { usePrevious } from 'react-use'
 
 import Modal from 'components/Modal'
-import { CurrencySearch } from 'components/SearchModal/CurrencySearch'
-import { ImportToken } from 'components/SearchModal/ImportToken'
+import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
+import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import useLast from 'hooks/useLast'
 import { Field } from 'state/swap/actions'
 
-interface CurrencySearchModalProps {
+interface TokenSelectorModalProps {
   isOpen: boolean
-  onDismiss: () => void
+  onDismiss?: () => void
   selectedCurrency?: Currency | null
-  onCurrencySelect: (currency: Currency) => void
+  onCurrencySelect?: (currency: Currency) => void
   otherSelectedCurrency?: Currency | null
-  showCommonBases?: boolean
+  showPinnedTokens?: boolean
   filterWrap?: boolean
   title?: string
   tooltip?: ReactNode
@@ -25,38 +25,38 @@ interface CurrencySearchModalProps {
   trackingSource?: string
 }
 
-enum CurrencyModalView {
+enum TokenSelectorModalView {
   search,
   importToken,
 }
 
-export default function CurrencySearchModal({
+const TokenSelectorModal = ({
   isOpen,
   onDismiss,
   onCurrencySelect,
   selectedCurrency,
   otherSelectedCurrency,
-  showCommonBases = false,
+  showPinnedTokens,
   filterWrap,
   title,
   tooltip,
   onCurrencyImport,
   customChainId,
   trackingSource,
-}: CurrencySearchModalProps) {
-  const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.search)
+}: TokenSelectorModalProps) => {
+  const [modalView, setModalView] = useState<TokenSelectorModalView>(TokenSelectorModalView.search)
   const lastOpen = useLast(isOpen)
 
   useEffect(() => {
     if (isOpen && !lastOpen) {
-      setModalView(CurrencyModalView.search)
+      setModalView(TokenSelectorModalView.search)
     }
   }, [isOpen, lastOpen])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency[] | Currency) => {
-      onCurrencySelect(Array.isArray(currency) ? currency[0] : currency)
-      onDismiss()
+      onCurrencySelect?.(Array.isArray(currency) ? currency[0] : currency)
+      onDismiss?.()
     },
     [onDismiss, onCurrencySelect],
   )
@@ -68,14 +68,14 @@ export default function CurrencySearchModal({
   const [importToken, setImportToken] = useState<Token | undefined>()
 
   // change min height if not searching
-  const minHeight = modalView === CurrencyModalView.importToken ? 40 : 80
+  const minHeight = modalView === TokenSelectorModalView.importToken ? 'fit-content' : 80
 
   const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
 
   const onImportToken = useCallback(
     (token: Token) => {
       setImportToken(token)
-      setModalView(CurrencyModalView.importToken)
+      setModalView(TokenSelectorModalView.importToken)
       onCurrencyImport?.(token)
     },
     [onCurrencyImport],
@@ -88,12 +88,12 @@ export default function CurrencySearchModal({
       isOpen={isOpen}
       onDismiss={() => {
         setTokenToShowInfo(null)
-        onDismiss()
+        onDismiss?.()
       }}
       margin="auto"
       maxHeight={isMobileHorizontal ? 100 : 80}
-      height={isMobileHorizontal ? '95vh' : undefined}
       minHeight={minHeight}
+      height={isMobileHorizontal ? '95vh' : undefined}
     >
       {tokenToShowInfo ? (
         <div className="w-full">
@@ -102,32 +102,36 @@ export default function CurrencySearchModal({
             onBack={() => setTokenToShowInfo(null)}
           />
         </div>
-      ) : modalView === CurrencyModalView.search ? (
-        <CurrencySearch
+      ) : modalView === TokenSelectorModalView.search ? (
+        <TokenSelectorContent
           isOpen={isOpen}
           onDismiss={onDismiss}
           onCurrencySelect={handleCurrencySelect}
           selectedCurrency={selectedCurrency}
           otherSelectedCurrency={otherSelectedCurrency}
-          showCommonBases={showCommonBases}
-          setImportToken={onImportToken}
+          showPinnedTokens={showPinnedTokens}
+          onImportToken={onImportToken}
           filterWrap={filterWrap}
           title={title}
           tooltip={tooltip}
           customChainId={customChainId}
-          setTokenToShowInfo={setTokenToShowInfo}
+          onShowTokenInfo={setTokenToShowInfo}
           trackingSource={trackingSource}
         />
-      ) : modalView === CurrencyModalView.importToken && importToken ? (
-        <ImportToken
+      ) : modalView === TokenSelectorModalView.importToken && importToken ? (
+        <ImportTokenView
           tokens={[importToken]}
           onDismiss={onDismiss}
           onBack={() =>
-            setModalView(prevView && prevView !== CurrencyModalView.importToken ? prevView : CurrencyModalView.search)
+            setModalView(
+              prevView && prevView !== TokenSelectorModalView.importToken ? prevView : TokenSelectorModalView.search,
+            )
           }
-          handleCurrencySelect={handleCurrencySelect}
+          onCurrencySelect={handleCurrencySelect}
         />
       ) : null}
     </Modal>
   )
 }
+
+export default TokenSelectorModal

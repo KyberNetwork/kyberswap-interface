@@ -32,7 +32,7 @@ import {
 
 import { hyperevm, wagmiConfig } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { SolanaToken } from 'state/crossChainSwap'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 import { Quote } from '../registry'
 import {

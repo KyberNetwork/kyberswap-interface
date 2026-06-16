@@ -296,10 +296,6 @@ export const ICON_IDS = [
 ] as const
 export type ICON_ID = (typeof ICON_IDS)[number]
 
-export const ClientNameMapping: { [key: string]: string } = {
-  dexscreener: 'DEX Screener',
-}
-
 export const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x55602F3057be52BFB6F98fFE799CFDec58Af5130'
 export const SAFE_APP_CLIENT_ID = 'app.safe.global'
 

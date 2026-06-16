@@ -1,8 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { Fragment, type ReactNode } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
+import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
@@ -21,10 +23,8 @@ export const Tab = ({
 }: React.ComponentProps<typeof ButtonEmpty> & { $isActive: boolean; $isDisabled?: boolean }) => (
   <ButtonEmpty
     className={cn(
-      'relative mb-1 mr-1.5 w-fit rounded-none p-0 text-lg font-medium leading-[normal] hover:no-underline focus:no-underline max-sm:px-1.5 max-sm:py-0 max-sm:text-sm',
-      "before:mr-2 before:h-[22px] before:w-0.5 before:rounded-sm before:bg-border before:content-['']",
-      'first:before:hidden',
-      $isDisabled ? 'text-border' : $isActive ? 'text-primary' : 'text-subText',
+      'relative inline-flex w-fit items-center gap-2 rounded-none p-0 text-lg font-medium leading-[normal] hover:no-underline focus:no-underline max-sm:px-1.5 max-sm:py-0 max-sm:text-sm',
+      $isDisabled ? 'text-border' : $isActive ? 'text-primary' : 'text-subText hover:text-text',
       className,
     )}
     {...rest}
@@ -32,6 +32,8 @@ export const Tab = ({
     {children}
   </ButtonEmpty>
 )
+
+const TabDivider = () => <span aria-hidden className="h-6 w-0.5 shrink-0 rounded-sm bg-border" />
 
 type Props = {
   activeTab: TAB
@@ -83,33 +85,56 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     })
   }
 
+  const tabs: { key: TAB; node: ReactNode }[] = []
+  if (show(TAB.SWAP)) {
+    tabs.push({
+      key: TAB.SWAP,
+      node: (
+        <Tab onClick={() => onClickTab(TAB.SWAP)} $isActive={TAB.SWAP === activeTab}>
+          <span className="font-medium">
+            <Trans>Swap</Trans>
+          </span>
+        </Tab>
+      ),
+    })
+  }
+  if (show(TAB.LIMIT) && isSupportLimitOrder(chainId)) {
+    tabs.push({
+      key: TAB.LIMIT,
+      node: (
+        <LimitTab
+          onClick={() => onClickTab(TAB.LIMIT)}
+          active={activeTab === TAB.LIMIT}
+          customChainId={customChainId}
+        />
+      ),
+    })
+  }
+  if (show(TAB.CROSS_CHAIN)) {
+    tabs.push({
+      key: TAB.CROSS_CHAIN,
+      node: (
+        <Tab
+          onClick={() => onClickTab(TAB.CROSS_CHAIN)}
+          $isActive={activeTab === TAB.CROSS_CHAIN}
+          data-testid="cross-chain-tab"
+        >
+          <Trans>Cross-Chain</Trans>
+        </Tab>
+      ),
+    })
+  }
+
   return (
-    <div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center justify-between sm:mb-0">
-        {show(TAB.SWAP) && (
-          <Tab onClick={() => onClickTab(TAB.SWAP)} $isActive={TAB.SWAP === activeTab}>
-            <span className="font-medium">
-              <Trans>Swap</Trans>
-            </span>
-          </Tab>
-        )}
-        {show(TAB.LIMIT) && isSupportLimitOrder(chainId) && (
-          <LimitTab
-            onClick={() => onClickTab(TAB.LIMIT)}
-            active={activeTab === TAB.LIMIT}
-            customChainId={customChainId}
-          />
-        )}
-        {show(TAB.CROSS_CHAIN) && (
-          <Tab
-            onClick={() => onClickTab(TAB.CROSS_CHAIN)}
-            $isActive={activeTab === TAB.CROSS_CHAIN}
-            data-testid="cross-chain-tab"
-          >
-            <Trans>Cross-Chain</Trans>
-          </Tab>
-        )}
-      </div>
-    </div>
+    <Stack className="items-start sm:flex-row sm:items-center sm:justify-between">
+      <HStack className="items-center gap-2">
+        {tabs.map((tab, index) => (
+          <Fragment key={tab.key}>
+            {index > 0 && <TabDivider />}
+            {tab.node}
+          </Fragment>
+        ))}
+      </HStack>
+    </Stack>
   )
 }

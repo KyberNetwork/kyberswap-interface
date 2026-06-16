@@ -8,8 +8,8 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import Column from 'components/Column'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
-import { CurrencyRow } from 'components/SearchModal/CurrencyList'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import TokenSelectorModal from 'components/TokenSelectorModal'
+import { TokenRow } from 'components/TokenSelectorModal/TokenList'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -90,7 +90,7 @@ export default function MyAssets({
                   ? usdBalances[address] * parseFloat(currencyBalance.toExact())
                   : undefined
               return (
-                <CurrencyRow
+                <TokenRow
                   onSelect={() => {
                     trackingHandler(TRACKING_EVENT_TYPE.WALLET_TOKEN_CLICKED, {
                       token_symbol: token.symbol,
@@ -133,7 +133,7 @@ export default function MyAssets({
           </div>
         )}
       </AutoSizer>
-      <CurrencySearchModal
+      <TokenSelectorModal
         title={t`Import Tokens`}
         tooltip={
           <span>
@@ -147,7 +147,7 @@ export default function MyAssets({
         isOpen={modalOpen}
         onDismiss={hideModal}
         onCurrencySelect={hideModal}
-        showCommonBases
+        showPinnedTokens
         onCurrencyImport={(token: Token) => {
           trackingHandler(TRACKING_EVENT_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK, { token_name: token.symbol })
           trackingHandler(TRACKING_EVENT_TYPE.WALLET_TOKEN_IMPORTED, {

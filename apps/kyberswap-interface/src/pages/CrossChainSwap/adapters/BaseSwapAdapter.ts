@@ -6,7 +6,8 @@ import { Connection } from '@solana/web3.js'
 import { WalletClient } from 'viem'
 
 import SolanaIcon from 'assets/networks/solana.svg'
-import { NearToken, SolanaToken } from 'state/crossChainSwap'
+import type { NearToken } from 'pages/CrossChainSwap/hooks/useNearTokens'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 import { Quote } from '../registry'
 

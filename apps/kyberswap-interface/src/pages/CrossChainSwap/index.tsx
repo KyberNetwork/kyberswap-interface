@@ -27,9 +27,11 @@ import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWit
 import { TokenPanel } from 'pages/CrossChainSwap/components/TokenPanel'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { CrossChainSwapRegistryProvider, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import type { NearToken } from 'pages/CrossChainSwap/hooks/useNearTokens'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
-import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { isEvmChain } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col gap-4">{children}</div>
@@ -154,205 +156,209 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
     <Wrapper>
       {termAndPolicyModal}
 
-      <TokenPanel
-        evmLayout={isEvmChain(fromChainId) && isToEvm}
-        setShowBtcConnect={setShowBtcConnect}
-        selectedChain={fromChainId}
-        selectedCurrency={currencyIn || undefined}
-        onSelectNetwork={handleSourceChainSelect}
-        value={amount}
-        amountUsd={selectedQuote?.quote.inputUsd}
-        onUserInput={value => {
-          setAmount(value)
-        }}
-        disabled={false}
-        onSelectCurrency={currency => {
-          const c = currency as EvmCurrency
+      <AutoColumn className="gap-3">
+        <TokenPanel
+          evmLayout={isEvmChain(fromChainId) && isToEvm}
+          setShowBtcConnect={setShowBtcConnect}
+          selectedChain={fromChainId}
+          selectedCurrency={currencyIn || undefined}
+          onSelectNetwork={handleSourceChainSelect}
+          value={amount}
+          amountUsd={selectedQuote?.quote.inputUsd}
+          onUserInput={value => {
+            setAmount(value)
+          }}
+          disabled={false}
+          onSelectCurrency={currency => {
+            const c = currency as EvmCurrency
 
-          searchParams.set(
-            'tokenIn',
-            isEvmChain(fromChainId)
-              ? (c.isNative ? c.symbol : c.address) || c.wrapped.address
-              : (currency as NearToken).assetId,
-          )
-          setSearchParams(searchParams)
-        }}
-      />
-
-      <div className="flex items-center justify-between">
-        <RefreshLoading
-          refetchLoading={allLoading}
-          clickable
-          disableRefresh={disable || showPreview}
-          onRefresh={getQuote}
-        />
-
-        <div className="ml-1 flex flex-1 flex-wrap items-center gap-1 text-sm text-text">
-          <span className="text-subText">
-            <Trans>Cross-chain rate:</Trans>
-          </span>
-          {loading ? (
-            <Skeleton height={16} width={120} />
-          ) : selectedQuote && toChainId ? (
-            <div
-              role="button"
-              className="flex cursor-pointer flex-wrap items-center gap-1"
-              onClick={() => setRevertPrice(!revertPrice)}
-            >
-              1{' '}
-              <TokenLogoWithChain
-                currency={revertPrice ? currencyOut : currencyIn}
-                chainId={revertPrice ? toChainId : fromChainId}
-              />
-              {}={' '}
-              {formatDisplayNumber(revertPrice ? 1 / selectedQuote.quote.rate : selectedQuote.quote.rate, {
-                significantDigits: 6,
-              })}
-              <TokenLogoWithChain
-                currency={revertPrice ? currencyIn : currencyOut}
-                chainId={revertPrice ? fromChainId : toChainId}
-              />
-              <Repeat size={12} className="text-subText" />
-            </div>
-          ) : (
-            <Skeleton height={16} width={120} />
-          )}
-        </div>
-
-        <ReverseTokenSelectionButton
-          onClick={() => {
-            const cIn = currencyIn as EvmCurrency
-            const cOut = currencyOut as EvmCurrency
-            const isFromEvm = isEvmChain(fromChainId)
-            const isToEvm = toChainId && isEvmChain(toChainId)
-            searchParams.set('from', toChainId?.toString() || '')
-            searchParams.set('to', fromChainId?.toString() || '')
             searchParams.set(
               'tokenIn',
-              isToEvm
-                ? cOut?.isNative
-                  ? cOut.symbol || ''
-                  : cOut?.wrapped.address || ''
-                : (currencyOut as NearToken)?.assetId || (currencyOut as SolanaToken)?.id || '',
-            )
-            searchParams.set(
-              'tokenOut',
-              isFromEvm
-                ? cIn?.isNative
-                  ? cIn.symbol || ''
-                  : cIn?.wrapped.address || ''
-                : (currencyIn as NearToken)?.assetId || (currencyIn as SolanaToken)?.id || '',
+              isEvmChain(fromChainId)
+                ? (c.isNative ? c.symbol : c.address) || c.wrapped.address
+                : (currency as NearToken).assetId,
             )
             setSearchParams(searchParams)
           }}
         />
-      </div>
 
-      <TokenPanel
-        loading={loading}
-        evmLayout={isEvmChain(fromChainId) && isToEvm}
-        setShowBtcConnect={setShowBtcConnect}
-        selectedChain={toChainId}
-        selectedCurrency={currencyOut || undefined}
-        onSelectNetwork={handleDestinationChainSelect}
-        value={selectedQuote?.quote.formattedOutputAmount || ''}
-        amountUsd={selectedQuote?.quote.outputUsd}
-        onUserInput={() => {
-          //
-        }}
-        disabled
-        onSelectCurrency={currency => {
-          const c = currency as EvmCurrency
-          searchParams.set(
-            'tokenOut',
-            toChainId && isEvmChain(toChainId)
-              ? (c.isNative ? c.symbol : c.address) || c.wrapped.address
-              : (currency as NearToken).assetId,
-          )
-          setSearchParams(searchParams)
-        }}
-      />
+        <div className="flex items-center justify-between gap-1">
+          <RefreshLoading
+            refetchLoading={allLoading}
+            clickable
+            disableRefresh={disable || showPreview}
+            onRefresh={getQuote}
+          />
 
-      <AutoColumn className="gap-2">
-        <div className="flex items-center justify-between px-2 text-xs text-subText">
-          <div
-            className="flex cursor-pointer items-center gap-1"
-            role="button"
-            onClick={() => {
-              if (isEvmChain(fromChainId) && isToEvm) {
-                if (!showEvmRecipient) {
-                  setRecipient('')
-                }
-                setShowEvmRecipient(prev => !prev)
-              }
-            }}
-          >
-            <span>
-              {isEvmChain(fromChainId) && isToEvm ? (
-                <Trans>Send to other wallet</Trans>
-              ) : (
-                t`Recipient (${networkName} address)`
-              )}
+          <div className="flex flex-1 flex-wrap items-center gap-2 text-sm text-text">
+            <span className="font-medium text-subText">
+              <Trans>Cross-chain rate:</Trans>
             </span>
-            {isEvmChain(fromChainId) &&
-              isToEvm &&
-              (showEvmRecipient ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
+            {loading ? (
+              <Skeleton height={20} width={120} />
+            ) : selectedQuote && toChainId ? (
+              <div
+                role="button"
+                className="flex cursor-pointer flex-wrap items-center gap-1"
+                onClick={() => setRevertPrice(!revertPrice)}
+              >
+                1{' '}
+                <TokenLogoWithChain
+                  currency={revertPrice ? currencyOut : currencyIn}
+                  chainId={revertPrice ? toChainId : fromChainId}
+                />
+                {}={' '}
+                {formatDisplayNumber(revertPrice ? 1 / selectedQuote.quote.rate : selectedQuote.quote.rate, {
+                  significantDigits: 6,
+                })}
+                <TokenLogoWithChain
+                  currency={revertPrice ? currencyIn : currencyOut}
+                  chainId={revertPrice ? fromChainId : toChainId}
+                />
+                <Repeat size={12} className="text-subText" />
+              </div>
+            ) : (
+              <Skeleton height={20} width={120} />
+            )}
           </div>
 
-          {toChainId && (isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
-            <div className="flex gap-1">
-              {isDifferentRecipient && (!isEvmChain(fromChainId) || !isToEvm) && (
-                <ButtonLight
-                  padding="2px 8px"
-                  width="fit-content"
-                  style={{ fontSize: '12px' }}
-                  onClick={() => {
-                    let reci = ''
-                    if (isToEvm) reci = account || ''
-                    if (isToNear) reci = nearWallet.signedAccountId || ''
-                    if (isToBtc) reci = btcAddress || ''
-                    setRecipient(reci)
-                  }}
-                >
-                  <Trans>Use my wallet</Trans>
-                </ButtonLight>
-              )}
-            </div>
-          )}
-        </div>
-        {(isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
-          <AddressInput
-            placeholder={t`Enter ${networkName} receiving address`}
-            value={recipient}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
-              const input = event.target.value
-              const withoutSpaces = input.replace(/\s+/g, '')
-              setRecipient(withoutSpaces)
+          <ReverseTokenSelectionButton
+            onClick={() => {
+              const cIn = currencyIn as EvmCurrency
+              const cOut = currencyOut as EvmCurrency
+              const isFromEvm = isEvmChain(fromChainId)
+              const isToEvm = toChainId && isEvmChain(toChainId)
+              searchParams.set('from', toChainId?.toString() || '')
+              searchParams.set('to', fromChainId?.toString() || '')
+              searchParams.set(
+                'tokenIn',
+                isToEvm
+                  ? cOut?.isNative
+                    ? cOut.symbol || ''
+                    : cOut?.wrapped.address || ''
+                  : (currencyOut as NearToken)?.assetId || (currencyOut as SolanaToken)?.id || '',
+              )
+              searchParams.set(
+                'tokenOut',
+                isFromEvm
+                  ? cIn?.isNative
+                    ? cIn.symbol || ''
+                    : cIn?.wrapped.address || ''
+                  : (currencyIn as NearToken)?.assetId || (currencyIn as SolanaToken)?.id || '',
+              )
+              setSearchParams(searchParams)
             }}
           />
-        )}
+        </div>
+
+        <TokenPanel
+          loading={loading}
+          evmLayout={isEvmChain(fromChainId) && isToEvm}
+          setShowBtcConnect={setShowBtcConnect}
+          selectedChain={toChainId}
+          selectedCurrency={currencyOut || undefined}
+          onSelectNetwork={handleDestinationChainSelect}
+          value={selectedQuote?.quote.formattedOutputAmount || ''}
+          amountUsd={selectedQuote?.quote.outputUsd}
+          onUserInput={() => {
+            //
+          }}
+          disabled
+          onSelectCurrency={currency => {
+            const c = currency as EvmCurrency
+            searchParams.set(
+              'tokenOut',
+              toChainId && isEvmChain(toChainId)
+                ? (c.isNative ? c.symbol : c.address) || c.wrapped.address
+                : (currency as NearToken).assetId,
+            )
+            setSearchParams(searchParams)
+          }}
+        />
       </AutoColumn>
 
-      <div className="flex min-h-7 items-center">
-        <SlippageSetting
-          slippageInfo={warning?.slippageInfo}
-          rightComponent={
-            selectedQuote ? (
-              <QuoteSelector
-                quotes={quotes}
-                selectedQuote={selectedQuote}
-                onChange={newSelectedQuote => {
-                  setSelectedAdapter(newSelectedQuote.adapter.getName())
-                  onQuoteChange?.(newSelectedQuote)
-                }}
-                tokenOut={currencyOut}
-              />
-            ) : null
-          }
-        />
-      </div>
+      <AutoColumn className="gap-3">
+        <AutoColumn className="gap-2">
+          <div className="flex items-center justify-between px-2 text-xs text-subText">
+            <div
+              className="flex cursor-pointer items-center gap-1"
+              role="button"
+              onClick={() => {
+                if (isEvmChain(fromChainId) && isToEvm) {
+                  if (!showEvmRecipient) {
+                    setRecipient('')
+                  }
+                  setShowEvmRecipient(prev => !prev)
+                }
+              }}
+            >
+              <span>
+                {isEvmChain(fromChainId) && isToEvm ? (
+                  <Trans>Send to other wallet</Trans>
+                ) : (
+                  t`Recipient (${networkName} address)`
+                )}
+              </span>
+              {isEvmChain(fromChainId) &&
+                isToEvm &&
+                (showEvmRecipient ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
+            </div>
 
-      <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
+            {toChainId && (isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
+              <div className="flex gap-1">
+                {isDifferentRecipient && (!isEvmChain(fromChainId) || !isToEvm) && (
+                  <ButtonLight
+                    padding="2px 8px"
+                    width="fit-content"
+                    style={{ fontSize: '12px' }}
+                    onClick={() => {
+                      let reci = ''
+                      if (isToEvm) reci = account || ''
+                      if (isToNear) reci = nearWallet.signedAccountId || ''
+                      if (isToBtc) reci = btcAddress || ''
+                      setRecipient(reci)
+                    }}
+                  >
+                    <Trans>Use my wallet</Trans>
+                  </ButtonLight>
+                )}
+              </div>
+            )}
+          </div>
+          {(isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
+            <AddressInput
+              placeholder={t`Enter ${networkName} receiving address`}
+              value={recipient}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                const input = event.target.value
+                const withoutSpaces = input.replace(/\s+/g, '')
+                setRecipient(withoutSpaces)
+              }}
+            />
+          )}
+        </AutoColumn>
+
+        <div className={cn('flex items-center', selectedQuote ? '' : 'min-h-7')}>
+          <SlippageSetting
+            slippageInfo={warning?.slippageInfo}
+            rightComponent={
+              selectedQuote ? (
+                <QuoteSelector
+                  quotes={quotes}
+                  selectedQuote={selectedQuote}
+                  onChange={newSelectedQuote => {
+                    setSelectedAdapter(newSelectedQuote.adapter.getName())
+                    onQuoteChange?.(newSelectedQuote)
+                  }}
+                  tokenOut={currencyOut}
+                />
+              ) : null
+            }
+          />
+        </div>
+
+        <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
+      </AutoColumn>
 
       {selectedQuote ? (
         <div className="flex items-center text-xs italic text-gray">
@@ -366,6 +372,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
       )}
 
       <PiWarning />
+
       <SwapAction setShowBtcModal={setShowBtcConnect} />
 
       <BitcoinConnectModal

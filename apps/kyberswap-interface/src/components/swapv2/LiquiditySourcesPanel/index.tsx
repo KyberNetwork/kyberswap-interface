@@ -1,9 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import React, { useEffect, useRef, useState } from 'react'
-import { ArrowLeft } from 'react-feather'
+import React, { ButtonHTMLAttributes, useEffect, useRef, useState } from 'react'
+import { ChevronLeft } from 'react-feather'
 
+import IconButton from 'components/Button/IconButton'
 import Checkbox from 'components/CheckBox'
+import { HStack, Stack } from 'components/Stack'
 import { LiquiditySourceGroup } from 'components/swapv2/LiquiditySourcesPanel/Group'
 import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
 import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
@@ -17,15 +19,17 @@ type Props = {
   chainId?: ChainId
 }
 
-export const BackIconWrapper: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...rest }) => (
-  <ArrowLeft {...rest} className={cn('mr-[10px] size-5 cursor-pointer [&_path]:!stroke-text', className)} />
+export const BackIconWrapper: React.FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({ className, ...rest }) => (
+  <IconButton aria-label={t`Back`} className={className} {...rest}>
+    <ChevronLeft size={24} className="text-subText" />
+  </IconButton>
 )
 
 export const SourceList: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...rest }) => (
   <div
     {...rest}
     className={cn(
-      'flex h-[300px] max-h-[300px] w-full flex-col gap-y-6 overflow-x-hidden overflow-y-scroll',
+      'flex h-[280px] max-h-[280px] w-full flex-col gap-2 overflow-x-hidden overflow-y-scroll rounded-b-lg border border-t-0 border-border p-3',
       '[&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:rounded-[999px]',
       '[&::-webkit-scrollbar-track]:rounded-[999px] [&::-webkit-scrollbar-track]:bg-transparent',
       '[&::-webkit-scrollbar-thumb]:rounded-[999px] [&::-webkit-scrollbar-thumb]:bg-disableText',
@@ -44,7 +48,7 @@ export const LiquiditySourceHeader: React.FC<React.HTMLAttributes<HTMLDivElement
   <div
     {...rest}
     className={cn(
-      'flex items-center gap-4 rounded-t-lg bg-tableHeader p-3 text-xs font-medium uppercase text-subText',
+      'flex items-center justify-between gap-4 rounded-t-lg border border-border bg-tableHeader p-3 text-xs font-medium uppercase text-subText',
       className,
     )}
   >
@@ -68,10 +72,9 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
   })
 
   const checkAllRef = useRef<HTMLInputElement | null>(null)
+  const selectedDexes = dexes?.filter(item => !excludeDexes.includes(item.id)) || []
 
   useEffect(() => {
-    const selectedDexes = dexes?.filter(item => !excludeDexes.includes(item.id)) || []
-
     if (!checkAllRef.current) return
 
     if (selectedDexes.length === dexes?.length) {
@@ -84,7 +87,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
       checkAllRef.current.checked = false
       checkAllRef.current.indeterminate = true
     }
-  }, [excludeDexes, dexes])
+  }, [dexes?.length, selectedDexes.length])
 
   const handleToggleDex = (id: string) => {
     const isExclude = excludeDexes.find(item => item === id)
@@ -103,52 +106,71 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
   }
 
   return (
-    <div className="w-full">
-      <div className="flex w-full flex-col gap-y-5">
-        <div className="mt-[5px] flex items-center">
-          <BackIconWrapper onClick={onBack} />
-          <span className="text-lg font-medium text-text">{t`Liquidity Sources`}</span>
-        </div>
+    <Stack className="w-full gap-4">
+      <HStack className="items-center gap-1">
+        <BackIconWrapper onClick={onBack} />
+        <span className="text-lg font-medium text-text">{t`Liquidity Sources`}</span>
+      </HStack>
 
+      <Stack className="gap-3">
         <SearchBar text={searchText} setText={setSearchText} />
 
-        <LiquiditySourceHeader>
-          <Checkbox
-            ref={checkAllRef}
-            onChange={e => {
-              if (!e.currentTarget.checked) {
-                setExcludeDexes(dexes?.map(item => item.id) || [])
-              } else {
-                setExcludeDexes([])
-              }
-            }}
-          />
-          <span>
-            <Trans>Liquidity Sources</Trans>
-          </span>
-        </LiquiditySourceHeader>
+        <Stack>
+          <LiquiditySourceHeader>
+            <HStack className="items-center gap-3">
+              <Checkbox
+                ref={checkAllRef}
+                className="cursor-pointer"
+                onChange={e => {
+                  if (!e.currentTarget.checked) {
+                    setExcludeDexes(dexes?.map(item => item.id) || [])
+                  } else {
+                    setExcludeDexes([])
+                  }
+                }}
+              />
+              <span>
+                <Trans>Liquidity Sources</Trans>
+              </span>
+            </HStack>
+            <span className="text-subText">
+              {selectedDexes.length}/{dexes?.length || 0}
+            </span>
+          </LiquiditySourceHeader>
 
-        <SourceList>
-          {Object.values(tagMap).map(tag => {
-            return <LiquiditySourceGroup tag={tag} debouncedSearchText={debouncedSearchText} key={tag.id} />
-          })}
+          <SourceList>
+            {Object.values(tagMap).map(tag => {
+              return (
+                <LiquiditySourceGroup
+                  tag={tag}
+                  debouncedSearchText={debouncedSearchText}
+                  chainId={chainId}
+                  key={tag.id}
+                />
+              )
+            })}
 
-          {dexes
-            ?.filter(item => !item.tags && item.name.toLowerCase().includes(debouncedSearchText))
-            .map(({ name, logoURL, id }) => (
-              <Source key={id}>
-                <Checkbox checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />
+            {dexes
+              ?.filter(item => !item.tags && item.name.toLowerCase().includes(debouncedSearchText))
+              .map(({ name, logoURL, id }) => (
+                <Source key={id} onClick={() => handleToggleDex(id)}>
+                  <Checkbox
+                    checked={!excludeDexes.includes(id)}
+                    onChange={() => handleToggleDex(id)}
+                    onClick={e => e.stopPropagation()}
+                  />
 
-                <ImageWrapper>
-                  <img src={logoURL} alt="" />
-                </ImageWrapper>
+                  <ImageWrapper>
+                    <img src={logoURL} alt="" />
+                  </ImageWrapper>
 
-                <SourceName>{name}</SourceName>
-              </Source>
-            ))}
-        </SourceList>
-      </div>
-    </div>
+                  <SourceName>{name}</SourceName>
+                </Source>
+              ))}
+          </SourceList>
+        </Stack>
+      </Stack>
+    </Stack>
   )
 }
 

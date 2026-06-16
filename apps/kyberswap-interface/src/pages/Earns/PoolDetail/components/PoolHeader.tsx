@@ -1,17 +1,22 @@
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
 import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { shortenAddress } from '@kyber/utils/crypto'
+import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { PoolDetailToken } from 'services/zapEarn'
 
+import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import IconButton from 'components/Button/IconButton'
 import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import { APP_PATHS } from 'constants/index'
 import { NetworkInfo } from 'constants/networks/type'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -88,16 +93,11 @@ const PoolHeaderPage = () => {
   )
 
   return (
-    <>
-      <HStack className="flex-wrap items-center gap-2">
-        <button
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
-          type="button"
-          className="flex size-9 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-text hover:bg-tabActive"
-        >
+    <HStack className="w-full flex-wrap items-center justify-between gap-3">
+      <HStack className="min-w-0 flex-wrap items-center gap-2">
+        <IconButton aria-label="Go back" onClick={() => navigate(-1)} size={36}>
           <IconArrowLeft />
-        </button>
+        </IconButton>
 
         <HStack className="min-w-0 flex-wrap items-center gap-3">
           <HStack className="min-w-0 items-center gap-3">
@@ -140,7 +140,14 @@ const PoolHeaderPage = () => {
           </HStack>
         </HStack>
       </HStack>
-    </>
+
+      <NavigateButton
+        mobileFullWidth
+        icon={<RocketIcon width={20} height={20} />}
+        text={t`Explore Pools`}
+        to={APP_PATHS.EARN_POOLS}
+      />
+    </HStack>
   )
 }
 

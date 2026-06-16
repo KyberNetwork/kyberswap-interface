@@ -653,8 +653,6 @@ export default function TokenPair({
                   hideLogo
                   value={formattedAmounts[Field.LIQUIDITY]}
                   onUserInput={onLiquidityInput}
-                  onMax={null}
-                  onHalf={null}
                   disableCurrencySelect
                   currency={
                     new Token(
@@ -676,8 +674,6 @@ export default function TokenPair({
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_A]}
                     onUserInput={onCurrencyAInput}
-                    onMax={null}
-                    onHalf={null}
                     currency={currencyA}
                     label={t`Output`}
                     onCurrencySelect={() => null}
@@ -703,8 +699,6 @@ export default function TokenPair({
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_B]}
                     onUserInput={onCurrencyBInput}
-                    onMax={null}
-                    onHalf={null}
                     currency={currencyB}
                     onCurrencySelect={() => null}
                     disableCurrencySelect={true}

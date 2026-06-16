@@ -1,12 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAccount } from 'hooks/useAccount'
 import { getChainIdFromSlug } from 'utils/string'
 
 import { useChangeNetwork } from './useChangeNetwork'
+
+const getSyncedNetworkPathname = (pathname: string, networkParam: string, networkRoute: string) => {
+  const syncedPathname = pathname.replace(encodeURIComponent(networkParam), networkRoute)
+
+  if (syncedPathname.startsWith(`${APP_PATHS.SWAP}/${networkRoute}/`)) {
+    return `${APP_PATHS.SWAP}/${networkRoute}`
+  }
+
+  if (syncedPathname.startsWith(`${APP_PATHS.LIMIT}/${networkRoute}/`)) {
+    return `${APP_PATHS.LIMIT}/${networkRoute}`
+  }
+
+  return syncedPathname
+}
 
 export function useSyncNetworkParamWithStore() {
   const { network: networkParam } = useParams<{ network?: string }>()
@@ -40,7 +55,10 @@ export function useSyncNetworkParamWithStore() {
       setRequestingNetwork(networkParamKeeper.current)
       await changeNetwork(chainIdKeeper.current, undefined, () => {
         navigate(
-          { ...location, pathname: location.pathname.replace(networkParamKeeper.current, networkInfo.route) },
+          {
+            ...location,
+            pathname: getSyncedNetworkPathname(location.pathname, networkParamKeeper.current, networkInfo.route),
+          },
           { replace: true },
         )
       })
@@ -76,7 +94,7 @@ export function useSyncNetworkParamWithStore() {
       triedSync.current
     ) {
       navigate(
-        { ...location, pathname: location.pathname.replace(encodeURIComponent(networkParam), networkInfo.route) },
+        { ...location, pathname: getSyncedNetworkPathname(location.pathname, networkParam, networkInfo.route) },
         { replace: true },
       )
     }

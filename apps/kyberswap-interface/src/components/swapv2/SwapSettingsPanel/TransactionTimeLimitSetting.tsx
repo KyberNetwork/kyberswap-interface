@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
 
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { SettingsLabel, SettingsRow } from 'components/swapv2/SwapSettingsPanel/components'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useUserTransactionTTL } from 'state/user/hooks'
@@ -35,6 +35,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
   const [deadline, setDeadline] = useUserTransactionTTL()
   const [deadlineInput, setDeadlineInput] = useState(String(Math.floor(deadline / 60)))
   const inputRef = useRef<HTMLInputElement>(null)
+  const inputWrapperRef = useRef<HTMLDivElement>(null)
 
   const isValid = validateDeadlineString(deadlineInput)
 
@@ -60,30 +61,36 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
     }
   }
 
-  useOnClickOutside(inputRef, () => handleCommitChange())
+  const handleWrapperMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target !== inputRef.current) {
+      e.preventDefault()
+      inputRef.current?.focus()
+    }
+  }
+
+  useOnClickOutside(inputWrapperRef, () => handleCommitChange())
 
   useEffect(() => {
     setDeadlineInput(String(Math.floor(deadline / 60)))
   }, [deadline])
 
   return (
-    <div className={cn('flex items-center justify-between', className)}>
-      <div className="flex items-center">
-        <TextDashed fontSize={12} fontWeight={400} className="text-subText">
-          <MouseoverTooltip
-            text={
-              <span>
-                <Trans>Transaction will revert if it is pending for longer than the indicated time.</Trans>
-              </span>
-            }
-            placement="right"
-          >
-            <Trans>Transaction time limit</Trans>
-          </MouseoverTooltip>
-        </TextDashed>
-      </div>
+    <SettingsRow className={className}>
+      <SettingsLabel
+        tooltip={
+          <span>
+            <Trans>Transaction will revert if it is pending for longer than the indicated time.</Trans>
+          </span>
+        }
+      >
+        <Trans>Transaction time limit</Trans>
+      </SettingsLabel>
 
-      <div className="flex h-7 items-center gap-x-0.5 rounded-[40px] bg-tabBackground px-2 text-xs font-medium leading-4">
+      <div
+        ref={inputWrapperRef}
+        className="flex h-7 cursor-text items-center gap-x-0.5 rounded-full border border-transparent bg-tabBackground px-2 text-xs font-medium transition-colors focus-within:border-border hover:border-border"
+        onMouseDown={handleWrapperMouseDown}
+      >
         <div className="w-[60px]">
           <input
             ref={inputRef}
@@ -102,7 +109,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
           <Trans>mins</Trans>
         </span>
       </div>
-    </div>
+    </SettingsRow>
   )
 }
 

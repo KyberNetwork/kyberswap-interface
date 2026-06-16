@@ -225,18 +225,6 @@ export default function App() {
           <Header />
         </HeaderWrapper>
         <Suspense fallback={<Loader />}>
-          {/*
-            holidayMode && (
-            <Snowfall
-              speed={[0.5, 1]}
-              wind={[-0.5, 0.25]}
-              snowflakeCount={isMobile ? 13 : 31}
-              images={[snowflake]}
-              radius={[5, 15]}
-            />
-          )
-          */}
-
           <Popups />
           <BodyWrapper>
             <SingaporeWarningPopup />
@@ -265,6 +253,7 @@ export default function App() {
             )}
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
+              <Route path={APP_PATHS.SWAP} element={<RedirectPathToSwapV3Network />} />
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
               <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
@@ -273,6 +262,7 @@ export default function App() {
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
               )}
 
+              <Route path={APP_PATHS.LIMIT} element={<RedirectPathToSwapV3Network />} />
               {isSupportLimitOrder(chainId) && (
                 <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
               )}
@@ -290,9 +280,7 @@ export default function App() {
                   <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
                   <Route path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
                   */}
-
                 <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-
                 <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
               </>
 

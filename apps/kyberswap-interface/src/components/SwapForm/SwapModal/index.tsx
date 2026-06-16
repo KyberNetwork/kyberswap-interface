@@ -137,7 +137,6 @@ const SwapModal: React.FC<Props> = props => {
     if (txHash) {
       return (
         <TransactionSubmittedContent
-          showTxBanner
           chainId={chainId}
           hash={txHash}
           onDismiss={handleDismiss}

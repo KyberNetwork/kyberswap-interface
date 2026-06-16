@@ -5,19 +5,12 @@ import { useMedia } from 'react-use'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Skeleton from 'components/Skeleton'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { TextHelper } from 'components/Text'
 import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
 import { MEDIA_WIDTHS } from 'theme'
-import { formattedNum } from 'utils'
-import { cn } from 'utils/cn'
-
-export const Label: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', children, ...props }) => (
-  <div {...props} className={cn('border-b border-dashed border-border text-xs font-medium text-subText', className)}>
-    {children}
-  </div>
-)
+import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   wrapType: WrapType
@@ -64,7 +57,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       return undefined
     }
 
-    return amountOutUsd ? `${formattedNum(amountOutUsd.toString(), true)}` : undefined
+    return amountOutUsd ? formatDisplayNumber(amountOutUsd, { style: 'currency', significantDigits: 4 }) : undefined
   }
 
   return (
@@ -77,42 +70,41 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       <CurrencyInputPanel
         disabledInput
         value={routeLoading ? ' ' : getFormattedAmount()}
-        onMax={null}
-        onHalf={null}
         currency={currencyOut}
         onCurrencySelect={onChangeCurrencyOut}
         otherCurrency={currencyIn}
         id="swap-currency-output"
         dataTestId="swap-currency-output"
-        showCommonBases={true}
+        showPinnedTokens={true}
         estimatedUsd={routeLoading ? '' : getEstimatedUsd()}
         label={
-          <Label>
-            <MouseoverTooltip
-              placement="right"
-              width="200px"
-              text={
-                <span className="text-xs">
-                  {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
-                    <Trans>
-                      This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the
-                      actual output amount at the confirmation stage.
-                    </Trans>
-                  ) : (
-                    <Trans>
-                      This is the estimated output amount. Do review the actual output amount at the confirmation stage.
-                    </Trans>
-                  )}
-                </span>
-              }
-            >
-              {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
-                <Trans>Est. Output (incl. fee)</Trans>
-              ) : (
-                <Trans>Est. Output</Trans>
-              )}
-            </MouseoverTooltip>
-          </Label>
+          <TextHelper
+            placement="right"
+            tooltipWidth="200px"
+            tooltip={
+              <span className="text-xs">
+                {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+                  <Trans>
+                    This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the
+                    actual output amount at the confirmation stage.
+                  </Trans>
+                ) : (
+                  <Trans>
+                    This is the estimated output amount. Do review the actual output amount at the confirmation stage.
+                  </Trans>
+                )}
+              </span>
+            }
+            fontSize={12}
+            fontWeight={500}
+            className="text-subText"
+          >
+            {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+              <Trans>Est. Output (incl. fee)</Trans>
+            ) : (
+              <Trans>Est. Output</Trans>
+            )}
+          </TextHelper>
         }
         positionLabel="in"
         customChainId={customChainId}

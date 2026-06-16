@@ -214,10 +214,7 @@ export const MultiSelectDropdownContentItem = ({
   className,
   ...rest
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <DropdownContentItem
-    className={cn('group/multi-select-item justify-start self-stretch', className)}
-    {...rest}
-  >
+  <DropdownContentItem className={cn('group/multi-select-item justify-start self-stretch', className)} {...rest}>
     {children}
   </DropdownContentItem>
 )

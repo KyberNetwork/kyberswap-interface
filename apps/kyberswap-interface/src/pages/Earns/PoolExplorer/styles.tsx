@@ -56,7 +56,7 @@ export const StyledNavigateButton = forwardRef<HTMLDivElement, StyledNavigateBut
     <div
       ref={ref}
       className={cn(
-        'flex w-max cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-primary-20 px-4 py-2 text-sm text-text hover:brightness-110',
+        'flex w-max cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-primary-20 px-4 py-2 text-sm font-medium text-text hover:brightness-125',
         mobileFullWidth && 'max-sm:w-full',
         className,
       )}

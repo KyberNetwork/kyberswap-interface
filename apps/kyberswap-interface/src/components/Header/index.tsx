@@ -15,20 +15,16 @@ import Menu from 'components/Menu'
 import RecapButton from 'components/Recap/RecapButton'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
-import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
-const IconImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: string; alt: string }) => (
+const LogoImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: string; alt: string }) => (
   <img
     src={src}
     alt={alt}
-    className={cn(
-      'w-[140px] max-w-none max-sm:w-[114px] max-xs:w-[100px]',
-      isChristmas ? 'mt-[-9px] max-sm:-mt-0.5' : 'mt-px',
-    )}
+    className={cn('w-[140px] max-w-none max-sm:w-[100px]', isChristmas ? '-mt-3 max-sm:-mt-2' : '-mt-0.5')}
   />
 )
 
@@ -37,7 +33,6 @@ const LogoIcon = ({ children }: { children: React.ReactNode }) => (
 )
 
 export default function Header() {
-  const { networkInfo } = useActiveWeb3React()
   const [holidayMode] = useHolidayMode()
   const { isEmbeddedSwap } = usePageLocation()
 
@@ -49,7 +44,7 @@ export default function Header() {
   const hide = isEmbeddedSwap && upToLarge
 
   const menu = (
-    <div className="flex items-center gap-2 rounded-[36px] border border-background bg-background px-1.5 text-subText hover:border-primary hover:brightness-105 focus:border-primary focus:brightness-105">
+    <div className="flex items-center gap-2 rounded-[36px] border border-background bg-background px-1.5 text-subText hover:border-border-primary hover:brightness-105">
       <Announcement />
       <div style={{ height: '18px', borderLeft: '2px solid var(--ks-subText)' }} />
       <Menu />
@@ -68,23 +63,23 @@ export default function Header() {
         hide ? 'max-xs:!h-0' : 'max-xs:h-[60px]',
       )}
     >
-      <div className="flex w-fit flex-row flex-nowrap items-center justify-self-start max-md:w-full">
+      <div className="flex w-fit flex-row flex-nowrap items-center gap-3 justify-self-start max-md:w-full">
         {isEmbeddedSwap ? (
           <LogoIcon>
-            <IconImage src={'/logo-dark.svg'} alt="logo" />
+            <LogoImage src={'/logo-dark.svg'} alt="logo" />
           </LogoIcon>
         ) : (
           <Link
-            to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
-            className="mr-3 flex cursor-pointer items-center justify-self-start hover:cursor-pointer max-sm:justify-self-center"
+            to="/"
+            className="flex cursor-pointer items-center justify-self-start hover:cursor-pointer max-sm:justify-self-center"
           >
             {holidayMode ? (
               <LogoIcon>
-                <IconImage isChristmas src={'/christmas-logo-dark.svg?'} alt="logo" />
+                <LogoImage isChristmas src={'/christmas-logo-dark.svg?'} alt="logo" />
               </LogoIcon>
             ) : (
               <LogoIcon>
-                <IconImage src={'/logo-dark.svg'} alt="logo" />
+                <LogoImage src={'/logo-dark.svg'} alt="logo" />
               </LogoIcon>
             )}
           </Link>
@@ -125,7 +120,7 @@ export default function Header() {
           <div className="flex w-full justify-between">
             {upToLarge && (
               <LogoIcon>
-                <IconImage src={'/logo-dark.svg'} alt="logo" />
+                <LogoImage src={'/logo-dark.svg'} alt="logo" />
               </LogoIcon>
             )}
 

@@ -2,16 +2,15 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
 import { ArrowDown } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 
-import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
+import Skeleton from 'components/Skeleton'
+import { Stack } from 'components/Stack'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import UpdatedBadge, { Props as UpdatedBadgeProps } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
 import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
-import { formattedNum } from 'utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   inputAmount: CurrencyAmount<Currency>
@@ -33,22 +32,12 @@ export default function SwapBrief({
   isLoading,
   currencyOut,
 }: Props) {
-  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { typedValue } = useSwapFormContext()
 
   const renderOutputAmount = () => {
     if (isLoading) {
-      return (
-        <Skeleton
-          width="108px"
-          // there's border of 1px
-          height="26.5px"
-          baseColor={theme.border}
-          highlightColor={theme.buttonGray}
-          borderRadius="80px"
-        />
-      )
+      return <Skeleton width="160px" height="32px" variant="darkSubtle" />
     }
 
     if (!outputAmountFromBuild) {
@@ -64,27 +53,22 @@ export default function SwapBrief({
 
   const renderAmountOutUsd = () => {
     if (isLoading) {
-      return (
-        <Skeleton
-          width="64px"
-          // there's border of 1px
-          height="15px"
-          baseColor={theme.border}
-          highlightColor={theme.buttonGray}
-          borderRadius="80px"
-        />
-      )
+      return <Skeleton width="60px" height="20px" variant="darkSubtle" />
     }
 
     if (!amountOutUsdFromBuild) {
       return <span className="text-sm font-medium text-subText">--</span>
     }
 
-    return <span className="text-sm font-medium text-subText">~{formattedNum(amountOutUsdFromBuild, true)}</span>
+    return (
+      <span className="text-sm font-medium text-subText">
+        ~{formatDisplayNumber(amountOutUsdFromBuild, { style: 'currency', significantDigits: 4 })}
+      </span>
+    )
   }
 
   return (
-    <AutoColumn className="relative mt-1 min-w-0 gap-2">
+    <Stack className="min-w-0">
       <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
         <span className="text-xs font-medium text-subText">
           <Trans>Input Amount</Trans>
@@ -92,14 +76,16 @@ export default function SwapBrief({
         <div className="flex w-full items-center justify-between gap-2">
           <span className="min-w-0 flex-1 truncate text-2xl font-medium">{typedValue}</span>
           <div className="flex min-w-fit items-center gap-2">
-            <span className="text-sm font-medium text-subText">~{formattedNum(amountInUsd, true)}</span>
+            <span className="text-sm font-medium text-subText">
+              ~{formatDisplayNumber(amountInUsd, { style: 'currency', significantDigits: 4 })}
+            </span>
             <CurrencyLogo currency={inputAmount.currency} size="24px" />
             <span className="text-xl font-medium text-subText">{inputAmount.currency.symbol}</span>
           </div>
         </div>
       </div>
 
-      <div className="absolute left-1/2 top-[calc(76px-6px)] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border border-solid border-border bg-buttonGray">
+      <div className="z-[1] my-[-6px] flex size-5 items-center justify-center self-center rounded-full border border-solid border-border bg-buttonGray">
         <ArrowDown size="12" className="text-subText" />
       </div>
 
@@ -123,6 +109,6 @@ export default function SwapBrief({
           </div>
         </div>
       </div>
-    </AutoColumn>
+    </Stack>
   )
 }
