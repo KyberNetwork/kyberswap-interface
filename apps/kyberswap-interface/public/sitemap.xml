@@ -1,18 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://kyberswap.com/</loc>
+    <loc>https://kyberswap.com</loc>
   </url>
   <url>
-    <loc>https://kyberswap.com/about/kyberswap</loc>
+    <loc>https://kyberswap.com/swap</loc>
   </url>
   <url>
-    <loc>https://kyberswap.com/swap/ethereum</loc>
+    <loc>https://kyberswap.com/limit</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/cross-chain</loc>
   </url>
   <url>
     <loc>https://kyberswap.com/earn</loc>
   </url>
   <url>
     <loc>https://kyberswap.com/earn/pools</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/earn/positions</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/earn/smart-exit</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/market-overview</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/campaigns</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/stake-knc</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/vote</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/knc-utility</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/about/kyberswap</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/about/knc</loc>
   </url>
 </urlset>

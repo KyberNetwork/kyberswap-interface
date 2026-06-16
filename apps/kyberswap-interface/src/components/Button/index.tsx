@@ -235,7 +235,7 @@ const buildBase = (variantClass: ButtonVariantClass, displayName: string) => {
 export const ButtonPrimary = buildBase(
   (props: ButtonProps) =>
     cn(
-      'bg-primary text-textReverse active:shadow-[0_0_0_1pt_var(--ks-primary)] active:brightness-90',
+      'bg-primary text-textReverse hover:text-textReverse active:shadow-[0_0_0_1pt_var(--ks-primary)] active:brightness-90',
       'disabled:!bg-buttonGray disabled:text-border disabled:!shadow-none',
       props.altDisabledStyle && 'disabled:!bg-primary disabled:!text-textReverse disabled:!opacity-50',
       props.$disabled && '!bg-buttonGray text-border !shadow-none',
