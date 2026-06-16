@@ -22,6 +22,10 @@ const IMG_TTL_MS = 31_536_000_000; // 1 year
 // 40 hex = a v2/v3 pool address; 64 hex = a Uniswap v4 pool id (keccak of the PoolKey).
 const ADDRESS_RE = /^0x([0-9a-f]{40}|[0-9a-f]{64})$/;
 const EXCHANGE_RE = /^[a-z0-9_-]{1,60}$/;
+// These are TEMPLATES, never passed straight to `new Response`: @hono/node-server MUTATES the headers
+// object it's given, stamping `Content-Length` onto it. A module-level object reused across responses
+// would keep the FIRST response's Content-Length, so a later, larger body gets under-declared and is
+// truncated on the wire. Always spread into a fresh object per response (see pngResponse/htmlResponse).
 const PNG_HEADERS = { 'content-type': 'image/png', 'cache-control': 'public, max-age=31536000, immutable' };
 const HTML_HEADERS = {
   'content-type': 'text/html; charset=utf-8',
@@ -32,12 +36,16 @@ const HTML_HEADERS = {
   'x-frame-options': 'SAMEORIGIN',
 };
 
+function pngResponse(buf: Buffer): Response {
+  return new Response(buf, { headers: { ...PNG_HEADERS } });
+}
+
 // Send HTML as a Buffer (not a string) so Content-Length is the exact UTF-8 byte count. A string body whose
 // length is counted by character under-counts multi-byte chars (e.g. the '→' in a swap/limit title), so the
 // declared Content-Length doesn't match the bytes on the wire and the edge resets the HTTP/2 stream
 // (RST_STREAM / INTERNAL_ERROR) — crawlers then see a truncated PARTIAL_FILE response.
 function htmlResponse(html: string): Response {
-  return new Response(Buffer.from(html, 'utf8'), { headers: HTML_HEADERS });
+  return new Response(Buffer.from(html, 'utf8'), { headers: { ...HTML_HEADERS } });
 }
 
 // ---- default (fallback) card ----
@@ -86,7 +94,7 @@ async function ogSwapImage(url: URL, kind: 'swap' | 'limit'): Promise<Response> 
 
   const cacheKey = `img:${kind}:${slug}:${inId}:${outId}`;
   const hit = cache.get<Buffer>(cacheKey);
-  if (hit) return new Response(hit, { headers: PNG_HEADERS });
+  if (hit) return pngResponse(hit);
 
   const [inTok, outTok] = await Promise.all([
     inId ? resolveToken(chain.chainId, inId, chain.nativeSymbol) : Promise.resolve(null),
@@ -99,9 +107,11 @@ async function ogSwapImage(url: URL, kind: 'swap' | 'limit'): Promise<Response> 
 
   try {
     const png = await renderSwapOg({ inToken: inTok, outToken: outTok, networkName: chain.name, kind });
-    cache.set(cacheKey, png, IMG_TTL_MS);
+    // Cache a standalone copy of the resvg-returned native buffer — cheap insurance for a long-lived
+    // cache entry against the addon ever reusing its output memory across renders.
+    cache.set(cacheKey, Buffer.from(png), IMG_TTL_MS);
     console.log(`[og] /og/${kind} chain=${slug} in=${inId || '-'} out=${outId || '-'} -> rendered`);
-    return new Response(png, { headers: PNG_HEADERS });
+    return pngResponse(png);
   } catch {
     return defaultImage();
   }
@@ -116,7 +126,7 @@ async function ogPoolImage(url: URL): Promise<Response> {
 
   const cacheKey = `img:pool:${slug}:${address}:${protocol}`;
   const hit = cache.get<Buffer>(cacheKey);
-  if (hit) return new Response(hit, { headers: PNG_HEADERS });
+  if (hit) return pngResponse(hit);
 
   const pool = await resolvePool(chain.chainId, address, protocol);
   if (!pool) {
@@ -133,9 +143,10 @@ async function ogPoolImage(url: URL): Promise<Response> {
       networkName: chain.name,
       feeTier: pool.feeTier,
     });
-    cache.set(cacheKey, png, IMG_TTL_MS);
+    // Cache a standalone copy of the native buffer (see ogSwapImage).
+    cache.set(cacheKey, Buffer.from(png), IMG_TTL_MS);
     console.log(`[og] /og/pool chain=${slug} address=${address} protocol=${protocol || '-'} -> rendered`);
-    return new Response(png, { headers: PNG_HEADERS });
+    return pngResponse(png);
   } catch {
     return defaultImage();
   }

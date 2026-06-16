@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import satori from 'satori';
 import { html as toVNode } from 'satori-html';
 
+import { cache } from '@/cache';
 import { STATIC_DIR } from '@/config';
 import { BROWSER_UA, readBoundedArrayBuffer } from '@/constants';
 import { FONT_FAMILY, loadFont } from '@/font';
@@ -31,6 +32,8 @@ const FALLBACK_CIRCLE = '#2A2A2A';
 const WIDTH = 1200;
 const HEIGHT = 630;
 const LOGO_SIZE = 180;
+const LOGO_RENDER_W = LOGO_SIZE * 2; // rasterize token logos at 2x display size for retina crispness
+const LOGO_CACHE_TTL_MS = 86_400_000; // 1 day — hot logos (USDC/ETH) recur across many pairs
 const BRAND_LOGO_W = 160;
 const BRAND_LOGO_H = 53; // logo-dark.svg viewBox is 160x53
 
@@ -94,10 +97,39 @@ function isSafeLogoUrl(url: string): boolean {
   return true;
 }
 
+// Re-rasterize a validated PNG/JPEG logo (data URI) down to LOGO_RENDER_W via resvg. A heavy source
+// (e.g. the ~157KB native-ETH logo) otherwise bloats the satori SVG and balloons render time, because
+// satori decodes embedded rasters in JS. resvg decodes it once here (native, fast) and emits a small
+// PNG. On any failure, returns the input unchanged — it still renders, just heavier.
+function downscaleLogoDataUri(dataUri: string): string {
+  try {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${LOGO_RENDER_W}" height="${LOGO_RENDER_W}"><image href="${dataUri}" width="${LOGO_RENDER_W}" height="${LOGO_RENDER_W}" preserveAspectRatio="none"/></svg>`;
+    const png = new Resvg(svg, { fitTo: { mode: 'width', value: LOGO_RENDER_W } }).render().asPng();
+    return `data:image/png;base64,${png.toString('base64')}`;
+  } catch {
+    return dataUri;
+  }
+}
+
+// Resolve a token's logo to a small embeddable PNG data URI: fetch (hardened) -> downscale -> cache by
+// URL (the resize is the new per-render cost, so memoize hot logos like USDC/ETH). Null if unavailable.
+async function fetchLogoDataUri(url: string | undefined): Promise<string | null> {
+  if (!url) return null;
+  const cacheKey = `logo:${url}`;
+  const cached = cache.get<string>(cacheKey);
+  if (cached) return cached;
+
+  const raw = await fetchRawLogoDataUri(url);
+  if (!raw) return null;
+  const small = downscaleLogoDataUri(raw);
+  cache.set(cacheKey, small, LOGO_CACHE_TTL_MS);
+  return small;
+}
+
 // Satori can't fetch remote <img> reliably, so inline the bytes as a base64 data URI. Hardened:
 // browser UA (CDNs 403 bare fetches), PNG/JPEG only, size-bounded, timeout, and — crucially for an
 // origin deployment — `redirect: 'manual'` so a vetted host can't 302 us to an internal IP (SSRF).
-async function fetchLogoDataUri(url: string | undefined): Promise<string | null> {
+async function fetchRawLogoDataUri(url: string | undefined): Promise<string | null> {
   if (!url) return null;
   if (url.startsWith('data:')) return url.length <= MAX_DATA_URI_LEN && DATA_URI_RE.test(url) ? url : null;
   if (!isSafeLogoUrl(url)) return null;
@@ -268,7 +300,7 @@ export async function renderPoolOg(input: PoolOgInput): Promise<Buffer> {
   ]);
 
   const feeText = typeof feeTier === 'number' ? ` · ${formatFeeTier(feeTier)}% fee` : '';
-  const caption = `Provide liquidity & earn${feeText} on KyberSwap — across 20+ chains`;
+  const caption = `Provide liquidity & earn${feeText} on KyberSwap`;
   const center = `${tokenBlock(logos[0], token0.symbol)}${SLASH}${tokenBlock(logos[1], token1.symbol)}`;
 
   return renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
