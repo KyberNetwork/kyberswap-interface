@@ -2,7 +2,7 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react'
 // import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 // import { clusterApiUrl } from '@solana/web3.js'
-import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { ComponentProps, FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
 import { SOLANA_RPC } from 'constants/env'
 import { SOLANA_NATIVE } from 'constants/index'
@@ -12,6 +12,14 @@ interface SolanaProviderProps {
   children: ReactNode
 }
 
+// Stable module-level references. ConnectionProvider memoizes `new Connection(endpoint, config)` keyed on
+// `config`; the library's default config is a fresh `{ commitment: 'confirmed' }` object each render, which
+// regenerated the Connection on every re-render. Once this provider moved into the cross-chain route subtree
+// (which re-renders on every quote tick), that churned `connection` and re-fired the rate-quote refetch in a
+// loop. Passing constant `config`/`wallets` keeps `connection` (and the wallet adapters) referentially stable.
+const SOLANA_CONNECTION_CONFIG: ComponentProps<typeof ConnectionProvider>['config'] = { commitment: 'confirmed' }
+const SOLANA_WALLETS: ComponentProps<typeof WalletProvider>['wallets'] = []
+
 export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
   // const network = WalletAdapterNetwork.Mainnet
 
@@ -19,8 +27,8 @@ export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
   // const endpoint = useMemo(() => clusterApiUrl(network), [network])
 
   return (
-    <ConnectionProvider endpoint={SOLANA_RPC}>
-      <WalletProvider wallets={[]} autoConnect>
+    <ConnectionProvider endpoint={SOLANA_RPC} config={SOLANA_CONNECTION_CONFIG}>
+      <WalletProvider wallets={SOLANA_WALLETS} autoConnect>
         <SolanaConnectModalProvider>
           <SolanaTokenBalances>{children}</SolanaTokenBalances>
         </SolanaConnectModalProvider>

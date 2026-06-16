@@ -21,9 +21,6 @@ import 'tailwind.css'
 
 import DeferredFormoProvider from 'components/Analytics/DeferredFormoProvider'
 import Web3Provider from 'components/Web3Provider'
-import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
-import NEARWalletProvider from 'components/Web3Provider/NearProvider'
-import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
 import { ENV_LEVEL, GTM_ID } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { useAffiliate } from 'hooks/useAffiliate'
@@ -102,16 +99,10 @@ const ReactApp = () => {
           <BrowserRouter>
             <LanguageProvider>
               <Web3Provider>
-                <BitcoinWalletProvider>
-                  <NEARWalletProvider>
-                    <Updaters />
-                    <ThemeProvider>
-                      <SolanaProvider>
-                        <App />
-                      </SolanaProvider>
-                    </ThemeProvider>
-                  </NEARWalletProvider>
-                </BitcoinWalletProvider>
+                <Updaters />
+                <ThemeProvider>
+                  <App />
+                </ThemeProvider>
               </Web3Provider>
             </LanguageProvider>
           </BrowserRouter>

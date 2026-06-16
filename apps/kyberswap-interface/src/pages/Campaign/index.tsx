@@ -5,6 +5,7 @@ import { useMedia } from 'react-use'
 
 import { ButtonPrimary } from 'components/Button'
 import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
+import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import CampaignStats from 'pages/Campaign/components/CampaignStats'
@@ -43,7 +44,7 @@ const CAMPAIGN_TYPE_BY_PATHNAME: Record<string, CampaignType> = {
   [APP_PATHS.REFFERAL_CAMPAIGN]: CampaignType.Referrals,
 }
 
-export default function CampaignPage() {
+function CampaignPageContent() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -283,5 +284,13 @@ export default function CampaignPage() {
         />
       )}
     </Wrapper>
+  )
+}
+
+export default function CampaignPage() {
+  return (
+    <NonEvmProviders>
+      <CampaignPageContent />
+    </NonEvmProviders>
   )
 }
