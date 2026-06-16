@@ -139,7 +139,9 @@ function fontsOption(font700: Buffer | null, font400: Buffer | null): SatoriFont
   return fonts;
 }
 
-const ARROW = `<div style="display:flex;align-items:center;justify-content:center;font-size:88px;color:${GREEN};margin:0 16px">→</div>`;
+// Right-arrow as inline SVG (not the '→' glyph) so it renders regardless of whether the brand font
+// (Work Sans) includes U+2192 — Latin text fonts often omit arrows.
+const ARROW = `<svg width="88" height="88" viewBox="0 0 24 24" fill="none" style="margin:0 8px"><path d="M5 12h14M13 6l6 6-6 6" stroke="${GREEN}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const SLASH = `<div style="display:flex;align-items:center;justify-content:center;font-size:72px;color:${GREEN};margin:0 24px">/</div>`;
 
 // Cap concurrent renders: satori + resvg rasterization is synchronous CPU work that blocks the Node event

@@ -1,5 +1,5 @@
 // Font loading for Satori (which requires at least one real TTF/OTF). Prefers a bundled font on disk
-// (FONT_DIR/Inter-<weight>.ttf — recommended for prod, no runtime dependency); otherwise fetches the
+// (FONT_DIR/WorkSans-<weight>.ttf — recommended for prod, no runtime dependency); otherwise fetches the
 // weight from Google Fonts once and LRU-caches the binary. Memoized per weight.
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -7,7 +7,10 @@ import { join } from 'node:path';
 import { cache } from '@/cache';
 import { FONT_DIR } from '@/config';
 
-const FONT_FAMILY = 'Inter';
+// Satori font name — matches the KyberSwap interface (tailwind `sans` + index.html body use Work Sans).
+const FONT_FAMILY = 'Work Sans';
+// Bundled file base (no space in the filename): fonts/WorkSans-<weight>.ttf.
+const FONT_FILE_BASE = 'WorkSans';
 const FONT_TTL_MS = 31_536_000_000; // 1 year
 const FONT_FETCH_TIMEOUT_MS = 2000;
 
@@ -20,7 +23,9 @@ async function fromDisk(weight: number): Promise<Buffer | null> {
   if (!FONT_DIR) return null;
   // Prefer a static per-weight file; fall back to a single variable font (`Inter.ttf`) used for both
   // weights (Satori applies the requested weight via the font's wght axis).
-  for (const name of [`${FONT_FAMILY}-${weight}.ttf`, `${FONT_FAMILY}.ttf`]) {
+  // Inter-<weight>.ttf is the legacy bundled fallback — kept until the static Work Sans TTFs are dropped
+  // into fonts/, so a build without the Work Sans files still ships a real font (no runtime Google fetch).
+  for (const name of [`${FONT_FILE_BASE}-${weight}.ttf`, `Inter-${weight}.ttf`, `${FONT_FILE_BASE}.ttf`]) {
     try {
       return await readFile(join(FONT_DIR, name));
     } catch {
