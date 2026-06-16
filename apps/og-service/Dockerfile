@@ -1,5 +1,12 @@
 # OG + head-injection service. Runs the TypeScript directly via tsx (no separate build step).
 # Debian-slim (glibc) so @resvg/resvg-js uses its prebuilt linux-x64-gnu binary (no native toolchain).
+
+# Source of the built interface that gets baked into /app/static below — a prebuilt interface image
+# whose /var/www IS the interface `build/` output (index.html + prerendered route HTML + og-image).
+# Override at build time: --build-arg INTERFACE_IMAGE=asia.gcr.io/kyber-operation/core/kyberswap-interface:<tag>
+ARG INTERFACE_IMAGE=asia.gcr.io/kyber-operation/core/kyberswap-interface:latest
+FROM ${INTERFACE_IMAGE} AS webdist
+
 FROM node:22-slim
 
 # pnpm via corepack, pinned to match the committed pnpm-lock.yaml.
@@ -19,9 +26,10 @@ COPY src ./src
 # service would fall back to fetching Google Fonts, which no longer serves the TTF Satori needs.
 COPY fonts ./fonts
 
-# The built interface (index.html + prerendered route HTML + kyberswap-og-image.png) must be present
-# at /app/static at runtime — config.ts auto-detects it there. Mount it as a volume, or bake it in with
-# a build stage, e.g.: COPY --from=<interface-build-stage> .../build /app/static
+# Bake the prebuilt interface into /app/static (config.ts auto-detects it there) so the head-injection
+# routes /swap, /limit, /pools serve the prerendered HTML. The interface image's /var/www is its build/ output.
+COPY --from=webdist /var/www ./static
+
 ENV NODE_ENV=production \
     PUBLIC_BASE=https://kyberswap.com
 
