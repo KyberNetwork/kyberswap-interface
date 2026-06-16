@@ -13,7 +13,7 @@ import Pagination from 'components/Pagination'
 import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
-import EditOrderModal from 'components/swapv2/LimitOrder/EditOrderModal'
+import EditOrderModal from 'components/swapv2/LimitOrder/EditOrder/EditOrderModal'
 import OrderItem from 'components/swapv2/LimitOrder/ListOrder/OrderItem'
 import TabSelector from 'components/swapv2/LimitOrder/ListOrder/TabSelector'
 import TableHeader from 'components/swapv2/LimitOrder/ListOrder/TableHeader'
@@ -27,8 +27,8 @@ import {
   getPayloadTracking,
   isActiveStatus,
 } from 'components/swapv2/LimitOrder/helpers'
+import useCancellingOrders from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
-import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'

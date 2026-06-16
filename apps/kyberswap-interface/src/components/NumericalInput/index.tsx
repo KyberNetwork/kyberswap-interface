@@ -65,7 +65,7 @@ export const Input = function InnerInput({
       className={cn(
         'relative w-0 flex-1 truncate border-none bg-buttonBlack p-0 text-2xl font-medium outline-none placeholder:text-text4',
         '[-webkit-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-search-decoration]:appearance-none',
-        error ? 'text-red1' : disabled ? 'cursor-not-allowed text-disableText opacity-100' : 'text-text',
+        error ? 'text-red1' : disabled ? 'cursor-auto text-disableText opacity-100' : 'text-text',
         className,
       )}
       style={inline}

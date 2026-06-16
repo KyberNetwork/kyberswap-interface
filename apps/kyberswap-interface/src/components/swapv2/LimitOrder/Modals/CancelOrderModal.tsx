@@ -9,8 +9,10 @@ import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from 'components/swapv2/LimitOrder/Modals/styled'
 import { calcPercentFilledOrder, formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
+import useAllActiveOrders, {
+  useIsSupportSoftCancelOrder,
+} from 'components/swapv2/LimitOrder/hooks/useFetchActiveAllOrders'
 import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
-import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { NativeCurrencies } from 'constants/tokens'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'

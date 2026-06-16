@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 
 import InfoHelper from 'components/InfoHelper'
-import { Label } from 'components/swapv2/LimitOrder/LimitOrderForm'
+import { Label } from 'components/swapv2/LimitOrder/Form/LimitOrderForm'
 import { RateInfo } from 'components/swapv2/LimitOrder/type'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'

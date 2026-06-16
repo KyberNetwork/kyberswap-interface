@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useGetLOConfigQuery } from 'services/limitOrder'
 
+import { isActiveStatus } from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { OrderNonces, subscribeCancellingOrders } from 'utils/firebase'
-
-import { isActiveStatus } from './helpers'
-import { LimitOrder, LimitOrderStatus } from './type'
 
 export type CancellingOrderInfo = {
   loading: boolean

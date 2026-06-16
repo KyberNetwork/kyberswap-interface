@@ -8,11 +8,8 @@ import { LimitOrderStatus } from './type'
 
 export const DEFAULT_EXPIRED = 36500 * TIMES_IN_SECS.ONE_DAY
 
-export const MIN_TIME_MINUTES = 5
-
 export const getExpireOptions = () =>
   [
-    // MIN_TIME_MINUTES * TIMES_IN_SECS.ONE_MIN,
     // 10 * TIMES_IN_SECS.ONE_MIN,
     // 30 * TIMES_IN_SECS.ONE_MIN,
     TIMES_IN_SECS.ONE_HOUR,

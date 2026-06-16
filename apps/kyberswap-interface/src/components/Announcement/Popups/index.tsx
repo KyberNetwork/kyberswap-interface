@@ -6,7 +6,7 @@ import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
 import TopRightPopup from 'components/Announcement/Popups/TopRightPopup'
 import { PopupType, PrivateAnnouncementType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
-import useNotificationLimitOrder from 'components/swapv2/LimitOrder/useNotificationLimitOrder'
+import useNotificationLimitOrder from 'components/swapv2/LimitOrder/hooks/useNotificationLimitOrder'
 import { TIMES_IN_SECS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import {

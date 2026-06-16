@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 
-import { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
+import { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/Form/DeltaRate'
 import {
   BETTER_PRICE_DIFF_THRESHOLD,
   USD_THRESHOLD,

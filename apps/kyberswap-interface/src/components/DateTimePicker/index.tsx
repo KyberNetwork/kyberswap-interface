@@ -7,8 +7,19 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import DatePicker from 'components/DatePicker'
 import Modal from 'components/Modal'
 import Select, { SelectProps } from 'components/Select'
-import { MIN_TIME_MINUTES, getExpireOptions } from 'components/swapv2/LimitOrder/const'
+import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { formatTimeDuration } from 'utils/time'
+
+const MIN_TIME_MINUTES = 5
+
+const DEFAULT_OPTIONS = [
+  TIMES_IN_SECS.ONE_HOUR,
+  TIMES_IN_SECS.ONE_DAY,
+  7 * TIMES_IN_SECS.ONE_DAY,
+  30 * TIMES_IN_SECS.ONE_DAY,
+  36500 * TIMES_IN_SECS.ONE_DAY,
+].map(e => ({ value: e, label: formatTimeDuration(e) }))
 
 const HOURS = Array.from({ length: 24 }, (_, i) => ({ label: i, value: i }))
 const MINS = Array.from({ length: 60 }, (_, i) => ({ label: i, value: i }))
@@ -131,7 +142,7 @@ export default function DateTimePicker({
             <span className="text-border">
               <Trans>Default Options</Trans>
             </span>
-            {(defaultOptions || getExpireOptions()).map(opt => (
+            {(defaultOptions || DEFAULT_OPTIONS).map(opt => (
               <span
                 key={opt.value}
                 className="cursor-pointer"
