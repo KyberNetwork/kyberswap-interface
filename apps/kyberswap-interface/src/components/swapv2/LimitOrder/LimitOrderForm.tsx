@@ -995,7 +995,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           <ArrowRotate
             rotate={rotate}
             onClick={isEdit ? undefined : handleRotateClick}
-            className="size-[25px] bg-buttonGray p-1"
+            className="size-7 bg-buttonGray p-1"
           />
         </RowBetween>
 

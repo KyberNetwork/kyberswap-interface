@@ -1,11 +1,13 @@
 import { useState } from 'react'
 
 import ArrowRotate from 'components/ArrowRotate'
+import { cn } from 'utils/cn'
 
 type Props = {
+  className?: string
   onClick: () => void
 }
-const ReverseTokenSelectionButton: React.FC<Props> = ({ onClick }) => {
+const ReverseTokenSelectionButton: React.FC<Props> = ({ className, onClick }) => {
   const [rotated, setRotated] = useState(false)
 
   const handleClick = () => {
@@ -14,9 +16,11 @@ const ReverseTokenSelectionButton: React.FC<Props> = ({ onClick }) => {
   }
 
   return (
-    <div className="z-20 mx-auto my-[-18px]">
-      <ArrowRotate rotate={rotated} onClick={handleClick} className="size-7 bg-background p-1" />
-    </div>
+    <ArrowRotate
+      rotate={rotated}
+      onClick={handleClick}
+      className={cn('mx-auto size-7 bg-background p-1 hover:bg-buttonGray', className)}
+    />
   )
 }
 

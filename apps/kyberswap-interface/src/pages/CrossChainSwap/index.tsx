@@ -199,7 +199,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
             ) : selectedQuote && toChainId ? (
               <div
                 role="button"
-                className="flex cursor-pointer flex-wrap items-center gap-1"
+                className="flex cursor-pointer flex-wrap items-center gap-1 hover:brightness-[0.85]"
                 onClick={() => setRevertPrice(!revertPrice)}
               >
                 1{' '}
@@ -279,9 +279,9 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
 
       <AutoColumn className="gap-3">
         <AutoColumn className="gap-2">
-          <div className="flex items-center justify-between px-2 text-xs text-subText">
+          <div className="flex items-center justify-between text-xs text-subText">
             <div
-              className="flex cursor-pointer items-center gap-1"
+              className="flex cursor-pointer items-center gap-1 hover:brightness-125"
               role="button"
               onClick={() => {
                 if (isEvmChain(fromChainId) && isToEvm) {
@@ -292,7 +292,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
                 }
               }}
             >
-              <span>
+              <span className="font-medium">
                 {isEvmChain(fromChainId) && isToEvm ? (
                   <Trans>Send to other wallet</Trans>
                 ) : (
@@ -301,7 +301,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
               </span>
               {isEvmChain(fromChainId) &&
                 isToEvm &&
-                (showEvmRecipient ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
+                (showEvmRecipient ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
             </div>
 
             {toChainId && (isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (

@@ -47,7 +47,7 @@ export default function Header({
                 Gasless & no slippage - Kyberswap Limit Order execute on-chain automatically when the market reaches
                 your price.
               </HiddenH2>
-              <span className="text-xs text-subText">{t`Buy or sell tokens at customized prices`}</span>
+              <span className="text-xs font-medium text-subText">{t`Buy or sell tokens at customized prices`}</span>
             </>
           )}
           {isSwapPage && (
@@ -57,7 +57,7 @@ export default function Header({
                 An advanced aggregator splits your trade across hundreds of DEXs and liquidity sources for minimal
                 slippage.
               </HiddenH2>
-              <span className="text-xs text-subText">{t`Instantly buy or sell tokens at superior prices`}</span>
+              <span className="text-xs font-medium text-subText">{t`Instantly buy or sell tokens at superior prices`}</span>
             </>
           )}
           {isCrossChainPage && (
@@ -66,7 +66,7 @@ export default function Header({
                 Swap tokens between EVMs, Bitcoin, Solana, and Near chains in one step - no manual bridging.
               </HiddenH1>
               <HiddenH2>Quotes from multiple providers, best rate picked automatically.</HiddenH2>
-              <span className="text-xs text-subText">{t`Swap between tokens on different chains`}</span>
+              <span className="text-xs font-medium text-subText">{t`Swap between tokens on different chains`}</span>
             </>
           )}
         </HStack>

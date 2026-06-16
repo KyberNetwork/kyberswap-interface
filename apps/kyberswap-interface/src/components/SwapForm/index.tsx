@@ -274,6 +274,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               />
 
               <ReverseTokenSelectionButton
+                className="z-20 -my-4"
                 onClick={() => {
                   trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
                     from_token: currencyIn?.symbol,
