@@ -29,11 +29,7 @@ type AddLiquidityRoutePreviewProps = {
 
 const PreviewAssetItems = ({ items }: { items: RouteTokenItem[] }) => {
   if (!items.length) {
-    return (
-      <div className="h-[17px]">
-        <Skeleton width={160} height={17} />
-      </div>
-    )
+    return <Skeleton width={160} height={20} />
   }
 
   return (
