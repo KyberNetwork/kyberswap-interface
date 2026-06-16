@@ -147,7 +147,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
           )}
 
           {showActiveApr ? (
-            <div className="flex flex-wrap items-baseline gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-base font-medium text-text">Active APR</span>
               <div className="flex items-center gap-1">
                 <FarmingMarker programs={programs} />
