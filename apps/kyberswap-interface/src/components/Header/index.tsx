@@ -70,7 +70,7 @@ export default function Header() {
           </LogoIcon>
         ) : (
           <Link
-            to='/'
+            to="/"
             className="flex cursor-pointer items-center justify-self-start hover:cursor-pointer max-sm:justify-self-center"
           >
             {holidayMode ? (
