@@ -6,7 +6,6 @@ import { isMobile } from 'react-device-detect'
 
 import { cn } from 'utils/cn'
 
-
 const AnimatedDialogOverlay = motion.create(DialogOverlay)
 const AnimatedDialogContent = motion.create(DialogContent)
 
