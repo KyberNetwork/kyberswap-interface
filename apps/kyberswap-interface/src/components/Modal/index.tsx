@@ -6,8 +6,9 @@ import { isMobile } from 'react-device-detect'
 
 import { cn } from 'utils/cn'
 
-const AnimatedDialogOverlay = motion(DialogOverlay)
-const AnimatedDialogContent = motion(DialogContent)
+
+const AnimatedDialogOverlay = motion.create(DialogOverlay)
+const AnimatedDialogContent = motion.create(DialogContent)
 
 export interface ModalProps {
   isOpen: boolean
@@ -62,13 +63,6 @@ export default function Modal({
   bypassFocusLock = false,
   mobileFullWidth = false,
 }: ModalProps) {
-  const animateValues = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: 0 },
-    transition: { duration: transition ? 0.2 : 0 },
-  }
-
   const handleDrag = useCallback(
     (e: any, info: any) => {
       if (info.offset.y > 500 || info.velocity.y > 2000) {
@@ -110,7 +104,7 @@ export default function Modal({
           dangerouslyBypassFocusLock={bypassFocusLock}
           className="ks-dialog-overlay"
           style={overlayStyle}
-          {...animateValues}
+          data-no-transition={transition ? 'false' : 'true'}
         >
           <AnimatedDialogContent
             drag={isMobile && enableSwipeGesture && 'y'}
@@ -124,7 +118,6 @@ export default function Modal({
             data-has-explicit-radius={hasExplicitBorderRadius ? 'true' : 'false'}
             data-mobile={isMobile ? 'true' : 'false'}
             data-mobile-full-width={mobileFullWidth ? 'true' : 'false'}
-            {...animateValues}
           >
             {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
             {!enableInitialFocusInput && isMobile ? <div tabIndex={1} /> : null}
