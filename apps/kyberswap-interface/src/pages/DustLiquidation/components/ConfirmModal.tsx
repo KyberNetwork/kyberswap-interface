@@ -1,8 +1,7 @@
 import { Trans } from '@lingui/macro'
+import { HTMLAttributes } from 'react'
 import { CheckCircle } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { DustSwapRouteApiResponse } from 'services/dustSwap'
-import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
@@ -11,70 +10,49 @@ import { useActiveWeb3React } from 'hooks'
 import { useDustLiquidationState } from 'state/dustLiquidation/hooks'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import useDustExecute from '../hooks/useDustExecute'
 
-const Wrapper = styled.div`
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-`
+const Wrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col gap-4 p-5', className)} {...rest} />
+)
 
-const Title = styled.h2`
-  margin: 0;
-  font-size: 18px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
+const Title = ({ className, ...rest }: HTMLAttributes<HTMLHeadingElement>) => (
+  <h2 className={cn('m-0 text-[18px] font-medium text-text', className)} {...rest} />
+)
 
-const Summary = styled.div`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 12px;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
-`
+const Summary = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-1.5 rounded-xl bg-buttonBlack px-4 py-3 text-[13px]', className)} {...rest} />
+)
 
-const Row = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: ${({ theme }) => theme.subText};
-`
+const Row = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex justify-between text-subText', className)} {...rest} />
+)
 
-const Strong = styled.span`
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
+const Strong = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('font-medium text-text', className)} {...rest} />
+)
 
-const StatusBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 0;
-  text-align: center;
-`
+const StatusBox = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col items-center gap-2 py-4 text-center', className)} {...rest} />
+)
 
-const ErrorText = styled.div`
-  color: ${({ theme }) => theme.red1};
-  font-size: 13px;
-  text-align: center;
-`
+const ErrorText = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-center text-[13px] text-red1', className)} {...rest} />
+)
 
-const PathBadge = styled.span<{ atomic?: boolean }>`
-  display: inline-block;
-  margin-left: 8px;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: ${({ theme, atomic }) => (atomic ? theme.primary : theme.buttonGray)};
-  color: ${({ theme, atomic }) => (atomic ? theme.background : theme.subText)};
-`
+const PathBadge = ({ atomic, className, ...rest }: HTMLAttributes<HTMLSpanElement> & { atomic?: boolean }) => (
+  <span
+    className={cn(
+      'ml-2 inline-block rounded-full px-2 py-0.5 text-[11px]',
+      atomic ? 'bg-primary text-background' : 'bg-buttonGray text-subText',
+      className,
+    )}
+    {...rest}
+  />
+)
 
 type Props = {
   isOpen: boolean
@@ -111,9 +89,9 @@ const ConfirmModal = ({ isOpen, onDismiss, route, onSuccess }: Props) => {
       return (
         <StatusBox>
           <Loader />
-          <Text>
+          <span>
             <Trans>Preparing transaction…</Trans>
-          </Text>
+          </span>
         </StatusBox>
       )
     }
@@ -121,11 +99,11 @@ const ConfirmModal = ({ isOpen, onDismiss, route, onSuccess }: Props) => {
       return (
         <StatusBox>
           <Loader />
-          <Text>
+          <span>
             <Trans>
               Approving tokens ({approvalProgress?.current ?? 0}/{approvalProgress?.total ?? 0})…
             </Trans>
-          </Text>
+          </span>
         </StatusBox>
       )
     }
@@ -133,9 +111,9 @@ const ConfirmModal = ({ isOpen, onDismiss, route, onSuccess }: Props) => {
       return (
         <StatusBox>
           <Loader />
-          <Text>
+          <span>
             <Trans>Confirm in your wallet…</Trans>
-          </Text>
+          </span>
           {path && <PathBadge atomic={path === 'atomic'}>{path === 'atomic' ? 'EIP-5792' : 'Sequential'}</PathBadge>}
         </StatusBox>
       )
@@ -144,9 +122,9 @@ const ConfirmModal = ({ isOpen, onDismiss, route, onSuccess }: Props) => {
       return (
         <StatusBox>
           <Loader />
-          <Text>
+          <span>
             <Trans>Transaction pending…</Trans>
-          </Text>
+          </span>
           {txHash && (
             <ExternalLink href={getEtherscanLink(chainId, txHash, 'transaction')}>
               <Trans>View on explorer</Trans>
@@ -158,10 +136,10 @@ const ConfirmModal = ({ isOpen, onDismiss, route, onSuccess }: Props) => {
     if (status === 'success') {
       return (
         <StatusBox>
-          <CheckCircle size={40} color="#31CB9E" />
-          <Text fontWeight={500}>
+          <CheckCircle size={40} className="text-primary" />
+          <span className="font-medium">
             <Trans>Liquidation complete</Trans>
-          </Text>
+          </span>
           {txHash && (
             <ExternalLink href={getEtherscanLink(chainId, txHash, 'transaction')}>
               <Trans>View on explorer</Trans>
@@ -211,23 +189,23 @@ const ConfirmModal = ({ isOpen, onDismiss, route, onSuccess }: Props) => {
   return (
     <Modal isOpen={isOpen} onDismiss={handleClose} maxWidth={460}>
       <Wrapper>
-        <Flex justifyContent="space-between" alignItems="center">
+        <div className="flex items-center justify-between">
           <Title>
             <Trans>Confirm Liquidation</Trans>
           </Title>
-        </Flex>
+        </div>
 
         {renderBody()}
 
         {!isWorking && status !== 'success' && (
-          <Flex sx={{ gap: '12px' }}>
+          <div className="flex gap-3">
             <ButtonOutlined onClick={handleClose}>
               <Trans>Cancel</Trans>
             </ButtonOutlined>
             <ButtonPrimary onClick={execute} disabled={!route?.data}>
               {status === 'error' ? <Trans>Retry</Trans> : <Trans>Confirm</Trans>}
             </ButtonPrimary>
-          </Flex>
+          </div>
         )}
 
         {status === 'success' && (

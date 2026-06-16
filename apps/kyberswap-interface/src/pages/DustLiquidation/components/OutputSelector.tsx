@@ -4,33 +4,26 @@ import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown } from 'react-feather'
-import styled from 'styled-components'
 
 import Logo from 'components/Logo'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useDustLiquidationActions, useDustLiquidationState } from 'state/dustLiquidation/hooks'
+import { cn } from 'utils/cn'
 
-const Pill = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: ${({ theme }) => theme.buttonBlack};
-  border: 0;
-  border-radius: 999px;
-  padding: 8px 12px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
-  font-weight: 500;
-  :hover {
-    filter: brightness(1.12);
-  }
-`
+const Pill = ({ className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    className={cn(
+      'inline-flex cursor-pointer items-center gap-2 rounded-full border-0 bg-buttonBlack px-3 py-2 text-sm font-medium text-text hover:brightness-[1.12]',
+      className,
+    )}
+    {...props}
+  />
+)
 
-const Placeholder = styled(Pill)`
-  color: ${({ theme }) => theme.primary};
-`
+const Placeholder = ({ className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <Pill className={cn('text-primary', className)} {...props} />
+)
 
 const OutputSelector = () => {
   const { account, chainId } = useActiveWeb3React()
@@ -56,7 +49,7 @@ const OutputSelector = () => {
           <Logo
             srcs={outputToken.logo ? [outputToken.logo] : []}
             alt={outputToken.symbol}
-            style={{ width: 20, height: 20, borderRadius: 999 }}
+            className="size-5 rounded-full"
           />
           {outputToken.symbol}
           <ChevronDown size={16} />

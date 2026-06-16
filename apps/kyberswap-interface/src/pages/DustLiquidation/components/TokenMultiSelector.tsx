@@ -1,13 +1,19 @@
 import { ChainId as SchemaChainId, Token as SchemaToken } from '@kyber/schema'
 import TokenSelectorModal, { TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { Trans } from '@lingui/macro'
-import { formatUnits } from 'ethers/lib/utils'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { Plus, X } from 'react-feather'
 import { useStore } from 'react-redux'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import Logo from 'components/Logo'
 import { DUST_MAX_INPUTS_TOTAL } from 'constants/dustLiquidation'
@@ -21,138 +27,89 @@ import { DustInput, DustToken } from 'state/dustLiquidation/actions'
 import { useDustLiquidationActions, useDustLiquidationState } from 'state/dustLiquidation/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { getNativeTokenLogo } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
+import { formatUnits } from 'utils/viem'
 
-const Row = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 16px;
-  padding: 14px 16px;
-  transition: background 120ms ease;
-  :hover {
-    background: ${({ theme }) => theme.buttonGray};
-  }
-`
+const Row = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex items-center gap-3 rounded-2xl bg-buttonBlack px-4 py-3.5 transition-colors duration-150 hover:bg-buttonGray',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-const TokenMeta = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-`
+const TokenMeta = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex min-w-0 flex-col gap-0.5', className)} {...rest} />
+)
 
-const Symbol = styled.div`
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.2;
-`
+const Symbol = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-sm font-medium leading-tight text-text', className)} {...rest} />
+)
 
-const BalanceRow = styled.button`
-  background: transparent;
-  border: 0;
-  padding: 0;
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  cursor: pointer;
-  text-align: left;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  line-height: 1.2;
-  :hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`
+const BalanceRow = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    className={cn(
+      'inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left text-xs leading-tight text-subText hover:text-primary',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-const MaxBadge = styled.span`
-  font-size: 10px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.primary};
-  background: ${({ theme }) => theme.primary}22;
-  padding: 1px 6px;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`
+const MaxBadge = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span
+    className={cn(
+      'rounded-full bg-primary-20 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-primary',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-const AmountColumn = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  min-width: 0;
-  gap: 2px;
-`
+const AmountColumn = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex min-w-0 flex-1 flex-col items-end gap-0.5', className)} {...rest} />
+)
 
-const AmountInput = styled.input`
-  background: transparent;
-  border: 0;
-  outline: none;
-  color: ${({ theme }) => theme.text};
-  font-size: 18px;
-  font-weight: 500;
-  text-align: right;
-  min-width: 0;
-  width: 100%;
-  line-height: 1.2;
-  ::placeholder {
-    color: ${({ theme }) => theme.subText};
-  }
-`
+const AmountInput = ({ className, ...rest }: InputHTMLAttributes<HTMLInputElement>) => (
+  <input
+    className={cn(
+      'w-full min-w-0 border-0 bg-transparent text-right text-lg font-medium leading-tight text-text outline-none placeholder:text-subText',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-const AmountUsd = styled.span`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  line-height: 1.2;
-`
+const AmountUsd = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('text-xs leading-tight text-subText', className)} {...rest} />
+)
 
-const RemoveButton = styled.button`
-  background: transparent;
-  border: 0;
-  color: ${({ theme }) => theme.subText};
-  padding: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  border-radius: 8px;
-  :hover {
-    color: ${({ theme }) => theme.red1};
-    background: ${({ theme }) => theme.red1}1a;
-  }
-`
+const RemoveButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    className={cn(
+      'hover:bg-red1/10 flex cursor-pointer items-center rounded-lg border-0 bg-transparent p-1 text-subText hover:text-red1',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-const AddButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px dashed ${({ theme }) => theme.border};
-  color: ${({ theme }) => theme.primary};
-  padding: 10px 12px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  width: 100%;
-  justify-content: center;
-  :hover {
-    filter: brightness(1.12);
-  }
-  :disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`
+const AddButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    className={cn(
+      'inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-transparent px-3 py-2.5 text-sm font-medium text-primary hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-const EmptyState = styled.div`
-  text-align: center;
-  color: ${({ theme }) => theme.subText};
-  font-size: 13px;
-  padding: 12px;
-`
+const EmptyState = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('p-3 text-center text-[13px] text-subText', className)} {...rest} />
+)
 
 const sanitizeAmount = (raw: string): string => {
   // Allow digits and a single decimal separator
@@ -212,7 +169,7 @@ const TokenRow = ({ input, price }: { input: DustInput; price?: number }) => {
       autoFilledRef.current = true
       return
     }
-    if (!value || value.isZero()) return
+    if (!value || value === 0n) return
     try {
       updateAmount(input.address, formatUnits(value, decimals))
       autoFilledRef.current = true
@@ -222,7 +179,7 @@ const TokenRow = ({ input, price }: { input: DustInput; price?: number }) => {
   }, [value, decimals, input.address, input.amount, updateAmount])
 
   const onMax = useCallback(() => {
-    if (!value || value.isZero()) return
+    if (!value || value === 0n) return
     try {
       updateAmount(input.address, formatUnits(value, decimals))
     } catch {
@@ -230,7 +187,7 @@ const TokenRow = ({ input, price }: { input: DustInput; price?: number }) => {
     }
   }, [value, decimals, input.address, updateAmount])
 
-  const hasBalance = !!value && !value.isZero()
+  const hasBalance = !!value && value !== 0n
 
   return (
     <Row>
@@ -326,7 +283,7 @@ const TokenMultiSelector = () => {
   )
 
   return (
-    <Flex flexDirection="column" sx={{ gap: '8px' }}>
+    <div className="flex flex-col gap-2">
       {inputs.length === 0 ? (
         <EmptyState>
           <Trans>No tokens selected. Add tokens below.</Trans>
@@ -361,7 +318,7 @@ const TokenMultiSelector = () => {
           />,
           document.body,
         )}
-    </Flex>
+    </div>
   )
 }
 

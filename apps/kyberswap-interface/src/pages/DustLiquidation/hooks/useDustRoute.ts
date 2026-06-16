@@ -1,4 +1,3 @@
-import { parseUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   DustSwapRouteApiResponse,
@@ -9,6 +8,7 @@ import {
 import { DUST_ROUTE_DEBOUNCE_MS, isDustSwapSupported } from 'constants/dustLiquidation'
 import { useActiveWeb3React } from 'hooks'
 import { useDustLiquidationState } from 'state/dustLiquidation/hooks'
+import { parseUnits } from 'utils/viem'
 
 type Result = {
   route: DustSwapRouteApiResponse | undefined

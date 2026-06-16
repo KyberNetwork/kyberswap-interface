@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
+import { HTMLAttributes, useEffect, useMemo, useState } from 'react'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { isDustSwapSupported } from 'constants/dustLiquidation'
@@ -10,6 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useDustLiquidationActions, useDustLiquidationState } from 'state/dustLiquidation/hooks'
 import { getTokenLogoURL } from 'utils'
+import { cn } from 'utils/cn'
 
 import ConfirmModal from './components/ConfirmModal'
 import OutputSelector from './components/OutputSelector'
@@ -17,57 +16,33 @@ import RouteSummary from './components/RouteSummary'
 import TokenMultiSelector from './components/TokenMultiSelector'
 import useDustRoute from './hooks/useDustRoute'
 
-const PageWrapper = styled.div`
-  width: 100%;
-  max-width: 580px;
-  margin: 32px auto;
-  padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`
+const PageWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('mx-auto my-8 flex w-full max-w-[580px] flex-col gap-4 px-4', className)} {...rest} />
+)
 
-const Card = styled.div`
-  background: ${({ theme }) => theme.background};
-  border-radius: 20px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`
+const Card = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-3.5 rounded-[20px] bg-background p-5', className)} {...rest} />
+)
 
-const PageHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 0 4px;
-`
+const PageHeader = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-1 px-1', className)} {...rest} />
+)
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 22px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
+const Title = ({ className, ...rest }: HTMLAttributes<HTMLHeadingElement>) => (
+  <h1 className={cn('m-0 text-[22px] font-medium text-text', className)} {...rest} />
+)
 
-const Subtitle = styled.div`
-  font-size: 13px;
-  color: ${({ theme }) => theme.subText};
-  line-height: 1.4;
-`
+const Subtitle = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-[13px] leading-[1.4] text-subText', className)} {...rest} />
+)
 
-const SectionLabel = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`
+const SectionLabel = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-[13px] font-medium uppercase tracking-[0.5px] text-subText', className)} {...rest} />
+)
 
-const ErrorText = styled.div`
-  color: ${({ theme }) => theme.red1};
-  font-size: 13px;
-`
+const ErrorText = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-[13px] text-red1', className)} {...rest} />
+)
 
 const DustLiquidation = () => {
   const { account, chainId } = useActiveWeb3React()
@@ -126,12 +101,12 @@ const DustLiquidation = () => {
           </Card>
 
           <Card>
-            <Flex justifyContent="space-between" alignItems="center">
+            <div className="flex items-center justify-between">
               <SectionLabel>
                 <Trans>Receive as</Trans>
               </SectionLabel>
               <OutputSelector />
-            </Flex>
+            </div>
           </Card>
 
           <RouteSummary route={route} loading={routeLoading} error={routeError} hint={hint} onRefresh={refetch} />

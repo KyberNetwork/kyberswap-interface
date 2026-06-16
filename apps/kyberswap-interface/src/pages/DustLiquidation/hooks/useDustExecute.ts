@@ -1,20 +1,19 @@
-import { MaxUint256 } from '@ethersproject/constants'
-import { getCapabilities, sendCalls, waitForCallsStatus } from '@wagmi/core'
-import { Contract } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
+import { getCapabilities, getPublicClient, readContract, sendCalls, waitForCallsStatus } from '@wagmi/core'
 import { useCallback, useMemo, useState } from 'react'
 import { DustSwapRouteApiResponse } from 'services/dustSwap'
-import { encodeFunctionData, erc20Abi } from 'viem'
+import { erc20Abi } from 'viem'
 import { useConfig } from 'wagmi'
 
-import ERC20_ABI from 'constants/abis/erc20.json'
+import { ERC20_ABI } from 'constants/abis'
 import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useDustLiquidationState } from 'state/dustLiquidation/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfoDustSwap } from 'state/transactions/type'
-import { calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Address, encodeFunctionData, maxUint256, parseUnits } from 'utils/viem'
 
 import useBuildDustRoute from './useBuildDustRoute'
 
@@ -38,7 +37,7 @@ const isNative = (addr: string) => addr.toLowerCase() === ETHER_ADDRESS.toLowerC
 const useDustExecute = ({ route }: { route: DustSwapRouteApiResponse | undefined }): Result => {
   const config = useConfig()
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { inputs, outputToken, recipient } = useDustLiquidationState()
   const addTx = useTransactionAdder()
   const { build } = useBuildDustRoute()
@@ -78,7 +77,7 @@ const useDustExecute = ({ route }: { route: DustSwapRouteApiResponse | undefined
   )
 
   const execute = useCallback(async () => {
-    if (!route?.data || !account || !outputToken || !library) {
+    if (!route?.data || !account || !outputToken) {
       setError('Missing required state')
       setStatus('error')
       return
@@ -93,7 +92,7 @@ const useDustExecute = ({ route }: { route: DustSwapRouteApiResponse | undefined
 
       // Approve MaxUint256 — saves the user from re-approving on a future dust pass.
       // The router enforces the exact pulled amount via the swap calldata.
-      const maxApproval = BigInt(MaxUint256.toString())
+      const maxApproval = maxUint256
       const approvalCalls = erc20Inputs.map(i => ({
         to: i.address as `0x${string}`,
         data: encodeFunctionData({
@@ -152,50 +151,74 @@ const useDustExecute = ({ route }: { route: DustSwapRouteApiResponse | undefined
       // --- Path C: sequential ---
       setPath('sequential')
 
+      const publicClient = getPublicClient(config, { chainId: chainId as number })
+
       // Approvals one at a time, only for tokens with insufficient allowance.
       if (erc20Inputs.length > 0) {
         setStatus('approving')
         setApprovalProgress({ current: 0, total: erc20Inputs.length })
-        const signer = library.getSigner(account)
         for (let i = 0; i < erc20Inputs.length; i++) {
           const input = erc20Inputs[i]
           const amount = parseUnits(input.amount, input.decimals)
-          const tokenContract = new Contract(input.address, ERC20_ABI, signer)
           // Skip approvals where allowance already covers the swap amount.
-          const allowance = await tokenContract.allowance(account, router)
-          if (!allowance.lt(amount)) {
+          const allowance = (await readContract(config, {
+            address: input.address as Address,
+            abi: ERC20_ABI,
+            functionName: 'allowance',
+            args: [account, router],
+            chainId: chainId as number,
+          })) as bigint
+          if (allowance >= amount) {
             setApprovalProgress({ current: i + 1, total: erc20Inputs.length })
             continue
           }
+          const sendApprove = (approveAmount: bigint) =>
+            sendEVMTransaction({
+              account,
+              contractAddress: input.address,
+              encodedData: encodeFunctionData({
+                abi: ERC20_ABI,
+                functionName: 'approve',
+                args: [router, approveAmount],
+              }),
+              value: 0n,
+              errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+              isSmartConnector,
+              chainId,
+            })
           // For tokens that require zero-reset (e.g. USDT) — set 0 first if currently non-zero.
-          if (!allowance.isZero()) {
-            const gasZero = await tokenContract.estimateGas.approve(router, 0)
-            const txZero = await tokenContract.approve(router, 0, { gasLimit: calculateGasMargin(gasZero) })
-            await txZero.wait()
+          if (allowance !== 0n) {
+            const resetRes = await sendApprove(0n)
+            if (resetRes?.hash) await publicClient?.waitForTransactionReceipt({ hash: resetRes.hash as `0x${string}` })
           }
-          const gas = await tokenContract.estimateGas.approve(router, MaxUint256)
-          const txA = await tokenContract.approve(router, MaxUint256, { gasLimit: calculateGasMargin(gas) })
-          await addTx({
-            hash: txA.hash,
-            type: TRANSACTION_TYPE.APPROVE,
-            extraInfo: { tokenSymbol: input.symbol, tokenAddress: input.address, contract: router },
-          })
-          await txA.wait()
+          const approveRes = await sendApprove(maxApproval)
+          if (approveRes?.hash) {
+            await addTx({
+              hash: approveRes.hash,
+              type: TRANSACTION_TYPE.APPROVE,
+              extraInfo: { tokenSymbol: input.symbol, tokenAddress: input.address, contract: router },
+            })
+            await publicClient?.waitForTransactionReceipt({ hash: approveRes.hash as `0x${string}` })
+          }
           setApprovalProgress({ current: i + 1, total: erc20Inputs.length })
         }
       }
 
       setStatus('submitting')
-      const signer = library.getSigner(account)
-      const swapTx = await signer.sendTransaction({
-        to: router,
-        data: built.callData,
-        value: built.value || '0',
+      const swapRes = await sendEVMTransaction({
+        account,
+        contractAddress: router,
+        encodedData: built.callData,
+        value: BigInt(built.value || '0'),
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
       })
-      setTxHash(swapTx.hash)
-      await addTx({ hash: swapTx.hash, type: TRANSACTION_TYPE.DUST_SWAP, extraInfo })
+      if (!swapRes?.hash) throw new Error('Swap submitted but no transaction hash returned')
+      setTxHash(swapRes.hash)
+      await addTx({ hash: swapRes.hash, type: TRANSACTION_TYPE.DUST_SWAP, extraInfo })
       setStatus('pending')
-      await swapTx.wait()
+      await publicClient?.waitForTransactionReceipt({ hash: swapRes.hash as `0x${string}` })
       setStatus('success')
     } catch (e) {
       const msg = friendlyError(e)
@@ -203,7 +226,19 @@ const useDustExecute = ({ route }: { route: DustSwapRouteApiResponse | undefined
       setError(msg)
       setStatus('error')
     }
-  }, [route, account, outputToken, library, build, recipient, erc20Inputs, config, chainId, addTx, makeExtraInfo])
+  }, [
+    route,
+    account,
+    outputToken,
+    build,
+    recipient,
+    erc20Inputs,
+    config,
+    chainId,
+    addTx,
+    makeExtraInfo,
+    isSmartConnector,
+  ])
 
   return { execute, status, error, txHash, path, approvalProgress, reset }
 }
