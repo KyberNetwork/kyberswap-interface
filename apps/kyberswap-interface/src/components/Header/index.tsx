@@ -15,7 +15,6 @@ import Menu from 'components/Menu'
 import RecapButton from 'components/Recap/RecapButton'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
-import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -34,7 +33,6 @@ const LogoIcon = ({ children }: { children: React.ReactNode }) => (
 )
 
 export default function Header() {
-  const { networkInfo } = useActiveWeb3React()
   const [holidayMode] = useHolidayMode()
   const { isEmbeddedSwap } = usePageLocation()
 
@@ -72,7 +70,7 @@ export default function Header() {
           </LogoIcon>
         ) : (
           <Link
-            to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
+            to='/'
             className="flex cursor-pointer items-center justify-self-start hover:cursor-pointer max-sm:justify-self-center"
           >
             {holidayMode ? (

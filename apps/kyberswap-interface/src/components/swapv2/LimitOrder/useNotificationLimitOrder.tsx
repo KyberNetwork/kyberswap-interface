@@ -26,7 +26,7 @@ const isTransactionFailed = (txHash: string, transactions: GroupedTxsByHash | un
 
 const useNotificationLimitOrder = () => {
   const notify = useNotify()
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const showedNotificationOrderIds = useRef<{ [id: string]: boolean }>({})
 
   const ackNotiLocal = useCallback((id: string | number) => {
@@ -51,7 +51,7 @@ const useNotificationLimitOrder = () => {
             {
               type: cancelAllSuccess ? NotificationType.SUCCESS : NotificationType.ERROR,
               title: cancelAllSuccess ? t`Limit Order` : t`Cancel Orders Failed`,
-              link: `${APP_PATHS.LIMIT}/${networkInfo.route}`,
+              link: APP_PATHS.LIMIT,
               summary: (
                 <SummaryNotify
                   message={
@@ -90,7 +90,7 @@ const useNotificationLimitOrder = () => {
             type: NotificationType.SUCCESS,
             title: t`Limit Order`,
             summary: <SummaryNotify orders={orderCancelSuccess} type={LimitOrderStatus.CANCELLED} />,
-            link: `${APP_PATHS.LIMIT}/${networkInfo.route}`,
+            link: APP_PATHS.LIMIT,
           },
           10000,
         )
@@ -175,6 +175,6 @@ const useNotificationLimitOrder = () => {
       unsubscribeExpired?.()
       unsubscribeFilled?.()
     }
-  }, [account, chainId, notify, ackNotificationOrder, ackNotiLocal, transactions, networkInfo.route])
+  }, [account, chainId, notify, ackNotificationOrder, ackNotiLocal, transactions])
 }
 export default useNotificationLimitOrder
