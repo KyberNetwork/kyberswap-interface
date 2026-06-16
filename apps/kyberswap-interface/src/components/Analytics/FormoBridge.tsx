@@ -1,9 +1,8 @@
 import { FormoAnalyticsProvider, useFormo as useRealFormo } from '@formo/analytics'
 import { ReactNode } from 'react'
 
+import { LocalFormoContext } from 'components/Analytics/formoContext'
 import { FORMO_WRITE_KEY } from 'constants/env'
-
-import { LocalFormoContext } from './formoContext'
 
 // This module is loaded ONLY via the deferred dynamic import in DeferredFormoProvider, so it (and the heavy
 // `@formo/analytics` SDK it pulls in) lives in a separate chunk, off the eager entry path.

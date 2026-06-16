@@ -38,8 +38,8 @@ const KyberSwapGeneralIntro = () => {
     )
   }
 
-  // Responsive via CSS (was a useMedia `if (above768)` branch, which diverged server vs client-first
-  // render and broke hydration on the prerendered About page). ≥768: tighter gap + wider padding.
+  // Responsive via pure CSS (no useMedia branch) so the server and client render identically and the
+  // prerendered About page hydrates without a mismatch. ≥768: tighter gap + wider padding.
   return (
     <div className="mt-8 flex w-full flex-col items-center gap-y-4 px-8 sm:gap-y-6 sm:px-16">
       {renderKyberSwapIntroDEX()}

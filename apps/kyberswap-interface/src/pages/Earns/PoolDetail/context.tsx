@@ -53,8 +53,7 @@ const mergePoolTokens = (
 }
 
 export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
-  // Path-based pool identity (Phase 5): /pools/<chain-slug>/<protocol>/<address>. The legacy
-  // ?exchange=&poolChainId=&poolAddress= form 301-redirects to this shape (see App.tsx).
+  // Pool identity comes from the path params: /pools/<chain-slug>/<protocol>/<address>.
   const { chain, protocol, address } = useParams()
 
   const exchange = protocol || ''

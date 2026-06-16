@@ -160,8 +160,11 @@
     align-items: center;
     justify-content: center;
     background-color: var(--ks-bgModal);
+    /* Entrance fade in CSS (not framer-motion, which is unreliable on the wrapped overlay under React
+       19). Opacity is multiplicative, so fading the overlay fades the content too. */
     animation: ks-dialog-fade-in 0.2s ease;
   }
+  /* transition={false} opts out of the fade. */
   .ks-dialog-overlay[data-reach-dialog-overlay][data-no-transition='true'] {
     animation: none;
   }

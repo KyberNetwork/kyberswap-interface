@@ -6,6 +6,8 @@ import { isMobile } from 'react-device-detect'
 
 import { cn } from 'utils/cn'
 
+// motion.create wraps @reach/dialog only for the mobile swipe-drag below. The entrance fade is CSS
+// (.ks-dialog-overlay), since animating the wrapped overlay via framer-motion is unreliable under React 19.
 const AnimatedDialogOverlay = motion.create(DialogOverlay)
 const AnimatedDialogContent = motion.create(DialogContent)
 

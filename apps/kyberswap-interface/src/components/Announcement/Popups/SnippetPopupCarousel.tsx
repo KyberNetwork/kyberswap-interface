@@ -3,9 +3,8 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
+import SnippetPopupItem from 'components/Announcement/Popups/SnippetPopupItem'
 import { PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
-
-import SnippetPopupItem from './SnippetPopupItem'
 
 export default function SnippetPopupCarousel({
   data,

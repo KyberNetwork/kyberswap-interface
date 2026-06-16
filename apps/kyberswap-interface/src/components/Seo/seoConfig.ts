@@ -178,10 +178,10 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
     }
   }
 
-  // Path-based pool detail (Phase 5): /pools/:chain/:protocol/:address. Unbounded catalog — NOT
+  // Path-based pool detail: /pools/:chain/:protocol/:address. Unbounded catalog — NOT
   // prerendered/sitemapped, but the clean self-canonical URL is the intended SEO landing per pool, so
-  // INDEX it (a deliberate departure from the noindex swap-pair). The per-pool <title> (tokens + fee)
-  // is upgraded client-side once pool data loads (see PoolDetail). Legacy junk query -> noindex.
+  // INDEX it (unlike the noindex swap-pair). The per-pool <title> (tokens + fee) is upgraded
+  // client-side once pool data loads (see PoolDetail). Junk query string -> noindex.
   const poolDetailMatch = matchPath(`${APP_PATHS.POOLS}/:chain/:protocol/:address`, normalizedPath)
   if (poolDetailMatch?.params.chain && poolDetailMatch.params.protocol && poolDetailMatch.params.address) {
     const { chain, protocol, address } = poolDetailMatch.params

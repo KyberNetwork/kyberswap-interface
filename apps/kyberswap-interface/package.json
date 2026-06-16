@@ -17,7 +17,7 @@
     "i18n:compile": "lingui compile",
     "i18n:extract": "lingui extract",
     "lint": "eslint --ext ts,tsx src",
-    "test": "vitest run",
+    "test": "vitest run --exclude '**/*.smoke.test.*'",
     "test:smoke": "vitest run --config vitest.smoke.config.ts --mode production",
     "format": "prettier --write .",
     "dev": "pnpm run start-prod",

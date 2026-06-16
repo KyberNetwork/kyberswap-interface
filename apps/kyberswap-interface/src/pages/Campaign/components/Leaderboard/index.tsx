@@ -21,7 +21,7 @@ type Props = {
 }
 
 // Mirrors the leaderboard row layout (rank · wallet · points · optional rewards), so the loading
-// placeholder lines up under the column headers instead of a centered spinner.
+// placeholder lines up under the column headers.
 const LeaderboardRowsSkeleton = ({
   rows = 8,
   isReferral,

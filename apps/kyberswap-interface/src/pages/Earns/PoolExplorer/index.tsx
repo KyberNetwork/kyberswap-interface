@@ -123,8 +123,8 @@ const PoolExplorer = () => {
   const handleNavigateToAddLiquidity = useCallback(
     ({ pool, initialTick }: ZapInInfo) => {
       const pathname = getPoolDetailUrl(pool.chainId, pool.dex, pool.address)
-      // tickLower/tickUpper stay as optional query params on the new path (currently unread by the
-      // detail page, but preserved so a future zap-migration reader can still pick them up).
+      // tickLower/tickUpper are passed as optional query params: currently unread by the detail page,
+      // but preserved so a future zap-migration reader can still pick them up.
       const params = new URLSearchParams()
       if (initialTick?.tickLower !== undefined) params.set('tickLower', initialTick.tickLower.toString())
       if (initialTick?.tickUpper !== undefined) params.set('tickUpper', initialTick.tickUpper.toString())

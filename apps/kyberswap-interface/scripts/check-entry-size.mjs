@@ -1,9 +1,8 @@
 // Bundle-size budget guard for the eager entry chunk.
 //
-// The entry chunk is on the critical path of every cold load. It silently grew to ~9.9 MB gzip once
-// (mostly base64-inlined images) because nothing measured it — see PERF_MAIN_CHUNK_BLOAT.md. After the
-// remediation it is ~3.45 MB gzip. This check fails the build if it regresses past the budget, so the
-// gain can't quietly creep back.
+// The entry chunk is on the critical path of every cold load and is easy to bloat (e.g. base64-inlined
+// images) when nothing measures it. This check fails the build if the gzip size regresses past the
+// budget below.
 //
 // To inspect what's inside the chunk: `pnpm analyze` (writes build/stats.html — an interactive treemap).
 // If an increase is intentional and justified, raise BUDGET below (and say why in the PR).

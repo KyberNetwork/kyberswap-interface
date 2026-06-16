@@ -49,8 +49,7 @@ class MixpanelQueue {
     if (this.real) {
       return this.resolvePath(this.real, path)?.(...args)
     }
-    // Mirror the old `crossChainMixpanel == null` path: when permanently disabled, drop calls instead of
-    // buffering them forever (the queue would never flush).
+    // When permanently disabled, drop calls instead of buffering them forever (the queue would never flush).
     if (this.disabled) return undefined
     this.queue.push({ path, args })
     return undefined
@@ -91,8 +90,6 @@ const crossChainQueue = new MixpanelQueue()
 
 let initialized = false
 
-// The default export and `crossChainMixpanel` keep the SAME shape callers used before (track/identify/
-// people.set/register/reset/hasOwnProperty), now backed by the queueing proxies.
 const mixpanelProxy = defaultQueue.proxy
 const crossChainMixpanel: MixpanelInstance | null = crossChainQueue.proxy
 
@@ -114,7 +111,7 @@ export async function initMixpanel() {
     if (secondary) crossChainQueue.flush(secondary)
     else crossChainQueue.disable()
   } else {
-    // No secondary token: cross-chain tracking is off, matching the old `crossChainMixpanel = null`.
+    // No secondary token: cross-chain tracking is off.
     crossChainQueue.disable()
   }
 }

@@ -12,11 +12,9 @@ interface SolanaProviderProps {
   children: ReactNode
 }
 
-// Stable module-level references. ConnectionProvider memoizes `new Connection(endpoint, config)` keyed on
-// `config`; the library's default config is a fresh `{ commitment: 'confirmed' }` object each render, which
-// regenerated the Connection on every re-render. Once this provider moved into the cross-chain route subtree
-// (which re-renders on every quote tick), that churned `connection` and re-fired the rate-quote refetch in a
-// loop. Passing constant `config`/`wallets` keeps `connection` (and the wallet adapters) referentially stable.
+// ConnectionProvider memoizes `new Connection(endpoint, config)` keyed on `config` identity; the library's
+// default `config`/`wallets` are fresh objects each render. Stable module-level references keep `connection`
+// (and the wallet adapters) referentially stable so consumers don't refetch on every re-render.
 const SOLANA_CONNECTION_CONFIG: ComponentProps<typeof ConnectionProvider>['config'] = { commitment: 'confirmed' }
 const SOLANA_WALLETS: ComponentProps<typeof WalletProvider>['wallets'] = []
 

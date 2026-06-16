@@ -5,7 +5,6 @@ import { DEFAULT_POSITION_FILTERS, POSITIONS_PAGE_SIZE, SortBy } from 'pages/Ear
 import { PositionFilter } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
-// SortBy now lives in positionsQuery (shared with the nav-intent prefetch); re-export for existing importers.
 export { SortBy }
 
 export default function useFilter() {
