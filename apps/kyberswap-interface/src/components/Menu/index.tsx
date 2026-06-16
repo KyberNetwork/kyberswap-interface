@@ -331,7 +331,6 @@ export default function Menu() {
                     { link: APP_PATHS.KYBERDAO_STAKE, label: t`Stake KNC` },
                     { link: APP_PATHS.KYBERDAO_VOTE, label: t`Vote` },
                     { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
-                    { link: 'https://discord.gg/cqwvAuYp3H', label: t`Feature Request`, external: true },
                   ]}
                 />
               </MenuItem>
