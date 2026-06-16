@@ -221,7 +221,7 @@ const AddLiquidityWidget = ({
           onClick={() => void actions.handlePrimaryAction()}
           disabled={actions.isPrimaryActionDisabled}
         >
-          <Dots absolute loading={actions.showRouteLoadingDots}>
+          <Dots absolute loading={state.route.loading}>
             {actions.primaryActionText}
           </Dots>
         </PrimaryActionButton>

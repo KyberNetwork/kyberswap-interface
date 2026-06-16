@@ -10,9 +10,9 @@ import { MEDIA_WIDTHS } from 'theme'
 const RoutePreviewSkeleton = () => {
   return (
     <HStack className="w-full items-center justify-between gap-6">
-      <Skeleton width={240} height={66} />
-      <Skeleton width={160} height={95} />
-      <Skeleton width={240} height={66} />
+      <Skeleton width={240} height={72} />
+      <Skeleton width={160} height={105} />
+      <Skeleton width={240} height={72} />
     </HStack>
   )
 }
@@ -22,9 +22,9 @@ const PoolInformationSkeleton = () => {
     <Stack className="w-full gap-5 rounded-xl bg-background p-4">
       <Stack className="gap-8">
         <HStack className="flex-wrap gap-6">
-          <Skeleton width={96} height={24} />
-          <Skeleton width={96} height={24} />
-          <Skeleton width={96} height={24} />
+          <Skeleton width={96} height={25} />
+          <Skeleton width={96} height={25} />
+          <Skeleton width={96} height={25} />
         </HStack>
 
         <HStack className="flex-wrap gap-3">

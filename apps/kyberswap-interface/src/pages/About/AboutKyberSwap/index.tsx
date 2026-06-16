@@ -18,7 +18,6 @@ import { BestPrice, Clock, LineaFull, LowestSlippage, OptimismLogoFull, PolygonL
 import Loader from 'components/Loader'
 import RevealOnScroll from 'components/RevealOnScroll'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -102,7 +101,6 @@ export const KSStatistic = () => {
 }
 
 function AboutKyberSwap() {
-  const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const { data: aggregatorData } = aggregatorStatsApi.useGetAggregatorVolumeQuery({})
 
@@ -206,7 +204,7 @@ function AboutKyberSwap() {
                   margin="48px 0"
                   width="216px"
                   as={Link as never}
-                  to={APP_PATHS.SWAP + '/' + networkInfo.route}
+                  to={APP_PATHS.SWAP}
                   onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
                 >
                   <Repeat size={20} />
@@ -224,7 +222,7 @@ function AboutKyberSwap() {
                 className="min-[500px]:hidden"
                 margin="40px 0"
                 as={Link as never}
-                to={APP_PATHS.SWAP + '/' + networkInfo.route}
+                to={APP_PATHS.SWAP}
                 onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
               >
                 <Repeat />

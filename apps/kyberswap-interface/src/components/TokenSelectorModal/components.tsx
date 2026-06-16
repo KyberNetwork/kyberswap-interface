@@ -28,7 +28,7 @@ export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef
       className={cn(
         'absolute size-full whitespace-nowrap rounded-full border border-buttonBlack bg-buttonBlack px-4 py-3 pr-[30px] text-[17px] leading-normal text-text outline-none transition-[border] duration-100 [-webkit-appearance:none]',
         'placeholder:text-[12.5px] placeholder:text-border sm:placeholder:text-[13.5px]',
-        'focus:border-primary-50 focus:outline-none',
+        'focus:border-border-primary focus:outline-none',
         className,
       )}
       {...props}

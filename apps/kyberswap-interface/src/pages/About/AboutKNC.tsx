@@ -50,7 +50,6 @@ import {
 import { FooterSocialLink } from 'components/Footer/Footer'
 import RevealOnScroll from 'components/RevealOnScroll'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -112,7 +111,6 @@ const LIST_WALLETS = [
 ]
 
 function AboutKNC() {
-  const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const { trackingHandler } = useTracking()
 
@@ -221,7 +219,7 @@ function AboutKNC() {
               <BtnPrimary
                 width="216px"
                 as={Link as any}
-                to={APP_PATHS.SWAP + '/' + networkInfo.route}
+                to={APP_PATHS.SWAP}
                 onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
               >
                 <Repeat />

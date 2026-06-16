@@ -230,7 +230,7 @@ export default function Menu() {
             aria-label="Menu"
             id={TutorialIds.BUTTON_MENU_HEADER}
             className={cn(
-              'm-0 flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 outline-none',
+              'm-0 flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 outline-none hover:text-text',
               open ? 'text-text' : 'text-subText',
             )}
           >
@@ -342,7 +342,6 @@ export default function Menu() {
                     { link: APP_PATHS.KYBERDAO_STAKE, label: t`Stake KNC` },
                     { link: APP_PATHS.KYBERDAO_VOTE, label: t`Vote` },
                     { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
-                    { link: 'https://discord.gg/cqwvAuYp3H', label: t`Feature Request`, external: true },
                   ]}
                 />
               </MenuItem>

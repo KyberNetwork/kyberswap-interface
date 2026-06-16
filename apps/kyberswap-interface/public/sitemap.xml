@@ -6,7 +6,10 @@
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://kyberswap.com/</loc>
+    <loc>https://kyberswap.com</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap</loc>
   </url>
   <url>
     <loc>https://kyberswap.com/about/kyberswap</loc>

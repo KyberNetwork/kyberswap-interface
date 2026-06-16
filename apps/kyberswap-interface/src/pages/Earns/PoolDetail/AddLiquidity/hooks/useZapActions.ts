@@ -104,7 +104,6 @@ export const useZapActions = ({
   ])
 
   const primaryActionVariant = !nextTokenToApprove && (isZapImpactBlocked || isHighZapImpact) ? 'error' : 'primary'
-  const showRouteLoadingDots = routeLoading && Boolean(route)
   const isPrimaryActionDisabled =
     !!account &&
     walletChainId === poolChainId &&
@@ -153,7 +152,6 @@ export const useZapActions = ({
   return {
     primaryActionText,
     primaryActionVariant,
-    showRouteLoadingDots,
     isPrimaryActionDisabled,
     handlePrimaryAction,
   }
