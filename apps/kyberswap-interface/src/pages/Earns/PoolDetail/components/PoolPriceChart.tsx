@@ -221,16 +221,24 @@ const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window:
 
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         <span className="text-xs text-subText">Open</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.open)}</span>
+        <span className="text-right text-xs font-medium text-text">
+          {formatDisplayNumber(candle.open, { fractionDigits: 4 })}
+        </span>
 
         <span className="text-xs text-subText">High</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.high)}</span>
+        <span className="text-right text-xs font-medium text-text">
+          {formatDisplayNumber(candle.high, { fractionDigits: 4 })}
+        </span>
 
         <span className="text-xs text-subText">Low</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.low)}</span>
+        <span className="text-right text-xs font-medium text-text">
+          {formatDisplayNumber(candle.low, { fractionDigits: 4 })}
+        </span>
 
         <span className="text-xs text-subText">Close</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.close)}</span>
+        <span className="text-right text-xs font-medium text-text">
+          {formatDisplayNumber(candle.close, { fractionDigits: 4 })}
+        </span>
 
         <span className="text-xs text-subText">%Change</span>
         <span className={cn('text-right text-xs font-medium', priceChange >= 0 ? 'text-primary' : 'text-red')}>
