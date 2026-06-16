@@ -2,8 +2,6 @@ import { PoolType, Pool as ZapPool } from '@kyber/schema'
 import { translateFriendlyErrorMessage, translateZapMessage } from '@kyber/ui'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useState } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
@@ -19,13 +17,6 @@ import { useZapActions } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapA
 import { useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { useWalletModalToggle } from 'state/application/hooks'
-
-const FormStack = styled(Stack)`
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.background};
-`
 
 type AddLiquidityWidgetContext = {
   chainId: ChainId
@@ -49,6 +40,7 @@ type AddLiquidityWidgetProps = {
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
     initialTick?: { tickUpper: number; tickLower: number },
+    initialRevertPrice?: boolean,
     initialSlippage?: number,
   ) => void
 }
@@ -108,12 +100,10 @@ const AddLiquidityWidget = ({
   }, [highlightDegenMode])
 
   return (
-    <FormStack gap={16}>
-      <Stack gap={12}>
-        <HStack align="center" justify="space-between">
-          <Text fontWeight={500} letterSpacing="0.06em">
-            ADD LIQUIDITY
-          </Text>
+    <Stack className="w-full gap-4 rounded-xl bg-background p-4">
+      <Stack className="gap-3">
+        <HStack className="items-center justify-between">
+          <span className="font-medium tracking-[0.06em]">ADD LIQUIDITY</span>
           <AddLiquiditySettings
             isOpen={isSettingsOpen}
             onOpenChange={setIsSettingsOpen}
@@ -141,6 +131,7 @@ const AddLiquidityWidget = ({
             slippage: state.slippage.value,
             tickLower: state.priceRange.tickLower,
             tickUpper: state.priceRange.tickUpper,
+            revertPrice: state.priceRange.revertPrice,
           }}
           onTrackEvent={onTrackEvent}
           onOpenZapMigration={onOpenZapMigration}
@@ -210,7 +201,7 @@ const AddLiquidityWidget = ({
       />
 
       {feedback.page.warnings.length || previewError ? (
-        <Stack gap={12}>
+        <Stack className="gap-3">
           {feedback.page.warnings.map((warning, index) => (
             <NoteCard key={`${warning.kind}-${index}`} $tone={warning.tone}>
               {translateZapMessage(warning.message)}
@@ -223,16 +214,18 @@ const AddLiquidityWidget = ({
         </Stack>
       ) : null}
 
-      <HStack gap={16}>
+      <HStack className="gap-4">
         <PrimaryActionButton
           altDisabledStyle
           onClick={() => void actions.handlePrimaryAction()}
           disabled={actions.isPrimaryActionDisabled}
         >
-          {actions.primaryActionText}
+          <span className={actions.showRouteLoadingDots ? 'ks-loading-dots' : undefined}>
+            {actions.primaryActionText}
+          </span>
         </PrimaryActionButton>
       </HStack>
-    </FormStack>
+    </Stack>
   )
 }
 

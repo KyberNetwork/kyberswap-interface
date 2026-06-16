@@ -1,9 +1,8 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
-
-import { CrossChainSetting, VIEW_MODE } from './reducer'
+import { CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
 
 export interface SerializedToken {
   chainId: number
@@ -59,5 +58,4 @@ export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl
 export const toggleMyEarningChart = createAction<void>('user/toggleMyEarningChart')
 
 export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')
-export const setPaymentToken = createAction<Token | null>('user/setPaymentToken')
 export const updateFavoriteChains = createAction<string[]>('user/updateFavoriteChains ')

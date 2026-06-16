@@ -1,9 +1,7 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconAlert } from 'assets/svg/earn/ic_alert.svg'
 import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
@@ -15,7 +13,6 @@ import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { TELEGRAM_BOT_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { DexInfoBadge, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
@@ -26,6 +23,7 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const TokenAddressRow = ({
@@ -39,24 +37,20 @@ const TokenAddressRow = ({
   address?: string
   isNative?: boolean
 }) => {
-  const theme = useTheme()
   return (
-    <Flex alignItems="center" sx={{ gap: '8px' }} flexWrap="wrap">
+    <div className="flex flex-wrap items-center gap-2">
       {logo && <TokenLogo src={logo} size={18} />}
-      <Text color={theme.text} fontSize={14} fontWeight={500}>
-        {symbol}
-      </Text>
-      <Text color={theme.subText} fontSize={14}>
+      <span className="text-sm font-medium text-text">{symbol}</span>
+      <span className="text-sm text-subText">
         {isNative ? <Trans>Native token</Trans> : shortenAddress(address || '', 4)}
-      </Text>
+      </span>
       {!isNative && address && <CopyHelper size={14} margin="0" toCopy={address} />}
-    </Flex>
+    </div>
   )
 }
 
 const PositionDetailHeader = () => {
   const { position, loadingInterval: isLoading, initialLoading, hasActiveSmartExitOrder } = usePositionDetailContext()
-  const theme = useTheme()
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -115,39 +109,29 @@ const PositionDetailHeader = () => {
   }
 
   return (
-    <Flex
-      sx={{ gap: 3 }}
-      flexDirection={upToSmall ? 'column' : 'row'}
-      alignItems={upToSmall ? 'flex-start' : 'center'}
-      justifyContent="space-between"
-    >
-      <Flex alignItems="center" sx={{ gap: '12px' }} flexWrap="wrap">
+    <div className={cn('flex justify-between gap-4', upToSmall ? 'flex-col items-start' : 'flex-row items-center')}>
+      <div className="flex flex-wrap items-center gap-3">
         <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />
 
-        {/* Token pair logos + name with tooltip (matching PoolHeader pattern) */}
         {initialLoading ? (
           <PositionSkeleton width={180} height={28} />
         ) : (
           <MouseoverTooltipDesktopOnly
             placement="bottom"
             text={
-              <Flex flexDirection="column" sx={{ gap: '12px', minWidth: '240px' }}>
-                {/* Pool info row */}
-                <Flex alignItems="center" sx={{ gap: '8px' }} flexWrap="wrap">
-                  <Flex alignItems="center" sx={{ gap: 0 }} style={{ flex: '0 0 auto' }}>
+              <div className="flex min-w-[240px] flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex shrink-0 items-center">
                     <TokenLogo src={position?.token0.logo} size={18} />
                     <TokenLogo src={position?.token1.logo} size={18} translateLeft />
-                  </Flex>
-                  <Text color={theme.text} fontSize={14} fontWeight={500}>
+                  </div>
+                  <span className="text-sm font-medium text-text">
                     {position?.token0.symbol}/{position?.token1.symbol}
-                  </Text>
-                  <Text color={theme.subText} fontSize={14}>
-                    {shortenAddress(position?.pool.address || '', 4)}
-                  </Text>
+                  </span>
+                  <span className="text-sm text-subText">{shortenAddress(position?.pool.address || '', 4)}</span>
                   <CopyHelper size={14} margin="0" toCopy={position?.pool.address || ''} />
-                </Flex>
+                </div>
 
-                {/* Token 0 address row */}
                 <TokenAddressRow
                   logo={position?.token0.logo}
                   symbol={position?.token0.symbol}
@@ -155,43 +139,34 @@ const PositionDetailHeader = () => {
                   isNative={position?.token0.isNative && !position?.token0.isWrapped}
                 />
 
-                {/* Token 1 address row */}
                 <TokenAddressRow
                   logo={position?.token1.logo}
                   symbol={position?.token1.symbol}
                   address={position?.token1.address}
                   isNative={position?.token1.isNative && !position?.token1.isWrapped}
                 />
-              </Flex>
+              </div>
             }
             width="fit-content"
           >
             <Link
               to={`${APP_PATHS.ADD_LIQUIDITY}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
-              style={{ textDecoration: 'none' }}
+              className="no-underline"
             >
-              <Flex alignItems="center" sx={{ gap: '8px', cursor: 'pointer' }}>
+              <div className="flex cursor-pointer items-center gap-2">
                 <ImageContainer>
                   <TokenLogo src={position?.token0.logo} size={28} />
                   <TokenLogo src={position?.token1.logo} size={28} translateLeft />
                   <TokenLogo src={position?.chain.logo} size={16} translateLeft translateTop />
                 </ImageContainer>
-                <Text
-                  color={theme.text}
-                  marginLeft={-2.5}
-                  fontSize={24}
-                  fontWeight={500}
-                  lineHeight="28px"
-                  sx={{ whiteSpace: 'nowrap' }}
-                >
+                <span className="-ml-2.5 whitespace-nowrap text-2xl font-medium leading-7 text-text">
                   {position?.token0.symbol}/{position?.token1.symbol}
-                </Text>
-              </Flex>
+                </span>
+              </div>
             </Link>
           </MouseoverTooltipDesktopOnly>
         )}
 
-        {/* DEX info badge - clickable to open dex site */}
         {initialLoading ? (
           <PositionSkeleton width={200} height={36} />
         ) : (
@@ -205,43 +180,36 @@ const PositionDetailHeader = () => {
               onClick={onOpenPositionInDexSite}
             >
               <TokenLogo src={position?.dex.logo} size={16} />
-              <Text fontSize={14} color={rgba(theme.white, 0.7)} style={{ whiteSpace: 'nowrap' }}>
+              <span className="whitespace-nowrap text-sm text-white/70">
                 {position?.dex.name} | {formatDisplayNumber(position?.pool.fee, { significantDigits: 4 })}%
                 {!isUniv2 && ` | #${position?.tokenId}`}
-              </Text>
+              </span>
             </DexInfoBadge>
           </MouseoverTooltipDesktopOnly>
         )}
 
-        {/* Status badge */}
         {initialLoading ? <PositionSkeleton width={80} height={24} /> : isUnfinalized ? null : statusBadge}
 
-        {/* Smart exit indicator */}
         {hasActiveSmartExitOrder && (
           <MouseoverTooltipDesktopOnly
             text={
-              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+              <span className="text-xs leading-4 text-subText">
                 <Trans>This position has an active Smart Exit order.</Trans>
                 <br />
                 <Trans>
                   View or manage it in{' '}
-                  <Link to={APP_PATHS.EARN_SMART_EXIT} style={{ color: theme.subText, textDecoration: 'underline' }}>
+                  <Link to={APP_PATHS.EARN_SMART_EXIT} className="text-subText underline">
                     View Smart Exit Orders
                   </Link>
                   .
                 </Trans>
-              </Text>
+              </span>
             }
             width="fit-content"
             placement="bottom"
           >
-            <Flex
-              alignItems="center"
-              justifyContent="center"
-              sx={{ cursor: 'pointer', borderRadius: '30px' }}
-              backgroundColor={rgba(theme.white, 0.04)}
-              width={32}
-              height={32}
+            <div
+              className="flex size-8 cursor-pointer items-center justify-center rounded-[30px] bg-white-04"
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation()
                 e.preventDefault()
@@ -249,14 +217,14 @@ const PositionDetailHeader = () => {
               }}
             >
               <ListSmartExitIcon width={16} height={16} />
-            </Flex>
+            </div>
           </MouseoverTooltipDesktopOnly>
         )}
 
         {isLoading && !initialLoading && <Loader />}
-      </Flex>
+      </div>
 
-      <Flex sx={{ gap: 3 }}>
+      <div className="flex gap-4">
         <MouseoverTooltipDesktopOnly
           text={t`Get notified via Telegram when this position moves out of range or back in range`}
           width="300px"
@@ -265,7 +233,7 @@ const PositionDetailHeader = () => {
           <ButtonLight
             width="36px"
             height="36px"
-            style={{ padding: 0 }}
+            className="!p-0"
             onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
           >
             <IconAlert />
@@ -277,8 +245,8 @@ const PositionDetailHeader = () => {
           text={t`My Positions`}
           to={APP_PATHS.EARN_POSITIONS}
         />
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   )
 }
 

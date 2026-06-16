@@ -2,7 +2,6 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
@@ -20,7 +19,6 @@ import {
 import Skeleton from 'components/Skeleton'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { type EarnPool } from 'pages/Earns/types/pool'
@@ -29,7 +27,6 @@ import { MEDIA_WIDTHS } from 'theme'
 let indexInterval: NodeJS.Timeout
 
 export default function FarmingPoolBanner() {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
@@ -112,14 +109,13 @@ export default function FarmingPoolBanner() {
   return (
     <FarmingWrapper>
       <BannerHeaderLink to={`${APP_PATHS.EARN_POOLS}?tag=${FilterTag.FARMING_POOL}`}>
-        <FarmingIcon width={24} height={24} color={theme.primary} />
-        <Text color={'#FCD884'} fontWeight={500}>{t`FARMING POOLS`}</Text>
+        <FarmingIcon width={24} height={24} className="text-primary" />
+        <span className="font-medium" style={{ color: '#FCD884' }}>{t`FARMING POOLS`}</span>
       </BannerHeaderLink>
       {pools.length > 0 ? (
-        <Flex
-          justifyContent="center"
-          alignItems="center"
-          sx={{ gap: '8px', width: 'calc(100% + 8px)', position: 'relative', left: '-4px' }}
+        <div
+          className="relative flex items-center justify-center gap-2"
+          style={{ width: 'calc(100% + 8px)', left: '-4px' }}
           ref={WrapperRef}
         >
           <MoveBackIcon onClick={handleMoveBack} />
@@ -150,24 +146,23 @@ export default function FarmingPoolBanner() {
             </FarmingPoolWrapper>
           </FarmingPoolContainer>
           <MoveForwardIcon onClick={handleMoveForward} />
-        </Flex>
+        </div>
       ) : (
-        <Flex
-          alignItems="center"
-          justifyContent="center"
-          sx={{ gap: '8px', width: 'calc(100% + 8px)', position: 'relative', left: '-4px' }}
+        <div
+          className="relative flex items-center justify-center gap-2"
+          style={{ width: 'calc(100% + 8px)', left: '-4px' }}
         >
           <Skeleton circle height={20} variant="darkSubtle" width={20} />
-          <Flex alignItems="center" justifyContent="space-around" sx={{ flex: 1 }}>
+          <div className="flex flex-1 items-center justify-around">
             {[0, 1].map(index => (
-              <Flex key={index} justifyContent="center" alignItems="center" sx={{ flex: 1, gap: '8px', minWidth: 0 }}>
+              <div key={index} className="flex min-w-0 flex-1 items-center justify-center gap-2">
                 <Skeleton height={18} variant="darkSubtle" width={88} />
                 <Skeleton height={28} borderRadius={16} variant="darkSubtle" width={80} />
-              </Flex>
+              </div>
             ))}
-          </Flex>
+          </div>
           <Skeleton circle height={20} variant="darkSubtle" width={20} />
-        </Flex>
+        </div>
       )}
     </FarmingWrapper>
   )

@@ -1,14 +1,12 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { Flex } from 'rebass'
 import { useGetListPriceAlertHistoryQuery } from 'services/announcement'
 
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import NoData from 'pages/NotificationCenter/NoData'
+import SingleAlert from 'pages/NotificationCenter/PriceAlerts/AlertsHistory/SingleAlert'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
-
-import SingleAlert from './SingleAlert'
 
 const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const [page, setPage] = useState(1)
@@ -29,18 +27,14 @@ const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boole
 
   return (
     <>
-      <Flex
-        sx={{
-          flexDirection: 'column',
-        }}
-      >
+      <div className="flex flex-col">
         {notifications.map(alert => (
           <SingleAlert key={alert.id} announcement={alert as PrivateAnnouncement<AnnouncementTemplatePriceAlert>} />
         ))}
-      </Flex>
+      </div>
 
       <CommonPagination
-        style={{ margin: 0 }}
+        className="m-0"
         onPageChange={setPage}
         totalCount={data?.pagination?.totalItems || 0}
         currentPage={page}

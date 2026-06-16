@@ -1,7 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import React from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 import UAParser from 'ua-parser-js'
 
 import { ButtonPrimary } from 'components/Button'
@@ -23,31 +21,6 @@ const predefinedErrors = () => [
     description: t`We need access to your local storage. The reason can be that you may have accidentally blocked cookies from this site. Please find it in your settings and turn it off.`,
   },
 ]
-
-const FallbackWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-`
-
-const BodyWrapper = styled.div`
-  width: 100%;
-  margin: auto;
-  padding: 18px 24px;
-  padding-top: 48px;
-`
-
-const CodeBlockWrapper = styled.div`
-  overflow: auto;
-  white-space: pre-line;
-`
-
-const LinkWrapper = styled.div`
-  margin: auto;
-`
 
 function issueBody(error: Error): string {
   const deviceData = userAgent
@@ -93,26 +66,24 @@ const FallbackView: React.FC<Props> = ({ error }) => {
   const foundError = predefinedErrors().find(err => err.match(error))
 
   return (
-    <FallbackWrapper>
-      <BodyWrapper>
-        <AutoColumn gap={'lg'} justify="center">
-          <Text textAlign="center" fontSize="24px" maxWidth={'600px'}>
+    <div className="z-[1] flex w-full flex-col items-center justify-center">
+      <div className="m-auto w-full px-6 pb-[18px] pt-12">
+        <AutoColumn className="justify-items-center gap-6">
+          <p className="max-w-[600px] text-center text-2xl">
             {foundError?.title || <Trans>Oops! Something went wrong</Trans>}
-          </Text>
+          </p>
 
           {foundError?.description ? (
-            <Text textAlign="center" fontSize="16px" maxWidth={'600px'} marginTop="16px">
-              {foundError.description}
-            </Text>
+            <p className="mt-4 max-w-[600px] text-center text-base">{foundError.description}</p>
           ) : (
             <>
-              <CodeBlockWrapper>
+              <div className="overflow-auto whitespace-pre-line">
                 <code>
-                  <Text fontSize={10}>{error.stack}</Text>
+                  <span className="text-[10px]">{error.stack}</span>
                 </code>
-              </CodeBlockWrapper>
+              </div>
               <AutoRow>
-                <LinkWrapper>
+                <div className="m-auto">
                   <ExternalLink
                     id="create-github-issue-link"
                     href={`https://github.com/KyberNetwork/kyberswap-interface/issues/new?assignees=&labels=bug&body=${encodedBody}&title=${encodeURIComponent(
@@ -120,12 +91,12 @@ const FallbackView: React.FC<Props> = ({ error }) => {
                     )}`}
                     target="_blank"
                   >
-                    <Text fontSize={16}>
+                    <span className="text-base">
                       <Trans>Create an issue on GitHub</Trans>
                       <span>↗</span>
-                    </Text>
+                    </span>
                   </ExternalLink>
-                </LinkWrapper>
+                </div>
               </AutoRow>
             </>
           )}
@@ -141,8 +112,8 @@ const FallbackView: React.FC<Props> = ({ error }) => {
             <Trans>Refresh</Trans>
           </ButtonPrimary>
         </AutoColumn>
-      </BodyWrapper>
-    </FallbackWrapper>
+      </div>
+    </div>
   )
 }
 

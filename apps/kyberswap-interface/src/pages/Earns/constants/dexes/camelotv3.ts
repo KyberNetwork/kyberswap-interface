@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import camelotLogo from 'assets/dexes/camelot.svg'
-import AlgebraNftManagerABI from 'constants/abis/earn/algebraNftManagerContract.json'
+import { AlgebraNftManagerABI } from 'constants/abis'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 
 export default {

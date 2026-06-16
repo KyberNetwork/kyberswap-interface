@@ -85,9 +85,12 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
 
   const pool = useMemo<PoolDetail | undefined>(() => {
     if (!poolDetail) return undefined
+    const poolExplorer = explorerData?.data.pools[0]
+
     return {
+      ...poolExplorer,
       ...poolDetail,
-      tokens: mergePoolTokens(poolDetail, explorerData?.data.pools[0], tokenMetadata),
+      tokens: mergePoolTokens(poolDetail, poolExplorer, tokenMetadata),
     }
   }, [poolDetail, explorerData, tokenMetadata])
 

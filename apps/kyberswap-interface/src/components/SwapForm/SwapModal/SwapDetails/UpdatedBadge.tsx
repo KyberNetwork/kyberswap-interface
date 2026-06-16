@@ -1,44 +1,9 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { transparentize } from 'polished'
-import React from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
-import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
-
-const BadgeWrapper = styled(AutoColumn).attrs<Pick<Props, '$level'>>(props => ({
-  'data-level': props['$level'],
-}))<Pick<Props, '$level'>>`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  padding: 4px 8px;
-  border-radius: 36px;
-
-  line-height: 1;
-  font-size: 12px;
-  font-weight: 400;
-
-  &[data-level='worst'] {
-    background-color: ${({ theme }) => transparentize(0.9, theme.red)};
-    color: ${({ theme }) => theme.red};
-  }
-
-  &[data-level='worse'] {
-    background-color: ${({ theme }) => transparentize(0.9, theme.warning)};
-    color: ${({ theme }) => theme.warning};
-  }
-
-  &[data-level='better'] {
-    background-color: ${({ theme }) => transparentize(0.9, theme.primary)};
-    color: ${({ theme }) => theme.primary};
-  }
-`
+import { cn } from 'utils/cn'
 
 export type Level = 'better' | 'worse' | 'worst' | undefined
 
@@ -47,8 +12,13 @@ export interface Props {
   outputAmount: CurrencyAmount<Currency>
 }
 
+const LEVEL_CLASS: Record<NonNullable<Level>, string> = {
+  worst: 'bg-red-10 text-red',
+  worse: 'bg-warning-10 text-warning',
+  better: 'bg-primary-10 text-primary',
+}
+
 export default function UpdatedBadge({ $level, outputAmount }: Props) {
-  const theme = useTheme()
   const output = `${outputAmount.toSignificant(RESERVE_USD_DECIMALS)} ${outputAmount.currency.symbol}`
 
   if (!$level) {
@@ -56,20 +26,26 @@ export default function UpdatedBadge({ $level, outputAmount }: Props) {
   }
 
   return (
-    <BadgeWrapper $level={$level}>
+    <div
+      data-level={$level}
+      className={cn(
+        'flex items-center gap-1 rounded-[36px] px-2 py-1 text-xs font-normal leading-none',
+        LEVEL_CLASS[$level],
+      )}
+    >
       {$level === 'better' && (
         <InfoHelper
           placement="top"
           size={14}
-          color={theme.primary}
+          className="text-primary"
           text={
-            <Text fontSize={12}>
+            <span className="text-xs">
               <Trans>We got you a higher amount. The initial output amount was {output}</Trans>
-            </Text>
+            </span>
           }
-        ></InfoHelper>
+        />
       )}
       <Trans>Updated</Trans>
-    </BadgeWrapper>
+    </div>
   )
 }

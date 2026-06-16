@@ -4,22 +4,23 @@ import { useCreateOrderSignatureMutation } from 'services/limitOrder'
 import { formatAmountOrder, getPayloadCreateOrder } from 'components/swapv2/LimitOrder/helpers'
 import { CreateOrderParam } from 'components/swapv2/LimitOrder/type'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formatSignature } from 'utils/transaction'
+import { Address } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 export default function useSignOrder(
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>> | undefined,
 ) {
-  const { library } = useWeb3React()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [getMessageSignature] = useCreateOrderSignatureMutation()
 
   return useCallback(
     async (params: CreateOrderParam) => {
       const { currencyIn, currencyOut, inputAmount, outputAmount, signature, salt } = params
       if (signature && salt) return { signature, salt }
-      if (!library || !currencyIn || !currencyOut) return { signature: '', salt: '' }
+      if (!currencyIn || !currencyOut || !account) return { signature: '', salt: '' }
 
       const payload = getPayloadCreateOrder(params)
       setFlowState?.({
@@ -32,9 +33,13 @@ export default function useSignOrder(
       })
       const messagePayload = await getMessageSignature(payload).unwrap()
 
-      const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
+      const rawSignature = await signTypedDataRaw({
+        chainId: chainId,
+        account: account as Address,
+        typedData: messagePayload,
+      })
       return { signature: formatSignature(rawSignature), salt: messagePayload?.message?.salt }
     },
-    [setFlowState, account, getMessageSignature, library],
+    [setFlowState, account, chainId, getMessageSignature],
   )
 }

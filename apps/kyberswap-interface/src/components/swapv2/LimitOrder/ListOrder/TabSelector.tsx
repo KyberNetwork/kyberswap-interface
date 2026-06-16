@@ -1,28 +1,17 @@
 import { t } from '@lingui/macro'
-import { Flex } from 'rebass'
-import styled, { css } from 'styled-components'
 
-import useTheme from 'hooks/useTheme'
+import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { cn } from 'utils/cn'
 
-import { LimitOrderStatus } from '../type'
-
-const TabButton = styled.div<{ active: boolean }>`
-  font-size: 14px;
-  line-height: 20px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  ${({ theme, active }) =>
-    active
-      ? css`
-          color: ${theme.primary};
-        `
-      : css`
-          color: ${theme.subText};
-          :hover {
-            filter: brightness(1.2);
-          }
-        `}
-`
+const TabButton = ({ active, ...props }: { active: boolean } & React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    {...props}
+    className={cn(
+      'cursor-pointer text-sm leading-5 transition-all duration-200 ease-linear',
+      active ? 'text-primary' : 'text-subText hover:brightness-[1.2]',
+    )}
+  />
+)
 
 const TabSelector = ({
   activeTab,
@@ -31,20 +20,18 @@ const TabSelector = ({
   activeTab: LimitOrderStatus
   setActiveTab: (n: LimitOrderStatus) => void
 }) => {
-  const theme = useTheme()
-
   return (
-    <Flex alignItems={'center'} sx={{ padding: 16, gap: '8px' }}>
+    <div className="flex items-center gap-2 p-4">
       <TabButton active={activeTab === LimitOrderStatus.ACTIVE} onClick={() => setActiveTab(LimitOrderStatus.ACTIVE)}>
         {t`Active Orders`}
       </TabButton>
 
-      <span style={{ color: theme.subText }}>|</span>
+      <span className="text-subText">|</span>
 
       <TabButton active={activeTab === LimitOrderStatus.CLOSED} onClick={() => setActiveTab(LimitOrderStatus.CLOSED)}>
         {t`Order History`}
       </TabButton>
-    </Flex>
+    </div>
   )
 }
 export default TabSelector

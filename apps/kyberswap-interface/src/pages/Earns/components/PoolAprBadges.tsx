@@ -1,9 +1,7 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
-import { Text } from 'rebass'
 
 import { ReactComponent as KyberBonusIcon } from 'assets/svg/kyber/kyber_bonus.svg'
-import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -15,8 +13,11 @@ type Props = {
 }
 
 const PoolAprBadges = ({ pool }: Props) => {
-  const showEgReward = pool.programs?.includes(ProgramType.EG) && pool.kemEGApr > 0
-  const showLmReward = pool.programs?.includes(ProgramType.LM) && pool.kemLMApr > 0
+  const hasActiveApr = !!pool.activeApr
+  const egApr = hasActiveApr ? pool.activeEgApr || 0 : pool.kemEGApr
+  const lmApr = hasActiveApr ? pool.activeLmApr || 0 : pool.kemLMApr
+  const showEgReward = pool.programs?.includes(ProgramType.EG) && egApr > 0
+  const showLmReward = pool.programs?.includes(ProgramType.LM) && lmApr > 0
   const merklOpportunity = pool.merklOpportunity
 
   if (!showEgReward && !showLmReward && !merklOpportunity) return null
@@ -24,16 +25,16 @@ const PoolAprBadges = ({ pool }: Props) => {
   const tokenReward = merklOpportunity?.rewardsRecord.breakdowns[0]?.token
 
   return (
-    <HStack align="center" gap={4} wrap="nowrap">
+    <HStack className="flex-nowrap items-center gap-1">
       {showEgReward && (
         <MouseoverTooltipDesktopOnly
           placement="bottom"
           width="fit-content"
-          text={`${t`FairFlow EG Rewards`}: ${formatAprNumber(pool.kemEGApr)}%`}
+          text={`${t`FairFlow EG Rewards`}: ${formatAprNumber(egApr)}%`}
         >
           <Badge>
-            <UniBonusIcon width={16} height={16} />
-            <Text>+{formatAprNumber(pool.kemEGApr)}%</Text>
+            <KyberBonusIcon width={16} height={16} />
+            <span>+{formatAprNumber(egApr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
@@ -41,11 +42,11 @@ const PoolAprBadges = ({ pool }: Props) => {
         <MouseoverTooltipDesktopOnly
           placement="bottom"
           width="fit-content"
-          text={`${t`LM Reward`}: ${formatAprNumber(pool.kemLMApr)}%`}
+          text={`${t`LM Rewards`}: ${formatAprNumber(lmApr)}%`}
         >
           <Badge>
             <KyberBonusIcon width={16} height={16} />
-            <Text>+{formatAprNumber(pool.kemLMApr)}%</Text>
+            <span>+{formatAprNumber(lmApr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}
@@ -57,7 +58,7 @@ const PoolAprBadges = ({ pool }: Props) => {
         >
           <Badge>
             <TokenLogo src={tokenReward.icon} size={16} />
-            <Text>+{formatAprNumber(merklOpportunity.apr)}%</Text>
+            <span>+{formatAprNumber(merklOpportunity.apr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}

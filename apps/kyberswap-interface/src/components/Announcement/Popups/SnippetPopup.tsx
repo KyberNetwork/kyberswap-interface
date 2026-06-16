@@ -1,8 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { X } from 'react-feather'
-import { Flex } from 'rebass'
-import styled, { css } from 'styled-components'
 import { Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
@@ -15,77 +12,10 @@ import {
   PopupType,
 } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
-import { Z_INDEXS } from 'constants/styles'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDetailAnnouncement, useRemovePopup } from 'state/application/hooks'
+import { cn } from 'utils/cn'
 import { useNavigateToUrl } from 'utils/redirect'
-
-const IMAGE_HEIGHT = '124px'
-const PADDING_MOBILE = '16px'
-
-const ItemWrapper = styled.div`
-  background-color: ${({ theme }) => rgba(theme.tabActive, 0.95)};
-  height: ${IMAGE_HEIGHT};
-  border-radius: 8px;
-  display: flex;
-  position: relative;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     height: 124px;
-  `}
-`
-
-const ContentColumn = styled(AutoColumn)`
-  padding: 16px 40px 16px 16px;
-  gap: 14px;
-  flex: 1;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 16px 40px 16px 16px;
-  `}
-`
-
-const Image = styled.img`
-  max-width: 200px;
-  height: ${IMAGE_HEIGHT};
-  border-radius: 8px;
-  object-fit: cover;
-  cursor: pointer;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     display: none;
-  `}
-`
-
-const Title = styled.div`
-  max-width: 100%;
-  font-size: 14px;
-  line-height: 20px;
-  height: 42px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  display: block;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-`
-
-const StyledCtaButton = styled(CtaButton)`
-  font-size: 14px;
-`
-
-const SeeMore = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  font-weight: 500;
-  text-align: right;
-  white-space: nowrap;
-`
 
 function SnippetPopupItem({
   data,
@@ -123,88 +53,33 @@ function SnippetPopupItem({
   }
 
   return (
-    <ItemWrapper>
-      <Image onClick={toggle} src={thumbnailImageURL || NotificationImage} />
-      <ContentColumn>
-        <Title onClick={toggle}>{name}</Title>
-        <Flex
-          alignItems="flex-end"
-          style={{
-            position: 'relative',
-            justifyContent: hasCta ? 'space-between' : 'flex-start',
-            gap: '12px',
-            alignItems: 'flex-end',
-          }}
+    <div className="relative flex h-[124px] rounded-lg bg-tableHeader/95">
+      <img
+        onClick={toggle}
+        src={thumbnailImageURL || NotificationImage}
+        className="h-[124px] max-w-[200px] cursor-pointer rounded-lg object-cover max-sm:hidden"
+      />
+      <AutoColumn className="flex-1 gap-[14px] py-4 pl-4 pr-10">
+        <div
+          onClick={toggle}
+          className="h-[42px] max-w-full cursor-pointer overflow-hidden text-ellipsis text-sm font-medium leading-5 text-text [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [display:-webkit-box]"
         >
-          {hasCta && <StyledCtaButton data={ctaInfo} color="link" onClick={onClickCta} />}
-          <SeeMore onClick={toggle}>
+          {name}
+        </div>
+        <div className={cn('relative flex items-end gap-3', hasCta ? 'justify-between' : 'justify-start')}>
+          {hasCta && <CtaButton className="!text-sm" data={ctaInfo} color="link" onClick={onClickCta} />}
+          <div
+            onClick={toggle}
+            className="flex cursor-pointer select-none items-center whitespace-nowrap text-right text-sm font-medium text-subText"
+          >
             <Trans>Read More</Trans>
-          </SeeMore>
-        </Flex>
-      </ContentColumn>
-    </ItemWrapper>
+          </div>
+        </div>
+      </AutoColumn>
+    </div>
   )
 }
 
-const Wrapper = styled.div`
-  position: fixed;
-  left: 30px;
-  bottom: 30px;
-  z-index: ${Z_INDEXS.POPUP_NOTIFICATION};
-  width: 470px;
-
-  // custom swiper below
-  --swiper-navigation-size: 12px;
-  > div.swiper {
-    border-radius: 8px;
-  }
-  .swiper-button-prev,
-  .swiper-button-next {
-    color: ${({ theme }) => theme.text};
-    background: ${({ theme }) => rgba(theme.border, 0.8)};
-    width: 24px;
-    height: 24px;
-    margin-top: 0;
-    border-radius: 50%;
-    transform: translateY(-50%);
-    visibility: hidden;
-  }
-  &:hover {
-    .swiper-button-prev,
-    .swiper-button-next {
-      visibility: visible;
-    }
-  }
-  .swiper-pagination {
-    display: none;
-  }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    bottom: 74px;
-  `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    ${css`
-      left: 0;
-      right: 0;
-      width: 100%;
-      padding: 0px ${PADDING_MOBILE};
-      --swiper-navigation-size: 10px;
-    `}`}
-`
-
-const Close = styled(X)`
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  z-index: 1;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    right: calc(12px + ${PADDING_MOBILE}); 
-    width: 22px;
-    height: 22px;
-  `}
-`
 export default function SnippetPopup({
   data,
   clearAll,
@@ -212,7 +87,6 @@ export default function SnippetPopup({
   data: PopupItemType<PopupContentAnnouncement>[]
   clearAll: () => void
 }) {
-  const theme = useTheme()
   const [, setAnnouncementDetail] = useDetailAnnouncement()
   const showDetailAnnouncement = (selectedIndex: number) => {
     setAnnouncementDetail({
@@ -228,7 +102,7 @@ export default function SnippetPopup({
     trackingHandler(TRACKING_EVENT_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: 'snippet_popups' })
 
   return (
-    <Wrapper>
+    <div className="ks-snippet-popup fixed bottom-[30px] left-[30px] z-[9999] w-[470px] max-md:bottom-[74px] max-sm:inset-x-0 max-sm:w-full max-sm:px-4">
       <Swiper
         slidesPerView={1}
         navigation
@@ -245,13 +119,13 @@ export default function SnippetPopup({
           </SwiperSlide>
         ))}
       </Swiper>
-      <Close
-        color={theme.subText}
+      <X
         onClick={() => {
           clearAll()
           trackingClose()
         }}
+        className="absolute right-3 top-3 z-[1] h-[18px] w-[18px] cursor-pointer text-subText max-sm:right-[calc(12px+16px)] max-sm:h-[22px] max-sm:w-[22px]"
       />
-    </Wrapper>
+    </div>
   )
 }

@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { CSSProperties } from 'react'
 import { ArrowDown, ArrowUp } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import { CSSProperties } from 'styled-components'
 
 import { SimplePopupProps } from 'components/Announcement/Popups/SimplePopup'
 import { PRIVATE_ANN_TITLE } from 'components/Announcement/PrivateAnnoucement'
@@ -11,15 +10,14 @@ import Logo, { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 import { PROFILE_MANAGE_ROUTES, PriceAlertType } from 'pages/NotificationCenter/const'
+import { cn } from 'utils/cn'
 
 const DescriptionPriceAlert = (
   content: AnnouncementTemplatePriceAlert,
   templateType: PrivateAnnouncementType,
 ): SimplePopupProps => {
-  const theme = useTheme()
   const {
     chainId: rawChainId,
     tokenInAmount,
@@ -38,16 +36,16 @@ const DescriptionPriceAlert = (
     title: PRIVATE_ANN_TITLE()[templateType] ?? '',
     type: NotificationType.SUCCESS,
     link: `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}?tab=${Tab.HISTORY}`,
-    icon: <Clock size={20} />,
+    icon: <Clock size={20} className="text-primary" />,
     summary: (
-      <Row gap="6px" flexWrap={'wrap'} alignItems="center">
+      <Row className="flex-wrap items-center gap-1.5">
         <Logo srcs={[tokenInLogoURL]} style={logoStyle} />
-        {tokenInAmount} {tokenInSymbol} <Text color={theme.subText}>to</Text>
-        <Logo srcs={[tokenOutLogoURL]} style={logoStyle} /> {tokenOutSymbol} <Text color={theme.subText}>goes</Text>{' '}
-        <Flex alignItems={'center'} style={{ gap: '4px' }} color={isAbove ? theme.primary : theme.red}>
+        {tokenInAmount} {tokenInSymbol} <span className="text-subText">to</span>
+        <Logo srcs={[tokenOutLogoURL]} style={logoStyle} /> {tokenOutSymbol} <span className="text-subText">goes</span>{' '}
+        <span className={cn('flex items-center gap-1', isAbove ? 'text-primary' : 'text-red')}>
           {isAbove ? <ArrowUp size={16} /> : <ArrowDown size={16} />} {type}
-        </Flex>
-        {threshold} {tokenOutSymbol} <Text color={theme.subText}>on</Text>{' '}
+        </span>
+        {threshold} {tokenOutSymbol} <span className="text-subText">on</span>{' '}
         <NetworkLogo chainId={chainId} style={logoStyle} /> {NETWORKS_INFO[chainId].name}
       </Row>
     ),

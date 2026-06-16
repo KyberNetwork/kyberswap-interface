@@ -18,6 +18,7 @@ import { fetchExistingPoolAddress, navigateToPositionAfterZap, sortTokensByAddre
 import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { friendlyError } from 'utils/errorMessage'
 
 type CreateConfig = {
   chainId: number
@@ -34,7 +35,7 @@ const useZapCreatePoolWidget = () => {
   const toggleWalletModal = useWalletModalToggle()
   const { account, chainId: connectedChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const navigate = useNavigate()
   const addTransactionWithType = useTransactionAdder()
 
@@ -52,14 +53,14 @@ const useZapCreatePoolWidget = () => {
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, config: CreateConfig) => {
-      if (!library || !config) return
+      if (!config) return
       const poolAddress = await fetchExistingPoolAddress(config)
 
       if (!poolAddress) return
 
-      navigateToPositionAfterZap(library, txHash, config.chainId, config.protocol, poolAddress, navigate)
+      navigateToPositionAfterZap(txHash, config.chainId, config.protocol, poolAddress, navigate)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const widgetProps = useMemo(() => {
@@ -108,10 +109,10 @@ const useZapCreatePoolWidget = () => {
                 dexName?: string
               },
         ) => {
-          const res = await submitTransaction({ library, txData })
+          const res = await submitTransaction({ account, chainId: connectedChainId, txData, isSmartConnector })
           const { txHash, error } = res
 
-          if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+          if (!txHash || error) throw new Error(error ? friendlyError(error) : 'Transaction failed')
 
           // Track this tx hash for status updates
           addTrackedTxHash(txHash)
@@ -142,7 +143,7 @@ const useZapCreatePoolWidget = () => {
             })
           }
 
-          return res.txHash
+          return txHash
         },
       },
       createPoolConfig: {
@@ -162,7 +163,7 @@ const useZapCreatePoolWidget = () => {
     defaultRpc,
     handleClose,
     handleNavigateToPosition,
-    library,
+    isSmartConnector,
     locale,
     originalToCurrentHash,
     toggleWalletModal,

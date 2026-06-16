@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import {
   AssetToken,
   useAddFavoriteMutation,
@@ -14,16 +13,18 @@ import {
 
 import { NotificationType } from 'components/Announcement/type'
 import Divider from 'components/Divider'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import DetailModal, { Price, PriceChange } from 'pages/MarketOverview/DetailModal'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { TabItem, TableRow } from 'pages/MarketOverview/styles'
+import useFilter from 'pages/MarketOverview/useFilter'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import DetailModal, { Price, PriceChange } from './DetailModal'
-import SortIcon, { Direction } from './SortIcon'
-import { TabItem, TableRow } from './styles'
-import useFilter from './useFilter'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 export default function TableContent({
   showMarketInfo,
@@ -44,8 +45,7 @@ export default function TableContent({
 
   const [sortCol, sortDirection] = (filters.sort || '').split(' ')
 
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
   const tokensFromApi = useMemo(() => data?.data.assets || [], [data])
@@ -92,9 +92,9 @@ export default function TableContent({
 
   if (!tokens.length && !isLoading) {
     return (
-      <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
+      <p className="m-12 mt-16 text-center text-subText">
         <Trans>No data found</Trans>
-      </Text>
+      </p>
     )
   }
 
@@ -140,7 +140,12 @@ export default function TableContent({
     if (!signature) {
       const issuedAt = new Date().toISOString()
       msg = t`Click sign to add favorite tokens at KyberSwap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in 7 days.\n\nIssued at: ${issuedAt}`
-      signature = await library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account])
+      const walletClient = await getGatedWalletClient({ chainId: chainId })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+      signature = await walletClient.signMessage({
+        account: account as Address,
+        message: msg,
+      })
       localStorage.setItem(
         key,
         JSON.stringify({
@@ -195,61 +200,47 @@ export default function TableContent({
 
   const mobileHeader = (
     <>
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', paddingY: '0.75rem' }}>
-        <Text color={theme.subText} fontSize={14} height="100%">
+      <div className="grid grid-cols-3 py-3">
+        <p className="h-full text-[14px] text-subText">
           <Trans>Name</Trans>
-        </Text>
+        </p>
 
         {showMarketInfo ? (
           <>
-            <Flex
-              justifyContent="flex-end"
-              sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-              fontSize={14}
-              color={theme.subText}
+            <div
+              className="flex cursor-pointer items-center justify-end gap-1 text-[14px] text-subText"
               role="button"
               onClick={() => updateSort('volume_24h', false)}
             >
               <Trans>24h Volume</Trans>
               <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
-            </Flex>
+            </div>
 
-            <Flex
-              justifyContent="flex-end"
-              sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-              fontSize={14}
+            <div
+              className="flex cursor-pointer items-center justify-end gap-1 text-[14px] text-subText"
               role="button"
-              color={theme.subText}
               onClick={() => updateSort('market_cap', false)}
             >
               <Trans>Market Cap</Trans>
               <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
-            </Flex>
+            </div>
           </>
         ) : (
           <>
-            <Flex alignItems="flex-end" flexDirection="column" fontSize={12}>
-              <Flex
-                color={theme.subText}
-                justifyContent="flex-end"
-                sx={{ gap: '4px', cursor: 'pointer' }}
-                fontSize={14}
+            <div className="flex flex-col items-end text-[12px]">
+              <div
+                className="flex cursor-pointer justify-end gap-1 text-[14px] text-subText"
                 role="button"
                 onClick={() => updateSort(`price_${selectedPrice}`)}
               >
                 {selectedPrice === 'buy' ? <Trans>Buy Price</Trans> : <Trans>Sell Price</Trans>}
-                <Flex marginTop="3px">
+                <div className="mt-[3px] flex">
                   <SortIcon
                     sorted={sortCol.startsWith(`price_${selectedPrice}`) ? (sortDirection as Direction) : undefined}
                   />
-                </Flex>
-              </Flex>
-              <Flex
-                sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
-                padding="1px"
-                marginTop="8px"
-                width="fit-content"
-              >
+                </div>
+              </div>
+              <div className="mt-2 flex w-fit rounded-[999px] border border-solid border-border bg-buttonBlack p-px">
                 <TabItem
                   active={selectedPrice === 'buy'}
                   onClick={() => {
@@ -271,16 +262,14 @@ export default function TableContent({
                 >
                   Sell
                 </TabItem>
-              </Flex>
-            </Flex>
+              </div>
+            </div>
 
-            <Flex alignItems="flex-end" flexDirection="column" fontSize={12}>
-              <Flex
-                justifyContent="flex-end"
-                sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+            <div className="flex flex-col items-end text-[12px]">
+              <div
+                className="flex cursor-pointer items-center justify-end gap-1 text-subText"
                 role="button"
                 onClick={() => updateSort(`price_${selectedPrice}_change_${selectedSort}`)}
-                color={theme.subText}
               >
                 {selectedSort} {t`Change`}
                 <SortIcon
@@ -288,14 +277,9 @@ export default function TableContent({
                     sortCol.startsWith(`price_${selectedPrice}_change`) ? (sortDirection as Direction) : undefined
                   }
                 />
-              </Flex>
+              </div>
 
-              <Flex
-                sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
-                padding="1px"
-                marginTop="8px"
-                width="fit-content"
-              >
+              <div className="mt-2 flex w-fit rounded-[999px] border border-solid border-border bg-buttonBlack p-px">
                 <TabItem
                   active={selectedSort === '1h'}
                   onClick={() => {
@@ -325,11 +309,11 @@ export default function TableContent({
                 >
                   <Trans>7D</Trans>
                 </TabItem>
-              </Flex>
-            </Flex>
+              </div>
+            </div>
           </>
         )}
-      </Box>
+      </div>
       <Divider />
     </>
   )
@@ -389,12 +373,12 @@ export default function TableContent({
 
         const volAndMc = (
           <>
-            <Flex alignItems="center" justifyContent="flex-end">
+            <div className="flex items-center justify-end">
               {item.volume24h ? formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 }) : '--'}
-            </Flex>
-            <Flex alignItems="center" justifyContent="flex-end" height="100%">
+            </div>
+            <div className="flex h-full items-center justify-end">
               {item.marketCap ? formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 }) : '--'}
-            </Flex>
+            </div>
           </>
         )
 
@@ -414,9 +398,9 @@ export default function TableContent({
         ) : (
           <>
             <Price price={selectedPrice === 'buy' ? +priceBuy : +priceSell} />
-            <Flex alignItems="center" justifyContent="flex-end" color={getColor(priceChangeToDisplayOnMobile)}>
+            <div className="flex items-center justify-end" style={{ color: getColor(priceChangeToDisplayOnMobile) }}>
               <PriceChange priceChange={priceChangeToDisplayOnMobile} />
-            </Flex>
+            </div>
           </>
         )
 
@@ -436,30 +420,22 @@ export default function TableContent({
 
         return (
           <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
-            <Flex sx={{ gap: '8px' }} alignItems="flex-start" padding={upToMedium ? '0.75rem 0' : '0.75rem'}>
+            <div className={cn('flex items-start gap-2', upToMedium ? 'py-3' : 'p-3')}>
               <img
                 src={item.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
                 width="24px"
                 height="24px"
                 alt=""
-                style={{
-                  borderRadius: '50%',
-                }}
+                className="rounded-full"
               />
               <div>
-                <Flex fontSize={16} alignItems="flex-end">
+                <div className="flex items-end text-[16px]">
                   {item.symbol}
-                  {quoteSymbol && (
-                    <Text fontSize={14} color={theme.subText}>
-                      /{quoteSymbol}
-                    </Text>
-                  )}
-                </Flex>
-                <Text fontSize={14} color={theme.subText} marginTop="2px">
-                  {item.name}
-                </Text>
+                  {quoteSymbol && <span className="text-[14px] text-subText">/{quoteSymbol}</span>}
+                </div>
+                <p className="mt-0.5 text-[14px] text-subText">{item.name}</p>
               </div>
-            </Flex>
+            </div>
 
             {upToMedium ? (
               mobileDisplay
@@ -467,54 +443,26 @@ export default function TableContent({
               <>
                 <Price price={+priceBuy} />
 
-                <Flex
-                  alignItems="center"
-                  justifyContent="flex-end"
-                  padding="0.75rem 1.5rem 0.75rem"
-                  height="100%"
-                  color={getColor(desktopBuyPriceChange)}
+                <div
+                  className="flex h-full items-center justify-end px-6 py-3"
+                  style={{ color: getColor(desktopBuyPriceChange) }}
                 >
                   <PriceChange priceChange={desktopBuyPriceChange} />
-                </Flex>
+                </div>
 
                 <Price price={+priceSell} />
 
-                <Flex
-                  alignItems="center"
-                  justifyContent="flex-end"
-                  padding="0.75rem 1.5rem 0.75rem"
-                  height="100%"
-                  color={getColor(desktopSellPriceChange)}
+                <div
+                  className="flex h-full items-center justify-end px-6 py-3"
+                  style={{ color: getColor(desktopSellPriceChange) }}
                 >
                   <PriceChange priceChange={desktopSellPriceChange} />
-                </Flex>
+                </div>
 
                 {volAndMc}
 
-                <Flex justifyContent="center" alignItems="center" sx={{ gap: '0.75rem' }}>
-                  {/*
-                  <ButtonOutlined
-                    color={theme.primary}
-                    style={{
-                      width: 'fit-content',
-                      padding: '4px 12px',
-                    }}
-                    onClick={e => {
-                      e.stopPropagation()
-                      if (token)
-                        window.open(
-                          `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?inputCurrency=${
-                            NativeCurrencies[token.chainId as ChainId].symbol
-                          }&outputCurrency=${token.address}`,
-                          '_blank',
-                        )
-                    }}
-                  >
-                    Buy
-                  </ButtonOutlined>
-                  */}
-
-                  <Info size={16} color={theme.subText} />
+                <div className="flex items-center justify-center gap-3">
+                  <Info size={16} className="text-subText" />
 
                   <Star
                     size={16}
@@ -527,7 +475,7 @@ export default function TableContent({
                       toggleFavorite(item)
                     }}
                   />
-                </Flex>
+                </div>
               </>
             )}
           </TableRow>

@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
-import { Text } from 'rebass'
 
 import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
@@ -58,8 +57,8 @@ const DesktopTableRow = ({
   return (
     <TableRow showRewards={showRewards} showPoolPrice={showPoolPrice} onClick={e => handleOpenZapInWidget(e)}>
       <TableCell>
-        <HStack align="center" gap={8}>
-          <HStack align="flex-end" position="relative" gap={0}>
+        <HStack className="items-center gap-2">
+          <HStack className="relative items-end gap-0">
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
             <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
             {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
@@ -79,11 +78,9 @@ const DesktopTableRow = ({
             <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
           </MouseoverTooltipDesktopOnly>
         </HStack>
-        <HStack align="center" gap={4}>
+        <HStack className="items-center gap-1">
           <TokenLogo src={pool.dexLogo} size={18} />
-          <Text color={theme.subText} fontSize={14}>
-            {pool.dexName}
-          </Text>
+          <span className="text-sm text-subText">{pool.dexName}</span>
         </HStack>
       </TableCell>
       <TableCell>
@@ -91,18 +88,18 @@ const DesktopTableRow = ({
         <PoolAprBadges pool={pool} />
       </TableCell>
       <TableCell>
-        <Text>
+        <span>
           {formatDisplayNumber(pool.earnFee, {
             style: 'currency',
             significantDigits: 6,
           })}
-        </Text>
+        </span>
       </TableCell>
       <TableCell>
-        <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
+        <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
       </TableCell>
       <TableCell>
-        <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+        <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
       </TableCell>
       {showRewards && (
         <TableCell>

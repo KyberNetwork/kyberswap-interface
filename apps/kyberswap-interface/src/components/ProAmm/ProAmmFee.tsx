@@ -1,10 +1,7 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { Flex, Text } from 'rebass'
 
 import { ButtonLight } from 'components/Button'
 import { OutlineCard } from 'components/Card'
@@ -17,13 +14,14 @@ import { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
+import { basisPointsToPercent, formattedNumLong } from 'utils'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
 
 export default function ProAmmFee({
   tokenId,
@@ -36,16 +34,15 @@ export default function ProAmmFee({
   totalFeeRewardUSD,
 }: {
   totalFeeRewardUSD: number
-  tokenId: BigNumber
+  tokenId: bigint
   position: Position
   layout?: number
   text?: string
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
-  const theme = useTheme()
+  const { account, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const token0Shown = feeValue0?.currency || position.pool.token0
   const token1Shown = feeValue1?.currency || position.pool.token1
   const addTransactionWithType = useTransactionAdder()
@@ -69,7 +66,7 @@ export default function ProAmmFee({
     setCollectFeeError('')
   }
 
-  const handleBroadcastClaimSuccess = (response: TransactionResponse) => {
+  const handleBroadcastClaimSuccess = (response: { hash: string }) => {
     const tokenAmountIn = feeValue0?.toSignificant(6)
     const tokenAmountOut = feeValue1?.toSignificant(6)
     const tokenSymbolIn = feeValue0?.currency.symbol ?? ''
@@ -100,7 +97,7 @@ export default function ProAmmFee({
     setShowPendingModal(true)
     setAttemptingTxn(true)
 
-    if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !library || !deadline || !layout) {
+    if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !deadline || !layout) {
       setAttemptingTxn(false)
       setCollectFeeError('Something went wrong!')
       return
@@ -121,28 +118,17 @@ export default function ProAmmFee({
       isPositionClosed: liquidity === '0',
     })
 
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
-    }
-
     try {
-      await library
-        .getSigner()
-        .estimateGas(txn)
-        .then((estimate: BigNumber) => {
-          const newTxn = {
-            ...txn,
-            gasLimit: calculateGasMargin(estimate),
-          }
-          return library
-            .getSigner()
-            .sendTransaction(newTxn)
-            .then((response: TransactionResponse) => {
-              handleBroadcastClaimSuccess(response)
-            })
-        })
+      const response = await sendEVMTransaction({
+        account,
+        contractAddress: positionManager.address,
+        encodedData: calldata as `0x${string}`,
+        value: BigInt(value),
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
+      })
+      if (response) handleBroadcastClaimSuccess(response)
     } catch (error: any) {
       setShowPendingModal(true)
       setAttemptingTxn(false)
@@ -154,50 +140,42 @@ export default function ProAmmFee({
 
   if (layout === 0) {
     return (
-      <OutlineCard marginTop="1rem" padding="1rem">
-        <AutoColumn gap="md">
-          <Text fontSize="12px" fontWeight="500">
-            Your Fee Earnings
-          </Text>
-          {text && (
-            <Text color={theme.subText} fontSize="12px">
-              {text}
-            </Text>
-          )}
+      <OutlineCard className="mt-4 p-4">
+        <AutoColumn className="gap-3">
+          <span className="text-xs font-medium">Your Fee Earnings</span>
+          {text && <span className="text-xs text-subText">{text}</span>}
 
           <Divider />
           <RowBetween>
-            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+            <span className="text-xs font-medium text-subText">
               <Trans>Total Fees Earned</Trans>
-            </Text>
+            </span>
             <RowFixed>
-              <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-                {formattedNumLong(totalFeeRewardUSD, true)}
-              </Text>
+              <span className="ml-1.5 text-xs font-medium">{formattedNumLong(totalFeeRewardUSD, true)}</span>
             </RowFixed>
           </RowBetween>
 
           <RowBetween>
-            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+            <span className="text-xs font-medium text-subText">
               <Trans>{token0Shown.symbol} Fees Earned</Trans>
-            </Text>
+            </span>
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
-              <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+              <span className="ml-1.5 text-xs font-medium">
                 {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />} {token0Shown.symbol}
-              </Text>
+              </span>
             </RowFixed>
           </RowBetween>
 
           <RowBetween>
-            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+            <span className="text-xs font-medium text-subText">
               <Trans>{token1Shown.symbol} Fees Earned</Trans>
-            </Text>
+            </span>
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
-              <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+              <span className="ml-1.5 text-xs font-medium">
                 {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />} {token1Shown.symbol}
-              </Text>
+              </span>
             </RowFixed>
           </RowBetween>
         </AutoColumn>
@@ -206,51 +184,49 @@ export default function ProAmmFee({
   }
 
   return (
-    <OutlineCard marginTop="1rem" padding="1rem">
-      <AutoColumn gap="md">
+    <OutlineCard className="mt-4 p-4">
+      <AutoColumn className="gap-3">
         <RowBetween>
-          <Flex>
-            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+          <div className="flex">
+            <span className="text-xs font-medium text-subText">
               <Trans>Total Fees Earned</Trans>
-            </Text>
-          </Flex>
+            </span>
+          </div>
           <RowFixed>
-            <Text fontSize={12} fontWeight={500}>
-              {formattedNumLong(totalFeeRewardUSD, true)}
-            </Text>
+            <span className="text-xs font-medium">{formattedNumLong(totalFeeRewardUSD, true)}</span>
           </RowFixed>
         </RowBetween>
 
         <RowBetween>
-          <Flex>
-            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+          <div className="flex">
+            <span className="text-xs font-medium text-subText">
               <Trans>{token0Shown.symbol} Fees Earned</Trans>
-            </Text>
+            </span>
             <QuestionHelper text={t`Your fees are being automatically compounded so you earn more`} />
-          </Flex>
+          </div>
           <RowFixed>
             <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
-            <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+            <span className="ml-1.5 text-xs font-medium">
               {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />} {token0Shown.symbol}
-            </Text>
+            </span>
           </RowFixed>
         </RowBetween>
         <RowBetween>
-          <Flex>
-            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+          <div className="flex">
+            <span className="text-xs font-medium text-subText">
               <Trans>{token1Shown.symbol} Fees Earned</Trans>
-            </Text>
+            </span>
             <QuestionHelper text={t`Your fees are being automatically compounded so you earn more`} />
-          </Flex>
+          </div>
           <RowFixed>
             <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
-            <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+            <span className="ml-1.5 text-xs font-medium">
               {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />} {token1Shown.symbol}
-            </Text>
+            </span>
           </RowFixed>
         </RowBetween>
-        <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
-          <Flex alignItems="center" sx={{ gap: '8px' }}>
+        <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} className="p-2.5 text-sm">
+          <div className="flex items-center gap-2">
             <QuestionHelper
               placement="top"
               size={16}
@@ -262,7 +238,7 @@ export default function ProAmmFee({
               useCurrentColor
             />
             <Trans>Collect Fees</Trans>
-          </Flex>
+          </div>
         </ButtonLight>
       </AutoColumn>
 
@@ -273,9 +249,9 @@ export default function ProAmmFee({
         attemptingTxn={attemptingTxn}
         pendingText={`Collecting fee reward`}
         content={() => (
-          <Flex flexDirection={'column'} width="100%">
+          <div className="flex w-full flex-col">
             {collectFeeError ? <TransactionErrorContent onDismiss={handleDismiss} message={collectFeeError} /> : null}
-          </Flex>
+          </div>
         )}
       />
     </OutlineCard>

@@ -1,30 +1,15 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import KNC from 'assets/images/KNC.svg'
 import Wallet from 'components/Icons/Wallet'
 import Input from 'components/NumericalInput'
 import { AutoRow, RowBetween } from 'components/Row'
-import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
+import { KNCLogoWrapper, SmallButton } from 'pages/KyberDAO/StakeKNC/StakeKNCComponent'
 import { useKNCPrice } from 'state/application/hooks'
 import { getTokenLogoURL } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
-
-import { KNCLogoWrapper, SmallButton } from './StakeKNCComponent'
-
-const InnerCard = styled.div`
-  border-radius: 16px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  padding: 12px 16px;
-  //width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16));
-`
 
 export default function CurrencyInputForStake({
   value,
@@ -39,7 +24,6 @@ export default function CurrencyInputForStake({
   tokenName: string
   disabled?: boolean
 }) {
-  const theme = useTheme()
   const tokenBalance = useTokenBalance(tokenAddress)
   const kncPrice = useKNCPrice()
   const kncValueInUsd = useMemo(() => {
@@ -47,9 +31,9 @@ export default function CurrencyInputForStake({
     return (kncPrice * parseFloat(value)).toFixed(2)
   }, [kncPrice, value])
   return (
-    <InnerCard>
+    <div className="flex flex-col gap-2.5 rounded-2xl bg-buttonBlack px-4 py-3 [filter:drop-shadow(0px_4px_4px_rgba(0,0,0,0.16))]">
       <RowBetween>
-        <AutoRow gap="2px">
+        <AutoRow className="gap-0.5">
           {!disabled && (
             <>
               <SmallButton
@@ -61,9 +45,7 @@ export default function CurrencyInputForStake({
               </SmallButton>
               <SmallButton
                 onClick={() =>
-                  setValue(
-                    getFullDisplayBalance(tokenBalance.value.div(2), tokenBalance.decimals, tokenBalance.decimals),
-                  )
+                  setValue(getFullDisplayBalance(tokenBalance.value / 2n, tokenBalance.decimals, tokenBalance.decimals))
                 }
               >
                 Half
@@ -71,16 +53,16 @@ export default function CurrencyInputForStake({
             </>
           )}
         </AutoRow>
-        <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
+        <AutoRow className="justify-end gap-[3px] text-subText">
           <Wallet />{' '}
-          <Text fontSize={12}>
+          <span className="text-xs">
             {tokenBalance ? getFullDisplayBalance(tokenBalance.value, tokenBalance.decimals) : 0}
-          </Text>
+          </span>
         </AutoRow>
       </RowBetween>
       <RowBetween>
         <Input value={value} onUserInput={setValue} disabled={disabled} />
-        <span style={{ color: theme.border, fontSize: '14px', marginRight: '6px' }}>~${kncValueInUsd}</span>
+        <span className="mr-1.5 text-sm text-border">~${kncValueInUsd}</span>
         <KNCLogoWrapper>
           {getTokenLogoURL(tokenAddress, ChainId.MAINNET) !== '' ? (
             <img src={`${getTokenLogoURL(tokenAddress, ChainId.MAINNET)}`} alt="knc-logo" width="24px" height="24px" />
@@ -90,6 +72,6 @@ export default function CurrencyInputForStake({
           {tokenName}
         </KNCLogoWrapper>
       </RowBetween>
-    </InnerCard>
+    </div>
   )
 }

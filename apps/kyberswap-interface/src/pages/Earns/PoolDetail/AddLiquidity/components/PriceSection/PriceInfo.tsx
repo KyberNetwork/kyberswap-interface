@@ -1,31 +1,9 @@
 import { Pool } from '@kyber/schema'
-import { rgba } from 'polished'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { HStack, Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
 import { getDisplayedPriceTokens } from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection/utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const RevertButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.tabActive};
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-
-  :hover {
-    filter: brightness(1.12);
-  }
-`
 
 interface PriceInfoProps {
   pool: Pool
@@ -47,41 +25,37 @@ export const CurrentPriceHeader = ({
   formattedPrice: string
   onRevertPriceToggle?: () => void
 }) => {
-  const theme = useTheme()
   const { baseToken, quoteToken } = getDisplayedPriceTokens(pool, revertPrice)
 
   return (
-    <HStack align="center" justify="space-between" gap={12}>
-      <HStack flex="1 1 auto" align="center" gap={8} wrap="wrap">
-        <Text color={theme.subText} fontSize={14}>
-          Current Price
-        </Text>
-        <HStack color={theme.text} gap={4} wrap="wrap" fontSize={14}>
-          <Text>1</Text>
-          <Text>{baseToken.symbol}</Text>
-          <Text>=</Text>
-          <Text>{formattedPrice}</Text>
-          <Text>{quoteToken.symbol}</Text>
+    <HStack className="items-center justify-between gap-3">
+      <HStack className="flex-auto flex-wrap items-center gap-2">
+        <span className="text-sm text-subText">Current Price</span>
+        <HStack className="flex-wrap gap-1 text-sm text-text">
+          <span>1</span>
+          <span>{baseToken.symbol}</span>
+          <span>=</span>
+          <span>{formattedPrice}</span>
+          <span>{quoteToken.symbol}</span>
         </HStack>
       </HStack>
 
-      <RevertButton
+      <button
         aria-label="Reverse price"
         disabled={poolPrice === null}
         onClick={onRevertPriceToggle}
         type="button"
+        className="flex size-6 shrink-0 grow-0 cursor-pointer items-center justify-center rounded-full border-0 bg-tabActive text-subText hover:brightness-110"
       >
         <RevertPriceIcon width={12} height={12} />
-      </RevertButton>
+      </button>
     </HStack>
   )
 }
 
 const PriceInfo = ({ pool, poolPrice, revertPrice, onRevertPriceToggle }: PriceInfoProps) => {
-  const theme = useTheme()
-
   return (
-    <Stack border={`1px solid ${theme.border}`} borderRadius={12} gap={8} p="8px 12px">
+    <Stack className="gap-2 rounded-xl border border-solid border-border px-3 py-2">
       <CurrentPriceHeader
         pool={pool}
         poolPrice={poolPrice}
@@ -91,10 +65,8 @@ const PriceInfo = ({ pool, poolPrice, revertPrice, onRevertPriceToggle }: PriceI
       />
 
       {poolPrice === null && (
-        <Stack borderRadius={8} background={rgba(theme.warning, 0.12)} p="8px 12px">
-          <Text color={theme.text} fontSize={12} fontStyle="italic">
-            Unable to get the market price. Please be cautious.
-          </Text>
+        <Stack className="rounded-lg bg-warning-10 px-3 py-2">
+          <span className="text-xs italic text-text">Unable to get the market price. Please be cautious.</span>
         </Stack>
       )}
     </Stack>

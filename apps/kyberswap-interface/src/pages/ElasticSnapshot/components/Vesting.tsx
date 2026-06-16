@@ -1,97 +1,34 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
+import { wagmiConfig } from 'components/Web3Provider'
 import { useActiveWeb3React } from 'hooks'
-import { useReadingContract } from 'hooks/useContract'
-import useTheme from 'hooks/useTheme'
+import VestingClaimModal from 'pages/ElasticSnapshot/components/VestingClaimModal'
+import abi from 'pages/ElasticSnapshot/data/abis/vestingAbi.json'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import abi from '../data/abis/vestingAbi.json'
-import VestingClaimModal from './VestingClaimModal'
-
-const Details = styled.div`
-  margin-top: 24px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 12px;
-  overflow: hidden;
-`
-
-const VestingInfo = styled.div`
-  gap: 1rem;
-  margin-top: 1rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr;
-  `}
-`
-const VestingItem = styled.div<{ claimBox?: boolean }>`
-  border-radius: 12px;
-  padding: 12px 16px;
-  background: ${({ theme, claimBox }) => (claimBox ? rgba(theme.primary, 0.2) : theme.buttonBlack)};
-  font-weight: 500;
-`
-
-const ProgressBar = styled.div`
-  height: 12px;
-  background: ${({ theme }) => theme.buttonGray};
-  border-radius: 999px;
-  width: 100%;
-  position: relative;
-  margin-top: 8px;
-`
-const Claimed = styled.div<{ width: string }>`
-  background: ${({ theme }) => theme.green};
-  border-radius: 999px;
-  position: absolute;
-  height: 12px;
-  left: 0;
-  top: 0;
-  botton: 0;
-  width: ${({ width }) => width};
-`
-const Unlocked = styled.div<{ width: string }>`
-  background: #d1faee;
-  border-radius: 999px;
-  position: absolute;
-  height: 12px;
-  left: 0;
-  top: 0;
-  botton: 0;
-  width: ${({ width }) => width};
-`
-
-const Legend = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  margin-top: 2rem;
-  margin-bottom: 64px;
-  gap: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1fr 1fr;
-  `}
-`
+import { Address } from 'utils/viem'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
+
+const VestingItem = ({ claimBox, children }: { claimBox?: boolean; children: React.ReactNode }) => (
+  <div className={cn('rounded-xl px-4 py-3 font-medium', claimBox ? 'bg-primary-20' : 'bg-buttonBlack')}>
+    {children}
+  </div>
+)
 
 export interface VestingInterface {
   claimData: { receiver: string; vestingAmount: number; index: number }
   proof: string[]
 }
 
-// wallets that request to change address due to compromise or loss
-//   https://team-kyber.atlassian.net/browse/EX-2157
 const disableWallets = [
   '0xd1bbca0dfde1f51ccd17e33de1a7ead48faa1d68',
   '0x194eda5c8302bc8550e3e918b36520d138fba8ae',
@@ -109,7 +46,6 @@ export default function Vesting({
   contractAddress: string
   tcLink: string
 }) {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
 
   const proof = useMemo(() => userVestingData?.proof, [userVestingData])
@@ -120,17 +56,21 @@ export default function Vesting({
   const [endTime, setEndTime] = useState(0)
   const [vestedAmount, setVestedAmount] = useState(0)
 
-  const vestingContract = useReadingContract(contractAddress, abi, ChainId.MATIC)
-
   const [, setRender] = useState(0)
   const getVestedData = useCallback(() => {
-    if (vestingContract && userVestingData) {
-      vestingContract.claimed(userVestingData.claimData.index).then((res: any) => {
-        setVestedAmount(+res?.toString() / 10 ** 6)
+    if (contractAddress && userVestingData) {
+      readContract(wagmiConfig, {
+        address: contractAddress as Address,
+        abi: abi,
+        functionName: 'claimed',
+        args: [BigInt(userVestingData.claimData.index)],
+        chainId: ChainId.MATIC,
+      }).then(res => {
+        setVestedAmount(Number((res as bigint).toString()) / 10 ** 6)
         setRender(prev => prev + 1)
       })
     }
-  }, [vestingContract, userVestingData])
+  }, [contractAddress, userVestingData])
 
   useEffect(() => {
     const i = setInterval(() => {
@@ -142,18 +82,34 @@ export default function Vesting({
   }, [getVestedData])
 
   useEffect(() => {
-    if (vestingContract && userVestingData) {
+    if (contractAddress && userVestingData) {
       Promise.all([
-        vestingContract.claimed(userVestingData.claimData.index),
-        vestingContract.vestingStartTime(),
-        vestingContract.vestingEndTime(),
+        readContract(wagmiConfig, {
+          address: contractAddress as Address,
+          abi: abi,
+          functionName: 'claimed',
+          args: [BigInt(userVestingData.claimData.index)],
+          chainId: ChainId.MATIC,
+        }),
+        readContract(wagmiConfig, {
+          address: contractAddress as Address,
+          abi: abi,
+          functionName: 'vestingStartTime',
+          chainId: ChainId.MATIC,
+        }),
+        readContract(wagmiConfig, {
+          address: contractAddress as Address,
+          abi: abi,
+          functionName: 'vestingEndTime',
+          chainId: ChainId.MATIC,
+        }),
       ]).then(([vested, start, end]) => {
-        setVestedAmount(+vested.toString() / 10 ** 6)
-        setStartTime(start)
-        setEndTime(end)
+        setVestedAmount(Number((vested as bigint).toString()) / 10 ** 6)
+        setStartTime(Number(start))
+        setEndTime(Number(end))
       })
     }
-  }, [vestingContract, userVestingData])
+  }, [contractAddress, userVestingData])
 
   const [show, setShow] = useState(false)
 
@@ -185,58 +141,45 @@ export default function Vesting({
           tcLink={tcLink}
         />
       )}
-      <Details>
-        <Box
-          sx={{ borderBottom: `1px solid ${theme.border}`, padding: '1rem 1.5rem', background: theme.background }}
-          fontSize="14px"
-        >
-          <Text color={theme.subText}>
+      <div className="mt-6 overflow-hidden rounded-xl border border-border">
+        <div className="border-b border-border bg-background px-6 py-4 text-sm">
+          <div className="text-subText">
             <Trans>Wallet Address: </Trans>{' '}
-            <Text as="span" fontWeight="500" color={theme.text}>
-              {upToSmall && account ? shortenAddress(1, account) : account}
-            </Text>
-            {isRemoved && (
-              <Text color={theme.subText} marginTop="8px">
-                This wallet has been removed from Treasury Grant
-              </Text>
-            )}
-          </Text>
-        </Box>
+            <span className="font-medium text-text">{upToSmall && account ? shortenAddress(1, account) : account}</span>
+            {isRemoved && <div className="mt-2 text-subText">This wallet has been removed from Treasury Grant</div>}
+          </div>
+        </div>
 
-        <Box sx={{ padding: '1rem 1.5rem', background: rgba(theme.buttonGray, 0.4) }} fontSize="14px">
-          <Text>
+        <div className="px-6 py-4 text-sm" style={{ background: 'rgba(41, 41, 41, 0.4)' }}>
+          <div>
             <Trans>
               Grant Plan: USD stablecoins equivalent of {userSelectedOption === 'A' ? '60%' : '100%'} of Reference Value
               of Affected Assets associated with such Affected Address, vested over{' '}
               {userSelectedOption === 'A' ? '3' : '12'} months.
             </Trans>
-          </Text>
+          </div>
 
-          <VestingInfo>
+          <div className="mt-4 grid grid-cols-3 gap-4 max-md:grid-cols-1">
             <VestingItem>
-              <Text color={theme.subText}>
+              <div className="text-subText">
                 <Trans>Total Amount (USDC)</Trans>
-              </Text>
-              <Text fontSize="20px" marginTop="1rem">
-                {format(totalAmount)}
-              </Text>
+              </div>
+              <div className="mt-4 text-xl">{format(totalAmount)}</div>
             </VestingItem>
 
             <VestingItem>
-              <Text color={theme.subText}>
+              <div className="text-subText">
                 <Trans>Total Vested Amount (USDC)</Trans>
-              </Text>
-              <Text fontSize="20px" marginTop="1rem">
-                {format(vestedAmount)}
-              </Text>
+              </div>
+              <div className="mt-4 text-xl">{format(vestedAmount)}</div>
             </VestingItem>
 
             <VestingItem claimBox>
-              <Text color={theme.subText}>
+              <div className="text-subText">
                 <Trans>Unlocked Amount (USDC)</Trans>
-              </Text>
-              <Flex alignItems="center" marginTop="1rem" justifyContent="space-between">
-                <Text fontSize="20px">{format(claimableAmount)}</Text>
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-xl">{format(claimableAmount)}</span>
                 <ButtonPrimary
                   width="64px"
                   height="24px"
@@ -245,42 +188,45 @@ export default function Vesting({
                 >
                   Claim
                 </ButtonPrimary>
-              </Flex>
+              </div>
             </VestingItem>
-          </VestingInfo>
-          <Flex justifyContent="flex-end" alignItems="flex-end" marginTop="24px">
+          </div>
+          <div className="mt-6 flex items-end justify-end">
             {now > endTime ? (
-              <Text>Fully Unlocked</Text>
+              <span>Fully Unlocked</span>
             ) : (
               <>
-                <Text color={theme.subText}>Full Unlock</Text>
-                <Text marginLeft="4px">
+                <span className="text-subText">Full Unlock</span>
+                <span className="ml-1">
                   {dayjs(endTime * 1000).format('DD MMM YYYY')} ({dayjs(endTime * 1000).fromNow()})
-                </Text>
+                </span>
               </>
             )}
-          </Flex>
-          <ProgressBar>
-            <Unlocked width={`${unlockedPercent}%`} />
-            <Claimed width={`${claimedPercent}%`} />
-          </ProgressBar>
+          </div>
+          <div className="relative mt-2 h-3 w-full rounded-full bg-buttonGray">
+            <div
+              className="absolute left-0 top-0 h-3 rounded-full"
+              style={{ background: '#d1faee', width: `${unlockedPercent}%` }}
+            />
+            <div className="absolute left-0 top-0 h-3 rounded-full bg-green" style={{ width: `${claimedPercent}%` }} />
+          </div>
 
-          <Legend>
-            <Flex alignItems="center">
-              <Box width="1rem" height="1rem" backgroundColor={theme.green} marginRight="8px" />
+          <div className="mb-16 mt-8 grid grid-cols-3 gap-6 max-sm:grid-cols-2">
+            <div className="flex items-center">
+              <div className="mr-2 size-4 bg-green" />
               {claimedPercent.toFixed(0)}% Claimed
-            </Flex>
-            <Flex alignItems="center">
-              <Box width="1rem" height="1rem" backgroundColor="#d1faee" marginRight="8px" />
+            </div>
+            <div className="flex items-center">
+              <div className="mr-2 size-4" style={{ backgroundColor: '#d1faee' }} />
               {claimablePercent.toFixed(0)}% Unlocked
-            </Flex>
-            <Flex alignItems="center">
-              <Box width="1rem" height="1rem" backgroundColor={theme.buttonGray} marginRight="8px" />
+            </div>
+            <div className="flex items-center">
+              <div className="mr-2 size-4 bg-buttonGray" />
               {(100 - unlockedPercent).toFixed(0)}% Locked
-            </Flex>
-          </Legend>
-        </Box>
-      </Details>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   )
 }

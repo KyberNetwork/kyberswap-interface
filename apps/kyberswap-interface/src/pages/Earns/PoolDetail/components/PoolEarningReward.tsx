@@ -1,16 +1,11 @@
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
-import { rgba } from 'polished'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 import { CycleConfigResponse, useCycleConfigQuery } from 'services/kyberdata'
-import styled from 'styled-components'
 
 import ProgressBar from 'components/ProgressBar'
-import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
 import {
   formatAmount,
   formatDateRange,
@@ -53,28 +48,6 @@ type BuildLmRewardCardsParams = {
   poolDexName: string
   rewardTokensByAddress: RewardTokenMap
 }
-
-const RewardCard = styled(Stack)`
-  gap: 12px;
-  min-width: 320px;
-  padding: 16px;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.buttonGray};
-  flex: 1 1 calc(50% - 8px);
-`
-
-const ProgressLabelWrapper = styled(HStack)<{ $width: string }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  align-items: center;
-  justify-content: flex-end;
-  width: ${({ $width }) => $width};
-  min-width: 64px;
-  height: 16px;
-  padding-right: 10px;
-  pointer-events: none;
-`
 
 const buildLmRewardCards = ({
   cycleConfig,
@@ -191,95 +164,75 @@ const PoolEarningReward = () => {
   if (!rewardCards.length) return null
 
   return (
-    <HStack align="stretch" gap={16} wrap="wrap">
+    <div className="flex flex-wrap items-stretch gap-4">
       {rewardCards.map(card => (
         <RewardCardItem key={card.id} {...card} />
       ))}
-    </HStack>
+    </div>
   )
 }
 
 const RewardCardItem = ({ chainIcon, chainName, from, icon, name, to, token }: RewardCardItemProps) => {
-  const theme = useTheme()
   const progressPercent = getProgressPercent(from, to)
   const distributedAmount = token.totalAmount ? (token.totalAmount * progressPercent) / 100 : 0
 
   return (
-    <RewardCard>
-      <HStack align="center" gap={8} wrap="wrap">
-        <HStack align="flex-end" flex="0 0 auto">
+    <div className="flex min-w-[320px] flex-1 basis-[calc(50%-8px)] flex-col gap-3 rounded-xl bg-buttonGray p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex shrink-0 items-end">
           <TokenLogo size={24} src={icon} />
           <TokenLogo size={16} src={chainIcon} translateLeft translateTop />
-        </HStack>
+        </div>
 
-        <Text color={theme.text} fontSize={20} fontWeight={500}>
-          {name}
-        </Text>
-      </HStack>
+        <span className="text-xl font-medium text-text">{name}</span>
+      </div>
 
       {token.dailyAmount !== undefined ? (
-        <HStack align="baseline" gap={4} wrap="wrap">
-          <Text color={theme.subText} fontSize={14}>
-            Daily Rewards:
-          </Text>
-          <Text color={theme.text} fontWeight={500}>
+        <div className="flex flex-wrap items-baseline gap-1">
+          <span className="text-sm text-subText">Daily Rewards:</span>
+          <span className="font-medium text-text">
             {formatAmount(token.dailyAmount)} {token.symbol}
-          </Text>
+          </span>
           {token.price !== undefined ? (
-            <Text color={theme.subText} fontSize={14} fontWeight={500}>
-              ~{formatUsdValue(token.dailyAmount * token.price)}
-            </Text>
+            <span className="text-sm font-medium text-subText">~{formatUsdValue(token.dailyAmount * token.price)}</span>
           ) : null}
-        </HStack>
+        </div>
       ) : (
-        <HStack align="baseline" gap={4} wrap="wrap">
-          <Text color={theme.text} fontWeight={500}>
+        <div className="flex flex-wrap items-baseline gap-1">
+          <span className="font-medium text-text">
             {formatAmount(distributedAmount)} {token.symbol}
-          </Text>
-          <Text color={theme.subText} fontSize={14} fontWeight={500}>
+          </span>
+          <span className="text-sm font-medium text-subText">
             / {formatAmount(token.totalAmount)} {token.symbol}
-          </Text>
-        </HStack>
+          </span>
+        </div>
       )}
 
-      <Stack position="relative">
-        <ProgressBar
-          backgroundColor={rgba(theme.white, 0.08)}
-          color="#05966B"
-          height="16px"
-          percent={progressPercent}
-          width="100%"
-        />
-        <ProgressLabelWrapper $width={`${Math.max(progressPercent, 12)}%`}>
-          <Text color={theme.white} fontSize={12} fontWeight={600}>
-            {Math.round(progressPercent)}%
-          </Text>
-        </ProgressLabelWrapper>
-      </Stack>
+      <div className="relative flex flex-col">
+        <ProgressBar backgroundColor="#ffffff14" color="#05966B" height="16px" percent={progressPercent} width="100%" />
+        <div
+          className="pointer-events-none absolute left-0 top-0 flex h-4 min-w-[64px] items-center justify-end pr-2.5"
+          style={{ width: `${Math.max(progressPercent, 12)}%` }}
+        >
+          <span className="text-xs font-semibold text-white">{Math.round(progressPercent)}%</span>
+        </div>
+      </div>
 
-      <Stack gap={12}>
-        <HStack align="center" justify="space-between" wrap="wrap">
-          <Text color={theme.subText} fontSize={14}>
-            Date
-          </Text>
-          <Text color={theme.text} fontSize={14} fontWeight={500}>
-            {formatDateRange(from, to)}
-          </Text>
-        </HStack>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between">
+          <span className="text-sm text-subText">Date</span>
+          <span className="text-sm font-medium text-text">{formatDateRange(from, to)}</span>
+        </div>
 
-        <HStack align="center" justify="space-between" wrap="wrap">
-          <Text color={theme.subText} fontSize={14}>
-            Reward Chain
-          </Text>
-          <HStack align="center" gap={4}>
+        <div className="flex flex-wrap items-center justify-between">
+          <span className="text-sm text-subText">Reward Chain</span>
+          <div className="flex items-center gap-1">
             <TokenLogo size={18} src={chainIcon} />
-            <Text color={theme.text} fontSize={14} fontWeight={500}>
-              {chainName}
-            </Text>
-          </HStack>
-        </HStack>
-      </Stack>
-    </RewardCard>
+            <span className="text-sm font-medium text-text">{chainName}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -1,20 +1,9 @@
 import { t } from '@lingui/macro'
 import React from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { SwapProvider } from 'pages/CrossChainSwap/adapters'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
-
-const Tag = styled.div`
-  background-color: ${({ theme }) => theme.subText + '33'};
-  color: ${({ theme }) => theme.text};
-  border-radius: 999px;
-  margin-left: 4px;
-  font-size: 10px;
-  padding: 2px 6px;
-`
 
 const getStepProviders = (quote: Quote): SwapProvider[] => {
   if (quote.adapter.getName().toLowerCase() !== 'kyberacross') return []
@@ -40,9 +29,9 @@ export const QuoteProviderName = ({ quote }: { quote: Quote }) => {
       <>
         {stepProviders.map((provider, index) => (
           <React.Fragment key={provider.getName()}>
-            {index > 0 && <Text mx="4px">+</Text>}
+            {index > 0 && <span className="mx-1">+</span>}
             <img src={provider.getIcon()} alt={provider.getName()} width={14} height={14} />
-            <Text ml="4px">{provider.getName()}</Text>
+            <span className="ml-1">{provider.getName()}</span>
           </React.Fragment>
         ))}
       </>
@@ -55,8 +44,8 @@ export const QuoteProviderName = ({ quote }: { quote: Quote }) => {
   return (
     <>
       <img src={adapter.getIcon()} alt={adapterName} width={14} height={14} />
-      <Text ml="4px">{adapterName}</Text>
-      {isBeta && <Tag>{t`Beta`}</Tag>}
+      <span className="ml-1">{adapterName}</span>
+      {isBeta && <span className="ml-1 rounded-full bg-subText-20 px-1.5 py-0.5 text-[10px] text-text">{t`Beta`}</span>}
     </>
   )
 }

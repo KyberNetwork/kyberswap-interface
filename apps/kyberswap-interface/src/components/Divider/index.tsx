@@ -1,8 +1,9 @@
-import { Box } from 'rebass'
-import styled from 'styled-components'
+import { HTMLAttributes, forwardRef } from 'react'
 
-const Divider = styled(Box)`
-  height: 1px;
-  background-color: ${({ theme }) => theme.border};
-`
+import { cn } from 'utils/cn'
+
+const Divider = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('h-px w-full bg-border', className)} {...rest} />
+))
+Divider.displayName = 'Divider'
 export default Divider

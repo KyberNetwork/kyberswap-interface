@@ -1,25 +1,8 @@
-import styled from 'styled-components'
+import { CSSProperties } from 'react'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
+import { cn } from 'utils/cn'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
-
-const Image = styled.img<{ boxShadowColor?: string; translateLeft?: boolean; translateTop?: boolean }>`
-  border-radius: 50%;
-  filter: drop-shadow(0px 4px 8px ${({ boxShadowColor }) => (boxShadowColor ? boxShadowColor : 'none')});
-
-  ${({ translateLeft }) =>
-    translateLeft &&
-    `{
-      margin-left: -8px;
-    }`}
-
-  ${({ translateTop }) =>
-    translateTop &&
-    `{
-      top: 2px;
-      position: relative;
-    }`}
-`
 
 const TokenLogo = ({
   src,
@@ -38,11 +21,9 @@ const TokenLogo = ({
   boxShadowColor?: string
   translateLeft?: boolean
   translateTop?: boolean
-  style?: React.CSSProperties
+  style?: CSSProperties
 }) => (
-  <Image
-    style={style}
-    className={className}
+  <img
     width={size}
     height={size}
     src={src || UnknownToken}
@@ -57,9 +38,11 @@ const TokenLogo = ({
         currentTarget.src = UnknownToken
       }
     }}
-    boxShadowColor={boxShadowColor}
-    translateLeft={translateLeft}
-    translateTop={translateTop}
+    className={cn('rounded-full', translateLeft && '-ml-2', translateTop && 'relative top-0.5', className)}
+    style={{
+      filter: boxShadowColor ? `drop-shadow(0px 4px 8px ${boxShadowColor})` : undefined,
+      ...style,
+    }}
   />
 )
 

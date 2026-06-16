@@ -1,10 +1,7 @@
 import { type Currency, type CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Info } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -12,124 +9,23 @@ import { ShieldChecked } from 'components/Icons'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { ClickTooltip } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { type SwapRouteV2, type SwapRouteV3 } from 'utils/aggregationRouting'
+import { cn } from 'utils/cn'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 
-const Panel = styled.div`
-  overflow: hidden;
-  border: 1px solid ${({ theme }) => theme.darkBorder};
-  border-radius: 12px;
-`
-
-const PanelHeader = styled.button<{ $expanded: boolean }>`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 0;
-  background: ${({ theme }) => theme.background};
-  gap: 12px;
-  padding: 6px 16px;
-  color: ${({ theme }) => theme.subText};
-  text-align: left;
-  cursor: pointer;
-`
-
-const PanelTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-`
-
-const RouteLabel = styled(Text)`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `}
-`
-
-const RouteTitleText = styled(Text)`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 14px;
-  `}
-`
-
-const SmartSettlementBadge = styled.div`
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border: 1px solid ${({ theme }) => rgba(theme.primary, 0.45)};
-  border-radius: 12px;
-  background: ${({ theme }) => rgba(theme.primary, 0.12)};
-  color: ${({ theme }) => theme.primary};
-  font-size: 14px;
-  font-weight: 500;
-`
-
-const SmartSettlementTooltipContent = styled.div`
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-
-  b {
-    color: ${({ theme }) => theme.text};
-    font-weight: 500;
-  }
-`
-
-const ToggleIconWrapper = styled.div`
-  flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: transparent;
-  transition: background 150ms ease-in-out;
-
-  ${PanelHeader}:hover & {
-    background: ${({ theme }) => theme.tableHeader};
-  }
-`
-
-const PanelChevron = styled(ChevronDown)<{ $expanded: boolean }>`
-  color: ${({ theme }) => theme.subText};
-  transform: rotate(${({ $expanded }) => ($expanded ? '180deg' : '0deg')});
-  transition: transform 150ms ease-in-out;
-`
-
-const PanelBody = styled.div`
-  padding: 16px;
-  border-top: 1px solid ${({ theme }) => theme.darkBorder};
-`
-
-const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 27px;
-  width: 27px;
-
-  path {
-    fill: ${({ theme }) => theme.subText} !important;
-  }
-`
-
 const TradeRouteSkeleton = () => {
-  const theme = useTheme()
-
   return (
-    <Stack gap={40} py={12}>
-      <HStack align="center" justify="space-between" gap={16}>
+    <Stack className="gap-10 py-3">
+      <HStack className="items-center justify-between gap-4">
         <Skeleton height={24} variant="darkSubtle" width={108} />
         <Skeleton height={24} variant="darkSubtle" width={108} />
       </HStack>
 
-      <HStack justify="space-evenly" gap={12}>
+      <HStack className="justify-evenly gap-3">
         {[0, 1].map(index => (
-          <Stack key={index} gap={12} width={180} p={12} border={`1px solid ${theme.darkBorder}`} borderRadius={12}>
+          <Stack key={index} className="w-[180px] gap-3 rounded-xl border border-darkBorder p-3">
             <Skeleton height={20} variant="darkSubtle" width={96} />
             <Skeleton height={28} variant="darkSubtle" width="100%" />
           </Stack>
@@ -160,7 +56,6 @@ const SwapTradeRoute = ({
   isSmartSettlementActive = false,
   scrollOnExpand = true,
 }: SwapTradeRouteProps) => {
-  const theme = useTheme()
   const panelRef = useRef<HTMLDivElement>(null)
 
   const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
@@ -180,7 +75,7 @@ const SwapTradeRoute = ({
   )
 
   const smartSettlementTooltip = (
-    <SmartSettlementTooltipContent>
+    <div className="text-xs text-subText [&_b]:font-medium [&_b]:text-text">
       <Trans>
         At execution, KyberSwap compares candidate pools on-chain in real time and picks the one that delivers the
         highest output - giving your swap the best possible rate with an extra layer of protection from slippage,
@@ -193,7 +88,7 @@ const SwapTradeRoute = ({
       >
         <Trans>Learn more ↗</Trans>
       </ExternalLink>
-    </SmartSettlementTooltipContent>
+    </div>
   )
 
   const handleToggle = () => {
@@ -210,59 +105,65 @@ const SwapTradeRoute = ({
   }
 
   return (
-    <Panel ref={panelRef}>
-      <PanelHeader $expanded={isExpanded} onClick={handleToggle} type="button">
-        <PanelTitle>
-          <RoutingIconWrapper />
-          <Flex alignItems="center" flexWrap="wrap" sx={{ gap: '8px' }}>
-            <RouteLabel color={theme.subText} fontSize={18} fontWeight={500}>
-              Route:
-            </RouteLabel>
+    <div ref={panelRef} className="overflow-hidden rounded-xl border border-darkBorder">
+      <button
+        type="button"
+        onClick={handleToggle}
+        className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-background px-4 py-1.5 text-left text-subText"
+      >
+        <div className="flex min-w-0 items-center gap-2.5">
+          <RoutingIcon className="size-[27px] [&_path]:!fill-subText" />
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-lg font-medium text-subText max-sm:hidden">Route:</span>
 
             {currencyIn ? (
-              <Flex alignItems="center" sx={{ gap: '6px' }}>
+              <div className="flex items-center gap-1.5">
                 <CurrencyLogo currency={currencyIn} size="18px" />
-                <RouteTitleText color={theme.subText} fontSize={16} fontWeight={500}>
+                <span className="text-base font-medium text-subText max-sm:text-sm">
                   {titleData.amountIn ? `${titleData.amountIn} ` : ''}
                   {titleData.inputSymbol}
-                </RouteTitleText>
-              </Flex>
+                </span>
+              </div>
             ) : null}
 
             {(currencyIn || currencyOut) && (
-              <RouteTitleText color={theme.subText} fontSize={16} fontWeight={500}>
-                →
-              </RouteTitleText>
+              <span className="text-base font-medium text-subText max-sm:text-sm">→</span>
             )}
 
             {currencyOut ? (
-              <Flex alignItems="center" sx={{ gap: '6px' }}>
+              <div className="flex items-center gap-1.5">
                 <CurrencyLogo currency={currencyOut} size="18px" />
-                <RouteTitleText color={theme.subText} fontSize={16} fontWeight={500}>
+                <span className="text-base font-medium text-subText max-sm:text-sm">
                   {titleData.amountOut ? `${titleData.amountOut} ` : ''}
                   {titleData.outputSymbol}
-                </RouteTitleText>
-              </Flex>
+                </span>
+              </div>
             ) : null}
 
             {isSmartSettlementActive && (
               <ClickTooltip text={smartSettlementTooltip} width="360px" placement="top">
-                <SmartSettlementBadge role="button">
-                  <ShieldChecked size={14} color={theme.primary} />
+                <div
+                  role="button"
+                  className="flex shrink-0 items-center gap-1 rounded-xl border border-primary-40 bg-primary-12 px-2 py-1 text-sm font-medium text-primary"
+                >
+                  <ShieldChecked size={14} className="text-primary" />
                   <Trans>Smart Settlement</Trans>
                   <Info size={14} />
-                </SmartSettlementBadge>
+                </div>
               </ClickTooltip>
             )}
-          </Flex>
-        </PanelTitle>
-        <ToggleIconWrapper>
-          <PanelChevron $expanded={isExpanded} size={18} />
-        </ToggleIconWrapper>
-      </PanelHeader>
+          </div>
+        </div>
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-transparent transition-colors duration-150 ease-in-out group-hover:bg-tableHeader">
+          <ChevronDown
+            size={18}
+            className={cn('text-subText transition-transform duration-150 ease-in-out', isExpanded && 'rotate-180')}
+          />
+        </div>
+      </button>
 
       {isExpanded && (
-        <PanelBody>
+        <div className="border-t border-darkBorder p-4">
           <Suspense fallback={<TradeRouteSkeleton />}>
             <TradeRouting
               tradeComposition={tradeComposition}
@@ -272,9 +173,9 @@ const SwapTradeRoute = ({
               outputAmount={outputAmount}
             />
           </Suspense>
-        </PanelBody>
+        </div>
       )}
-    </Panel>
+    </div>
   )
 }
 

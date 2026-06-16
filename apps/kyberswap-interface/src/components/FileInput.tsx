@@ -34,7 +34,8 @@ export default function FileInput({
     <>
       <div
         onClick={disabled ? undefined : onClick}
-        style={{ cursor: disabled ? 'default' : 'pointer', width: width || 'fit-content' }}
+        className={disabled ? 'cursor-default' : 'cursor-pointer'}
+        style={{ width: width || 'fit-content' }}
       >
         {children}
       </div>
@@ -42,7 +43,7 @@ export default function FileInput({
         ref={fileRef}
         type="file"
         onChange={handleFileChange}
-        style={{ visibility: 'hidden', height: 0, width: 0 }}
+        className="invisible size-0"
         accept={image ? IMAGE_ALLOW_EXTENSIONS.map(ext => `image/${ext}`).join(', ') : undefined}
       />
     </>

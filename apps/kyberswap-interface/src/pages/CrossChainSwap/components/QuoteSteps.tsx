@@ -1,18 +1,14 @@
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { Fragment, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 import { formatUnits } from 'viem'
 
-import useTheme from 'hooks/useTheme'
 import { Chain, SwapProvider } from 'pages/CrossChainSwap/adapters'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
-import { MEDIA_WIDTHS } from 'theme'
 import { getNativeTokenLogo, getTokenLogoURL, isEvmChain } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type KyberAcrossBridgeToken = {
@@ -205,46 +201,62 @@ const QuoteTokenNode = ({ token, amount }: { token: TokenInfo | null; amount?: s
   const networkInfo = token.chainId ? getNetworkInfo(token.chainId as Chain) : undefined
   const networkIcon = networkInfo?.icon || ''
   return (
-    <TokenNode>
-      <TokenIconWrapper>
-        {logo && <TokenIcon src={logo} alt={token.symbol} />}
-        {networkIcon && <ChainIcon src={networkIcon} alt="" />}
-      </TokenIconWrapper>
-      <Text>
+    <div className="flex h-9 items-center gap-1.5 text-base font-medium text-text">
+      <div className="relative h-[18px] w-[18px]">
+        {logo && <img className="h-[18px] w-[18px] rounded-full" src={logo} alt={token.symbol} />}
+        {networkIcon && <img className="absolute -right-1 bottom-0 size-3 rounded-full" src={networkIcon} alt="" />}
+      </div>
+      <span>
         {formatDisplayNumber(amount, { significantDigits: 6 })} {token.symbol}
-      </Text>
-    </TokenNode>
+      </span>
+    </div>
   )
 }
 
 const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct }: QuoteStepCardProps) => {
-  const theme = useTheme()
   const [open, setOpen] = useState(false)
   return (
     <>
-      <ArrowTrack>
-        <ArrowLine />
-        <StepCard>
-          <StepTitle onClick={() => setOpen(prev => !prev)}>
-            <StepTitleLeft>
-              <Text color={theme.subText}>{step.label}</Text>
-              <StepTitleProvider>
+      <div className="relative flex flex-1 items-start justify-center">
+        <div
+          className={cn(
+            'absolute inset-x-0 top-[18px] h-0.5 bg-border opacity-65',
+            'after:absolute after:right-[-2px] after:top-1/2 after:-translate-y-1/2 after:border-y-4 after:border-l-[6px] after:border-y-transparent after:border-l-border after:opacity-65 after:content-[""]',
+            'max-sm:bottom-auto max-sm:left-6 max-sm:right-auto max-sm:top-[-12px] max-sm:h-[calc(100%+24px)] max-sm:w-0.5',
+            'max-sm:after:bottom-[-2px] max-sm:after:left-1/2 max-sm:after:right-auto max-sm:after:top-auto max-sm:after:-translate-x-1/2 max-sm:after:translate-y-0 max-sm:after:border-x-4 max-sm:after:border-b-0 max-sm:after:border-t-[6px] max-sm:after:border-x-transparent max-sm:after:border-t-border',
+          )}
+        />
+        <div className="relative mx-0 flex flex-col rounded-2xl bg-background px-3 py-2.5 sm:mx-2">
+          <div
+            className="flex cursor-pointer items-start justify-between gap-1.5 text-sm font-medium"
+            onClick={() => setOpen(prev => !prev)}
+          >
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-subText">{step.label}</span>
+              <div className="flex items-center gap-1">
                 <img src={step.adapter.getIcon()} alt={step.adapter.getName()} width={16} height={16} />
-                <Text>{step.adapter.getName()}</Text>
-              </StepTitleProvider>
-            </StepTitleLeft>
-            <StepTitleIcon>
-              {open ? <ChevronUp size={14} color={theme.subText} /> : <ChevronDown size={14} color={theme.subText} />}
-            </StepTitleIcon>
-          </StepTitle>
-          <StepDetails data-open={open ? 'true' : 'false'}>
-            <StepDetailRow>
-              <Text>{getStepInfoLabel(step.type)}</Text>
-              <Text>{getStepInfoValue(step.type, quoteSlippage, bridgeFeePct)}</Text>
-            </StepDetailRow>
-          </StepDetails>
-        </StepCard>
-      </ArrowTrack>
+                <span>{step.adapter.getName()}</span>
+              </div>
+            </div>
+            <div className="flex min-h-[18px] min-w-[14px] items-center">
+              {open ? (
+                <ChevronUp size={14} className="text-subText" />
+              ) : (
+                <ChevronDown size={14} className="text-subText" />
+              )}
+            </div>
+          </div>
+          <div
+            data-open={open ? 'true' : 'false'}
+            className="max-h-0 overflow-hidden opacity-0 transition-all duration-200 data-[open=true]:max-h-20 data-[open=true]:pt-1 data-[open=true]:opacity-100"
+          >
+            <div className="flex justify-between border-t border-dashed border-gray/30 pt-1 text-xs text-subText">
+              <span>{getStepInfoLabel(step.type)}</span>
+              <span>{getStepInfoValue(step.type, quoteSlippage, bridgeFeePct)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
       {stepToken && <QuoteTokenNode token={stepToken.token} amount={stepToken.amount} />}
     </>
   )
@@ -281,7 +293,7 @@ export default function QuoteSteps({ quote }: { quote?: Quote | null }) {
   const inputAmount = formatTokenAmount(quoteParams?.amount, quoteFromToken?.decimals)
 
   return (
-    <FlowRow>
+    <div className="mb-3 flex flex-wrap items-start justify-between gap-3 px-2 max-sm:flex-col">
       <QuoteTokenNode token={quoteFromToken} amount={inputAmount} />
       {quoteSteps.map((step, index) => {
         const isLastStep = index === quoteSteps.length - 1
@@ -310,156 +322,6 @@ export default function QuoteSteps({ quote }: { quote?: Quote | null }) {
           </Fragment>
         )
       })}
-    </FlowRow>
+    </div>
   )
 }
-
-const FlowRow = styled(Flex)`
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 0 8px;
-  margin-bottom: 12px;
-
-  @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
-    flex-direction: column;
-  }
-`
-
-const TokenNode = styled(Flex)`
-  height: 36px;
-  align-items: center;
-  gap: 6px;
-  font-size: 16px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
-
-const TokenIconWrapper = styled.div`
-  position: relative;
-  width: 18px;
-  height: 18px;
-`
-
-const TokenIcon = styled.img`
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-`
-
-const ChainIcon = styled.img`
-  position: absolute;
-  right: -4px;
-  bottom: 0;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-`
-
-const StepCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 10px 12px;
-  border-radius: 16px;
-  background: ${({ theme }) => theme.background};
-  position: relative;
-  @media (min-width: ${MEDIA_WIDTHS.upToSmall}px) {
-    margin: 0 8px;
-  }
-`
-
-const StepTitle = styled(Flex)`
-  align-items: flex-start;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  justify-content: space-between;
-`
-
-const StepTitleLeft = styled(Flex)`
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-`
-
-const StepTitleProvider = styled(Flex)`
-  align-items: center;
-  gap: 4px;
-`
-
-const StepTitleIcon = styled(Flex)`
-  align-items: center;
-  min-height: 18px;
-  min-width: 14px !important;
-`
-
-const StepDetailRow = styled(Flex)`
-  justify-content: space-between;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  padding-top: 4px;
-  border-top: 1px dashed ${({ theme }) => rgba(theme.subText, 0.3)};
-`
-
-const StepDetails = styled.div`
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: all 200ms ease;
-
-  &[data-open='true'] {
-    max-height: 80px;
-    opacity: 1;
-    padding-top: 4px;
-  }
-`
-
-const ArrowTrack = styled.div`
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-`
-
-const ArrowLine = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 18px;
-  height: 2px;
-  background: ${({ theme }) => theme.border};
-  opacity: 0.65;
-  &::after {
-    content: '';
-    position: absolute;
-    right: -2px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-left: 6px solid ${({ theme }) => theme.border};
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-    opacity: 0.65;
-  }
-
-  @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
-    left: 24px;
-    right: auto;
-    top: -12px;
-    width: 2px;
-    height: calc(100% + 24px);
-    &::after {
-      right: auto;
-      left: 50%;
-      top: auto;
-      bottom: -2px;
-      transform: translateX(-50%);
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-top: 6px solid ${({ theme }) => theme.border};
-      border-bottom: 0;
-    }
-  }
-`

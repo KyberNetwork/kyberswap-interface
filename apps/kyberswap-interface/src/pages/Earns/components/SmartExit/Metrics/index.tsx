@@ -1,8 +1,6 @@
 import { Label, RadioGroup, RadioGroupItem } from '@kyber/ui'
 import { Trans } from '@lingui/macro'
-import { Box, Flex } from 'rebass'
 
-import useTheme from 'hooks/useTheme'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import MetricSelect from 'pages/Earns/components/SmartExit/Metrics/MetricSelect'
 import { CustomBox } from 'pages/Earns/components/SmartExit/styles'
@@ -29,7 +27,6 @@ export default function Metrics({
   isLoading = false,
   revertPrice = false,
 }: MetricsProps) {
-  const theme = useTheme()
   const [metric1, metric2] = selectedMetrics
 
   const onChangeMetric1 = (value: SelectedMetric) =>
@@ -67,26 +64,26 @@ export default function Metrics({
 
   if (isLoading || !position) {
     return (
-      <Flex flexDirection="column">
+      <div className="flex flex-col">
         <CustomBox>
-          <Flex alignItems="center" justifyContent="space-between" mb="12px">
+          <div className="mb-3 flex items-center justify-between">
             <PositionSkeleton width={120} height={20} />
             <PositionSkeleton width={80} height={32} />
-          </Flex>
+          </div>
           <PositionSkeleton width="100%" height={40} />
-          <Box mt="12px">
+          <div className="mt-3">
             <PositionSkeleton width="100%" height={60} />
-          </Box>
+          </div>
         </CustomBox>
-        <Box mt="1rem">
+        <div className="mt-4">
           <PositionSkeleton width={120} height={20} />
-        </Box>
-      </Flex>
+        </div>
+      </div>
     )
   }
 
   return (
-    <Flex flexDirection="column">
+    <div className="flex flex-col">
       <MetricSelect
         metric={metric1}
         setMetric={onChangeMetric1}
@@ -98,21 +95,21 @@ export default function Metrics({
       />
       {metric2 !== undefined ? (
         <>
-          <Box py="1rem">
+          <div className="py-4">
             <RadioGroup value={conditionType} onValueChange={v => setConditionType(v as ConditionType)}>
-              <Flex sx={{ gap: '8px' }}>
+              <div className="flex gap-2">
                 <RadioGroupItem value={ConditionType.And} id={ConditionType.And} />
                 <Label htmlFor={ConditionType.And}>
                   <Trans>And</Trans>
                 </Label>
 
-                <RadioGroupItem value={ConditionType.Or} id={ConditionType.Or} style={{ marginLeft: '24px' }} />
+                <RadioGroupItem value={ConditionType.Or} id={ConditionType.Or} className="ml-6" />
                 <Label htmlFor={ConditionType.Or}>
                   <Trans>Or</Trans>
                 </Label>
-              </Flex>
+              </div>
             </RadioGroup>
-          </Box>
+          </div>
           <MetricSelect
             metric={metric2}
             setMetric={onChangeMetric2}
@@ -123,18 +120,12 @@ export default function Metrics({
           />
         </>
       ) : (
-        <Box mt="1rem">
-          <ButtonText
-            style={{
-              width: 'fit-content',
-              color: theme.primary,
-            }}
-            onClick={onAddMetric2}
-          >
+        <div className="mt-4">
+          <ButtonText className="w-fit text-primary" onClick={onAddMetric2}>
             + <Trans>Add Condition 2</Trans>
           </ButtonText>
-        </Box>
+        </div>
       )}
-    </Flex>
+    </div>
   )
 }

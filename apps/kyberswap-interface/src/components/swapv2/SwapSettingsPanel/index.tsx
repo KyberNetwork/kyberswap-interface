@@ -1,16 +1,17 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import React, { useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import useTheme from 'hooks/useTheme'
+import { CrossChainSourceSetting } from 'components/swapv2/SwapSettingsPanel/CrossChainSourceSetting'
+import DegenModeSetting from 'components/swapv2/SwapSettingsPanel/DegenModeSetting'
+import LiquiditySourcesSetting from 'components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting'
+import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
+import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import {
   useShowPricingChart,
@@ -21,12 +22,7 @@ import {
   useToggleTradeRoutes,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
-
-import { CrossChainSourceSetting } from './CrossChainSourceSetting'
-import DegenModeSetting from './DegenModeSetting'
-import LiquiditySourcesSetting from './LiquiditySourcesSetting'
-import SlippageSetting from './SlippageSetting'
-import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
+import { cn } from 'utils/cn'
 
 type Props = {
   className?: string
@@ -35,13 +31,13 @@ type Props = {
   onClickCrossChainSources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
+  displaySettings?: {
+    isShowPricingChart?: boolean
+    isShowTradeRoutes?: boolean
+    togglePricingChart?: () => void
+    toggleTradeRoutes?: () => void
+  }
 }
-
-const BackText = styled.span`
-  font-size: 20px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
 
 const SettingsPanel: React.FC<Props> = ({
   isSwapPage,
@@ -50,23 +46,27 @@ const SettingsPanel: React.FC<Props> = ({
   onBack,
   onClickLiquiditySources,
   onClickCrossChainSources,
+  displaySettings,
 }) => {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const [slippage] = useUserSlippageTolerance()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const isShowPricingChart = useShowPricingChart()
-  const isShowTradeRoutes = useShowTradeRoutes()
+  const globalShowPricingChart = useShowPricingChart()
+  const globalShowTradeRoutes = useShowTradeRoutes()
   const isSuccessSoundEnabled = useSuccessSoundEnabled()
-  const togglePricingChart = useTogglePricingChart()
-  const toggleTradeRoutes = useToggleTradeRoutes()
+  const globalTogglePricingChart = useTogglePricingChart()
+  const globalToggleTradeRoutes = useToggleTradeRoutes()
   const toggleSuccessSound = useToggleSuccessSound()
+  const isShowPricingChart = displaySettings?.isShowPricingChart ?? globalShowPricingChart
+  const isShowTradeRoutes = displaySettings?.isShowTradeRoutes ?? globalShowTradeRoutes
+  const togglePricingChart = displaySettings?.togglePricingChart ?? globalTogglePricingChart
+  const toggleTradeRoutes = displaySettings?.toggleTradeRoutes ?? globalToggleTradeRoutes
 
   return (
-    <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
-      <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
-        <Flex alignItems="center" sx={{ gap: '4px' }}>
+    <div className={cn('w-full', className)} id={TutorialIds.TRADING_SETTING_CONTENT}>
+      <div className="mb-1 flex w-full flex-col">
+        <div className="flex items-center gap-1">
           <ChevronLeft
             onClick={() => {
               if (isCrossChainPage) {
@@ -76,21 +76,14 @@ const SettingsPanel: React.FC<Props> = ({
               }
               onBack()
             }}
-            color={theme.subText}
+            className="text-subText"
             cursor={'pointer'}
             size={26}
           />
-          <BackText>{t`Settings`}</BackText>
-        </Flex>
+          <span className="text-xl font-medium text-text">{t`Settings`}</span>
+        </div>
 
-        <Flex
-          sx={{
-            marginTop: '22px',
-            flexDirection: 'column',
-            rowGap: '12px',
-            width: '100%',
-          }}
-        >
+        <div className="mt-[22px] flex w-full flex-col gap-3">
           {(isSwapPage || isCrossChainPage) && (
             <>
               <span className="settingTitle">
@@ -106,72 +99,52 @@ const SettingsPanel: React.FC<Props> = ({
           )}
 
           {isSwapPage && (
-            <Flex
-              sx={{
-                flexDirection: 'column',
-                rowGap: '12px',
-                paddingTop: '16px',
-                borderTop: `1px solid ${theme.border}`,
-              }}
-            >
-              <Text
-                as="span"
-                sx={{
-                  fontSize: '16px',
-                  fontWeight: 500,
-                }}
-              >
+            <div className="flex flex-col gap-3 border-t border-solid border-border pt-4">
+              <span className="text-base font-medium">
                 <Trans>Display Settings</Trans>
-              </Text>
-              <AutoColumn gap="md">
+              </span>
+              <AutoColumn className="gap-3">
                 {isSwapPage && (
                   <RowBetween>
                     <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                      <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                         <MouseoverTooltip text={<Trans>Turn on to display pricing chart.</Trans>} placement="right">
                           <Trans>Pricing Chart</Trans>
                         </MouseoverTooltip>
                       </TextDashed>
                     </RowFixed>
-                    <Toggle isActive={isShowPricingChart} toggle={togglePricingChart} />
+                    <Toggle isActive={isShowPricingChart} toggle={togglePricingChart} className="bg-buttonBlack" />
                   </RowBetween>
                 )}
                 {(isSwapPage || isCrossChainPage) && (
                   <RowBetween>
                     <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                      <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                         <MouseoverTooltip text={<Trans>Turn on to display trade route.</Trans>} placement="right">
                           <Trans>Trade Route</Trans>
                         </MouseoverTooltip>
                       </TextDashed>
                     </RowFixed>
-                    <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} />
+                    <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} className="bg-buttonBlack" />
                   </RowBetween>
                 )}
                 <RowBetween>
                   <RowFixed>
-                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                    <TextDashed fontSize={12} fontWeight={400} className="text-subText">
                       <MouseoverTooltip text={<Trans>Turn on to play success sound.</Trans>} placement="right">
                         <Trans>Sound</Trans>
                       </MouseoverTooltip>
                     </TextDashed>
                   </RowFixed>
-                  <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} />
+                  <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} className="bg-buttonBlack" />
                 </RowBetween>
               </AutoColumn>
-            </Flex>
+            </div>
           )}
-        </Flex>
-      </Flex>
-    </Box>
+        </div>
+      </div>
+    </div>
   )
 }
 
-export default styled(SettingsPanel)`
-  ${Toggle} {
-    background: ${({ theme }) => theme.buttonBlack};
-    &[data-active='true'] {
-      background: ${({ theme }) => rgba(theme.primary, 0.2)};
-    }
-  }
-`
+export default SettingsPanel

@@ -1,109 +1,15 @@
 import { t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { CheckSquare, Square } from 'react-feather'
-import { Text } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
 
 import RadioButtonChecked from 'components/Icons/RadioButtonChecked'
 import RadioButtonUnchecked from 'components/Icons/RadioButtonUnchecked'
 import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
+import { cn } from 'utils/cn'
 
-const Wrapper = styled.div<{ type?: 'Finished' | 'Active' | 'Choosing' | 'Pending'; disabled?: boolean }>`
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-  min-height: 36px;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  user-select: none;
-  ${({ theme }) => css`
-    background-color: ${theme.buttonBlack};
-  `};
-  ${({ type, theme }) =>
-    type === 'Pending' &&
-    css`
-      color: ${theme.subText};
-      background-color: ${theme.buttonBlack};
-    `}
-  ${({ disabled }) =>
-    !disabled &&
-    css`
-      cursor: pointer;
-
-      :hover {
-        filter: brightness(1.1);
-      }
-    `}
-`
-const move = keyframes`
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 50px 0;
-  }
-`
-const FinishedProgress = styled.div<{ width: number }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  border-radius: 4px;
-  width: ${({ width }) => width || 0}%;
-  background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-  z-index: 0;
-`
-const ActiveProgress = styled.div<{ width: number }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  border-radius: 4px;
-  width: ${({ width }) => width || 0}%;
-  background-color: ${({ theme }) => theme.primary};
-  z-index: 0;
-`
-const ChoosingProgress = styled.div<{ width: number }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  border-radius: 4px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.darkerGreen};
-  z-index: 0;
-  ::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background-image: linear-gradient(
-      -45deg,
-      rgba(0, 0, 0, 0.1) 28%,
-      transparent 28%,
-      transparent 50%,
-      rgba(0, 0, 0, 0.1) 50%,
-      rgba(0, 0, 0, 0.1) 78%,
-      transparent 78%,
-      transparent
-    );
-    background-size: 25px 25px;
-    animation: ${move} 1.5s linear infinite;
-  }
-`
-const CheckButtonWrapper = styled.div`
-  width: 18px;
-  > svg {
-    display: block;
-  }
-`
+const STRIPE_OVERLAY =
+  "after:absolute after:inset-0 after:bg-[image:linear-gradient(-45deg,rgba(0,0,0,0.1)_28%,transparent_28%,transparent_50%,rgba(0,0,0,0.1)_50%,rgba(0,0,0,0.1)_78%,transparent_78%,transparent)] after:bg-[length:25px_25px] after:[animation:ks-stripe-move_1.5s_linear_infinite] after:content-['']"
 
 export default function OptionButton({
   checked,
@@ -129,16 +35,23 @@ export default function OptionButton({
   const parsedPercent = parseFloat(percent.toFixed(2) || '0')
   const hardCodedTitle = HARDCODED_OPTION_TITLE[proposalId]?.[id]
   return (
-    <Wrapper onClick={() => !disabled && onOptionClick?.()} disabled={disabled} type={type}>
-      <div style={{ zIndex: 4, width: '100%' }}>
-        <RowBetween style={{ zIndex: 1 }} alignItems="center">
+    <div
+      onClick={() => !disabled && onOptionClick?.()}
+      className={cn(
+        'relative flex min-h-9 w-full select-none items-center justify-between overflow-hidden rounded bg-buttonBlack p-2.5',
+        type === 'Pending' && 'text-subText',
+        !disabled && 'cursor-pointer hover:brightness-110',
+      )}
+    >
+      <div className="z-[4] w-full">
+        <RowBetween className="z-[1] items-center">
           <MouseoverTooltip
             text={type === 'Pending' && t`Cannot vote at this moment`}
             placement="top"
             width="fit-content"
           >
-            <RowFit gap="5px" style={{ fontSize: '12px', overflow: 'hidden', wordBreak: 'break-word' }}>
-              <CheckButtonWrapper style={{ width: '18px' }}>
+            <RowFit className="gap-[5px] overflow-hidden break-words text-xs">
+              <div className="w-[18px] [&>svg]:block">
                 {isCheckBox ? (
                   checked ? (
                     <CheckSquare size={18} />
@@ -150,19 +63,23 @@ export default function OptionButton({
                 ) : (
                   <RadioButtonUnchecked />
                 )}{' '}
-              </CheckButtonWrapper>
-              <Text>{`${id}. ${hardCodedTitle || title}`}</Text>
+              </div>
+              <span>{`${id}. ${hardCodedTitle || title}`}</span>
             </RowFit>
           </MouseoverTooltip>
-          <Text fontSize="12px" padding={'0 4px'}>
-            {parsedPercent}%
-          </Text>
+          <span className="px-1 text-xs">{parsedPercent}%</span>
         </RowBetween>
       </div>
 
-      {type === 'Active' && <ActiveProgress width={percent} />}
-      {type === 'Choosing' && <ChoosingProgress width={percent} />}
-      {type === 'Finished' && <FinishedProgress width={percent} />}
-    </Wrapper>
+      {type === 'Active' && (
+        <div className="absolute inset-y-0 left-0 z-0 rounded bg-primary" style={{ width: `${percent || 0}%` }} />
+      )}
+      {type === 'Choosing' && (
+        <div className={cn('absolute inset-y-0 left-0 z-0 w-full rounded bg-darkerGreen', STRIPE_OVERLAY)} />
+      )}
+      {type === 'Finished' && (
+        <div className="absolute inset-y-0 left-0 z-0 rounded bg-primary-20" style={{ width: `${percent || 0}%` }} />
+      )}
+    </div>
   )
 }

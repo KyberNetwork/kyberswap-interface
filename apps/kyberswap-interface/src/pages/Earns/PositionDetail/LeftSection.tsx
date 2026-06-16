@@ -1,24 +1,21 @@
 import { t } from '@lingui/macro'
 import { useParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { CardDivider, ClaimButton, DarkCard, LeftColumn } from 'pages/Earns/PositionDetail/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { EARN_DEXES, Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const LeftSection = () => {
   const { position, initialLoading, isNotAccountOwner, handleFetchUnclaimedFee } = usePositionDetailContext()
 
-  const theme = useTheme()
   const { exchange, chainId } = useParams()
 
   const {
@@ -47,20 +44,16 @@ const LeftSection = () => {
       {claimFeesModal}
 
       <LeftColumn>
-        {/* Fee Earn Card */}
         {EARN_DEXES[exchange as Exchange]?.collectFeeSupported && (
           <DarkCard>
-            {/* Total Fee Earn */}
-            <Flex alignItems="center" justifyContent="space-between">
-              <Text fontSize={16} color={theme.subText} style={{ textTransform: 'uppercase' }}>
-                {t`Fee Earn`}
-              </Text>
+            <div className="flex items-center justify-between">
+              <span className="text-base uppercase text-subText">{t`Fee Earn`}</span>
               {initialLoading ? (
                 <PositionSkeleton width={80} height={24} />
               ) : isUnfinalized ? (
                 <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
               ) : (
-                <Text fontSize={16} color={theme.text}>
+                <span className="text-base text-text">
                   <AnimatedNumber
                     value={
                       position?.earning.earned !== undefined && position.earning.earned >= 0
@@ -68,23 +61,20 @@ const LeftSection = () => {
                         : '--'
                     }
                   />
-                </Text>
+                </span>
               )}
-            </Flex>
+            </div>
 
             <CardDivider />
 
-            {/* Unclaimed Fees */}
-            <Flex alignItems="center" justifyContent="space-between">
-              <Text fontSize={16} color={theme.subText} style={{ textTransform: 'uppercase' }}>
-                {t`Unclaimed Fee`}
-              </Text>
+            <div className="flex items-center justify-between">
+              <span className="text-base uppercase text-subText">{t`Unclaimed Fee`}</span>
               {initialLoading ? (
                 <PositionSkeleton width={80} height={24} />
               ) : isUnfinalized ? (
                 <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
               ) : (
-                <Text fontSize={20} fontWeight={500} color={theme.text}>
+                <span className="text-xl font-medium text-text">
                   <AnimatedNumber
                     value={
                       position?.unclaimedFees !== undefined
@@ -92,12 +82,12 @@ const LeftSection = () => {
                         : '--'
                     }
                   />
-                </Text>
+                </span>
               )}
-            </Flex>
+            </div>
 
-            <Flex alignItems="center" justifyContent="space-between">
-              <Flex flexDirection="column" sx={{ gap: '4px' }}>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-1">
                 {initialLoading ? (
                   <>
                     <PositionSkeleton width={120} height={19} />
@@ -110,35 +100,35 @@ const LeftSection = () => {
                   </>
                 ) : (
                   <>
-                    <Flex alignItems="center" sx={{ gap: '8px' }}>
+                    <div className="flex items-center gap-2">
                       <TokenLogo src={position?.token0.logo} size={16} />
-                      <Text fontSize={16} color={theme.text} sx={LIMIT_TEXT_STYLES}>
+                      <span className="truncate text-base text-text">
                         {formatDisplayNumber(position?.token0.unclaimedAmount, { significantDigits: 4 })}{' '}
                         {position?.token0.isNative ? nativeToken?.symbol : position?.token0.symbol}
-                      </Text>
-                      <Text fontSize={14} color={theme.subText}>
+                      </span>
+                      <span className="text-sm text-subText">
                         {formatDisplayNumber(position?.token0.unclaimedValue, {
                           style: 'currency',
                           significantDigits: 4,
                         })}
-                      </Text>
-                    </Flex>
-                    <Flex alignItems="center" sx={{ gap: '8px' }}>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <TokenLogo src={position?.token1.logo} size={16} />
-                      <Text fontSize={16} color={theme.text} sx={LIMIT_TEXT_STYLES}>
+                      <span className="truncate text-base text-text">
                         {formatDisplayNumber(position?.token1.unclaimedAmount, { significantDigits: 4 })}{' '}
                         {position?.token1.isNative ? nativeToken?.symbol : position?.token1.symbol}
-                      </Text>
-                      <Text fontSize={14} color={theme.subText}>
+                      </span>
+                      <span className="text-sm text-subText">
                         {formatDisplayNumber(position?.token1.unclaimedValue, {
                           style: 'currency',
                           significantDigits: 4,
                         })}
-                      </Text>
-                    </Flex>
+                      </span>
+                    </div>
                   </>
                 )}
-              </Flex>
+              </div>
 
               <ClaimButton
                 disabled={
@@ -152,19 +142,18 @@ const LeftSection = () => {
                 onClick={() => position && onOpenClaimFees(position)}
               >
                 {isFeesClaiming ? (
-                  <Flex alignItems="center" sx={{ gap: '4px' }}>
+                  <div className="flex items-center gap-1">
                     <Loader size="12px" />
                     {t`Claiming`}
-                  </Flex>
+                  </div>
                 ) : (
                   t`Claim`
                 )}
               </ClaimButton>
-            </Flex>
+            </div>
           </DarkCard>
         )}
 
-        {/* Total Reward Card - using existing RewardSection component */}
         {showRewards && <RewardSection />}
       </LeftColumn>
     </>

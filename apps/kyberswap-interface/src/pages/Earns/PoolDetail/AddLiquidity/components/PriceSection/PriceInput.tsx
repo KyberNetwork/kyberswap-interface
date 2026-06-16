@@ -1,12 +1,7 @@
 import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, univ3PoolNormalize } from '@kyber/schema'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3'
-import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
-import { HStack, Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export enum PriceInputType {
@@ -16,41 +11,8 @@ export enum PriceInputType {
 
 type BoundaryState = 'normal' | 'zero' | 'infinity'
 
-const StepButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.tabActive};
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
-
-  :disabled {
-    cursor: not-allowed;
-    opacity: 0.8;
-  }
-
-  &:hover:not(:disabled) {
-    filter: brightness(1.12);
-  }
-`
-
-const Input = styled.input`
-  width: 100%;
-  min-width: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
-  font-weight: 500;
-  outline: none;
-  text-align: center;
-`
+const stepButtonClass =
+  'flex h-6 w-6 flex-none items-center justify-center cursor-pointer rounded-full border-none bg-tabActive text-subText hover:enabled:brightness-110 disabled:cursor-not-allowed disabled:opacity-80'
 
 const formatDelta = (value: number, poolPrice: number) => {
   if (!Number.isFinite(value) || !poolPrice) return '--'
@@ -99,7 +61,6 @@ const PriceInput = ({
   onTickLowerChange,
   onTickUpperChange,
 }: PriceInputProps) => {
-  const theme = useTheme()
   const [localValue, setLocalValue] = useState('')
 
   const normalizedPool = useMemo(() => {
@@ -267,25 +228,21 @@ const PriceInput = ({
   }, [activeTick, isFullRange, isInfiniteValue, normalizedPool, type])
 
   return (
-    <HStack align="stretch" width="100%" minWidth={0} borderRadius={12} background={rgba(theme.buttonGray, 0.8)}>
-      <HStack align="center" justify="center" borderRadius="12px 0px 0px 12px" background={theme.tabActive} p="4px 8px">
-        <Text color={theme.subText} fontSize={12} fontWeight={500}>
-          {type === PriceInputType.MinPrice ? 'MIN' : 'MAX'}
-        </Text>
-      </HStack>
+    <div className="flex w-full min-w-0 items-stretch rounded-xl bg-buttonGray/80">
+      <div className="flex items-center justify-center rounded-l-xl bg-tabActive px-2 py-1">
+        <span className="text-xs font-medium text-subText">{type === PriceInputType.MinPrice ? 'MIN' : 'MAX'}</span>
+      </div>
 
-      <HStack flex={1} align="center" gap={8} p="4px 8px">
-        <StepButton type="button" disabled={!canDecrease} onClick={handleDecreasePrice}>
+      <div className="flex flex-1 items-center gap-2 px-2 py-1">
+        <button type="button" disabled={!canDecrease} onClick={handleDecreasePrice} className={stepButtonClass}>
           -
-        </StepButton>
+        </button>
 
-        <Stack flex={1} minWidth={0} align="center">
+        <div className="flex min-w-0 flex-1 flex-col items-center">
           {!normalizedPool ? (
-            <Text fontSize={14} fontWeight={500}>
-              0.0
-            </Text>
+            <span className="text-sm font-medium">0.0</span>
           ) : (
-            <Input
+            <input
               disabled={isFullRange}
               value={localValue}
               onChange={event => {
@@ -303,18 +260,17 @@ const PriceInput = ({
               placeholder="0.0"
               maxLength={18}
               spellCheck={false}
+              className="w-full min-w-0 border-none bg-transparent p-0 text-center text-sm font-medium text-text outline-none"
             />
           )}
-          <Text color={theme.subText} fontSize={12}>
-            {deltaText || '\u00A0'}
-          </Text>
-        </Stack>
+          <span className="text-xs text-subText">{deltaText || ' '}</span>
+        </div>
 
-        <StepButton type="button" disabled={!canIncrease} onClick={handleIncreasePrice}>
+        <button type="button" disabled={!canIncrease} onClick={handleIncreasePrice} className={stepButtonClass}>
           +
-        </StepButton>
-      </HStack>
-    </HStack>
+        </button>
+      </div>
+    </div>
   )
 }
 

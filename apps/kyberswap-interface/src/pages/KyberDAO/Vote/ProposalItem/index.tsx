@@ -1,11 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { transparentize } from 'polished'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
@@ -17,121 +14,29 @@ import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/typ
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
+import OptionButton from 'pages/KyberDAO/Vote/ProposalItem/OptionButton'
+import Participants from 'pages/KyberDAO/Vote/ProposalItem/Participants'
+import VoteInformation from 'pages/KyberDAO/Vote/ProposalItem/VoteInformation'
+import VoteConfirmModal from 'pages/KyberDAO/Vote/VoteConfirmModal'
 import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { cn } from 'utils/cn'
+import { hexAlpha } from 'utils/colorAlpha'
 import { escapeScriptHtml } from 'utils/string'
 
-import VoteConfirmModal from '../VoteConfirmModal'
-import OptionButton from './OptionButton'
-import Participants from './Participants'
-import VoteInformation from './VoteInformation'
+const BADGE_BASE = 'flex h-5 items-center justify-center rounded-[10px] px-3.5 py-0.5 text-xs'
 
-const ProposalItemWrapper = styled.div`
-  content-visibility: auto;
-  contain-intrinsic-size: 60px;
-  padding: ${isMobile ? '16px' : '20px 24px'};
-  border-radius: 20px;
-  box-shadow: 0px 2px 34px rgba(0, 0, 0, 0.0467931);
-  overflow: hidden;
-  ${({ theme }) => css`
-    background-color: ${theme.background};
-  `}
-`
+const StatusBadged = ({ color, className, ...rest }: React.HTMLAttributes<HTMLDivElement> & { color?: string }) => (
+  <div
+    className={cn(BADGE_BASE, 'cursor-pointer hover:brightness-75', !color && 'bg-buttonBlack text-subText', className)}
+    style={color ? { color, backgroundColor: hexAlpha(color, 0.2) } : undefined}
+    {...rest}
+  />
+)
 
-const ProposalHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${isMobile ? '16px' : '20px'};
-  z-index: 1;
-  & > *:first-child {
-    cursor: pointer;
-  }
-  ${({ theme }) => css`
-    background-color: ${theme.background};
-  `}
-`
-
-const ExpandButton = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-radius: 50%;
-  ${({ theme }) => css`
-    color: ${theme.subText};
-    background-color: ${transparentize(0.8, theme.subText)};
-  `}
-`
-const Badged = css`
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  font-size: 12px;
-  padding: 2px 14px;
-`
-const IDBadged = styled.div`
-  ${Badged}
-  color: ${({ theme }) => theme.subText};
-  background-color: ${({ theme }) => theme.buttonBlack};
-`
-
-const StatusBadged = styled.div<{ color?: string }>`
-  ${Badged}
-  cursor: pointer;
-
-  :hover {
-    filter: brightness(0.8);
-  }
-
-  ${({ color, theme }) =>
-    color
-      ? css`
-          color: ${color};
-          background-color: ${transparentize(0.8, color)};
-        `
-      : css`
-          color: ${theme.subText};
-          background-color: ${theme.buttonBlack};
-        `}
-`
-
-const Content = styled.div`
-  gap: 24px;
-  padding: 24px 0;
-  transition: all 0.2s ease;
-  z-index: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`
-
-const OptionsWrapper = styled(RowBetween)<{ optionCount?: number }>`
-  ${({ optionCount, theme }) => {
-    if (optionCount && optionCount > 2) {
-      return css`
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        > * {
-          width: calc(33.33% - 20px * 2 / 3);
-        }
-        ${theme.mediaWidth.upToMedium`
-          > * {
-            width: calc(50% - 20px / 2);
-          }
-        `}
-        ${theme.mediaWidth.upToSmall`
-          > * {
-            width: 100%;
-          }
-        `}
-      `
-    }
-
-    return ''
-  }}
-`
+const IDBadged = ({ children }: { children: React.ReactNode }) => (
+  <div className={cn(BADGE_BASE, 'bg-buttonBlack text-subText')}>{children}</div>
+)
 
 const VoteButton = ({
   status,
@@ -302,11 +207,14 @@ function ProposalItem({
   const isActive = proposal.status === ProposalStatus.Active
 
   const renderVotes = useMemo(() => {
+    const manyOptions = proposal.options.length > 2
     return (
-      <OptionsWrapper
-        gap={isMobile ? '16px' : '20px'}
-        flexDirection={isMobile ? 'column' : 'row'}
-        optionCount={proposal.options.length}
+      <RowBetween
+        className={cn(
+          isMobile ? 'flex-col gap-4' : 'flex-row gap-5',
+          manyOptions &&
+            'flex-wrap !justify-start [&>*]:w-[calc(33.33%-40px/3)] [&>*]:max-md:w-[calc(50%-10px)] [&>*]:max-sm:w-full',
+        )}
       >
         {proposal.options.map((option: string, index: number) => {
           const voted = votedOfCurrentProposal?.options?.includes(index) || false
@@ -334,35 +242,46 @@ function ProposalItem({
             />
           )
         })}
-      </OptionsWrapper>
+      </RowBetween>
     )
   }, [proposal, selectedOptions, votedOfCurrentProposal?.options, handleOptionClick, isActive, isForcedBinaryOption])
 
   return (
-    <ProposalItemWrapper>
-      <ProposalHeader>
+    <div
+      className={cn(
+        'overflow-hidden rounded-[20px] bg-background shadow-[0px_2px_34px_rgba(0,0,0,0.0467931)]',
+        isMobile ? 'p-4' : 'px-6 py-5',
+      )}
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '60px' } as React.CSSProperties}
+    >
+      <div
+        className={cn(
+          'z-[1] flex flex-col bg-background [&>*:first-child]:cursor-pointer',
+          isMobile ? 'gap-4' : 'gap-5',
+        )}
+      >
         <RowBetween onClick={() => setShow(s => !s)}>
-          <Text>{proposal.title}</Text>
-          <ExpandButton>
+          <span>{proposal.title}</span>
+          <div className="flex cursor-pointer items-center justify-center rounded-full bg-subText-20 text-subText">
             <ChevronDown
               size={24}
               style={{ transition: 'all 0.2s ease', transform: show ? 'rotate(180deg)' : undefined }}
             />
-          </ExpandButton>
+          </div>
         </RowBetween>
         {(show || isActive) && isMobile && (
           <RowBetween>
-            <RowFit gap="8px" flexWrap="wrap">
+            <RowFit className="flex-wrap gap-2">
               <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
                 {proposal.status}
               </StatusBadged>
               <IDBadged>ID #{proposal.proposal_id}</IDBadged>
             </RowFit>
             {isActive && (
-              <RowFit gap="4px" flexShrink={0}>
-                <Text color={theme.subText} fontSize={12}>
+              <RowFit className="shrink-0 gap-1">
+                <span className="text-xs text-subText">
                   <Trans>Voting ends in: </Trans>
-                </Text>
+                </span>
                 <TimerCountdown endTime={proposal.end_timestamp} />
               </RowFit>
             )}
@@ -371,7 +290,7 @@ function ProposalItem({
         {(show || isActive) && renderVotes}
         <RowBetween>
           {isActive ? (
-            <Column gap="4px">
+            <Column className="gap-1">
               <VoteButton
                 status={proposal.status}
                 onVoteClick={handleVote}
@@ -380,76 +299,75 @@ function ProposalItem({
               />
             </Column>
           ) : proposal.status === ProposalStatus.Pending ? (
-            <RowFit gap="4px">
-              <Text color={theme.subText} fontSize={12}>
+            <RowFit className="gap-1">
+              <span className="text-xs text-subText">
                 <Trans>Voting starts in: </Trans>
-              </Text>
+              </span>
               <TimerCountdown endTime={proposal.start_timestamp} />
             </RowFit>
           ) : (
-            <Text color={theme.subText} fontSize={12}>
+            <span className="text-xs text-subText">
               Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
-            </Text>
+            </span>
           )}
           {!((show || isActive) && isMobile) && (
-            <Column gap="8px">
-              <Row gap="8px" justify="flex-end">
+            <Column className="gap-2">
+              <Row className="justify-end gap-2">
                 <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
                   {proposal.status}
                 </StatusBadged>
                 <IDBadged>ID #{proposal.proposal_id}</IDBadged>
               </Row>
               {isActive && (
-                <Row gap="4px">
-                  <Text color={theme.subText} fontSize={12}>
+                <Row className="gap-1">
+                  <span className="text-xs text-subText">
                     <Trans>Voting ends in: </Trans>
-                  </Text>
+                  </span>
                   <TimerCountdown endTime={proposal.end_timestamp} />
                 </Row>
               )}
             </Column>
           )}
         </RowBetween>
-      </ProposalHeader>
+      </div>
       {show && (
-        <Content ref={contentRef as any}>
-          <Row align="flex-start" gap="16px">
-            <div style={{ flex: 1 }}>
+        <div ref={contentRef as any} className="z-0 flex flex-col gap-5 py-6 transition-all duration-200">
+          <Row className="items-start gap-4">
+            <div className="flex-1">
               {proposal?.link && proposal.link !== '0x0' && (
                 <a
                   href={proposal.link?.startsWith('http') ? proposal.link : 'http://' + proposal.link}
-                  style={{ marginBottom: '12px', width: 'fit-content' }}
+                  className="mb-3 w-fit"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <span style={{ marginRight: '4px' }}>
+                  <span className="mr-1">
                     <LaunchIcon size={14} />
                   </span>
-                  <span style={{ fontSize: '14px', verticalAlign: 'top' }}>
+                  <span className="align-top text-sm">
                     <Trans>Github</Trans>
                   </span>
                 </a>
               )}
-              <Text
-                fontSize={isMobile ? 14 : 16}
-                lineHeight={isMobile ? '18px' : '22px'}
-                color={theme.subText}
-                marginBottom="20px"
+              <p
+                className={cn(
+                  'mb-5 break-words text-subText',
+                  isMobile ? 'text-sm leading-[18px]' : 'text-base leading-[22px]',
+                )}
                 dangerouslySetInnerHTML={{
                   __html: escapeScriptHtml(proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '')),
                 }}
-                style={{ wordBreak: 'break-word' }}
-              ></Text>
+              ></p>
               {isMobile && <VoteInformation proposal={proposal} />}
             </div>
             {!isMobile && (
-              <div style={{ width: '368px' }}>
+              <div className="w-[368px]">
                 <VoteInformation proposal={proposal} />
               </div>
             )}
           </Row>
           <Participants proposalId={proposal.proposal_id} />
-        </Content>
+        </div>
       )}
       {proposal.status === ProposalStatus.Active && (
         <VoteConfirmModal
@@ -466,7 +384,7 @@ function ProposalItem({
           onVoteConfirm={handleVoteConfirm}
         />
       )}
-    </ProposalItemWrapper>
+    </div>
   )
 }
 export default React.memo(ProposalItem)

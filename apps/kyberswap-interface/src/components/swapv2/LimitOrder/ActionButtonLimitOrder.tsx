@@ -1,6 +1,5 @@
 import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Text } from 'rebass'
 
 import {
   ButtonApprove,
@@ -104,9 +103,9 @@ export default function ActionButtonLimitOrder({
             />
           )}
           <ButtonError width="48%" id="review-order-button" disabled={disableBtnReview} onClick={showPreview}>
-            <Text fontSize={16} fontWeight={500}>
+            <span className="text-base font-medium">
               <Trans>Review Order</Trans>
-            </Text>
+            </span>
           </ButtonError>
         </RowBetween>
         {showApproveFlow && <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />}
@@ -114,9 +113,9 @@ export default function ActionButtonLimitOrder({
     )
 
   const contentButton = (
-    <Text fontWeight={500}>
+    <span className="font-medium">
       {checkingAllowance ? <Trans>Checking Allowance...</Trans> : <Trans>Review Order</Trans>}
-    </Text>
+    </span>
   )
 
   if (isEdit) {

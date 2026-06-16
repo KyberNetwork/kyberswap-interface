@@ -1,41 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import styled, { keyframes } from 'styled-components'
-
-const progressSlide = keyframes`
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(400%);
-  }
-`
-
-const Wrapper = styled.div<{ $visible: boolean }>`
-  position: absolute;
-  /* top: 0; */
-  left: 0;
-  right: 0;
-  height: 2px;
-  overflow: hidden;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  transition: opacity 0.3s ease;
-  z-index: 2;
-`
-
-const Bar = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 25%;
-  height: 100%;
-  background: ${({ theme }) => theme.primary};
-  border-radius: 2px;
-  animation: ${progressSlide} 1.2s ease-in-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-`
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -72,9 +35,15 @@ const RefetchIndicator = ({ visible: propVisible }: { visible: boolean }) => {
   if (!visible) return null
 
   return (
-    <Wrapper $visible={!fading}>
-      <Bar onAnimationIteration={onAnimationIteration} />
-    </Wrapper>
+    <div
+      className="absolute inset-x-0 z-[2] h-0.5 overflow-hidden transition-opacity duration-300 ease-linear"
+      style={{ opacity: fading ? 0 : 1 }}
+    >
+      <div
+        onAnimationIteration={onAnimationIteration}
+        className="absolute left-0 top-0 h-full w-1/4 rounded-sm bg-primary [animation:ks-progress-slide_1.2s_ease-in-out_infinite] motion-reduce:animate-none"
+      />
+    </div>
   )
 }
 

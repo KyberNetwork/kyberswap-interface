@@ -1,10 +1,7 @@
 import { Trans, t } from '@lingui/macro'
-import { darken } from 'polished'
 import { useCallback, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useGetGasRefundNextCycleInfoQuery } from 'services/kyberDAO'
-import styled, { css } from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
@@ -18,70 +15,37 @@ import {
   useGasRefundInfo,
   useGasRefundTier,
 } from 'hooks/kyberdao'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import EligibleTxModal from 'pages/KyberDAO/KNCUtility/EligibleTxModal'
+import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
+import { cn } from 'utils/cn'
 
-import { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
-import TimerCountdown from '../TimerCountdown'
-import EligibleTxModal from './EligibleTxModal'
-import { KNCUtilityTabs } from './type'
-
-const Hr = styled.hr`
-  width: 100%;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.border};
-  margin: 0;
-`
-
-const Wrapper = styled(Flex)`
-  width: 100%;
-  border-radius: 20px;
-  padding: 20px;
-  background-color: ${({ theme }) => theme.tableHeader};
-  gap: 20px;
-  flex-direction: column;
-`
-
-const Tab = styled(Text)<{ active?: boolean }>`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: left;
-  border-radius: 3rem;
-  outline: none;
-  cursor: pointer;
-  text-decoration: none;
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-
-  ${({ active, theme }) =>
-    active &&
-    css`
-      border-radius: 12px;
-      font-weight: 600;
-      color: ${theme.primary};
-    `}
-
-  :hover {
-    color: ${({ theme }) => darken(0.1, theme.primary)};
-  }
-`
+const Tab = ({ active, children, onClick }: { active?: boolean; children: React.ReactNode; onClick?: () => void }) => (
+  <span
+    onClick={onClick}
+    className={cn(
+      'flex flex-row flex-nowrap items-start rounded-[3rem] text-sm font-medium leading-5 text-subText outline-none hover:cursor-pointer hover:text-[#1f9777] hover:no-underline',
+      active && 'rounded-xl font-semibold text-primary',
+    )}
+  >
+    {children}
+  </span>
+)
 
 export default function GasRefundBox() {
   const { trackingHandler } = useTracking()
   const { account, chainId } = useActiveWeb3React()
   const [selectedTab, setSelectedTab] = useState<KNCUtilityTabs>(KNCUtilityTabs.Available)
-  const theme = useTheme()
   const { totalReward, reward, claimableReward } = useGasRefundInfo({ rewardStatus: selectedTab })
   const toggleWalletModal = useWalletModalToggle()
   const [isShowEligibleTx, setShowEligibleTx] = useState(false)
   const eligibleTxs = useEligibleTransactions(1, 1)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { userTier, gasRefundPercentage } = useGasRefundTier()
   const { data: nextCycleData } = useGetGasRefundNextCycleInfoQuery(undefined)
   const nextCycleStartTime = nextCycleData?.data.startTime
@@ -102,15 +66,10 @@ export default function GasRefundBox() {
   }, [claimReward, claimableReward?.knc, trackingHandler])
 
   return (
-    <Wrapper>
-      <Flex flexDirection="column" sx={{ gap: '16px' }}>
-        <RowBetween
-          width="100%"
-          flexDirection={upToExtraSmall ? 'column' : 'row'}
-          align={upToExtraSmall ? 'start' : 'center'}
-          sx={{ gap: '16px' }}
-        >
-          <Flex>
+    <div className="flex w-full flex-col gap-5 rounded-[20px] bg-tableHeader p-5">
+      <div className="flex flex-col gap-4">
+        <RowBetween className="w-full flex-row items-center gap-4 max-xs:flex-col max-xs:items-start">
+          <div className="flex">
             <TextDashed>
               <MouseoverTooltip width="fit-content" text={<Trans>Rewards available to claim.</Trans>} placement="top">
                 <Tab
@@ -121,7 +80,7 @@ export default function GasRefundBox() {
                 </Tab>
               </MouseoverTooltip>
             </TextDashed>
-            <Text sx={{ userSelect: 'none' }}>&nbsp;|&nbsp;</Text>
+            <span className="select-none">&nbsp;|&nbsp;</span>
             <TextDashed>
               <MouseoverTooltip
                 width="fit-content"
@@ -136,7 +95,7 @@ export default function GasRefundBox() {
                 </Tab>
               </MouseoverTooltip>
             </TextDashed>
-            <Text sx={{ userSelect: 'none' }}>&nbsp;|&nbsp;</Text>
+            <span className="select-none">&nbsp;|&nbsp;</span>
             <TextDashed>
               <MouseoverTooltip width="fit-content" text={<Trans>Rewards successfully claimed.</Trans>} placement="top">
                 <Tab
@@ -147,25 +106,25 @@ export default function GasRefundBox() {
                 </Tab>
               </MouseoverTooltip>
             </TextDashed>
-          </Flex>
+          </div>
           {!!userTier && !!gasRefundPercentage && (
-            <Text fontSize={12} fontWeight={400} lineHeight="16px" width="fit-content">
+            <span className="w-fit text-xs font-normal leading-4">
               <Trans>
                 Tier {userTier} - {gasRefundPercentage * 100}% Gas Refund
               </Trans>
-            </Text>
+            </span>
           )}
         </RowBetween>
-        <RowBetween width="100%" flexDirection="row" sx={{ gap: '16px' }} align="end">
-          <Flex flexDirection="column" sx={{ gap: '8px' }}>
-            <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
+        <RowBetween className="w-full flex-row items-end gap-4">
+          <div className="flex flex-col gap-2">
+            <span className="flex items-center text-xl font-medium leading-6 text-text">
               {account ? formattedNum(reward?.knc.toString() || '0') : '--'} KNC
-            </Text>
-            <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
+            </span>
+            <span className="flex items-center text-xs font-medium leading-4 text-subText">
               {account ? (reward?.usd ? '~' : '') + formattedNum(reward?.usd.toString() || '0', true) : '$ --'}
-            </Text>
-          </Flex>
-          <Flex width="fit-content">
+            </span>
+          </div>
+          <div className="flex w-fit">
             {selectedTab === KNCUtilityTabs.Available ? (
               account ? (
                 isSupportKyberDao(chainId) ? (
@@ -205,24 +164,20 @@ export default function GasRefundBox() {
                 </ButtonLight>
               )
             ) : selectedTab === KNCUtilityTabs.Pending && nextCycleStartTime ? (
-              <Text fontSize={12} fontWeight={500} lineHeight="16px" as="span">
+              <span className="text-xs font-medium leading-4">
                 <Trans>
                   Available to claim in{' '}
-                  <TimerCountdown
-                    endTime={nextCycleStartTime}
-                    maxLength={2}
-                    sx={{ display: 'inline-flex !important' }}
-                  />
+                  <TimerCountdown endTime={nextCycleStartTime} maxLength={2} style={{ display: 'inline-flex' }} />
                 </Trans>
-              </Text>
+              </span>
             ) : null}
-          </Flex>
+          </div>
         </RowBetween>
-      </Flex>
-      <Hr />
-      <RowBetween flexDirection="row" sx={{ gap: '16px' }}>
-        <Flex flexDirection="column" sx={{ gap: '16px' }}>
-          <TextDashed fontSize={14} lineHeight="20px" fontWeight={500} color={theme.subText}>
+      </div>
+      <hr className="m-0 h-px w-full border-none bg-border" />
+      <RowBetween className="flex-row gap-4">
+        <div className="flex flex-col gap-4">
+          <TextDashed fontSize={14} lineHeight="20px" fontWeight={500}>
             <MouseoverTooltip
               width="fit-content"
               text={<Trans>Total Gas Refund = Available + Pending + Claimed Gas Refund</Trans>}
@@ -231,18 +186,18 @@ export default function GasRefundBox() {
               <Trans>Total Gas Refund</Trans>
             </MouseoverTooltip>
           </TextDashed>
-          <Flex flexDirection="column" sx={{ gap: '8px' }}>
-            <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
+          <div className="flex flex-col gap-2">
+            <span className="flex items-center text-xl font-medium leading-6 text-text">
               {account ? formattedNum(totalReward?.knc.toString() ?? '0') : '--'} KNC
-            </Text>
-            <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
+            </span>
+            <span className="flex items-center text-xs font-medium leading-4 text-subText">
               {account
                 ? (totalReward?.usd ? '~' : '') + formattedNum(totalReward?.usd.toString() ?? '0', true)
                 : '$ --'}
-            </Text>
-          </Flex>
-        </Flex>
-        <Flex alignSelf="end">
+            </span>
+          </div>
+        </div>
+        <div className="flex self-end">
           {!!account && !!eligibleTxs?.transactions.length && (
             <ButtonLight
               padding="2px 12px"
@@ -250,14 +205,14 @@ export default function GasRefundBox() {
               style={{ whiteSpace: 'nowrap' }}
               width="max-content"
             >
-              <Text fontSize={12} fontWeight={500} lineHeight="16px">
+              <span className="text-xs font-medium leading-4">
                 <Trans>Your Transactions</Trans>
-              </Text>
+              </span>
             </ButtonLight>
           )}
-        </Flex>
+        </div>
       </RowBetween>
       <EligibleTxModal isOpen={isShowEligibleTx} closeModal={() => setShowEligibleTx(false)} />
-    </Wrapper>
+    </div>
   )
 }

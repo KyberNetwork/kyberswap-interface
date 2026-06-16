@@ -2,7 +2,13 @@ import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Connector, useConnectors } from 'wagmi'
 
-import { CONNECTION, CONNECTION_ORDER, HardCodedConnectors, getConnectorWithId } from 'components/Web3Provider'
+import {
+  CONNECTION,
+  CONNECTION_ORDER,
+  HardCodedConnectors,
+  getConnectorWithId,
+  getSafepalProvider,
+} from 'components/Web3Provider'
 import { isInSafeApp } from 'utils'
 
 function getInjectedConnectors(connectors: readonly Connector[]) {
@@ -23,9 +29,11 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
       return false
     }
 
-    // SafePal's custom connector is always registered so it can act as an install/deep-link option,
-    // but it should not count as an injected wallet unless its provider actually exists.
-    if (c.id === CONNECTION.SAFEPAL && !window.safepalProvider) {
+    // SafePal is always registered so its connect() can open the install page,
+    // but the wallet modal must only count it as an injected provider when the
+    // real EVM provider exists. Otherwise mobile in-wallet filtering can return
+    // only SafePal even in unrelated wallets.
+    if (c.id === CONNECTION.SAFEPAL && !getSafepalProvider()) {
       return false
     }
 

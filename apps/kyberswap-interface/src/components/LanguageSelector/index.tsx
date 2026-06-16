@@ -1,32 +1,12 @@
 import { isMobile } from 'react-device-detect'
 import { ArrowLeft, Check } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { LOCALE_INFO, SupportedLocale, getLocaleLabel } from 'constants/locales'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import useTheme from 'hooks/useTheme'
 import { useUserLocale } from 'state/user/hooks'
-
-const StyledLanguageSelector = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-`
-
-const OptionTitle = styled.div<{ isSelected?: boolean }>`
-  color: ${({ theme, isSelected }) => (isSelected ? theme.primary : theme.subText)};
-  font-size: 14px;
-`
-
-const GridWrapper = styled.div`
-  display: grid;
-  grid-gap: 1.5rem 3rem;
-  grid-template-columns: 1fr ${isMobile ? '1fr' : ''};
-  width: 100%;
-`
+import { cn } from 'utils/cn'
 
 export default function LanguageSelector({
   setIsSelectingLanguage,
@@ -35,7 +15,6 @@ export default function LanguageSelector({
   setIsSelectingLanguage: (isSelectingLanguage: boolean) => void
   onLanguageChange?: (previousLanguage: string, newLanguage: string) => void
 }) {
-  const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const qs = useParsedQueryString()
@@ -53,36 +32,34 @@ export default function LanguageSelector({
   }
 
   return (
-    <StyledLanguageSelector>
+    <div className="flex flex-col items-start justify-center">
       <ButtonEmpty
         width="fit-content"
         padding="0"
         onClick={() => setIsSelectingLanguage(false)}
-        style={{ textDecoration: 'none', color: theme.text, marginBottom: '24px' }}
+        className="mb-6 text-text no-underline"
       >
         <ArrowLeft />
       </ButtonEmpty>
-      <GridWrapper>
+      <div className={cn('grid w-full gap-x-12 gap-y-6', isMobile ? 'grid-cols-[1fr_1fr]' : 'grid-cols-[1fr]')}>
         {Object.keys(LOCALE_INFO).map(element => {
           const locale = element as SupportedLocale
+          const isSelected = locale === userLocale
           return (
             <ButtonEmpty
               key={locale}
               padding="0"
               onClick={() => handleSelectLanguage(locale)}
-              style={{
-                textDecoration: 'none',
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
+              className="flex justify-between no-underline"
             >
-              <OptionTitle isSelected={locale === userLocale}>{getLocaleLabel(locale)}</OptionTitle>
-
-              {locale === userLocale && <Check color={theme.primary}></Check>}
+              <div className={cn('text-sm', isSelected ? 'text-primary' : 'text-subText')}>
+                {getLocaleLabel(locale)}
+              </div>
+              {isSelected && <Check className="text-primary" />}
             </ButtonEmpty>
           )
         })}
-      </GridWrapper>
-    </StyledLanguageSelector>
+      </div>
+    </div>
   )
 }

@@ -1,16 +1,19 @@
-import { Text } from 'rebass'
+import { useMemo } from 'react'
 
-import { ReactComponent as BagIcon } from 'assets/svg/kyber/ic_bag.svg'
+import { ReactComponent as BagIcon } from 'assets/svg/earn/ic_bag.svg'
 import { HStack, Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
-import { formatApr, formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetail/Information/utils'
+import { formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetail/Information/utils'
 import AprHistoryChart from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import TopMetricsStrip, { type TopMetricItem } from 'pages/Earns/PoolDetail/components/TopMetricsStrip'
+import { getParsedRewardAmount } from 'pages/Earns/PoolDetail/components/utils'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import { ProgramType } from 'pages/Earns/types/pool'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
+const BLOCKS_PER_CYCLE = 2016
+const DAY_SECONDS = 24 * 60 * 60
+
 const InformationTab = () => {
-  const theme = useTheme()
   const { chainId, pool, poolAddress } = usePoolDetailContext()
 
   const tokenPrices = useTokenPrices(
@@ -19,7 +22,41 @@ const InformationTab = () => {
   )
 
   const poolStats = pool.poolStats
-  const rewardApr = (poolStats?.kemEGApr ?? 0) + (poolStats?.kemLMApr ?? 0) + (poolStats?.bonusApr ?? 0)
+  const bonusApr = poolStats?.bonusApr ?? 0
+  const currentApr = {
+    totalApr: poolStats?.allApr24h,
+    activeApr: poolStats?.activeApr ? poolStats.activeApr + bonusApr : undefined,
+  }
+
+  const kemRewardTokens = useMemo(() => {
+    const cycleDuration = (pool.kemReward?.endTime || 0) - (pool.kemReward?.startTime || 0)
+
+    return (pool.kemReward?.rewardCfg || []).map(reward => {
+      const decimals = reward.tokenInfo?.decimals
+      const amountPerBlock = decimals !== undefined ? getParsedRewardAmount(reward.amountReward, decimals) : 0
+      const totalAmount = amountPerBlock * BLOCKS_PER_CYCLE
+      const dailyTotalAmount = cycleDuration > 0 ? totalAmount * (DAY_SECONDS / cycleDuration) : 0
+
+      return {
+        address: reward.tokenInfo?.address || reward.tokenAddress,
+        dailyTotalAmount,
+      }
+    })
+  }, [pool.kemReward?.endTime, pool.kemReward?.rewardCfg, pool.kemReward?.startTime])
+
+  const kemRewardTokenPrices = useTokenPrices(
+    useMemo(() => kemRewardTokens.map(token => token.address), [kemRewardTokens]),
+    chainId,
+  )
+
+  const egRewards = pool.egUsd || 0
+  const lmRewards = kemRewardTokens.reduce((sum, token) => {
+    const tokenPrice = kemRewardTokenPrices[token.address] || 0
+    return sum + token.dailyTotalAmount * tokenPrice
+  }, 0)
+  const merklRewards = pool.merklOpportunity?.dailyRewards ?? 0
+  const rewards24hUsd = egRewards + lmRewards + merklRewards
+
   const liquidityUsdValue = getPoolLiquidityUsd(pool, tokenPrices)
 
   const tvlValue = formatUsd(poolStats?.tvl)
@@ -28,11 +65,9 @@ const InformationTab = () => {
   const liquidityValue = formatUsd(liquidityUsdValue)
 
   const rewardsValue = (
-    <HStack align="center" gap={4}>
-      <Text as="span" color={theme.text} fontWeight={500}>
-        {formatApr(rewardApr)}
-      </Text>
-      {rewardApr > 0 ? <BagIcon height={20} width={20} /> : null}
+    <HStack className="items-center gap-1">
+      <span className="font-medium text-text">{formatUsd(rewards24hUsd)}</span>
+      <BagIcon height={18} width={18} />
     </HStack>
   )
 
@@ -40,15 +75,20 @@ const InformationTab = () => {
     { label: 'TVL', value: tvlValue },
     { label: '24h Volume', value: volumeValue },
     { label: '24h Fees', value: feesValue },
-    { label: 'Rewards', value: rewardsValue },
+    ...(rewards24hUsd > 0 ? [{ label: '24h Rewards', value: rewardsValue }] : []),
     { label: 'Liquidity', value: liquidityValue },
   ]
 
   return (
-    <Stack gap={20}>
+    <Stack className="gap-5">
       <TopMetricsStrip items={topMetrics} split={true} />
 
-      <AprHistoryChart chainId={chainId} poolAddress={poolAddress} />
+      <AprHistoryChart
+        chainId={chainId}
+        currentApr={currentApr}
+        poolAddress={poolAddress}
+        programs={pool.programs as ProgramType[]}
+      />
     </Stack>
   )
 }

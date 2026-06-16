@@ -58,6 +58,7 @@ export const ERROR_MESSAGES = {
   USER_REJECTED: 'User rejected the transaction.',
   USER_REJECTED_REQUEST: 'User rejected the request.',
   INCREASE_SLIPPAGE: 'An error occurred. Please try increasing max slippage',
+  INSUFFICIENT_GAS_FUNDS: 'Your current balance falls short of covering the required gas fee.',
   INVALID_PERMIT_SIGNATURE: 'An error occurred. Invalid Permit Signature',
   INSUFFICIENT_FEE_REWARDS:
     'Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later',
@@ -83,6 +84,17 @@ function parseKnownPattern(text: string): string | undefined {
   if (error.includes('header not found') || error.includes('swap failed')) return ERROR_MESSAGES.RPC_SETTINGS_ISSUE;
 
   if (didUserReject(error)) return ERROR_MESSAGES.USER_REJECTED;
+
+  // "insufficient funds" / "insufficient balance for transfer" mean the wallet
+  // can't cover gas (or gas + value). Check before the generic `insufficient`
+  // branch so we don't tell the user to "increase slippage" for an
+  // out-of-funds error.
+  if (
+    error.includes('insufficient funds') ||
+    error.includes('insufficient balance for transfer') ||
+    error.includes('outoffund')
+  )
+    return ERROR_MESSAGES.INSUFFICIENT_GAS_FUNDS;
 
   // classic/elastic remove liquidity error
   if (error.includes('insufficient')) return ERROR_MESSAGES.INCREASE_SLIPPAGE;

@@ -8,8 +8,10 @@ import {
 import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 const RAFFLE_JOINED_SESSION_KEY = 'raffle_joined_weeks'
 
@@ -61,7 +63,6 @@ export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
-  const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
 
   const [joinCampaign] = useJoinRaffleCampaignMutation()
@@ -92,14 +93,6 @@ export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
       toggleWalletModal()
       return
     }
-    if (!library) {
-      notify({
-        title: t`Unable to access wallet`,
-        summary: t`Please reconnect your wallet and try again.`,
-        type: NotificationType.ERROR,
-      })
-      return
-    }
 
     try {
       const nonce = String(10_000_000 + Math.floor(Math.random() * 90_000_000))
@@ -114,7 +107,12 @@ export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
         issuedAt: new Date().toISOString(),
       }).prepareMessage()
 
-      const signature = await library.getSigner().signMessage(message)
+      const walletClient = await getGatedWalletClient({ chainId: chainId })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+      const signature = await walletClient.signMessage({
+        account: account as Address,
+        message,
+      })
       await joinCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
       saveJoinedWeekInSession(account, selectedWeek)
 
@@ -136,7 +134,6 @@ export const useRaffleCampaignJoin = ({ selectedWeek, enabled }: Props) => {
     account,
     chainId,
     joinCampaign,
-    library,
     selectedWeek,
     notify,
     refetchParticipant,

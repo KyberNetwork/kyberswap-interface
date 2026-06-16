@@ -4,8 +4,6 @@ import { InfoHelper } from '@kyber/ui'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
@@ -14,24 +12,6 @@ import TokenAmountInput, {
 } from 'pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const AddTokenButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  width: fit-content;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.primary};
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-
-  :hover {
-    filter: brightness(1.12);
-  }
-`
-
 const EMPTY_TOKENS: Token[] = []
 const EMPTY_BALANCES: Record<string, bigint> = {}
 const EMPTY_PRICES: Record<string, number> = {}
@@ -39,8 +19,6 @@ const EMPTY_PRICES: Record<string, number> = {}
 const isUniV3Pool = (pool: Pool): pool is UniV3Pool => univ3Types.includes(pool.poolType as PoolType.DEX_UNISWAPV3)
 
 const LiquidityShare = ({ pool, route }: { pool: Pool; route?: ZapRouteDetail | null }) => {
-  const theme = useTheme()
-
   const share = useMemo(() => {
     if (!isUniV3Pool(pool) || !route?.positionDetails?.addedLiquidity) return undefined
     const previousLiquidity = Number(pool.liquidity)
@@ -56,13 +34,9 @@ const LiquidityShare = ({ pool, route }: { pool: Pool; route?: ZapRouteDetail | 
   }, [share])
 
   return (
-    <Text color={theme.subText} fontSize={12} fontStyle="italic" textAlign="right">
-      Your Share:{' '}
-      <Text as="span" color={theme.blue} fontWeight={500}>
-        {shareDisplay}
-      </Text>{' '}
-      of Active Liquidity
-    </Text>
+    <div className="text-right text-xs italic text-subText">
+      Your Share: <span className="font-medium text-blue">{shareDisplay}</span> of Active Liquidity
+    </div>
   )
 }
 
@@ -86,11 +60,13 @@ interface AddLiquidityTokenInputProps {
     slippage?: number
     tickLower?: number | null
     tickUpper?: number | null
+    revertPrice?: boolean
   }
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
     initialTick?: { tickUpper: number; tickLower: number },
+    initialRevertPrice?: boolean,
     initialSlippage?: number,
   ) => void
   onTokensChange?: (nextTokens: Token[]) => void
@@ -121,6 +97,7 @@ const AddLiquidityTokenInput = ({
   const currentSlippage = value?.slippage
   const tickLower = value?.tickLower
   const tickUpper = value?.tickUpper
+  const revertPrice = value?.revertPrice
   const amountList = useMemo(() => currentAmounts.split(','), [currentAmounts])
 
   const onCloseTokenSelectModal = useCallback(() => {
@@ -201,14 +178,15 @@ const AddLiquidityTokenInput = ({
       onOpenZapMigration(
         position,
         typeof tickLower === 'number' && typeof tickUpper === 'number' ? { tickLower, tickUpper } : undefined,
+        revertPrice,
         initialSlippage,
       )
     },
-    [chainId, onOpenZapMigration, onTrackEvent, pool, poolType, tickLower, tickUpper],
+    [chainId, onOpenZapMigration, onTrackEvent, pool, poolType, revertPrice, tickLower, tickUpper],
   )
 
   return (
-    <Stack gap={12}>
+    <Stack className="gap-3">
       {currentTokens.length ? (
         currentTokens.map((token, index) => (
           <TokenAmountInput
@@ -233,7 +211,11 @@ const AddLiquidityTokenInput = ({
 
       <LiquidityShare pool={pool} route={currentRoute} />
 
-      <AddTokenButton type="button" onClick={() => openTokenSelectModalForToken()}>
+      <button
+        type="button"
+        onClick={() => openTokenSelectModalForToken()}
+        className="inline-flex w-fit cursor-pointer items-center gap-1.5 border-0 bg-transparent p-0 text-sm font-medium text-primary hover:brightness-110"
+      >
         <Trans>+ Add Token(s) or Use Existing Position</Trans>
         <InfoHelper
           noneMarginLeft
@@ -242,7 +224,7 @@ const AddLiquidityTokenInput = ({
           color={theme.primary}
           width="300px"
         />
-      </AddTokenButton>
+      </button>
 
       {openTokenSelectModal &&
         typeof document !== 'undefined' &&

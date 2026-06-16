@@ -1,10 +1,7 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { transparentize } from 'polished'
 import { useCallback, useEffect } from 'react'
 import { AlertTriangle, ArrowLeft } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Card from 'components/Card'
@@ -12,44 +9,11 @@ import { AutoColumn } from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { RowBetween } from 'components/Row'
-import useTheme from 'hooks/useTheme'
+import { PaddedColumn } from 'components/SearchModal/styleds'
 import { useAddUserToken } from 'state/user/hooks'
-import { CloseIcon, TYPE } from 'theme'
+import { CloseIcon } from 'theme'
 import { ExternalLinkIcon } from 'theme/components'
 import { getEtherscanLink, shortenAddress } from 'utils'
-
-import { PaddedColumn } from './styleds'
-
-const Wrapper = styled.div`
-  position: relative;
-  width: 100%;
-  overflow: auto;
-`
-
-const WarningWrapper = styled(Card)`
-  background-color: ${({ theme }) => transparentize(0.8, theme.warning)};
-  width: fit-content;
-`
-
-const SectionBreak = styled.div`
-  height: 1px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.bg3};
-`
-
-const AddressText = styled.div`
-  font-size: 12px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 10px;
-`}
-`
-
-const DescText = styled.div`
-  font-size: 14px;
-  color: ${({ theme }) => theme.warning};
-  font-weight: 500;
-  margin-left: 8px;
-`
 
 interface ImportProps {
   enterToImport?: boolean
@@ -60,8 +24,6 @@ interface ImportProps {
 }
 
 export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, handleCurrencySelect }: ImportProps) {
-  const theme = useTheme()
-
   const addToken = useAddUserToken()
 
   const onClickImport = useCallback(() => {
@@ -83,51 +45,49 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
   }, [onClickImport, enterToImport])
 
   return (
-    <Wrapper>
-      <PaddedColumn gap="14px" style={{ width: '100%', flex: '1 1' }}>
+    <div className="relative w-full overflow-auto">
+      <PaddedColumn className="w-full flex-1 gap-[14px]">
         <RowBetween>
-          {onBack ? <ArrowLeft style={{ cursor: 'pointer' }} onClick={onBack} /> : <div></div>}
-          <TYPE.mediumHeader>{tokens.length > 1 ? t`Import Tokens` : t`Import Token`}</TYPE.mediumHeader>
+          {onBack ? <ArrowLeft className="cursor-pointer" onClick={onBack} /> : <div></div>}
+          <p className="m-0 text-xl font-medium leading-[normal]">
+            {tokens.length > 1 ? t`Import Tokens` : t`Import Token`}
+          </p>
           {onDismiss ? <CloseIcon onClick={onDismiss} /> : <div />}
         </RowBetween>
       </PaddedColumn>
-      <SectionBreak />
-      <Flex flexDirection={'column'} style={{ padding: '1rem', gap: '1rem' }}>
-        <WarningWrapper borderRadius="20px" padding="15px">
-          <Flex alignItems={'flex-start'}>
+      <div className="h-px w-full bg-bg3" />
+      <div className="flex flex-col gap-4 p-4">
+        <Card className="w-fit rounded-[20px] bg-warning-20 p-[15px]">
+          <div className="flex items-start">
             <div>
-              <AlertTriangle stroke={theme.warning} size="17px" />
+              <AlertTriangle size="17px" className="text-warning" />
             </div>
-            <DescText>
+            <div className="ml-2 text-sm font-medium text-warning">
               <Trans>This token isn’t frequently swapped. Please do your own research before trading.</Trans>
-            </DescText>
-          </Flex>
-        </WarningWrapper>
+            </div>
+          </div>
+        </Card>
         {tokens.map(token => {
           return (
-            <Card backgroundColor={theme.buttonBlack} key={token.address} padding="2rem">
-              <Flex style={{ gap: 10 }}>
+            <Card className="bg-buttonBlack p-8" key={token.address}>
+              <div className="flex gap-2.5">
                 <CurrencyLogo currency={token} size={'44px'} />
-                <AutoColumn gap="4px">
-                  <TYPE.body fontWeight={500} fontSize={20}>
-                    {token.symbol}
-                  </TYPE.body>
-                  <Text color={theme.subText} fontWeight={400} fontSize={14}>
-                    {token.name}
-                  </Text>
-                  <Flex alignItems={'center'} color={theme.text} style={{ gap: 5 }}>
-                    <AddressText>
+                <AutoColumn className="gap-1">
+                  <p className="m-0 text-xl font-medium leading-[normal] text-text">{token.symbol}</p>
+                  <span className="text-sm font-normal text-subText">{token.name}</span>
+                  <div className="flex items-center gap-[5px] text-text">
+                    <div className="text-[10px] sm:text-xs">
                       <Trans>Address</Trans>: {shortenAddress(token.chainId, token.address, 7)}
-                    </AddressText>
-                    <CopyHelper toCopy={token.address} style={{ color: theme.subText }} />
+                    </div>
+                    <CopyHelper toCopy={token.address} className="text-subText" />
                     <ExternalLinkIcon
-                      color={theme.subText}
+                      className="text-subText"
                       size={16}
                       href={getEtherscanLink(token.chainId, token.address, 'address')}
                     />
-                  </Flex>
+                  </div>
                 </AutoColumn>
-              </Flex>
+              </div>
             </Card>
           )
         })}
@@ -140,7 +100,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
         >
           <Trans>I understand</Trans>
         </ButtonPrimary>
-      </Flex>
-    </Wrapper>
+      </div>
+    </div>
   )
 }

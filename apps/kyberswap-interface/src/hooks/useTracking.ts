@@ -1,6 +1,5 @@
 import { useFormo } from '@formo/analytics'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel, { crossChainMixpanel } from 'libs/mixpanel'
 import { useCallback, useEffect } from 'react'
 import { usePrevious } from 'react-use'
@@ -12,6 +11,7 @@ import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { formatUnits, isAddress } from 'utils/viem'
 
 export enum TRACKING_EVENT_TYPE {
   WALLET_CONNECT_CLICK,
@@ -237,7 +237,6 @@ export enum TRACKING_EVENT_TYPE {
 
   // Swap settings interactions
   TRANSACTION_TIME_LIMIT_CHANGED,
-  GAS_TOKEN_CHANGED,
   LIQUIDITY_SOURCES_TOGGLED,
 
   // Cross-chain execution flow
@@ -447,7 +446,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           } = (payload || {}) as {
             gasUsd: number | string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
@@ -467,7 +465,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps?: number
             route_split?: boolean
             chain?: string
-            volume?: number
           }
 
           const body: Record<string, any> = {
@@ -491,7 +488,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           }
 
           if (feeInfo) {
@@ -550,7 +546,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         case TRACKING_EVENT_TYPE.SWAP_COMPLETED: {
           const { arbitrary, actual_gas, gas_price, tx_hash } = payload
           const feeInfo = payload.feeInfo as FeeInfo
-          const formattedGas = gas_price ? formatUnits(gas_price, networkInfo.nativeToken.decimal) : '0'
+          const formattedGas = gas_price ? formatUnits(gas_price as bigint, networkInfo.nativeToken.decimal) : '0'
 
           const body: Record<string, any> = {
             input_token: arbitrary.inputSymbol,
@@ -561,7 +557,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
               arbitrary.inputSymbol && arbitrary.outputSymbol
                 ? `${arbitrary.inputSymbol}/${arbitrary.outputSymbol}`
                 : undefined,
-            actual_gas: actual_gas.toNumber() * parseFloat(formattedGas),
+            actual_gas: Number(actual_gas as bigint) * parseFloat(formattedGas),
             tx_hash: tx_hash,
             trade_qty: arbitrary.inputAmount,
             amount_in_usd: arbitrary.amountInUsd,
@@ -569,7 +565,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
             gas_price: formattedGas,
-            actual_gas_native: actual_gas?.toNumber(),
+            actual_gas_native: actual_gas !== undefined ? Number(actual_gas as bigint) : undefined,
             trade_route_dexes: arbitrary.tradeRouteDexes,
             chain: arbitrary.chain,
             volume: arbitrary.volume,
@@ -1473,10 +1469,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Transaction Time Limit Changed', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.GAS_TOKEN_CHANGED: {
-          formoTrack('Gas Token Changed', payload)
-          break
-        }
         case TRACKING_EVENT_TYPE.LIQUIDITY_SOURCES_TOGGLED: {
           formoTrack('Liquidity Sources Toggled', payload)
           break
@@ -1799,7 +1791,7 @@ export const useGlobalTrackingEvents = () => {
   const oldNetwork = usePrevious(chainId)
 
   useEffect(() => {
-    if (account && isAddress(account)) {
+    if (account && isAddress(account, { strict: false })) {
       analytics?.identify({ address: account })
       crossChainMixpanel?.identify(account)
 

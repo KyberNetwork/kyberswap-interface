@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 
 import { useTokenReadingContract } from 'hooks/useContract'
@@ -8,7 +7,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 // or contract total supply cannot be fetched
 export function useTotalSupply(token?: Token): TokenAmount | undefined {
   const contract = useTokenReadingContract(token?.address)
-  const totalSupply: BigNumber = useSingleCallResult(contract, 'totalSupply')?.result?.[0]
+  const totalSupply = useSingleCallResult(contract, 'totalSupply')?.result?.[0] as bigint | undefined
 
-  return token && totalSupply ? TokenAmount.fromRawAmount(token, totalSupply.toString()) : undefined
+  return token && totalSupply !== undefined ? TokenAmount.fromRawAmount(token, totalSupply.toString()) : undefined
 }

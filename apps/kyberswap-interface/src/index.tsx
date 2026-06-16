@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
-import 'inter-ui'
+import 'inter-ui/inter.css'
 import { initMixpanel } from 'libs/mixpanel'
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -28,17 +28,17 @@ import { ENV_LEVEL, FORMO_WRITE_KEY, GTM_ID } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { useAffiliate } from 'hooks/useAffiliate'
 
-import { LanguageProvider } from './i18n'
-import App from './pages/App'
-import * as serviceWorkerRegistration from './serviceWorkerRegistration'
-import store from './state'
-import ApplicationUpdater from './state/application/updater'
-import CustomizeDexesUpdater from './state/customizeDexes/updater'
-import ListsUpdater from './state/lists/updater'
-import MulticallUpdater from './state/multicall/updater'
-import TransactionUpdater from './state/transactions/updater'
-import UserUpdater from './state/user/updater'
-import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
+import { LanguageProvider } from 'i18n'
+import App from 'pages/App'
+import * as serviceWorkerRegistration from 'serviceWorkerRegistration'
+import store from 'state'
+import ApplicationUpdater from 'state/application/updater'
+import CustomizeDexesUpdater from 'state/customizeDexes/updater'
+import ListsUpdater from 'state/lists/updater'
+import TransactionUpdater from 'state/transactions/updater'
+import UserUpdater from 'state/user/updater'
+import 'tailwind.css'
+import ThemeProvider from 'theme'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -66,7 +66,6 @@ function Updaters() {
       <UserUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />
-      <MulticallUpdater />
       <CustomizeDexesUpdater />
     </>
   )
@@ -90,7 +89,6 @@ const ReactApp = () => {
         writeKey={FORMO_WRITE_KEY}
         disabled={window.location.hostname.endsWith('.pr.kyberengineering.io')}
       >
-        <FixedGlobalStyle />
         <Provider store={store}>
           <BrowserRouter>
             <LanguageProvider>
@@ -99,7 +97,6 @@ const ReactApp = () => {
                   <NEARWalletProvider>
                     <Updaters />
                     <ThemeProvider>
-                      <ThemedGlobalStyle />
                       <SolanaProvider>
                         <App />
                       </SolanaProvider>

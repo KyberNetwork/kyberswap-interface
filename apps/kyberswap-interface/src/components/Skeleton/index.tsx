@@ -1,7 +1,5 @@
-import { rgba } from 'polished'
 import { type ComponentProps } from 'react'
 import LoadingSkeleton from 'react-loading-skeleton'
-import { createGlobalStyle } from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
@@ -11,14 +9,13 @@ export type SkeletonProps = ComponentProps<typeof LoadingSkeleton> & {
   variant?: SkeletonVariant
 }
 
-const SKELETON_CONTAINER_CLASSNAME = 'ks-skeleton-container'
+// White at 0.08 / 0.12 / 0.14 / 0.20 alpha — used as react-loading-skeleton color strings.
+const WHITE_08 = '#ffffff14'
+const WHITE_12 = '#ffffff1f'
+const WHITE_14 = '#ffffff24'
+const WHITE_20 = '#ffffff33'
 
-const SkeletonGlobalStyle = createGlobalStyle`
-  .${SKELETON_CONTAINER_CLASSNAME} {
-    display: block;
-    line-height: 0;
-  }
-`
+const SKELETON_CONTAINER_CLASSNAME = 'ks-skeleton-container'
 
 const Skeleton = ({
   baseColor,
@@ -39,28 +36,25 @@ const Skeleton = ({
       highlightColor: theme.buttonGray,
     },
     dark: {
-      baseColor: rgba('#fff', 0.12),
-      highlightColor: rgba('#fff', 0.2),
+      baseColor: WHITE_12,
+      highlightColor: WHITE_20,
     },
     darkSubtle: {
-      baseColor: rgba('#fff', 0.08),
-      highlightColor: rgba('#fff', 0.14),
+      baseColor: WHITE_08,
+      highlightColor: WHITE_14,
     },
   }
 
   const colors = variantColors[variant]
 
   return (
-    <>
-      <SkeletonGlobalStyle />
-      <LoadingSkeleton
-        {...props}
-        baseColor={baseColor ?? colors.baseColor}
-        borderRadius={borderRadius ?? 12}
-        containerClassName={mergedContainerClassName}
-        highlightColor={highlightColor ?? colors.highlightColor}
-      />
-    </>
+    <LoadingSkeleton
+      {...props}
+      baseColor={baseColor ?? colors.baseColor}
+      borderRadius={borderRadius ?? 12}
+      containerClassName={mergedContainerClassName}
+      highlightColor={highlightColor ?? colors.highlightColor}
+    />
   )
 }
 

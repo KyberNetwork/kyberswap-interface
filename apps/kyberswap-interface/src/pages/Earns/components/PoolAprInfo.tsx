@@ -1,67 +1,58 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { Trans, t } from '@lingui/macro'
 import { Info } from 'react-feather'
-import { Text } from 'rebass'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { ExternalLink } from 'theme/components'
 
 const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total' | 'active' }) => {
-  const theme = useTheme()
-  const isActive = type === 'active'
-  const lpApr = isActive ? pool.activeFeeApr : pool.lpApr
-  const egApr = isActive ? pool.activeEgApr : pool.kemEGApr
-  const lmApr = isActive ? pool.activeLmApr : pool.kemLMApr
+  const hasActiveApr = type === 'active'
+  const lpApr = hasActiveApr ? pool.activeFeeApr : pool.lpApr
+  const egApr = hasActiveApr ? pool.activeEgApr : pool.kemEGApr
+  const lmApr = hasActiveApr ? pool.activeLmApr : pool.kemLMApr
   const bonusApr = pool.bonusApr
 
   return (
-    <Stack gap={2}>
-      {isActive ? (
-        <Text>
+    <Stack className="gap-0.5">
+      {hasActiveApr ? (
+        <p>
           <Trans>
             Earning per{' '}
-            <ExternalLink
-              style={{ color: theme.blue }}
-              href="https://docs.kyberswap.com/user-guide/kyber-earn/apr-metrics#active-apr"
-            >
-              Active TVL <Info size={12} style={{ marginBottom: -2 }} />
+            <ExternalLink href="https://docs.kyberswap.com/user-guide/kyber-earn/apr-metrics#active-apr">
+              Active TVL <Info className="inline align-text-bottom" size={12} />
             </ExternalLink>
           </Trans>
-        </Text>
+        </p>
       ) : (
-        <Text>
+        <p>
           <Trans>
-            Earning per{' '}
-            <Text as="span" color={theme.primary}>
-              Total TVL
-            </Text>
+            Earning per <span className="text-blue">Total TVL</span>
           </Trans>
-        </Text>
+        </p>
       )}
       {!!lpApr && (
-        <Text>
+        <p>
           {t`LP Fee APR`}: {formatAprNumber(lpApr)}%
-        </Text>
+        </p>
       )}
       {!!egApr && (
-        <Text>
+        <p>
           {t`FairFlow EG Rewards`}: {formatAprNumber(egApr)}%
-        </Text>
+        </p>
       )}
       {!!lmApr && (
-        <Text>
-          {t`LM Reward`}: {formatAprNumber(lmApr)}%
-        </Text>
+        <p>
+          {t`LM Rewards`}: {formatAprNumber(lmApr)}%
+        </p>
       )}
       {!!bonusApr && (
-        <Text>
+        <p>
           {t`Bonus APR`}: {formatAprNumber(bonusApr)}%
-        </Text>
+        </p>
       )}
     </Stack>
   )
@@ -75,24 +66,22 @@ const FarmingMarker = ({ pool }: { pool: ParsedEarnPool }) => {
   if (!isFarming) return null
 
   return isFarmingLm ? (
-    <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
+    <FarmingLmIcon width={20} height={20} className="ml-1" />
   ) : (
-    <FarmingIcon width={20} height={20} style={{ marginLeft: 4 }} />
+    <FarmingIcon width={20} height={20} className="ml-1" />
   )
 }
 
 const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
-  const theme = useTheme()
-
   return (
-    <HStack align="center" gap={4} wrap="nowrap">
+    <HStack className="flex-nowrap items-center gap-1">
       {pool.activeApr ? (
         <MouseoverTooltipDesktopOnly
           placement="left"
           width="fit-content"
           text={<AprTooltipContent pool={pool} type="active" />}
         >
-          <Text color={theme.blue}>{formatAprNumber(pool.activeApr + (pool.bonusApr || 0))}%</Text>
+          <span className="text-primary">{formatAprNumber(pool.activeApr + (pool.bonusApr || 0))}%</span>
         </MouseoverTooltipDesktopOnly>
       ) : (
         <MouseoverTooltipDesktopOnly
@@ -100,7 +89,7 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
           width="fit-content"
           text={<AprTooltipContent pool={pool} type="total" />}
         >
-          <Text color={theme.green}>{formatAprNumber(pool.allApr)}%</Text>
+          <span className="text-blue">{formatAprNumber(pool.allApr)}%</span>
         </MouseoverTooltipDesktopOnly>
       )}
 

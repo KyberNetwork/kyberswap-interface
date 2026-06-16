@@ -1,6 +1,4 @@
-import React from 'react'
-import { Flex, Text } from 'rebass'
-import styled, { CSSProperties } from 'styled-components'
+import React, { CSSProperties } from 'react'
 
 import { ReactComponent as AnnouncementSvg } from 'assets/svg/ic_announcement.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
@@ -8,54 +6,17 @@ import { ReactComponent as LimitOrderIcon } from 'assets/svg/kyber/limit_order.s
 import { ReactComponent as SmartExitIcon } from 'assets/svg/kyber/smart_exit.svg'
 import { Category } from 'components/Announcement/AnnoucementList'
 import { PoolPositionAnnouncement } from 'components/Announcement/type'
-import useTheme from 'hooks/useTheme'
 import { getTokenId } from 'pages/Earns/utils/position'
+import { cn } from 'utils/cn'
 
-const Wrapper = styled.div`
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  background-color: ${({ theme }) => theme.background};
-  font-size: 14px;
-  padding: 16px 20px;
-  gap: 14px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  :hover {
-    background-color: ${({ theme }) => theme.buttonBlack};
-  }
-`
-
-const IconWrapper = styled.div`
-  background-color: ${({ theme }) => theme.white}1A;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const SubLine = styled.div<{ maxLine?: number }>`
-  color: ${({ theme }) => theme.subText};
-  display: -webkit-box;
-  -webkit-line-clamp: ${({ maxLine }) => maxLine || 1};
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-`
-
-const Counter = styled.div`
-  background-color: ${({ theme }) => theme.green};
-  color: ${({ theme }) => theme.black};
-  font-size: 12px;
-  font-weight: 500;
-  min-width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 6px;
-`
+const SubLine = ({ children, maxLine = 1 }: { children: React.ReactNode; maxLine?: number }) => (
+  <div
+    className="overflow-hidden text-subText [-webkit-box-orient:vertical] [display:-webkit-box]"
+    style={{ WebkitLineClamp: maxLine }}
+  >
+    {children}
+  </div>
+)
 
 type CategoryItemProps = {
   title?: string
@@ -67,23 +28,25 @@ type CategoryItemProps = {
   onClick?: () => void
 }
 
-const CategoryItem = ({ onClick, style, title, icon, subLine1, subLine2, counter }: CategoryItemProps) => {
-  const theme = useTheme()
-
-  return (
-    <Wrapper onClick={onClick} style={style}>
-      <IconWrapper>{icon}</IconWrapper>
-      <Flex flexDirection="column" style={{ flex: 1, gap: 2 }}>
-        <Text color={theme.white} fontWeight={500}>
-          {title}
-        </Text>
-        {!!subLine1 && (typeof subLine1 === 'string' ? <SubLine maxLine={2}>{subLine1}</SubLine> : subLine1)}
-        {!!subLine2 && (typeof subLine2 === 'string' ? <SubLine>{subLine2}</SubLine> : subLine2)}
-      </Flex>
-      <Counter>{counter}</Counter>
-    </Wrapper>
-  )
-}
+const CategoryItem = ({ onClick, style, title, icon, subLine1, subLine2, counter }: CategoryItemProps) => (
+  <div
+    onClick={onClick}
+    style={style}
+    className={cn(
+      'flex cursor-pointer items-center gap-3.5 border-b border-solid border-border bg-background px-5 py-4 text-sm hover:bg-buttonBlack',
+    )}
+  >
+    <div className="flex size-8 items-center justify-center rounded-lg bg-white/[0.1]">{icon}</div>
+    <div className="flex flex-1 flex-col gap-0.5">
+      <span className="font-medium text-white">{title}</span>
+      {!!subLine1 && (typeof subLine1 === 'string' ? <SubLine maxLine={2}>{subLine1}</SubLine> : subLine1)}
+      {!!subLine2 && (typeof subLine2 === 'string' ? <SubLine>{subLine2}</SubLine> : subLine2)}
+    </div>
+    <div className="flex h-6 min-w-[24px] items-center justify-center rounded-xl bg-green px-1.5 text-xs font-medium text-black">
+      {counter}
+    </div>
+  </div>
+)
 
 type LimitOrderPreview = { pair?: string; status?: string }
 type SmartExitPreview = { pair?: string; note?: string }

@@ -33,3 +33,5 @@ i18n-extract
 
 # TypeScript build info
 *.tsbuildinfo
+
+.claude/scheduled_tasks.lock

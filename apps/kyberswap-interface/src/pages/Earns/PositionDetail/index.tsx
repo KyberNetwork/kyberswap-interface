@@ -1,19 +1,19 @@
 import { ShareModal, ShareModalProps, ShareOption, ShareType } from '@kyber/ui'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
@@ -35,16 +35,16 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
-import { getNftManagerContract } from 'pages/Earns/utils'
+import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { toString } from 'utils/numbers'
+import { type Address } from 'utils/viem'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
-  const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const { account } = useActiveWeb3React()
@@ -264,9 +264,16 @@ const PositionDetail = () => {
     if (!positionDexId || !positionChainId || !positionTokenId) return
     const fetchOwner = async () => {
       try {
-        const contract = getNftManagerContract(positionDexId, positionChainId)
-        if (contract) {
-          const owner = await contract.ownerOf(positionTokenId)
+        const nftManagerAddress = getNftManagerContractAddress(positionDexId, positionChainId)
+        const nftManagerAbi = EARN_DEXES[positionDexId].nftManagerContractAbi
+        if (nftManagerAddress && nftManagerAbi) {
+          const owner = (await readContract(wagmiConfig, {
+            address: nftManagerAddress as Address,
+            abi: nftManagerAbi,
+            functionName: 'ownerOf',
+            args: [BigInt(positionTokenId)],
+            chainId: positionChainId,
+          })) as Address
           setPositionOwnerAddress(owner)
         }
       } catch (error) {
@@ -288,15 +295,15 @@ const PositionDetail = () => {
     () => (
       <EmptyPositionText>
         <IconEarnNotFound />
-        <Text>{t`No position found!`}</Text>
-        <Flex sx={{ gap: 2 }} marginTop={12}>
+        <span>{t`No position found!`}</span>
+        <div className="mt-3 flex gap-2">
           <NavigateButton
             icon={<RocketIcon width={20} height={20} />}
             text={t`Explorer Pools`}
             to={APP_PATHS.EARN_POOLS}
           />
           <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
-        </Flex>
+        </div>
       </EmptyPositionText>
     ),
     [],
@@ -335,10 +342,10 @@ const PositionDetail = () => {
           })
         }}
       >
-        <Share2 size={size || 16} color={theme.primary} />
+        <Share2 size={size || 16} className="text-primary" />
       </ShareButtonWrapper>
     ),
-    [theme.primary, position, aprInterval],
+    [position, aprInterval],
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
@@ -409,33 +416,33 @@ const PositionDetail = () => {
             <>
               <PositionDetailHeader />
 
-              <Flex flexDirection="column" sx={{ gap: '12px' }}>
+              <div className="flex flex-col gap-3">
                 {!position?.pool.isFarming &&
                   (!!position?.suggestionPool ||
                     (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
                   position.status !== PositionStatus.CLOSED && (
                     <MigrationLiquidityRecommend>
-                      <Text color={'#fafafa'} lineHeight={'18px'}>
+                      <p className="leading-[18px] text-white2">
                         {!!position.suggestionPool
                           ? position.pool.fee === position.suggestionPool.feeTier
                             ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
                             : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} to start earning farming rewards.`
                           : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
-                      </Text>
-                      <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
+                      </p>
+                      <p className="cursor-pointer text-primary" onClick={handleMigrateToKem}>
                         {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
-                      </Text>
+                      </p>
                     </MigrationLiquidityRecommend>
                   )}
 
                 {isNotAccountOwner && (
                   <MigrationLiquidityRecommend>
-                    <Text color={'#fafafa'} lineHeight={'18px'}>
+                    <p className="leading-[18px] text-white2">
                       {t`This position is currently being used in another protocol. Fee claim and liquidity actions are unavailable.`}
-                    </Text>
+                    </p>
                   </MigrationLiquidityRecommend>
                 )}
-              </Flex>
+              </div>
 
               <PositionDetailWrapper>
                 {!isUniv2 && <LeftSection />}

@@ -2,7 +2,6 @@ import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { Trans, t } from '@lingui/macro'
 import { Link, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import CopyHelper from 'components/Copy'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
@@ -10,7 +9,6 @@ import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { DexInfo, PositionHeader as Header } from 'pages/Earns/components/SmartExit/styles'
@@ -18,6 +16,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionHeader = ({
@@ -31,7 +30,6 @@ const PositionHeader = ({
   initialLoading: boolean
   style?: React.CSSProperties
 }) => {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -90,20 +88,16 @@ const PositionHeader = ({
   const isUnfinalized = position?.isUnfinalized
 
   return (
-    <Flex
-      sx={{ gap: 3 }}
-      flexDirection={upToLarge ? 'column' : 'row'}
-      alignItems="center"
-      justifyContent="space-between"
-      marginBottom={1}
+    <div
+      className={cn('mb-1 flex items-center justify-between gap-4', upToLarge ? 'flex-col' : 'flex-row')}
       style={style}
     >
       <Header>
-        <Flex alignItems={'center'} sx={{ gap: 2 }}>
+        <div className="flex items-center gap-2">
           {initialLoading ? (
             <PositionSkeleton width={125} height={28} />
           ) : (
-            <Flex alignItems={'center'} sx={{ gap: 2 }}>
+            <div className="flex items-center gap-2">
               <ImageContainer>
                 <TokenLogo src={position?.token0.logo} />
                 <TokenLogo src={position?.token1.logo} translateLeft />
@@ -112,11 +106,11 @@ const PositionHeader = ({
               <Link
                 to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
               >
-                <Text color={theme.text} marginLeft={-2.5} fontSize={upToSmall ? 20 : 16}>
+                <span className={cn('-ml-2.5 text-text', upToSmall ? 'text-xl' : 'text-base')}>
                   {position?.token0.symbol}/{position?.token1.symbol}
-                </Text>
+                </span>
               </Link>
-            </Flex>
+            </div>
           )}
 
           {initialLoading ? (
@@ -131,56 +125,54 @@ const PositionHeader = ({
             <Badge type={BadgeType.ROUNDED}>
               <InfoHelperWithDelay
                 text={
-                  <Flex flexDirection="column" sx={{ gap: 1 }} style={{ fontSize: 12 }} color={theme.subText}>
-                    <Flex alignItems="center" sx={{ gap: '8px' }}>
-                      <Text>{position?.token0.symbol}: </Text>
-                      <Text>
+                  <div className="flex flex-col gap-1 text-xs text-subText">
+                    <div className="flex items-center gap-2">
+                      <span>{position?.token0.symbol}: </span>
+                      <span>
                         {position?.token0.isNative ? (
                           <Trans>Native token</Trans>
                         ) : (
                           shortenAddress(position?.token0.address || '', 4)
                         )}
-                      </Text>
+                      </span>
                       {!position?.token0.isNative && <CopyHelper size={16} toCopy={position?.token0.address || ''} />}
-                    </Flex>
-                    <Flex alignItems="center" sx={{ gap: 1 }}>
-                      <Text>{position?.token1.symbol}: </Text>
-                      <Text>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>{position?.token1.symbol}: </span>
+                      <span>
                         {position?.token1.isNative ? (
                           <Trans>Native token</Trans>
                         ) : (
                           shortenAddress(position?.token1.address || '', 4)
                         )}
-                      </Text>
+                      </span>
                       {!position?.token1.isNative && <CopyHelper size={16} toCopy={position?.token1.address || ''} />}
-                    </Flex>
-                    <Flex alignItems="center" sx={{ gap: 1 }}>
-                      <Text>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>
                         <Trans>Pool Address:</Trans>{' '}
-                      </Text>
-                      <Text>{shortenAddress(position?.pool.address || '', 4)}</Text>
+                      </span>
+                      <span>{shortenAddress(position?.pool.address || '', 4)}</span>
                       <CopyHelper size={16} toCopy={position?.pool.address || ''} />
-                    </Flex>
-                  </Flex>
+                    </div>
+                  </div>
                 }
                 size={16}
-                color={theme.blue2}
+                className="text-blue2"
                 placement="top"
                 width="fit-content"
               />
             </Badge>
           )}
-        </Flex>
-        <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
+        </div>
+        <div className="flex flex-wrap items-center gap-2.5">
           {!upToSmall &&
             (initialLoading ? <PositionSkeleton width={112} height={23} /> : isUnfinalized ? null : statusBadge)}
 
           {isUniv2 ? null : initialLoading ? (
             <PositionSkeleton width={50} height={16} />
           ) : (
-            <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-              #{position?.tokenId}
-            </Text>
+            <span className={cn('text-subText', upToSmall ? 'text-base' : 'text-sm')}>#{position?.tokenId}</span>
           )}
 
           {upToSmall &&
@@ -199,17 +191,15 @@ const PositionHeader = ({
                 onClick={onOpenPositionInDexSite}
               >
                 <TokenLogo src={position?.dex.logo} size={16} />
-                <Text fontSize={14} color={theme.subText}>
-                  {position?.dex.name}
-                </Text>
+                <span className="whitespace-nowrap text-sm text-subText">{position?.dex.name}</span>
               </DexInfo>
             </MouseoverTooltipDesktopOnly>
           )}
 
           {isLoading && !initialLoading && <Loader />}
-        </Flex>
+        </div>
       </Header>
-    </Flex>
+    </div>
   )
 }
 
