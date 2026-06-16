@@ -6,7 +6,8 @@ import { type ChainInfo, chainFromSlug } from '@/networks';
 import { resolvePool } from '@/pools';
 import { resolveToken } from '@/tokens';
 
-const POOL_ADDRESS_RE = /^0x[0-9a-f]{40}$/;
+// 40 hex = a v2/v3 pool contract address; 64 hex = a Uniswap v4 pool id (keccak of the PoolKey).
+const POOL_ADDRESS_RE = /^0x([0-9a-f]{40}|[0-9a-f]{64})$/;
 const MAX_PROTOCOL_LEN = 64;
 
 // Trim float-representation noise from a fee-tier percentage to match the app (significantDigits: 4).

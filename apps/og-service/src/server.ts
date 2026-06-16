@@ -19,7 +19,8 @@ import { resolveToken } from '@/tokens';
 
 const MAX_PARAM_LEN = 64;
 const IMG_TTL_MS = 31_536_000_000; // 1 year
-const ADDRESS_RE = /^0x[0-9a-f]{40}$/;
+// 40 hex = a v2/v3 pool address; 64 hex = a Uniswap v4 pool id (keccak of the PoolKey).
+const ADDRESS_RE = /^0x([0-9a-f]{40}|[0-9a-f]{64})$/;
 const EXCHANGE_RE = /^[a-z0-9_-]{1,60}$/;
 const PNG_HEADERS = { 'content-type': 'image/png', 'cache-control': 'public, max-age=31536000, immutable' };
 const HTML_HEADERS = {
