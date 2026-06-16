@@ -174,9 +174,15 @@ async function withRenderSlot<T>(fn: () => Promise<T>): Promise<T> {
 async function renderCardPng(cardHtmlStr: string, fonts: SatoriFonts): Promise<Buffer> {
   if (!fonts.length) throw new Error('no font available for render');
   return withRenderSlot(async () => {
+    const t0 = Date.now();
     const svg = await satori(toVNode(cardHtmlStr) as unknown as SatoriElement, { width: WIDTH, height: HEIGHT, fonts });
+    const tSatori = Date.now() - t0;
     const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH }, font: { loadSystemFonts: false } });
-    return resvg.render().asPng();
+    const png = resvg.render().asPng();
+    console.log(
+      `[og] render satori=${tSatori}ms resvg=${Date.now() - t0 - tSatori}ms svgKB=${Math.round(svg.length / 1024)}`,
+    );
+    return png;
   });
 }
 
