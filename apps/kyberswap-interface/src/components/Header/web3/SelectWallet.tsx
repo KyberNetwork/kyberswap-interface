@@ -98,7 +98,7 @@ function Web3StatusInner() {
         }}
         className={cn(
           STATUS_BASE_CLASS,
-          'border hover:border-primary hover:brightness-105 focus:border-primary focus:brightness-105',
+          'border hover:border-border-primary hover:brightness-105 focus:border-primary focus:brightness-105',
           hasPendingTransactions
             ? 'border-primary bg-primary text-white hover:brightness-90 focus:brightness-90'
             : 'border-background bg-background text-subText',
@@ -121,6 +121,7 @@ function Web3StatusInner() {
       </button>
     )
   }
+
   return (
     <ButtonLight
       onClick={e => {
@@ -129,7 +130,7 @@ function Web3StatusInner() {
         ;(e.currentTarget as HTMLElement).blur()
         toggleWalletModal()
       }}
-      padding="12px 12px"
+      className="h-[42px] px-3 py-2"
       id={TutorialIds.BUTTON_CONNECT_WALLET}
       data-testid="button-connect-wallet"
     >

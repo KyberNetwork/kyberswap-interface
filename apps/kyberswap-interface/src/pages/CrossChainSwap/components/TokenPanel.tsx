@@ -7,7 +7,7 @@ import { ChevronDown } from 'react-feather'
 import { formatUnits } from 'viem'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import HelpIcon from 'assets/svg/help-circle.svg'
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
@@ -276,6 +276,7 @@ export const TokenPanel = ({
             )}
 
             <CurrencySelect
+              isDisable={isBitcoin}
               selected={!!selectedCurrency}
               onClick={() => {
                 if (!selectedChain) {
@@ -283,9 +284,10 @@ export const TokenPanel = ({
                   setAutoToggleTokenSelector(true)
                   return
                 }
-                setModalOpen(true)
+                if (!isBitcoin) {
+                  setModalOpen(true)
+                }
               }}
-              style={{ cursor: 'pointer' }}
             >
               <Aligner className="gap-1">
                 <RowFixed className="gap-2">
@@ -302,7 +304,7 @@ export const TokenPanel = ({
                           style={{ borderRadius: '50%' }}
                           onError={({ currentTarget }) => {
                             currentTarget.onerror = null
-                            currentTarget.src = HelpIcon
+                            currentTarget.src = UnknownToken
                           }}
                         />
                       )}
@@ -337,7 +339,7 @@ export const TokenPanel = ({
         />
       ) : (
         <TokenSelectorNonEvmModal
-          isOpen={modalOpen && !isBitcoin}
+          isOpen={modalOpen}
           onDismiss={() => setModalOpen(false)}
           onSelectCurrency={onSelectCurrency}
           nearBalances={balances}

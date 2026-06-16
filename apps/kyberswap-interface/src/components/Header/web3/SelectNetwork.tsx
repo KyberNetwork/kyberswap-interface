@@ -41,7 +41,7 @@ function SelectNetwork(): JSX.Element | null {
       data-testid="select-network"
       className={cn(
         'relative w-fit rounded-full border border-transparent bg-background px-3 py-2 text-text',
-        'hover:cursor-pointer hover:border-primary hover:bg-background hover:no-underline hover:brightness-105',
+        'hover:cursor-pointer hover:border-border-primary hover:bg-background hover:no-underline hover:brightness-105',
         'max-sm:m-0 max-sm:w-auto max-sm:min-w-0 max-sm:flex-shrink max-sm:[text-overflow:ellipsis]',
       )}
     >
