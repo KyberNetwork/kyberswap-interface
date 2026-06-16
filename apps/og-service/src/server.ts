@@ -24,7 +24,9 @@ const EXCHANGE_RE = /^[a-z0-9_-]{1,60}$/;
 const PNG_HEADERS = { 'content-type': 'image/png', 'cache-control': 'public, max-age=31536000, immutable' };
 const HTML_HEADERS = {
   'content-type': 'text/html; charset=utf-8',
-  'cache-control': 'public, max-age=60',
+  // HTML embeds the per-deploy hashed chunk URLs, so it must never be cached: a stale page served after a
+  // redeploy requests chunk hashes that no longer exist -> "Failed to fetch dynamically imported module".
+  'cache-control': 'no-store',
   'x-content-type-options': 'nosniff',
   'x-frame-options': 'SAMEORIGIN',
 };
