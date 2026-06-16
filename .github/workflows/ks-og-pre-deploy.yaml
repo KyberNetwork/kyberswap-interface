@@ -1,0 +1,162 @@
+name: "KyberSwap + OG Pre-Release Publish"
+
+# One manual trigger that builds the interface pre-release image and THEN the og-service image baking
+# that exact interface build — same branch, same pre-<sha> tag — instead of running ks-pre-deploy and
+# og-pre-deploy separately and hand-copying the interface image ref between them.
+#
+# Pick the branch in the "Run workflow" dropdown: workflow_dispatch runs against the chosen ref, and both
+# jobs check out that same ref (github.sha is fixed for the run), so interface and og share one pre-<sha>.
+# Both images push as :pre-<sha>; ArgoCD Image Updater picks them up and deploys to pre-release.
+on:
+  workflow_dispatch:
+
+jobs:
+  interface:
+    runs-on: ubuntu-latest
+    env:
+      SERVICE: kyberswap-interface
+    outputs:
+      # Exact interface image the og job bakes into /app/static (same pre-<sha> the interface deploys as).
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Compute tags
+        id: meta
+        run: |
+          echo "@kybernetwork:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PAT }}" >> .npmrc
+          SHA_SHORT=$(git rev-parse --short "$GITHUB_SHA")
+          echo "sha_short=$SHA_SHORT" >> "$GITHUB_ENV"
+          echo "VITE_TAG=$SHA_SHORT" >> "$GITHUB_ENV"
+          echo "image=asia.gcr.io/kyber-operation/core/${SERVICE}:pre-${SHA_SHORT}" >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 8.9.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: 21.0.0
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@kybernetwork"
+          token: ${{ secrets.GH_PAT }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build packages
+        run: pnpm build-package
+
+      - name: Run lint
+        run: pnpm lint && pnpm type-check
+
+      - name: Build interface
+        env:
+          CI: false
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        working-directory: apps/kyberswap-interface
+        run: pnpm build-prod
+
+      # Fail the build if the eager entry chunk regresses past its gzip budget (see
+      # apps/kyberswap-interface/scripts/check-entry-size.mjs). Runs on the build just produced above.
+      - name: Check bundle size
+        working-directory: apps/kyberswap-interface
+        run: pnpm check-bundle-size
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
+
+      - name: Gcloud Auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCR_CREDENTIALS }}"
+
+      - name: Setup Gcloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Configure docker
+        run: gcloud auth configure-docker
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-${{ env.SERVICE }}-buildx
+
+      - name: Build and push
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
+        with:
+          context: apps/kyberswap-interface
+          push: true
+          labels: |
+            kyber.network.schema-version=1.0
+            kyber.network.vcs-ref=${{ github.sha }}
+            kyber.network.version=pre-${{ env.sha_short }}
+            kyber.network.name=${{ env.SERVICE }}
+          tags: asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:pre-${{ env.sha_short }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move Docker cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  og-service:
+    # Runs only after the interface image is built and pushed, and bakes that exact image.
+    needs: interface
+    runs-on: ubuntu-latest
+    env:
+      SERVICE: kyberswap-og-service
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - run: echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
+
+      - name: Gcloud Auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCR_CREDENTIALS }}"
+
+      - name: Setup Gcloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Configure docker
+        run: gcloud auth configure-docker
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-${{ env.SERVICE }}-buildx
+
+      - name: Build and push
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
+        with:
+          context: apps/og-service
+          push: true
+          build-args: |
+            INTERFACE_IMAGE=${{ needs.interface.outputs.image }}
+          labels: |
+            kyber.network.schema-version=1.0
+            kyber.network.vcs-ref=${{ github.sha }}
+            kyber.network.version=pre-${{ env.sha_short }}
+            kyber.network.name=${{ env.SERVICE }}
+          tags: asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:pre-${{ env.sha_short }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move Docker cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
