@@ -32,6 +32,14 @@ const HTML_HEADERS = {
   'x-frame-options': 'SAMEORIGIN',
 };
 
+// Send HTML as a Buffer (not a string) so Content-Length is the exact UTF-8 byte count. A string body whose
+// length is counted by character under-counts multi-byte chars (e.g. the '→' in a swap/limit title), so the
+// declared Content-Length doesn't match the bytes on the wire and the edge resets the HTTP/2 stream
+// (RST_STREAM / INTERNAL_ERROR) — crawlers then see a truncated PARTIAL_FILE response.
+function htmlResponse(html: string): Response {
+  return new Response(Buffer.from(html, 'utf8'), { headers: HTML_HEADERS });
+}
+
 // ---- default (fallback) card ----
 // Served when a pair/pool can't be resolved. Read from the static build (a real file), so there's no
 // confusing cross-origin redirect; falls back to fetching the public asset, then a last-resort 302.
@@ -146,7 +154,7 @@ async function handlePair(url: URL): Promise<Response> {
       // already carries that skeleton — don't re-inject it.
       const withHead = injectHead(html, meta);
       console.log(`[og] pair ${url.pathname} in=${parsed.inId || '-'} out=${parsed.outId || '-'} -> injected`);
-      return new Response(prerendered ? withHead : await injectSkeleton(withHead, 'swap'), { headers: HTML_HEADERS });
+      return htmlResponse(prerendered ? withHead : await injectSkeleton(withHead, 'swap'));
     }
     console.log(
       `[og] pair ${url.pathname} in=${parsed.inId || '-'} out=${parsed.outId || '-'} -> UNRESOLVED (static fallback)`,
@@ -154,7 +162,7 @@ async function handlePair(url: URL): Promise<Response> {
   }
   // Bare landing route, or unresolved pair — serve the static HTML as-is (prerendered or SPA shell).
   const { html } = await readAppHtml(url.pathname);
-  return new Response(html, { headers: HTML_HEADERS });
+  return htmlResponse(html);
 }
 
 function legacyPoolRedirect(url: URL): Response | null {
@@ -184,12 +192,12 @@ async function handlePool(url: URL): Promise<Response> {
       // `prerendered` for symmetry with handlePair — a prerendered file would already carry its skeleton.)
       const withHead = injectHead(html, meta);
       console.log(`[og] pool ${url.pathname} -> injected`);
-      return new Response(prerendered ? withHead : await injectSkeleton(withHead, 'pool'), { headers: HTML_HEADERS });
+      return htmlResponse(prerendered ? withHead : await injectSkeleton(withHead, 'pool'));
     }
     console.log(`[og] pool ${url.pathname} -> UNRESOLVED (static fallback)`);
   }
   const { html } = await readAppHtml(url.pathname);
-  return new Response(html, { headers: HTML_HEADERS });
+  return htmlResponse(html);
 }
 
 // Fail-soft wrappers: an HTML route that throws still serves the page; an image route serves the default.
@@ -199,7 +207,7 @@ async function safeHtml(url: URL, fn: (u: URL) => Promise<Response>): Promise<Re
   } catch {
     try {
       const { html } = await readAppHtml(url.pathname);
-      return new Response(html, { headers: HTML_HEADERS });
+      return htmlResponse(html);
     } catch {
       return new Response('', { status: 502 });
     }
