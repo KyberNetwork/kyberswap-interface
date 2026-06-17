@@ -215,7 +215,7 @@ async function fetchRawLogoDataUri(url: string | undefined): Promise<string | nu
 
 function logoHtml(dataUri: string | null, symbol: string): string {
   if (dataUri) {
-    return `<img src="${dataUri}" width="${LOGO_SIZE}" height="${LOGO_SIZE}" style="border-radius:9999px;background:${WHITE}" />`;
+    return `<img src="${dataUri}" width="${LOGO_SIZE}" height="${LOGO_SIZE}" style="border-radius:9999px" />`;
   }
   const letter = escapeHtml((symbol[0] || '?').toUpperCase());
   return `<div style="display:flex;align-items:center;justify-content:center;width:${LOGO_SIZE}px;height:${LOGO_SIZE}px;border-radius:9999px;background:${FALLBACK_CIRCLE};color:${GREEN};font-size:84px;font-weight:700">${letter}</div>`;
