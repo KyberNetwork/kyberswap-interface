@@ -100,7 +100,11 @@ export function useNftApprovalAll({
   }, [chainId, currentApprovePendingTx, rpcUrl, txStatus]);
 
   const checkApprovalAll = useCallback(async () => {
-    if (!spender || !userAddress || approvePendingTx) return;
+    // Bail when the NFT manager address is missing (e.g. non-NFT pools or a dex
+    // with no manager configured on this chain). Otherwise the eth_call goes out
+    // with an empty `to`, the node runs the calldata as contract-creation init
+    // code and underflows the stack (-32003 StackUnderflow).
+    if (!spender || !userAddress || !nftManagerContract || approvePendingTx) return;
     setIsChecking(true);
 
     const methodSignature = getFunctionSelector('isApprovedForAll(address,address)');
