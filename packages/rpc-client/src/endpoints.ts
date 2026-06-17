@@ -7,6 +7,8 @@ const HYPEREVM = 999;
 const PLASMA = 9745;
 const RONIN = 2020;
 const MONAD = 143;
+const ETHERLINK = 42793;
+const MEGAETH = 4326;
 
 export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   [ChainId.Ethereum]: [
@@ -165,6 +167,17 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://monad.gateway.tenderly.co',
     'https://monad.rpc.blxrbdn.com',
     'https://gm.monad.at.htw.tech',
+  ],
+  [ETHERLINK]: [
+    'https://node.mainnet.etherlink.com',
+    'https://rpc.ankr.com/etherlink_mainnet',
+    'https://42793.rpc.thirdweb.com',
+  ],
+  [MEGAETH]: [
+    'https://megaeth.drpc.org',
+    'https://mainnet.megaeth.com/rpc',
+    'https://megaeth.gateway.tenderly.co',
+    'https://4326.rpc.thirdweb.com',
   ],
 };
 
