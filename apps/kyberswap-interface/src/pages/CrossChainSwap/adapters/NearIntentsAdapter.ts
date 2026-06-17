@@ -58,7 +58,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     // Initialize the API client
     OpenAPI.BASE = 'https://1click.chaindefuser.com'
     OpenAPI.TOKEN =
-      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIwMjUtMDQtMjMtdjEifQ.eyJ2IjoxLCJrZXlfdHlwZSI6ImRpc3RyaWJ1dGlvbl9jaGFubmVsIiwicGFydG5lcl9pZCI6Imt5YmVyIiwiaWF0IjoxNzQ5MDQyNDk1LCJleHAiOjE3ODA1Nzg0OTV9.sC5g1Jn4BRIGXkIRmN4dnK2BzbIglLOVuOmnrTItGaAP-QU69lbyYs2QGPE-5c7dRC9Cc3s0ktO50W9VXiqQEefu-VCQTKtjsfIwfAm7wDC1XKUT7lbQL2uODqXxR6yg5d8ENu6p8F2t86_T8IEpid6b1yBidKladbs9tI2QebSp3Sn6bjtsnpD-9W2dsW0Gd6PUkpZizb--YqkmdPQ8Eu85fIxtDO64qbp0Xp6NY8caFEA1yakbwaMEUWXnNX6PB_elfH28sF0cMbqlyAGiHe98J8tZ47kga6e6yZP4UHoak3Y_eRNuX_CpwoXfULx1t8YLoSJEQuP9JsPIoyw5dA'
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIwMjUtMDQtMjMtdjEifQ.eyJ2IjoxLCJrZXlfdHlwZSI6ImRpc3RyaWJ1dGlvbl9jaGFubmVsIiwicGFydG5lcl9pZCI6Imt5YmVyIiwiaWF0IjoxNzUxNDUwNzY3LCJleHAiOjE3ODI5ODY3Njd9.lJWUgXKaPNyFfkiMHIaW_brXLavXIDJL97mivJOjQfsw5YU80EBi3uHd1wWFhMiQBmfpTg4ETkuihhC6wsbt1-hb1M6lst03tfDjgepE_EGeYa-_Fp8rdiEs5t56ieH-9Bf2W-5isEjZ984cs0TBwrMaMgoxQ62zC6sAe-SMVkaGFe5E48rjSsR5uk2Y34BGWg_--xqCT0KiJTydOgU-sjmlw6qKcUIojOcI8kK9Xt847y1ELAhNnMWQDlztuZoplrZ9hUABLUE6o-WPsJQ1huTrTisM1RTTVo3UoFE_SleL8HqREfyEnOWJzdI_PM6E2ro3L5w8-Z4dUg6CQIaZUQ'
   }
 
   getName(): string {
@@ -192,34 +192,38 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     sendSolanaFn?: WalletAdapterProps['sendTransaction'],
     solanaConnection?: Connection,
   ): Promise<NormalizedTxResponse> {
-    const quoteParams = {
-      ...quote.rawQuote.quoteRequest,
-      dry: false,
-      // adjust slippage to 0,01% to accept the rate change
-      slippageTolerance:
-        Math.floor(quote.quoteParams.slippage * 0.9) > 1
-          ? Math.floor(quote.quoteParams.slippage * 0.9)
-          : quote.quoteParams.slippage,
-    }
-    delete quoteParams.correlationId
-
-    const refreshedQuote = await OneClickService.getQuote(quoteParams)
-    const depositAddress = refreshedQuote?.quote?.depositAddress
+    let depositAddress = quote.rawQuote.quote.depositAddress
 
     if (!depositAddress) {
-      throw new Error('Deposit address not found')
-    }
+      const quoteParams = {
+        ...quote.rawQuote.quoteRequest,
+        dry: false,
+        // adjust slippage to 0,01% to accept the rate change
+        slippageTolerance:
+          Math.floor(quote.quoteParams.slippage * 0.9) > 1
+            ? Math.floor(quote.quoteParams.slippage * 0.9)
+            : quote.quoteParams.slippage,
+      }
+      delete quoteParams.correlationId
 
-    if (
-      refreshedQuote.quoteRequest.recipient === ZERO_ADDRESS ||
-      refreshedQuote.quoteRequest.refundTo === ZERO_ADDRESS ||
-      refreshedQuote.quoteRequest.recipient.toLowerCase() === BTC_DEFAULT_RECEIVER ||
-      refreshedQuote.quoteRequest.refundTo.toLowerCase() === BTC_DEFAULT_RECEIVER
-    ) {
-      throw new Error('Near Intent recipient or refundTo is ZERO ADDRESS')
-    }
-    if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(quote.rawQuote.quote.minAmountOut)) {
-      throw new Error('Quote amount out is less than expected')
+      const refreshedQuote = await OneClickService.getQuote(quoteParams)
+      depositAddress = refreshedQuote?.quote?.depositAddress
+
+      if (!depositAddress) {
+        throw new Error('Deposit address not found')
+      }
+
+      if (
+        refreshedQuote.quoteRequest.recipient === ZERO_ADDRESS ||
+        refreshedQuote.quoteRequest.refundTo === ZERO_ADDRESS ||
+        refreshedQuote.quoteRequest.recipient.toLowerCase() === BTC_DEFAULT_RECEIVER ||
+        refreshedQuote.quoteRequest.refundTo.toLowerCase() === BTC_DEFAULT_RECEIVER
+      ) {
+        throw new Error('Near Intent recipient or refundTo is ZERO ADDRESS')
+      }
+      if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(quote.rawQuote.quote.minAmountOut)) {
+        throw new Error('Quote amount out is less than expected')
+      }
     }
 
     const params = {
