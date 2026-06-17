@@ -224,16 +224,18 @@ export class RelayAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const publicClient = getPublicClient(wagmiConfig, {
-      chainId: p.sourceChain as any,
-    })
-    const receipt = await publicClient?.getTransactionReceipt({
-      hash: p.sourceTxHash as `0x${string}`,
-    })
-    if (receipt?.status === 'reverted') {
-      return {
-        txHash: '',
-        status: 'Failed',
+    if (typeof p.sourceChain === 'number') {
+      const publicClient = getPublicClient(wagmiConfig, {
+        chainId: p.sourceChain as any,
+      })
+      const receipt = await publicClient?.getTransactionReceipt({
+        hash: p.sourceTxHash as `0x${string}`,
+      })
+      if (receipt?.status === 'reverted') {
+        return {
+          txHash: '',
+          status: 'Failed',
+        }
       }
     }
 
