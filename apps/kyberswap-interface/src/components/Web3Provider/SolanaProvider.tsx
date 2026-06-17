@@ -18,6 +18,12 @@ interface SolanaProviderProps {
 const SOLANA_CONNECTION_CONFIG: ComponentProps<typeof ConnectionProvider>['config'] = { commitment: 'confirmed' }
 const SOLANA_WALLETS: ComponentProps<typeof WalletProvider>['wallets'] = []
 
+// OKX's Solana Standard wallet ignores the adapter's `silent` flag and pops an approval dialog on
+// auto-reconnect, which fires on every mount of this route-level provider. Returning false skips
+// autoConnect for it (no prompt; the user connects manually); every other wallet keeps the silent
+// adapter.autoConnect() path. WalletProvider short-circuits before any connect() call on a falsy return.
+const SOLANA_AUTO_CONNECT = (adapter: { name: string }): Promise<boolean> => Promise.resolve(!/okx/i.test(adapter.name))
+
 export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
   // const network = WalletAdapterNetwork.Mainnet
 
@@ -26,7 +32,7 @@ export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
 
   return (
     <ConnectionProvider endpoint={SOLANA_RPC} config={SOLANA_CONNECTION_CONFIG}>
-      <WalletProvider wallets={SOLANA_WALLETS} autoConnect>
+      <WalletProvider wallets={SOLANA_WALLETS} autoConnect={SOLANA_AUTO_CONNECT}>
         <SolanaConnectModalProvider>
           <SolanaTokenBalances>{children}</SolanaTokenBalances>
         </SolanaConnectModalProvider>
