@@ -87,7 +87,7 @@ const EarnLanding = () => {
         </RevealOnScroll>
 
         <OverviewWrapper>
-          <RevealOnScroll>
+          <RevealOnScroll className="sm:h-full">
             <Card
               title={t`Liquidity Pools`}
               icon={LiquidityPoolIcon}
@@ -98,7 +98,7 @@ const EarnLanding = () => {
               }}
             />
           </RevealOnScroll>
-          <RevealOnScroll delay={0.2}>
+          <RevealOnScroll delay={0.2} className="sm:h-full">
             <Card
               title={t`Enhance Your Liquidity Positions`}
               icon={LiquidityPosIcon}
@@ -109,7 +109,7 @@ const EarnLanding = () => {
               }}
             />
           </RevealOnScroll>
-          <RevealOnScroll delay={0.3}>
+          <RevealOnScroll delay={0.3} className="sm:h-full">
             <Card
               title={t`Staking/Compounding Strategies`}
               icon={StakingIcon}
