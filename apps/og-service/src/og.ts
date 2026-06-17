@@ -109,11 +109,17 @@ function isSafeLogoUrl(url: string): boolean {
   return true;
 }
 
-// Re-rasterize a validated PNG/JPEG logo (data URI) down to LOGO_RENDER_W via resvg. A heavy source
-// (e.g. the ~157KB native-ETH logo) otherwise bloats the satori SVG and balloons render time, because
-// satori decodes embedded rasters in JS. resvg decodes it once here (native, fast) and emits a small
-// PNG. On any failure, returns the input unchanged — it still renders, just heavier.
+// Only logos heavy enough to bloat the satori SVG (e.g. the ~157KB native-ETH logo, which satori would
+// decode in JS — slow) need shrinking. Below this, downscaling only HURTS: it upscales a tiny source
+// (many logos are 32–64px) to LOGO_RENDER_W and double-resamples it, softening it.
+const DOWNSCALE_MIN_DATA_URI_LEN = 48 * 1024;
+
+// Re-rasterize a heavy PNG/JPEG logo (data URI) down to LOGO_RENDER_W via resvg so it doesn't bloat the
+// satori SVG (satori decodes embedded rasters in JS). Small logos pass through unchanged — a single
+// resample at final render is sharper than upscaling to LOGO_RENDER_W and downscaling again. On any
+// failure, returns the input unchanged.
 function downscaleLogoDataUri(dataUri: string): string {
+  if (dataUri.length < DOWNSCALE_MIN_DATA_URI_LEN) return dataUri;
   try {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${LOGO_RENDER_W}" height="${LOGO_RENDER_W}"><image href="${dataUri}" width="${LOGO_RENDER_W}" height="${LOGO_RENDER_W}" preserveAspectRatio="none"/></svg>`;
     const png = new Resvg(svg, { fitTo: { mode: 'width', value: LOGO_RENDER_W } }).render().asPng();
