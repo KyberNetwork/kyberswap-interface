@@ -11,6 +11,7 @@ export default defineConfig({
   target: 'esnext',
   clean: true,
   dts: true,
+  minify: true,
   external: ['react', 'react-dom', '@lingui/core', '@lingui/react'],
   esbuildPlugins: [
     svgrPlugin(),

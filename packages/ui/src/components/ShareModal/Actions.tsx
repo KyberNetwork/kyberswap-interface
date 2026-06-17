@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { useLingui } from '@lingui/react';
-import html2canvas from 'html2canvas';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -108,6 +107,9 @@ export default function Actions({ type, pool, url, shareBannerRef }: ActionsProp
     const restoreStyles = convertModernColorsToLegacy(element);
 
     try {
+      // Loaded on demand (only when the user shares/downloads) so html2canvas (~360KB) stays out of the
+      // eager bundle — it splits into a lazy chunk through each consuming bundler.
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(element, {
         allowTaint: true,
         useCORS: true,
