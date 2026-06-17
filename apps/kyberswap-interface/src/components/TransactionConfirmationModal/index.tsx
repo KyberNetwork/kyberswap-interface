@@ -30,9 +30,16 @@ const STATUS_ACTION_CLASS = 'flex w-full flex-col items-center gap-3'
 export function ConfirmationPendingContent({
   onDismiss,
   pendingText,
+  title,
+  subtitle,
 }: {
   onDismiss: () => void
   pendingText: string | React.ReactNode
+  // Override the default title/subtitle, e.g. to show a "Preparing Transaction"
+  // phase before the wallet prompt actually opens. Defaults preserve the
+  // original "Waiting For Confirmation" copy.
+  title?: React.ReactNode
+  subtitle?: React.ReactNode
 }) {
   return (
     <div className="w-full overflow-y-auto">
@@ -46,12 +53,10 @@ export function ConfirmationPendingContent({
             <Loader size="64px" className="text-primary" strokeWidth="1" />
           </div>
           <div className={STATUS_TEXT_CLASS}>
-            <span className="text-xl font-medium">
-              <Trans>Waiting For Confirmation</Trans>
-            </span>
+            <span className="text-xl font-medium">{title ?? <Trans>Waiting For Confirmation</Trans>}</span>
             <span className="max-w-full text-sm font-semibold">{pendingText}</span>
             <span className="text-sm font-medium text-subText-40">
-              <Trans>Confirm this transaction in your wallet</Trans>
+              {subtitle ?? <Trans>Confirm this transaction in your wallet</Trans>}
             </span>
           </div>
         </div>

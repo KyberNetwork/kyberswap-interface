@@ -51,7 +51,7 @@ const AprHistoryTooltip = ({
 
   return (
     <div
-      className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader px-4 py-3"
+      className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
       style={{ boxShadow: `0 12px 32px ${theme.shadow}` }}
     >
       <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>

@@ -244,16 +244,20 @@ const CurrentPriceIndicator = ({
   const fullRangeElement = indicatorRef.current?.parentElement
   const maxWidth = fullRangeElement ? fullRangeElement.offsetWidth - priceIndicatorWidth * 2 : 0
 
+  // Only emit an inline `left` when we have a precise in-range position. Passing
+  // `left: undefined` here would override CurrentPriceWrapper's out-of-range
+  // fallback (6% when below the lower bound, 86% when above the upper bound),
+  // collapsing the marker to the far-left edge.
+  const hasPosition = left !== undefined
   return (
     <CurrentPriceWrapper
       ref={indicatorRef}
       lower={lower}
-      style={{
-        left:
-          left || left === 0
-            ? `${left * maxWidth + priceIndicatorWidth - currentPriceIndicatorWidth / 2}px`
-            : undefined,
-      }}
+      style={
+        hasPosition
+          ? { left: `${left * maxWidth + priceIndicatorWidth - currentPriceIndicatorWidth / 2}px` }
+          : undefined
+      }
     >
       <IconCurrentPrice
         color={color}

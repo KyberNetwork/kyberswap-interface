@@ -124,7 +124,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   )
 
   const swapCallbackForEVM = useCallback(
-    async (routerAddress: string | undefined, encodedSwapData: string | undefined) => {
+    async (routerAddress: string | undefined, encodedSwapData: string | undefined, onRequestSignature?: () => void) => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
@@ -141,6 +141,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           wallet: walletKey,
         },
         chainId,
+        onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
       handleSwapResponse(response)
