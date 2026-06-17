@@ -72,7 +72,6 @@ function shortSymbol(sym: string): string {
   return s.length > 12 ? `${s.slice(0, 11)}…` : s;
 }
 
-const ALLOWED_LOGO_MIME = new Set(['image/png', 'image/jpeg', 'image/webp']);
 // WebP is decoded + re-encoded to PNG (satori/resvg don't read WebP), so an embedded data URI is always
 // PNG or JPEG — DATA_URI_RE stays png|jpeg.
 const DATA_URI_RE = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
@@ -175,6 +174,17 @@ function webpToPng(webp: Buffer): Buffer | null {
   }
 }
 
+// The real image format from the file's magic bytes. Token-logo CDNs sometimes serve a PNG/JPEG/WebP as
+// `application/octet-stream` (or another wrong Content-Type), so the header isn't reliable — browsers
+// sniff the bytes, and so do we. Null if the bytes aren't a supported image.
+function sniffImageMime(buf: Buffer): 'image/png' | 'image/jpeg' | 'image/webp' | null {
+  if (buf.length >= 4 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
+  if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
+  if (buf.length >= 12 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP')
+    return 'image/webp';
+  return null;
+}
+
 // Satori can't fetch remote <img> reliably, so inline the bytes as a base64 data URI. Hardened:
 // browser UA (CDNs 403 bare fetches), PNG/JPEG/WebP only (WebP re-encoded to PNG), size-bounded, timeout,
 // and — crucially for an origin deployment — `redirect: 'manual'` so a vetted host can't 302 us to an
@@ -192,15 +202,16 @@ async function fetchRawLogoDataUri(url: string | undefined): Promise<string | nu
       signal: AbortSignal.timeout(LOGO_FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return null; // 3xx (manual redirect) is not ok -> rejected here too
-    const mime = (res.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
-    if (!ALLOWED_LOGO_MIME.has(mime)) return null;
     // Stream-bounded read: aborts past MAX_LOGO_BYTES instead of buffering an unbounded (community-
     // influenced) body first — readBoundedArrayBuffer throws over the cap, caught below as a null logo.
     const buf = await readBoundedArrayBuffer(res, MAX_LOGO_BYTES);
-    // satori/resvg can't read WebP — convert it to PNG so the embedded data URI is always PNG/JPEG.
     let bytes = Buffer.from(buf);
-    let outMime = mime;
-    if (mime === 'image/webp') {
+    // Trust the magic bytes, not the Content-Type header (logo CDNs mislabel images as octet-stream).
+    const sniffed = sniffImageMime(bytes);
+    if (!sniffed) return null;
+    // satori/resvg can't read WebP — convert it to PNG so the embedded data URI is always PNG/JPEG.
+    let outMime: string = sniffed;
+    if (sniffed === 'image/webp') {
       const png = webpToPng(bytes);
       if (!png) return null;
       bytes = png;
