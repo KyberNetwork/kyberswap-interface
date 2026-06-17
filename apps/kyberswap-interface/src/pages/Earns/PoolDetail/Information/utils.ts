@@ -69,7 +69,7 @@ export const formatPrice = (value?: number) => {
   if (!hasValue(value)) return '--'
   return formatDisplayNumber(value, {
     style: 'currency',
-    significantDigits: value !== 0 && Math.abs(value) < 1 ? 8 : 6,
+    significantDigits: value !== 0 && Math.abs(value) < 1 ? 6 : 4,
   })
 }
 
