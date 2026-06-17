@@ -267,7 +267,11 @@ export const createLedgerProvider = ({
         outputs: [
           {
             amount: amountToBuffer(+amount),
-            script: Buffer.from(bitcoin.address.toOutputScript(recipient, bitcoin.networks.bitcoin)),
+            // toOutputScript returns a bitcoinjs Buffer whose type conflicts with
+            // @types/node's Buffer.from overloads; a Buffer is already a Uint8Array.
+            script: Buffer.from(
+              bitcoin.address.toOutputScript(recipient, bitcoin.networks.bitcoin) as unknown as Uint8Array,
+            ),
           },
         ],
       }
@@ -275,7 +279,9 @@ export const createLedgerProvider = ({
       if (changeAmount > 546) {
         transaction.outputs.push({
           amount: amountToBuffer(changeAmount),
-          script: Buffer.from(bitcoin.address.toOutputScript(sender, bitcoin.networks.bitcoin)),
+          script: Buffer.from(
+            bitcoin.address.toOutputScript(sender, bitcoin.networks.bitcoin) as unknown as Uint8Array,
+          ),
         })
       }
 
