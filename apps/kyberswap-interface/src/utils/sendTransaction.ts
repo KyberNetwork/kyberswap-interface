@@ -1,3 +1,4 @@
+import { getGasPrice, rpcFetch } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 // eslint-disable-next-line no-restricted-imports
 import { getAccount, getPublicClient } from '@wagmi/core'
@@ -8,7 +9,7 @@ import store from 'state'
 import { calculateGasMarginBigInt } from 'utils'
 import { createAccessListIfEnabled } from 'utils/accessList'
 import { BlacklistedWalletError, ErrorName, TransactionError } from 'utils/transactionError'
-import { Address, Hex, PublicClient } from 'utils/viem'
+import { Hex } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
 // Wallets known to mishandle EIP-1559 transactions that carry an `accessList`.
@@ -36,16 +37,81 @@ const NO_BUILDER_CODE_SELECTORS = new Set([
   '0xa22cb465', // setApprovalForAll
 ])
 
+// Per-request timeout for the pre-signature RPC reads (gas + fee estimation).
+// Tighter than the rotating client's 10s default so a slow endpoint fails over
+// quickly instead of stalling the "Waiting For Confirmation" step. Only applied
+// when the chain's RpcClient is first created (the client is a per-chain singleton).
+const PRE_SIGN_RPC_TIMEOUT_MS = 6000
+// Priority fee used when a provider can't supply one (1.5 gwei).
+const DEFAULT_PRIORITY_FEE_WEI = 1_500_000_000n
+// Time-box the compliance check so a slow Blackjack service can't hold up the
+// wallet prompt — consistent with the existing fail-open policy on errors.
+const BLACKJACK_TIMEOUT_MS = 2000
+
+// EIP-1559 fee estimation routed through the rotating RPC client so a single
+// slow endpoint can't stall the flow before the wallet prompt. Mirrors viem's
+// default formula (maxFeePerGas = baseFee * 1.2 + tip). Returns undefined on
+// legacy chains or when the RPC is unreachable — the caller then leaves fees to
+// the wallet.
+async function estimateEip1559Fees(
+  chainId: number,
+): Promise<{ maxFeePerGas: bigint; maxPriorityFeePerGas: bigint } | undefined> {
+  let baseFeePerGas: bigint
+  try {
+    const block = await rpcFetch<{ baseFeePerGas?: string } | null>(
+      chainId,
+      'eth_getBlockByNumber',
+      ['latest', false],
+      { timeout: PRE_SIGN_RPC_TIMEOUT_MS },
+    )
+    if (!block?.baseFeePerGas) return undefined // legacy / non-EIP-1559 chain
+    baseFeePerGas = BigInt(block.baseFeePerGas)
+  } catch {
+    return undefined
+  }
+
+  let maxPriorityFeePerGas: bigint
+  try {
+    const tip = await rpcFetch<string>(chainId, 'eth_maxPriorityFeePerGas', [], {
+      timeout: PRE_SIGN_RPC_TIMEOUT_MS,
+    })
+    maxPriorityFeePerGas = BigInt(tip)
+  } catch {
+    // Not all providers expose eth_maxPriorityFeePerGas — derive the tip from
+    // gasPrice - baseFee, falling back to a sane default.
+    try {
+      const gasPrice = await getGasPrice(chainId, { timeout: PRE_SIGN_RPC_TIMEOUT_MS })
+      maxPriorityFeePerGas = gasPrice > baseFeePerGas ? gasPrice - baseFeePerGas : DEFAULT_PRIORITY_FEE_WEI
+    } catch {
+      maxPriorityFeePerGas = DEFAULT_PRIORITY_FEE_WEI
+    }
+  }
+
+  return {
+    maxFeePerGas: (baseFeePerGas * 12n) / 10n + maxPriorityFeePerGas,
+    maxPriorityFeePerGas,
+  }
+}
+
 // Pre-send security gate invoked by the gated walletClient on every signing method.
 // Fails open on network errors so an unreachable Blackjack service doesn't block the
 // user's transaction.
 export async function ensureNotBlacklisted(account: string) {
+  let timer: ReturnType<typeof setTimeout> | undefined
   try {
-    const res = await store.dispatch(blackjackApi.endpoints.checkBlackjack.initiate(account))
+    const check = store.dispatch(blackjackApi.endpoints.checkBlackjack.initiate(account))
+    const res = await Promise.race([
+      check,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Blackjack check timed out')), BLACKJACK_TIMEOUT_MS)
+      }),
+    ])
     if (res?.data?.blacklisted) throw new BlacklistedWalletError()
   } catch (err) {
     if (err instanceof BlacklistedWalletError) throw err
-    console.warn('Blackjack check skipped due to network error', err)
+    console.warn('Blackjack check skipped (timeout or network error)', err)
+  } finally {
+    if (timer) clearTimeout(timer)
   }
 }
 
@@ -57,6 +123,7 @@ export async function sendEVMTransaction({
   errorInfo,
   isSmartConnector,
   chainId,
+  onRequestSignature,
 }: {
   account: string
   contractAddress: string
@@ -68,6 +135,10 @@ export async function sendEVMTransaction({
   }
   isSmartConnector: boolean
   chainId: ChainId
+  // Fired once the tx is fully prepared (gas + fees estimated) and we're about to
+  // ask the wallet to sign — lets the UI switch from "preparing" to "awaiting
+  // signature" instead of claiming the wallet is open while we're still estimating.
+  onRequestSignature?: () => void
 }): Promise<SendEVMTransactionResult | undefined> {
   if (!account) throw new Error('Invalid transaction')
 
@@ -90,13 +161,6 @@ export async function sendEVMTransaction({
     throw new Error('Wallet client unavailable for the requested chain')
   }
 
-  const requestBase = {
-    account: account as Address,
-    to: contractAddress as Address,
-    data: callData,
-    ...(txValue !== undefined ? { value: txValue } : {}),
-  }
-
   const connectorId = getAccount(wagmiConfig).connector?.id
   const accessList = ACCESS_LIST_INCOMPATIBLE_CONNECTORS.has(connectorId ?? '')
     ? undefined
@@ -109,13 +173,24 @@ export async function sendEVMTransaction({
 
   let gasEstimate: bigint
   try {
-    // viem's `estimateGas` argument type is a chain-specific union that
-    // overflows the TS instantiation depth at the wagmi-resolved publicClient.
-    // Runtime contract is the standard `{ to, data, value?, account, accessList? }`.
-    gasEstimate = await (publicClient as PublicClient).estimateGas({
-      ...requestBase,
-      ...(accessList ? { accessList } : {}),
-    })
+    // Route gas estimation through the rotating RPC client (round-robin across
+    // healthy public endpoints, per-request timeout, Kyber RPC fallback) so a
+    // single slow/overloaded RPC can't stall the flow before the wallet prompt.
+    const gasHex = await rpcFetch<string>(
+      chainId as number,
+      'eth_estimateGas',
+      [
+        {
+          from: account,
+          to: contractAddress,
+          data: callData,
+          ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
+          ...(accessList ? { accessList } : {}),
+        },
+      ],
+      { timeout: PRE_SIGN_RPC_TIMEOUT_MS },
+    )
+    gasEstimate = BigInt(gasHex)
   } catch (error) {
     throw new TransactionError(
       errorInfo.name,
@@ -148,16 +223,17 @@ export async function sendEVMTransaction({
   if (accessList) {
     txParams.accessList = accessList
   }
-  try {
-    const fees = await (publicClient as PublicClient).estimateFeesPerGas()
-    if (fees?.maxFeePerGas !== undefined && fees?.maxPriorityFeePerGas !== undefined) {
-      txParams.type = '0x2'
-      txParams.maxFeePerGas = `0x${fees.maxFeePerGas.toString(16)}`
-      txParams.maxPriorityFeePerGas = `0x${fees.maxPriorityFeePerGas.toString(16)}`
-    }
-  } catch {
-    // Legacy / non-EIP-1559 chain or RPC quirk — leave fees to the wallet.
+  const fees = await estimateEip1559Fees(chainId as number)
+  if (fees) {
+    txParams.type = '0x2'
+    txParams.maxFeePerGas = `0x${fees.maxFeePerGas.toString(16)}`
+    txParams.maxPriorityFeePerGas = `0x${fees.maxPriorityFeePerGas.toString(16)}`
   }
+
+  // Tx is fully prepared; the wallet prompt opens next. Flip the UI out of the
+  // "preparing" state. (The gated walletClient still runs the ≤2s Blackjack check
+  // inside `request` before the prompt actually appears.)
+  onRequestSignature?.()
 
   try {
     const hash = (await walletClient.request({

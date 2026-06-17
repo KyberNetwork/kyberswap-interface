@@ -168,7 +168,7 @@ const SwapOnlyButton: React.FC<Props> = ({
 
   const swapCallbackForModal = useMemo(() => {
     if (buildResult?.data?.data && buildResult?.data?.routerAddress && swapCallback) {
-      return () => {
+      return (onRequestSignature?: () => void) => {
         let outputAmountDescription = ''
         if (buildResult.data?.amountOut !== undefined && buildResult.data?.outputChange?.percent !== undefined) {
           const amountOut = buildResult.data?.amountOut
@@ -212,7 +212,7 @@ const SwapOnlyButton: React.FC<Props> = ({
           feeInfo: getFeeInfoForMixPanel(routeSummary),
         })
 
-        return swapCallback(buildResult.data.routerAddress, buildResult.data.data)
+        return swapCallback(buildResult.data.routerAddress, buildResult.data.data, onRequestSignature)
       }
     }
 
