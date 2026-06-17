@@ -21,7 +21,7 @@ import VoteIcon from 'components/Icons/Vote'
 import Wallet from 'components/Icons/Wallet'
 import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
-import Input from 'components/NumericalInput'
+import NumericalInput from 'components/NumericalInput'
 import Row, { AutoRow, RowBetween, RowFit } from 'components/Row'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -351,7 +351,7 @@ export default function StakeKNCComponent() {
                   )}
                 </RowBetween>
                 <RowBetween>
-                  <Input value={inputValue} onUserInput={setInputValue} />
+                  <NumericalInput value={inputValue} onUserInput={setInputValue} />
                   <span className="mr-1.5 text-sm text-border">~${kncValueInUsd}</span>
                   <KNCLogoWrapper>
                     <KNCLogo />

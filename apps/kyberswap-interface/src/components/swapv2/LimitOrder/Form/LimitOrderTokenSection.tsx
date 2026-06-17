@@ -1,13 +1,10 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { CSSProperties, ReactNode } from 'react'
 
 import ArrowRotate from 'components/ArrowRotate'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { RowBetween } from 'components/Row'
 import Tooltip from 'components/Tooltip'
-import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
-import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 
 const Label = ({ children }: { children: ReactNode }) => (
   <div className="text-xs font-medium text-subText">{children}</div>
@@ -26,8 +23,6 @@ type Props = {
   showApproveFlow: boolean
   isEdit: boolean
   rotate: boolean
-  tradeInfo: BaseTradeInfo | undefined
-  loadingTrade: boolean
   styleTooltip: CSSProperties
   onSetInput: (input: string) => void
   onSetOutput: (output: string) => void
@@ -52,8 +47,6 @@ export default function LimitOrderTokenSection({
   showApproveFlow,
   isEdit,
   rotate,
-  tradeInfo,
-  loadingTrade,
   styleTooltip,
   onSetInput,
   onSetOutput,
@@ -65,7 +58,7 @@ export default function LimitOrderTokenSection({
   trackingTouchSelectToken,
 }: Props) {
   return (
-    <>
+    <div className="relative flex flex-col gap-1">
       <Tooltip
         text={inputError}
         show={!!inputError}
@@ -101,28 +94,17 @@ export default function LimitOrderTokenSection({
           positionLabel="in"
           customChainId={chainId}
           trackingSource="limit_order"
+          selectClassName="bg-buttonGray px-3"
         />
       </Tooltip>
 
-      <RowBetween>
-        {currencyIn && currencyOut ? (
-          <TradePrice
-            price={tradeInfo}
-            className="w-fit italic text-text"
-            label={t`Est. Market Price:`}
-            loading={loadingTrade}
-            symbolIn={currencyIn?.symbol}
-            symbolOut={currencyOut?.symbol}
-          />
-        ) : (
-          <div />
-        )}
+      <div className="pointer-events-none relative z-20 -my-3 flex justify-center">
         <ArrowRotate
           rotate={rotate}
           onClick={isEdit ? undefined : handleRotateClick}
-          className="size-7 bg-buttonGray p-1"
+          className="pointer-events-auto size-7 border border-bg2 bg-buttonGray p-1"
         />
-      </RowBetween>
+      </div>
 
       <Tooltip text={outPutError} show={!!outPutError} placement="top" style={styleTooltip} width="fit-content">
         <CurrencyInputPanel
@@ -151,8 +133,9 @@ export default function LimitOrderTokenSection({
           positionLabel="in"
           customChainId={chainId}
           trackingSource="limit_order"
+          selectClassName="bg-buttonGray px-3"
         />
       </Tooltip>
-    </>
+    </div>
   )
 }

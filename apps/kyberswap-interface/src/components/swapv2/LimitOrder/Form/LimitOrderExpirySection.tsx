@@ -40,14 +40,14 @@ export default function LimitOrderExpirySection({
   ]
 
   return (
-    <div>
-      <div className="flex items-center gap-1">
-        <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center leading-none text-subText">
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <TextDashed fontSize={14} fontWeight={500} className="flex h-fit items-center leading-none text-subText">
           <MouseoverTooltip
             placement="right"
             text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
           >
-            <Trans>Expires in</Trans>
+            <Trans>Expires In</Trans>
           </MouseoverTooltip>
         </TextDashed>
         <div className="flex cursor-pointer items-center gap-1" role="button" onClick={() => setExpanded(e => !e)}>

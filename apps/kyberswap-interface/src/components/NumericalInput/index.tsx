@@ -1,11 +1,20 @@
 import { CSSProperties } from 'react'
 
-import { escapeRegExp } from 'utils'
 import { cn } from 'utils/cn'
 
-const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
+const inputRegex = /^\d*\.?\d*$/
+const signedInputRegex = /^[+-]?\d*\.?\d*$/
 
-export const Input = function InnerInput({
+type Props = {
+  value: string | number
+  onUserInput?: (input: string) => void
+  error?: boolean
+  fontSize?: string
+  align?: 'right' | 'left'
+  allowNegative?: boolean
+} & Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'as'>
+
+const NumericalInput = ({
   value,
   onUserInput,
   placeholder,
@@ -16,18 +25,22 @@ export const Input = function InnerInput({
   className,
   style,
   disabled,
+  allowNegative,
+  onKeyDown,
   ...rest
-}: {
-  value: string | number
-  onUserInput?: (input: string) => void
-  error?: boolean
-  fontSize?: string
-  align?: 'right' | 'left'
-} & Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'as'>) {
+}: Props) => {
   const enforcer = (nextUserInput: string) => {
-    if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
+    const regex = allowNegative ? signedInputRegex : inputRegex
+    if (nextUserInput === '' || regex.test(nextUserInput)) {
       onUserInput?.(nextUserInput)
     }
+  }
+
+  const handleStep = (step: 1 | -1) => {
+    const numericValue = Number(value || 0)
+    if (!Number.isFinite(numericValue)) return
+    const nextValue = numericValue + step
+    onUserInput?.(String(!allowNegative && nextValue < 0 ? 0 : nextValue))
   }
 
   // Only set fontSize inline when caller explicitly passes one — otherwise leave
@@ -52,12 +65,20 @@ export const Input = function InnerInput({
         // replace commas with periods (period is the decimal separator)
         enforcer(event.target.value.replace(/,/g, '.'))
       }}
+      onKeyDown={event => {
+        onKeyDown?.(event)
+        if (event.defaultPrevented) return
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          event.preventDefault()
+          handleStep(event.key === 'ArrowUp' ? 1 : -1)
+        }
+      }}
       inputMode="decimal"
       title={value.toString()}
       autoComplete="off"
       autoCorrect="off"
       type="text"
-      pattern="^[0-9]*[.,]?[0-9]*$"
+      pattern={allowNegative ? '^[+-]?[0-9]*[.,]?[0-9]*$' : '^[0-9]*[.,]?[0-9]*$'}
       placeholder={placeholder || '0.0'}
       minLength={1}
       maxLength={maxLength}
@@ -73,4 +94,4 @@ export const Input = function InnerInput({
   )
 }
 
-export default Input
+export default NumericalInput

@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { forwardRef, memo, useImperativeHandle } from 'react'
 
 import { ButtonLight } from 'components/Button'
@@ -13,6 +13,7 @@ import LimitOrderTokenSection from 'components/swapv2/LimitOrder/Form/LimitOrder
 import useLimitOrderExecution from 'components/swapv2/LimitOrder/Form/hooks/useLimitOrderExecution'
 import useLimitOrderFormState from 'components/swapv2/LimitOrder/Form/hooks/useLimitOrderFormState'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
+import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import { EditOrderInfo, LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { Z_INDEXS } from 'constants/styles'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -256,8 +257,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           showApproveFlow={showApproveFlow}
           isEdit={isEdit}
           rotate={rotate}
-          tradeInfo={tradeInfo}
-          loadingTrade={loadingTrade}
           styleTooltip={styleTooltip}
           onSetInput={onSetInput}
           onSetOutput={onSetOutput}
@@ -291,6 +290,17 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           toggleDatePicker={toggleDatePicker}
           onChangeExpire={onChangeExpire}
         />
+
+        {currencyIn && currencyOut ? (
+          <TradePrice
+            price={tradeInfo}
+            className="text-sm font-normal text-subText"
+            label={t`Market Price is`}
+            loading={loadingTrade}
+            symbolIn={currencyIn.symbol}
+            symbolOut={currencyOut.symbol}
+          />
+        ) : null}
 
         {warningMessage.map((mess, i) => (
           <ErrorWarningPanel type="warn" key={i} title={mess} />

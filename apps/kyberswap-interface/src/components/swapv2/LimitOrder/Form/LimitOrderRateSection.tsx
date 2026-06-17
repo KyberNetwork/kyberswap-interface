@@ -1,26 +1,77 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { useEffect, useState } from 'react'
 import { Repeat } from 'react-feather'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import NumericalInput from 'components/NumericalInput'
-import { RowBetween } from 'components/Row'
-import DeltaRate from 'components/swapv2/LimitOrder/Form/DeltaRate'
+import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/Form/DeltaRate'
+import { removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
 import { RateInfo } from 'components/swapv2/LimitOrder/type'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import { cn } from 'utils/cn'
 
-const InputWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex flex-1 flex-col gap-2 rounded-xl bg-buttonBlack p-3 max-sm:w-full', className)} {...rest}>
+const RateCard = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-2 rounded-2xl bg-buttonBlack p-3', className)} {...rest}>
     {children}
   </div>
 )
 
-const Set2Market = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('m-0 cursor-pointer select-none text-xs font-medium text-primary', className)} {...rest}>
+const RateChip = ({ children, className, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    type="button"
+    className={cn(
+      'h-7 rounded-lg border border-subText/20 px-2 text-xs font-medium text-subText transition-colors hover:border-primary hover:text-primary',
+      className,
+    )}
+    {...rest}
+  >
     {children}
-  </div>
+  </button>
 )
+
+const PercentInputChip = ({ value, onUserInput }: { value: string; onUserInput: (value: string) => void }) => {
+  const [isEditing, setIsEditing] = useState(false)
+  const [draftValue, setDraftValue] = useState(value)
+  const displayValue = isEditing ? draftValue : value
+
+  useEffect(() => {
+    if (!isEditing) {
+      setDraftValue(value)
+    }
+  }, [isEditing, value])
+
+  const onChange = (nextValue: string) => {
+    setDraftValue(nextValue)
+    if (!nextValue || nextValue === '-' || nextValue === '+') {
+      onUserInput('')
+      return
+    }
+    if (nextValue.endsWith('.')) return
+    onUserInput(nextValue)
+  }
+
+  return (
+    <div className="flex h-7 items-center rounded-lg border border-subText/30 px-2 text-xs font-medium text-text">
+      <span className="shrink-0">{displayValue && !/^[+-]/.test(displayValue) ? '+' : ''}</span>
+      <NumericalInput
+        className="h-5 w-[46px] bg-transparent text-xs font-medium text-text"
+        value={displayValue}
+        onUserInput={onChange}
+        onFocus={() => {
+          setIsEditing(true)
+          setDraftValue(value)
+        }}
+        onBlur={() => {
+          setIsEditing(false)
+        }}
+        maxLength={8}
+        allowNegative
+      />
+      <span className="shrink-0">%</span>
+    </div>
+  )
+}
 
 type Props = {
   currencyIn: Currency | undefined
@@ -47,45 +98,83 @@ export default function LimitOrderRateSection({
   trackingTouchInput,
   trackingPriceSetOnBlur,
 }: Props) {
+  const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
+  const marketRate = tradeInfo
+    ? removeTrailingZero((rateInfo.invert ? tradeInfo.invertRate : tradeInfo.marketRate).toPrecision(6))
+    : ''
+  const unitCurrency = rateInfo.invert ? currencyIn : currencyOut
+  const rateDeltaOptions = [10, 20, 50]
+  const percentInputValue =
+    deltaRate.rawPercent === undefined || !Number.isFinite(deltaRate.rawPercent)
+      ? ''
+      : removeTrailingZero(deltaRate.rawPercent.toFixed(2)) ?? ''
+
+  const setRateByDelta = (percent: number) => {
+    if (!tradeInfo) return
+    const market = rateInfo.invert ? tradeInfo.invertRate : tradeInfo.marketRate
+    const nextRate = market * (1 + (rateInfo.invert ? -percent : percent) / 100)
+    onChangeRate(removeTrailingZero(nextRate.toFixed(16)) ?? '')
+  }
+
+  const onChangePercent = (value: string) => {
+    if (!value || value === '-') {
+      onChangeRate('')
+      return
+    }
+    setRateByDelta(Number(value))
+  }
+
   return (
-    <RowBetween className="flex-row gap-4 max-sm:flex-col">
-      <InputWrapper>
-        <div className="flex items-center justify-between">
-          <DeltaRate
-            invert={rateInfo.invert}
-            symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
-            marketPrice={tradeInfo}
-            rateInfo={rateInfo}
-          />
-          {tradeInfo && (
-            <Set2Market onClick={setPriceRateMarket}>
-              <Trans>Market</Trans>
-            </Set2Market>
-          )}
-        </div>
-        <div className="flex items-center rounded-xl bg-buttonBlack">
+    <RateCard>
+      <div className="flex items-center justify-between gap-3">
+        <DeltaRate
+          invert={rateInfo.invert}
+          symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
+          marketPrice={tradeInfo}
+          rateInfo={rateInfo}
+        />
+        {currencyIn && currencyOut && unitCurrency && (
+          <button
+            type="button"
+            className="flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-buttonGray px-3 text-sm font-medium text-subText hover:brightness-125"
+            onClick={() => onInvertRate(!rateInfo.invert)}
+          >
+            <CurrencyLogo size="18px" currency={unitCurrency} />
+            <span className="select-none">{unitCurrency.symbol}</span>
+            <Repeat className="text-subText" size={12} />
+          </button>
+        )}
+      </div>
+
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex min-h-11 min-w-0 flex-1 items-center rounded-xl border border-subText/20 bg-background px-3">
           <NumericalInput
             maxLength={50}
-            className="h-7 text-sm"
+            className="h-9 bg-transparent text-xl font-medium text-primary"
             data-testid="input-selling-rate"
             value={displayRate}
             onUserInput={onChangeRate}
             onFocus={trackingTouchInput}
             onBlur={trackingPriceSetOnBlur}
           />
-          {currencyIn && currencyOut && (
-            <div className="flex cursor-pointer gap-1.5" onClick={() => onInvertRate(!rateInfo.invert)}>
-              <CurrencyLogo size={'18px'} currency={rateInfo.invert ? currencyIn : currencyOut} />
-              <span className="select-none text-sm text-subText">
-                {rateInfo.invert ? currencyIn?.symbol : currencyOut?.symbol}
-              </span>
-              <div>
-                <Repeat className="text-subText" size={12} />
-              </div>
-            </div>
-          )}
         </div>
-      </InputWrapper>
-    </RowBetween>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-1">
+          <PercentInputChip value={percentInputValue} onUserInput={onChangePercent} />
+          {rateDeltaOptions.map(percent => (
+            <RateChip key={percent} onClick={() => setRateByDelta(percent)}>
+              +{percent}%
+            </RateChip>
+          ))}
+        </div>
+        {tradeInfo ? (
+          <button type="button" className="text-xs font-medium text-subText" onClick={setPriceRateMarket}>
+            <Trans>Market</Trans> <span className="text-primary">{marketRate}</span>
+          </button>
+        ) : null}
+      </div>
+    </RateCard>
   )
 }
