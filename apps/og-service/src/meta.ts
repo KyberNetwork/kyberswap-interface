@@ -38,6 +38,17 @@ export interface ParsedPair {
   outId: string;
 }
 
+// URL path segments arrive percent-encoded (a "$AIAV" symbol comes in as "%24aiav"); decode so the id
+// matches what the token list stores. `url.pathname` does not decode these the way query params do.
+// Falls back to the raw value if the encoding is malformed (decodeURIComponent throws on a lone "%").
+function decodeId(s: string): string {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+}
+
 /** Match a swap/limit *pair* URL: path form `/swap/<net>/<in>-to-<out>` or legacy `?inputCurrency=`. */
 export function parsePairPath(pathname: string, searchParams: URLSearchParams): ParsedPair | null {
   const segs = pathname.split('/').filter(Boolean);
@@ -53,8 +64,8 @@ export function parsePairPath(pathname: string, searchParams: URLSearchParams): 
   const currency = segs[2];
   if (currency && currency.includes('-to-')) {
     const [from, to] = currency.split('-to-');
-    inId = (from || '').toLowerCase();
-    outId = (to || '').toLowerCase();
+    inId = decodeId(from || '').toLowerCase();
+    outId = decodeId(to || '').toLowerCase();
   } else {
     inId = (searchParams.get('inputCurrency') || '').toLowerCase();
     outId = (searchParams.get('outputCurrency') || '').toLowerCase();
