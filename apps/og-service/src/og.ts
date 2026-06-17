@@ -1,4 +1,6 @@
+import { decode as decodeWebp } from '@cwasm/webp';
 import { Resvg } from '@resvg/resvg-js';
+import { encode as encodePng } from 'fast-png';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import satori from 'satori';
@@ -70,10 +72,15 @@ function shortSymbol(sym: string): string {
   return s.length > 12 ? `${s.slice(0, 11)}…` : s;
 }
 
-const ALLOWED_LOGO_MIME = new Set(['image/png', 'image/jpeg']);
+const ALLOWED_LOGO_MIME = new Set(['image/png', 'image/jpeg', 'image/webp']);
+// WebP is decoded + re-encoded to PNG (satori/resvg don't read WebP), so an embedded data URI is always
+// PNG or JPEG — DATA_URI_RE stays png|jpeg.
 const DATA_URI_RE = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 const LOGO_FETCH_TIMEOUT_MS = 1500;
 const MAX_LOGO_BYTES = 512 * 1024;
+// Reject a WebP that decodes to an absurd resolution (a decompression bomb): token logos are tiny, and a
+// huge intermediate RGBA buffer (width*height*4) would otherwise be allocated before the downscale.
+const MAX_LOGO_DIM = 2048;
 // Cap an inline `data:` logo by its string length too — base64 is ~4/3 the byte size, so this bounds
 // the decoded image to ~MAX_LOGO_BYTES without decoding it (an unbounded URI would feed straight into satori).
 const MAX_DATA_URI_LEN = Math.ceil((MAX_LOGO_BYTES * 4) / 3) + 64; // +64 slack for the `data:<mime>;base64,` prefix
@@ -126,9 +133,52 @@ async function fetchLogoDataUri(url: string | undefined): Promise<string | null>
   return small;
 }
 
+// Read the WebP RIFF header (VP8 lossy / VP8L lossless / VP8X extended) for the canvas dimensions WITHOUT
+// decoding pixels — a cheap pre-check so a decompression-bomb logo (huge dimensions in a tiny file) is
+// rejected before decodeWebp() allocates its width*height*4 RGBA buffer. Null if not parseable (the caller
+// then relies on the post-decode size guard as a backstop).
+function webpDimensions(buf: Buffer): { width: number; height: number } | null {
+  if (buf.length < 16 || buf.toString('ascii', 0, 4) !== 'RIFF' || buf.toString('ascii', 8, 12) !== 'WEBP') return null;
+  const id = buf.toString('ascii', 12, 16);
+  // VP8 lossy: 14-bit width/height stored directly. VP8L/VP8X store (dimension - 1).
+  if (id === 'VP8 ' && buf.length >= 30)
+    return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff };
+  if (id === 'VP8L' && buf.length >= 25) {
+    const b = buf.readUInt32LE(21);
+    return { width: (b & 0x3fff) + 1, height: ((b >>> 14) & 0x3fff) + 1 };
+  }
+  if (id === 'VP8X' && buf.length >= 30) {
+    return {
+      width: (buf[24] | (buf[25] << 8) | (buf[26] << 16)) + 1,
+      height: (buf[27] | (buf[28] << 8) | (buf[29] << 16)) + 1,
+    };
+  }
+  return null;
+}
+
+// Token logos are increasingly WebP, which neither satori nor resvg decodes. Decode it to raw RGBA
+// (@cwasm/webp, WASM) and re-encode as PNG (fast-png) so the rest of the pipeline embeds a PNG. Returns
+// null on a decode failure or an oversized image; the caller then falls back to the letter circle.
+function webpToPng(webp: Buffer): Buffer | null {
+  try {
+    // Reject a decompression bomb from the header before decodeWebp() allocates the full RGBA buffer.
+    const dims = webpDimensions(webp);
+    if (dims && (dims.width > MAX_LOGO_DIM || dims.height > MAX_LOGO_DIM)) return null;
+    const img = decodeWebp(webp);
+    if (!img.width || !img.height || img.width > MAX_LOGO_DIM || img.height > MAX_LOGO_DIM) return null;
+    // fast-png wants a Uint8Array; @cwasm/webp returns RGBA as a Uint8ClampedArray — re-view the bytes.
+    const data = new Uint8Array(img.data.buffer, img.data.byteOffset, img.data.byteLength);
+    const png = encodePng({ width: img.width, height: img.height, data, channels: 4, depth: 8 });
+    return Buffer.from(png);
+  } catch {
+    return null;
+  }
+}
+
 // Satori can't fetch remote <img> reliably, so inline the bytes as a base64 data URI. Hardened:
-// browser UA (CDNs 403 bare fetches), PNG/JPEG only, size-bounded, timeout, and — crucially for an
-// origin deployment — `redirect: 'manual'` so a vetted host can't 302 us to an internal IP (SSRF).
+// browser UA (CDNs 403 bare fetches), PNG/JPEG/WebP only (WebP re-encoded to PNG), size-bounded, timeout,
+// and — crucially for an origin deployment — `redirect: 'manual'` so a vetted host can't 302 us to an
+// internal IP (SSRF).
 async function fetchRawLogoDataUri(url: string | undefined): Promise<string | null> {
   if (!url) return null;
   if (url.startsWith('data:')) return url.length <= MAX_DATA_URI_LEN && DATA_URI_RE.test(url) ? url : null;
@@ -147,7 +197,16 @@ async function fetchRawLogoDataUri(url: string | undefined): Promise<string | nu
     // Stream-bounded read: aborts past MAX_LOGO_BYTES instead of buffering an unbounded (community-
     // influenced) body first — readBoundedArrayBuffer throws over the cap, caught below as a null logo.
     const buf = await readBoundedArrayBuffer(res, MAX_LOGO_BYTES);
-    const dataUri = `data:${mime};base64,${Buffer.from(buf).toString('base64')}`;
+    // satori/resvg can't read WebP — convert it to PNG so the embedded data URI is always PNG/JPEG.
+    let bytes = Buffer.from(buf);
+    let outMime = mime;
+    if (mime === 'image/webp') {
+      const png = webpToPng(bytes);
+      if (!png) return null;
+      bytes = png;
+      outMime = 'image/png';
+    }
+    const dataUri = `data:${outMime};base64,${bytes.toString('base64')}`;
     return DATA_URI_RE.test(dataUri) ? dataUri : null;
   } catch {
     return null;

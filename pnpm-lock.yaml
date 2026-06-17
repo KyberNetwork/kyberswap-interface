@@ -552,6 +552,9 @@ importers:
 
   apps/og-service:
     dependencies:
+      '@cwasm/webp':
+        specifier: ^0.1.5
+        version: 0.1.5
       '@hono/node-server':
         specifier: ^1.13.7
         version: 1.19.14(hono@4.12.18)
@@ -561,6 +564,9 @@ importers:
       cheerio:
         specifier: ^1.0.0
         version: 1.2.0
+      fast-png:
+        specifier: ^8.0.0
+        version: 8.0.0
       hono:
         specifier: ^4.6.14
         version: 4.12.18
@@ -5638,6 +5644,10 @@ packages:
     resolution: {integrity: sha512-ckS3+vyJb5qGpEYv/s1OebUHDi/xSNtfgw1wqKZo7MR9F2z+qXr0q5XagafAG/9O0QPVIUfST0smluYSTpYFkg==}
     dev: true
 
+  /@canvas/image-data@1.1.0:
+    resolution: {integrity: sha512-QdObRRjRbcXGmM1tmJ+MrHcaz1MftF2+W7YI+MsphnsCrmtyfS0d5qJbk0MeSbUeyM/jCb0hmnkXPsy026L7dA==}
+    dev: false
+
   /@coinbase/cdp-sdk@1.48.3(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3):
     resolution: {integrity: sha512-1fldOyJw/vjk42GsOCQ2pys/3r3LXHq8wZyhnt6OXkFfKirCjZiw966PT0vFcI/IzIQnhDgSeG7Tlt7kul3osg==}
     requiresBuild: true
@@ -5753,6 +5763,12 @@ packages:
       - typescript
       - utf-8-validate
       - zod
+    dev: false
+
+  /@cwasm/webp@0.1.5:
+    resolution: {integrity: sha512-ceIZQkyxK+s7mmItNcWqqHdOBiJAxYxTnrnPNgUNjldB1M9j+Bp/3eVIVwC8rUFyN/zoFwuT0331pyY3ackaNA==}
+    dependencies:
+      '@canvas/image-data': 1.1.0
     dev: false
 
   /@defuse-protocol/one-click-sdk-typescript@0.1.2:
@@ -25185,6 +25201,13 @@ packages:
     resolution: {integrity: sha512-Ue0LwpDYErFbmNnZSF0UH6eImUwDmogUO1jyE+JbN2gsQz/jICm1Ve7t9QT0rNSsfJt+Hs4/S3GnsDVjL4HVrw==}
     dev: false
 
+  /fast-png@8.0.0:
+    resolution: {integrity: sha512-gCysNasJ8KEMgfdYIKd/wTDo6ENK1PWT0RJO7O+0pgmuHPw2O6tA1WvdxFRJoLf9V8yFYpG0FA1YgI8X97OhJA==}
+    dependencies:
+      fflate: 0.8.3
+      iobuffer: 6.0.1
+    dev: false
+
   /fast-redact@3.5.0:
     resolution: {integrity: sha512-dwsoQlS7h9hMeYUq1W++23NDcBLV4KqONnITDV9DjfS3q1SgDGVrBdvvTLUotWtPSD7asWDV9/CmsZPy8Hf70A==}
     engines: {node: '>=6'}
@@ -25251,6 +25274,10 @@ packages:
 
   /fflate@0.7.4:
     resolution: {integrity: sha512-5u2V/CDW15QM1XbbgS+0DfPxVB+jUKhWEKuuFuHncbk3tEEqzmoXL+2KyOFuKGqOnmdIy0/davWF1CkuwtibCw==}
+    dev: false
+
+  /fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
     dev: false
 
   /figures@3.2.0:
@@ -26148,6 +26175,10 @@ packages:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
+
+  /iobuffer@6.0.1:
+    resolution: {integrity: sha512-SZWYkWNfjIXIBYSDpXDYIgshqtbOPsi4lviawAEceR1Kqk+sHDlcQjWrzNQsii80AyBY0q5c8HCTNjqo74ul+Q==}
     dev: false
 
   /iron-webcrypto@1.2.1:
