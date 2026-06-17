@@ -558,6 +558,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.13.7
         version: 1.19.14(hono@4.12.18)
+      '@jsquash/avif':
+        specifier: ^2.1.1
+        version: 2.1.1
       '@resvg/resvg-js':
         specifier: ^2.6.2
         version: 2.6.2
@@ -8716,6 +8719,12 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  /@jsquash/avif@2.1.1:
+    resolution: {integrity: sha512-LMRxd0fMgfCLtobDh0/sFYJMMiRJTNYSEEWvRDKXlAeZ08t3gI5V+1thIT0XjXJ+SVG7Zug9B0XPyx0Ti5VRNA==}
+    dependencies:
+      wasm-feature-detect: 1.8.0
+    dev: false
 
   /@kyberswap/ks-sdk-classic@1.0.3:
     resolution: {integrity: sha512-YJ//OmCPKgwslqDSRH6iqj/W0LWWsoMoEhPURsZjBwog4ehdKUDwDsW+6s1Z0i6Bro0XSVncO7WTcqfS5yPwzA==}
@@ -33670,6 +33679,10 @@ packages:
     resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
+
+  /wasm-feature-detect@1.8.0:
+    resolution: {integrity: sha512-zksaLKM2fVlnB5jQQDqKXXwYHLQUVH9es+5TOOHwGOVJOCeRBCiPjwSg+3tN2AdTCzjgli4jijCH290kXb/zWQ==}
     dev: false
 
   /wcwidth@1.0.1:

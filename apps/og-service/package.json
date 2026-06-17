@@ -15,6 +15,7 @@
   "dependencies": {
     "@cwasm/webp": "^0.1.5",
     "@hono/node-server": "^1.13.7",
+    "@jsquash/avif": "^2.1.1",
     "@resvg/resvg-js": "^2.6.2",
     "cheerio": "^1.0.0",
     "fast-png": "^8.0.0",

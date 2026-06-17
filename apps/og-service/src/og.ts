@@ -1,7 +1,9 @@
 import { decode as decodeWebp } from '@cwasm/webp';
+import decodeAvif, { init as initAvifDecoder } from '@jsquash/avif/decode.js';
 import { Resvg } from '@resvg/resvg-js';
 import { encode as encodePng } from 'fast-png';
 import { readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import satori from 'satori';
 import { html as toVNode } from 'satori-html';
@@ -14,6 +16,10 @@ import { formatFeeTier } from '@/meta';
 import type { PoolToken } from '@/pools';
 import { isPublicHost } from '@/ssrf';
 import type { ResolvedToken } from '@/tokens';
+
+// WebAssembly is a Node global but isn't in the ES2022 lib (and we avoid the DOM lib to keep its globals
+// out of this Node service). Declare the one method used to compile the AVIF decoder wasm.
+declare const WebAssembly: { compile(bytes: Uint8Array | ArrayBuffer): Promise<unknown> };
 
 // Satori's `fonts` option type, derived from its signature (avoids importing an unstable named type).
 type SatoriFonts = NonNullable<Parameters<typeof satori>[1]>['fonts'];
@@ -174,19 +180,75 @@ function webpToPng(webp: Buffer): Buffer | null {
   }
 }
 
-// The real image format from the file's magic bytes. Token-logo CDNs sometimes serve a PNG/JPEG/WebP as
-// `application/octet-stream` (or another wrong Content-Type), so the header isn't reliable — browsers
+// @jsquash/avif decodes via WASM; in Node we compile + init the ~1MB decoder module ourselves (its
+// browser path fetch()es it). Memoized so it compiles once, lazily on the first AVIF logo. The shipped
+// types declare init()'s first arg as options, but at runtime it is the WebAssembly.Module — hence the cast.
+const requireFromHere = createRequire(import.meta.url);
+let avifInit: Promise<void> | undefined;
+function ensureAvifDecoder(): Promise<void> {
+  if (!avifInit) {
+    avifInit = (async () => {
+      const wasm = await WebAssembly.compile(
+        await readFile(requireFromHere.resolve('@jsquash/avif/codec/dec/avif_dec.wasm')),
+      );
+      await (initAvifDecoder as unknown as (m: unknown) => Promise<void>)(wasm);
+    })().catch(e => {
+      avifInit = undefined; // don't memoize a transient init failure
+      throw e;
+    });
+  }
+  return avifInit;
+}
+
+// AVIF canvas dimensions from the ISOBMFF `ispe` box (4-byte version/flags, then 32-bit BE width + height)
+// without decoding — a cheap pre-check that rejects a decompression-bomb AVIF before the AV1 decode runs.
+function avifDimensions(buf: Buffer): { width: number; height: number } | null {
+  const i = buf.indexOf('ispe', 0, 'latin1');
+  if (i < 0 || i + 16 > buf.length) return null;
+  const width = buf.readUInt32BE(i + 8);
+  const height = buf.readUInt32BE(i + 12);
+  return width && height ? { width, height } : null;
+}
+
+// Decode an AVIF logo (satori/resvg can't read AVIF) to PNG: WASM AV1 decode -> RGBA -> fast-png. Null on
+// failure or an oversized image; the caller falls back to the letter circle. AV1 decode is the heaviest
+// path, so it is gated by the dimension guard above and the per-URL logo cache (decodes once per logo).
+async function avifToPng(avif: Buffer): Promise<Buffer | null> {
+  try {
+    const dims = avifDimensions(avif);
+    if (dims && (dims.width > MAX_LOGO_DIM || dims.height > MAX_LOGO_DIM)) return null;
+    await ensureAvifDecoder();
+    const ab = avif.buffer.slice(avif.byteOffset, avif.byteOffset + avif.byteLength) as ArrayBuffer;
+    const img = (await decodeAvif(ab)) as { width: number; height: number; data: Uint8ClampedArray } | null;
+    if (!img || !img.width || !img.height || img.width > MAX_LOGO_DIM || img.height > MAX_LOGO_DIM) return null;
+    const data = new Uint8Array(img.data.buffer, img.data.byteOffset, img.data.byteLength);
+    const png = encodePng({ width: img.width, height: img.height, data, channels: 4, depth: 8 });
+    return Buffer.from(png);
+  } catch {
+    return null;
+  }
+}
+
+// The real image format from the file's magic bytes. Token-logo CDNs sometimes serve a PNG/JPEG/WebP/AVIF
+// as `application/octet-stream` (or another wrong Content-Type), so the header isn't reliable — browsers
 // sniff the bytes, and so do we. Null if the bytes aren't a supported image.
-function sniffImageMime(buf: Buffer): 'image/png' | 'image/jpeg' | 'image/webp' | null {
+function sniffImageMime(buf: Buffer): 'image/png' | 'image/jpeg' | 'image/webp' | 'image/avif' | null {
   if (buf.length >= 4 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
   if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
   if (buf.length >= 12 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP')
     return 'image/webp';
+  // AVIF (ISOBMFF): an `ftyp` box whose major or compatible brand list contains `avif`.
+  if (
+    buf.length >= 12 &&
+    buf.toString('ascii', 4, 8) === 'ftyp' &&
+    buf.toString('latin1', 8, Math.min(buf.length, 40)).includes('avif')
+  )
+    return 'image/avif';
   return null;
 }
 
 // Satori can't fetch remote <img> reliably, so inline the bytes as a base64 data URI. Hardened:
-// browser UA (CDNs 403 bare fetches), PNG/JPEG/WebP only (WebP re-encoded to PNG), size-bounded, timeout,
+// browser UA (CDNs 403 bare fetches), PNG/JPEG/WebP/AVIF only (WebP+AVIF re-encoded to PNG), size-bounded, timeout,
 // and — crucially for an origin deployment — `redirect: 'manual'` so a vetted host can't 302 us to an
 // internal IP (SSRF).
 async function fetchRawLogoDataUri(url: string | undefined): Promise<string | null> {
@@ -209,10 +271,15 @@ async function fetchRawLogoDataUri(url: string | undefined): Promise<string | nu
     // Trust the magic bytes, not the Content-Type header (logo CDNs mislabel images as octet-stream).
     const sniffed = sniffImageMime(bytes);
     if (!sniffed) return null;
-    // satori/resvg can't read WebP — convert it to PNG so the embedded data URI is always PNG/JPEG.
+    // satori/resvg can't read WebP/AVIF — convert them to PNG so the embedded data URI is always PNG/JPEG.
     let outMime: string = sniffed;
     if (sniffed === 'image/webp') {
       const png = webpToPng(bytes);
+      if (!png) return null;
+      bytes = png;
+      outMime = 'image/png';
+    } else if (sniffed === 'image/avif') {
+      const png = await avifToPng(bytes);
       if (!png) return null;
       bytes = png;
       outMime = 'image/png';
