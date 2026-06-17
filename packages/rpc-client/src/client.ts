@@ -32,6 +32,28 @@ export function buildRpcErrorMessage(endpoint: string, method: string, detail: s
 }
 
 /**
+ * Coerce a JSON-RPC `error` field into a consistent `{ code, message, data }`.
+ *
+ * Spec-compliant providers return an object `{ code, message }`, but some public
+ * endpoints (e.g. zan.top for unregistered accounts) return `error` as a bare
+ * string. Those are coerced to a retryable internal-error code so rotation moves
+ * on to the next endpoint, and the original text is kept as the message instead
+ * of surfacing "undefined: undefined".
+ */
+function normalizeRpcError(error: unknown): { code: number; message: string; data?: unknown } {
+  if (typeof error === 'string') {
+    return { code: -32603, message: error };
+  }
+  if (error && typeof error === 'object') {
+    const e = error as { code?: unknown; message?: unknown; data?: unknown };
+    const code = typeof e.code === 'number' ? e.code : -32603;
+    const message = typeof e.message === 'string' ? e.message : JSON.stringify(error);
+    return { code, message, data: e.data };
+  }
+  return { code: -32603, message: String(error) };
+}
+
+/**
  * RPC Client with automatic endpoint rotation, health probing, and fallback.
  *
  * Features:
@@ -537,11 +559,8 @@ export class RpcClient {
       const data = (await response.json()) as JsonRpcResponse<T>;
 
       if (data.error) {
-        throw new RpcError(
-          data.error.code,
-          buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${data.error.code}: ${data.error.message}`),
-          data.error.data,
-        );
+        const { code, message, data: errData } = normalizeRpcError(data.error);
+        throw new RpcError(code, buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${code}: ${message}`), errData);
       }
 
       if (data.result === undefined) {
@@ -630,10 +649,11 @@ export class RpcClient {
           const rawId = Number(item.id);
           const idx = Number.isFinite(rawId) ? rawId - 1 : -1;
           const failedMethod = calls[idx]?.method ?? 'batch';
+          const { code, message, data: errData } = normalizeRpcError(item.error);
           throw new RpcError(
-            item.error.code,
-            buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${item.error.code}: ${item.error.message}`),
-            item.error.data,
+            code,
+            buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${code}: ${message}`),
+            errData,
           );
         }
         results.push(item.result);
