@@ -198,8 +198,11 @@ function fontsOption(font700: Buffer | null, font400: Buffer | null): SatoriFont
 
 // Right-arrow as inline SVG (not the '→' glyph) so it renders regardless of whether the brand font
 // (Work Sans) includes U+2192 — Latin text fonts often omit arrows.
-const ARROW = `<svg width="88" height="88" viewBox="0 0 24 24" fill="none" style="margin:0 8px"><path d="M5 12h14M13 6l6 6-6 6" stroke="${GREEN}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const SLASH = `<div style="display:flex;align-items:center;justify-content:center;font-size:72px;color:${GREEN};margin:0 24px">/</div>`;
+// Both the arrow and the slash align to the vertical center of the LOGOS, not the center of the whole
+// logo+symbol block: each is wrapped in a LOGO_SIZE-tall box pinned to the top of the row
+// (align-self:flex-start), so the glyph centers within the logo band rather than dipping toward the symbol.
+const ARROW = `<div style="display:flex;align-items:center;justify-content:center;align-self:flex-start;height:${LOGO_SIZE}px;margin:0 8px"><svg width="88" height="88" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="${GREEN}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+const SLASH = `<div style="display:flex;align-items:center;justify-content:center;align-self:flex-start;height:${LOGO_SIZE}px;font-size:72px;color:${GREEN};margin:0 24px">/</div>`;
 
 // Cap concurrent renders: satori + resvg rasterization is synchronous CPU work that blocks the Node event
 // loop, so an attacker cycling unique valid pairs/pools could saturate it and degrade every route. Excess
