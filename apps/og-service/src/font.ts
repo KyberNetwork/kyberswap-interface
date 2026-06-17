@@ -21,11 +21,9 @@ const memo = new Map<number, Promise<Buffer | null>>();
 
 async function fromDisk(weight: number): Promise<Buffer | null> {
   if (!FONT_DIR) return null;
-  // Prefer a static per-weight file; fall back to a single variable font (`Inter.ttf`) used for both
-  // weights (Satori applies the requested weight via the font's wght axis).
-  // Inter-<weight>.ttf is the legacy bundled fallback — kept until the static Work Sans TTFs are dropped
-  // into fonts/, so a build without the Work Sans files still ships a real font (no runtime Google fetch).
-  for (const name of [`${FONT_FILE_BASE}-${weight}.ttf`, `Inter-${weight}.ttf`, `${FONT_FILE_BASE}.ttf`]) {
+  // The static per-weight file (WorkSans-400.ttf / WorkSans-700.ttf); fall back to a single WorkSans.ttf
+  // covering both weights if a per-weight file is absent.
+  for (const name of [`${FONT_FILE_BASE}-${weight}.ttf`, `${FONT_FILE_BASE}.ttf`]) {
     try {
       return await readFile(join(FONT_DIR, name));
     } catch {

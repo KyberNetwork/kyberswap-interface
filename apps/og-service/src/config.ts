@@ -44,5 +44,5 @@ export const STATIC_DIR = existsSync(bundledStatic)
   ? bundledStatic
   : new URL('../../kyberswap-interface/build', import.meta.url).pathname;
 
-/** Bundled card fonts (Inter-400.ttf / Inter-700.ttf) — same relative path locally and in Docker. */
+/** Bundled card fonts (WorkSans-400.ttf / WorkSans-700.ttf) — same relative path locally and in Docker. */
 export const FONT_DIR = new URL('../fonts', import.meta.url).pathname;
