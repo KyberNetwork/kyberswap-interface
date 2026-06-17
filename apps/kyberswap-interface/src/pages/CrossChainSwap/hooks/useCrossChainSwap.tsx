@@ -31,7 +31,7 @@ import {
   QuoteParams,
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
-import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/relaySolanaWallet'
+import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'

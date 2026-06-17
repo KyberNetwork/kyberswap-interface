@@ -32,9 +32,6 @@ import {
 
 import { hyperevm, wagmiConfig } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
-
-import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
@@ -44,7 +41,9 @@ import {
   NormalizedTxResponse,
   QuoteParams,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { Quote } from 'pages/CrossChainSwap/registry'
 
 const SolanaChainId = 792703809
 
