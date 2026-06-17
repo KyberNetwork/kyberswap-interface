@@ -248,6 +248,13 @@ async function renderCardPng(cardHtmlStr: string, fonts: SatoriFonts): Promise<B
   });
 }
 
+export interface RenderResult {
+  png: Buffer;
+  /** false when a token that HAS a logoURI fell back to the letter circle (a transient logo-fetch miss),
+   *  so the caller can cache the degraded image briefly instead of for the full image TTL. */
+  complete: boolean;
+}
+
 export interface SwapOgInput {
   inToken: ResolvedToken | null;
   outToken: ResolvedToken | null;
@@ -255,8 +262,8 @@ export interface SwapOgInput {
   kind: 'swap' | 'limit';
 }
 
-/** Render the 1200x630 swap/limit pair OG card as a PNG buffer. Caller guarantees ≥1 token present. */
-export async function renderSwapOg(input: SwapOgInput): Promise<Buffer> {
+/** Render the 1200x630 swap/limit pair OG card. Caller guarantees ≥1 token present. */
+export async function renderSwapOg(input: SwapOgInput): Promise<RenderResult> {
   const { inToken, outToken, networkName, kind } = input;
   const present = [inToken, outToken].filter((t): t is ResolvedToken => t !== null);
 
@@ -281,7 +288,10 @@ export async function renderSwapOg(input: SwapOgInput): Promise<Buffer> {
       ? `${tokenBlock(logos[0], present[0].symbol)}${ARROW}${tokenBlock(logos[1], present[1].symbol)}`
       : tokenBlock(logos[0], present[0].symbol);
 
-  return renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
+  // A token with a logoURI that resolved to null fell back to the letter circle (transient fetch miss).
+  const complete = present.every((t, i) => !t.logoURI || logos[i] !== null);
+  const png = await renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
+  return { png, complete };
 }
 
 export interface PoolOgInput {
@@ -291,8 +301,8 @@ export interface PoolOgInput {
   feeTier?: number;
 }
 
-/** Render the 1200x630 pool OG card as a PNG buffer (both token logos + a "/" + fee caption). */
-export async function renderPoolOg(input: PoolOgInput): Promise<Buffer> {
+/** Render the 1200x630 pool OG card (both token logos + a "/" + fee caption). */
+export async function renderPoolOg(input: PoolOgInput): Promise<RenderResult> {
   const { token0, token1, networkName, feeTier } = input;
 
   const [logos, font700, font400, brandLogo] = await Promise.all([
@@ -306,5 +316,8 @@ export async function renderPoolOg(input: PoolOgInput): Promise<Buffer> {
   const caption = `Provide liquidity & earn${feeText} on KyberSwap`;
   const center = `${tokenBlock(logos[0], token0.symbol)}${SLASH}${tokenBlock(logos[1], token1.symbol)}`;
 
-  return renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
+  // A token with a logoURI that resolved to null fell back to the letter circle (transient fetch miss).
+  const complete = [token0, token1].every((t, i) => !t.logoURI || logos[i] !== null);
+  const png = await renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
+  return { png, complete };
 }

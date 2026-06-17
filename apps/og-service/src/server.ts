@@ -19,6 +19,9 @@ import { resolveToken } from '@/tokens';
 
 const MAX_PARAM_LEN = 64;
 const IMG_TTL_MS = 31_536_000_000; // 1 year
+// A render that fell back to a letter circle because a token logo fetch failed transiently is cached only
+// briefly, so the next request re-renders and self-heals instead of serving the degraded card for a year.
+const DEGRADED_IMG_TTL_MS = 300_000; // 5 min
 // 40 hex = a v2/v3 pool address; 64 hex = a Uniswap v4 pool id (keccak of the PoolKey).
 const ADDRESS_RE = /^0x([0-9a-f]{40}|[0-9a-f]{64})$/;
 const EXCHANGE_RE = /^[a-z0-9_-]{1,60}$/;
@@ -106,11 +109,13 @@ async function ogSwapImage(url: URL, kind: 'swap' | 'limit'): Promise<Response> 
   }
 
   try {
-    const png = await renderSwapOg({ inToken: inTok, outToken: outTok, networkName: chain.name, kind });
+    const { png, complete } = await renderSwapOg({ inToken: inTok, outToken: outTok, networkName: chain.name, kind });
     // Cache a standalone copy of the resvg-returned native buffer — cheap insurance for a long-lived
     // cache entry against the addon ever reusing its output memory across renders.
-    cache.set(cacheKey, Buffer.from(png), IMG_TTL_MS);
-    console.log(`[og] /og/${kind} chain=${slug} in=${inId || '-'} out=${outId || '-'} -> rendered`);
+    cache.set(cacheKey, Buffer.from(png), complete ? IMG_TTL_MS : DEGRADED_IMG_TTL_MS);
+    console.log(
+      `[og] /og/${kind} chain=${slug} in=${inId || '-'} out=${outId || '-'} -> rendered${complete ? '' : ' (degraded: logo miss, short TTL)'}`,
+    );
     return pngResponse(png);
   } catch {
     return defaultImage();
@@ -137,15 +142,17 @@ async function ogPoolImage(url: URL): Promise<Response> {
   }
 
   try {
-    const png = await renderPoolOg({
+    const { png, complete } = await renderPoolOg({
       token0: pool.token0,
       token1: pool.token1,
       networkName: chain.name,
       feeTier: pool.feeTier,
     });
     // Cache a standalone copy of the native buffer (see ogSwapImage).
-    cache.set(cacheKey, Buffer.from(png), IMG_TTL_MS);
-    console.log(`[og] /og/pool chain=${slug} address=${address} protocol=${protocol || '-'} -> rendered`);
+    cache.set(cacheKey, Buffer.from(png), complete ? IMG_TTL_MS : DEGRADED_IMG_TTL_MS);
+    console.log(
+      `[og] /og/pool chain=${slug} address=${address} protocol=${protocol || '-'} -> rendered${complete ? '' : ' (degraded: logo miss, short TTL)'}`,
+    );
     return pngResponse(png);
   } catch {
     return defaultImage();
