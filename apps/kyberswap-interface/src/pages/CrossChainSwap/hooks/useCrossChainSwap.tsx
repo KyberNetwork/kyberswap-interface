@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -32,6 +31,7 @@ import {
   QuoteParams,
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
+import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
@@ -932,11 +932,13 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       }
     }
 
-    const adaptedWallet = adaptSolanaWallet(
+    const adaptedWallet = adaptRelaySolanaWallet(
       solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA,
       792703809, //chain id that Relay uses to identify solana
       connection,
-      connection.sendTransaction as any,
+      async (transaction, options) => ({
+        signature: await (connection.sendTransaction as any)(transaction, options),
+      }),
     )
 
     try {
