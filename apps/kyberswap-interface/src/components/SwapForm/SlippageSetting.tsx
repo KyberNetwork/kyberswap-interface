@@ -110,7 +110,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
         <div className="flex items-center gap-1">
           <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center text-subText">
             <MouseoverTooltip
-              placement="right"
+              placement="bottom"
               text={
                 tooltip || (
                   <span>

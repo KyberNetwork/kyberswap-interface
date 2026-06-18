@@ -5,7 +5,7 @@ import { X } from 'react-feather'
 
 import Column from 'components/Column'
 import { Swap as SwapIcon } from 'components/Icons'
-import TradePrice from 'components/swapv2/LimitOrder/Form/TradePrice'
+import MarketPrice from 'components/swapv2/LimitOrder/Form/MarketPrice'
 import { formatAmountOrder, formatRateLimitOrder } from 'components/swapv2/LimitOrder/helpers'
 import { LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/types'
 import { NativeCurrencies } from 'constants/tokens'
@@ -104,14 +104,8 @@ const MarketInfo = ({
         <Label className="text-xs">
           <Trans>Est. Market Price</Trans>
         </Label>
-        <Value style={{ maxWidth: '60%' }}>
-          <TradePrice
-            price={marketPrice}
-            loading={false}
-            className="!text-text"
-            symbolIn={symbolIn}
-            symbolOut={symbolOut}
-          />
+        <Value>
+          <MarketPrice price={marketPrice} symbolIn={symbolIn} symbolOut={symbolOut} />
         </Value>
       </Row>
     </div>

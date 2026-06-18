@@ -184,9 +184,7 @@ export const useLimitOrderExecution = ({
   }, [inputAmount, outputAmount, tradeInfo, currencyIn, currencyOut])
 
   const warningMessage = useWarningCreateOrder({
-    estimateUSD: estimateUSD.rawInput,
     currencyIn,
-    outputAmount,
     displayRate,
     deltaRate,
     missingAllowance,

@@ -5,13 +5,13 @@ import { memo, useState } from 'react'
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
 import { NetworkSelector } from 'components/NetworkSelector'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import LimitOrderExpirySection from 'components/swapv2/LimitOrder/Form/LimitOrderExpirySection'
 import LimitOrderRateSection, {
   useGetDeltaRateLimitOrder,
 } from 'components/swapv2/LimitOrder/Form/LimitOrderRateSection'
 import LimitOrderTokenSection from 'components/swapv2/LimitOrder/Form/LimitOrderTokenSection'
-import TradePrice from 'components/swapv2/LimitOrder/Form/TradePrice'
+import MarketPrice from 'components/swapv2/LimitOrder/Form/MarketPrice'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import ProcessingOrderModal from 'components/swapv2/LimitOrder/Modals/ProcessingOrderModal'
 import { useCreateLimitOrder } from 'components/swapv2/LimitOrder/hooks/useCreateLimitOrder'
@@ -173,16 +173,15 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
             }}
           />
 
-          {currencyIn && currencyOut ? (
-            <TradePrice
+          <HStack className="items-center">
+            <span className="text-sm text-subText">{t`Market Price is`}&nbsp;</span>
+            <MarketPrice
               price={form.tradeInfo}
-              className="text-sm font-normal text-subText"
-              label={t`Market Price is`}
               loading={form.loadingTrade}
-              symbolIn={currencyIn.symbol}
-              symbolOut={currencyOut.symbol}
+              symbolIn={currencyIn?.symbol}
+              symbolOut={currencyOut?.symbol}
             />
-          ) : null}
+          </HStack>
         </Stack>
 
         {validation.warningMessage.length > 0 && (

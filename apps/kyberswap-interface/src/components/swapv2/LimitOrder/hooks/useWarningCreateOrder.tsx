@@ -1,10 +1,9 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 
 import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/helpers'
 import { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/types'
-import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const HightLight = ({ children }: { children: React.ReactNode }) => (
@@ -13,33 +12,17 @@ const HightLight = ({ children }: { children: React.ReactNode }) => (
 
 const BETTER_PRICE_DIFF_THRESHOLD = 30
 
-const _USD_THRESHOLD: { [chainId: number]: number } = {
-  [ChainId.MAINNET]: 300,
-}
-const USD_THRESHOLD = new Proxy(_USD_THRESHOLD, {
-  get(target, p) {
-    const prop = p as any as ChainId
-    if (p && target[prop]) return target[prop]
-    return 10
-  },
-})
-
 export const useWarningCreateOrder = ({
   currencyIn,
-  outputAmount,
   displayRate,
   deltaRate,
-  estimateUSD,
   missingAllowance,
 }: {
   currencyIn: Currency | undefined
-  outputAmount: string
   displayRate: string
   deltaRate: DeltaRateLimitOrder
-  estimateUSD: number
   missingAllowance: boolean | CurrencyAmount<Currency>
 }) => {
-  const { chainId } = useActiveWeb3React()
   const warningMessage = useMemo(() => {
     const messages = []
     if (Number(deltaRate.rawPercent) >= BETTER_PRICE_DIFF_THRESHOLD)
@@ -65,20 +48,6 @@ export const useWarningCreateOrder = ({
       )
     }
 
-    const threshold = USD_THRESHOLD[chainId]
-    const showWarningThresHold = outputAmount && estimateUSD < threshold
-
-    if (showWarningThresHold) {
-      messages.push(
-        <div>
-          <Trans>
-            We suggest you increase the value of your limit order to at least <HightLight>${threshold}</HightLight>.
-            This will increase the odds of your order being filled.
-          </Trans>
-        </div>,
-      )
-    }
-
     if (missingAllowance && typeof missingAllowance !== 'boolean') {
       messages.push(
         <div>
@@ -91,16 +60,6 @@ export const useWarningCreateOrder = ({
     }
 
     return messages
-  }, [
-    chainId,
-    currencyIn,
-    deltaRate.percent,
-    deltaRate.profit,
-    deltaRate.rawPercent,
-    displayRate,
-    estimateUSD,
-    outputAmount,
-    missingAllowance,
-  ])
+  }, [currencyIn, deltaRate.percent, deltaRate.profit, deltaRate.rawPercent, displayRate, missingAllowance])
   return warningMessage
 }
