@@ -18,11 +18,13 @@ const useValidateInputError = ({
   wrapInputError,
   showWrap,
   currencyOut,
+  showInsufficientBalanceError = true,
 }: {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   showWrap: boolean
   wrapInputError: any
+  showInsufficientBalanceError?: boolean
   displayRate: string
   inputAmount: string
   outputAmount: string
@@ -38,13 +40,13 @@ const useValidateInputError = ({
       if (parseFloat(inputAmount) === 0 && (parseFloat(outputAmount) === 0 || parseFloat(displayRate) === 0)) {
         return t`Invalid input amount`
       }
-      if (balance && parseInputAmount?.greaterThan(balance)) {
+      if (showInsufficientBalanceError && balance && parseInputAmount?.greaterThan(balance)) {
         const symbol = currencyIn?.symbol
         return t`Insufficient ${symbol} balance`
       }
 
       const remainBalance = parsedActiveOrderMakingAmount ? balance?.subtract(parsedActiveOrderMakingAmount) : undefined
-      if (parseInputAmount && remainBalance?.lessThan(parseInputAmount)) {
+      if (showInsufficientBalanceError && parseInputAmount && remainBalance?.lessThan(parseInputAmount)) {
         const formatNum = formatDisplayNumber(remainBalance, {
           style: 'decimal',
           fractionDigits: 6,
@@ -69,7 +71,7 @@ const useValidateInputError = ({
         return t`Your input amount is invalid.`
       }
 
-      if (showWrap && wrapInputError) return wrapInputError
+      if (showInsufficientBalanceError && showWrap && wrapInputError) return wrapInputError
       return
     } catch (error) {
       return
@@ -86,6 +88,7 @@ const useValidateInputError = ({
     wrapInputError,
     setInputValue,
     account,
+    showInsufficientBalanceError,
   ])
 
   const outPutError = useMemo(() => {

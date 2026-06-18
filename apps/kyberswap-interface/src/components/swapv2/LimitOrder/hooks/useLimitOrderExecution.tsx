@@ -6,7 +6,7 @@ import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmo
 
 import { NotificationType } from 'components/Announcement/type'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
-import type { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/Form/DeltaRate'
+import type { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/Form/LimitOrderRateSection'
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
 import {
   calcUsdPrices,
@@ -21,6 +21,7 @@ import useWarningCreateOrder from 'components/swapv2/LimitOrder/hooks/useWarning
 import useWrapEthStatus from 'components/swapv2/LimitOrder/hooks/useWrapEthStatus'
 import { CreateOrderParam, LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -64,6 +65,17 @@ type UseLimitOrderExecutionArgs = {
 
 const getTokenAddress = (currency: Currency | undefined) => (currency?.isNative ? 'NATIVE' : currency?.wrapped?.address)
 
+export type ProcessingOrderStep = 'wrap' | 'approve' | 'create'
+export type ProcessingOrderStepStatus = 'idle' | 'active' | 'success' | 'error'
+
+export type ProcessingOrderState = {
+  show: boolean
+  steps: ProcessingOrderStep[]
+  currentStep?: ProcessingOrderStep
+  errorStep?: ProcessingOrderStep
+  completedSteps: ProcessingOrderStep[]
+}
+
 export default function useLimitOrderExecution({
   currencyIn,
   currencyOut,
@@ -95,6 +107,13 @@ export default function useLimitOrderExecution({
   const { ordersNeedCreated } = useLimitState()
   const { removeOrderNeedCreated, setOrderEditing } = useLimitActionHandlers()
   const [approvalSubmitted, setApprovalSubmitted] = useState(false)
+  const [processingOrder, setProcessingOrder] = useState<ProcessingOrderState>({
+    show: false,
+    steps: [],
+    completedSteps: [],
+  })
+  const processingStepStartedRef = useRef<ProcessingOrderStep>()
+  const approvalRef = useRef<ApprovalState>(ApprovalState.UNKNOWN)
 
   // Balances, allowance, and form readiness.
   const { data: activeOrderMakingAmount = defaultActiveMakingAmount, refetch: getActiveMakingAmount } =
@@ -102,15 +121,6 @@ export default function useLimitOrderExecution({
       { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
       { skip: !currencyIn || !account },
     )
-
-  const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(
-    currencyIn,
-    currencyOut,
-    inputAmount,
-    true,
-    chainId,
-  )
-  const showWrap = !!currencyIn?.isNative
 
   const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(switchToWeth)
 
@@ -144,9 +154,41 @@ export default function useLimitOrderExecution({
   }, [currencyIn, activeOrderMakingAmount, isEdit, orderInfo])
 
   const balance = useCurrencyBalance(currencyIn, chainId)
+  const nativeCurrency = NativeCurrencies[chainId]
+  const nativeBalance = useCurrencyBalance(nativeCurrency, chainId)
+  const isWrappedNativeInput = !!currencyIn?.equals(WETH[chainId])
+  const wrapAmountForOrder = useMemo(() => {
+    if (!currencyIn || !isWrappedNativeInput || !parseInputAmount || !balance?.currency.equals(currencyIn)) {
+      return undefined
+    }
+    if (!balance.lessThan(parseInputAmount)) return undefined
+    const deficit = JSBI.subtract(parseInputAmount.quotient, balance.quotient)
+    return CurrencyAmount.fromRawAmount(nativeCurrency, deficit)
+  }, [balance, currencyIn, isWrappedNativeInput, nativeCurrency, parseInputAmount])
+  const needsWrap = !!currencyIn?.isNative || !!wrapAmountForOrder
+  const wrapInputCurrency = currencyIn?.isNative ? currencyIn : wrapAmountForOrder ? nativeCurrency : currencyIn
+  const wrapTypedValue = wrapAmountForOrder ? wrapAmountForOrder.toExact() : inputAmount
+  const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(
+    wrapInputCurrency,
+    WETH[chainId],
+    wrapTypedValue,
+    true,
+    chainId,
+  )
+  const showWrap = needsWrap
   const maxAmountInput = useMemo(() => {
     return maxAmountSpend(balance)
   }, [balance])
+
+  const insufficientBalance = useMemo(() => {
+    if (!parseInputAmount || !currencyIn || !balance?.currency.equals(currencyIn)) return false
+    if (!balance.lessThan(parseInputAmount)) return false
+    if (!isWrappedNativeInput || !wrapAmountForOrder || !nativeBalance?.currency.equals(nativeCurrency)) return true
+    return nativeBalance.lessThan(wrapAmountForOrder)
+  }, [balance, currencyIn, isWrappedNativeInput, nativeBalance, nativeCurrency, parseInputAmount, wrapAmountForOrder])
+
+  const insufficientBalanceSymbol = currencyIn?.symbol
+  const insufficientBalanceText = insufficientBalance ? t`Insufficient ${insufficientBalanceSymbol} balance` : undefined
 
   const handleMaxInput = useCallback(() => {
     if (!maxAmountInput) return
@@ -188,6 +230,7 @@ export default function useLimitOrderExecution({
     wrapInputError,
     showWrap,
     currencyOut,
+    showInsufficientBalanceError: false,
   })
 
   const hasInputError = Boolean(inputError || outPutError)
@@ -326,6 +369,50 @@ export default function useLimitOrderExecution({
     refreshActiveMakingAmount()
   }, [onResetForm, refreshActiveMakingAmount])
 
+  const markProcessingStepSuccess = useCallback((step: ProcessingOrderStep) => {
+    processingStepStartedRef.current = undefined
+    setProcessingOrder(state => {
+      if (!state.show || state.currentStep !== step) return state
+      const completedSteps = state.completedSteps.includes(step)
+        ? state.completedSteps
+        : [...state.completedSteps, step]
+      const nextStep = state.steps[state.steps.indexOf(step) + 1]
+      return {
+        ...state,
+        currentStep: nextStep,
+        completedSteps,
+      }
+    })
+  }, [])
+
+  const markProcessingStepError = useCallback((step: ProcessingOrderStep) => {
+    processingStepStartedRef.current = undefined
+    setProcessingOrder(state => {
+      if (!state.show || state.currentStep !== step) return state
+      return {
+        ...state,
+        errorStep: step,
+      }
+    })
+  }, [])
+
+  const hideProcessingOrder = useCallback(() => {
+    processingStepStartedRef.current = undefined
+    setProcessingOrder({ show: false, steps: [], completedSteps: [] })
+  }, [])
+
+  const retryProcessingOrder = useCallback(() => {
+    processingStepStartedRef.current = undefined
+    setProcessingOrder(state => {
+      if (!state.errorStep) return state
+      return {
+        ...state,
+        currentStep: state.errorStep,
+        errorStep: undefined,
+      }
+    })
+  }, [])
+
   const onWrapToken = async () => {
     try {
       if (isNotFillAllInput || wrapInputError || isWrappingEth || hasInputError) return
@@ -396,7 +483,7 @@ export default function useLimitOrderExecution({
     [handleError, notify, resetForm, searchParams, setFlowState, signOrder, submitOrder],
   )
 
-  const onSubmitCreateOrderWithTracking = async () => {
+  const onSubmitCreateOrderWithTracking = useCallback(async () => {
     trackingPlaceOrder(TRACKING_EVENT_TYPE.LO_CLICK_PLACE_ORDER)
     const order_id = await onSubmitCreateOrder({
       currencyIn,
@@ -448,10 +535,127 @@ export default function useLimitOrderExecution({
         order_id,
       })
     }
-  }
+    return order_id
+  }, [
+    account,
+    chainId,
+    currencyIn,
+    currencyOut,
+    deltaRate.rawPercent,
+    displayRate,
+    displayTime,
+    estimateUSD.rawInput,
+    expiredAt,
+    inputAmount,
+    networkName,
+    onSubmitCreateOrder,
+    outputAmount,
+    rateInfo.invert,
+    searchParams,
+    trackingHandler,
+    trackingPlaceOrder,
+    tradeInfo,
+  ])
+
+  const runProcessingStep = useCallback(
+    (step: ProcessingOrderStep) => {
+      if (step === 'wrap') {
+        if (!needsWrap) {
+          markProcessingStepSuccess('wrap')
+          return
+        }
+        if (isWrappingEth || processingStepStartedRef.current === 'wrap') return
+        processingStepStartedRef.current = 'wrap'
+        ;(async () => {
+          try {
+            const hash = await onWrap?.()
+            if (!hash) {
+              markProcessingStepError('wrap')
+              return
+            }
+            setTxHashWrapped(hash)
+          } catch (error) {
+            handleError(error)
+            markProcessingStepError('wrap')
+          }
+        })()
+        return
+      }
+
+      if (step === 'approve') {
+        if (approval === ApprovalState.APPROVED) {
+          markProcessingStepSuccess('approve')
+          return
+        }
+        if (approval === ApprovalState.UNKNOWN || approval === ApprovalState.PENDING) return
+        if (processingStepStartedRef.current === 'approve') return
+        processingStepStartedRef.current = 'approve'
+        ;(async () => {
+          try {
+            await approveCallback()
+            setTimeout(() => {
+              if (approvalRef.current === ApprovalState.NOT_APPROVED) {
+                markProcessingStepError('approve')
+              }
+            }, 800)
+          } catch (error) {
+            handleError(error)
+            markProcessingStepError('approve')
+          }
+        })()
+        return
+      }
+
+      if (processingStepStartedRef.current === 'create') return
+      processingStepStartedRef.current = 'create'
+      ;(async () => {
+        try {
+          const orderId = await onSubmitCreateOrderWithTracking()
+          if (orderId) {
+            markProcessingStepSuccess('create')
+            return
+          }
+          markProcessingStepError('create')
+        } catch (error) {
+          handleError(error)
+          markProcessingStepError('create')
+        }
+      })()
+    },
+    [
+      approval,
+      approveCallback,
+      handleError,
+      isWrappingEth,
+      markProcessingStepError,
+      markProcessingStepSuccess,
+      needsWrap,
+      onSubmitCreateOrderWithTracking,
+      onWrap,
+      setTxHashWrapped,
+    ],
+  )
+
+  const startProcessingOrder = useCallback(() => {
+    const steps: ProcessingOrderStep[] = []
+    if (needsWrap) steps.push('wrap')
+    if (needsWrap || (!currencyIn?.isNative && approval !== ApprovalState.APPROVED)) steps.push('approve')
+    steps.push('create')
+    const firstStep = steps[0]
+    processingStepStartedRef.current = undefined
+    setFlowState(state => ({ ...state, showConfirm: false, errorMessage: undefined }))
+    setProcessingOrder({
+      show: true,
+      steps,
+      currentStep: firstStep,
+      completedSteps: [],
+    })
+    runProcessingStep(firstStep)
+  }, [approval, currencyIn?.isNative, needsWrap, runProcessingStep, setFlowState])
 
   // External state synchronization.
   useEffect(() => {
+    approvalRef.current = approval
     if (approval === ApprovalState.PENDING) {
       setApprovalSubmitted(true)
     }
@@ -459,6 +663,12 @@ export default function useLimitOrderExecution({
       setApprovalSubmitted(false)
     }
   }, [approval])
+
+  useEffect(() => {
+    const currentStep = processingOrder.currentStep
+    if (!processingOrder.show || !currentStep || processingOrder.errorStep) return
+    runProcessingStep(currentStep)
+  }, [processingOrder.currentStep, processingOrder.errorStep, processingOrder.show, runProcessingStep])
 
   useEffect(() => {
     if (!isEdit || !orderInfo?.id) return
@@ -539,15 +749,21 @@ export default function useLimitOrderExecution({
     hasChangedOrderInfo,
     hasInputError,
     hidePreview,
+    hideProcessingOrder,
     inputError,
+    insufficientBalance,
+    insufficientBalanceText,
     isNotFillAllInput,
     isWrappingEth,
     onSubmitCreateOrderWithTracking,
     onWrapToken,
     outPutError,
+    processingOrder,
+    retryProcessingOrder,
     showApproveFlow,
     showPreview,
     showWrap,
+    startProcessingOrder,
     trackingPriceSetOnBlur,
     trackingTouchInput,
     trackingTouchSelectToken,

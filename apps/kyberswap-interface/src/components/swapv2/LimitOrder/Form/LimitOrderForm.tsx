@@ -2,23 +2,26 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { forwardRef, memo, useImperativeHandle } from 'react'
 
-import { ButtonLight } from 'components/Button'
+import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
 import { NetworkSelector } from 'components/NetworkSelector'
-import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/Form/ActionButtonLimitOrder'
-import { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/Form/DeltaRate'
 import LimitOrderExpirySection from 'components/swapv2/LimitOrder/Form/LimitOrderExpirySection'
-import LimitOrderRateSection from 'components/swapv2/LimitOrder/Form/LimitOrderRateSection'
+import LimitOrderRateSection, {
+  useGetDeltaRateLimitOrder,
+} from 'components/swapv2/LimitOrder/Form/LimitOrderRateSection'
 import LimitOrderTokenSection from 'components/swapv2/LimitOrder/Form/LimitOrderTokenSection'
-import useLimitOrderExecution from 'components/swapv2/LimitOrder/Form/hooks/useLimitOrderExecution'
-import useLimitOrderFormState from 'components/swapv2/LimitOrder/Form/hooks/useLimitOrderFormState'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
+import ProcessingOrderModal from 'components/swapv2/LimitOrder/Modals/ProcessingOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import useLimitOrderExecution from 'components/swapv2/LimitOrder/hooks/useLimitOrderExecution'
+import useLimitOrderFormState from 'components/swapv2/LimitOrder/hooks/useLimitOrderFormState'
 import { EditOrderInfo, LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { Z_INDEXS } from 'constants/styles'
+import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { cn } from 'utils/cn'
 
@@ -87,6 +90,8 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   ref,
 ) {
   const { changeNetwork } = useChangeNetwork()
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
   const isEdit = mode === 'edit'
   const {
     chainId,
@@ -131,30 +136,27 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   })
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
   const {
-    approval,
-    approvalSubmitted,
-    approveCallback,
     checkingAllowance,
-    enoughAllowance,
     estimateUSD,
     handleMaxInput,
     hasChangedOrderInfo,
     hasInputError,
     hidePreview,
+    hideProcessingOrder,
     inputError,
+    insufficientBalance,
+    insufficientBalanceText,
     isNotFillAllInput,
-    isWrappingEth,
     onSubmitCreateOrderWithTracking,
-    onWrapToken,
     outPutError,
-    showApproveFlow,
+    processingOrder,
+    retryProcessingOrder,
     showPreview,
-    showWrap,
+    startProcessingOrder,
     trackingPriceSetOnBlur,
     trackingTouchInput,
     trackingTouchSelectToken,
     warningMessage,
-    wrapInputError,
   } = useLimitOrderExecution({
     currencyIn,
     currencyOut,
@@ -186,37 +188,39 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }))
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
+  const disableReviewButton = isNotFillAllInput || !!hasInputError || insufficientBalance
+  const reviewButtonContent = (
+    <span className="font-medium">
+      {insufficientBalance && insufficientBalanceText ? insufficientBalanceText : <Trans>Review Order</Trans>}
+    </span>
+  )
   const actionButton =
     chainId !== walletChainId ? (
       <ButtonLight onClick={() => changeNetwork(chainId)}>
         <Trans>Switch to {NETWORKS_INFO[chainId].name}</Trans>
       </ButtonLight>
+    ) : !account ? (
+      <ButtonLight onClick={toggleWalletModal}>
+        <Trans>Connect</Trans>
+      </ButtonLight>
+    ) : isEdit ? (
+      checkingAllowance ? (
+        <ButtonPrimary disabled>{reviewButtonContent}</ButtonPrimary>
+      ) : (
+        editOrderInfo?.renderCancelButtons?.() || null
+      )
+    ) : warningMessage.length > 0 && !disableReviewButton ? (
+      <ButtonWarning onClick={showPreview}>{reviewButtonContent}</ButtonWarning>
     ) : (
-      <ActionButtonLimitOrder
-        currencyIn={currencyIn}
-        currencyOut={currencyOut}
-        approval={approval}
-        showWrap={showWrap}
-        isWrappingEth={isWrappingEth}
-        isNotFillAllInput={isNotFillAllInput}
-        approvalSubmitted={approvalSubmitted}
-        hasInputError={hasInputError}
-        enoughAllowance={enoughAllowance}
-        checkingAllowance={checkingAllowance}
-        wrapInputError={wrapInputError}
-        approveCallback={approveCallback}
-        onWrapToken={onWrapToken}
-        showPreview={showPreview}
-        showApproveFlow={showApproveFlow}
-        showWarning={warningMessage.length > 0}
-        editOrderInfo={editOrderInfo}
-      />
+      <ButtonPrimary id="review-order-button" onClick={showPreview} disabled={disableReviewButton}>
+        {reviewButtonContent}
+      </ButtonPrimary>
     )
 
   const renderConfirmModal = (showConfirmContent = false) => (
     <ConfirmOrderModal
       onDismiss={hidePreview}
-      onSubmit={onSubmitCreateOrderWithTracking}
+      onSubmit={isEdit ? onSubmitCreateOrderWithTracking : startProcessingOrder}
       flowState={flowState}
       currencyIn={currencyIn}
       currencyOut={currencyOut}
@@ -254,7 +258,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           outPutError={outPutError}
           estimateUsdIn={estimateUSD.input}
           estimateUsdOut={estimateUSD.output}
-          showApproveFlow={showApproveFlow}
+          showApproveFlow={false}
           isEdit={isEdit}
           rotate={rotate}
           styleTooltip={styleTooltip}
@@ -317,6 +321,14 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         isOpen={showDatePicker}
         onDismiss={toggleDatePicker}
         onSetDate={onChangeExpire}
+      />
+
+      <ProcessingOrderModal
+        chainId={chainId}
+        currencyIn={currencyIn}
+        state={processingOrder}
+        onDismiss={hideProcessingOrder}
+        onRetry={retryProcessingOrder}
       />
     </>
   )
