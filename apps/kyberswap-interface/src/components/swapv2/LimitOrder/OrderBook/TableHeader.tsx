@@ -15,14 +15,9 @@ const TableHeader = () => {
         <Trans>Size</Trans>
       </span>
       {!upToExtraSmall && (
-        <span className="flex justify-self-end text-right">
+        <span className="flex gap-1 justify-self-end text-right">
           <Trans>Available</Trans>
-          <InfoHelper
-            margin={false}
-            size={14}
-            className="ml-1"
-            text={<Trans>Amount available to be taken from the order.</Trans>}
-          />
+          <InfoHelper margin={false} size={14} text={<Trans>Amount available to be taken from the order.</Trans>} />
         </span>
       )}
       <span className="justify-self-end text-right">

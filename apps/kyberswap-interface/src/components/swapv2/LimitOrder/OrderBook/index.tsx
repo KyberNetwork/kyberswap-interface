@@ -26,7 +26,7 @@ const refetchSafely = (refetch: () => { catch?: (onRejected: () => void) => unkn
 }
 
 const NoDataPanel = () => (
-  <div className="flex h-full min-h-0 flex-col items-center justify-center p-2 text-subText">
+  <div className="flex h-full min-h-0 flex-col items-center justify-center gap-2 text-sm font-medium text-subText">
     <NoDataIcon />
     <Trans>No orders</Trans>
   </div>
@@ -123,7 +123,7 @@ const OrderSide = ({
         reverse && 'flex flex-col-reverse',
         className,
       )}
-      style={{ height: 300, ...style }}
+      style={{ height: 336, ...style }}
       {...rest}
     >
       {children}
@@ -145,21 +145,27 @@ const OrderBook = () => {
     isFetching: isFetchingOrders,
     isSuccess: isOrdersLoaded,
     refetch: refetchOrders,
-  } = useGetOrdersByTokenPairQuery({
-    chainId,
-    makerAsset: makerCurrency?.wrapped?.address,
-    takerAsset: takerCurrency?.wrapped?.address,
-  })
+  } = useGetOrdersByTokenPairQuery(
+    {
+      chainId,
+      makerAsset: makerCurrency?.wrapped?.address,
+      takerAsset: takerCurrency?.wrapped?.address,
+    },
+    { pollingInterval: 10_000, refetchOnFocus: true },
+  )
   const {
     data: { orders: reversedOrders = [] } = {},
     isFetching: isFetchingReversedOrder,
     isSuccess: isReversedOrdersLoaded,
     refetch: refetchReversedOrders,
-  } = useGetOrdersByTokenPairQuery({
-    chainId,
-    makerAsset: takerCurrency?.wrapped?.address,
-    takerAsset: makerCurrency?.wrapped?.address,
-  })
+  } = useGetOrdersByTokenPairQuery(
+    {
+      chainId,
+      makerAsset: takerCurrency?.wrapped?.address,
+      takerAsset: makerCurrency?.wrapped?.address,
+    },
+    { pollingInterval: 10_000, refetchOnFocus: true },
+  )
 
   const formattedOrders = useMemo(
     () => formatOrders(orders, makerCurrency, takerCurrency),

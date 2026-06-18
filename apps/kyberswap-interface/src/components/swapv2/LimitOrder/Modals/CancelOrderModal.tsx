@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
-import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from 'components/swapv2/LimitOrder/Modals/components'
+import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/MyOrders/useRequestCancelOrder'
 import { calcPercentFilledOrder, formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
 import {
   useAllActiveOrders,

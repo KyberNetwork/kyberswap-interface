@@ -5,7 +5,7 @@ import { useCreateOrderMutation } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
-import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
+import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/MyOrders/SummaryNotify'
 import { calcUsdPrices, getPayloadCreateOrder, removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
 import { useSignOrder } from 'components/swapv2/LimitOrder/hooks/useSignOrder'
 import { CreateOrderParam, LimitOrderCreateContext } from 'components/swapv2/LimitOrder/types'

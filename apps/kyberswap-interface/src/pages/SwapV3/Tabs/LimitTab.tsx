@@ -46,7 +46,7 @@ export default function LimitTab({ onClick, active, customChainId }: Props) {
       <Trans>Limit Order</Trans>{' '}
       {!!numberOfActiveOrders && (
         <MouseoverTooltip placement="top" text={<Trans>You have {numberOfActiveOrders} active orders.</Trans>}>
-          <span className="inline-block min-w-4 rounded-full bg-primary-30 px-1.5 pb-0.5 text-xs font-medium text-primary">
+          <span className="inline-block min-w-4 rounded-full bg-primary-30 px-1.5 text-xs font-medium text-primary">
             {numberOfActiveOrders}
           </span>
         </MouseoverTooltip>

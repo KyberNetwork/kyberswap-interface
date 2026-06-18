@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useAckNotificationOrderMutation } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
-import SummaryNotify from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
+import SummaryNotify from 'components/swapv2/LimitOrder/MyOrders/SummaryNotify'
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'

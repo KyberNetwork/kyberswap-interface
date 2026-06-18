@@ -4,7 +4,7 @@ import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
-import ListMyOrder from 'components/swapv2/LimitOrder/ListOrder'
+import MyOrders from 'components/swapv2/LimitOrder/MyOrders'
 import OrderBook from 'components/swapv2/LimitOrder/OrderBook'
 import { LimitOrderTab } from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
@@ -34,7 +34,7 @@ const TabSelector = ({
 
   return (
     <HStack className="items-center gap-3 pr-4">
-      <div className="flex min-w-0 flex-1 items-center overflow-x-auto" role="tablist">
+      <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
         {ORDER_LIST_TABS.map((tab, index) => {
           const active = tab.id === activeTab
           const isLast = index === ORDER_LIST_TABS.length - 1
@@ -46,7 +46,7 @@ const TabSelector = ({
               role="tab"
               type="button"
               className={cn(
-                'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
+                'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1 border-0 px-4 py-3 text-sm font-medium',
                 !isLast && 'border-r border-darkBorder',
                 active
                   ? 'bg-primary/15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary/15 hover:text-primary'
@@ -65,7 +65,7 @@ const TabSelector = ({
                     </Trans>
                   }
                 >
-                  <span className="ml-1 inline-block min-w-[20px] rounded-[20px] bg-warning-30 px-1.5 py-0.5 text-sm font-medium text-warning">
+                  <span className="min-w-4 rounded-full bg-warning-30 px-1.5 text-sm font-medium text-warning">
                     {numberOfInsufficientFundOrders}
                   </span>
                 </MouseoverTooltip>
@@ -93,7 +93,7 @@ const OrderList = ({ customChainId }: { customChainId?: ChainId }) => {
 
       <Stack className="border-t border-darkBorder">
         {currentTab === LimitOrderTab.ORDER_BOOK && <OrderBook />}
-        {currentTab === LimitOrderTab.MY_ORDER && <ListMyOrder customChainId={customChainId} />}
+        {currentTab === LimitOrderTab.MY_ORDER && <MyOrders customChainId={customChainId} />}
         {currentTab === LimitOrderTab.PRICE && <TokenPriceChart flatten tokens={[currencyIn, currencyOut]} />}
       </Stack>
     </Stack>

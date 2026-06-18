@@ -25,11 +25,11 @@ export const ItemWrapper = ({ children, className, ...rest }: React.HTMLAttribut
 const formatAmountWithSymbol = (amount: string, currency?: Currency) => `${amount} ${currency?.symbol ?? ''}`.trim()
 
 const SizeInfo = ({ amount, currency, filled }: { amount: string; currency?: Currency; filled: number }) => (
-  <div className="w-full min-w-0 text-right">
-    <div className="truncate text-base font-medium text-text" title={formatAmountWithSymbol(amount, currency)}>
+  <div className="flex w-full min-w-0 flex-col gap-1 text-right">
+    <div className="truncate text-sm font-medium text-text" title={formatAmountWithSymbol(amount, currency)}>
       {formatAmountWithSymbol(amount, currency)}
     </div>
-    <div className="mt-1 flex items-center justify-end gap-2 text-xs text-subText">
+    <div className="flex items-center justify-end gap-2 text-xs text-subText">
       <span className="h-1 w-12 overflow-hidden rounded-full bg-subText-40">
         <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.min(filled, 100)}%` }} />
       </span>
@@ -42,7 +42,7 @@ const SizeInfo = ({ amount, currency, filled }: { amount: string; currency?: Cur
 
 const AmountText = ({ amount, currency, muted }: { amount?: string; currency?: Currency; muted?: boolean }) => (
   <div
-    className={cn('w-full min-w-0 truncate text-right text-base font-medium', muted ? 'text-subText' : 'text-text')}
+    className={cn('w-full min-w-0 truncate text-right text-sm font-medium', muted ? 'text-subText' : 'text-text')}
     title={amount ? formatAmountWithSymbol(amount, currency) : undefined}
   >
     {amount ? formatAmountWithSymbol(amount, currency) : '--'}
@@ -67,7 +67,7 @@ const OrderItem = ({ reverse, order }: { reverse?: boolean; order: LimitOrderFro
       </span>
       <SizeInfo amount={sizeAmount} currency={makerCurrency} filled={filled} />
       {!upToExtraSmall && <AmountText amount={availableAmount} currency={makerCurrency} muted={!order.hasAvailable} />}
-      <div className={cn('w-full min-w-0 truncate text-right text-base font-medium', rateClassName)} title={order.rate}>
+      <div className={cn('w-full min-w-0 truncate text-right text-sm font-medium', rateClassName)} title={order.rate}>
         {order.rate}
       </div>
       <AmountText
