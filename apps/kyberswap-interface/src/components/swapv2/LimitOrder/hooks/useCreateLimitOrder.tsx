@@ -44,7 +44,6 @@ export const useCreateLimitOrder = ({
     displayRate,
     expiredAt,
     displayTime,
-    rateInfo,
     tradeInfo,
     deltaRate,
   } = order
@@ -118,7 +117,7 @@ export const useCreateLimitOrder = ({
 
     trackPlaceOrder(TRACKING_EVENT_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
     trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_PLACED, {
-      side: rateInfo.invert ? 'buy' : 'sell',
+      side: 'sell',
       from_token: currencyIn?.symbol,
       from_token_address: getTokenAddress(currencyIn),
       to_token: currencyOut?.symbol,
@@ -168,7 +167,6 @@ export const useCreateLimitOrder = ({
     inputAmount,
     networkName,
     outputAmount,
-    rateInfo.invert,
     searchParams,
     submitCreateOrder,
     trackPlaceOrder,

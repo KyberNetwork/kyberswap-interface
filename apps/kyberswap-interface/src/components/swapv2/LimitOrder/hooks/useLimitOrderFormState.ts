@@ -26,7 +26,7 @@ export type LimitOrderFormStateArgs = {
 }
 
 const DEFAULT_EXPIRED = 36500 * TIMES_IN_SECS.ONE_DAY
-const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '', invert: false }
+const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 
 export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }: LimitOrderFormStateArgs) => {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
@@ -56,7 +56,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
 
-  const displayRate = rateInfo.invert ? rateInfo.invertRate : rateInfo.rate
+  const displayRate = rateInfo.rate
   const expiredAt = customDateExpire?.getTime() || Date.now() + expire * 1000
   const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : formatTimeDuration(expire)
 
@@ -151,7 +151,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
 
   const onChangeRate = (val: string) => {
     if (currencyOut) {
-      onSetRate(rateInfo.invert ? '' : val, rateInfo.invert ? val : '')
+      onSetRate(val, '')
     }
   }
 
@@ -164,7 +164,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
         onSetRate(marketRate, removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '')
         if (!autoFillInput) {
           trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
-            side: rateInfo.invert ? 'buy' : 'sell',
+            side: 'sell',
             limit_price: marketRate,
             market_price: marketRate,
             price_difference_pct: 0,
@@ -175,7 +175,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
         }
       } catch (error) {}
     },
-    [loadingTrade, trackingHandler, onSetRate, tradeInfo, rateInfo.invert, currencyIn, currencyOut, networkInfo.name],
+    [loadingTrade, trackingHandler, onSetRate, tradeInfo, currencyIn, currencyOut, networkInfo.name],
   )
 
   const onSetOutput = (output: string) => {
@@ -189,10 +189,6 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
       })
     }
     setOutputAmount(output)
-  }
-
-  const onInvertRate = (invert: boolean) => {
-    setRateInfo(rateInfo => ({ ...rateInfo, invert }))
   }
 
   const handleInputSelect = useCallback(
@@ -223,7 +219,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
 
   const handleRotateClick = () => {
     trackingHandler(TRACKING_EVENT_TYPE.LO_SIDE_SELECTED, {
-      side: rateInfo.invert ? 'sell' : 'buy',
+      side: 'buy',
       from_token: currencyOut?.symbol,
       to_token: currencyIn?.symbol,
       chain: networkInfo.name,
@@ -305,7 +301,6 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     onSetInput,
     onSetOutput,
     onChangeRate,
-    onInvertRate,
     handleInputSelect,
     switchToWeth,
     handleOutputSelect,

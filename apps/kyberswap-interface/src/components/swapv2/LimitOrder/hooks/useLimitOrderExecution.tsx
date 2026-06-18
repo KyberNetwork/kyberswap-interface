@@ -49,7 +49,6 @@ export const useLimitOrderExecution = ({
     outputAmount,
     displayRate,
     displayTime,
-    rateInfo,
     tradeInfo,
     deltaRate,
   } = order
@@ -198,7 +197,7 @@ export const useLimitOrderExecution = ({
   const trackingPriceSetOnBlur = useCallback(() => {
     if (!displayRate || !currencyIn || !currencyOut) return
     trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
-      side: rateInfo.invert ? 'buy' : 'sell',
+      side: 'sell',
       limit_price: displayRate,
       market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
       price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
@@ -206,16 +205,7 @@ export const useLimitOrderExecution = ({
       to_token: currencyOut.symbol,
       chain: networkName,
     })
-  }, [
-    displayRate,
-    currencyIn,
-    currencyOut,
-    rateInfo.invert,
-    tradeInfo,
-    deltaRate.rawPercent,
-    networkName,
-    trackingHandler,
-  ])
+  }, [displayRate, currencyIn, currencyOut, tradeInfo, deltaRate.rawPercent, networkName, trackingHandler])
 
   const trackingTouchSelectToken = useCallback(() => {
     trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
@@ -235,7 +225,7 @@ export const useLimitOrderExecution = ({
     })
 
     trackingHandler(TRACKING_EVENT_TYPE.LO_REVIEW_OPENED, {
-      side: rateInfo.invert ? 'buy' : 'sell',
+      side: 'sell',
       from_token: currencyIn.symbol,
       from_token_address: getTokenAddress(currencyIn),
       to_token: currencyOut.symbol,
@@ -263,7 +253,7 @@ export const useLimitOrderExecution = ({
         errorMessage.toLowerCase().includes('user denied') || errorMessage.toLowerCase().includes('user rejected')
 
       trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FAILED, {
-        side: rateInfo.invert ? 'buy' : 'sell',
+        side: 'sell',
         from_token: currencyIn?.symbol,
         to_token: currencyOut?.symbol,
         pair: currencyIn && currencyOut ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
@@ -280,7 +270,7 @@ export const useLimitOrderExecution = ({
         errorMessage,
       }))
     },
-    [setFlowState, trackingHandler, rateInfo.invert, currencyIn, currencyOut, displayRate, inputAmount, networkName],
+    [setFlowState, trackingHandler, currencyIn, currencyOut, displayRate, inputAmount, networkName],
   )
 
   // Keep active making amount fresh after order state updates.

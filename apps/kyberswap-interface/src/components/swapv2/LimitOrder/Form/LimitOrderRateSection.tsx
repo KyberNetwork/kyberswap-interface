@@ -2,11 +2,13 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 
+import InfoHelper from 'components/InfoHelper'
 import NumericalInput from 'components/NumericalInput'
 import { Stack } from 'components/Stack'
 import { removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
 import { DeltaRateLimitOrder, RateInfo } from 'components/swapv2/LimitOrder/types'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
+import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 export const useGetDeltaRateLimitOrder = ({
@@ -19,11 +21,9 @@ export const useGetDeltaRateLimitOrder = ({
   const { deltaText, percent } = useMemo(() => {
     try {
       if (marketPrice && rateInfo.rate && rateInfo.invertRate) {
-        const { rate, invert, invertRate } = rateInfo
-        const ourRate = Number(invert ? invertRate : rate)
-        const marketRate = Number(invert ? marketPrice.invertRate : marketPrice.marketRate)
-        let percent = ((ourRate - marketRate) / marketRate) * 100
-        if (invert) percent = -percent
+        const ourRate = Number(rateInfo.rate)
+        const marketRate = Number(marketPrice.marketRate)
+        const percent = ((ourRate - marketRate) / marketRate) * 100
         const delta = Number(percent)
         const sign = delta > 0 ? '+' : ''
         const deltaText = `${Math.abs(delta) > 100 ? '>100' : `${sign}${delta.toFixed(2)}`}%`
@@ -49,10 +49,28 @@ const RateLabel = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDi
   </div>
 )
 
-const DeltaRate = ({ symbol, invert }: { symbol: string; invert: boolean }) => {
+const DeltaRate = ({ symbol, deltaRate }: { symbol: string; deltaRate: DeltaRateLimitOrder }) => {
+  const theme = useTheme()
+  const { percent, profit } = deltaRate
+  const color = profit ? theme.apr : theme.warning
+  const colorClass = profit ? 'text-apr' : 'text-warning'
+  const styledPercent = <span className={cn('font-medium', colorClass)}>{percent}</span>
+
   return (
     <RateLabel className="flex items-center whitespace-nowrap">
-      {invert ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
+      <Trans>Sell {symbol} at rate</Trans>
+      {percent ? (
+        <InfoHelper
+          color={color}
+          text={
+            profit ? (
+              <Trans>Your selected price is {styledPercent} better than the current market price.</Trans>
+            ) : (
+              <Trans>Your selected price is {styledPercent} worse than the current market price.</Trans>
+            )
+          }
+        />
+      ) : null}
     </RateLabel>
   )
 }
@@ -137,14 +155,14 @@ type RateSectionEvents = {
   onRateInputBlur?: () => void
 }
 
-const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '', invert: false }
+const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 const RATE_DELTA_OPTIONS = [10, 20, 50]
 
 const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) => {
   const { currencyIn, currencyOut } = tokens
   const { displayRate = '', rateInfo = DEFAULT_RATE_INFO, tradeInfo } = rate
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
-  const unitCurrency = rateInfo.invert ? currencyIn : currencyOut
+  const unitCurrency = currencyOut
   const percentInputValue =
     deltaRate.rawPercent === undefined || !Number.isFinite(deltaRate.rawPercent)
       ? ''
@@ -152,8 +170,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
 
   const setRateByDelta = (percent: number) => {
     if (!tradeInfo) return
-    const market = rateInfo.invert ? tradeInfo.invertRate : tradeInfo.marketRate
-    const nextRate = market * (1 + (rateInfo.invert ? -percent : percent) / 100)
+    const nextRate = tradeInfo.marketRate * (1 + percent / 100)
     events.onRateChange?.(removeTrailingZero(nextRate.toFixed(16)) ?? '')
   }
 
@@ -168,10 +185,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
   return (
     <Stack className="gap-3 rounded-2xl bg-buttonBlack p-4">
       <div className="flex items-center justify-between gap-3">
-        <DeltaRate
-          invert={rateInfo.invert}
-          symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
-        />
+        <DeltaRate symbol={currencyIn?.symbol ?? ''} deltaRate={deltaRate} />
       </div>
 
       <div className="flex min-h-8 items-center gap-3">

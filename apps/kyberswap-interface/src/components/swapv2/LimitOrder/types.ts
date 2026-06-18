@@ -107,7 +107,6 @@ export enum CancelOrderType {
 export type RateInfo = {
   rate: string // to store user input
   invertRate: string // to store user input
-  invert: boolean
   rateFraction?: Fraction // to calc with big number
 }
 
