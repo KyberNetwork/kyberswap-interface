@@ -114,7 +114,7 @@ async function ogSwapImage(url: URL, kind: 'swap' | 'limit'): Promise<Response> 
     // cache entry against the addon ever reusing its output memory across renders.
     cache.set(cacheKey, Buffer.from(png), complete ? IMG_TTL_MS : DEGRADED_IMG_TTL_MS);
     console.log(
-      `[og] /og/${kind} chain=${slug} in=${inId || '-'} out=${outId || '-'} -> rendered${complete ? '' : ' (degraded: logo miss, short TTL)'}`,
+      `[og] /og/${kind} chain=${slug} in=${inId || '-'} out=${outId || '-'} -> rendered${complete ? '' : ' (transient logo miss, short TTL)'}`,
     );
     return pngResponse(png);
   } catch {
@@ -151,7 +151,7 @@ async function ogPoolImage(url: URL): Promise<Response> {
     // Cache a standalone copy of the native buffer (see ogSwapImage).
     cache.set(cacheKey, Buffer.from(png), complete ? IMG_TTL_MS : DEGRADED_IMG_TTL_MS);
     console.log(
-      `[og] /og/pool chain=${slug} address=${address} protocol=${protocol || '-'} -> rendered${complete ? '' : ' (degraded: logo miss, short TTL)'}`,
+      `[og] /og/pool chain=${slug} address=${address} protocol=${protocol || '-'} -> rendered${complete ? '' : ' (transient logo miss, short TTL)'}`,
     );
     return pngResponse(png);
   } catch {

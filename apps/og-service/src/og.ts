@@ -129,19 +129,28 @@ function downscaleLogoDataUri(dataUri: string): string {
   }
 }
 
+// A logo lookup result. `transient` flags a failure a later request might recover (timeout, network error,
+// 5xx) — the render is then cached briefly so it self-heals. A PERMANENT failure (4xx like the CoinGecko
+// CDN's datacenter block, a non-image, an SSRF-rejected URL, no logoURI) keeps the letter circle for good,
+// so the render caches at the full image TTL — stable for crawlers instead of re-rendering on every miss.
+interface LogoResult {
+  uri: string | null;
+  transient: boolean;
+}
+
 // Resolve a token's logo to a small embeddable PNG data URI: fetch (hardened) -> downscale -> cache by
-// URL (the resize is the new per-render cost, so memoize hot logos like USDC/ETH). Null if unavailable.
-async function fetchLogoDataUri(url: string | undefined): Promise<string | null> {
-  if (!url) return null;
+// URL (the resize is the new per-render cost, so memoize hot logos like USDC/ETH).
+async function fetchLogoDataUri(url: string | undefined): Promise<LogoResult> {
+  if (!url) return { uri: null, transient: false };
   const cacheKey = `logo:${url}`;
   const cached = cache.get<string>(cacheKey);
-  if (cached) return cached;
+  if (cached) return { uri: cached, transient: false };
 
   const raw = await fetchRawLogoDataUri(url);
-  if (!raw) return null;
-  const small = downscaleLogoDataUri(raw);
+  if (!raw.uri) return { uri: null, transient: raw.transient };
+  const small = downscaleLogoDataUri(raw.uri);
   cache.set(cacheKey, small, LOGO_CACHE_TTL_MS);
-  return small;
+  return { uri: small, transient: false };
 }
 
 // Read the WebP RIFF header (VP8 lossy / VP8L lossless / VP8X extended) for the canvas dimensions WITHOUT
@@ -257,43 +266,45 @@ function sniffImageMime(buf: Buffer): 'image/png' | 'image/jpeg' | 'image/webp' 
 // browser UA (CDNs 403 bare fetches), PNG/JPEG/WebP/AVIF only (WebP+AVIF re-encoded to PNG), size-bounded, timeout,
 // and — crucially for an origin deployment — `redirect: 'manual'` so a vetted host can't 302 us to an
 // internal IP (SSRF).
-async function fetchRawLogoDataUri(url: string | undefined): Promise<string | null> {
-  if (!url) return null;
-  if (url.startsWith('data:')) return url.length <= MAX_DATA_URI_LEN && DATA_URI_RE.test(url) ? url : null;
-  if (!isSafeLogoUrl(url)) return null;
+async function fetchRawLogoDataUri(url: string | undefined): Promise<LogoResult> {
+  if (!url) return { uri: null, transient: false };
+  if (url.startsWith('data:'))
+    return { uri: url.length <= MAX_DATA_URI_LEN && DATA_URI_RE.test(url) ? url : null, transient: false };
+  if (!isSafeLogoUrl(url)) return { uri: null, transient: false };
   // Block hostnames that DNS-resolve to a private/internal IP (SSRF) before connecting.
-  if (!(await isPublicHost(new URL(url).hostname))) return null;
+  if (!(await isPublicHost(new URL(url).hostname))) return { uri: null, transient: false };
   try {
     const res = await fetch(url, {
       headers: { 'User-Agent': BROWSER_UA, Accept: 'image/png,image/jpeg,image/*,*/*' },
       redirect: 'manual', // SSRF guard: never follow a redirect (could point at an internal IP)
       signal: AbortSignal.timeout(LOGO_FETCH_TIMEOUT_MS),
     });
-    if (!res.ok) return null; // 3xx (manual redirect) is not ok -> rejected here too
+    // A 5xx might recover on retry; a 3xx (manual redirect) or 4xx (e.g. CoinGecko's datacenter 403) won't.
+    if (!res.ok) return { uri: null, transient: res.status >= 500 };
     // Stream-bounded read: aborts past MAX_LOGO_BYTES instead of buffering an unbounded (community-
     // influenced) body first — readBoundedArrayBuffer throws over the cap, caught below as a null logo.
     const buf = await readBoundedArrayBuffer(res, MAX_LOGO_BYTES);
     let bytes = Buffer.from(buf);
     // Trust the magic bytes, not the Content-Type header (logo CDNs mislabel images as octet-stream).
     const sniffed = sniffImageMime(bytes);
-    if (!sniffed) return null;
+    if (!sniffed) return { uri: null, transient: false }; // not a supported image — permanent
     // satori/resvg can't read WebP/AVIF — convert them to PNG so the embedded data URI is always PNG/JPEG.
     let outMime: string = sniffed;
     if (sniffed === 'image/webp') {
       const png = webpToPng(bytes);
-      if (!png) return null;
+      if (!png) return { uri: null, transient: false };
       bytes = png;
       outMime = 'image/png';
     } else if (sniffed === 'image/avif') {
       const png = await avifToPng(bytes);
-      if (!png) return null;
+      if (!png) return { uri: null, transient: false };
       bytes = png;
       outMime = 'image/png';
     }
     const dataUri = `data:${outMime};base64,${bytes.toString('base64')}`;
-    return DATA_URI_RE.test(dataUri) ? dataUri : null;
+    return { uri: DATA_URI_RE.test(dataUri) ? dataUri : null, transient: false };
   } catch {
-    return null;
+    return { uri: null, transient: true }; // timeout / network error — a retry might recover
   }
 }
 
@@ -393,8 +404,9 @@ async function renderCardPng(cardHtmlStr: string, fonts: SatoriFonts): Promise<B
 
 export interface RenderResult {
   png: Buffer;
-  /** false when a token that HAS a logoURI fell back to the letter circle (a transient logo-fetch miss),
-   *  so the caller can cache the degraded image briefly instead of for the full image TTL. */
+  /** false only when a logo failed TRANSIENTLY (timeout/network/5xx) and a retry might recover it, so the
+   *  caller caches the image briefly to self-heal. A permanent letter circle (4xx, no logo) is `true` —
+   *  it's the final card and caches at the full TTL. */
   complete: boolean;
 }
 
@@ -428,11 +440,11 @@ export async function renderSwapOg(input: SwapOgInput): Promise<RenderResult> {
 
   const center =
     present.length === 2
-      ? `${tokenBlock(logos[0], present[0].symbol)}${ARROW}${tokenBlock(logos[1], present[1].symbol)}`
-      : tokenBlock(logos[0], present[0].symbol);
+      ? `${tokenBlock(logos[0].uri, present[0].symbol)}${ARROW}${tokenBlock(logos[1].uri, present[1].symbol)}`
+      : tokenBlock(logos[0].uri, present[0].symbol);
 
-  // A token with a logoURI that resolved to null fell back to the letter circle (transient fetch miss).
-  const complete = present.every((t, i) => !t.logoURI || logos[i] !== null);
+  // Cache briefly only if a logo failed TRANSIENTLY (so it self-heals); a permanent letter circle is final.
+  const complete = !logos.some(l => l.transient);
   const png = await renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
   return { png, complete };
 }
@@ -457,10 +469,10 @@ export async function renderPoolOg(input: PoolOgInput): Promise<RenderResult> {
 
   const feeText = typeof feeTier === 'number' ? ` · ${formatFeeTier(feeTier)}% fee` : '';
   const caption = `Provide liquidity & earn${feeText} on KyberSwap`;
-  const center = `${tokenBlock(logos[0], token0.symbol)}${SLASH}${tokenBlock(logos[1], token1.symbol)}`;
+  const center = `${tokenBlock(logos[0].uri, token0.symbol)}${SLASH}${tokenBlock(logos[1].uri, token1.symbol)}`;
 
-  // A token with a logoURI that resolved to null fell back to the letter circle (transient fetch miss).
-  const complete = [token0, token1].every((t, i) => !t.logoURI || logos[i] !== null);
+  // Cache briefly only if a logo failed TRANSIENTLY (so it self-heals); a permanent letter circle is final.
+  const complete = !logos.some(l => l.transient);
   const png = await renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
   return { png, complete };
 }
