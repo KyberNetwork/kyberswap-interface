@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import WarningIcon from 'components/Icons/WarningIcon'
@@ -191,10 +191,17 @@ const TradeSummary: React.FC<Props> = ({
   routeLoading,
   isFeeTampered,
 }) => {
+  const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact } = routeSummary || {}
-  const hasRoute = !!routeSummary?.route
-  const hasTrade = routeLoading || hasRoute
-  const hidden = !hasTrade
+  const hasTrade = !!routeSummary?.route
+
+  useEffect(() => {
+    if (hasTrade) {
+      setAlreadyVisible(true)
+    }
+  }, [hasTrade])
+
+  const hidden = !alreadyVisible
   const priceImpactResult = checkPriceImpact(priceImpact)
 
   const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
@@ -225,7 +232,7 @@ const TradeSummary: React.FC<Props> = ({
             <RefreshLoading
               refetchLoading={routeLoading}
               onRefresh={refreshCallback}
-              disableRefresh={disableRefresh || !hasTrade}
+              disableRefresh={disableRefresh}
               clickable
             />
             <TradePrice price={routeSummary?.executionPrice} className="text-text" />
