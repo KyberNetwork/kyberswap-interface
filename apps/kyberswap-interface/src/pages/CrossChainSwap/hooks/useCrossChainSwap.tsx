@@ -316,7 +316,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     [currencyIn, amountDebounce, isFromEvm],
   )
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [allLoading, setAllLoading] = useState(false)
 
   const [quotes, setQuotes] = useState<Quote[]>([])
@@ -422,6 +422,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (disable) {
       setQuotes([])
       setSelectedAdapter(null)
+      setLoading(false)
+      setAllLoading(false)
       abortControllerRef.current.abort()
       return
     }
