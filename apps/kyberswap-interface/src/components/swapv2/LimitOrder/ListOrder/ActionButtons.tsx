@@ -97,7 +97,6 @@ const ActionButtons = ({
   isChildren?: boolean
   itemStyle?: CSSProperties
   onCancelOrder?: (order: LimitOrder) => void
-  onEditOrder?: (order: LimitOrder) => void
   isCancelling?: boolean
 }) => {
   const { networkInfo } = useActiveWeb3React()

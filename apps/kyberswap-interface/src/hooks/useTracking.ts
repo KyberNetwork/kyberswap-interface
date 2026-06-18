@@ -164,11 +164,9 @@ export enum TRACKING_EVENT_TYPE {
   LO_CLICK_CANCEL_ORDER,
   LO_CANCEL_ORDER_SUBMITTED,
   LO_CLICK_REVIEW_PLACE_ORDER,
-  LO_CLICK_EDIT_ORDER,
   LO_DISPLAY_SETTING_CLICK,
   LO_CLICK_SUBSCRIBE_BTN,
   LO_CLICK_CANCEL_TYPE,
-  LO_CLICK_UPDATE_TYPE,
   LO_CLICK_GET_STARTED,
   LO_CLICK_WARNING_IN_SWAP,
   LO_REVIEW_OPENED,
@@ -1187,10 +1185,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Limit Order -  Review Order Click', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.LO_CLICK_EDIT_ORDER: {
-          formoTrack('Limit Order -  Update Order Click', payload)
-          break
-        }
         case TRACKING_EVENT_TYPE.LO_DISPLAY_SETTING_CLICK: {
           formoTrack('Limit Order - Display settings on Limit settings', payload)
           break
@@ -1201,10 +1195,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_TYPE: {
           formoTrack('Limit Order - Cancel Order Double Signature Click', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.LO_CLICK_UPDATE_TYPE: {
-          formoTrack('Limit Order - Update Order Double Signature Click', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LO_CLICK_GET_STARTED: {

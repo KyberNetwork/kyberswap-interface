@@ -112,15 +112,7 @@ export type RateInfo = {
 export type CancelOrderFunction = (data: {
   orders: LimitOrder[]
   cancelType: CancelOrderType
-  isEdit?: boolean
 }) => Promise<CancelOrderResponse>
-
-export type EditOrderInfo = {
-  cancelType?: CancelOrderType
-  gasFee?: string
-  isEdit?: boolean
-  renderCancelButtons: () => JSX.Element
-}
 
 export type CancelOrderResponse = {
   orders: { operatorSignatureExpiredAt: number }[]
@@ -134,9 +126,5 @@ export type CreateOrderParam = {
   inputAmount: string
   outputAmount: string
   expiredAt: number
-  nativeOutput: boolean
-  orderId?: number
-  signature?: string
-  salt?: string
   referral?: string
 }

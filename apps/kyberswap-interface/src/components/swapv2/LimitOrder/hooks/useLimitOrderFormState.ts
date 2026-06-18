@@ -19,41 +19,13 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { formatTimeDuration } from 'utils/time'
 
-const useInputAmount = ({
-  defaultInputAmount,
-  isEdit,
-}: {
-  defaultInputAmount?: string
-  isEdit: boolean
-}): [string, (v: string) => void] => {
-  const { inputAmount } = useLimitState()
-  const { setInputValue } = useLimitActionHandlers()
-
-  const localState = useState(defaultInputAmount || '')
-  return isEdit ? localState : [inputAmount, setInputValue]
-}
-
 export type LimitOrderFormStateArgs = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
-  defaultInputAmount?: string
-  defaultOutputAmount?: string
-  defaultExpire?: Date
-  defaultRate: RateInfo
-  isEdit: boolean
   useUrlParams?: boolean
 }
 
-export default function useLimitOrderFormState({
-  currencyIn,
-  currencyOut,
-  defaultInputAmount = '',
-  defaultOutputAmount = '',
-  defaultExpire,
-  defaultRate,
-  isEdit,
-  useUrlParams,
-}: LimitOrderFormStateArgs) {
+export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrlParams }: LimitOrderFormStateArgs) {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -66,16 +38,17 @@ export default function useLimitOrderFormState({
     setCurrencyIn: updateCurrencyIn,
     setCurrencyOut: updateCurrencyOut,
     switchCurrency: rotateCurrency,
+    setInputValue: setInputAmount,
   } = useLimitActionHandlers()
+  const { inputAmount } = useLimitState()
 
   const autoFillMarketPrice = useRef(false)
 
-  const [inputAmount, setInputAmount] = useInputAmount({ defaultInputAmount, isEdit })
-  const [outputAmount, setOutputAmount] = useState(defaultOutputAmount)
-  const [rateInfo, setRateInfo] = useState<RateInfo>(defaultRate)
+  const [outputAmount, setOutputAmount] = useState('')
+  const [rateInfo, setRateInfo] = useState<RateInfo>({ rate: '', invertRate: '', invert: false })
   const [expire, setExpire] = useState(DEFAULT_EXPIRED)
   const [showDatePicker, setShowDatePicker] = useState(false)
-  const [customDateExpire, setCustomDateExpire] = useState<Date | undefined>(defaultExpire)
+  const [customDateExpire, setCustomDateExpire] = useState<Date | undefined>()
   const [rotate, setRotate] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
@@ -243,7 +216,6 @@ export default function useLimitOrderFormState({
   }
 
   const handleRotateClick = () => {
-    if (isEdit) return
     trackingHandler(TRACKING_EVENT_TYPE.LO_SIDE_SELECTED, {
       side: rateInfo.invert ? 'sell' : 'buy',
       from_token: currencyOut?.symbol,
@@ -293,19 +265,19 @@ export default function useLimitOrderFormState({
   }
 
   const onResetForm = useCallback(() => {
-    setInputAmount(defaultInputAmount)
-    setOutputAmount(defaultOutputAmount)
-    setRateInfo(defaultRate)
+    setInputAmount('')
+    setOutputAmount('')
+    setRateInfo({ rate: '', invertRate: '', invert: false })
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
-  }, [defaultInputAmount, defaultOutputAmount, defaultRate, setInputAmount])
+  }, [setInputAmount])
 
   useEffect(() => {
-    if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade && !defaultRate?.rate) {
+    if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade) {
       autoFillMarketPrice.current = true
       setPriceRateMarket(true)
     }
-  }, [tradeInfo, setPriceRateMarket, loadingTrade, defaultRate?.rate])
+  }, [tradeInfo, setPriceRateMarket, loadingTrade])
 
   return {
     chainId,

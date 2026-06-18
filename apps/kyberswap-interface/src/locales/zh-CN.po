@@ -631,7 +631,6 @@ msgstr ""
 msgid "TOTAL AMOUNT (USD)"
 msgstr "总金额（美元）"
 
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Review your order"
 msgstr "检查您的订单"
@@ -2040,11 +2039,6 @@ msgstr ""
 msgid "You are undelegating your voting power from this address"
 msgstr "您正在从该地址撤销投票委托"
 
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "Gasless Edit"
-msgstr "免 Gas 编辑"
-
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "<0>9,000 ARB</0> is allocated for this campaign each week."
 msgstr "本次活动每周分配 <0>9,000 ARB</0>。"
@@ -2168,10 +2162,6 @@ msgstr "已关闭"
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "in a 2-day finalization period before they become claimable."
 msgstr "在最终 2 天确认期后才可领取"
-
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-msgid "Editing this order will automatically cancel your existing order and a new order will be created."
-msgstr "编辑订单将自动取消原订单并创建新订单"
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -3071,10 +3061,6 @@ msgstr "交易"
 #: src/pages/About/AboutKNC.tsx
 msgid "Stake KNC, Vote, Earn Rewards."
 msgstr "质押 KNC、投票、赚取奖励"
-
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "Hard Edit (<0>~{0}</0> gas fees)"
-msgstr "强制编辑（<0>~{0}</0> Gas 费）"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Show more details"
@@ -5275,10 +5261,6 @@ msgstr "保存中……"
 msgid "Cancel Orders Failed"
 msgstr "取消订单失败"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
-msgid "Hard Edit Instead"
-msgstr "改用强制编辑"
-
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "More Information"
 msgstr "更多信息"
@@ -5510,10 +5492,6 @@ msgstr "请连接钱包以查看您的仪表板"
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
 msgid "Week {week}"
 msgstr ""
-
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-msgid "Your currently existing order is {filled}% filled."
-msgstr "您当前的订单已成交 {filled}%"
 
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "My Pool APR"
@@ -5962,11 +5940,6 @@ msgstr "<0>第 3 周</0> 7 月 22 日 - 7 月 28 日"
 msgid "Insufficient liquidity available. Please reload page or increase max slippage and try again!"
 msgstr "可用流动性不足，请刷新页面或提高最大滑点后重试"
 
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-msgid "Edit Order"
-msgstr "编辑订单"
-
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Unstaking {inputValue} KNC from KyberDAO"
 msgstr "从 KyberDAO 解除质押 {inputValue} KNC"
@@ -6160,7 +6133,6 @@ msgstr "这些数据多久更新一次？"
 msgid "Current Cycle"
 msgstr "当前周期"
 
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
@@ -6793,10 +6765,6 @@ msgstr "资金不足"
 #: src/pages/Oauth/AuthForm/EmailLoginForm.tsx
 msgid "Email Address"
 msgstr "邮箱地址"
-
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
-msgid "Edit the order without paying gas."
-msgstr "无需支付 Gas 编辑订单"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 #: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
@@ -8461,10 +8429,6 @@ msgstr "一半"
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Select chains"
 msgstr "选择链"
-
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-msgid "Hard Edit"
-msgstr "强制编辑"
 
 #: src/components/Announcement/helpers.ts
 msgid "Cancelled by you"

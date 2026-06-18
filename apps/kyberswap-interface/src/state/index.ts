@@ -39,7 +39,6 @@ import burn from 'state/burn/reducer'
 import crossChainSwap from 'state/crossChainSwap'
 import customizeDexes from 'state/customizeDexes'
 import { updateVersion } from 'state/global/actions'
-import limit from 'state/limit/reducer'
 import lists from 'state/lists/reducer'
 import mintV2 from 'state/mint/proamm/reducer'
 import mint from 'state/mint/reducer'
@@ -84,7 +83,6 @@ const store = configureStore({
     transactions,
     crossChainSwap,
     swap,
-    limit,
     mint,
     mintV2,
     burn,

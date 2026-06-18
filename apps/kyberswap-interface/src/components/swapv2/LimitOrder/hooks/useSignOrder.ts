@@ -18,8 +18,7 @@ export default function useSignOrder(
 
   return useCallback(
     async (params: CreateOrderParam) => {
-      const { currencyIn, currencyOut, inputAmount, outputAmount, signature, salt } = params
-      if (signature && salt) return { signature, salt }
+      const { currencyIn, currencyOut, inputAmount, outputAmount } = params
       if (!currencyIn || !currencyOut || !account) return { signature: '', salt: '' }
 
       const payload = getPayloadCreateOrder(params)

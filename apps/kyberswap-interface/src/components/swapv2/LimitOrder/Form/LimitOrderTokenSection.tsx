@@ -20,8 +20,6 @@ type Props = {
   outPutError: string | ReactNode
   estimateUsdIn: string | undefined
   estimateUsdOut: string | undefined
-  showApproveFlow: boolean
-  isEdit: boolean
   rotate: boolean
   styleTooltip: CSSProperties
   onSetInput: (input: string) => void
@@ -44,8 +42,6 @@ export default function LimitOrderTokenSection({
   outPutError,
   estimateUsdIn,
   estimateUsdOut,
-  showApproveFlow,
-  isEdit,
   rotate,
   styleTooltip,
   onSetInput,
@@ -84,8 +80,6 @@ export default function LimitOrderTokenSection({
           maxCurrencySymbolLength={6}
           filterWrap
           onClickSelect={trackingTouchSelectToken}
-          lockIcon={showApproveFlow}
-          disableCurrencySelect={isEdit}
           label={
             <Label>
               <Trans>You Sell</Trans>
@@ -101,7 +95,7 @@ export default function LimitOrderTokenSection({
       <div className="pointer-events-none relative z-20 -my-3 flex justify-center">
         <ArrowRotate
           rotate={rotate}
-          onClick={isEdit ? undefined : handleRotateClick}
+          onClick={handleRotateClick}
           className="pointer-events-auto size-7 border border-bg2 bg-buttonGray p-1"
         />
       </div>
@@ -124,7 +118,6 @@ export default function LimitOrderTokenSection({
           maxCurrencySymbolLength={6}
           filterWrap
           onClickSelect={trackingTouchSelectToken}
-          disableCurrencySelect={isEdit}
           label={
             <Label>
               <Trans>You Buy</Trans>

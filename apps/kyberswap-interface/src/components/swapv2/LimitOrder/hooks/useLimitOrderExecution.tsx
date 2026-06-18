@@ -10,7 +10,6 @@ import type { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/Form/Limi
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
 import {
   calcUsdPrices,
-  formatAmountOrder,
   getErrorMessage,
   getPayloadCreateOrder,
   removeTrailingZero,
@@ -19,7 +18,7 @@ import useSignOrder from 'components/swapv2/LimitOrder/hooks/useSignOrder'
 import useValidateInputError from 'components/swapv2/LimitOrder/hooks/useValidateInputError'
 import useWarningCreateOrder from 'components/swapv2/LimitOrder/hooks/useWarningCreateOrder'
 import useWrapEthStatus from 'components/swapv2/LimitOrder/hooks/useWrapEthStatus'
-import { CreateOrderParam, LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
+import { CreateOrderParam, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
@@ -29,24 +28,17 @@ import type { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
-import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getCookieValue } from 'utils'
-import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
+import { subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 type UseLimitOrderExecutionArgs = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
-  defaultActiveMakingAmount?: string
-  defaultInputAmount: string
-  defaultRate: RateInfo
-  defaultExpire?: Date
-  orderInfo?: LimitOrder
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
-  isEdit: boolean
   chainId: ChainId
   networkName: string
   searchParams: URLSearchParams
@@ -79,13 +71,7 @@ export type ProcessingOrderState = {
 export default function useLimitOrderExecution({
   currencyIn,
   currencyOut,
-  defaultActiveMakingAmount = '',
-  defaultInputAmount,
-  defaultRate,
-  defaultExpire,
-  orderInfo,
   setFlowState,
-  isEdit,
   chainId,
   networkName,
   searchParams,
@@ -104,9 +90,6 @@ export default function useLimitOrderExecution({
   const { account } = useActiveWeb3React()
   const notify = useNotify()
   const { trackingHandler } = useTracking()
-  const { ordersNeedCreated } = useLimitState()
-  const { removeOrderNeedCreated, setOrderEditing } = useLimitActionHandlers()
-  const [approvalSubmitted, setApprovalSubmitted] = useState(false)
   const [processingOrder, setProcessingOrder] = useState<ProcessingOrderState>({
     show: false,
     steps: [],
@@ -116,11 +99,10 @@ export default function useLimitOrderExecution({
   const approvalRef = useRef<ApprovalState>(ApprovalState.UNKNOWN)
 
   // Balances, allowance, and form readiness.
-  const { data: activeOrderMakingAmount = defaultActiveMakingAmount, refetch: getActiveMakingAmount } =
-    useGetTotalActiveMakingAmountQuery(
-      { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
-      { skip: !currencyIn || !account },
-    )
+  const { data: activeOrderMakingAmount = '', refetch: getActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
+    { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
+    { skip: !currencyIn || !account },
+  )
 
   const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(switchToWeth)
 
@@ -140,18 +122,11 @@ export default function useLimitOrderExecution({
         if (currencyIn.isNative) {
           return TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(0))
         }
-        const value = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(activeOrderMakingAmount))
-        if (isEdit && orderInfo) {
-          const makingAmount = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(orderInfo.makingAmount))
-          return value.greaterThan(makingAmount)
-            ? value.subtract(makingAmount)
-            : TokenAmount.fromRawAmount(currencyIn, 0)
-        }
-        return value
+        return TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(activeOrderMakingAmount))
       }
     } catch (error) {}
     return undefined
-  }, [currencyIn, activeOrderMakingAmount, isEdit, orderInfo])
+  }, [currencyIn, activeOrderMakingAmount])
 
   const balance = useCurrencyBalance(currencyIn, chainId)
   const nativeCurrency = NativeCurrencies[chainId]
@@ -168,14 +143,7 @@ export default function useLimitOrderExecution({
   const needsWrap = !!currencyIn?.isNative || !!wrapAmountForOrder
   const wrapInputCurrency = currencyIn?.isNative ? currencyIn : wrapAmountForOrder ? nativeCurrency : currencyIn
   const wrapTypedValue = wrapAmountForOrder ? wrapAmountForOrder.toExact() : inputAmount
-  const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(
-    wrapInputCurrency,
-    WETH[chainId],
-    wrapTypedValue,
-    true,
-    chainId,
-  )
-  const showWrap = needsWrap
+  const { execute: onWrap } = useWrapCallback(wrapInputCurrency, WETH[chainId], wrapTypedValue, true, chainId)
   const maxAmountInput = useMemo(() => {
     return maxAmountSpend(balance)
   }, [balance])
@@ -223,21 +191,12 @@ export default function useLimitOrderExecution({
   const { inputError, outPutError } = useValidateInputError({
     inputAmount,
     outputAmount,
-    balance,
     displayRate,
-    parsedActiveOrderMakingAmount: undefined,
     currencyIn,
-    wrapInputError,
-    showWrap,
     currencyOut,
-    showInsufficientBalanceError: false,
   })
 
   const hasInputError = Boolean(inputError || outPutError)
-  const checkingAllowance =
-    !(currencyIn && parsedActiveOrderMakingAmount?.currency?.equals(currencyIn)) ||
-    !(currencyIn && currentAllowance?.currency?.equals(currencyIn))
-
   const isNotFillAllInput = [outputAmount, inputAmount, currencyIn, currencyOut, displayRate].some(e => !e)
 
   const estimateUSD = useMemo(() => {
@@ -250,15 +209,6 @@ export default function useLimitOrderExecution({
       currencyOut,
     })
   }, [inputAmount, outputAmount, tradeInfo, currencyIn, currencyOut])
-
-  const showApproveFlow =
-    !checkingAllowance &&
-    !showWrap &&
-    !isNotFillAllInput &&
-    (approval === ApprovalState.NOT_APPROVED ||
-      approval === ApprovalState.PENDING ||
-      !enoughAllowance ||
-      (approvalSubmitted && approval === ApprovalState.APPROVED))
 
   const warningMessage = useWarningCreateOrder({
     estimateUSD: estimateUSD.rawInput,
@@ -303,30 +253,28 @@ export default function useLimitOrderExecution({
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
     setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
-    if (!isEdit) {
-      trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
-        from_token: currencyIn.symbol,
-        to_token: currencyOut.symbol,
-        from_network: chainId,
-        trade_qty: inputAmount,
-      })
-      trackingHandler(TRACKING_EVENT_TYPE.LO_REVIEW_OPENED, {
-        side: rateInfo.invert ? 'buy' : 'sell',
-        from_token: currencyIn.symbol,
-        from_token_address: getTokenAddress(currencyIn),
-        to_token: currencyOut.symbol,
-        to_token_address: getTokenAddress(currencyOut),
-        pair: `${currencyIn.symbol}/${currencyOut.symbol}`,
-        limit_price: displayRate,
-        amount_in: inputAmount,
-        amount_in_usd: estimateUSD.rawInput || undefined,
-        amount_out_estimated: outputAmount,
-        expiry: displayTime,
-        market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
-        price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
-        chain: networkName,
-      })
-    }
+    trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
+      from_token: currencyIn.symbol,
+      to_token: currencyOut.symbol,
+      from_network: chainId,
+      trade_qty: inputAmount,
+    })
+    trackingHandler(TRACKING_EVENT_TYPE.LO_REVIEW_OPENED, {
+      side: rateInfo.invert ? 'buy' : 'sell',
+      from_token: currencyIn.symbol,
+      from_token_address: getTokenAddress(currencyIn),
+      to_token: currencyOut.symbol,
+      to_token_address: getTokenAddress(currencyOut),
+      pair: `${currencyIn.symbol}/${currencyOut.symbol}`,
+      limit_price: displayRate,
+      amount_in: inputAmount,
+      amount_in_usd: estimateUSD.rawInput || undefined,
+      amount_out_estimated: outputAmount,
+      expiry: displayTime,
+      market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+      price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
+      chain: networkName,
+    })
   }
 
   const hidePreview = useCallback(() => {
@@ -413,26 +361,6 @@ export default function useLimitOrderExecution({
     })
   }, [])
 
-  const onWrapToken = async () => {
-    try {
-      if (isNotFillAllInput || wrapInputError || isWrappingEth || hasInputError) return
-      const amount = formatAmountOrder(inputAmount)
-      const wethSymbol = WETH[chainId].symbol
-      const inSymbol = currencyIn?.symbol
-      setFlowState(state => ({
-        ...state,
-        attemptingTxn: true,
-        showConfirm: true,
-        pendingText: t`Wrapping ${amount} ${inSymbol} to ${amount} ${wethSymbol}`,
-      }))
-      const hash = await onWrap?.()
-      if (hash) setTxHashWrapped(hash)
-      setFlowState(state => ({ ...state, showConfirm: false }))
-    } catch (error) {
-      handleError(error)
-    }
-  }
-
   const trackingPlaceOrder = useCallback(
     (type: TRACKING_EVENT_TYPE, data = {}) => {
       trackingHandler(type, {
@@ -493,7 +421,6 @@ export default function useLimitOrderExecution({
       inputAmount,
       outputAmount,
       expiredAt,
-      nativeOutput: currencyOut?.isNative || false,
     })
     if (!order_id) return
 
@@ -656,12 +583,6 @@ export default function useLimitOrderExecution({
   // External state synchronization.
   useEffect(() => {
     approvalRef.current = approval
-    if (approval === ApprovalState.PENDING) {
-      setApprovalSubmitted(true)
-    }
-    if (approval === ApprovalState.NOT_APPROVED) {
-      setApprovalSubmitted(false)
-    }
   }, [approval])
 
   useEffect(() => {
@@ -671,82 +592,16 @@ export default function useLimitOrderExecution({
   }, [processingOrder.currentStep, processingOrder.errorStep, processingOrder.show, runProcessingStep])
 
   useEffect(() => {
-    if (!isEdit || !orderInfo?.id) return
-    setOrderEditing({
-      orderId: orderInfo.id,
-      account,
-      chainId,
-      currencyIn,
-      currencyOut,
-      inputAmount,
-      outputAmount,
-      expiredAt,
-      nativeOutput: currencyOut?.isNative || false,
-    })
-  }, [
-    setOrderEditing,
-    account,
-    chainId,
-    currencyIn,
-    currencyOut,
-    inputAmount,
-    outputAmount,
-    expiredAt,
-    orderInfo?.id,
-    isEdit,
-  ])
-
-  const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
-  refSubmitCreateOrder.current = onSubmitCreateOrder
-
-  useEffect(() => {
     if (!account) return
-    const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
-      data?.orders.forEach(order => {
-        const findInfo = ordersNeedCreated.find(e => e.orderId === order.id)
-        if (!findInfo?.orderId) return
-        removeOrderNeedCreated(findInfo.orderId)
-        if (order.isSuccessful && !isEdit) {
-          refSubmitCreateOrder.current(findInfo)
-        }
-      })
-      refreshActiveMakingAmount()
-    })
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refreshActiveMakingAmount)
     return () => {
-      unsubscribeCancelled?.()
       unsubscribeExpired?.()
     }
-  }, [account, chainId, ordersNeedCreated, removeOrderNeedCreated, refreshActiveMakingAmount, isEdit])
-
-  const hasChangedOrderInfo = useCallback(() => {
-    return (
-      isEdit &&
-      !hasInputError &&
-      (defaultInputAmount !== inputAmount ||
-        defaultRate?.rate !== rateInfo.rate ||
-        defaultExpire?.getTime() !== expiredAt)
-    )
-  }, [
-    defaultExpire,
-    defaultInputAmount,
-    defaultRate?.rate,
-    expiredAt,
-    hasInputError,
-    inputAmount,
-    isEdit,
-    rateInfo.rate,
-  ])
+  }, [account, chainId, refreshActiveMakingAmount])
 
   return {
-    approval,
-    approvalSubmitted,
-    approveCallback,
-    checkingAllowance,
-    enoughAllowance,
     estimateUSD,
     handleMaxInput,
-    hasChangedOrderInfo,
     hasInputError,
     hidePreview,
     hideProcessingOrder,
@@ -754,20 +609,14 @@ export default function useLimitOrderExecution({
     insufficientBalance,
     insufficientBalanceText,
     isNotFillAllInput,
-    isWrappingEth,
-    onSubmitCreateOrderWithTracking,
-    onWrapToken,
     outPutError,
     processingOrder,
     retryProcessingOrder,
-    showApproveFlow,
     showPreview,
-    showWrap,
     startProcessingOrder,
     trackingPriceSetOnBlur,
     trackingTouchInput,
     trackingTouchSelectToken,
     warningMessage,
-    wrapInputError,
   }
 }

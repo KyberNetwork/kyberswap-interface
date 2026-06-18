@@ -12,7 +12,6 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from 'components/swapv2/LimitOrder/helpers'
 import useCancellingOrders from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
-import useSignOrder from 'components/swapv2/LimitOrder/hooks/useSignOrder'
 import {
   CancelOrderFunction,
   CancelOrderResponse,
@@ -22,7 +21,6 @@ import {
 import { LIMIT_ORDER_ABI } from 'constants/abis'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
@@ -179,19 +177,7 @@ const useRequestCancelOrder = ({
     return resp
   }
 
-  const { removeOrderNeedCreated, pushOrderNeedCreated } = useLimitActionHandlers()
-  const signOrder = useSignOrder(setFlowState)
-  const { orderEditing } = useLimitState()
-
-  const onCancelOrder = async ({
-    orders,
-    cancelType,
-    isEdit,
-  }: {
-    orders: LimitOrder[]
-    cancelType: CancelOrderType
-    isEdit?: boolean
-  }) => {
+  const onCancelOrder = async ({ orders, cancelType }: { orders: LimitOrder[]; cancelType: CancelOrderType }) => {
     try {
       setFlowState({
         ...TRANSACTION_STATE_DEFAULT,
@@ -199,17 +185,11 @@ const useRequestCancelOrder = ({
         showConfirm: true,
         attemptingTxn: true,
       })
-      if (orderEditing && isEdit) {
-        // pre-sign order
-        const { signature, salt } = await signOrder(orderEditing)
-        pushOrderNeedCreated({ ...orderEditing, salt, signature })
-      }
       const gaslessCancel = cancelType === CancelOrderType.GAS_LESS_CANCEL
       const resp = await (gaslessCancel ? requestGasLessCancelOrder(orders) : requestHardCancelOrder(orders?.[0]))
-      setFlowState(state => ({ ...state, attemptingTxn: false, showConfirm: !!(isEdit && gaslessCancel) }))
+      setFlowState(state => ({ ...state, attemptingTxn: false }))
       return resp
     } catch (error) {
-      if (isEdit && orders[0]) removeOrderNeedCreated(orders[0].id)
       setFlowState(state => ({
         ...state,
         attemptingTxn: false,
@@ -227,13 +207,11 @@ export const useProcessCancelOrder = ({
   onDismiss,
   onSubmit,
   getOrders,
-  isEdit,
 }: {
   onSubmit: CancelOrderFunction
   onDismiss: () => void
   isOpen: boolean
   getOrders: (v: boolean) => LimitOrder[]
-  isEdit?: boolean
 }) => {
   const { chainId } = useActiveWeb3React()
   const [expiredTime, setExpiredTime] = useState(0)
@@ -264,14 +242,14 @@ export const useProcessCancelOrder = ({
     const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
     const orders = getOrders(gasLessCancel)
     try {
-      const data: CancelOrderResponse = await onSubmit({ orders, cancelType: type, isEdit })
+      const data: CancelOrderResponse = await onSubmit({ orders, cancelType: type })
       if (signal.aborted) return
       setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
       if (expired) {
         setExpiredTime(expired)
         if (expired * 1000 < Date.now()) {
-          isEdit ? onDismiss() : setCancelStatus(CancelStatus.CANCEL_DONE)
+          setCancelStatus(CancelStatus.CANCEL_DONE)
         }
       } else onDismiss()
     } catch (error) {

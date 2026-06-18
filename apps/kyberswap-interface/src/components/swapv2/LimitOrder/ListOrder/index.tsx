@@ -13,7 +13,6 @@ import Pagination from 'components/Pagination'
 import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
-import EditOrderModal from 'components/swapv2/LimitOrder/EditOrder/EditOrderModal'
 import OrderItem from 'components/swapv2/LimitOrder/ListOrder/OrderItem'
 import TabSelector from 'components/swapv2/LimitOrder/ListOrder/TabSelector'
 import TableHeader from 'components/swapv2/LimitOrder/ListOrder/TableHeader'
@@ -21,7 +20,6 @@ import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useReq
 import CancelOrderModal from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from 'components/swapv2/LimitOrder/const'
 import {
-  calcPercentFilledOrder,
   formatAmountOrder,
   formatRateLimitOrder,
   getPayloadTracking,
@@ -36,7 +34,6 @@ import usePageLocation from 'hooks/usePageLocation'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { cn } from 'utils/cn'
 import {
@@ -83,9 +80,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
   )
 
   const [isOpenCancel, setIsOpenCancel] = useState(false)
-  const [isOpenEdit, setIsOpenEdit] = useState(false)
-  const { ordersNeedCreated: ordersUpdating } = useLimitState()
-
   const { isOrderCancelling } = useCancellingOrders()
   const { trackingHandler } = useTracking()
 
@@ -228,12 +222,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     }, 300)
   }, [setFlowState])
 
-  const hideEditModal = useCallback(() => {
-    setFlowState(TRANSACTION_STATE_DEFAULT)
-    setCurrentOrder(undefined)
-    setIsOpenEdit(false)
-  }, [setFlowState])
-
   const showConfirmCancel = useCallback(
     (order?: LimitOrder) => {
       setCurrentOrder(order)
@@ -247,17 +235,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     [trackingHandler, setFlowState, networkInfo],
   )
 
-  const showEditOrderModal = useCallback(
-    (order: LimitOrder) => {
-      setFlowState({ ...TRANSACTION_STATE_DEFAULT })
-      setCurrentOrder(order)
-      setIsOpenEdit(true)
-      setIsCancelAll(false)
-      trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_EDIT_ORDER, getPayloadTracking(order, networkInfo.name))
-    },
-    [trackingHandler, networkInfo.name, setFlowState],
-  )
-
   const totalOrderNotCancelling = useMemo(() => {
     return orders.filter(e => !isOrderCancelling(e)).length
   }, [orders, isOrderCancelling])
@@ -269,15 +246,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
 
   const disabledBtnCancelAll = totalOrderNotCancelling === 0
   const isTabActive = isActiveStatus(orderType)
-
-  useEffect(() => {
-    const orderCancelling = orders.length - totalOrderNotCancelling
-    window.onbeforeunload = () => (orderCancelling > 0 && ordersUpdating.length > 0 ? '' : null) // return null will not show confirm, else will show
-  }, [totalOrderNotCancelling, orders, ordersUpdating])
-
-  const filledPercent =
-    currentOrder &&
-    calcPercentFilledOrder(currentOrder.filledTakingAmount, currentOrder.takingAmount, currentOrder.takerAssetDecimals)
 
   return (
     <div className="flex flex-col gap-4 max-sm:w-screen">
@@ -320,7 +288,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
                 key={order.id}
                 order={order}
                 onCancelOrder={showConfirmCancel}
-                onEditOrder={showEditOrderModal}
                 tokenPrices={tokenPrices}
                 hasOrderCancelling={orders.some(isOrderCancelling)}
               />
@@ -378,23 +345,6 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
         order={currentOrder}
         isCancelAll={isCancelAll}
       />
-
-      {currentOrder && isOpenEdit && (
-        <EditOrderModal
-          flowState={flowState}
-          setFlowState={setFlowState}
-          customChainId={customChainId}
-          isOpen={isOpenEdit}
-          onDismiss={hideEditModal}
-          onSubmit={onCancelOrder}
-          order={currentOrder}
-          note={`${t`Note: Your existing order will be automatically cancelled and a new order will be created.`} ${
-            currentOrder.status === LimitOrderStatus.PARTIALLY_FILLED
-              ? t` Your currently existing order is ${filledPercent}% filled.`
-              : ''
-          }`}
-        />
-      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { forwardRef, memo, useImperativeHandle } from 'react'
+import { memo } from 'react'
 
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
@@ -15,7 +15,6 @@ import ProcessingOrderModal from 'components/swapv2/LimitOrder/Modals/Processing
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import useLimitOrderExecution from 'components/swapv2/LimitOrder/hooks/useLimitOrderExecution'
 import useLimitOrderFormState from 'components/swapv2/LimitOrder/hooks/useLimitOrderFormState'
-import { EditOrderInfo, LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -23,13 +22,6 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { cn } from 'utils/cn'
-
-export const Label = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('text-xs font-medium text-subText', className)} {...rest}>
-    {children}
-  </div>
-)
 
 type BaseProps = {
   currencyIn: Currency | undefined
@@ -41,58 +33,21 @@ type BaseProps = {
 }
 
 type CreateLimitOrderFormProps = BaseProps & {
-  mode?: 'create'
-  defaultInputAmount?: string
-  defaultOutputAmount?: string
-  defaultActiveMakingAmount?: string
-  defaultExpire?: Date
-  defaultRate?: RateInfo
-  orderInfo?: never
-  editOrderInfo?: never
   useUrlParams?: boolean
 }
 
-type EditLimitOrderFormProps = BaseProps & {
-  mode: 'edit'
-  defaultInputAmount: string
-  defaultOutputAmount: string
-  defaultActiveMakingAmount: string
-  defaultExpire: Date
-  defaultRate: RateInfo
-  orderInfo: LimitOrder
-  editOrderInfo: EditOrderInfo
-  useUrlParams?: never
-}
-
-type Props = CreateLimitOrderFormProps | EditLimitOrderFormProps
-
-export type LimitOrderFormHandle = {
-  hasChangedOrderInfo: () => boolean
-}
-const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrderForm(
-  {
-    currencyIn,
-    currencyOut,
-    mode = 'create',
-    defaultInputAmount = '',
-    defaultOutputAmount = '',
-    defaultActiveMakingAmount = '',
-    defaultExpire,
-    defaultRate = { rate: '', invertRate: '', invert: false },
-    note = '',
-    orderInfo,
-    flowState,
-    setFlowState,
-    zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
-    editOrderInfo,
-    useUrlParams,
-  },
-  ref,
-) {
+const LimitOrderForm = ({
+  currencyIn,
+  currencyOut,
+  note = '',
+  flowState,
+  setFlowState,
+  zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
+  useUrlParams,
+}: CreateLimitOrderFormProps) => {
   const { changeNetwork } = useChangeNetwork()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const isEdit = mode === 'edit'
   const {
     chainId,
     walletChainId,
@@ -127,19 +82,12 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   } = useLimitOrderFormState({
     currencyIn,
     currencyOut,
-    defaultInputAmount,
-    defaultOutputAmount,
-    defaultExpire,
-    defaultRate,
-    isEdit,
     useUrlParams,
   })
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
   const {
-    checkingAllowance,
     estimateUSD,
     handleMaxInput,
-    hasChangedOrderInfo,
     hasInputError,
     hidePreview,
     hideProcessingOrder,
@@ -147,7 +95,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     insufficientBalance,
     insufficientBalanceText,
     isNotFillAllInput,
-    onSubmitCreateOrderWithTracking,
     outPutError,
     processingOrder,
     retryProcessingOrder,
@@ -160,13 +107,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   } = useLimitOrderExecution({
     currencyIn,
     currencyOut,
-    defaultActiveMakingAmount,
-    defaultInputAmount,
-    defaultRate,
-    defaultExpire,
-    orderInfo,
     setFlowState,
-    isEdit,
     chainId,
     networkName: networkInfo.name,
     searchParams,
@@ -182,10 +123,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     onResetForm,
     switchToWeth,
   })
-
-  useImperativeHandle(ref, () => ({
-    hasChangedOrderInfo,
-  }))
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
   const disableReviewButton = isNotFillAllInput || !!hasInputError || insufficientBalance
@@ -203,12 +140,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       <ButtonLight onClick={toggleWalletModal}>
         <Trans>Connect</Trans>
       </ButtonLight>
-    ) : isEdit ? (
-      checkingAllowance ? (
-        <ButtonPrimary disabled>{reviewButtonContent}</ButtonPrimary>
-      ) : (
-        editOrderInfo?.renderCancelButtons?.() || null
-      )
     ) : warningMessage.length > 0 && !disableReviewButton ? (
       <ButtonWarning onClick={showPreview}>{reviewButtonContent}</ButtonWarning>
     ) : (
@@ -217,33 +148,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       </ButtonPrimary>
     )
 
-  const renderConfirmModal = (showConfirmContent = false) => (
-    <ConfirmOrderModal
-      onDismiss={hidePreview}
-      onSubmit={isEdit ? onSubmitCreateOrderWithTracking : startProcessingOrder}
-      flowState={flowState}
-      currencyIn={currencyIn}
-      currencyOut={currencyOut}
-      inputAmount={inputAmount}
-      outputAmount={outputAmount}
-      expiredAt={expiredAt}
-      rateInfo={rateInfo}
-      note={note}
-      editOrderInfo={editOrderInfo}
-      warningMessage={warningMessage}
-      marketPrice={tradeInfo}
-      showConfirmContent={showConfirmContent}
-      percentDiff={Number(deltaRate.rawPercent)}
-    />
-  )
-
-  if (isEdit && flowState.showConfirm)
-    return (
-      <>
-        {renderConfirmModal(true)}
-        {actionButton}
-      </>
-    )
   return (
     <>
       <div className="flex flex-col gap-4">
@@ -258,8 +162,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           outPutError={outPutError}
           estimateUsdIn={estimateUSD.input}
           estimateUsdOut={estimateUSD.output}
-          showApproveFlow={false}
-          isEdit={isEdit}
           rotate={rotate}
           styleTooltip={styleTooltip}
           onSetInput={onSetInput}
@@ -313,7 +215,21 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         {actionButton}
       </div>
 
-      {renderConfirmModal()}
+      <ConfirmOrderModal
+        onDismiss={hidePreview}
+        onSubmit={startProcessingOrder}
+        flowState={flowState}
+        currencyIn={currencyIn}
+        currencyOut={currencyOut}
+        inputAmount={inputAmount}
+        outputAmount={outputAmount}
+        expiredAt={expiredAt}
+        rateInfo={rateInfo}
+        note={note}
+        warningMessage={warningMessage}
+        marketPrice={tradeInfo}
+        percentDiff={Number(deltaRate.rawPercent)}
+      />
 
       <DateTimePicker
         defaultDate={customDateExpire}
@@ -332,6 +248,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       />
     </>
   )
-})
+}
 
 export default memo(LimitOrderForm)

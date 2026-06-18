@@ -10,12 +10,11 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { Container, Header, ListInfo, Note, Rate, Value } from 'components/swapv2/LimitOrder/Modals/styled'
 import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
 import { formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
-import { CancelOrderType, EditOrderInfo, RateInfo } from 'components/swapv2/LimitOrder/type'
+import { RateInfo } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { formatDisplayNumber } from 'utils/numbers'
 
 const styleLogo = { width: 20, height: 20 }
 
@@ -33,8 +32,6 @@ export default memo(function ConfirmOrderModal({
   note,
   warningMessage,
   percentDiff,
-  editOrderInfo,
-  showConfirmContent,
 }: {
   onSubmit: () => void
   onDismiss: () => void
@@ -49,13 +46,10 @@ export default memo(function ConfirmOrderModal({
   note?: string
   warningMessage: ReactNode[]
   percentDiff: number
-  editOrderInfo?: EditOrderInfo
-  showConfirmContent: boolean
 }) {
   const { account } = useActiveWeb3React()
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = percentDiff < WORSE_PRICE_DIFF_THRESHOLD
-  const { cancelType, gasFee, isEdit } = editOrderInfo || {}
 
   const listData = useMemo(() => {
     const nodes = [
@@ -94,29 +88,8 @@ export default memo(function ConfirmOrderModal({
         ),
       },
     ]
-    if (isEdit)
-      nodes.push({
-        label: t`Edit Type`,
-        content: (
-          <Value>
-            <span>
-              {cancelType === CancelOrderType.GAS_LESS_CANCEL ? (
-                <Trans>Gasless Edit</Trans>
-              ) : (
-                <Trans>
-                  Hard Edit (
-                  <span className="text-red">
-                    ~{formatDisplayNumber(gasFee, { style: 'currency', fractionDigits: 4 })}
-                  </span>{' '}
-                  gas fees)
-                </Trans>
-              )}
-            </span>
-          </Value>
-        ),
-      })
     return nodes
-  }, [account, currencyIn, currencyOut, inputAmount, rateInfo, outputAmount, expiredAt, isEdit, gasFee, cancelType])
+  }, [account, currencyIn, currencyOut, inputAmount, rateInfo, outputAmount, expiredAt])
 
   const handleDismiss = () => {
     onDismiss()
@@ -191,22 +164,18 @@ export default memo(function ConfirmOrderModal({
         </Column>
       )}
 
-      {isEdit ? null : (
-        <div className="flex gap-3">
-          {renderConfirmPriceButton()}
-          {renderPlaceOrderButton()}
-        </div>
-      )}
+      <div className="flex gap-3">
+        {renderConfirmPriceButton()}
+        {renderPlaceOrderButton()}
+      </div>
     </>
   )
-
-  if (showConfirmContent) return renderConfirmData()
 
   const renderConfirmationContent = (): ReactNode => {
     return (
       <div className="flex w-full flex-col">
         <div>
-          {flowState.errorMessage && !isEdit ? (
+          {flowState.errorMessage ? (
             <TransactionErrorContent onDismiss={onDismiss} message={flowState.errorMessage} />
           ) : (
             <Container>
@@ -226,7 +195,6 @@ export default memo(function ConfirmOrderModal({
       isOpen={flowState.showConfirm}
       onDismiss={handleDismiss}
       attemptingTxn={flowState.attemptingTxn}
-      attemptingTxnContent={isEdit ? renderConfirmationContent : undefined}
       content={renderConfirmationContent}
       pendingText={flowState.pendingText || t`Placing order`}
     />

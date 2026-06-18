@@ -24,16 +24,14 @@ const ButtonWrapper = ({ children, style }: { children: ReactNode; style?: CSSPr
 )
 
 const ButtonGroup = ({
-  isEdit,
   buttonGasless,
-  buttonHardEdit,
+  buttonHardCancel,
   gasAmountDisplay,
   style,
   showGaslessNote = true,
 }: {
-  isEdit?: boolean
   buttonGasless: ReactNode
-  buttonHardEdit: ReactNode
+  buttonHardCancel: ReactNode
   gasAmountDisplay: string
   style?: CSSProperties
   showGaslessNote?: boolean
@@ -44,7 +42,7 @@ const ButtonGroup = ({
         {buttonGasless}
         {showGaslessNote && (
           <span className="text-[10px] leading-[14px] text-subText">
-            {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
+            <Trans>Cancel without paying gas.</Trans>
             <Trans>
               <br /> Cancellation may not be instant.{' '}
               <ExternalLink href={DOCS_LINKS.GASLESS_CANCEL}>Learn more ↗︎</ExternalLink>
@@ -53,13 +51,9 @@ const ButtonGroup = ({
         )}
       </Column>
       <Column className="w-full gap-2">
-        {buttonHardEdit}
+        {buttonHardCancel}
         <span className="text-[10px] leading-[14px] text-subText">
-          {isEdit ? (
-            <Trans>Edit immediately by paying {gasAmountDisplay} gas fees.</Trans>
-          ) : (
-            <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees.</Trans>
-          )}{' '}
+          <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees.</Trans>{' '}
           <ExternalLink href={DOCS_LINKS.HARD_CANCEL}>
             <Trans>Learn more ↗︎</Trans>
           </ExternalLink>
@@ -86,7 +80,6 @@ const CancelButtons = ({
   onClickHardCancel,
   onClickGaslessCancel,
   onSubmit,
-  isEdit,
   estimateGas,
   confirmOnly = false,
   cancelType,
@@ -108,7 +101,6 @@ const CancelButtons = ({
   onSubmit?: () => void
   onClickGaslessCancel: () => void
   onClickHardCancel: () => void
-  isEdit?: boolean // else cancel
   estimateGas: string
   confirmOnly?: boolean
   cancelType: CancelOrderType
@@ -127,12 +119,10 @@ const CancelButtons = ({
   const onSetType = (type: CancelOrderType) => {
     setCancelType(type)
     if (!order) return
-    trackingHandler(
-      isEdit ? TRACKING_EVENT_TYPE.LO_CLICK_UPDATE_TYPE : TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_TYPE,
-      getPayloadTracking(order, networkInfo.name, {
-        [isEdit ? 'edit_type' : 'cancel_type']: type === CancelOrderType.GAS_LESS_CANCEL ? 'Gasless' : 'Hard',
-      }),
-    )
+    trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_TYPE, {
+      ...getPayloadTracking(order, networkInfo.name),
+      cancel_type: type === CancelOrderType.GAS_LESS_CANCEL ? 'Gasless' : 'Hard',
+    })
   }
 
   const gasAmountDisplay = estimateGas
@@ -168,7 +158,6 @@ const CancelButtons = ({
       <ButtonGroup
         showGaslessNote={false}
         style={{ flexDirection: 'row-reverse' }}
-        isEdit={isEdit}
         gasAmountDisplay={gasAmountDisplay}
         buttonGasless={
           <ButtonPrimary {...propsGasless} onClick={onDismiss}>
@@ -177,11 +166,11 @@ const CancelButtons = ({
             <Trans>Close</Trans>
           </ButtonPrimary>
         }
-        buttonHardEdit={
+        buttonHardCancel={
           <ButtonOutlined {...propsHardCancel} onClick={onClickHardCancel} color={theme.red}>
             <GasStation size={20} />
             &nbsp;
-            {isEdit ? <Trans>Hard Edit Instead</Trans> : <Trans>Hard Cancel Instead</Trans>}
+            <Trans>Hard Cancel Instead</Trans>
           </ButtonOutlined>
         }
       />
@@ -192,7 +181,6 @@ const CancelButtons = ({
       {!confirmOnly && (
         <ButtonGroup
           style={{ flexDirection: isCountDown ? 'row-reverse' : undefined }}
-          isEdit={isEdit}
           gasAmountDisplay={gasAmountDisplay}
           buttonGasless={
             <MouseoverTooltip
@@ -218,7 +206,7 @@ const CancelButtons = ({
               </ButtonOutlined>
             </MouseoverTooltip>
           }
-          buttonHardEdit={
+          buttonHardCancel={
             <ButtonOutlined
               {...propsHardCancel}
               onClick={() => onSetType(CancelOrderType.HARD_CANCEL)}

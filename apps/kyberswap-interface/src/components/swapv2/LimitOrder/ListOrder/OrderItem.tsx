@@ -249,7 +249,6 @@ export default function OrderItem({
   order,
   index,
   onCancelOrder,
-  onEditOrder,
   isOrderCancelling,
   tokenPrices,
   isLast,
@@ -257,7 +256,6 @@ export default function OrderItem({
 }: {
   order: LimitOrder
   onCancelOrder: (order: LimitOrder) => void
-  onEditOrder: (order: LimitOrder) => void
   index: number
   isOrderCancelling: (order: LimitOrder) => boolean
   tokenPrices: Record<string, number>
@@ -380,7 +378,6 @@ export default function OrderItem({
             onExpand={toggle}
             expand={expand}
             onCancelOrder={onCancelOrder}
-            onEditOrder={onEditOrder}
             isCancelling={isCancelling}
           />
         </div>
@@ -459,7 +456,6 @@ export default function OrderItem({
           expand={expand}
           txHash={txHash}
           onCancelOrder={onCancelOrder}
-          onEditOrder={onEditOrder}
           isCancelling={isCancelling}
         />
       </ItemWrapper>

@@ -631,7 +631,6 @@ msgstr "Winner"
 msgid "TOTAL AMOUNT (USD)"
 msgstr "TOTAL AMOUNT (USD)"
 
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Review your order"
 msgstr "Review your order"
@@ -2040,11 +2039,6 @@ msgstr "Smart Exit canceled: position liquidity is different than the signed amo
 msgid "You are undelegating your voting power from this address"
 msgstr "You are undelegating your voting power from this address"
 
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "Gasless Edit"
-msgstr "Gasless Edit"
-
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "<0>9,000 ARB</0> is allocated for this campaign each week."
 msgstr "<0>9,000 ARB</0> is allocated for this campaign each week."
@@ -2168,10 +2162,6 @@ msgstr "Closed"
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "in a 2-day finalization period before they become claimable."
 msgstr "in a 2-day finalization period before they become claimable."
-
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-msgid "Editing this order will automatically cancel your existing order and a new order will be created."
-msgstr "Editing this order will automatically cancel your existing order and a new order will be created."
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -3071,10 +3061,6 @@ msgstr "Trade"
 #: src/pages/About/AboutKNC.tsx
 msgid "Stake KNC, Vote, Earn Rewards."
 msgstr "Stake KNC, Vote, Earn Rewards."
-
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "Hard Edit (<0>~{0}</0> gas fees)"
-msgstr "Hard Edit (<0>~{0}</0> gas fees)"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Show more details"
@@ -5275,10 +5261,6 @@ msgstr "Saving..."
 msgid "Cancel Orders Failed"
 msgstr "Cancel Orders Failed"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
-msgid "Hard Edit Instead"
-msgstr "Hard Edit Instead"
-
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "More Information"
 msgstr "More Information"
@@ -5510,10 +5492,6 @@ msgstr "Please connect wallet to view your Dashboard"
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
 msgid "Week {week}"
 msgstr "Week {week}"
-
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-msgid "Your currently existing order is {filled}% filled."
-msgstr "Your currently existing order is {filled}% filled."
 
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "My Pool APR"
@@ -5962,11 +5940,6 @@ msgstr "<0>Week 3</0> July 22 - July 28"
 msgid "Insufficient liquidity available. Please reload page or increase max slippage and try again!"
 msgstr "Insufficient liquidity available. Please reload page or increase max slippage and try again!"
 
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-msgid "Edit Order"
-msgstr "Edit Order"
-
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Unstaking {inputValue} KNC from KyberDAO"
 msgstr "Unstaking {inputValue} KNC from KyberDAO"
@@ -6160,7 +6133,6 @@ msgstr "How often is the data updated?"
 msgid "Current Cycle"
 msgstr "Current Cycle"
 
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
@@ -6793,10 +6765,6 @@ msgstr "Insufficient Funds"
 #: src/pages/Oauth/AuthForm/EmailLoginForm.tsx
 msgid "Email Address"
 msgstr "Email Address"
-
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
-msgid "Edit the order without paying gas."
-msgstr "Edit the order without paying gas."
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 #: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
@@ -8461,10 +8429,6 @@ msgstr "Half"
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Select chains"
 msgstr "Select chains"
-
-#: src/components/swapv2/LimitOrder/EditOrderModal.tsx
-msgid "Hard Edit"
-msgstr "Hard Edit"
 
 #: src/components/Announcement/helpers.ts
 msgid "Cancelled by you"
