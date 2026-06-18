@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect'
 export function useOnClickOutside<T extends HTMLElement>(
   node: RefObject<T | undefined> | RefObject<T | undefined>[],
   handler: undefined | (() => void),
+  { ignoreReachPortal = true }: { ignoreReachPortal?: boolean } = {},
 ) {
   const handlerRef = useRef<undefined | (() => void)>(handler)
   handlerRef.current = handler
@@ -11,7 +12,10 @@ export function useOnClickOutside<T extends HTMLElement>(
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       let nodes: RefObject<T | undefined>[]
-      if ([...document.getElementsByTagName('reach-portal')].some((el: Element) => el.contains(e.target as Node))) {
+      if (
+        ignoreReachPortal &&
+        [...document.getElementsByTagName('reach-portal')].some((el: Element) => el.contains(e.target as Node))
+      ) {
         return
       }
       if (Array.isArray(node)) nodes = node
@@ -27,5 +31,5 @@ export function useOnClickOutside<T extends HTMLElement>(
     return () => {
       document.removeEventListener(isMobile ? 'touchstart' : 'mousedown', handleClickOutside)
     }
-  }, [node])
+  }, [ignoreReachPortal, node])
 }

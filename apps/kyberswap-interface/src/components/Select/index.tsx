@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import { Placement } from '@popperjs/core'
 import { Portal } from '@reach/portal'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
@@ -99,11 +99,17 @@ export default function Select({
   }, [selectedValue, options, hasPlaceholder])
 
   const ref = useRef<HTMLDivElement>(null)
+  const popperRef = useRef<HTMLDivElement>()
+  const outsideRefs = useMemo(() => [ref, popperRef], [])
 
-  useOnClickOutside(ref, () => {
-    setShowMenu(false)
-    onHideMenu?.()
-  })
+  useOnClickOutside(
+    outsideRefs,
+    () => {
+      setShowMenu(false)
+      onHideMenu?.()
+    },
+    { ignoreReachPortal: false },
+  )
   const selectedInfo = options.find(item => getOptionValue(item) === selected)
   const shouldShowPlaceholder =
     hasPlaceholder && (selectedValue === null || selectedValue === undefined) && !selectedInfo
@@ -150,6 +156,10 @@ export default function Select({
   }
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
+  const setPopperRef = (node: HTMLDivElement | null) => {
+    popperRef.current = node || undefined
+    setPopperElement(node)
+  }
 
   const { styles } = usePopper(ref.current, popperElement, {
     placement: placement,
@@ -178,7 +188,7 @@ export default function Select({
         {showMenu && (
           <Portal>
             <div
-              ref={setPopperElement}
+              ref={setPopperRef}
               style={{
                 ...styles.popper,
                 ...(menuPlacementTop ? { bottom: 40, top: 'unset' } : {}),

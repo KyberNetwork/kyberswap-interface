@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { Calendar, X } from 'react-feather'
+import { Calendar } from 'react-feather'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import DatePicker from 'components/DatePicker'
@@ -9,6 +9,8 @@ import Modal from 'components/Modal'
 import Select, { SelectProps } from 'components/Select'
 import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { CloseIcon } from 'theme'
+import { cn } from 'utils/cn'
 import { formatTimeDuration } from 'utils/time'
 
 const MIN_TIME_MINUTES = 5
@@ -105,14 +107,19 @@ export default function DateTimePicker({
 
   const propsSelect: Partial<SelectProps> = {
     style: { width: 120, borderRadius: 20 },
-    className: 'bg-background',
+    className: 'bg-background px-3 py-1',
     menuStyle: {
       height: 250,
       overflow: 'scroll',
       textAlign: 'center',
-      width: 'fit-content',
+      width: 120,
     },
-    placement: 'left',
+    optionStyle: {
+      padding: '8px 8px',
+      fontSize: 14,
+      textAlign: 'left',
+    },
+    placement: 'bottom',
   }
 
   const expireResult = defaultExpire ? Date.now() + defaultExpire * 1000 : date
@@ -135,23 +142,32 @@ export default function DateTimePicker({
       <div className="flex w-full flex-col gap-4 px-5 py-6 font-medium max-sm:px-2.5 max-sm:py-4">
         <div className="flex items-center justify-between">
           <span className="text-sm">{title || <Trans>Customize the Expiry Time</Trans>}</span>
-          <X className="text-text" onClick={onDismiss} cursor="pointer" />
+          <CloseIcon onClick={onDismiss} />
         </div>
         <div className="flex gap-4">
-          <div className="flex flex-col gap-3.5 whitespace-nowrap rounded-l-2xl bg-background p-2.5 pt-5 text-xs max-md:hidden">
-            <span className="text-border">
+          <div className="flex flex-col gap-2 whitespace-nowrap rounded-xl bg-background px-2 py-3 text-xs max-md:hidden">
+            <span className="text-subText">
               <Trans>Default Options</Trans>
             </span>
-            {(defaultOptions || DEFAULT_OPTIONS).map(opt => (
-              <span
-                key={opt.value}
-                className="cursor-pointer"
-                style={{ color: opt.value === defaultExpire ? theme.primary : theme.subText }}
-                onClick={() => opt.value && onSelectDefaultOption(Number(opt.value))}
-              >
-                {opt.label}
-              </span>
-            ))}
+            <div className="flex flex-col gap-1">
+              {(defaultOptions || DEFAULT_OPTIONS).map(opt => {
+                const active = opt.value === defaultExpire
+
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    className={cn(
+                      'rounded-md px-2 py-1 text-left transition-colors hover:bg-buttonGray hover:text-text',
+                      active ? 'text-primary hover:text-primary' : 'text-subText',
+                    )}
+                    onClick={() => opt.value && onSelectDefaultOption(Number(opt.value))}
+                  >
+                    {opt.label}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           <div className="flex flex-1 flex-col items-center gap-[5px]">
             <DatePicker value={date} onChange={(date: Date) => setCustomDate(date, hour, min)} />
@@ -189,7 +205,7 @@ export default function DateTimePicker({
           </div>
         </div>
         <div
-          className="flex w-full justify-between rounded-[20px] bg-warning-20 p-3 text-sm"
+          className="flex w-full justify-between rounded-[20px] bg-warning-20 px-3 py-2 text-sm"
           style={{
             backgroundColor: title ? 'transparent' : undefined,
             border: title ? `1px solid ${theme.primary}` : undefined,
@@ -203,7 +219,7 @@ export default function DateTimePicker({
           </div>
           <span className="text-text">{dayjs(expireResult).format('DD/MM/YYYY HH:mm')}</span>
         </div>
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-2">
           <ButtonOutlined
             onClick={onDismiss}
             style={{
