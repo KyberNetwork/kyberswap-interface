@@ -10,7 +10,7 @@ import {
 } from 'components/swapv2/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 
-export default function SummaryNotify({
+const SummaryNotify = ({
   type,
   message,
   orders = [],
@@ -18,7 +18,7 @@ export default function SummaryNotify({
   type?: LimitOrderStatus
   message?: string
   orders?: LimitOrder[]
-}) {
+}) => {
   const isMultiOrder = orders.length > 1
   const order = orders[0]
   const {
@@ -135,6 +135,8 @@ export default function SummaryNotify({
 
   return <p className="m-0 leading-[18px] text-text">{message || msg}</p>
 }
+
+export default SummaryNotify
 
 export const SummaryNotifyOrderPlaced = ({
   currencyIn,

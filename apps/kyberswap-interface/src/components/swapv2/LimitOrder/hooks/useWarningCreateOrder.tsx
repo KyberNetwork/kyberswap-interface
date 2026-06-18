@@ -24,7 +24,7 @@ const USD_THRESHOLD = new Proxy(_USD_THRESHOLD, {
   },
 })
 
-export default function useWarningCreateOrder({
+export const useWarningCreateOrder = ({
   currencyIn,
   outputAmount,
   displayRate,
@@ -38,7 +38,7 @@ export default function useWarningCreateOrder({
   deltaRate: DeltaRateLimitOrder
   estimateUSD: number
   missingAllowance: boolean | CurrencyAmount<Currency>
-}) {
+}) => {
   const { chainId } = useActiveWeb3React()
   const warningMessage = useMemo(() => {
     const messages = []

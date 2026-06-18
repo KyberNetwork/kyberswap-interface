@@ -1,24 +1,21 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Repeat } from 'react-feather'
 
-import CurrencyLogo from 'components/CurrencyLogo'
-import InfoHelper from 'components/InfoHelper'
 import NumericalInput from 'components/NumericalInput'
+import { Stack } from 'components/Stack'
 import { removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
 import { DeltaRateLimitOrder, RateInfo } from 'components/swapv2/LimitOrder/types'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
-import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
-export function useGetDeltaRateLimitOrder({
+export const useGetDeltaRateLimitOrder = ({
   marketPrice,
   rateInfo,
 }: {
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
-}): DeltaRateLimitOrder {
+}): DeltaRateLimitOrder => {
   const { deltaText, percent } = useMemo(() => {
     try {
       if (marketPrice && rateInfo.rate && rateInfo.invertRate) {
@@ -52,56 +49,19 @@ const RateLabel = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDi
   </div>
 )
 
-const DeltaRate = ({
-  marketPrice,
-  rateInfo,
-  symbol,
-  invert,
-}: {
-  marketPrice: BaseTradeInfo | undefined
-  rateInfo: RateInfo
-  symbol: string
-  invert: boolean
-}) => {
-  const theme = useTheme()
-
-  const { percent, profit } = useGetDeltaRateLimitOrder({ marketPrice, rateInfo })
-  const color = profit ? theme.apr : theme.warning
-  const colorClass = profit ? 'text-apr' : 'text-warning'
-  const styledPercent = <span className={cn('font-medium', colorClass)}>{percent}</span>
+const DeltaRate = ({ symbol, invert }: { symbol: string; invert: boolean }) => {
   return (
     <RateLabel className="flex items-center whitespace-nowrap">
       {invert ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
-      {percent ? (
-        <>
-          <span className={colorClass}>&nbsp;{percent}</span>
-          <InfoHelper
-            color={color}
-            text={
-              profit ? (
-                <Trans>Your selected price is {styledPercent} better than the current market price.</Trans>
-              ) : (
-                <Trans>Your selected price is {styledPercent} worse than the current market price.</Trans>
-              )
-            }
-          />
-        </>
-      ) : null}
     </RateLabel>
   )
 }
-
-const RateCard = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex flex-col gap-2 rounded-2xl bg-buttonBlack p-3', className)} {...rest}>
-    {children}
-  </div>
-)
 
 const RateChip = ({ children, className, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     type="button"
     className={cn(
-      'h-7 rounded-lg border border-subText/20 px-2 text-xs font-medium text-subText transition-colors hover:border-primary hover:text-primary',
+      'h-6 rounded-lg border border-border/60 px-2 text-xs font-medium text-subText transition-colors hover:border-border-primary hover:text-primary',
       className,
     )}
     {...rest}
@@ -132,10 +92,10 @@ const PercentInputChip = ({ value, onUserInput }: { value: string; onUserInput: 
   }
 
   return (
-    <div className="flex h-7 items-center rounded-lg border border-subText/30 px-2 text-xs font-medium text-text">
+    <div className="flex h-6 w-[72px] items-center rounded-lg border border-border/60 px-2 text-xs font-medium text-text">
       <span className="shrink-0">{displayValue && !/^[+-]/.test(displayValue) ? '+' : ''}</span>
       <NumericalInput
-        className="h-5 w-[46px] bg-transparent text-xs font-medium text-text"
+        className="h-5 bg-transparent text-xs font-medium text-text"
         value={displayValue}
         onUserInput={onChange}
         onFocus={() => {
@@ -172,7 +132,6 @@ type RateSectionState = {
 
 type RateSectionEvents = {
   onRateChange?: (value: string) => void
-  onInvertRate?: (invert: boolean) => void
   onSetMarketRate?: () => void
   onRateInputFocus?: () => void
   onRateInputBlur?: () => void
@@ -181,13 +140,10 @@ type RateSectionEvents = {
 const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '', invert: false }
 const RATE_DELTA_OPTIONS = [10, 20, 50]
 
-export default function LimitOrderRateSection({ tokens = {}, rate = {}, events = {} }: Props) {
+const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) => {
   const { currencyIn, currencyOut } = tokens
   const { displayRate = '', rateInfo = DEFAULT_RATE_INFO, tradeInfo } = rate
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
-  const marketRate = tradeInfo
-    ? removeTrailingZero((rateInfo.invert ? tradeInfo.invertRate : tradeInfo.marketRate).toPrecision(6))
-    : ''
   const unitCurrency = rateInfo.invert ? currencyIn : currencyOut
   const percentInputValue =
     deltaRate.rawPercent === undefined || !Number.isFinite(deltaRate.rawPercent)
@@ -210,32 +166,19 @@ export default function LimitOrderRateSection({ tokens = {}, rate = {}, events =
   }
 
   return (
-    <RateCard>
+    <Stack className="gap-3 rounded-2xl bg-buttonBlack p-4">
       <div className="flex items-center justify-between gap-3">
         <DeltaRate
           invert={rateInfo.invert}
           symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
-          marketPrice={tradeInfo}
-          rateInfo={rateInfo}
         />
-        {currencyIn && currencyOut && unitCurrency && (
-          <button
-            type="button"
-            className="flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-buttonGray px-3 text-sm font-medium text-subText hover:brightness-125"
-            onClick={() => events.onInvertRate?.(!rateInfo.invert)}
-          >
-            <CurrencyLogo size="18px" currency={unitCurrency} />
-            <span className="select-none">{unitCurrency.symbol}</span>
-            <Repeat className="text-subText" size={12} />
-          </button>
-        )}
       </div>
 
-      <div className="flex items-end justify-between gap-3">
-        <div className="flex min-h-11 min-w-0 flex-1 items-center rounded-xl border border-subText/20 bg-background px-3">
+      <div className="flex min-h-8 items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center">
           <NumericalInput
             maxLength={50}
-            className="h-9 bg-transparent text-xl font-medium text-primary"
+            className="bg-transparent text-xl font-medium text-primary"
             data-testid="input-selling-rate"
             value={displayRate}
             onUserInput={events.onRateChange}
@@ -243,6 +186,11 @@ export default function LimitOrderRateSection({ tokens = {}, rate = {}, events =
             onBlur={events.onRateInputBlur}
           />
         </div>
+        {unitCurrency && (
+          <div className="flex shrink-0 items-center rounded-full bg-buttonGray px-3 py-1 text-base font-medium text-subText">
+            {unitCurrency.symbol}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -255,11 +203,17 @@ export default function LimitOrderRateSection({ tokens = {}, rate = {}, events =
           ))}
         </div>
         {tradeInfo ? (
-          <button type="button" className="text-xs font-medium text-subText" onClick={events.onSetMarketRate}>
-            <Trans>Market</Trans> <span className="text-primary">{marketRate}</span>
+          <button
+            type="button"
+            className="h-6 rounded-full bg-primary-20 px-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary-30"
+            onClick={events.onSetMarketRate}
+          >
+            <Trans>Market</Trans>
           </button>
         ) : null}
       </div>
-    </RateCard>
+    </Stack>
   )
 }
+
+export default LimitOrderRateSection

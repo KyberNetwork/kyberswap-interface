@@ -23,7 +23,7 @@ export const DOCS_LINKS = {
 }
 
 // js number to fraction
-export function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {
+export const parseFraction = (value: string, decimals = RESERVE_USD_DECIMALS) => {
   try {
     return new Fraction(
       parseUnits(value, decimals).toString(),
@@ -44,7 +44,7 @@ export const removeTrailingZero = (num: string) => {
   return num.replace(/^([\d,]+)$|^([\d,]+)\.0*$|^([\d,]+\.[0-9]*?)0*$/, '$1$2$3')
 }
 
-export function calcOutput(input: string, rate: string | Fraction, decimalsOut: number) {
+export const calcOutput = (input: string, rate: string | Fraction, decimalsOut: number) => {
   try {
     const value = parseFraction(input).multiply(typeof rate === 'string' ? parseFraction(rate) : rate)
     return removeTrailingZero(value.toFixed(decimalsOut))
@@ -53,7 +53,7 @@ export function calcOutput(input: string, rate: string | Fraction, decimalsOut: 
   }
 }
 
-export function calcRate(input: string, output: string, decimalsOut: number) {
+export const calcRate = (input: string, output: string, decimalsOut: number) => {
   try {
     if (input && input === output) return '1'
     const rate = parseFraction(output, decimalsOut).divide(parseFraction(input))
@@ -64,7 +64,7 @@ export function calcRate(input: string, output: string, decimalsOut: number) {
 }
 
 // calc 1/value
-export function calcInvert(value: string) {
+export const calcInvert = (value: string) => {
   try {
     if (parseFloat(value) === 1) return '1'
     return removeTrailingZero(new Fraction(1).divide(parseFraction(value)).toFixed(16))

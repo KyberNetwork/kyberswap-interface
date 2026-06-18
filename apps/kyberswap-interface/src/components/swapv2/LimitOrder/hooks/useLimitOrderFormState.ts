@@ -28,7 +28,7 @@ export type LimitOrderFormStateArgs = {
 const DEFAULT_EXPIRED = 36500 * TIMES_IN_SECS.ONE_DAY
 const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '', invert: false }
 
-export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrlParams }: LimitOrderFormStateArgs) {
+export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }: LimitOrderFormStateArgs) => {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -52,7 +52,6 @@ export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrl
   const [expire, setExpire] = useState(DEFAULT_EXPIRED)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [customDateExpire, setCustomDateExpire] = useState<Date | undefined>()
-  const [rotate, setRotate] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
@@ -229,7 +228,6 @@ export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrl
       to_token: currencyIn?.symbol,
       chain: networkInfo.name,
     })
-    setRotate(prev => !prev)
     switchCurrency()
     setInputAmount(outputAmount)
     setOutputAmount(inputAmount)
@@ -298,7 +296,6 @@ export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrl
     expire,
     showDatePicker,
     customDateExpire,
-    rotate,
     expanded,
     loadingTrade,
     tradeInfo,

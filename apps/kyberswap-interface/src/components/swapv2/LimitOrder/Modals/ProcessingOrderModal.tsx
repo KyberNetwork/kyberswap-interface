@@ -64,7 +64,7 @@ const getStepLabel = ({
   return t`Sign order`
 }
 
-export default function ProcessingOrderModal({
+const ProcessingOrderModal = ({
   chainId,
   currencyIn,
   state,
@@ -78,7 +78,7 @@ export default function ProcessingOrderModal({
   onDismiss: () => void
   onRetryStep: (step: ProcessingOrderStep) => void
   onRunStep: (step: ProcessingOrderStep) => void
-}) {
+}) => {
   useEffect(() => {
     if (!state.show || !state.currentStep || state.errorStep) return
     onRunStep(state.currentStep)
@@ -128,3 +128,5 @@ export default function ProcessingOrderModal({
     </Modal>
   )
 }
+
+export default ProcessingOrderModal

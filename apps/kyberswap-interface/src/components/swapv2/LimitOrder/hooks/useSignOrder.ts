@@ -10,9 +10,7 @@ import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
-export default function useSignOrder(
-  setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>> | undefined,
-) {
+export const useSignOrder = (setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>> | undefined) => {
   const { account, chainId } = useActiveWeb3React()
   const [getMessageSignature] = useCreateOrderSignatureMutation()
 

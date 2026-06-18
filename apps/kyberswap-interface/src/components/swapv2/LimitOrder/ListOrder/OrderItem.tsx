@@ -245,7 +245,7 @@ const IndexText = ({ children }: { children?: React.ReactNode }) => (
 
 const WarningText = ({ children }: { children: React.ReactNode }) => <span className="text-warning">{children}</span>
 
-export default function OrderItem({
+const OrderItem = ({
   order,
   index,
   onCancelOrder,
@@ -261,7 +261,7 @@ export default function OrderItem({
   tokenPrices: Record<string, number>
   isLast: boolean
   hasOrderCancelling: boolean
-}) {
+}) => {
   const [expand, setExpand] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isCancelling = isOrderCancelling(order)
@@ -490,3 +490,5 @@ export default function OrderItem({
     </>
   )
 }
+
+export default OrderItem

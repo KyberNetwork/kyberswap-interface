@@ -128,7 +128,7 @@ const formatOrders = (
   return mergedOrders
 }
 
-export default function OrderBook() {
+const OrderBook = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { chainId, networkInfo } = useActiveWeb3React()
@@ -261,3 +261,5 @@ export default function OrderBook() {
     </div>
   )
 }
+
+export default OrderBook

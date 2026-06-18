@@ -38,17 +38,17 @@ type Props = {
   }
 }
 
-export default function LimitOrderExpirySection({
+const LimitOrderExpirySection = ({
   expiry: { expire, expanded, customDateExpire, displayTime } = {},
   events = {},
-}: Props) {
+}: Props) => {
   const expireOptions: Array<{ label: string; value?: number; onSelect?: () => void }> = [
     ...getExpireOptions(),
     { label: 'Custom', onSelect: events.onOpenDatePicker },
   ]
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col">
       <div className="flex items-center gap-2">
         <TextDashed fontSize={14} fontWeight={500} className="flex h-fit items-center leading-none text-subText">
           <MouseoverTooltip
@@ -64,24 +64,35 @@ export default function LimitOrderExpirySection({
         </div>
       </div>
 
-      <div className={cn('flex overflow-hidden transition-all duration-100', expanded ? 'h-9 pt-2' : 'h-0 pt-0')}>
-        <div className="flex h-7 w-full max-w-full justify-between rounded-[20px] bg-tabBackground p-0.5">
-          {expireOptions.map(item => {
-            return (
-              <DefaultSlippageOption
-                key={item.label}
-                onClick={() => {
-                  if (item.onSelect) item.onSelect()
-                  else if (item.value) events.onExpireChange?.(item.value)
-                }}
-                data-active={customDateExpire ? item.label === 'Custom' : item.value === expire}
-              >
-                {item.label}
-              </DefaultSlippageOption>
-            )
-          })}
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
+          expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="pt-2">
+            <div className="flex h-7 w-full max-w-full justify-between rounded-[20px] bg-tabBackground p-0.5">
+              {expireOptions.map(item => {
+                return (
+                  <DefaultSlippageOption
+                    key={item.label}
+                    onClick={() => {
+                      if (item.onSelect) item.onSelect()
+                      else if (item.value) events.onExpireChange?.(item.value)
+                    }}
+                    data-active={customDateExpire ? item.label === 'Custom' : item.value === expire}
+                  >
+                    {item.label}
+                  </DefaultSlippageOption>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   )
 }
+
+export default LimitOrderExpirySection

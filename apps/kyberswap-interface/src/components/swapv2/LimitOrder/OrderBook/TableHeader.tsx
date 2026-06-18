@@ -5,7 +5,7 @@ import { ItemWrapper } from 'components/swapv2/LimitOrder/OrderBook/OrderItem'
 import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
-export default function TableHeader() {
+const TableHeader = () => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn, currencyOut } = useLimitState()
 
@@ -47,3 +47,5 @@ export default function TableHeader() {
     </ItemWrapper>
   )
 }
+
+export default TableHeader

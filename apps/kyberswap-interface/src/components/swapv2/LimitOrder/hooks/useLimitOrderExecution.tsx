@@ -6,9 +6,9 @@ import { useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'service
 
 import { calcUsdPrices, getErrorMessage, removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
 import { ProcessingOrderStep } from 'components/swapv2/LimitOrder/hooks/useProcessingOrder'
-import useValidateInputError from 'components/swapv2/LimitOrder/hooks/useValidateInputError'
-import useWarningCreateOrder from 'components/swapv2/LimitOrder/hooks/useWarningCreateOrder'
-import useWrapEthStatus from 'components/swapv2/LimitOrder/hooks/useWrapEthStatus'
+import { useValidateInputError } from 'components/swapv2/LimitOrder/hooks/useValidateInputError'
+import { useWarningCreateOrder } from 'components/swapv2/LimitOrder/hooks/useWarningCreateOrder'
+import { useWrapEthStatus } from 'components/swapv2/LimitOrder/hooks/useWrapEthStatus'
 import { LimitOrderCreateContext } from 'components/swapv2/LimitOrder/types'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -33,13 +33,13 @@ type UseLimitOrderExecutionArgs = {
 
 const getTokenAddress = (currency: Currency | undefined) => (currency?.isNative ? 'NATIVE' : currency?.wrapped?.address)
 
-export default function useLimitOrderExecution({
+export const useLimitOrderExecution = ({
   order,
   setFlowState,
   onSetInput,
   onResetForm,
   switchToWeth,
-}: UseLimitOrderExecutionArgs) {
+}: UseLimitOrderExecutionArgs) => {
   const {
     currencyIn,
     currencyOut,

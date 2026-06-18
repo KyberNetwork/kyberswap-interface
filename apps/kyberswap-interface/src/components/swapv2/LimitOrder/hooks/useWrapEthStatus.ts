@@ -3,7 +3,7 @@ import { usePrevious } from 'react-use'
 
 import { useIsTransactionPending } from 'state/transactions/hooks'
 
-export default function useWrapEthStatus(switchToWeth: () => void) {
+export const useWrapEthStatus = (switchToWeth: () => void) => {
   const [txHashWrapped, setTxHashWrapped] = useState<string>()
 
   const isWrappingEth = useIsTransactionPending(txHashWrapped)

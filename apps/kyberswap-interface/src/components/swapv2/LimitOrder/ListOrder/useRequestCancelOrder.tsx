@@ -11,7 +11,7 @@ import {
 import { wagmiConfig } from 'components/Web3Provider'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from 'components/swapv2/LimitOrder/helpers'
-import useCancellingOrders from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
+import { useCancellingOrders } from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
 import {
   CancelOrderFunction,
   CancelOrderResponse,
@@ -66,7 +66,7 @@ const useGetEncodeLimitOrder = () => {
   )
 }
 
-const useRequestCancelOrder = ({
+export const useRequestCancelOrder = ({
   orders,
   isCancelAll,
   totalOrder,
@@ -298,5 +298,3 @@ export const useEstimateFee = ({ isCancelAll = false, orders }: { isCancelAll?: 
 
   return gasFeeHardCancel
 }
-
-export default useRequestCancelOrder

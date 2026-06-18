@@ -8,13 +8,13 @@ import { useActiveWeb3React } from 'hooks'
 
 const TAB_BUTTON_CLASS = 'h-fit w-fit !flex-none px-4 py-3 text-sm font-medium max-sm:w-1/2'
 
-export default function TabSelector({
+const TabSelector = ({
   activeTab,
   setActiveTab,
 }: {
   activeTab: LimitOrderTab
   setActiveTab: (n: LimitOrderTab) => void
-}) {
+}) => {
   const { chainId, account } = useActiveWeb3React()
   const { data: numberOfInsufficientFundOrders } = useGetNumberOfInsufficientFundOrdersQuery(
     { chainId, maker: account || '' },
@@ -56,3 +56,5 @@ export default function TabSelector({
     </div>
   )
 }
+
+export default TabSelector

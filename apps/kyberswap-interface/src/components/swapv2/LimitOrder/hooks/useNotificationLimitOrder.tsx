@@ -23,7 +23,7 @@ const isTransactionFailed = (txHash: string, transactions: GroupedTxsByHash | un
   return transactionInfo ? getTransactionStatus(transactionInfo).error : false
 }
 
-const useNotificationLimitOrder = () => {
+export const useNotificationLimitOrder = () => {
   const notify = useNotify()
   const { account, chainId } = useActiveWeb3React()
   const showedNotificationOrderIds = useRef<{ [id: string]: boolean }>({})
@@ -176,4 +176,3 @@ const useNotificationLimitOrder = () => {
     }
   }, [account, chainId, notify, ackNotificationOrder, ackNotiLocal, transactions])
 }
-export default useNotificationLimitOrder

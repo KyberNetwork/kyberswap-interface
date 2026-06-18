@@ -2,8 +2,8 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 
-import ArrowRotate from 'components/ArrowRotate'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import Tooltip from 'components/Tooltip'
 
 const Label = ({ children }: { children: ReactNode }) => (
@@ -23,7 +23,6 @@ type TokenSectionTokens = {
   currencyOut?: Currency
   inputAmount?: string
   outputAmount?: string
-  rotate?: boolean
 }
 
 type TokenSectionErrors = {
@@ -50,17 +49,17 @@ type TokenSectionEvents = {
 const DEFAULT_ERRORS: TokenSectionErrors = { input: undefined, output: undefined }
 const DEFAULT_ESTIMATE_USD: TokenSectionEstimateUsd = { input: undefined, output: undefined }
 
-export default function LimitOrderTokenSection({
+const LimitOrderTokenSection = ({
   chainId,
   tokens = {},
   errors = DEFAULT_ERRORS,
   estimateUsd = DEFAULT_ESTIMATE_USD,
   events = {},
-}: Props) {
-  const { currencyIn, currencyOut, inputAmount = '', outputAmount = '', rotate } = tokens
+}: Props) => {
+  const { currencyIn, currencyOut, inputAmount = '', outputAmount = '' } = tokens
 
   return (
-    <div className="relative flex flex-col gap-1">
+    <div className="relative flex flex-col gap-2">
       <Tooltip text={errors.input} show={!!errors.input} placement="top" width="fit-content" dataTestId="error-message">
         <CurrencyInputPanel
           error={!!errors.input}
@@ -87,17 +86,10 @@ export default function LimitOrderTokenSection({
           positionLabel="in"
           customChainId={chainId}
           trackingSource="limit_order"
-          selectClassName="bg-buttonGray px-3"
         />
       </Tooltip>
 
-      <div className="pointer-events-none relative z-20 -my-3 flex justify-center">
-        <ArrowRotate
-          rotate={!!rotate}
-          onClick={events.onRotate}
-          className="pointer-events-auto size-7 border border-bg2 bg-buttonGray p-1"
-        />
-      </div>
+      <ReverseTokenSelectionButton className="z-20 -my-4" onClick={() => events.onRotate?.()} />
 
       <Tooltip text={errors.output} show={!!errors.output} placement="top" width="fit-content">
         <CurrencyInputPanel
@@ -125,9 +117,10 @@ export default function LimitOrderTokenSection({
           positionLabel="in"
           customChainId={chainId}
           trackingSource="limit_order"
-          selectClassName="bg-buttonGray px-3"
         />
       </Tooltip>
     </div>
   )
 }
+
+export default LimitOrderTokenSection

@@ -19,7 +19,7 @@ export const useIsSupportSoftCancelOrder = () => {
   )
 }
 
-export default function useAllActiveOrders(disabled = false, customChainId?: ChainId) {
+export const useAllActiveOrders = (disabled = false, customChainId?: ChainId) => {
   const { account, chainId } = useActiveWeb3React()
   const { data } = useGetListOrdersQuery(
     { chainId: customChainId ?? chainId, maker: account, status: LimitOrderStatus.ACTIVE, pageSize: 100 },

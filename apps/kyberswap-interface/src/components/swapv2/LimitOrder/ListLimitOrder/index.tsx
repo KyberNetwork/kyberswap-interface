@@ -6,7 +6,7 @@ import ListMyOrder from 'components/swapv2/LimitOrder/ListOrder'
 import OrderBook from 'components/swapv2/LimitOrder/OrderBook'
 import { LimitOrderTab } from 'components/swapv2/LimitOrder/types'
 
-export default function ListLimitOrder({ customChainId }: { customChainId?: ChainId }) {
+const ListLimitOrder = ({ customChainId }: { customChainId?: ChainId }) => {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const activeTab = (searchParams.get('activeTab') as LimitOrderTab) || LimitOrderTab.ORDER_BOOK
@@ -26,3 +26,5 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
     </div>
   )
 }
+
+export default ListLimitOrder

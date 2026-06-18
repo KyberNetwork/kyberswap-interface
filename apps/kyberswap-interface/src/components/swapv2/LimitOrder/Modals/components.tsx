@@ -60,7 +60,7 @@ export const Note = ({ note }: { note?: string }) =>
 
 type ListDataType = { label: string; content: ReactNode }[]
 
-export function ListInfo({
+export const ListInfo = ({
   title,
   listData,
   marketPrice,
@@ -72,7 +72,7 @@ export function ListInfo({
   marketPrice: BaseTradeInfo | undefined
   symbolIn: string | undefined
   symbolOut: string | undefined
-}) {
+}) => {
   return (
     <Column className="gap-2">
       {title && <Label className="mb-1">{title}</Label>}

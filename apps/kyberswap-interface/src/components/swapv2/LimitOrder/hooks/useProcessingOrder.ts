@@ -32,7 +32,7 @@ const DEFAULT_PROCESSING_ORDER: ProcessingOrderState = {
   completedSteps: [],
 }
 
-export default function useProcessingOrder({
+export const useProcessingOrder = ({
   approval,
   approveCallback,
   steps,
@@ -42,7 +42,7 @@ export default function useProcessingOrder({
   onCreateOrder,
   onError,
   setFlowState,
-}: UseProcessingOrderArgs) {
+}: UseProcessingOrderArgs) => {
   const [processingOrder, setProcessingOrder] = useState<ProcessingOrderState>(DEFAULT_PROCESSING_ORDER)
   const processingStepStartedRef = useRef<ProcessingOrderStep>()
   const approvalRef = useRef<ApprovalState>(ApprovalState.UNKNOWN)

@@ -44,7 +44,7 @@ const AmountInfo = ({
   </div>
 )
 
-export default function OrderItem({
+const OrderItem = ({
   reverse,
   order,
   style,
@@ -52,7 +52,7 @@ export default function OrderItem({
   reverse?: boolean
   order: LimitOrderFromTokenPairFormatted
   style: CSSProperties
-}) {
+}) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
 
@@ -78,3 +78,5 @@ export default function OrderItem({
     </ItemWrapper>
   )
 }
+
+export default OrderItem

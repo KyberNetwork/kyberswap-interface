@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 
-const useValidateInputError = ({
+export const useValidateInputError = ({
   inputAmount,
   outputAmount,
   displayRate,
@@ -43,4 +43,3 @@ const useValidateInputError = ({
   }, [outputAmount, currencyOut])
   return { inputError, outPutError }
 }
-export default useValidateInputError

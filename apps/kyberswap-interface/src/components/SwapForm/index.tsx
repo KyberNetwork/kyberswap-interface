@@ -308,7 +308,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             {!isWrapOrUnwrap && <FeeControlGroup />}
           </div>
         </Wrapper>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           {!isWrapOrUnwrap && (

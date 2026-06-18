@@ -20,7 +20,7 @@ interface TradePriceProps {
   icon?: ReactNode
 }
 
-export default function TradePrice({
+const TradePrice = ({
   price,
   style = {},
   label,
@@ -30,7 +30,7 @@ export default function TradePrice({
   symbolOut,
   loading,
   icon,
-}: TradePriceProps) {
+}: TradePriceProps) => {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
   try {
@@ -74,3 +74,5 @@ export default function TradePrice({
     </span>
   )
 }
+
+export default TradePrice

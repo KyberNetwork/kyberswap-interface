@@ -7,7 +7,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
 import { calcUsdPrices, getPayloadCreateOrder, removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
-import useSignOrder from 'components/swapv2/LimitOrder/hooks/useSignOrder'
+import { useSignOrder } from 'components/swapv2/LimitOrder/hooks/useSignOrder'
 import { CreateOrderParam, LimitOrderCreateContext } from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -26,14 +26,14 @@ type UseCreateLimitOrderArgs = {
   onSuccess: () => void
 }
 
-export default function useCreateLimitOrder({
+export const useCreateLimitOrder = ({
   order,
   setFlowState,
   searchParams,
   estimateUSD,
   onError,
   onSuccess,
-}: UseCreateLimitOrderArgs) {
+}: UseCreateLimitOrderArgs) => {
   const {
     currencyIn,
     currencyOut,

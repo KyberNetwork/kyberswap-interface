@@ -20,7 +20,7 @@ const CountDownWrapper = ({ children, className }: { children: React.ReactNode; 
   <div className={cn('flex flex-col items-center gap-2 rounded-2xl bg-buttonBlack/30 p-3', className)}>{children}</div>
 )
 
-export default function CancelStatusCountDown({
+const CancelStatusCountDown = ({
   expiredTime,
   cancelStatus,
   setCancelStatus,
@@ -30,7 +30,7 @@ export default function CancelStatusCountDown({
   cancelStatus: CancelStatus
   setCancelStatus: (v: CancelStatus) => void
   flowState: TransactionFlowState
-}) {
+}) => {
   const { errorMessage, attemptingTxn } = flowState
   const pendingText = flowState.pendingText || t`Canceling order`
 
@@ -118,3 +118,5 @@ export default function CancelStatusCountDown({
     </CountDownWrapper>
   )
 }
+
+export default CancelStatusCountDown

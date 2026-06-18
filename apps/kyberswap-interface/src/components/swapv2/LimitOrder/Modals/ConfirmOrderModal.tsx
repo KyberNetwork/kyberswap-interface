@@ -1,7 +1,7 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode, memo, useMemo, useState } from 'react'
+import { ReactNode, useMemo, useState } from 'react'
 
 import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import Column from 'components/Column'
@@ -15,22 +15,7 @@ import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-const styleLogo = { width: 20, height: 20 }
-
-export default memo(function ConfirmOrderModal({
-  onSubmit,
-  currencyIn,
-  currencyOut,
-  onDismiss,
-  flowState,
-  outputAmount,
-  inputAmount,
-  expiredAt,
-  marketPrice,
-  rateInfo,
-  warningMessage,
-  percentDiff,
-}: {
+type Props = {
   onSubmit: () => void
   onDismiss: () => void
   flowState: TransactionFlowState
@@ -43,7 +28,22 @@ export default memo(function ConfirmOrderModal({
   rateInfo: RateInfo
   warningMessage: ReactNode[]
   percentDiff: number
-}) {
+}
+
+const ConfirmOrderModal = ({
+  onSubmit,
+  currencyIn,
+  currencyOut,
+  onDismiss,
+  flowState,
+  outputAmount,
+  inputAmount,
+  expiredAt,
+  marketPrice,
+  rateInfo,
+  warningMessage,
+  percentDiff,
+}: Props) => {
   const { account } = useActiveWeb3React()
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = percentDiff < WORSE_PRICE_DIFF_THRESHOLD
@@ -54,7 +54,7 @@ export default memo(function ConfirmOrderModal({
         label: t`I pay`,
         content: currencyIn && inputAmount && (
           <Value>
-            <CurrencyLogo currency={currencyIn} style={styleLogo} />
+            <CurrencyLogo currency={currencyIn} style={{ width: 20, height: 20 }} />
             <span>
               {formatAmountOrder(inputAmount)} {currencyIn?.symbol}
             </span>
@@ -65,7 +65,7 @@ export default memo(function ConfirmOrderModal({
         label: t`and receive`,
         content: outputAmount && (
           <Value>
-            <CurrencyLogo currency={currencyOut} style={styleLogo} size={'20px'} />
+            <CurrencyLogo currency={currencyOut} style={{ width: 20, height: 20 }} size={'20px'} />
             <span>
               {formatAmountOrder(outputAmount)} {currencyOut?.symbol}
             </span>
@@ -195,4 +195,6 @@ export default memo(function ConfirmOrderModal({
       pendingText={flowState.pendingText || t`Placing order`}
     />
   )
-})
+}
+
+export default ConfirmOrderModal

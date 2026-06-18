@@ -9,7 +9,8 @@ import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from 'components/swapv2/LimitOrder/Modals/components'
 import { calcPercentFilledOrder, formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
-import useAllActiveOrders, {
+import {
+  useAllActiveOrders,
   useIsSupportSoftCancelOrder,
 } from 'components/swapv2/LimitOrder/hooks/useFetchActiveAllOrders'
 import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
@@ -27,7 +28,7 @@ export enum CancelStatus {
 }
 
 const styleLogo = { width: 20, height: 20 }
-function CancelOrderModal({
+const CancelOrderModal = ({
   isCancelAll,
   customChainId,
   order,
@@ -43,7 +44,7 @@ function CancelOrderModal({
   onDismiss: () => void
   flowState: TransactionFlowState
   isOpen: boolean
-}) {
+}) => {
   const currencyIn = useCurrencyV2(order?.makerAsset, customChainId) || undefined
   const currencyOut = useCurrencyV2(order?.takerAsset, customChainId) || undefined
   const { tradeInfo: marketPrice } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut)

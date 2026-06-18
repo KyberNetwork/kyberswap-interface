@@ -13,7 +13,7 @@ export type CancellingOrderInfo = {
   isOrderCancelling: (order: LimitOrder) => boolean
 }
 
-export default function useCancellingOrders(): CancellingOrderInfo {
+export const useCancellingOrders = (): CancellingOrderInfo => {
   const { account, chainId } = useActiveWeb3React()
 
   const [cancellingOrdersIds, setCancellingOrdersIds] = useState<number[]>([])

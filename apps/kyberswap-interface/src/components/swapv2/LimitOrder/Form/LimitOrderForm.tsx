@@ -5,6 +5,7 @@ import { memo, useState } from 'react'
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
 import { NetworkSelector } from 'components/NetworkSelector'
+import { Stack } from 'components/Stack'
 import LimitOrderExpirySection from 'components/swapv2/LimitOrder/Form/LimitOrderExpirySection'
 import LimitOrderRateSection, {
   useGetDeltaRateLimitOrder,
@@ -13,10 +14,10 @@ import LimitOrderTokenSection from 'components/swapv2/LimitOrder/Form/LimitOrder
 import TradePrice from 'components/swapv2/LimitOrder/Form/TradePrice'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import ProcessingOrderModal from 'components/swapv2/LimitOrder/Modals/ProcessingOrderModal'
-import useCreateLimitOrder from 'components/swapv2/LimitOrder/hooks/useCreateLimitOrder'
-import useLimitOrderExecution from 'components/swapv2/LimitOrder/hooks/useLimitOrderExecution'
-import useLimitOrderFormState from 'components/swapv2/LimitOrder/hooks/useLimitOrderFormState'
-import useProcessingOrder from 'components/swapv2/LimitOrder/hooks/useProcessingOrder'
+import { useCreateLimitOrder } from 'components/swapv2/LimitOrder/hooks/useCreateLimitOrder'
+import { useLimitOrderExecution } from 'components/swapv2/LimitOrder/hooks/useLimitOrderExecution'
+import { useLimitOrderFormState } from 'components/swapv2/LimitOrder/hooks/useLimitOrderFormState'
+import { useProcessingOrder } from 'components/swapv2/LimitOrder/hooks/useProcessingOrder'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -113,100 +114,101 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     </span>
   )
 
-  const actionButton =
-    form.chainId !== form.walletChainId ? (
-      <ButtonLight onClick={() => changeNetwork(form.chainId)}>
-        <Trans>Switch to {NETWORKS_INFO[form.chainId].name}</Trans>
-      </ButtonLight>
-    ) : !account ? (
-      <ButtonLight onClick={toggleWalletModal}>
-        <Trans>Connect</Trans>
-      </ButtonLight>
-    ) : validation.warningMessage.length > 0 && !disableReviewButton ? (
-      <ButtonWarning onClick={preview.showPreview}>{reviewButtonContent}</ButtonWarning>
-    ) : (
-      <ButtonPrimary id="review-order-button" onClick={preview.showPreview} disabled={disableReviewButton}>
-        {reviewButtonContent}
-      </ButtonPrimary>
-    )
-
   return (
     <>
-      <div className="flex flex-col gap-4 p-4">
+      <Stack className="gap-4">
         {isEmbeddedSwap ? <NetworkSelector chainId={form.chainId} /> : null}
-        <LimitOrderTokenSection
-          chainId={form.chainId}
-          tokens={{
-            currencyIn,
-            currencyOut,
-            inputAmount: form.inputAmount,
-            outputAmount: form.outputAmount,
-            rotate: form.rotate,
-          }}
-          errors={{
-            input: validation.inputError,
-            output: validation.outPutError,
-          }}
-          estimateUsd={estimateUSD}
-          events={{
-            onInputAmountChange: form.onSetInput,
-            onOutputAmountChange: form.onSetOutput,
-            onMaxInput: balance.handleMaxInput,
-            onInputTokenSelect: form.handleInputSelect,
-            onOutputTokenSelect: form.handleOutputSelect,
-            onRotate: form.handleRotateClick,
-            onInputFocus: tracking.trackingTouchInput,
-            onTokenSelectorOpen: tracking.trackingTouchSelectToken,
-          }}
-        />
-
-        <LimitOrderRateSection
-          tokens={{ currencyIn, currencyOut }}
-          rate={{
-            displayRate: form.displayRate,
-            rateInfo: form.rateInfo,
-            tradeInfo: form.tradeInfo,
-          }}
-          events={{
-            onRateChange: form.onChangeRate,
-            onInvertRate: form.onInvertRate,
-            onSetMarketRate: form.setPriceRateMarket,
-            onRateInputFocus: tracking.trackingTouchInput,
-            onRateInputBlur: tracking.trackingPriceSetOnBlur,
-          }}
-        />
-
-        <LimitOrderExpirySection
-          expiry={{
-            expire: form.expire,
-            expanded: form.expanded,
-            customDateExpire: form.customDateExpire,
-            displayTime: form.displayTime,
-          }}
-          events={{
-            onToggleExpanded: () => form.setExpanded(expanded => !expanded),
-            onOpenDatePicker: form.toggleDatePicker,
-            onExpireChange: form.onChangeExpire,
-          }}
-        />
-
-        {currencyIn && currencyOut ? (
-          <TradePrice
-            price={form.tradeInfo}
-            className="text-sm font-normal text-subText"
-            label={t`Market Price is`}
-            loading={form.loadingTrade}
-            symbolIn={currencyIn.symbol}
-            symbolOut={currencyOut.symbol}
+        <Stack className="gap-3">
+          <LimitOrderTokenSection
+            chainId={form.chainId}
+            tokens={{
+              currencyIn,
+              currencyOut,
+              inputAmount: form.inputAmount,
+              outputAmount: form.outputAmount,
+            }}
+            errors={{
+              input: validation.inputError,
+              output: validation.outPutError,
+            }}
+            estimateUsd={estimateUSD}
+            events={{
+              onInputAmountChange: form.onSetInput,
+              onOutputAmountChange: form.onSetOutput,
+              onMaxInput: balance.handleMaxInput,
+              onInputTokenSelect: form.handleInputSelect,
+              onOutputTokenSelect: form.handleOutputSelect,
+              onRotate: form.handleRotateClick,
+              onInputFocus: tracking.trackingTouchInput,
+              onTokenSelectorOpen: tracking.trackingTouchSelectToken,
+            }}
           />
-        ) : null}
 
-        {validation.warningMessage.map((mess, i) => (
-          <ErrorWarningPanel type="warn" key={i} title={mess} />
-        ))}
+          <LimitOrderRateSection
+            tokens={{ currencyIn, currencyOut }}
+            rate={{
+              displayRate: form.displayRate,
+              rateInfo: form.rateInfo,
+              tradeInfo: form.tradeInfo,
+            }}
+            events={{
+              onRateChange: form.onChangeRate,
+              onSetMarketRate: form.setPriceRateMarket,
+              onRateInputFocus: tracking.trackingTouchInput,
+              onRateInputBlur: tracking.trackingPriceSetOnBlur,
+            }}
+          />
 
-        {actionButton}
-      </div>
+          <LimitOrderExpirySection
+            expiry={{
+              expire: form.expire,
+              expanded: form.expanded,
+              customDateExpire: form.customDateExpire,
+              displayTime: form.displayTime,
+            }}
+            events={{
+              onToggleExpanded: () => form.setExpanded(expanded => !expanded),
+              onOpenDatePicker: form.toggleDatePicker,
+              onExpireChange: form.onChangeExpire,
+            }}
+          />
+
+          {currencyIn && currencyOut ? (
+            <TradePrice
+              price={form.tradeInfo}
+              className="text-sm font-normal text-subText"
+              label={t`Market Price is`}
+              loading={form.loadingTrade}
+              symbolIn={currencyIn.symbol}
+              symbolOut={currencyOut.symbol}
+            />
+          ) : null}
+        </Stack>
+
+        {validation.warningMessage.length > 0 && (
+          <Stack className="gap-3">
+            {validation.warningMessage.map((mess, i) => (
+              <ErrorWarningPanel type="warn" key={i} title={mess} />
+            ))}
+          </Stack>
+        )}
+
+        {form.chainId !== form.walletChainId ? (
+          <ButtonLight onClick={() => changeNetwork(form.chainId)}>
+            <Trans>Switch to {NETWORKS_INFO[form.chainId].name}</Trans>
+          </ButtonLight>
+        ) : !account ? (
+          <ButtonLight onClick={toggleWalletModal}>
+            <Trans>Connect</Trans>
+          </ButtonLight>
+        ) : validation.warningMessage.length > 0 && !disableReviewButton ? (
+          <ButtonWarning onClick={preview.showPreview}>{reviewButtonContent}</ButtonWarning>
+        ) : (
+          <ButtonPrimary id="review-order-button" onClick={preview.showPreview} disabled={disableReviewButton}>
+            {reviewButtonContent}
+          </ButtonPrimary>
+        )}
+      </Stack>
 
       <ConfirmOrderModal
         onDismiss={preview.hidePreview}

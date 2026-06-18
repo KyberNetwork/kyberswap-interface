@@ -16,7 +16,7 @@ import Select from 'components/Select'
 import OrderItem from 'components/swapv2/LimitOrder/ListOrder/OrderItem'
 import TabSelector from 'components/swapv2/LimitOrder/ListOrder/TabSelector'
 import TableHeader from 'components/swapv2/LimitOrder/ListOrder/TableHeader'
-import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
+import { useRequestCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelOrderModal from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import {
   formatAmountOrder,
@@ -24,7 +24,7 @@ import {
   getPayloadTracking,
   isActiveStatus,
 } from 'components/swapv2/LimitOrder/helpers'
-import useCancellingOrders from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
+import { useCancellingOrders } from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -93,7 +93,7 @@ const TableFooter = ({ children = [], isTabActive }: { children: ReactNode[]; is
   ) : null
 }
 
-export default function ListMyOrder({ customChainId }: { customChainId?: ChainId }) {
+const ListMyOrder = ({ customChainId }: { customChainId?: ChainId }) => {
   const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
   const [curPage, setCurPage] = useState(1)
@@ -381,3 +381,5 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     </div>
   )
 }
+
+export default ListMyOrder
