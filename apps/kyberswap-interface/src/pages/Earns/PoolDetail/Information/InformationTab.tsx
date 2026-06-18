@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { ReactComponent as BagIcon } from 'assets/svg/earn/ic_bag.svg'
 import { HStack, Stack } from 'components/Stack'
-import { formatUsd, getPoolLiquidityUsd } from 'pages/Earns/PoolDetail/Information/utils'
+import { formatUsd } from 'pages/Earns/PoolDetail/Information/utils'
 import AprHistoryChart from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import TopMetricsStrip, { type TopMetricItem } from 'pages/Earns/PoolDetail/components/TopMetricsStrip'
 import { getParsedRewardAmount } from 'pages/Earns/PoolDetail/components/utils'
@@ -15,11 +15,6 @@ const DAY_SECONDS = 24 * 60 * 60
 
 const InformationTab = () => {
   const { chainId, pool, poolAddress } = usePoolDetailContext()
-
-  const tokenPrices = useTokenPrices(
-    pool.tokens.map(token => token.address),
-    chainId,
-  )
 
   const poolStats = pool.poolStats
   const bonusApr = poolStats?.bonusApr ?? 0
@@ -57,12 +52,9 @@ const InformationTab = () => {
   const merklRewards = pool.merklOpportunity?.dailyRewards ?? 0
   const rewards24hUsd = egRewards + lmRewards + merklRewards
 
-  const liquidityUsdValue = getPoolLiquidityUsd(pool, tokenPrices)
-
   const tvlValue = formatUsd(poolStats?.tvl)
   const volumeValue = formatUsd(poolStats?.volume24h)
   const feesValue = formatUsd(poolStats?.fees24h)
-  const liquidityValue = formatUsd(liquidityUsdValue)
 
   const rewardsValue = (
     <HStack className="items-center gap-1">
@@ -76,7 +68,6 @@ const InformationTab = () => {
     { label: '24h Volume', value: volumeValue },
     { label: '24h Fees', value: feesValue },
     ...(rewards24hUsd > 0 ? [{ label: '24h Rewards', value: rewardsValue }] : []),
-    { label: 'Liquidity', value: liquidityValue },
   ]
 
   return (

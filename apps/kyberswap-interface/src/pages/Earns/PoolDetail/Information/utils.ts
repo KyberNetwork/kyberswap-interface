@@ -1,7 +1,6 @@
-import { formatAprNumber, formatUnits } from '@kyber/utils/number'
-import { MAX_TICK, MIN_TICK, getPositionAmounts, nearestUsableTick } from '@kyber/utils/uniswapv3'
+import { formatAprNumber } from '@kyber/utils/number'
 import dayjs from 'dayjs'
-import { type PoolAnalyticsWindow, type PoolDetail } from 'services/zapEarn'
+import { type PoolAnalyticsWindow } from 'services/zapEarn'
 
 import { type SegmentedControlOption } from 'components/SegmentedControl'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -14,45 +13,6 @@ export const CHART_WINDOW_OPTIONS: readonly SegmentedControlOption<PoolAnalytics
 
 const hasValue = (value?: number | null): value is number =>
   value !== undefined && value !== null && !Number.isNaN(value)
-
-const getCurrentTickRange = (tick: number, tickSpacing: number) => {
-  const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
-  const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
-  const tickLower = Math.min(Math.max(Math.floor(tick / tickSpacing) * tickSpacing, minTick), maxTick - tickSpacing)
-
-  return {
-    tickLower,
-    tickUpper: tickLower + tickSpacing,
-  }
-}
-
-export const getPoolLiquidityUsd = (pool: PoolDetail, tokenPrices: Record<string, number>) => {
-  const token0 = pool.tokens[0]
-  const token1 = pool.tokens[1]
-  const positionInfo = pool.positionInfo
-
-  if (!positionInfo?.liquidity || !positionInfo?.sqrtPriceX96 || !positionInfo?.tickSpacing) {
-    return undefined
-  }
-
-  const { tickLower, tickUpper } = getCurrentTickRange(positionInfo.tick, positionInfo.tickSpacing)
-  const { amount0, amount1 } = getPositionAmounts(
-    positionInfo.tick,
-    tickLower,
-    tickUpper,
-    BigInt(positionInfo.sqrtPriceX96),
-    BigInt(positionInfo.liquidity),
-  )
-
-  const token0Amount = parseFloat(formatUnits(amount0.toString(), token0.decimals))
-  const token1Amount = parseFloat(formatUnits(amount1.toString(), token1.decimals))
-  const token0Price = tokenPrices[token0.address] || 0
-  const token1Price = tokenPrices[token1.address] || 0
-
-  const liquidityUsd = token0Amount * token0Price + token1Amount * token1Price
-
-  return hasValue(liquidityUsd) && liquidityUsd > 0 ? liquidityUsd : undefined
-}
 
 export const formatUsd = (value?: number, options?: { allowDisplayNegative?: boolean }) => {
   if (!hasValue(value)) return '--'
