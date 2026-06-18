@@ -1,60 +1,46 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { CSSProperties, useCallback, useEffect, useMemo, useRef } from 'react'
-import { useMedia } from 'react-use'
-import { FixedSizeList } from 'react-window'
+import { useCallback, useMemo } from 'react'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
-import LocalLoader from 'components/LocalLoader'
 import RefreshLoading from 'components/RefreshLoading'
-import { NoResultWrapper } from 'components/swapv2/LimitOrder/ListOrder'
-import OrderItem, { ChainImage } from 'components/swapv2/LimitOrder/OrderBook/OrderItem'
+import OrderItem, { ItemWrapper } from 'components/swapv2/LimitOrder/OrderBook/OrderItem'
 import TableHeader from 'components/swapv2/LimitOrder/OrderBook/TableHeader'
-import { groupToMap } from 'components/swapv2/LimitOrder/helpers'
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
-import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
+import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'
 import { useLimitState } from 'state/limit/hooks'
-import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const ITEMS_DISPLAY = 10
-const ITEM_HEIGHT = 44
-const DESKTOP_SIGNIFICANT_DIGITS = 6
-const MOBILE_SIGNIFICANT_DIGITS = 5
-const MOBILE_SIGNIFICANT_DIGITS_FOR_LESS_THAN_ONE = 4
+const ignoreRefreshError = () => undefined
 
-const ORDER_LIST_SCROLLBAR_CLASS =
-  '[&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-disableText [&::-webkit-scrollbar-thumb]:rounded-full'
+const refetchSafely = (refetch: () => { catch?: (onRejected: () => void) => unknown } | void) => {
+  try {
+    refetch()?.catch?.(ignoreRefreshError)
+  } catch {
+    ignoreRefreshError()
+  }
+}
 
 const NoDataPanel = () => (
-  <NoResultWrapper>
+  <div className="flex h-full min-h-0 flex-col items-center justify-center p-2 text-subText">
     <NoDataIcon />
-    <span className="mt-2.5">
-      <Trans>No orders.</Trans>
-    </span>
-  </NoResultWrapper>
+    <Trans>No orders</Trans>
+  </div>
 )
-
-const getSignificantDigits = (value: string, upToSmall: boolean) =>
-  upToSmall
-    ? parseFloat(value) < 1
-      ? MOBILE_SIGNIFICANT_DIGITS_FOR_LESS_THAN_ONE
-      : MOBILE_SIGNIFICANT_DIGITS
-    : DESKTOP_SIGNIFICANT_DIGITS
 
 const formatOrders = (
   orders: LimitOrderFromTokenPair[],
   makerCurrency: Currency | undefined,
   takerCurrency: Currency | undefined,
-  upToSmall: boolean,
   reverse = false,
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!makerCurrency || !takerCurrency) return []
 
-  const ordersFormatted = orders
+  return orders
     .map(order => {
       const newMakerCurrency = new Token(
         makerCurrency.chainId,
@@ -71,6 +57,7 @@ const formatOrders = (
 
       const makerCurrencyAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.makingAmount)
       const takerCurrencyAmount = CurrencyAmount.fromRawAmount(newTakerCurrency, order.takingAmount)
+      const availableMakerCurrencyAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.availableMakingAmount)
 
       const rate = (
         !reverse
@@ -80,57 +67,71 @@ const formatOrders = (
 
       const filledMakingAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.filledMakingAmount)
       const filled = (parseFloat(filledMakingAmount.toExact()) / parseFloat(makerCurrencyAmount.toExact())) * 100
+      const makerAmount = makerCurrencyAmount.toExact()
+      const takerAmount = takerCurrencyAmount.toExact()
+      const availableMakerAmount = availableMakerCurrencyAmount.toExact()
+      const availableRatio =
+        parseFloat(makerAmount) > 0 ? parseFloat(availableMakerAmount) / parseFloat(makerAmount) : 0
+      const availableTakerAmount = (parseFloat(takerAmount) * availableRatio).toString()
+      const hasAvailable = parseFloat(availableMakerAmount) > 0
 
       return {
         id: order.id,
         chainId: order.chainId,
         rate,
-        makerAmount: makerCurrencyAmount.toExact(),
-        takerAmount: takerCurrencyAmount.toExact(),
+        makerAmount,
+        takerAmount,
+        availableMakerAmount,
+        availableTakerAmount,
         filled: filled > 99 ? '100' : filled.toFixed(),
+        hasAvailable,
       }
     })
     .filter(order => order.filled !== '100')
     .sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate))
     .map(order => ({
       ...order,
-      rate: formatDisplayNumber(order.rate, {
-        significantDigits: getSignificantDigits(order.rate, upToSmall),
-      }),
+      rate: formatDisplayNumber(order.rate, { significantDigits: 6 }),
+      makerAmount: formatDisplayNumber(order.makerAmount, { significantDigits: 6 }),
+      takerAmount: formatDisplayNumber(order.takerAmount, { significantDigits: 6 }),
+      availableMakerAmount: order.hasAvailable
+        ? formatDisplayNumber(order.availableMakerAmount, { significantDigits: 6 })
+        : '',
+      availableTakerAmount: order.hasAvailable
+        ? formatDisplayNumber(order.availableTakerAmount, { significantDigits: 6 })
+        : '',
     }))
+}
 
-  const mergedOrders: LimitOrderFromTokenPairFormatted[] = []
-  const groupOrders = groupToMap(ordersFormatted, ({ rate }: LimitOrderFromTokenPairFormatted) => rate)
+const SectionLabel = ({ color, label, symbol }: { color: string; label: React.ReactNode; symbol?: string }) => (
+  <div className="border-b border-darkBorder px-4 py-3 text-sm font-medium tracking-[0.08em]" style={{ color }}>
+    {label} <span className="text-text">{symbol}</span>
+  </div>
+)
 
-  groupOrders.forEach((group: LimitOrderFromTokenPairFormatted[]) => {
-    const mergedOrder = group?.reduce(
-      (accumulatorOrder: LimitOrderFromTokenPairFormatted | null, currentOrder: LimitOrderFromTokenPairFormatted) =>
-        accumulatorOrder
-          ? {
-              ...currentOrder,
-              makerAmount: (parseFloat(currentOrder.makerAmount) + parseFloat(accumulatorOrder.makerAmount)).toString(),
-              takerAmount: (parseFloat(currentOrder.takerAmount) + parseFloat(accumulatorOrder.takerAmount)).toString(),
-            }
-          : currentOrder,
-      null,
-    )
-    if (mergedOrder) {
-      mergedOrder.makerAmount = formatDisplayNumber(mergedOrder.makerAmount, {
-        significantDigits: getSignificantDigits(mergedOrder.makerAmount, upToSmall),
-      })
-      mergedOrder.takerAmount = formatDisplayNumber(mergedOrder.takerAmount, {
-        significantDigits: getSignificantDigits(mergedOrder.takerAmount, upToSmall),
-      })
-      mergedOrders.push(mergedOrder)
-    }
-  })
-
-  return mergedOrders
+const OrderSide = ({
+  children,
+  className,
+  reverse,
+  style,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { reverse?: boolean }) => {
+  return (
+    <div
+      className={cn(
+        'overflow-y-auto [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-disableText [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:rounded-full',
+        reverse && 'flex flex-col-reverse',
+        className,
+      )}
+      style={{ height: 300, ...style }}
+      {...rest}
+    >
+      {children}
+    </div>
+  )
 }
 
 const OrderBook = () => {
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
   const { chainId, networkInfo } = useActiveWeb3React()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const {
@@ -139,13 +140,11 @@ const OrderBook = () => {
     refetch: refetchMarketRate,
   } = useBaseTradeInfoLimitOrder(makerCurrency, takerCurrency, chainId)
 
-  const ordersWrapperRef = useRef<FixedSizeList<any>>(null)
-
   const {
     data: { orders = [] } = {},
-    isLoading: isLoadingOrders,
-    refetch: refetchOrders,
     isFetching: isFetchingOrders,
+    isSuccess: isOrdersLoaded,
+    refetch: refetchOrders,
   } = useGetOrdersByTokenPairQuery({
     chainId,
     makerAsset: makerCurrency?.wrapped?.address,
@@ -153,111 +152,68 @@ const OrderBook = () => {
   })
   const {
     data: { orders: reversedOrders = [] } = {},
-    isLoading: isLoadingReversedOrder,
-    refetch: refetchReversedOrder,
     isFetching: isFetchingReversedOrder,
+    isSuccess: isReversedOrdersLoaded,
+    refetch: refetchReversedOrders,
   } = useGetOrdersByTokenPairQuery({
     chainId,
     makerAsset: takerCurrency?.wrapped?.address,
     takerAsset: makerCurrency?.wrapped?.address,
   })
 
-  const loadingOrders = useShowLoadingAtLeastTime(isLoadingOrders)
-  const loadingReversedOrders = useShowLoadingAtLeastTime(isLoadingReversedOrder)
-
   const formattedOrders = useMemo(
-    () => formatOrders(orders, makerCurrency, takerCurrency, upToSmall),
-    [orders, makerCurrency, takerCurrency, upToSmall],
+    () => formatOrders(orders, makerCurrency, takerCurrency),
+    [orders, makerCurrency, takerCurrency],
   )
   const formattedReversedOrders = useMemo(
-    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, upToSmall, true),
-    [reversedOrders, takerCurrency, makerCurrency, upToSmall],
+    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, true),
+    [reversedOrders, takerCurrency, makerCurrency],
   )
 
-  const refetchActive = useMemo(() => !!makerCurrency && !!takerCurrency, [makerCurrency, takerCurrency])
+  const visibleSellOrders = useMemo(() => formattedOrders.slice(-10).reverse(), [formattedOrders])
+  const visibleBuyOrders = useMemo(() => formattedReversedOrders.slice(0, 10), [formattedReversedOrders])
 
-  const refetchLoading = useMemo(
-    () => loadingMarketRate || isFetchingOrders || isFetchingReversedOrder,
-    [loadingMarketRate, isFetchingOrders, isFetchingReversedOrder],
-  )
+  const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
 
   const onRefreshOrders = useCallback(() => {
-    refetchMarketRate()
-    refetchOrders()
-    refetchReversedOrder()
-  }, [refetchMarketRate, refetchOrders, refetchReversedOrder])
-
-  useEffect(() => {
-    if (formattedOrders.length && ordersWrapperRef.current) {
-      ordersWrapperRef.current.scrollToItem(formattedOrders.length - 1)
-    }
-  }, [formattedOrders, loadingOrders, loadingReversedOrders])
+    refetchSafely(refetchMarketRate)
+    refetchSafely(refetchOrders)
+    refetchSafely(refetchReversedOrders)
+  }, [refetchMarketRate, refetchOrders, refetchReversedOrders])
 
   return (
-    <div className="relative mt-4 flex flex-col">
-      {loadingOrders || loadingReversedOrders ? (
-        <LocalLoader />
-      ) : (
-        <>
-          {refetchActive && (
-            <div className="absolute -top-10 right-4 flex items-center max-sm:static max-sm:mb-4 max-sm:ml-4">
-              <span className="mr-1 text-sm text-subText">
-                <Trans>Orders refresh in</Trans>
-              </span>{' '}
-              <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
-            </div>
-          )}
+    <div className="relative flex flex-col">
+      <TableHeader />
+      <div className="relative h-0">
+        <RefetchIndicator visible={refetchLoading} />
+      </div>
+      <SectionLabel color="var(--ks-red)" label={<Trans>SELLING</Trans>} symbol={makerCurrency?.symbol} />
 
-          <TableHeader />
+      <OrderSide reverse>
+        {visibleSellOrders.length > 0
+          ? visibleSellOrders.map(order => <OrderItem key={order.id} order={order} />)
+          : isOrdersLoaded && <NoDataPanel />}
+      </OrderSide>
 
-          {formattedOrders.length > 0 ? (
-            <FixedSizeList
-              ref={ordersWrapperRef}
-              className={ORDER_LIST_SCROLLBAR_CLASS}
-              height={(formattedOrders.length < ITEMS_DISPLAY ? formattedOrders.length : ITEMS_DISPLAY) * ITEM_HEIGHT}
-              itemCount={formattedOrders.length}
-              itemSize={ITEM_HEIGHT}
-              width={'100%'}
-            >
-              {({ index, style }: { index: number; style: CSSProperties }) => {
-                const order = formattedOrders[index]
-                return <OrderItem key={order.id} style={style} order={order} />
-              }}
-            </FixedSizeList>
-          ) : (
-            <NoDataPanel />
-          )}
+      <ItemWrapper className="bg-white-04 px-4 py-3 text-xl font-medium leading-6">
+        <span className="flex items-center justify-center">
+          <img className="size-5" src={networkInfo?.icon} alt="Network" />
+        </span>
+        <span className="col-start-4 justify-self-end text-right max-[640px]:col-start-3">
+          {marketRate ? formatDisplayNumber(marketRate, { significantDigits: 6 }) : '--'}
+        </span>
+        <div className="col-start-7 justify-self-end max-[640px]:hidden">
+          <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} clickable />
+        </div>
+      </ItemWrapper>
 
-          {!!marketRate && (
-            <div className="grid grid-cols-[1fr_2fr_2fr_2fr_1fr] bg-white-04 px-3 py-2 text-xl leading-6 max-[500px]:grid-cols-[1.2fr_1.8fr_2fr_1.8fr]">
-              <ChainImage src={networkInfo?.icon} alt="Network" />
-              {formatDisplayNumber(marketRate, {
-                significantDigits: getSignificantDigits(marketRate.toString(), upToSmall),
-              })}
-            </div>
-          )}
+      <SectionLabel color="var(--ks-primary)" label={<Trans>BUYING</Trans>} symbol={makerCurrency?.symbol} />
 
-          {formattedReversedOrders.length > 0 ? (
-            <FixedSizeList
-              className={ORDER_LIST_SCROLLBAR_CLASS}
-              height={
-                (formattedReversedOrders.length < ITEMS_DISPLAY ? formattedReversedOrders.length : ITEMS_DISPLAY) *
-                ITEM_HEIGHT
-              }
-              itemCount={formattedReversedOrders.length}
-              itemSize={ITEM_HEIGHT}
-              width={'100%'}
-            >
-              {({ index, style }: { index: number; style: CSSProperties }) => {
-                const order = formattedReversedOrders[index]
-                return <OrderItem key={order.id} style={style} reverse order={order} />
-              }}
-            </FixedSizeList>
-          ) : (
-            <NoDataPanel />
-          )}
-        </>
-      )}
+      <OrderSide>
+        {visibleBuyOrders.length > 0
+          ? visibleBuyOrders.map(order => <OrderItem key={order.id} reverse order={order} />)
+          : isReversedOrdersLoaded && <NoDataPanel />}
+      </OrderSide>
     </div>
   )
 }

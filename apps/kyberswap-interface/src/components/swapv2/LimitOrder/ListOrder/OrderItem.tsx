@@ -83,7 +83,7 @@ const DeltaAmount = ({
   </div>
 )
 
-const Colum = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+const Column = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col justify-center gap-x-3 gap-y-[10px] max-sm:gap-y-[5px]', className)} {...rest}>
     {children}
   </div>
@@ -142,7 +142,7 @@ const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: st
   const native = NativeCurrencies[chainId]
   const isNative = nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
   return (
-    <Colum>
+    <Column>
       <SingleAmountInfo
         decimals={takerAssetDecimals}
         className="text-primary"
@@ -158,7 +158,7 @@ const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: st
         amount={makingAmount}
         symbol={makerAssetSymbol}
       />
-    </Colum>
+    </Column>
   )
 }
 
@@ -180,13 +180,13 @@ const TradeRateOrder = ({
   }
 
   return (
-    <Colum style={style} onClick={event => event.stopPropagation()}>
+    <Column style={style} onClick={event => event.stopPropagation()}>
       <div className="flex cursor-pointer items-center gap-[6px]" onClick={onInvert}>
         <span className="text-text">{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</span>
         <Repeat className="text-text" size={12} />
       </div>
       <span className="text-text">{formatRateLimitOrder(order, invert)}</span>
-    </Colum>
+    </Column>
   )
 }
 
@@ -342,7 +342,7 @@ const OrderItem = ({
     }
 
     return (
-      <Colum>
+      <Column>
         <div className="flex items-center gap-1" style={{ color: colorStatus }}>
           {isOrderActive && isNotSufficientFund && (
             <InfoHelper
@@ -363,7 +363,7 @@ const OrderItem = ({
           height="11px"
           percent={isNaN(parseFloat(filledPercent)) ? 0 : parseFloat(filledPercent)}
         />
-      </Colum>
+      </Column>
     )
   }
 
@@ -408,18 +408,18 @@ const OrderItem = ({
           </div>
         )}
         <div className="flex justify-between">
-          <Colum>
+          <Column>
             <span>
               <Trans>Created</Trans>
             </span>
             <TimeText time={createdAt} />
-          </Colum>
-          <Colum>
+          </Column>
+          <Column>
             <span className="text-right">
               <Trans>Expiry</Trans>
             </span>
             <TimeText time={order.expiredAt} />
-          </Colum>
+          </Column>
         </div>
       </ItemWrapperMobile>
     )
@@ -442,14 +442,14 @@ const OrderItem = ({
           <IndexText>{index + 1}</IndexText>
           <AmountInfo order={order} takerSymbol={takerSymbol} />
         </div>
-        <Colum className="rate">
+        <Column className="rate">
           <TradeRateOrder order={order} style={{ cursor: 'default' }} symbolOut={takerSymbol} />
-        </Colum>
-        <Colum>
+        </Column>
+        <Column>
           <TimeText time={createdAt} />
           <TimeText time={expiredAt} />
-        </Colum>
-        <Colum>{renderProgressComponent()}</Colum>
+        </Column>
+        <Column>{renderProgressComponent()}</Column>
         <ActionButtons
           order={order}
           onExpand={toggle}
@@ -474,13 +474,13 @@ const OrderItem = ({
                     </DeltaAmount>
                   </div>
                 </div>
-                <Colum className="rate"></Colum>
-                <Colum>
+                <Column className="rate"></Column>
+                <Column>
                   <TimeText time={txs.txTime} />
-                </Colum>
-                <Colum>
+                </Column>
+                <Column>
                   <span style={{ color: colorStatus }}>{filledPercent}%</span>
-                </Colum>
+                </Column>
                 <ActionButtons order={order} txHash={txs.txHash} isChildren />
               </ItemWrapper>
             )

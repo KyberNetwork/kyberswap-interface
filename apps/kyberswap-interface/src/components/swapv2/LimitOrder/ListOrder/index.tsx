@@ -44,7 +44,10 @@ import {
 const PAGE_SIZE = 10
 
 export const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex min-h-[140px] flex-col items-center justify-center text-subText', className)} {...rest} />
+  <div
+    className={cn('flex min-h-[140px] flex-col items-center justify-center gap-2 text-subText', className)}
+    {...rest}
+  />
 )
 
 const ACTIVE_ORDER_OPTIONS = () => [
@@ -281,15 +284,13 @@ const ListMyOrder = ({ customChainId }: { customChainId?: ChainId }) => {
   const isTabActive = isActiveStatus(orderType)
 
   return (
-    <div className="flex flex-col gap-4 max-sm:w-screen">
-      <div className="flex items-center justify-between border-y border-background">
-        <TabSelector
-          setActiveTab={onSelectTab}
-          activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
-        />
-      </div>
+    <div className="flex w-full flex-col">
+      <TabSelector
+        setActiveTab={onSelectTab}
+        activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
+      />
 
-      <div className="flex justify-between gap-4 px-3 max-sm:flex-col">
+      <div className="flex justify-between gap-4 p-4 max-sm:flex-col">
         <Row className="w-fit items-center justify-between gap-2 max-sm:w-full">
           <Select
             className="h-9 min-w-full max-w-[50%] rounded-[40px] bg-background text-sm max-sm:min-w-0"

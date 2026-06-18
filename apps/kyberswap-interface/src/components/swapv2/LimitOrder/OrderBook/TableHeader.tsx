@@ -1,47 +1,44 @@
 import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
 
+import InfoHelper from 'components/InfoHelper'
 import { ItemWrapper } from 'components/swapv2/LimitOrder/OrderBook/OrderItem'
-import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const TableHeader = () => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const { currencyIn, currencyOut } = useLimitState()
 
   return (
-    <ItemWrapper className="cursor-default bg-white/[0.04] p-3 text-xs font-medium leading-4 text-subText">
+    <ItemWrapper className="cursor-default bg-white/[0.04] px-4 py-3 text-xs font-medium uppercase tracking-[0.04em] text-subText">
       <span>CHAIN</span>
-      <span>
-        <Trans>RATE</Trans>
-        {!!currencyIn && !!currencyOut && (
-          <>
-            {upToExtraSmall ? <br /> : ' '}(<span>{currencyIn?.symbol}/</span>
-            <span>{currencyOut?.symbol}</span>)
-          </>
-        )}
-      </span>
-      <span>
-        <Trans>AMOUNT</Trans>
-        {!!currencyIn && (
-          <>
-            {upToExtraSmall ? <br /> : ' '}
-            <span>({currencyIn?.symbol})</span>
-          </>
-        )}
-      </span>
-      <span>
-        <Trans>AMOUNT</Trans>
-        {!!currencyOut && (
-          <>
-            {upToExtraSmall ? <br /> : ' '}
-            <span>({currencyOut?.symbol})</span>
-          </>
-        )}
+      <span className="justify-self-end text-right">
+        <Trans>Size</Trans>
       </span>
       {!upToExtraSmall && (
-        <span>
-          <Trans>ORDER STATUS</Trans>
+        <span className="flex justify-self-end text-right">
+          <Trans>Available</Trans>
+          <InfoHelper
+            margin={false}
+            size={14}
+            className="ml-1"
+            text={<Trans>Amount available to be taken from the order.</Trans>}
+          />
+        </span>
+      )}
+      <span className="justify-self-end text-right">
+        <Trans>Rate</Trans>
+      </span>
+      <span className="justify-self-end text-right">
+        <Trans>Total</Trans>
+      </span>
+      {!upToExtraSmall && (
+        <span className="justify-self-end text-right">
+          <Trans>ID</Trans>
+        </span>
+      )}
+      {!upToExtraSmall && (
+        <span className="justify-self-end text-right">
+          <Trans>Action</Trans>
         </span>
       )}
     </ItemWrapper>

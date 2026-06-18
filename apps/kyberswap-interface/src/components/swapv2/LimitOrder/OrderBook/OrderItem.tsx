@@ -1,8 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { CSSProperties, useMemo } from 'react'
+import { Trans } from '@lingui/macro'
+import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 
-import CurrencyLogo from 'components/CurrencyLogo'
+import CopyHelper from 'components/Copy'
 import { LimitOrderFromTokenPairFormatted } from 'components/swapv2/LimitOrder/types'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useLimitState } from 'state/limit/hooks'
@@ -12,7 +13,7 @@ import { cn } from 'utils/cn'
 export const ItemWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'grid grid-cols-[1fr_2fr_2fr_2fr_1fr] p-3 text-sm leading-5 max-[500px]:grid-cols-[1.2fr_1.8fr_2fr_1.8fr]',
+      'grid grid-cols-[44px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_48px_88px] items-center gap-2 text-sm leading-5 max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
       className,
     )}
     {...rest}
@@ -21,60 +22,74 @@ export const ItemWrapper = ({ children, className, ...rest }: React.HTMLAttribut
   </div>
 )
 
-export const ChainImage = ({ className, ...rest }: React.ImgHTMLAttributes<HTMLImageElement>) => (
-  // eslint-disable-next-line jsx-a11y/alt-text
-  <img className={cn('relative left-2.5 top-0.5 size-4', className)} {...rest} />
-)
+const formatAmountWithSymbol = (amount: string, currency?: Currency) => `${amount} ${currency?.symbol ?? ''}`.trim()
 
-const AmountInfo = ({
-  plus,
-  amount,
-  currency,
-  upToExtraSmall,
-}: {
-  plus?: boolean
-  amount: string
-  currency?: Currency
-  upToExtraSmall?: boolean
-}) => (
-  <div className="flex items-center">
-    <CurrencyLogo currency={currency} size="17px" style={{ marginRight: upToExtraSmall ? 4 : 8 }} />
-    <span>{plus ? '+' : '-'}</span>
-    <span>{amount}</span>
+const SizeInfo = ({ amount, currency, filled }: { amount: string; currency?: Currency; filled: number }) => (
+  <div className="w-full min-w-0 text-right">
+    <div className="truncate text-base font-medium text-text" title={formatAmountWithSymbol(amount, currency)}>
+      {formatAmountWithSymbol(amount, currency)}
+    </div>
+    <div className="mt-1 flex items-center justify-end gap-2 text-xs text-subText">
+      <span className="h-1 w-12 overflow-hidden rounded-full bg-subText-40">
+        <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.min(filled, 100)}%` }} />
+      </span>
+      <span>
+        <Trans>Fill</Trans> {filled}%
+      </span>
+    </div>
   </div>
 )
 
-const OrderItem = ({
-  reverse,
-  order,
-  style,
-}: {
-  reverse?: boolean
-  order: LimitOrderFromTokenPairFormatted
-  style: CSSProperties
-}) => {
+const AmountText = ({ amount, currency, muted }: { amount?: string; currency?: Currency; muted?: boolean }) => (
+  <div
+    className={cn('w-full min-w-0 truncate text-right text-base font-medium', muted ? 'text-subText' : 'text-text')}
+    title={amount ? formatAmountWithSymbol(amount, currency) : undefined}
+  >
+    {amount ? formatAmountWithSymbol(amount, currency) : '--'}
+  </div>
+)
+
+const OrderItem = ({ reverse, order }: { reverse?: boolean; order: LimitOrderFromTokenPairFormatted }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
 
   const chain = useMemo(() => NETWORKS_INFO[order.chainId], [order.chainId])
+  const filled = Math.max(0, Math.min(Number(order.filled) || 0, 100))
+  const sizeAmount = !reverse ? order.makerAmount : order.takerAmount
+  const availableAmount = !reverse ? order.availableMakerAmount : order.availableTakerAmount
+  const totalAmount = !reverse ? order.takerAmount : order.makerAmount
+  const rateClassName = reverse ? 'text-primary' : 'text-red'
 
   return (
-    <ItemWrapper style={style}>
-      <ChainImage src={chain?.icon} alt="Network" />
-      <div className={reverse ? 'text-primary' : 'text-red'}>{order.rate}</div>
-      <AmountInfo
-        plus={reverse}
-        amount={order[!reverse ? 'makerAmount' : 'takerAmount']}
-        currency={makerCurrency}
-        upToExtraSmall={upToExtraSmall}
-      />
-      <AmountInfo
-        plus={!reverse}
-        amount={order[!reverse ? 'takerAmount' : 'makerAmount']}
+    <ItemWrapper className="px-4 py-2">
+      <span className="flex items-center justify-center">
+        <img className="size-5" src={chain?.icon} alt="Network" />
+      </span>
+      <SizeInfo amount={sizeAmount} currency={makerCurrency} filled={filled} />
+      {!upToExtraSmall && <AmountText amount={availableAmount} currency={makerCurrency} muted={!order.hasAvailable} />}
+      <div className={cn('w-full min-w-0 truncate text-right text-base font-medium', rateClassName)} title={order.rate}>
+        {order.rate}
+      </div>
+      <AmountText
+        amount={order.hasAvailable ? totalAmount : undefined}
         currency={takerCurrency}
-        upToExtraSmall={upToExtraSmall}
+        muted={!order.hasAvailable}
       />
-      {!upToExtraSmall && <span className="text-subText">Filled {order.filled}%</span>}
+      {!upToExtraSmall && (
+        <CopyHelper toCopy={String(order.id)} margin="0" size={16} className="justify-self-end text-subText" />
+      )}
+      {!upToExtraSmall && (
+        <div className="justify-self-end">
+          {order.hasAvailable && (
+            <button
+              type="button"
+              className="rounded-full bg-primary-20 px-4 py-1 text-sm font-medium text-primary transition-colors hover:bg-primary-30"
+            >
+              <Trans>Take</Trans>
+            </button>
+          )}
+        </div>
+      )}
     </ItemWrapper>
   )
 }

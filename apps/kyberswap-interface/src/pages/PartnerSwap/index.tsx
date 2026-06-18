@@ -9,7 +9,7 @@ import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { DEFAULT_TIP, TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
 import LimitOrderForm from 'components/swapv2/LimitOrder/Form/LimitOrderForm'
-import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
+import OrderList from 'components/swapv2/LimitOrder/OrderList'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import useRequiredDegenMode from 'components/swapv2/SwapSettingsPanel/useRequiredDegenMode'
@@ -342,7 +342,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
                 isSmartSettlementActive={isSmartSettlementActive}
               />
             )}
-            {isLimitPage && <ListLimitOrder customChainId={swapChainId} />}
+            {isLimitPage && <OrderList customChainId={swapChainId} />}
             {isCrossChainPage && <TransactionHistory />}
           </InfoComponents>
         </Container>

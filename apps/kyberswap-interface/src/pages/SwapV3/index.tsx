@@ -7,7 +7,7 @@ import { HStack, Stack } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import LimitOrderForm from 'components/swapv2/LimitOrder/Form/LimitOrderForm'
-import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
+import OrderList from 'components/swapv2/LimitOrder/OrderList'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import useRequiredDegenMode from 'components/swapv2/SwapSettingsPanel/useRequiredDegenMode'
@@ -180,7 +180,7 @@ export default function Swap() {
             />
           )}
 
-          {isLimitPage && <ListLimitOrder />}
+          {isLimitPage && <OrderList />}
           {isCrossChainPage && (
             <Stack className="gap-4">
               <QuoteSteps quote={selectedQuote} />

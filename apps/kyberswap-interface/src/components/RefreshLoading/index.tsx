@@ -68,11 +68,7 @@ export default function RefreshLoading({
 
   return (
     <SpinWrapper role="button" onClick={handleManualRefresh} clickable={clickable}>
-      <MouseoverTooltipDesktopOnly
-        text={clickable ? t`Click to refresh, occur once per second.` : null}
-        placement="top"
-        width="auto"
-      >
+      <MouseoverTooltipDesktopOnly text={clickable ? t`Click to refresh` : null} placement="top" width="auto">
         <>
           <Spin countdown={countdown} refreshTime={refreshTime} disableRefresh={disableRefresh} />
 
