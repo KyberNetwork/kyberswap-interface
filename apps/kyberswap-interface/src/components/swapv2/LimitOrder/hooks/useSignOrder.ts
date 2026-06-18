@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useCreateOrderSignatureMutation } from 'services/limitOrder'
 
 import { formatAmountOrder, getPayloadCreateOrder } from 'components/swapv2/LimitOrder/helpers'
-import { CreateOrderParam } from 'components/swapv2/LimitOrder/type'
+import { CreateOrderParam } from 'components/swapv2/LimitOrder/types'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'

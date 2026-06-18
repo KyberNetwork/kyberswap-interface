@@ -1,12 +1,12 @@
 import { Trans, t } from '@lingui/macro'
-import { Dispatch, SetStateAction } from 'react'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { DefaultSlippageOption } from 'components/SlippageControl'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { getExpireOptions } from 'components/swapv2/LimitOrder/const'
+import { TIMES_IN_SECS } from 'constants/index'
 import { cn } from 'utils/cn'
+import { formatTimeDuration } from 'utils/time'
 
 const DropdownIcon = ({ className, ...rest }: React.SVGProps<SVGSVGElement> & { 'data-flip'?: boolean }) => (
   <DropdownSVG
@@ -15,28 +15,36 @@ const DropdownIcon = ({ className, ...rest }: React.SVGProps<SVGSVGElement> & { 
   />
 )
 
+const getExpireOptions = () =>
+  [
+    TIMES_IN_SECS.ONE_HOUR,
+    TIMES_IN_SECS.ONE_DAY,
+    7 * TIMES_IN_SECS.ONE_DAY,
+    30 * TIMES_IN_SECS.ONE_DAY,
+    36500 * TIMES_IN_SECS.ONE_DAY,
+  ].map(value => ({ value, label: formatTimeDuration(value) }))
+
 type Props = {
-  expire: number
-  expanded: boolean
-  customDateExpire: Date | undefined
-  displayTime: string
-  setExpanded: Dispatch<SetStateAction<boolean>>
-  toggleDatePicker: () => void
-  onChangeExpire: (val: Date | number) => void
+  expiry?: {
+    expire?: number
+    expanded?: boolean
+    customDateExpire?: Date
+    displayTime?: string
+  }
+  events?: {
+    onToggleExpanded?: () => void
+    onOpenDatePicker?: () => void
+    onExpireChange?: (val: Date | number) => void
+  }
 }
 
 export default function LimitOrderExpirySection({
-  expire,
-  expanded,
-  customDateExpire,
-  displayTime,
-  setExpanded,
-  toggleDatePicker,
-  onChangeExpire,
+  expiry: { expire, expanded, customDateExpire, displayTime } = {},
+  events = {},
 }: Props) {
   const expireOptions: Array<{ label: string; value?: number; onSelect?: () => void }> = [
     ...getExpireOptions(),
-    { label: 'Custom', onSelect: toggleDatePicker },
+    { label: 'Custom', onSelect: events.onOpenDatePicker },
   ]
 
   return (
@@ -50,7 +58,7 @@ export default function LimitOrderExpirySection({
             <Trans>Expires In</Trans>
           </MouseoverTooltip>
         </TextDashed>
-        <div className="flex cursor-pointer items-center gap-1" role="button" onClick={() => setExpanded(e => !e)}>
+        <div className="flex cursor-pointer items-center gap-1" role="button" onClick={events.onToggleExpanded}>
           <span className="text-sm font-medium leading-none text-text">{displayTime}</span>
           <DropdownIcon data-flip={expanded} />
         </div>
@@ -64,7 +72,7 @@ export default function LimitOrderExpirySection({
                 key={item.label}
                 onClick={() => {
                   if (item.onSelect) item.onSelect()
-                  else if (item.value) onChangeExpire(item.value)
+                  else if (item.value) events.onExpireChange?.(item.value)
                 }}
                 data-active={customDateExpire ? item.label === 'Custom' : item.value === expire}
               >

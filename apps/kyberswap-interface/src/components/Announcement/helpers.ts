@@ -9,7 +9,7 @@ import {
   SmartExitReason,
   SmartExitStatus,
 } from 'components/Announcement/type'
-import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { EnvKeys, NOTI_ENV } from 'constants/env'
 import { Metric, SmartExitCondition } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'

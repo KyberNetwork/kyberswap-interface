@@ -1,5 +1,7 @@
 import { ChainId, Currency, Fraction } from '@kyberswap/ks-sdk-core'
 
+import type { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
+
 export enum LimitOrderTab {
   ORDER_BOOK = 'order_book',
   MY_ORDER = 'my_order',
@@ -109,6 +111,12 @@ export type RateInfo = {
   rateFraction?: Fraction // to calc with big number
 }
 
+export type DeltaRateLimitOrder = {
+  rawPercent: number | undefined
+  percent: string
+  profit: boolean
+}
+
 export type CancelOrderFunction = (data: {
   orders: LimitOrder[]
   cancelType: CancelOrderType
@@ -127,4 +135,19 @@ export type CreateOrderParam = {
   outputAmount: string
   expiredAt: number
   referral?: string
+}
+
+export type LimitOrderCreateContext = {
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
+  chainId: ChainId
+  networkName: string
+  inputAmount: string
+  outputAmount: string
+  displayRate: string
+  expiredAt: number
+  displayTime: string
+  rateInfo: RateInfo
+  tradeInfo: BaseTradeInfo | undefined
+  deltaRate: DeltaRateLimitOrder
 }

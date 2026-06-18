@@ -16,7 +16,7 @@ import {
   formatRateLimitOrder,
   isActiveStatus,
 } from 'components/swapv2/LimitOrder/helpers'
-import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'

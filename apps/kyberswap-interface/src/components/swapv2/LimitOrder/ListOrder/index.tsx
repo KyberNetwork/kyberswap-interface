@@ -18,7 +18,6 @@ import TabSelector from 'components/swapv2/LimitOrder/ListOrder/TabSelector'
 import TableHeader from 'components/swapv2/LimitOrder/ListOrder/TableHeader'
 import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelOrderModal from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
-import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from 'components/swapv2/LimitOrder/const'
 import {
   formatAmountOrder,
   formatRateLimitOrder,
@@ -26,7 +25,7 @@ import {
   isActiveStatus,
 } from 'components/swapv2/LimitOrder/helpers'
 import useCancellingOrders from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
-import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
@@ -47,6 +46,40 @@ const PAGE_SIZE = 10
 export const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex min-h-[140px] flex-col items-center justify-center text-subText', className)} {...rest} />
 )
+
+const ACTIVE_ORDER_OPTIONS = () => [
+  {
+    label: t`All Active Orders`,
+    value: LimitOrderStatus.ACTIVE,
+  },
+  {
+    label: t`Open Orders`,
+    value: LimitOrderStatus.OPEN,
+  },
+  {
+    label: t`Partially Filled Orders`,
+    value: LimitOrderStatus.PARTIALLY_FILLED,
+  },
+]
+
+const CLOSE_ORDER_OPTIONS = () => [
+  {
+    label: t`All Closed Orders`,
+    value: LimitOrderStatus.CLOSED,
+  },
+  {
+    label: t`Filled Orders`,
+    value: LimitOrderStatus.FILLED,
+  },
+  {
+    label: t`Cancelled Orders`,
+    value: LimitOrderStatus.CANCELLED,
+  },
+  {
+    label: t`Expired Orders`,
+    value: LimitOrderStatus.EXPIRED,
+  },
+]
 
 const TableFooter = ({ children = [], isTabActive }: { children: ReactNode[]; isTabActive: boolean }) => {
   const totalChild = children.filter(Boolean).length

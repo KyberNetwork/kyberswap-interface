@@ -7,7 +7,7 @@ import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAn
 import { Desc, Time, Title, Wrapper } from 'components/Announcement/PrivateAnnoucement/NotificationCenter/styled'
 import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import Logo from 'components/Logo'
-import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { APP_PATHS } from 'constants/index'
 import { formatTime } from 'utils/time'
 

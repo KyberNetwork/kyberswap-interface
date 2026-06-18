@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import TabSelector from 'components/swapv2/LimitOrder/ListLimitOrder/TabSelector'
 import ListMyOrder from 'components/swapv2/LimitOrder/ListOrder'
 import OrderBook from 'components/swapv2/LimitOrder/OrderBook'
-import { LimitOrderTab } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderTab } from 'components/swapv2/LimitOrder/types'
 
 export default function ListLimitOrder({ customChainId }: { customChainId?: ChainId }) {
   const [searchParams, setSearchParams] = useSearchParams()

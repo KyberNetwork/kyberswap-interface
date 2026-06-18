@@ -17,7 +17,7 @@ import {
   CancelOrderResponse,
   CancelOrderType,
   LimitOrder,
-} from 'components/swapv2/LimitOrder/type'
+} from 'components/swapv2/LimitOrder/types'
 import { LIMIT_ORDER_ABI } from 'constants/abis'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'

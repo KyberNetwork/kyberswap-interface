@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useGetLOConfigQuery } from 'services/limitOrder'
 
 import { isActiveStatus } from 'components/swapv2/LimitOrder/helpers'
-import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { OrderNonces, subscribeCancellingOrders } from 'utils/firebase'
 

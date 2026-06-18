@@ -1,5 +1,4 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
@@ -16,7 +15,7 @@ import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import useRequiredDegenMode from 'components/swapv2/SwapSettingsPanel/useRequiredDegenMode'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
-import { MAX_FEE_IN_BIPS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { MAX_FEE_IN_BIPS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -35,7 +34,6 @@ import { Field } from 'state/swap/actions'
 import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { isAddress } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
@@ -289,11 +287,6 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     omniView: true,
   }
 
-  // modal and loading
-  const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
-
-  const currencyName = currencyOut?.wrapped.name
-  const currencySymbol = currencyOut?.wrapped.symbol
   return (
     <>
       <PageWrapper>
@@ -328,22 +321,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={swapChainId} />
               )}
-              {activeTab === TAB.LIMIT && (
-                <div className="p-4">
-                  <LimitOrderForm
-                    flowState={flowState}
-                    setFlowState={setFlowState}
-                    currencyIn={currencyIn}
-                    currencyOut={currencyOut}
-                    note={
-                      currencyOut?.isNative
-                        ? t`Note: Once your order is filled, you will receive ${currencyName} (${currencySymbol})`
-                        : undefined
-                    }
-                    useUrlParams
-                  />
-                </div>
-              )}
+              {activeTab === TAB.LIMIT && <LimitOrderForm currencyIn={currencyIn} currencyOut={currencyOut} />}
               {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
               {activeTab === TAB.CROSS_CHAIN_SOURCES && (
                 <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />

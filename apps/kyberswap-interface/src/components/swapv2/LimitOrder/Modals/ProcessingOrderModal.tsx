@@ -1,5 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { useEffect } from 'react'
 import { AlertCircle, RefreshCw, X } from 'react-feather'
 
 import { ButtonLight } from 'components/Button'
@@ -10,7 +11,7 @@ import type {
   ProcessingOrderState,
   ProcessingOrderStep,
   ProcessingOrderStepStatus,
-} from 'components/swapv2/LimitOrder/hooks/useLimitOrderExecution'
+} from 'components/swapv2/LimitOrder/hooks/useProcessingOrder'
 import { NativeCurrencies } from 'constants/tokens'
 import { cn } from 'utils/cn'
 
@@ -45,10 +46,22 @@ const getStepLabel = ({
 }) => {
   const nativeSymbol = NativeCurrencies[chainId].symbol
   const inputSymbol = currencyIn?.wrapped.symbol
-  if (step === 'wrap') return t`Wrapping ${nativeSymbol}...`
-  if (step === 'approve') return t`Approving ${inputSymbol}...`
-  if (step === 'create' && status === 'success') return t`Order successfully listed!`
-  return t`Signing order...`
+
+  if (step === 'wrap') {
+    if (status === 'active') return t`Wrapping ${nativeSymbol}`
+    if (status === 'success') return t`Wrapped ${nativeSymbol}`
+    return t`Wrap ${nativeSymbol}`
+  }
+
+  if (step === 'approve') {
+    if (status === 'active') return t`Approving ${inputSymbol}`
+    if (status === 'success') return t`Approved ${inputSymbol}`
+    return t`Approve ${inputSymbol}`
+  }
+
+  if (status === 'active') return t`Signing order`
+  if (status === 'success') return t`Order successfully listed`
+  return t`Sign order`
 }
 
 export default function ProcessingOrderModal({
@@ -56,14 +69,21 @@ export default function ProcessingOrderModal({
   currencyIn,
   state,
   onDismiss,
-  onRetry,
+  onRetryStep,
+  onRunStep,
 }: {
   chainId: ChainId
   currencyIn: Currency | undefined
   state: ProcessingOrderState
   onDismiss: () => void
-  onRetry: () => void
+  onRetryStep: (step: ProcessingOrderStep) => void
+  onRunStep: (step: ProcessingOrderStep) => void
 }) {
+  useEffect(() => {
+    if (!state.show || !state.currentStep || state.errorStep) return
+    onRunStep(state.currentStep)
+  }, [onRunStep, state.currentStep, state.errorStep, state.show])
+
   return (
     <Modal isOpen={state.show} onDismiss={onDismiss} maxWidth={425} borderRadius={14}>
       <div className="flex flex-col gap-5 p-6">
@@ -92,7 +112,7 @@ export default function ProcessingOrderModal({
 
                 {status === 'error' ? (
                   <ButtonLight
-                    onClick={onRetry}
+                    onClick={() => onRetryStep(step)}
                     width="auto"
                     className="h-8 shrink-0 gap-1 rounded-full px-4 py-0 text-primary"
                   >

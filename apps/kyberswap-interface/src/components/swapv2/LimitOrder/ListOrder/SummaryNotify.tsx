@@ -8,7 +8,7 @@ import {
   formatAmountOrder,
   formatRateLimitOrder,
 } from 'components/swapv2/LimitOrder/helpers'
-import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 
 export default function SummaryNotify({
   type,

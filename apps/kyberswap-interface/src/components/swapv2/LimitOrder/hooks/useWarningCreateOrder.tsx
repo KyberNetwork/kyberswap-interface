@@ -1,19 +1,28 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 
-import { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/Form/LimitOrderRateSection'
-import {
-  BETTER_PRICE_DIFF_THRESHOLD,
-  USD_THRESHOLD,
-  WORSE_PRICE_DIFF_THRESHOLD,
-} from 'components/swapv2/LimitOrder/const'
+import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/helpers'
+import { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const HightLight = ({ children }: { children: React.ReactNode }) => (
   <span className="font-medium text-warning">{children}</span>
 )
+
+const BETTER_PRICE_DIFF_THRESHOLD = 30
+
+const _USD_THRESHOLD: { [chainId: number]: number } = {
+  [ChainId.MAINNET]: 300,
+}
+const USD_THRESHOLD = new Proxy(_USD_THRESHOLD, {
+  get(target, p) {
+    const prop = p as any as ChainId
+    if (p && target[prop]) return target[prop]
+    return 10
+  },
+})
 
 export default function useWarningCreateOrder({
   currencyIn,

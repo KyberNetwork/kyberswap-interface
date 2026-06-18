@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useGetLOConfigQuery, useGetListOrdersQuery } from 'services/limitOrder'
 
-import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 
 export const useIsSupportSoftCancelOrder = () => {

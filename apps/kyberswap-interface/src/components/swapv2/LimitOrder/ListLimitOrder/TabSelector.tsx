@@ -3,7 +3,7 @@ import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
 import TabButton from 'components/TabButton'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { LimitOrderTab } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderTab } from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 
 const TAB_BUTTON_CLASS = 'h-fit w-fit !flex-none px-4 py-3 text-sm font-medium max-sm:w-1/2'

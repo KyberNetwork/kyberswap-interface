@@ -7,12 +7,10 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
 import NumericalInput from 'components/NumericalInput'
 import { removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
-import { RateInfo } from 'components/swapv2/LimitOrder/type'
+import { DeltaRateLimitOrder, RateInfo } from 'components/swapv2/LimitOrder/types'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
-
-export type DeltaRateLimitOrder = { rawPercent: number | undefined; percent: string; profit: boolean }
 
 export function useGetDeltaRateLimitOrder({
   marketPrice,
@@ -156,36 +154,41 @@ const PercentInputChip = ({ value, onUserInput }: { value: string; onUserInput: 
 }
 
 type Props = {
-  currencyIn: Currency | undefined
-  currencyOut: Currency | undefined
-  displayRate: string
-  rateInfo: RateInfo
-  tradeInfo: BaseTradeInfo | undefined
-  onChangeRate: (value: string) => void
-  onInvertRate: (invert: boolean) => void
-  setPriceRateMarket: () => void
-  trackingTouchInput: () => void
-  trackingPriceSetOnBlur: () => void
+  tokens?: RateSectionTokens
+  rate?: RateSectionState
+  events?: RateSectionEvents
 }
 
-export default function LimitOrderRateSection({
-  currencyIn,
-  currencyOut,
-  displayRate,
-  rateInfo,
-  tradeInfo,
-  onChangeRate,
-  onInvertRate,
-  setPriceRateMarket,
-  trackingTouchInput,
-  trackingPriceSetOnBlur,
-}: Props) {
+type RateSectionTokens = {
+  currencyIn?: Currency
+  currencyOut?: Currency
+}
+
+type RateSectionState = {
+  displayRate?: string
+  rateInfo?: RateInfo
+  tradeInfo?: BaseTradeInfo
+}
+
+type RateSectionEvents = {
+  onRateChange?: (value: string) => void
+  onInvertRate?: (invert: boolean) => void
+  onSetMarketRate?: () => void
+  onRateInputFocus?: () => void
+  onRateInputBlur?: () => void
+}
+
+const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '', invert: false }
+const RATE_DELTA_OPTIONS = [10, 20, 50]
+
+export default function LimitOrderRateSection({ tokens = {}, rate = {}, events = {} }: Props) {
+  const { currencyIn, currencyOut } = tokens
+  const { displayRate = '', rateInfo = DEFAULT_RATE_INFO, tradeInfo } = rate
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
   const marketRate = tradeInfo
     ? removeTrailingZero((rateInfo.invert ? tradeInfo.invertRate : tradeInfo.marketRate).toPrecision(6))
     : ''
   const unitCurrency = rateInfo.invert ? currencyIn : currencyOut
-  const rateDeltaOptions = [10, 20, 50]
   const percentInputValue =
     deltaRate.rawPercent === undefined || !Number.isFinite(deltaRate.rawPercent)
       ? ''
@@ -195,12 +198,12 @@ export default function LimitOrderRateSection({
     if (!tradeInfo) return
     const market = rateInfo.invert ? tradeInfo.invertRate : tradeInfo.marketRate
     const nextRate = market * (1 + (rateInfo.invert ? -percent : percent) / 100)
-    onChangeRate(removeTrailingZero(nextRate.toFixed(16)) ?? '')
+    events.onRateChange?.(removeTrailingZero(nextRate.toFixed(16)) ?? '')
   }
 
   const onChangePercent = (value: string) => {
     if (!value || value === '-') {
-      onChangeRate('')
+      events.onRateChange?.('')
       return
     }
     setRateByDelta(Number(value))
@@ -219,7 +222,7 @@ export default function LimitOrderRateSection({
           <button
             type="button"
             className="flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-buttonGray px-3 text-sm font-medium text-subText hover:brightness-125"
-            onClick={() => onInvertRate(!rateInfo.invert)}
+            onClick={() => events.onInvertRate?.(!rateInfo.invert)}
           >
             <CurrencyLogo size="18px" currency={unitCurrency} />
             <span className="select-none">{unitCurrency.symbol}</span>
@@ -235,9 +238,9 @@ export default function LimitOrderRateSection({
             className="h-9 bg-transparent text-xl font-medium text-primary"
             data-testid="input-selling-rate"
             value={displayRate}
-            onUserInput={onChangeRate}
-            onFocus={trackingTouchInput}
-            onBlur={trackingPriceSetOnBlur}
+            onUserInput={events.onRateChange}
+            onFocus={events.onRateInputFocus}
+            onBlur={events.onRateInputBlur}
           />
         </div>
       </div>
@@ -245,14 +248,14 @@ export default function LimitOrderRateSection({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap gap-1">
           <PercentInputChip value={percentInputValue} onUserInput={onChangePercent} />
-          {rateDeltaOptions.map(percent => (
+          {RATE_DELTA_OPTIONS.map(percent => (
             <RateChip key={percent} onClick={() => setRateByDelta(percent)}>
               +{percent}%
             </RateChip>
           ))}
         </div>
         {tradeInfo ? (
-          <button type="button" className="text-xs font-medium text-subText" onClick={setPriceRateMarket}>
+          <button type="button" className="text-xs font-medium text-subText" onClick={events.onSetMarketRate}>
             <Trans>Market</Trans> <span className="text-primary">{marketRate}</span>
           </button>
         ) : null}

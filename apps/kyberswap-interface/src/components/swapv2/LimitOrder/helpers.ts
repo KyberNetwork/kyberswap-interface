@@ -2,7 +2,7 @@ import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 
-import { CreateOrderParam, LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { CreateOrderParam, LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
@@ -11,6 +11,16 @@ import { parseUnits } from 'utils/viem'
 
 export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
+
+export const WORSE_PRICE_DIFF_THRESHOLD = -5
+
+export const DOCS_LINKS = {
+  GASLESS_CANCEL:
+    'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#gasless-cancel',
+  HARD_CANCEL: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#hard-cancel',
+  CANCEL_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/user-guides/cancel-limit-orders',
+  USER_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order',
+}
 
 // js number to fraction
 export function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {

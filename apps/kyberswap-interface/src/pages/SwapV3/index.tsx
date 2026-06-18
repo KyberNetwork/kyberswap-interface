@@ -6,7 +6,7 @@ import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
 import { HStack, Stack } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import LimitOrder from 'components/swapv2/LimitOrder'
+import LimitOrderForm from 'components/swapv2/LimitOrder/Form/LimitOrderForm'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
@@ -152,7 +152,7 @@ export default function Swap() {
               />
             )}
             {activeTab === TAB.LIQUIDITY_SOURCES && <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />}
-            {activeTab === TAB.LIMIT && <LimitOrder />}
+            {activeTab === TAB.LIMIT && <LimitOrderForm />}
             {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
             {activeTab === TAB.CROSS_CHAIN_SOURCES && (
               <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />

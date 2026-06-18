@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { SmartExitCondition } from 'pages/Earns/types'
 import { HistoricalPriceAlert } from 'pages/NotificationCenter/const'

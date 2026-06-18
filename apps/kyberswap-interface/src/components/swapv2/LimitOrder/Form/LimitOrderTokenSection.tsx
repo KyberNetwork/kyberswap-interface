@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { CSSProperties, ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 import ArrowRotate from 'components/ArrowRotate'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -11,75 +11,74 @@ const Label = ({ children }: { children: ReactNode }) => (
 )
 
 type Props = {
-  chainId: number
-  currencyIn: Currency | undefined
-  currencyOut: Currency | undefined
-  inputAmount: string
-  outputAmount: string
-  inputError: string | ReactNode
-  outPutError: string | ReactNode
-  estimateUsdIn: string | undefined
-  estimateUsdOut: string | undefined
-  rotate: boolean
-  styleTooltip: CSSProperties
-  onSetInput: (input: string) => void
-  onSetOutput: (output: string) => void
-  handleMaxInput: () => void
-  handleInputSelect: (currency: Currency) => void
-  handleOutputSelect: (currency: Currency) => void
-  handleRotateClick: () => void
-  trackingTouchInput: () => void
-  trackingTouchSelectToken: () => void
+  chainId?: number
+  tokens?: TokenSectionTokens
+  errors?: TokenSectionErrors
+  estimateUsd?: TokenSectionEstimateUsd
+  events?: TokenSectionEvents
 }
+
+type TokenSectionTokens = {
+  currencyIn?: Currency
+  currencyOut?: Currency
+  inputAmount?: string
+  outputAmount?: string
+  rotate?: boolean
+}
+
+type TokenSectionErrors = {
+  input: string | ReactNode
+  output: string | ReactNode
+}
+
+type TokenSectionEstimateUsd = {
+  input: string | undefined
+  output: string | undefined
+}
+
+type TokenSectionEvents = {
+  onInputAmountChange?: (input: string) => void
+  onOutputAmountChange?: (output: string) => void
+  onMaxInput?: () => void
+  onInputTokenSelect?: (currency: Currency) => void
+  onOutputTokenSelect?: (currency: Currency) => void
+  onRotate?: () => void
+  onInputFocus?: () => void
+  onTokenSelectorOpen?: () => void
+}
+
+const DEFAULT_ERRORS: TokenSectionErrors = { input: undefined, output: undefined }
+const DEFAULT_ESTIMATE_USD: TokenSectionEstimateUsd = { input: undefined, output: undefined }
 
 export default function LimitOrderTokenSection({
   chainId,
-  currencyIn,
-  currencyOut,
-  inputAmount,
-  outputAmount,
-  inputError,
-  outPutError,
-  estimateUsdIn,
-  estimateUsdOut,
-  rotate,
-  styleTooltip,
-  onSetInput,
-  onSetOutput,
-  handleMaxInput,
-  handleInputSelect,
-  handleOutputSelect,
-  handleRotateClick,
-  trackingTouchInput,
-  trackingTouchSelectToken,
+  tokens = {},
+  errors = DEFAULT_ERRORS,
+  estimateUsd = DEFAULT_ESTIMATE_USD,
+  events = {},
 }: Props) {
+  const { currencyIn, currencyOut, inputAmount = '', outputAmount = '', rotate } = tokens
+
   return (
     <div className="relative flex flex-col gap-1">
-      <Tooltip
-        text={inputError}
-        show={!!inputError}
-        placement="top"
-        style={styleTooltip}
-        width="fit-content"
-        dataTestId="error-message"
-      >
+      <Tooltip text={errors.input} show={!!errors.input} placement="top" width="fit-content" dataTestId="error-message">
         <CurrencyInputPanel
-          error={!!inputError}
+          error={!!errors.input}
           value={inputAmount}
           positionMax="top"
-          onUserInput={onSetInput}
-          onMax={handleMaxInput}
+          onUserInput={events.onInputAmountChange}
+          onMax={events.onMaxInput}
           otherCurrency={currencyOut}
-          estimatedUsd={estimateUsdIn}
-          onFocus={trackingTouchInput}
-          onCurrencySelect={handleInputSelect}
+          estimatedUsd={estimateUsd.input}
+          onFocus={events.onInputFocus}
+          onCurrencySelect={events.onInputTokenSelect}
           currency={currencyIn}
           showPinnedTokens
           id="create-limit-order-input-tokena"
           dataTestId="limit-order-input-tokena"
           maxCurrencySymbolLength={6}
           filterWrap
-          onClickSelect={trackingTouchSelectToken}
+          onClickSelect={events.onTokenSelectorOpen}
           label={
             <Label>
               <Trans>You Sell</Trans>
@@ -94,30 +93,30 @@ export default function LimitOrderTokenSection({
 
       <div className="pointer-events-none relative z-20 -my-3 flex justify-center">
         <ArrowRotate
-          rotate={rotate}
-          onClick={handleRotateClick}
+          rotate={!!rotate}
+          onClick={events.onRotate}
           className="pointer-events-auto size-7 border border-bg2 bg-buttonGray p-1"
         />
       </div>
 
-      <Tooltip text={outPutError} show={!!outPutError} placement="top" style={styleTooltip} width="fit-content">
+      <Tooltip text={errors.output} show={!!errors.output} placement="top" width="fit-content">
         <CurrencyInputPanel
           maxLength={16}
           value={outputAmount}
-          error={!!outPutError}
+          error={!!errors.output}
           currency={currencyOut}
-          onUserInput={onSetOutput}
+          onUserInput={events.onOutputAmountChange}
           otherCurrency={currencyIn}
-          estimatedUsd={estimateUsdOut}
-          onFocus={trackingTouchInput}
+          estimatedUsd={estimateUsd.output}
+          onFocus={events.onInputFocus}
           id="create-limit-order-input-tokenb"
           dataTestId="limit-order-input-tokenb"
-          onCurrencySelect={handleOutputSelect}
+          onCurrencySelect={events.onOutputTokenSelect}
           positionMax="top"
           showPinnedTokens
           maxCurrencySymbolLength={6}
           filterWrap
-          onClickSelect={trackingTouchSelectToken}
+          onClickSelect={events.onTokenSelectorOpen}
           label={
             <Label>
               <Trans>You Buy</Trans>

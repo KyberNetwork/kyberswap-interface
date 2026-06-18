@@ -3,7 +3,6 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { DEFAULT_EXPIRED } from 'components/swapv2/LimitOrder/const'
 import {
   calcInvert,
   calcOutput,
@@ -11,7 +10,8 @@ import {
   parseFraction,
   removeTrailingZero,
 } from 'components/swapv2/LimitOrder/helpers'
-import { RateInfo } from 'components/swapv2/LimitOrder/type'
+import { RateInfo } from 'components/swapv2/LimitOrder/types'
+import { TIMES_IN_SECS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
@@ -24,6 +24,9 @@ export type LimitOrderFormStateArgs = {
   currencyOut: Currency | undefined
   useUrlParams?: boolean
 }
+
+const DEFAULT_EXPIRED = 36500 * TIMES_IN_SECS.ONE_DAY
+const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '', invert: false }
 
 export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrlParams }: LimitOrderFormStateArgs) {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
@@ -45,7 +48,7 @@ export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrl
   const autoFillMarketPrice = useRef(false)
 
   const [outputAmount, setOutputAmount] = useState('')
-  const [rateInfo, setRateInfo] = useState<RateInfo>({ rate: '', invertRate: '', invert: false })
+  const [rateInfo, setRateInfo] = useState<RateInfo>(DEFAULT_RATE_INFO)
   const [expire, setExpire] = useState(DEFAULT_EXPIRED)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [customDateExpire, setCustomDateExpire] = useState<Date | undefined>()
@@ -57,6 +60,10 @@ export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrl
   const displayRate = rateInfo.invert ? rateInfo.invertRate : rateInfo.rate
   const expiredAt = customDateExpire?.getTime() || Date.now() + expire * 1000
   const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : formatTimeDuration(expire)
+
+  const clearRate = useCallback(() => {
+    setRateInfo(rateInfo => ({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined }))
+  }, [])
 
   const setCurrencyIn = useCallback(
     (currency: Currency | undefined) => {
@@ -196,9 +203,9 @@ export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrl
         return
       }
       setCurrencyIn(currency)
-      resetRate && setRateInfo(rateInfo => ({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined }))
+      resetRate && clearRate()
     },
-    [currencyOut, setCurrencyIn, switchCurrency],
+    [clearRate, currencyOut, setCurrencyIn, switchCurrency],
   )
 
   const switchToWeth = useCallback(() => {
@@ -212,7 +219,7 @@ export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrl
       return
     }
     setCurrencyOut(currency)
-    setRateInfo(rateInfo => ({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined }))
+    clearRate()
   }
 
   const handleRotateClick = () => {
@@ -267,7 +274,7 @@ export default function useLimitOrderFormState({ currencyIn, currencyOut, useUrl
   const onResetForm = useCallback(() => {
     setInputAmount('')
     setOutputAmount('')
-    setRateInfo({ rate: '', invertRate: '', invert: false })
+    setRateInfo(DEFAULT_RATE_INFO)
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
   }, [setInputAmount])

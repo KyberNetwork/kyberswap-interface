@@ -7,10 +7,9 @@ import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { Container, Header, ListInfo, Note, Rate, Value } from 'components/swapv2/LimitOrder/Modals/styled'
-import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
-import { formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
-import { RateInfo } from 'components/swapv2/LimitOrder/type'
+import { Container, Header, ListInfo, Rate, Value } from 'components/swapv2/LimitOrder/Modals/components'
+import { WORSE_PRICE_DIFF_THRESHOLD, formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
+import { RateInfo } from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
@@ -29,7 +28,6 @@ export default memo(function ConfirmOrderModal({
   expiredAt,
   marketPrice,
   rateInfo,
-  note,
   warningMessage,
   percentDiff,
 }: {
@@ -43,7 +41,6 @@ export default memo(function ConfirmOrderModal({
   expiredAt: number
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
-  note?: string
   warningMessage: ReactNode[]
   percentDiff: number
 }) {
@@ -154,7 +151,6 @@ export default memo(function ConfirmOrderModal({
         symbolIn={currencyIn?.symbol}
         symbolOut={currencyOut?.symbol}
       />
-      <Note note={note} />
 
       {warningMessage?.length > 0 && (
         <Column className="gap-4">
