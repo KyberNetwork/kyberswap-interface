@@ -56,23 +56,16 @@ export default function useLimitOrderExecution({
   const { account } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
 
-  // Balances, allowance, and form readiness.
+  // Base order data from API and typed input.
   const { data: activeOrderMakingAmount = '', refetch: getActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
     { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
     { skip: !currencyIn || !account },
   )
 
-  const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(switchToWeth)
-
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
+
   const { currentData } = useGetLOConfigQuery(chainId)
   const limitOrderContract = currentData?.contract
-
-  const currentAllowance = useTokenAllowance(
-    currencyIn as Token,
-    account ?? undefined,
-    limitOrderContract,
-  ) as CurrencyAmount<Currency>
 
   const parsedActiveOrderMakingAmount = useMemo(() => {
     try {
@@ -86,10 +79,12 @@ export default function useLimitOrderExecution({
     return undefined
   }, [currencyIn, activeOrderMakingAmount])
 
+  // Balance and wrap requirements.
   const balance = useCurrencyBalance(currencyIn, chainId)
   const nativeCurrency = NativeCurrencies[chainId]
   const nativeBalance = useCurrencyBalance(nativeCurrency, chainId)
   const isWrappedNativeInput = !!currencyIn?.equals(WETH[chainId])
+
   const wrapAmountForOrder = useMemo(() => {
     if (!currencyIn || !isWrappedNativeInput || !parseInputAmount || !balance?.currency.equals(currencyIn)) {
       return undefined
@@ -98,10 +93,14 @@ export default function useLimitOrderExecution({
     const deficit = JSBI.subtract(parseInputAmount.quotient, balance.quotient)
     return CurrencyAmount.fromRawAmount(nativeCurrency, deficit)
   }, [balance, currencyIn, isWrappedNativeInput, nativeCurrency, parseInputAmount])
+
   const needsWrap = !!currencyIn?.isNative || !!wrapAmountForOrder
   const wrapInputCurrency = currencyIn?.isNative ? currencyIn : wrapAmountForOrder ? nativeCurrency : currencyIn
   const wrapTypedValue = wrapAmountForOrder ? wrapAmountForOrder.toExact() : inputAmount
+
+  const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(switchToWeth)
   const { execute: onWrap } = useWrapCallback(wrapInputCurrency, WETH[chainId], wrapTypedValue, true, chainId)
+
   const maxAmountInput = useMemo(() => {
     return maxAmountSpend(balance)
   }, [balance])
@@ -113,8 +112,7 @@ export default function useLimitOrderExecution({
     return nativeBalance.lessThan(wrapAmountForOrder)
   }, [balance, currencyIn, isWrappedNativeInput, nativeBalance, nativeCurrency, parseInputAmount, wrapAmountForOrder])
 
-  const insufficientBalanceSymbol = currencyIn?.symbol
-  const insufficientBalanceText = insufficientBalance ? t`Insufficient ${insufficientBalanceSymbol} balance` : undefined
+  const insufficientBalanceText = insufficientBalance ? t`Insufficient Balance` : undefined
 
   const handleMaxInput = useCallback(() => {
     if (!maxAmountInput) return
@@ -123,12 +121,20 @@ export default function useLimitOrderExecution({
     } catch (error) {}
   }, [maxAmountInput, onSetInput])
 
+  // Allowance and process-modal steps.
+  const currentAllowance = useTokenAllowance(
+    currencyIn as Token,
+    account ?? undefined,
+    limitOrderContract,
+  ) as CurrencyAmount<Currency>
+
   const missingAllowance = useMemo(() => {
     if (currentAllowance?.equalTo(0)) return true
     if (currencyIn?.isNative || !parseInputAmount) return false
     const allowanceSubtracted = parsedActiveOrderMakingAmount
       ? currentAllowance?.subtract(parsedActiveOrderMakingAmount)
       : undefined
+
     if (
       !allowanceSubtracted ||
       allowanceSubtracted.greaterThan(parseInputAmount) ||
@@ -145,6 +151,7 @@ export default function useLimitOrderExecution({
     limitOrderContract || undefined,
     !enoughAllowance,
   )
+
   const processingSteps = useMemo<ProcessingOrderStep[]>(() => {
     const steps: ProcessingOrderStep[] = []
     if (needsWrap) steps.push('wrap')
@@ -153,6 +160,7 @@ export default function useLimitOrderExecution({
     return steps
   }, [approval, currencyIn?.isNative, needsWrap])
 
+  // Form validation and warning messages.
   const { inputError, outPutError } = useValidateInputError({
     inputAmount,
     outputAmount,
@@ -184,7 +192,7 @@ export default function useLimitOrderExecution({
     missingAllowance,
   })
 
-  // User-facing actions.
+  // Tracking callbacks used by form inputs.
   const trackingTouchInput = useCallback(() => {
     trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
   }, [trackingHandler])
@@ -215,15 +223,19 @@ export default function useLimitOrderExecution({
     trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
   }, [trackingHandler])
 
+  // Preview modal and shared error handling.
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
+
     setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
+
     trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
       from_token: currencyIn.symbol,
       to_token: currencyOut.symbol,
       from_network: chainId,
       trade_qty: inputAmount,
     })
+
     trackingHandler(TRACKING_EVENT_TYPE.LO_REVIEW_OPENED, {
       side: rateInfo.invert ? 'buy' : 'sell',
       from_token: currencyIn.symbol,
@@ -251,6 +263,7 @@ export default function useLimitOrderExecution({
       const errorMessage = getErrorMessage(error)
       const isUserRejected =
         errorMessage.toLowerCase().includes('user denied') || errorMessage.toLowerCase().includes('user rejected')
+
       trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FAILED, {
         side: rateInfo.invert ? 'buy' : 'sell',
         from_token: currencyIn?.symbol,
@@ -262,6 +275,7 @@ export default function useLimitOrderExecution({
         error_message: errorMessage,
         chain: networkName,
       })
+
       setFlowState(state => ({
         ...state,
         attemptingTxn: false,
@@ -271,6 +285,7 @@ export default function useLimitOrderExecution({
     [setFlowState, trackingHandler, rateInfo.invert, currencyIn, currencyOut, displayRate, inputAmount, networkName],
   )
 
+  // Keep active making amount fresh after order state updates.
   const refreshActiveMakingAmount = useCallback(() => {
     try {
       getActiveMakingAmount()
