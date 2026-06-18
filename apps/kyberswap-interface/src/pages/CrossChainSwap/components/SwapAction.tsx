@@ -5,6 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useState } from 'react'
 
 import { ButtonPrimary } from 'components/Button'
+import Dots from 'components/Dots'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import { ZERO_ADDRESS } from 'constants/index'
@@ -34,6 +35,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     currencyIn,
     currencyOut,
     loading,
+    allLoading,
     selectedQuote,
     recipient,
   } = useCrossChainSwap()
@@ -67,6 +69,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
   const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
   const { setIsOpen } = useSolanaConnectModal()
+  const isFindingRoute = loading || (allLoading && !selectedQuote)
 
   const {
     label,
@@ -80,9 +83,9 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
         onClick: () => {},
       }
     }
-    if (loading)
+    if (isFindingRoute)
       return {
-        label: t`Finding the best route...`,
+        label: <Dots>{t`Finding the best route`}</Dots>,
         disabled: true,
         onClick: () => {},
       }
