@@ -5,7 +5,8 @@ import { Trash } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { calcPercentFilledOrder, isActiveStatus } from 'components/swapv2/LimitOrder/helpers'
-import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
+import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/types'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useTokenBalance } from 'state/wallet/hooks'
@@ -138,12 +139,11 @@ const OrderItem = ({
     isOrderActive
 
   const onClickOrder = () => {
-    navigate({
-      search: new URLSearchParams({
-        inputCurrency: order.makerAsset,
-        outputCurrency: order.takerAsset,
-      }).toString(),
-    })
+    const search = new URLSearchParams({ activeTab: LimitOrderTab.ORDER_BOOK }).toString()
+
+    navigate(
+      `${APP_PATHS.LIMIT}/${NETWORKS_INFO[order.chainId].route}/${order.makerAsset}-to-${order.takerAsset}?${search}`,
+    )
   }
 
   return (
