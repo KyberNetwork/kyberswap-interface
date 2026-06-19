@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { AlertCircle, RefreshCw } from 'react-feather'
 
@@ -11,6 +12,7 @@ import {
   TakeOrderStep,
   TakeOrderStepStatus,
 } from 'components/swapv2/LimitOrder/hooks/useTakeLimitOrder'
+import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 
@@ -38,7 +40,14 @@ const StepIcon = ({ index, status }: { index: number; status: TakeOrderStepStatu
   )
 }
 
-const getStepLabel = (step: TakeOrderStep, status: TakeOrderStepStatus) => {
+const getStepLabel = (step: TakeOrderStep, status: TakeOrderStepStatus, chainId: ChainId | undefined) => {
+  if (step === 'wrap') {
+    const nativeSymbol = chainId ? NativeCurrencies[chainId].symbol : t`token`
+    if (status === 'active') return t`Wrapping ${nativeSymbol}`
+    if (status === 'success') return t`Wrapped ${nativeSymbol}`
+    return t`Wrap ${nativeSymbol}`
+  }
+
   if (step === 'approve') {
     if (status === 'active') return t`Approving token`
     if (status === 'success') return t`Approved token`
@@ -60,11 +69,13 @@ const ProcessingStepRow = ({
   index,
   step,
   status,
+  chainId,
   onRetryStep,
 }: {
   index: number
   step: TakeOrderStep
   status: TakeOrderStepStatus
+  chainId: ChainId | undefined
   onRetryStep: (step: TakeOrderStep) => void
 }) => (
   <HStack className="min-h-9 w-full items-center gap-2">
@@ -78,7 +89,7 @@ const ProcessingStepRow = ({
         status === 'error' && 'text-red',
       )}
     >
-      {getStepLabel(step, status)}
+      {getStepLabel(step, status, chainId)}
     </span>
     <HStack className="h-7 w-[76px] items-center justify-end">
       {status === 'error' && (
@@ -95,7 +106,13 @@ const ProcessingStepRow = ({
   </HStack>
 )
 
-const ProcessingTakeOrderModal = ({ processing }: { processing: ProcessingController }) => {
+const ProcessingTakeOrderModal = ({
+  chainId,
+  processing,
+}: {
+  chainId: ChainId | undefined
+  processing: ProcessingController
+}) => {
   const { state, dismiss, retryStep } = processing
   const orderComplete = isOrderComplete(state)
   const isProcessing = state.show && !!state.currentStep && !state.errorStep && !orderComplete
@@ -117,7 +134,16 @@ const ProcessingTakeOrderModal = ({ processing }: { processing: ProcessingContro
           <Stack className="gap-2">
             {state.steps.map((step, index) => {
               const status = getStepStatus(state, step)
-              return <ProcessingStepRow key={step} index={index} step={step} status={status} onRetryStep={retryStep} />
+              return (
+                <ProcessingStepRow
+                  key={step}
+                  index={index}
+                  step={step}
+                  status={status}
+                  chainId={chainId}
+                  onRetryStep={retryStep}
+                />
+              )
             })}
           </Stack>
 

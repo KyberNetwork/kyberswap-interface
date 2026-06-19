@@ -65,7 +65,7 @@ const TabSelector = ({
                     </Trans>
                   }
                 >
-                  <span className="min-w-4 rounded-full bg-warning-30 px-1.5 text-sm font-medium text-warning">
+                  <span className="min-w-4 rounded-full bg-warning-30 px-1.5 text-sm font-medium leading-tight text-warning">
                     {numberOfInsufficientFundOrders}
                   </span>
                 </MouseoverTooltip>

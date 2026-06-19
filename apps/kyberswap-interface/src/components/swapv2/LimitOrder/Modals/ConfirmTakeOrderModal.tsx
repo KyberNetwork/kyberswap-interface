@@ -226,6 +226,7 @@ const ConfirmTakeOrderModal = ({
         </Stack>
       </Modal>
       <ProcessingTakeOrderModal
+        chainId={context?.order.chainId}
         processing={{
           ...takeOrder.processing,
           dismiss: handleProcessingDismiss,

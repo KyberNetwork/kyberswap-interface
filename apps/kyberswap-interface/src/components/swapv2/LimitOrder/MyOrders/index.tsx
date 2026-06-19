@@ -203,7 +203,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
   }, [])
 
   const refetchOrders = useCallback(() => {
-    invalidateTag(RTK_QUERY_TAGS.GET_LIST_ORDERS)
+    invalidateTag(RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST)
   }, [invalidateTag])
 
   const refreshListOrder = useCallback(() => {

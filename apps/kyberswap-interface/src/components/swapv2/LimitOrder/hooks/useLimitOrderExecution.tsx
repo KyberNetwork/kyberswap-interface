@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
@@ -14,7 +14,6 @@ import { useWrapEthStatus } from 'components/swapv2/LimitOrder/hooks/useWrapEthS
 import { LimitOrderCreateContext } from 'components/swapv2/LimitOrder/types'
 import { ERC20_ABI } from 'constants/abis'
 import { NativeCurrencies } from 'constants/tokens'
-import { useTokenAllowance } from 'data/Allowances'
 import { useActiveWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -72,37 +71,48 @@ export const useLimitOrderExecution = ({
 
   const { currentData } = useGetLOConfigQuery(chainId)
   const limitOrderContract = currentData?.contract
+  const approvalCurrency = useMemo(() => {
+    if (!currencyIn) return undefined
+    return currencyIn.isNative ? WETH[chainId] : currencyIn.wrapped
+  }, [chainId, currencyIn])
+  const parsedApprovalAmount = useMemo(() => {
+    if (!approvalCurrency || !parsedInputAmount) return undefined
+    return TokenAmount.fromRawAmount(approvalCurrency, parsedInputAmount.quotient)
+  }, [approvalCurrency, parsedInputAmount])
 
   const parsedActiveOrderMakingAmount = useMemo(() => {
     try {
-      if (currencyIn && activeOrderMakingAmount) {
-        if (currencyIn.isNative) {
-          return TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(0))
-        }
-        return TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(activeOrderMakingAmount))
+      if (approvalCurrency && activeOrderMakingAmount) {
+        return TokenAmount.fromRawAmount(approvalCurrency, JSBI.BigInt(activeOrderMakingAmount))
       }
     } catch (error) {}
     return undefined
-  }, [currencyIn, activeOrderMakingAmount])
+  }, [approvalCurrency, activeOrderMakingAmount])
 
   // Balance and wrap requirements.
   const balance = useCurrencyBalance(currencyIn, chainId)
+  const approvalBalance = useCurrencyBalance(approvalCurrency, chainId)
   const nativeCurrency = NativeCurrencies[chainId]
   const nativeBalance = useCurrencyBalance(nativeCurrency, chainId)
-  const isWrappedNativeInput = !!currencyIn?.equals(WETH[chainId])
+  const isWrappedNativeApproval = !!approvalCurrency?.equals(WETH[chainId])
 
   const wrapAmountForOrder = useMemo(() => {
-    if (!currencyIn || !isWrappedNativeInput || !parsedInputAmount || !balance?.currency.equals(currencyIn)) {
+    if (
+      !approvalCurrency ||
+      !isWrappedNativeApproval ||
+      !parsedApprovalAmount ||
+      !approvalBalance?.currency.equals(approvalCurrency)
+    ) {
       return undefined
     }
-    if (!balance.lessThan(parsedInputAmount)) return undefined
-    const deficit = JSBI.subtract(parsedInputAmount.quotient, balance.quotient)
+    if (!approvalBalance.lessThan(parsedApprovalAmount)) return undefined
+    const deficit = JSBI.subtract(parsedApprovalAmount.quotient, approvalBalance.quotient)
     return CurrencyAmount.fromRawAmount(nativeCurrency, deficit)
-  }, [balance, currencyIn, isWrappedNativeInput, nativeCurrency, parsedInputAmount])
+  }, [approvalBalance, approvalCurrency, isWrappedNativeApproval, nativeCurrency, parsedApprovalAmount])
 
-  const needsWrap = !!currencyIn?.isNative || !!wrapAmountForOrder
-  const wrapInputCurrency = currencyIn?.isNative ? currencyIn : wrapAmountForOrder ? nativeCurrency : currencyIn
-  const wrapTypedValue = wrapAmountForOrder ? wrapAmountForOrder.toExact() : inputAmount
+  const needsWrap = !!wrapAmountForOrder
+  const wrapInputCurrency = wrapAmountForOrder ? nativeCurrency : undefined
+  const wrapTypedValue = wrapAmountForOrder?.toExact()
 
   const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(switchToWeth)
   const { execute: onWrap } = useWrapCallback(wrapInputCurrency, WETH[chainId], wrapTypedValue, true, chainId)
@@ -112,11 +122,19 @@ export const useLimitOrderExecution = ({
   }, [balance])
 
   const insufficientBalance = useMemo(() => {
-    if (!parsedInputAmount || !currencyIn || !balance?.currency.equals(currencyIn)) return false
-    if (!balance.lessThan(parsedInputAmount)) return false
-    if (!isWrappedNativeInput || !wrapAmountForOrder || !nativeBalance?.currency.equals(nativeCurrency)) return true
+    if (!approvalCurrency || !parsedApprovalAmount || !approvalBalance?.currency.equals(approvalCurrency)) return false
+    if (!approvalBalance.lessThan(parsedApprovalAmount)) return false
+    if (!isWrappedNativeApproval || !wrapAmountForOrder || !nativeBalance?.currency.equals(nativeCurrency)) return true
     return nativeBalance.lessThan(wrapAmountForOrder)
-  }, [balance, currencyIn, isWrappedNativeInput, nativeBalance, nativeCurrency, parsedInputAmount, wrapAmountForOrder])
+  }, [
+    approvalBalance,
+    approvalCurrency,
+    isWrappedNativeApproval,
+    nativeBalance,
+    nativeCurrency,
+    parsedApprovalAmount,
+    wrapAmountForOrder,
+  ])
 
   const insufficientBalanceText = insufficientBalance ? t`Insufficient Balance` : undefined
 
@@ -136,74 +154,46 @@ export const useLimitOrderExecution = ({
     } catch (error) {}
   }, [maxAmountInput, onSetInput])
 
-  // Allowance and process-modal steps.
-  const currentAllowance = useTokenAllowance(
-    currencyIn as Token,
-    account ?? undefined,
-    limitOrderContract,
-  ) as CurrencyAmount<Currency>
-
-  const missingAllowance = useMemo(() => {
-    if (currentAllowance?.equalTo(0)) return true
-    if (currencyIn?.isNative || !parsedInputAmount) return false
-    const allowanceSubtracted = parsedActiveOrderMakingAmount
-      ? currentAllowance?.subtract(parsedActiveOrderMakingAmount)
-      : undefined
-
-    if (
-      !allowanceSubtracted ||
-      allowanceSubtracted.greaterThan(parsedInputAmount) ||
-      allowanceSubtracted.equalTo(parsedInputAmount)
-    )
-      return false
-    return parsedInputAmount.subtract(allowanceSubtracted)
-  }, [currencyIn?.isNative, currentAllowance, parsedInputAmount, parsedActiveOrderMakingAmount])
-
-  const enoughAllowance = !missingAllowance
-
-  const [approval, approveCallback] = useApproveCallback(
-    parsedInputAmount,
-    limitOrderContract || undefined,
-    !enoughAllowance,
-  )
+  // Allowance is checked inside the processing approve step so the modal can show the step even when it passes.
+  const [approval, approveCallback] = useApproveCallback(parsedApprovalAmount, limitOrderContract || undefined, true)
 
   const hasEnoughAllowance = useCallback(
-    (allowance: CurrencyAmount<Currency>) => {
-      if (currencyIn?.isNative || !parsedInputAmount) return true
+    (allowance: TokenAmount) => {
+      if (!parsedApprovalAmount) return true
       try {
         const availableAllowance = parsedActiveOrderMakingAmount
           ? allowance.subtract(parsedActiveOrderMakingAmount)
           : allowance
-        return availableAllowance.greaterThan(parsedInputAmount) || availableAllowance.equalTo(parsedInputAmount)
+        return availableAllowance.greaterThan(parsedApprovalAmount) || availableAllowance.equalTo(parsedApprovalAmount)
       } catch (error) {
         return false
       }
     },
-    [currencyIn?.isNative, parsedInputAmount, parsedActiveOrderMakingAmount],
+    [parsedApprovalAmount, parsedActiveOrderMakingAmount],
   )
 
   const checkApprovalManually = useCallback(async () => {
-    if (currencyIn?.isNative) return true
-    if (!currencyIn || !account || !limitOrderContract || !parsedInputAmount) return false
+    if (!approvalCurrency || !account || !limitOrderContract || !parsedApprovalAmount) return false
 
     const allowance = (await readContract(wagmiConfig, {
-      address: currencyIn.wrapped.address as Address,
+      address: approvalCurrency.address as Address,
       abi: ERC20_ABI,
       functionName: 'allowance',
       args: [account, limitOrderContract],
       chainId: chainId as number,
     })) as bigint
 
-    return hasEnoughAllowance(TokenAmount.fromRawAmount(currencyIn.wrapped, allowance.toString()))
-  }, [account, chainId, currencyIn, hasEnoughAllowance, limitOrderContract, parsedInputAmount])
+    return hasEnoughAllowance(TokenAmount.fromRawAmount(approvalCurrency, allowance.toString()))
+  }, [account, chainId, approvalCurrency, hasEnoughAllowance, limitOrderContract, parsedApprovalAmount])
 
   const processingSteps = useMemo<ProcessingOrderStep[]>(() => {
     const steps: ProcessingOrderStep[] = []
+
     if (needsWrap) steps.push('wrap')
-    if (needsWrap || (!currencyIn?.isNative && !enoughAllowance)) steps.push('approve')
+    steps.push('approve')
     steps.push('create')
     return steps
-  }, [currencyIn?.isNative, enoughAllowance, needsWrap])
+  }, [needsWrap])
 
   // Form validation and warning messages.
   const { inputError, outputError } = useValidateInputError({

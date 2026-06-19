@@ -100,7 +100,7 @@ export const useRequestCancelOrder = ({
         chainId,
       })
       if (response?.hash) {
-        insertCancellingOrder({
+        await insertCancellingOrder({
           maker: account,
           chainId: chainId.toString(),
           txHash: response.hash,

@@ -1,6 +1,7 @@
 import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
+import { CreateOrderBody } from 'services/limitOrder'
 
 import { CreateOrderParam, LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/types'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
@@ -134,19 +135,40 @@ export const calcPercentFilledOrder = (value: string, total: string, decimals: n
   }
 }
 
-export const getErrorMessage = (error: any) => {
+type LimitOrderError = {
+  code?: string | number
+  response?: {
+    data?: {
+      code?: string | number
+    }
+  }
+}
+
+const isLimitOrderError = (error: unknown): error is LimitOrderError => typeof error === 'object' && error !== null
+
+type CreateOrderSignatureBodyPayload = Omit<CreateOrderBody, 'salt' | 'signature' | 'clientId'>
+
+type LimitOrderTrackingPayload = {
+  from_token: string
+  to_token: string
+  from_network: string
+  trade_qty: string
+  order_id: number
+} & Record<string, unknown>
+
+export const getErrorMessage = (error: unknown) => {
   console.error('Limit order error: ', error)
-  const errorCode: string = error?.response?.data?.code || error.code || ''
-  const mapErrorMessageByErrCode: { [code: string]: string } = {
+  const errorCode = isLimitOrderError(error) ? error.response?.data?.code || error.code || '' : ''
+  const mapErrorMessageByErrCode: Record<string, string> = {
     4001: t`User denied message signature`,
     4002: t`You don't have sufficient fund for this transaction.`,
     4004: t`Invalid signature`,
   }
-  const msg = mapErrorMessageByErrCode[errorCode]
-  return msg?.toString?.() || friendlyError(error)
+  const msg = mapErrorMessageByErrCode[String(errorCode)]
+  return msg?.toString?.() || friendlyError(error instanceof Error || typeof error === 'string' ? error : '')
 }
 
-export const getPayloadCreateOrder = (params: CreateOrderParam) => {
+export const getPayloadCreateOrder = (params: CreateOrderParam): CreateOrderSignatureBodyPayload => {
   const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt, referral } = params
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
   return {
@@ -162,7 +184,11 @@ export const getPayloadCreateOrder = (params: CreateOrderParam) => {
   }
 }
 
-export const getPayloadTracking = (order: LimitOrder, networkName: string, payload = {}) => {
+export const getPayloadTracking = (
+  order: LimitOrder,
+  networkName: string,
+  payload: Record<string, unknown> = {},
+): LimitOrderTrackingPayload => {
   const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id } = order
   return {
     ...payload,

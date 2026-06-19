@@ -119,7 +119,12 @@ const transformResponse = <T>(data: ApiEnvelope<T>) => data.data
 const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
-  tagTypes: [RTK_QUERY_TAGS.GET_LIST_ORDERS, RTK_QUERY_TAGS.GET_ORDERS_BY_TOKEN_PAIR],
+  tagTypes: [
+    RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST,
+    RTK_QUERY_TAGS.GET_LIMIT_ORDER_BOOK,
+    RTK_QUERY_TAGS.GET_LIMIT_ORDER_INSUFFICIENT,
+    RTK_QUERY_TAGS.GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT,
+  ],
   endpoints: builder => ({
     getLOConfig: builder.query<LimitOrderConfig, ChainId>({
       query: chainId => ({
@@ -158,7 +163,7 @@ const limitOrderApi = createApi({
         })
         return { orders: data?.orders || [], totalOrder: data?.pagination?.totalItems || 0 }
       },
-      providesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
+      providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST],
     }),
     getOrdersByTokenPair: builder.query<
       { orders: LimitOrderFromTokenPair[] },
@@ -178,7 +183,7 @@ const limitOrderApi = createApi({
         })
         return { orders: data?.orders || [] }
       },
-      providesTags: [RTK_QUERY_TAGS.GET_ORDERS_BY_TOKEN_PAIR],
+      providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_BOOK],
     }),
     getNumberOfInsufficientFundOrders: builder.query<number, { chainId: ChainId; maker: string }>({
       query: params => ({
@@ -186,6 +191,7 @@ const limitOrderApi = createApi({
         params,
       }),
       transformResponse: ({ data }: ApiEnvelope<NumberOfInsufficientFundOrdersResponse>) => data.total || 0,
+      providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_INSUFFICIENT],
     }),
     insertCancellingOrder: builder.mutation<unknown, InsertCancellingOrderBody>({
       query: body => ({
@@ -193,6 +199,11 @@ const limitOrderApi = createApi({
         body,
         method: 'POST',
       }),
+      invalidatesTags: [
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST,
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_INSUFFICIENT,
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT,
+      ],
     }),
     createOrder: builder.mutation<{ id: number }, CreateOrderBody>({
       query: body => ({
@@ -204,7 +215,11 @@ const limitOrderApi = createApi({
         },
       }),
       transformResponse,
-      invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
+      invalidatesTags: [
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST,
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_INSUFFICIENT,
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT,
+      ],
     }),
     createOrderSignature: builder.mutation<CreateOrderSignatureResponse, CreateOrderSignatureBody>({
       query: body => ({
@@ -244,6 +259,7 @@ const limitOrderApi = createApi({
         },
       }),
       transformResponse: ({ data }: ApiEnvelope<ActiveMakingAmountResponse>) => data.activeMakingAmount || '',
+      providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT],
     }),
 
     createCancelOrderSignature: builder.mutation<
@@ -267,7 +283,11 @@ const limitOrderApi = createApi({
         method: 'POST',
       }),
       transformResponse,
-      invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
+      invalidatesTags: [
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST,
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_INSUFFICIENT,
+        RTK_QUERY_TAGS.GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT,
+      ],
     }),
     getOperatorSignature: builder.query<OperatorSignature[], { chainId: ChainId; orderIds: number[] }>({
       query: ({ chainId, orderIds }) => ({
