@@ -6,7 +6,7 @@ import { VariableSizeList } from 'react-window'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
-import { CancellingOrderInfo, useCancellingOrders } from 'components/LimitOrder/hooks/useCancellingOrders'
+import { CancellingOrderInfo, useCancellingOrders } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import Tab from 'components/WalletPopup/Transactions/Tab'

@@ -153,6 +153,13 @@ export const useTakeLimitOrder = ({
     return parsedPayAmount.greaterThan(maxPayAmount)
   }, [maxPayAmount, parsedPayAmount])
 
+  const canSubmit =
+    !!contractAddress &&
+    !!parsedPayAmount &&
+    JSBI.greaterThan(parsedPayAmount.quotient, JSBI.BigInt(0)) &&
+    !exceedsAvailableAmount &&
+    !insufficientBalance
+
   const { execute: onWrap } = useWrapCallback(
     wrapAmountForOrder ? nativeCurrency : undefined,
     WETH[chainId],
@@ -435,13 +442,6 @@ export const useTakeLimitOrder = ({
     },
     [processing.errorStep, processing.steps, runSequence, setProcessing],
   )
-
-  const canSubmit =
-    !!contractAddress &&
-    !!parsedPayAmount &&
-    JSBI.greaterThan(parsedPayAmount.quotient, JSBI.BigInt(0)) &&
-    !exceedsAvailableAmount &&
-    !insufficientBalance
 
   const estimateTxGas = useCallback(async () => {
     if (!account || !order || !parsedPayAmount || !contractAddress) return null

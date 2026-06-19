@@ -2,20 +2,26 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 
-import CancelButtons from 'components/LimitOrder/Modals/CancelButtons'
-import CancelStatusCountDown from 'components/LimitOrder/Modals/CancelStatusCountDown'
+import CancelButtons from 'components/LimitOrder/CancelOrder/CancelButtons'
+import CancelStatusCountDown from 'components/LimitOrder/CancelOrder/CancelStatusCountDown'
+import {
+  useAllActiveOrders,
+  useIsSupportSoftCancelOrder,
+} from 'components/LimitOrder/CancelOrder/hooks/useFetchActiveAllOrders'
+import {
+  useEstimateFee,
+  useProcessCancelOrder,
+  useRequestCancelOrder,
+} from 'components/LimitOrder/CancelOrder/hooks/useRequestCancelOrder'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from 'components/LimitOrder/Modals/components'
-import { useEstimateFee, useProcessCancelOrder } from 'components/LimitOrder/MyOrders/useRequestCancelOrder'
 import { calcPercentFilledOrder, formatAmountOrder } from 'components/LimitOrder/helpers'
-import { useAllActiveOrders, useIsSupportSoftCancelOrder } from 'components/LimitOrder/hooks/useFetchActiveAllOrders'
-import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
+import { CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { NativeCurrencies } from 'constants/tokens'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 
 export enum CancelStatus {
   WAITING,
@@ -29,17 +35,13 @@ const CancelOrderModal = ({
   isCancelAll,
   customChainId,
   order,
-  onSubmit,
   onDismiss,
-  flowState,
   isOpen,
 }: {
   isCancelAll: boolean
   customChainId?: ChainId
   order: LimitOrder | undefined
-  onSubmit: CancelOrderFunction
   onDismiss?: () => void
-  flowState: TransactionFlowState
   isOpen: boolean
 }) => {
   const currencyIn = useCurrencyV2(order?.makerAsset, customChainId) || undefined
@@ -59,6 +61,12 @@ const CancelOrderModal = ({
     takerAssetDecimals,
   } = order ?? ({} as LimitOrder)
 
+  const [expiredTime, setExpiredTime] = useState(0)
+  const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
+  const [cancelType, setCancelType] = useState(CancelOrderType.GAS_LESS_CANCEL)
+  const [attemptingTxn, setAttemptingTxn] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
   const {
     orders = [],
     ordersSoftCancel = [],
@@ -70,16 +78,40 @@ const CancelOrderModal = ({
 
   const supportGasLessCancel = isCancelAll ? supportCancelGaslessAllOrders : orderSupportGasless
 
-  const { onClickGaslessCancel, onClickHardCancel, expiredTime, cancelStatus, setCancelStatus } = useProcessCancelOrder(
-    {
-      isOpen,
-      onDismiss,
-      onSubmit,
-      getOrders: (gasLessCancel: boolean) =>
-        isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
+  const selectedOrders = useMemo(() => (isCancelAll ? orders : order ? [order] : []), [isCancelAll, order, orders])
+  const estimateGas = useEstimateFee({ orders: selectedOrders, isCancelAll })
+
+  const { onCancelOrder } = useRequestCancelOrder({
+    orders: selectedOrders,
+    isCancelAll,
+    onRequestStart: () => {
+      setAttemptingTxn(true)
+      setErrorMessage('')
     },
-  )
-  const [cancelType, setCancelType] = useState(CancelOrderType.GAS_LESS_CANCEL)
+    onRequestSuccess: () => {
+      setAttemptingTxn(false)
+    },
+    onRequestError: message => {
+      setAttemptingTxn(false)
+      setErrorMessage(message)
+    },
+  })
+  const { onClickGaslessCancel, onClickHardCancel } = useProcessCancelOrder({
+    isOpen,
+    onDismiss,
+    onSubmit: onCancelOrder,
+    expiredTime,
+    setExpiredTime,
+    setCancelStatus,
+    getOrders: (gasLessCancel: boolean) =>
+      isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
+  })
+
+  useEffect(() => {
+    setAttemptingTxn(false)
+    setErrorMessage('')
+  }, [isOpen])
+
   useEffect(() => {
     setCancelType(supportGasLessCancel ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL)
   }, [supportGasLessCancel])
@@ -140,10 +172,8 @@ const CancelOrderModal = ({
     takerAssetDecimals,
   ])
 
-  const formatOrders = useMemo(() => (isCancelAll ? orders : order ? [order] : []), [order, isCancelAll, orders])
-  const estimateGas = useEstimateFee({ orders: formatOrders, isCancelAll })
-  const disabledGasLessCancel = !supportGasLessCancel || flowState.attemptingTxn
-  const disabledHardCancel = flowState.attemptingTxn
+  const disabledGasLessCancel = !supportGasLessCancel || attemptingTxn
+  const disabledHardCancel = attemptingTxn
   const cancelGaslessText = isCancelAll ? (
     ordersSoftCancel.length === orders.length || !supportGasLessCancel ? (
       <Trans>Gasless Cancel All Orders</Trans>
@@ -192,7 +222,8 @@ const CancelOrderModal = ({
           expiredTime={expiredTime}
           cancelStatus={cancelStatus}
           setCancelStatus={setCancelStatus}
-          flowState={flowState}
+          attemptingTxn={attemptingTxn}
+          errorMessage={errorMessage}
         />
         <CancelButtons
           order={order}
@@ -206,7 +237,7 @@ const CancelOrderModal = ({
             disabledHardCancel,
             cancelGaslessText,
             hardCancelGasless: isCancelAll ? <Trans>Hard Cancel All Orders</Trans> : <Trans>Hard Cancel</Trans>,
-            disabledConfirm: flowState.attemptingTxn || (disabledGasLessCancel && disabledHardCancel),
+            disabledConfirm: attemptingTxn || (disabledGasLessCancel && disabledHardCancel),
             confirmBtnText:
               isCancelAll && orders.length > 1 ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>,
           }}

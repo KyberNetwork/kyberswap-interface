@@ -6,8 +6,8 @@ import { Repeat } from 'react-feather'
 
 import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/LimitOrder/CreateOrder/hooks/useWarningCreateOrder'
 import { formatAmountOrder, removeTrailingZero } from 'components/LimitOrder/helpers'
-import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/LimitOrder/hooks/useWarningCreateOrder'
 import { LimitOrderCreateContext, RateInfo } from 'components/LimitOrder/types'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
@@ -122,17 +122,14 @@ const MarketRateValue = ({
 
 type Props = {
   order: LimitOrderCreateContext
-  review: {
-    isOpen: boolean
-    onDismiss?: () => void
-    onSubmit?: () => void
-  }
+  isOpen: boolean
+  onDismiss?: () => void
+  onSubmit?: () => void
   warningMessage: ReactNode[]
 }
 
-const ConfirmOrderModal = ({ order, review, warningMessage }: Props) => {
+const CreateOrderConfirmModal = ({ order, isOpen, onDismiss, onSubmit, warningMessage }: Props) => {
   const { currencyIn, currencyOut, inputAmount, outputAmount, expiredAt, rateInfo, tradeInfo, deltaRate } = order
-  const { isOpen, onDismiss, onSubmit } = review
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = Number(deltaRate.rawPercent) < WORSE_PRICE_DIFF_THRESHOLD
   const shouldDisablePlaceOrder = shouldShowConfirmFlow && !confirmed
@@ -225,4 +222,4 @@ const ConfirmOrderModal = ({ order, review, warningMessage }: Props) => {
   )
 }
 
-export default ConfirmOrderModal
+export default CreateOrderConfirmModal

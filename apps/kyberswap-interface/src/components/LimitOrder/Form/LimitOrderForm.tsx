@@ -1,24 +1,18 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, memo, useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { ReactNode, memo, useState } from 'react'
 
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
+import CreateOrderFlow from 'components/LimitOrder/CreateOrder/CreateOrderFlow'
+import { useLimitOrderExecution } from 'components/LimitOrder/CreateOrder/hooks/useLimitOrderExecution'
 import LimitOrderExpirySection from 'components/LimitOrder/Form/LimitOrderExpirySection'
 import LimitOrderRateSection, { useGetDeltaRateLimitOrder } from 'components/LimitOrder/Form/LimitOrderRateSection'
 import LimitOrderTokenSection from 'components/LimitOrder/Form/LimitOrderTokenSection'
 import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
-import ConfirmOrderModal from 'components/LimitOrder/Modals/ConfirmOrderModal'
-import ProcessingOrderModal from 'components/LimitOrder/Modals/ProcessingOrderModal'
-import { useCreateLimitOrder } from 'components/LimitOrder/hooks/useCreateLimitOrder'
-import { useLimitOrderExecution } from 'components/LimitOrder/hooks/useLimitOrderExecution'
-import { useLimitOrderFormState } from 'components/LimitOrder/hooks/useLimitOrderFormState'
-import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/hooks/useProcessingOrder'
-import { LimitOrderTab } from 'components/LimitOrder/types'
+import { useLimitOrderFormState } from 'components/LimitOrder/Form/hooks/useLimitOrderFormState'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { HStack, Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import usePageLocation from 'hooks/usePageLocation'
@@ -26,7 +20,6 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
-import { currencyId } from 'utils/currencyId'
 
 type LimitOrderFormProps = {
   currencyIn?: Currency
@@ -68,10 +61,8 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const { changeNetwork } = useChangeNetwork()
   const { account } = useActiveWeb3React()
   const { isEmbeddedSwap } = usePageLocation()
-  const navigate = useNavigate()
 
   const [showReview, setShowReview] = useState(false)
-  const [processingOrder, setProcessingOrder] = useState(DEFAULT_PROCESSING_ORDER)
 
   const { currencyIn, currencyOut } = useLimitOrderCurrencies({
     currencyIn: currencyInProp,
@@ -110,34 +101,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     switchToWeth: form.switchToWeth,
   })
 
-  const { balance, estimateUSD, review, processing: executionProcessing, tracking, validation } = execution
-
-  const createOrder = useCreateLimitOrder({
-    order,
-    searchParams: form.searchParams,
-    estimateUSD,
-    onError: execution.handleError,
-    onSuccess: execution.resetForm,
-  })
-
-  const processing = useProcessingOrder({
-    processingOrder,
-    setProcessingOrder,
-    ...executionProcessing,
-    onCreateOrder: createOrder.submitCreateOrderWithTracking,
-    onError: execution.handleError,
-    onStart: review.closeReview,
-  })
-
-  const viewCreatedOrder = useCallback(() => {
-    const currencyPair =
-      currencyIn && currencyOut
-        ? `/${currencyId(currencyIn, form.chainId)}-to-${currencyId(currencyOut, form.chainId)}`
-        : ''
-    const search = new URLSearchParams({ tab: LimitOrderTab.MY_ORDER }).toString()
-
-    navigate(`${APP_PATHS.LIMIT}/${form.networkInfo.route}${currencyPair}?${search}`)
-  }, [currencyIn, currencyOut, form.chainId, form.networkInfo.route, navigate])
+  const { balance, estimateUSD, review, tracking, validation } = execution
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton = validation.isNotFillAllInput || !!validationError || balance.insufficientBalance
@@ -247,14 +211,12 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         </Stack>
       </Stack>
 
-      <ConfirmOrderModal
+      <CreateOrderFlow
         order={order}
-        review={{
-          isOpen: showReview,
-          onDismiss: review.closeReview,
-          onSubmit: processing.start,
-        }}
-        warningMessage={validation.warningMessage}
+        searchParams={form.searchParams}
+        isOpen={showReview}
+        onDismiss={review.closeReview}
+        execution={execution}
       />
 
       <DateTimePicker
@@ -263,13 +225,6 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         isOpen={form.showDatePicker}
         onDismiss={form.toggleDatePicker}
         onSetDate={form.onChangeExpire}
-      />
-
-      <ProcessingOrderModal
-        chainId={form.chainId}
-        currencyIn={currencyIn}
-        processing={processing}
-        onViewOrder={viewCreatedOrder}
       />
     </>
   )

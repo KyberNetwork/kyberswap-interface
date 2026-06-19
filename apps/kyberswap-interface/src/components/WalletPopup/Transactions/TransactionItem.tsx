@@ -4,7 +4,7 @@ import { CSSProperties, ReactNode, forwardRef } from 'react'
 
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import SendIcon from 'components/Icons/SendIcon'
-import { CancellingOrderInfo } from 'components/LimitOrder/hooks/useCancellingOrders'
+import { CancellingOrderInfo } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
 import Row from 'components/Row'
 import ContractAddress from 'components/WalletPopup/Transactions/ContractAddress'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'

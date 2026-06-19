@@ -6,12 +6,11 @@ import { ReactComponent as TimerIcon } from 'assets/svg/clock_timer.svg'
 import Column from 'components/Column'
 import { Clock } from 'components/Icons'
 import WarningIcon from 'components/Icons/WarningIcon'
-import { CancelStatus } from 'components/LimitOrder/Modals/CancelOrderModal'
+import { CancelStatus } from 'components/LimitOrder/CancelOrder/CancelOrderModal'
 import { DOCS_LINKS } from 'components/LimitOrder/helpers'
 import Loader from 'components/Loader'
 import useInterval from 'hooks/useInterval'
 import { ExternalLink } from 'theme'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { formatRemainTime } from 'utils/time'
@@ -24,16 +23,15 @@ const CancelStatusCountDown = ({
   expiredTime,
   cancelStatus,
   setCancelStatus,
-  flowState,
+  attemptingTxn,
+  errorMessage,
 }: {
   expiredTime: number
   cancelStatus: CancelStatus
   setCancelStatus: (v: CancelStatus) => void
-  flowState: TransactionFlowState
+  attemptingTxn: boolean
+  errorMessage: string
 }) => {
-  const { errorMessage, attemptingTxn } = flowState
-  const pendingText = flowState.pendingText || t`Canceling order`
-
   const [remain, setRemain] = useState(0)
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
 
@@ -82,7 +80,7 @@ const CancelStatusCountDown = ({
             </>
           ) : (
             <>
-              <Loader /> <span className="text-sm">{pendingText}</span>
+              <Loader /> <span className="text-sm">{t`Canceling order`}</span>
             </>
           )}
         </CountDownWrapper>

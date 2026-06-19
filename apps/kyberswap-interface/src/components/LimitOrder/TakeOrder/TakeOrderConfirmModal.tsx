@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
-import ProcessingOrderModal from 'components/LimitOrder/Modals/ProcessingOrderModal'
+import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
+import { DEFAULT_TAKE_ORDER_PROCESSING, useTakeLimitOrder } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
 import { removeTrailingZero } from 'components/LimitOrder/helpers'
-import { DEFAULT_TAKE_ORDER_PROCESSING, useTakeLimitOrder } from 'components/LimitOrder/hooks/useTakeLimitOrder'
 import { LimitOrderTab, LimitOrderTakeContext } from 'components/LimitOrder/types'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
@@ -44,7 +44,7 @@ const TokenBadge = ({ amount, symbol }: { amount?: CurrencyAmount<Currency>; sym
   </HStack>
 )
 
-const ConfirmTakeOrderModal = ({
+const TakeOrderConfirmModal = ({
   context,
   isOpen,
   onDismiss,
@@ -55,15 +55,17 @@ const ConfirmTakeOrderModal = ({
 }) => {
   const navigate = useNavigate()
   const [fillAmount, setFillAmount] = useState('')
+  const [showInvertedRate, setShowInvertedRate] = useState(false)
+  const [estimatedGasUsd, setEstimatedGasUsd] = useState<string>('')
   const [processingState, setProcessingState] = useState(DEFAULT_TAKE_ORDER_PROCESSING)
+
   const takeOrder = useTakeLimitOrder({
     context,
     fillAmount,
     processing: processingState,
     setProcessing: setProcessingState,
   })
-  const { estimateTxGas } = takeOrder
-  const [showInvertedRate, setShowInvertedRate] = useState(false)
+
   const {
     maxPayAmount,
     parsedPayAmount,
@@ -74,14 +76,32 @@ const ConfirmTakeOrderModal = ({
     insufficientBalance,
     canSubmit,
   } = takeOrder.amount
-
-  const [estimatedGasUsd, setEstimatedGasUsd] = useState<string>('')
+  const { estimateTxGas } = takeOrder
   const isConfirmOpen = isOpen && !takeOrder.processing.state.show
 
   useEffect(() => {
     if (!context || !isOpen) return
     setFillAmount(maxPayAmount?.toExact() || '')
   }, [context, isOpen, maxPayAmount])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const fetchGas = async () => {
+      try {
+        if (!isConfirmOpen || !canSubmit) {
+          setEstimatedGasUsd('')
+          return
+        }
+        const gas = await estimateTxGas()
+        if (controller.signal.aborted) return
+        setEstimatedGasUsd(gas?.gasInUsd ? gas.gasInUsd.toString() : '')
+      } catch {
+        if (!controller.signal.aborted) setEstimatedGasUsd('')
+      }
+    }
+    fetchGas()
+    return () => controller.abort()
+  }, [canSubmit, estimateTxGas, isConfirmOpen])
 
   const handleDismiss = () => {
     onDismiss?.()
@@ -106,25 +126,6 @@ const ConfirmTakeOrderModal = ({
 
     navigate(`${APP_PATHS.LIMIT}/${route}?${search}`)
   }
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const fetchGas = async () => {
-      try {
-        if (!isConfirmOpen || !canSubmit) {
-          setEstimatedGasUsd('')
-          return
-        }
-        const gas = await estimateTxGas()
-        if (controller.signal.aborted) return
-        setEstimatedGasUsd(gas?.gasInUsd ? gas.gasInUsd.toString() : '')
-      } catch {
-        if (!controller.signal.aborted) setEstimatedGasUsd('')
-      }
-    }
-    fetchGas()
-    return () => controller.abort()
-  }, [canSubmit, estimateTxGas, isConfirmOpen])
 
   const rate = (() => {
     if (!context) return '--'
@@ -262,4 +263,4 @@ const ConfirmTakeOrderModal = ({
   )
 }
 
-export default ConfirmTakeOrderModal
+export default TakeOrderConfirmModal

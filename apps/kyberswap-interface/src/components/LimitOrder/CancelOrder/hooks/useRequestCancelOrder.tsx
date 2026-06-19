@@ -1,6 +1,5 @@
-import { t } from '@lingui/macro'
 import { readContract } from '@wagmi/core'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
 import {
   useCancelOrdersMutation,
   useCreateCancelOrderSignatureMutation,
@@ -8,17 +7,15 @@ import {
   useInsertCancellingOrderMutation,
 } from 'services/limitOrder'
 
-import { CancelStatus } from 'components/LimitOrder/Modals/CancelOrderModal'
+import { CancelStatus } from 'components/LimitOrder/CancelOrder/CancelOrderModal'
+import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from 'components/LimitOrder/helpers'
-import { useCancellingOrders } from 'components/LimitOrder/hooks/useCancellingOrders'
 import { CancelOrderFunction, CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
 import { wagmiConfig } from 'components/Web3Provider'
 import { LIMIT_ORDER_ABI } from 'constants/abis'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { formatSignature } from 'utils/transaction'
 import { ErrorName } from 'utils/transactionError'
@@ -27,6 +24,29 @@ import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
 type CancellingOrderPayload = { nonce: number } | { orderIds: number[] }
+
+type UseRequestCancelOrderArgs = {
+  orders: LimitOrder[]
+  isCancelAll: boolean
+  onRequestStart?: () => void
+  onRequestSuccess?: () => void
+  onRequestError?: (message: string) => void
+}
+
+type UseProcessCancelOrderArgs = {
+  onSubmit: CancelOrderFunction
+  onDismiss?: () => void
+  isOpen: boolean
+  getOrders: (v: boolean) => LimitOrder[]
+  expiredTime: number
+  setExpiredTime: Dispatch<SetStateAction<number>>
+  setCancelStatus: Dispatch<SetStateAction<CancelStatus>>
+}
+
+type UseEstimateFeeArgs = {
+  isCancelAll?: boolean
+  orders: LimitOrder[]
+}
 
 const useGetEncodeLimitOrder = () => {
   const { account, chainId } = useActiveWeb3React()
@@ -66,16 +86,13 @@ const useGetEncodeLimitOrder = () => {
 export const useRequestCancelOrder = ({
   orders,
   isCancelAll,
-  totalOrder,
-}: {
-  orders: LimitOrder[]
-  isCancelAll: boolean
-  totalOrder: number
-}) => {
+  onRequestStart,
+  onRequestSuccess,
+  onRequestError,
+}: UseRequestCancelOrderArgs) => {
   const { setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
   const { account, chainId, networkInfo, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
-  const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
   const [createCancelSignature] = useCreateCancelOrderSignatureMutation()
   const [cancelOrderRequest] = useCancelOrdersMutation()
@@ -135,7 +152,7 @@ export const useRequestCancelOrder = ({
                 tokenAmountOut: amountOut,
                 arbitrary: getPayloadTracking(order, networkInfo.name),
               }
-            : { arbitrary: { totalOrder } },
+            : { arbitrary: { totalOrder: orders.length } },
         })
       }
     }
@@ -176,27 +193,18 @@ export const useRequestCancelOrder = ({
 
   const onCancelOrder = async ({ orders, cancelType }: { orders: LimitOrder[]; cancelType: CancelOrderType }) => {
     try {
-      setFlowState({
-        ...TRANSACTION_STATE_DEFAULT,
-        pendingText: t`Canceling your orders`,
-        showConfirm: true,
-        attemptingTxn: true,
-      })
+      onRequestStart?.()
       const gaslessCancel = cancelType === CancelOrderType.GAS_LESS_CANCEL
       const resp = await (gaslessCancel ? requestGasLessCancelOrder(orders) : requestHardCancelOrder(orders?.[0]))
-      setFlowState(state => ({ ...state, attemptingTxn: false }))
+      onRequestSuccess?.()
       return resp
     } catch (error) {
-      setFlowState(state => ({
-        ...state,
-        attemptingTxn: false,
-        errorMessage: getErrorMessage(error),
-      }))
+      onRequestError?.(getErrorMessage(error))
       throw error // keep origin error
     }
   }
 
-  return { flowState, setFlowState, onCancelOrder }
+  return { onCancelOrder }
 }
 
 export const useProcessCancelOrder = ({
@@ -204,21 +212,17 @@ export const useProcessCancelOrder = ({
   onDismiss,
   onSubmit,
   getOrders,
-}: {
-  onSubmit: CancelOrderFunction
-  onDismiss?: () => void
-  isOpen: boolean
-  getOrders: (v: boolean) => LimitOrder[]
-}) => {
+  expiredTime,
+  setExpiredTime,
+  setCancelStatus,
+}: UseProcessCancelOrderArgs) => {
   const { chainId } = useActiveWeb3React()
-  const [expiredTime, setExpiredTime] = useState(0)
-  const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
   const controller = useRef(new AbortController())
 
   const onResetState = useCallback(() => {
     setExpiredTime(0)
     setCancelStatus(CancelStatus.WAITING)
-  }, [])
+  }, [setCancelStatus, setExpiredTime])
 
   useEffect(() => {
     if (!isOpen) {
@@ -259,10 +263,10 @@ export const useProcessCancelOrder = ({
   const onClickGaslessCancel = () => requestCancel(CancelOrderType.GAS_LESS_CANCEL)
   const onClickHardCancel = () => requestCancel(CancelOrderType.HARD_CANCEL)
 
-  return { onClickGaslessCancel, onClickHardCancel, expiredTime, cancelStatus, setCancelStatus }
+  return { onClickGaslessCancel, onClickHardCancel }
 }
 
-export const useEstimateFee = ({ isCancelAll = false, orders }: { isCancelAll?: boolean; orders: LimitOrder[] }) => {
+export const useEstimateFee = ({ isCancelAll = false, orders }: UseEstimateFeeArgs) => {
   const getEncodeData = useGetEncodeLimitOrder()
   const estimateGas = useEstimateGasTxs()
   const [gasFeeHardCancel, setGasFeeHardCancel] = useState('')

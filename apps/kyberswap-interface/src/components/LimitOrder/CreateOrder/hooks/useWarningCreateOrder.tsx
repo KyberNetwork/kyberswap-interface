@@ -1,23 +1,14 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { PropsWithChildren, useMemo } from 'react'
-import { Link } from 'react-router-dom'
 
+import ReservedOrderNotice from 'components/LimitOrder/ReservedOrderNotice'
 import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 
 const AprHighlight = ({ children }: PropsWithChildren) => <span className="font-medium text-apr">{children}</span>
 
 const WarningHighlight = ({ children }: PropsWithChildren) => (
   <span className="font-medium text-warning">{children}</span>
-)
-
-export const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
-  <span className="text-xs font-medium italic text-subText">
-    <Trans>
-      <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
-      review it <Link to={to}>here</Link>.
-    </Trans>
-  </span>
 )
 
 export const WORSE_PRICE_DIFF_THRESHOLD = -5

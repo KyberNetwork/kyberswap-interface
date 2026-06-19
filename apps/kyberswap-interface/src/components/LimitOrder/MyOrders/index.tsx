@@ -8,21 +8,20 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
-import CancelOrderModal from 'components/LimitOrder/Modals/CancelOrderModal'
+import CancelOrderModal from 'components/LimitOrder/CancelOrder/CancelOrderModal'
+import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
 import OrderItem from 'components/LimitOrder/MyOrders/OrderItem'
-import { useRequestCancelOrder } from 'components/LimitOrder/MyOrders/useRequestCancelOrder'
 import {
   formatAmountOrder,
   formatRateLimitOrder,
   getPayloadTracking,
   isActiveStatus,
 } from 'components/LimitOrder/helpers'
-import { useCancellingOrders } from 'components/LimitOrder/hooks/useCancellingOrders'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
-import { RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import usePageLocation from 'hooks/usePageLocation'
@@ -191,12 +190,6 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
     { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
   )
 
-  const { flowState, setFlowState, onCancelOrder } = useRequestCancelOrder({
-    orders,
-    isCancelAll,
-    totalOrder,
-  })
-
   const hasOrders = orders.length > 0
   const showPagination = hasOrders && totalOrder > PAGE_SIZE
   const showCancelAll = hasOrders && isTabActive
@@ -294,29 +287,27 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
   )
 
   const hideConfirmCancel = useCallback(() => {
-    setFlowState(TRANSACTION_STATE_DEFAULT)
     setIsOpenCancel(false)
     setIsCancelAll(false)
     setTimeout(() => {
       setCurrentOrder(undefined)
     }, 300)
-  }, [setFlowState])
+  }, [])
 
-  const showConfirmCancel = useCallback(
+  const openCancelModal = useCallback(
     (order?: LimitOrder) => {
       setCurrentOrder(order)
-      setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
       setIsOpenCancel(true)
       setIsCancelAll(false)
       if (order) {
         trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkInfo.name))
       }
     },
-    [trackingHandler, setFlowState, networkInfo],
+    [trackingHandler, networkInfo],
   )
 
   const onCancelAllOrder = () => {
-    showConfirmCancel()
+    openCancelModal()
     setIsCancelAll(true)
   }
 
@@ -388,7 +379,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
             isOrderCancelling={isOrderCancelling}
             key={order.id}
             order={order}
-            onCancelOrder={showConfirmCancel}
+            onCancelOrder={openCancelModal}
           />
         ))}
       </div>
@@ -439,9 +430,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
 
       <CancelOrderModal
         isOpen={isOpenCancel}
-        flowState={flowState}
         onDismiss={hideConfirmCancel}
-        onSubmit={onCancelOrder}
         customChainId={customChainId}
         order={currentOrder}
         isCancelAll={isCancelAll}

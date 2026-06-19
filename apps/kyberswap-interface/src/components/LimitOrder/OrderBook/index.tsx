@@ -4,9 +4,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
-import ConfirmTakeOrderModal from 'components/LimitOrder/Modals/ConfirmTakeOrderModal'
 import OrderItem, { ItemWrapper } from 'components/LimitOrder/OrderBook/OrderItem'
 import TableHeader from 'components/LimitOrder/OrderBook/TableHeader'
+import TakeOrderConfirmModal from 'components/LimitOrder/TakeOrder/TakeOrderConfirmModal'
 import { getMarketPriceDiff } from 'components/LimitOrder/helpers'
 import {
   LimitOrderFromTokenPair,
@@ -274,7 +274,7 @@ const OrderBook = () => {
           ? visibleBuyOrders.map(order => <OrderItem key={order.id} reverse order={order} onTake={handleTakeOrder} />)
           : isReversedOrdersLoaded && <NoDataPanel />}
       </OrderSide>
-      <ConfirmTakeOrderModal
+      <TakeOrderConfirmModal
         context={takeOrderContext}
         isOpen={!!takeOrderContext}
         onDismiss={() => setTakeOrderContext(undefined)}
