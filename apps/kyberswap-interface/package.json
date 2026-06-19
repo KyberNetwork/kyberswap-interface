@@ -86,7 +86,6 @@
     "@reach/portal": "^0.17.0",
     "@reduxjs/toolkit": "^2.8.0",
     "@relayprotocol/relay-sdk": "^5.1.0",
-    "@reservoir0x/relay-solana-wallet-adapter": "^2.0.5",
     "@safe-global/safe-apps-provider": "^0.18.6",
     "@safe-global/safe-apps-sdk": "^9.1.0",
     "@solana/spl-token": "^0.4.13",
