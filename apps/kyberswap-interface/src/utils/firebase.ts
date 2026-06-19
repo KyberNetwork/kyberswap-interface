@@ -3,7 +3,7 @@ import firebase from 'firebase/compat/app'
 import { Firestore, collection, doc, getFirestore, onSnapshot, query } from 'firebase/firestore'
 
 import { PopupContentAnnouncement } from 'components/Announcement/type'
-import { LimitOrder } from 'components/swapv2/LimitOrder/types'
+import { LimitOrder } from 'components/LimitOrder/types'
 import { ENV_KEY, ENV_LEVEL, FIREBASE } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 

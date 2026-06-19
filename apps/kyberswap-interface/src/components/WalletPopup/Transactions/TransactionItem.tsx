@@ -15,7 +15,7 @@ import PendingWarning from 'components/WalletPopup/Transactions/PendingWarning'
 import PoolFarmLink from 'components/WalletPopup/Transactions/PoolFarmLink'
 import Status from 'components/WalletPopup/Transactions/Status'
 import { isTxsPendingTooLong } from 'components/WalletPopup/Transactions/helper'
-import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
+import { CancellingOrderInfo } from 'components/LimitOrder/hooks/useCancellingOrders'
 import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
 import {
   TRANSACTION_TYPE,

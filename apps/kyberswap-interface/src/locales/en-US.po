@@ -34,7 +34,7 @@ msgstr "Staked liquidity"
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
 
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "You need to first allow KyberSwap smart contracts to use your {inSymbol}. This has to be done only once for each token."
 msgstr "You need to first allow KyberSwap smart contracts to use your {inSymbol}. This has to be done only once for each token."
 
@@ -70,7 +70,7 @@ msgstr "Updated"
 msgid "Position Status"
 msgstr "Position Status"
 
-#: src/components/swapv2/LimitOrder/const.ts
+#: src/components/LimitOrder/const.ts
 msgid "Open Orders"
 msgstr "Open Orders"
 
@@ -116,8 +116,8 @@ msgstr "Any Other Pairs"
 msgid "Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile <0>here</0>."
 msgstr "Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile <0>here</0>."
 
-#: src/components/swapv2/LimitOrder/ListOrder/TableHeader.tsx
-#: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
+#: src/components/LimitOrder/ListOrder/TableHeader.tsx
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
 msgid "RATE"
 msgstr "RATE"
 
@@ -228,8 +228,8 @@ msgstr "Unable to switch network. Please try it on your wallet."
 msgid "Which activities earn points?"
 msgstr "Which activities earn points?"
 
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Placing order"
 msgstr "Placing order"
 
@@ -369,7 +369,7 @@ msgstr "Ex: ARB <> USDC; ETH <> ARB; PENDLE <> ARB"
 msgid "No hidden fees - Your optional tips support {clientName}!"
 msgstr "No hidden fees - Your optional tips support {clientName}!"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Hard Cancel"
 msgstr "Hard Cancel"
 
@@ -436,7 +436,7 @@ msgid "An error occurred. Invalid Permit Signature."
 msgstr "An error occurred. Invalid Permit Signature."
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 msgid "Switch to {0}"
 msgstr "Switch to {0}"
 
@@ -512,7 +512,7 @@ msgstr "Stable Pairs:"
 msgid "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months."
 msgstr "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months."
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "<0>{0} {makerAssetSymbol}</0> and receive <1>{1} {takerAssetSymbol}</1> <2>at {takerAssetSymbol} price of {rate} {makerAssetSymbol}</2>"
 msgstr "<0>{0} {makerAssetSymbol}</0> and receive <1>{1} {takerAssetSymbol}</1> <2>at {takerAssetSymbol} price of {rate} {makerAssetSymbol}</2>"
 
@@ -578,7 +578,7 @@ msgstr "Unknown error"
 #~ msgid "Switch Profile"
 #~ msgstr "Switch Profile"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
 msgid "Canceling order"
 msgstr "Canceling order"
 
@@ -631,7 +631,7 @@ msgstr "Winner"
 msgid "TOTAL AMOUNT (USD)"
 msgstr "TOTAL AMOUNT (USD)"
 
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Review your order"
 msgstr "Review your order"
 
@@ -724,7 +724,7 @@ msgstr "The current rewards are based on your current rank. See Information for 
 msgid "Error occur, please try again"
 msgstr "Error occur, please try again"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Bulk Cancellation"
 msgstr "Bulk Cancellation"
 
@@ -828,8 +828,8 @@ msgstr "Choose to reinvest your earnings back into this position or send them to
 msgid "Get notified via Telegram when this position moves out of range or back in range"
 msgstr "Get notified via Telegram when this position moves out of range or back in range"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "and receive"
 msgstr "and receive"
 
@@ -933,7 +933,7 @@ msgstr "Cross-Chain Routing Sources"
 msgid "If you miss the claiming deadline, your eligibility will expire and the reward will no longer be available."
 msgstr "If you miss the claiming deadline, your eligibility will expire and the reward will no longer be available."
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Are you sure you want to cancel {0} limit orders?"
 msgstr "Are you sure you want to cancel {0} limit orders?"
 
@@ -1035,7 +1035,7 @@ msgstr "Transactions"
 msgid "Notification"
 msgstr "Notification"
 
-#: src/components/swapv2/LimitOrder/DeltaRate.tsx
+#: src/components/LimitOrder/DeltaRate.tsx
 msgid "Your selected price is {styledPercent} better than the current market price."
 msgstr "Your selected price is {styledPercent} better than the current market price."
 
@@ -1108,7 +1108,7 @@ msgstr "You had successfully import this profile. You are now signed in with thi
 msgid "Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s)."
 msgstr "Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s)."
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Cancel order to pay {mainMsg} failed"
 msgstr "Cancel order to pay {mainMsg} failed"
 
@@ -1167,7 +1167,7 @@ msgstr "Invalid amount"
 msgid "Overview"
 msgstr "Overview"
 
-#: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
+#: src/components/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Insufficient {0} balance for order execution."
 msgstr "Insufficient {0} balance for order execution."
 
@@ -1188,7 +1188,7 @@ msgstr "Import Pool"
 msgid "Due to a <0><1>potential issue</1></0> with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited <2>{0}</2> where you can add liquidity normally instead."
 msgstr "Due to a <0><1>potential issue</1></0> with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited <2>{0}</2> where you can add liquidity normally instead."
 
-#: src/components/swapv2/LimitOrder/ListLimitOrder/TabSelector.tsx
+#: src/components/LimitOrder/ListLimitOrder/TabSelector.tsx
 msgid "My Order(s)"
 msgstr "My Order(s)"
 
@@ -1226,7 +1226,7 @@ msgstr "Navigating My Pools Tutorial"
 msgid "The actual gas cost will be deducted from your outputs when the order executes."
 msgstr "The actual gas cost will be deducted from your outputs when the order executes."
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your orders below have successfully cancelled:<0/>{listOrderName}"
 msgstr "Your orders below have successfully cancelled:<0/>{listOrderName}"
 
@@ -1254,7 +1254,7 @@ msgstr "Collect fees is not supported on this dex"
 msgid "Choose Pool Pair"
 msgstr "Choose Pool Pair"
 
-#: src/components/swapv2/LimitOrder/ExpirePicker.tsx
+#: src/components/LimitOrder/ExpirePicker.tsx
 msgid "Hour"
 msgstr "Hour"
 
@@ -1497,7 +1497,7 @@ msgstr "When will gas refunds be available to claim?"
 msgid "These Terms and Conditions <0>(\"Terms\")</0> should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that apply to all KyberSwap promotional activities (\"Campaign\")."
 msgstr "These Terms and Conditions <0>(\"Terms\")</0> should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that apply to all KyberSwap promotional activities (\"Campaign\")."
 
-#: src/components/swapv2/LimitOrder/useWarningCreateOrder.tsx
+#: src/components/LimitOrder/useWarningCreateOrder.tsx
 msgid "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
 msgstr "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
 
@@ -1578,7 +1578,7 @@ msgstr "Claiming {rewardAmounts} KNC"
 msgid "Routed via"
 msgstr "Routed via"
 
-#: src/components/swapv2/LimitOrder/const.ts
+#: src/components/LimitOrder/const.ts
 msgid "Partially Filled Orders"
 msgstr "Partially Filled Orders"
 
@@ -1596,7 +1596,7 @@ msgstr "Estimated change in price due to the size of your transaction."
 msgid "Vote on current epoch proposals to get your full reward."
 msgstr "Vote on current epoch proposals to get your full reward."
 
-#: src/components/swapv2/LimitOrder/ListOrder/TableHeader.tsx
+#: src/components/LimitOrder/ListOrder/TableHeader.tsx
 msgid "CREATED | EXPIRY"
 msgstr "CREATED | EXPIRY"
 
@@ -1615,7 +1615,7 @@ msgstr "Voting ends in:"
 msgid "KNC Staked"
 msgstr "KNC Staked"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Hard Cancel All Orders"
 msgstr "Hard Cancel All Orders"
 
@@ -1624,7 +1624,7 @@ msgid "🏆 Prize: {0} KNC"
 msgstr "🏆 Prize: {0} KNC"
 
 #: src/components/SwapForm/hooks/useGetInputError.tsx
-#: src/components/swapv2/LimitOrder/useValidateInputError.tsx
+#: src/components/LimitOrder/useValidateInputError.tsx
 msgid "Insufficient {symbol} balance"
 msgstr "Insufficient {symbol} balance"
 
@@ -1654,7 +1654,7 @@ msgstr "Claim your rewards"
 msgid "Merkl Bonus"
 msgstr "Merkl Bonus"
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "You have successfully cancelled an order to pay {mainMsg}{filledComponent}"
 msgstr "You have successfully cancelled an order to pay {mainMsg}{filledComponent}"
 
@@ -1671,7 +1671,7 @@ msgstr "KyberSwap Guide"
 msgid "Total Amount (USDC)"
 msgstr "Total Amount (USDC)"
 
-#: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
+#: src/components/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Once you add {0}, the order will be executed at <0>{1}%</0> below the market price."
 msgstr "Once you add {0}, the order will be executed at <0>{1}%</0> below the market price."
 
@@ -1705,7 +1705,7 @@ msgstr "You need to first give a temporary 24H approval to KyberSwap's smart con
 msgid "To learn more about how to increase liquidity to KyberSwap Elastic, view <0> here</0>"
 msgstr "To learn more about how to increase liquidity to KyberSwap Elastic, view <0> here</0>"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 msgid "This chain is not supported gasless cancel. It's coming soon."
 msgstr "This chain is not supported gasless cancel. It's coming soon."
 
@@ -1729,7 +1729,7 @@ msgstr "Connect wallet to view notification"
 #~ msgid "{0}Skip"
 #~ msgstr "{0}Skip"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Note: Your currently existing order is {percent}% filled"
 msgstr "Note: Your currently existing order is {percent}% filled"
 
@@ -1740,11 +1740,11 @@ msgstr "Note: Your currently existing order is {percent}% filled"
 msgid "In-Progress"
 msgstr "In-Progress"
 
-#: src/components/swapv2/LimitOrder/ListLimitOrder/TabSelector.tsx
+#: src/components/LimitOrder/ListLimitOrder/TabSelector.tsx
 msgid "Open Limit Orders"
 msgstr "Open Limit Orders"
 
-#: src/components/swapv2/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/ListOrder/index.tsx
 msgid "Search by token symbol or token address"
 msgstr "Search by token symbol or token address"
 
@@ -1822,7 +1822,7 @@ msgstr "Generate Referral"
 msgid "(ii) holds a licence issued by MAS for the provision of, or is authorised by MAS to provide, any service relating to tokens (whether digital payment tokens under the Payment Services Act of Singapore or digital tokens under the Financial Markets Services Act of Singapore)."
 msgstr "(ii) holds a licence issued by MAS for the provision of, or is authorised by MAS to provide, any service relating to tokens (whether digital payment tokens under the Payment Services Act of Singapore or digital tokens under the Financial Markets Services Act of Singapore)."
 
-#: src/components/swapv2/LimitOrder/DeltaRate.tsx
+#: src/components/LimitOrder/DeltaRate.tsx
 msgid "Sell {symbol} at rate"
 msgstr "Sell {symbol} at rate"
 
@@ -1862,7 +1862,7 @@ msgstr "KNC rewards will be available to claim on the “My Dashboard” page st
 msgid "Total Balance"
 msgstr "Total Balance"
 
-#: src/components/swapv2/LimitOrder/useValidateInputError.tsx
+#: src/components/LimitOrder/useValidateInputError.tsx
 msgid "Your output amount is invalid."
 msgstr "Your output amount is invalid."
 
@@ -1936,7 +1936,7 @@ msgstr "Go to My Pool"
 #~ msgid "Max:"
 #~ msgstr "Max:"
 
-#: src/components/swapv2/LimitOrder/TradePrice.tsx
+#: src/components/LimitOrder/TradePrice.tsx
 msgid "Unable to get the market price"
 msgstr "Unable to get the market price"
 
@@ -2055,7 +2055,7 @@ msgstr "Limited on-chain activity in the past 24h - price may not reflect tradab
 msgid "Yes. We only count the first 50 eligible hashes per wallet."
 msgstr "Yes. We only count the first 50 eligible hashes per wallet."
 
-#: src/components/swapv2/LimitOrder/Modals/styled.tsx
+#: src/components/LimitOrder/Modals/styled.tsx
 msgid "Est. Market Price"
 msgstr "Est. Market Price"
 
@@ -2064,7 +2064,7 @@ msgstr "Est. Market Price"
 msgid "<0>Slippage</0><1>is high. Your transaction may be front-run</1>"
 msgstr "<0>Slippage</0><1>is high. Your transaction may be front-run</1>"
 
-#: src/components/swapv2/LimitOrder/const.ts
+#: src/components/LimitOrder/const.ts
 msgid "Cancelled Orders"
 msgstr "Cancelled Orders"
 
@@ -2169,7 +2169,7 @@ msgid "What are the different categories and how does it work?"
 msgstr "What are the different categories and how does it work?"
 
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
-#: src/components/swapv2/LimitOrder/TradePrice.tsx
+#: src/components/LimitOrder/TradePrice.tsx
 #: src/components/swapv2/TradePrice.tsx
 msgid "Calculating"
 msgstr "Calculating"
@@ -2178,7 +2178,7 @@ msgstr "Calculating"
 msgid "Removing a Smart Exit"
 msgstr "Removing a Smart Exit"
 
-#: src/components/swapv2/LimitOrder/DeltaRate.tsx
+#: src/components/LimitOrder/DeltaRate.tsx
 msgid "Your selected price is {styledPercent} worse than the current market price."
 msgstr "Your selected price is {styledPercent} worse than the current market price."
 
@@ -2269,7 +2269,7 @@ msgstr "Rethink"
 msgid "Multichain team ceased operations, and we discourage user interaction with the deployed Wrapped KNC token contracts on various chains. See more <0>here</0>"
 msgstr "Multichain team ceased operations, and we discourage user interaction with the deployed Wrapped KNC token contracts on various chains. See more <0>here</0>"
 
-#: src/components/swapv2/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/ListOrder/index.tsx
 msgid "No orders found."
 msgstr "No orders found."
 
@@ -2277,7 +2277,7 @@ msgstr "No orders found."
 #~ msgid "Expert"
 #~ msgstr "Expert"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 msgid "Hard Cancel Instead"
 msgstr "Hard Cancel Instead"
 
@@ -2305,7 +2305,7 @@ msgstr "We will use our Aggregator to regularly monitor price changes based on y
 msgid "Claim threshold"
 msgstr "Claim threshold"
 
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 msgid "Est. Market Price:"
 msgstr "Est. Market Price:"
 
@@ -2457,7 +2457,7 @@ msgstr "Visit the claim portal, connect your eligible wallet address, and comple
 msgid "Failed to switch network"
 msgstr "Failed to switch network"
 
-#: src/components/swapv2/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/ListOrder/index.tsx
 msgid "You don't have any open orders yet."
 msgstr "You don't have any open orders yet."
 
@@ -2506,7 +2506,7 @@ msgstr "Top 100 pools that have the high total earned fee in the last 7 days"
 msgid "TVL"
 msgstr "TVL"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 msgid "Cancel without paying gas."
 msgstr "Cancel without paying gas."
 
@@ -2564,7 +2564,7 @@ msgstr "Est. liquidity & <0/> earned fee"
 msgid "Smart Exit executed"
 msgstr "Smart Exit executed"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Gasless Cancel All Orders"
 msgstr "Gasless Cancel All Orders"
 
@@ -2711,7 +2711,7 @@ msgstr "Price Alert"
 msgid "My Positions"
 msgstr "My Positions"
 
-#: src/components/swapv2/LimitOrder/helpers.ts
+#: src/components/LimitOrder/helpers.ts
 msgid "User denied message signature"
 msgstr "User denied message signature"
 
@@ -2719,7 +2719,7 @@ msgstr "User denied message signature"
 msgid "→ Hash 1 is chosen for promotional rewards."
 msgstr "→ Hash 1 is chosen for promotional rewards."
 
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 msgid "You have successfully cancelled all orders."
 msgstr "You have successfully cancelled all orders."
 
@@ -2773,7 +2773,7 @@ msgstr "Trading"
 msgid "No price alerts created yet"
 msgstr "No price alerts created yet"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
 msgid "Your request has timed out."
 msgstr "Your request has timed out."
 
@@ -2867,8 +2867,8 @@ msgstr "There is no minimum nor maximum value requirement for a trade."
 msgid "Past Actions"
 msgstr "Past Actions"
 
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Confirm Price"
 msgstr "Confirm Price"
 
@@ -3070,7 +3070,7 @@ msgstr "Show more details"
 msgid "Mark all read"
 msgstr "Mark all read"
 
-#: src/components/swapv2/LimitOrder/OrderBook/index.tsx
+#: src/components/LimitOrder/OrderBook/index.tsx
 msgid "Orders refresh in"
 msgstr "Orders refresh in"
 
@@ -3189,11 +3189,11 @@ msgstr "Max Execution Gas"
 msgid "Checking data"
 msgstr "Checking data"
 
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 msgid "You Sell"
 msgstr "You Sell"
 
-#: src/components/swapv2/LimitOrder/ListOrder/TableHeader.tsx
+#: src/components/LimitOrder/ListOrder/TableHeader.tsx
 msgid "FILLED % | STATUS"
 msgstr "FILLED % | STATUS"
 
@@ -3250,7 +3250,7 @@ msgstr "Staked LP Tokens"
 msgid "Claiming"
 msgstr "Claiming"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 msgid "<0/> Cancellation may not be instant. <1>Learn more ↗︎</1>"
 msgstr "<0/> Cancellation may not be instant. <1>Learn more ↗︎</1>"
 
@@ -3264,7 +3264,7 @@ msgstr "Explore Liquidity Pools to get started"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 msgid "Market"
 msgstr "Market"
 
@@ -3395,7 +3395,7 @@ msgstr "ESTIMATED REWARDS"
 msgid "Review the Cross-chain Swap"
 msgstr "Review the Cross-chain Swap"
 
-#: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
+#: src/components/LimitOrder/ListOrder/OrderItem.tsx
 msgid "insufficient funds"
 msgstr "insufficient funds"
 
@@ -3403,7 +3403,7 @@ msgstr "insufficient funds"
 msgid "Expired"
 msgstr "Expired"
 
-#: src/components/swapv2/LimitOrder/ExpirePicker.tsx
+#: src/components/LimitOrder/ExpirePicker.tsx
 msgid "Default Options"
 msgstr "Default Options"
 
@@ -3539,8 +3539,8 @@ msgstr "Volume is measured based on the value of tokens received on the <0>desti
 msgid "All Time High"
 msgstr "All Time High"
 
-#: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
-#: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "AMOUNT"
 msgstr "AMOUNT"
@@ -3670,7 +3670,7 @@ msgstr "After"
 msgid "Token is not available"
 msgstr "Token is not available"
 
-#: src/components/swapv2/LimitOrder/ExpirePicker.tsx
+#: src/components/LimitOrder/ExpirePicker.tsx
 msgid "Set"
 msgstr "Set"
 
@@ -3691,7 +3691,7 @@ msgstr "Others"
 msgid "Claim Asset"
 msgstr "Claim Asset"
 
-#: src/components/swapv2/LimitOrder/ExpirePicker.tsx
+#: src/components/LimitOrder/ExpirePicker.tsx
 msgid "Customize the Expiry Time"
 msgstr "Customize the Expiry Time"
 
@@ -3826,7 +3826,7 @@ msgstr "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out mor
 #~ msgid "Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract."
 #~ msgstr "Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract."
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Cancel Order"
 msgstr "Cancel Order"
 
@@ -3906,7 +3906,7 @@ msgstr "You will receive {amount} {tokenSymbol} soon!"
 msgid "Total Available Rewards"
 msgstr "Total Available Rewards"
 
-#: src/components/swapv2/LimitOrder/const.ts
+#: src/components/LimitOrder/const.ts
 msgid "Filled Orders"
 msgstr "Filled Orders"
 
@@ -4036,7 +4036,7 @@ msgstr "Are swaps on all chains eligible for gas refunds?"
 msgid "As a referrer, when someone you referred earns ARB on a trade made on KyberSwap.com, you get 10% of their rewards allocation."
 msgstr "As a referrer, when someone you referred earns ARB on a trade made on KyberSwap.com, you get 10% of their rewards allocation."
 
-#: src/components/swapv2/LimitOrder/useValidateInputError.tsx
+#: src/components/LimitOrder/useValidateInputError.tsx
 #: src/components/WalletPopup/SendToken/index.tsx
 msgid "Your input amount is invalid."
 msgstr "Your input amount is invalid."
@@ -4132,7 +4132,7 @@ msgstr "Approve Error"
 #~ msgid "empty"
 #~ msgstr "empty"
 
-#: src/components/swapv2/LimitOrder/DeltaRate.tsx
+#: src/components/LimitOrder/DeltaRate.tsx
 msgid "Buy {symbol} at rate"
 msgstr "Buy {symbol} at rate"
 
@@ -4247,7 +4247,7 @@ msgstr "KyberSwap reserves the right to disqualify any address found to engage i
 msgid "<0>Week 5</0> Aug 05 - Aug 11"
 msgstr "<0>Week 5</0> Aug 05 - Aug 11"
 
-#: src/components/swapv2/LimitOrder/helpers.ts
+#: src/components/LimitOrder/helpers.ts
 msgid "Invalid signature"
 msgstr "Invalid signature"
 
@@ -4286,7 +4286,7 @@ msgstr "Rewards to claim after the end of the countdown period."
 msgid "Stablecoins to Stablecoins trading will give 0.5 Points per USD swapped."
 msgstr "Stablecoins to Stablecoins trading will give 0.5 Points per USD swapped."
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 msgid "Edit immediately by paying {gasAmountDisplay} gas fees."
 msgstr "Edit immediately by paying {gasAmountDisplay} gas fees."
 
@@ -4307,7 +4307,7 @@ msgstr "starting in"
 msgid "KyberSwap reserves the right to shorten, extend, suspend, or terminate the Campaign at any time, at its sole discretion."
 msgstr "KyberSwap reserves the right to shorten, extend, suspend, or terminate the Campaign at any time, at its sole discretion."
 
-#: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
+#: src/components/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Partially Filled"
 msgstr "Partially Filled"
 
@@ -4363,7 +4363,7 @@ msgstr "If you want both conditions to be required, switch to AND."
 msgid "Use any 2 different products: +20 points"
 msgstr "Use any 2 different products: +20 points"
 
-#: src/components/swapv2/LimitOrder/ExpirePicker.tsx
+#: src/components/LimitOrder/ExpirePicker.tsx
 msgid "Order will Expire on"
 msgstr "Order will Expire on"
 
@@ -4799,7 +4799,7 @@ msgstr "Pending"
 msgid "Affected Assets taken from Affected Pools by subsequent activity (“Category 2 MBA”) of two mimicking bots mimicking the Primary Exploit, which Affected Assets have yet to be recovered"
 msgstr "Affected Assets taken from Affected Pools by subsequent activity (“Category 2 MBA”) of two mimicking bots mimicking the Primary Exploit, which Affected Assets have yet to be recovered"
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your order was {filledPercent}% filled"
 msgstr "Your order was {filledPercent}% filled"
 
@@ -4831,7 +4831,7 @@ msgstr "Claim only"
 msgid "WALLET"
 msgstr "WALLET"
 
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 msgid "You Buy"
 msgstr "You Buy"
 
@@ -4872,8 +4872,8 @@ msgstr "Exit when fee yield"
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/Menu/index.tsx
 #: src/components/SwapForm/PriceImpactNote.tsx
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/SwapV3/Tabs/LimitTab.tsx
 msgid "Limit Order"
@@ -4913,8 +4913,8 @@ msgstr "Verify your email address."
 msgid "Connect wallet"
 msgstr "Connect wallet"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "at"
 msgstr "at"
 
@@ -4940,7 +4940,7 @@ msgstr "No element of chance, randomness or gambling is involved."
 msgid "Coming Soon"
 msgstr "Coming Soon"
 
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "before the order expires on"
 msgstr "before the order expires on"
 
@@ -4994,7 +4994,7 @@ msgstr "An error occurred"
 msgid "To be eligible, you must make a swap on <0>KyberSwap.com</0> using trading pairs composed of eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
 msgstr "To be eligible, you must make a swap on <0>KyberSwap.com</0> using trading pairs composed of eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} is {filledPercent}% filled"
 msgstr "Your order to pay {mainMsg} is {filledPercent}% filled"
 
@@ -5113,7 +5113,7 @@ msgstr "Max is {format}"
 msgid "You can <0>choose Grant Option once</0>, please read and decide carefully"
 msgstr "You can <0>choose Grant Option once</0>, please read and decide carefully"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Gasless Cancel {0}/{1} Orders"
 msgstr "Gasless Cancel {0}/{1} Orders"
 
@@ -5169,7 +5169,7 @@ msgstr "Saving ..."
 msgid "Invalid email address"
 msgstr "Invalid email address"
 
-#: src/components/swapv2/LimitOrder/useValidateInputError.tsx
+#: src/components/LimitOrder/useValidateInputError.tsx
 msgid "Insufficient {0} balance.<0/><1>{1}{formatNum} {2}</1> remaining after deducting Active and Open orders."
 msgstr "Insufficient {0} balance.<0/><1>{1}{formatNum} {2}</1> remaining after deducting Active and Open orders."
 
@@ -5189,7 +5189,7 @@ msgstr "- powered by Blink to protect your transactions from front-running attac
 msgid "Claiming rewards"
 msgstr "Claiming rewards"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Are you sure you want to cancel this limit order?"
 msgstr "Are you sure you want to cancel this limit order?"
 
@@ -5202,7 +5202,7 @@ msgstr "Verification code is wrong or expired. Please try again."
 msgid "Vesting"
 msgstr "Vesting"
 
-#: src/components/swapv2/LimitOrder/Modals/styled.tsx
+#: src/components/LimitOrder/Modals/styled.tsx
 msgid "{0} price of {rateStr} {1}"
 msgstr "{0} price of {rateStr} {1}"
 
@@ -5257,7 +5257,7 @@ msgstr "Saving..."
 #~ msgid "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~0.6%. You can earn fees even if the price goes up by 0.3% or goes down by 0.3%."
 #~ msgstr "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~0.6%. You can earn fees even if the price goes up by 0.3% or goes down by 0.3%."
 
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 msgid "Cancel Orders Failed"
 msgstr "Cancel Orders Failed"
 
@@ -5353,7 +5353,7 @@ msgstr "Approving..."
 msgid "For every $100 volume, participants earn points based on the following distribution:"
 msgstr "For every $100 volume, participants earn points based on the following distribution:"
 
-#: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
 msgid "ORDER STATUS"
 msgstr "ORDER STATUS"
 
@@ -5402,7 +5402,7 @@ msgstr "Spread"
 msgid "See All"
 msgstr "See All"
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "You have successfully placed an order to pay <0>{0} {1}</0> and receive <1>{2} {3} </1><2>at {4} price of {5} {6}.</2>"
 msgstr "You have successfully placed an order to pay <0>{0} {1}</0> and receive <1>{2} {3} </1><2>at {4} price of {5} {6}.</2>"
 
@@ -5460,7 +5460,7 @@ msgstr "No notifications found"
 msgid "<0>Your </0><1>Slippage</1><2> {msg}</2>"
 msgstr "<0>Your </0><1>Slippage</1><2> {msg}</2>"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Cancel Orders"
 msgstr "Cancel Orders"
 
@@ -5645,7 +5645,7 @@ msgstr "<0>Week 1</0> May 19 - May 25"
 msgid "Protection safeguards you from front-running attacks on {chainName}. We recommend using"
 msgstr "Protection safeguards you from front-running attacks on {chainName}. We recommend using"
 
-#: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
+#: src/components/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Expiry"
 msgstr "Expiry"
 
@@ -5661,7 +5661,7 @@ msgstr "Est. liquidity & earned fee"
 msgid "Migrating {value} KNCL to KNC"
 msgstr "Migrating {value} KNCL to KNC"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 msgid "Cancel immediately by paying {gasAmountDisplay} gas fees."
 msgstr "Cancel immediately by paying {gasAmountDisplay} gas fees."
 
@@ -5669,7 +5669,7 @@ msgstr "Cancel immediately by paying {gasAmountDisplay} gas fees."
 msgid "Add Condition 2"
 msgstr "Add Condition 2"
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your orders below cancel failed:<0/>{listOrderName}"
 msgstr "Your orders below cancel failed:<0/>{listOrderName}"
 
@@ -5861,7 +5861,7 @@ msgstr "Total Fees Amount<0/>(USD)"
 #~ msgid "Get Started"
 #~ msgstr "Get Started"
 
-#: src/components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder.tsx
+#: src/components/LimitOrder/ListOrder/useRequestCancelOrder.tsx
 msgid "Canceling your orders"
 msgstr "Canceling your orders"
 
@@ -5878,12 +5878,12 @@ msgstr "There is no minimum nor maximum value requirement for a trade to earn po
 msgid "Search for a liquidity source"
 msgstr "Search for a liquidity source"
 
-#: src/components/swapv2/LimitOrder/ExpirePicker.tsx
+#: src/components/LimitOrder/ExpirePicker.tsx
 msgid "Order will trigger on"
 msgstr "Order will trigger on"
 
-#: src/components/swapv2/LimitOrder/ListOrder/TableHeader.tsx
-#: src/components/swapv2/LimitOrder/ListOrder/TableHeader.tsx
+#: src/components/LimitOrder/ListOrder/TableHeader.tsx
+#: src/components/LimitOrder/ListOrder/TableHeader.tsx
 msgid "LIMIT ORDER(S)"
 msgstr "LIMIT ORDER(S)"
 
@@ -5958,7 +5958,7 @@ msgstr "<0>Week 9</0> Sep 02 - Sep 08"
 msgid "Step"
 msgstr "Step"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Cancel an order"
 msgstr "Cancel an order"
 
@@ -5991,7 +5991,7 @@ msgstr "Your transactions"
 msgid "If I swap $1 volume from EVM to Near L1, is the volume counted for my EVM wallet or my Near wallet?"
 msgstr "If I swap $1 volume from EVM to Near L1, is the volume counted for my EVM wallet or my Near wallet?"
 
-#: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
+#: src/components/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Created"
 msgstr "Created"
 
@@ -6035,8 +6035,8 @@ msgstr "Required:"
 msgid "Acknowledge"
 msgstr "Acknowledge"
 
-#: src/components/swapv2/LimitOrder/ExpirePicker.tsx
-#: src/components/swapv2/LimitOrder/ListOrder/ActionButtons.tsx
+#: src/components/LimitOrder/ExpirePicker.tsx
+#: src/components/LimitOrder/ListOrder/ActionButtons.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/components/ZapCreatePool/CreatePoolModal.tsx
 #: src/hooks/useLogin.tsx
@@ -6062,7 +6062,7 @@ msgid "Time to sign-in is Expired, please go back and try again."
 msgstr "Time to sign-in is Expired, please go back and try again."
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemPriceAlert.tsx
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 #: src/components/WalletPopup/Transactions/ContractAddress.tsx
 #: src/components/WalletPopup/Transactions/TransactionItem.tsx
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
@@ -6133,9 +6133,9 @@ msgstr "How often is the data updated?"
 msgid "Current Cycle"
 msgstr "Current Cycle"
 
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 #: src/pages/Campaign/constants.tsx
 msgid "Place Order"
 msgstr "Place Order"
@@ -6192,7 +6192,7 @@ msgstr "Total Value"
 msgid "Classic Pools"
 msgstr "Classic Pools"
 
-#: src/components/swapv2/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/ListOrder/index.tsx
 msgid "Your currently existing order is {filledPercent}% filled."
 msgstr "Your currently existing order is {filledPercent}% filled."
 
@@ -6239,7 +6239,7 @@ msgstr "Pool Address:"
 msgid "External Call"
 msgstr "External Call"
 
-#: src/components/swapv2/LimitOrder/ExpirePicker.tsx
+#: src/components/LimitOrder/ExpirePicker.tsx
 msgid "Min"
 msgstr "Min"
 
@@ -6271,7 +6271,7 @@ msgstr "Your position’s % earned fees so far, based on the amount of fee token
 msgid "No staked liquidity found. Check out our <0>Farms.</0>"
 msgstr "No staked liquidity found. Check out our <0>Farms.</0>"
 
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 msgid "Wrapping {amount} {inSymbol} to {amount} {wethSymbol}"
 msgstr "Wrapping {amount} {inSymbol} to {amount} {wethSymbol}"
 
@@ -6279,7 +6279,7 @@ msgstr "Wrapping {amount} {inSymbol} to {amount} {wethSymbol}"
 msgid "Reposition"
 msgstr "Reposition"
 
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Edit Type"
 msgstr "Edit Type"
 
@@ -6587,9 +6587,9 @@ msgstr "To learn more about how to add liquidity to KyberSwap Classic, view <0> 
 msgid "Approve failed"
 msgstr "Approve failed"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
-#: src/components/swapv2/LimitOrder/Modals/CancelStatusCountDown.tsx
-#: src/components/swapv2/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
 msgid "Learn more ↗︎"
 msgstr "Learn more ↗︎"
 
@@ -6767,7 +6767,7 @@ msgid "Email Address"
 msgstr "Email Address"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 msgid "Order Expired"
 msgstr "Order Expired"
 
@@ -6776,7 +6776,7 @@ msgstr "Order Expired"
 msgid "DIFFERENCE"
 msgstr "DIFFERENCE"
 
-#: src/components/swapv2/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/ListOrder/index.tsx
 msgid "You don't have any order history."
 msgstr "You don't have any order history."
 
@@ -6810,7 +6810,7 @@ msgstr "Attention Item(s)"
 msgid "These Terms and Conditions should be read in conjunction with the KyberSwap <0>Terms of Use</0>, which lay out the terms and conditions that apply to all KyberSwap activities."
 msgstr "These Terms and Conditions should be read in conjunction with the KyberSwap <0>Terms of Use</0>, which lay out the terms and conditions that apply to all KyberSwap activities."
 
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/MoreInfo.tsx
 msgid "Expires in"
 msgstr "Expires in"
@@ -6869,7 +6869,7 @@ msgstr "Enter an amount"
 #: src/components/Header/web3/SelectWallet.tsx
 #: src/components/Menu/FaucetModal.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
 #: src/components/YieldPools/ElasticFarmGroup/buttons.tsx
 #: src/pages/Campaign/components/CampaignStats/NearIntentCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/NearIntentDashboard.tsx
@@ -6924,11 +6924,11 @@ msgstr "You have successfully turned on MEV Protection Mode. All transactions on
 msgid "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}"
 msgstr "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}"
 
-#: src/components/swapv2/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/ListOrder/index.tsx
 msgid "Note: Your existing order will be automatically cancelled and a new order will be created."
 msgstr "Note: Your existing order will be automatically cancelled and a new order will be created."
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} was successfully filled"
 msgstr "Your order to pay {mainMsg} was successfully filled"
 
@@ -6998,7 +6998,7 @@ msgstr "Add MEV Protection to safeguard you from front-running attacks."
 msgid "Blacklisted Function"
 msgstr "Blacklisted Function"
 
-#: src/components/swapv2/LimitOrder/ListOrder/TabSelector.tsx
+#: src/components/LimitOrder/ListOrder/TabSelector.tsx
 msgid "Active Orders"
 msgstr "Active Orders"
 
@@ -7115,8 +7115,8 @@ msgstr "FairFlow EG Rewards"
 msgid "EVM ↔ Solana L1"
 msgstr "EVM ↔ Solana L1"
 
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "Review Order"
 msgstr "Review Order"
 
@@ -7153,7 +7153,7 @@ msgstr "Signed out all accounts successfully"
 msgid "See here"
 msgstr "See here"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
 msgid "Order will be automatically cancelled in"
 msgstr "Order will be automatically cancelled in"
 
@@ -7165,7 +7165,7 @@ msgstr "Step 2:"
 #~ msgid "Pool Fees"
 #~ msgstr "Pool Fees"
 
-#: src/components/swapv2/LimitOrder/useWarningCreateOrder.tsx
+#: src/components/LimitOrder/useWarningCreateOrder.tsx
 msgid "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
 msgstr "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
 
@@ -7228,7 +7228,7 @@ msgstr "Total Gas Refund"
 msgid "Reposition to new range"
 msgstr "Reposition to new range"
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} has expired{filledComponent}"
 msgstr "Your order to pay {mainMsg} has expired{filledComponent}"
 
@@ -7236,7 +7236,7 @@ msgstr "Your order to pay {mainMsg} has expired{filledComponent}"
 #~ msgid "You can place limit orders, bridge tokens, or buy crypto with multiple payment options!"
 #~ msgstr "You can place limit orders, bridge tokens, or buy crypto with multiple payment options!"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Gasless Cancel"
 msgstr "Gasless Cancel"
 
@@ -7297,7 +7297,7 @@ msgid "Clear Pending Transactions"
 msgstr "Clear Pending Transactions"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 msgid "Order Partially Filled"
 msgstr "Order Partially Filled"
 
@@ -7350,7 +7350,7 @@ msgstr "Pools"
 msgid "Minimum Received"
 msgstr "Minimum Received"
 
-#: src/components/swapv2/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/ListOrder/index.tsx
 msgid "Cancel All"
 msgstr "Cancel All"
 
@@ -7360,8 +7360,8 @@ msgstr "Cancel All"
 msgid "You can find the full list of eligible tokens <0>here</0>"
 msgstr "You can find the full list of eligible tokens <0>here</0>"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "I pay"
 msgstr "I pay"
 
@@ -7381,7 +7381,7 @@ msgstr "<0><1>Price Impact</1></0> is very high. You will lose funds!"
 msgid "Weekly reset: Product usage and bonus progress reset after the weekly event ends."
 msgstr "Weekly reset: Product usage and bonus progress reset after the weekly event ends."
 
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 msgid "Order Cancel Failed"
 msgstr "Order Cancel Failed"
 
@@ -7390,7 +7390,7 @@ msgstr "Order Cancel Failed"
 msgid "Degen mode is on. Be cautious!"
 msgstr "Degen mode is on. Be cautious!"
 
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "Checking Allowance..."
 msgstr "Checking Allowance..."
 
@@ -7505,7 +7505,7 @@ msgstr "Our simulation detects that {0} has {1}% fee on transfer, please check f
 msgid "Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards."
 msgstr "Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards."
 
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "You will need to wrap your {inSymbol} to {wrapSymbol} before you can place a limit order. Your tokens will be exchanged 1 to 1."
 msgstr "You will need to wrap your {inSymbol} to {wrapSymbol} before you can place a limit order. Your tokens will be exchanged 1 to 1."
 
@@ -7616,7 +7616,7 @@ msgstr "Select a Chain"
 msgid "Go to <0>KyberSwap Cross-Chain</0> feature."
 msgstr "Go to <0>KyberSwap Cross-Chain</0> feature."
 
-#: src/components/swapv2/LimitOrder/OrderBook/index.tsx
+#: src/components/LimitOrder/OrderBook/index.tsx
 msgid "No orders."
 msgstr "No orders."
 
@@ -7805,7 +7805,7 @@ msgstr "There is no maximum allocation for each eligible wallet."
 msgid "Campaigns"
 msgstr "Campaigns"
 
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "Wrap {inSymbol}"
 msgstr "Wrap {inSymbol}"
 
@@ -7817,7 +7817,7 @@ msgstr "Total LP Tokens"
 msgid "🏆 Rewards"
 msgstr "🏆 Rewards"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
 msgid "*There is a possibility that the order might be filled before cancellation."
 msgstr "*There is a possibility that the order might be filled before cancellation."
 
@@ -7918,7 +7918,7 @@ msgstr "Sell Price"
 msgid "Cancel all orders"
 msgstr "Cancel all orders"
 
-#: src/components/swapv2/LimitOrder/useWarningCreateOrder.tsx
+#: src/components/LimitOrder/useWarningCreateOrder.tsx
 msgid "Your limit order price is <0>{percentWithoutMinus}</0> lower than the market. You will be selling your {0} exceedingly cheap."
 msgstr "Your limit order price is <0>{percentWithoutMinus}</0> lower than the market. You will be selling your {0} exceedingly cheap."
 
@@ -7930,7 +7930,7 @@ msgstr "Total Reward"
 #~ msgid "A cryptocurrency wallet gives you access to your digital tokens and acts as a gateway to many blockchain applications like KyberSwap. You can buy, store, send and swap tokens using this wallet.<0/><1/>On KyberSwap we support a list of wallets including: MetaMask, Coin98, Wallet Connect, Coinbase Wallet, Ledger and others."
 #~ msgstr "A cryptocurrency wallet gives you access to your digital tokens and acts as a gateway to many blockchain applications like KyberSwap. You can buy, store, send and swap tokens using this wallet.<0/><1/>On KyberSwap we support a list of wallets including: MetaMask, Coin98, Wallet Connect, Coinbase Wallet, Ledger and others."
 
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 msgid "Cancel all orders failed. Please try again."
 msgstr "Cancel all orders failed. Please try again."
 
@@ -7960,7 +7960,7 @@ msgstr "<0>Week 10</0> Sep 09 - Sep 15"
 msgid "Total Amount (USD)"
 msgstr "Total Amount (USD)"
 
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "Wrapping"
 msgstr "Wrapping"
 
@@ -8010,7 +8010,7 @@ msgstr "My Staked {0}"
 msgid "Attention"
 msgstr "Attention"
 
-#: src/components/swapv2/LimitOrder/ListOrder/TableHeader.tsx
+#: src/components/LimitOrder/ListOrder/TableHeader.tsx
 msgid "ACTION"
 msgstr "ACTION"
 
@@ -8071,7 +8071,7 @@ msgstr "None of the liquidity position(s) held by your wallet ({0}) were affecte
 msgid "Switch Chain"
 msgstr "Switch Chain"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 msgid "Try Again"
 msgstr "Try Again"
 
@@ -8256,7 +8256,7 @@ msgstr "KyberSwap provides tools for tracking & adding liquidity to third-party 
 msgid "Price:"
 msgstr "Price:"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
 msgid "Order has been successfully cancelled."
 msgstr "Order has been successfully cancelled."
 
@@ -8317,7 +8317,7 @@ msgstr "Note: {warningToken} is now <10% of the pool. Pool might become inactive
 msgid "Invalid wallet address"
 msgstr "Invalid wallet address"
 
-#: src/components/swapv2/LimitOrder/const.ts
+#: src/components/LimitOrder/const.ts
 msgid "Expired Orders"
 msgstr "Expired Orders"
 
@@ -8330,7 +8330,7 @@ msgstr "Value is updating"
 msgid "NFT Permit Error"
 msgstr "NFT Permit Error"
 
-#: src/components/swapv2/LimitOrder/useWarningCreateOrder.tsx
+#: src/components/LimitOrder/useWarningCreateOrder.tsx
 msgid "Limit order price is >={BETTER_PRICE_DIFF_THRESHOLD}% higher than the market. We just want to make sure this is correct"
 msgstr "Limit order price is >={BETTER_PRICE_DIFF_THRESHOLD}% higher than the market. We just want to make sure this is correct"
 
@@ -8350,7 +8350,7 @@ msgstr "Trade $50,000 from Arbitrum to Near L1 and Stable Pairs earns 125,000 po
 msgid "What is the First-Come, First-Served (FCFS) round?"
 msgstr "What is the First-Come, First-Served (FCFS) round?"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "I want to cancel my order where"
 msgstr "I want to cancel my order where"
 
@@ -8452,7 +8452,7 @@ msgstr "In order to be eligible, you need to make a swap from KyberSwap Aggregat
 #~ msgid "Here's a quick tutorial guide about KyberSwap's main features. Do you wish to have a look?"
 #~ msgstr "Here's a quick tutorial guide about KyberSwap's main features. Do you wish to have a look?"
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your orders below has expired:<0/>{listOrderName}"
 msgstr "Your orders below has expired:<0/>{listOrderName}"
 
@@ -8549,7 +8549,7 @@ msgstr "Leaderboard"
 msgid "{conditionTime} is already met."
 msgstr "{conditionTime} is already met."
 
-#: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your orders below was successfully filled:<0/>{listOrderName}"
 msgstr "Your orders below was successfully filled:<0/>{listOrderName}"
 
@@ -8713,7 +8713,7 @@ msgstr "Verify"
 msgid "Output is estimated. If the price changes by more than {displaySlp}% your transaction will revert."
 msgstr "Output is estimated. If the price changes by more than {displaySlp}% your transaction will revert."
 
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/MoreInfo.tsx
 #: src/pages/Earns/components/SmartExit/ExpireSetting.tsx
 msgid "Once an order expires, it will be cancelled automatically. No gas fees will be charged."
@@ -8965,7 +8965,7 @@ msgstr "Swap via"
 msgid "Only successful (\"success\" status on explorer) transaction hash is counted."
 msgstr "Only successful (\"success\" status on explorer) transaction hash is counted."
 
-#: src/components/swapv2/LimitOrder/helpers.ts
+#: src/components/LimitOrder/helpers.ts
 msgid "You don't have sufficient fund for this transaction."
 msgstr "You don't have sufficient fund for this transaction."
 
@@ -8989,7 +8989,7 @@ msgstr "Trade $50,000 between EVM Chains and Stable Pairs earns 50,000 points."
 msgid "🕑️ Timeline and Reward"
 msgstr "🕑️ Timeline and Reward"
 
-#: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/LimitOrderForm.tsx
 msgid "Order Placed"
 msgstr "Order Placed"
 
@@ -8997,7 +8997,7 @@ msgstr "Order Placed"
 msgid "Click <0>Join Now</0> on the kyberswap.com to participate."
 msgstr "Click <0>Join Now</0> on the kyberswap.com to participate."
 
-#: src/components/swapv2/LimitOrder/useValidateInputError.tsx
+#: src/components/LimitOrder/useValidateInputError.tsx
 msgid "Invalid input amount"
 msgstr "Invalid input amount"
 
@@ -9058,7 +9058,7 @@ msgstr "No Smart Exit orders yet"
 msgid "User Points: Points earned within the $100,000 volume cap"
 msgstr "User Points: Points earned within the $100,000 volume cap"
 
-#: src/components/swapv2/LimitOrder/ListOrder/ActionButtons.tsx
+#: src/components/LimitOrder/ListOrder/ActionButtons.tsx
 msgid "Copy Txn Hash"
 msgstr "Copy Txn Hash"
 
@@ -9097,7 +9097,7 @@ msgstr "Click <0>Join Now</0> to participate."
 msgid "LM Reward:"
 msgstr "LM Reward:"
 
-#: src/components/swapv2/LimitOrder/ListOrder/TabSelector.tsx
+#: src/components/LimitOrder/ListOrder/TabSelector.tsx
 msgid "Order History"
 msgstr "Order History"
 
@@ -9151,7 +9151,7 @@ msgstr "Sell"
 msgid "Your KIP Voting Power"
 msgstr "Your KIP Voting Power"
 
-#: src/components/swapv2/LimitOrder/const.ts
+#: src/components/LimitOrder/const.ts
 msgid "All Closed Orders"
 msgstr "All Closed Orders"
 
@@ -9171,7 +9171,7 @@ msgstr "Claim Ended"
 msgid "Smart Exit created"
 msgstr "Smart Exit created"
 
-#: src/components/swapv2/LimitOrder/ListLimitOrder/TabSelector.tsx
+#: src/components/LimitOrder/ListLimitOrder/TabSelector.tsx
 msgid "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds."
 msgstr "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds."
 
@@ -9203,7 +9203,7 @@ msgstr "Calculate the absolute numerical difference."
 msgid "Points are earned each time a user swap eligible tokens on KyberSwap Aggregator API. Eligible tokens are indexed in 4 different categories, giving different amount of points per USD swapped. Eligible tokens can be found on <0>this list</0>"
 msgstr "Points are earned each time a user swap eligible tokens on KyberSwap Aggregator API. Eligible tokens are indexed in 4 different categories, giving different amount of points per USD swapped. Eligible tokens can be found on <0>this list</0>"
 
-#: src/components/swapv2/LimitOrder/const.ts
+#: src/components/LimitOrder/const.ts
 msgid "All Active Orders"
 msgstr "All Active Orders"
 
@@ -9322,7 +9322,7 @@ msgstr "Each address can participate across multiple weeks, but can only claim a
 #~ msgid "Add a new position"
 #~ msgstr "Add a new position"
 
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 msgid "This order is not supported gasless cancel. Because it was created by our old contract"
 msgstr "This order is not supported gasless cancel. Because it was created by our old contract"
 
@@ -9330,8 +9330,8 @@ msgstr "This order is not supported gasless cancel. Because it was created by ou
 #: src/components/Announcement/Popups/CtaButton.tsx
 #: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
 #: src/components/ElasticHackedModal.tsx
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
-#: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/Modals/CancelButtons.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/pages/Campaign/components/RaffleRewardModal.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -9396,7 +9396,7 @@ msgstr "Total Points: Combined points from all participants"
 msgid "Claim Rewards"
 msgstr "Claim Rewards"
 
-#: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
+#: src/components/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Filled"
 msgstr "Filled"
 
@@ -9449,7 +9449,7 @@ msgid "Contract Security"
 msgstr "Contract Security"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
-#: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 msgid "Order Filled"
 msgstr "Order Filled"
 

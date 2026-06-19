@@ -6,7 +6,7 @@ import {
   LimitOrder,
   LimitOrderFromTokenPair,
   LimitOrderStatus,
-} from 'components/swapv2/LimitOrder/types'
+} from 'components/LimitOrder/types'
 import { LIMIT_ORDER_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 
