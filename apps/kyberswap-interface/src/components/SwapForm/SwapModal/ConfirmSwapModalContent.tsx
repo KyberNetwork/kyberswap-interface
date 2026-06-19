@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Info, Repeat } from 'react-feather'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { calculatePriceImpact } from 'services/route/utils'
 
@@ -24,6 +24,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import WarningNote from 'components/WarningNote'
 import { calcPercentFilledOrder } from 'components/swapv2/LimitOrder/helpers'
+import { ReservedOrderNotice } from 'components/swapv2/LimitOrder/hooks/useWarningCreateOrder'
 import { LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/types'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { TOKEN_API_URL } from 'constants/env'
@@ -513,15 +514,10 @@ export default function ConfirmSwapModalContent({
 
           {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
           {showLOWwarning && (
-            <span className="text-xs font-medium italic text-subText">
-              <span className="font-medium text-text">Notice</span>: Some of your {currencyIn?.symbol} is already
-              reserved by an open Limit Order—review it{' '}
-              <Link
-                to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?activeTab=${LimitOrderTab.MY_ORDER}&search=${currencyIn?.wrapped.address}&highlight=true`}
-              >
-                here.
-              </Link>
-            </span>
+            <ReservedOrderNotice
+              symbol={currencyIn?.symbol}
+              to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?tab=${LimitOrderTab.MY_ORDER}&orderTab=${LimitOrderStatus.ACTIVE}&search=${currencyIn?.wrapped.address}`}
+            />
           )}
 
           {errorWhileBuildRoute ? (

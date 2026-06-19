@@ -12,12 +12,7 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from 'components/swapv2/LimitOrder/helpers'
 import { useCancellingOrders } from 'components/swapv2/LimitOrder/hooks/useCancellingOrders'
-import {
-  CancelOrderFunction,
-  CancelOrderResponse,
-  CancelOrderType,
-  LimitOrder,
-} from 'components/swapv2/LimitOrder/types'
+import { CancelOrderFunction, CancelOrderType, LimitOrder } from 'components/swapv2/LimitOrder/types'
 import { LIMIT_ORDER_ABI } from 'constants/abis'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -30,6 +25,8 @@ import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
+
+type CancellingOrderPayload = { nonce: number } | { orderIds: number[] }
 
 const useGetEncodeLimitOrder = () => {
   const { account, chainId } = useActiveWeb3React()
@@ -89,7 +86,7 @@ export const useRequestCancelOrder = ({
     if (!account) return Promise.reject('Wrong input')
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
 
-    const sendTransaction = async (encodedData: string, contract: string, payload: any) => {
+    const sendTransaction = async (encodedData: string, contract: string, payload: CancellingOrderPayload) => {
       const response = await sendEVMTransaction({
         account,
         contractAddress: contract,
@@ -242,7 +239,7 @@ export const useProcessCancelOrder = ({
     const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
     const orders = getOrders(gasLessCancel)
     try {
-      const data: CancelOrderResponse = await onSubmit({ orders, cancelType: type })
+      const data = await onSubmit({ orders, cancelType: type })
       if (signal.aborted) return
       setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt

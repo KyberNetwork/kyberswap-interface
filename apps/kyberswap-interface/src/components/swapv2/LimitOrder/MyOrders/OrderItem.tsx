@@ -2,7 +2,7 @@ import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Trash } from 'react-feather'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { calcPercentFilledOrder, isActiveStatus } from 'components/swapv2/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/types'
@@ -115,7 +115,6 @@ const OrderItem = ({
   isOrderCancelling: (order: LimitOrder) => boolean
 }) => {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
   const isCancelling = isOrderCancelling(order)
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
   const isOrderActive = isActiveStatus(order.status)
@@ -133,13 +132,8 @@ const OrderItem = ({
   const makingTokenBalance = useTokenBalance(makingToken)
   const insufficientFund = isOrderActive && makingTokenBalance ? makingTokenBalance.lessThan(availableAmount) : false
 
-  const highlight =
-    searchParams.get('highlight') === 'true' &&
-    order.makerAsset.toLowerCase() === searchParams.get('search')?.toLowerCase() &&
-    isOrderActive
-
   const onClickOrder = () => {
-    const search = new URLSearchParams({ activeTab: LimitOrderTab.ORDER_BOOK }).toString()
+    const search = new URLSearchParams({ tab: LimitOrderTab.ORDER_BOOK }).toString()
 
     navigate(
       `${APP_PATHS.LIMIT}/${NETWORKS_INFO[order.chainId].route}/${order.makerAsset}-to-${order.takerAsset}?${search}`,
@@ -148,10 +142,9 @@ const OrderItem = ({
 
   return (
     <div
-      data-highlight={highlight}
       className={cn(
         'grid grid-cols-[44px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_28px] items-center gap-2 text-sm max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
-        'min-h-16 cursor-pointer px-4 py-2 hover:bg-primary-20 data-[highlight=true]:animate-[ks-order-highlight_2s_2_alternate_ease-in-out]',
+        'min-h-16 cursor-pointer px-4 py-2 hover:bg-primary-20',
       )}
       onClick={onClickOrder}
     >

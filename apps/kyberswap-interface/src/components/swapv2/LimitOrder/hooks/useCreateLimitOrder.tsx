@@ -12,23 +12,20 @@ import { CreateOrderParam, LimitOrderCreateContext } from 'components/swapv2/Lim
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify } from 'state/application/hooks'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getCookieValue } from 'utils'
 
 const getTokenAddress = (currency: Currency | undefined) => (currency?.isNative ? 'NATIVE' : currency?.wrapped?.address)
 
 type UseCreateLimitOrderArgs = {
   order: LimitOrderCreateContext
-  setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
   searchParams: URLSearchParams
   estimateUSD: ReturnType<typeof calcUsdPrices>
-  onError: (error: any) => void
+  onError: (error: unknown) => void
   onSuccess: () => void
 }
 
 export const useCreateLimitOrder = ({
   order,
-  setFlowState,
   searchParams,
   estimateUSD,
   onError,
@@ -80,9 +77,13 @@ export const useCreateLimitOrder = ({
 
         const { signature, salt } = await signOrder({ ...params, referral: refCode })
         const payload = getPayloadCreateOrder(params)
-        setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
-        const response = await submitOrder({ ...payload, salt, signature, referral: refCode, clientId }).unwrap()
-        setFlowState(state => ({ ...state, showConfirm: false }))
+        const response = await submitOrder({
+          ...payload,
+          salt: salt || '',
+          signature,
+          referral: refCode,
+          clientId,
+        }).unwrap()
 
         notify(
           {
@@ -99,7 +100,7 @@ export const useCreateLimitOrder = ({
         return
       }
     },
-    [notify, onError, onSuccess, searchParams, setFlowState, signOrder, submitOrder],
+    [notify, onError, onSuccess, searchParams, signOrder, submitOrder],
   )
 
   const submitCreateOrderWithTracking = useCallback(async () => {

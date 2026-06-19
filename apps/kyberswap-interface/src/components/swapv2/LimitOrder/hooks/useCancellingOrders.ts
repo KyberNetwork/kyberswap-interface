@@ -10,7 +10,7 @@ export type CancellingOrderInfo = {
   loading: boolean
   cancellingOrdersIds: number[]
   setCancellingOrders: (orderIds: number[]) => void
-  isOrderCancelling: (order: LimitOrder) => boolean
+  isOrderCancelling: (order: LimitOrder | string | undefined) => boolean
 }
 
 export const useCancellingOrders = (): CancellingOrderInfo => {
@@ -27,7 +27,14 @@ export const useCancellingOrders = (): CancellingOrderInfo => {
   }, [])
 
   useEffect(() => {
-    if (!account) return
+    if (!account) {
+      setCancellingOrdersIds([])
+      setCancellingOrdersNonces({})
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
     const unsubscribe = subscribeCancellingOrders(account, chainId, data => {
       setCancellingOrdersIds(data?.orderIds ?? [])
       setCancellingOrdersNonces(data?.noncesByContract ?? {})

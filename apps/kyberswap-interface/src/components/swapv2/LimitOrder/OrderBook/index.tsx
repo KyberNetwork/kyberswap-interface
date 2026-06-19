@@ -1,16 +1,22 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import RefreshLoading from 'components/RefreshLoading'
+import ConfirmTakeOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmTakeOrderModal'
 import OrderItem, { ItemWrapper } from 'components/swapv2/LimitOrder/OrderBook/OrderItem'
 import TableHeader from 'components/swapv2/LimitOrder/OrderBook/TableHeader'
-import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from 'components/swapv2/LimitOrder/types'
+import {
+  LimitOrderFromTokenPair,
+  LimitOrderFromTokenPairFormatted,
+  LimitOrderTakeContext,
+} from 'components/swapv2/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -43,16 +49,16 @@ const formatOrders = (
   return orders
     .map(order => {
       const newMakerCurrency = new Token(
-        makerCurrency.chainId,
-        makerCurrency.wrapped.address,
+        order.chainId,
+        order.makerAsset,
         order.makerAssetDecimals,
-        makerCurrency.symbol,
+        order.makerAssetSymbol || makerCurrency.symbol,
       )
       const newTakerCurrency = new Token(
-        takerCurrency.chainId,
-        takerCurrency.wrapped.address,
+        order.chainId,
+        order.takerAsset,
         order.takerAssetDecimals,
-        takerCurrency.symbol,
+        order.takerAssetSymbol || takerCurrency.symbol,
       )
 
       const makerCurrencyAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.makingAmount)
@@ -78,6 +84,7 @@ const formatOrders = (
       return {
         id: order.id,
         chainId: order.chainId,
+        rawOrder: order,
         rate,
         makerAmount,
         takerAmount,
@@ -132,8 +139,10 @@ const OrderSide = ({
 }
 
 const OrderBook = () => {
-  const { chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
+  const [takeOrderContext, setTakeOrderContext] = useState<LimitOrderTakeContext>()
   const {
     loading: loadingMarketRate,
     tradeInfo: { marketRate = 0 } = {},
@@ -187,6 +196,47 @@ const OrderBook = () => {
     refetchSafely(refetchReversedOrders)
   }, [refetchMarketRate, refetchOrders, refetchReversedOrders])
 
+  const buildTakeOrderContext = useCallback(
+    (order: LimitOrderFromTokenPairFormatted): LimitOrderTakeContext | undefined => {
+      const rawOrder = order.rawOrder
+      if (!makerCurrency || !takerCurrency) return undefined
+      const paySymbol =
+        rawOrder.takerAsset.toLowerCase() === makerCurrency.wrapped.address.toLowerCase()
+          ? makerCurrency.wrapped.symbol
+          : rawOrder.takerAsset.toLowerCase() === takerCurrency.wrapped.address.toLowerCase()
+          ? takerCurrency.wrapped.symbol
+          : rawOrder.takerAssetSymbol
+      const receiveSymbol =
+        rawOrder.makerAsset.toLowerCase() === makerCurrency.wrapped.address.toLowerCase()
+          ? makerCurrency.wrapped.symbol
+          : rawOrder.makerAsset.toLowerCase() === takerCurrency.wrapped.address.toLowerCase()
+          ? takerCurrency.wrapped.symbol
+          : rawOrder.makerAssetSymbol
+      const payCurrency = new Token(rawOrder.chainId, rawOrder.takerAsset, rawOrder.takerAssetDecimals, paySymbol)
+      const receiveCurrency = new Token(
+        rawOrder.chainId,
+        rawOrder.makerAsset,
+        rawOrder.makerAssetDecimals,
+        receiveSymbol,
+      )
+
+      return { order: rawOrder, payCurrency, receiveCurrency }
+    },
+    [makerCurrency, takerCurrency],
+  )
+
+  const handleTakeOrder = useCallback(
+    (order: LimitOrderFromTokenPairFormatted) => {
+      if (!account) {
+        toggleWalletModal()
+        return
+      }
+      const context = buildTakeOrderContext(order)
+      if (context) setTakeOrderContext(context)
+    },
+    [account, buildTakeOrderContext, toggleWalletModal],
+  )
+
   return (
     <div className="relative flex flex-col">
       <TableHeader />
@@ -197,7 +247,7 @@ const OrderBook = () => {
 
       <OrderSide reverse>
         {visibleSellOrders.length > 0
-          ? visibleSellOrders.map(order => <OrderItem key={order.id} order={order} />)
+          ? visibleSellOrders.map(order => <OrderItem key={order.id} order={order} onTake={handleTakeOrder} />)
           : isOrdersLoaded && <NoDataPanel />}
       </OrderSide>
 
@@ -217,9 +267,14 @@ const OrderBook = () => {
 
       <OrderSide>
         {visibleBuyOrders.length > 0
-          ? visibleBuyOrders.map(order => <OrderItem key={order.id} reverse order={order} />)
+          ? visibleBuyOrders.map(order => <OrderItem key={order.id} reverse order={order} onTake={handleTakeOrder} />)
           : isReversedOrdersLoaded && <NoDataPanel />}
       </OrderSide>
+      <ConfirmTakeOrderModal
+        context={takeOrderContext}
+        isOpen={!!takeOrderContext}
+        onDismiss={() => setTakeOrderContext(undefined)}
+      />
     </div>
   )
 }

@@ -49,7 +49,15 @@ const AmountText = ({ amount, currency, muted }: { amount?: string; currency?: C
   </div>
 )
 
-const OrderItem = ({ reverse, order }: { reverse?: boolean; order: LimitOrderFromTokenPairFormatted }) => {
+const OrderItem = ({
+  reverse,
+  order,
+  onTake,
+}: {
+  reverse?: boolean
+  order: LimitOrderFromTokenPairFormatted
+  onTake: (order: LimitOrderFromTokenPairFormatted) => void
+}) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
 
@@ -58,6 +66,8 @@ const OrderItem = ({ reverse, order }: { reverse?: boolean; order: LimitOrderFro
   const sizeAmount = !reverse ? order.makerAmount : order.takerAmount
   const availableAmount = !reverse ? order.availableMakerAmount : order.availableTakerAmount
   const totalAmount = !reverse ? order.takerAmount : order.makerAmount
+  const sizeCurrency = !reverse ? makerCurrency : takerCurrency
+  const totalCurrency = !reverse ? takerCurrency : makerCurrency
   const rateClassName = reverse ? 'text-primary' : 'text-red'
 
   return (
@@ -65,14 +75,14 @@ const OrderItem = ({ reverse, order }: { reverse?: boolean; order: LimitOrderFro
       <span className="flex items-center justify-center">
         <img className="size-5" src={chain?.icon} alt="Network" />
       </span>
-      <SizeInfo amount={sizeAmount} currency={makerCurrency} filled={filled} />
-      {!upToExtraSmall && <AmountText amount={availableAmount} currency={makerCurrency} muted={!order.hasAvailable} />}
+      <SizeInfo amount={sizeAmount} currency={sizeCurrency} filled={filled} />
+      {!upToExtraSmall && <AmountText amount={availableAmount} currency={sizeCurrency} muted={!order.hasAvailable} />}
       <div className={cn('w-full min-w-0 truncate text-right text-sm font-medium', rateClassName)} title={order.rate}>
         {order.rate}
       </div>
       <AmountText
         amount={order.hasAvailable ? totalAmount : undefined}
-        currency={takerCurrency}
+        currency={totalCurrency}
         muted={!order.hasAvailable}
       />
       {!upToExtraSmall && (
@@ -83,6 +93,7 @@ const OrderItem = ({ reverse, order }: { reverse?: boolean; order: LimitOrderFro
           {order.hasAvailable && (
             <button
               type="button"
+              onClick={() => onTake(order)}
               className="rounded-full bg-primary-20 px-4 py-1 text-sm font-medium text-primary transition-colors hover:bg-primary-30"
             >
               <Trans>Take</Trans>

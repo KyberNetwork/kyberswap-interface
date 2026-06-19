@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { HTMLAttributes, useCallback, useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
@@ -24,7 +24,7 @@ import { RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import usePageLocation from 'hooks/usePageLocation'
-import useParsedQueryString from 'hooks/useParsedQueryString'
+import useTab from 'hooks/useTab'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'
 import { cn } from 'utils/cn'
@@ -150,16 +150,20 @@ const TableHeader = () => (
 const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
   const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
-  const { tab, ...qs } = useParsedQueryString<{ tab: LimitOrderStatus }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const { isEmbeddedSwap } = usePageLocation()
-  const navigate = useNavigate()
   const invalidateTag = useInvalidateTagLimitOrder()
   const { isOrderCancelling } = useCancellingOrders()
   const { trackingHandler } = useTracking()
+  const { activeTab: orderTab, setActiveTab: setOrderTab } = useTab<LimitOrderStatus>({
+    tabs: LIST_ORDER_TABS,
+    queryKey: 'orderTab',
+    defaultTab: LimitOrderStatus.ACTIVE,
+    syncQuery: !isEmbeddedSwap,
+  })
 
   const [curPage, setCurPage] = useState(1)
-  const [orderType, setOrderType] = useState<LimitOrderStatus>(LimitOrderStatus.ACTIVE)
+  const [orderType, setOrderType] = useState<LimitOrderStatus>(orderTab || LimitOrderStatus.ACTIVE)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isOpenCancel, setIsOpenCancel] = useState(false)
 
@@ -230,15 +234,13 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
 
   const onSelectTab = (type: LimitOrderStatus) => {
     setOrderType(type)
+    setOrderTab(type)
     onReset()
-
-    if (!isEmbeddedSwap) {
-      navigate({ search: new URLSearchParams(qs).toString() }, { replace: true })
-    }
   }
 
   const onSelectOrderType = (type: LimitOrderStatus) => {
     setOrderType(type)
+    setOrderTab(isActiveStatus(type) ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED)
     onReset()
   }
 
@@ -333,6 +335,12 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
   useEffect(() => {
     onReset()
   }, [chainId, onReset, orderType])
+
+  useEffect(() => {
+    if (!orderTab) return
+    setOrderType(orderType => (isActiveStatus(orderType) === isActiveStatus(orderTab) ? orderType : orderTab))
+    onReset()
+  }, [onReset, orderTab])
 
   return (
     <div className="flex w-full flex-col">

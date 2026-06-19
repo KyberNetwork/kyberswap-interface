@@ -89,11 +89,16 @@ export type LimitOrderFromTokenPair = {
   makerBalanceAllowance: string
   makerAssetDecimals: number
   takerAssetDecimals: number
+  makerAssetSymbol?: string
+  takerAssetSymbol?: string
+  makerAssetLogoURL?: string
+  takerAssetLogoURL?: string
 }
 
 export type LimitOrderFromTokenPairFormatted = {
   id: number
   chainId: ChainId
+  rawOrder: LimitOrderFromTokenPair
   rate: string
   makerAmount: string
   takerAmount: string
@@ -123,7 +128,7 @@ export type DeltaRateLimitOrder = {
 export type CancelOrderFunction = (data: {
   orders: LimitOrder[]
   cancelType: CancelOrderType
-}) => Promise<CancelOrderResponse>
+}) => Promise<CancelOrderResponse | undefined>
 
 export type CancelOrderResponse = {
   orders: { operatorSignatureExpiredAt: number }[]
@@ -153,4 +158,10 @@ export type LimitOrderCreateContext = {
   rateInfo: RateInfo
   tradeInfo: BaseTradeInfo | undefined
   deltaRate: DeltaRateLimitOrder
+}
+
+export type LimitOrderTakeContext = {
+  order: LimitOrderFromTokenPair
+  payCurrency: Currency
+  receiveCurrency: Currency
 }

@@ -12,8 +12,6 @@ import { parseUnits } from 'utils/viem'
 export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
 
-export const WORSE_PRICE_DIFF_THRESHOLD = -5
-
 export const DOCS_LINKS = {
   GASLESS_CANCEL:
     'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#gasless-cancel',

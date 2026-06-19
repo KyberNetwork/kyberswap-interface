@@ -135,7 +135,9 @@ function InboxItemLimitOrder({
   const navigate = useNavigateToUrl()
   const onClick = () => {
     const route = NETWORKS_INFO[chainId]?.route ?? NETWORKS_INFO[ChainId.MAINNET].route
-    navigate(`${APP_PATHS.LIMIT}/${route}?activeTab=my_order`, chainId)
+    const orderTab =
+      isFilled || isPartialFilled || isCancelled || status === LimitOrderStatus.EXPIRED ? 'closed' : 'active'
+    navigate(`${APP_PATHS.LIMIT}/${route}?tab=my_order&orderTab=${orderTab}`, chainId)
     onRead(announcement, statusMessage)
   }
 

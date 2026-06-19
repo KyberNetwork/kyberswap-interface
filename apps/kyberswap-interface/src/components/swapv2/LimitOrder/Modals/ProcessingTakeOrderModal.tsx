@@ -1,30 +1,33 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { AlertCircle, RefreshCw } from 'react-feather'
 
-import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonOutlined } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { Center, HStack, Stack } from 'components/Stack'
-import type {
-  ProcessingOrderController,
-  ProcessingOrderState,
-  ProcessingOrderStep,
-  ProcessingOrderStepStatus,
-} from 'components/swapv2/LimitOrder/hooks/useProcessingOrder'
-import { NativeCurrencies } from 'constants/tokens'
+import {
+  TakeOrderProcessingState,
+  TakeOrderStep,
+  TakeOrderStepStatus,
+} from 'components/swapv2/LimitOrder/hooks/useTakeLimitOrder'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 
-const getStepStatus = (state: ProcessingOrderState, step: ProcessingOrderStep): ProcessingOrderStepStatus => {
+type ProcessingController = {
+  state: TakeOrderProcessingState
+  dismiss: () => void
+  retryStep: (step: TakeOrderStep) => void
+}
+
+const getStepStatus = (state: TakeOrderProcessingState, step: TakeOrderStep): TakeOrderStepStatus => {
   if (state.errorStep === step) return 'error'
   if (state.completedSteps.includes(step)) return 'success'
   if (state.currentStep === step) return 'active'
   return 'idle'
 }
 
-const StepIcon = ({ index, status }: { index: number; status: ProcessingOrderStepStatus }) => {
+const StepIcon = ({ index, status }: { index: number; status: TakeOrderStepStatus }) => {
   if (status === 'success') return <CheckCircle size="18" className="text-primary" />
   if (status === 'active') return <Loader size="18px" strokeWidth="2.5" />
   if (status === 'error') return <AlertCircle size={18} className="fill-red text-red" />
@@ -35,38 +38,19 @@ const StepIcon = ({ index, status }: { index: number; status: ProcessingOrderSte
   )
 }
 
-const getStepLabel = ({
-  step,
-  status,
-  chainId,
-  currencyIn,
-}: {
-  step: ProcessingOrderStep
-  status: ProcessingOrderStepStatus
-  chainId: ChainId
-  currencyIn: Currency | undefined
-}) => {
-  const nativeSymbol = NativeCurrencies[chainId].symbol
-  const inputSymbol = currencyIn?.wrapped.symbol
-
-  if (step === 'wrap') {
-    if (status === 'active') return t`Wrapping ${nativeSymbol}`
-    if (status === 'success') return t`Wrapped ${nativeSymbol}`
-    return t`Wrap ${nativeSymbol}`
-  }
-
+const getStepLabel = (step: TakeOrderStep, status: TakeOrderStepStatus) => {
   if (step === 'approve') {
-    if (status === 'active') return t`Approving ${inputSymbol}`
-    if (status === 'success') return t`Approved ${inputSymbol}`
-    return t`Approve ${inputSymbol}`
+    if (status === 'active') return t`Approving token`
+    if (status === 'success') return t`Approved token`
+    return t`Approve token`
   }
 
-  if (status === 'active') return t`Signing order`
-  if (status === 'success') return t`Order successfully listed`
-  return t`Sign order`
+  if (status === 'active') return t`Filling order`
+  if (status === 'success') return t`Order filled`
+  return t`Fill order`
 }
 
-const isOrderComplete = (state: ProcessingOrderState) =>
+const isOrderComplete = (state: TakeOrderProcessingState) =>
   state.show &&
   !!state.steps.length &&
   state.steps.every(step => state.completedSteps.includes(step)) &&
@@ -76,16 +60,12 @@ const ProcessingStepRow = ({
   index,
   step,
   status,
-  chainId,
-  currencyIn,
   onRetryStep,
 }: {
   index: number
-  step: ProcessingOrderStep
-  status: ProcessingOrderStepStatus
-  chainId: ChainId
-  currencyIn: Currency | undefined
-  onRetryStep: (step: ProcessingOrderStep) => void
+  step: TakeOrderStep
+  status: TakeOrderStepStatus
+  onRetryStep: (step: TakeOrderStep) => void
 }) => (
   <HStack className="min-h-9 w-full items-center gap-2">
     <StepIcon index={index} status={status} />
@@ -98,7 +78,7 @@ const ProcessingStepRow = ({
         status === 'error' && 'text-red',
       )}
     >
-      {getStepLabel({ step, status, chainId, currencyIn })}
+      {getStepLabel(step, status)}
     </span>
     <HStack className="h-7 w-[76px] items-center justify-end">
       {status === 'error' && (
@@ -115,17 +95,7 @@ const ProcessingStepRow = ({
   </HStack>
 )
 
-const ProcessingOrderModal = ({
-  chainId,
-  currencyIn,
-  processing,
-  onViewOrder,
-}: {
-  chainId: ChainId
-  currencyIn: Currency | undefined
-  processing: ProcessingOrderController
-  onViewOrder: () => void
-}) => {
+const ProcessingTakeOrderModal = ({ processing }: { processing: ProcessingController }) => {
   const { state, dismiss, retryStep } = processing
   const orderComplete = isOrderComplete(state)
   const isProcessing = state.show && !!state.currentStep && !state.errorStep && !orderComplete
@@ -147,29 +117,14 @@ const ProcessingOrderModal = ({
           <Stack className="gap-2">
             {state.steps.map((step, index) => {
               const status = getStepStatus(state, step)
-              return (
-                <ProcessingStepRow
-                  key={step}
-                  index={index}
-                  step={step}
-                  status={status}
-                  chainId={chainId}
-                  currencyIn={currencyIn}
-                  onRetryStep={retryStep}
-                />
-              )
+              return <ProcessingStepRow key={step} index={index} step={step} status={status} onRetryStep={retryStep} />
             })}
           </Stack>
 
           {orderComplete && (
-            <HStack className="gap-3 pt-1">
-              <ButtonOutlined onClick={dismiss} className="!h-10 flex-1 !p-0">
-                <Trans>Close</Trans>
-              </ButtonOutlined>
-              <ButtonPrimary onClick={onViewOrder} className="!h-10 flex-1 !p-0">
-                <Trans>View Order</Trans>
-              </ButtonPrimary>
-            </HStack>
+            <ButtonOutlined onClick={dismiss} className="!h-10 !p-0">
+              <Trans>Close</Trans>
+            </ButtonOutlined>
           )}
         </Stack>
       </Stack>
@@ -177,4 +132,4 @@ const ProcessingOrderModal = ({
   )
 }
 
-export default ProcessingOrderModal
+export default ProcessingTakeOrderModal

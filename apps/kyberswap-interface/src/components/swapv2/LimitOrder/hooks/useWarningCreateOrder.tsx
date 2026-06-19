@@ -1,65 +1,79 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo } from 'react'
+import { PropsWithChildren, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 
-import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/helpers'
-import { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/types'
-import { formatDisplayNumber } from 'utils/numbers'
+import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/types'
 
-const HightLight = ({ children }: { children: React.ReactNode }) => (
+const AprHighlight = ({ children }: PropsWithChildren) => <span className="font-medium text-apr">{children}</span>
+
+const WarningHighlight = ({ children }: PropsWithChildren) => (
   <span className="font-medium text-warning">{children}</span>
 )
 
-const BETTER_PRICE_DIFF_THRESHOLD = 30
+export const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
+  <span className="text-xs font-medium italic text-subText">
+    <Trans>
+      <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
+      review it <Link to={to}>here</Link>.
+    </Trans>
+  </span>
+)
+
+export const WORSE_PRICE_DIFF_THRESHOLD = -5
+export const BETTER_PRICE_DIFF_THRESHOLD = 30
+
+type UseWarningCreateOrderProps = {
+  currencyIn: Currency | undefined
+  displayRate: string
+  deltaRate: DeltaRateLimitOrder
+  showReservedOrderNotice: boolean
+}
 
 export const useWarningCreateOrder = ({
   currencyIn,
   displayRate,
   deltaRate,
-  missingAllowance,
-}: {
-  currencyIn: Currency | undefined
-  displayRate: string
-  deltaRate: DeltaRateLimitOrder
-  missingAllowance: boolean | CurrencyAmount<Currency>
-}) => {
+  showReservedOrderNotice,
+}: UseWarningCreateOrderProps) => {
   const warningMessage = useMemo(() => {
     const messages = []
-    if (Number(deltaRate.rawPercent) >= BETTER_PRICE_DIFF_THRESHOLD)
+    const rawPercent = Number(deltaRate.rawPercent)
+    const hasPercent = Number.isFinite(rawPercent)
+    const displayPercent = deltaRate.percent.replace(/^[+-]/, '')
+
+    if (hasPercent && rawPercent >= BETTER_PRICE_DIFF_THRESHOLD)
       messages.push(
-        <div>
+        <div className="text-xs font-medium italic text-subText">
           <Trans>
-            Limit order price is &gt;={BETTER_PRICE_DIFF_THRESHOLD}% higher than the market. We just want to make sure
-            this is correct
+            Limit order price is <AprHighlight>{displayPercent}</AprHighlight> higher than the market. We just want to
+            make sure this is correct.
           </Trans>
         </div>,
       )
 
-    if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= WORSE_PRICE_DIFF_THRESHOLD) {
-      const percentWithoutMinus = deltaRate.percent.slice(1)
-
+    if (currencyIn && displayRate && hasPercent && rawPercent <= WORSE_PRICE_DIFF_THRESHOLD) {
       messages.push(
-        <div>
+        <div className="text-xs font-medium italic text-subText">
           <Trans>
-            Your limit order price is <HightLight>{percentWithoutMinus}</HightLight> lower than the market. You will be
-            selling your {currencyIn.symbol} exceedingly cheap.
+            Limit order price is <WarningHighlight>{displayPercent}</WarningHighlight> lower than the market. You will
+            be selling your {currencyIn.symbol} exceedingly cheap.
           </Trans>
         </div>,
       )
     }
 
-    if (missingAllowance && typeof missingAllowance !== 'boolean') {
-      messages.push(
-        <div>
-          <Trans>
-            Your current allowance is insufficient. Approve an additional{' '}
-            {formatDisplayNumber(missingAllowance.toExact(), { significantDigits: 6 })} {currencyIn?.symbol} to proceed.
-          </Trans>
-        </div>,
-      )
+    if (showReservedOrderNotice) {
+      const search = new URLSearchParams({
+        tab: LimitOrderTab.MY_ORDER,
+        orderTab: LimitOrderStatus.ACTIVE,
+        search: currencyIn?.wrapped.address ?? '',
+      }).toString()
+
+      messages.push(<ReservedOrderNotice symbol={currencyIn?.symbol} to={`?${search}`} />)
     }
 
     return messages
-  }, [currencyIn, deltaRate.percent, deltaRate.profit, deltaRate.rawPercent, displayRate, missingAllowance])
+  }, [currencyIn, deltaRate.percent, deltaRate.rawPercent, displayRate, showReservedOrderNotice])
   return warningMessage
 }

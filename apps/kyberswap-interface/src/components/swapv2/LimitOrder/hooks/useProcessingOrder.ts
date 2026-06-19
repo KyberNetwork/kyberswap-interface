@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { ApprovalState } from 'hooks/useApproveCallback'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 
 export type ProcessingOrderStep = 'wrap' | 'approve' | 'create'
 export type ProcessingOrderStepStatus = 'idle' | 'active' | 'success' | 'error'
@@ -14,16 +13,24 @@ export type ProcessingOrderState = {
   completedSteps: ProcessingOrderStep[]
 }
 
+export type ProcessingOrderController = {
+  state: ProcessingOrderState
+  start: () => void
+  dismiss: () => void
+  retryStep: (step: ProcessingOrderStep) => void
+}
+
 type UseProcessingOrderArgs = {
   approval: ApprovalState
   approveCallback: () => Promise<void>
+  checkApprovalManually: () => Promise<boolean>
   steps: ProcessingOrderStep[]
   isWrappingEth: boolean
   onWrap: (() => Promise<string | undefined>) | undefined
   setTxHashWrapped: (hash: string) => void
   onCreateOrder: () => Promise<number | undefined>
-  onError: (error: any) => void
-  setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
+  onError: (error: unknown) => void
+  onStart?: () => void
 }
 
 const DEFAULT_PROCESSING_ORDER: ProcessingOrderState = {
@@ -32,23 +39,46 @@ const DEFAULT_PROCESSING_ORDER: ProcessingOrderState = {
   completedSteps: [],
 }
 
+const APPROVAL_CHECK_RETRY_COUNT = 8
+const APPROVAL_CHECK_RETRY_DELAY = 2_000
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 export const useProcessingOrder = ({
   approval,
   approveCallback,
+  checkApprovalManually,
   steps,
   isWrappingEth,
   onWrap,
   setTxHashWrapped,
   onCreateOrder,
   onError,
-  setFlowState,
+  onStart,
 }: UseProcessingOrderArgs) => {
   const [processingOrder, setProcessingOrder] = useState<ProcessingOrderState>(DEFAULT_PROCESSING_ORDER)
   const processingStepStartedRef = useRef<ProcessingOrderStep>()
-  const approvalRef = useRef<ApprovalState>(ApprovalState.UNKNOWN)
+  const processingRunIdRef = useRef(0)
+  const wrapTransactionPendingRef = useRef(false)
+
+  const isCurrentProcessingRun = useCallback((processingRunId: number) => {
+    return processingRunIdRef.current === processingRunId
+  }, [])
+
+  const startProcessingStepRun = useCallback((step: ProcessingOrderStep) => {
+    if (processingStepStartedRef.current === step) return
+    processingStepStartedRef.current = step
+    return processingRunIdRef.current
+  }, [])
+
+  const invalidateProcessingRun = useCallback(() => {
+    processingRunIdRef.current += 1
+    processingStepStartedRef.current = undefined
+    wrapTransactionPendingRef.current = false
+  }, [])
 
   const markProcessingStepSuccess = useCallback((step: ProcessingOrderStep) => {
     processingStepStartedRef.current = undefined
+    if (step === 'wrap') wrapTransactionPendingRef.current = false
     setProcessingOrder(state => {
       if (!state.show || state.currentStep !== step) return state
       const completedSteps = state.completedSteps.includes(step)
@@ -65,6 +95,7 @@ export const useProcessingOrder = ({
 
   const markProcessingStepError = useCallback((step: ProcessingOrderStep) => {
     processingStepStartedRef.current = undefined
+    if (step === 'wrap') wrapTransactionPendingRef.current = false
     setProcessingOrder(state => {
       if (!state.show || state.currentStep !== step) return state
       return {
@@ -75,116 +106,188 @@ export const useProcessingOrder = ({
   }, [])
 
   const hideProcessingOrder = useCallback(() => {
-    processingStepStartedRef.current = undefined
+    invalidateProcessingRun()
     setProcessingOrder(DEFAULT_PROCESSING_ORDER)
-  }, [])
+  }, [invalidateProcessingRun])
 
-  const retryProcessingStep = useCallback((step: ProcessingOrderStep) => {
-    processingStepStartedRef.current = undefined
-    setProcessingOrder(state => {
-      if (state.errorStep !== step) return state
-      return {
-        ...state,
-        currentStep: step,
-        errorStep: undefined,
+  const retryProcessingStep = useCallback(
+    (step: ProcessingOrderStep) => {
+      invalidateProcessingRun()
+      setProcessingOrder(state => {
+        if (state.errorStep !== step) return state
+        return {
+          ...state,
+          currentStep: step,
+          errorStep: undefined,
+        }
+      })
+    },
+    [invalidateProcessingRun],
+  )
+
+  const waitForManualApproval = useCallback(
+    async (processingRunId: number) => {
+      for (let attempt = 0; attempt < APPROVAL_CHECK_RETRY_COUNT; attempt++) {
+        if (!isCurrentProcessingRun(processingRunId)) return
+        const hasEnoughAllowance = await checkApprovalManually()
+        if (!isCurrentProcessingRun(processingRunId)) return
+        if (hasEnoughAllowance) return true
+        await sleep(APPROVAL_CHECK_RETRY_DELAY)
       }
-    })
-  }, [])
+
+      return false
+    },
+    [checkApprovalManually, isCurrentProcessingRun],
+  )
+
+  const runWrapStep = useCallback(() => {
+    if (isWrappingEth) return
+    const processingRunId = startProcessingStepRun('wrap')
+    if (processingRunId === undefined) return
+
+    void (async () => {
+      try {
+        const hash = await onWrap?.()
+        if (!isCurrentProcessingRun(processingRunId)) return
+        if (!hash) {
+          markProcessingStepError('wrap')
+          return
+        }
+        setTxHashWrapped(hash)
+      } catch (error) {
+        if (!isCurrentProcessingRun(processingRunId)) return
+        onError(error)
+        markProcessingStepError('wrap')
+      }
+    })()
+  }, [
+    isCurrentProcessingRun,
+    isWrappingEth,
+    markProcessingStepError,
+    onError,
+    onWrap,
+    setTxHashWrapped,
+    startProcessingStepRun,
+  ])
+
+  const runApproveStep = useCallback(() => {
+    const processingRunId = startProcessingStepRun('approve')
+    if (processingRunId === undefined) return
+
+    void (async () => {
+      try {
+        if (await checkApprovalManually()) {
+          if (!isCurrentProcessingRun(processingRunId)) return
+          markProcessingStepSuccess('approve')
+          return
+        }
+
+        if (approval !== ApprovalState.PENDING) {
+          await approveCallback()
+        }
+
+        const hasEnoughAllowance = await waitForManualApproval(processingRunId)
+        if (!isCurrentProcessingRun(processingRunId)) return
+        if (hasEnoughAllowance) {
+          markProcessingStepSuccess('approve')
+          return
+        }
+
+        markProcessingStepError('approve')
+      } catch (error) {
+        if (!isCurrentProcessingRun(processingRunId)) return
+        onError(error)
+        markProcessingStepError('approve')
+      }
+    })()
+  }, [
+    approval,
+    approveCallback,
+    checkApprovalManually,
+    isCurrentProcessingRun,
+    markProcessingStepError,
+    markProcessingStepSuccess,
+    onError,
+    startProcessingStepRun,
+    waitForManualApproval,
+  ])
+
+  const runCreateStep = useCallback(() => {
+    const processingRunId = startProcessingStepRun('create')
+    if (processingRunId === undefined) return
+
+    void (async () => {
+      try {
+        const orderId = await onCreateOrder()
+        if (!isCurrentProcessingRun(processingRunId)) return
+        if (orderId) {
+          markProcessingStepSuccess('create')
+          return
+        }
+        markProcessingStepError('create')
+      } catch (error) {
+        if (!isCurrentProcessingRun(processingRunId)) return
+        onError(error)
+        markProcessingStepError('create')
+      }
+    })()
+  }, [
+    isCurrentProcessingRun,
+    markProcessingStepError,
+    markProcessingStepSuccess,
+    onCreateOrder,
+    onError,
+    startProcessingStepRun,
+  ])
 
   const runProcessingStep = useCallback(
     (step: ProcessingOrderStep) => {
       if (step === 'wrap') {
-        if (isWrappingEth || processingStepStartedRef.current === 'wrap') return
-        processingStepStartedRef.current = 'wrap'
-        ;(async () => {
-          try {
-            const hash = await onWrap?.()
-            if (!hash) {
-              markProcessingStepError('wrap')
-              return
-            }
-            setTxHashWrapped(hash)
-          } catch (error) {
-            onError(error)
-            markProcessingStepError('wrap')
-          }
-        })()
+        runWrapStep()
         return
       }
 
       if (step === 'approve') {
-        if (approval === ApprovalState.APPROVED) {
-          markProcessingStepSuccess('approve')
-          return
-        }
-        if (approval === ApprovalState.UNKNOWN || approval === ApprovalState.PENDING) return
-        if (processingStepStartedRef.current === 'approve') return
-        processingStepStartedRef.current = 'approve'
-        ;(async () => {
-          try {
-            await approveCallback()
-            setTimeout(() => {
-              if (approvalRef.current === ApprovalState.NOT_APPROVED) {
-                markProcessingStepError('approve')
-              }
-            }, 800)
-          } catch (error) {
-            onError(error)
-            markProcessingStepError('approve')
-          }
-        })()
+        runApproveStep()
         return
       }
 
-      if (processingStepStartedRef.current === 'create') return
-      processingStepStartedRef.current = 'create'
-      ;(async () => {
-        try {
-          const orderId = await onCreateOrder()
-          if (orderId) {
-            markProcessingStepSuccess('create')
-            return
-          }
-          markProcessingStepError('create')
-        } catch (error) {
-          onError(error)
-          markProcessingStepError('create')
-        }
-      })()
+      runCreateStep()
     },
-    [
-      approval,
-      approveCallback,
-      isWrappingEth,
-      markProcessingStepError,
-      markProcessingStepSuccess,
-      onCreateOrder,
-      onError,
-      onWrap,
-      setTxHashWrapped,
-    ],
+    [runApproveStep, runCreateStep, runWrapStep],
   )
 
   const startProcessingOrder = useCallback(() => {
-    processingStepStartedRef.current = undefined
-    setFlowState(state => ({ ...state, showConfirm: false, errorMessage: undefined }))
+    invalidateProcessingRun()
+    onStart?.()
     setProcessingOrder({
       show: true,
       steps,
       currentStep: steps[0],
       completedSteps: [],
     })
-  }, [setFlowState, steps])
+  }, [invalidateProcessingRun, onStart, steps])
 
   useEffect(() => {
-    approvalRef.current = approval
-  }, [approval])
+    if (isWrappingEth) {
+      wrapTransactionPendingRef.current = true
+      return
+    }
+
+    if (wrapTransactionPendingRef.current && processingStepStartedRef.current === 'wrap') {
+      markProcessingStepSuccess('wrap')
+    }
+  }, [isWrappingEth, markProcessingStepSuccess])
+
+  useEffect(() => {
+    if (!processingOrder.show || !processingOrder.currentStep || processingOrder.errorStep) return
+    runProcessingStep(processingOrder.currentStep)
+  }, [processingOrder.currentStep, processingOrder.errorStep, processingOrder.show, runProcessingStep])
 
   return {
-    hideProcessingOrder,
-    processingOrder,
-    retryProcessingStep,
-    runProcessingStep,
-    startProcessingOrder,
+    state: processingOrder,
+    start: startProcessingOrder,
+    dismiss: hideProcessingOrder,
+    retryStep: retryProcessingStep,
   }
 }

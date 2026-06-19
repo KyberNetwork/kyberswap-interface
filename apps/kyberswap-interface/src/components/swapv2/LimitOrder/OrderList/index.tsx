@@ -82,7 +82,6 @@ const OrderList = ({ customChainId }: { customChainId?: ChainId }) => {
   const { currencyIn, currencyOut } = useLimitState()
   const { activeTab, setActiveTab } = useTab<LimitOrderTab>({
     tabs: ORDER_LIST_TABS.map(tab => tab.id),
-    queryKey: 'activeTab',
     defaultTab: LimitOrderTab.ORDER_BOOK,
   })
   const currentTab = activeTab || LimitOrderTab.ORDER_BOOK

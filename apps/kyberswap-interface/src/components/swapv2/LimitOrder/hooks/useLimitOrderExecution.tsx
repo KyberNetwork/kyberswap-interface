@@ -1,31 +1,34 @@
 import { Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { calcUsdPrices, getErrorMessage, removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
 import { ProcessingOrderStep } from 'components/swapv2/LimitOrder/hooks/useProcessingOrder'
 import { useValidateInputError } from 'components/swapv2/LimitOrder/hooks/useValidateInputError'
 import { useWarningCreateOrder } from 'components/swapv2/LimitOrder/hooks/useWarningCreateOrder'
 import { useWrapEthStatus } from 'components/swapv2/LimitOrder/hooks/useWrapEthStatus'
 import { LimitOrderCreateContext } from 'components/swapv2/LimitOrder/types'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { ERC20_ABI } from 'constants/abis'
 import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
 import { useActiveWeb3React } from 'hooks'
-import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { useApproveCallback } from 'hooks/useApproveCallback'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback from 'hooks/useWrapCallback'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 import { subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { Address } from 'utils/viem'
 
 type UseLimitOrderExecutionArgs = {
   order: LimitOrderCreateContext
-  setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
+  onCloseReview: () => void
+  onOpenReview: () => void
   onSetInput: (input: string) => void
   onResetForm: () => void
   switchToWeth: () => void
@@ -35,7 +38,8 @@ const getTokenAddress = (currency: Currency | undefined) => (currency?.isNative 
 
 export const useLimitOrderExecution = ({
   order,
-  setFlowState,
+  onCloseReview,
+  onOpenReview,
   onSetInput,
   onResetForm,
   switchToWeth,
@@ -61,7 +65,10 @@ export const useLimitOrderExecution = ({
     { skip: !currencyIn || !account },
   )
 
-  const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
+  const parsedInputAmount = useMemo(
+    () => tryParseAmount(inputAmount, currencyIn ?? undefined),
+    [currencyIn, inputAmount],
+  )
 
   const { currentData } = useGetLOConfigQuery(chainId)
   const limitOrderContract = currentData?.contract
@@ -85,13 +92,13 @@ export const useLimitOrderExecution = ({
   const isWrappedNativeInput = !!currencyIn?.equals(WETH[chainId])
 
   const wrapAmountForOrder = useMemo(() => {
-    if (!currencyIn || !isWrappedNativeInput || !parseInputAmount || !balance?.currency.equals(currencyIn)) {
+    if (!currencyIn || !isWrappedNativeInput || !parsedInputAmount || !balance?.currency.equals(currencyIn)) {
       return undefined
     }
-    if (!balance.lessThan(parseInputAmount)) return undefined
-    const deficit = JSBI.subtract(parseInputAmount.quotient, balance.quotient)
+    if (!balance.lessThan(parsedInputAmount)) return undefined
+    const deficit = JSBI.subtract(parsedInputAmount.quotient, balance.quotient)
     return CurrencyAmount.fromRawAmount(nativeCurrency, deficit)
-  }, [balance, currencyIn, isWrappedNativeInput, nativeCurrency, parseInputAmount])
+  }, [balance, currencyIn, isWrappedNativeInput, nativeCurrency, parsedInputAmount])
 
   const needsWrap = !!currencyIn?.isNative || !!wrapAmountForOrder
   const wrapInputCurrency = currencyIn?.isNative ? currencyIn : wrapAmountForOrder ? nativeCurrency : currencyIn
@@ -105,13 +112,22 @@ export const useLimitOrderExecution = ({
   }, [balance])
 
   const insufficientBalance = useMemo(() => {
-    if (!parseInputAmount || !currencyIn || !balance?.currency.equals(currencyIn)) return false
-    if (!balance.lessThan(parseInputAmount)) return false
+    if (!parsedInputAmount || !currencyIn || !balance?.currency.equals(currencyIn)) return false
+    if (!balance.lessThan(parsedInputAmount)) return false
     if (!isWrappedNativeInput || !wrapAmountForOrder || !nativeBalance?.currency.equals(nativeCurrency)) return true
     return nativeBalance.lessThan(wrapAmountForOrder)
-  }, [balance, currencyIn, isWrappedNativeInput, nativeBalance, nativeCurrency, parseInputAmount, wrapAmountForOrder])
+  }, [balance, currencyIn, isWrappedNativeInput, nativeBalance, nativeCurrency, parsedInputAmount, wrapAmountForOrder])
 
   const insufficientBalanceText = insufficientBalance ? t`Insufficient Balance` : undefined
+
+  const showReservedOrderNotice = useMemo(() => {
+    if (!currencyIn || currencyIn.isNative || !parsedInputAmount || !parsedActiveOrderMakingAmount) return false
+    if (!balance?.currency.equals(currencyIn)) return false
+    if (JSBI.equal(parsedActiveOrderMakingAmount.quotient, JSBI.BigInt(0))) return false
+
+    const remainingBalance = JSBI.subtract(balance.quotient, parsedInputAmount.quotient)
+    return JSBI.lessThan(remainingBalance, parsedActiveOrderMakingAmount.quotient)
+  }, [balance, currencyIn, parsedInputAmount, parsedActiveOrderMakingAmount])
 
   const handleMaxInput = useCallback(() => {
     if (!maxAmountInput) return
@@ -129,38 +145,68 @@ export const useLimitOrderExecution = ({
 
   const missingAllowance = useMemo(() => {
     if (currentAllowance?.equalTo(0)) return true
-    if (currencyIn?.isNative || !parseInputAmount) return false
+    if (currencyIn?.isNative || !parsedInputAmount) return false
     const allowanceSubtracted = parsedActiveOrderMakingAmount
       ? currentAllowance?.subtract(parsedActiveOrderMakingAmount)
       : undefined
 
     if (
       !allowanceSubtracted ||
-      allowanceSubtracted.greaterThan(parseInputAmount) ||
-      allowanceSubtracted.equalTo(parseInputAmount)
+      allowanceSubtracted.greaterThan(parsedInputAmount) ||
+      allowanceSubtracted.equalTo(parsedInputAmount)
     )
       return false
-    return parseInputAmount.subtract(allowanceSubtracted)
-  }, [currencyIn?.isNative, currentAllowance, parseInputAmount, parsedActiveOrderMakingAmount])
+    return parsedInputAmount.subtract(allowanceSubtracted)
+  }, [currencyIn?.isNative, currentAllowance, parsedInputAmount, parsedActiveOrderMakingAmount])
 
   const enoughAllowance = !missingAllowance
 
   const [approval, approveCallback] = useApproveCallback(
-    parseInputAmount,
+    parsedInputAmount,
     limitOrderContract || undefined,
     !enoughAllowance,
   )
 
+  const hasEnoughAllowance = useCallback(
+    (allowance: CurrencyAmount<Currency>) => {
+      if (currencyIn?.isNative || !parsedInputAmount) return true
+      try {
+        const availableAllowance = parsedActiveOrderMakingAmount
+          ? allowance.subtract(parsedActiveOrderMakingAmount)
+          : allowance
+        return availableAllowance.greaterThan(parsedInputAmount) || availableAllowance.equalTo(parsedInputAmount)
+      } catch (error) {
+        return false
+      }
+    },
+    [currencyIn?.isNative, parsedInputAmount, parsedActiveOrderMakingAmount],
+  )
+
+  const checkApprovalManually = useCallback(async () => {
+    if (currencyIn?.isNative) return true
+    if (!currencyIn || !account || !limitOrderContract || !parsedInputAmount) return false
+
+    const allowance = (await readContract(wagmiConfig, {
+      address: currencyIn.wrapped.address as Address,
+      abi: ERC20_ABI,
+      functionName: 'allowance',
+      args: [account, limitOrderContract],
+      chainId: chainId as number,
+    })) as bigint
+
+    return hasEnoughAllowance(TokenAmount.fromRawAmount(currencyIn.wrapped, allowance.toString()))
+  }, [account, chainId, currencyIn, hasEnoughAllowance, limitOrderContract, parsedInputAmount])
+
   const processingSteps = useMemo<ProcessingOrderStep[]>(() => {
     const steps: ProcessingOrderStep[] = []
     if (needsWrap) steps.push('wrap')
-    if (needsWrap || (!currencyIn?.isNative && approval !== ApprovalState.APPROVED)) steps.push('approve')
+    if (needsWrap || (!currencyIn?.isNative && !enoughAllowance)) steps.push('approve')
     steps.push('create')
     return steps
-  }, [approval, currencyIn?.isNative, needsWrap])
+  }, [currencyIn?.isNative, enoughAllowance, needsWrap])
 
   // Form validation and warning messages.
-  const { inputError, outPutError } = useValidateInputError({
+  const { inputError, outputError } = useValidateInputError({
     inputAmount,
     outputAmount,
     displayRate,
@@ -168,7 +214,6 @@ export const useLimitOrderExecution = ({
     currencyOut,
   })
 
-  const hasInputError = Boolean(inputError || outPutError)
   const isNotFillAllInput = [outputAmount, inputAmount, currencyIn, currencyOut, displayRate].some(e => !e)
 
   const estimateUSD = useMemo(() => {
@@ -186,7 +231,7 @@ export const useLimitOrderExecution = ({
     currencyIn,
     displayRate,
     deltaRate,
-    missingAllowance,
+    showReservedOrderNotice,
   })
 
   // Tracking callbacks used by form inputs.
@@ -211,11 +256,11 @@ export const useLimitOrderExecution = ({
     trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
   }, [trackingHandler])
 
-  // Preview modal and shared error handling.
-  const showPreview = () => {
+  // Review modal and shared error handling.
+  const openReview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
 
-    setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
+    onOpenReview()
 
     trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
       from_token: currencyIn.symbol,
@@ -242,12 +287,12 @@ export const useLimitOrderExecution = ({
     })
   }
 
-  const hidePreview = useCallback(() => {
-    setFlowState(state => ({ ...state, showConfirm: false }))
-  }, [setFlowState])
+  const closeReview = useCallback(() => {
+    onCloseReview()
+  }, [onCloseReview])
 
   const handleError = useCallback(
-    (error: any) => {
+    (error: unknown) => {
       const errorMessage = getErrorMessage(error)
       const isUserRejected =
         errorMessage.toLowerCase().includes('user denied') || errorMessage.toLowerCase().includes('user rejected')
@@ -264,13 +309,9 @@ export const useLimitOrderExecution = ({
         chain: networkName,
       })
 
-      setFlowState(state => ({
-        ...state,
-        attemptingTxn: false,
-        errorMessage,
-      }))
+      return
     },
-    [setFlowState, trackingHandler, currencyIn, currencyOut, displayRate, inputAmount, networkName],
+    [trackingHandler, currencyIn, currencyOut, displayRate, inputAmount, networkName],
   )
 
   // Keep active making amount fresh after order state updates.
@@ -302,15 +343,15 @@ export const useLimitOrderExecution = ({
       insufficientBalance,
       insufficientBalanceText,
     },
-    preview: {
-      hidePreview,
-      showPreview,
+    review: {
+      closeReview,
+      openReview,
     },
     processing: {
       approval,
       approveCallback,
+      checkApprovalManually,
       isWrappingEth,
-      needsWrap,
       onWrap,
       setTxHashWrapped,
       steps: processingSteps,
@@ -321,10 +362,9 @@ export const useLimitOrderExecution = ({
       trackingTouchSelectToken,
     },
     validation: {
-      hasInputError,
       inputError,
       isNotFillAllInput,
-      outPutError,
+      outputError,
       warningMessage,
     },
   }

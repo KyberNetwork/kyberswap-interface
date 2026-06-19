@@ -1,6 +1,7 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { memo, useState } from 'react'
+import { ReactNode, memo, useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
@@ -18,7 +19,8 @@ import { useCreateLimitOrder } from 'components/swapv2/LimitOrder/hooks/useCreat
 import { useLimitOrderExecution } from 'components/swapv2/LimitOrder/hooks/useLimitOrderExecution'
 import { useLimitOrderFormState } from 'components/swapv2/LimitOrder/hooks/useLimitOrderFormState'
 import { useProcessingOrder } from 'components/swapv2/LimitOrder/hooks/useProcessingOrder'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { LimitOrderTab } from 'components/swapv2/LimitOrder/types'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import usePageLocation from 'hooks/usePageLocation'
@@ -26,7 +28,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
-import { TransactionFlowState } from 'types/TransactionFlowState'
+import { currencyId } from 'utils/currencyId'
 
 type LimitOrderFormProps = {
   currencyIn?: Currency
@@ -41,13 +43,36 @@ const useLimitOrderCurrencies = ({ currencyIn, currencyOut }: LimitOrderFormProp
   }
 }
 
+const ReviewButton = ({
+  disabled,
+  hasWarning,
+  onClick,
+  children,
+}: {
+  disabled: boolean
+  hasWarning: boolean
+  onClick: () => void
+  children: ReactNode
+}) => {
+  if (hasWarning && !disabled) {
+    return <ButtonWarning onClick={onClick}>{children}</ButtonWarning>
+  }
+
+  return (
+    <ButtonPrimary id="review-order-button" onClick={onClick} disabled={disabled}>
+      {children}
+    </ButtonPrimary>
+  )
+}
+
 const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp }: LimitOrderFormProps) => {
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
   const { account } = useActiveWeb3React()
   const { isEmbeddedSwap } = usePageLocation()
+  const navigate = useNavigate()
 
-  const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
+  const [showReview, setShowReview] = useState(false)
 
   const { currencyIn, currencyOut } = useLimitOrderCurrencies({
     currencyIn: currencyInProp,
@@ -79,17 +104,17 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const execution = useLimitOrderExecution({
     order,
-    setFlowState,
+    onCloseReview: () => setShowReview(false),
+    onOpenReview: () => setShowReview(true),
     onSetInput: form.onSetInput,
     onResetForm: form.onResetForm,
     switchToWeth: form.switchToWeth,
   })
 
-  const { balance, estimateUSD, preview, processing: executionProcessing, tracking, validation } = execution
+  const { balance, estimateUSD, review, processing: executionProcessing, tracking, validation } = execution
 
   const createOrder = useCreateLimitOrder({
     order,
-    setFlowState,
     searchParams: form.searchParams,
     estimateUSD,
     onError: execution.handleError,
@@ -100,13 +125,29 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     ...executionProcessing,
     onCreateOrder: createOrder.submitCreateOrderWithTracking,
     onError: execution.handleError,
-    setFlowState,
+    onStart: review.closeReview,
   })
+  const { dismiss: dismissProcessingOrder } = processing
 
-  const disableReviewButton = validation.isNotFillAllInput || !!validation.hasInputError || balance.insufficientBalance
+  const viewCreatedOrder = useCallback(() => {
+    const currencyPair =
+      currencyIn && currencyOut
+        ? `/${currencyId(currencyIn, form.chainId)}-to-${currencyId(currencyOut, form.chainId)}`
+        : ''
+    const search = new URLSearchParams({ tab: LimitOrderTab.MY_ORDER }).toString()
+
+    dismissProcessingOrder()
+    navigate(`${APP_PATHS.LIMIT}/${form.networkInfo.route}${currencyPair}?${search}`)
+  }, [currencyIn, currencyOut, dismissProcessingOrder, form.chainId, form.networkInfo.route, navigate])
+
+  const validationError = validation.inputError || validation.outputError
+  const disableReviewButton = validation.isNotFillAllInput || !!validationError || balance.insufficientBalance
+  const shouldWarnReview = validation.warningMessage.length > 0
   const reviewButtonContent = (
     <span className="font-medium">
-      {balance.insufficientBalance && balance.insufficientBalanceText ? (
+      {validationError ? (
+        validationError
+      ) : balance.insufficientBalance && balance.insufficientBalanceText ? (
         balance.insufficientBalanceText
       ) : (
         <Trans>Review Order</Trans>
@@ -117,7 +158,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   return (
     <>
       <Stack className="gap-4">
-        {isEmbeddedSwap ? <NetworkSelector chainId={form.chainId} /> : null}
+        {isEmbeddedSwap && <NetworkSelector chainId={form.chainId} />}
         <Stack className="gap-3">
           <LimitOrderTokenSection
             chainId={form.chainId}
@@ -126,10 +167,6 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               currencyOut,
               inputAmount: form.inputAmount,
               outputAmount: form.outputAmount,
-            }}
-            errors={{
-              input: validation.inputError,
-              output: validation.outPutError,
             }}
             estimateUsd={estimateUSD}
             events={{
@@ -158,70 +195,67 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               onRateInputBlur: tracking.trackingPriceSetOnBlur,
             }}
           />
-
-          <LimitOrderExpirySection
-            expiry={{
-              expire: form.expire,
-              expanded: form.expanded,
-              customDateExpire: form.customDateExpire,
-              displayTime: form.displayTime,
-            }}
-            events={{
-              onToggleExpanded: () => form.setExpanded(expanded => !expanded),
-              onOpenDatePicker: form.toggleDatePicker,
-              onExpireChange: form.onChangeExpire,
-            }}
-          />
-
-          <HStack className="items-center">
-            <span className="text-sm text-subText">{t`Market Price is`}&nbsp;</span>
-            <MarketPrice
-              price={form.tradeInfo}
-              loading={form.loadingTrade}
-              symbolIn={currencyIn?.symbol}
-              symbolOut={currencyOut?.symbol}
-            />
-          </HStack>
         </Stack>
 
-        {validation.warningMessage.length > 0 && (
-          <Stack className="gap-3">
-            {validation.warningMessage.map((mess, i) => (
-              <ErrorWarningPanel type="warn" key={i} title={mess} />
-            ))}
-          </Stack>
-        )}
+        <Stack className="gap-6">
+          <Stack className="gap-4">
+            <LimitOrderExpirySection
+              expiry={{
+                expire: form.expire,
+                expanded: form.expanded,
+                customDateExpire: form.customDateExpire,
+                displayTime: form.displayTime,
+              }}
+              events={{
+                onToggleExpanded: () => form.setExpanded(expanded => !expanded),
+                onOpenDatePicker: form.toggleDatePicker,
+                onExpireChange: form.onChangeExpire,
+              }}
+            />
 
-        {form.chainId !== form.walletChainId ? (
-          <ButtonLight onClick={() => changeNetwork(form.chainId)}>
-            <Trans>Switch to {NETWORKS_INFO[form.chainId].name}</Trans>
-          </ButtonLight>
-        ) : !account ? (
-          <ButtonLight onClick={toggleWalletModal}>
-            <Trans>Connect</Trans>
-          </ButtonLight>
-        ) : validation.warningMessage.length > 0 && !disableReviewButton ? (
-          <ButtonWarning onClick={preview.showPreview}>{reviewButtonContent}</ButtonWarning>
-        ) : (
-          <ButtonPrimary id="review-order-button" onClick={preview.showPreview} disabled={disableReviewButton}>
-            {reviewButtonContent}
-          </ButtonPrimary>
-        )}
+            <HStack className="items-center">
+              <span className="text-sm text-subText">{t`Market Price is`}&nbsp;</span>
+              <MarketPrice
+                price={form.tradeInfo}
+                loading={form.loadingTrade}
+                symbolIn={currencyIn?.symbol}
+                symbolOut={currencyOut?.symbol}
+              />
+            </HStack>
+
+            {validation.warningMessage.length > 0 && (
+              <Stack className="gap-3">
+                {validation.warningMessage.map((mess, i) => (
+                  <ErrorWarningPanel type="warn" key={i} title={mess} />
+                ))}
+              </Stack>
+            )}
+          </Stack>
+
+          {form.chainId !== form.walletChainId ? (
+            <ButtonLight onClick={() => changeNetwork(form.chainId)}>
+              <Trans>Switch to {NETWORKS_INFO[form.chainId].name}</Trans>
+            </ButtonLight>
+          ) : !account ? (
+            <ButtonLight onClick={toggleWalletModal}>
+              <Trans>Connect</Trans>
+            </ButtonLight>
+          ) : (
+            <ReviewButton disabled={disableReviewButton} hasWarning={shouldWarnReview} onClick={review.openReview}>
+              {reviewButtonContent}
+            </ReviewButton>
+          )}
+        </Stack>
       </Stack>
 
       <ConfirmOrderModal
-        onDismiss={preview.hidePreview}
-        onSubmit={processing.startProcessingOrder}
-        flowState={flowState}
-        currencyIn={currencyIn}
-        currencyOut={currencyOut}
-        inputAmount={form.inputAmount}
-        outputAmount={form.outputAmount}
-        expiredAt={form.expiredAt}
-        rateInfo={form.rateInfo}
+        order={order}
+        review={{
+          isOpen: showReview,
+          onDismiss: review.closeReview,
+          onSubmit: processing.start,
+        }}
         warningMessage={validation.warningMessage}
-        marketPrice={form.tradeInfo}
-        percentDiff={Number(deltaRate.rawPercent)}
       />
 
       <DateTimePicker
@@ -235,10 +269,8 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
       <ProcessingOrderModal
         chainId={form.chainId}
         currencyIn={currencyIn}
-        state={processing.processingOrder}
-        onDismiss={processing.hideProcessingOrder}
-        onRetryStep={processing.retryProcessingStep}
-        onRunStep={processing.runProcessingStep}
+        processing={processing}
+        onViewOrder={viewCreatedOrder}
       />
     </>
   )

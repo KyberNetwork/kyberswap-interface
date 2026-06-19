@@ -90,18 +90,6 @@ const CancelOrderModal = ({
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
   const isWaiting = cancelStatus === CancelStatus.WAITING
 
-  const renderContentCancelAll = () => {
-    if (!isWaiting) return null
-    return (
-      <Label>
-        {orders.length === 1 ? (
-          <Trans>Are you sure you want to cancel this limit order?</Trans>
-        ) : (
-          <Trans>Are you sure you want to cancel {orders.length} limit orders?</Trans>
-        )}
-      </Label>
-    )
-  }
   const listData = useMemo(() => {
     if (!order) return []
 
@@ -177,9 +165,15 @@ const CancelOrderModal = ({
     <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={onDismiss}>
       <Container>
         <Header title={isCancelAll ? t`Bulk Cancellation` : t`Cancel an order`} onDismiss={onDismiss} />
-        {isCancelAll ? (
-          renderContentCancelAll()
-        ) : (
+        {isCancelAll && isWaiting ? (
+          <Label>
+            {orders.length === 1 ? (
+              <Trans>Are you sure you want to cancel this limit order?</Trans>
+            ) : (
+              <Trans>Are you sure you want to cancel {orders.length} limit orders?</Trans>
+            )}
+          </Label>
+        ) : isCancelAll ? null : (
           <ListInfo
             title={t`I want to cancel my order where`}
             listData={listData}
