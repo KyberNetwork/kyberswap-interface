@@ -24,17 +24,25 @@ export const ItemWrapper = ({ children, className, ...rest }: React.HTMLAttribut
 
 const formatAmountWithSymbol = (amount: string, currency?: Currency) => `${amount} ${currency?.symbol ?? ''}`.trim()
 
-const SizeInfo = ({ amount, currency, filled }: { amount: string; currency?: Currency; filled: number }) => (
+const SizeInfo = ({
+  amount,
+  currency,
+  filledPercent,
+}: {
+  amount: string
+  currency?: Currency
+  filledPercent: number
+}) => (
   <div className="flex w-full min-w-0 flex-col text-right">
     <div className="truncate text-sm font-medium text-text" title={formatAmountWithSymbol(amount, currency)}>
       {formatAmountWithSymbol(amount, currency)}
     </div>
     <div className="flex items-center justify-end gap-2 text-xs text-subText">
       <span className="h-1 w-12 overflow-hidden rounded-full bg-subText-40">
-        <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.min(filled, 100)}%` }} />
+        <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.min(filledPercent, 100)}%` }} />
       </span>
       <span>
-        <Trans>Fill</Trans> {filled}%
+        <Trans>Fill</Trans> {filledPercent}%
       </span>
     </div>
   </div>
@@ -52,9 +60,9 @@ const AmountText = ({ amount, currency, muted }: { amount?: string; currency?: C
 const RateText = ({ order, className }: { order: LimitOrderFromTokenPairFormatted; className?: string }) => (
   <div className="flex w-full min-w-0 flex-col items-end text-right">
     <div className={cn('w-full truncate text-sm font-medium', className)} title={order.rate}>
-      {order.rate}
+      {order.formattedRate}
     </div>
-    {order.marketDiffPercent && <div className="text-xs text-subText">{order.marketDiffPercent}</div>}
+    {order.formattedMarketDiffPercent && <div className="text-xs text-subText">{order.formattedMarketDiffPercent}</div>}
   </div>
 )
 
@@ -71,10 +79,10 @@ const OrderItem = ({
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
 
   const chain = useMemo(() => NETWORKS_INFO[order.chainId], [order.chainId])
-  const filled = Math.max(0, Math.min(Number(order.filled) || 0, 100))
-  const sizeAmount = !reverse ? order.makerAmount : order.takerAmount
-  const availableAmount = !reverse ? order.availableMakerAmount : order.availableTakerAmount
-  const totalAmount = !reverse ? order.takerAmount : order.makerAmount
+  const filledPercent = Math.max(0, Math.min(Number(order.filledPercent) || 0, 100))
+  const sizeAmount = !reverse ? order.formattedMakerAmount : order.formattedTakerAmount
+  const availableAmount = !reverse ? order.formattedAvailableMakerAmount : order.formattedAvailableTakerAmount
+  const totalAmount = !reverse ? order.formattedTakerAmount : order.formattedMakerAmount
   const sizeCurrency = !reverse ? makerCurrency : takerCurrency
   const totalCurrency = !reverse ? takerCurrency : makerCurrency
   const rateClassName = reverse ? 'text-primary' : 'text-red'
@@ -84,7 +92,7 @@ const OrderItem = ({
       <span className="flex items-center justify-center">
         <img className="size-5" src={chain?.icon} alt="Network" />
       </span>
-      <SizeInfo amount={sizeAmount} currency={sizeCurrency} filled={filled} />
+      <SizeInfo amount={sizeAmount} currency={sizeCurrency} filledPercent={filledPercent} />
       {!upToExtraSmall && <AmountText amount={availableAmount} currency={sizeCurrency} muted={!order.hasAvailable} />}
       <RateText order={order} className={rateClassName} />
       <AmountText

@@ -186,7 +186,7 @@ export default function Select({
       <div className="flex-1 select-none truncate">
         {shouldShowPlaceholder ? placeholder : activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}
       </div>
-      <DropdownArrowIcon rotate={showMenu} color={arrowColor} arrow={arrow} size={arrowSize} />
+      <DropdownArrowIcon rotate={showMenu} color={arrowColor} arrow={arrow} size={arrowSize} className="-mx-1" />
       <AnimatePresence>
         {showMenu && (
           <Portal>

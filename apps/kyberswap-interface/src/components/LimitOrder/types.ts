@@ -100,12 +100,14 @@ export type LimitOrderFromTokenPairFormatted = {
   chainId: ChainId
   rawOrder: LimitOrderFromTokenPair
   rate: string
-  makerAmount: string
-  takerAmount: string
-  availableMakerAmount: string
-  availableTakerAmount: string
-  marketDiffPercent: string
-  filled: string
+  formattedRate: string
+  isReversed: boolean
+  formattedMakerAmount: string
+  formattedTakerAmount: string
+  formattedAvailableMakerAmount: string
+  formattedAvailableTakerAmount: string
+  formattedMarketDiffPercent: string
+  filledPercent: string
   hasAvailable: boolean
 }
 
@@ -135,7 +137,7 @@ export type CancelOrderResponse = {
   orders: { operatorSignatureExpiredAt: number }[]
 }
 
-export type CreateOrderParam = {
+export type CreateOrderParams = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   chainId: ChainId

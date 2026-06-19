@@ -222,6 +222,22 @@ export const useTakeLimitOrder = ({
     return false
   }, [checkApprovalManually])
 
+  const buildFillOrderBody = useCallback(async (): Promise<FillOrderBody> => {
+    if (!account || !order || !parsedPayAmount) throw new Error('Wrong input')
+
+    const operatorSignatures = await getOperatorSignature({ chainId, orderIds: [order.id] }).unwrap()
+    const operatorSignature = operatorSignatures.find(item => item.id === order.id)
+    if (!operatorSignature?.operatorSignature) throw new Error('Missing operator signature')
+
+    return {
+      orderId: order.id,
+      takingAmount: parsedPayAmount.quotient.toString(),
+      thresholdAmount,
+      target: account,
+      operatorSignature: operatorSignature.operatorSignature,
+    }
+  }, [account, chainId, getOperatorSignature, order, parsedPayAmount, thresholdAmount])
+
   const runWrapStep = useCallback(() => {
     return (async () => {
       try {
@@ -289,17 +305,7 @@ export const useTakeLimitOrder = ({
           throw new Error('Wrong input')
         }
 
-        const operatorSignatures = await getOperatorSignature({ chainId, orderIds: [order.id] }).unwrap()
-        const operatorSignature = operatorSignatures.find(item => item.id === order.id)
-        if (!operatorSignature?.operatorSignature) throw new Error('Missing operator signature')
-
-        const fillBody: FillOrderBody = {
-          orderId: order.id,
-          takingAmount: parsedPayAmount.quotient.toString(),
-          thresholdAmount,
-          target: account,
-          operatorSignature: operatorSignature.operatorSignature,
-        }
+        const fillBody = await buildFillOrderBody()
         const { encodedData } = await encodeFillOrder(fillBody).unwrap()
         const response = await sendEVMTransaction({
           account,
@@ -318,7 +324,7 @@ export const useTakeLimitOrder = ({
 
         addTransactionWithType({
           hash: response.hash,
-          type: TRANSACTION_TYPE.SWAP,
+          type: TRANSACTION_TYPE.FILL_LIMIT_ORDER,
           extraInfo: {
             tokenAddressIn: payCurrency.wrapped.address,
             tokenAddressOut: receiveCurrency.wrapped.address,
@@ -334,6 +340,7 @@ export const useTakeLimitOrder = ({
         })
         invalidateLimitOrderTags([
           RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST,
+          RTK_QUERY_TAGS.GET_LIMIT_ORDER_BOOK,
           RTK_QUERY_TAGS.GET_LIMIT_ORDER_INSUFFICIENT,
           RTK_QUERY_TAGS.GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT,
         ])
@@ -348,10 +355,10 @@ export const useTakeLimitOrder = ({
   }, [
     account,
     addTransactionWithType,
+    buildFillOrderBody,
     chainId,
     contractAddress,
     encodeFillOrder,
-    getOperatorSignature,
     invalidateLimitOrderTags,
     isSmartConnector,
     markStepError,
@@ -363,7 +370,6 @@ export const useTakeLimitOrder = ({
     receiveAmount,
     receiveAmountAfterFee,
     receiveCurrency,
-    thresholdAmount,
     walletKey,
   ])
 
@@ -431,8 +437,6 @@ export const useTakeLimitOrder = ({
 
   const retryStep = useCallback(
     (step: TakeOrderStep) => {
-      if (processing.errorStep !== step) return
-
       setProcessing(state => ({
         ...state,
         currentStep: step,
@@ -440,33 +444,15 @@ export const useTakeLimitOrder = ({
       }))
       void runSequence(step, processing.steps)
     },
-    [processing.errorStep, processing.steps, runSequence, setProcessing],
+    [processing.steps, runSequence, setProcessing],
   )
 
   const estimateTxGas = useCallback(async () => {
     if (!account || !order || !parsedPayAmount || !contractAddress) return null
-    const operatorSignatures = await getOperatorSignature({ chainId, orderIds: [order.id] }).unwrap()
-    const operatorSignature = operatorSignatures.find(item => item.id === order.id)
-    if (!operatorSignature?.operatorSignature) return null
-    const { encodedData } = await encodeFillOrder({
-      orderId: order.id,
-      takingAmount: parsedPayAmount.quotient.toString(),
-      thresholdAmount,
-      target: account,
-      operatorSignature: operatorSignature.operatorSignature,
-    }).unwrap()
+    const fillBody = await buildFillOrderBody()
+    const { encodedData } = await encodeFillOrder(fillBody).unwrap()
     return estimateGas({ contractAddress, encodedData })
-  }, [
-    account,
-    chainId,
-    contractAddress,
-    encodeFillOrder,
-    estimateGas,
-    getOperatorSignature,
-    order,
-    parsedPayAmount,
-    thresholdAmount,
-  ])
+  }, [account, buildFillOrderBody, contractAddress, encodeFillOrder, estimateGas, order, parsedPayAmount])
 
   return {
     amount: {

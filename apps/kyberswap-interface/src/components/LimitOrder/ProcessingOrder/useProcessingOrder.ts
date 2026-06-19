@@ -219,8 +219,6 @@ export const useProcessingOrder = ({
 
   const retryProcessingStep = useCallback(
     (step: ProcessingOrderStep) => {
-      if (processingOrder.errorStep !== step) return
-
       setProcessingOrder(state => ({
         ...state,
         currentStep: step,
@@ -228,7 +226,7 @@ export const useProcessingOrder = ({
       }))
       void runProcessingSequence(step, processingOrder.steps)
     },
-    [processingOrder.errorStep, processingOrder.steps, runProcessingSequence, setProcessingOrder],
+    [processingOrder.steps, runProcessingSequence, setProcessingOrder],
   )
 
   const startProcessingOrder = useCallback(() => {

@@ -354,7 +354,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
 
       <div className="flex justify-between gap-4 px-4 py-2 max-sm:flex-col">
         <Select
-          className="h-9 min-w-[200px] rounded-[40px] bg-buttonGray px-4 py-2 text-sm max-sm:w-full"
+          className="h-9 min-w-[200px] rounded-[40px] bg-buttonGray px-3 py-2 text-sm max-sm:w-full"
           key={orderType}
           options={orderTypeOptions}
           value={orderType}
@@ -362,7 +362,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
           matchMenuWidth
         />
         <SearchInput
-          className="h-9 max-w-[360px] flex-1 rounded-[40px] bg-buttonGray py-1 max-sm:w-full max-sm:max-w-none"
+          className="h-9 min-h-9 max-w-[360px] flex-1 rounded-[40px] bg-buttonGray py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
           placeholder={t`Search by token symbol or token address`}
           maxLength={255}
           value={keyword}

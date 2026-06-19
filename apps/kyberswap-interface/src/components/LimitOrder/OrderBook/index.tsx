@@ -1,5 +1,6 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import JSBI from 'jsbi'
 import { useCallback, useMemo, useState } from 'react'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
@@ -8,11 +9,7 @@ import OrderItem, { ItemWrapper } from 'components/LimitOrder/OrderBook/OrderIte
 import TableHeader from 'components/LimitOrder/OrderBook/TableHeader'
 import TakeOrderConfirmModal from 'components/LimitOrder/TakeOrder/TakeOrderConfirmModal'
 import { getMarketPriceDiff } from 'components/LimitOrder/helpers'
-import {
-  LimitOrderFromTokenPair,
-  LimitOrderFromTokenPairFormatted,
-  LimitOrderTakeContext,
-} from 'components/LimitOrder/types'
+import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
 import RefreshLoading from 'components/RefreshLoading'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
@@ -23,6 +20,8 @@ import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const ignoreRefreshError = () => undefined
+const safeDivide = (numerator: JSBI, denominator: JSBI) =>
+  JSBI.equal(denominator, JSBI.BigInt(0)) ? JSBI.BigInt(0) : JSBI.divide(numerator, denominator)
 
 const refetchSafely = (refetch: () => { catch?: (onRejected: () => void) => unknown } | void) => {
   try {
@@ -74,13 +73,17 @@ const formatOrders = (
       ).toSignificant(100)
 
       const filledMakingAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.filledMakingAmount)
-      const filled = (parseFloat(filledMakingAmount.toExact()) / parseFloat(makerCurrencyAmount.toExact())) * 100
+      const filledPercent = (parseFloat(filledMakingAmount.toExact()) / parseFloat(makerCurrencyAmount.toExact())) * 100
       const makerAmount = makerCurrencyAmount.toExact()
       const takerAmount = takerCurrencyAmount.toExact()
       const availableMakerAmount = availableMakerCurrencyAmount.toExact()
-      const availableRatio =
-        parseFloat(makerAmount) > 0 ? parseFloat(availableMakerAmount) / parseFloat(makerAmount) : 0
-      const availableTakerAmount = (parseFloat(takerAmount) * availableRatio).toString()
+      const availableTakerAmount = CurrencyAmount.fromRawAmount(
+        newTakerCurrency,
+        safeDivide(
+          JSBI.multiply(JSBI.BigInt(order.takingAmount), JSBI.BigInt(order.availableMakingAmount)),
+          JSBI.BigInt(order.makingAmount),
+        ),
+      ).toExact()
       const hasAvailable = parseFloat(availableMakerAmount) > 0
       const marketDiff = getMarketPriceDiff(rate, marketRate)
 
@@ -89,29 +92,30 @@ const formatOrders = (
         chainId: order.chainId,
         rawOrder: order,
         rate,
-        makerAmount,
-        takerAmount,
-        availableMakerAmount,
-        availableTakerAmount,
-        marketDiffPercent: marketDiff.displayPercent,
-        filled: filled > 99 ? '100' : filled.toFixed(),
+        formattedRate: formatDisplayNumber(rate, { significantDigits: 6 }),
+        isReversed: reverse,
+        formattedMakerAmount: formatDisplayNumber(makerAmount, { significantDigits: 6 }),
+        formattedTakerAmount: formatDisplayNumber(takerAmount, { significantDigits: 6 }),
+        formattedAvailableMakerAmount: hasAvailable
+          ? formatDisplayNumber(availableMakerAmount, { significantDigits: 6 })
+          : '',
+        formattedAvailableTakerAmount: hasAvailable
+          ? formatDisplayNumber(availableTakerAmount, { significantDigits: 6 })
+          : '',
+        formattedMarketDiffPercent: marketDiff.displayPercent,
+        filledPercent: filledPercent > 99 ? '100' : filledPercent.toFixed(),
         hasAvailable,
       }
     })
-    .filter(order => order.filled !== '100')
+    .filter(order => order.filledPercent !== '100')
     .sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate))
-    .map(order => ({
-      ...order,
-      rate: formatDisplayNumber(order.rate, { significantDigits: 6 }),
-      makerAmount: formatDisplayNumber(order.makerAmount, { significantDigits: 6 }),
-      takerAmount: formatDisplayNumber(order.takerAmount, { significantDigits: 6 }),
-      availableMakerAmount: order.hasAvailable
-        ? formatDisplayNumber(order.availableMakerAmount, { significantDigits: 6 })
-        : '',
-      availableTakerAmount: order.hasAvailable
-        ? formatDisplayNumber(order.availableTakerAmount, { significantDigits: 6 })
-        : '',
-    }))
+}
+
+const getIsSwapBetter = (order: LimitOrderFromTokenPairFormatted | undefined, marketRate: number) => {
+  if (!order) return false
+
+  const marketDiff = getMarketPriceDiff(order.rate, marketRate)
+  return order.isReversed ? marketDiff.rawPercent < 0 : marketDiff.rawPercent > 0
 }
 
 const SectionLabel = ({ color, label, symbol }: { color: string; label: React.ReactNode; symbol?: string }) => (
@@ -146,7 +150,10 @@ const OrderBook = () => {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
-  const [takeOrderContext, setTakeOrderContext] = useState<LimitOrderTakeContext>()
+
+  const [selectedOrderToTake, setSelectedOrderToTake] = useState<LimitOrderFromTokenPairFormatted>()
+  const [isTakeOrderModalOpen, setIsTakeOrderModalOpen] = useState(false)
+
   const {
     loading: loadingMarketRate,
     tradeInfo: { marketRate = 0 } = {},
@@ -191,6 +198,10 @@ const OrderBook = () => {
 
   const visibleSellOrders = useMemo(() => formattedOrders.slice(-10).reverse(), [formattedOrders])
   const visibleBuyOrders = useMemo(() => formattedReversedOrders.slice(0, 10), [formattedReversedOrders])
+  const isSelectedOrderSwapBetter = useMemo(
+    () => getIsSwapBetter(selectedOrderToTake, marketRate),
+    [marketRate, selectedOrderToTake],
+  )
 
   const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
 
@@ -200,46 +211,22 @@ const OrderBook = () => {
     refetchSafely(refetchReversedOrders)
   }, [refetchMarketRate, refetchOrders, refetchReversedOrders])
 
-  const buildTakeOrderContext = useCallback(
-    (order: LimitOrderFromTokenPairFormatted): LimitOrderTakeContext | undefined => {
-      const rawOrder = order.rawOrder
-      if (!makerCurrency || !takerCurrency) return undefined
-      const paySymbol =
-        rawOrder.takerAsset.toLowerCase() === makerCurrency.wrapped.address.toLowerCase()
-          ? makerCurrency.wrapped.symbol
-          : rawOrder.takerAsset.toLowerCase() === takerCurrency.wrapped.address.toLowerCase()
-          ? takerCurrency.wrapped.symbol
-          : rawOrder.takerAssetSymbol
-      const receiveSymbol =
-        rawOrder.makerAsset.toLowerCase() === makerCurrency.wrapped.address.toLowerCase()
-          ? makerCurrency.wrapped.symbol
-          : rawOrder.makerAsset.toLowerCase() === takerCurrency.wrapped.address.toLowerCase()
-          ? takerCurrency.wrapped.symbol
-          : rawOrder.makerAssetSymbol
-      const payCurrency = new Token(rawOrder.chainId, rawOrder.takerAsset, rawOrder.takerAssetDecimals, paySymbol)
-      const receiveCurrency = new Token(
-        rawOrder.chainId,
-        rawOrder.makerAsset,
-        rawOrder.makerAssetDecimals,
-        receiveSymbol,
-      )
-
-      return { order: rawOrder, payCurrency, receiveCurrency }
-    },
-    [makerCurrency, takerCurrency],
-  )
-
   const handleTakeOrder = useCallback(
     (order: LimitOrderFromTokenPairFormatted) => {
       if (!account) {
         toggleWalletModal()
         return
       }
-      const context = buildTakeOrderContext(order)
-      if (context) setTakeOrderContext(context)
+      setSelectedOrderToTake(order)
+      setIsTakeOrderModalOpen(true)
     },
-    [account, buildTakeOrderContext, toggleWalletModal],
+    [account, toggleWalletModal],
   )
+
+  const handleDismissTakeOrderModal = useCallback(() => {
+    setIsTakeOrderModalOpen(false)
+    setSelectedOrderToTake(undefined)
+  }, [])
 
   return (
     <div className="relative flex flex-col">
@@ -274,11 +261,15 @@ const OrderBook = () => {
           ? visibleBuyOrders.map(order => <OrderItem key={order.id} reverse order={order} onTake={handleTakeOrder} />)
           : isReversedOrdersLoaded && <NoDataPanel />}
       </OrderSide>
-      <TakeOrderConfirmModal
-        context={takeOrderContext}
-        isOpen={!!takeOrderContext}
-        onDismiss={() => setTakeOrderContext(undefined)}
-      />
+
+      {selectedOrderToTake && (
+        <TakeOrderConfirmModal
+          isOpen={isTakeOrderModalOpen}
+          isSwapBetter={isSelectedOrderSwapBetter}
+          order={selectedOrderToTake}
+          onDismiss={handleDismissTakeOrderModal}
+        />
+      )}
     </div>
   )
 }

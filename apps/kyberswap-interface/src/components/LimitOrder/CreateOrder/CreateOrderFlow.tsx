@@ -6,7 +6,7 @@ import { useCreateLimitOrder } from 'components/LimitOrder/CreateOrder/hooks/use
 import type { useLimitOrderExecution } from 'components/LimitOrder/CreateOrder/hooks/useLimitOrderExecution'
 import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
 import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
-import { LimitOrderCreateContext, LimitOrderTab } from 'components/LimitOrder/types'
+import { LimitOrderCreateContext, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { currencyId } from 'utils/currencyId'
@@ -37,7 +37,10 @@ const CreateOrderFlow = ({ order, searchParams, isOpen, onDismiss, execution }: 
   const viewCreatedOrder = useCallback(() => {
     const currencyPair =
       currencyIn && currencyOut ? `/${currencyId(currencyIn, chainId)}-to-${currencyId(currencyOut, chainId)}` : ''
-    const search = new URLSearchParams({ tab: LimitOrderTab.MY_ORDER }).toString()
+    const search = new URLSearchParams({
+      tab: LimitOrderTab.MY_ORDER,
+      orderTab: LimitOrderStatus.ACTIVE,
+    }).toString()
 
     navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}${currencyPair}?${search}`)
   }, [chainId, currencyIn, currencyOut, navigate])

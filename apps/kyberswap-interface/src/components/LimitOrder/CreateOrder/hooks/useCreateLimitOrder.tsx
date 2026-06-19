@@ -7,7 +7,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { useSignOrder } from 'components/LimitOrder/CreateOrder/hooks/useSignOrder'
 import { SummaryNotifyOrderPlaced } from 'components/LimitOrder/MyOrders/SummaryNotify'
 import { calcUsdPrices, getPayloadCreateOrder, removeTrailingZero } from 'components/LimitOrder/helpers'
-import { CreateOrderParam, LimitOrderCreateContext } from 'components/LimitOrder/types'
+import { CreateOrderParams, LimitOrderCreateContext } from 'components/LimitOrder/types'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -65,7 +65,7 @@ export const useCreateLimitOrder = ({
   )
 
   const submitCreateOrder = useCallback(
-    async (params: CreateOrderParam) => {
+    async (params: CreateOrderParams) => {
       try {
         const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
         if (!currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {

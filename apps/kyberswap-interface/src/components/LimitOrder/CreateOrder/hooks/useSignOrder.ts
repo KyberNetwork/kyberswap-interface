@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useCreateOrderSignatureMutation } from 'services/limitOrder'
 
 import { getPayloadCreateOrder } from 'components/LimitOrder/helpers'
-import { CreateOrderParam } from 'components/LimitOrder/types'
+import { CreateOrderParams } from 'components/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'
@@ -13,7 +13,7 @@ export const useSignOrder = () => {
   const [getMessageSignature] = useCreateOrderSignatureMutation()
 
   return useCallback(
-    async (params: CreateOrderParam) => {
+    async (params: CreateOrderParams) => {
       const { currencyIn, currencyOut } = params
       if (!currencyIn || !currencyOut || !account) return { signature: '', salt: '' }
 

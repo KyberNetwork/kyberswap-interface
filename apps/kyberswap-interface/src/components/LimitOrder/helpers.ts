@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { CreateOrderBody } from 'services/limitOrder'
 
-import { CreateOrderParam, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
+import { CreateOrderParams, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
@@ -178,7 +178,7 @@ export const getErrorMessage = (error: unknown) => {
 
 type CreateOrderSignatureBodyPayload = Omit<CreateOrderBody, 'salt' | 'signature' | 'clientId'>
 
-export const getPayloadCreateOrder = (params: CreateOrderParam): CreateOrderSignatureBodyPayload => {
+export const getPayloadCreateOrder = (params: CreateOrderParams): CreateOrderSignatureBodyPayload => {
   const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt, referral } = params
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
   return {

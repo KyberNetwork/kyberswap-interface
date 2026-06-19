@@ -1,20 +1,30 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import JSBI from 'jsbi'
+import { useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
+import WalletIcon from 'components/Icons/Wallet'
 import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
+import RateComparison from 'components/LimitOrder/TakeOrder/RateComparison'
 import { DEFAULT_TAKE_ORDER_PROCESSING, useTakeLimitOrder } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
 import { removeTrailingZero } from 'components/LimitOrder/helpers'
-import { LimitOrderTab, LimitOrderTakeContext } from 'components/LimitOrder/types'
+import {
+  LimitOrderFromTokenPairFormatted,
+  LimitOrderStatus,
+  LimitOrderTab,
+  LimitOrderTakeContext,
+} from 'components/LimitOrder/types'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { useLimitState } from 'state/limit/hooks'
+import { PriceType, useTokenPrices } from 'state/tokenPrices/hooks'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -22,8 +32,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 const formatExact = (amount: CurrencyAmount<Currency> | undefined, significantDigits = 6) =>
   amount ? formatDisplayNumber(amount.toExact(), { significantDigits }) : '--'
 
-const formatRate = (context: LimitOrderTakeContext | undefined) => {
-  if (!context) return '--'
+const formatRate = (context: LimitOrderTakeContext) => {
   const receiveAmount = CurrencyAmount.fromRawAmount(context.receiveCurrency, context.order.makingAmount)
   const payAmount = CurrencyAmount.fromRawAmount(context.payCurrency, context.order.takingAmount)
   const rate = receiveAmount.divide(payAmount).multiply(payAmount.decimalScale).toSignificant(8)
@@ -37,27 +46,73 @@ const DetailRow = ({ label, children }: { label: React.ReactNode; children: Reac
   </HStack>
 )
 
-const TokenBadge = ({ amount, symbol }: { amount?: CurrencyAmount<Currency>; symbol?: string }) => (
-  <HStack className="max-w-[45%] shrink-0 items-center gap-2 rounded-lg bg-white-04 px-3 py-2">
-    {amount?.currency && <CurrencyLogo currency={amount.currency} style={{ width: 18, height: 18 }} />}
-    <span className="truncate font-medium text-text">{symbol}</span>
-  </HStack>
-)
-
-const TakeOrderConfirmModal = ({
-  context,
-  isOpen,
-  onDismiss,
+const TokenBadge = ({
+  amount,
+  currency,
+  symbol,
 }: {
-  context: LimitOrderTakeContext | undefined
-  isOpen: boolean
-  onDismiss?: () => void
+  amount?: CurrencyAmount<Currency>
+  currency?: Currency
+  symbol?: string
 }) => {
+  const badgeCurrency = currency || amount?.currency
+
+  return (
+    <HStack className="shrink-0 items-center gap-2 rounded-full bg-white-08 px-2.5 py-1.5 font-medium text-subText">
+      {badgeCurrency && <CurrencyLogo currency={badgeCurrency} style={{ width: 20, height: 20, boxShadow: 'none' }} />}
+      <span className="truncate">{symbol}</span>
+    </HStack>
+  )
+}
+
+const getPercentFillAmount = (amount: CurrencyAmount<Currency> | undefined, percent: number) => {
+  if (!amount) return ''
+
+  const rawAmount = JSBI.divide(JSBI.multiply(amount.quotient, JSBI.BigInt(percent)), JSBI.BigInt(100))
+  return CurrencyAmount.fromRawAmount(amount.currency, rawAmount).toExact()
+}
+
+const normalizeActionAmount = (nextAmount: string) => (parseFloat(nextAmount || '0') > 0 ? nextAmount : '')
+
+const QUICK_FILL_PERCENTS = [25, 50, 75, 100]
+
+const getSwapCurrencyId = (currency: Currency | undefined) =>
+  currency ? (currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.wrapped.address.toLowerCase()) : ''
+
+type Props = {
+  isOpen: boolean
+  isSwapBetter: boolean
+  order: LimitOrderFromTokenPairFormatted
+  onDismiss?: () => void
+}
+
+const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props) => {
   const navigate = useNavigate()
+  const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
+
   const [fillAmount, setFillAmount] = useState('')
   const [showInvertedRate, setShowInvertedRate] = useState(false)
   const [estimatedGasUsd, setEstimatedGasUsd] = useState<string>('')
   const [processingState, setProcessingState] = useState(DEFAULT_TAKE_ORDER_PROCESSING)
+
+  const context = useMemo<LimitOrderTakeContext>(() => {
+    const rawOrder = order.rawOrder
+    const getOrderCurrencySymbol = (asset: string, fallback?: string) => {
+      const assetAddress = asset.toLowerCase()
+      if (makerCurrency && assetAddress === makerCurrency.wrapped.address.toLowerCase())
+        return makerCurrency.wrapped.symbol
+      if (takerCurrency && assetAddress === takerCurrency.wrapped.address.toLowerCase())
+        return takerCurrency.wrapped.symbol
+      return fallback
+    }
+
+    const paySymbol = getOrderCurrencySymbol(rawOrder.takerAsset, rawOrder.takerAssetSymbol)
+    const receiveSymbol = getOrderCurrencySymbol(rawOrder.makerAsset, rawOrder.makerAssetSymbol)
+    const payCurrency = new Token(rawOrder.chainId, rawOrder.takerAsset, rawOrder.takerAssetDecimals, paySymbol)
+    const receiveCurrency = new Token(rawOrder.chainId, rawOrder.makerAsset, rawOrder.makerAssetDecimals, receiveSymbol)
+
+    return { order: rawOrder, payCurrency, receiveCurrency }
+  }, [makerCurrency, order, takerCurrency])
 
   const takeOrder = useTakeLimitOrder({
     context,
@@ -72,17 +127,40 @@ const TakeOrderConfirmModal = ({
     receiveAmount,
     receiveAmountAfterFee,
     feeBps,
+    balance,
     exceedsAvailableAmount,
     insufficientBalance,
     canSubmit,
   } = takeOrder.amount
   const { estimateTxGas } = takeOrder
+
+  const payTokenAddress = context.payCurrency.wrapped.address
+  const tokenPrices = useTokenPrices([payTokenAddress], context.order.chainId, PriceType.Average)
+
   const isConfirmOpen = isOpen && !takeOrder.processing.state.show
+  const fillAmountUsd = parsedPayAmount ? Number(parsedPayAmount.toExact()) * tokenPrices[payTokenAddress] : 0
+  const receiveAmountForComparison = receiveAmountAfterFee || receiveAmount
+
+  const rate = (() => {
+    if (!showInvertedRate) return formatRate(context)
+
+    const payAmount = CurrencyAmount.fromRawAmount(context.payCurrency, context.order.takingAmount)
+    const receiveAmount = CurrencyAmount.fromRawAmount(context.receiveCurrency, context.order.makingAmount)
+    const invertedRate = payAmount.divide(receiveAmount).multiply(receiveAmount.decimalScale).toSignificant(8)
+    return `1 ${context.receiveCurrency.symbol} = ${removeTrailingZero(invertedRate)} ${context.payCurrency.symbol}`
+  })()
+
+  const submitText = insufficientBalance
+    ? t`Insufficient Balance`
+    : exceedsAvailableAmount
+    ? t`Exceeds available amount`
+    : t`Fill this order`
+  const fillAmountError = insufficientBalance || exceedsAvailableAmount
+  const walletBalance = balance?.currency.equals(context.payCurrency) ? balance : undefined
 
   useEffect(() => {
-    if (!context || !isOpen) return
     setFillAmount(maxPayAmount?.toExact() || '')
-  }, [context, isOpen, maxPayAmount])
+  }, [maxPayAmount])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -111,37 +189,39 @@ const TakeOrderConfirmModal = ({
     takeOrder.processing.start()
   }
 
+  const handleUseSwapInstead = () => {
+    const route = NETWORKS_INFO[context.order.chainId]?.route
+    const inputCurrency = getSwapCurrencyId(context.payCurrency)
+    const outputCurrency = getSwapCurrencyId(context.receiveCurrency)
+    if (!route || !inputCurrency || !outputCurrency) return
+
+    const search = new URLSearchParams()
+    const input = parsedPayAmount?.toExact()
+    if (input) search.set('input', input)
+
+    navigate(
+      `${APP_PATHS.SWAP}/${route}/${encodeURIComponent(inputCurrency)}-to-${encodeURIComponent(outputCurrency)}${
+        search.toString() ? `?${search.toString()}` : ''
+      }`,
+    )
+  }
+
   const handleProcessingDismiss = () => {
     takeOrder.processing.dismiss()
     onDismiss?.()
   }
 
   const handleViewOrder = () => {
-    if (!context) return
-
     const route = NETWORKS_INFO[context.order.chainId]?.route
     if (!route) return
 
-    const search = new URLSearchParams({ tab: LimitOrderTab.MY_ORDER }).toString()
+    const search = new URLSearchParams({
+      tab: LimitOrderTab.MY_ORDER,
+      orderTab: LimitOrderStatus.CLOSED,
+    }).toString()
 
     navigate(`${APP_PATHS.LIMIT}/${route}?${search}`)
   }
-
-  const rate = (() => {
-    if (!context) return '--'
-    if (!showInvertedRate) return formatRate(context)
-
-    const payAmount = CurrencyAmount.fromRawAmount(context.payCurrency, context.order.takingAmount)
-    const receiveAmount = CurrencyAmount.fromRawAmount(context.receiveCurrency, context.order.makingAmount)
-    const invertedRate = payAmount.divide(receiveAmount).multiply(receiveAmount.decimalScale).toSignificant(8)
-    return `1 ${context.receiveCurrency.symbol} = ${removeTrailingZero(invertedRate)} ${context.payCurrency.symbol}`
-  })()
-
-  const submitText = insufficientBalance
-    ? t`Insufficient Balance`
-    : exceedsAvailableAmount
-    ? t`Exceeds available amount`
-    : t`Fill this order`
 
   return (
     <>
@@ -155,71 +235,105 @@ const TakeOrderConfirmModal = ({
           </HStack>
 
           <Stack className="gap-4">
-            <HStack className="items-center gap-2 rounded-xl border border-darkBorder bg-white-04 px-4 py-3 text-base font-medium text-text">
+            <HStack className="items-center gap-2 text-base font-medium text-text">
               <span className="relative h-6 w-9 shrink-0">
-                {context?.payCurrency && (
-                  <span className="absolute left-0 top-0">
-                    <CurrencyLogo currency={context.payCurrency} style={{ width: 24, height: 24 }} />
-                  </span>
-                )}
-                {context?.receiveCurrency && (
-                  <span className="absolute right-0 top-0">
-                    <CurrencyLogo currency={context.receiveCurrency} style={{ width: 24, height: 24 }} />
-                  </span>
-                )}
+                <span className="absolute left-0 top-0">
+                  <CurrencyLogo currency={context.payCurrency} style={{ width: 24, height: 24, boxShadow: 'none' }} />
+                </span>
+                <span className="absolute right-0 top-0">
+                  <CurrencyLogo
+                    currency={context.receiveCurrency}
+                    style={{ width: 24, height: 24, boxShadow: 'none' }}
+                  />
+                </span>
               </span>
               <span className="truncate">
-                {context?.payCurrency.symbol}/{context?.receiveCurrency.symbol}
+                {context.payCurrency.symbol}/{context.receiveCurrency.symbol}
               </span>
             </HStack>
 
-            <Stack className="gap-1 rounded-xl border border-darkBorder px-4 py-3">
-              <HStack className="items-center justify-between gap-3">
-                <span className="shrink-0 text-sm font-normal text-subText">
-                  <Trans>Order Rate</Trans>
-                </span>
-                <span className="min-w-0 truncate text-right text-sm font-medium text-text">{formatRate(context)}</span>
-              </HStack>
-              <HStack className="justify-end text-sm text-subText">
-                <Trans>Available</Trans> {formatExact(maxPayAmount)} {context?.payCurrency.symbol}
-              </HStack>
-            </Stack>
-
             <Stack className="gap-2">
-              <HStack className="items-center justify-between">
-                <span className="text-sm font-normal text-subText">
+              <HStack className="items-center justify-between gap-3">
+                <span className="text-sm font-medium uppercase text-subText">
                   <Trans>Fill Amount</Trans>
                 </span>
                 <button
                   type="button"
-                  className="rounded-full bg-white-04 px-2 py-1 text-[10px] font-medium uppercase text-subText transition hover:text-text"
-                  onClick={() => setFillAmount(maxPayAmount?.toExact() || '')}
+                  className="inline-flex items-center gap-1 rounded-full border border-white-08 bg-buttonGray px-2 py-1 text-xs transition hover:border-border hover:bg-buttonBlack-40"
+                  onClick={() => setFillAmount(normalizeActionAmount(maxPayAmount?.toExact() || ''))}
                 >
-                  <Trans>Max</Trans>
+                  <span className="text-subText">
+                    <Trans>Available</Trans>
+                  </span>
+                  <span className="font-medium text-text">
+                    {formatExact(maxPayAmount)} {context.payCurrency.symbol}
+                  </span>
                 </button>
               </HStack>
-              <HStack
+
+              <Stack
                 className={cn(
-                  'h-16 items-center gap-3 rounded-xl border border-transparent bg-white-04 px-4',
-                  insufficientBalance && 'border-red-30',
+                  'relative gap-3 rounded-xl border border-transparent bg-buttonGray px-4 py-3',
+                  fillAmountError && 'border-red-30',
                 )}
               >
-                <NumericalInput
-                  value={fillAmount}
-                  onUserInput={setFillAmount}
-                  placeholder="0"
-                  className={cn('min-w-0 flex-1 bg-transparent text-2xl', insufficientBalance && 'text-red')}
-                />
-                <TokenBadge amount={parsedPayAmount || maxPayAmount} symbol={context?.payCurrency.symbol} />
-              </HStack>
+                <HStack className="items-center justify-between gap-3">
+                  <HStack className="min-w-0 flex-wrap gap-1">
+                    {QUICK_FILL_PERCENTS.map(percent => {
+                      const percentAmount = getPercentFillAmount(walletBalance, percent)
+                      return (
+                        <button
+                          key={percent}
+                          type="button"
+                          className="rounded-full border border-white-08 bg-buttonGray px-2 py-1 text-xs text-subText transition hover:border-border hover:bg-buttonBlack-40"
+                          onClick={() => setFillAmount(normalizeActionAmount(percentAmount))}
+                        >
+                          {percent}%
+                        </button>
+                      )
+                    })}
+                  </HStack>
+                  <button
+                    type="button"
+                    className="flex cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-xs text-subText hover:brightness-125"
+                    onClick={() => setFillAmount(normalizeActionAmount(walletBalance?.toExact() || ''))}
+                  >
+                    <WalletIcon size={14} className="shrink-0" />
+                    <span className="truncate font-medium">{formatExact(walletBalance)}</span>
+                  </button>
+                </HStack>
+
+                <HStack className="items-end gap-2">
+                  <NumericalInput
+                    value={fillAmount}
+                    onUserInput={setFillAmount}
+                    placeholder="0.0"
+                    className={cn(
+                      'min-w-0 flex-1 bg-transparent text-[28px] leading-none placeholder:text-subText',
+                      fillAmountError && 'text-red',
+                    )}
+                  />
+                  {!!fillAmountUsd && (
+                    <span className="shrink-0 px-0 py-2 text-xs text-subText">
+                      ~{formatDisplayNumber(fillAmountUsd, { significantDigits: 6, style: 'currency' })}
+                    </span>
+                  )}
+                  <TokenBadge
+                    amount={parsedPayAmount || maxPayAmount}
+                    currency={context.payCurrency}
+                    symbol={context.payCurrency.symbol}
+                  />
+                </HStack>
+              </Stack>
+              {fillAmountError && <span className="text-xs font-medium text-red">{submitText}</span>}
             </Stack>
 
-            <Stack className="gap-2 rounded-xl border border-darkBorder px-4 py-3">
+            <Stack className="gap-2 rounded-xl bg-buttonGray px-4 py-3">
               <DetailRow label={<Trans>Rate</Trans>}>
                 <HStack
                   as="button"
                   type="button"
-                  className="min-w-0 max-w-full items-center justify-end gap-1 text-right transition hover:brightness-90 max-sm:justify-start"
+                  className="min-w-0 max-w-full items-center justify-end gap-2 text-right transition hover:brightness-75 max-sm:justify-start"
                   onClick={() => setShowInvertedRate(value => !value)}
                 >
                   <span className="truncate">{rate}</span>
@@ -229,25 +343,27 @@ const TakeOrderConfirmModal = ({
               <DetailRow label={<Trans>Taker Fee</Trans>}>{feeBps ? `${feeBps / 100}%` : '0%'}</DetailRow>
               <DetailRow label={<Trans>You Receive</Trans>}>
                 <span className="text-primary">
-                  {formatExact(receiveAmountAfterFee || receiveAmount)} {context?.receiveCurrency.symbol}
+                  {formatExact(receiveAmountAfterFee || receiveAmount)} {context.receiveCurrency.symbol}
                 </span>
               </DetailRow>
-            </Stack>
-
-            <HStack className="items-center justify-between gap-3 rounded-xl border border-darkBorder px-4 py-3 text-sm text-subText">
-              <span>
-                <Trans>Est. gas fee</Trans>
-              </span>
-              <span>
+              <DetailRow label={<Trans>Gas Fee</Trans>}>
                 {estimatedGasUsd
                   ? `~${formatDisplayNumber(estimatedGasUsd, { style: 'currency', significantDigits: 4 })}`
                   : '--'}
-              </span>
-            </HStack>
+              </DetailRow>
+            </Stack>
+
+            <RateComparison
+              isSwapBetter={isSwapBetter}
+              inputCurrency={context.payCurrency}
+              outputCurrency={context.receiveCurrency}
+              inputAmount={parsedPayAmount}
+              outputAmount={receiveAmountForComparison}
+            />
 
             <HStack className="gap-3 max-sm:flex-col">
-              <ButtonOutlined onClick={handleDismiss} className="!h-11 flex-1 !p-0">
-                <Trans>Cancel</Trans>
+              <ButtonOutlined onClick={handleUseSwapInstead} className="!h-11 flex-1 !p-0">
+                <Trans>Use Swap Instead</Trans>
               </ButtonOutlined>
               <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="!h-11 flex-1 !p-0">
                 {submitText}
@@ -257,7 +373,8 @@ const TakeOrderConfirmModal = ({
         </Stack>
       </Modal>
       <ProcessingOrderModal
-        chainId={context?.order.chainId}
+        chainId={context.order.chainId}
+        currencyIn={context.payCurrency}
         processing={{
           ...takeOrder.processing,
           dismiss: handleProcessingDismiss,
