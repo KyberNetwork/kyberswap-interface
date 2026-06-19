@@ -202,7 +202,7 @@ const ProcessingOrderModal = <Step extends OrderProcessingStep>({
                 <Trans>Close</Trans>
               </ButtonOutlined>
               <ButtonPrimary onClick={handleViewOrder} className="flex-1">
-                <Trans>View Order</Trans>
+                <Trans>My Orders</Trans>
               </ButtonPrimary>
             </HStack>
           )}

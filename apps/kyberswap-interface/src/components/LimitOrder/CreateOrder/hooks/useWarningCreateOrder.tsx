@@ -18,7 +18,7 @@ type UseWarningCreateOrderProps = {
   currencyIn: Currency | undefined
   displayRate: string
   deltaRate: DeltaRateLimitOrder
-  showReservedOrderNotice: boolean
+  showReservedOrderNotice?: boolean
 }
 
 export const useWarningCreateOrder = ({

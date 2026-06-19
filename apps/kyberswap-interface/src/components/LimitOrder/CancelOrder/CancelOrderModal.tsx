@@ -13,7 +13,8 @@ import {
   useProcessCancelOrder,
   useRequestCancelOrder,
 } from 'components/LimitOrder/CancelOrder/hooks/useRequestCancelOrder'
-import { Container, Header, Label, ListInfo, Note, Rate, Value } from 'components/LimitOrder/Modals/components'
+import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
+import { Container, Header, Label, Note, OrderSummary, Value } from 'components/LimitOrder/Modals/components'
 import { calcPercentFilledOrder, formatAmountOrder } from 'components/LimitOrder/helpers'
 import { CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import Logo from 'components/Logo'
@@ -119,47 +120,35 @@ const CancelOrderModal = ({
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
   const isWaiting = cancelStatus === CancelStatus.WAITING
 
-  const listData = useMemo(() => {
-    if (!order) return []
+  const orderSummary = useMemo(() => {
+    if (!order) return undefined
 
     const native = NativeCurrencies[Number(order.chainId) as ChainId]
 
     const isNative = order.nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
     const takerSymbol = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
 
-    return [
-      {
-        label: t`I pay`,
-        content: (
-          <Value>
-            <Logo srcs={[makerAssetLogoURL]} style={styleLogo} />
-            <span>
-              {formatAmountOrder(makingAmount, makerAssetDecimals)} {makerAssetSymbol}
-            </span>
-          </Value>
-        ),
-      },
-      {
-        label: t`and receive`,
-        content: (
-          <Value>
-            <Logo
-              srcs={[
-                isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL,
-              ]}
-              style={styleLogo}
-            />
-            <span>
-              {formatAmountOrder(takingAmount, takerAssetDecimals)} {takerSymbol}
-            </span>
-          </Value>
-        ),
-      },
-      {
-        label: t`at`,
-        content: <Rate order={order} />,
-      },
-    ]
+    return {
+      inputCurrency: (
+        <Value>
+          <Logo srcs={[makerAssetLogoURL]} style={styleLogo} />
+          <span>
+            {formatAmountOrder(makingAmount, makerAssetDecimals)} {makerAssetSymbol}
+          </span>
+        </Value>
+      ),
+      outputCurrency: (
+        <Value>
+          <Logo
+            srcs={[isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL]}
+            style={styleLogo}
+          />
+          <span>
+            {formatAmountOrder(takingAmount, takerAssetDecimals)} {takerSymbol}
+          </span>
+        </Value>
+      ),
+    }
   }, [
     makerAssetLogoURL,
     makerAssetSymbol,
@@ -191,11 +180,16 @@ const CancelOrderModal = ({
   const handleDismiss = () => onDismiss?.()
 
   return (
-    <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={handleDismiss}>
+    <Modal
+      maxWidth={isCancelAll && !isCancelDone ? 540 : 480}
+      isOpen={isOpen}
+      onDismiss={handleDismiss}
+      borderRadius={14}
+    >
       <Container>
         <Header title={isCancelAll ? t`Bulk Cancellation` : t`Cancel an order`} onDismiss={onDismiss} />
         {isCancelAll && isWaiting ? (
-          <Label>
+          <Label className="rounded-xl border border-darkBorder bg-white-04 px-4 py-3 text-text">
             {orders.length === 1 ? (
               <Trans>Are you sure you want to cancel this limit order?</Trans>
             ) : (
@@ -203,12 +197,12 @@ const CancelOrderModal = ({
             )}
           </Label>
         ) : isCancelAll ? null : (
-          <ListInfo
+          <OrderSummary
             title={t`I want to cancel my order where`}
-            listData={listData}
-            marketPrice={marketPrice}
-            symbolIn={makerAssetSymbol}
-            symbolOut={takerAssetSymbol}
+            inputCurrency={orderSummary?.inputCurrency}
+            outputCurrency={orderSummary?.outputCurrency}
+            order={order}
+            marketRate={<MarketPrice price={marketPrice} symbolIn={makerAssetSymbol} symbolOut={takerAssetSymbol} />}
           />
         )}
         <Note

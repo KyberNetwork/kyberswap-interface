@@ -4,11 +4,11 @@ import { Check } from 'react-feather'
 
 import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
-import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
 import { CancelStatus } from 'components/LimitOrder/CancelOrder/CancelOrderModal'
 import { DOCS_LINKS, getPayloadTracking } from 'components/LimitOrder/helpers'
 import { CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
+import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -17,9 +17,9 @@ import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const ButtonWrapper = ({ children, style }: { children: ReactNode; style?: CSSProperties }) => (
-  <div className="flex items-start gap-5 max-sm:flex-col" style={style}>
+  <HStack className="items-start gap-3 max-sm:flex-col" style={style}>
     {children}
-  </div>
+  </HStack>
 )
 
 const ButtonGroup = ({
@@ -37,10 +37,10 @@ const ButtonGroup = ({
 }) => {
   return (
     <ButtonWrapper style={style}>
-      <Column className="w-full gap-2">
+      <Stack className="w-full gap-2">
         {buttonGasless}
         {showGaslessNote && (
-          <span className="text-[10px] leading-[14px] text-subText">
+          <span className="text-xs leading-4 text-subText">
             <Trans>Cancel without paying gas.</Trans>
             <Trans>
               <br /> Cancellation may not be instant.{' '}
@@ -48,16 +48,16 @@ const ButtonGroup = ({
             </Trans>
           </span>
         )}
-      </Column>
-      <Column className="w-full gap-2">
+      </Stack>
+      <Stack className="w-full gap-2">
         {buttonHardCancel}
-        <span className="text-[10px] leading-[14px] text-subText">
+        <span className="text-xs leading-4 text-subText">
           <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees.</Trans>{' '}
           <ExternalLink href={DOCS_LINKS.HARD_CANCEL}>
             <Trans>Learn more ↗︎</Trans>
           </ExternalLink>
         </span>
-      </Column>
+      </Stack>
     </ButtonWrapper>
   )
 }
@@ -134,7 +134,7 @@ const CancelButtons = ({
   if (isCancelDone)
     return (
       <ButtonWrapper>
-        <ButtonLight onClick={onDismiss} height={'40px'} width={'100%'}>
+        <ButtonLight onClick={onDismiss} height={'44px'} width={'100%'}>
           <Check size={18} /> &nbsp;<Trans>Close</Trans>
         </ButtonLight>
       </ButtonWrapper>
@@ -143,14 +143,14 @@ const CancelButtons = ({
   if (isTimeout)
     return (
       <ButtonWrapper style={{ justifyContent: 'flex-end' }}>
-        <ButtonLight onClick={onClickGaslessCancel} height={'40px'} width={'100px'}>
+        <ButtonLight onClick={onClickGaslessCancel} height={'44px'} width={'128px'}>
           <Trans>Try Again</Trans>
         </ButtonLight>
       </ButtonWrapper>
     )
 
-  const propsGasless = { height: '40px', width: '100%' }
-  const propsHardCancel = { style: { height: '40px', width: '100%' }, disabled: disabledHardCancel }
+  const propsGasless = { height: '44px', width: '100%' }
+  const propsHardCancel = { style: { height: '44px', width: '100%' }, disabled: disabledHardCancel }
 
   if (isCountDown)
     return (
@@ -222,7 +222,7 @@ const CancelButtons = ({
         <ButtonPrimary
           disabled={disabledConfirm}
           width={'100%'}
-          height={'40px'}
+          height={'44px'}
           onClick={
             onSubmit || (cancelType === CancelOrderType.GAS_LESS_CANCEL ? onClickGaslessCancel : onClickHardCancel)
           }

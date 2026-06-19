@@ -1,22 +1,17 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode, useState } from 'react'
-import { X } from 'react-feather'
+import { Repeat } from 'react-feather'
 
-import Column from 'components/Column'
-import { Swap as SwapIcon } from 'components/Icons'
-import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
-import { formatAmountOrder, formatRateLimitOrder } from 'components/LimitOrder/helpers'
+import { formatRateLimitOrder, removeTrailingZero } from 'components/LimitOrder/helpers'
 import { LimitOrder, RateInfo } from 'components/LimitOrder/types'
+import { HStack, Stack } from 'components/Stack'
 import { NativeCurrencies } from 'constants/tokens'
-import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
+import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 
 export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn('flex w-full flex-col gap-6 px-6 py-5 max-md:px-5 max-md:py-4 max-md:text-sm', className)}
-    {...rest}
-  >
+  <div className={cn('flex w-full flex-col gap-5 p-5 max-md:p-4 max-md:text-sm', className)} {...rest}>
     {children}
   </div>
 )
@@ -25,15 +20,9 @@ export const Value = ({ children, className, style, onClick, ...rest }: React.HT
   <div
     onClick={onClick}
     style={style}
-    className={cn('flex items-center gap-[5px] text-right text-sm font-medium text-text', className)}
+    className={cn('flex min-w-0 items-center justify-end gap-2 text-right text-sm font-medium text-text', className)}
     {...rest}
   >
-    {children}
-  </div>
-)
-
-const Row = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-full items-center justify-between leading-5', className)} {...rest}>
     {children}
   </div>
 )
@@ -46,107 +35,145 @@ export const Label = ({ children, className, style, ...rest }: React.HTMLAttribu
 
 export const Header = ({ title, onDismiss }: { title: string; onDismiss?: () => void }) => {
   return (
-    <div className="flex justify-between">
-      <div className="flex items-center gap-2 text-text">
-        <span className="text-xl">{title}</span>
-      </div>
-      <X onClick={onDismiss} style={{ cursor: 'pointer' }} className="text-subText" />
-    </div>
+    <HStack className="items-center justify-between gap-4">
+      <span className="text-xl font-medium leading-tight text-text">{title}</span>
+      <CloseIcon onClick={onDismiss} />
+    </HStack>
   )
 }
 
 export const Note = ({ note }: { note?: string }) =>
-  note ? <div className="rounded-2xl bg-subText-20 px-3 py-2.5 text-xs leading-4 text-text">{note}</div> : null
-
-type ListDataType = { label: string; content: ReactNode }[]
-
-export const ListInfo = ({
-  title,
-  listData,
-  marketPrice,
-  symbolIn,
-  symbolOut,
-}: {
-  title?: string
-  listData: ListDataType
-  marketPrice: BaseTradeInfo | undefined
-  symbolIn: string | undefined
-  symbolOut: string | undefined
-}) => {
-  return (
-    <Column className="gap-2">
-      {title && <Label className="mb-1">{title}</Label>}
-      <div className="flex flex-col gap-3 rounded-xl bg-buttonBlack/30 p-4">
-        {listData.map(item => (
-          <Row key={item.label}>
-            <Label>{item.label}</Label>
-            {item.content}
-          </Row>
-        ))}
-      </div>
-      <MarketInfo marketPrice={marketPrice} symbolIn={symbolIn} symbolOut={symbolOut} />
-    </Column>
-  )
-}
-
-const MarketInfo = ({
-  marketPrice,
-  symbolIn,
-  symbolOut,
-}: {
-  marketPrice: BaseTradeInfo | undefined
-  symbolIn: string | undefined
-  symbolOut: string | undefined
-}) => {
-  return (
-    <div className="flex flex-col">
-      <Row>
-        <Label className="text-xs">
-          <Trans>Est. Market Price</Trans>
-        </Label>
-        <Value>
-          <MarketPrice price={marketPrice} symbolIn={symbolIn} symbolOut={symbolOut} />
-        </Value>
-      </Row>
+  note ? (
+    <div className="rounded-xl border border-warning-30 bg-warning-20 px-3 py-2.5 text-xs leading-4 text-warning">
+      {note}
     </div>
-  )
+  ) : null
+
+type SummaryRowType = { label: ReactNode; content: ReactNode }
+
+type OrderSummaryProps = {
+  title?: ReactNode
+  inputCurrency: ReactNode
+  outputCurrency: ReactNode
+  currencyIn?: Currency
+  currencyOut?: Currency
+  rateInfo?: RateInfo
+  order?: LimitOrder
+  expires?: ReactNode
+  marketRate?: ReactNode
+  className?: string
 }
-export const Rate = ({
+
+const SummaryRow = ({ label, content }: SummaryRowType) => (
+  <HStack className="min-h-6 w-full items-center justify-between gap-3 max-sm:flex-col max-sm:items-start">
+    <div className="text-sm text-subText">{label}</div>
+    <HStack className="min-w-0 flex-1 justify-end text-right text-sm font-medium max-sm:justify-start max-sm:text-left">
+      {content}
+    </HStack>
+  </HStack>
+)
+
+const formatRateValue = (value?: string | number) => {
+  if (value === undefined || value === null || value === '') return '--'
+  const numberValue = typeof value === 'number' ? value : Number(value)
+  if (!Number.isFinite(numberValue)) return '--'
+  return removeTrailingZero(numberValue.toPrecision(6))
+}
+
+const RateValue = ({
   currencyIn,
   currencyOut,
   rateInfo,
   order,
 }: {
-  currencyIn?: Currency | undefined
-  currencyOut?: Currency | undefined
+  currencyIn?: Currency
+  currencyOut?: Currency
   rateInfo?: RateInfo
   order?: LimitOrder
 }) => {
-  const [invertRate, setInvertRate] = useState(false)
-  let symbolIn, symbolOut, rateStr
+  const [showInverted, setShowInverted] = useState(false)
+
+  let baseSymbol: string | undefined
+  let quoteSymbol: string | undefined
+  let rate: string | undefined
+  let referenceRate: string | undefined
+
   if (order) {
-    const { makerAssetSymbol, takerAssetSymbol } = order
-
     const native = NativeCurrencies[order.chainId]
-    const isNative = order.nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
+    const isNative =
+      order.nativeOutput && order.takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
+    const takerSymbol = isNative ? native?.symbol || order.takerAssetSymbol : order.takerAssetSymbol
 
-    symbolIn = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
-    symbolOut = makerAssetSymbol
-    rateStr = formatRateLimitOrder(order, invertRate)
+    baseSymbol = showInverted ? order.makerAssetSymbol : takerSymbol
+    quoteSymbol = showInverted ? takerSymbol : order.makerAssetSymbol
+    rate = formatRateLimitOrder(order, showInverted)
+    referenceRate = formatRateLimitOrder(order, !showInverted)
   } else {
-    if (!currencyIn || !currencyOut || !rateInfo) return null
-    symbolIn = currencyIn?.symbol
-    symbolOut = currencyOut?.symbol
-    rateStr = formatAmountOrder(invertRate ? rateInfo.invertRate : rateInfo.rate)
+    const baseCurrency = showInverted ? currencyIn : currencyOut
+    const quoteCurrency = showInverted ? currencyOut : currencyIn
+
+    baseSymbol = baseCurrency?.symbol
+    quoteSymbol = quoteCurrency?.symbol
+    rate = showInverted ? rateInfo?.rate : rateInfo?.invertRate
+    referenceRate = showInverted ? rateInfo?.invertRate : rateInfo?.rate
   }
+
+  if (!baseSymbol || !quoteSymbol) return <span>--</span>
+
+  const displayRate = order ? rate || '--' : formatRateValue(rate)
+  const displayReferenceRate = order ? referenceRate || '--' : formatRateValue(referenceRate)
+
   return (
-    <Value className="max-w-[290px] cursor-pointer" onClick={() => setInvertRate(!invertRate)}>
-      <span>
-        <Trans>
-          {invertRate ? symbolOut : symbolIn} price of {rateStr} {invertRate ? symbolIn : symbolOut}
-        </Trans>
+    <HStack
+      as="button"
+      type="button"
+      className="min-w-0 max-w-full items-center justify-end gap-2 text-right transition hover:brightness-75 max-sm:justify-start"
+      onClick={() => setShowInverted(value => !value)}
+    >
+      <span className="truncate">
+        1 {baseSymbol} = {displayRate} {quoteSymbol}
       </span>
-      <SwapIcon rotate={90} size={19} />
-    </Value>
+      <span className="shrink-0 text-subText">~{displayReferenceRate}</span>
+      <Repeat size={14} className="shrink-0 text-subText" />
+    </HStack>
+  )
+}
+
+export const OrderSummary = ({
+  title,
+  inputCurrency,
+  outputCurrency,
+  currencyIn,
+  currencyOut,
+  rateInfo,
+  order,
+  expires,
+  marketRate,
+  className,
+}: OrderSummaryProps) => {
+  const rows = [
+    { label: <Trans>I pay</Trans>, content: inputCurrency },
+    { label: <Trans>and receive</Trans>, content: outputCurrency },
+    {
+      label: <Trans>when</Trans>,
+      content: <RateValue currencyIn={currencyIn} currencyOut={currencyOut} rateInfo={rateInfo} order={order} />,
+    },
+    ...(expires ? [{ label: <Trans>before the order expires on</Trans>, content: expires }] : []),
+  ]
+
+  return (
+    <Stack className={cn('gap-3', className)}>
+      {title && <Label>{title}</Label>}
+      <Stack className="gap-3 rounded-xl bg-buttonGray px-4 py-3">
+        {rows.map((item, index) => (
+          <SummaryRow key={index} label={item.label} content={item.content} />
+        ))}
+      </Stack>
+      {marketRate && (
+        <Stack className="gap-2 rounded-xl bg-buttonGray px-4 py-3">
+          <SummaryRow label={<Trans>Market Price</Trans>} content={marketRate} />
+        </Stack>
+      )}
+    </Stack>
   )
 }

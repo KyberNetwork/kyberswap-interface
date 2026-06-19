@@ -176,8 +176,8 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               }}
             />
 
-            <HStack className="items-center">
-              <span className="text-sm text-subText">{t`Market Price is`}&nbsp;</span>
+            <HStack className="items-center gap-2">
+              <span className="text-sm text-subText">{t`Market Price`}:</span>
               <MarketPrice
                 price={form.tradeInfo}
                 loading={form.loadingTrade}

@@ -16,7 +16,11 @@ import { friendlyError } from 'utils/errorMessage'
 import { formatRemainTime } from 'utils/time'
 
 const CountDownWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('flex flex-col items-center gap-2 rounded-2xl bg-buttonBlack/30 p-3', className)}>{children}</div>
+  <div
+    className={cn('flex flex-col items-center gap-2 rounded-xl border border-darkBorder bg-white-04 p-3', className)}
+  >
+    {children}
+  </div>
 )
 
 const CancelStatusCountDown = ({
@@ -52,14 +56,14 @@ const CancelStatusCountDown = ({
   useInterval(countdown, remain > 0 && isCountDown ? 1000 : null)
 
   const contentCountDown = isCountDown ? (
-    <CountDownWrapper>
-      <span className="text-sm font-normal text-text">
+    <CountDownWrapper className="items-start">
+      <span className="text-sm font-medium text-text">
         <Trans>Order will be automatically cancelled in</Trans>
       </span>
       <div className="flex items-center gap-1.5 text-lg font-medium text-red">
         <Clock className="text-red" size={16} /> <span className="leading-5">{formatRemainTime(remain)}</span>
       </div>
-      <span className="text-[10px] font-normal text-subText">
+      <span className="text-xs leading-4 text-subText">
         <Trans>*There is a possibility that the order might be filled before cancellation.</Trans>{' '}
         <ExternalLink href={DOCS_LINKS.CANCEL_GUIDE}>
           <Trans>Learn more ↗︎</Trans>
@@ -72,11 +76,11 @@ const CancelStatusCountDown = ({
     return (
       <Column className="gap-[14px]">
         {contentCountDown}
-        <CountDownWrapper className="min-h-[50px] flex-row justify-center">
+        <CountDownWrapper className="min-h-[52px] flex-row justify-center">
           {errorMessage ? (
             <>
               <WarningIcon className="text-red" />
-              <span className="text-sm text-red">{friendlyError(errorMessage)}</span>
+              <span className="text-sm leading-5 text-red">{friendlyError(errorMessage)}</span>
             </>
           ) : (
             <>
@@ -94,7 +98,7 @@ const CancelStatusCountDown = ({
   return (
     <CountDownWrapper>
       {cancelStatus === CancelStatus.TIMEOUT ? (
-        <div className="flex items-center gap-1 text-sm font-normal text-red">
+        <div className="flex items-center gap-1 text-sm font-normal text-red max-sm:flex-wrap">
           <TimerIcon />{' '}
           <div className="flex gap-1">
             <Trans>Your request has timed out.</Trans>{' '}

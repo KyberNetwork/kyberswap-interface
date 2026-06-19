@@ -112,6 +112,8 @@ const PercentInputChip = ({
   const [isEditing, setIsEditing] = useState(false)
   const [draftValue, setDraftValue] = useState(value)
   const displayValue = isEditing ? draftValue : isActive ? value : ''
+  const displayNumber = Number(displayValue)
+  const isWarning = displayValue !== '' && displayValue !== '-' && Number.isFinite(displayNumber) && displayNumber < 0
 
   useEffect(() => {
     if (!isEditing) {
@@ -138,6 +140,7 @@ const PercentInputChip = ({
         isActive
           ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
           : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
+        isWarning && 'border-warning/50',
       )}
     >
       <span className="shrink-0">{displayValue && !/^[+-]/.test(displayValue) ? '+' : ''}</span>

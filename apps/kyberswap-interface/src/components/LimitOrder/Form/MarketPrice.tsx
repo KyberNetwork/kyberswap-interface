@@ -31,18 +31,18 @@ const MarketPrice = ({ price, loading, symbolIn, symbolOut }: MarketPriceProps) 
     <HStack
       as="button"
       type="button"
-      className="items-center gap-1 hover:brightness-[0.85]"
+      className="items-center gap-2 hover:brightness-75"
       onClick={() => setShowInverted(showInverted => !showInverted)}
     >
-      <span className="text-sm">
+      <span className="text-sm font-medium">
         {showInverted
           ? `1 ${symbolOut} = ${formattedPrice} ${symbolIn}`
           : `1 ${symbolIn} = ${formattedPrice} ${symbolOut}`}
       </span>
-      <Repeat size={12} />
+      <Repeat size={14} className="text-subText" />
     </HStack>
   ) : (
-    <Skeleton height={16} width={160} variant="darkSubtle" />
+    <Skeleton height={18} width={160} />
   )
 }
 

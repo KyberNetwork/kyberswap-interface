@@ -78,11 +78,11 @@ const LimitOrderExpirySection = ({
             </MouseoverTooltip>
           </TextDashed>
           <HStack
-            className="cursor-pointer items-center gap-1 hover:brightness-[0.85]"
+            className="cursor-pointer items-center gap-1 hover:brightness-75"
             role="button"
             onClick={events.onToggleExpanded}
           >
-            <span className="text-sm leading-none text-text/80">{fullDisplayTime}</span>
+            <span className="text-sm font-medium text-text/80">{fullDisplayTime}</span>
             <DropdownIcon size={14} data-flip={expanded}>
               <ChevronDown size={14} />
             </DropdownIcon>

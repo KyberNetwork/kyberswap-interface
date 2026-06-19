@@ -32,7 +32,7 @@ export function ButtonText({
 }
 
 export function CloseIcon({ className, ...rest }: IconProps) {
-  return <X className={cn('cursor-pointer hover:brightness-75', className)} {...rest} />
+  return <X className={cn('size-5 cursor-pointer hover:brightness-75', className)} {...rest} />
 }
 
 export function LinkIcon({ color, className, style, ...rest }: IconProps & { color?: string }) {

@@ -31,16 +31,16 @@ const formatRate = (context: LimitOrderTakeContext | undefined) => {
 }
 
 const DetailRow = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
-  <HStack className="min-h-6 items-center justify-between gap-3 text-sm">
-    <span className="text-subText">{label}</span>
-    <span className="min-w-0 text-right font-medium text-text">{children}</span>
+  <HStack className="min-h-6 items-center justify-between gap-3 text-sm max-sm:flex-col max-sm:items-start">
+    <span className="shrink-0 text-subText">{label}</span>
+    <div className="min-w-0 max-w-full text-right font-medium text-text max-sm:text-left">{children}</div>
   </HStack>
 )
 
 const TokenBadge = ({ amount, symbol }: { amount?: CurrencyAmount<Currency>; symbol?: string }) => (
-  <HStack className="items-center gap-2 rounded-lg bg-white-04 px-3 py-2">
+  <HStack className="max-w-[45%] shrink-0 items-center gap-2 rounded-lg bg-white-04 px-3 py-2">
     {amount?.currency && <CurrencyLogo currency={amount.currency} style={{ width: 18, height: 18 }} />}
-    <span className="font-medium text-text">{symbol}</span>
+    <span className="truncate font-medium text-text">{symbol}</span>
   </HStack>
 )
 
@@ -146,16 +146,16 @@ const TakeOrderConfirmModal = ({
   return (
     <>
       <Modal isOpen={isConfirmOpen} onDismiss={handleDismiss} maxWidth={460} borderRadius={14}>
-        <Stack className="w-full gap-4 p-5">
+        <Stack className="w-full gap-5 p-5 max-sm:p-4">
           <HStack className="items-center justify-between gap-4">
-            <span className="text-xl font-medium text-text">
+            <span className="text-xl font-medium leading-tight text-text">
               <Trans>Fill Order</Trans>
             </span>
             <CloseIcon onClick={handleDismiss} />
           </HStack>
 
           <Stack className="gap-4">
-            <HStack className="items-center gap-2 text-base font-medium text-text">
+            <HStack className="items-center gap-2 rounded-xl border border-darkBorder bg-white-04 px-4 py-3 text-base font-medium text-text">
               <span className="relative h-6 w-9 shrink-0">
                 {context?.payCurrency && (
                   <span className="absolute left-0 top-0">
@@ -168,17 +168,17 @@ const TakeOrderConfirmModal = ({
                   </span>
                 )}
               </span>
-              <span>
+              <span className="truncate">
                 {context?.payCurrency.symbol}/{context?.receiveCurrency.symbol}
               </span>
             </HStack>
 
             <Stack className="gap-1 rounded-xl border border-darkBorder px-4 py-3">
               <HStack className="items-center justify-between gap-3">
-                <span className="text-xs font-medium uppercase tracking-[0.08em] text-subText">
+                <span className="shrink-0 text-sm font-normal text-subText">
                   <Trans>Order Rate</Trans>
                 </span>
-                <span className="text-base font-medium text-text">{formatRate(context)}</span>
+                <span className="min-w-0 truncate text-right text-sm font-medium text-text">{formatRate(context)}</span>
               </HStack>
               <HStack className="justify-end text-sm text-subText">
                 <Trans>Available</Trans> {formatExact(maxPayAmount)} {context?.payCurrency.symbol}
@@ -187,7 +187,7 @@ const TakeOrderConfirmModal = ({
 
             <Stack className="gap-2">
               <HStack className="items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-[0.08em] text-subText">
+                <span className="text-sm font-normal text-subText">
                   <Trans>Fill Amount</Trans>
                 </span>
                 <button
@@ -198,12 +198,17 @@ const TakeOrderConfirmModal = ({
                   <Trans>Max</Trans>
                 </button>
               </HStack>
-              <HStack className="h-16 items-center gap-3 rounded-xl bg-white-04 px-4">
+              <HStack
+                className={cn(
+                  'h-16 items-center gap-3 rounded-xl border border-transparent bg-white-04 px-4',
+                  insufficientBalance && 'border-red-30',
+                )}
+              >
                 <NumericalInput
                   value={fillAmount}
                   onUserInput={setFillAmount}
                   placeholder="0"
-                  className={cn('bg-transparent text-2xl', insufficientBalance && 'text-red')}
+                  className={cn('min-w-0 flex-1 bg-transparent text-2xl', insufficientBalance && 'text-red')}
                 />
                 <TokenBadge amount={parsedPayAmount || maxPayAmount} symbol={context?.payCurrency.symbol} />
               </HStack>
@@ -214,11 +219,11 @@ const TakeOrderConfirmModal = ({
                 <HStack
                   as="button"
                   type="button"
-                  className="items-center justify-end gap-1 text-right"
+                  className="min-w-0 max-w-full items-center justify-end gap-1 text-right transition hover:brightness-90 max-sm:justify-start"
                   onClick={() => setShowInvertedRate(value => !value)}
                 >
-                  <span>{rate}</span>
-                  <Repeat size={14} className="text-subText" />
+                  <span className="truncate">{rate}</span>
+                  <Repeat size={14} className="shrink-0 text-subText" />
                 </HStack>
               </DetailRow>
               <DetailRow label={<Trans>Taker Fee</Trans>}>{feeBps ? `${feeBps / 100}%` : '0%'}</DetailRow>
@@ -229,7 +234,7 @@ const TakeOrderConfirmModal = ({
               </DetailRow>
             </Stack>
 
-            <HStack className="items-center justify-between gap-3 text-sm text-subText">
+            <HStack className="items-center justify-between gap-3 rounded-xl border border-darkBorder px-4 py-3 text-sm text-subText">
               <span>
                 <Trans>Est. gas fee</Trans>
               </span>
@@ -241,10 +246,10 @@ const TakeOrderConfirmModal = ({
             </HStack>
 
             <HStack className="gap-3 max-sm:flex-col">
-              <ButtonOutlined onClick={handleDismiss} className="!h-10 flex-1 !p-0">
+              <ButtonOutlined onClick={handleDismiss} className="!h-11 flex-1 !p-0">
                 <Trans>Cancel</Trans>
               </ButtonOutlined>
-              <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="!h-10 flex-1 !p-0">
+              <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="!h-11 flex-1 !p-0">
                 {submitText}
               </ButtonPrimary>
             </HStack>
