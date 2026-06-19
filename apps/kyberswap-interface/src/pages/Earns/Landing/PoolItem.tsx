@@ -1,12 +1,10 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Flex, Text } from 'rebass'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
@@ -16,7 +14,6 @@ import { EarnPool, ProgramType } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PoolItem = ({ pool }: { pool: EarnPool }) => {
-  const theme = useTheme()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
   const { onOpenSmartExit, smartExitWidget } = useSmartExitWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
@@ -31,7 +28,7 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
 
   return (
     <PoolRow
-      justifyContent="space-between"
+      className="justify-between"
       key={pool.address}
       role="button"
       onClick={e => {
@@ -48,40 +45,30 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
       {zapInWidget}
       {zapMigrationWidget}
       {smartExitWidget}
-      <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
+      <div className="flex flex-1 items-center gap-1">
         <TokenLogo src={pool.tokens?.[0].logoURI} size={24} />
         <TokenLogo src={pool.tokens?.[1].logoURI} size={24} translateLeft />
         <TokenLogo
           src={NETWORKS_INFO[pool.chainId as ChainId].icon}
           size={12}
           translateLeft
-          style={{ alignSelf: 'flex-end', position: 'relative', top: 1 }}
+          className="relative top-px self-end"
         />
 
-        <Text
-          textAlign="left"
-          sx={{
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          {pool.tokens?.[0].symbol} /{' '}
-          <Text as="span" color={theme.subText}>
-            {pool.tokens?.[1].symbol}
-          </Text>
-        </Text>
+        <span className="truncate text-left">
+          {pool.tokens?.[0].symbol} / <span className="text-subText">{pool.tokens?.[1].symbol}</span>
+        </span>
         <Tag>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</Tag>
-      </Flex>
+      </div>
 
-      <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text color={theme.primary}>{formatAprNumber(pool.allApr)}%</Text>
+      <div className="flex items-center gap-1">
+        <span className="text-primary">{formatAprNumber(pool.allApr)}%</span>
         {isFarming ? (
           <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
             {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
           </AprDetailTooltip>
         ) : null}
-      </Flex>
+      </div>
     </PoolRow>
   )
 }

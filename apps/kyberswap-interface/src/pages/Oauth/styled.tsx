@@ -1,45 +1,39 @@
 import { ReactNode } from 'react'
-import styled from 'styled-components'
 
 import Loader from 'components/Loader'
+import backgroundImage from 'pages/Oauth/background-gradient.png'
+import { cn } from 'utils/cn'
 
-import backgroundImage from './background-gradient.png'
+export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex w-full flex-1 flex-col items-center justify-center bg-[length:100%] bg-repeat-y py-5',
+      className,
+    )}
+    style={{ backgroundImage: `url(${backgroundImage})` }}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const Container = styled.div`
-  flex: 1;
-  justify-content: center;
-  padding: 20px 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-image: url(${backgroundImage});
-  background-size: 100%;
-  background-repeat: repeat-y;
-`
+export const Content = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col items-center gap-[30px] max-sm:gap-4', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Content = styled.div`
-  gap: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 16px;
-  `};
-`
-export const TextDesc = styled.div`
-  font-size: 20px;
-  line-height: 24px;
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 16px;
-    line-height: 20px;
-  `};
-`
+export const TextDesc = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('text-center text-xl leading-6 text-subText max-sm:text-base max-sm:leading-5', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
 export const KyberLogo = () => {
-  return <img src={'/logo-dark.svg'} alt="loading-icon" style={{ width: 230, maxWidth: '90vw' }} />
+  return <img src={'/logo-dark.svg'} alt="loading-icon" className="w-[230px] max-w-[90vw]" />
 }
 
 export function PageContainer({ msg }: { msg: ReactNode }) {
@@ -47,7 +41,7 @@ export function PageContainer({ msg }: { msg: ReactNode }) {
     <Container>
       <Content>
         <KyberLogo />
-        <TextDesc style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <TextDesc className="flex items-center gap-2.5">
           <Loader size="20px" /> {msg}
         </TextDesc>
       </Content>

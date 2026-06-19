@@ -3,8 +3,6 @@ import { FetchBaseQueryArgs } from '@reduxjs/toolkit/dist/query/fetchBaseQuery'
 import { BaseQueryFn, fetchBaseQuery } from '@reduxjs/toolkit/query'
 import axios from 'axios'
 
-import { checkApiDown } from 'utils/iamError'
-
 const queryWithTokenAndTracking = async (config: any, baseUrl: string, withAccessToken = true) => {
   try {
     if (config.method?.toLowerCase() !== 'get') {
@@ -15,7 +13,6 @@ const queryWithTokenAndTracking = async (config: any, baseUrl: string, withAcces
     const result = await (withAccessToken ? KyberOauth2Api.call(config) : axios(config))
     return { data: result.data }
   } catch (err) {
-    checkApiDown(err)
     return {
       error: {
         status: err.response?.status,

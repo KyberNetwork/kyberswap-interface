@@ -1,18 +1,15 @@
 import { Trans } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { useGetRaffleCampaignParticipantQuery, useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 
 import Divider from 'components/Divider'
 import { useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export default function RaffleDashboard() {
-  const theme = useTheme()
   const { account } = useWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -34,62 +31,55 @@ export default function RaffleDashboard() {
   }, [participant])
 
   return (
-    <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
-      <Flex mb="24px" sx={{ rowGap: '1rem', columnGap: '4rem', flexWrap: 'wrap' }}>
-        <Box minWidth={120}>
-          <Text color={theme.subText}>
+    <div className="mt-5 rounded-[20px] bg-background p-6">
+      <div className="mb-6 flex flex-wrap gap-y-4" style={{ columnGap: '4rem' }}>
+        <div className="min-w-[120px]">
+          <span className="text-subText">
             <Trans>Total Wins</Trans>
-          </Text>
-          <Flex alignItems="center" sx={{ gap: '8px', marginTop: '8px' }}>
+          </span>
+          <div className="mt-2 flex items-center gap-2">
             <img src={reward.logo} alt={reward.symbol} width="20px" height="20px" style={{ borderRadius: '50%' }} />
-            <Text fontSize={18} fontWeight="500" color={theme.text}>
+            <span className="text-lg font-medium text-text">
               {formatDisplayNumber(participant?.reward_all, { significantDigits: 6, fallback: '0' })} {reward.symbol}
-            </Text>
-          </Flex>
-        </Box>
+            </span>
+          </div>
+        </div>
 
         {!!participant?.reward_all && (
-          <Box flex={1} minWidth={280}>
-            <Text color={theme.subText}>
+          <div className="min-w-[280px] flex-1">
+            <span className="text-subText">
               <Trans>
                 You&apos;ve eligible for Week {rewaredWeek} &quot;Swap For An Opportunity&quot; Campaign Rewards 🎁
               </Trans>
-            </Text>
-            <Text fontSize={14} color={theme.subText} marginTop="8px">
+            </span>
+            <p className="mt-2 text-sm text-subText">
               <Trans>Rewards will be sent directly to your wallet by Dec 12, 2025 on Base.</Trans>
-            </Text>
-          </Box>
+            </p>
+          </div>
         )}
-      </Flex>
+      </div>
 
       <Divider />
 
       {!upToSmall && (
         <>
-          <Flex padding="1rem 0" color={theme.subText} fontSize="12px" fontWeight="500">
-            <Text flex={1}>
+          <div className="flex py-4 text-xs font-medium text-subText">
+            <span className="flex-1">
               <Trans>WEEK</Trans>
-            </Text>
-            <Text flex={1} textAlign="right">
+            </span>
+            <span className="flex-1 text-right">
               <Trans>ELIGIBLE TRANSACTIONS</Trans>
-            </Text>
-            <Text flex={1} textAlign="right">
+            </span>
+            <span className="flex-1 text-right">
               <Trans>REWARDS</Trans>
-            </Text>
-          </Flex>
+            </span>
+          </div>
           <Divider />
         </>
       )}
 
       {upToSmall ? (
-        <Flex
-          flexDirection="column"
-          paddingY="1rem"
-          sx={{ gap: '1rem' }}
-          color={theme.subText}
-          fontWeight="500"
-          fontSize={14}
-        >
+        <div className="flex flex-col gap-4 py-4 text-sm font-medium text-subText">
           <WeekRewardLine
             title={weeks[0]?.label}
             txCount={participant?.tx_count_week_1}
@@ -101,7 +91,7 @@ export default function RaffleDashboard() {
             txCount={participant?.tx_count_week_2}
             reward={participant?.reward_week_2}
           />
-        </Flex>
+        </div>
       ) : (
         <>
           <WeekRewardLine
@@ -116,39 +106,34 @@ export default function RaffleDashboard() {
           />
         </>
       )}
-    </Box>
+    </div>
   )
 }
 
 const WeekRewardLine = ({ title, txCount, reward }: { title: ReactNode; txCount?: number; reward?: number }) => {
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return upToSmall ? (
-    <Flex flexDirection="column" sx={{ gap: '1rem' }}>
-      <Text flex={1}>{title}</Text>
-      <Flex justifyContent="space-between">
-        <Text flex={1}>ELIGIBLE TRANSACTIONS</Text>
-        <Text color="white" fontSize={16}>
-          {formatDisplayNumber(txCount, { significantDigits: 6 })}
-        </Text>
-      </Flex>
-      <Flex justifyContent="space-between">
-        <Text flex={1}>REWARDS</Text>
-        <Text color="white" fontSize={16}>
+    <div className="flex flex-col gap-4">
+      <span className="flex-1">{title}</span>
+      <div className="flex justify-between">
+        <span className="flex-1">ELIGIBLE TRANSACTIONS</span>
+        <span className="text-base text-white">{formatDisplayNumber(txCount, { significantDigits: 6 })}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="flex-1">REWARDS</span>
+        <span className="text-base text-white">
           {formatDisplayNumber(reward, { significantDigits: 6 })} {!!reward && 'KNC'}
-        </Text>
-      </Flex>
-    </Flex>
+        </span>
+      </div>
+    </div>
   ) : (
-    <Flex padding="1rem 0" color={theme.subText} fontWeight="500" fontSize={14}>
-      <Text flex={1}>{title}</Text>
-      <Text flex={1} color="white" textAlign="right">
-        {formatDisplayNumber(txCount, { significantDigits: 6 })}
-      </Text>
-      <Text flex={1} color="white" textAlign="right">
+    <div className="flex py-4 text-sm font-medium text-subText">
+      <span className="flex-1">{title}</span>
+      <span className="flex-1 text-right text-white">{formatDisplayNumber(txCount, { significantDigits: 6 })}</span>
+      <span className="flex-1 text-right text-white">
         {formatDisplayNumber(reward, { significantDigits: 6 })} {!!reward && 'KNC'}
-      </Text>
-    </Flex>
+      </span>
+    </div>
   )
 }

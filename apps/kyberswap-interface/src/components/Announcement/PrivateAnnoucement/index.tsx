@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
-import React, { ReactNode } from 'react'
-import { CSSProperties } from 'styled-components'
+import React, { CSSProperties, ReactNode } from 'react'
 
 import InboxItemEarnPosition from 'components/Announcement/PrivateAnnoucement/InboxItemEarnPosition'
 import InboxItemLimitOrder from 'components/Announcement/PrivateAnnoucement/InboxItemLimitOrder'
@@ -34,9 +33,6 @@ const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
     [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
     [PrivateAnnouncementType.SMART_EXIT]: InboxItemSmartExit,
   } as PrivateAnnouncementMap)
-
-export const hasValidPrivateAnnouncementType = (announcement: PrivateAnnouncement) =>
-  Boolean(announcement.templateType && ANNOUNCEMENT_MAP()[announcement.templateType])
 
 export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType]: string }> = () => ({
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,

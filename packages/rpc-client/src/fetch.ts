@@ -1,4 +1,4 @@
-import { getRpcClient } from './client';
+import { buildRpcErrorMessage, getRpcClient } from './client';
 import { JsonRpcResponse, RpcClientConfig, RpcError } from './types';
 
 /**
@@ -126,17 +126,24 @@ async function fetchDirectRpc<T>(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new RpcError(response.status, `HTTP error: ${response.status} ${response.statusText}`);
+      throw new RpcError(
+        response.status,
+        buildRpcErrorMessage(rpcUrl, method, `HTTP error ${response.status} ${response.statusText}`),
+      );
     }
 
     const data = (await response.json()) as JsonRpcResponse<T>;
 
     if (data.error) {
-      throw new RpcError(data.error.code, data.error.message, data.error.data);
+      throw new RpcError(
+        data.error.code,
+        buildRpcErrorMessage(rpcUrl, method, `JSON-RPC error ${data.error.code}: ${data.error.message}`),
+        data.error.data,
+      );
     }
 
     if (data.result === undefined) {
-      throw new RpcError(-1, 'No result in response');
+      throw new RpcError(-1, buildRpcErrorMessage(rpcUrl, method, 'No result in response'));
     }
 
     return data.result;
@@ -148,10 +155,10 @@ async function fetchDirectRpc<T>(
     }
 
     if ((error as Error).name === 'AbortError') {
-      throw new RpcError(-1, `Request timeout after ${timeout}ms`);
+      throw new RpcError(-1, buildRpcErrorMessage(rpcUrl, method, `Request timeout after ${timeout}ms`));
     }
 
-    throw new RpcError(-1, (error as Error).message);
+    throw new RpcError(-1, buildRpcErrorMessage(rpcUrl, method, (error as Error).message || 'Network error'));
   }
 }
 

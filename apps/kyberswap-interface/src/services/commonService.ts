@@ -136,7 +136,6 @@ export const {
   useGetAggregatedVolumeQuery,
   useGetChainVolumeQuery,
   useGetTokenVolumeQuery,
-  useLazyGetTokenInfoQuery,
 } = commonServiceApi
 
 export default commonServiceApi

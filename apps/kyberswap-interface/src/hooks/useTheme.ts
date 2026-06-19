@@ -1,6 +1,13 @@
-import { Context, useContext } from 'react'
-import { DefaultTheme, ThemeContext } from 'styled-components'
+import { createContext, useContext } from 'react'
 
-export default function useTheme() {
-  return useContext(ThemeContext as Context<DefaultTheme>)
+import { Colors } from 'theme/color'
+
+export const ThemeContext = createContext<Colors | undefined>(undefined)
+
+export default function useTheme(): Colors {
+  const theme = useContext(ThemeContext)
+  if (!theme) {
+    throw new Error('useTheme must be used within a ThemeProvider')
+  }
+  return theme
 }

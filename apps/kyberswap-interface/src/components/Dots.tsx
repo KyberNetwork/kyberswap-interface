@@ -1,23 +1,21 @@
-import styled from 'styled-components'
+import { HTMLAttributes, forwardRef } from 'react'
 
-const Dots = styled.span`
-  &::after {
-    display: inline-block;
-    animation: ellipsis 1.25s infinite;
-    content: '.';
-    width: 1em;
-    text-align: left;
-  }
-  @keyframes ellipsis {
-    0% {
-      content: '.';
-    }
-    33% {
-      content: '..';
-    }
-    66% {
-      content: '...';
-    }
-  }
-`
+import { cn } from 'utils/cn'
+
+type DotsProps = HTMLAttributes<HTMLSpanElement> & {
+  /** Keep ellipsis out of the text flow so loading dots do not shift centered labels. */
+  absolute?: boolean
+  /** Set false to reuse the wrapper without appending animated dots. */
+  loading?: boolean
+}
+
+const Dots = forwardRef<HTMLSpanElement, DotsProps>(({ absolute, className, loading = true, ...rest }, ref) => (
+  <span
+    ref={ref}
+    className={cn(loading && 'animate-ellipsis', loading && absolute && 'animate-ellipsis-absolute', className)}
+    {...rest}
+  />
+))
+Dots.displayName = 'Dots'
+
 export default Dots

@@ -1,46 +1,11 @@
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { memo } from 'react'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import Loader from 'components/Loader'
-import { CurrencyRow } from 'components/SearchModal/CurrencyList'
+import { TokenRow } from 'components/TokenSelectorModal/TokenList'
 import { useNativeBalance } from 'state/wallet/hooks'
 
-const PanelTokenWrapper = styled.div`
-  position: absolute;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  background-color: ${({ theme }) => theme.background};
-  overflow-y: auto;
-  max-height: 250px;
-  min-height: 76px;
-  width: 300px;
-  right: 10px;
-  top: 85px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  padding: 10px 0px;
-  &::-webkit-scrollbar {
-    display: block;
-    width: 14px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.disableText};
-    border-right: 10px solid transparent;
-    background-clip: padding-box;
-  }
-`
-
-const NotifyWrapper = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  color: ${({ theme }) => theme.subText};
-`
 function CurrencyList({
   selectedCurrency,
   onCurrencySelect,
@@ -56,27 +21,32 @@ function CurrencyList({
 }) {
   const ethBalance = useNativeBalance()
   return (
-    <PanelTokenWrapper>
+    <div
+      className={
+        'absolute right-2.5 top-[85px] z-[2] flex max-h-[250px] min-h-[76px] w-[300px] flex-col items-center overflow-y-auto rounded-[20px] bg-background py-2.5 ' +
+        '[&::-webkit-scrollbar-thumb]:border-r-[10px] [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-disableText [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-3.5'
+      }
+    >
       {loading ? (
-        <NotifyWrapper>
-          <Flex alignItems="center" justifyContent="center" style={{ gap: '5px' }}>
+        <div className="flex flex-1 items-center text-subText">
+          <div className="flex items-center justify-center gap-[5px]">
             <Loader />
-            <Text fontSize={12}>
+            <span className="text-xs">
               <Trans>Loading ...</Trans>
-            </Text>
-          </Flex>
-        </NotifyWrapper>
+            </span>
+          </div>
+        </div>
       ) : !currencies.length ? (
-        <NotifyWrapper>
-          <Text fontSize={12}>
+        <div className="flex flex-1 items-center text-subText">
+          <span className="text-xs">
             <Trans>You don&apos;t have any balance token</Trans>
-          </Text>
-        </NotifyWrapper>
+          </span>
+        </div>
       ) : (
         currencies.map(currency => {
           const balance = currency.isNative ? ethBalance : currencyBalances[currency.wrapped.address]
           return (
-            <CurrencyRow
+            <TokenRow
               showFavoriteIcon={false}
               currency={currency}
               key={currency.wrapped.address + currency.symbol}
@@ -87,7 +57,7 @@ function CurrencyList({
           )
         })
       )}
-    </PanelTokenWrapper>
+    </div>
   )
 }
 

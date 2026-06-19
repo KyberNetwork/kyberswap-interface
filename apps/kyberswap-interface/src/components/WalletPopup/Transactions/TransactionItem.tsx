@@ -1,8 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode, forwardRef } from 'react'
-import { Flex, Text } from 'rebass'
-import styled, { CSSProperties } from 'styled-components'
+import { CSSProperties, ReactNode, forwardRef } from 'react'
 
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import SendIcon from 'components/Icons/SendIcon'
@@ -19,7 +17,6 @@ import Status from 'components/WalletPopup/Transactions/Status'
 import { isTxsPendingTooLong } from 'components/WalletPopup/Transactions/helper'
 import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import {
   TRANSACTION_TYPE,
   TransactionDetails,
@@ -31,32 +28,15 @@ import {
 } from 'state/transactions/type'
 import { ExternalLink, ExternalLinkIcon } from 'theme'
 import { getEtherscanLink, getNativeTokenLogo } from 'utils'
+import { cn } from 'utils/cn'
 
-const ItemWrapper = styled.div`
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  padding: 14px 0px;
-  width: 100%;
-  gap: 10px;
-  height: 100%;
-  justify-content: space-between;
-  display: flex;
-  flex-direction: column;
-  :last-child {
-    border-bottom: none;
-  }
-`
+type PrimaryTextProps = React.HTMLAttributes<HTMLSpanElement> & { color?: string }
 
-const ColumGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  height: 100%;
-`
-
-export const PrimaryText = styled(Text)`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-`
+export const PrimaryText = ({ color, style, className, children, ...rest }: PrimaryTextProps) => (
+  <span className={cn('text-xs text-subText', className)} style={color ? { ...style, color } : style} {...rest}>
+    {children}
+  </span>
+)
 
 const DescriptionBasic = (transaction: TransactionDetails) => {
   const { extraInfo = {} } = transaction
@@ -64,16 +44,13 @@ const DescriptionBasic = (transaction: TransactionDetails) => {
   return <PrimaryText>{summary}</PrimaryText>
 }
 
-// ex: claim 3knc
 const Description1Token = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
   const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
-  // +10KNC or -10KNC
   const plus = [TRANSACTION_TYPE.KYBERDAO_CLAIM, TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND].includes(type)
   return <DeltaTokenAmount tokenAddress={tokenAddress} symbol={tokenSymbol} amount={tokenAmount} plus={plus} />
 }
 
-//ex: +3knc -2usdt
 const Description2Token = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type, chainId } = transaction
   const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut } =
@@ -114,7 +91,6 @@ const Description2Token = (transaction: TransactionDetails) => {
   )
 }
 
-// ex: stake -3knc
 const DescriptionKyberDaoStake = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
   const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
@@ -128,11 +104,6 @@ const DescriptionKyberDaoStake = (transaction: TransactionDetails) => {
   )
 }
 
-const StyledLink = styled(ExternalLink)`
-  &:hover {
-    text-decoration: none;
-  }
-`
 const NftLink = ({
   nftId,
   canNavigate = true,
@@ -142,22 +113,21 @@ const NftLink = ({
   canNavigate?: boolean
   type: TRANSACTION_TYPE
 }) => {
-  const theme = useTheme()
   const plus = [TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY, TRANSACTION_TYPE.UNSTAKE].includes(type)
   const icon = (
-    <Flex alignItems={'center'} color={theme.subText} height={14}>
+    <div className="flex h-3.5 items-center text-subText">
       <NftIcon />
       <PrimaryText>
         &nbsp;{plus ? '+' : '-'} #{nftId}
       </PrimaryText>
       &nbsp;{canNavigate && <SendIcon size={10} />}
-    </Flex>
+    </div>
   )
   if (!canNavigate) return icon
   return (
-    <StyledLink key={nftId} href={`${APP_PATHS.MY_POOLS}?nftId=${nftId}`}>
+    <ExternalLink key={nftId} href={`${APP_PATHS.MY_POOLS}?nftId=${nftId}`} className="hover:no-underline">
       {icon}
-    </StyledLink>
+    </ExternalLink>
   )
 }
 
@@ -190,7 +160,6 @@ const DescriptionHarvestFarmReward = (transaction: TransactionDetails) => {
   )
 }
 
-// ex: approve elastic farm, approve knc, claim 3knc
 const DescriptionApproveClaim = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
   const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
@@ -214,7 +183,7 @@ const DescriptionLimitOrder = (transaction: TransactionDetails) => {
       </PrimaryText>
     )
   return (
-    <Row gap="4px">
+    <Row className="gap-1">
       <DeltaTokenAmount symbol={tokenSymbolIn} amount={tokenAmountIn} />
       <PrimaryText>
         <Trans>to</Trans>
@@ -300,12 +269,11 @@ type Prop = {
   cancellingOrderInfo: CancellingOrderInfo
 }
 
-export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
+const TransactionItem = forwardRef<HTMLDivElement, Prop>(function TransactionItem(
   { transaction, style, isMinimal, cancellingOrderInfo }: Prop,
   ref,
 ) {
   const { type, addedTime, hash, chainId } = transaction
-  const theme = useTheme()
 
   const info: any = DESCRIPTION_MAP?.[type]?.(transaction)
   const leftComponent: ReactNode = info?.leftComponent !== undefined ? info?.leftComponent : info
@@ -313,31 +281,36 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
   const isStalled = isTxsPendingTooLong(transaction)
 
   return (
-    <ItemWrapper style={style} ref={ref} data-stalled={isStalled}>
+    <div
+      className="flex size-full flex-col justify-between gap-2.5 border-b border-border py-3.5 last:border-b-0"
+      style={style}
+      ref={ref}
+      data-stalled={isStalled}
+    >
       {isStalled && <PendingWarning />}
 
-      <Flex justifyContent="space-between" alignItems="flex-end">
-        <Row gap="6px">
+      <div className="flex items-end justify-between">
+        <Row className="gap-1.5">
           {!isMinimal && (
-            <Flex alignItems="center" color={theme.text}>
+            <div className="flex items-center text-text">
               <Icon txs={transaction} />
-            </Flex>
+            </div>
           )}
-          <Text color={theme.text} fontSize="14px">
-            {type}
-          </Text>
-          <ExternalLinkIcon color={theme.subText} href={getEtherscanLink(chainId, hash, 'transaction')} />
+          <span className="text-sm text-text">{type}</span>
+          <ExternalLinkIcon color="var(--ks-subText)" href={getEtherscanLink(chainId, hash, 'transaction')} />
         </Row>
         <Status transaction={transaction} cancellingOrderInfo={cancellingOrderInfo} />
-      </Flex>
+      </div>
 
-      <Flex justifyContent="space-between">
-        <ColumGroup className="left-column">{leftComponent}</ColumGroup>
-        <ColumGroup className="right-column" style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+      <div className="flex justify-between">
+        <div className="left-column flex h-full flex-col gap-2.5">{leftComponent}</div>
+        <div className="right-column flex h-full flex-col items-end justify-end gap-2.5">
           {rightComponent || <ContractAddress transaction={transaction} />}
           <PrimaryText>{dayjs(addedTime).format('DD/MM/YYYY HH:mm:ss')}</PrimaryText>
-        </ColumGroup>
-      </Flex>
-    </ItemWrapper>
+        </div>
+      </div>
+    </div>
   )
 })
+
+export default TransactionItem

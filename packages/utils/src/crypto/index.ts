@@ -200,6 +200,12 @@ export function formatUnits(value: string | number, decimals = 18): string {
   // Convert the value to a string to handle it consistently
   value = value.toString();
 
+  // When decimals is 0, the value is already in human units — `slice(0, -0)` and
+  // `slice(-0)` would otherwise treat -0 as 0 and produce an empty integer part.
+  if (decimals === 0) {
+    return value || '0';
+  }
+
   // Handle the case where value is shorter than the decimals
   if (value.length <= decimals) {
     const paddedValue = value.padStart(decimals + 1, '0'); // Ensure there is at least one integer digit

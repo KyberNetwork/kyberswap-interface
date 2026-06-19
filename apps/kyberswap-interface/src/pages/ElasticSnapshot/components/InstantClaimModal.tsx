@@ -1,11 +1,9 @@
 import { ChainId, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Interface } from 'ethers/lib/utils'
+import { readContract } from '@wagmi/core'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -15,61 +13,38 @@ import Dots from 'components/Dots'
 import { TermAndCondition } from 'components/Header/web3/WalletModal'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
+import { wagmiConfig } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useReadingContract } from 'hooks/useContract'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import InstantAbi from 'pages/ElasticSnapshot/data/abis/instantClaimAbi.json'
+import avalanche from 'pages/ElasticSnapshot/data/instant/avalanche.json'
+import ethereum from 'pages/ElasticSnapshot/data/instant/ethereum.json'
+import optimism from 'pages/ElasticSnapshot/data/instant/optimism.json'
+import userPhase2 from 'pages/ElasticSnapshot/data/instant/pendle_dappos_instant_polygon.json'
+import userPhase2_5 from 'pages/ElasticSnapshot/data/instant/phase2.5.json'
+import polygon from 'pages/ElasticSnapshot/data/instant/polygon.json'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Address, encodeFunctionData } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
-import InstantAbi from '../data/abis/instantClaimAbi.json'
-import avalanche from '../data/instant/avalanche.json'
-import ethereum from '../data/instant/ethereum.json'
-import optimism from '../data/instant/optimism.json'
-import userPhase2 from '../data/instant/pendle_dappos_instant_polygon.json'
-import userPhase2_5 from '../data/instant/phase2.5.json'
-import polygon from '../data/instant/polygon.json'
-
-const Total = styled.div`
-  display: flex;
-  justify-content: space-between;
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 12px;
-  padding: 12px 20px;
-  align-items: center;
-  margin-top: 24px;
-`
-
-const TableHeader = styled.div`
-  display: grid;
-  padding: 8px;
-  grid-template-columns: 1.3fr 1fr 1fr 0.75fr;
-  gap: 8px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.subText};
-  margin-top: 1rem;
-`
-
-const TableBody = styled(TableHeader)<{ backgroundColor?: string }>`
-  color: ${({ theme }) => theme.text};
-  margin-top: 0;
-  align-items: center;
-  border-radius: 12px;
-`
+const TABLE_GRID = 'grid grid-cols-[1.3fr_1fr_1fr_0.75fr] gap-2 p-2 text-sm'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
 const contractAddress = '0xD0806364e9672EF21039Dc4DC84651B9b535E535'
 const phase2ContractAddress = '0x3771cb0e40f55316a9cf9a79a60b562946a39d8b'
 const phase2_5ContractAddress = '0x39c4620d26c87beef4fdd78295001d1e1e5366f1'
-
-const ContractInterface = new Interface(InstantAbi)
 
 const snapshotPrices: { [key: string]: number } = {
   '0xd7bb095a60d7666d4a6f236423b47ddd6ae6cfa7': 3024.788661,
@@ -87,17 +62,16 @@ const snapshotPrices: { [key: string]: number } = {
 }
 
 export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () => void; phase: '1' | '2' | '2.5' }) {
-  const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const polygonContractAddress =
     phase === '2' ? phase2ContractAddress : phase === '2.5' ? phase2_5ContractAddress : contractAddress
 
-  const ethereumContract = useReadingContract(contractAddress, ContractInterface, ChainId.MAINNET)
-  const optimismContract = useReadingContract(contractAddress, ContractInterface, ChainId.OPTIMISM)
-  const polygonContract = useReadingContract(polygonContractAddress, ContractInterface, ChainId.MATIC)
-  const avalancheContract = useReadingContract(contractAddress, ContractInterface, ChainId.AVAXMAINNET)
+  const ethereumContract = useReadingContract(contractAddress, InstantAbi, ChainId.MAINNET)
+  const optimismContract = useReadingContract(contractAddress, InstantAbi, ChainId.OPTIMISM)
+  const polygonContract = useReadingContract(polygonContractAddress, InstantAbi, ChainId.MATIC)
+  const avalancheContract = useReadingContract(contractAddress, InstantAbi, ChainId.AVAXMAINNET)
 
   const [claimed, setClaimed] = useState([true, true, true, true])
 
@@ -126,13 +100,24 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
 
   useEffect(() => {
     ;(() => {
+      const contractChainIds: [typeof ethereumContract, ChainId][] = [
+        [ethereumContract, ChainId.MAINNET],
+        [optimismContract, ChainId.OPTIMISM],
+        [polygonContract, ChainId.MATIC],
+        [avalancheContract, ChainId.AVAXMAINNET],
+      ]
       Promise.all(
-        [ethereumContract, optimismContract, polygonContract, avalancheContract].map((contract, index) => {
+        contractChainIds.map(([contract, contractChainId], index) => {
           if (userData[index] && contract) {
-            return contract.claimed(userData[index]?.claimData.index)
-          } else {
-            return Promise.resolve(true)
+            return readContract(wagmiConfig, {
+              address: contract.address as Address,
+              abi: InstantAbi,
+              functionName: 'claimed',
+              args: [BigInt(userData[index]?.claimData.index ?? 0)],
+              chainId: contractChainId as number,
+            }) as Promise<boolean>
           }
+          return Promise.resolve(true)
         }),
       ).then(res => setClaimed(res))
     })()
@@ -176,62 +161,45 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
     phase !== '1'
       ? 'https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
       : 'https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link'
-  const signAndClaim = useCallback(() => {
+  const signAndClaim = useCallback(async () => {
     setAutoSign(false)
     setSigning(true)
 
-    library
-      ?.send('eth_signTypedData_v4', [
-        account,
-        JSON.stringify({
-          types: {
-            EIP712Domain: [
-              {
-                name: 'name',
-                type: 'string',
-              },
-              {
-                name: 'version',
-                type: 'string',
-              },
-              {
-                name: 'chainId',
-                type: 'uint256',
-              },
-              {
-                name: 'verifyingContract',
-                type: 'address',
-              },
-            ],
-            Agreement: [
-              {
-                name: 'leafIndex',
-                type: 'uint256',
-              },
-              {
-                name: 'termsAndConditions',
-                type: 'string',
-              },
-            ],
-          },
-          primaryType: 'Agreement',
-          domain: {
-            name: 'Kyberswap Instant Grant',
-            version: '1',
-            chainId: selectedNetworkToClaim,
-            verifyingContract: phase !== '1' ? polygonContractAddress : contractAddress,
-          },
-          message: {
-            leafIndex: userData[selectedIndex]?.claimData?.index,
-            termsAndConditions:
-              phase !== '1'
-                ? 'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms and Conditions which can be found at this link https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
-                : `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
-          },
-        }),
-      ])
-      .then(signature => {
-        const encodedData = ContractInterface.encodeFunctionData('claim', [
+    try {
+      if (!account || !selectedNetworkToClaim) throw new Error('Wallet not connected')
+
+      const verifyingContract = (phase !== '1' ? polygonContractAddress : contractAddress) as Address
+      const walletClient = await getGatedWalletClient({ chainId: selectedNetworkToClaim })
+      if (!walletClient) throw new Error('Wallet client unavailable')
+
+      const signature = await walletClient.signTypedData({
+        account: account as Address,
+        domain: {
+          name: 'Kyberswap Instant Grant',
+          version: '1',
+          chainId: selectedNetworkToClaim,
+          verifyingContract,
+        },
+        types: {
+          Agreement: [
+            { name: 'leafIndex', type: 'uint256' },
+            { name: 'termsAndConditions', type: 'string' },
+          ],
+        },
+        primaryType: 'Agreement',
+        message: {
+          leafIndex: BigInt(userData[selectedIndex]?.claimData?.index ?? 0),
+          termsAndConditions:
+            phase !== '1'
+              ? 'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms and Conditions which can be found at this link https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
+              : `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
+        },
+      })
+
+      const encodedData = encodeFunctionData({
+        abi: InstantAbi,
+        functionName: 'claim',
+        args: [
           {
             index: userData[selectedIndex]?.claimData?.index,
             receiver: account,
@@ -242,46 +210,42 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
           },
           userData[selectedIndex]?.proof,
           signature,
-        ])
-        library
-          ?.getSigner()
-          .sendTransaction({
-            to: phase !== '1' ? polygonContractAddress : contractAddress,
-            data: encodedData,
-          })
-          .then(tx => {
-            setSigning(false)
-            addTransactionWithType({
-              hash: tx.hash,
-              type: TRANSACTION_TYPE.CLAIM,
-            })
-            onDismiss()
-          })
-          .catch(e => {
-            console.log(e)
-            setSigning(false)
-            notify({
-              title: `Error`,
-              summary: friendlyError(e),
-              type: NotificationType.ERROR,
-            })
-          })
+        ],
       })
-      .catch(e => {
-        console.log(e)
-        setSigning(false)
-        notify({
-          title: `Error`,
-          summary: friendlyError(e),
-          type: NotificationType.ERROR,
+
+      const tx = await sendEVMTransaction({
+        account,
+        contractAddress: verifyingContract,
+        encodedData,
+        value: 0n,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId: selectedNetworkToClaim,
+      })
+
+      setSigning(false)
+      if (tx?.hash) {
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.CLAIM,
         })
+        onDismiss()
+      }
+    } catch (e: any) {
+      console.error(e)
+      setSigning(false)
+      notify({
+        title: `Error`,
+        summary: friendlyError(e),
+        type: NotificationType.ERROR,
       })
+    }
   }, [
     phase,
     polygonContractAddress,
     ipfsLink,
     account,
-    library,
+    isSmartConnector,
     selectedNetworkToClaim,
     userData,
     selectedIndex,
@@ -298,80 +262,59 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
 
   return (
     <Modal width="100%" maxWidth="680px" isOpen={true} onDismiss={onDismiss}>
-      <Flex
-        flexDirection="column"
-        padding={upToSmall ? '1rem' : '20px'}
-        bg={theme.background}
-        width="100%"
-        lineHeight={1.5}
-        sx={{
-          position: 'relative',
-        }}
-      >
-        <Text color={theme.text} fontSize="20px" fontWeight="500" textAlign="center">
+      <div className={cn('relative flex w-full flex-col bg-background leading-normal', upToSmall ? 'p-4' : 'p-5')}>
+        <div className="text-center text-xl font-medium text-text">
           <Trans>Claim Asset</Trans>
-        </Text>
-        <ButtonEmpty
-          onClick={onDismiss}
-          width="36px"
-          height="36px"
-          padding="0"
-          style={{ position: 'absolute', right: '1rem', top: '1rem' }}
-        >
-          <X color={theme.text} />
+        </div>
+        <ButtonEmpty onClick={onDismiss} width="36px" height="36px" padding="0" className="absolute right-4 top-4">
+          <X className="text-text" />
         </ButtonEmpty>
 
         {selectedNetworkToClaim ? (
           <>
-            <Text color={theme.subText} fontSize={14}>
+            <div className="text-sm text-subText">
               <Trans>You are currently claiming</Trans>
-            </Text>
-            <Box sx={{ background: theme.buttonBlack, padding: '1rem', borderRadius: '12px', marginTop: '8px' }}>
+            </div>
+            <div className="mt-2 rounded-xl bg-buttonBlack p-4">
               {userData[selectedIndex]?.claimData.tokenInfo.map((item, index) => {
                 const tk = allTokens[selectedIndex][item.token.toLowerCase()]
                 const tkAmount = tk && TokenAmount.fromRawAmount(tk, item.amount)
 
                 return (
-                  <Flex marginTop="8px" key={index} sx={{ gap: '8px' }}>
+                  <div className="mt-2 flex gap-2" key={index}>
                     <CurrencyLogo currency={tk} />
                     {+tkAmount?.toSignificant(6)} {tk?.symbol}
-                  </Flex>
+                  </div>
                 )
               })}
-            </Box>
+            </div>
 
-            <Text color={theme.subText} marginTop="8px">
-              on the{' '}
-              <Text as="span" color={theme.text}>
-                {NETWORKS_INFO[selectedNetworkToClaim].name}
-              </Text>
-            </Text>
+            <div className="mt-2 text-subText">
+              on the <span className="text-text">{NETWORKS_INFO[selectedNetworkToClaim].name}</span>
+            </div>
 
-            <Text color={theme.text} fontSize={14} marginTop="24px">
+            <div className="mt-6 text-sm text-text">
               If you have additional assets, kindly switch networks and proceed with the claiming process.
-            </Text>
+            </div>
 
-            <Text color={theme.subText} fontSize={14} marginTop="24px">
+            <div className="mt-6 text-sm text-subText">
               Make sure you have read and understand the{' '}
               <ExternalLink href={ipfsLink}>KyberSwap’s Terms and Conditions</ExternalLink> before proceeding. You will
               need to Sign a message to confirm that you have read and accepted before claiming your assets.
-            </Text>
+            </div>
 
-            <TermAndCondition
-              onClick={() => setIsAcceptTerm(prev => !prev)}
-              style={{ marginTop: '24px', background: 'transparent', padding: 0 }}
-            >
+            <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} className="mt-6 !bg-transparent !p-0">
               <input
                 type="checkbox"
                 checked={isAcceptTerm}
                 data-testid="accept-term"
-                style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
+                className="mr-3 size-3.5 min-w-3.5 cursor-pointer"
               />
-              <Text>
+              <div>
                 Accept <ExternalLink href={ipfsLink}>KyberSwap’s Terms and Conditions</ExternalLink>
-              </Text>
+              </div>
             </TermAndCondition>
-            <Flex marginTop="24px" sx={{ gap: '1rem' }}>
+            <div className="mt-6 flex gap-4">
               <ButtonOutlined
                 onClick={() => {
                   setSelectedNetworkToClaim(null)
@@ -382,29 +325,27 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
               <ButtonPrimary onClick={handleClaim} disabled={!isAcceptTerm || signing}>
                 {signing ? <Dots>Signing</Dots> : 'Sign and Claim'}
               </ButtonPrimary>
-            </Flex>
+            </div>
           </>
         ) : (
           <>
-            <Total>
-              <Text color={theme.subText} fontSize="14px" fontWeight="500">
+            <div className="mt-6 flex items-center justify-between rounded-xl bg-buttonBlack px-5 py-3">
+              <div className="text-sm font-medium text-subText">
                 <Trans>Total Amount (USD)</Trans>
-              </Text>
-              <Text fontSize={20} fontWeight="500">
-                {format(totalValue)}
-              </Text>
-            </Total>
+              </div>
+              <div className="text-xl font-medium">{format(totalValue)}</div>
+            </div>
 
             {!upToSmall && (
-              <TableHeader>
-                <Text>Assets</Text>
-                <Text textAlign="right">Exploitation Value</Text>
+              <div className={cn(TABLE_GRID, 'mt-4 text-subText')}>
+                <div>Assets</div>
+                <div className="text-right">Exploitation Value</div>
 
-                <Flex justifyContent="flex-end">
-                  <Text textAlign="right">Snapshot Value</Text>
+                <div className="flex justify-end">
+                  <div className="text-right">Snapshot Value</div>
                   <InfoHelper text="Recovered Asset Distribution Snapshot Value" />
-                </Flex>
-              </TableHeader>
+                </div>
+              </div>
             )}
 
             {userData.map((item, index) => {
@@ -431,75 +372,53 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
               return (
                 <Fragment key={index}>
                   {upToSmall ? (
-                    <Box
-                      sx={{
-                        borderRadius: '12px',
-                        padding: '8px 1rem',
-                        background: theme.tableHeader,
-                        marginTop: '1rem',
-                      }}
-                    >
-                      <Flex alignItems="center" justifyContent="space-between">
-                        <Flex sx={{ gap: '6px' }} alignItems="center">
-                          <img alt="" src={network.icon} width={18} /> <Text fontSize={16}>{network.name}</Text>
-                        </Flex>
+                    <div className="mt-4 rounded-xl bg-tableHeader px-4 py-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <img alt="" src={network.icon} width={18} /> <div className="text-base">{network.name}</div>
+                        </div>
                         <ButtonPrimary
                           disabled={claimed[index]}
-                          style={{ height: '36px' }}
+                          className="h-9"
                           width="max-content"
                           onClick={() => setSelectedNetworkToClaim(chain)}
                         >
                           {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
                         </ButtonPrimary>
-                      </Flex>
+                      </div>
 
-                      <Flex
-                        marginTop="12px"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        color={theme.subText}
-                        fontWeight="500"
-                        fontSize="12px"
-                      >
-                        <Text>EXPLOITATION VALUE</Text>
+                      <div className="mt-3 flex items-center justify-between text-xs font-medium text-subText">
+                        <div>EXPLOITATION VALUE</div>
 
-                        <Flex>
-                          <Text>SNAPSHOT VALUE</Text>
+                        <div className="flex">
+                          <div>SNAPSHOT VALUE</div>
                           <InfoHelper text="Recovered Asset Distribution Snapshot Value" />
-                        </Flex>
-                      </Flex>
+                        </div>
+                      </div>
 
-                      <Flex alignItems="center" justifyContent="space-between" marginTop="4px">
-                        <Text fontSize={18} textAlign="right" fontWeight="500">
-                          {format(totalValue)}
-                        </Text>
-                        <Text fontSize={18} textAlign="right" fontWeight="500">
-                          {format(currentValue)}
-                        </Text>
-                      </Flex>
-                    </Box>
+                      <div className="mt-1 flex items-center justify-between">
+                        <div className="text-right text-lg font-medium">{format(totalValue)}</div>
+                        <div className="text-right text-lg font-medium">{format(currentValue)}</div>
+                      </div>
+                    </div>
                   ) : (
-                    <TableBody style={{ backgroundColor: theme.buttonGray }}>
-                      <Flex sx={{ gap: '6px' }} alignItems="center">
-                        <img alt="" src={network.icon} width={18} /> <Text fontSize={16}>{network.name}</Text>
-                      </Flex>
-                      <Text fontSize={18} textAlign="right" fontWeight="500">
-                        {format(totalValue)}
-                      </Text>
-                      <Text fontSize={18} textAlign="right" fontWeight="500">
-                        {format(currentValue)}
-                      </Text>
-                      <Flex justifyContent="flex-end">
+                    <div className={cn(TABLE_GRID, 'mt-0 items-center rounded-xl bg-buttonGray text-text')}>
+                      <div className="flex items-center gap-1.5">
+                        <img alt="" src={network.icon} width={18} /> <div className="text-base">{network.name}</div>
+                      </div>
+                      <div className="text-right text-lg font-medium">{format(totalValue)}</div>
+                      <div className="text-right text-lg font-medium">{format(currentValue)}</div>
+                      <div className="flex justify-end">
                         <ButtonPrimary
                           disabled={claimed[index]}
-                          style={{ height: '36px' }}
+                          className="h-9"
                           width="max-content"
                           onClick={() => setSelectedNetworkToClaim(chain)}
                         >
                           {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
                         </ButtonPrimary>
-                      </Flex>
-                    </TableBody>
+                      </div>
+                    </div>
                   )}
 
                   {item.claimData.tokenInfo.map((info, idx) => {
@@ -509,32 +428,32 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
 
                     if (upToSmall)
                       return (
-                        <Box sx={{ padding: '8px 1rem' }} key={idx}>
-                          <Flex sx={{ gap: '6px' }} alignItems="center" marginTop="0.5rem">
+                        <div className="px-4 py-2" key={idx}>
+                          <div className="mt-2 flex items-center gap-1.5">
                             <CurrencyLogo currency={tk} size="16px" />
-                            <Text>
+                            <div>
                               {tkAmount?.toSignificant(6)} {tk?.symbol}
-                            </Text>
-                          </Flex>
-                          <Flex justifyContent="space-between" marginY="8px">
-                            <Text>{format(info.value)}</Text>
-                            <Text>{format(currentValue)}</Text>
-                          </Flex>
+                            </div>
+                          </div>
+                          <div className="my-2 flex justify-between">
+                            <div>{format(info.value)}</div>
+                            <div>{format(currentValue)}</div>
+                          </div>
                           {idx !== item.claimData.tokenInfo.length - 1 && <Divider />}
-                        </Box>
+                        </div>
                       )
 
                     return (
-                      <TableBody key={info.token}>
-                        <Flex sx={{ gap: '6px' }} alignItems="center">
+                      <div className={cn(TABLE_GRID, 'mt-0 items-center rounded-xl text-text')} key={info.token}>
+                        <div className="flex items-center gap-1.5">
                           <CurrencyLogo currency={tk} size="16px" />
-                          <Text>
+                          <div>
                             {tkAmount?.toSignificant(6)} {tk?.symbol}
-                          </Text>
-                        </Flex>
-                        <Text textAlign="right">{format(info.value)}</Text>
-                        <Text textAlign="right">{format(currentValue)}</Text>
-                      </TableBody>
+                          </div>
+                        </div>
+                        <div className="text-right">{format(info.value)}</div>
+                        <div className="text-right">{format(currentValue)}</div>
+                      </div>
                     )
                   })}
                 </Fragment>
@@ -542,7 +461,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
             })}
           </>
         )}
-      </Flex>
+      </div>
     </Modal>
   )
 }

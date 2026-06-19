@@ -10,7 +10,7 @@ const slice = createSlice({
   reducers: {
     updatePrices(state, { payload }: { payload: Array<{ address: string; chainId: number; price: number }> }) {
       payload.forEach(item => {
-        state[item.address + '_' + item.chainId] = item.price
+        state[item.address.toLowerCase() + '_' + item.chainId] = item.price
       })
     },
   },

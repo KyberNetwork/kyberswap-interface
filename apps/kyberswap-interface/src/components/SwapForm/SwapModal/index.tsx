@@ -14,7 +14,6 @@ import {
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { permitError } from 'state/swap/actions'
-import { captureSwapError } from 'utils/sentry'
 
 import ConfirmSwapModalContent from './ConfirmSwapModalContent'
 
@@ -25,7 +24,7 @@ type Props = {
   isBuildingRoute: boolean
 
   onDismiss: () => void
-  swapCallback: (() => Promise<string>) | undefined
+  swapCallback: ((onRequestSignature?: () => void) => Promise<string>) | undefined
 }
 
 const SwapModal: React.FC<Props> = props => {
@@ -35,13 +34,17 @@ const SwapModal: React.FC<Props> = props => {
 
   const dispatch = useDispatch()
   // modal and loading
-  const [{ error, isAttemptingTx, txHash }, setSwapState] = useState<{
+  const [{ error, isAttemptingTx, awaitingSignature, txHash }, setSwapState] = useState<{
     error: string
     isAttemptingTx: boolean
+    // True once the tx is prepared and the wallet prompt has been requested.
+    // Until then the pending modal shows a "Preparing Transaction" state.
+    awaitingSignature: boolean
     txHash: string
   }>({
     error: '',
     isAttemptingTx: false,
+    awaitingSignature: false,
     txHash: '',
   })
 
@@ -63,6 +66,7 @@ const SwapModal: React.FC<Props> = props => {
     setSwapState({
       error: '',
       isAttemptingTx: false,
+      awaitingSignature: false,
       txHash: '',
     })
   }, [onDismiss])
@@ -71,6 +75,7 @@ const SwapModal: React.FC<Props> = props => {
     setSwapState({
       error: '',
       isAttemptingTx: true,
+      awaitingSignature: false,
       txHash: '',
     })
   }
@@ -80,6 +85,7 @@ const SwapModal: React.FC<Props> = props => {
       error: '',
       txHash,
       isAttemptingTx: false,
+      awaitingSignature: false,
     })
   }
 
@@ -101,6 +107,7 @@ const SwapModal: React.FC<Props> = props => {
       error,
       txHash: '',
       isAttemptingTx: false,
+      awaitingSignature: false,
     })
   }
 
@@ -123,23 +130,28 @@ const SwapModal: React.FC<Props> = props => {
 
     handleAttemptSendTx()
     try {
-      const hash = await swapCallback()
+      const hash = await swapCallback(() => setSwapState(prev => ({ ...prev, awaitingSignature: true })))
       handleTxSubmitted(hash)
     } catch (e) {
-      captureSwapError(e)
       handleError(e.message)
     }
   }
 
   const renderModalContent = () => {
     if (isAttemptingTx) {
-      return <ConfirmationPendingContent onDismiss={handleDismiss} pendingText={pendingText} />
+      return (
+        <ConfirmationPendingContent
+          onDismiss={handleDismiss}
+          pendingText={pendingText}
+          title={awaitingSignature ? undefined : t`Preparing Transaction`}
+          subtitle={awaitingSignature ? undefined : t`Estimating gas & network fees…`}
+        />
+      )
     }
 
     if (txHash) {
       return (
         <TransactionSubmittedContent
-          showTxBanner
           chainId={chainId}
           hash={txHash}
           onDismiss={handleDismiss}

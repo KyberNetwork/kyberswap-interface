@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
-import { WalletClient, Address, http, createPublicClient } from "viem";
+import { WalletClient, Address, custom, createPublicClient } from "viem";
 import * as chains from "viem/chains";
+import { getRpcClient } from "@kyber/rpc-client";
 import { Theme, defaultTheme, lightTheme } from "@/theme";
 import Setting from "@/components/Setting";
 import WidgetContent from "@/components/Content";
@@ -77,9 +78,16 @@ export default function Widget({
       throw new Error(`chainId: ${chainId} is not supported`);
     }
 
+    const rpcClient = getRpcClient(chainId, {
+      configRpcEndpoint: NetworkInfo[chainId].defaultRpc,
+    });
+
     return createPublicClient({
       chain,
-      transport: http(NetworkInfo[chainId].defaultRpc),
+      transport: custom({
+        request: ({ method, params }) =>
+          rpcClient.call(method, params as unknown[]),
+      }),
     });
   }, [chainId]);
 

@@ -21,11 +21,6 @@ import {
 
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { SolanaToken } from 'state/crossChainSwap'
-import { isEvmChain } from 'utils'
-
-import { Quote } from '../registry'
-import { isNativeToken, isWrappedToken } from '../utils'
 import {
   BaseSwapAdapter,
   Chain,
@@ -36,7 +31,11 @@ import {
   NormalizedTxResponse,
   QuoteParams,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { Quote } from 'pages/CrossChainSwap/registry'
+import { isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
+import { isEvmChain } from 'utils'
 
 const API_URL = 'https://app.across.to/api/suggested-fees'
 
@@ -71,7 +70,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     return 'Across'
   }
   getIcon(): string {
-    return 'https://across.to/favicon.ico'
+    return 'https://storage.googleapis.com/ks-setting-1d682dca/49319cc3-81fd-4d70-9870-c99e8b67ba221778733646226.png'
   }
 
   canSupport(category: string, tokenIn?: Currency, tokenOut?: Currency): boolean {

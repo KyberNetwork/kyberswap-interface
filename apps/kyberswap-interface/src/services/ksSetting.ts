@@ -3,7 +3,6 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
 import { KS_SETTING_API } from 'constants/env'
-import { AppJsonRpcProvider } from 'constants/providers'
 import { ChainStateMap } from 'hooks/useChainsConfig'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { TopToken } from 'state/topTokens/type'
@@ -13,7 +12,6 @@ export type KyberSwapConfig = {
   rpc: string
   isEnableBlockService: boolean
   isEnableKNProtocol: boolean
-  readProvider: AppJsonRpcProvider | undefined
   commonTokens?: string[]
 }
 
@@ -196,20 +194,22 @@ const ksSettingApi = createApi({
         params,
       }),
     }),
+    searchTokensBySymbol: builder.query<TokenListResponse, { query: string; pageSize?: number }>({
+      query: ({ query, pageSize = 5 }) => ({
+        url: `/tokens`,
+        params: { query, page: 1, pageSize },
+      }),
+    }),
   }),
 })
 
 export const {
   useGetKyberswapConfigurationQuery,
-  useLazyGetKyberswapConfigurationQuery,
   useGetKyberswapGlobalConfigurationQuery,
   useLazyGetTokenListQuery,
-  useGetDexListQuery,
-  useGetTokenListQuery,
-  useImportTokenMutation,
-  useLazyGetTopTokensQuery,
   useGetChainsConfigurationQuery,
   useGetTokenByAddressesQuery,
+  useLazySearchTokensBySymbolQuery,
 } = ksSettingApi
 
 export default ksSettingApi

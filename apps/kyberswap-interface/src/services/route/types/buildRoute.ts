@@ -23,6 +23,9 @@ export type BuildRouteData = {
   amountInUsd: string
   amountOut: string
   amountOutUsd: string
+  /**
+   * @deprecated
+   */
   feeUsd: string
   outputChange?: {
     percent: number

@@ -1,47 +1,10 @@
-import { rgba } from 'polished'
 import { useMedia } from 'react-use'
-import styled from 'styled-components'
 
 import { ReactComponent as RecapIcon } from 'assets/recap/2025.svg'
 import { isRecapAvailable } from 'components/Recap/utils'
 import { useRecapModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-const StyledButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-  color: ${({ theme }) => theme.primary};
-  padding: 10px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  white-space: nowrap;
-  transition: background-color 0.2s ease-out;
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${({ theme }) => rgba(theme.primary, 0.25)};
-  }
-
-  @media screen and (max-width: 1515px) {
-    padding: 2px;
-    border-radius: 50%;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    padding: 10px 16px;
-    border-radius: 20px;
-  `}
-
-  @media screen and (max-width: 820px) {
-    padding: 2px;
-    border-radius: 50%;
-  }
-`
+import { cn } from 'utils/cn'
 
 export default function RecapButton() {
   const toggleRecapModal = useRecapModalToggle()
@@ -61,5 +24,23 @@ export default function RecapButton() {
     <RecapIcon width={36} height={36} />
   )
 
-  return <StyledButton onClick={toggleRecapModal}>{btnText}</StyledButton>
+  // Original CSS layering (specificity-ordered):
+  // base: padding 10px 16px / border-radius 20px
+  // max-1515px: padding 2px / border-radius 50%
+  // upToLarge (1200): padding 10px 16px / border-radius 20px (wins over 1515px when both apply)
+  // max-820px: padding 2px / border-radius 50% (wins over upToLarge)
+  // Compute the effective shape from JS state so the cascade is explicit.
+  const showIconShape = (upTo1515 && !upToLarge) || upTo820
+
+  return (
+    <button
+      onClick={toggleRecapModal}
+      className={cn(
+        'flex cursor-pointer items-center justify-center whitespace-nowrap border-none bg-primary-20 text-sm font-medium leading-5 text-primary transition-colors duration-200 ease-out hover:bg-primary-25',
+        showIconShape ? 'rounded-full p-0.5' : 'rounded-[20px] px-4 py-2.5',
+      )}
+    >
+      {btnText}
+    </button>
+  )
 }

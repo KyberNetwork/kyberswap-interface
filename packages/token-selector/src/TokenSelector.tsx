@@ -47,6 +47,7 @@ enum MODAL_TAB {
 
 const MESSAGE_TIMEOUT = 4_000;
 const DEBOUNCE_DELAY = 150;
+const TRACKING_DEBOUNCE_DELAY = 1_000;
 
 /** Internal props for TokenSelector component (used by TokenModal) */
 interface TokenSelectorProps {
@@ -87,6 +88,9 @@ interface TokenSelectorProps {
   setSelectedTokens: (tokens: Token[]) => void;
   setTokenToShow: (token: Token) => void;
   setTokenToImport: (token: Token) => void;
+
+  // Analytics
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void;
 }
 
 const normalizeSpecialCharacters = (value: string) => value.replace(/₮/g, "T");
@@ -211,6 +215,7 @@ export default function TokenSelector({
   setTokenToImport,
   onClose,
   initialSlippage,
+  onTrackEvent,
 }: TokenSelectorProps) {
   const { i18n } = useLingui();
   const {
@@ -239,6 +244,12 @@ export default function TokenSelector({
   const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const trackingDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const initialTokensInAddress = useRef(
+    new Set(tokensIn.map((token) => token.address.toLowerCase())),
+  );
 
   const modalTokensInAddress = useMemo(
     () =>
@@ -305,8 +316,27 @@ export default function TokenSelector({
         };
       })
       .sort((a: CustomizeToken, b: CustomizeToken) => {
-        // Combined sort: selected > inPair > balance (descending)
-        if (b.selected !== a.selected) return b.selected - a.selected;
+        // Combined sort: selected > inPair > balance (descending).
+        // In ADD mode, treat the initial token set as "selected" for sorting,
+        // so toggling tokens in the modal does not reorder the list.
+        let aSelectedPriority = a.selected;
+        let bSelectedPriority = b.selected;
+
+        if (mode === TOKEN_SELECT_MODE.ADD) {
+          const aInitiallySelected = initialTokensInAddress.current.has(
+            a.address.toLowerCase(),
+          );
+          const bInitiallySelected = initialTokensInAddress.current.has(
+            b.address.toLowerCase(),
+          );
+
+          aSelectedPriority = Number(aInitiallySelected);
+          bSelectedPriority = Number(bInitiallySelected);
+        }
+
+        if (bSelectedPriority !== aSelectedPriority) {
+          return bSelectedPriority - aSelectedPriority;
+        }
         if (b.inPair !== a.inPair) return b.inPair - a.inPair;
         return parseFloat(b.balance) - parseFloat(a.balance);
       });
@@ -548,6 +578,26 @@ export default function TokenSelector({
   }, [searchTerm]);
 
   useEffect(() => {
+    if (trackingDebounceRef.current) {
+      clearTimeout(trackingDebounceRef.current);
+    }
+    if (!searchTerm || !onTrackEvent) return;
+    trackingDebounceRef.current = setTimeout(() => {
+      onTrackEvent("TOKEN_SEARCHED", {
+        search_query: searchTerm,
+        chain_id: chainId,
+        is_address: isAddress(searchTerm.toLowerCase().trim()),
+      });
+    }, TRACKING_DEBOUNCE_DELAY);
+
+    return () => {
+      if (trackingDebounceRef.current) {
+        clearTimeout(trackingDebounceRef.current);
+      }
+    };
+  }, [searchTerm, chainId, onTrackEvent]);
+
+  useEffect(() => {
     if (unImportedTokens?.length) {
       const importedAddresses = new Set(importedTokens.map((t) => t.address));
       const remaining = unImportedTokens.filter(
@@ -589,6 +639,9 @@ export default function TokenSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokensIn, amountsIn]);
 
+  const showTabs =
+    showUserPositions && onSelectLiquiditySource && !positionsOnly;
+
   return (
     <div className="w-full mx-auto text-white overflow-hidden flex flex-col h-full">
       <div className="space-y-4 flex flex-col flex-1 min-h-0">
@@ -604,8 +657,8 @@ export default function TokenSelector({
           </div>
         </div>
 
-        {showUserPositions && onSelectLiquiditySource && !positionsOnly && (
-          <div className="border rounded-full p-[2px] flex mx-6 text-sm gap-1 border-icon-200">
+        {showTabs && (
+          <div className="border rounded-full p-[2px] flex mx-6 !mt-0 text-sm gap-1 border-icon-200">
             <div
               className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
                 modalTabSelected === MODAL_TAB.TOKENS ? "bg-[#ffffff33]" : ""
@@ -651,7 +704,7 @@ export default function TokenSelector({
         )}
 
         <div
-          className={`px-6 ${modalTabSelected === MODAL_TAB.POSITIONS ? "!mb-2" : ""}`}
+          className={`px-6 ${modalTabSelected === MODAL_TAB.POSITIONS ? "!mb-2" : ""} ${!showTabs ? "!mt-0" : ""}`}
         >
           <div className="relative border-0">
             <Input

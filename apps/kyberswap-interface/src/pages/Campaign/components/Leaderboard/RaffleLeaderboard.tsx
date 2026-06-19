@@ -1,29 +1,17 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useEffect, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { useGetRaffleCampaignTransactionsQuery } from 'services/campaignRaffle'
-import styled from 'styled-components'
 
 import Divider from 'components/Divider'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const Wrapper = styled.div`
-  border-radius: 20px;
-  padding: 20px;
-  background: ${({ theme }) => theme.background};
-  margin-top: 20px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 1rem;
-  `}
-`
 
 const PAGE_SIZE = 10
 
@@ -33,7 +21,6 @@ type Props = {
 }
 
 export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -66,36 +53,32 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
   }
 
   const renderLabel = (label: ReactNode) =>
-    upToSmall ? (
-      <Text fontWeight="500" fontSize={13} color={theme.subText}>
-        {label}
-      </Text>
-    ) : null
+    upToSmall ? <span className="text-[13px] font-medium text-subText">{label}</span> : null
 
   return (
-    <Wrapper>
+    <div className="mt-5 rounded-[20px] bg-background p-5 max-sm:p-4">
       {!upToSmall && (
         <>
-          <Flex padding="1rem 1.25rem" fontSize={12} color={theme.subText} fontWeight="500" sx={{ gap: '1.25rem' }}>
+          <div className="flex gap-5 px-5 py-4 text-xs font-medium text-subText">
             {isOwner ? (
-              <Text width={upToSmall ? '100%' : '160px'}>
+              <span className={cn(upToSmall ? 'w-full' : 'w-40')}>
                 <Trans>NETWORK</Trans>
-              </Text>
+              </span>
             ) : (
-              <Text width={upToSmall ? '100%' : '160px'}>
+              <span className={cn(upToSmall ? 'w-full' : 'w-40')}>
                 <Trans>WALLET</Trans>
-              </Text>
+              </span>
             )}
-            <Text flex={1}>
+            <span className="flex-1">
               <Trans>TX HASH</Trans>
-            </Text>
-            <Text width={upToSmall ? '120px' : '160px'} textAlign="right">
+            </span>
+            <span className={cn('text-right', upToSmall ? 'w-[120px]' : 'w-40')}>
               <Trans>DIFFERENCE</Trans>
-            </Text>
-            <Text width={upToSmall ? '120px' : '160px'} textAlign="right">
+            </span>
+            <span className={cn('text-right', upToSmall ? 'w-[120px]' : 'w-40')}>
               <Trans>REWARDS</Trans>
-            </Text>
-          </Flex>
+            </span>
+          </div>
           <Divider />
         </>
       )}
@@ -106,64 +89,49 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
         transactions.map(tx => {
           const networkName = isSupportedChainId(tx.chain) ? NETWORKS_INFO[tx.chain].name : '-'
           return (
-            <Box
-              display={upToSmall ? 'grid' : 'flex'}
+            <div
               key={tx.id}
-              padding={upToSmall ? '1rem 0' : '1rem 1.25rem'}
-              fontSize={14}
-              color={theme.text}
-              flexDirection={upToSmall ? 'column' : 'row'}
-              sx={{
-                gap: upToSmall ? '0.5rem' : '1.25rem',
-                gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
-              }}
+              className={cn(
+                'text-sm text-text',
+                upToSmall ? 'grid grid-cols-2 flex-col gap-2 py-4' : 'flex flex-row gap-5 px-5 py-4',
+              )}
             >
               {isOwner ? (
-                <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
+                <div className={cn('flex flex-col', upToSmall ? 'w-full' : 'w-40')}>
                   {renderLabel(<Trans>NETWORK</Trans>)}
-                  <Text>{networkName}</Text>
-                </Flex>
+                  <span>{networkName}</span>
+                </div>
               ) : (
-                <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
+                <div className={cn('flex flex-col', upToSmall ? 'w-full' : 'w-40')}>
                   {renderLabel(<Trans>WALLET</Trans>)}
-                  <Text>{shortenHash(tx.user_address, 4)}</Text>
-                </Flex>
+                  <span>{shortenHash(tx.user_address, 4)}</span>
+                </div>
               )}
-              <Flex flex={1} flexDirection="column">
+              <div className="flex flex-1 flex-col">
                 {renderLabel(<Trans>TX HASH</Trans>)}
-                <Text>{shortenHash(tx.tx, 4)}</Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '160px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'right'}
-              >
+                <span>{shortenHash(tx.tx, 4)}</span>
+              </div>
+              <div className={cn('flex flex-col', upToSmall ? 'w-full text-left' : 'w-40 text-right')}>
                 {renderLabel(<Trans>DIFFERENCE</Trans>)}
                 {tx.bit_block ? (
-                  <Text fontWeight="500">{formatDisplayNumber(tx.diff, { significantDigits: 6 })}</Text>
+                  <span className="font-medium">{formatDisplayNumber(tx.diff, { significantDigits: 6 })}</span>
                 ) : (
-                  <Text>TBU</Text>
+                  <span>TBU</span>
                 )}
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '160px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'right'}
-              >
+              </div>
+              <div className={cn('flex flex-col', upToSmall ? 'w-full text-left' : 'w-40 text-right')}>
                 {renderLabel(<Trans>REWARDS</Trans>)}
                 {tx.bit_block ? (
-                  <Text>{formatDisplayNumber(tx.rewarded, { significantDigits: 6 })} KNC</Text>
+                  <span>{formatDisplayNumber(tx.rewarded, { significantDigits: 6 })} KNC</span>
                 ) : (
-                  <Text>TBU</Text>
+                  <span>TBU</span>
                 )}
-              </Flex>
-            </Box>
+              </div>
+            </div>
           )
         })
       ) : (
-        <Text color={theme.subText} textAlign="center" padding="24px" marginTop="12px">
-          {t`No data found`}
-        </Text>
+        <div className="mt-3 p-6 text-center text-subText">{t`No data found`}</div>
       )}
 
       {!isLoading && totalCount > 0 && (
@@ -175,6 +143,6 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
           style={{ marginTop: '12px' }}
         />
       )}
-    </Wrapper>
+    </div>
   )
 }

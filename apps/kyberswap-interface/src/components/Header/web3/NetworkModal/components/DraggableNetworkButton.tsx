@@ -1,11 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
-import { rgba } from 'polished'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import Icon from 'components/Icons/Icon'
 import Row from 'components/Row'
@@ -19,89 +16,39 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { cn } from 'utils/cn'
 
-const NewLabel = styled.span`
-  font-size: 12px;
-  color: ${({ theme }) => theme.red};
-  margin-left: 2px;
-  margin-top: -10px;
-`
+const NewLabel = ({
+  children,
+  className,
+  style,
+}: {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+}) => (
+  <span style={style} className={cn('-mt-2.5 ml-0.5 text-xs text-red', className)}>
+    {children}
+  </span>
+)
 
-const MaintainLabel = styled.span`
-  font-size: 8px;
-  color: ${({ theme }) => theme.red};
-  margin-left: 2px;
-  margin-top: -10px;
-`
+const MaintainLabel = ({
+  children,
+  className,
+  style,
+}: {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+}) => (
+  <span style={style} className={cn('-mt-2.5 ml-0.5 text-[8px] text-red', className)}>
+    {children}
+  </span>
+)
 
-const ListItem = styled(motion.div)<{ selected?: boolean; $disabled?: boolean; $dragging?: boolean }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px;
-  width: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 14px;
-  height: 60px;
-  color: ${({ theme }) => theme.subText};
-  background-color: ${({ theme }) => theme.background};
-  user-select: none;
-  cursor: pointer;
-  gap: 6px;
-  transition: background-color 0.2s ease;
-  .drag-button {
-    opacity: 0;
-    display: none;
-  }
-  :hover .drag-button {
-    opacity: 1;
-    display: block;
-  }
-
-  ${({ theme, selected }) =>
-    selected &&
-    css`
-      background-color: ${theme.buttonBlack};
-      & > div {
-        color: ${theme.text};
-      }
-    `}
-
-  ${({ $disabled }) =>
-    $disabled &&
-    css`
-      cursor: not-allowed;
-      color: ${({ theme }) => theme.subText + '72'};
-    `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 12px;
-    height: 54px;
-    padding: 8px;
-  `};
-`
-
-const CircleGreen = styled.div`
-  height: 16px;
-  width: 16px;
-  background-color: ${({ theme }) => theme.primary};
-  background-clip: content-box;
-  border: solid 2px ${({ theme }) => rgba(theme.primary, 0.3)};
-  border-radius: 8px;
-  margin-left: auto;
-`
-const WalletWrapper = styled.div`
-  height: 18px;
-  width: 18px;
-  margin-left: auto;
-  margin-right: 4px;
-  > img {
-    height: 18px;
-    width: 18px;
-  }
-`
+const CircleGreen = () => (
+  <div className="ml-auto size-4 rounded-lg border-2 border-primary/30 bg-primary bg-clip-content" />
+)
 
 const DraggableNetworkButton = ({
   networkInfo,
@@ -170,26 +117,28 @@ const DraggableNetworkButton = ({
       onChangedNetwork?.()
       return
     } else {
-      const filteredParams = Object.fromEntries(
-        Object.entries(qs).filter(([_, value]) => value !== undefined), // Remove undefined values
-      ) as { [key: string]: string }
+      const filteredParams = Object.fromEntries(Object.entries(qs).filter(([_, value]) => value !== undefined)) as {
+        [key: string]: string
+      }
 
       changeNetwork(chainId, () => {
-        navigate(
-          {
-            search: new URLSearchParams(filteredParams).toString(),
-          },
-          { replace: true },
-        )
+        const nextSearch = new URLSearchParams(filteredParams).toString()
+
+        if (nextSearch !== window.location.search.replace(/^\?/, '')) {
+          navigate(
+            {
+              search: nextSearch,
+            },
+            { replace: true },
+          )
+        }
         onChangedNetwork?.()
       })
     }
   }
 
   const variants = {
-    dragging: {
-      zIndex: 100,
-    },
+    dragging: { zIndex: 100 },
     longpress: {
       x: [-10, 10, -10, 10, -10, 10, -10, 10, -10, 10, 0],
       transition: { duration: 2 },
@@ -202,10 +151,7 @@ const DraggableNetworkButton = ({
     },
   }
 
-  const handleDragStart = () => {
-    setDragging(true)
-  }
-
+  const handleDragStart = () => setDragging(true)
   const handleDrag = () => {
     if (!ref.current) return
     const { x, y, width, height } = ref.current.getBoundingClientRect()
@@ -213,7 +159,6 @@ const DraggableNetworkButton = ({
     const centerY = y + height / 2
     onDrag?.(centerX, centerY)
   }
-
   const handleDragEnd = (e: any) => {
     e.stopPropagation()
     setDragging(false)
@@ -242,19 +187,8 @@ const DraggableNetworkButton = ({
         variants={variants}
         style={{ position: 'relative', width: '100%', zIndex: 1 }}
       >
-        {dragging && (
-          <div
-            key="ghost"
-            style={{
-              width: '100%',
-              inset: '0',
-              backgroundColor: theme.tableHeader + '80',
-              borderRadius: '16px',
-              position: 'absolute',
-            }}
-          />
-        )}
-        <ListItem
+        {dragging && <div key="ghost" className="absolute inset-0 w-full rounded-2xl bg-tableHeader/50" />}
+        <motion.div
           ref={ref}
           key={chainId.toString()}
           drag
@@ -266,44 +200,36 @@ const DraggableNetworkButton = ({
           onDragStart={handleDragStart}
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
-          selected={selected}
-          transition={{
-            type: 'spring',
-            damping: 20,
-            stiffness: 150,
-          }}
+          transition={{ type: 'spring', damping: 20, stiffness: 150 }}
           whileDrag={{
             backgroundColor: theme.tableHeader,
             boxShadow: '0 5px 15px #00000060',
             border: '1px solid ' + theme.primary,
             scale: 1.05,
           }}
-          whileHover={{
-            backgroundColor: theme.tableHeader,
-          }}
           animate={animationControls}
           variants={variants}
           style={{ boxShadow: '0 0px 0px #00000060', zIndex: 1 }}
           onClick={() => !selected && !dragging && handleChainSelect()}
           onMouseUp={e => e.preventDefault()}
-          $disabled={disabled}
+          className={cn(
+            'group flex h-[60px] w-full cursor-pointer select-none items-center justify-center gap-1.5',
+            'overflow-hidden whitespace-nowrap rounded-2xl bg-background p-3 text-sm text-subText',
+            'transition-[background-color] duration-200 ease-in-out',
+            'max-sm:h-[54px] max-sm:p-2 max-sm:text-xs',
+            selected && '!bg-buttonBlack [&>div]:text-text',
+            disabled && '!cursor-not-allowed text-subText/40',
+            !selected && !disabled && 'hover:bg-tableHeader',
+          )}
         >
-          <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px', borderRadius: '4px' }} />
-          <Row flexGrow={1} gap="6px">
-            <Text as="span" textAlign="left" sx={{ position: 'relative' }}>
+          <img src={icon} alt="Switch Network" className="size-5 min-w-5 rounded" />
+          <Row className="grow gap-1.5">
+            <span className="relative text-left">
               {name}
               {deprecatedSoon && (
-                <MaintainLabel
-                  style={{
-                    position: 'absolute',
-                    top: '20%',
-                    right: '-90%',
-                  }}
-                >
-                  Deprecating
-                </MaintainLabel>
+                <MaintainLabel style={{ position: 'absolute', top: '20%', right: '-90%' }}>Deprecating</MaintainLabel>
               )}
-            </Text>
+            </span>
 
             {isComingSoon && (
               <MaintainLabel>
@@ -322,17 +248,17 @@ const DraggableNetworkButton = ({
             )}
             {selected && !walletKey && <CircleGreen />}
             {account && walletKey && connector?.icon && (
-              <WalletWrapper>
+              <div className="ml-auto mr-1 h-[18px] w-[18px] [&>img]:h-[18px] [&>img]:w-[18px]">
                 <img src={connector.icon} alt="" />
-              </WalletWrapper>
+              </div>
             )}
           </Row>
           {!isMobile && (
-            <div className="drag-button" style={{ cursor: 'grab' }}>
-              <Icon id="drag-indicator" color={theme.border} />
+            <div className="hidden cursor-grab opacity-0 group-hover:block group-hover:opacity-100">
+              <Icon id="drag-indicator" className="text-border" />
             </div>
           )}
-        </ListItem>
+        </motion.div>
       </motion.div>
     </MouseoverTooltip>
   )

@@ -1,16 +1,13 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
 import { NativeToken } from 'constants/networks/type'
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import {
   ClaimInfo,
@@ -20,8 +17,7 @@ import {
   Wrapper,
   X,
 } from 'pages/Earns/components/ClaimModal/styles'
-import { Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
-import { MEDIA_WIDTHS } from 'theme'
+import { Exchange } from 'pages/Earns/constants'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export enum ClaimType {
@@ -61,9 +57,7 @@ const ClaimModal = ({
   onCompound?: () => void
   onClose: () => void
 }) => {
-  const theme = useTheme()
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const { library, chainId } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { supportedChains } = useChainsConfig()
   const { changeNetwork } = useChangeNetwork()
 
@@ -71,9 +65,7 @@ const ClaimModal = ({
   const [isClaiming, setIsClaiming] = useState(false)
 
   const handleClaim = useCallback(async () => {
-    if (!library) return
-    const accounts = await library.listAccounts()
-    if (chainId !== claimInfo.chainId || !accounts.length) {
+    if (chainId !== claimInfo.chainId || !account) {
       if (chainId !== claimInfo.chainId) changeNetwork(claimInfo.chainId)
       setAutoClaim(true)
       return
@@ -85,7 +77,7 @@ const ClaimModal = ({
     } finally {
       setIsClaiming(false)
     }
-  }, [library, chainId, claimInfo.chainId, onClaim, changeNetwork])
+  }, [account, chainId, claimInfo.chainId, onClaim, changeNetwork])
 
   useEffect(() => {
     if (autoClaim && chainId === claimInfo.chainId) {
@@ -100,26 +92,26 @@ const ClaimModal = ({
     <Modal isOpen onDismiss={onClose}>
       <Wrapper>
         <ModalHeader>
-          <Text fontSize={20} fontWeight={500}>
+          <span className="text-xl font-medium">
             {claimType === ClaimType.FEES
               ? t`Claim Fees`
               : claimType === ClaimType.REWARDS
               ? t`Claim Rewards`
               : t`Claim`}
-          </Text>
+          </span>
           <X onClick={onClose} />
         </ModalHeader>
         <ClaimInfoWrapper>
-          <Text fontSize={14} color={theme.subText} marginBottom={2}>
+          <p className="mb-0.5 text-sm text-subText">
             {t`Choose to reinvest your earnings back into this position or send them to your wallet.`}
-          </Text>
+          </p>
           <ClaimInfo>
-            <Flex alignItems={'center'} justifyContent={'space-between'}>
-              <Text fontSize={14} color={theme.subText}>{t`Total Value`}</Text>
-              <Text fontSize={18} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '160px' }}>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-subText">{t`Total Value`}</span>
+              <span className="max-w-[160px] truncate text-lg">
                 {formatDisplayNumber(claimInfo.totalValue, { style: 'currency', significantDigits: 4 })}
-              </Text>
-            </Flex>
+              </span>
+            </div>
 
             {[...claimInfo.tokens]
               .sort((a, b) => b.value - a.value)
@@ -135,16 +127,16 @@ const ClaimModal = ({
               ))}
           </ClaimInfo>
         </ClaimInfoWrapper>
-        <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
+        <Row className="flex-row gap-4 max-xs:flex-col-reverse">
           {compoundable && onCompound ? (
-            <ButtonOutlined color={theme.primary} gap="4px" disabled={isClaiming} onClick={onCompound}>
+            <ButtonOutlined className="text-primary" gap="4px" disabled={isClaiming} onClick={onCompound}>
               {t`Compound`}
             </ButtonOutlined>
           ) : (
             <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           )}
           <ButtonPrimary gap="4px" disabled={isClaiming} onClick={handleClaim}>
-            {isClaiming && <Loader stroke={'#505050'} />}
+            {isClaiming && <Loader className="text-border" />}
             {isClaiming ? t`Claiming` : t`Claim only`}
           </ButtonPrimary>
         </Row>

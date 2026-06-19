@@ -2,10 +2,8 @@ import KyberOauth2 from '@kyberswap/oauth2'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
 import QRCodeContent from 'pages/NotificationCenter/Profile/ExportAccountModal/QRCodeContent'
 import UserEnterPasscodeContent from 'pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent'
 import { useImportToken } from 'state/profile/hooks'
@@ -22,7 +20,6 @@ type Props = {
   onDismiss: () => void
 }
 export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
-  const theme = useTheme()
   const guestAccount = useMemo(() => KyberOauth2.getAnonymousAccount(), [])
   const guestAccountStr = guestAccount ? JSON.stringify(guestAccount) : ''
   const { getImportToken, removeImportToken, saveImportToken } = useImportToken()
@@ -86,23 +83,15 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false} maxWidth={420} width={'420px'}>
-      <Flex
-        flexDirection="column"
-        alignItems="center"
-        padding="24px"
-        width="100%"
-        sx={{
-          gap: '16px',
-        }}
-      >
-        <Flex width="100%" justifyContent={'space-between'}>
-          <Text fontSize={18} fontWeight={500}>
+      <div className="flex w-full flex-col items-center gap-4 p-6">
+        <div className="flex w-full justify-between">
+          <span className="text-lg font-medium">
             <Trans>Export Profile</Trans>
-          </Text>
-          <ButtonText onClick={onDismiss} style={{ lineHeight: '0' }}>
-            <X color={theme.text} />
+          </span>
+          <ButtonText onClick={onDismiss} className="leading-[0]">
+            <X className="text-text" />
           </ButtonText>
-        </Flex>
+        </div>
 
         {step === Step.ENTER_PASSCODE ? (
           <UserEnterPasscodeContent dismissModal={onDismiss} onEnterPasscode={handleConfirmPasscode} />
@@ -110,7 +99,7 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
         {step === Step.QR_CODE && importToken ? (
           <QRCodeContent dismissModal={onDismiss} importToken={importToken} forgotPasscode={handleForgotPasscode} />
         ) : null}
-      </Flex>
+      </div>
     </Modal>
   )
 }

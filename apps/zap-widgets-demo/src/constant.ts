@@ -31,6 +31,8 @@ export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [ZapInDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
   [ZapInDex.DEX_AERODROMECL]: "Aerodrome CL",
+  [ZapInDex.DEX_AERODROMECL2]: "Aerodrome Concentrated V2",
+  [ZapInDex.DEX_AERODROMECL3]: "Aerodrome Concentrated V3",
 };
 
 export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
@@ -61,6 +63,8 @@ export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
   [ZapMigrationDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [ZapMigrationDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
   [ZapMigrationDex.DEX_AERODROMECL]: "Aerodrome CL",
+  [ZapMigrationDex.DEX_AERODROMECL2]: "Aerodrome Concentrated V2",
+  [ZapMigrationDex.DEX_AERODROMECL3]: "Aerodrome Concentrated V3",
 };
 
 export const zapOutDexMapping: Record<ZapOutDex, string> = {
@@ -91,6 +95,8 @@ export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [ZapOutDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
   [ZapOutDex.DEX_AERODROMECL]: "Aerodrome CL",
+  [ZapOutDex.DEX_AERODROMECL2]: "Aerodrome Concentrated V2",
+  [ZapOutDex.DEX_AERODROMECL3]: "Aerodrome Concentrated V3",
 };
 
 export const pancakeZapInDexMapping: Record<PancakeZapInDex, string> = {

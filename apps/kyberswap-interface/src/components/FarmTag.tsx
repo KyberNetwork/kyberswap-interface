@@ -1,29 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { transparentize } from 'polished'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
+import { MoneyBag } from 'components/Icons'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-
-import { MoneyBag } from './Icons'
-import { MouseoverTooltip } from './Tooltip'
-
-const FarmAvailableTag = styled.div<{ padding: string }>`
-  border-radius: 999px;
-  padding: ${({ padding }) => padding};
-  height: 20px;
-  background: ${({ theme }) => transparentize(0.7, theme.primary)};
-  color: ${({ theme }) => theme.primary};
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`
+import { cn } from 'utils/cn'
 
 export const FarmTag = ({
   address,
@@ -39,10 +23,15 @@ export const FarmTag = ({
   const { chainId: currentChainId } = useActiveWeb3React()
 
   const tag = (
-    <FarmAvailableTag padding={noText ? '2px 4px' : '4px 8px'}>
+    <div
+      className={cn(
+        'flex h-5 items-center gap-1 rounded-full bg-primary-30 text-xs font-medium text-primary',
+        noText ? 'px-1 py-0.5' : 'px-2 py-1',
+      )}
+    >
       <MoneyBag size={12} />
       {!noText && <Trans>Farming</Trans>}
-    </FarmAvailableTag>
+    </div>
   )
 
   if (noTooltip) return tag
@@ -50,7 +39,7 @@ export const FarmTag = ({
   return (
     <MouseoverTooltip
       text={
-        <Text>
+        <span>
           <Trans>
             Participate in the Elastic farm to earn more rewards. Click{' '}
             <Link
@@ -62,7 +51,7 @@ export const FarmTag = ({
             </Link>{' '}
             to go to the farm.
           </Trans>
-        </Text>
+        </span>
       }
     >
       {tag}

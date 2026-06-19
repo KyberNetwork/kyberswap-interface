@@ -1,4 +1,3 @@
-import { Web3Provider } from '@ethersproject/providers'
 import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, NATIVE_TOKEN_ADDRESS, PoolType, Token } from '@kyber/schema'
 import axios, { AxiosError } from 'axios'
 
@@ -65,7 +64,6 @@ export const fetchExistingPoolAddress = async (input: {
 }
 
 export const navigateToPositionAfterZap = async (
-  library: Web3Provider,
   txHash: string,
   chainId: number,
   exchange: Exchange,
@@ -82,7 +80,7 @@ export const navigateToPositionAfterZap = async (
         .replace(':chainId', chainId.toString())
         .replace(':exchange', exchange) + '?forceLoading=true'
   } else {
-    const tokenId = defaultTokenId || (await getTokenId(library, txHash, exchange))
+    const tokenId = defaultTokenId || (await getTokenId(chainId, txHash, exchange))
     if (!tokenId) {
       navigateFunc(APP_PATHS.EARN_POSITIONS)
       return

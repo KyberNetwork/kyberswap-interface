@@ -188,7 +188,6 @@ export const {
   useGetLOConfigQuery,
   useGetListOrdersQuery,
   useGetOrdersByTokenPairQuery,
-  useLazyGetListOrdersQuery,
   useInsertCancellingOrderMutation,
   useGetNumberOfInsufficientFundOrdersQuery,
   useCreateOrderMutation,

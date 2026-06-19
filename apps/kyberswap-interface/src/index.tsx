@@ -2,7 +2,6 @@ import { FormoAnalyticsProvider } from '@formo/analytics'
 
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
-import * as Sentry from '@sentry/react'
 import '@zkmelabs/widget/dist/style.css'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -10,7 +9,7 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
-import 'inter-ui'
+import 'inter-ui/inter.css'
 import { initMixpanel } from 'libs/mixpanel'
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -25,22 +24,21 @@ import Web3Provider from 'components/Web3Provider'
 import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
 import NEARWalletProvider from 'components/Web3Provider/NearProvider'
 import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
-import { ENV_LEVEL, FORMO_WRITE_KEY, GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
+import { ENV_LEVEL, FORMO_WRITE_KEY, GTM_ID } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { useAffiliate } from 'hooks/useAffiliate'
 
-import { sentryRequestId } from './constants'
-import { LanguageProvider } from './i18n'
-import App from './pages/App'
-import * as serviceWorkerRegistration from './serviceWorkerRegistration'
-import store from './state'
-import ApplicationUpdater from './state/application/updater'
-import CustomizeDexesUpdater from './state/customizeDexes/updater'
-import ListsUpdater from './state/lists/updater'
-import MulticallUpdater from './state/multicall/updater'
-import TransactionUpdater from './state/transactions/updater'
-import UserUpdater from './state/user/updater'
-import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
+import { LanguageProvider } from 'i18n'
+import App from 'pages/App'
+import * as serviceWorkerRegistration from 'serviceWorkerRegistration'
+import store from 'state'
+import ApplicationUpdater from 'state/application/updater'
+import CustomizeDexesUpdater from 'state/customizeDexes/updater'
+import ListsUpdater from 'state/lists/updater'
+import TransactionUpdater from 'state/transactions/updater'
+import UserUpdater from 'state/user/updater'
+import 'tailwind.css'
+import ThemeProvider from 'theme'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -48,44 +46,10 @@ dayjs.extend(relativeTime)
 
 initMixpanel()
 
-if (ENV_LEVEL === ENV_TYPE.PROD) {
-  Sentry.init({
-    dsn: SENTRY_DNS,
-    environment: 'production',
-    ignoreErrors: ['AbortError'],
-    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
-    tracesSampleRate: 1.0,
-    normalizeDepth: 5,
-    replaysSessionSampleRate: 1.0,
-    replaysOnErrorSampleRate: 1.0,
-    beforeSend(event, hint) {
-      const error = hint?.originalException as Error
-      const { name, message } = error
-      if (
-        (name === 'TypeError' && message === 'Load failed') || // Almost come from mobile safari fetch API issues
-        (name === 'ChunkLoadError' && message.includes('Failed to fetch')) || // https://sentry.io/answers/chunk-load-errors-javascript/
-        (name === 'Error' && message.includes('Java object is gone')) || // coming from the WebView to Java bridge in Chrome, something went wrong with Chrome Mobile WebView from some Android devices
-        (name === 'UnhandledRejection' && message.includes('Non-Error promise rejection captured with value')) ||
-        (name === '<unknown>' && message.includes('Non-Error promise rejection captured with value')) || // this always happens when a some external library throws an error, checked with all issues in Sentry logs
-        (name === '<unknown>' && message.includes('Object captured as promise rejection with keys')) // this always happens when a some external library throws an error, checked with all issues in Sentry logs
-      )
-        return null
-
-      if (name === 'TypeError' && message.includes('Failed to fetch')) {
-        event.level = 'warning'
-      }
-
-      return event
-    },
+if (ENV_LEVEL === ENV_TYPE.PROD && GTM_ID) {
+  TagManager.initialize({
+    gtmId: GTM_ID,
   })
-  Sentry.setTag('request_id', sentryRequestId)
-  Sentry.setTag('version', TAG)
-
-  if (GTM_ID) {
-    TagManager.initialize({
-      gtmId: GTM_ID,
-    })
-  }
 }
 
 AOS.init()
@@ -102,7 +66,6 @@ function Updaters() {
       <UserUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />
-      <MulticallUpdater />
       <CustomizeDexesUpdater />
     </>
   )
@@ -126,7 +89,6 @@ const ReactApp = () => {
         writeKey={FORMO_WRITE_KEY}
         disabled={window.location.hostname.endsWith('.pr.kyberengineering.io')}
       >
-        <FixedGlobalStyle />
         <Provider store={store}>
           <BrowserRouter>
             <LanguageProvider>
@@ -135,7 +97,6 @@ const ReactApp = () => {
                   <NEARWalletProvider>
                     <Updaters />
                     <ThemeProvider>
-                      <ThemedGlobalStyle />
                       <SolanaProvider>
                         <App />
                       </SolanaProvider>

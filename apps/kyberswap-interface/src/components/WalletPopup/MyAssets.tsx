@@ -4,36 +4,25 @@ import { useState } from 'react'
 import { AlertTriangle, Info } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import Column from 'components/Column'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
-import { CurrencyRow } from 'components/SearchModal/CurrencyList'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import TokenSelectorModal from 'components/TokenSelectorModal'
+import { TokenRow } from 'components/TokenSelectorModal/TokenList'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNativeBalance } from 'state/wallet/hooks'
+import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 
 const tokenItemStyle = { paddingLeft: 8, paddingRight: 8 }
-const Wrapper = styled.div`
-  width: 100%;
-  flex: 1 0 auto;
-  overflow-y: auto;
-  overflow-x: hidden;
-  &::-webkit-scrollbar {
-    display: block;
-    width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.border};
-  }
-`
+
+const WRAPPER_CLASS =
+  'w-full flex-1 grow overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1'
 
 export default function MyAssets({
   tokens,
@@ -70,26 +59,26 @@ export default function MyAssets({
 
   if (hasNetworkIssue)
     return (
-      <Wrapper>
-        <Column style={{ gap: '12px', alignItems: 'center', marginTop: '16px' }}>
-          <AlertTriangle color={theme.warning} />
-          <Text color={theme.warning}>Network is slow. Please try again later</Text>
+      <div className={WRAPPER_CLASS}>
+        <Column className="mt-4 items-center gap-3">
+          <AlertTriangle className="text-warning" />
+          <span className="text-warning">Network is slow. Please try again later</span>
         </Column>
-      </Wrapper>
+      </div>
     )
 
   if (loadingTokens) {
     return (
-      <Wrapper>
-        <Row gap="6px" justify="center" marginTop="16px">
-          <Loader /> <Text color={theme.subText}>Loading tokens...</Text>
+      <div className={WRAPPER_CLASS}>
+        <Row className="mt-4 justify-center gap-1.5">
+          <Loader /> <span className="text-subText">Loading tokens...</span>
         </Row>
-      </Wrapper>
+      </div>
     )
   }
 
   return (
-    <Wrapper>
+    <div className={WRAPPER_CLASS}>
       <AutoSizer>
         {({ height, width }) => (
           <div style={{ height, width }}>
@@ -101,7 +90,7 @@ export default function MyAssets({
                   ? usdBalances[address] * parseFloat(currencyBalance.toExact())
                   : undefined
               return (
-                <CurrencyRow
+                <TokenRow
                   onSelect={() => {
                     trackingHandler(TRACKING_EVENT_TYPE.WALLET_TOKEN_CLICKED, {
                       token_symbol: token.symbol,
@@ -128,41 +117,37 @@ export default function MyAssets({
               )
             })}
             <Column
-              gap="6px"
-              style={{
-                alignItems: 'center',
-                borderTop: tokens.length ? `1px solid ${theme.border}` : 'none',
-                padding: '12px 0',
-                marginTop: tokens.length ? 8 : 0,
-                fontSize: 14,
-              }}
+              className={cn(
+                'items-center gap-1.5 py-3 text-sm',
+                tokens.length ? 'mt-2 border-t border-border' : 'mt-0',
+              )}
             >
-              <Info color={theme.subText} />
-              <Text color={theme.subText}>
+              <Info className="text-subText" />
+              <span className="text-subText">
                 <Trans>Don&apos;t see your tokens</Trans>
-              </Text>
-              <Text color={theme.primary} style={{ cursor: 'pointer' }} onClick={showModal}>
+              </span>
+              <span className="cursor-pointer text-primary" onClick={showModal}>
                 <Trans>Import Tokens</Trans>
-              </Text>
+              </span>
             </Column>
           </div>
         )}
       </AutoSizer>
-      <CurrencySearchModal
+      <TokenSelectorModal
         title={t`Import Tokens`}
         tooltip={
-          <Text>
+          <span>
             <Trans>
               Find a token by searching for name, symbol or address.
               <br />
               You can select and import any token on KyberSwap.
             </Trans>
-          </Text>
+          </span>
         }
         isOpen={modalOpen}
         onDismiss={hideModal}
         onCurrencySelect={hideModal}
-        showCommonBases
+        showPinnedTokens
         onCurrencyImport={(token: Token) => {
           trackingHandler(TRACKING_EVENT_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK, { token_name: token.symbol })
           trackingHandler(TRACKING_EVENT_TYPE.WALLET_TOKEN_IMPORTED, {
@@ -173,6 +158,6 @@ export default function MyAssets({
           })
         }}
       />
-    </Wrapper>
+    </div>
   )
 }

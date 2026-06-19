@@ -1,13 +1,11 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import Modal from 'components/Modal'
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
 import {
   Apr,
   ContentWrapper,
@@ -37,7 +35,6 @@ export default function MigrationModal({
   onClose: () => void
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const theme = useTheme()
 
   return (
     <Modal isOpen width="768px" maxWidth={1000} onDismiss={onClose}>
@@ -45,11 +42,11 @@ export default function MigrationModal({
         <ContentWrapper>
           {!upToSmall && (
             <MigrateTableHeader>
-              <Text>{t`Pair`}</Text>
-              <Text>{t`APR`}</Text>
-              <Flex justifyContent="flex-end">{t`Earn Fees`}</Flex>
-              <Flex justifyContent="flex-end">{t`TVL`}</Flex>
-              <Flex justifyContent="flex-end">{t`Volume`}</Flex>
+              <span>{t`Pair`}</span>
+              <span>{t`APR`}</span>
+              <div className="flex justify-end">{t`Earn Fees`}</div>
+              <div className="flex justify-end">{t`TVL`}</div>
+              <div className="flex justify-end">{t`Volume`}</div>
             </MigrateTableHeader>
           )}
           <MigrateTableBody>
@@ -77,16 +74,16 @@ export default function MigrationModal({
                       })
                     }
                   >
-                    <Flex alignItems="center" sx={{ gap: 2 }}>
-                      <Flex alignItems="center">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center">
                         <TokenLogo src={pool.tokens?.[0]?.logoURI} />
                         <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
-                      </Flex>
+                      </div>
                       <SymbolText>
                         {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
                       </SymbolText>
                       <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
-                    </Flex>
+                    </div>
                     <Apr value={pool.allApr}>
                       {formatAprNumber(pool.allApr)}%{' '}
                       {isFarming ? (
@@ -99,21 +96,21 @@ export default function MigrationModal({
                         </AprDetailTooltip>
                       ) : null}
                     </Apr>
-                    <Flex justifyContent="flex-end">
+                    <div className="flex justify-end">
                       {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
-                    </Flex>
-                    <Flex justifyContent="flex-end">
+                    </div>
+                    <div className="flex justify-end">
                       {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
-                    </Flex>
-                    <Flex justifyContent="flex-end">
+                    </div>
+                    <div className="flex justify-end">
                       {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
-                    </Flex>
+                    </div>
                   </MigrateTableRow>
                 )
               })}
 
             {upToSmall &&
-              farmingPools.map((pool: EarnPool, index: number) => {
+              farmingPools.map(pool => {
                 const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
                 const isFarmingLm = pool.programs?.includes(ProgramType.LM)
 
@@ -136,17 +133,17 @@ export default function MigrationModal({
                       })
                     }
                   >
-                    <Flex alignItems="flex-start" justifyContent="space-between">
-                      <Flex sx={{ gap: 1 }}>
-                        <Flex sx={{ position: 'relative', top: -1 }}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex gap-1">
+                        <div className="relative -top-px flex">
                           <TokenLogo src={pool.tokens?.[0]?.logoURI} />
                           <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
-                        </Flex>
+                        </div>
                         <SymbolText>
                           {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
                         </SymbolText>
-                      </Flex>
-                      <Flex alignItems="center" sx={{ gap: '2px' }}>
+                      </div>
+                      <div className="flex items-center gap-0.5">
                         <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
                         {isFarming ? (
                           <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
@@ -157,21 +154,21 @@ export default function MigrationModal({
                             )}
                           </AprDetailTooltip>
                         ) : null}
-                      </Flex>
-                    </Flex>
-                    <MobileTableBottomRow withoutBorder={index === farmingPools.length - 1}>
-                      <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>{t`Earn Fees`}</Text>
-                        <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
-                      </Flex>
-                      <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>{t`TVL`}</Text>
-                        <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
-                      </Flex>
-                      <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>{t`Volume`}</Text>
-                        <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
-                      </Flex>
+                      </div>
+                    </div>
+                    <MobileTableBottomRow>
+                      <div className="flex justify-between gap-1">
+                        <span className="text-subText">{t`Earn Fees`}</span>
+                        <span>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</span>
+                      </div>
+                      <div className="flex justify-between gap-1">
+                        <span className="text-subText">{t`TVL`}</span>
+                        <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
+                      </div>
+                      <div className="flex justify-between gap-1">
+                        <span className="text-subText">{t`Volume`}</span>
+                        <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
+                      </div>
                     </MobileTableBottomRow>
                   </MobileTableRow>
                 )

@@ -1,28 +1,21 @@
-import { MaxUint256 } from '@ethersproject/constants'
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
+import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import ERC20_ABI from 'constants/abis/erc20.json'
+import { wagmiConfig } from 'components/Web3Provider'
+import { ERC20_ABI } from 'constants/abis'
+import { didUserReject } from 'constants/connectors/utils'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
-import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { usePaymentToken } from 'state/user/hooks'
-import { calculateGasMargin } from 'utils'
-import { Aggregator } from 'utils/aggregator'
 import { friendlyError } from 'utils/errorMessage'
-import { computeSlippageAdjustedAmounts } from 'utils/prices'
-import { paymasterExecute } from 'utils/sendTransaction'
-
-import { useActiveWeb3React } from './index'
-import { useTokenReadingContract, useTokenSigningContract } from './useContract'
-
-const ERC20Interface = new Interface(ERC20_ABI)
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Address, encodeFunctionData, maxUint256 } from 'utils/viem'
 
 export enum ApprovalState {
   UNKNOWN = 'UNKNOWN',
@@ -38,20 +31,23 @@ export function useApproveCallback(
   forceApprove = false,
   onApprovalError?: (error: { message: string; tokenSymbol?: string; tokenAddress?: string; spender?: string }) => void,
 ): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined] {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const token = amountToApprove?.currency.wrapped
   const pendingApproval = useHasPendingApproval(token?.address, spender)
 
-  const tokenContract = useTokenSigningContract(token?.address)
-  const readingTokenContract = useTokenReadingContract(token?.address)
-
   const [currentAllowance, setAllowance] = useState<TokenAmount | undefined>(undefined)
   const getAllowance = useCallback(async () => {
-    if (!readingTokenContract || !token) return
-    readingTokenContract.allowance(account, spender).then((res: BigNumber) => {
-      setAllowance(TokenAmount.fromRawAmount(token, res.toString()))
-    })
-  }, [readingTokenContract, account, spender, token])
+    if (!token || !account || !spender || !chainId) return
+    const res = (await readContract(wagmiConfig, {
+      address: token.address as Address,
+      abi: ERC20_ABI,
+      functionName: 'allowance',
+      args: [account, spender],
+      chainId: chainId as number,
+    })) as bigint
+    setAllowance(TokenAmount.fromRawAmount(token, res.toString()))
+  }, [account, spender, token, chainId])
 
   useEffect(() => {
     getAllowance()
@@ -65,7 +61,7 @@ export function useApproveCallback(
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
     // Handle farm approval.
-    if (amountToApprove.quotient.toString() === MaxUint256.toString()) {
+    if (amountToApprove.quotient.toString() === maxUint256.toString()) {
       return currentAllowance.equalTo(JSBI.BigInt(0))
         ? pendingApproval
           ? ApprovalState.PENDING
@@ -82,7 +78,6 @@ export function useApproveCallback(
   const notify = useNotify()
 
   const addTransactionWithType = useTransactionAdder()
-  const [paymentToken] = usePaymentToken()
 
   const approve = useCallback(
     async (customAmount?: CurrencyAmount<Currency>): Promise<void> => {
@@ -96,8 +91,8 @@ export function useApproveCallback(
           return
         }
 
-        if (!tokenContract) {
-          console.error('tokenContract is null')
+        if (!account) {
+          console.error('no account')
           return
         }
 
@@ -111,62 +106,64 @@ export function useApproveCallback(
           return
         }
 
-        let estimatedGas
-        let approvedAmount
+        const buildApproveData = (amount: bigint) =>
+          encodeFunctionData({
+            abi: ERC20_ABI,
+            functionName: 'approve',
+            args: [spender, amount],
+          })
+
+        const sendApprove = (amount: bigint) =>
+          sendEVMTransaction({
+            account,
+            contractAddress: token.address,
+            encodedData: buildApproveData(amount),
+            value: 0n,
+            errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+            isSmartConnector,
+            chainId,
+          })
+
+        let response
         try {
-          if (customAmount instanceof CurrencyAmount) {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, customAmount)
-            approvedAmount = customAmount
-          } else {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256)
-            approvedAmount = MaxUint256
-          }
+          const initialAmount =
+            customAmount instanceof CurrencyAmount ? BigInt(customAmount.quotient.toString()) : maxUint256
+          response = await sendApprove(initialAmount)
         } catch (e) {
+          // Abort the retry chain on user rejection — otherwise the wallet would
+          // re-prompt with the exact-amount fallback (and again with the USDT
+          // zero-reset), surfacing as 2-3 consecutive popups for one click.
+          if (didUserReject(e)) return
           try {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, amountToApprove.quotient.toString())
-            approvedAmount = amountToApprove.quotient.toString()
-          } catch {
-            estimatedGas = await tokenContract.estimateGas.approve(spender, '0')
-            return paymentToken?.address
-              ? paymasterExecute(
-                  paymentToken.address,
-                  {
-                    from: account,
-                    to: token.address,
-                    data: ERC20Interface.encodeFunctionData('approve', [spender, '0']),
-                  },
-                  calculateGasMargin(estimatedGas).toNumber(),
-                )
-              : tokenContract.approve(spender, '0', {
-                  gasLimit: calculateGasMargin(estimatedGas),
-                })
+            response = await sendApprove(BigInt(amountToApprove.quotient.toString()))
+          } catch (e2) {
+            if (didUserReject(e2)) return
+            // Last-ditch fallback: reset allowance to 0 (USDT-style tokens reject
+            // approve() when the current allowance is non-zero). The user will need
+            // to retrigger approve to the desired amount — don't surface this as a
+            // successful "Approve" in the wallet history, since the allowance is now
+            // 0 and the caller's flow has not been granted.
+            try {
+              await sendApprove(0n)
+            } catch (e3) {
+              if (didUserReject(e3)) return
+              throw e3
+            }
+            return
           }
         }
 
-        const response = await (paymentToken?.address
-          ? paymasterExecute(
-              paymentToken.address,
-              {
-                from: account,
-                to: token.address,
-                data: ERC20Interface.encodeFunctionData('approve', [spender, approvedAmount]),
-              },
-              // increase x2 for approval only due to failed tx bcs of gasLimit
-              // for more detail: https://team-kyber.slack.com/archives/C048KKJ4TPW/p1718600494715929?thread_ts=1718267233.557269&cid=C048KKJ4TPW
-              estimatedGas.toNumber() * 2,
-            )
-          : tokenContract.approve(spender, approvedAmount, {
-              gasLimit: calculateGasMargin(estimatedGas),
-            }))
-        addTransactionWithType({
-          hash: response.hash,
-          type: TRANSACTION_TYPE.APPROVE,
-          extraInfo: {
-            tokenSymbol: token.symbol ?? '',
-            tokenAddress: token.address,
-            contract: spender,
-          },
-        })
+        if (response?.hash) {
+          addTransactionWithType({
+            hash: response.hash,
+            type: TRANSACTION_TYPE.APPROVE,
+            extraInfo: {
+              tokenSymbol: token.symbol ?? '',
+              tokenAddress: token.address,
+              contract: spender,
+            },
+          })
+        }
       } catch (error) {
         const message = friendlyError(error)
         console.error('Approve token error:', { message, error })
@@ -190,29 +187,16 @@ export function useApproveCallback(
       account,
       approvalState,
       token,
-      tokenContract,
       amountToApprove,
       spender,
       addTransactionWithType,
       forceApprove,
       notify,
-      paymentToken?.address,
       onApprovalError,
+      isSmartConnector,
+      chainId,
     ],
   )
 
   return [approvalState, approve, currentAllowance]
-}
-
-// wraps useApproveCallback in the context of a swap
-export function useApproveCallbackFromTradeV2(
-  trade?: Aggregator,
-  allowedSlippage = 0,
-): [ApprovalState, () => Promise<void>, TokenAmount | undefined] {
-  const amountToApprove = useMemo(
-    () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
-    [trade, allowedSlippage],
-  )
-
-  return useApproveCallback(amountToApprove, trade?.routerAddress)
 }

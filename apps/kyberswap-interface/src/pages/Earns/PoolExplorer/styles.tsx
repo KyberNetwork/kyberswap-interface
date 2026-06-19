@@ -1,97 +1,70 @@
-import { rgba } from 'polished'
+import { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
-export const PoolPageWrapper = styled.div`
-  padding: 32px 24px 68px;
-  width: 100%;
-  max-width: 1500px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+import { cn } from 'utils/cn'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 24px 16px 100px;
-  `}
-`
+export const PoolPageWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex w-full max-w-[1500px] flex-col gap-4 px-6 pb-16 pt-8 max-sm:px-4 max-sm:pb-[100px] max-sm:pt-6',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+PoolPageWrapper.displayName = 'PoolPageWrapper'
 
-export const LiquidityWidgetWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-`
+export const HeadSection = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('flex w-full items-center justify-between', className)} {...rest} />
+))
+HeadSection.displayName = 'HeadSection'
 
-export const HeadSection = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-`
+export const TagContainer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('flex w-full flex-wrap gap-4 max-sm:gap-3', className)} {...rest} />
+  ),
+)
+TagContainer.displayName = 'TagContainer'
 
-export const TagContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  flex-wrap: wrap;
+type TagProps = HTMLAttributes<HTMLDivElement> & { active: boolean; height?: number }
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 0.75rem;
-  `}
-`
+export const Tag = forwardRef<HTMLDivElement, TagProps>(({ className, active, height, style, ...rest }, ref) => (
+  <div
+    ref={ref}
+    data-active={active}
+    className={cn(
+      'flex h-[42px] shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-transparent px-4 py-1 text-sm leading-7 text-subText transition-colors duration-200 max-md:h-[38px]',
+      active && 'border-primary bg-primary-20 font-medium text-text',
+      !active && 'bg-background',
+      'data-[active=true]:[&[role=button]:hover]:border-primary data-[active=true]:[&[role=button]:hover]:bg-primary-30',
+      'data-[active=false]:[&[role=button]:hover]:bg-primary-10',
+      className,
+    )}
+    style={{ ...(height ? { height: `${height}px` } : {}), ...style }}
+    {...rest}
+  />
+))
+Tag.displayName = 'Tag'
 
-export const Tag = styled.div<{ active: boolean }>`
-  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.2) : theme.background)};
-  border: 1px solid ${({ theme, active }) => (active ? theme.primary : 'transparent')};
-  border-radius: 12px;
-  padding: 4px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
-  font-weight: ${({ active }) => (active ? '500' : '400')};
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 0 0 auto;
-  line-height: 28px;
-  height: 42px;
-  transition: background-color 200ms ease, border-color 200ms ease;
+type StyledNavigateButtonProps = HTMLAttributes<HTMLDivElement> & { mobileFullWidth?: boolean }
 
-  &[role='button']:hover {
-    background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.3) : rgba(theme.primary, 0.1))};
-    border-color: ${({ theme, active }) => (active ? theme.primary : rgba(theme.primary, 0.5))};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    height: 38px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 16px;
-  `}
-`
-
-export const StyledNavigateButton = styled.div<{ mobileFullWidth?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-  color: ${({ theme }) => theme.text};
-  border-radius: 12px;
-  padding: 8px 16px;
-  width: max-content;
-  font-size: 14px;
-  cursor: pointer;
-
-  :hover {
-    filter: brightness(1.1);
-  }
-
-  ${({ theme, mobileFullWidth }) => theme.mediaWidth.upToSmall`
-    ${mobileFullWidth && 'width: 100%;'}
-  `}
-`
+export const StyledNavigateButton = forwardRef<HTMLDivElement, StyledNavigateButtonProps>(
+  ({ className, mobileFullWidth, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex w-max cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-primary-20 px-4 py-2 text-sm font-medium text-text hover:brightness-125',
+        mobileFullWidth && 'max-sm:w-full',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+StyledNavigateButton.displayName = 'StyledNavigateButton'
 
 interface NavigateButtonProps {
   icon: React.ReactNode
@@ -106,137 +79,269 @@ export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to, 
   return (
     <StyledNavigateButton mobileFullWidth={mobileFullWidth} onClick={() => navigate({ pathname: to })}>
       {icon}
-      <Text width={'max-content'}>{text}</Text>
+      <span className="w-max">{text}</span>
     </StyledNavigateButton>
   )
 }
 
-export const TableWrapper = styled.div`
-  background: ${({ theme }) => rgba(theme.background, 0.8)};
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
+export const TableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('relative overflow-hidden rounded-2xl bg-background/80', className)} {...rest} />
+  ),
+)
+TableWrapper.displayName = 'TableWrapper'
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: 0 -16px;
-    border-radius: 0;
-  `}
-`
+export const PoolTableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('relative overflow-hidden rounded-2xl bg-background/80 max-md:bg-transparent', className)}
+      {...rest}
+    />
+  ),
+)
+PoolTableWrapper.displayName = 'PoolTableWrapper'
 
-export const MigrateTableWrapper = styled(TableWrapper)`
-  width: 100%;
-  margin: 0 !important;
-`
+export const MigrateTableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('relative !m-0 w-full overflow-hidden rounded-2xl bg-background/80', className)}
+      {...rest}
+    />
+  ),
+)
+MigrateTableWrapper.displayName = 'MigrateTableWrapper'
 
-export const ContentWrapper = styled.div``
+export const ContentWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => <div ref={ref} className={className} {...rest} />,
+)
+ContentWrapper.displayName = 'ContentWrapper'
 
-export const TableHeader = styled.div<{ expandColumn?: boolean }>`
-  display: grid;
-  grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
-  align-items: center;
-  color: ${({ theme }) => theme.subText};
-  border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
-  padding: 24px;
-`
+export const BackButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>(
+  ({ className, ...rest }, ref) => (
+    <button
+      ref={ref}
+      className={cn(
+        'flex size-9 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-text hover:bg-tabActive',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+BackButton.displayName = 'BackButton'
 
-export const SortableHeader = styled(Flex)`
-  align-items: center;
-  gap: 4px;
-  width: fit-content;
-  cursor: pointer;
+const getTableHeaderColumns = (showRewards: boolean, showPoolPrice: boolean) => {
+  if (showRewards && showPoolPrice) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 1fr 156px 40px'
+  if (showRewards) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 1fr 40px'
+  if (showPoolPrice) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 176px 40px'
+  return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 40px'
+}
 
-  &:hover svg path {
-    stroke: ${({ theme }) => theme.text};
-  }
-`
+type TableHeaderProps = HTMLAttributes<HTMLDivElement> & { showRewards?: boolean; showPoolPrice?: boolean }
 
-export const MigrateTableHeader = styled(TableHeader)`
-  grid-template-columns: 2.5fr 0.8fr 1fr 1fr 1fr !important;
-`
+export const TableHeader = forwardRef<HTMLDivElement, TableHeaderProps>(
+  ({ className, showRewards = true, showPoolPrice = true, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('grid items-center border-b border-tableHeader p-3 text-subText', className)}
+      style={{ gridTemplateColumns: getTableHeaderColumns(showRewards, showPoolPrice), ...style }}
+      {...rest}
+    />
+  ),
+)
+TableHeader.displayName = 'TableHeader'
 
-export const MigrateTableBody = styled.div`
-  max-height: 432px;
-  overflow-y: auto;
+type TableCellProps = HTMLAttributes<HTMLDivElement> & {
+  justifyContent?: CSSProperties['justifyContent']
+  alignItems?: CSSProperties['alignItems']
+  gap?: string
+  flexDirection?: CSSProperties['flexDirection']
+  pt?: number
+}
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-height: 495px;
-  `}
-`
+export const TableCell = forwardRef<HTMLDivElement, TableCellProps>(
+  ({ className, justifyContent, alignItems, gap, flexDirection, pt, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('box-border flex h-full min-w-0 flex-col px-3 py-2', className)}
+      style={{
+        justifyContent: justifyContent || 'flex-start',
+        alignItems: alignItems || 'flex-start',
+        gap: gap || '8px',
+        ...(flexDirection ? { flexDirection } : {}),
+        ...(pt !== undefined ? { paddingTop: `${pt}px` } : {}),
+        ...style,
+      }}
+      {...rest}
+    />
+  ),
+)
+TableCell.displayName = 'TableCell'
 
-export const TableRow = styled.div<{ expandColumn?: boolean }>`
-  display: grid;
-  grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
-  padding: 24px;
-  cursor: pointer;
+export const SortableHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex w-fit cursor-pointer items-center gap-1 text-sm font-medium uppercase hover:[&_svg_path]:stroke-text',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+SortableHeader.displayName = 'SortableHeader'
 
-  :hover {
-    background: #31cb9e1a;
-  }
-`
+export const HeaderText = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
+  ({ className, ...rest }, ref) => (
+    <span ref={ref} className={cn('text-sm font-medium uppercase', className)} {...rest} />
+  ),
+)
+HeaderText.displayName = 'HeaderText'
 
-export const MigrateTableRow = styled(TableRow)`
-  grid-template-columns: 2.5fr 0.8fr 1fr 1fr 1fr !important;
-`
+export const HeaderInfoWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('flex items-center gap-1 text-sm font-medium uppercase', className)} {...rest} />
+  ),
+)
+HeaderInfoWrapper.displayName = 'HeaderInfoWrapper'
 
-export const FeeTier = styled.div`
-  border-radius: 30px;
-  padding: 4px 8px;
-  font-size: 12px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  color: ${({ theme }) => theme.subText};
-  width: fit-content;
+export const MigrateTableHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('grid items-center border-b border-tableHeader p-3 text-subText', className)}
+      style={{ gridTemplateColumns: '2.5fr 0.8fr 1fr 1fr 1fr', ...style }}
+      {...rest}
+    />
+  ),
+)
+MigrateTableHeader.displayName = 'MigrateTableHeader'
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    font-size: 14px;
-  `}
-`
+export const MigrateTableBody = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('max-h-[432px] overflow-y-auto max-sm:max-h-[495px]', className)} {...rest} />
+  ),
+)
+MigrateTableBody.displayName = 'MigrateTableBody'
 
-export const SymbolText = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
-`
+type TableRowProps = HTMLAttributes<HTMLDivElement> & { showRewards?: boolean; showPoolPrice?: boolean }
 
-export const Apr = styled.div<{ value: number }>`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  color: ${({ value, theme }) => (value > 0 ? theme.primary : value < 0 ? theme.red : theme.text)};
-`
+export const TableRow = forwardRef<HTMLDivElement, TableRowProps>(
+  ({ className, showRewards = true, showPoolPrice = true, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('grid items-center p-3 text-subText hover:cursor-pointer hover:bg-primary-10', className)}
+      style={{ gridTemplateColumns: getTableHeaderColumns(showRewards, showPoolPrice), ...style }}
+      {...rest}
+    />
+  ),
+)
+TableRow.displayName = 'TableRow'
 
-export const MobileTableRow = styled.div`
-  padding: 28px 24px 0;
-  cursor: pointer;
-`
-export const MobileTableBottomRow = styled.div<{ withoutBorder: boolean }>`
-  display: flex;
-  flex-direction: column;
-  padding: 16px 0;
-  gap: 12px;
-  border-bottom: ${({ withoutBorder, theme }) => (withoutBorder ? 'none' : `1px solid ${theme.tableHeader}`)};
-`
+export const MigrateTableRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('grid items-center p-3 text-subText hover:cursor-pointer hover:bg-primary-10', className)}
+      style={{ gridTemplateColumns: '2.5fr 0.8fr 1fr 1fr 1fr', ...style }}
+      {...rest}
+    />
+  ),
+)
+MigrateTableRow.displayName = 'MigrateTableRow'
 
-export const Disclaimer = styled.div`
-  font-size: 14px;
-  font-style: italic;
-  color: #737373;
-  text-align: center;
-  width: 100%;
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0 16px;
+export const Badge = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'flex w-fit items-center gap-1 rounded-[30px] bg-white-08 py-1 pl-1 pr-1.5 text-xs text-subText',
+      className,
+    )}
+    {...rest}
+  />
+))
+Badge.displayName = 'Badge'
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    bottom: 20px;
-  `}
-`
+export const FeeTier = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'flex w-fit items-center gap-1 rounded-[30px] bg-white-08 px-2 py-1 text-xs text-subText max-[500px]:text-sm',
+      className,
+    )}
+    {...rest}
+  />
+))
+FeeTier.displayName = 'FeeTier'
 
-export const ProgressBarWrapper = styled.div`
-  position: absolute;
-  width: 100%;
-`
+export const SymbolText = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('max-w-[140px] truncate', className)} {...rest} />
+))
+SymbolText.displayName = 'SymbolText'
+
+type AprProps = HTMLAttributes<HTMLDivElement> & { value: number }
+
+export const Apr = forwardRef<HTMLDivElement, AprProps>(({ className, value, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'flex items-center justify-start',
+      value > 0 ? 'text-primary' : value < 0 ? 'text-red' : 'text-text',
+      className,
+    )}
+    {...rest}
+  />
+))
+Apr.displayName = 'Apr'
+
+export const MobileTableRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('cursor-pointer rounded-xl bg-background p-2 hover:bg-buttonGray', className)}
+      {...rest}
+    />
+  ),
+)
+MobileTableRow.displayName = 'MobileTableRow'
+
+type MobileTableCellProps = HTMLAttributes<HTMLDivElement> & {
+  alignItems?: CSSProperties['alignItems']
+  justifyContent?: CSSProperties['justifyContent']
+}
+
+export const MobileTableCell = forwardRef<HTMLDivElement, MobileTableCellProps>(
+  ({ className, alignItems, justifyContent, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('box-border flex w-full min-w-0 p-2', className)}
+      style={{
+        ...(alignItems ? { alignItems } : {}),
+        ...(justifyContent ? { justifyContent } : {}),
+        ...style,
+      }}
+      {...rest}
+    />
+  ),
+)
+MobileTableCell.displayName = 'MobileTableCell'
+
+export const MobileTableBottomRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => <div ref={ref} className={cn('flex flex-col', className)} {...rest} />,
+)
+MobileTableBottomRow.displayName = 'MobileTableBottomRow'
+
+export const Disclaimer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'absolute bottom-7 left-1/2 w-full -translate-x-1/2 px-4 text-center text-sm italic text-gray max-md:bottom-5',
+      className,
+    )}
+    {...rest}
+  />
+))
+Disclaimer.displayName = 'Disclaimer'

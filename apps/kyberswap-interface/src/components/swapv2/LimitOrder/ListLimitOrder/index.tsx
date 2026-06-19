@@ -1,28 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useSearchParams } from 'react-router-dom'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
-import ListMyOrder from '../ListOrder'
-import OrderBook from '../OrderBook'
-import { LimitOrderTab } from '../type'
-import TabSelector from './TabSelector'
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
-  border: 1px solid ${({ theme }) => theme.border};
-  overflow: hidden;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin-left: -16px;
-    width: 100vw;
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
-    border: none;
-  `};
-`
+import TabSelector from 'components/swapv2/LimitOrder/ListLimitOrder/TabSelector'
+import ListMyOrder from 'components/swapv2/LimitOrder/ListOrder'
+import OrderBook from 'components/swapv2/LimitOrder/OrderBook'
+import { LimitOrderTab } from 'components/swapv2/LimitOrder/type'
 
 export default function ListLimitOrder({ customChainId }: { customChainId?: ChainId }) {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -35,12 +17,12 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
   }
 
   return (
-    <Wrapper>
-      <Flex flexDirection={['column', 'row']} justifyContent={'space-between'} alignItems={['flex-start', 'center']}>
+    <div className="flex flex-col overflow-hidden rounded-xl border border-darkBorder max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none max-sm:border-0">
+      <div className="flex flex-col items-start justify-between sm:flex-row sm:items-center">
         <TabSelector setActiveTab={setActiveTab} activeTab={activeTab} />
-      </Flex>
+      </div>
 
       {activeTab === LimitOrderTab.ORDER_BOOK ? <OrderBook /> : <ListMyOrder customChainId={customChainId} />}
-    </Wrapper>
+    </div>
   )
 }

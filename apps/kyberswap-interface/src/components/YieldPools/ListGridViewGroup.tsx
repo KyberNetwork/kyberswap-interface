@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import { Flex } from 'rebass'
 
 import { ReactComponent as GridViewIcon } from 'assets/svg/grid_view.svg'
 import { ReactComponent as ListViewIcon } from 'assets/svg/list_view.svg'
@@ -18,7 +17,7 @@ export default function ListGridViewGroup({ customIcons }: { customIcons?: { [mo
   const theme = useTheme()
 
   return (
-    <Flex sx={{ gap: '0.5rem' }}>
+    <div className="flex gap-2">
       {[VIEW_MODE.LIST, VIEW_MODE.GRID].map(mode => (
         <ButtonEmpty
           padding="0"
@@ -29,6 +28,6 @@ export default function ListGridViewGroup({ customIcons }: { customIcons?: { [mo
           {customIcons?.[mode] || defaultIcons[mode]}
         </ButtonEmpty>
       ))}
-    </Flex>
+    </div>
   )
 }

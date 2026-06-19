@@ -1,43 +1,39 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { CSSProperties, useState } from 'react'
-import { HelpCircle } from 'react-feather'
-import { ImageProps } from 'rebass'
-import styled from 'styled-components'
+import { CSSProperties, ImgHTMLAttributes, useState } from 'react'
 
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getNativeTokenLogo, isEvmChain } from 'utils'
+import { cn } from 'utils/cn'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
 
-interface LogoProps extends Pick<ImageProps, 'style' | 'alt' | 'className'> {
+interface LogoProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   srcs: string[]
+  size?: string | number
 }
 
 /**
- * Renders an image by sequentially trying a list of URIs, and then eventually a fallback triangle alert
+ * Renders an image by sequentially trying a list of URIs, and then eventually a fallback triangle alert.
  */
 export default function Logo({ srcs, alt, ...rest }: LogoProps) {
   const [, refresh] = useState<number>(0)
 
-  const src: string | undefined = srcs.find(src => !BAD_SRCS[src])
+  const src: string | undefined = srcs.find(s => !BAD_SRCS[s])
 
-  if (src) {
-    return (
-      <img
-        {...rest}
-        alt={alt}
-        src={src}
-        onError={() => {
-          if (src) BAD_SRCS[src] = true
-          refresh(i => i + 1)
-        }}
-      />
-    )
-  }
-
-  return <HelpCircle {...rest} />
+  return (
+    <img
+      {...rest}
+      alt={alt}
+      src={src || UnknownToken}
+      onError={() => {
+        if (src) BAD_SRCS[src] = true
+        refresh(i => i + 1)
+      }}
+    />
+  )
 }
 
 export function NetworkLogo({ chainId, style = {} }: { chainId: Chain; style?: CSSProperties }) {
@@ -60,14 +56,7 @@ export function TokenLogoWithChain(data: any) {
 
   return (
     <div style={{ position: 'relative', height: size }}>
-      <Logo
-        srcs={[tokenLogo ?? '']}
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '4px',
-        }}
-      />
+      <Logo srcs={[tokenLogo ?? '']} style={{ width: size, height: size, borderRadius: '4px' }} />
       <NetworkLogo
         chainId={chainId}
         style={{
@@ -83,13 +72,14 @@ export function TokenLogoWithChain(data: any) {
   )
 }
 
-export const TokenLogoWithShadow = styled(Logo)<{ size: string }>`
-  width: ${({ size }) => size};
-  height: ${({ size }) => size};
-  border-radius: 100%;
-  box-shadow: ${() =>
-    (() => {
-      const color = `rgba(256, 256, 256, 0.2)`
-      return `0 4px 5px 0 ${color}, 0 1px 70px 0 ${color};`
-    })()};
-`
+// Soft white halo (4px close + 70px wide bloom) at 20% alpha.
+const shadowClasses = 'shadow-[0_4px_5px_0_rgba(255,255,255,0.2),0_1px_70px_0_rgba(255,255,255,0.2)]'
+
+export const TokenLogoWithShadow = ({ size, style, className, ...rest }: LogoProps & { size?: string }) => (
+  <Logo
+    {...rest}
+    style={{ width: size, height: size, ...style }}
+    className={cn('rounded-full', shadowClasses, className)}
+  />
+)
+TokenLogoWithShadow.displayName = 'TokenLogoWithShadow'

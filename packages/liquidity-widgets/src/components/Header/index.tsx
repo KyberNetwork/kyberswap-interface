@@ -62,7 +62,10 @@ const Header = () => {
 
   const isOutOfRange = useMemo(() => {
     if (!positionId || !isUniV3 || !poolPrice || minPrice === null || maxPrice === null) return false;
-    return poolPrice < +minPrice || poolPrice > +maxPrice;
+
+    const min = parseFloat(minPrice.replace(/,/g, ''));
+    const max = parseFloat(maxPrice.replace(/,/g, ''));
+    return poolPrice < min || poolPrice > max;
   }, [isUniV3, maxPrice, minPrice, poolPrice, positionId]);
 
   const isClosed = position !== null && position.liquidity.toString() === '0';

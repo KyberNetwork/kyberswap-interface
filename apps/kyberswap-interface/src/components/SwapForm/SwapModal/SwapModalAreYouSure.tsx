@@ -1,43 +1,11 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { Dispatch, SetStateAction, useState } from 'react'
-import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 24px 24px 28px;
-  background-color: ${({ theme }) => theme.tableHeader};
-`
-
-const StyledInput = styled.input`
-  margin-top: 24px;
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 16px;
-  outline: none;
-  color: ${({ theme }) => theme.text};
-  border: none;
-  &::placeholder {
-    color: ${({ theme }) => theme.disableText};
-  }
-`
-
-const StyledCloseIcon = styled(X)`
-  height: 28px;
-  width: 28px;
-  :hover {
-    cursor: pointer;
-  }
-`
+import { HStack, Stack } from 'components/Stack'
+import { CloseIcon } from 'theme/components'
 
 export default function SwapModalAreYouSure({
   show,
@@ -64,8 +32,6 @@ export default function SwapModalAreYouSure({
     }
   }
 
-  const theme = useTheme()
-
   return (
     <Modal
       isOpen={show}
@@ -74,47 +40,50 @@ export default function SwapModalAreYouSure({
         setShow(false)
       }}
       maxHeight={100}
+      width="480px"
+      maxWidth="unset"
     >
-      <ModalContentWrapper>
-        <Flex alignItems="center" justifyContent="space-between">
-          <Text fontSize="20px" fontWeight={500}>
+      <Stack className="w-full gap-6 bg-tableHeader p-5">
+        <HStack className="items-center justify-between">
+          <span className="text-xl font-medium text-text">
             <Trans>Are you sure?</Trans>
-          </Text>
+          </span>
 
-          <StyledCloseIcon color={theme.text} onClick={() => setShow(false)} />
-        </Flex>
+          <CloseIcon onClick={() => setShow(false)} />
+        </HStack>
 
-        <Text fontSize={14} marginTop="28px">
-          <Trans>
-            Due to market conditions, your output has been updated from {parsedAmountOut?.toSignificant(10)}{' '}
-            {parsedAmountOut?.currency?.symbol} to {parsedAmountOutFromBuild?.toSignificant(10)}{' '}
-            {parsedAmountOut?.currency?.symbol} ({formattedOutputChangePercent}%).
-          </Trans>
-        </Text>
+        <Stack className="gap-4">
+          <span className="text-sm font-medium text-subText">
+            <Trans>
+              Due to market conditions, your output has been updated from {parsedAmountOut?.toSignificant(10)}{' '}
+              {parsedAmountOut?.currency?.symbol} to {parsedAmountOutFromBuild?.toSignificant(10)}{' '}
+              {parsedAmountOut?.currency?.symbol} ({formattedOutputChangePercent}%).
+            </Trans>
+          </span>
 
-        <Text fontSize={14} marginTop="28px">
-          <Trans>
-            If you&apos;re okay with this, please type the word &apos;confirm&apos; below to accept this new amount.
-          </Trans>
-        </Text>
+          <span className="text-sm font-normal text-text">
+            <Trans>
+              Please type the word <span className="font-medium text-warning">Confirm</span> below to accept this new
+              amount.
+            </Trans>
+          </span>
 
-        <StyledInput
-          placeholder="confirm"
-          value={confirmText}
-          onChange={e => setConfirmText(e.target.value)}
-          onKeyUp={e => {
-            if (e.key === 'Enter') {
-              handleConfirm()
-            }
-          }}
-        />
-        <Flex sx={{ gap: '16px' }} marginTop="28px" justifyContent={'center'}>
-          <ButtonOutlined
-            style={{
-              flex: 1,
-              fontSize: '14px',
-              padding: '10px',
+          <input
+            placeholder="Confirm"
+            value={confirmText}
+            onChange={e => setConfirmText(e.target.value)}
+            onKeyUp={e => {
+              if (e.key === 'Enter') {
+                handleConfirm()
+              }
             }}
+            className="rounded-full border-none bg-buttonBlack px-4 py-2 text-sm font-medium text-text outline-none placeholder:text-disableText"
+          />
+        </Stack>
+
+        <HStack className="justify-center gap-4">
+          <ButtonOutlined
+            className="flex-1 p-2.5 text-sm"
             onClick={() => {
               setConfirmText('')
               setShow(false)
@@ -124,13 +93,13 @@ export default function SwapModalAreYouSure({
           </ButtonOutlined>
           <ButtonErrorStyle
             disabled={confirmText.trim().toLowerCase() !== 'confirm'}
-            style={{ fontSize: '14px', flex: 1, padding: '10px' }}
+            className="flex-1 p-2.5 text-sm"
             onClick={handleConfirm}
           >
             <Trans>Confirm</Trans>
           </ButtonErrorStyle>
-        </Flex>
-      </ModalContentWrapper>
+        </HStack>
+      </Stack>
     </Modal>
   )
 }

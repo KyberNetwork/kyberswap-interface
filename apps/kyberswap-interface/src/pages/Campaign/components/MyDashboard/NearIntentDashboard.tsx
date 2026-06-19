@@ -2,14 +2,11 @@ import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import NavGroup from 'components/Header/groups/NavGroup'
-import useTheme from 'hooks/useTheme'
 import { getDateOfWeek } from 'pages/Campaign/MyDashboard'
 import { SelectChainModal } from 'pages/Campaign/components/SelectChainModal'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
@@ -18,32 +15,12 @@ import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentS
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const AddressText = styled(Text)`
-  :hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 40px 2fr 2fr;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  padding: 1rem 0;
-  gap: 1rem;
-  font-weight: 500;
-`
-
-const TableRow = styled(TableHeader)`
-  font-size: 1rem;
-  font-weight: 400;
-  color: ${({ theme }) => theme.text};
-  align-items: center;
-`
+const tableGridClass = 'grid grid-cols-[40px_2fr_2fr] gap-4'
 
 const NearIntentDashboard = () => {
-  const theme = useTheme()
   const { reward } = campaignConfig[CampaignType.NearIntents]
 
   const {
@@ -77,37 +54,35 @@ const NearIntentDashboard = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
-    <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
+    <div className="mt-5 rounded-[20px] bg-background p-6">
       {termAndPolicyModal}
-      <Flex alignItems="center" justifyContent="space-between" height="100%" minHeight="49px">
+      <div className="flex h-full min-h-[49px] items-center justify-between">
         {selectedWallet && address[selectedWallet] ? (
-          <Flex
-            width="100%"
-            alignItems="center"
-            sx={{ gap: '8px' }}
-            flexDirection={upToSmall ? 'column' : 'row'}
-            justifyContent={upToSmall ? 'flex-start' : 'space-around'}
+          <div
+            className={cn(
+              'flex w-full items-center gap-2',
+              upToSmall ? 'flex-col justify-start' : 'flex-row justify-around',
+            )}
           >
-            <Flex flex={1} width="100%">
+            <div className="flex w-full flex-1">
               <NavGroup
                 isActive={false}
                 anchor={
-                  <Flex alignItems="center" sx={{ gap: '4px', color: theme.subText }}>
+                  <div className="flex items-center gap-1 text-subText">
                     <img src={logo[selectedWallet]} width={20} height={20} alt="" style={{ borderRadius: '50%' }} />
-                    <Text fontSize={14} color={theme.subText}>
+                    <span className="text-sm text-subText">
                       {address[selectedWallet]?.includes('.near')
                         ? address[selectedWallet]
                         : shortenHash(address[selectedWallet] || '')}
-                    </Text>
-                  </Flex>
+                    </span>
+                  </div>
                 }
                 dropdownContent={
-                  <Column gap="16px" padding="12px">
+                  <Column className="gap-4 p-3">
                     {Object.keys(logo).map(walletType => (
-                      <Flex
+                      <div
                         key={walletType}
-                        justifyContent="space-between"
-                        sx={{ gap: '1.5rem' }}
+                        className="flex justify-between gap-6"
                         onClick={() => {
                           if (address[walletType]) {
                             setSelectedWallet(walletType)
@@ -117,7 +92,7 @@ const NearIntentDashboard = () => {
                           }
                         }}
                       >
-                        <Flex sx={{ gap: '6px', alignItems: 'center' }}>
+                        <div className="flex items-center gap-1.5">
                           <img
                             src={logo[walletType]}
                             width={20}
@@ -125,17 +100,17 @@ const NearIntentDashboard = () => {
                             alt={walletType}
                             style={{ borderRadius: '50%' }}
                           />
-                          <AddressText color={theme.subText} fontSize={14}>
+                          <span className="text-sm text-subText hover:text-primary">
                             {address[walletType]
                               ? address[walletType]?.includes('.near')
                                 ? address[walletType]
                                 : shortenHash(address[walletType] || '', 4)
                               : walletType[0].toUpperCase() + walletType.slice(1)}
-                          </AddressText>
-                        </Flex>
+                          </span>
+                        </div>
 
                         <ButtonText
-                          color={theme.primary}
+                          className="text-primary"
                           style={{ fontSize: '14px' }}
                           onClick={e => {
                             if (address[walletType]) {
@@ -159,59 +134,57 @@ const NearIntentDashboard = () => {
                         >
                           {address[walletType] ? <Trans>Disconnect</Trans> : <Trans>Connect</Trans>}
                         </ButtonText>
-                      </Flex>
+                      </div>
                     ))}
                   </Column>
                 }
               />
-            </Flex>
+            </div>
 
-            <Flex
-              flexDirection={upToSmall ? 'row' : 'column'}
-              width="100%"
-              sx={{ gap: '8px' }}
-              justifyContent={upToSmall ? 'space-between' : 'flex-start'}
-              style={{ flex: 1 }}
+            <div
+              className={cn(
+                'flex w-full flex-1 gap-2',
+                upToSmall ? 'flex-row justify-between' : 'flex-col justify-start',
+              )}
             >
-              <Text color={theme.subText}>
+              <span className="text-subText">
                 <Trans>My Earned Points</Trans>
-              </Text>
-              <Text fontSize={18} fontWeight={500}>
+              </span>
+              <span className="text-lg font-medium">
                 {formatDisplayNumber(Math.floor(data[selectedWallet]?.totalPoint || 0), { significantDigits: 6 })}
-              </Text>
-            </Flex>
+              </span>
+            </div>
 
-            <Flex
-              flexDirection={upToSmall ? 'row' : 'column'}
-              width="100%"
-              sx={{ gap: '8px' }}
-              justifyContent={upToSmall ? 'space-between' : 'flex-start'}
-              style={{ flex: 1 }}
+            <div
+              className={cn(
+                'flex w-full flex-1 gap-2',
+                upToSmall ? 'flex-row justify-between' : 'flex-col justify-start',
+              )}
             >
-              <Text color={theme.subText}>
+              <span className="text-subText">
                 <Trans>My Est. Rewards</Trans>
-              </Text>
+              </span>
 
-              <Flex alignItems="center" sx={{ gap: '4px' }}>
+              <div className="flex items-center gap-1">
                 <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
-                <Text fontWeight={500} fontSize={18}>
+                <span className="text-lg font-medium">
                   {rewardAmount?.toSignificant(4) || '0'} {reward.symbol}
-                </Text>
-              </Flex>
-            </Flex>
-          </Flex>
+                </span>
+              </div>
+            </div>
+          </div>
         ) : (
           <>
-            <Text fontSize={14} color={theme.subText}>
+            <span className="text-sm text-subText">
               <Trans>Connect wallet to view your reward</Trans>
-            </Text>
+            </span>
 
             <ButtonLight width="max-content" height="36px" onClick={() => setShowSelect(true)}>
               <Trans>Connect Wallet</Trans>
             </ButtonLight>
           </>
         )}
-      </Flex>
+      </div>
       <BitcoinConnectModal
         isOpen={showBtcModal}
         onDismiss={() => {
@@ -221,21 +194,21 @@ const NearIntentDashboard = () => {
 
       <SelectChainModal showSelect={showSelect} connect={connect} setShowSelect={setShowSelect} logo={logo} />
 
-      <Divider mt="24px" />
+      <Divider className="mt-6" />
 
       {!upToSmall && (
         <>
-          <TableHeader>
-            <Text>
+          <div className={cn(tableGridClass, 'py-4 text-xs font-medium text-subText')}>
+            <span>
               <Trans>WEEK</Trans>
-            </Text>
-            <Text textAlign="right">
+            </span>
+            <span className="text-right">
               <Trans>POINTS EARNED</Trans>
-            </Text>
-            <Text textAlign="right">
+            </span>
+            <span className="text-right">
               <Trans>ESTIMATED REWARDS</Trans>{' '}
-            </Text>
-          </TableHeader>
+            </span>
+          </div>
           <Divider />
         </>
       )}
@@ -248,28 +221,30 @@ const NearIntentDashboard = () => {
             end.setHours(end.getHours() - 1)
 
             return (
-              <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }} key={index}>
-                <Flex justifyContent="space-between" alignItems="center">
-                  <Text color={theme.subText}>
+              <div className="border-b border-border py-4" key={index}>
+                <div className="flex items-center justify-between">
+                  <span className="text-subText">
                     <Trans>Week {item.week - baseWeek}:</Trans> {dayjs(date).format('MMM DD')} -{' '}
                     {dayjs(end).format('MMM DD')}
-                  </Text>
-                </Flex>
+                  </span>
+                </div>
 
-                <Flex justifyContent="space-between" alignItems="center" mt="1rem">
-                  <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-xs font-medium text-subText">
                     <Trans>POINTS EARNED</Trans>
-                  </Text>
-                  <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}</Text>
-                </Flex>
+                  </span>
+                  <span className="text-right">
+                    {formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}
+                  </span>
+                </div>
 
-                <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
-                  <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-xs font-medium text-subText">
                     <Trans>ESTIMATED REWARDS</Trans>
-                  </Text>
-                  <Flex justifyContent="flex-end" alignItems="flex-end" sx={{ gap: '4px' }}>
+                  </span>
+                  <div className="flex items-end justify-end gap-1">
                     <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
-                    <Text textAlign="right">
+                    <span className="text-right">
                       {formatDisplayNumber(
                         CurrencyAmount.fromRawAmount(
                           new Token(reward.chainId, reward.address, reward.decimals, ''),
@@ -280,19 +255,21 @@ const NearIntentDashboard = () => {
                         },
                       )}{' '}
                       {reward.symbol}
-                    </Text>
-                  </Flex>
-                </Flex>
-              </Box>
+                    </span>
+                  </div>
+                </div>
+              </div>
             )
           }
           return (
-            <TableRow key={index}>
-              <Text>{item.week - campaignConfig[CampaignType.NearIntents].baseWeek}</Text>
-              <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}</Text>
-              <Flex alignItems="center" justifyContent="flex-end" sx={{ gap: '4px' }}>
+            <div className={cn(tableGridClass, 'items-center text-base font-normal text-text')} key={index}>
+              <span>{item.week - campaignConfig[CampaignType.NearIntents].baseWeek}</span>
+              <span className="text-right">
+                {formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}
+              </span>
+              <div className="flex items-center justify-end gap-1">
                 <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
-                <Text textAlign="right">
+                <span className="text-right">
                   {formatDisplayNumber(
                     CurrencyAmount.fromRawAmount(
                       new Token(reward.chainId, reward.address, reward.decimals, ''),
@@ -303,17 +280,17 @@ const NearIntentDashboard = () => {
                     },
                   )}{' '}
                   {reward.symbol}
-                </Text>
-              </Flex>
-            </TableRow>
+                </span>
+              </div>
+            </div>
           )
         })
       ) : (
-        <Text textAlign="center" color={theme.subText} mt="24px">
+        <span className="mt-6 block text-center text-subText">
           <Trans>No data found</Trans>
-        </Text>
+        </span>
       )}
-    </Box>
+    </div>
   )
 }
 

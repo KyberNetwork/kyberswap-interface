@@ -1,77 +1,33 @@
-import React, { useMemo } from 'react'
+import React, { ButtonHTMLAttributes, forwardRef, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
 import { APP_PATHS, DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
+import { cn } from 'utils/cn'
 
-import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
+export const DefaultSlippageOption = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>(
+  ({ className, ...props }, ref) => (
+    <button
+      ref={ref}
+      {...props}
+      className={cn('h-7 min-w-0 flex-1 cursor-pointer rounded-full border px-2 text-sm', className)}
+    />
+  ),
+)
+DefaultSlippageOption.displayName = 'DefaultSlippageOption'
 
-const SlippageSettingElement = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 100%;
-  height: 28px;
-  border-radius: 20px;
-  background: ${({ theme }) => theme.tabBackground};
-  padding: 2px;
-`
+type Props = {
+  rawSlippage: number
+  setRawSlippage: (value: number) => void
+  isWarning?: boolean
+  isHighlight?: boolean
+  options: number[]
+}
 
-const slippageOptionCSS = css`
-  height: 100%;
-  padding: 0;
-  border-radius: 20px;
-  border: 1px solid transparent;
-
-  background-color: ${({ theme }) => theme.tabBackground};
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  cursor: pointer;
-
-  :hover {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-  :focus {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-
-    font-weight: 500;
-  }
-
-  &[data-warning='true'] {
-    border-color: ${({ theme }) => theme.warning};
-  }
-`
-
-export const DefaultSlippageOption = styled.button`
-  ${slippageOptionCSS};
-  flex: 1;
-
-  @media only screen and (max-width: 375px) {
-    font-size: 10px;
-    flex: 0 0 15%;
-  }
-`
-
-type Props = CustomSlippageInputProps
-// rawSlippage = 10
-// slippage = 10 / 10_000 = 0.001 = 0.1%
 const SlippageControl: React.FC<Props> = props => {
-  const { rawSlippage, setRawSlippage, isWarning, isHighlight } = props
+  const { rawSlippage, setRawSlippage, isWarning = false, isHighlight } = props
   const { trackingHandler } = useTracking()
   const { pathname } = useLocation()
   const isCrossChain = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
@@ -85,36 +41,63 @@ const SlippageControl: React.FC<Props> = props => {
         : DEFAULT_SLIPPAGES,
     [cat, props.options],
   )
+  const [isCustomActive, setIsCustomActive] = useState(!options.includes(rawSlippage))
+  const [isCustomInputFocused, setIsCustomInputFocused] = useState(false)
+
+  useEffect(() => {
+    if (isCustomInputFocused) return
+    setIsCustomActive(!options.includes(rawSlippage))
+  }, [isCustomInputFocused, options, rawSlippage])
 
   return (
-    <SlippageSettingElement>
-      {options.map(slp => (
-        <DefaultSlippageOption
-          key={slp}
-          onClick={() => {
-            trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, {
-              new_slippage: slp / 100,
-              previous_value: rawSlippage / 100,
-              input_method: 'preset',
-            })
-            if (isCrossChain) {
-              trackingHandler(TRACKING_EVENT_TYPE.CC_SLIPPAGE_CHANGED, {
+    <div className="flex w-full max-w-full items-stretch rounded-[20px] bg-tabBackground">
+      {options.map(slp => {
+        const isActive = rawSlippage === slp && !isCustomActive
+
+        return (
+          <DefaultSlippageOption
+            key={slp}
+            onClick={() => {
+              trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, {
                 new_slippage: slp / 100,
                 previous_value: rawSlippage / 100,
                 input_method: 'preset',
               })
-            }
-            setRawSlippage(slp)
-          }}
-          data-active={rawSlippage === slp}
-          data-warning={rawSlippage === slp && isWarning}
-        >
-          {slp / 100}%
-        </DefaultSlippageOption>
-      ))}
+              if (isCrossChain) {
+                trackingHandler(TRACKING_EVENT_TYPE.CC_SLIPPAGE_CHANGED, {
+                  new_slippage: slp / 100,
+                  previous_value: rawSlippage / 100,
+                  input_method: 'preset',
+                })
+              }
+              setIsCustomActive(false)
+              setRawSlippage(slp)
+            }}
+            className={cn(
+              isActive
+                ? cn(
+                    'bg-tabActive text-text hover:bg-buttonGray',
+                    isWarning ? 'border-warning/50' : 'border-primary-50',
+                  )
+                : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',
+            )}
+          >
+            {slp / 100}%
+          </DefaultSlippageOption>
+        )
+      })}
 
-      <CustomSlippageInput data-highlight={isHighlight} {...props} options={options} />
-    </SlippageSettingElement>
+      <CustomSlippageInput
+        value={rawSlippage}
+        isActive={isCustomActive}
+        onActiveChange={setIsCustomActive}
+        onFocusChange={setIsCustomInputFocused}
+        onChange={setRawSlippage}
+        isWarning={isWarning}
+        isHighlight={isHighlight}
+        options={options}
+      />
+    </div>
   )
 }
 

@@ -1,36 +1,11 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
 import safePalWallet from 'pages/Campaign/assets/safepal_wallet.png'
 import { CampaignWeek } from 'pages/Campaign/timelines'
 import { isCampaignWeekActive, isCampaignWeekEnded } from 'pages/Campaign/utils/safepalUtils'
-
-const Wrapper = styled.div`
-  width: 100%;
-  padding: 24px;
-  color: ${({ theme }) => theme.text};
-  font-size: 14px;
-  line-height: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 20px;
-    gap: 12px;
-  `}
-`
-
-const ActionRow = styled(Flex)`
-  width: 100%;
-  gap: 12px;
-`
 
 type Props = {
   isOpen: boolean
@@ -46,28 +21,27 @@ const formatClaimDeadline = (timestamp: number) =>
     .format('DD/MM/YYYY HH:mm') + ' UTC'
 
 export default function SafePalClaimModal({ isOpen, onDismiss, claimWeek }: Props) {
-  const theme = useTheme()
   const deadlineText = formatClaimDeadline(claimWeek.end)
   const claimDisabled = isCampaignWeekEnded(claimWeek) || !isCampaignWeekActive(claimWeek)
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false}>
-      <Wrapper>
-        <Text fontSize={20} fontWeight={500}>
+      <div className="flex w-full flex-col items-center gap-4 p-6 text-sm leading-6 text-text max-sm:gap-3 max-sm:p-5">
+        <span className="text-xl font-medium">
           <Trans>Rewards Claiming</Trans>
-        </Text>
+        </span>
 
-        <Text fontWeight={500} color={theme.text}>
+        <span className="font-medium text-text">
           <Trans>You&apos;re eligible to claim 🎁 SafePal X1 Hardware Wallet</Trans>
-        </Text>
+        </span>
 
         <img src={safePalWallet} alt="safepal wallet" style={{ width: '160px', maxWidth: '100%', height: 'auto' }} />
 
-        <Text color={theme.subText} textAlign="center">
+        <span className="text-center text-subText">
           <Trans>Claim deadline: {deadlineText}</Trans>
-        </Text>
+        </span>
 
-        <ActionRow marginTop="4px">
+        <div className="mt-1 flex w-full gap-3">
           <ButtonOutlined flex={1} height="40px" onClick={onDismiss}>
             <Trans>Cancel</Trans>
           </ButtonOutlined>
@@ -82,8 +56,8 @@ export default function SafePalClaimModal({ isOpen, onDismiss, claimWeek }: Prop
           >
             <Trans>Claim on SafePal</Trans>
           </ButtonPrimary>
-        </ActionRow>
-      </Wrapper>
+        </div>
+      </div>
     </Modal>
   )
 }

@@ -3,8 +3,6 @@ import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import Divider from 'components/Divider'
 import WarningIcon from 'components/Icons/WarningIcon'
@@ -15,22 +13,6 @@ import { BIPS_BASE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail } from 'hooks/kyberdao/types'
-import useTheme from 'hooks/useTheme'
-
-const Wrapper = styled.div`
-  border-radius: 20px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  ${({ theme }) => css`
-    border: 1px solid ${theme.border};
-    background-color: ${theme.buttonBlack};
-  `}
-`
-
-const InfoRow = styled(RowBetween)`
-  font-size: 12px;
-  padding: 6px 0;
-`
 
 function getEpochInformation(
   epochPeriodInSeconds: number,
@@ -42,8 +24,11 @@ function getEpochInformation(
   return { epochNumber, epochStartTimestamp }
 }
 
+const InfoRow = ({ children }: { children: React.ReactNode }) => (
+  <RowBetween className="py-1.5 text-xs">{children}</RowBetween>
+)
+
 export default function VoteInformation({ proposal }: { proposal: ProposalDetail }) {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { stakerInfo, daoInfo } = useVotingInfo()
   const votePowerAmount: number = useMemo(
@@ -67,88 +52,88 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
   )
 
   return (
-    <Wrapper>
-      <Text>
+    <div className="mb-5 rounded-[20px] border border-solid border-border bg-buttonBlack px-4 py-3">
+      <div>
         <Trans>Vote Information</Trans>
-      </Text>
-      <Divider margin="10px 0" />
+      </div>
+      <Divider className="my-2.5" />
       <InfoRow>
-        <Text color={theme.subText}>
+        <span className="text-subText">
           <Trans>Voting System</Trans>
-        </Text>
-        <Text color={theme.text}>{proposal.proposal_type}</Text>
+        </span>
+        <span className="text-text">{proposal.proposal_type}</span>
       </InfoRow>
       <InfoRow>
-        <Text color={theme.subText}>
+        <span className="text-subText">
           <Trans>Start Date</Trans>
-        </Text>
-        <Text color={theme.text}>{dayjs(proposal.start_timestamp * 1000).format('DD MMMM YYYY')}</Text>
+        </span>
+        <span className="text-text">{dayjs(proposal.start_timestamp * 1000).format('DD MMMM YYYY')}</span>
       </InfoRow>
       <InfoRow>
-        <Text color={theme.subText}>
+        <span className="text-subText">
           <Trans>End Date</Trans>
-        </Text>
-        <Text color={theme.text}>{dayjs(proposal.end_timestamp * 1000).format('DD MMMM YYYY')}</Text>
+        </span>
+        <span className="text-text">{dayjs(proposal.end_timestamp * 1000).format('DD MMMM YYYY')}</span>
       </InfoRow>
       <InfoRow>
-        <Text color={theme.subText}>
+        <span className="text-subText">
           <Trans>Total Addresses</Trans>
-        </Text>
-        <Text color={theme.text}>{proposal.vote_stats.total_address_count}</Text>
+        </span>
+        <span className="text-text">{proposal.vote_stats.total_address_count}</span>
       </InfoRow>
       <InfoRow>
-        <Text color={theme.subText}>
+        <span className="text-subText">
           <Trans>KNC Amount</Trans>
-        </Text>
-        <Text color={theme.text}>{Math.floor(proposal.vote_stats.total_vote_count).toLocaleString()}</Text>
+        </span>
+        <span className="text-text">{Math.floor(proposal.vote_stats.total_vote_count).toLocaleString()}</span>
       </InfoRow>
       <InfoRow>
-        <Text color={theme.subText}>
+        <span className="text-subText">
           <Trans>Epoch {epochNumber} Start Date</Trans>
-        </Text>
-        <Text color={theme.text}>{dayjs(epochStartTimestamp * 1000).format('DD MMMM YYYY')}</Text>
+        </span>
+        <span className="text-text">{dayjs(epochStartTimestamp * 1000).format('DD MMMM YYYY')}</span>
       </InfoRow>
       <InfoRow>
-        <Text color={theme.subText}>
+        <span className="text-subText">
           <Trans>Quorum Status</Trans>
-        </Text>
+        </span>
         {proposal.vote_stats.quorum_status === 1 ? (
-          <Text color={theme.text}>
+          <span className="text-text">
             <Trans>Reached</Trans>
-          </Text>
+          </span>
         ) : (
           <MouseoverTooltip
             text={`Total amount required: ${Math.floor(+totalAmountRequired.toFixed(0)).toLocaleString()} KNC`}
             placement="bottom"
             width="fit-content"
           >
-            <Row width="fit-content" gap="6px" color={theme.warning}>
+            <Row className="w-fit gap-1.5 text-warning">
               <WarningIcon size="16" solid />
-              <Text color={theme.warning} fontWeight={500}>
+              <span className="font-medium text-warning">
                 <Trans>Not Reached</Trans>
-              </Text>
+              </span>
             </Row>
           </MouseoverTooltip>
         )}
       </InfoRow>
       <InfoRow>
-        <Text color={theme.subText}>
+        <span className="text-subText">
           <Trans>Your KIP Voting Power</Trans>{' '}
           <InfoHelper
             placement="top"
             text="Your KIP Voting Power is calculated by
             [Your Staked KNC] / [Total Voted KNC in this KIP] * 100%."
           />
-        </Text>
-        <Text color={theme.text}>
+        </span>
+        <span className="text-text">
           {votePowerAmount > 0 && proposal.vote_stats.total_vote_count > 0
             ? +((votePowerAmount / proposal.vote_stats.total_vote_count) * 100).toPrecision(4)
             : proposal.vote_stats.total_vote_count === 0
             ? 100
             : 0}
           %
-        </Text>
+        </span>
       </InfoRow>
-    </Wrapper>
+    </div>
   )
 }

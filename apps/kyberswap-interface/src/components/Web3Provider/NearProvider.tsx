@@ -1,4 +1,3 @@
-// import { setupHereWallet } from '@near-wallet-selector/here-wallet'
 import { NetworkId } from '@near-wallet-selector/core/src/lib/options.types'
 import { setupHotWallet } from '@near-wallet-selector/hot-wallet'
 import { setupLedger } from '@near-wallet-selector/ledger'

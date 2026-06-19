@@ -1,14 +1,10 @@
-import { defaultAbiCoder } from '@ethersproject/abi'
-import { getCreate2Address } from '@ethersproject/address'
-import { BigNumber } from '@ethersproject/bignumber'
-import { keccak256 } from '@ethersproject/solidity'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
-
-import { useProAmmNFTPositionManagerReadingContract } from './useContract'
+import { encodeAbiParameters, getContractAddress, keccak256, parseAbiParameters } from 'utils/viem'
 
 interface UseProAmmPositionsResults {
   loading: boolean
@@ -16,7 +12,7 @@ interface UseProAmmPositionsResults {
 }
 
 export function useProAmmPositionsFromTokenIds(
-  tokenIds: BigNumber[] | undefined,
+  tokenIds: bigint[] | undefined,
   customContract?: string,
   customFactory?: string,
   customInitCodeHash?: string,
@@ -38,26 +34,25 @@ export function useProAmmPositionsFromTokenIds(
 
         return {
           tokenId: tokenId,
-          poolId: getCreate2Address(
-            customFactory || networkInfo.elastic.coreFactory,
-            keccak256(
-              ['bytes'],
-              [
-                defaultAbiCoder.encode(
-                  ['address', 'address', 'uint24'],
-                  [result.info.token0, result.info.token1, result.info.fee],
-                ),
-              ],
+          poolId: getContractAddress({
+            from: (customFactory || networkInfo.elastic.coreFactory) as `0x${string}`,
+            opcode: 'CREATE2',
+            salt: keccak256(
+              encodeAbiParameters(parseAbiParameters('address, address, uint24'), [
+                result.info.token0 as `0x${string}`,
+                result.info.token1 as `0x${string}`,
+                result.info.fee,
+              ]),
             ),
-            customInitCodeHash || networkInfo.elastic.initCodeHash,
-          ),
-          feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
-          nonce: result.pos.nonce,
-          liquidity: result.pos.liquidity,
+            bytecodeHash: (customInitCodeHash || networkInfo.elastic.initCodeHash) as `0x${string}`,
+          }),
+          feeGrowthInsideLast: result.pos.feeGrowthInsideLast as bigint,
+          nonce: result.pos.nonce as bigint,
+          liquidity: result.pos.liquidity as bigint,
           operator: result.pos.operator,
           tickLower: result.pos.tickLower,
           tickUpper: result.pos.tickUpper,
-          rTokenOwed: result.pos.rTokenOwed,
+          rTokenOwed: result.pos.rTokenOwed as bigint,
           fee: result.info.fee,
           token0: result.info.token0,
           token1: result.info.token1,
@@ -80,7 +75,7 @@ interface UseProAmmPositionResults {
   position: PositionDetails | undefined
 }
 
-export function useProAmmPositionsFromTokenId(tokenId: BigNumber | undefined): UseProAmmPositionResults {
+export function useProAmmPositionsFromTokenId(tokenId: bigint | undefined): UseProAmmPositionResults {
   const position = useProAmmPositionsFromTokenIds(tokenId ? [tokenId] : undefined)
   return {
     loading: position.loading,
@@ -100,7 +95,8 @@ export function useProAmmPositions(
   ])
 
   // we don't expect any account balance to ever exceed the bounds of max safe int
-  const accountBalance: number | undefined = balanceResult?.[0]?.toNumber()
+  const accountBalance: number | undefined =
+    balanceResult?.[0] !== undefined ? Number(balanceResult[0] as bigint) : undefined
 
   const tokenIdsArgs = useMemo(() => {
     if (accountBalance && account) {
@@ -121,7 +117,7 @@ export function useProAmmPositions(
       return tokenIdResults
         .map(({ result }) => result)
         .filter((result): result is Result => !!result)
-        .map(result => BigNumber.from(result[0]))
+        .map(result => result[0] as bigint)
     }
     return []
   }, [account, tokenIdResults])

@@ -1,14 +1,10 @@
-import styled from 'styled-components'
-
 import Pagination from 'components/Pagination'
+import { cn } from 'utils/cn'
 
-const CommonPagination = styled(Pagination)`
-  padding: 1rem 0 0 0;
-  border-top: 1px solid ${({ theme }) => theme.border};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     margin: 0 16px;
-     padding: 1rem;
-  `};
-`
+type Props = React.ComponentProps<typeof Pagination>
+
+const CommonPagination = ({ className, ...rest }: Props) => (
+  <Pagination className={cn('border-t border-solid border-border pt-4 max-md:mx-4 max-md:p-4', className)} {...rest} />
+)
 
 export default CommonPagination

@@ -1,89 +1,65 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import Column from 'components/Column'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import { formatAmountOrder, formatRateLimitOrder } from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
-import { formatAmountOrder, formatRateLimitOrder } from '../helpers'
-import { LimitOrder, RateInfo } from '../type'
+export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex w-full flex-col gap-6 px-6 py-5 max-md:px-5 max-md:py-4 max-md:text-sm', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const Container = styled.div`
-  padding: 20px 24px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    font-size:14px;
-    padding: 16px 20px;
-  `};
-`
+export const Value = ({ children, className, style, onClick, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    onClick={onClick}
+    style={style}
+    className={cn('flex items-center gap-[5px] text-right text-sm font-medium text-text', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const Value = styled.div`
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  text-align: right;
-  font-size: 14px;
-`
-const Row = styled.div`
-  line-height: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-`
+const Row = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full items-center justify-between leading-5', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Label = styled.div`
-  color: ${({ theme }) => theme.subText};
-  font-weight: 500;
-  font-size: 14px;
-`
+export const Label = ({ children, className, style, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div style={style} className={cn('text-sm font-medium text-subText', className)} {...rest}>
+    {children}
+  </div>
+)
 
 export const Header = ({ title, onDismiss }: { title: string; onDismiss: () => void }) => {
-  const theme = useTheme()
   return (
-    <Flex justifyContent={'space-between'}>
-      <Flex color={theme.text} alignItems="center" style={{ gap: 8 }}>
-        <Text fontSize={20}>{title}</Text>
-      </Flex>
-      <X onClick={onDismiss} style={{ cursor: 'pointer' }} color={theme.subText} />
-    </Flex>
+    <div className="flex justify-between">
+      <div className="flex items-center gap-2 text-text">
+        <span className="text-xl">{title}</span>
+      </div>
+      <X onClick={onDismiss} style={{ cursor: 'pointer' }} className="text-subText" />
+    </div>
   )
 }
 
-const NoteWrapper = styled.div`
-  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
-  color: ${({ theme }) => theme.text};
-  padding: 10px 12px;
-  border-radius: 16px;
-  line-height: 16px;
-  font-size: 12px;
-`
-export const Note = ({ note }: { note?: string }) => {
-  return note ? <NoteWrapper>{note}</NoteWrapper> : null
-}
+export const Note = ({ note }: { note?: string }) =>
+  note ? <div className="rounded-2xl bg-subText-20 px-3 py-2.5 text-xs leading-4 text-text">{note}</div> : null
 
 type ListDataType = { label: string; content: ReactNode }[]
-const ListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border-radius: 12px;
-  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.3)};
-  padding: 16px;
-`
+
 export function ListInfo({
   title,
   listData,
@@ -98,20 +74,21 @@ export function ListInfo({
   symbolOut: string | undefined
 }) {
   return (
-    <Column gap="8px">
-      {title && <Label style={{ marginBottom: '4px' }}>{title}</Label>}
-      <ListWrapper>
+    <Column className="gap-2">
+      {title && <Label className="mb-1">{title}</Label>}
+      <div className="flex flex-col gap-3 rounded-xl bg-buttonBlack/30 p-4">
         {listData.map(item => (
           <Row key={item.label}>
             <Label>{item.label}</Label>
             {item.content}
           </Row>
         ))}
-      </ListWrapper>
+      </div>
       <MarketInfo marketPrice={marketPrice} symbolIn={symbolIn} symbolOut={symbolOut} />
     </Column>
   )
 }
+
 const MarketInfo = ({
   marketPrice,
   symbolIn,
@@ -121,24 +98,23 @@ const MarketInfo = ({
   symbolIn: string | undefined
   symbolOut: string | undefined
 }) => {
-  const theme = useTheme()
   return (
-    <Flex flexDirection={'column'}>
+    <div className="flex flex-col">
       <Row>
-        <Label style={{ fontSize: 12 }}>
+        <Label className="text-xs">
           <Trans>Est. Market Price</Trans>
         </Label>
         <Value style={{ maxWidth: '60%' }}>
           <TradePrice
             price={marketPrice}
             loading={false}
-            style={{ color: theme.text }}
+            className="!text-text"
             symbolIn={symbolIn}
             symbolOut={symbolOut}
           />
         </Value>
       </Row>
-    </Flex>
+    </div>
   )
 }
 export const Rate = ({
@@ -170,15 +146,12 @@ export const Rate = ({
     rateStr = formatAmountOrder(invertRate ? rateInfo.invertRate : rateInfo.rate)
   }
   return (
-    <Value
-      style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', maxWidth: 290 }}
-      onClick={() => setInvertRate(!invertRate)}
-    >
-      <Text>
+    <Value className="max-w-[290px] cursor-pointer" onClick={() => setInvertRate(!invertRate)}>
+      <span>
         <Trans>
           {invertRate ? symbolOut : symbolIn} price of {rateStr} {invertRate ? symbolIn : symbolOut}
         </Trans>
-      </Text>
+      </span>
       <SwapIcon rotate={90} size={19} />
     </Value>
   )

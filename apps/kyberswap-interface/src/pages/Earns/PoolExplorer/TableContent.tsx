@@ -1,15 +1,13 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import LocalLoader from 'components/LocalLoader'
-import ProgressBar from 'components/ProgressBar'
-import useTheme from 'hooks/useTheme'
+import { Stack } from 'components/Stack'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
-import { ProgressBarWrapper } from 'pages/Earns/PoolExplorer/styles'
+import RefetchIndicator from 'pages/Earns/PoolExplorer/RefetchIndicator'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { EARN_DEXES } from 'pages/Earns/constants'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
@@ -27,11 +25,11 @@ const POLLING_INTERVAL_MS = 5 * 60_000
 type Props = {
   onOpenZapInWidget: ({ pool }: ZapInInfo) => void
   filters: PoolQueryParams
+  showRewards?: boolean
+  showPoolPrice?: boolean
 }
 
-const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
-  const theme = useTheme()
-
+const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPoolPrice = true }: Props) => {
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
   const {
     data: poolData,
@@ -82,6 +80,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
 
       return {
         ...pool,
+        chainId: poolChainId,
         dexLogo: dexInfo?.logoURL || '',
         dexName: dexInfo?.name || pool.exchange,
         favorite: { chainId: poolChainId, isFavorite: getFavoriteStatus(pool) },
@@ -94,46 +93,38 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
   }
 
   if (poolData?.data?.pools.length === 0 || isError) {
-    return (
-      <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
-        {t`No data found`}
-      </Text>
-    )
+    return <p className="m-12 mt-16 text-center text-subText">{t`No data found`}</p>
   }
-
-  const loadingProgress = (
-    <ProgressBarWrapper>
-      <ProgressBar loading height="3px" width="100%" />
-    </ProgressBarWrapper>
-  )
 
   return (
     <>
-      {isFetching && loadingProgress}
-      <div>
-        {tablePoolData.map((pool, index) =>
-          upToMedium ? (
+      <RefetchIndicator visible={isFetching} />
+
+      {upToMedium ? (
+        <Stack className="gap-4">
+          {tablePoolData.map(pool => (
             <MobileTableRow
               key={pool.address}
               pool={pool}
-              filters={filters}
+              showRewards={showRewards}
               onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
-              withoutBorder={index === tablePoolData.length - 1}
             />
-          ) : (
-            <DesktopTableRow
-              key={pool.address}
-              pool={pool}
-              filters={filters}
-              onOpenZapInWidget={onOpenZapInWidget}
-              handleFavorite={handleFavorite}
-              favoriteLoading={favoriteLoading}
-            />
-          ),
-        )}
-      </div>
-      {isFetching && upToMedium && loadingProgress}
+          ))}
+        </Stack>
+      ) : (
+        tablePoolData.map(pool => (
+          <DesktopTableRow
+            key={pool.address}
+            pool={pool}
+            showRewards={showRewards}
+            showPoolPrice={showPoolPrice}
+            onOpenZapInWidget={onOpenZapInWidget}
+            handleFavorite={handleFavorite}
+            favoriteLoading={favoriteLoading}
+          />
+        ))
+      )}
 
       {/* Important to load dex info */}
       {visibleChainIds.map(chainId => (

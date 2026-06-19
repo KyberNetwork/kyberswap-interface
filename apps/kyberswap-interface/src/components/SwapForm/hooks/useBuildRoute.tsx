@@ -71,6 +71,22 @@ const useBuildRoute = (args: Args) => {
     delete rawRouteSummary.rawAmountInUsd
     delete rawRouteSummary.rawAmountOutUsd
 
+    if (!rawRouteSummary.amountInUsd || !rawRouteSummary.amountOutUsd) {
+      console.error('[buildRoute] amountInUsd/amountOutUsd missing or empty before send', {
+        finalAmountInUsd: rawRouteSummary.amountInUsd,
+        finalAmountOutUsd: rawRouteSummary.amountOutUsd,
+        rawAmountInUsd: routeSummary.rawAmountInUsd,
+        rawAmountOutUsd: routeSummary.rawAmountOutUsd,
+        transformedAmountInUsd: routeSummary.amountInUsd,
+        transformedAmountOutUsd: routeSummary.amountOutUsd,
+        tokenIn: routeSummary.tokenIn,
+        tokenOut: routeSummary.tokenOut,
+        chainId,
+        tokenInDecimals: currencyIn?.decimals,
+        tokenOutDecimals: currencyOut?.decimals,
+      })
+    }
+
     const payload: BuildRoutePayload = {
       routeSummary: rawRouteSummary,
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,

@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 
 import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
@@ -11,6 +10,7 @@ import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/Dropd
 import { AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 const POSITION_STATUS = [
   { label: <Trans>In Range</Trans>, value: PositionStatus.IN_RANGE },
@@ -60,29 +60,22 @@ export default function Filter({
   }, [filters.protocols, supportedDexes, updateFilters])
 
   return (
-    <Flex
-      flexDirection={upToSmall ? 'column' : 'row'}
-      alignItems={'center'}
-      justifyContent={'space-between'}
-      sx={{ gap: 2 }}
-    >
-      <Flex sx={{ gap: 2, width: upToSmall ? '100%' : 'auto' }} flexWrap={'wrap'}>
+    <div className={cn('flex items-center justify-between gap-2', upToSmall ? 'flex-col' : 'flex-row')}>
+      <div className={cn('flex flex-wrap gap-2', upToSmall ? 'w-full' : 'w-auto')}>
         <DropdownMenu
-          alignLeft
           mobileFullWidth
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}
           value={filters.protocols || ''}
           onChange={value => value !== filters.protocols && updateFilters('protocols', value)}
         />
         <MultiSelectDropdownMenu
-          alignLeft
           mobileFullWidth
           label={t`Position status`}
           options={POSITION_STATUS as unknown as MenuOption[]}
           value={filters.statuses || ''}
           onChange={value => value !== filters.statuses && updateFilters('statuses', value)}
         />
-      </Flex>
+      </div>
       <Search
         placeholder={t`Search by token symbol or address`}
         searchValue={search}
@@ -90,6 +83,6 @@ export default function Filter({
         onSearch={val => setSearch(val)}
         style={{ height: '36px' }}
       />
-    </Flex>
+    </div>
   )
 }

@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
@@ -11,8 +10,7 @@ import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
-
-import { isAddress, isAddressString } from './address'
+import { isAddress, isAddressString } from 'utils/address'
 
 export { isAddress, isAddressString }
 
@@ -63,17 +61,13 @@ export const shortenHash = (hash: string, chars = 3): string => {
 
 /**
  * Add a margin amount equal to max of 20000 or 20% of estimatedGas
- * total = estimate + max(20k, 20% * estimate)
- *
- * @param value BigNumber
- * @returns BigNumber
+ * total = estimate + max(20k, 20% * estimate) (50% on Polygon and Optimism).
  */
-export function calculateGasMargin(value: BigNumber, chainId?: ChainId): BigNumber {
-  const defaultGasLimitMargin = BigNumber.from(DEFAULT_GAS_LIMIT_MARGIN)
+export function calculateGasMarginBigInt(value: bigint, chainId?: ChainId): bigint {
+  const defaultGasLimitMargin = BigInt(DEFAULT_GAS_LIMIT_MARGIN)
   const needHigherGas = [ChainId.MATIC, ChainId.OPTIMISM].includes(chainId as ChainId)
-  const gasMargin = value.mul(BigNumber.from(needHigherGas ? 5000 : 2000)).div(BigNumber.from(10000))
-
-  return gasMargin.gte(defaultGasLimitMargin) ? value.add(gasMargin) : value.add(defaultGasLimitMargin)
+  const gasMargin = (value * (needHigherGas ? 5000n : 2000n)) / 10000n
+  return gasMargin >= defaultGasLimitMargin ? value + gasMargin : value + defaultGasLimitMargin
 }
 
 // converts a basis points value to a sdk percent
@@ -97,12 +91,6 @@ export function escapeRegExp(string: string): string {
 
 export const toK = (num: string) => {
   return Numeral(num).format('0.[00]a')
-}
-
-export const toKInChart = (num: string, unit?: string) => {
-  if (parseFloat(num) < 0.0000001) return `< ${unit ?? ''}0.0000001`
-  if (parseFloat(num) >= 0.1) return (unit ?? '') + Numeral(num).format('0.[00]a')
-  return (unit ?? '') + Numeral(num).format('0.[0000000]a')
 }
 
 // using a currency library here in case we want to add more in future
@@ -255,20 +243,6 @@ export const pushUnique = <T>(array: T[] | undefined, element: T): T[] => {
   return [...array, element]
 }
 
-// delete unique
-// return original instance if no change
-export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
-  if (!array) return []
-
-  const set = new Set<T>(array)
-
-  if (set.has(element)) {
-    set.delete(element)
-    return [...set]
-  }
-  return array
-}
-
 export const filterTruthy = <T>(array: (T | undefined | null | false)[]): T[] => {
   return array.filter(Boolean) as T[]
 }
@@ -291,35 +265,6 @@ export const isSupportLimitOrder = (chainId: ChainId): boolean => {
   if (!SUPPORTED_NETWORKS.includes(chainId)) return false
   const limitOrder = NETWORKS_INFO[chainId]?.limitOrder
   return limitOrder === '*' || (limitOrder || []).includes(ENV_KEY)
-}
-
-export function openFullscreen(elem: any) {
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen()
-  } else if (elem.webkitRequestFullScreen) {
-    /* Old webkit */
-    elem.webkitRequestFullScreen()
-  } else if (elem.webkitRequestFullscreen) {
-    /* New webkit */
-    elem.webkitRequestFullscreen()
-  } else if (elem.mozRequestFullScreen) {
-    elem.mozRequestFullScreen()
-  } else if (elem.msRequestFullscreen) {
-    /* IE11 */
-    elem.msRequestFullscreen()
-  }
-}
-
-export const downloadImage = (data: Blob | string | undefined, filename: string) => {
-  if (!data) return
-  const link = document.createElement('a')
-  link.download = filename
-  link.href = typeof data === 'string' ? data : URL.createObjectURL(data)
-  document.body.appendChild(link)
-  link.click()
-  if (link && document.body.contains(link)) {
-    document.body.removeChild(link)
-  }
 }
 
 export function buildFlagsForFarmV21({

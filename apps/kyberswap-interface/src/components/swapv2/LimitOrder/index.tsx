@@ -1,10 +1,9 @@
 import { memo, useState } from 'react'
 
+import LimitOrderForm from 'components/swapv2/LimitOrder/LimitOrderForm'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useLimitState } from 'state/limit/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-
-import LimitOrderForm from './LimitOrderForm'
 
 function LimitOrderComp() {
   const { currencyIn, currencyOut } = useLimitState()
@@ -13,7 +12,7 @@ function LimitOrderComp() {
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   return (
-    <div style={{ padding: '16px' }}>
+    <div className="p-4">
       <LimitOrderForm
         flowState={flowState}
         setFlowState={setFlowState}

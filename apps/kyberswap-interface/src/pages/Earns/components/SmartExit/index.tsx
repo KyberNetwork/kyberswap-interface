@@ -1,11 +1,12 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
+import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
+import { useWeb3React } from 'hooks'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTheme from 'hooks/useTheme'
-import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
 import Confirmation from 'pages/Earns/components/SmartExit/Confirmation'
 import ExpireSetting from 'pages/Earns/components/SmartExit/ExpireSetting'
@@ -13,6 +14,7 @@ import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
 import { GuidedHighlightProvider } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import Metrics from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
+import PositionHeader from 'pages/Earns/components/SmartExit/PositionHeader'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
 import Warning, { OrTimeAlreadyMetWarning } from 'pages/Earns/components/SmartExit/Warning'
 import { FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
@@ -23,6 +25,7 @@ import { ContentWrapper } from 'pages/Earns/components/SmartExit/styles'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { defaultFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils'
 import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 interface SmartExitProps {
   position: ParsedPosition | null
@@ -32,6 +35,13 @@ interface SmartExitProps {
 
 export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitProps) => {
   const theme = useTheme()
+  const { isSmartConnector } = useWeb3React()
+  const isSmartAccount = useIsSmartAccount()
+  // Cover both connector-level smart wallets (Porto, Safe) and account-level
+  // smart wallets detected via bytecode / EIP-5792 capabilities (Coinbase
+  // Smart Wallet via passkey, Argent, Ambire, EIP-7702 delegated EOAs).
+  const isSmartWallet = isSmartConnector || isSmartAccount
+  const toggleWalletModal = useWalletModalToggle()
   const [selectedMetrics, setSelectedMetrics] = useState<Array<SelectedMetric | null>>([
     { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
   ])
@@ -59,10 +69,8 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
     estimateFee: smartExit.estimateFee,
   })
 
-  // Position is loading or not available yet
   const positionLoading = isLoading || !position
 
-  // Calculate max gas percentage
   const maxGasPercent = customGasPercent ? parseFloat(customGasPercent) : (feeInfo?.gas.percentage || 0) * multiplier
   const isGasTooHigh = maxGasPercent >= 100
 
@@ -74,12 +82,40 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
       mobileFullWidth
       onDismiss={onDismiss}
       width="100vw"
-      maxWidth={showConfirm ? 450 : 800}
+      maxWidth={isSmartWallet ? 480 : showConfirm ? 450 : 800}
       bgColor={theme.background}
       padding="20px"
     >
-      <Flex width="100%" flexDirection="column">
-        {showConfirm && position ? (
+      <div className="flex w-full flex-col">
+        {isSmartWallet ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-medium">
+                <Trans>Smart Exit unavailable with your current wallet</Trans>
+              </span>
+              <X onClick={onDismiss} className="cursor-pointer" />
+            </div>
+            <span className="text-sm text-subText">
+              <Trans>
+                Smart wallets (Porto, Safe, Coinbase Smart Wallet, Argent, Ambire, ...) aren&apos;t compatible with
+                Smart Exit because the position permit can&apos;t verify their contract signatures. Switch to an EOA
+                wallet (e.g. MetaMask, Rabby) to use this feature.
+              </Trans>
+            </span>
+            <div className="mt-2 flex justify-end">
+              <ButtonPrimary
+                width="fit-content"
+                padding="8px 16px"
+                onClick={() => {
+                  onDismiss()
+                  toggleWalletModal()
+                }}
+              >
+                <Trans>Switch wallet</Trans>
+              </ButtonPrimary>
+            </div>
+          </div>
+        ) : showConfirm && position ? (
           <Confirmation
             selectedMetrics={selectedMetrics.filter(metric => metric !== null) as SelectedMetric[]}
             conditionType={conditionType}
@@ -98,27 +134,20 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
           />
         ) : (
           <GuidedHighlightProvider selectedMetrics={selectedMetrics}>
-            <Flex justifyContent="space-between" alignItems="center" mb="16px">
-              <Text fontSize={20} fontWeight={500}>
+            <div className="mb-4 flex items-center justify-between">
+              <span className="text-xl font-medium">
                 <Trans>Set Up Smart Exit</Trans>
-              </Text>
-              <X onClick={onDismiss} style={{ cursor: 'pointer' }} />
-            </Flex>
+              </span>
+              <X onClick={onDismiss} className="cursor-pointer" />
+            </div>
 
-            <Flex justifyContent="space-between" alignItems="center">
-              <PositionDetailHeader
-                style={{ flexDirection: 'row' }}
-                position={position}
-                showBackIcon={false}
-                isLoading={positionLoading}
-                initialLoading={positionLoading}
-                useFromSmartExit
-              />
+            <div className="flex items-center justify-between">
+              <PositionHeader position={position} isLoading={positionLoading} initialLoading={positionLoading} />
               <ExpireSetting expireTime={expireTime} setExpireTime={setExpireTime} />
-            </Flex>
+            </div>
 
             <ContentWrapper>
-              <Flex flexDirection="column" sx={{ gap: '1rem' }} flex={1}>
+              <div className="flex flex-1 flex-col gap-4">
                 <PositionLiquidity position={position} isLoading={positionLoading} />
                 <PoolPrice
                   position={position}
@@ -127,9 +156,9 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
                   setRevertPrice={setRevertPrice}
                 />
                 {orWithTimeAlreadyMet && conditionTime && <OrTimeAlreadyMetWarning conditionTime={conditionTime} />}
-              </Flex>
+              </div>
 
-              <Flex flexDirection="column" flex={1} sx={{ gap: '1rem' }}>
+              <div className="flex flex-1 flex-col gap-4">
                 <Metrics
                   position={position}
                   selectedMetrics={selectedMetrics}
@@ -152,7 +181,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
                   timeBeforeNow={timeBeforeNow}
                   isGasTooHigh={isGasTooHigh}
                 />
-              </Flex>
+              </div>
             </ContentWrapper>
 
             <Actions
@@ -164,7 +193,7 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             />
           </GuidedHighlightProvider>
         )}
-      </Flex>
+      </div>
     </Modal>
   )
 }
