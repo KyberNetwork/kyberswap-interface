@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import CreateOrderConfirmModal from 'components/LimitOrder/CreateOrder/CreateOrderConfirmModal'
@@ -34,7 +34,7 @@ const CreateOrderFlow = ({ order, searchParams, isOpen, onDismiss, execution }: 
     onSuccess: execution.resetForm,
   })
 
-  const viewCreatedOrder = useCallback(() => {
+  const viewCreatedOrder = () => {
     const currencyPair =
       currencyIn && currencyOut ? `/${currencyId(currencyIn, chainId)}-to-${currencyId(currencyOut, chainId)}` : ''
     const search = new URLSearchParams({
@@ -43,7 +43,7 @@ const CreateOrderFlow = ({ order, searchParams, isOpen, onDismiss, execution }: 
     }).toString()
 
     navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}${currencyPair}?${search}`)
-  }, [chainId, currencyIn, currencyOut, navigate])
+  }
 
   const processing = useProcessingOrder({
     processingOrder,

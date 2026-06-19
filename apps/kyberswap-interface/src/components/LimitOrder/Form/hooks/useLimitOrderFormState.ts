@@ -54,41 +54,35 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const expiredAt = customDateExpire?.getTime() || Date.now() + expire * 1000
   const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : formatTimeDuration(expire)
 
-  const clearRate = useCallback(() => {
+  const clearRate = () => {
     setRateInfo(rateInfo => ({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined }))
-  }, [])
+  }
 
-  const setCurrencyIn = useCallback(
-    (currency: Currency | undefined) => {
-      if (useUrlParams) {
-        const nextSearchParams = new URLSearchParams(searchParams)
-        nextSearchParams.set(
-          'inputCurrency',
-          !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address,
-        )
-        setSearchParams(nextSearchParams)
-      } else updateCurrencyIn(currency)
-      autoFillMarketPrice.current = false
-    },
-    [useUrlParams, searchParams, setSearchParams, updateCurrencyIn],
-  )
+  const setCurrencyIn = (currency: Currency | undefined) => {
+    if (useUrlParams) {
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set(
+        'inputCurrency',
+        !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address,
+      )
+      setSearchParams(nextSearchParams)
+    } else updateCurrencyIn(currency)
+    autoFillMarketPrice.current = false
+  }
 
-  const setCurrencyOut = useCallback(
-    (currency: Currency | undefined) => {
-      if (useUrlParams) {
-        const nextSearchParams = new URLSearchParams(searchParams)
-        nextSearchParams.set(
-          'outputCurrency',
-          !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address,
-        )
-        setSearchParams(nextSearchParams)
-      } else updateCurrencyOut(currency)
-      autoFillMarketPrice.current = false
-    },
-    [useUrlParams, searchParams, setSearchParams, updateCurrencyOut],
-  )
+  const setCurrencyOut = (currency: Currency | undefined) => {
+    if (useUrlParams) {
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set(
+        'outputCurrency',
+        !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address,
+      )
+      setSearchParams(nextSearchParams)
+    } else updateCurrencyOut(currency)
+    autoFillMarketPrice.current = false
+  }
 
-  const switchCurrency = useCallback(() => {
+  const switchCurrency = () => {
     if (useUrlParams) {
       const cin = searchParams.get('inputCurrency') || ''
       const cout = searchParams.get('outputCurrency') || ''
@@ -97,17 +91,14 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
       nextSearchParams.set('inputCurrency', cout)
       setSearchParams(nextSearchParams)
     } else rotateCurrency()
-  }, [useUrlParams, rotateCurrency, searchParams, setSearchParams])
+  }
 
-  const onSetInput = useCallback(
-    (input: string) => {
-      setInputAmount(input)
-      if (rateInfo.rate && currencyIn && currencyOut && input) {
-        setOutputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
-      }
-    },
-    [rateInfo, currencyIn, currencyOut, setInputAmount],
-  )
+  const onSetInput = (input: string) => {
+    setInputAmount(input)
+    if (rateInfo.rate && currencyIn && currencyOut && input) {
+      setOutputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
+    }
+  }
 
   const onSetRate = useCallback(
     (rate: string, invertRate: string) => {
@@ -185,22 +176,19 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     setOutputAmount(output)
   }
 
-  const handleInputSelect = useCallback(
-    (currency: Currency, resetRate = true) => {
-      if (currencyOut && currency?.equals(currencyOut)) {
-        switchCurrency()
-        return
-      }
-      setCurrencyIn(currency)
-      resetRate && clearRate()
-    },
-    [clearRate, currencyOut, setCurrencyIn, switchCurrency],
-  )
+  const handleInputSelect = (currency: Currency, resetRate = true) => {
+    if (currencyOut && currency?.equals(currencyOut)) {
+      switchCurrency()
+      return
+    }
+    setCurrencyIn(currency)
+    resetRate && clearRate()
+  }
 
-  const switchToWeth = useCallback(() => {
+  const switchToWeth = () => {
     if (!currencyIn) return
     handleInputSelect(currencyIn.wrapped, false)
-  }, [currencyIn, handleInputSelect])
+  }
 
   const handleOutputSelect = (currency: Currency) => {
     if (currencyIn && currency?.equals(currencyIn)) {
@@ -259,13 +247,13 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     }
   }
 
-  const onResetForm = useCallback(() => {
+  const onResetForm = () => {
     setInputAmount('')
     setOutputAmount('')
     setRateInfo(DEFAULT_RATE_INFO)
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
-  }, [setInputAmount])
+  }
 
   useEffect(() => {
     if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade) {

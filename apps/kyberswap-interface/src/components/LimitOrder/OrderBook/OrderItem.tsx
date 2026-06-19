@@ -1,6 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 
 import CopyHelper from 'components/Copy'
@@ -78,7 +77,7 @@ const OrderItem = ({
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
 
-  const chain = useMemo(() => NETWORKS_INFO[order.chainId], [order.chainId])
+  const chain = NETWORKS_INFO[order.chainId]
   const filledPercent = Math.max(0, Math.min(Number(order.filledPercent) || 0, 100))
   const sizeAmount = !reverse ? order.formattedMakerAmount : order.formattedTakerAmount
   const availableAmount = !reverse ? order.formattedAvailableMakerAmount : order.formattedAvailableTakerAmount

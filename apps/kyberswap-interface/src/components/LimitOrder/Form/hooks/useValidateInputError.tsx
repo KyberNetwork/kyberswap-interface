@@ -1,6 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -23,16 +22,10 @@ export const useValidateInputError = ({
   currencyOut,
 }: UseValidateInputErrorArgs) => {
   const { account } = useActiveWeb3React()
-  const parsedInputAmount = useMemo(
-    () => tryParseAmount(inputAmount, currencyIn ?? undefined),
-    [currencyIn, inputAmount],
-  )
-  const parsedOutputAmount = useMemo(
-    () => tryParseAmount(outputAmount, currencyOut ?? undefined),
-    [currencyOut, outputAmount],
-  )
+  const parsedInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
+  const parsedOutputAmount = tryParseAmount(outputAmount, currencyOut ?? undefined)
 
-  const inputError = useMemo(() => {
+  const inputError = (() => {
     if (!account) return
     if (isZeroAmount(inputAmount) && (isZeroAmount(outputAmount) || isZeroAmount(displayRate))) {
       return t`Please enter a valid input amount`
@@ -41,14 +34,14 @@ export const useValidateInputError = ({
       return t`Please enter a valid input amount`
     }
     return
-  }, [inputAmount, outputAmount, displayRate, parsedInputAmount, account])
+  })()
 
-  const outputError = useMemo(() => {
+  const outputError = (() => {
     if (outputAmount && !parsedOutputAmount) {
       return t`Please enter a valid output amount`
     }
     return
-  }, [outputAmount, parsedOutputAmount])
+  })()
 
   return { inputError, outputError }
 }

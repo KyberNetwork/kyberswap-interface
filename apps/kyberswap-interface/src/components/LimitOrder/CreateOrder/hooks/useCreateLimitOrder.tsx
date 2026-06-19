@@ -1,6 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback } from 'react'
 import { useCreateOrderMutation } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -51,59 +50,53 @@ export const useCreateLimitOrder = ({
 
   const [submitOrder] = useCreateOrderMutation()
 
-  const trackPlaceOrder = useCallback(
-    (type: TRACKING_EVENT_TYPE, data = {}) => {
-      trackingHandler(type, {
-        from_token: currencyIn?.symbol,
-        to_token: currencyOut?.symbol,
-        from_network: networkName,
-        trade_qty: inputAmount,
-        ...data,
-      })
-    },
-    [currencyIn?.symbol, currencyOut?.symbol, inputAmount, networkName, trackingHandler],
-  )
+  const trackPlaceOrder = (type: TRACKING_EVENT_TYPE, data = {}) => {
+    trackingHandler(type, {
+      from_token: currencyIn?.symbol,
+      to_token: currencyOut?.symbol,
+      from_network: networkName,
+      trade_qty: inputAmount,
+      ...data,
+    })
+  }
 
-  const submitCreateOrder = useCallback(
-    async (params: CreateOrderParams) => {
-      try {
-        const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
-        if (!currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
-          throw new Error('wrong input')
-        }
-
-        const refCode = getCookieValue('refCode')
-        const clientId = searchParams.get('clientId')
-
-        const { signature, salt } = await signOrder({ ...params, referral: refCode })
-        const payload = getPayloadCreateOrder(params)
-        const response = await submitOrder({
-          ...payload,
-          salt: salt || '',
-          signature,
-          referral: refCode,
-          clientId,
-        }).unwrap()
-
-        notify(
-          {
-            type: NotificationType.SUCCESS,
-            title: t`Order Placed`,
-            summary: <SummaryNotifyOrderPlaced {...{ currencyIn, currencyOut, inputAmount, outputAmount }} />,
-          },
-          10000,
-        )
-        onSuccess?.()
-        return response?.id
-      } catch (error) {
-        onError?.(error)
-        return
+  const submitCreateOrder = async (params: CreateOrderParams) => {
+    try {
+      const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
+      if (!currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
+        throw new Error('wrong input')
       }
-    },
-    [notify, onError, onSuccess, searchParams, signOrder, submitOrder],
-  )
 
-  const submitCreateOrderWithTracking = useCallback(async () => {
+      const refCode = getCookieValue('refCode')
+      const clientId = searchParams.get('clientId')
+
+      const { signature, salt } = await signOrder({ ...params, referral: refCode })
+      const payload = getPayloadCreateOrder(params)
+      const response = await submitOrder({
+        ...payload,
+        salt: salt || '',
+        signature,
+        referral: refCode,
+        clientId,
+      }).unwrap()
+
+      notify(
+        {
+          type: NotificationType.SUCCESS,
+          title: t`Order Placed`,
+          summary: <SummaryNotifyOrderPlaced {...{ currencyIn, currencyOut, inputAmount, outputAmount }} />,
+        },
+        10000,
+      )
+      onSuccess?.()
+      return response?.id
+    } catch (error) {
+      onError?.(error)
+      return
+    }
+  }
+
+  const submitCreateOrderWithTracking = async () => {
     trackPlaceOrder(TRACKING_EVENT_TYPE.LO_CLICK_PLACE_ORDER)
     const order_id = await submitCreateOrder({
       currencyIn,
@@ -155,25 +148,7 @@ export const useCreateLimitOrder = ({
       })
     }
     return order_id
-  }, [
-    account,
-    chainId,
-    currencyIn,
-    currencyOut,
-    deltaRate.rawPercent,
-    displayRate,
-    displayTime,
-    estimateUSD.rawInput,
-    expiredAt,
-    inputAmount,
-    networkName,
-    outputAmount,
-    searchParams,
-    submitCreateOrder,
-    trackPlaceOrder,
-    trackingHandler,
-    tradeInfo,
-  ])
+  }
 
   return { submitCreateOrderWithTracking }
 }

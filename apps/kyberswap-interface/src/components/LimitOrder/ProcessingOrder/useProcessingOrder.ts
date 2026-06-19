@@ -1,5 +1,5 @@
 import { waitForTransactionReceipt } from '@wagmi/core'
-import { Dispatch, SetStateAction, useCallback } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ApprovalState } from 'hooks/useApproveCallback'
@@ -61,42 +61,36 @@ export const useProcessingOrder = ({
   onError,
   onStart,
 }: UseProcessingOrderArgs) => {
-  const markProcessingStepSuccess = useCallback(
-    (step: ProcessingOrderStep) => {
-      setProcessingOrder(state => {
-        if (!state.show || state.currentStep !== step) return state
-        const completedSteps = state.completedSteps.includes(step)
-          ? state.completedSteps
-          : [...state.completedSteps, step]
-        const nextStep = state.steps[state.steps.indexOf(step) + 1]
-        return {
-          ...state,
-          currentStep: nextStep,
-          completedSteps,
-        }
-      })
-    },
-    [setProcessingOrder],
-  )
+  const markProcessingStepSuccess = (step: ProcessingOrderStep) => {
+    setProcessingOrder(state => {
+      if (!state.show || state.currentStep !== step) return state
+      const completedSteps = state.completedSteps.includes(step)
+        ? state.completedSteps
+        : [...state.completedSteps, step]
+      const nextStep = state.steps[state.steps.indexOf(step) + 1]
+      return {
+        ...state,
+        currentStep: nextStep,
+        completedSteps,
+      }
+    })
+  }
 
-  const markProcessingStepError = useCallback(
-    (step: ProcessingOrderStep) => {
-      setProcessingOrder(state => {
-        if (!state.show || state.currentStep !== step) return state
-        return {
-          ...state,
-          errorStep: step,
-        }
-      })
-    },
-    [setProcessingOrder],
-  )
+  const markProcessingStepError = (step: ProcessingOrderStep) => {
+    setProcessingOrder(state => {
+      if (!state.show || state.currentStep !== step) return state
+      return {
+        ...state,
+        errorStep: step,
+      }
+    })
+  }
 
-  const hideProcessingOrder = useCallback(() => {
+  const hideProcessingOrder = () => {
     setProcessingOrder(DEFAULT_PROCESSING_ORDER)
-  }, [setProcessingOrder])
+  }
 
-  const waitForManualApproval = useCallback(async () => {
+  const waitForManualApproval = async () => {
     for (let attempt = 0; attempt < APPROVAL_CHECK_RETRY_COUNT; attempt++) {
       const hasEnoughAllowance = await checkApprovalManually()
       if (hasEnoughAllowance) return true
@@ -104,132 +98,109 @@ export const useProcessingOrder = ({
     }
 
     return false
-  }, [checkApprovalManually])
+  }
 
-  const runWrapStep = useCallback(() => {
-    return (async () => {
-      try {
-        const hash = await onWrap?.()
-        if (!hash) {
-          markProcessingStepError('wrap')
-          return false
-        }
-        const receipt = await waitForTransactionReceipt(wagmiConfig, {
-          chainId: chainId as (typeof wagmiConfig)['chains'][number]['id'],
-          hash: hash as `0x${string}`,
-        })
-        if (receipt.status === 'reverted') {
-          markProcessingStepError('wrap')
-          return false
-        }
-        onWrapSuccess?.()
-        markProcessingStepSuccess('wrap')
-        return true
-      } catch (error) {
-        onError?.(error)
+  const runWrapStep = async () => {
+    try {
+      const hash = await onWrap?.()
+      if (!hash) {
         markProcessingStepError('wrap')
         return false
       }
-    })()
-  }, [chainId, markProcessingStepError, markProcessingStepSuccess, onError, onWrap, onWrapSuccess])
-
-  const runApproveStep = useCallback(() => {
-    return (async () => {
-      try {
-        if (await checkApprovalManually()) {
-          markProcessingStepSuccess('approve')
-          return true
-        }
-
-        if (approval !== ApprovalState.PENDING) {
-          await approveCallback()
-        }
-
-        const hasEnoughAllowance = await waitForManualApproval()
-        if (hasEnoughAllowance) {
-          markProcessingStepSuccess('approve')
-          return true
-        }
-
-        markProcessingStepError('approve')
-        return false
-      } catch (error) {
-        onError?.(error)
-        markProcessingStepError('approve')
+      const receipt = await waitForTransactionReceipt(wagmiConfig, {
+        chainId: chainId as (typeof wagmiConfig)['chains'][number]['id'],
+        hash: hash as `0x${string}`,
+      })
+      if (receipt.status === 'reverted') {
+        markProcessingStepError('wrap')
         return false
       }
-    })()
-  }, [
-    approval,
-    approveCallback,
-    checkApprovalManually,
-    markProcessingStepError,
-    markProcessingStepSuccess,
-    onError,
-    waitForManualApproval,
-  ])
+      onWrapSuccess?.()
+      markProcessingStepSuccess('wrap')
+      return true
+    } catch (error) {
+      onError?.(error)
+      markProcessingStepError('wrap')
+      return false
+    }
+  }
 
-  const runCreateStep = useCallback(() => {
-    return (async () => {
-      try {
-        const orderId = await onCreateOrder()
-        if (orderId) {
-          markProcessingStepSuccess('create')
-          return true
-        }
-        markProcessingStepError('create')
-        return false
-      } catch (error) {
-        onError?.(error)
-        markProcessingStepError('create')
-        return false
-      }
-    })()
-  }, [markProcessingStepError, markProcessingStepSuccess, onCreateOrder, onError])
-
-  const runProcessingStep = useCallback(
-    (step: ProcessingOrderStep) => {
-      if (step === 'wrap') {
-        return runWrapStep()
+  const runApproveStep = async () => {
+    try {
+      if (await checkApprovalManually()) {
+        markProcessingStepSuccess('approve')
+        return true
       }
 
-      if (step === 'approve') {
-        return runApproveStep()
+      if (approval !== ApprovalState.PENDING) {
+        await approveCallback()
       }
 
-      return runCreateStep()
-    },
-    [runApproveStep, runCreateStep, runWrapStep],
-  )
-
-  const runProcessingSequence = useCallback(
-    async (firstStep: ProcessingOrderStep, processingSteps: ProcessingOrderStep[]) => {
-      const startIndex = processingSteps.indexOf(firstStep)
-      if (startIndex < 0) return
-
-      for (const step of processingSteps.slice(startIndex)) {
-        setProcessingOrder(state => (state.show ? { ...state, currentStep: step, errorStep: undefined } : state))
-
-        const isStepSuccess = await runProcessingStep(step)
-        if (!isStepSuccess) return
+      const hasEnoughAllowance = await waitForManualApproval()
+      if (hasEnoughAllowance) {
+        markProcessingStepSuccess('approve')
+        return true
       }
-    },
-    [runProcessingStep, setProcessingOrder],
-  )
 
-  const retryProcessingStep = useCallback(
-    (step: ProcessingOrderStep) => {
-      setProcessingOrder(state => ({
-        ...state,
-        currentStep: step,
-        errorStep: undefined,
-      }))
-      void runProcessingSequence(step, processingOrder.steps)
-    },
-    [processingOrder.steps, runProcessingSequence, setProcessingOrder],
-  )
+      markProcessingStepError('approve')
+      return false
+    } catch (error) {
+      onError?.(error)
+      markProcessingStepError('approve')
+      return false
+    }
+  }
 
-  const startProcessingOrder = useCallback(() => {
+  const runCreateStep = async () => {
+    try {
+      const orderId = await onCreateOrder()
+      if (orderId) {
+        markProcessingStepSuccess('create')
+        return true
+      }
+      markProcessingStepError('create')
+      return false
+    } catch (error) {
+      onError?.(error)
+      markProcessingStepError('create')
+      return false
+    }
+  }
+
+  const runProcessingStep = (step: ProcessingOrderStep) => {
+    if (step === 'wrap') {
+      return runWrapStep()
+    }
+
+    if (step === 'approve') {
+      return runApproveStep()
+    }
+
+    return runCreateStep()
+  }
+
+  const runProcessingSequence = async (firstStep: ProcessingOrderStep, processingSteps: ProcessingOrderStep[]) => {
+    const startIndex = processingSteps.indexOf(firstStep)
+    if (startIndex < 0) return
+
+    for (const step of processingSteps.slice(startIndex)) {
+      setProcessingOrder(state => (state.show ? { ...state, currentStep: step, errorStep: undefined } : state))
+
+      const isStepSuccess = await runProcessingStep(step)
+      if (!isStepSuccess) return
+    }
+  }
+
+  const retryProcessingStep = (step: ProcessingOrderStep) => {
+    setProcessingOrder(state => ({
+      ...state,
+      currentStep: step,
+      errorStep: undefined,
+    }))
+    void runProcessingSequence(step, processingOrder.steps)
+  }
+
+  const startProcessingOrder = () => {
     const firstStep = steps[0]
     if (!firstStep) return
 
@@ -241,7 +212,7 @@ export const useProcessingOrder = ({
       completedSteps: [],
     })
     void runProcessingSequence(firstStep, steps)
-  }, [onStart, runProcessingSequence, setProcessingOrder, steps])
+  }
 
   return {
     state: processingOrder,

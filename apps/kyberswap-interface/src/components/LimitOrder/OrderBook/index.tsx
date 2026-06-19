@@ -196,12 +196,9 @@ const OrderBook = () => {
     [reversedOrders, takerCurrency, makerCurrency, marketRate],
   )
 
-  const visibleSellOrders = useMemo(() => formattedOrders.slice(-10).reverse(), [formattedOrders])
-  const visibleBuyOrders = useMemo(() => formattedReversedOrders.slice(0, 10), [formattedReversedOrders])
-  const isSelectedOrderSwapBetter = useMemo(
-    () => getIsSwapBetter(selectedOrderToTake, marketRate),
-    [marketRate, selectedOrderToTake],
-  )
+  const visibleSellOrders = formattedOrders.slice(-10).reverse()
+  const visibleBuyOrders = formattedReversedOrders.slice(0, 10)
+  const isSelectedOrderSwapBetter = getIsSwapBetter(selectedOrderToTake, marketRate)
 
   const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
 
@@ -211,22 +208,19 @@ const OrderBook = () => {
     refetchSafely(refetchReversedOrders)
   }, [refetchMarketRate, refetchOrders, refetchReversedOrders])
 
-  const handleTakeOrder = useCallback(
-    (order: LimitOrderFromTokenPairFormatted) => {
-      if (!account) {
-        toggleWalletModal()
-        return
-      }
-      setSelectedOrderToTake(order)
-      setIsTakeOrderModalOpen(true)
-    },
-    [account, toggleWalletModal],
-  )
+  const handleTakeOrder = (order: LimitOrderFromTokenPairFormatted) => {
+    if (!account) {
+      toggleWalletModal()
+      return
+    }
+    setSelectedOrderToTake(order)
+    setIsTakeOrderModalOpen(true)
+  }
 
-  const handleDismissTakeOrderModal = useCallback(() => {
+  const handleDismissTakeOrderModal = () => {
     setIsTakeOrderModalOpen(false)
     setSelectedOrderToTake(undefined)
-  }, [])
+  }
 
   return (
     <div className="relative flex flex-col">

@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-c
 import { t } from '@lingui/macro'
 import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
 import { useWarningCreateOrder } from 'components/LimitOrder/CreateOrder/hooks/useWarningCreateOrder'
@@ -115,62 +115,49 @@ export const useLimitOrderExecution = ({
 
   const { execute: onWrap } = useWrapCallback(wrapInputCurrency, WETH[chainId], wrapTypedValue, true, chainId)
 
-  const maxAmountInput = useMemo(() => {
-    return maxAmountSpend(balance)
-  }, [balance])
+  const maxAmountInput = maxAmountSpend(balance)
 
-  const insufficientBalance = useMemo(() => {
+  const insufficientBalance = (() => {
     if (!approvalCurrency || !parsedApprovalAmount || !approvalBalance?.currency.equals(approvalCurrency)) return false
     if (!approvalBalance.lessThan(parsedApprovalAmount)) return false
     if (!isWrappedNativeApproval || !wrapAmountForOrder || !nativeBalance?.currency.equals(nativeCurrency)) return true
     return nativeBalance.lessThan(wrapAmountForOrder)
-  }, [
-    approvalBalance,
-    approvalCurrency,
-    isWrappedNativeApproval,
-    nativeBalance,
-    nativeCurrency,
-    parsedApprovalAmount,
-    wrapAmountForOrder,
-  ])
+  })()
 
   const insufficientBalanceText = insufficientBalance ? t`Insufficient Balance` : undefined
 
-  const showReservedOrderNotice = useMemo(() => {
+  const showReservedOrderNotice = (() => {
     if (!currencyIn || currencyIn.isNative || !parsedInputAmount || !parsedActiveOrderMakingAmount) return false
     if (!balance?.currency.equals(currencyIn)) return false
     if (JSBI.equal(parsedActiveOrderMakingAmount.quotient, JSBI.BigInt(0))) return false
 
     const remainingBalance = JSBI.subtract(balance.quotient, parsedInputAmount.quotient)
     return JSBI.lessThan(remainingBalance, parsedActiveOrderMakingAmount.quotient)
-  }, [balance, currencyIn, parsedInputAmount, parsedActiveOrderMakingAmount])
+  })()
 
-  const handleMaxInput = useCallback(() => {
+  const handleMaxInput = () => {
     if (!maxAmountInput) return
     try {
       onSetInput?.(maxAmountInput.toExact())
     } catch (error) {}
-  }, [maxAmountInput, onSetInput])
+  }
 
   // Allowance is checked inside the processing approve step so the modal can show the step even when it passes.
   const [approval, approveCallback] = useApproveCallback(parsedApprovalAmount, limitOrderContract || undefined, true)
 
-  const hasEnoughAllowance = useCallback(
-    (allowance: TokenAmount) => {
-      if (!parsedApprovalAmount) return true
-      try {
-        const availableAllowance = parsedActiveOrderMakingAmount
-          ? allowance.subtract(parsedActiveOrderMakingAmount)
-          : allowance
-        return availableAllowance.greaterThan(parsedApprovalAmount) || availableAllowance.equalTo(parsedApprovalAmount)
-      } catch (error) {
-        return false
-      }
-    },
-    [parsedApprovalAmount, parsedActiveOrderMakingAmount],
-  )
+  const hasEnoughAllowance = (allowance: TokenAmount) => {
+    if (!parsedApprovalAmount) return true
+    try {
+      const availableAllowance = parsedActiveOrderMakingAmount
+        ? allowance.subtract(parsedActiveOrderMakingAmount)
+        : allowance
+      return availableAllowance.greaterThan(parsedApprovalAmount) || availableAllowance.equalTo(parsedApprovalAmount)
+    } catch (error) {
+      return false
+    }
+  }
 
-  const checkApprovalManually = useCallback(async () => {
+  const checkApprovalManually = async () => {
     if (!approvalCurrency || !account || !limitOrderContract || !parsedApprovalAmount) return false
 
     const allowance = (await readContract(wagmiConfig, {
@@ -182,16 +169,16 @@ export const useLimitOrderExecution = ({
     })) as bigint
 
     return hasEnoughAllowance(TokenAmount.fromRawAmount(approvalCurrency, allowance.toString()))
-  }, [account, chainId, approvalCurrency, hasEnoughAllowance, limitOrderContract, parsedApprovalAmount])
+  }
 
-  const processingSteps = useMemo<ProcessingOrderStep[]>(() => {
+  const processingSteps = (() => {
     const steps: ProcessingOrderStep[] = []
 
     if (needsWrap) steps.push('wrap')
     steps.push('approve')
     steps.push('create')
     return steps
-  }, [needsWrap])
+  })()
 
   // Form validation and warning messages.
   const { inputError, outputError } = useValidateInputError({
@@ -223,11 +210,11 @@ export const useLimitOrderExecution = ({
   })
 
   // Tracking callbacks used by form inputs.
-  const trackingTouchInput = useCallback(() => {
+  const trackingTouchInput = () => {
     trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
-  }, [trackingHandler])
+  }
 
-  const trackingPriceSetOnBlur = useCallback(() => {
+  const trackingPriceSetOnBlur = () => {
     if (!displayRate || !currencyIn || !currencyOut) return
     trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
       side: 'sell',
@@ -238,11 +225,11 @@ export const useLimitOrderExecution = ({
       to_token: currencyOut.symbol,
       chain: networkName,
     })
-  }, [displayRate, currencyIn, currencyOut, tradeInfo, deltaRate.rawPercent, networkName, trackingHandler])
+  }
 
-  const trackingTouchSelectToken = useCallback(() => {
+  const trackingTouchSelectToken = () => {
     trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
-  }, [trackingHandler])
+  }
 
   // Review modal and shared error handling.
   const openReview = () => {
@@ -275,52 +262,52 @@ export const useLimitOrderExecution = ({
     })
   }
 
-  const closeReview = useCallback(() => {
+  const closeReview = () => {
     onCloseReview?.()
-  }, [onCloseReview])
+  }
 
-  const handleError = useCallback(
-    (error: unknown) => {
-      const errorMessage = getErrorMessage(error)
-      const isUserRejected =
-        errorMessage.toLowerCase().includes('user denied') || errorMessage.toLowerCase().includes('user rejected')
+  const handleError = (error: unknown) => {
+    const errorMessage = getErrorMessage(error)
+    const isUserRejected =
+      errorMessage.toLowerCase().includes('user denied') || errorMessage.toLowerCase().includes('user rejected')
 
-      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FAILED, {
-        side: 'sell',
-        from_token: currencyIn?.symbol,
-        to_token: currencyOut?.symbol,
-        pair: currencyIn && currencyOut ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
-        limit_price: displayRate,
-        amount_in: inputAmount,
-        error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
-        error_message: errorMessage,
-        chain: networkName,
-      })
-
-      return
-    },
-    [trackingHandler, currencyIn, currencyOut, displayRate, inputAmount, networkName],
-  )
+    trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FAILED, {
+      side: 'sell',
+      from_token: currencyIn?.symbol,
+      to_token: currencyOut?.symbol,
+      pair: currencyIn && currencyOut ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+      limit_price: displayRate,
+      amount_in: inputAmount,
+      error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
+      error_message: errorMessage,
+      chain: networkName,
+    })
+  }
 
   // Keep active making amount fresh after order state updates.
-  const refreshActiveMakingAmount = useCallback(() => {
+  const refreshActiveMakingAmount = () => {
     try {
       getActiveMakingAmount()
     } catch (error) {}
-  }, [getActiveMakingAmount])
+  }
 
-  const resetForm = useCallback(() => {
+  const resetForm = () => {
     onResetForm?.()
     refreshActiveMakingAmount()
-  }, [onResetForm, refreshActiveMakingAmount])
+  }
 
   useEffect(() => {
     if (!account) return
+    const refreshActiveMakingAmount = () => {
+      try {
+        getActiveMakingAmount()
+      } catch (error) {}
+    }
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refreshActiveMakingAmount)
     return () => {
       unsubscribeExpired?.()
     }
-  }, [account, chainId, refreshActiveMakingAmount])
+  }, [account, chainId, getActiveMakingAmount])
 
   return {
     estimateUSD,

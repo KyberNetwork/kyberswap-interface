@@ -150,11 +150,11 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
     return `1 ${context.receiveCurrency.symbol} = ${removeTrailingZero(invertedRate)} ${context.payCurrency.symbol}`
   })()
 
-  const submitText = insufficientBalance
+  const fillAmountErrorMessage = insufficientBalance
     ? t`Insufficient Balance`
     : exceedsAvailableAmount
     ? t`Exceeds available amount`
-    : t`Fill this order`
+    : ''
   const fillAmountError = insufficientBalance || exceedsAvailableAmount
   const walletBalance = balance?.currency.equals(context.payCurrency) ? balance : undefined
 
@@ -325,7 +325,9 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
                   />
                 </HStack>
               </Stack>
-              {fillAmountError && <span className="text-xs font-medium text-red">{submitText}</span>}
+              <span className={cn('min-h-4 text-xs font-medium text-red', !fillAmountError && 'invisible')}>
+                {fillAmountErrorMessage}
+              </span>
             </Stack>
 
             <Stack className="gap-2 rounded-xl bg-buttonGray px-4 py-3">
@@ -362,11 +364,11 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
             />
 
             <HStack className="gap-3 max-sm:flex-col">
-              <ButtonOutlined onClick={handleUseSwapInstead} className="!h-11 flex-1 !p-0">
+              <ButtonOutlined onClick={handleUseSwapInstead} className="flex-1">
                 <Trans>Use Swap Instead</Trans>
               </ButtonOutlined>
-              <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="!h-11 flex-1 !p-0">
-                {submitText}
+              <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="flex-1">
+                <Trans>Fill this order</Trans>
               </ButtonPrimary>
             </HStack>
           </Stack>

@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import { removeTrailingZero } from 'components/LimitOrder/helpers'
@@ -42,20 +42,20 @@ const RateComparison = ({ isSwapBetter, inputCurrency, outputCurrency, inputAmou
     customChain: inputCurrency.wrapped.chainId,
   })
 
-  const swapRouteSummary = useMemo(() => {
+  const swapRouteSummary = (() => {
     if (!swapRouteResult.data?.data || swapRouteResult.error) return undefined
 
     return parseGetRouteResponse(swapRouteResult.data.data, inputCurrency, outputCurrency).routeSummary
-  }, [inputCurrency, outputCurrency, swapRouteResult.data?.data, swapRouteResult.error])
+  })()
 
-  const orderExecutionPrice = useMemo(() => {
+  const orderExecutionPrice = (() => {
     if (!inputAmount || !outputAmount) return undefined
     if (inputAmount.equalTo(0) || outputAmount.equalTo(0)) return undefined
 
     return new Price(inputCurrency, outputCurrency, inputAmount.quotient, outputAmount.quotient)
-  }, [inputAmount, inputCurrency, outputAmount, outputCurrency])
+  })()
 
-  const swapRouteOutputDelta = useMemo(() => {
+  const swapRouteOutputDelta = (() => {
     if (!swapRouteSummary?.parsedAmountOut || !outputAmount) return undefined
 
     const swapOutput = Number(swapRouteSummary.parsedAmountOut.toExact())
@@ -63,7 +63,7 @@ const RateComparison = ({ isSwapBetter, inputCurrency, outputCurrency, inputAmou
     if (!swapOutput || !orderOutput) return undefined
 
     return (swapOutput / orderOutput - 1) * 100
-  }, [outputAmount, swapRouteSummary?.parsedAmountOut])
+  })()
 
   const isSwapRouteBetter =
     !!swapRouteSummary?.parsedAmountOut && !!outputAmount && swapRouteSummary.parsedAmountOut.greaterThan(outputAmount)
