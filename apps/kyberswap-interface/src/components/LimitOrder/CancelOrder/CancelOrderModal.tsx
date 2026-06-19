@@ -27,7 +27,6 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 export enum CancelStatus {
   WAITING,
   COUNTDOWN,
-  TIMEOUT,
   CANCEL_DONE,
 }
 
@@ -101,7 +100,6 @@ const CancelOrderModal = ({
     isOpen,
     onDismiss,
     onSubmit: onCancelOrder,
-    expiredTime,
     setExpiredTime,
     setCancelStatus,
     getOrders: (gasLessCancel: boolean) =>

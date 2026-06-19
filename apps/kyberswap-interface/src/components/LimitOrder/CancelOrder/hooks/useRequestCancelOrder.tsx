@@ -38,7 +38,6 @@ type UseProcessCancelOrderArgs = {
   onDismiss?: () => void
   isOpen: boolean
   getOrders: (v: boolean) => LimitOrder[]
-  expiredTime: number
   setExpiredTime: Dispatch<SetStateAction<number>>
   setCancelStatus: Dispatch<SetStateAction<CancelStatus>>
 }
@@ -212,7 +211,6 @@ export const useProcessCancelOrder = ({
   onDismiss,
   onSubmit,
   getOrders,
-  expiredTime,
   setExpiredTime,
   setCancelStatus,
 }: UseProcessCancelOrderArgs) => {
@@ -245,18 +243,23 @@ export const useProcessCancelOrder = ({
     try {
       const data = await onSubmit({ orders, cancelType: type })
       if (signal.aborted) return
-      setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
+
+      if (!gasLessCancel) {
+        onDismiss?.()
+        return
+      }
+
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
-      if (expired) {
-        setExpiredTime(expired)
-        if (expired * 1000 < Date.now()) {
-          setCancelStatus(CancelStatus.CANCEL_DONE)
-        }
-      } else onDismiss?.()
+      if (!expired) {
+        onDismiss?.()
+        return
+      }
+
+      setExpiredTime(expired)
+      setCancelStatus(expired * 1000 < Date.now() ? CancelStatus.CANCEL_DONE : CancelStatus.COUNTDOWN)
     } catch (error) {
       if (signal.aborted) return
-      setExpiredTime(0)
-      setCancelStatus(expiredTime ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
+      setCancelStatus(status => (status === CancelStatus.WAITING ? CancelStatus.WAITING : status))
     }
   }
 

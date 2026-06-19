@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { CSSProperties, ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { Check } from 'react-feather'
 
 import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
@@ -16,51 +16,14 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const ButtonWrapper = ({ children, style }: { children: ReactNode; style?: CSSProperties }) => (
-  <HStack className="items-start gap-3 max-sm:flex-col" style={style}>
-    {children}
-  </HStack>
+const CancelOptionNote = ({ children, href }: { children: ReactNode; href: string }) => (
+  <Stack className="gap-1 text-xs leading-4 text-subText">
+    <span>{children}</span>
+    <ExternalLink href={href} className="w-fit whitespace-nowrap">
+      <Trans>Learn more ↗︎</Trans>
+    </ExternalLink>
+  </Stack>
 )
-
-const ButtonGroup = ({
-  buttonGasless,
-  buttonHardCancel,
-  gasAmountDisplay,
-  style,
-  showGaslessNote = true,
-}: {
-  buttonGasless: ReactNode
-  buttonHardCancel: ReactNode
-  gasAmountDisplay: string
-  style?: CSSProperties
-  showGaslessNote?: boolean
-}) => {
-  return (
-    <ButtonWrapper style={style}>
-      <Stack className="w-full gap-2">
-        {buttonGasless}
-        {showGaslessNote && (
-          <span className="text-xs leading-4 text-subText">
-            <Trans>Cancel without paying gas.</Trans>
-            <Trans>
-              <br /> Cancellation may not be instant.{' '}
-              <ExternalLink href={DOCS_LINKS.GASLESS_CANCEL}>Learn more ↗︎</ExternalLink>
-            </Trans>
-          </span>
-        )}
-      </Stack>
-      <Stack className="w-full gap-2">
-        {buttonHardCancel}
-        <span className="text-xs leading-4 text-subText">
-          <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees.</Trans>{' '}
-          <ExternalLink href={DOCS_LINKS.HARD_CANCEL}>
-            <Trans>Learn more ↗︎</Trans>
-          </ExternalLink>
-        </span>
-      </Stack>
-    </ButtonWrapper>
-  )
-}
 
 type ButtonInfo = {
   orderSupportGasless: boolean
@@ -80,7 +43,6 @@ const CancelButtons = ({
   onClickGaslessCancel,
   onSubmit,
   estimateGas,
-  confirmOnly = false,
   cancelType,
   setCancelType,
   order,
@@ -101,16 +63,13 @@ const CancelButtons = ({
   onClickGaslessCancel: () => void
   onClickHardCancel: () => void
   estimateGas: string
-  confirmOnly?: boolean
   cancelType: CancelOrderType
   setCancelType: (v: CancelOrderType) => void
   buttonInfo: ButtonInfo
   order: LimitOrder | undefined
 }) => {
   const theme = useTheme()
-  const isWaiting = cancelStatus === CancelStatus.WAITING
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
-  const isTimeout = cancelStatus === CancelStatus.TIMEOUT
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
   const { trackingHandler } = useTracking()
   const { networkInfo } = useActiveWeb3React()
@@ -133,103 +92,89 @@ const CancelButtons = ({
 
   if (isCancelDone)
     return (
-      <ButtonWrapper>
+      <HStack className="items-start gap-3 max-sm:flex-col">
         <ButtonLight onClick={onDismiss} height={'44px'} width={'100%'}>
           <Check size={18} /> &nbsp;<Trans>Close</Trans>
         </ButtonLight>
-      </ButtonWrapper>
-    )
-
-  if (isTimeout)
-    return (
-      <ButtonWrapper style={{ justifyContent: 'flex-end' }}>
-        <ButtonLight onClick={onClickGaslessCancel} height={'44px'} width={'128px'}>
-          <Trans>Try Again</Trans>
-        </ButtonLight>
-      </ButtonWrapper>
+      </HStack>
     )
 
   const propsGasless = { height: '44px', width: '100%' }
   const propsHardCancel = { style: { height: '44px', width: '100%' }, disabled: disabledHardCancel }
+  const onConfirm =
+    onSubmit || (cancelType === CancelOrderType.GAS_LESS_CANCEL ? onClickGaslessCancel : onClickHardCancel)
 
   if (isCountDown)
     return (
-      <ButtonGroup
-        showGaslessNote={false}
-        style={{ flexDirection: 'row-reverse' }}
-        gasAmountDisplay={gasAmountDisplay}
-        buttonGasless={
+      <HStack className="flex-row-reverse items-start gap-3 max-sm:flex-col">
+        <Stack className="w-full gap-2">
           <ButtonPrimary {...propsGasless} onClick={onDismiss}>
             <Check size={18} />
             &nbsp;
             <Trans>Close</Trans>
           </ButtonPrimary>
-        }
-        buttonHardCancel={
+        </Stack>
+        <Stack className="w-full gap-2">
           <ButtonOutlined {...propsHardCancel} onClick={onClickHardCancel} color={theme.red}>
             <GasStation size={20} />
             &nbsp;
             <Trans>Hard Cancel Instead</Trans>
           </ButtonOutlined>
-        }
-      />
+          <CancelOptionNote href={DOCS_LINKS.HARD_CANCEL}>
+            <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees.</Trans>
+          </CancelOptionNote>
+        </Stack>
+      </HStack>
     )
 
   return (
     <>
-      {!confirmOnly && (
-        <ButtonGroup
-          style={{ flexDirection: isCountDown ? 'row-reverse' : undefined }}
-          gasAmountDisplay={gasAmountDisplay}
-          buttonGasless={
-            <MouseoverTooltip
-              placement="top"
-              text={
-                !chainSupportGasless
-                  ? t`This chain is not supported gasless cancel. It's coming soon.`
-                  : !orderSupportGasless
-                  ? t`This order is not supported gasless cancel. Because it was created by our old contract`
-                  : ''
-              }
-            >
-              <ButtonOutlined
-                {...propsGasless}
-                color={cancelType === CancelOrderType.GAS_LESS_CANCEL ? theme.primary : undefined}
-                onClick={() => onSetType(CancelOrderType.GAS_LESS_CANCEL)}
-                $disabled={disabledGasLessCancel}
-                disabled={disabledGasLessCancel}
-              >
-                <GasLessIcon />
-                &nbsp;
-                {cancelGaslessText}
-              </ButtonOutlined>
-            </MouseoverTooltip>
-          }
-          buttonHardCancel={
+      <HStack className="items-start gap-3 max-sm:flex-col">
+        <Stack className="w-full gap-2">
+          <MouseoverTooltip
+            placement="top"
+            text={
+              !chainSupportGasless
+                ? t`This chain is not supported gasless cancel. It's coming soon.`
+                : !orderSupportGasless
+                ? t`This order is not supported gasless cancel. Because it was created by our old contract`
+                : ''
+            }
+          >
             <ButtonOutlined
-              {...propsHardCancel}
-              onClick={() => onSetType(CancelOrderType.HARD_CANCEL)}
-              color={cancelType === CancelOrderType.HARD_CANCEL ? theme.primary : undefined}
+              {...propsGasless}
+              color={cancelType === CancelOrderType.GAS_LESS_CANCEL ? theme.primary : undefined}
+              onClick={() => onSetType(CancelOrderType.GAS_LESS_CANCEL)}
+              $disabled={disabledGasLessCancel}
+              disabled={disabledGasLessCancel}
             >
-              <GasStation size={20} />
+              <GasLessIcon />
               &nbsp;
-              {hardCancelGasless}
+              {cancelGaslessText}
             </ButtonOutlined>
-          }
-        />
-      )}
-      {isWaiting && (
-        <ButtonPrimary
-          disabled={disabledConfirm}
-          width={'100%'}
-          height={'44px'}
-          onClick={
-            onSubmit || (cancelType === CancelOrderType.GAS_LESS_CANCEL ? onClickGaslessCancel : onClickHardCancel)
-          }
-        >
-          {confirmBtnText}
-        </ButtonPrimary>
-      )}
+          </MouseoverTooltip>
+          <CancelOptionNote href={DOCS_LINKS.GASLESS_CANCEL}>
+            <Trans>Cancel without paying gas. Cancellation may not be instant.</Trans>
+          </CancelOptionNote>
+        </Stack>
+        <Stack className="w-full gap-2">
+          <ButtonOutlined
+            {...propsHardCancel}
+            onClick={() => onSetType(CancelOrderType.HARD_CANCEL)}
+            color={cancelType === CancelOrderType.HARD_CANCEL ? theme.primary : undefined}
+          >
+            <GasStation size={20} />
+            &nbsp;
+            {hardCancelGasless}
+          </ButtonOutlined>
+          <CancelOptionNote href={DOCS_LINKS.HARD_CANCEL}>
+            <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees.</Trans>
+          </CancelOptionNote>
+        </Stack>
+      </HStack>
+      <ButtonPrimary disabled={disabledConfirm} width={'100%'} height={'44px'} onClick={onConfirm}>
+        {confirmBtnText}
+      </ButtonPrimary>
     </>
   )
 }

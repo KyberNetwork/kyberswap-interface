@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { Check } from 'react-feather'
 
-import { ReactComponent as TimerIcon } from 'assets/svg/clock_timer.svg'
 import Column from 'components/Column'
 import { Clock } from 'components/Icons'
 import WarningIcon from 'components/Icons/WarningIcon'
@@ -72,6 +71,18 @@ const CancelStatusCountDown = ({
     </CountDownWrapper>
   ) : null
 
+  if (cancelStatus === CancelStatus.CANCEL_DONE)
+    return (
+      <CountDownWrapper>
+        <div className="flex items-center gap-1.5 text-sm font-normal text-primary">
+          <div className="flex size-5 items-center justify-center rounded-full bg-primary-30">
+            <Check size={14} />
+          </div>{' '}
+          <Trans>Order has been successfully cancelled.</Trans>
+        </div>
+      </CountDownWrapper>
+    )
+
   if (errorMessage || attemptingTxn)
     return (
       <Column className="gap-[14px]">
@@ -95,30 +106,7 @@ const CancelStatusCountDown = ({
 
   if (isCountDown) return contentCountDown
 
-  return (
-    <CountDownWrapper>
-      {cancelStatus === CancelStatus.TIMEOUT ? (
-        <div className="flex items-center gap-1 text-sm font-normal text-red max-sm:flex-wrap">
-          <TimerIcon />{' '}
-          <div className="flex gap-1">
-            <Trans>Your request has timed out.</Trans>{' '}
-            <span className="self-end text-[10px] font-normal">
-              <ExternalLink href={DOCS_LINKS.CANCEL_GUIDE}>
-                <Trans>Learn more ↗︎</Trans>
-              </ExternalLink>
-            </span>
-          </div>
-        </div>
-      ) : cancelStatus === CancelStatus.CANCEL_DONE ? (
-        <div className="flex items-center gap-1.5 text-sm font-normal text-primary">
-          <div className="flex size-5 items-center justify-center rounded-full bg-primary-30">
-            <Check size={14} />
-          </div>{' '}
-          <Trans>Order has been successfully cancelled.</Trans>
-        </div>
-      ) : null}
-    </CountDownWrapper>
-  )
+  return null
 }
 
 export default CancelStatusCountDown
