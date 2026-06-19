@@ -9,8 +9,9 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import WalletIcon from 'components/Icons/Wallet'
 import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
+import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
 import RateComparison from 'components/LimitOrder/TakeOrder/RateComparison'
-import { DEFAULT_TAKE_ORDER_PROCESSING, useTakeLimitOrder } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
+import { useTakeLimitOrder } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
 import { removeTrailingZero } from 'components/LimitOrder/helpers'
 import {
   LimitOrderFromTokenPairFormatted,
@@ -93,7 +94,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
   const [fillAmount, setFillAmount] = useState('')
   const [showInvertedRate, setShowInvertedRate] = useState(false)
   const [estimatedGasUsd, setEstimatedGasUsd] = useState<string>('')
-  const [processingState, setProcessingState] = useState(DEFAULT_TAKE_ORDER_PROCESSING)
+  const [processingState, setProcessingState] = useState(DEFAULT_PROCESSING_ORDER)
 
   const context = useMemo<LimitOrderTakeContext>(() => {
     const rawOrder = order.rawOrder
@@ -117,8 +118,6 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
   const takeOrder = useTakeLimitOrder({
     context,
     fillAmount,
-    processing: processingState,
-    setProcessing: setProcessingState,
   })
 
   const {
@@ -133,11 +132,16 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
     canSubmit,
   } = takeOrder.amount
   const { estimateTxGas } = takeOrder
+  const processing = useProcessingOrder({
+    processingOrder: processingState,
+    setProcessingOrder: setProcessingState,
+    ...takeOrder.processing,
+  })
 
   const payTokenAddress = context.payCurrency.wrapped.address
   const tokenPrices = useTokenPrices([payTokenAddress], context.order.chainId, PriceType.Average)
 
-  const isConfirmOpen = isOpen && !takeOrder.processing.state.show
+  const isConfirmOpen = isOpen && !processing.state.show
   const fillAmountUsd = parsedPayAmount ? Number(parsedPayAmount.toExact()) * tokenPrices[payTokenAddress] : 0
   const receiveAmountForComparison = receiveAmountAfterFee || receiveAmount
 
@@ -186,7 +190,8 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
   }
 
   const handleSubmit = () => {
-    takeOrder.processing.start()
+    if (!canSubmit) return
+    processing.start()
   }
 
   const handleUseSwapInstead = () => {
@@ -207,7 +212,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
   }
 
   const handleProcessingDismiss = () => {
-    takeOrder.processing.dismiss()
+    processing.dismiss()
     onDismiss?.()
   }
 
@@ -378,7 +383,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
         chainId={context.order.chainId}
         currencyIn={context.payCurrency}
         processing={{
-          ...takeOrder.processing,
+          ...processing,
           dismiss: handleProcessingDismiss,
         }}
         onViewOrder={handleViewOrder}

@@ -1,8 +1,7 @@
-import { Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { readContract, waitForTransactionReceipt } from '@wagmi/core'
 import JSBI from 'jsbi'
-import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import {
   FillOrderBody,
   useEncodeFillOrderMutation,
@@ -11,16 +10,15 @@ import {
 } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
+import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
 import { getErrorMessage } from 'components/LimitOrder/helpers'
+import { useLimitOrderApproval } from 'components/LimitOrder/hooks/useLimitOrderApproval'
+import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { LimitOrderTakeContext } from 'components/LimitOrder/types'
-import { wagmiConfig } from 'components/Web3Provider'
-import { ERC20_ABI } from 'constants/abis'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { useApproveCallback } from 'hooks/useApproveCallback'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
-import useWrapCallback from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -29,29 +27,6 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
-import { Address } from 'utils/viem'
-
-export type TakeOrderStep = 'wrap' | 'approve' | 'fill'
-export type TakeOrderStepStatus = 'idle' | 'active' | 'success' | 'error'
-
-export type TakeOrderProcessingState = {
-  show: boolean
-  steps: TakeOrderStep[]
-  currentStep?: TakeOrderStep
-  errorStep?: TakeOrderStep
-  completedSteps: TakeOrderStep[]
-  txHash?: string
-}
-
-export const DEFAULT_TAKE_ORDER_PROCESSING: TakeOrderProcessingState = {
-  show: false,
-  steps: [],
-  completedSteps: [],
-}
-
-const APPROVAL_CHECK_RETRY_COUNT = 8
-const APPROVAL_CHECK_RETRY_DELAY = 2_000
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const safeDivide = (numerator: JSBI, denominator: JSBI) => {
   if (JSBI.equal(denominator, JSBI.BigInt(0))) return JSBI.BigInt(0)
@@ -97,13 +72,9 @@ const subtractFee = (amount: CurrencyAmount<Currency> | undefined, feeBps: numbe
 export const useTakeLimitOrder = ({
   context,
   fillAmount,
-  processing,
-  setProcessing,
 }: {
   context: LimitOrderTakeContext | undefined
   fillAmount: string
-  processing: TakeOrderProcessingState
-  setProcessing: Dispatch<SetStateAction<TakeOrderProcessingState>>
 }) => {
   const { account, chainId, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
@@ -130,24 +101,18 @@ export const useTakeLimitOrder = ({
   const feeBps = getFeeBps(order?.makerTokenFeePercent)
   const receiveAmountAfterFee = subtractFee(receiveAmount, feeBps)
   const thresholdAmount = receiveAmount?.quotient.toString() || '0'
+
   const balance = useCurrencyBalance(payCurrency, chainId)
-  const nativeCurrency = NativeCurrencies[chainId]
-  const nativeBalance = useCurrencyBalance(nativeCurrency, chainId)
-  const isWrappedNativePay = !!payCurrency?.equals(WETH[chainId])
-  const wrapAmountForOrder = useMemo(() => {
-    if (!payCurrency || !isWrappedNativePay || !parsedPayAmount || !balance?.currency.equals(payCurrency)) {
-      return undefined
-    }
-    if (!balance.lessThan(parsedPayAmount)) return undefined
-    return CurrencyAmount.fromRawAmount(nativeCurrency, JSBI.subtract(parsedPayAmount.quotient, balance.quotient))
-  }, [balance, isWrappedNativePay, nativeCurrency, parsedPayAmount, payCurrency])
-  const insufficientBalance = (() => {
-    if (!parsedPayAmount) return false
-    if (!balance?.currency.equals(parsedPayAmount.currency)) return true
-    if (!balance.lessThan(parsedPayAmount)) return false
-    if (!isWrappedNativePay || !wrapAmountForOrder || !nativeBalance?.currency.equals(nativeCurrency)) return true
-    return nativeBalance.lessThan(wrapAmountForOrder)
-  })()
+  const {
+    insufficientBalance,
+    onWrap,
+    wrapAmount: wrapAmountForOrder,
+  } = useLimitOrderWrapStep({
+    chainId,
+    currency: payCurrency,
+    amount: parsedPayAmount,
+    balance,
+  })
   const exceedsAvailableAmount = (() => {
     if (!parsedPayAmount || !maxPayAmount) return false
     return parsedPayAmount.greaterThan(maxPayAmount)
@@ -160,61 +125,20 @@ export const useTakeLimitOrder = ({
     !exceedsAvailableAmount &&
     !insufficientBalance
 
-  const { execute: onWrap } = useWrapCallback(
-    wrapAmountForOrder ? nativeCurrency : undefined,
-    WETH[chainId],
-    wrapAmountForOrder?.toExact(),
-    true,
+  const [approval, approveCallback] = useApproveCallback({
+    amount: parsedPayAmount,
+    spender: contractAddress || undefined,
+    forceApprove: true,
+  })
+
+  const checkApprovalManually = useLimitOrderApproval({
+    account,
+    amount: parsedPayAmount,
     chainId,
-  )
-
-  const [approval, approveCallback] = useApproveCallback(parsedPayAmount, contractAddress || undefined, true)
-
-  const checkApprovalManually = async () => {
-    if (!payCurrency || payCurrency.isNative || !account || !contractAddress || !parsedPayAmount) return true
-
-    const allowance = (await readContract(wagmiConfig, {
-      address: payCurrency.wrapped.address as Address,
-      abi: ERC20_ABI,
-      functionName: 'allowance',
-      args: [account, contractAddress],
-      chainId: chainId as number,
-    })) as bigint
-
-    const allowanceAmount = TokenAmount.fromRawAmount(payCurrency.wrapped, allowance.toString())
-    return allowanceAmount.greaterThan(parsedPayAmount) || allowanceAmount.equalTo(parsedPayAmount)
-  }
-
-  const markStepSuccess = (step: TakeOrderStep, txHash?: string) => {
-    setProcessing(state => {
-      if (!state.show || state.currentStep !== step) return state
-      const completedSteps = state.completedSteps.includes(step)
-        ? state.completedSteps
-        : [...state.completedSteps, step]
-      const nextStep = state.steps[state.steps.indexOf(step) + 1]
-      return { ...state, currentStep: nextStep, completedSteps, txHash: txHash || state.txHash }
-    })
-  }
-
-  const markStepError = (step: TakeOrderStep) => {
-    setProcessing(state => {
-      if (!state.show || state.currentStep !== step) return state
-      return { ...state, errorStep: step }
-    })
-  }
-
-  const dismissProcessing = () => {
-    setProcessing(DEFAULT_TAKE_ORDER_PROCESSING)
-  }
-
-  const waitForManualApproval = async () => {
-    for (let attempt = 0; attempt < APPROVAL_CHECK_RETRY_COUNT; attempt++) {
-      const approved = await checkApprovalManually()
-      if (approved) return true
-      await sleep(APPROVAL_CHECK_RETRY_DELAY)
-    }
-    return false
-  }
+    currency: payCurrency,
+    spender: contractAddress,
+    passWhenInvalidInput: true,
+  })
 
   const buildFillOrderBody = useCallback(async (): Promise<FillOrderBody> => {
     if (!account || !order || !parsedPayAmount) throw new Error('Wrong input')
@@ -232,163 +156,76 @@ export const useTakeLimitOrder = ({
     }
   }, [account, chainId, getOperatorSignature, order, parsedPayAmount, thresholdAmount])
 
-  const runWrapStep = async () => {
-    try {
-      const hash = await onWrap?.()
-      if (!hash) {
-        markStepError('wrap')
-        return false
-      }
-      const receipt = await waitForTransactionReceipt(wagmiConfig, {
-        chainId: chainId as (typeof wagmiConfig)['chains'][number]['id'],
-        hash: hash as `0x${string}`,
-      })
-      if (receipt.status === 'reverted') {
-        markStepError('wrap')
-        return false
-      }
-      markStepSuccess('wrap')
-      return true
-    } catch (error) {
-      notify({ type: NotificationType.ERROR, title: t`Wrap Error`, summary: getErrorMessage(error) })
-      markStepError('wrap')
-      return false
+  const submitFillOrder = useCallback(async () => {
+    if (!account || !order || !parsedPayAmount || !contractAddress || !payCurrency || !receiveCurrency) {
+      throw new Error('Wrong input')
     }
-  }
 
-  const runApproveStep = async () => {
-    try {
-      if (await checkApprovalManually()) {
-        markStepSuccess('approve')
-        return true
-      }
-      if (approval !== ApprovalState.PENDING) {
-        await approveCallback(parsedPayAmount)
-      }
-      const approved = await waitForManualApproval()
-      if (approved) {
-        markStepSuccess('approve')
-        return true
-      }
-      markStepError('approve')
-      return false
-    } catch (error) {
-      notify({ type: NotificationType.ERROR, title: t`Approve Error`, summary: getErrorMessage(error) })
-      markStepError('approve')
-      return false
-    }
-  }
+    const fillBody = await buildFillOrderBody()
+    const { encodedData } = await encodeFillOrder(fillBody).unwrap()
+    const response = await sendEVMTransaction({
+      account,
+      contractAddress,
+      encodedData,
+      value: 0n,
+      isSmartConnector,
+      errorInfo: {
+        name: ErrorName.LimitOrderError,
+        wallet: walletKey,
+      },
+      chainId,
+    })
 
-  const runFillStep = async () => {
-    try {
-      if (!account || !order || !parsedPayAmount || !contractAddress || !payCurrency || !receiveCurrency) {
-        throw new Error('Wrong input')
-      }
+    if (!response?.hash) throw new Error('Transaction was not submitted')
 
-      const fillBody = await buildFillOrderBody()
-      const { encodedData } = await encodeFillOrder(fillBody).unwrap()
-      const response = await sendEVMTransaction({
-        account,
-        contractAddress,
-        encodedData,
-        value: 0n,
-        isSmartConnector,
-        errorInfo: {
-          name: ErrorName.LimitOrderError,
-          wallet: walletKey,
+    addTransactionWithType({
+      hash: response.hash,
+      type: TRANSACTION_TYPE.FILL_LIMIT_ORDER,
+      extraInfo: {
+        tokenAddressIn: payCurrency.wrapped.address,
+        tokenAddressOut: receiveCurrency.wrapped.address,
+        tokenSymbolIn: payCurrency.symbol || '',
+        tokenSymbolOut: receiveCurrency.symbol || '',
+        tokenAmountIn: parsedPayAmount.toExact(),
+        tokenAmountOut: receiveAmountAfterFee?.toExact() || receiveAmount?.toExact() || '',
+        arbitrary: {
+          order_id: order.id,
+          type: 'fill_limit_order',
         },
-        chainId,
-      })
+      },
+    })
+    invalidateLimitOrderTags([
+      RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST,
+      RTK_QUERY_TAGS.GET_LIMIT_ORDER_BOOK,
+      RTK_QUERY_TAGS.GET_LIMIT_ORDER_INSUFFICIENT,
+      RTK_QUERY_TAGS.GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT,
+    ])
+    return true
+  }, [
+    account,
+    addTransactionWithType,
+    buildFillOrderBody,
+    chainId,
+    contractAddress,
+    encodeFillOrder,
+    invalidateLimitOrderTags,
+    isSmartConnector,
+    order,
+    parsedPayAmount,
+    payCurrency,
+    receiveAmount,
+    receiveAmountAfterFee,
+    receiveCurrency,
+    walletKey,
+  ])
 
-      if (!response?.hash) throw new Error('Transaction was not submitted')
-
-      addTransactionWithType({
-        hash: response.hash,
-        type: TRANSACTION_TYPE.FILL_LIMIT_ORDER,
-        extraInfo: {
-          tokenAddressIn: payCurrency.wrapped.address,
-          tokenAddressOut: receiveCurrency.wrapped.address,
-          tokenSymbolIn: payCurrency.symbol || '',
-          tokenSymbolOut: receiveCurrency.symbol || '',
-          tokenAmountIn: parsedPayAmount.toExact(),
-          tokenAmountOut: receiveAmountAfterFee?.toExact() || receiveAmount?.toExact() || '',
-          arbitrary: {
-            order_id: order.id,
-            type: 'fill_limit_order',
-          },
-        },
-      })
-      invalidateLimitOrderTags([
-        RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST,
-        RTK_QUERY_TAGS.GET_LIMIT_ORDER_BOOK,
-        RTK_QUERY_TAGS.GET_LIMIT_ORDER_INSUFFICIENT,
-        RTK_QUERY_TAGS.GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT,
-      ])
-      markStepSuccess('fill', response.hash)
-      return true
-    } catch (error) {
-      notify({ type: NotificationType.ERROR, title: t`Fill Order Error`, summary: getErrorMessage(error) })
-      markStepError('fill')
-      return false
-    }
-  }
-
-  const runStep = (step: TakeOrderStep) => {
-    if (step === 'wrap') {
-      return runWrapStep()
-    }
-
-    if (step === 'approve') {
-      return runApproveStep()
-    }
-
-    return runFillStep()
-  }
-
-  const runSequence = async (firstStep: TakeOrderStep, steps: TakeOrderStep[]) => {
-    const startIndex = steps.indexOf(firstStep)
-    if (startIndex < 0) return
-
-    for (const step of steps.slice(startIndex)) {
-      setProcessing(state => (state.show ? { ...state, currentStep: step, errorStep: undefined } : state))
-
-      const isStepSuccess = await runStep(step)
-      if (!isStepSuccess) return
-    }
-  }
-
-  const buildProcessingSteps = (): TakeOrderStep[] => {
-    const steps: TakeOrderStep[] = []
+  const processingSteps = useMemo<ProcessingOrderStep[]>(() => {
+    const steps: ProcessingOrderStep[] = []
     if (wrapAmountForOrder) steps.push('wrap')
     steps.push('approve')
     steps.push('fill')
     return steps
-  }
-
-  const start = () => {
-    if (!contractAddress || !parsedPayAmount || insufficientBalance || exceedsAvailableAmount) return
-
-    const steps = buildProcessingSteps()
-    const firstStep = steps[0]
-    if (!firstStep) return
-
-    setProcessing({
-      show: true,
-      steps,
-      currentStep: firstStep,
-      completedSteps: [],
-    })
-    void runSequence(firstStep, steps)
-  }
-
-  const retryStep = (step: TakeOrderStep) => {
-    setProcessing(state => ({
-      ...state,
-      currentStep: step,
-      errorStep: undefined,
-    }))
-    void runSequence(step, processing.steps)
-  }
+  }, [wrapAmountForOrder])
 
   const estimateTxGas = useCallback(async () => {
     if (!account || !order || !parsedPayAmount || !contractAddress) return null
@@ -410,10 +247,18 @@ export const useTakeLimitOrder = ({
       canSubmit,
     },
     processing: {
-      state: processing,
-      start,
-      dismiss: dismissProcessing,
-      retryStep,
+      chainId,
+      approval,
+      approveCallback: () => approveCallback(parsedPayAmount),
+      checkApprovalManually,
+      steps: processingSteps,
+      onWrap,
+      finalStep: 'fill' as const,
+      onFinalStep: submitFillOrder,
+      onError: (error: unknown, step: ProcessingOrderStep) => {
+        const title = step === 'wrap' ? t`Wrap Error` : step === 'approve' ? t`Approve Error` : t`Fill Order Error`
+        notify({ type: NotificationType.ERROR, title, summary: getErrorMessage(error) })
+      },
     },
     estimateTxGas,
   }

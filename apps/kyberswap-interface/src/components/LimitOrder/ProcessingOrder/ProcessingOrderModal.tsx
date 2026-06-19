@@ -5,7 +5,6 @@ import { AlertCircle, RotateCw } from 'react-feather'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import type { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
-import type { TakeOrderStep } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { Center, HStack, Stack } from 'components/Stack'
@@ -13,10 +12,9 @@ import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 
-type OrderProcessingStep = ProcessingOrderStep | TakeOrderStep
 type ProcessingStepStatus = 'idle' | 'active' | 'success' | 'error'
 
-type ProcessingState<Step extends OrderProcessingStep> = {
+type ProcessingState<Step extends ProcessingOrderStep> = {
   show: boolean
   steps: Step[]
   currentStep?: Step
@@ -24,20 +22,20 @@ type ProcessingState<Step extends OrderProcessingStep> = {
   completedSteps: Step[]
 }
 
-type ProcessingController<Step extends OrderProcessingStep> = {
+type ProcessingController<Step extends ProcessingOrderStep> = {
   state: ProcessingState<Step>
   dismiss: () => void
   retryStep?: (step: Step) => void
 }
 
-type ProcessingOrderModalProps<Step extends OrderProcessingStep> = {
+type ProcessingOrderModalProps<Step extends ProcessingOrderStep> = {
   processing: ProcessingController<Step>
   chainId?: ChainId
   currencyIn?: Currency
   onViewOrder?: () => void
 }
 
-const getStepStatus = <Step extends OrderProcessingStep>({
+const getStepStatus = <Step extends ProcessingOrderStep>({
   step,
   currentStep,
   errorStep,
@@ -71,7 +69,7 @@ const getStepLabel = ({
   chainId,
   currencyIn,
 }: {
-  step: OrderProcessingStep
+  step: ProcessingOrderStep
   status: ProcessingStepStatus
   chainId: ChainId | undefined
   currencyIn: Currency | undefined
@@ -101,7 +99,7 @@ const getStepLabel = ({
   return t`Fill order`
 }
 
-const ProcessingStepRow = <Step extends OrderProcessingStep>({
+const ProcessingStepRow = <Step extends ProcessingOrderStep>({
   index,
   step,
   status,
@@ -138,7 +136,7 @@ const ProcessingStepRow = <Step extends OrderProcessingStep>({
   </HStack>
 )
 
-const ProcessingOrderModal = <Step extends OrderProcessingStep>({
+const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
   processing,
   chainId,
   currencyIn,

@@ -14,7 +14,7 @@ import {
   useRequestCancelOrder,
 } from 'components/LimitOrder/CancelOrder/hooks/useRequestCancelOrder'
 import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
-import { Container, Header, Label, Note, OrderSummary, Value } from 'components/LimitOrder/Modals/components'
+import { Container, Header, Label, Note, OrderSummary, Value } from 'components/LimitOrder/components'
 import { calcPercentFilledOrder, formatAmountOrder } from 'components/LimitOrder/helpers'
 import { CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import Logo from 'components/Logo'

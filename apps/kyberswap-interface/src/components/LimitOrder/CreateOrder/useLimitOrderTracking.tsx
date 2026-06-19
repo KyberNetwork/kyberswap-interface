@@ -3,9 +3,14 @@ import { t } from '@lingui/macro'
 import { useCreateOrderMutation } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useSignOrder } from 'components/LimitOrder/CreateOrder/hooks/useSignOrder'
+import { useSignOrder } from 'components/LimitOrder/CreateOrder/useSignOrder'
 import { SummaryNotifyOrderPlaced } from 'components/LimitOrder/MyOrders/SummaryNotify'
-import { calcUsdPrices, getPayloadCreateOrder, removeTrailingZero } from 'components/LimitOrder/helpers'
+import {
+  calcUsdPrices,
+  getErrorMessage,
+  getPayloadCreateOrder,
+  removeTrailingZero,
+} from 'components/LimitOrder/helpers'
 import { CreateOrderParams, LimitOrderCreateContext } from 'components/LimitOrder/types'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { useActiveWeb3React } from 'hooks'
@@ -15,21 +20,14 @@ import { getCookieValue } from 'utils'
 
 const getTokenAddress = (currency: Currency | undefined) => (currency?.isNative ? 'NATIVE' : currency?.wrapped?.address)
 
-type UseCreateLimitOrderArgs = {
+type UseLimitOrderTrackingArgs = {
   order: LimitOrderCreateContext
   searchParams: URLSearchParams
   estimateUSD: ReturnType<typeof calcUsdPrices>
-  onError?: (error: unknown) => void
   onSuccess?: () => void
 }
 
-export const useCreateLimitOrder = ({
-  order,
-  searchParams,
-  estimateUSD,
-  onError,
-  onSuccess,
-}: UseCreateLimitOrderArgs) => {
+export const useLimitOrderTracking = ({ order, searchParams, estimateUSD, onSuccess }: UseLimitOrderTrackingArgs) => {
   const {
     currencyIn,
     currencyOut,
@@ -57,6 +55,73 @@ export const useCreateLimitOrder = ({
       from_network: networkName,
       trade_qty: inputAmount,
       ...data,
+    })
+  }
+
+  const trackTouchInput = () => {
+    trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
+  }
+
+  const trackTouchSelectToken = () => {
+    trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
+  }
+
+  const trackPriceSetOnBlur = () => {
+    if (!displayRate || !currencyIn || !currencyOut) return
+    trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
+      side: 'sell',
+      limit_price: displayRate,
+      market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+      price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
+      from_token: currencyIn.symbol,
+      to_token: currencyOut.symbol,
+      chain: networkName,
+    })
+  }
+
+  const trackReviewOpened = () => {
+    if (!currencyIn || !currencyOut || !displayRate) return
+
+    trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
+      from_token: currencyIn.symbol,
+      to_token: currencyOut.symbol,
+      from_network: chainId,
+      trade_qty: inputAmount,
+    })
+
+    trackingHandler(TRACKING_EVENT_TYPE.LO_REVIEW_OPENED, {
+      side: 'sell',
+      from_token: currencyIn.symbol,
+      from_token_address: getTokenAddress(currencyIn),
+      to_token: currencyOut.symbol,
+      to_token_address: getTokenAddress(currencyOut),
+      pair: `${currencyIn.symbol}/${currencyOut.symbol}`,
+      limit_price: displayRate,
+      amount_in: inputAmount,
+      amount_in_usd: estimateUSD.rawInput || undefined,
+      amount_out_estimated: outputAmount,
+      expiry: displayTime,
+      market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+      price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
+      chain: networkName,
+    })
+  }
+
+  const trackOrderFailed = (error: unknown) => {
+    const errorMessage = getErrorMessage(error)
+    const isUserRejected =
+      errorMessage.toLowerCase().includes('user denied') || errorMessage.toLowerCase().includes('user rejected')
+
+    trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FAILED, {
+      side: 'sell',
+      from_token: currencyIn?.symbol,
+      to_token: currencyOut?.symbol,
+      pair: currencyIn && currencyOut ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+      limit_price: displayRate,
+      amount_in: inputAmount,
+      error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
+      error_message: errorMessage,
+      chain: networkName,
     })
   }
 
@@ -91,14 +156,14 @@ export const useCreateLimitOrder = ({
       onSuccess?.()
       return response?.id
     } catch (error) {
-      onError?.(error)
+      trackOrderFailed(error)
       return
     }
   }
 
   const submitCreateOrderWithTracking = async () => {
     trackPlaceOrder(TRACKING_EVENT_TYPE.LO_CLICK_PLACE_ORDER)
-    const order_id = await submitCreateOrder({
+    const orderId = await submitCreateOrder({
       currencyIn,
       currencyOut,
       chainId,
@@ -107,9 +172,9 @@ export const useCreateLimitOrder = ({
       outputAmount,
       expiredAt,
     })
-    if (!order_id) return
+    if (!orderId) return
 
-    trackPlaceOrder(TRACKING_EVENT_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
+    trackPlaceOrder(TRACKING_EVENT_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id: orderId })
     trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_PLACED, {
       side: 'sell',
       from_token: currencyIn?.symbol,
@@ -125,7 +190,7 @@ export const useCreateLimitOrder = ({
       amount_out_estimated: outputAmount,
       expiry: displayTime,
       chain: networkName,
-      order_id,
+      order_id: orderId,
       volume: estimateUSD.rawInput || undefined,
     })
 
@@ -144,11 +209,18 @@ export const useCreateLimitOrder = ({
         chain: networkName,
         chain_id: chainId,
         volume: estimateUSD.rawInput || undefined,
-        order_id,
+        order_id: orderId,
       })
     }
-    return order_id
+    return orderId
   }
 
-  return { submitCreateOrderWithTracking }
+  return {
+    submitCreateOrderWithTracking,
+    trackOrderFailed,
+    trackPriceSetOnBlur,
+    trackReviewOpened,
+    trackTouchInput,
+    trackTouchSelectToken,
+  }
 }

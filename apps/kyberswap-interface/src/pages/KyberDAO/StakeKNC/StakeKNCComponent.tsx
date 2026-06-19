@@ -149,10 +149,10 @@ export default function StakeKNCComponent() {
     inputValue,
   )
 
-  const [approvalKNC, approveCallback] = useApproveCallback(
-    activeTab === STAKE_TAB.Stake && inputValue ? parsedAmount : undefined,
-    kyberDAOInfo?.staking,
-  )
+  const [approvalKNC, approveCallback] = useApproveCallback({
+    amount: activeTab === STAKE_TAB.Stake && inputValue ? parsedAmount : undefined,
+    spender: kyberDAOInfo?.staking,
+  })
 
   const stakedBalanceFormatted = formatUnits(BigInt((stakedBalance || 0).toString()), 18)
   const currentVotingPower = calculateVotingPower(stakedBalanceFormatted)

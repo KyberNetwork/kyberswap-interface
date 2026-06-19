@@ -103,12 +103,11 @@ const SwapActionButton: React.FC<Props> = ({
     [trackingHandler, networkInfo?.name],
   )
 
-  const [approval, approveCallback, currentAllowance] = useApproveCallback(
-    parsedAmountFromTypedValue,
-    routeSummary?.routerAddress,
-    false,
-    handleApprovalError,
-  )
+  const [approval, approveCallback, currentAllowance] = useApproveCallback({
+    amount: parsedAmountFromTypedValue,
+    spender: routeSummary?.routerAddress,
+    onApprovalError: handleApprovalError,
+  })
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
 

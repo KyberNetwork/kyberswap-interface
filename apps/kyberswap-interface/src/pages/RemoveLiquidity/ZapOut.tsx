@@ -167,14 +167,14 @@ export default function ZapOut({
 
   // allowance handling
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
-  const [approval, approveCallback] = useApproveCallback(
-    parsedAmounts[Field.LIQUIDITY],
-    isStaticFeePair
+  const [approval, approveCallback] = useApproveCallback({
+    amount: parsedAmounts[Field.LIQUIDITY],
+    spender: isStaticFeePair
       ? isOldStaticFeeContract
         ? networkInfo.classic.oldStatic?.zap
         : networkInfo.classic.static.zap
       : networkInfo.classic.dynamic?.zap,
-  )
+  })
 
   // if user liquidity change => remove signature
   useEffect(() => {
@@ -191,7 +191,8 @@ export default function ZapOut({
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
     if (isArgentWallet) {
-      return approveCallback()
+      await approveCallback()
+      return
     }
 
     // try to gather a signature for permission
@@ -261,7 +262,7 @@ export default function ZapOut({
           8000,
         )
       } else {
-        approveCallback()
+        await approveCallback()
       }
     }
   }

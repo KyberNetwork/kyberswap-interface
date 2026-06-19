@@ -5,12 +5,12 @@ import { ReactNode, memo, useState } from 'react'
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
 import CreateOrderFlow from 'components/LimitOrder/CreateOrder/CreateOrderFlow'
-import { useLimitOrderExecution } from 'components/LimitOrder/CreateOrder/hooks/useLimitOrderExecution'
+import { useCreateLimitOrder } from 'components/LimitOrder/CreateOrder/useCreateLimitOrder'
 import LimitOrderExpirySection from 'components/LimitOrder/Form/LimitOrderExpirySection'
 import LimitOrderRateSection, { useGetDeltaRateLimitOrder } from 'components/LimitOrder/Form/LimitOrderRateSection'
 import LimitOrderTokenSection from 'components/LimitOrder/Form/LimitOrderTokenSection'
 import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
-import { useLimitOrderFormState } from 'components/LimitOrder/Form/hooks/useLimitOrderFormState'
+import { useLimitOrderFormState } from 'components/LimitOrder/Form/useLimitOrderFormState'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
@@ -92,8 +92,9 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     deltaRate,
   }
 
-  const execution = useLimitOrderExecution({
+  const createOrder = useCreateLimitOrder({
     order,
+    searchParams: form.searchParams,
     onCloseReview: () => setShowReview(false),
     onOpenReview: () => setShowReview(true),
     onSetInput: form.onSetInput,
@@ -101,7 +102,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     switchToWeth: form.switchToWeth,
   })
 
-  const { balance, estimateUSD, review, tracking, validation } = execution
+  const { balance, estimateUSD, review, tracking, validation } = createOrder
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton = validation.isNotFillAllInput || !!validationError || balance.insufficientBalance
@@ -211,13 +212,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         </Stack>
       </Stack>
 
-      <CreateOrderFlow
-        order={order}
-        searchParams={form.searchParams}
-        isOpen={showReview}
-        onDismiss={review.closeReview}
-        execution={execution}
-      />
+      <CreateOrderFlow order={order} isOpen={showReview} onDismiss={review.closeReview} createOrder={createOrder} />
 
       <DateTimePicker
         defaultDate={form.customDateExpire}

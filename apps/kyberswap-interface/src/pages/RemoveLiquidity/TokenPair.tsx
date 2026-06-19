@@ -133,7 +133,10 @@ export default function TokenPair({
 
   // allowance handling
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
-  const [approval, approveCallback] = useApproveCallback(parsedAmounts[Field.LIQUIDITY], contractAddress)
+  const [approval, approveCallback] = useApproveCallback({
+    amount: parsedAmounts[Field.LIQUIDITY],
+    spender: contractAddress,
+  })
 
   // if user liquidity change => remove signature
   useEffect(() => {
@@ -150,7 +153,8 @@ export default function TokenPair({
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
     if (isArgentWallet) {
-      return approveCallback()
+      await approveCallback()
+      return
     }
 
     // try to gather a signature for permission
@@ -216,7 +220,7 @@ export default function TokenPair({
           8000,
         )
       } else {
-        approveCallback()
+        await approveCallback()
       }
     }
   }

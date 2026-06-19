@@ -2,9 +2,9 @@ import { waitForTransactionReceipt } from '@wagmi/core'
 import { Dispatch, SetStateAction } from 'react'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { ApprovalState } from 'hooks/useApproveCallback'
+import { ApprovalState, ApprovalStatus } from 'hooks/useApproveCallback'
 
-export type ProcessingOrderStep = 'wrap' | 'approve' | 'create'
+export type ProcessingOrderStep = 'wrap' | 'approve' | 'create' | 'fill'
 export type ProcessingOrderStepStatus = 'idle' | 'active' | 'success' | 'error'
 
 export type ProcessingOrderState = {
@@ -27,13 +27,14 @@ type UseProcessingOrderArgs = {
   setProcessingOrder: Dispatch<SetStateAction<ProcessingOrderState>>
   chainId: number
   approval: ApprovalState
-  approveCallback: () => Promise<void>
+  approveCallback: () => Promise<ApprovalStatus>
   checkApprovalManually: () => Promise<boolean>
   steps: ProcessingOrderStep[]
   onWrap: (() => Promise<string | undefined>) | undefined
   onWrapSuccess?: () => void
-  onCreateOrder: () => Promise<number | undefined>
-  onError?: (error: unknown) => void
+  finalStep: Extract<ProcessingOrderStep, 'create' | 'fill'>
+  onFinalStep: () => Promise<boolean>
+  onError?: (error: unknown, step: ProcessingOrderStep) => void
   onStart?: () => void
 }
 
@@ -43,8 +44,6 @@ export const DEFAULT_PROCESSING_ORDER: ProcessingOrderState = {
   completedSteps: [],
 }
 
-const APPROVAL_CHECK_RETRY_COUNT = 8
-const APPROVAL_CHECK_RETRY_DELAY = 2_000
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const useProcessingOrder = ({
@@ -57,7 +56,8 @@ export const useProcessingOrder = ({
   steps,
   onWrap,
   onWrapSuccess,
-  onCreateOrder,
+  finalStep,
+  onFinalStep,
   onError,
   onStart,
 }: UseProcessingOrderArgs) => {
@@ -91,10 +91,10 @@ export const useProcessingOrder = ({
   }
 
   const waitForManualApproval = async () => {
-    for (let attempt = 0; attempt < APPROVAL_CHECK_RETRY_COUNT; attempt++) {
+    for (let attempt = 0; attempt < 8; attempt++) {
       const hasEnoughAllowance = await checkApprovalManually()
       if (hasEnoughAllowance) return true
-      await sleep(APPROVAL_CHECK_RETRY_DELAY)
+      await sleep(2000)
     }
 
     return false
@@ -119,7 +119,7 @@ export const useProcessingOrder = ({
       markProcessingStepSuccess('wrap')
       return true
     } catch (error) {
-      onError?.(error)
+      onError?.(error, 'wrap')
       markProcessingStepError('wrap')
       return false
     }
@@ -133,7 +133,11 @@ export const useProcessingOrder = ({
       }
 
       if (approval !== ApprovalState.PENDING) {
-        await approveCallback()
+        const approvalStatus = await approveCallback()
+        if (approvalStatus === ApprovalStatus.REJECTED || approvalStatus === ApprovalStatus.FAILED) {
+          markProcessingStepError('approve')
+          return false
+        }
       }
 
       const hasEnoughAllowance = await waitForManualApproval()
@@ -145,24 +149,24 @@ export const useProcessingOrder = ({
       markProcessingStepError('approve')
       return false
     } catch (error) {
-      onError?.(error)
+      onError?.(error, 'approve')
       markProcessingStepError('approve')
       return false
     }
   }
 
-  const runCreateStep = async () => {
+  const runFinalStep = async () => {
     try {
-      const orderId = await onCreateOrder()
-      if (orderId) {
-        markProcessingStepSuccess('create')
+      const success = await onFinalStep()
+      if (success) {
+        markProcessingStepSuccess(finalStep)
         return true
       }
-      markProcessingStepError('create')
+      markProcessingStepError(finalStep)
       return false
     } catch (error) {
-      onError?.(error)
-      markProcessingStepError('create')
+      onError?.(error, finalStep)
+      markProcessingStepError(finalStep)
       return false
     }
   }
@@ -176,7 +180,7 @@ export const useProcessingOrder = ({
       return runApproveStep()
     }
 
-    return runCreateStep()
+    return runFinalStep()
   }
 
   const runProcessingSequence = async (firstStep: ProcessingOrderStep, processingSteps: ProcessingOrderStep[]) => {
