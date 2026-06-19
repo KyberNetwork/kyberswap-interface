@@ -3,16 +3,26 @@ import { useBytecode, useCapabilities } from 'wagmi'
 import { useActiveWeb3React } from 'hooks'
 import { Address } from 'utils/viem'
 
+// An EIP-7702 delegated EOA's on-chain code is the 23-byte delegation
+// designator `0xef0100 ‖ <20-byte delegate>` (EIP-7702 §"Delegation
+// designation"). Such an account keeps its private key and signs typed data
+// with standard ECDSA, so its permits stay ecrecover-verifiable — it must be
+// treated as a regular EOA, not a smart account.
+const EIP_7702_DELEGATION_PREFIX = '0xef0100'
+
 /**
  * Returns true when the connected account is a smart-contract account
  * (account abstraction wallet like Coinbase Smart Wallet, Argent, Ambire,
- * EIP-7702 delegated EOAs, etc.) rather than a regular EOA.
+ * etc.) rather than a regular EOA.
  *
  * Smart accounts produce EIP-1271 contract signatures that can't be verified
  * via ecrecover, so flows relying on standard ECDSA permits must skip them.
  *
  * Detection runs two probes:
- *   1. `eth_getCode(account)` — catches already-deployed smart wallets.
+ *   1. `eth_getCode(account)` — catches deployed smart wallets. An EIP-7702
+ *      delegated EOA also carries on-chain code, but its code is just a
+ *      delegation designator and it still signs with its own ECDSA key, so it
+ *      is excluded here and treated as a regular EOA.
  *   2. EIP-5792 `wallet_getCapabilities` — catches counterfactual smart
  *      wallets (e.g. Coinbase Smart Wallet via passkey) where the contract
  *      hasn't been deployed on the current chain yet but the wallet still
@@ -32,7 +42,8 @@ export function useIsSmartAccount(): boolean {
     chainId: chainId as number,
     query: { enabled: !!account },
   })
-  const hasOnChainCode = !!bytecode && bytecode !== '0x'
+  const hasOnChainCode =
+    !!bytecode && bytecode !== '0x' && !bytecode.toLowerCase().startsWith(EIP_7702_DELEGATION_PREFIX)
 
   const { data: capabilities } = useCapabilities({
     account: account as Address | undefined,

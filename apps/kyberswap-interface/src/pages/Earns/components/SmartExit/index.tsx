@@ -39,7 +39,8 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
   const isSmartAccount = useIsSmartAccount()
   // Cover both connector-level smart wallets (Porto, Safe) and account-level
   // smart wallets detected via bytecode / EIP-5792 capabilities (Coinbase
-  // Smart Wallet via passkey, Argent, Ambire, EIP-7702 delegated EOAs).
+  // Smart Wallet via passkey, Argent, Ambire). EIP-7702 delegated EOAs are
+  // excluded — they still sign with their own ECDSA key.
   const isSmartWallet = isSmartConnector || isSmartAccount
   const toggleWalletModal = useWalletModalToggle()
   const [selectedMetrics, setSelectedMetrics] = useState<Array<SelectedMetric | null>>([
