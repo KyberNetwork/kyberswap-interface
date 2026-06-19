@@ -2,16 +2,19 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Repeat } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
+import ProcessingOrderModal from 'components/LimitOrder/Modals/ProcessingOrderModal'
+import { removeTrailingZero } from 'components/LimitOrder/helpers'
+import { useTakeLimitOrder } from 'components/LimitOrder/hooks/useTakeLimitOrder'
+import { LimitOrderTab, LimitOrderTakeContext } from 'components/LimitOrder/types'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
 import { HStack, Stack } from 'components/Stack'
-import ProcessingTakeOrderModal from 'components/LimitOrder/Modals/ProcessingTakeOrderModal'
-import { removeTrailingZero } from 'components/LimitOrder/helpers'
-import { useTakeLimitOrder } from 'components/LimitOrder/hooks/useTakeLimitOrder'
-import { LimitOrderTakeContext } from 'components/LimitOrder/types'
+import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -48,8 +51,9 @@ const ConfirmTakeOrderModal = ({
 }: {
   context: LimitOrderTakeContext | undefined
   isOpen: boolean
-  onDismiss: () => void
+  onDismiss?: () => void
 }) => {
+  const navigate = useNavigate()
   const takeOrder = useTakeLimitOrder({ context, isOpen })
   const { estimateTxGas } = takeOrder
   const [showInvertedRate, setShowInvertedRate] = useState(false)
@@ -70,7 +74,7 @@ const ConfirmTakeOrderModal = ({
   const isConfirmOpen = isOpen && !takeOrder.processing.state.show
 
   const handleDismiss = () => {
-    onDismiss()
+    onDismiss?.()
   }
 
   const handleSubmit = () => {
@@ -79,7 +83,18 @@ const ConfirmTakeOrderModal = ({
 
   const handleProcessingDismiss = () => {
     takeOrder.processing.dismiss()
-    onDismiss()
+    onDismiss?.()
+  }
+
+  const handleViewOrder = () => {
+    if (!context) return
+
+    const route = NETWORKS_INFO[context.order.chainId]?.route
+    if (!route) return
+
+    const search = new URLSearchParams({ tab: LimitOrderTab.MY_ORDER }).toString()
+
+    navigate(`${APP_PATHS.LIMIT}/${route}?${search}`)
   }
 
   useEffect(() => {
@@ -125,7 +140,7 @@ const ConfirmTakeOrderModal = ({
             <span className="text-xl font-medium text-text">
               <Trans>Fill Order</Trans>
             </span>
-            <CloseIcon size={22} onClick={handleDismiss} className="shrink-0 text-text" />
+            <CloseIcon onClick={handleDismiss} />
           </HStack>
 
           <Stack className="gap-4">
@@ -225,12 +240,13 @@ const ConfirmTakeOrderModal = ({
           </Stack>
         </Stack>
       </Modal>
-      <ProcessingTakeOrderModal
+      <ProcessingOrderModal
         chainId={context?.order.chainId}
         processing={{
           ...takeOrder.processing,
           dismiss: handleProcessingDismiss,
         }}
+        onViewOrder={handleViewOrder}
       />
     </>
   )

@@ -1,30 +1,60 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { AlertCircle, RefreshCw } from 'react-feather'
+import { AlertCircle, RotateCw } from 'react-feather'
 
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
+import type { ProcessingOrderStep } from 'components/LimitOrder/hooks/useProcessingOrder'
+import type { TakeOrderStep } from 'components/LimitOrder/hooks/useTakeLimitOrder'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { Center, HStack, Stack } from 'components/Stack'
-import type {
-  ProcessingOrderController,
-  ProcessingOrderState,
-  ProcessingOrderStep,
-  ProcessingOrderStepStatus,
-} from 'components/LimitOrder/hooks/useProcessingOrder'
 import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 
-const getStepStatus = (state: ProcessingOrderState, step: ProcessingOrderStep): ProcessingOrderStepStatus => {
-  if (state.errorStep === step) return 'error'
-  if (state.completedSteps.includes(step)) return 'success'
-  if (state.currentStep === step) return 'active'
+type OrderProcessingStep = ProcessingOrderStep | TakeOrderStep
+type ProcessingStepStatus = 'idle' | 'active' | 'success' | 'error'
+
+type ProcessingState<Step extends OrderProcessingStep> = {
+  show: boolean
+  steps: Step[]
+  currentStep?: Step
+  errorStep?: Step
+  completedSteps: Step[]
+}
+
+type ProcessingController<Step extends OrderProcessingStep> = {
+  state: ProcessingState<Step>
+  dismiss: () => void
+  retryStep?: (step: Step) => void
+}
+
+type ProcessingOrderModalProps<Step extends OrderProcessingStep> = {
+  processing: ProcessingController<Step>
+  chainId?: ChainId
+  currencyIn?: Currency
+  onViewOrder?: () => void
+}
+
+const getStepStatus = <Step extends OrderProcessingStep>({
+  step,
+  currentStep,
+  errorStep,
+  completedSteps,
+}: {
+  step: Step
+  currentStep: Step | undefined
+  errorStep: Step | undefined
+  completedSteps: Step[]
+}): ProcessingStepStatus => {
+  if (errorStep === step) return 'error'
+  if (completedSteps.includes(step)) return 'success'
+  if (currentStep === step) return 'active'
   return 'idle'
 }
 
-const StepIcon = ({ index, status }: { index: number; status: ProcessingOrderStepStatus }) => {
+const StepIcon = ({ index, status }: { index: number; status: ProcessingStepStatus }) => {
   if (status === 'success') return <CheckCircle size="18" className="text-primary" />
   if (status === 'active') return <Loader size="18px" strokeWidth="2.5" />
   if (status === 'error') return <AlertCircle size={18} className="fill-red text-red" />
@@ -41,38 +71,37 @@ const getStepLabel = ({
   chainId,
   currencyIn,
 }: {
-  step: ProcessingOrderStep
-  status: ProcessingOrderStepStatus
-  chainId: ChainId
+  step: OrderProcessingStep
+  status: ProcessingStepStatus
+  chainId: ChainId | undefined
   currencyIn: Currency | undefined
 }) => {
-  const nativeSymbol = NativeCurrencies[chainId].symbol
-  const inputSymbol = currencyIn?.wrapped.symbol
-
   if (step === 'wrap') {
+    const nativeSymbol = chainId ? NativeCurrencies[chainId].symbol : t`token`
     if (status === 'active') return t`Wrapping ${nativeSymbol}`
     if (status === 'success') return t`Wrapped ${nativeSymbol}`
     return t`Wrap ${nativeSymbol}`
   }
 
   if (step === 'approve') {
-    if (status === 'active') return t`Approving ${inputSymbol}`
-    if (status === 'success') return t`Approved ${inputSymbol}`
-    return t`Approve ${inputSymbol}`
+    const inputSymbol = currencyIn?.wrapped.symbol
+    if (status === 'active') return inputSymbol ? t`Approving ${inputSymbol}` : t`Approving token`
+    if (status === 'success') return inputSymbol ? t`Approved ${inputSymbol}` : t`Approved token`
+    return inputSymbol ? t`Approve ${inputSymbol}` : t`Approve token`
   }
 
-  if (status === 'active') return t`Signing order`
-  if (status === 'success') return t`Order successfully listed`
-  return t`Sign order`
+  if (step === 'create') {
+    if (status === 'active') return t`Signing order`
+    if (status === 'success') return t`Order successfully listed`
+    return t`Sign order`
+  }
+
+  if (status === 'active') return t`Filling order`
+  if (status === 'success') return t`Order filled`
+  return t`Fill order`
 }
 
-const isOrderComplete = (state: ProcessingOrderState) =>
-  state.show &&
-  !!state.steps.length &&
-  state.steps.every(step => state.completedSteps.includes(step)) &&
-  !state.errorStep
-
-const ProcessingStepRow = ({
+const ProcessingStepRow = <Step extends OrderProcessingStep>({
   index,
   step,
   status,
@@ -81,17 +110,17 @@ const ProcessingStepRow = ({
   onRetryStep,
 }: {
   index: number
-  step: ProcessingOrderStep
-  status: ProcessingOrderStepStatus
-  chainId: ChainId
+  step: Step
+  status: ProcessingStepStatus
+  chainId: ChainId | undefined
   currencyIn: Currency | undefined
-  onRetryStep: (step: ProcessingOrderStep) => void
+  onRetryStep?: (step: Step) => void
 }) => (
-  <HStack className="min-h-9 w-full items-center gap-2">
+  <HStack className="min-h-8 w-full items-center gap-2">
     <StepIcon index={index} status={status} />
     <span
       className={cn(
-        'min-w-0 flex-1 truncate text-sm font-medium leading-5',
+        'min-w-0 flex-1 truncate text-sm font-medium',
         status === 'idle' && 'text-subText opacity-60',
         status === 'active' && 'text-text',
         status === 'success' && 'text-primary',
@@ -100,53 +129,59 @@ const ProcessingStepRow = ({
     >
       {getStepLabel({ step, status, chainId, currencyIn })}
     </span>
-    <HStack className="h-7 w-[76px] items-center justify-end">
-      {status === 'error' && (
-        <ButtonLight
-          onClick={() => onRetryStep(step)}
-          width="auto"
-          className="!h-7 shrink-0 gap-1 rounded-full !px-3 !py-0 text-xs text-primary"
-        >
-          <RefreshCw size={13} />
-          {t`Retry`}
-        </ButtonLight>
-      )}
-    </HStack>
+    {status === 'error' && (
+      <ButtonLight onClick={() => onRetryStep?.(step)} width="auto" className="gap-1 px-2 py-1 text-xs">
+        <RotateCw size={14} />
+        {t`Retry`}
+      </ButtonLight>
+    )}
   </HStack>
 )
 
-const ProcessingOrderModal = ({
+const ProcessingOrderModal = <Step extends OrderProcessingStep>({
+  processing,
   chainId,
   currencyIn,
-  processing,
   onViewOrder,
-}: {
-  chainId: ChainId
-  currencyIn: Currency | undefined
-  processing: ProcessingOrderController
-  onViewOrder: () => void
-}) => {
+}: ProcessingOrderModalProps<Step>) => {
   const { state, dismiss, retryStep } = processing
-  const orderComplete = isOrderComplete(state)
+
+  const orderComplete =
+    state.show &&
+    !!state.steps.length &&
+    state.steps.every(step => state.completedSteps.includes(step)) &&
+    !state.errorStep
+
   const isProcessing = state.show && !!state.currentStep && !state.errorStep && !orderComplete
-  const handleDismiss = isProcessing ? undefined : dismiss
+
+  const handleDismiss = () => {
+    if (!isProcessing) {
+      dismiss()
+    }
+  }
+
+  const handleViewOrder = () => {
+    dismiss()
+    onViewOrder?.()
+  }
 
   return (
     <Modal isOpen={state.show} onDismiss={handleDismiss} maxWidth={425} borderRadius={14}>
       <Stack className="w-full gap-5 p-5">
         <HStack className="items-center justify-between gap-4">
           <div className="text-xl font-medium text-text">{t`Processing Order`}</div>
-          <CloseIcon
-            size={22}
-            className={cn('shrink-0 text-text', isProcessing && 'cursor-not-allowed opacity-40')}
-            onClick={handleDismiss}
-          />
+          <CloseIcon onClick={handleDismiss} />
         </HStack>
 
         <Stack className="gap-3">
           <Stack className="gap-2">
             {state.steps.map((step, index) => {
-              const status = getStepStatus(state, step)
+              const status = getStepStatus({
+                step,
+                currentStep: state.currentStep,
+                errorStep: state.errorStep,
+                completedSteps: state.completedSteps,
+              })
               return (
                 <ProcessingStepRow
                   key={step}
@@ -162,11 +197,11 @@ const ProcessingOrderModal = ({
           </Stack>
 
           {orderComplete && (
-            <HStack className="gap-3 pt-1">
-              <ButtonOutlined onClick={dismiss} className="!h-10 flex-1 !p-0">
+            <HStack className="gap-3">
+              <ButtonOutlined onClick={handleDismiss} className="flex-1">
                 <Trans>Close</Trans>
               </ButtonOutlined>
-              <ButtonPrimary onClick={onViewOrder} className="!h-10 flex-1 !p-0">
+              <ButtonPrimary onClick={handleViewOrder} className="flex-1">
                 <Trans>View Order</Trans>
               </ButtonPrimary>
             </HStack>

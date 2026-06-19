@@ -27,9 +27,9 @@ type UseProcessingOrderArgs = {
   steps: ProcessingOrderStep[]
   isWrappingEth: boolean
   onWrap: (() => Promise<string | undefined>) | undefined
-  setTxHashWrapped: (hash: string) => void
+  setTxHashWrapped?: (hash: string) => void
   onCreateOrder: () => Promise<number | undefined>
-  onError: (error: unknown) => void
+  onError?: (error: unknown) => void
   onStart?: () => void
 }
 
@@ -153,10 +153,10 @@ export const useProcessingOrder = ({
           markProcessingStepError('wrap')
           return
         }
-        setTxHashWrapped(hash)
+        setTxHashWrapped?.(hash)
       } catch (error) {
         if (!isCurrentProcessingRun(processingRunId)) return
-        onError(error)
+        onError?.(error)
         markProcessingStepError('wrap')
       }
     })()
@@ -196,7 +196,7 @@ export const useProcessingOrder = ({
         markProcessingStepError('approve')
       } catch (error) {
         if (!isCurrentProcessingRun(processingRunId)) return
-        onError(error)
+        onError?.(error)
         markProcessingStepError('approve')
       }
     })()
@@ -227,7 +227,7 @@ export const useProcessingOrder = ({
         markProcessingStepError('create')
       } catch (error) {
         if (!isCurrentProcessingRun(processingRunId)) return
-        onError(error)
+        onError?.(error)
         markProcessingStepError('create')
       }
     })()

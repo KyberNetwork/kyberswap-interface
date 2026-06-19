@@ -44,7 +44,7 @@ export const Label = ({ children, className, style, ...rest }: React.HTMLAttribu
   </div>
 )
 
-export const Header = ({ title, onDismiss }: { title: string; onDismiss: () => void }) => {
+export const Header = ({ title, onDismiss }: { title: string; onDismiss?: () => void }) => {
   return (
     <div className="flex justify-between">
       <div className="flex items-center gap-2 text-text">

@@ -56,7 +56,7 @@ const OrderItem = ({
 }: {
   reverse?: boolean
   order: LimitOrderFromTokenPairFormatted
-  onTake: (order: LimitOrderFromTokenPairFormatted) => void
+  onTake?: (order: LimitOrderFromTokenPairFormatted) => void
 }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
@@ -93,7 +93,7 @@ const OrderItem = ({
           {order.hasAvailable && (
             <button
               type="button"
-              onClick={() => onTake(order)}
+              onClick={() => onTake?.(order)}
               className="rounded-full bg-primary-20 px-4 py-1 text-sm font-medium text-primary transition-colors hover:bg-primary-30"
             >
               <Trans>Take</Trans>

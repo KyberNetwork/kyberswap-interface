@@ -5,13 +5,13 @@ import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
-import { wagmiConfig } from 'components/Web3Provider'
 import { calcUsdPrices, getErrorMessage, removeTrailingZero } from 'components/LimitOrder/helpers'
 import { ProcessingOrderStep } from 'components/LimitOrder/hooks/useProcessingOrder'
 import { useValidateInputError } from 'components/LimitOrder/hooks/useValidateInputError'
 import { useWarningCreateOrder } from 'components/LimitOrder/hooks/useWarningCreateOrder'
 import { useWrapEthStatus } from 'components/LimitOrder/hooks/useWrapEthStatus'
 import { LimitOrderCreateContext } from 'components/LimitOrder/types'
+import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -26,11 +26,11 @@ import { Address } from 'utils/viem'
 
 type UseLimitOrderExecutionArgs = {
   order: LimitOrderCreateContext
-  onCloseReview: () => void
-  onOpenReview: () => void
-  onSetInput: (input: string) => void
-  onResetForm: () => void
-  switchToWeth: () => void
+  onCloseReview?: () => void
+  onOpenReview?: () => void
+  onSetInput?: (input: string) => void
+  onResetForm?: () => void
+  switchToWeth?: () => void
 }
 
 const getTokenAddress = (currency: Currency | undefined) => (currency?.isNative ? 'NATIVE' : currency?.wrapped?.address)
@@ -150,7 +150,7 @@ export const useLimitOrderExecution = ({
   const handleMaxInput = useCallback(() => {
     if (!maxAmountInput) return
     try {
-      onSetInput(maxAmountInput.toExact())
+      onSetInput?.(maxAmountInput.toExact())
     } catch (error) {}
   }, [maxAmountInput, onSetInput])
 
@@ -250,7 +250,7 @@ export const useLimitOrderExecution = ({
   const openReview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
 
-    onOpenReview()
+    onOpenReview?.()
 
     trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
       from_token: currencyIn.symbol,
@@ -278,7 +278,7 @@ export const useLimitOrderExecution = ({
   }
 
   const closeReview = useCallback(() => {
-    onCloseReview()
+    onCloseReview?.()
   }, [onCloseReview])
 
   const handleError = useCallback(
@@ -312,7 +312,7 @@ export const useLimitOrderExecution = ({
   }, [getActiveMakingAmount])
 
   const resetForm = useCallback(() => {
-    onResetForm()
+    onResetForm?.()
     refreshActiveMakingAmount()
   }, [onResetForm, refreshActiveMakingAmount])
 

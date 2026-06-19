@@ -5,12 +5,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
-import { NetworkSelector } from 'components/NetworkSelector'
-import { HStack, Stack } from 'components/Stack'
 import LimitOrderExpirySection from 'components/LimitOrder/Form/LimitOrderExpirySection'
-import LimitOrderRateSection, {
-  useGetDeltaRateLimitOrder,
-} from 'components/LimitOrder/Form/LimitOrderRateSection'
+import LimitOrderRateSection, { useGetDeltaRateLimitOrder } from 'components/LimitOrder/Form/LimitOrderRateSection'
 import LimitOrderTokenSection from 'components/LimitOrder/Form/LimitOrderTokenSection'
 import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
 import ConfirmOrderModal from 'components/LimitOrder/Modals/ConfirmOrderModal'
@@ -20,6 +16,8 @@ import { useLimitOrderExecution } from 'components/LimitOrder/hooks/useLimitOrde
 import { useLimitOrderFormState } from 'components/LimitOrder/hooks/useLimitOrderFormState'
 import { useProcessingOrder } from 'components/LimitOrder/hooks/useProcessingOrder'
 import { LimitOrderTab } from 'components/LimitOrder/types'
+import { NetworkSelector } from 'components/NetworkSelector'
+import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -127,7 +125,6 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     onError: execution.handleError,
     onStart: review.closeReview,
   })
-  const { dismiss: dismissProcessingOrder } = processing
 
   const viewCreatedOrder = useCallback(() => {
     const currencyPair =
@@ -136,9 +133,8 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         : ''
     const search = new URLSearchParams({ tab: LimitOrderTab.MY_ORDER }).toString()
 
-    dismissProcessingOrder()
     navigate(`${APP_PATHS.LIMIT}/${form.networkInfo.route}${currencyPair}?${search}`)
-  }, [currencyIn, currencyOut, dismissProcessingOrder, form.chainId, form.networkInfo.route, navigate])
+  }, [currencyIn, currencyOut, form.chainId, form.networkInfo.route, navigate])
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton = validation.isNotFillAllInput || !!validationError || balance.insufficientBalance

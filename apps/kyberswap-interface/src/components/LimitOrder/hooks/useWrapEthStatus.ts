@@ -3,7 +3,7 @@ import { usePrevious } from 'react-use'
 
 import { useIsTransactionPending } from 'state/transactions/hooks'
 
-export const useWrapEthStatus = (switchToWeth: () => void) => {
+export const useWrapEthStatus = (switchToWeth?: () => void) => {
   const [txHashWrapped, setTxHashWrapped] = useState<string>()
 
   const isWrappingEth = useIsTransactionPending(txHashWrapped)
@@ -17,7 +17,7 @@ export const useWrapEthStatus = (switchToWeth: () => void) => {
 
   useEffect(() => {
     if (prevIsWrappingEth === true && isWrappingEth === false) {
-      switchToWeth()
+      switchToWeth?.()
     }
   }, [prevIsWrappingEth, isWrappingEth, switchToWeth])
 

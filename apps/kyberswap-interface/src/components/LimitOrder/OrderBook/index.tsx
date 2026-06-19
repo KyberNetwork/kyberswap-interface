@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
-import RefreshLoading from 'components/RefreshLoading'
 import ConfirmTakeOrderModal from 'components/LimitOrder/Modals/ConfirmTakeOrderModal'
 import OrderItem, { ItemWrapper } from 'components/LimitOrder/OrderBook/OrderItem'
 import TableHeader from 'components/LimitOrder/OrderBook/TableHeader'
@@ -13,6 +12,7 @@ import {
   LimitOrderFromTokenPairFormatted,
   LimitOrderTakeContext,
 } from 'components/LimitOrder/types'
+import RefreshLoading from 'components/RefreshLoading'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'

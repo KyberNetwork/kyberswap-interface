@@ -8,11 +8,11 @@ import {
   useInsertCancellingOrderMutation,
 } from 'services/limitOrder'
 
-import { wagmiConfig } from 'components/Web3Provider'
 import { CancelStatus } from 'components/LimitOrder/Modals/CancelOrderModal'
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from 'components/LimitOrder/helpers'
 import { useCancellingOrders } from 'components/LimitOrder/hooks/useCancellingOrders'
 import { CancelOrderFunction, CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
+import { wagmiConfig } from 'components/Web3Provider'
 import { LIMIT_ORDER_ABI } from 'constants/abis'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -206,7 +206,7 @@ export const useProcessCancelOrder = ({
   getOrders,
 }: {
   onSubmit: CancelOrderFunction
-  onDismiss: () => void
+  onDismiss?: () => void
   isOpen: boolean
   getOrders: (v: boolean) => LimitOrder[]
 }) => {
@@ -248,7 +248,7 @@ export const useProcessCancelOrder = ({
         if (expired * 1000 < Date.now()) {
           setCancelStatus(CancelStatus.CANCEL_DONE)
         }
-      } else onDismiss()
+      } else onDismiss?.()
     } catch (error) {
       if (signal.aborted) return
       setExpiredTime(0)

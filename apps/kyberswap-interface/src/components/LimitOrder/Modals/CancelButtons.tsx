@@ -6,10 +6,10 @@ import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { CancelStatus } from 'components/LimitOrder/Modals/CancelOrderModal'
 import { DOCS_LINKS, getPayloadTracking } from 'components/LimitOrder/helpers'
 import { CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -96,7 +96,7 @@ const CancelButtons = ({
   },
 }: {
   cancelStatus: CancelStatus
-  onDismiss: () => void
+  onDismiss?: () => void
   onSubmit?: () => void
   onClickGaslessCancel: () => void
   onClickHardCancel: () => void

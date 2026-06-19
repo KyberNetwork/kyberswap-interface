@@ -11,10 +11,10 @@ import {
 } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
-import { wagmiConfig } from 'components/Web3Provider'
 import { getErrorMessage } from 'components/LimitOrder/helpers'
 import { useWrapEthStatus } from 'components/LimitOrder/hooks/useWrapEthStatus'
 import { LimitOrderTakeContext } from 'components/LimitOrder/types'
+import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -156,8 +156,7 @@ export const useTakeLimitOrder = ({
     return parsedPayAmount.greaterThan(maxPayAmount)
   }, [maxPayAmount, parsedPayAmount])
 
-  const onWrapped = useCallback(() => undefined, [])
-  const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(onWrapped)
+  const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus()
   const { execute: onWrap } = useWrapCallback(
     wrapAmountForOrder ? nativeCurrency : undefined,
     WETH[chainId],

@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
 
+import { removeTrailingZero } from 'components/LimitOrder/helpers'
 import Skeleton from 'components/Skeleton'
 import { HStack } from 'components/Stack'
-import { removeTrailingZero } from 'components/LimitOrder/helpers'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 
 type MarketPriceProps = {

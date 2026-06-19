@@ -2,18 +2,15 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 
-import Logo from 'components/Logo'
-import Modal from 'components/Modal'
 import CancelButtons from 'components/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/LimitOrder/Modals/CancelStatusCountDown'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from 'components/LimitOrder/Modals/components'
 import { useEstimateFee, useProcessCancelOrder } from 'components/LimitOrder/MyOrders/useRequestCancelOrder'
 import { calcPercentFilledOrder, formatAmountOrder } from 'components/LimitOrder/helpers'
-import {
-  useAllActiveOrders,
-  useIsSupportSoftCancelOrder,
-} from 'components/LimitOrder/hooks/useFetchActiveAllOrders'
+import { useAllActiveOrders, useIsSupportSoftCancelOrder } from 'components/LimitOrder/hooks/useFetchActiveAllOrders'
 import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
+import Logo from 'components/Logo'
+import Modal from 'components/Modal'
 import { NativeCurrencies } from 'constants/tokens'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
@@ -41,7 +38,7 @@ const CancelOrderModal = ({
   customChainId?: ChainId
   order: LimitOrder | undefined
   onSubmit: CancelOrderFunction
-  onDismiss: () => void
+  onDismiss?: () => void
   flowState: TransactionFlowState
   isOpen: boolean
 }) => {
@@ -161,8 +158,10 @@ const CancelOrderModal = ({
 
   const percent = calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals)
 
+  const handleDismiss = () => onDismiss?.()
+
   return (
-    <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={onDismiss}>
+    <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={handleDismiss}>
       <Container>
         <Header title={isCancelAll ? t`Bulk Cancellation` : t`Cancel an order`} onDismiss={onDismiss} />
         {isCancelAll && isWaiting ? (

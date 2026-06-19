@@ -4,11 +4,11 @@ import { useCallback } from 'react'
 import { useCreateOrderMutation } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
-import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { SummaryNotifyOrderPlaced } from 'components/LimitOrder/MyOrders/SummaryNotify'
 import { calcUsdPrices, getPayloadCreateOrder, removeTrailingZero } from 'components/LimitOrder/helpers'
 import { useSignOrder } from 'components/LimitOrder/hooks/useSignOrder'
 import { CreateOrderParam, LimitOrderCreateContext } from 'components/LimitOrder/types'
+import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify } from 'state/application/hooks'
@@ -20,8 +20,8 @@ type UseCreateLimitOrderArgs = {
   order: LimitOrderCreateContext
   searchParams: URLSearchParams
   estimateUSD: ReturnType<typeof calcUsdPrices>
-  onError: (error: unknown) => void
-  onSuccess: () => void
+  onError?: (error: unknown) => void
+  onSuccess?: () => void
 }
 
 export const useCreateLimitOrder = ({
@@ -93,10 +93,10 @@ export const useCreateLimitOrder = ({
           },
           10000,
         )
-        onSuccess()
+        onSuccess?.()
         return response?.id
       } catch (error) {
-        onError(error)
+        onError?.(error)
         return
       }
     },

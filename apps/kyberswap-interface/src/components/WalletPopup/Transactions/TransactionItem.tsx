@@ -4,6 +4,7 @@ import { CSSProperties, ReactNode, forwardRef } from 'react'
 
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import SendIcon from 'components/Icons/SendIcon'
+import { CancellingOrderInfo } from 'components/LimitOrder/hooks/useCancellingOrders'
 import Row from 'components/Row'
 import ContractAddress from 'components/WalletPopup/Transactions/ContractAddress'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
@@ -15,7 +16,6 @@ import PendingWarning from 'components/WalletPopup/Transactions/PendingWarning'
 import PoolFarmLink from 'components/WalletPopup/Transactions/PoolFarmLink'
 import Status from 'components/WalletPopup/Transactions/Status'
 import { isTxsPendingTooLong } from 'components/WalletPopup/Transactions/helper'
-import { CancellingOrderInfo } from 'components/LimitOrder/hooks/useCancellingOrders'
 import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
 import {
   TRANSACTION_TYPE,

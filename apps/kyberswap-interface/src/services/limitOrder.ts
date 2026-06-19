@@ -1,12 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import {
-  CancelOrderResponse,
-  LimitOrder,
-  LimitOrderFromTokenPair,
-  LimitOrderStatus,
-} from 'components/LimitOrder/types'
+import { CancelOrderResponse, LimitOrder, LimitOrderFromTokenPair, LimitOrderStatus } from 'components/LimitOrder/types'
 import { LIMIT_ORDER_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 

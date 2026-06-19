@@ -6,11 +6,11 @@ import { Repeat } from 'react-feather'
 
 import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
-import Modal from 'components/Modal'
-import { HStack, Stack } from 'components/Stack'
 import { formatAmountOrder, removeTrailingZero } from 'components/LimitOrder/helpers'
 import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/LimitOrder/hooks/useWarningCreateOrder'
 import { LimitOrderCreateContext, RateInfo } from 'components/LimitOrder/types'
+import Modal from 'components/Modal'
+import { HStack, Stack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
@@ -124,8 +124,8 @@ type Props = {
   order: LimitOrderCreateContext
   review: {
     isOpen: boolean
-    onDismiss: () => void
-    onSubmit: () => void
+    onDismiss?: () => void
+    onSubmit?: () => void
   }
   warningMessage: ReactNode[]
 }
@@ -139,13 +139,13 @@ const ConfirmOrderModal = ({ order, review, warningMessage }: Props) => {
 
   const handleSubmit = () => {
     if (shouldDisablePlaceOrder) return
-    onSubmit()
+    onSubmit?.()
   }
 
   const handleWarningClick = (event: MouseEvent<HTMLElement>) => {
     const target = event.target
     if (target instanceof HTMLElement && target.closest('a')) {
-      onDismiss()
+      onDismiss?.()
     }
   }
 
@@ -163,13 +163,13 @@ const ConfirmOrderModal = ({ order, review, warningMessage }: Props) => {
   }, [isOpen])
 
   return (
-    <Modal maxWidth={480} isOpen={isOpen} onDismiss={onDismiss} borderRadius={14}>
+    <Modal maxWidth={480} isOpen={isOpen} onDismiss={() => onDismiss?.()} borderRadius={14}>
       <Stack className="w-full gap-6 p-5">
         <HStack className="items-center justify-between gap-4">
           <span className="text-xl font-medium leading-tight text-text">
             <Trans>Review your order</Trans>
           </span>
-          <CloseIcon size={22} onClick={onDismiss} className="shrink-0 text-text" />
+          <CloseIcon onClick={onDismiss} />
         </HStack>
 
         <Stack className="gap-5">

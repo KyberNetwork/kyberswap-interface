@@ -3,13 +3,7 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import {
-  calcInvert,
-  calcOutput,
-  calcRate,
-  parseFraction,
-  removeTrailingZero,
-} from 'components/LimitOrder/helpers'
+import { calcInvert, calcOutput, calcRate, parseFraction, removeTrailingZero } from 'components/LimitOrder/helpers'
 import { RateInfo } from 'components/LimitOrder/types'
 import { TIMES_IN_SECS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
