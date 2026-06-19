@@ -13,7 +13,7 @@ import { cn } from 'utils/cn'
 export const ItemWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'grid grid-cols-[44px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_48px_88px] items-center gap-2 text-sm leading-5 max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
+      'grid grid-cols-[44px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_48px_88px] items-center gap-2 text-sm max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
       className,
     )}
     {...rest}
@@ -25,7 +25,7 @@ export const ItemWrapper = ({ children, className, ...rest }: React.HTMLAttribut
 const formatAmountWithSymbol = (amount: string, currency?: Currency) => `${amount} ${currency?.symbol ?? ''}`.trim()
 
 const SizeInfo = ({ amount, currency, filled }: { amount: string; currency?: Currency; filled: number }) => (
-  <div className="flex w-full min-w-0 flex-col gap-1 text-right">
+  <div className="flex w-full min-w-0 flex-col text-right">
     <div className="truncate text-sm font-medium text-text" title={formatAmountWithSymbol(amount, currency)}>
       {formatAmountWithSymbol(amount, currency)}
     </div>
@@ -46,6 +46,15 @@ const AmountText = ({ amount, currency, muted }: { amount?: string; currency?: C
     title={amount ? formatAmountWithSymbol(amount, currency) : undefined}
   >
     {amount ? formatAmountWithSymbol(amount, currency) : '--'}
+  </div>
+)
+
+const RateText = ({ order, className }: { order: LimitOrderFromTokenPairFormatted; className?: string }) => (
+  <div className="flex w-full min-w-0 flex-col items-end text-right">
+    <div className={cn('w-full truncate text-sm font-medium', className)} title={order.rate}>
+      {order.rate}
+    </div>
+    {order.marketDiffPercent && <div className="text-xs text-subText">{order.marketDiffPercent}</div>}
   </div>
 )
 
@@ -71,15 +80,13 @@ const OrderItem = ({
   const rateClassName = reverse ? 'text-primary' : 'text-red'
 
   return (
-    <ItemWrapper className="px-4 py-2">
+    <ItemWrapper className="min-h-14 px-4 py-2">
       <span className="flex items-center justify-center">
         <img className="size-5" src={chain?.icon} alt="Network" />
       </span>
       <SizeInfo amount={sizeAmount} currency={sizeCurrency} filled={filled} />
       {!upToExtraSmall && <AmountText amount={availableAmount} currency={sizeCurrency} muted={!order.hasAvailable} />}
-      <div className={cn('w-full min-w-0 truncate text-right text-sm font-medium', rateClassName)} title={order.rate}>
-        {order.rate}
-      </div>
+      <RateText order={order} className={rateClassName} />
       <AmountText
         amount={order.hasAvailable ? totalAmount : undefined}
         currency={totalCurrency}

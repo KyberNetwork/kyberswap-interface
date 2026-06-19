@@ -4,11 +4,12 @@ import { useMemo } from 'react'
 import { Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
-import { calcPercentFilledOrder, isActiveStatus } from 'components/LimitOrder/helpers'
+import { calcPercentFilledOrder, getMarketPriceDiff, isActiveStatus } from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
+import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { toCurrencyAmount } from 'utils/currencyAmount'
@@ -19,11 +20,11 @@ const formatAmountWithSymbol = (amount: string, symbol?: string) => `${amount} $
 const formatOrderDisplayAmount = (amount: string, decimals: number) =>
   formatDisplayNumber(uint256ToFraction(amount, decimals).toFixed(18), { significantDigits: 6 })
 
-const formatOrderDisplayRate = (order: LimitOrder) => {
-  const rate = uint256ToFraction(order.makingAmount, order.makerAssetDecimals).divide(
-    uint256ToFraction(order.takingAmount, order.takerAssetDecimals),
+const getOrderRate = (order: LimitOrder) => {
+  const rate = uint256ToFraction(order.takingAmount, order.takerAssetDecimals).divide(
+    uint256ToFraction(order.makingAmount, order.makerAssetDecimals),
   )
-  return formatDisplayNumber(rate.toFixed(18), { significantDigits: 6 })
+  return rate.toFixed(18)
 }
 
 const formatStatus = (status: LimitOrderStatus) => {
@@ -60,7 +61,7 @@ const SizeInfo = ({ amount, symbol, filled }: { amount: string; symbol: string; 
   const progress = filled.startsWith('<') ? 0.01 : Number(filled.replace(/,/g, '')) || 0
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-1 text-right">
+    <div className="flex w-full min-w-0 flex-col text-right">
       <div className="truncate text-sm font-medium text-text" title={formatAmountWithSymbol(amount, symbol)}>
         {formatAmountWithSymbol(amount, symbol)}
       </div>
@@ -84,6 +85,20 @@ const AmountText = ({ amount, symbol, muted }: { amount?: string; symbol?: strin
     {amount ? formatAmountWithSymbol(amount, symbol) : '--'}
   </div>
 )
+
+const RateText = ({ rate, marketRate }: { rate: string; marketRate?: number }) => {
+  const marketDiff = getMarketPriceDiff(rate, marketRate)
+  const displayRate = formatDisplayNumber(rate, { significantDigits: 6 })
+
+  return (
+    <div className="flex w-full min-w-0 flex-col items-end text-right">
+      <div className="w-full truncate text-sm font-medium text-primary" title={displayRate}>
+        {displayRate}
+      </div>
+      {marketDiff.displayPercent && <div className="text-xs text-subText">{marketDiff.displayPercent}</div>}
+    </div>
+  )
+}
 
 const StatusPill = ({ status, warning }: { status: LimitOrderStatus; warning?: boolean }) => {
   const active = isActiveStatus(status)
@@ -124,12 +139,20 @@ const OrderItem = ({
   const takerSymbol = isNative ? native?.symbol || order.takerAssetSymbol : order.takerAssetSymbol
   const filledPercent = calcPercentFilledOrder(order.filledTakingAmount, order.takingAmount, order.takerAssetDecimals)
   const availableAmount = useMemo(() => getNeededMakingAmount(order), [order])
-  const displayRate = formatOrderDisplayRate(order)
-
-  const makingToken = useMemo(() => {
+  const rawRate = getOrderRate(order)
+  const makerCurrency = useMemo(() => {
     return new Token(order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol, '')
   }, [order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol])
-  const makingTokenBalance = useTokenBalance(makingToken)
+  const takerCurrency = useMemo(() => {
+    return new Token(order.chainId, order.takerAsset, order.takerAssetDecimals, order.takerAssetSymbol, '')
+  }, [order.chainId, order.takerAsset, order.takerAssetDecimals, order.takerAssetSymbol])
+  const { tradeInfo } = useBaseTradeInfoLimitOrder(
+    isOrderActive ? makerCurrency : undefined,
+    isOrderActive ? takerCurrency : undefined,
+    order.chainId,
+  )
+
+  const makingTokenBalance = useTokenBalance(makerCurrency)
   const insufficientFund = isOrderActive && makingTokenBalance ? makingTokenBalance.lessThan(availableAmount) : false
 
   const onClickOrder = () => {
@@ -165,9 +188,7 @@ const OrderItem = ({
         symbol={order.makerAssetSymbol}
         muted={!isOrderActive}
       />
-      <div className="w-full min-w-0 truncate text-right text-sm font-medium text-primary" title={displayRate}>
-        {displayRate}
-      </div>
+      <RateText rate={rawRate} marketRate={tradeInfo?.marketRate} />
       <AmountText
         amount={formatOrderDisplayAmount(order.takingAmount, order.takerAssetDecimals)}
         symbol={takerSymbol}

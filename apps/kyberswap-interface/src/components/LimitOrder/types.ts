@@ -104,6 +104,7 @@ export type LimitOrderFromTokenPairFormatted = {
   takerAmount: string
   availableMakerAmount: string
   availableTakerAmount: string
+  marketDiffPercent: string
   filled: string
   hasAvailable: boolean
 }

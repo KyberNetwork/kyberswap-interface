@@ -7,6 +7,7 @@ import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import ConfirmTakeOrderModal from 'components/LimitOrder/Modals/ConfirmTakeOrderModal'
 import OrderItem, { ItemWrapper } from 'components/LimitOrder/OrderBook/OrderItem'
 import TableHeader from 'components/LimitOrder/OrderBook/TableHeader'
+import { getMarketPriceDiff } from 'components/LimitOrder/helpers'
 import {
   LimitOrderFromTokenPair,
   LimitOrderFromTokenPairFormatted,
@@ -42,6 +43,7 @@ const formatOrders = (
   orders: LimitOrderFromTokenPair[],
   makerCurrency: Currency | undefined,
   takerCurrency: Currency | undefined,
+  marketRate: number,
   reverse = false,
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!makerCurrency || !takerCurrency) return []
@@ -80,6 +82,7 @@ const formatOrders = (
         parseFloat(makerAmount) > 0 ? parseFloat(availableMakerAmount) / parseFloat(makerAmount) : 0
       const availableTakerAmount = (parseFloat(takerAmount) * availableRatio).toString()
       const hasAvailable = parseFloat(availableMakerAmount) > 0
+      const marketDiff = getMarketPriceDiff(rate, marketRate)
 
       return {
         id: order.id,
@@ -90,6 +93,7 @@ const formatOrders = (
         takerAmount,
         availableMakerAmount,
         availableTakerAmount,
+        marketDiffPercent: marketDiff.displayPercent,
         filled: filled > 99 ? '100' : filled.toFixed(),
         hasAvailable,
       }
@@ -111,7 +115,7 @@ const formatOrders = (
 }
 
 const SectionLabel = ({ color, label, symbol }: { color: string; label: React.ReactNode; symbol?: string }) => (
-  <div className="border-b border-darkBorder px-4 py-3 text-sm font-medium tracking-[0.08em]" style={{ color }}>
+  <div className="border-b border-border/20 px-4 py-3 text-sm font-medium tracking-[0.08em]" style={{ color }}>
     {label} <span className="text-text">{symbol}</span>
   </div>
 )
@@ -177,12 +181,12 @@ const OrderBook = () => {
   )
 
   const formattedOrders = useMemo(
-    () => formatOrders(orders, makerCurrency, takerCurrency),
-    [orders, makerCurrency, takerCurrency],
+    () => formatOrders(orders, makerCurrency, takerCurrency, marketRate),
+    [orders, makerCurrency, takerCurrency, marketRate],
   )
   const formattedReversedOrders = useMemo(
-    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, true),
-    [reversedOrders, takerCurrency, makerCurrency],
+    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, marketRate, true),
+    [reversedOrders, takerCurrency, makerCurrency, marketRate],
   )
 
   const visibleSellOrders = useMemo(() => formattedOrders.slice(-10).reverse(), [formattedOrders])

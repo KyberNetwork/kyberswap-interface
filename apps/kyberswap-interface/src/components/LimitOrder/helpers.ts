@@ -97,6 +97,29 @@ export const calcUsdPrices = ({
   }
 }
 
+type MarketPriceDiff = {
+  rawPercent: number
+  displayPercent: string
+}
+
+export const getMarketPriceDiff = (
+  rate: string | number | undefined,
+  marketRate: number | undefined,
+): MarketPriceDiff => {
+  const rateValue = typeof rate === 'number' ? rate : Number(rate)
+  if (!rateValue || !marketRate || !Number.isFinite(rateValue) || !Number.isFinite(marketRate)) {
+    return { rawPercent: 0, displayPercent: '' }
+  }
+
+  const rawPercent = ((rateValue - marketRate) / marketRate) * 100
+  const sign = rawPercent > 0 ? '+' : ''
+
+  return {
+    rawPercent,
+    displayPercent: `${sign}${removeTrailingZero(rawPercent.toFixed(2))}%`,
+  }
+}
+
 export const formatAmountOrder = (value: string, decimals?: number) => {
   const isUint256 = decimals !== undefined
   return formatDisplayNumber(parseFloat(isUint256 ? uint256ToFraction(value, decimals).toFixed(16) : value), {
