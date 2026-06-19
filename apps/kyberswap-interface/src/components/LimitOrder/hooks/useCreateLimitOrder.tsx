@@ -47,7 +47,7 @@ export const useCreateLimitOrder = ({
   const { account } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const notify = useNotify()
-  const signOrder = useSignOrder(undefined)
+  const signOrder = useSignOrder()
 
   const [submitOrder] = useCreateOrderMutation()
 

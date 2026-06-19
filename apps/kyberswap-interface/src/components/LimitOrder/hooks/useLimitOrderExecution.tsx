@@ -9,7 +9,6 @@ import { calcUsdPrices, getErrorMessage, removeTrailingZero } from 'components/L
 import { ProcessingOrderStep } from 'components/LimitOrder/hooks/useProcessingOrder'
 import { useValidateInputError } from 'components/LimitOrder/hooks/useValidateInputError'
 import { useWarningCreateOrder } from 'components/LimitOrder/hooks/useWarningCreateOrder'
-import { useWrapEthStatus } from 'components/LimitOrder/hooks/useWrapEthStatus'
 import { LimitOrderCreateContext } from 'components/LimitOrder/types'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
@@ -114,7 +113,6 @@ export const useLimitOrderExecution = ({
   const wrapInputCurrency = wrapAmountForOrder ? nativeCurrency : undefined
   const wrapTypedValue = wrapAmountForOrder?.toExact()
 
-  const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(switchToWeth)
   const { execute: onWrap } = useWrapCallback(wrapInputCurrency, WETH[chainId], wrapTypedValue, true, chainId)
 
   const maxAmountInput = useMemo(() => {
@@ -338,12 +336,12 @@ export const useLimitOrderExecution = ({
       openReview,
     },
     processing: {
+      chainId,
       approval,
       approveCallback,
       checkApprovalManually,
-      isWrappingEth,
       onWrap,
-      setTxHashWrapped,
+      onWrapSuccess: switchToWeth,
       steps: processingSteps,
     },
     tracking: {

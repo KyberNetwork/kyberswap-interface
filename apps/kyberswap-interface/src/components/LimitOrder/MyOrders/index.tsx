@@ -1,10 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { HTMLAttributes, useCallback, useEffect, useState } from 'react'
+import { Trash } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
+import { ButtonLight } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import CancelOrderModal from 'components/LimitOrder/Modals/CancelOrderModal'
 import OrderItem from 'components/LimitOrder/MyOrders/OrderItem'
@@ -120,7 +122,7 @@ const TabSelector = ({
 const TableHeader = () => (
   <div
     className={cn(
-      'grid grid-cols-[44px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_28px] items-center gap-2 max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
+      'grid grid-cols-[44px_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_64px] items-center gap-2 max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
       'cursor-default bg-white/[0.04] p-4 text-xs font-medium uppercase tracking-[0.04em] text-subText',
     )}
   >
@@ -166,6 +168,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
   const [orderType, setOrderType] = useState<LimitOrderStatus>(orderTab || LimitOrderStatus.ACTIVE)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isOpenCancel, setIsOpenCancel] = useState(false)
+  const [isCancelAll, setIsCancelAll] = useState(false)
 
   const keyword = searchParams.get('search') || ''
   const isTabActive = isActiveStatus(orderType)
@@ -190,13 +193,16 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
 
   const { flowState, setFlowState, onCancelOrder } = useRequestCancelOrder({
     orders,
-    isCancelAll: false,
+    isCancelAll,
     totalOrder,
   })
 
   const hasOrders = orders.length > 0
   const showPagination = hasOrders && totalOrder > PAGE_SIZE
+  const showCancelAll = hasOrders && isTabActive
   const showNoOrders = !hasOrders && (isOrdersLoaded || !account)
+  const totalOrderNotCancelling = orders.filter(order => !isOrderCancelling(order)).length
+  const disabledCancelAll = totalOrderNotCancelling === 0
 
   const onReset = useCallback(() => {
     setCurPage(1)
@@ -290,20 +296,29 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
   const hideConfirmCancel = useCallback(() => {
     setFlowState(TRANSACTION_STATE_DEFAULT)
     setIsOpenCancel(false)
+    setIsCancelAll(false)
     setTimeout(() => {
       setCurrentOrder(undefined)
     }, 300)
   }, [setFlowState])
 
   const showConfirmCancel = useCallback(
-    (order: LimitOrder) => {
+    (order?: LimitOrder) => {
       setCurrentOrder(order)
       setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
       setIsOpenCancel(true)
-      trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkInfo.name))
+      setIsCancelAll(false)
+      if (order) {
+        trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkInfo.name))
+      }
     },
     [trackingHandler, setFlowState, networkInfo],
   )
+
+  const onCancelAllOrder = () => {
+    showConfirmCancel()
+    setIsCancelAll(true)
+  }
 
   useEffect(() => {
     if (!account) return
@@ -377,16 +392,34 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
           />
         ))}
       </div>
-      {showPagination && (
-        <div className="flex justify-center bg-white/[0.04] p-3">
-          <Pagination
-            haveBg={false}
-            onPageChange={onPageChange}
-            totalCount={totalOrder}
-            currentPage={curPage}
-            pageSize={PAGE_SIZE}
-            style={{ padding: '0' }}
-          />
+      {(showPagination || showCancelAll) && (
+        <div
+          className={cn(
+            'flex items-center gap-4 bg-white/[0.04] px-4 py-3 max-sm:flex-col-reverse',
+            showPagination && showCancelAll ? 'justify-between' : showCancelAll ? 'justify-start' : 'justify-center',
+          )}
+        >
+          {showCancelAll && (
+            <ButtonLight
+              color="var(--ks-red)"
+              onClick={onCancelAllOrder}
+              disabled={disabledCancelAll}
+              className="w-fit gap-1.5 px-3.5 py-2 text-sm max-sm:w-full"
+            >
+              <Trash size={15} />
+              <Trans>Cancel All</Trans>
+            </ButtonLight>
+          )}
+          {showPagination && (
+            <Pagination
+              haveBg={false}
+              onPageChange={onPageChange}
+              totalCount={totalOrder}
+              currentPage={curPage}
+              pageSize={PAGE_SIZE}
+              style={{ padding: '0' }}
+            />
+          )}
         </div>
       )}
       {showNoOrders && (
@@ -411,7 +444,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
         onSubmit={onCancelOrder}
         customChainId={customChainId}
         order={currentOrder}
-        isCancelAll={false}
+        isCancelAll={isCancelAll}
       />
     </div>
   )

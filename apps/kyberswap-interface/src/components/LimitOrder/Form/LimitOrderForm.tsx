@@ -14,7 +14,7 @@ import ProcessingOrderModal from 'components/LimitOrder/Modals/ProcessingOrderMo
 import { useCreateLimitOrder } from 'components/LimitOrder/hooks/useCreateLimitOrder'
 import { useLimitOrderExecution } from 'components/LimitOrder/hooks/useLimitOrderExecution'
 import { useLimitOrderFormState } from 'components/LimitOrder/hooks/useLimitOrderFormState'
-import { useProcessingOrder } from 'components/LimitOrder/hooks/useProcessingOrder'
+import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/hooks/useProcessingOrder'
 import { LimitOrderTab } from 'components/LimitOrder/types'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { HStack, Stack } from 'components/Stack'
@@ -71,6 +71,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const navigate = useNavigate()
 
   const [showReview, setShowReview] = useState(false)
+  const [processingOrder, setProcessingOrder] = useState(DEFAULT_PROCESSING_ORDER)
 
   const { currencyIn, currencyOut } = useLimitOrderCurrencies({
     currencyIn: currencyInProp,
@@ -120,6 +121,8 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   })
 
   const processing = useProcessingOrder({
+    processingOrder,
+    setProcessingOrder,
     ...executionProcessing,
     onCreateOrder: createOrder.submitCreateOrderWithTracking,
     onError: execution.handleError,

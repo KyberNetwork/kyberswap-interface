@@ -1,9 +1,11 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo } from 'react'
-import { Trash } from 'react-feather'
+import { ReactNode, useMemo, useState } from 'react'
+import { ExternalLink as LinkIcon, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
+import { DropdownArrowIcon } from 'components/ArrowRotate'
+import CopyHelper from 'components/Copy'
 import { calcPercentFilledOrder, getMarketPriceDiff, isActiveStatus } from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { APP_PATHS } from 'constants/index'
@@ -11,8 +13,10 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { useTokenBalance } from 'state/wallet/hooks'
+import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { toCurrencyAmount } from 'utils/currencyAmount'
+import { getEtherscanLink } from 'utils/index'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 const formatAmountWithSymbol = (amount: string, symbol?: string) => `${amount} ${symbol ?? ''}`.trim()
@@ -120,6 +124,44 @@ const StatusPill = ({ status, warning }: { status: LimitOrderStatus; warning?: b
   )
 }
 
+const IconButton = ({
+  children,
+  disabled,
+  className,
+  onClick,
+}: {
+  children: ReactNode
+  disabled?: boolean
+  className?: string
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
+}) => (
+  <button
+    type="button"
+    className={cn(
+      'flex size-7 items-center justify-center rounded-full border-0 bg-transparent p-0 text-subText transition-colors hover:bg-white/10 hover:text-primary disabled:cursor-not-allowed disabled:text-subText-40',
+      className,
+    )}
+    disabled={disabled}
+    onClick={onClick}
+  >
+    {children}
+  </button>
+)
+
+const TxLink = ({ chainId, txHash }: { chainId: LimitOrder['chainId']; txHash?: string }) => {
+  if (!txHash) return null
+
+  return (
+    <ExternalLink
+      href={getEtherscanLink(chainId, txHash, 'transaction')}
+      className="flex size-7 items-center justify-center rounded-full text-primary hover:bg-white/10 hover:no-underline"
+      onClick={event => event.stopPropagation()}
+    >
+      <LinkIcon size={15} />
+    </ExternalLink>
+  )
+}
+
 const OrderItem = ({
   order,
   onCancelOrder,
@@ -130,9 +172,12 @@ const OrderItem = ({
   isOrderCancelling: (order: LimitOrder) => boolean
 }) => {
   const navigate = useNavigate()
+  const [expand, setExpand] = useState(false)
   const isCancelling = isOrderCancelling(order)
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
   const isOrderActive = isActiveStatus(order.status)
+  const isFilledOrder = order.status === LimitOrderStatus.FILLED || order.takingAmount === order.filledTakingAmount
+  const txs = order.transactions || []
 
   const native = NativeCurrencies[order.chainId]
   const isNative = order.nativeOutput && order.takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
@@ -154,6 +199,8 @@ const OrderItem = ({
 
   const makingTokenBalance = useTokenBalance(makerCurrency)
   const insufficientFund = isOrderActive && makingTokenBalance ? makingTokenBalance.lessThan(availableAmount) : false
+  const canExpandTxs = txs.length > 0
+  const showFallbackTxLink = isFilledOrder && !txs.length && !!order.txHash
 
   const onClickOrder = () => {
     const search = new URLSearchParams({ tab: LimitOrderTab.ORDER_BOOK }).toString()
@@ -164,54 +211,111 @@ const OrderItem = ({
   }
 
   return (
-    <div
-      className={cn(
-        'grid grid-cols-[44px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_28px] items-center gap-2 text-sm max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
-        'min-h-16 cursor-pointer px-4 py-2 hover:bg-primary-20',
-      )}
-      onClick={onClickOrder}
-    >
-      <span className="flex items-center justify-center">
-        <img className="size-5" src={NETWORKS_INFO[order.chainId]?.icon} alt="Network" />
-      </span>
-      <SizeInfo
-        amount={formatOrderDisplayAmount(order.makingAmount, order.makerAssetDecimals)}
-        symbol={order.makerAssetSymbol}
-        filled={filledPercent}
-      />
-      <AmountText
-        amount={
-          isOrderActive
-            ? formatOrderDisplayAmount(availableAmount.quotient.toString(), order.makerAssetDecimals)
-            : undefined
-        }
-        symbol={order.makerAssetSymbol}
-        muted={!isOrderActive}
-      />
-      <RateText rate={rawRate} marketRate={tradeInfo?.marketRate} />
-      <AmountText
-        amount={formatOrderDisplayAmount(order.takingAmount, order.takerAssetDecimals)}
-        symbol={takerSymbol}
-      />
-      <span className="justify-self-end max-[640px]:hidden">
-        <StatusPill status={status} warning={insufficientFund} />
-      </span>
-      <span className="flex justify-end max-[640px]:hidden">
-        {isOrderActive && (
-          <button
-            type="button"
-            className="text-subText transition-colors hover:text-red disabled:cursor-not-allowed disabled:text-subText-40"
-            disabled={isCancelling}
-            onClick={event => {
-              event.stopPropagation()
-              onCancelOrder(order)
-            }}
-          >
-            <Trash size={16} />
-          </button>
+    <>
+      <div
+        className={cn(
+          'grid grid-cols-[44px_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_64px] items-center gap-2 text-sm max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
+          'min-h-16 cursor-pointer px-4 py-2 hover:bg-primary-20',
         )}
-      </span>
-    </div>
+        onClick={onClickOrder}
+      >
+        <span className="flex items-center justify-center">
+          <img className="size-5" src={NETWORKS_INFO[order.chainId]?.icon} alt="Network" />
+        </span>
+        <SizeInfo
+          amount={formatOrderDisplayAmount(order.makingAmount, order.makerAssetDecimals)}
+          symbol={order.makerAssetSymbol}
+          filled={filledPercent}
+        />
+        <AmountText
+          amount={
+            isOrderActive
+              ? formatOrderDisplayAmount(availableAmount.quotient.toString(), order.makerAssetDecimals)
+              : undefined
+          }
+          symbol={order.makerAssetSymbol}
+          muted={!isOrderActive}
+        />
+        <RateText rate={rawRate} marketRate={tradeInfo?.marketRate} />
+        <AmountText
+          amount={formatOrderDisplayAmount(order.takingAmount, order.takerAssetDecimals)}
+          symbol={takerSymbol}
+        />
+        <span className="justify-self-end max-[640px]:hidden">
+          <StatusPill status={status} warning={insufficientFund} />
+        </span>
+        <span className="flex justify-end gap-1 max-[640px]:hidden">
+          {showFallbackTxLink && <TxLink chainId={order.chainId} txHash={order.txHash} />}
+          {canExpandTxs && (
+            <IconButton
+              onClick={event => {
+                event.stopPropagation()
+                setExpand(value => !value)
+              }}
+            >
+              <DropdownArrowIcon rotate={expand} className="text-subText" />
+            </IconButton>
+          )}
+          {isOrderActive && (
+            <IconButton
+              className="hover:text-red"
+              disabled={isCancelling}
+              onClick={event => {
+                event.stopPropagation()
+                onCancelOrder(order)
+              }}
+            >
+              <Trash size={16} />
+            </IconButton>
+          )}
+        </span>
+      </div>
+      {canExpandTxs && (
+        <div
+          className={cn(
+            'grid bg-white/[0.02] transition-[grid-template-rows,opacity] duration-200 ease-in-out max-[640px]:hidden',
+            expand ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+          )}
+        >
+          <div className="min-h-0 overflow-hidden">
+            {txs.map(tx => {
+              const txFilledPercent = calcPercentFilledOrder(
+                tx.takingAmount,
+                order.takingAmount,
+                order.takerAssetDecimals,
+              )
+
+              return (
+                <div
+                  key={tx.txHash}
+                  className="grid grid-cols-[44px_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_64px] items-center gap-2 px-4 py-2 text-sm"
+                >
+                  <span className="col-start-2 justify-self-end text-sm font-medium text-subText">
+                    {txFilledPercent}%
+                  </span>
+                  <div className="col-start-5">
+                    <AmountText
+                      amount={formatOrderDisplayAmount(tx.takingAmount, order.takerAssetDecimals)}
+                      symbol={takerSymbol}
+                      muted
+                    />
+                  </div>
+                  <span className="col-start-6 justify-self-end text-xs font-medium text-subText">
+                    {new Date(tx.txTime * 1000).toLocaleString()}
+                  </span>
+                  <span className="col-start-7 flex justify-end gap-1">
+                    <span className="flex size-7 items-center justify-center rounded-full text-subText transition-colors hover:bg-white/10 hover:text-primary">
+                      <CopyHelper toCopy={tx.txHash} margin="0" size={15} />
+                    </span>
+                    <TxLink chainId={order.chainId} txHash={tx.txHash} />
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

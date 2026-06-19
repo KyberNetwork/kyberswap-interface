@@ -8,7 +8,7 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import ProcessingOrderModal from 'components/LimitOrder/Modals/ProcessingOrderModal'
 import { removeTrailingZero } from 'components/LimitOrder/helpers'
-import { useTakeLimitOrder } from 'components/LimitOrder/hooks/useTakeLimitOrder'
+import { DEFAULT_TAKE_ORDER_PROCESSING, useTakeLimitOrder } from 'components/LimitOrder/hooks/useTakeLimitOrder'
 import { LimitOrderTab, LimitOrderTakeContext } from 'components/LimitOrder/types'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
@@ -54,12 +54,17 @@ const ConfirmTakeOrderModal = ({
   onDismiss?: () => void
 }) => {
   const navigate = useNavigate()
-  const takeOrder = useTakeLimitOrder({ context, isOpen })
+  const [fillAmount, setFillAmount] = useState('')
+  const [processingState, setProcessingState] = useState(DEFAULT_TAKE_ORDER_PROCESSING)
+  const takeOrder = useTakeLimitOrder({
+    context,
+    fillAmount,
+    processing: processingState,
+    setProcessing: setProcessingState,
+  })
   const { estimateTxGas } = takeOrder
   const [showInvertedRate, setShowInvertedRate] = useState(false)
   const {
-    fillAmount,
-    setFillAmount,
     maxPayAmount,
     parsedPayAmount,
     receiveAmount,
@@ -72,6 +77,11 @@ const ConfirmTakeOrderModal = ({
 
   const [estimatedGasUsd, setEstimatedGasUsd] = useState<string>('')
   const isConfirmOpen = isOpen && !takeOrder.processing.state.show
+
+  useEffect(() => {
+    if (!context || !isOpen) return
+    setFillAmount(maxPayAmount?.toExact() || '')
+  }, [context, isOpen, maxPayAmount])
 
   const handleDismiss = () => {
     onDismiss?.()
