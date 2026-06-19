@@ -13,12 +13,13 @@ import { parseUnits } from 'utils/viem'
 export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
 
+const baseUrl = 'https://docs.kyberswap.com/kyberswap-solutions/limit-order'
+
 export const DOCS_LINKS = {
-  GASLESS_CANCEL:
-    'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#gasless-cancel',
-  HARD_CANCEL: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#hard-cancel',
-  CANCEL_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/user-guides/cancel-limit-orders',
-  USER_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order',
+  GASLESS_CANCEL: baseUrl + '/concepts/gasless-cancellation#gasless-cancel',
+  HARD_CANCEL: baseUrl + '/concepts/gasless-cancellation#hard-cancel',
+  CANCEL_GUIDE: baseUrl + '/user-guides/cancel-limit-orders',
+  USER_GUIDE: baseUrl,
 }
 
 // js number to fraction
