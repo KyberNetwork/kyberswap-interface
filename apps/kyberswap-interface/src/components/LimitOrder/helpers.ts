@@ -10,9 +10,6 @@ import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 import { parseUnits } from 'utils/viem'
 
-export const isActiveStatus = (status: LimitOrderStatus) =>
-  [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
-
 const baseUrl = 'https://docs.kyberswap.com/kyberswap-solutions/limit-order'
 
 export const DOCS_LINKS = {
@@ -22,7 +19,9 @@ export const DOCS_LINKS = {
   USER_GUIDE: baseUrl,
 }
 
-// js number to fraction
+export const isActiveStatus = (status: LimitOrderStatus) =>
+  [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
+
 export const parseFraction = (value: string, decimals = RESERVE_USD_DECIMALS) => {
   try {
     return new Fraction(
@@ -34,13 +33,9 @@ export const parseFraction = (value: string, decimals = RESERVE_USD_DECIMALS) =>
   }
 }
 
-// 1.00010000 => 1.0001
 export const removeTrailingZero = (num: string) => {
   if (num === undefined || num === null) return ''
   num = String(num)
-  /**
-   * 15.23000: $1 is 15, $2 is ., $3 is 23000 => '$1$2$3' => 15.23
-   */
   return num.replace(/^([\d,]+)$|^([\d,]+)\.0*$|^([\d,]+\.[0-9]*?)0*$/, '$1$2$3')
 }
 
@@ -63,7 +58,6 @@ export const calcRate = (input: string, output: string, decimalsOut: number) => 
   }
 }
 
-// calc 1/value
 export const calcInvert = (value: string) => {
   try {
     if (parseFloat(value) === 1) return '1'
@@ -147,16 +141,6 @@ type LimitOrderError = {
 
 const isLimitOrderError = (error: unknown): error is LimitOrderError => typeof error === 'object' && error !== null
 
-type CreateOrderSignatureBodyPayload = Omit<CreateOrderBody, 'salt' | 'signature' | 'clientId'>
-
-type LimitOrderTrackingPayload = {
-  from_token: string
-  to_token: string
-  from_network: string
-  trade_qty: string
-  order_id: number
-} & Record<string, unknown>
-
 export const getErrorMessage = (error: unknown) => {
   console.error('Limit order error: ', error)
   const errorCode = isLimitOrderError(error) ? error.response?.data?.code || error.code || '' : ''
@@ -168,6 +152,8 @@ export const getErrorMessage = (error: unknown) => {
   const msg = mapErrorMessageByErrCode[String(errorCode)]
   return msg?.toString?.() || friendlyError(error instanceof Error || typeof error === 'string' ? error : '')
 }
+
+type CreateOrderSignatureBodyPayload = Omit<CreateOrderBody, 'salt' | 'signature' | 'clientId'>
 
 export const getPayloadCreateOrder = (params: CreateOrderParam): CreateOrderSignatureBodyPayload => {
   const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt, referral } = params
@@ -184,6 +170,14 @@ export const getPayloadCreateOrder = (params: CreateOrderParam): CreateOrderSign
     ...(referral ? { referral } : {}),
   }
 }
+
+type LimitOrderTrackingPayload = {
+  from_token: string
+  to_token: string
+  from_network: string
+  trade_qty: string
+  order_id: number
+} & Record<string, unknown>
 
 export const getPayloadTracking = (
   order: LimitOrder,
