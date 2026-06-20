@@ -27,7 +27,7 @@ import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
 import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
+import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -68,6 +68,7 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   onCloseSuccess?: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
 }
 
@@ -241,6 +242,13 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              setTriggerClose(true)
+              setMigrateLiquidityPureParams(null)
+              clearTracking()
+              navigateToPoolDetail(pool, navigate)
+            },
             onSubmitTx: async (
               txData: { from: string; to: string; value: string; data: string },
               additionalInfo?:

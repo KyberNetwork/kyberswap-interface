@@ -62,6 +62,7 @@ export interface WidgetProps {
   onViewPosition?: (txHash: string) => void;
   onSetUpSmartExit?: (params: { tokenId: string; chainId: ChainId; poolType: PoolType } | undefined) => void;
   onEvent?: (eventName: string, data?: Record<string, any>) => void;
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void;
 }
 
 export interface OnSuccessProps {

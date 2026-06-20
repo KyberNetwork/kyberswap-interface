@@ -28,7 +28,7 @@ import { DEFAULT_PARSED_POSITION, ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
 import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
+import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -58,6 +58,7 @@ interface AddLiquidityParams extends AddLiquidityPureParams {
   onConnectWallet: () => void
   onSwitchChain: () => void
   onOpenZapMigration?: (position: { exchange: string; poolId: string; positionId: string | number }) => void
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
 }
 
@@ -237,6 +238,11 @@ const useZapInWidget = ({
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              handleCloseZapInWidget()
+              navigateToPoolDetail(pool, navigate)
+            },
             onEvent: (eventName: string, data?: Record<string, any>) => {
               const eventMap: Record<string, TRACKING_EVENT_TYPE> = {
                 PRICE_RANGE_PRESET_SELECTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED,
@@ -433,6 +439,7 @@ const useZapInWidget = ({
       isSmartConnector,
       isSmartExitSupported,
       locale,
+      navigate,
       onOpenSmartExit,
       onRefreshPosition,
       originalToCurrentHash,

@@ -63,6 +63,14 @@ export const fetchExistingPoolAddress = async (input: {
     })
 }
 
+export const navigateToPoolDetail = (
+  { chainId, poolAddress, dexId }: { chainId: number; poolAddress: string; dexId?: string },
+  navigateFunc: (url: string) => void,
+) => {
+  if (!dexId) return
+  navigateFunc(`${APP_PATHS.ADD_LIQUIDITY}?exchange=${dexId}&poolChainId=${chainId}&poolAddress=${poolAddress}`)
+}
+
 export const navigateToPositionAfterZap = async (
   txHash: string,
   chainId: number,
