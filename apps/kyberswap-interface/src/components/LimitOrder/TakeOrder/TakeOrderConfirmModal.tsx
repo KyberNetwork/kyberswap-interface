@@ -344,7 +344,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
                     onClick={() => setFillAmount(normalizeActionAmount(maxBalancePayAmount?.toExact() || ''))}
                   >
                     <WalletIcon size={14} className="shrink-0" />
-                    <span className="truncate font-medium">{formatExact(maxBalancePayAmount || walletBalance)}</span>
+                    <span className="truncate font-medium">{formatExact(walletBalance)}</span>
                   </button>
                 </HStack>
 

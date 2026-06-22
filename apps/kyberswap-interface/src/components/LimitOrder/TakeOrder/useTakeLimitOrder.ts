@@ -118,12 +118,21 @@ export const useTakeLimitOrder = ({
     [context, parsedPayAmount],
   )
   const feeBps = getFeeBps(order?.makerTokenFeePercent)
-  const receiveAmountAfterFee = order?.isTakerAssetFee ? receiveAmount : subtractFee(receiveAmount, feeBps)
+  const receiveAmountAfterFee = useMemo(
+    () => (order?.isTakerAssetFee ? receiveAmount : subtractFee(receiveAmount, feeBps)),
+    [feeBps, order?.isTakerAssetFee, receiveAmount],
+  )
   const thresholdAmount = receiveAmount?.quotient.toString() || '0'
 
   const balance = useCurrencyBalance(payCurrency, chainId)
-  const requiredPayAmount = order?.isTakerAssetFee ? addFee(parsedPayAmount, feeBps) : parsedPayAmount
-  const maxBalancePayAmount = order?.isTakerAssetFee ? getMaxAmountBeforeTakerFee(balance, feeBps) : balance
+  const requiredPayAmount = useMemo(
+    () => (order?.isTakerAssetFee ? addFee(parsedPayAmount, feeBps) : parsedPayAmount),
+    [feeBps, order?.isTakerAssetFee, parsedPayAmount],
+  )
+  const maxBalancePayAmount = useMemo(
+    () => (order?.isTakerAssetFee ? getMaxAmountBeforeTakerFee(balance, feeBps) : balance),
+    [balance, feeBps, order?.isTakerAssetFee],
+  )
   const {
     insufficientBalance,
     onWrap,
