@@ -61,7 +61,7 @@ Nothing secret lives in the repo; deploy-specific values come from the environme
   for requests without a browser-like `User-Agent` → `BROWSER_UA` in `constants.ts`. Don't drop it.
 - **Satori requires `display:flex`** on every `<div>` with more than one child, or render throws.
 - **Fonts must be static TTF.** Bundled `fonts/WorkSans-400.ttf` / `fonts/WorkSans-700.ttf` (Work Sans,
-  matching the interface). A *variable* TTF crashes Satori, and Google Fonts now serves WOFF (not the TTF
+  matching the interface). A _variable_ TTF crashes Satori, and Google Fonts now serves WOFF (not the TTF
   Satori needs), so don't rely on runtime fetch. Note Work Sans lacks some exotic symbol glyphs (e.g.
   U+20AE ₮), which render as tofu in token symbols — add a wide-coverage fallback font if that matters.
 - **SSRF surface = the logo fetch.** `logoURI` comes from the community-influenced token list. Keep the
@@ -69,7 +69,9 @@ Nothing secret lives in the repo; deploy-specific values come from the environme
   checks — this runs at the origin, so an SSRF could reach internal services.
 - **Cache TTLs use lazy expiry** (`ttlAutopurge: false`) because the 1-year image/font TTLs overflow
   `setTimeout`'s 2³¹ limit.
-- **`networks.ts`** is a hand-maintained slug→chain map — add new mainnet chains here.
+- **`networks.ts`** is a hand-maintained slug→chain map — add new mainnet chains here. The non-EVM
+  cross-chain chains (`near`/`solana`/`bitcoin`) and their native-token symbols/logos live here and in
+  `crosschain.ts`, mirrored literally from the app's `NonEvmChainInfo` / `BitcoinToken` — keep in sync.
 
 ## Docker / deploy
 

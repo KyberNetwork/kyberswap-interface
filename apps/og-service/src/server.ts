@@ -8,10 +8,18 @@ import { join } from 'node:path';
 import { cache } from '@/cache';
 import { PORT, PUBLIC_BASE, STATIC_DIR } from '@/config';
 import { DEFAULT_OG_IMAGE, NOINDEX_ROBOTS } from '@/constants';
+import { MAX_CC_TOKEN_LEN, effectiveTokenId, resolveCrossChainToken } from '@/crosschain';
 import { injectHead } from '@/headInject';
-import { buildPairMeta, buildPoolMeta, parsePairPath, parsePoolPath } from '@/meta';
-import { chainFromSlug, slugFromChainId } from '@/networks';
-import { renderPoolOg, renderSwapOg } from '@/og';
+import {
+  buildCrossChainMeta,
+  buildPairMeta,
+  buildPoolMeta,
+  parseCrossChainPath,
+  parsePairPath,
+  parsePoolPath,
+} from '@/meta';
+import { chainFromAny, chainFromSlug, slugFromChainId } from '@/networks';
+import { renderCrossChainOg, renderPoolOg, renderSwapOg } from '@/og';
 import { resolvePool } from '@/pools';
 import { injectSkeleton } from '@/skeleton';
 import { readAppHtml } from '@/static';
@@ -159,6 +167,53 @@ async function ogPoolImage(url: URL): Promise<Response> {
   }
 }
 
+async function ogCrossChainImage(url: URL): Promise<Response> {
+  const fromRaw = (url.searchParams.get('from') || '').toLowerCase();
+  const toRaw = (url.searchParams.get('to') || '').toLowerCase();
+  const fromChain = chainFromAny(fromRaw);
+  const toChain = chainFromAny(toRaw);
+  // Token ids keep their original case (Solana mints / NEAR assetIds are case-sensitive).
+  const rawIn = url.searchParams.get('tokenIn') || '';
+  const rawOut = url.searchParams.get('tokenOut') || '';
+  if (!fromChain || !toChain || rawIn.length > MAX_CC_TOKEN_LEN || rawOut.length > MAX_CC_TOKEN_LEN) {
+    return defaultImage();
+  }
+  const inId = effectiveTokenId(fromChain, rawIn);
+  const outId = effectiveTokenId(toChain, rawOut);
+
+  const cacheKey = `img:cross-chain:${fromRaw}:${toRaw}:${inId}:${outId}`;
+  const hit = cache.get<Buffer>(cacheKey);
+  if (hit) return pngResponse(hit);
+
+  const [inTok, outTok] = await Promise.all([
+    resolveCrossChainToken(fromChain, inId),
+    resolveCrossChainToken(toChain, outId),
+  ]);
+  if (!inTok || !outTok) {
+    console.log(
+      `[og] /og/cross-chain from=${fromRaw} to=${toRaw} in=${inId} out=${outId} -> UNRESOLVED (default card)`,
+    );
+    return defaultImage();
+  }
+
+  try {
+    const { png, complete } = await renderCrossChainOg({
+      inToken: inTok,
+      outToken: outTok,
+      fromNetworkName: fromChain.name,
+      toNetworkName: toChain.name,
+    });
+    // Cache a standalone copy of the native buffer (see ogSwapImage).
+    cache.set(cacheKey, Buffer.from(png), complete ? IMG_TTL_MS : DEGRADED_IMG_TTL_MS);
+    console.log(
+      `[og] /og/cross-chain from=${fromRaw} to=${toRaw} in=${inId} out=${outId} -> rendered${complete ? '' : ' (transient logo miss, short TTL)'}`,
+    );
+    return pngResponse(png);
+  } catch {
+    return defaultImage();
+  }
+}
+
 // ---- per-route <head> injection ----
 async function handlePair(url: URL): Promise<Response> {
   const parsed = parsePairPath(url.pathname, url.searchParams);
@@ -218,6 +273,22 @@ async function handlePool(url: URL): Promise<Response> {
   return htmlResponse(html);
 }
 
+async function handleCrossChain(url: URL): Promise<Response> {
+  const parsed = parseCrossChainPath(url.pathname, url.searchParams);
+  if (parsed) {
+    const meta = await buildCrossChainMeta(parsed);
+    if (meta) {
+      // Cross-chain is always SPA-shell-served (no prerendered file, no skeleton archetype) — just inject head.
+      const { html } = await readAppHtml(url.pathname);
+      console.log(`[og] cross-chain ${url.search} -> injected`);
+      return htmlResponse(injectHead(html, meta));
+    }
+    console.log(`[og] cross-chain ${url.search} -> UNRESOLVED (static fallback)`);
+  }
+  const { html } = await readAppHtml(url.pathname);
+  return htmlResponse(html);
+}
+
 // Fail-soft wrappers: an HTML route that throws still serves the page; an image route serves the default.
 async function safeHtml(url: URL, fn: (u: URL) => Promise<Response>): Promise<Response> {
   try {
@@ -253,9 +324,12 @@ app.get('/healthz', c => c.text('ok'));
 app.get('/og/swap', c => safeImg(() => ogSwapImage(new URL(c.req.url), 'swap')));
 app.get('/og/limit', c => safeImg(() => ogSwapImage(new URL(c.req.url), 'limit')));
 app.get('/og/pool', c => safeImg(() => ogPoolImage(new URL(c.req.url))));
+app.get('/og/cross-chain', c => safeImg(() => ogCrossChainImage(new URL(c.req.url))));
 app.get('/swap/*', c => safeHtml(new URL(c.req.url), handlePair));
 app.get('/limit/*', c => safeHtml(new URL(c.req.url), handlePair));
 app.get('/pools/*', c => safeHtml(new URL(c.req.url), handlePool));
+// `/cross-chain` is a bare path with query params (no sub-segments) — register it exactly, not as `/*`.
+app.get('/cross-chain', c => safeHtml(new URL(c.req.url), handleCrossChain));
 // Only the routes above are handled; anything else -> 404 (don't blindly serve HTML).
 app.all('*', c => c.text('not found', 404));
 
