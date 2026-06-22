@@ -37,7 +37,7 @@ const formatStatus = (status: LimitOrderStatus) => {
     case LimitOrderStatus.OPEN:
       return t`Active`
     case LimitOrderStatus.PARTIALLY_FILLED:
-      return t`Partially Filled`
+      return t`Active`
     case LimitOrderStatus.FILLED:
       return t`Filled`
     case LimitOrderStatus.CANCELLING:

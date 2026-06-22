@@ -25,7 +25,7 @@ const formatRateValue = (value?: string | number) => {
 
 const TokenAmountValue = ({ currency, amount }: { currency?: Currency; amount: string }) => (
   <HStack className="min-w-0 max-w-full items-center justify-end gap-2">
-    {currency && <CurrencyLogo currency={currency} style={{ width: 20, height: 20 }} />}
+    {currency && <CurrencyLogo currency={currency} size="20px" />}
     <span className="truncate">
       {formatAmountOrder(amount)} {currency?.symbol}
     </span>
@@ -62,7 +62,7 @@ const MarketRateValue = ({
       <span className="shrink-0 text-subText">
         ~{usdValue ? formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 4 }) : '--'}
       </span>
-      <Repeat size={16} className="shrink-0 text-subText" />
+      <Repeat size={14} className="shrink-0 text-subText" />
     </HStack>
   )
 }

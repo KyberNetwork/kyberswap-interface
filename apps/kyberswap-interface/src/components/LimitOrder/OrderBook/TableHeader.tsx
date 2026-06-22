@@ -9,7 +9,7 @@ const TableHeader = () => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   return (
-    <ItemWrapper className="cursor-default bg-white/[0.04] px-4 py-3 text-xs font-medium uppercase tracking-[0.04em] text-subText">
+    <ItemWrapper className="cursor-default bg-background px-4 py-3 text-xs font-medium uppercase tracking-[0.04em] text-subText">
       <span>CHAIN</span>
       <span className="justify-self-end text-right">
         <Trans>Size</Trans>

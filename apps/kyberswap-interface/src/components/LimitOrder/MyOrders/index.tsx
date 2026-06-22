@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { HTMLAttributes, useCallback, useEffect, useState } from 'react'
+import { HTMLAttributes, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
@@ -85,36 +85,41 @@ const CLOSE_ORDER_OPTIONS = () => [
 
 const TabSelector = ({
   activeTab,
+  rightContent,
   setActiveTab,
 }: {
   activeTab: LimitOrderStatus
+  rightContent?: ReactNode
   setActiveTab: (n: LimitOrderStatus) => void
 }) => (
-  <div className="flex min-w-0 flex-1 items-center overflow-x-auto border-b border-darkBorder" role="tablist">
-    {LIST_ORDER_TABS.map((tab, index) => {
-      const active = tab === activeTab
-      const isLast = index === LIST_ORDER_TABS.length - 1
-      return (
-        <button
-          key={tab}
-          aria-selected={active}
-          className={cn(
-            'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
-            !isLast && 'border-r border-darkBorder',
-            active
-              ? 'bg-transparent text-primary hover:bg-transparent hover:text-primary'
-              : 'bg-transparent text-subText hover:bg-transparent hover:text-text',
-          )}
-          onClick={() => setActiveTab(tab)}
-          role="tab"
-          type="button"
-        >
-          <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
-            {tab === LimitOrderStatus.ACTIVE ? <Trans>Active Orders</Trans> : <Trans>Order History</Trans>}
-          </span>
-        </button>
-      )
-    })}
+  <div className="flex min-w-0 items-center border-b border-darkBorder">
+    <div className="flex min-w-0 flex-1 items-center overflow-x-auto" role="tablist">
+      {LIST_ORDER_TABS.map((tab, index) => {
+        const active = tab === activeTab
+        const isLast = index === LIST_ORDER_TABS.length - 1
+        return (
+          <button
+            key={tab}
+            aria-selected={active}
+            className={cn(
+              'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
+              !isLast && 'border-r border-darkBorder',
+              active
+                ? 'bg-transparent text-primary hover:bg-transparent hover:text-primary'
+                : 'bg-transparent text-subText hover:bg-transparent hover:text-text',
+            )}
+            onClick={() => setActiveTab(tab)}
+            role="tab"
+            type="button"
+          >
+            <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
+              {tab === LimitOrderStatus.ACTIVE ? <Trans>Active Orders</Trans> : <Trans>Order History</Trans>}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+    {rightContent && <div className="flex shrink-0 items-center px-4">{rightContent}</div>}
   </div>
 )
 
@@ -122,7 +127,7 @@ const TableHeader = () => (
   <div
     className={cn(
       'grid grid-cols-[44px_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_64px] items-center gap-2 max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
-      'cursor-default bg-white/[0.04] p-4 text-xs font-medium uppercase tracking-[0.04em] text-subText',
+      'cursor-default bg-background p-4 text-xs font-medium uppercase tracking-[0.04em] text-subText',
     )}
   >
     <span>
@@ -348,9 +353,21 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
     onReset()
   }, [onReset, orderTab])
 
+  const cancelAllButton = showCancelAll && (
+    <ButtonLight
+      color="var(--ks-red)"
+      onClick={onCancelAllOrder}
+      disabled={disabledCancelAll}
+      className="w-fit gap-1.5 px-3 py-1 text-sm"
+    >
+      <Trash size={14} />
+      <Trans>Cancel All</Trans>
+    </ButtonLight>
+  )
+
   return (
     <div className="flex w-full flex-col">
-      <TabSelector setActiveTab={onSelectTab} activeTab={activeTab} />
+      <TabSelector setActiveTab={onSelectTab} activeTab={activeTab} rightContent={cancelAllButton} />
 
       <div className="flex justify-between gap-4 px-4 py-2 max-sm:flex-col">
         <Select
@@ -383,34 +400,16 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
           />
         ))}
       </div>
-      {(showPagination || showCancelAll) && (
-        <div
-          className={cn(
-            'flex items-center gap-4 bg-white/[0.04] px-4 py-3 max-sm:flex-col-reverse',
-            showPagination && showCancelAll ? 'justify-between' : showCancelAll ? 'justify-start' : 'justify-center',
-          )}
-        >
-          {showCancelAll && (
-            <ButtonLight
-              color="var(--ks-red)"
-              onClick={onCancelAllOrder}
-              disabled={disabledCancelAll}
-              className="w-fit gap-1.5 px-3.5 py-2 text-sm max-sm:w-full"
-            >
-              <Trash size={15} />
-              <Trans>Cancel All</Trans>
-            </ButtonLight>
-          )}
-          {showPagination && (
-            <Pagination
-              haveBg={false}
-              onPageChange={onPageChange}
-              totalCount={totalOrder}
-              currentPage={curPage}
-              pageSize={PAGE_SIZE}
-              style={{ padding: '0' }}
-            />
-          )}
+      {showPagination && (
+        <div className="flex items-center justify-center bg-white/[0.04] px-4 py-3">
+          <Pagination
+            haveBg={false}
+            onPageChange={onPageChange}
+            totalCount={totalOrder}
+            currentPage={curPage}
+            pageSize={PAGE_SIZE}
+            style={{ padding: '0' }}
+          />
         </div>
       )}
       {showNoOrders && (

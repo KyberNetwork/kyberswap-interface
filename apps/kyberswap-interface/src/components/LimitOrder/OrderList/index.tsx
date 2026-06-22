@@ -33,7 +33,7 @@ const TabSelector = ({
   )
 
   return (
-    <HStack className="items-center gap-3 pr-4">
+    <HStack className="items-center gap-3 bg-background pr-4">
       <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
         {ORDER_LIST_TABS.map((tab, index) => {
           const active = tab.id === activeTab
@@ -49,8 +49,8 @@ const TabSelector = ({
                 'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1 border-0 px-4 py-3 text-sm font-medium',
                 !isLast && 'border-r border-darkBorder',
                 active
-                  ? 'bg-primary/15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary/15 hover:text-primary'
-                  : 'bg-transparent text-subText hover:bg-tableHeader hover:text-text',
+                  ? 'bg-primary-15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary-20 hover:text-primary'
+                  : 'bg-transparent text-subText hover:bg-tabActive-80 hover:text-text',
               )}
             >
               <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
@@ -87,7 +87,7 @@ const OrderList = ({ customChainId }: { customChainId?: ChainId }) => {
   const currentTab = activeTab || LimitOrderTab.ORDER_BOOK
 
   return (
-    <Stack className="w-full gap-0 overflow-hidden rounded-xl border border-darkBorder bg-background max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none">
+    <Stack className="w-full gap-0 overflow-hidden rounded-xl border border-darkBorder max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none">
       <TabSelector setActiveTab={setActiveTab} activeTab={currentTab} />
 
       <Stack className="border-t border-darkBorder">

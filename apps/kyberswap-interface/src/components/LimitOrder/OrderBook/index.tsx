@@ -236,7 +236,7 @@ const OrderBook = () => {
           : isOrdersLoaded && <NoDataPanel />}
       </OrderSide>
 
-      <ItemWrapper className="bg-white-04 px-4 py-3 text-xl font-medium leading-6">
+      <ItemWrapper className="bg-background px-4 py-3 text-xl font-medium leading-6">
         <span className="flex items-center justify-center">
           <img className="size-5" src={networkInfo?.icon} alt="Network" />
         </span>
