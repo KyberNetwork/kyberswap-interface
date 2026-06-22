@@ -323,9 +323,20 @@ function tokenBlock(dataUri: string | null, symbol: string): string {
   </div>`;
 }
 
-// Shared card chrome: brand header (Kyber + Swap + "on <network>"), a center row, and a caption.
-// NB: every <div> with >1 child needs explicit display:flex (a Satori requirement).
-function cardHtml(networkName: string, center: string, caption: string, logoUri: string | null): string {
+// Like tokenBlock, plus a per-token chain label below the symbol — for the cross-chain card, where each
+// side lives on a different chain (e.g. "USDC" / "Ethereum" → "SOL" / "Solana").
+function tokenChainBlock(dataUri: string | null, symbol: string, chainName: string): string {
+  return `<div style="display:flex;flex-direction:column;align-items:center;width:360px">
+    ${logoHtml(dataUri, symbol)}
+    <div style="display:flex;margin-top:28px;font-size:52px;font-weight:700;color:${WHITE}">${escapeHtml(shortSymbol(symbol))}</div>
+    <div style="display:flex;margin-top:10px;font-size:30px;color:${SUBTEXT}">${escapeHtml(chainName)}</div>
+  </div>`;
+}
+
+// Shared card chrome: brand header (Kyber + Swap + a right-side label), a center row, and a caption.
+// `headerRight` is interpolated as-is (callers pre-escape it). NB: every <div> with >1 child needs
+// explicit display:flex (a Satori requirement).
+function cardHtml(headerRight: string, center: string, caption: string, logoUri: string | null): string {
   // Brand mark: the KyberSwap logo image when available, otherwise the text wordmark.
   const brand = logoUri
     ? `<img src="${logoUri}" width="${BRAND_LOGO_W}" height="${BRAND_LOGO_H}" />`
@@ -333,7 +344,7 @@ function cardHtml(networkName: string, center: string, caption: string, logoUri:
   return `<div style="display:flex;flex-direction:column;justify-content:space-between;width:${WIDTH}px;height:${HEIGHT}px;padding:72px 80px;background:${BG};font-family:'${FONT_FAMILY}'">
     <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
       ${brand}
-      <div style="display:flex;font-size:32px;color:${SUBTEXT}">on ${escapeHtml(networkName)}</div>
+      <div style="display:flex;font-size:32px;color:${SUBTEXT}">${headerRight}</div>
     </div>
     <div style="display:flex;align-items:center;justify-content:center;width:100%">
       ${center}
@@ -445,7 +456,8 @@ export async function renderSwapOg(input: SwapOgInput): Promise<RenderResult> {
 
   // Cache briefly only if a logo failed TRANSIENTLY (so it self-heals); a permanent letter circle is final.
   const complete = !logos.some(l => l.transient);
-  const png = await renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
+  const headerRight = `on ${escapeHtml(networkName)}`;
+  const png = await renderCardPng(cardHtml(headerRight, center, caption, brandLogo), fontsOption(font700, font400));
   return { png, complete };
 }
 
@@ -473,6 +485,38 @@ export async function renderPoolOg(input: PoolOgInput): Promise<RenderResult> {
 
   // Cache briefly only if a logo failed TRANSIENTLY (so it self-heals); a permanent letter circle is final.
   const complete = !logos.some(l => l.transient);
-  const png = await renderCardPng(cardHtml(networkName, center, caption, brandLogo), fontsOption(font700, font400));
+  const headerRight = `on ${escapeHtml(networkName)}`;
+  const png = await renderCardPng(cardHtml(headerRight, center, caption, brandLogo), fontsOption(font700, font400));
+  return { png, complete };
+}
+
+export interface CrossChainOgInput {
+  inToken: ResolvedToken;
+  outToken: ResolvedToken;
+  fromNetworkName: string;
+  toNetworkName: string;
+}
+
+/** Render the 1200x630 cross-chain OG card: two chain-labelled token blocks with an arrow between them. */
+export async function renderCrossChainOg(input: CrossChainOgInput): Promise<RenderResult> {
+  const { inToken, outToken, fromNetworkName, toNetworkName } = input;
+
+  const [logos, font700, font400, brandLogo] = await Promise.all([
+    Promise.all([fetchLogoDataUri(inToken.logoURI), fetchLogoDataUri(outToken.logoURI)]),
+    loadFont(700),
+    loadFont(400),
+    loadBrandLogo(),
+  ]);
+
+  const syms = [escapeHtml(shortSymbol(inToken.symbol)), escapeHtml(shortSymbol(outToken.symbol))];
+  const caption = `Bridge & swap ${syms[0]} → ${syms[1]} across chains on KyberSwap`;
+  const center = `${tokenChainBlock(logos[0].uri, inToken.symbol, fromNetworkName)}${ARROW}${tokenChainBlock(logos[1].uri, outToken.symbol, toNetworkName)}`;
+
+  // Cache briefly only if a logo failed TRANSIENTLY (so it self-heals); a permanent letter circle is final.
+  const complete = !logos.some(l => l.transient);
+  const png = await renderCardPng(
+    cardHtml('Cross-chain swap', center, caption, brandLogo),
+    fontsOption(font700, font400),
+  );
   return { png, complete };
 }

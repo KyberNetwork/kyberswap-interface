@@ -2,7 +2,8 @@
 // HTML rewrite lives in headInject.ts.
 import { PUBLIC_BASE } from '@/config';
 import { INDEX_ROBOTS, NOINDEX_ROBOTS } from '@/constants';
-import { type ChainInfo, chainFromSlug } from '@/networks';
+import { MAX_CC_TOKEN_LEN, effectiveTokenId, resolveCrossChainToken } from '@/crosschain';
+import { type ChainInfo, chainFromAny, chainFromSlug } from '@/networks';
 import { resolvePool } from '@/pools';
 import { resolveToken } from '@/tokens';
 
@@ -110,6 +111,58 @@ export async function buildPairMeta(parsed: ParsedPair): Promise<HeadMeta | null
   // Pair permutations are unbounded → noindex, and canonical-consolidate to the indexable bare network
   // landing (/swap/<net> or /limit/<net>), exactly as seoConfig.ts resolves a swap/limit pair path.
   const canonical = `${PUBLIC_BASE}/${kind}/${slug}`;
+
+  return { title, description, image, url, imageAlt, canonical, robots: NOINDEX_ROBOTS };
+}
+
+export interface ParsedCrossChain {
+  fromChain: ChainInfo;
+  toChain: ChainInfo;
+  /** Raw `from`/`to` values (lowercased), echoed back into the og:url + image URL. */
+  fromRaw: string;
+  toRaw: string;
+  /** Raw token ids, case PRESERVED (Solana mints / NEAR assetIds are case-sensitive). May be empty. */
+  tokenIn: string;
+  tokenOut: string;
+}
+
+/** Match a `/cross-chain?from=&to=&tokenIn=&tokenOut=` link. `from`/`to` are EVM chainIds or non-EVM slugs. */
+export function parseCrossChainPath(pathname: string, searchParams: URLSearchParams): ParsedCrossChain | null {
+  if (pathname.replace(/\/+$/, '') !== '/cross-chain') return null;
+  const fromRaw = (searchParams.get('from') || '').trim().toLowerCase();
+  const toRaw = (searchParams.get('to') || '').trim().toLowerCase();
+  const fromChain = chainFromAny(fromRaw);
+  const toChain = chainFromAny(toRaw);
+  if (!fromChain || !toChain) return null;
+  // Token ids keep their original case; an absent side defaults to the chain's native token downstream.
+  const tokenIn = searchParams.get('tokenIn') || '';
+  const tokenOut = searchParams.get('tokenOut') || '';
+  if (tokenIn.length > MAX_CC_TOKEN_LEN || tokenOut.length > MAX_CC_TOKEN_LEN) return null;
+  return { fromChain, toChain, fromRaw, toRaw, tokenIn, tokenOut };
+}
+
+/** Resolve both cross-chain tokens (defaulting an absent side to native) and build the head meta. Null if a side won't resolve. */
+export async function buildCrossChainMeta(parsed: ParsedCrossChain): Promise<HeadMeta | null> {
+  const { fromChain, toChain, fromRaw, toRaw, tokenIn, tokenOut } = parsed;
+  const inId = effectiveTokenId(fromChain, tokenIn);
+  const outId = effectiveTokenId(toChain, tokenOut);
+
+  const [inToken, outToken] = await Promise.all([
+    resolveCrossChainToken(fromChain, inId),
+    resolveCrossChainToken(toChain, outId),
+  ]);
+  // Cross-chain is inherently two-sided — need both tokens for a meaningful card, else fall back.
+  if (!inToken || !outToken) return null;
+
+  const title = `Swap ${inToken.symbol} (${fromChain.name}) → ${outToken.symbol} (${toChain.name}) | KyberSwap`;
+  const description = `Swap ${inToken.symbol} on ${fromChain.name} for ${outToken.symbol} on ${toChain.name} in one step — cross-chain swaps at the best rate on KyberSwap.`;
+  const imageAlt = `Cross-chain swap ${inToken.symbol} on ${fromChain.name} to ${outToken.symbol} on ${toChain.name}`;
+
+  const params = new URLSearchParams({ from: fromRaw, to: toRaw, tokenIn: inId, tokenOut: outId });
+  const url = `${PUBLIC_BASE}/cross-chain?${params.toString()}`;
+  const image = `${PUBLIC_BASE}/og/cross-chain?${params.toString()}`;
+  // Param permutations are unbounded → noindex (matches the app), canonical-consolidate to bare /cross-chain.
+  const canonical = `${PUBLIC_BASE}/cross-chain`;
 
   return { title, description, image, url, imageAlt, canonical, robots: NOINDEX_ROBOTS };
 }
