@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import { t } from '@lingui/macro';
 
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
@@ -75,19 +73,17 @@ const CurrentPriceIndicator = ({
   left?: number;
   currentPrice: number;
 }) => {
-  const indicatorRef = useRef<HTMLDivElement>(null);
-  const fullRangeElement = indicatorRef.current?.parentElement;
-  const maxWidth = fullRangeElement ? fullRangeElement.offsetWidth - priceIndicatorWidth * 2 : 0; // 4 is width of lower & upper price indicator
+  // Position the handle from the parent width via CSS calc so it is correct on the first paint
+  // (the percentage maps onto the parent's measured width at layout time). The pixel offset recenters
+  // the icon and accounts for the lower/upper bound indicators (priceIndicatorWidth each).
+  const offset =
+    left !== undefined ? left * priceIndicatorWidth * -2 + priceIndicatorWidth - currentPriceIndicatorWidth / 2 : 0;
 
   return (
     <div
-      ref={indicatorRef}
       className={cn('absolute top-[-5px]', lower ? 'left-[6%]' : 'left-[86%]')}
       style={{
-        left:
-          left || left === 0
-            ? `${left * maxWidth + priceIndicatorWidth - currentPriceIndicatorWidth / 2}px`
-            : undefined,
+        left: left !== undefined ? `calc(${left * 100}% ${offset < 0 ? '-' : '+'} ${Math.abs(offset)}px)` : undefined,
       }}
     >
       <MouseoverTooltip

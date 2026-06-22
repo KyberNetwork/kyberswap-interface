@@ -94,4 +94,5 @@ export interface ZapMigrationProps {
   onCloseSuccess?: () => void;
   onBack?: () => void;
   onClose: () => void;
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void;
 }

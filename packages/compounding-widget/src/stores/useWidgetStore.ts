@@ -59,6 +59,7 @@ const initState = {
   ) => Promise.resolve(''),
   onOpenZapMigration: undefined,
   onViewPosition: undefined,
+  onOpenPoolDetail: undefined,
   nativeToken: defaultToken,
   wrappedNativeToken: defaultToken,
 };
