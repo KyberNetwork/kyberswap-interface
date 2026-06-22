@@ -147,7 +147,7 @@ export function TransactionSubmittedContent({
         <div className={STATUS_ACTION_CLASS}>
           {tokenAddToMetaMask?.address && <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />}
           <ButtonPrimary onClick={onDismiss}>
-            <span className="text-sm font-medium">
+            <span className="text-sm font-medium leading-none">
               <Trans>Close</Trans>
             </span>
           </ButtonPrimary>

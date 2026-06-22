@@ -278,19 +278,19 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
   const { title, summary } = getSummary(transaction)
 
   return (
-    <div>
-      <div className="flex flex-row flex-nowrap">
-        <div className="pr-4">
-          {success ? <CheckCircle className="text-primary" size={'20px'} /> : <IconFailure className="text-red" />}
-        </div>
-        <AutoColumn className="gap-2">
-          <span className={success ? 'text-base font-medium text-primary' : 'text-base font-medium text-red'}>
-            {title}
-          </span>
-          <span className="text-sm font-normal leading-[1.6] text-text">{summary}</span>
-        </AutoColumn>
+    <div className="grid min-w-0 grid-cols-[20px_minmax(0,1fr)] gap-x-4 gap-y-1">
+      <div className="pt-0.5">
+        {success ? (
+          <CheckCircle className="text-primary" size="20px" />
+        ) : (
+          <IconFailure className="text-red" size={20} />
+        )}
       </div>
-      <HideSmall className="ml-10 mt-2 block">
+      <AutoColumn className="min-w-0 gap-1">
+        <span className={cn('break-words text-base font-medium', success ? 'text-primary' : 'text-red')}>{title}</span>
+        <span className="break-words text-sm font-normal leading-[1.6] text-text">{summary}</span>
+      </AutoColumn>
+      <HideSmall className="col-start-2 block">
         <ExternalLink
           href={getEtherscanLink(chainId, hash, 'transaction')}
           className={cn('text-sm', success ? 'text-primary' : 'text-red')}
