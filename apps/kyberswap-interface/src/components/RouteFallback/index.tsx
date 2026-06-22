@@ -101,6 +101,67 @@ const SwapPageSkeleton = () => (
   </div>
 )
 
+// Partner / user embedded swap (`/partner-swap`, `/user-swap/...`) — the iframe-embedded widget partners
+// mount. It is a single centered 425px column (tabs + subtitle + form card) with NO right-hand info column:
+// PartnerSwap's InfoComponents render nothing until the price chart or trade-routes panel is toggled on,
+// which never happens on first paint. The form runs in omniView, so the card leads with the "Choose a chain"
+// network selector. Mirrors PartnerSwap's PageWrapper/Container (`justify-center`) + SwapFormWrapper
+// (`w-[425px] max-sm:w-full`); the column self-centers because the RouteFallback slot sits in an items-start
+// AppWrapper.
+const PartnerSwapSkeleton = () => (
+  <div className="mx-auto w-full max-w-[1464px] px-9 pt-6 max-sm:px-4 max-sm:py-5">
+    <div className="flex justify-center">
+      <div className="flex w-[425px] shrink-0 flex-col gap-4 max-sm:w-full">
+        {/* Header: tabs (Swap | Limit Order | Cross-Chain) on the left, info + settings icons on the right,
+            with the one-line subtitle below — grouped gap-2 to match the real Header's Stack. */}
+        <div className="flex flex-col gap-2">
+          <div className="flex min-h-9 items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Skeleton width={48} height={20} />
+              <Skeleton width={90} height={20} />
+              <Skeleton width={96} height={20} />
+            </div>
+            <div className="flex items-center gap-2">
+              <Skeleton circle width={20} height={20} />
+              <Skeleton circle width={20} height={20} />
+            </div>
+          </div>
+          <Skeleton width={260} height={14} />
+        </div>
+        {/* Swap form card — bg-background + rounded-[20px] + p-4 + soft shadow, like the real AppBodyWrapped.
+            Inner field skeletons use the darker buttonBlack base (the real field color) so they read a shade
+            below the lighter card. */}
+        <div className="rounded-[20px] bg-background p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
+              {/* Network selector row (omniView): "Choose a chain" label + network pill. */}
+              <div className="flex items-center justify-between">
+                <Skeleton width={92} height={16} baseColor="var(--ks-buttonBlack)" />
+                <Skeleton width={132} height={32} borderRadius={999} baseColor="var(--ks-buttonBlack)" />
+              </div>
+              {/* Input + output fields (h-96), with the swap-direction arrow overlaid on the seam. */}
+              <div className="relative flex flex-col gap-2">
+                <Skeleton height={96} borderRadius={16} baseColor="var(--ks-buttonBlack)" />
+                <Skeleton height={96} borderRadius={16} baseColor="var(--ks-buttonBlack)" />
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <Skeleton circle width={28} height={28} baseColor="var(--ks-buttonBlack)" />
+                </div>
+              </div>
+              {/* Max Slippage line (label + value pill). */}
+              <div className="flex items-center gap-2">
+                <Skeleton width={90} height={16} baseColor="var(--ks-buttonBlack)" />
+                <Skeleton width={48} height={24} borderRadius={999} baseColor="var(--ks-buttonBlack)" />
+              </div>
+            </div>
+            {/* Action button (pill). */}
+            <Skeleton height={44} borderRadius={999} baseColor="var(--ks-buttonBlack)" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)
+
 const TablePageSkeleton = () => (
   <div className="flex w-full max-w-[1500px] flex-col gap-5 px-6 pb-12 pt-8 max-sm:px-4 max-sm:pt-6">
     <Skeleton width={240} height={28} />
@@ -213,16 +274,14 @@ const pickSkeleton = (rawPathname: string) => {
   // overlay (EarnLandingFallback, built from `/earn`) would jump to the logo on mount. The startsWith
   // routes already tolerate the slash; normalizing here keeps every archetype consistent.
   const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, '') : rawPathname
+  // Partner / user embedded swap — a single centered widget, no right info column. Checked before the swap
+  // group below; `/partner-swap` and `/user-swap` are distinct prefixes from `/swap`, so order is for clarity.
+  if (startsWithAny(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {
+    return <PartnerSwapSkeleton />
+  }
+
   // Swap-style widget pages.
-  if (
-    startsWithAny(pathname, [
-      APP_PATHS.SWAP,
-      APP_PATHS.LIMIT,
-      APP_PATHS.CROSS_CHAIN,
-      APP_PATHS.PARTNER_SWAP,
-      APP_PATHS.USER_SWAP,
-    ])
-  ) {
+  if (startsWithAny(pathname, [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN])) {
     return <SwapPageSkeleton />
   }
 
