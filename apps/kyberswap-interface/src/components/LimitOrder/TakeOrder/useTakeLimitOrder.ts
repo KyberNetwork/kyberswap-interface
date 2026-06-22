@@ -33,6 +33,13 @@ const safeDivide = (numerator: JSBI, denominator: JSBI) => {
   return JSBI.divide(numerator, denominator)
 }
 
+const BPS_BASE = JSBI.BigInt(10_000)
+
+const ceilDivide = (numerator: JSBI, denominator: JSBI) => {
+  if (JSBI.equal(denominator, JSBI.BigInt(0))) return JSBI.BigInt(0)
+  return JSBI.divide(JSBI.add(numerator, JSBI.subtract(denominator, JSBI.BigInt(1))), denominator)
+}
+
 const getAvailablePayAmount = ({ order, payCurrency }: LimitOrderTakeContext) => {
   const totalPayRaw = JSBI.BigInt(order.takingAmount)
   const totalReceiveRaw = JSBI.BigInt(order.makingAmount)
@@ -65,7 +72,19 @@ const getFeeBps = (feePercent?: string) => {
 
 const subtractFee = (amount: CurrencyAmount<Currency> | undefined, feeBps: number) => {
   if (!amount || feeBps <= 0) return amount
-  const raw = JSBI.divide(JSBI.multiply(amount.quotient, JSBI.BigInt(10_000 - feeBps)), JSBI.BigInt(10_000))
+  const raw = JSBI.divide(JSBI.multiply(amount.quotient, JSBI.BigInt(10_000 - feeBps)), BPS_BASE)
+  return CurrencyAmount.fromRawAmount(amount.currency, raw)
+}
+
+const addFee = (amount: CurrencyAmount<Currency> | undefined, feeBps: number) => {
+  if (!amount || feeBps <= 0) return amount
+  const raw = ceilDivide(JSBI.multiply(amount.quotient, JSBI.BigInt(10_000 + feeBps)), BPS_BASE)
+  return CurrencyAmount.fromRawAmount(amount.currency, raw)
+}
+
+const getMaxAmountBeforeTakerFee = (amount: CurrencyAmount<Currency> | undefined, feeBps: number) => {
+  if (!amount || feeBps <= 0) return amount
+  const raw = safeDivide(JSBI.multiply(amount.quotient, BPS_BASE), JSBI.BigInt(10_000 + feeBps))
   return CurrencyAmount.fromRawAmount(amount.currency, raw)
 }
 
@@ -99,10 +118,12 @@ export const useTakeLimitOrder = ({
     [context, parsedPayAmount],
   )
   const feeBps = getFeeBps(order?.makerTokenFeePercent)
-  const receiveAmountAfterFee = subtractFee(receiveAmount, feeBps)
+  const receiveAmountAfterFee = order?.isTakerAssetFee ? receiveAmount : subtractFee(receiveAmount, feeBps)
   const thresholdAmount = receiveAmount?.quotient.toString() || '0'
 
   const balance = useCurrencyBalance(payCurrency, chainId)
+  const requiredPayAmount = order?.isTakerAssetFee ? addFee(parsedPayAmount, feeBps) : parsedPayAmount
+  const maxBalancePayAmount = order?.isTakerAssetFee ? getMaxAmountBeforeTakerFee(balance, feeBps) : balance
   const {
     insufficientBalance,
     onWrap,
@@ -110,7 +131,7 @@ export const useTakeLimitOrder = ({
   } = useLimitOrderWrapStep({
     chainId,
     currency: payCurrency,
-    amount: parsedPayAmount,
+    amount: requiredPayAmount,
     balance,
   })
   const exceedsAvailableAmount = (() => {
@@ -126,14 +147,14 @@ export const useTakeLimitOrder = ({
     !insufficientBalance
 
   const [approval, approveCallback] = useApproveCallback({
-    amount: parsedPayAmount,
+    amount: requiredPayAmount,
     spender: contractAddress || undefined,
     forceApprove: true,
   })
 
   const checkApprovalManually = useLimitOrderApproval({
     account,
-    amount: parsedPayAmount,
+    amount: requiredPayAmount,
     chainId,
     currency: payCurrency,
     spender: contractAddress,
@@ -186,7 +207,7 @@ export const useTakeLimitOrder = ({
         tokenAddressOut: receiveCurrency.wrapped.address,
         tokenSymbolIn: payCurrency.symbol || '',
         tokenSymbolOut: receiveCurrency.symbol || '',
-        tokenAmountIn: parsedPayAmount.toExact(),
+        tokenAmountIn: requiredPayAmount?.toExact() || parsedPayAmount.toExact(),
         tokenAmountOut: receiveAmountAfterFee?.toExact() || receiveAmount?.toExact() || '',
         arbitrary: {
           order_id: order.id,
@@ -216,6 +237,7 @@ export const useTakeLimitOrder = ({
     receiveAmount,
     receiveAmountAfterFee,
     receiveCurrency,
+    requiredPayAmount,
     walletKey,
   ])
 
@@ -237,7 +259,9 @@ export const useTakeLimitOrder = ({
   return {
     amount: {
       maxPayAmount,
+      maxBalancePayAmount,
       parsedPayAmount,
+      requiredPayAmount,
       receiveAmount,
       receiveAmountAfterFee,
       feeBps,
@@ -250,7 +274,7 @@ export const useTakeLimitOrder = ({
     processing: {
       chainId,
       approval,
-      approveCallback: () => approveCallback(parsedPayAmount),
+      approveCallback: () => approveCallback(requiredPayAmount),
       checkApprovalManually,
       steps: processingSteps,
       onWrap,

@@ -76,6 +76,7 @@ export type LimitOrderFromTokenPair = {
   feeConfig: string
   feeRecipient: string
   makerTokenFeePercent: string
+  isTakerAssetFee: boolean
   makerAssetData: string
   takerAssetData: string
   getMakerAmount: string

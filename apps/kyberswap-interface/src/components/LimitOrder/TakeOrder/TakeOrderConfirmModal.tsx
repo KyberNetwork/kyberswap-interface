@@ -140,7 +140,9 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
 
   const {
     maxPayAmount,
+    maxBalancePayAmount,
     parsedPayAmount,
+    requiredPayAmount,
     receiveAmount,
     receiveAmountAfterFee,
     feeBps,
@@ -188,10 +190,10 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
   const walletBalance = balance?.currency.equals(context.payCurrency) ? balance : undefined
   const defaultPayAmount = useMemo(() => {
     if (!maxPayAmount) return undefined
-    if (!walletBalance) return maxPayAmount
+    if (!maxBalancePayAmount) return maxPayAmount
 
-    return walletBalance.lessThan(maxPayAmount) ? walletBalance : maxPayAmount
-  }, [maxPayAmount, walletBalance])
+    return maxBalancePayAmount.lessThan(maxPayAmount) ? maxBalancePayAmount : maxPayAmount
+  }, [maxBalancePayAmount, maxPayAmount])
 
   useEffect(() => {
     setFillAmount(normalizeActionAmount(defaultPayAmount?.toExact() || ''))
@@ -232,7 +234,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
     if (!route || !inputCurrency || !outputCurrency) return
 
     const search = new URLSearchParams()
-    const input = parsedPayAmount?.toExact()
+    const input = requiredPayAmount?.toExact() || parsedPayAmount?.toExact()
     if (input) search.set('input', input)
 
     navigate(
@@ -323,7 +325,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
                 <HStack className="items-center justify-between gap-3">
                   <HStack className="min-w-0 flex-wrap gap-1">
                     {QUICK_FILL_PERCENTS.map(percent => {
-                      const percentAmount = getPercentFillAmount(walletBalance, percent)
+                      const percentAmount = getPercentFillAmount(maxBalancePayAmount, percent)
                       return (
                         <button
                           key={percent}
@@ -339,10 +341,10 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
                   <button
                     type="button"
                     className="flex cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-xs text-subText hover:brightness-125"
-                    onClick={() => setFillAmount(normalizeActionAmount(walletBalance?.toExact() || ''))}
+                    onClick={() => setFillAmount(normalizeActionAmount(maxBalancePayAmount?.toExact() || ''))}
                   >
                     <WalletIcon size={14} className="shrink-0" />
-                    <span className="truncate font-medium">{formatExact(walletBalance)}</span>
+                    <span className="truncate font-medium">{formatExact(maxBalancePayAmount || walletBalance)}</span>
                   </button>
                 </HStack>
 
@@ -391,7 +393,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
               isSwapBetter={isSwapBetter}
               inputCurrency={context.payCurrency}
               outputCurrency={context.receiveCurrency}
-              inputAmount={parsedPayAmount}
+              inputAmount={requiredPayAmount || parsedPayAmount}
               outputAmount={receiveAmountForComparison}
             />
 
