@@ -40,13 +40,14 @@ const Cards = ({ count, height }: { count: number; height: number }) => (
 )
 
 // Two-column swap page (max-w-1440, gap-12): the left column holds the tabs, subtitle and swap widget; the
-// right column holds the trending/farming pool cards, the price chart and the route bar. The right column
-// collapses on small screens, leaving just the widget. Fields use plain default Skeletons on the page
-// (no bg-background card wrapper) so the whole page's tone matches.
+// right column holds the trending/farming pool cards, the price chart and the route bar. Below lg the right
+// column hides and the widget stays w-[425px] centered (full-width only on mobile) — mirroring the real
+// SwapFormWrapper (`w-[425px] max-sm:w-full`) + Container (`max-lg:items-center`). Fields use plain default
+// Skeletons on the page (no bg-background card wrapper) so the whole page's tone matches.
 const SwapPageSkeleton = () => (
   <div className="mx-auto w-full max-w-[1440px] px-6 pt-6 max-sm:px-4">
-    <div className="flex gap-12 max-lg:flex-col max-lg:gap-6">
-      <div className="flex w-[425px] shrink-0 flex-col gap-4 max-lg:w-full">
+    <div className="flex gap-12 max-lg:flex-col max-lg:items-center max-lg:gap-6">
+      <div className="flex w-[425px] shrink-0 flex-col gap-4 max-sm:w-full">
         {/* Tabs (Swap | Limit Order | Cross-Chain) on the left; info + settings icons aligned to the right. */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
