@@ -7,21 +7,17 @@ per-route `<head>` meta into the served HTML, and everything else is served stat
 
 ## What it does
 
-| Path                                                                   | Behavior                                                                                                            |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `/og/swap`, `/og/limit` (`?chain=&in=&out=`)                           | Generate a cached 1200×630 PNG (two token logos + symbols + brand).                                                 |
-| `/og/pool` (`?chain=&address=&protocol=`)                              | Generate the pool card PNG.                                                                                         |
-| `/og/cross-chain` (`?from=&to=&tokenIn=&tokenOut=`)                    | Generate the cross-chain card PNG (per-token chain labels). `from`/`to` = EVM chainId or `near`/`solana`/`bitcoin`. |
-| `/swap/<net>/<in>-to-<out>`, `/limit/...` (+ legacy `?inputCurrency=`) | Read the app HTML, inject pair `<head>` OG/Twitter meta (`og:image` → `/og/swap?…`). Body untouched.                |
-| `/pools/<chain>/<protocol>/<address>`                                  | Inject per-pool `<head>` meta (self-canonical + index).                                                             |
-| `/cross-chain?from=&to=&tokenIn=&tokenOut=`                            | Inject per-pair cross-chain `<head>` meta (`og:image` → `/og/cross-chain?…`, noindex).                              |
-| `/pools/add-liquidity?exchange=&poolChainId=&poolAddress=`             | **301** to the canonical path form.                                                                                 |
-| bare `/swap/<net>` landing, other routes                               | Serve the prerendered/static HTML as-is.                                                                            |
+| Path                                                                   | Behavior                                                                                             |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `/og/swap`, `/og/limit` (`?chain=&in=&out=`)                           | Generate a cached 1200×630 PNG (two token logos + symbols + brand).                                  |
+| `/og/pool` (`?chain=&address=&protocol=`)                              | Generate the pool card PNG.                                                                          |
+| `/swap/<net>/<in>-to-<out>`, `/limit/...` (+ legacy `?inputCurrency=`) | Read the app HTML, inject pair `<head>` OG/Twitter meta (`og:image` → `/og/swap?…`). Body untouched. |
+| `/pools/<chain>/<protocol>/<address>`                                  | Inject per-pool `<head>` meta (self-canonical + index).                                              |
+| `/pools/add-liquidity?exchange=&poolChainId=&poolAddress=`             | **301** to the canonical path form.                                                                  |
+| bare `/swap/<net>` landing, other routes                               | Serve the prerendered/static HTML as-is.                                                             |
 
 Token/pool metadata comes from the **public** ks-setting / earn-service APIs (a browser User-Agent is
-sent — they 403 bare node UAs). Cross-chain non-EVM tokens resolve via Jupiter (Solana) and the 1click
-chaindefuser list (NEAR); Bitcoin is a constant. Generated PNGs + resolved tokens are cached in an
-in-memory LRU.
+sent — they 403 bare node UAs). Generated PNGs + resolved tokens are cached in an in-memory LRU.
 
 ## Implementation notes
 
@@ -39,11 +35,11 @@ in-memory LRU.
 Only three deploy-specific values come from env — everything else (port, paths, fonts) is a fixed
 default in `src/config.ts`.
 
-| Var                  | Default                                                    | Purpose                                                                            |
-| -------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `PUBLIC_BASE`        | `https://kyberswap.com`                                    | Public origin for absolute `og:image`/canonical URLs (pre-release host on staging) |
-| `KS_SETTING_TOKENS`  | `https://ks-setting.kyberswap.com/api/v1/tokens`           | Token-list API (override only for a staging/mock backend)                          |
-| `EARN_SERVICE_POOLS` | `https://earn-service.kyberswap.com/api/v1/explorer/pools` | Pool explorer API (override only for a staging/mock backend)                       |
+| Var                  | Default                                                   | Purpose                                                                          |
+| -------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `PUBLIC_BASE`        | `https://kyberswap.com`                                  | Public origin for absolute `og:image`/canonical URLs (pre-release host on staging) |
+| `KS_SETTING_TOKENS`  | `https://ks-setting.kyberswap.com/api/v1/tokens`         | Token-list API (override only for a staging/mock backend)                        |
+| `EARN_SERVICE_POOLS` | `https://earn-service.kyberswap.com/api/v1/explorer/pools` | Pool explorer API (override only for a staging/mock backend)                      |
 
 All **optional** — the service runs on the defaults with no env file. To override locally, copy
 `.env.example` → `.env` (auto-loaded; a real environment variable still takes precedence). Fixed
