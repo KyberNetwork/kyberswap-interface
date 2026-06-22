@@ -242,6 +242,7 @@ export const useTakeLimitOrder = ({
       receiveAmountAfterFee,
       feeBps,
       balance,
+      wrapAmount: wrapAmountForOrder,
       exceedsAvailableAmount,
       insufficientBalance,
       canSubmit,
