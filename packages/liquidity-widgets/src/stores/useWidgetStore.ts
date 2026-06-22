@@ -52,6 +52,7 @@ const initState = {
   onSuccess: undefined,
   onViewPosition: undefined,
   onSetUpSmartExit: undefined,
+  onOpenPoolDetail: undefined,
   nativeToken: defaultToken,
   wrappedNativeToken: defaultToken,
   error: undefined,

@@ -61,4 +61,5 @@ export interface ZapOutProps {
   onExplorePools?: () => void;
   onSuccess?: (props: OnSuccessProps) => void;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void;
 }
