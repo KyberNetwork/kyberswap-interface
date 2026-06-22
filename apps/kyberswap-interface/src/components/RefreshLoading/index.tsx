@@ -15,12 +15,14 @@ export default function RefreshLoading({
   refetchLoading,
   clickable = false,
   refreshTime = INTERVAL_REFETCH_TIME,
+  refreshOnMount = true,
   disableRefresh = false,
   onRefresh,
 }: {
   refetchLoading: boolean
   clickable?: boolean
   refreshTime?: number
+  refreshOnMount?: boolean
   disableRefresh?: boolean
   onRefresh: () => void
 }) {
@@ -63,8 +65,9 @@ export default function RefreshLoading({
   }, [countdown, onRefresh, disableRefresh])
 
   useEffect(() => {
+    if (!refreshOnMount) return
     onRefresh()
-  }, [onRefresh])
+  }, [onRefresh, refreshOnMount])
 
   return (
     <SpinWrapper role="button" onClick={handleManualRefresh} clickable={clickable}>

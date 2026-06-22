@@ -171,7 +171,7 @@ const OrderBook = () => {
       makerAsset: makerCurrency?.wrapped?.address,
       takerAsset: takerCurrency?.wrapped?.address,
     },
-    { pollingInterval: 10_000, refetchOnFocus: true },
+    { refetchOnFocus: true },
   )
   const {
     data: { orders: reversedOrders = [] } = {},
@@ -184,7 +184,7 @@ const OrderBook = () => {
       makerAsset: takerCurrency?.wrapped?.address,
       takerAsset: makerCurrency?.wrapped?.address,
     },
-    { pollingInterval: 10_000, refetchOnFocus: true },
+    { refetchOnFocus: true },
   )
 
   const formattedOrders = useMemo(
@@ -244,7 +244,12 @@ const OrderBook = () => {
           {marketRate ? formatDisplayNumber(marketRate, { significantDigits: 6 }) : '--'}
         </span>
         <div className="col-start-7 justify-self-end max-[640px]:hidden">
-          <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} clickable />
+          <RefreshLoading
+            clickable
+            refreshOnMount={false}
+            refetchLoading={refetchLoading}
+            onRefresh={onRefreshOrders}
+          />
         </div>
       </ItemWrapper>
 
