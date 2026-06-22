@@ -103,37 +103,41 @@ export default function Popups() {
   useNotificationLimitOrder()
   const totalTopRightPopup = topRightPopups.length
   const hasTopbarPopup = topPopups.length !== 0
+  const showTopRightPopupActions = totalTopRightPopup >= MAX_NOTIFICATION || totalTopRightPopup > 1
 
   return (
     <>
       {topRightPopups.length > 0 && (
         <div
           className={cn(
-            'fixed right-4 z-[9999] flex flex-col items-end',
-            hasTopbarPopup ? 'top-[156px]' : 'top-[108px]',
+            'fixed right-4 z-[9999] flex flex-col items-end gap-4',
             'max-md:inset-x-0 max-md:items-center',
-            hasTopbarPopup ? 'max-md:top-[170px]' : 'max-md:top-[110px]',
-            hasTopbarPopup ? 'max-sm:top-[170px]' : 'max-sm:top-[70px]',
+            {
+              'top-[136px] max-md:top-[150px] max-sm:top-[150px]': hasTopbarPopup,
+              'top-[88px] max-md:top-[90px] max-sm:top-[50px]': !hasTopbarPopup,
+            },
           )}
         >
-          <div className="flex w-full justify-end gap-2.5 max-md:pr-4">
-            {totalTopRightPopup >= MAX_NOTIFICATION && (
-              <ButtonEmpty
-                onClick={toggleNotificationCenter}
-                className="w-fit rounded-[30px] bg-border px-2.5 py-1 text-[10px] text-text"
-              >
-                <Trans>See All</Trans>
-              </ButtonEmpty>
-            )}
-            {totalTopRightPopup > 1 && (
-              <ButtonEmpty
-                onClick={clearAllTopRightPopup}
-                className="w-fit rounded-[30px] bg-border px-2.5 py-1 text-[10px] text-text"
-              >
-                <Trans>Clear All</Trans>
-              </ButtonEmpty>
-            )}
-          </div>
+          {showTopRightPopupActions && (
+            <div className="flex w-full justify-end gap-2.5 max-md:pr-4">
+              {totalTopRightPopup >= MAX_NOTIFICATION && (
+                <ButtonEmpty
+                  onClick={toggleNotificationCenter}
+                  className="w-fit rounded-[30px] bg-border px-2.5 py-1 text-[10px] text-text"
+                >
+                  <Trans>See All</Trans>
+                </ButtonEmpty>
+              )}
+              {totalTopRightPopup > 1 && (
+                <ButtonEmpty
+                  onClick={clearAllTopRightPopup}
+                  className="w-fit rounded-[30px] bg-border px-2.5 py-1 text-[10px] text-text"
+                >
+                  <Trans>Clear All</Trans>
+                </ButtonEmpty>
+              )}
+            </div>
+          )}
 
           {topRightPopups.slice(0, MAX_NOTIFICATION).map((item, i) => (
             <TopRightPopup key={item.key} popup={item} hasOverlay={i === MAX_NOTIFICATION - 1} />

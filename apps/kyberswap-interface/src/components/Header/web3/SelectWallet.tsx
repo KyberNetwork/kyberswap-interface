@@ -105,7 +105,7 @@ function Web3StatusInner() {
         )}
       >
         {hasPendingTransactions ? (
-          <RowBetween>
+          <RowBetween className="gap-2">
             <Text>
               <Trans>{pendingLength} Pending</Trans>
             </Text>{' '}
