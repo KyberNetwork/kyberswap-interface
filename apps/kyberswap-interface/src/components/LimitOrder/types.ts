@@ -100,17 +100,20 @@ export type LimitOrderFromTokenPairFormatted = {
   id: number
   chainId: ChainId
   rawOrder: LimitOrderFromTokenPair
-  rate: string
-  formattedRate: string
   isReversed: boolean
+  hasAvailable: boolean
   formattedMakerAmount: string
   formattedTakerAmount: string
   formattedAvailableMakerAmount: string
   formattedAvailableTakerAmount: string
+  rate: string
+  formattedRate: string
+  invertedRate: string
+  formattedInvertedRate: string
   formattedMarketDiffPercent: string
+  formattedInvertedMarketDiffPercent: string
   marketDiffPercent: number
   filledPercent: string
-  hasAvailable: boolean
 }
 
 export enum CancelOrderType {

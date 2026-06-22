@@ -56,23 +56,41 @@ const AmountText = ({ amount, currency, muted }: { amount?: string; currency?: C
   </div>
 )
 
-const RateText = ({ order, className }: { order: LimitOrderFromTokenPairFormatted; className?: string }) => (
-  <div className="flex w-full min-w-0 flex-col items-end text-right">
-    <div className={cn('w-full truncate text-sm font-medium', className)} title={order.rate}>
-      {order.formattedRate}
+const RateText = ({
+  order,
+  className,
+  showInvertedRate,
+}: {
+  order: LimitOrderFromTokenPairFormatted
+  className?: string
+  showInvertedRate?: boolean
+}) => {
+  const rate = showInvertedRate ? order.invertedRate : order.rate
+  const formattedRate = showInvertedRate ? order.formattedInvertedRate : order.formattedRate
+  const formattedMarketDiffPercent = showInvertedRate
+    ? order.formattedInvertedMarketDiffPercent
+    : order.formattedMarketDiffPercent
+
+  return (
+    <div className="flex w-full min-w-0 flex-col items-end text-right">
+      <div className={cn('w-full truncate text-sm font-medium', className)} title={rate}>
+        {formattedRate}
+      </div>
+      {formattedMarketDiffPercent && <div className="text-xs text-subText">{formattedMarketDiffPercent}</div>}
     </div>
-    {order.formattedMarketDiffPercent && <div className="text-xs text-subText">{order.formattedMarketDiffPercent}</div>}
-  </div>
-)
+  )
+}
 
 const OrderItem = ({
   reverse,
   order,
   onTake,
+  showInvertedRate,
 }: {
   reverse?: boolean
   order: LimitOrderFromTokenPairFormatted
   onTake?: (order: LimitOrderFromTokenPairFormatted) => void
+  showInvertedRate?: boolean
 }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
@@ -93,7 +111,7 @@ const OrderItem = ({
       </span>
       <SizeInfo amount={sizeAmount} currency={sizeCurrency} filledPercent={filledPercent} />
       {!upToExtraSmall && <AmountText amount={availableAmount} currency={sizeCurrency} muted={!order.hasAvailable} />}
-      <RateText order={order} className={rateClassName} />
+      <RateText order={order} className={rateClassName} showInvertedRate={showInvertedRate} />
       <AmountText
         amount={order.hasAvailable ? totalAmount : undefined}
         currency={totalCurrency}
