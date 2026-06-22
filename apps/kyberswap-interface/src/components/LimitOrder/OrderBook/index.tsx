@@ -103,19 +103,13 @@ const formatOrders = (
           ? formatDisplayNumber(availableTakerAmount, { significantDigits: 6 })
           : '',
         formattedMarketDiffPercent: marketDiff.displayPercent,
+        marketDiffPercent: reverse ? -marketDiff.rawPercent : marketDiff.rawPercent,
         filledPercent: filledPercent > 99 ? '100' : filledPercent.toFixed(),
         hasAvailable,
       }
     })
     .filter(order => order.filledPercent !== '100')
     .sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate))
-}
-
-const getIsSwapBetter = (order: LimitOrderFromTokenPairFormatted | undefined, marketRate: number) => {
-  if (!order) return false
-
-  const marketDiff = getMarketPriceDiff(order.rate, marketRate)
-  return order.isReversed ? marketDiff.rawPercent < 0 : marketDiff.rawPercent > 0
 }
 
 const SectionLabel = ({ color, label, symbol }: { color: string; label: React.ReactNode; symbol?: string }) => (
@@ -198,7 +192,6 @@ const OrderBook = () => {
 
   const visibleSellOrders = formattedOrders.slice(-10).reverse()
   const visibleBuyOrders = formattedReversedOrders.slice(0, 10)
-  const isSelectedOrderSwapBetter = getIsSwapBetter(selectedOrderToTake, marketRate)
 
   const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
 
@@ -264,7 +257,6 @@ const OrderBook = () => {
       {selectedOrderToTake && (
         <TakeOrderConfirmModal
           isOpen={isTakeOrderModalOpen}
-          isSwapBetter={isSelectedOrderSwapBetter}
           order={selectedOrderToTake}
           onDismiss={handleDismissTakeOrderModal}
         />

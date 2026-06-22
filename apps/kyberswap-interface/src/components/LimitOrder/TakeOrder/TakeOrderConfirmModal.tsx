@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
@@ -49,8 +49,8 @@ const formatInvertedRate = (context: LimitOrderTakeContext) => {
 
 const DetailRow = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <HStack className="min-h-6 items-center justify-between gap-3 text-sm max-sm:flex-col max-sm:items-start">
-    <span className="shrink-0 text-subText">{label}</span>
-    <div className="min-w-0 max-w-full text-right font-medium text-text max-sm:text-left">{children}</div>
+    <span className="text-subText">{label}</span>
+    <div className="text-right font-medium text-text max-sm:text-left">{children}</div>
   </HStack>
 )
 
@@ -66,9 +66,9 @@ const TokenBadge = ({
   const badgeCurrency = currency || amount?.currency
 
   return (
-    <HStack className="shrink-0 items-center gap-2 rounded-full bg-white-08 px-2.5 py-1.5 font-medium text-subText">
+    <HStack className="items-center gap-2 rounded-full bg-white-08 px-2.5 py-1.5 font-medium text-subText">
       {badgeCurrency && <CurrencyLogo currency={badgeCurrency} style={{ width: 20, height: 20, boxShadow: 'none' }} />}
-      <span className="truncate">{symbol}</span>
+      <span>{symbol}</span>
     </HStack>
   )
 }
@@ -94,18 +94,41 @@ const getPercentFillAmount = (amount: CurrencyAmount<Currency> | undefined, perc
 const normalizeActionAmount = (nextAmount: string) => (parseFloat(nextAmount || '0') > 0 ? nextAmount : '')
 
 const QUICK_FILL_PERCENTS = [25, 50, 75, 100]
+const MARKET_DIFF_WARNING_THRESHOLD = 50
+const FEE_BPS_BASE = JSBI.BigInt(10_000)
 
 const getSwapCurrencyId = (currency: Currency | undefined) =>
   currency ? (currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.wrapped.address.toLowerCase()) : ''
 
+const ceilDivide = (numerator: JSBI, denominator: JSBI) => {
+  if (JSBI.equal(denominator, JSBI.BigInt(0))) return JSBI.BigInt(0)
+  return JSBI.divide(JSBI.add(numerator, JSBI.subtract(denominator, JSBI.BigInt(1))), denominator)
+}
+
+const getOrderPriceAfterFee = (context: LimitOrderTakeContext, feeBps: number) => {
+  const payRaw = JSBI.BigInt(context.order.takingAmount)
+  const receiveRaw = JSBI.BigInt(context.order.makingAmount)
+  const adjustedPayRaw =
+    context.order.isTakerAssetFee && feeBps > 0
+      ? ceilDivide(JSBI.multiply(payRaw, JSBI.BigInt(10_000 + feeBps)), FEE_BPS_BASE)
+      : payRaw
+  const adjustedReceiveRaw =
+    !context.order.isTakerAssetFee && feeBps > 0
+      ? JSBI.divide(JSBI.multiply(receiveRaw, JSBI.BigInt(10_000 - feeBps)), FEE_BPS_BASE)
+      : receiveRaw
+
+  if (JSBI.equal(adjustedPayRaw, JSBI.BigInt(0)) || JSBI.equal(adjustedReceiveRaw, JSBI.BigInt(0))) return undefined
+
+  return new Price(context.payCurrency, context.receiveCurrency, adjustedPayRaw, adjustedReceiveRaw)
+}
+
 type Props = {
   isOpen: boolean
-  isSwapBetter: boolean
   order: LimitOrderFromTokenPairFormatted
   onDismiss?: () => void
 }
 
-const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props) => {
+const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const navigate = useNavigate()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
 
@@ -167,6 +190,8 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
   const receiveAmountForComparison = receiveAmountAfterFee || receiveAmount
   const orderRate = useMemo(() => formatRate(context), [context])
   const invertedRate = useMemo(() => formatInvertedRate(context), [context])
+  const orderPriceAfterFee = useMemo(() => getOrderPriceAfterFee(context, feeBps), [context, feeBps])
+  const shouldWarnMarketDiff = order.marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
 
   const rate = (() => {
     if (!showInvertedRate) return orderRate
@@ -273,38 +298,38 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
           </HStack>
 
           <Stack className="gap-4">
-            <HStack className="min-w-0 items-center gap-2 text-base font-medium text-text">
+            <HStack className="items-center gap-2 text-base font-medium text-text">
               <PairLogos payCurrency={context.payCurrency} receiveCurrency={context.receiveCurrency} />
-              <span className="truncate text-xl leading-none">
+              <span className="text-xl leading-none">
                 {context.payCurrency.symbol}/{context.receiveCurrency.symbol}
               </span>
             </HStack>
 
             <Stack className="gap-2 rounded-xl border border-white-08 bg-buttonGray px-4 py-3">
               <HStack className="items-center justify-between gap-2">
-                <span className="shrink-0 text-xs font-medium uppercase text-subText">
+                <span className="text-xs font-medium uppercase text-subText">
                   <Trans>Order Rate</Trans>
                 </span>
                 <HStack
                   as="button"
                   type="button"
-                  className="min-w-0 max-w-full items-center justify-end gap-2 text-right text-lg font-medium leading-6 text-text transition hover:brightness-75"
+                  className="items-center justify-end gap-2 text-right text-lg font-medium leading-6 text-text transition hover:brightness-75"
                   onClick={() => setShowInvertedRate(value => !value)}
                 >
-                  <span className="truncate">{rate}</span>
+                  <span>{rate}</span>
                   <Repeat size={14} className="shrink-0 text-subText" />
                 </HStack>
               </HStack>
               <HStack className="items-center justify-end">
                 <button
                   type="button"
-                  className="inline-flex max-w-full items-center gap-1 border-none bg-transparent p-0 text-xs transition hover:brightness-75"
+                  className="inline-flex items-center gap-1 border-none bg-transparent p-0 text-xs transition hover:brightness-75"
                   onClick={() => setFillAmount(normalizeActionAmount(maxPayAmount?.toExact() || ''))}
                 >
-                  <span className="shrink-0 text-subText">
+                  <span className="text-subText">
                     <Trans>Available</Trans>
                   </span>
-                  <span className="truncate font-medium text-text">
+                  <span className="font-medium text-text">
                     {formatExact(maxPayAmount)} {context.payCurrency.symbol}
                   </span>
                 </button>
@@ -323,7 +348,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
                 )}
               >
                 <HStack className="items-center justify-between gap-3">
-                  <HStack className="min-w-0 flex-wrap gap-1">
+                  <HStack className="flex-wrap gap-1">
                     {QUICK_FILL_PERCENTS.map(percent => {
                       const percentAmount = getPercentFillAmount(maxBalancePayAmount, percent)
                       return (
@@ -344,7 +369,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
                     onClick={() => setFillAmount(normalizeActionAmount(maxBalancePayAmount?.toExact() || ''))}
                   >
                     <WalletIcon size={14} className="shrink-0" />
-                    <span className="truncate font-medium">{formatExact(walletBalance)}</span>
+                    <span className="font-medium">{formatExact(walletBalance)}</span>
                   </button>
                 </HStack>
 
@@ -378,7 +403,7 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
             <Stack className="gap-2 rounded-xl bg-buttonGray px-4 py-3">
               <DetailRow label={<Trans>Protocol Fee</Trans>}>{feeBps ? `${feeBps / 100}%` : '0%'}</DetailRow>
               <DetailRow label={<Trans>You Receive</Trans>}>
-                <span className="text-primary">
+                <span className={cn(shouldWarnMarketDiff ? 'text-red' : 'text-primary')}>
                   {formatExact(receiveAmountAfterFee || receiveAmount)} {context.receiveCurrency.symbol}
                 </span>
               </DetailRow>
@@ -390,20 +415,38 @@ const TakeOrderConfirmModal = ({ isOpen, isSwapBetter, order, onDismiss }: Props
             </Stack>
 
             <RateComparison
-              isSwapBetter={isSwapBetter}
+              marketDiffPercent={order.marketDiffPercent}
               inputCurrency={context.payCurrency}
               outputCurrency={context.receiveCurrency}
               inputAmount={requiredPayAmount || parsedPayAmount}
               outputAmount={receiveAmountForComparison}
+              fallbackOrderPrice={orderPriceAfterFee}
             />
 
             <HStack className="gap-3 max-sm:flex-col">
-              <ButtonOutlined onClick={handleUseSwapInstead} className="flex-1">
-                <Trans>Use Swap Instead</Trans>
-              </ButtonOutlined>
-              <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="flex-1">
-                <Trans>Fill this order</Trans>
-              </ButtonPrimary>
+              {shouldWarnMarketDiff ? (
+                <>
+                  <ButtonPrimary onClick={handleUseSwapInstead} className="flex-1">
+                    <Trans>Use Swap Instead</Trans>
+                  </ButtonPrimary>
+                  <ButtonOutlined
+                    className="flex-1 !border-red hover:!bg-red-10"
+                    onClick={handleSubmit}
+                    disabled={!canSubmit}
+                  >
+                    <Trans>Fill order anyway</Trans>
+                  </ButtonOutlined>
+                </>
+              ) : (
+                <>
+                  <ButtonOutlined onClick={handleUseSwapInstead} className="flex-1">
+                    <Trans>Use Swap Instead</Trans>
+                  </ButtonOutlined>
+                  <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="flex-1">
+                    <Trans>Fill this order</Trans>
+                  </ButtonPrimary>
+                </>
+              )}
             </HStack>
           </Stack>
         </Stack>

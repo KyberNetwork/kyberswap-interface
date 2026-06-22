@@ -10,6 +10,8 @@ import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
+const MARKET_DIFF_WARNING_THRESHOLD = 50
+
 const formatPriceRate = (price: Price<Currency, Currency> | undefined) =>
   price
     ? `1 ${price.baseCurrency.symbol} = ${removeTrailingZero(price.toSignificant(8))} ${price.quoteCurrency.symbol}`
@@ -17,20 +19,28 @@ const formatPriceRate = (price: Price<Currency, Currency> | undefined) =>
 
 const DetailRow = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <HStack className="min-h-6 items-center justify-between gap-3 text-sm max-sm:flex-col max-sm:items-start">
-    <span className="shrink-0 text-subText">{label}</span>
-    <div className="min-w-0 max-w-full text-right font-medium text-text max-sm:text-left">{children}</div>
+    <span className="text-subText">{label}</span>
+    <div className="text-right font-medium text-text max-sm:text-left">{children}</div>
   </HStack>
 )
 
 type Props = {
-  isSwapBetter: boolean
+  marketDiffPercent: number
   inputCurrency: Currency
   outputCurrency: Currency
   inputAmount: CurrencyAmount<Currency> | undefined
   outputAmount: CurrencyAmount<Currency> | undefined
+  fallbackOrderPrice?: Price<Currency, Currency>
 }
 
-const RateComparison = ({ isSwapBetter, inputCurrency, outputCurrency, inputAmount, outputAmount }: Props) => {
+const RateComparison = ({
+  marketDiffPercent,
+  inputCurrency,
+  outputCurrency,
+  inputAmount,
+  outputAmount,
+  fallbackOrderPrice,
+}: Props) => {
   const {
     fetcher: getSwapRoute,
     result: swapRouteResult,
@@ -49,8 +59,8 @@ const RateComparison = ({ isSwapBetter, inputCurrency, outputCurrency, inputAmou
   })()
 
   const orderExecutionPrice = (() => {
-    if (!inputAmount || !outputAmount) return undefined
-    if (inputAmount.equalTo(0) || outputAmount.equalTo(0)) return undefined
+    if (!inputAmount || !outputAmount) return fallbackOrderPrice
+    if (inputAmount.equalTo(0) || outputAmount.equalTo(0)) return fallbackOrderPrice
 
     return new Price(inputCurrency, outputCurrency, inputAmount.quotient, outputAmount.quotient)
   })()
@@ -67,8 +77,8 @@ const RateComparison = ({ isSwapBetter, inputCurrency, outputCurrency, inputAmou
 
   const isSwapRouteBetter =
     !!swapRouteSummary?.parsedAmountOut && !!outputAmount && swapRouteSummary.parsedAmountOut.greaterThan(outputAmount)
-  const showSwapRouteSkeleton = swapRouteLoading
-  const showSwapOfferNotice = showSwapRouteSkeleton ? isSwapBetter : isSwapRouteBetter
+  const shouldHighlightOrderRate = marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
+  const showSwapOfferNotice = swapRouteLoading ? marketDiffPercent > 0 : isSwapRouteBetter
 
   useEffect(() => {
     if (!inputAmount || inputAmount.equalTo(0)) return
@@ -81,17 +91,25 @@ const RateComparison = ({ isSwapBetter, inputCurrency, outputCurrency, inputAmou
         <Trans>Rate Comparison</Trans>
       </span>
       <Stack className="gap-2 border-t border-white-08 px-4 py-3">
-        <DetailRow label={<Trans>This order (after fee)</Trans>}>{formatPriceRate(orderExecutionPrice)}</DetailRow>
+        <DetailRow
+          label={
+            <Trans>
+              This order <span className="whitespace-nowrap">(after fee)</span>
+            </Trans>
+          }
+        >
+          <span className={cn(shouldHighlightOrderRate && 'text-red')}>{formatPriceRate(orderExecutionPrice)}</span>
+        </DetailRow>
         <DetailRow label={<Trans>Swap best route</Trans>}>
-          <HStack className="min-w-0 justify-end gap-1 max-sm:justify-start">
-            <span className="truncate">
-              {showSwapRouteSkeleton ? (
+          <HStack className="flex-wrap justify-end gap-1 gap-y-0 max-sm:justify-start">
+            <span>
+              {swapRouteLoading ? (
                 <Skeleton height={16} width={160} variant="darkSubtle" />
               ) : (
                 formatPriceRate(swapRouteSummary?.executionPrice)
               )}
             </span>
-            {!showSwapRouteSkeleton && swapRouteOutputDelta !== undefined && (
+            {!swapRouteLoading && swapRouteOutputDelta !== undefined && (
               <span className={cn('shrink-0', isSwapRouteBetter ? 'text-primary' : 'text-red')}>
                 {swapRouteOutputDelta > 0 ? '+' : ''}
                 {formatDisplayNumber(swapRouteOutputDelta, {
