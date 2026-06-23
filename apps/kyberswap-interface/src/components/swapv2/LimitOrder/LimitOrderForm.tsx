@@ -1045,9 +1045,12 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             </div>
           </div>
 
-          <div className={cn('flex overflow-hidden transition-all duration-100', expanded ? 'h-9 pt-2' : 'h-0 pt-0')}>
-            <div className="flex h-7 w-full max-w-full justify-between rounded-[20px] bg-tabBackground p-0.5">
+          <div
+            className={cn('flex overflow-hidden transition-all duration-100', expanded ? 'h-10 pb-1 pt-2' : 'h-0 py-0')}
+          >
+            <div className="flex w-full max-w-full items-stretch gap-1 rounded-[20px] bg-tabBackground">
               {[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }].map((item: any) => {
+                const isActive = customDateExpire ? item.label === 'Custom' : item.value === expire
                 return (
                   <DefaultSlippageOption
                     key={item.label}
@@ -1055,7 +1058,12 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                       if (item.label === 'Custom') item.onSelect()
                       else onChangeExpire(item.value)
                     }}
-                    data-active={customDateExpire ? item.label === 'Custom' : item.value === expire}
+                    className={cn(
+                      'whitespace-nowrap text-xs',
+                      isActive
+                        ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
+                        : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',
+                    )}
                   >
                     {item.label}
                   </DefaultSlippageOption>
