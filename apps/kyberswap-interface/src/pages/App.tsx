@@ -25,7 +25,6 @@ import { useAutoLogin } from 'hooks/useLogin'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
-import { useWebVitals } from 'hooks/useWebVitals'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -217,7 +216,6 @@ export default function App() {
   }, [])
 
   useGlobalTrackingEvents()
-  useWebVitals()
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
   // const [holidayMode] = useHolidayMode()
 

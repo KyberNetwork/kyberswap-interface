@@ -386,9 +386,6 @@ importers:
       walktour:
         specifier: ^5.2.0
         version: 5.2.0(@types/react-dom@19.2.3)(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7)
-      web-vitals:
-        specifier: ^5.1.0
-        version: 5.1.0
       workbox-core:
         specifier: ^6.5.4
         version: 6.6.1
@@ -32958,10 +32955,6 @@ packages:
     dependencies:
       defaults: 1.0.4
     dev: true
-
-  /web-vitals@5.1.0:
-    resolution: {integrity: sha512-ArI3kx5jI0atlTtmV0fWU3fjpLmq/nD3Zr1iFFlJLaqa5wLBkUSzINwBPySCX/8jRyjlmy1Volw1kz1g9XE4Jg==}
-    dev: false
 
   /webextension-polyfill@0.10.0:
     resolution: {integrity: sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==}
