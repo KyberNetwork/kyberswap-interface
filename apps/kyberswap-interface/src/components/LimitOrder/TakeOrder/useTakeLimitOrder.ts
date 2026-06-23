@@ -88,13 +88,12 @@ const getMaxAmountBeforeTakerFee = (amount: CurrencyAmount<Currency> | undefined
   return CurrencyAmount.fromRawAmount(amount.currency, raw)
 }
 
-export const useTakeLimitOrder = ({
-  context,
-  fillAmount,
-}: {
+type Props = {
   context: LimitOrderTakeContext | undefined
   fillAmount: string
-}) => {
+}
+
+export const useTakeLimitOrder = ({ context, fillAmount }: Props) => {
   const { account, chainId, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
   const notify = useNotify()

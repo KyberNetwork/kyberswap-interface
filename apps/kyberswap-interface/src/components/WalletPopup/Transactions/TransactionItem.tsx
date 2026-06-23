@@ -4,7 +4,6 @@ import { CSSProperties, ReactNode, forwardRef } from 'react'
 
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import SendIcon from 'components/Icons/SendIcon'
-import { CancellingOrderInfo } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
 import Row from 'components/Row'
 import ContractAddress from 'components/WalletPopup/Transactions/ContractAddress'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
@@ -267,11 +266,10 @@ type Prop = {
   transaction: TransactionDetails
   style: CSSProperties
   isMinimal: boolean
-  cancellingOrderInfo: CancellingOrderInfo
 }
 
 const TransactionItem = forwardRef<HTMLDivElement, Prop>(function TransactionItem(
-  { transaction, style, isMinimal, cancellingOrderInfo }: Prop,
+  { transaction, style, isMinimal }: Prop,
   ref,
 ) {
   const { type, addedTime, hash, chainId } = transaction
@@ -300,7 +298,7 @@ const TransactionItem = forwardRef<HTMLDivElement, Prop>(function TransactionIte
           <span className="text-sm text-text">{type}</span>
           <ExternalLinkIcon color="var(--ks-subText)" href={getEtherscanLink(chainId, hash, 'transaction')} />
         </Row>
-        <Status transaction={transaction} cancellingOrderInfo={cancellingOrderInfo} />
+        <Status transaction={transaction} />
       </div>
 
       <div className="flex justify-between">

@@ -19,7 +19,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
-type UseCreateLimitOrderArgs = {
+type Props = {
   order: LimitOrderCreateContext
   searchParams: URLSearchParams
   onCloseReview?: () => void
@@ -37,7 +37,7 @@ export const useCreateLimitOrder = ({
   onSetInput,
   onResetForm,
   switchToWeth,
-}: UseCreateLimitOrderArgs) => {
+}: Props) => {
   const { currencyIn, currencyOut, chainId, inputAmount, outputAmount, displayRate, tradeInfo, deltaRate } = order
   const { account } = useActiveWeb3React()
 

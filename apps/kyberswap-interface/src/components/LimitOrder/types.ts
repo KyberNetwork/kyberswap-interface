@@ -135,6 +135,7 @@ export type DeltaRateLimitOrder = {
 
 export type CancelOrderFunction = (data: {
   orders: LimitOrder[]
+  isCancelAll: boolean
   cancelType: CancelOrderType
 }) => Promise<CancelOrderResponse | undefined>
 

@@ -6,7 +6,6 @@ import { VariableSizeList } from 'react-window'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
-import { CancellingOrderInfo, useCancellingOrders } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import Tab from 'components/WalletPopup/Transactions/Tab'
@@ -31,14 +30,12 @@ function RowItem({
   transaction,
   setRowHeight,
   isMinimal,
-  cancellingOrderInfo,
 }: {
   transaction: TransactionDetails
   style: CSSProperties
   index: number
   setRowHeight: (v: number, height: number) => void
   isMinimal: boolean
-  cancellingOrderInfo: CancellingOrderInfo
 }) {
   const rowRef = useRef<HTMLDivElement>(null)
 
@@ -61,21 +58,12 @@ function RowItem({
     }
   }, [rowRef, index, setRowHeight])
 
-  return (
-    <TransactionItem
-      isMinimal={isMinimal}
-      ref={rowRef}
-      style={style}
-      transaction={transaction}
-      cancellingOrderInfo={cancellingOrderInfo}
-    />
-  )
+  return <TransactionItem isMinimal={isMinimal} ref={rowRef} style={style} transaction={transaction} />
 }
 
 let storedActiveTab = ''
 function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const transactions = useSortRecentTransactions(false)
-  const cancellingOrderInfo = useCancellingOrders()
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
 
@@ -216,7 +204,6 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
                       index={index}
                       key={data[index].hash}
                       setRowHeight={setRowHeight}
-                      cancellingOrderInfo={cancellingOrderInfo}
                     />
                   )}
                 </VariableSizeList>

@@ -128,24 +128,18 @@ type OrderItemProps = {
 const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) => {
   const navigate = useNavigate()
   const [expand, setExpand] = useState(false)
-  const isCancelling = isOrderCancelling(order)
-  const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
+
   const isOrderActive = isActiveStatus(order.status)
-  const isFilledOrder = order.status === LimitOrderStatus.FILLED || order.takingAmount === order.filledTakingAmount
   const txs = order.transactions || []
 
-  const native = NativeCurrencies[order.chainId]
-  const isNative = order.nativeOutput && order.takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
-  const takerSymbol = isNative ? native?.symbol || order.takerAssetSymbol : order.takerAssetSymbol
-  const filledPercent = calcPercentFilledOrder(order.filledTakingAmount, order.takingAmount, order.takerAssetDecimals)
   const availableAmount = useMemo(() => getNeededMakingAmount(order), [order])
-  const rawRate = getOrderRate(order)
   const makerCurrency = useMemo(() => {
     return new Token(order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol, '')
   }, [order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol])
   const takerCurrency = useMemo(() => {
     return new Token(order.chainId, order.takerAsset, order.takerAssetDecimals, order.takerAssetSymbol, '')
   }, [order.chainId, order.takerAsset, order.takerAssetDecimals, order.takerAssetSymbol])
+
   const { tradeInfo } = useBaseTradeInfoLimitOrder(
     isOrderActive ? makerCurrency : undefined,
     isOrderActive ? takerCurrency : undefined,
@@ -153,9 +147,24 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
   )
 
   const makingTokenBalance = useTokenBalance(makerCurrency)
+
+  const isCancelling = isOrderCancelling(order)
+  const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
+  const isFilledOrder = order.status === LimitOrderStatus.FILLED || order.takingAmount === order.filledTakingAmount
+
+  const native = NativeCurrencies[order.chainId]
+  const isNative = order.nativeOutput && order.takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
+  const takerSymbol = isNative ? native?.symbol || order.takerAssetSymbol : order.takerAssetSymbol
+
+  const filledPercent = calcPercentFilledOrder(order.filledTakingAmount, order.takingAmount, order.takerAssetDecimals)
+  const rawRate = getOrderRate(order)
   const insufficientFund = isOrderActive && makingTokenBalance ? makingTokenBalance.lessThan(availableAmount) : false
+
   const canExpandTxs = txs.length > 0
   const showFallbackTxLink = isFilledOrder && !txs.length && !!order.txHash
+  const canHardCancelInstead =
+    order.status === LimitOrderStatus.CANCELLING && !!order.operatorSignatureExpiredAt && isCancelling
+  const showCancelAction = isOrderActive || canHardCancelInstead
 
   const onClickOrder = () => {
     const search = new URLSearchParams({ tab: LimitOrderTab.ORDER_BOOK }).toString()
@@ -206,7 +215,7 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
               <DropdownArrowIcon rotate={expand} className="text-subText" />
             </IconButton>
           )}
-          {(isOrderActive || isCancelling) && (
+          {showCancelAction && (
             <IconButton
               className="p-0 text-subText hover:bg-white/10 hover:text-red disabled:text-subText-40 disabled:opacity-100"
               onClick={event => {

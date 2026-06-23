@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { HTMLAttributes, ReactNode, useCallback, useEffect, useState } from 'react'
+import { HTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
@@ -7,7 +7,7 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
 import CancelOrderModal from 'components/LimitOrder/CancelOrder/CancelOrderModal'
-import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
+import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/useCancelOrder'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import OrderItem from 'components/LimitOrder/MyOrders/OrderItem'
 import TableHeader from 'components/LimitOrder/MyOrders/TableHeader'
@@ -92,12 +92,13 @@ const TabSelector = ({ activeTab, rightContent, setActiveTab }: TabSelectorProps
 
 const MyOrders = () => {
   const { account } = useActiveWeb3React()
-  const { chainId, networkName } = useLimitOrderContext()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { isEmbeddedSwap } = usePageLocation()
-  const invalidateTag = useInvalidateTagLimitOrder()
-  const { isOrderCancelling } = useCancellingOrders(chainId)
   const { trackingHandler } = useTracking()
+  const { isEmbeddedSwap } = usePageLocation()
+  const { chainId, networkName } = useLimitOrderContext()
+  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders(chainId)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const invalidateTag = useInvalidateTagLimitOrder()
+
   const { activeTab: orderTab, setActiveTab: setOrderTab } = useTab<LimitOrderStatus>({
     tabs: LIST_ORDER_TABS,
     queryKey: 'orderTab',
@@ -151,7 +152,10 @@ const MyOrders = () => {
   const totalCancelAllOrdersNotCancelling = cancelAllOrders.filter(order => !isOrderCancelling(order)).length
   const disabledCancelAll = isLoadingCancelAllOrders || totalCancelAllOrdersNotCancelling === 0
 
-  const selectedCancelOrders = isCancelAll ? cancelAllOrders : currentOrder ? [currentOrder] : []
+  const selectedCancelOrders = useMemo(
+    () => (isCancelAll ? cancelAllOrders : currentOrder ? [currentOrder] : []),
+    [cancelAllOrders, currentOrder, isCancelAll],
+  )
 
   const onReset = useCallback(() => {
     setCurPage(1)
@@ -354,6 +358,7 @@ const MyOrders = () => {
           onDismiss={hideConfirmCancel}
           isCancelAll={isCancelAll}
           orders={selectedCancelOrders}
+          onOrdersCancelling={setCancellingOrders}
         />
       )}
     </div>
