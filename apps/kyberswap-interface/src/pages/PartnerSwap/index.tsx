@@ -300,7 +300,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
               activeMainTab={activeMainTab}
             />
 
-            <AppBodyWrapped className={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? '!p-0' : undefined}>
+            <AppBodyWrapped style={activeTab === TAB.INFO ? { padding: 0 } : undefined}>
               {isSwapPage && <SwapForm {...props} />}
               {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
               {activeTab === TAB.SETTINGS && (

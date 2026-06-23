@@ -8,47 +8,13 @@ import { formatRateLimitOrder, removeTrailingZero } from 'components/LimitOrder/
 import { LimitOrder, RateInfo } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
 import { NativeCurrencies } from 'constants/tokens'
-import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 
-export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-full flex-col gap-5 p-5 max-md:p-4 max-md:text-sm', className)} {...rest}>
-    {children}
-  </div>
-)
-
-export const Value = ({ children, className, style, onClick, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    onClick={onClick}
-    style={style}
-    className={cn('flex min-w-0 items-center justify-end gap-2 text-right text-sm font-medium text-text', className)}
-    {...rest}
-  >
-    {children}
-  </div>
-)
-
-export const Label = ({ children, className, style, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+const Label = ({ children, className, style, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div style={style} className={cn('text-sm font-medium text-subText', className)} {...rest}>
     {children}
   </div>
 )
-
-export const Header = ({ title, onDismiss }: { title: string; onDismiss?: () => void }) => {
-  return (
-    <HStack className="items-center justify-between gap-4">
-      <span className="text-xl font-medium leading-tight text-text">{title}</span>
-      <CloseIcon onClick={onDismiss} />
-    </HStack>
-  )
-}
-
-export const Note = ({ note }: { note?: string }) =>
-  note ? (
-    <div className="rounded-xl border border-warning-30 bg-warning-20 px-3 py-2.5 text-xs leading-4 text-warning">
-      {note}
-    </div>
-  ) : null
 
 export const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
   <span className="text-xs font-medium italic text-subText">

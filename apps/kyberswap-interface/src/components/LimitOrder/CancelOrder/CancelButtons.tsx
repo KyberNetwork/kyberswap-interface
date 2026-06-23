@@ -1,19 +1,23 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode } from 'react'
+import { KeyboardEvent, ReactNode } from 'react'
 import { Check } from 'react-feather'
 
 import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { GasStation } from 'components/Icons'
-import { CancelStatus } from 'components/LimitOrder/CancelOrder/CancelOrderModal'
+import RadioButtonChecked from 'components/Icons/RadioButtonChecked'
+import RadioButtonUnchecked from 'components/Icons/RadioButtonUnchecked'
+import { CancelStatus } from 'components/LimitOrder/CancelOrder/types'
 import { DOCS_LINKS, getPayloadTracking } from 'components/LimitOrder/helpers'
 import { CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const CancelOptionNote = ({ children, href }: { children: ReactNode; href: string }) => (
@@ -24,6 +28,63 @@ const CancelOptionNote = ({ children, href }: { children: ReactNode; href: strin
     </ExternalLink>
   </Stack>
 )
+
+const CancelOptionCard = ({
+  selected,
+  disabled,
+  icon,
+  title,
+  children,
+  onSelect,
+}: {
+  selected: boolean
+  disabled?: boolean
+  icon: ReactNode
+  title: ReactNode
+  children: ReactNode
+  onSelect: () => void
+}) => {
+  const handleSelect = () => {
+    if (disabled) return
+    onSelect()
+  }
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (disabled || (event.key !== 'Enter' && event.key !== ' ')) return
+
+    event.preventDefault()
+    handleSelect()
+  }
+
+  return (
+    <div
+      role="radio"
+      aria-checked={selected}
+      aria-disabled={disabled}
+      tabIndex={disabled ? -1 : 0}
+      className={cn(
+        'flex gap-3 rounded-xl border px-4 py-3 text-left transition-colors',
+        selected
+          ? 'border-primary-50 bg-primary-20 shadow-[0_0_0_1px_rgba(49,203,158,0.12)]'
+          : 'border-darkBorder bg-white-04',
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-border-primary hover:bg-buttonGray',
+      )}
+      onClick={handleSelect}
+      onKeyDown={handleKeyDown}
+    >
+      <span className={cn('mt-0.5 shrink-0', selected ? 'text-primary' : 'text-subText')}>
+        {selected ? <RadioButtonChecked size={18} className="text-primary" /> : <RadioButtonUnchecked size={18} />}
+      </span>
+      <Stack className="min-w-0 gap-2">
+        <HStack className="min-w-0 items-center gap-2 text-sm font-medium text-text">
+          <span className="shrink-0">{icon}</span>
+          <span className="min-w-0 truncate">{title}</span>
+        </HStack>
+        {children}
+      </Stack>
+    </div>
+  )
+}
 
 type ButtonInfo = {
   orderSupportGasless: boolean
@@ -78,7 +139,7 @@ const CancelButtons = ({
     setCancelType(type)
     if (!order) return
     trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_TYPE, {
-      ...getPayloadTracking(order, networkInfo.name),
+      ...getPayloadTracking(order, NETWORKS_INFO[order.chainId]?.name || networkInfo.name),
       cancel_type: type === CancelOrderType.GAS_LESS_CANCEL ? 'Gasless' : 'Hard',
     })
   }
@@ -129,49 +190,42 @@ const CancelButtons = ({
 
   return (
     <>
-      <HStack className="items-start gap-3 max-sm:flex-col">
-        <Stack className="w-full gap-2">
-          <MouseoverTooltip
-            placement="top"
-            text={
-              !chainSupportGasless
-                ? t`This chain is not supported gasless cancel. It's coming soon.`
-                : !orderSupportGasless
-                ? t`This order is not supported gasless cancel. Because it was created by our old contract`
-                : ''
-            }
+      <Stack className="gap-3" role="radiogroup" aria-label={t`Cancel type`}>
+        <MouseoverTooltip
+          placement="top"
+          text={
+            !chainSupportGasless
+              ? t`This chain is not supported gasless cancel. It's coming soon.`
+              : !orderSupportGasless
+              ? t`This order is not supported gasless cancel. Because it was created by our old contract`
+              : ''
+          }
+        >
+          <CancelOptionCard
+            selected={cancelType === CancelOrderType.GAS_LESS_CANCEL}
+            disabled={disabledGasLessCancel}
+            icon={<GasLessIcon />}
+            title={cancelGaslessText}
+            onSelect={() => onSetType(CancelOrderType.GAS_LESS_CANCEL)}
           >
-            <ButtonOutlined
-              {...propsGasless}
-              color={cancelType === CancelOrderType.GAS_LESS_CANCEL ? theme.primary : undefined}
-              onClick={() => onSetType(CancelOrderType.GAS_LESS_CANCEL)}
-              $disabled={disabledGasLessCancel}
-              disabled={disabledGasLessCancel}
-            >
-              <GasLessIcon />
-              &nbsp;
-              {cancelGaslessText}
-            </ButtonOutlined>
-          </MouseoverTooltip>
-          <CancelOptionNote href={DOCS_LINKS.GASLESS_CANCEL}>
-            <Trans>Cancel without paying gas. Cancellation may not be instant.</Trans>
-          </CancelOptionNote>
-        </Stack>
-        <Stack className="w-full gap-2">
-          <ButtonOutlined
-            {...propsHardCancel}
-            onClick={() => onSetType(CancelOrderType.HARD_CANCEL)}
-            color={cancelType === CancelOrderType.HARD_CANCEL ? theme.primary : undefined}
-          >
-            <GasStation size={20} />
-            &nbsp;
-            {hardCancelGasless}
-          </ButtonOutlined>
+            <CancelOptionNote href={DOCS_LINKS.GASLESS_CANCEL}>
+              <Trans>Cancel without paying gas. Cancellation may not be instant.</Trans>
+            </CancelOptionNote>
+          </CancelOptionCard>
+        </MouseoverTooltip>
+
+        <CancelOptionCard
+          selected={cancelType === CancelOrderType.HARD_CANCEL}
+          disabled={disabledHardCancel}
+          icon={<GasStation size={20} />}
+          title={hardCancelGasless}
+          onSelect={() => onSetType(CancelOrderType.HARD_CANCEL)}
+        >
           <CancelOptionNote href={DOCS_LINKS.HARD_CANCEL}>
             <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees.</Trans>
           </CancelOptionNote>
-        </Stack>
-      </HStack>
+        </CancelOptionCard>
+      </Stack>
       <ButtonPrimary disabled={disabledConfirm} width={'100%'} height={'44px'} onClick={onConfirm}>
         {confirmBtnText}
       </ButtonPrimary>

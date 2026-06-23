@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { HTMLAttributes, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Trash } from 'react-feather'
@@ -9,6 +8,7 @@ import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
 import CancelOrderModal from 'components/LimitOrder/CancelOrder/CancelOrderModal'
 import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
+import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import OrderItem from 'components/LimitOrder/MyOrders/OrderItem'
 import TableHeader from 'components/LimitOrder/MyOrders/TableHeader'
 import {
@@ -22,6 +22,7 @@ import {
 } from 'components/LimitOrder/MyOrders/utils'
 import { getPayloadTracking, isActiveStatus } from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
+import Loader from 'components/Loader'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
@@ -39,6 +40,8 @@ import {
   subscribeNotificationOrderFilled,
 } from 'utils/firebase'
 
+type NotificationOrderCallback = Parameters<typeof subscribeNotificationOrderExpired>[2]
+
 const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
@@ -49,15 +52,13 @@ const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>)
   />
 )
 
-const TabSelector = ({
-  activeTab,
-  rightContent,
-  setActiveTab,
-}: {
+type TabSelectorProps = {
   activeTab: LimitOrderStatus
   rightContent?: ReactNode
   setActiveTab: (n: LimitOrderStatus) => void
-}) => (
+}
+
+const TabSelector = ({ activeTab, rightContent, setActiveTab }: TabSelectorProps) => (
   <div className="flex min-w-0 items-center border-b border-darkBorder">
     <div className="flex min-w-0 flex-1 items-center overflow-x-auto" role="tablist">
       {LIST_ORDER_TABS.map((tab, index) => {
@@ -89,13 +90,13 @@ const TabSelector = ({
   </div>
 )
 
-const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
-  const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
-  const chainId = customChainId || walletChainId
+const MyOrders = () => {
+  const { account } = useActiveWeb3React()
+  const { chainId, networkName } = useLimitOrderContext()
   const [searchParams, setSearchParams] = useSearchParams()
   const { isEmbeddedSwap } = usePageLocation()
   const invalidateTag = useInvalidateTagLimitOrder()
-  const { isOrderCancelling } = useCancellingOrders()
+  const { isOrderCancelling } = useCancellingOrders(chainId)
   const { trackingHandler } = useTracking()
   const { activeTab: orderTab, setActiveTab: setOrderTab } = useTab<LimitOrderStatus>({
     tabs: LIST_ORDER_TABS,
@@ -135,8 +136,22 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
   const showPagination = hasOrders && totalOrder > PAGE_SIZE
   const showCancelAll = hasOrders && isTabActive
   const showNoOrders = !hasOrders && (isOrdersLoaded || !account)
-  const totalOrderNotCancelling = orders.filter(order => !isOrderCancelling(order)).length
-  const disabledCancelAll = totalOrderNotCancelling === 0
+
+  const {
+    data: { orders: cancelAllOrders = [] } = {},
+    isFetching: isFetchingCancelAllOrders,
+    isSuccess: isCancelAllOrdersLoaded,
+  } = useGetListOrdersQuery(
+    { chainId, maker: account, status: LimitOrderStatus.ACTIVE, pageSize: 100 },
+    { skip: !account || !showCancelAll },
+  )
+
+  const isLoadingCancelAllOrders = showCancelAll && (!isCancelAllOrdersLoaded || isFetchingCancelAllOrders)
+
+  const totalCancelAllOrdersNotCancelling = cancelAllOrders.filter(order => !isOrderCancelling(order)).length
+  const disabledCancelAll = isLoadingCancelAllOrders || totalCancelAllOrdersNotCancelling === 0
+
+  const selectedCancelOrders = isCancelAll ? cancelAllOrders : currentOrder ? [currentOrder] : []
 
   const onReset = useCallback(() => {
     setCurPage(1)
@@ -160,10 +175,6 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
     [searchParams, setSearchParams],
   )
 
-  const onPageChange = (page: number) => {
-    setCurPage(page)
-  }
-
   const onSelectTab = (type: LimitOrderStatus) => {
     setOrderType(type)
     setOrderTab(type)
@@ -176,24 +187,14 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
     onReset()
   }
 
+  const onPageChange = (page: number) => {
+    setCurPage(page)
+  }
+
   const onChangeKeyword = (val: string) => {
     setKeyword(val)
     setCurPage(1)
   }
-
-  const trackCancelledOrder = useCallback(
-    (order: LimitOrder) => {
-      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED, getCancelledOrderTrackingPayload(order, networkInfo.name))
-    },
-    [networkInfo.name, trackingHandler],
-  )
-
-  const trackFilledOrder = useCallback(
-    (order: LimitOrder) => {
-      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FILLED, getFilledOrderTrackingPayload(order, networkInfo.name))
-    },
-    [networkInfo.name, trackingHandler],
-  )
 
   const hideConfirmCancel = useCallback(() => {
     setIsOpenCancel(false)
@@ -209,21 +210,37 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
       setIsOpenCancel(true)
       setIsCancelAll(false)
       if (order) {
-        trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkInfo.name))
+        trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkName))
       }
     },
-    [trackingHandler, networkInfo],
+    [trackingHandler, networkName],
   )
 
   const onCancelAllOrder = () => {
+    if (disabledCancelAll) return
+
     openCancelModal()
     setIsCancelAll(true)
   }
 
+  const trackCancelledOrder = useCallback(
+    (order: LimitOrder) => {
+      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED, getCancelledOrderTrackingPayload(order, networkName))
+    },
+    [networkName, trackingHandler],
+  )
+
+  const trackFilledOrder = useCallback(
+    (order: LimitOrder) => {
+      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FILLED, getFilledOrderTrackingPayload(order, networkName))
+    },
+    [networkName, trackingHandler],
+  )
+
   useEffect(() => {
     if (!account) return
 
-    const callback = (data: any) => {
+    const callback: NotificationOrderCallback = data => {
       const orders: LimitOrder[] = data?.orders ?? []
       if (orders.length) refreshListOrder()
     }
@@ -264,7 +281,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
       disabled={disabledCancelAll}
       className="w-fit gap-1.5 px-3 py-1 text-sm"
     >
-      <Trash size={14} />
+      {isLoadingCancelAllOrders ? <Loader size="14px" /> : <Trash size={14} />}
       <Trans>Cancel All</Trans>
     </ButtonLight>
   )
@@ -331,13 +348,14 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
         </NoResultWrapper>
       )}
 
-      <CancelOrderModal
-        isOpen={isOpenCancel}
-        onDismiss={hideConfirmCancel}
-        customChainId={customChainId}
-        order={currentOrder}
-        isCancelAll={isCancelAll}
-      />
+      {selectedCancelOrders.length > 0 && (
+        <CancelOrderModal
+          isOpen={isOpenCancel}
+          onDismiss={hideConfirmCancel}
+          isCancelAll={isCancelAll}
+          orders={selectedCancelOrders}
+        />
+      )}
     </div>
   )
 }

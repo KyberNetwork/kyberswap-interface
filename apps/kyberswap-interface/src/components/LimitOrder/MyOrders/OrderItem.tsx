@@ -206,10 +206,9 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
               <DropdownArrowIcon rotate={expand} className="text-subText" />
             </IconButton>
           )}
-          {isOrderActive && (
+          {(isOrderActive || isCancelling) && (
             <IconButton
               className="p-0 text-subText hover:bg-white/10 hover:text-red disabled:text-subText-40 disabled:opacity-100"
-              disabled={isCancelling}
               onClick={event => {
                 event.stopPropagation()
                 onCancelOrder(order)

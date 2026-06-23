@@ -440,7 +440,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                 </>
               ) : (
                 <>
-                  <ButtonOutlined onClick={handleUseSwapInstead} className="flex-1">
+                  <ButtonOutlined onClick={handleUseSwapInstead} className="flex-1 !border-border-primary">
                     <Trans>Use Swap Instead</Trans>
                   </ButtonOutlined>
                   <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="flex-1">

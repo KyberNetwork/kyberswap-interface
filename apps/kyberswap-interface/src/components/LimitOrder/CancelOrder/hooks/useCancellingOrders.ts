@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useGetLOConfigQuery } from 'services/limitOrder'
 
@@ -13,8 +14,9 @@ export type CancellingOrderInfo = {
   isOrderCancelling: (order: LimitOrder | string | undefined) => boolean
 }
 
-export const useCancellingOrders = (): CancellingOrderInfo => {
-  const { account, chainId } = useActiveWeb3React()
+export const useCancellingOrders = (customChainId?: ChainId): CancellingOrderInfo => {
+  const { account, chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId ?? walletChainId
 
   const [cancellingOrdersIds, setCancellingOrdersIds] = useState<number[]>([])
   const [cancellingOrdersNonces, setCancellingOrdersNonces] = useState<OrderNonces>({})

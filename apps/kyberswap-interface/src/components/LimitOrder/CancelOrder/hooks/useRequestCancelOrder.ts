@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { readContract } from '@wagmi/core'
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -7,12 +8,13 @@ import {
   useInsertCancellingOrderMutation,
 } from 'services/limitOrder'
 
-import { CancelStatus } from 'components/LimitOrder/CancelOrder/CancelOrderModal'
 import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
+import { CancelStatus } from 'components/LimitOrder/CancelOrder/types'
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from 'components/LimitOrder/helpers'
 import { CancelOrderFunction, CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
 import { wagmiConfig } from 'components/Web3Provider'
 import { LIMIT_ORDER_ABI } from 'constants/abis'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -28,6 +30,7 @@ type CancellingOrderPayload = { nonce: number } | { orderIds: number[] }
 type UseRequestCancelOrderArgs = {
   orders: LimitOrder[]
   isCancelAll: boolean
+  chainId: ChainId
   onRequestStart?: () => void
   onRequestSuccess?: () => void
   onRequestError?: (message: string) => void
@@ -37,6 +40,7 @@ type UseProcessCancelOrderArgs = {
   onSubmit: CancelOrderFunction
   onDismiss?: () => void
   isOpen: boolean
+  chainId: ChainId
   getOrders: (v: boolean) => LimitOrder[]
   setExpiredTime: Dispatch<SetStateAction<number>>
   setCancelStatus: Dispatch<SetStateAction<CancelStatus>>
@@ -45,10 +49,11 @@ type UseProcessCancelOrderArgs = {
 type UseEstimateFeeArgs = {
   isCancelAll?: boolean
   orders: LimitOrder[]
+  chainId: ChainId
 }
 
-const useGetEncodeLimitOrder = () => {
-  const { account, chainId } = useActiveWeb3React()
+const useGetEncodeLimitOrder = (chainId: ChainId) => {
+  const { account } = useActiveWeb3React()
   const [getEncodeData] = useGetEncodeDataMutation()
 
   return useCallback(
@@ -85,18 +90,20 @@ const useGetEncodeLimitOrder = () => {
 export const useRequestCancelOrder = ({
   orders,
   isCancelAll,
+  chainId,
   onRequestStart,
   onRequestSuccess,
   onRequestError,
 }: UseRequestCancelOrderArgs) => {
-  const { setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
-  const { account, chainId, networkInfo, walletKey } = useActiveWeb3React()
+  const { setCancellingOrders, cancellingOrdersIds } = useCancellingOrders(chainId)
+  const { account, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
   const [createCancelSignature] = useCreateCancelOrderSignatureMutation()
   const [cancelOrderRequest] = useCancelOrdersMutation()
   const addTransactionWithType = useTransactionAdder()
-  const getEncodeData = useGetEncodeLimitOrder()
+  const getEncodeData = useGetEncodeLimitOrder(chainId)
+  const networkName = NETWORKS_INFO[chainId].name
 
   const requestHardCancelOrder = async (order: LimitOrder | undefined) => {
     if (!account) return Promise.reject('Wrong input')
@@ -149,7 +156,7 @@ export const useRequestCancelOrder = ({
                 tokenSymbolOut: takerAssetSymbol,
                 tokenAmountIn: amountIn,
                 tokenAmountOut: amountOut,
-                arbitrary: getPayloadTracking(order, networkInfo.name),
+                arbitrary: getPayloadTracking(order, networkName),
               }
             : { arbitrary: { totalOrder: orders.length } },
         })
@@ -210,11 +217,11 @@ export const useProcessCancelOrder = ({
   isOpen,
   onDismiss,
   onSubmit,
+  chainId,
   getOrders,
   setExpiredTime,
   setCancelStatus,
 }: UseProcessCancelOrderArgs) => {
-  const { chainId } = useActiveWeb3React()
   const controller = useRef(new AbortController())
 
   const onResetState = useCallback(() => {
@@ -269,8 +276,8 @@ export const useProcessCancelOrder = ({
   return { onClickGaslessCancel, onClickHardCancel }
 }
 
-export const useEstimateFee = ({ isCancelAll = false, orders }: UseEstimateFeeArgs) => {
-  const getEncodeData = useGetEncodeLimitOrder()
+export const useEstimateFee = ({ isCancelAll = false, orders, chainId }: UseEstimateFeeArgs) => {
+  const getEncodeData = useGetEncodeLimitOrder(chainId)
   const estimateGas = useEstimateGasTxs()
   const [gasFeeHardCancel, setGasFeeHardCancel] = useState('')
 

@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
+import { LimitOrderProvider, useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import MyOrders from 'components/LimitOrder/MyOrders'
 import OrderBook from 'components/LimitOrder/OrderBook'
 import { LimitOrderTab } from 'components/LimitOrder/types'
@@ -26,7 +27,9 @@ const TabSelector = ({
   activeTab: LimitOrderTab
   setActiveTab: (n: LimitOrderTab) => void
 }) => {
-  const { chainId, account } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
+  const { chainId } = useLimitOrderContext()
+
   const { data: numberOfInsufficientFundOrders } = useGetNumberOfInsufficientFundOrdersQuery(
     { chainId, maker: account || '' },
     { skip: !account, pollingInterval: 10_000 },
@@ -78,11 +81,13 @@ const TabSelector = ({
   )
 }
 
-const OrderList = ({ customChainId }: { customChainId?: ChainId }) => {
+const OrderListContent = () => {
+  const { syncOrderListTabWithQuery } = useLimitOrderContext()
   const { currencyIn, currencyOut } = useLimitState()
   const { activeTab, setActiveTab } = useTab<LimitOrderTab>({
     tabs: ORDER_LIST_TABS.map(tab => tab.id),
     defaultTab: LimitOrderTab.ORDER_BOOK,
+    syncQuery: syncOrderListTabWithQuery,
   })
   const currentTab = activeTab || LimitOrderTab.ORDER_BOOK
 
@@ -92,11 +97,17 @@ const OrderList = ({ customChainId }: { customChainId?: ChainId }) => {
 
       <Stack className="border-t border-darkBorder">
         {currentTab === LimitOrderTab.ORDER_BOOK && <OrderBook />}
-        {currentTab === LimitOrderTab.MY_ORDER && <MyOrders customChainId={customChainId} />}
+        {currentTab === LimitOrderTab.MY_ORDER && <MyOrders />}
         {currentTab === LimitOrderTab.PRICE && <TokenPriceChart flatten tokens={[currencyIn, currencyOut]} />}
       </Stack>
     </Stack>
   )
 }
+
+const OrderList = ({ customChainId }: { customChainId?: ChainId }) => (
+  <LimitOrderProvider customChainId={customChainId}>
+    <OrderListContent />
+  </LimitOrderProvider>
+)
 
 export default OrderList
