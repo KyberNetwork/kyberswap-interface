@@ -53,7 +53,7 @@ const MarketRateValue = ({
     <HStack
       as="button"
       type="button"
-      className="min-w-0 max-w-full items-center justify-end gap-2 text-right transition hover:brightness-90 max-sm:justify-start"
+      className="min-w-0 max-w-full items-center justify-end gap-2 text-right transition hover:brightness-75 max-sm:justify-start"
       onClick={() => setShowInverted(value => !value)}
     >
       <span className="truncate">

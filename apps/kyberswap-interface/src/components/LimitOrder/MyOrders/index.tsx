@@ -305,7 +305,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
         ))}
       </div>
       {showPagination && (
-        <div className="flex items-center justify-center bg-white/[0.04] px-4 py-3">
+        <div className="flex items-center justify-center bg-background px-4 py-2">
           <Pagination
             haveBg={false}
             onPageChange={onPageChange}

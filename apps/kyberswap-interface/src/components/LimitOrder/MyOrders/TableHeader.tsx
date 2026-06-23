@@ -17,16 +17,16 @@ export const RowWrapper = ({ children, className, ...rest }: HTMLAttributes<HTML
 )
 
 const TableHeader = () => (
-  <RowWrapper className="cursor-default bg-background p-4 text-xs font-medium uppercase tracking-[0.04em] text-subText">
+  <RowWrapper className="cursor-default bg-background px-4 py-3 text-xs font-medium uppercase tracking-[0.04em] text-subText">
     <span>
       <Trans>Chain</Trans>
     </span>
     <span className="justify-self-end text-right">
       <Trans>Size</Trans>
     </span>
-    <span className="flex justify-self-end text-right max-[640px]:hidden">
+    <span className="flex gap-1 justify-self-end text-right max-[640px]:hidden">
       <Trans>Available</Trans>
-      <InfoHelper placement="top" size={14} text={<Trans>Available amount to be filled.</Trans>} />
+      <InfoHelper margin={false} placement="top" size={14} text={<Trans>Available amount to be filled.</Trans>} />
     </span>
     <span className="justify-self-end text-right">
       <Trans>Rate</Trans>
