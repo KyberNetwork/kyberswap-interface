@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { PropsWithChildren, useMemo } from 'react'
 
-import ReservedOrderNotice from 'components/LimitOrder/ReservedOrderNotice'
+import { ReservedOrderNotice } from 'components/LimitOrder/components'
 import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 
 const AprHighlight = ({ children }: PropsWithChildren) => <span className="font-medium text-apr">{children}</span>
