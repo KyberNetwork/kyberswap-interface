@@ -1,11 +1,14 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import { ReactNode, useMemo, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { useMemo, useState } from 'react'
 import { ExternalLink as LinkIcon, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
+import IconButton from 'components/IconButton'
+import { RowWrapper } from 'components/LimitOrder/MyOrders/TableHeader'
+import { formatStatus } from 'components/LimitOrder/MyOrders/utils'
 import { calcPercentFilledOrder, getMarketPriceDiff, isActiveStatus } from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { APP_PATHS } from 'constants/index'
@@ -31,28 +34,6 @@ const getOrderRate = (order: LimitOrder) => {
   return rate.toFixed(18)
 }
 
-const formatStatus = (status: LimitOrderStatus) => {
-  switch (status) {
-    case LimitOrderStatus.ACTIVE:
-    case LimitOrderStatus.OPEN:
-      return t`Active`
-    case LimitOrderStatus.PARTIALLY_FILLED:
-      return t`Active`
-    case LimitOrderStatus.FILLED:
-      return t`Filled`
-    case LimitOrderStatus.CANCELLING:
-      return t`Cancelling`
-    case LimitOrderStatus.CANCELLED:
-      return t`Cancelled`
-    case LimitOrderStatus.EXPIRED:
-      return t`Expired`
-    case LimitOrderStatus.INSUFFICIENT_FUNDS:
-      return t`Insufficient funds`
-    default:
-      return status.replace('_', ' ')
-  }
-}
-
 const getNeededMakingAmount = (order: LimitOrder) => {
   const makingToken = new Token(order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol, '')
   const makingAmount = toCurrencyAmount(makingToken, order.makingAmount)
@@ -70,10 +51,10 @@ const SizeInfo = ({ amount, symbol, filled }: { amount: string; symbol: string; 
         {formatAmountWithSymbol(amount, symbol)}
       </div>
       <div className="flex items-center justify-end gap-2 text-xs text-subText">
-        <span className="h-1 w-12 overflow-hidden rounded-full bg-subText-40">
+        <span className="h-1 w-12 shrink-0 overflow-hidden rounded-full bg-subText-40">
           <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.min(progress, 100)}%` }} />
         </span>
-        <span>
+        <span className="min-w-16 whitespace-nowrap text-right">
           <Trans>Fill</Trans> {filled}%
         </span>
       </div>
@@ -119,34 +100,10 @@ const StatusPill = ({ status, warning }: { status: LimitOrderStatus; warning?: b
         status === LimitOrderStatus.FILLED && 'bg-primary-20 text-primary',
       )}
     >
-      {warning ? t`Insufficient funds` : formatStatus(status)}
+      {warning ? formatStatus(LimitOrderStatus.INSUFFICIENT_FUNDS) : formatStatus(status)}
     </span>
   )
 }
-
-const IconButton = ({
-  children,
-  disabled,
-  className,
-  onClick,
-}: {
-  children: ReactNode
-  disabled?: boolean
-  className?: string
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
-}) => (
-  <button
-    type="button"
-    className={cn(
-      'flex size-7 items-center justify-center rounded-full border-0 bg-transparent p-0 text-subText transition-colors hover:bg-white/10 hover:text-primary disabled:cursor-not-allowed disabled:text-subText-40',
-      className,
-    )}
-    disabled={disabled}
-    onClick={onClick}
-  >
-    {children}
-  </button>
-)
 
 const TxLink = ({ chainId, txHash }: { chainId: LimitOrder['chainId']; txHash?: string }) => {
   if (!txHash) return null
@@ -162,15 +119,13 @@ const TxLink = ({ chainId, txHash }: { chainId: LimitOrder['chainId']; txHash?: 
   )
 }
 
-const OrderItem = ({
-  order,
-  onCancelOrder,
-  isOrderCancelling,
-}: {
+type OrderItemProps = {
   order: LimitOrder
   onCancelOrder: (order: LimitOrder) => void
   isOrderCancelling: (order: LimitOrder) => boolean
-}) => {
+}
+
+const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) => {
   const navigate = useNavigate()
   const [expand, setExpand] = useState(false)
   const isCancelling = isOrderCancelling(order)
@@ -212,13 +167,7 @@ const OrderItem = ({
 
   return (
     <>
-      <div
-        className={cn(
-          'grid grid-cols-[44px_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_64px] items-center gap-2 text-sm max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
-          'min-h-16 cursor-pointer px-4 py-2 hover:bg-primary-20',
-        )}
-        onClick={onClickOrder}
-      >
+      <RowWrapper className="min-h-16 cursor-pointer px-4 py-2 hover:bg-primary-20" onClick={onClickOrder}>
         <span className="flex items-center justify-center">
           <img className="size-5" src={NETWORKS_INFO[order.chainId]?.icon} alt="Network" />
         </span>
@@ -248,6 +197,7 @@ const OrderItem = ({
           {showFallbackTxLink && <TxLink chainId={order.chainId} txHash={order.txHash} />}
           {canExpandTxs && (
             <IconButton
+              className="p-0 text-subText hover:bg-white/10 hover:text-primary disabled:text-subText-40 disabled:opacity-100"
               onClick={event => {
                 event.stopPropagation()
                 setExpand(value => !value)
@@ -258,7 +208,7 @@ const OrderItem = ({
           )}
           {isOrderActive && (
             <IconButton
-              className="hover:text-red"
+              className="p-0 text-subText hover:bg-white/10 hover:text-red disabled:text-subText-40 disabled:opacity-100"
               disabled={isCancelling}
               onClick={event => {
                 event.stopPropagation()
@@ -269,7 +219,7 @@ const OrderItem = ({
             </IconButton>
           )}
         </span>
-      </div>
+      </RowWrapper>
       {canExpandTxs && (
         <div
           className={cn(
@@ -286,10 +236,7 @@ const OrderItem = ({
               )
 
               return (
-                <div
-                  key={tx.txHash}
-                  className="grid grid-cols-[44px_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_64px] items-center gap-2 px-4 py-2 text-sm"
-                >
+                <RowWrapper key={tx.txHash} className="px-4 py-2">
                   <span className="col-start-2 justify-self-end text-sm font-medium text-subText">
                     {txFilledPercent}%
                   </span>
@@ -309,7 +256,7 @@ const OrderItem = ({
                     </span>
                     <TxLink chainId={order.chainId} txHash={tx.txHash} />
                   </span>
-                </div>
+                </RowWrapper>
               )
             })}
           </div>

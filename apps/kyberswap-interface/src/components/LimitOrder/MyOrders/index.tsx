@@ -7,16 +7,20 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
-import InfoHelper from 'components/InfoHelper'
 import CancelOrderModal from 'components/LimitOrder/CancelOrder/CancelOrderModal'
 import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/hooks/useCancellingOrders'
 import OrderItem from 'components/LimitOrder/MyOrders/OrderItem'
+import TableHeader from 'components/LimitOrder/MyOrders/TableHeader'
 import {
-  formatAmountOrder,
-  formatRateLimitOrder,
-  getPayloadTracking,
-  isActiveStatus,
-} from 'components/LimitOrder/helpers'
+  LIST_ORDER_TABS,
+  PAGE_SIZE,
+  getActiveTabByOrderType,
+  getCancelledOrderTrackingPayload,
+  getFilledOrderTrackingPayload,
+  getOrderTypeOptions,
+  getSearchParamsWithKeyword,
+} from 'components/LimitOrder/MyOrders/utils'
+import { getPayloadTracking, isActiveStatus } from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
@@ -35,10 +39,6 @@ import {
   subscribeNotificationOrderFilled,
 } from 'utils/firebase'
 
-const PAGE_SIZE = 10
-
-const LIST_ORDER_TABS = [LimitOrderStatus.ACTIVE, LimitOrderStatus.CLOSED] as const
-
 const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
@@ -48,40 +48,6 @@ const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>)
     {...rest}
   />
 )
-
-const ACTIVE_ORDER_OPTIONS = () => [
-  {
-    label: t`All Active Orders`,
-    value: LimitOrderStatus.ACTIVE,
-  },
-  {
-    label: t`Open Orders`,
-    value: LimitOrderStatus.OPEN,
-  },
-  {
-    label: t`Partially Filled Orders`,
-    value: LimitOrderStatus.PARTIALLY_FILLED,
-  },
-]
-
-const CLOSE_ORDER_OPTIONS = () => [
-  {
-    label: t`All Closed Orders`,
-    value: LimitOrderStatus.CLOSED,
-  },
-  {
-    label: t`Filled Orders`,
-    value: LimitOrderStatus.FILLED,
-  },
-  {
-    label: t`Cancelled Orders`,
-    value: LimitOrderStatus.CANCELLED,
-  },
-  {
-    label: t`Expired Orders`,
-    value: LimitOrderStatus.EXPIRED,
-  },
-]
 
 const TabSelector = ({
   activeTab,
@@ -123,36 +89,6 @@ const TabSelector = ({
   </div>
 )
 
-const TableHeader = () => (
-  <div
-    className={cn(
-      'grid grid-cols-[44px_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1.45fr)_minmax(0,1.2fr)_minmax(160px,1fr)_64px] items-center gap-2 max-[640px]:grid-cols-[40px_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.35fr)]',
-      'cursor-default bg-background p-4 text-xs font-medium uppercase tracking-[0.04em] text-subText',
-    )}
-  >
-    <span>
-      <Trans>Chain</Trans>
-    </span>
-    <span className="justify-self-end text-right">
-      <Trans>Size</Trans>
-    </span>
-    <span className="flex justify-self-end text-right max-[640px]:hidden">
-      <Trans>Available</Trans>
-      <InfoHelper placement="top" size={14} text={<Trans>Available amount to be filled.</Trans>} />
-    </span>
-    <span className="justify-self-end text-right">
-      <Trans>Rate</Trans>
-    </span>
-    <span className="justify-self-end text-right">
-      <Trans>Total</Trans>
-    </span>
-    <span className="justify-self-end text-right max-[640px]:hidden">
-      <Trans>Status</Trans>
-    </span>
-    <span className="justify-self-end text-right max-[640px]:hidden" />
-  </div>
-)
-
 const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
   const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
@@ -176,8 +112,8 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
 
   const keyword = searchParams.get('search') || ''
   const isTabActive = isActiveStatus(orderType)
-  const activeTab = isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED
-  const orderTypeOptions = isTabActive ? ACTIVE_ORDER_OPTIONS() : CLOSE_ORDER_OPTIONS()
+  const activeTab = getActiveTabByOrderType(orderType)
+  const orderTypeOptions = getOrderTypeOptions(orderType)
 
   const {
     data: { orders = [], totalOrder = 0 } = {},
@@ -219,15 +155,7 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
 
   const setKeyword = useCallback(
     (val: string) => {
-      const nextSearchParams = new URLSearchParams(searchParams)
-
-      if (val) {
-        nextSearchParams.set('search', val)
-      } else {
-        nextSearchParams.delete('search')
-      }
-
-      setSearchParams(nextSearchParams, { replace: true })
+      setSearchParams(getSearchParamsWithKeyword(searchParams, val), { replace: true })
     },
     [searchParams, setSearchParams],
   )
@@ -255,38 +183,14 @@ const MyOrders = ({ customChainId }: { customChainId?: ChainId }) => {
 
   const trackCancelledOrder = useCallback(
     (order: LimitOrder) => {
-      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED, {
-        order_id: order.id,
-        side: 'sell',
-        from_token: order.makerAssetSymbol,
-        to_token: order.takerAssetSymbol,
-        pair: `${order.makerAssetSymbol}/${order.takerAssetSymbol}`,
-        limit_price: formatRateLimitOrder(order, false),
-        amount_in: formatAmountOrder(order.makingAmount, order.makerAssetDecimals),
-        time_active_minutes: Math.round((Date.now() / 1000 - order.createdAt) / 60),
-        chain: networkInfo.name,
-      })
+      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED, getCancelledOrderTrackingPayload(order, networkInfo.name))
     },
     [networkInfo.name, trackingHandler],
   )
 
   const trackFilledOrder = useCallback(
     (order: LimitOrder) => {
-      const lastTx = order.transactions?.[order.transactions.length - 1]
-
-      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FILLED, {
-        order_id: order.id,
-        side: 'sell',
-        from_token: order.makerAssetSymbol,
-        to_token: order.takerAssetSymbol,
-        pair: `${order.makerAssetSymbol}/${order.takerAssetSymbol}`,
-        limit_price: formatRateLimitOrder(order, false),
-        fill_price: formatRateLimitOrder(order, false),
-        amount_in: formatAmountOrder(order.makingAmount, order.makerAssetDecimals),
-        amount_out_actual: formatAmountOrder(order.filledTakingAmount, order.takerAssetDecimals),
-        tx_hash: lastTx?.txHash,
-        chain: networkInfo.name,
-      })
+      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FILLED, getFilledOrderTrackingPayload(order, networkInfo.name))
     },
     [networkInfo.name, trackingHandler],
   )

@@ -430,7 +430,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                     <Trans>Use Swap Instead</Trans>
                   </ButtonPrimary>
                   <ButtonOutlined
-                    className="flex-1 !border-red hover:!bg-red-10"
+                    className={cn('flex-1', canSubmit && '!border-red hover:!bg-red-10')}
                     onClick={handleSubmit}
                     disabled={!canSubmit}
                   >

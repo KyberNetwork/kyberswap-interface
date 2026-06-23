@@ -10,15 +10,13 @@ import {
 } from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 
-const SummaryNotify = ({
-  type,
-  message,
-  orders = [],
-}: {
+type SummaryNotifyProps = {
   type?: LimitOrderStatus
   message?: string
   orders?: LimitOrder[]
-}) => {
+}
+
+export const SummaryNotify = ({ type, message, orders = [] }: SummaryNotifyProps) => {
   const isMultiOrder = orders.length > 1
   const order = orders[0]
   const {
@@ -136,19 +134,19 @@ const SummaryNotify = ({
   return <p className="m-0 leading-[18px] text-text">{message || msg}</p>
 }
 
-export default SummaryNotify
+type SummaryNotifyOrderPlacedProps = {
+  currencyIn: Currency
+  currencyOut: Currency
+  inputAmount: string
+  outputAmount: string
+}
 
 export const SummaryNotifyOrderPlaced = ({
   currencyIn,
   currencyOut,
   inputAmount,
   outputAmount,
-}: {
-  currencyIn: Currency
-  currencyOut: Currency
-  inputAmount: string
-  outputAmount: string
-}) => {
+}: SummaryNotifyOrderPlacedProps) => {
   return (
     <p className="m-0 leading-[18px] text-text">
       <Trans>
