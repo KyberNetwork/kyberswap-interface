@@ -203,7 +203,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const fillAmountErrorMessage = insufficientBalance
     ? t`Insufficient Balance`
     : exceedsAvailableAmount
-    ? t`Exceeds available amount`
+    ? t`Exceeds order available`
     : ''
 
   const fillAmountHelperMessage = wrapAmount && (
@@ -216,6 +216,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const defaultPayAmount = useMemo(() => {
     if (!maxPayAmount) return undefined
     if (!maxBalancePayAmount) return maxPayAmount
+    if (JSBI.equal(maxBalancePayAmount.quotient, JSBI.BigInt(0))) return maxPayAmount
 
     return maxBalancePayAmount.lessThan(maxPayAmount) ? maxBalancePayAmount : maxPayAmount
   }, [maxBalancePayAmount, maxPayAmount])
