@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Calendar } from 'react-feather'
@@ -11,17 +11,16 @@ import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { CloseIcon } from 'theme'
 import { cn } from 'utils/cn'
-import { formatTimeDuration } from 'utils/time'
 
 const MIN_TIME_MINUTES = 5
 
-const DEFAULT_OPTIONS = [
-  TIMES_IN_SECS.ONE_HOUR,
-  TIMES_IN_SECS.ONE_DAY,
-  7 * TIMES_IN_SECS.ONE_DAY,
-  30 * TIMES_IN_SECS.ONE_DAY,
-  36500 * TIMES_IN_SECS.ONE_DAY,
-].map(e => ({ value: e, label: formatTimeDuration(e) }))
+const getDefaultOptions = () => [
+  { value: TIMES_IN_SECS.ONE_HOUR, label: t`1 Hour` },
+  { value: TIMES_IN_SECS.ONE_DAY, label: t`1 Day` },
+  { value: 7 * TIMES_IN_SECS.ONE_DAY, label: t`7 Days` },
+  { value: 30 * TIMES_IN_SECS.ONE_DAY, label: t`30 Days` },
+  { value: 36500 * TIMES_IN_SECS.ONE_DAY, label: t`Never Expires` },
+]
 
 const HOURS = Array.from({ length: 24 }, (_, i) => ({ label: i, value: i }))
 const MINS = Array.from({ length: 60 }, (_, i) => ({ label: i, value: i }))
@@ -42,6 +41,7 @@ export default function DateTimePicker({
   expire,
   defaultDate,
   defaultOptions,
+  returnPresetValue,
   title,
 }: {
   isOpen: boolean
@@ -49,8 +49,9 @@ export default function DateTimePicker({
   onSetDate: (val: Date | number) => void
   expire: number
   defaultDate?: Date
-  title?: ReactNode
   defaultOptions?: { label: string; value: number }[]
+  returnPresetValue?: boolean
+  title?: ReactNode
 }) {
   const today = new Date()
   const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
@@ -58,6 +59,7 @@ export default function DateTimePicker({
   const [min, setMin] = useState(0)
   const [hour, setHour] = useState(0)
   const [defaultExpire, setDefaultExpire] = useState<number | null>(null)
+  const options = useMemo(() => defaultOptions || getDefaultOptions(), [defaultOptions])
 
   const setCustomDate = (date: Date, hour: number, min: number) => {
     let newMin = min
@@ -78,14 +80,17 @@ export default function DateTimePicker({
     setDefaultExpire(null)
   }
 
-  const onSelectDefaultOption = useCallback((value: number) => {
-    const isTimestamp = value > 1000000000
-    if (!isTimestamp) setDefaultExpire(value)
-    const date = isTimestamp ? new Date(value) : new Date(Date.now() + value * 1000)
-    setDate(date)
-    setHour(date.getHours())
-    setMin(date.getMinutes())
-  }, [])
+  const onSelectDefaultOption = useCallback(
+    (value: number) => {
+      const isDefaultOption = options.some(opt => opt.value === value)
+      setDefaultExpire(isDefaultOption ? value : null)
+      const date = isDefaultOption ? new Date(Date.now() + value * 1000) : new Date(value)
+      setDate(date)
+      setHour(date.getHours())
+      setMin(date.getMinutes())
+    },
+    [options],
+  )
 
   useEffect(() => {
     if (isOpen) {
@@ -106,13 +111,13 @@ export default function DateTimePicker({
   const theme = useTheme()
 
   const propsSelect: Partial<SelectProps> = {
-    style: { width: 120, borderRadius: 20 },
+    style: { width: 100, borderRadius: 20 },
     className: 'bg-background px-3 py-1',
     menuStyle: {
       height: 250,
       overflow: 'scroll',
       textAlign: 'center',
-      width: 120,
+      width: 100,
     },
     optionStyle: {
       padding: '8px 8px',
@@ -137,8 +142,13 @@ export default function DateTimePicker({
     return MINS
   }, [date, hour])
 
+  const handleSetDate = () => {
+    onSetDate(returnPresetValue && defaultExpire ? defaultExpire : date)
+    onDismiss()
+  }
+
   return (
-    <Modal maxWidth={'98vw'} width={'480px'} isOpen={isOpen} enableSwipeGesture={false}>
+    <Modal maxWidth={'98vw'} width={'480px'} isOpen={isOpen} onDismiss={handleSetDate} enableSwipeGesture={false}>
       <div className="flex w-full flex-col gap-4 px-5 py-6 font-medium max-sm:px-2.5 max-sm:py-4">
         <div className="flex items-center justify-between">
           <span className="text-sm">{title || <Trans>Customize the Expiry Time</Trans>}</span>
@@ -150,7 +160,7 @@ export default function DateTimePicker({
               <Trans>Default Options</Trans>
             </span>
             <div className="flex flex-col gap-1">
-              {(defaultOptions || DEFAULT_OPTIONS).map(opt => {
+              {options.map(opt => {
                 const active = opt.value === defaultExpire
 
                 return (
@@ -172,7 +182,8 @@ export default function DateTimePicker({
           <div className="flex flex-1 flex-col items-center gap-[5px]">
             <DatePicker value={date} onChange={(date: Date) => setCustomDate(date, hour, min)} />
 
-            <div className="flex w-full justify-between px-2 py-0">
+            <div className="flex w-full items-center justify-end gap-2">
+              <span className="text-sm text-subText">{dayjs(date).format('DD/MM/YYYY')}</span>
               <Select
                 value={hour}
                 activeRender={item => (
@@ -220,26 +231,11 @@ export default function DateTimePicker({
           <span className="text-text">{dayjs(expireResult).format('DD/MM/YYYY HH:mm')}</span>
         </div>
         <div className="flex justify-end gap-2">
-          <ButtonOutlined
-            onClick={onDismiss}
-            style={{
-              width: 100,
-              height: 32,
-            }}
-          >
+          <ButtonOutlined onClick={onDismiss} className="py-2">
             <Trans>Cancel</Trans>
           </ButtonOutlined>
-          <ButtonPrimary
-            onClick={() => {
-              onSetDate(date)
-              onDismiss()
-            }}
-            style={{
-              width: 100,
-              height: 32,
-            }}
-          >
-            <Trans>Set</Trans>
+          <ButtonPrimary className="py-2" onClick={handleSetDate}>
+            <Trans>OK</Trans>
           </ButtonPrimary>
         </div>
       </div>

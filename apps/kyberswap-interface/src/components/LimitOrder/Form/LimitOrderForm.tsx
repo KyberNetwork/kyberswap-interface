@@ -215,6 +215,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
       <CreateOrderFlow order={order} isOpen={showReview} onDismiss={review.closeReview} createOrder={createOrder} />
 
       <DateTimePicker
+        returnPresetValue={true}
         defaultDate={form.customDateExpire}
         expire={form.expire}
         isOpen={form.showDatePicker}
