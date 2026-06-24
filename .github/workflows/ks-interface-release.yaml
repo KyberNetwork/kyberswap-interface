@@ -77,6 +77,12 @@ jobs:
         working-directory: apps/kyberswap-interface
         run: pnpm build-prod
 
+      # Fail the release if the eager entry chunk regresses past its gzip budget (see
+      # apps/kyberswap-interface/scripts/check-entry-size.mjs). Runs on the build just produced above.
+      - name: Check bundle size
+        working-directory: apps/kyberswap-interface
+        run: pnpm check-bundle-size
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@master
 

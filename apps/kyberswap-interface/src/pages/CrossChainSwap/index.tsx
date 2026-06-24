@@ -1,7 +1,7 @@
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, memo, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Repeat } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
@@ -13,6 +13,7 @@ import Skeleton from 'components/Skeleton'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -385,10 +386,19 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
   )
 }
 
-export default function CrossChainSwapPage(props: CrossChainSwapProps) {
+// memo is load-bearing: this wrapper hosts the route-mounted non-EVM wallet providers (NonEvmProviders).
+// SwapV3 re-renders this on every quote tick (it holds selectedQuote in state), and its only prop
+// `onQuoteChange` is a stable setState setter — so memoizing here keeps SwapV3's re-renders from
+// re-rendering the providers, which would otherwise churn the wallet contexts (e.g. Solana `connection`)
+// and refetch the cross-chain rate in a loop. The inner CrossChainSwap still re-renders on its own state.
+const CrossChainSwapPage = memo(function CrossChainSwapPage(props: CrossChainSwapProps) {
   return (
-    <CrossChainSwapRegistryProvider>
-      <CrossChainSwap {...props} />
-    </CrossChainSwapRegistryProvider>
+    <NonEvmProviders>
+      <CrossChainSwapRegistryProvider>
+        <CrossChainSwap {...props} />
+      </CrossChainSwapRegistryProvider>
+    </NonEvmProviders>
   )
-}
+})
+
+export default CrossChainSwapPage

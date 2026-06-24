@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import WorkYourAssetsDesktop from 'assets/banners/work_your_assets_desktop.png'
 import WorkYourAssetsMobile from 'assets/banners/work_your_assets_mobile.png'
 import WorkYourAssetsTablet from 'assets/banners/work_your_assets_tablet.png'
+import { KYBERSWAP_URL } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ExternalLink } from 'theme'
@@ -41,7 +42,7 @@ function Banner({
           : w > 500
           ? WorkYourAssetsTablet
           : WorkYourAssetsMobile,
-        link: 'https://kyberswap.com/elastic/add/0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/40',
+        link: `${KYBERSWAP_URL}/elastic/add/0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/40`,
       },
     ],
     [isInModal, w],

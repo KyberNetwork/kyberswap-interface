@@ -28,7 +28,10 @@ const Card = ({
         </div>
 
         <div className="flex h-full flex-col justify-between">
-          <div>
+          {/* sm:mb-6 guarantees a gap between the description and the bottom-pinned button — only visible on
+              the tallest card (whose text nearly fills the equal-height card); on mobile the button's own
+              mt-5 handles spacing. */}
+          <div className="sm:mb-6">
             <p className={cn('text-lg font-medium', upToSmall ? 'mt-0' : 'mt-7')}>{title}</p>
             <p className={cn('mt-3 text-subText', upToMedium ? 'text-sm' : 'text-base')}>{desc}</p>
           </div>

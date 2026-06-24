@@ -104,7 +104,7 @@ export default function Confirmation({
             notify({
               type: NotificationType.ERROR,
               title: t`Smart Wallet not supported`,
-              summary: t`Smart Exit requires a regular EOA wallet (e.g. MetaMask, Rabby) to sign the position permit. Please reconnect with a non-smart wallet.`,
+              summary: t`Smart Exit requires a regular EOA wallet (e.g. MetaMask, Rabby) that hasn't been upgraded to a smart account (e.g. via EIP-7702) to sign the position permit. Please reconnect with a non-smart wallet.`,
             })
             return
           }

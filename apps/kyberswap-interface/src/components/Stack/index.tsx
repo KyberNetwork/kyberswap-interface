@@ -6,7 +6,7 @@ export type StackProps = HTMLAttributes<HTMLElement> &
   ButtonHTMLAttributes<HTMLButtonElement> &
   LabelHTMLAttributes<HTMLLabelElement> & {
     /** Render as a different HTML element. */
-    as?: keyof JSX.IntrinsicElements
+    as?: keyof React.JSX.IntrinsicElements
   }
 
 const makeStack = (baseClassName: string, displayName: string) => {

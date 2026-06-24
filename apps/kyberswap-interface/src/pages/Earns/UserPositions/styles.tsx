@@ -5,12 +5,12 @@ import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 import { cn } from 'utils/cn'
 
-const POSITION_GRID = 'grid'
+export const POSITION_GRID = 'grid'
 // Inline gridTemplateColumns because Tailwind's arbitrary-value parser silently
 // drops the bare `24px` spacer column when it sits between `minmax(...)` entries,
 // resulting in 8 rendered columns instead of 9 and pushing the Actions cell
 // onto a second row.
-const POSITION_GRID_TEMPLATE_COLUMNS =
+export const POSITION_GRID_TEMPLATE_COLUMNS =
   'minmax(260px, 2.6fr) minmax(80px, 0.8fr) minmax(90px, 0.8fr) minmax(100px, 1fr) minmax(120px, 1fr) 24px minmax(150px, 0.4fr) minmax(160px, 1.8fr) minmax(75px, auto)'
 
 type PositionPageWrapperProps = React.ComponentProps<typeof PoolPageWrapper>

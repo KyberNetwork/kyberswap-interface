@@ -8,12 +8,12 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
-import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import EditOrderModal from 'components/swapv2/LimitOrder/EditOrderModal'
+import ListOrderSkeleton from 'components/swapv2/LimitOrder/ListOrder/ListOrderSkeleton'
 import OrderItem from 'components/swapv2/LimitOrder/ListOrder/OrderItem'
 import TabSelector from 'components/swapv2/LimitOrder/ListOrder/TabSelector'
 import TableHeader from 'components/swapv2/LimitOrder/ListOrder/TableHeader'
@@ -27,6 +27,7 @@ import {
   getPayloadTracking,
   isActiveStatus,
 } from 'components/swapv2/LimitOrder/helpers'
+import { LIMIT_ORDERS_PAGE_SIZE } from 'components/swapv2/LimitOrder/listOrdersArgs'
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
@@ -45,7 +46,8 @@ import {
   subscribeNotificationOrderFilled,
 } from 'utils/firebase'
 
-const PAGE_SIZE = 10
+// Shared with the nav-intent prefetch (utils/prefetch) so the page's initial query key can't drift.
+const PAGE_SIZE = LIMIT_ORDERS_PAGE_SIZE
 
 export const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex min-h-[140px] flex-col items-center justify-center text-subText', className)} {...rest} />
@@ -307,7 +309,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
         />
       </div>
       {loading ? (
-        <LocalLoader />
+        <ListOrderSkeleton />
       ) : (
         <div>
           <TableHeader />

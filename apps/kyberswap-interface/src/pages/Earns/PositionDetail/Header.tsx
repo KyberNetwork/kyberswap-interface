@@ -22,6 +22,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { PositionStatus } from 'pages/Earns/types'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -150,7 +151,7 @@ const PositionDetailHeader = () => {
             width="fit-content"
           >
             <Link
-              to={`${APP_PATHS.ADD_LIQUIDITY}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
+              to={getPoolDetailUrl(position?.chain.id, position?.dex.id ?? '', position?.pool.address ?? '')}
               className="no-underline"
             >
               <div className="flex cursor-pointer items-center gap-2">

@@ -177,5 +177,5 @@ export const getAnnouncementTemplateType = (templateId?: number) => {
   return undefined
 }
 
-const mock = localStorage.getItem('mock')?.split(',') ?? []
+const mock = (typeof localStorage !== 'undefined' ? localStorage.getItem('mock') : null)?.split(',') ?? []
 export const MOCK_ACCOUNT_EVM = isAddressString(mock[0]?.trim())

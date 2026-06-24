@@ -41,6 +41,7 @@ import {
 } from 'state/user/actions'
 import { VIEW_MODE } from 'state/user/reducer'
 import { isChristmasTime } from 'utils'
+import { setLocaleCookie } from 'utils/localeCookie'
 
 const MAX_FAVORITE_LIMIT = 12
 
@@ -87,6 +88,8 @@ export function useUserLocaleManager(): [SupportedLocale | null, (newLocale: Sup
   const setLocale = useCallback(
     (newLocale: SupportedLocale) => {
       dispatch(updateUserLocale({ userLocale: newLocale }))
+      // Keep the ks_locale cookie in sync so SSR/edge can read the active locale.
+      setLocaleCookie(newLocale)
     },
     [dispatch],
   )

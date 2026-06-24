@@ -6,9 +6,9 @@ import { FixedSizeList } from 'react-window'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
-import LocalLoader from 'components/LocalLoader'
 import RefreshLoading from 'components/RefreshLoading'
 import { NoResultWrapper } from 'components/swapv2/LimitOrder/ListOrder'
+import OrderBookSkeleton from 'components/swapv2/LimitOrder/OrderBook/OrderBookSkeleton'
 import OrderItem, { ChainImage } from 'components/swapv2/LimitOrder/OrderBook/OrderItem'
 import TableHeader from 'components/swapv2/LimitOrder/OrderBook/TableHeader'
 import { groupToMap } from 'components/swapv2/LimitOrder/helpers'
@@ -196,7 +196,7 @@ export default function OrderBook() {
   return (
     <div className="relative mt-4 flex flex-col">
       {loadingOrders || loadingReversedOrders ? (
-        <LocalLoader />
+        <OrderBookSkeleton />
       ) : (
         <>
           {refetchActive && (

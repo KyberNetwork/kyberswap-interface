@@ -6,8 +6,8 @@ import { useGetLeaderboardQuery, useGetUserRewardQuery } from 'services/campaign
 import { useGetDashboardQuery } from 'services/referral'
 
 import Divider from 'components/Divider'
-import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import Skeleton from 'components/Skeleton'
 import { useActiveWeb3React } from 'hooks'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
@@ -19,6 +19,43 @@ type Props = {
   selectedWeek: number
   wallet?: string
 }
+
+// Mirrors the leaderboard row layout (rank · wallet · points · optional rewards), so the loading
+// placeholder lines up under the column headers.
+const LeaderboardRowsSkeleton = ({
+  rows = 8,
+  isReferral,
+  showReward,
+  upToSmall,
+}: {
+  rows?: number
+  isReferral: boolean
+  showReward: boolean
+  upToSmall: boolean
+}) => (
+  <>
+    {Array.from({ length: rows }, (_, i) => (
+      <div key={i} className="flex px-5 py-4 max-sm:px-0 max-sm:py-4">
+        {!isReferral && (
+          <span className={cn(upToSmall ? 'w-[30px]' : 'w-[50px]', 'text-center')}>
+            <Skeleton width={16} height={16} />
+          </span>
+        )}
+        <span className={cn('flex-1', isReferral ? 'ml-0' : 'ml-5')}>
+          <Skeleton width={upToSmall ? 110 : 220} height={16} />
+        </span>
+        <span className={cn(isReferral ? 'w-[100px]' : 'w-[70px]', 'ml-5 text-right')}>
+          <Skeleton width={48} height={16} />
+        </span>
+        {showReward && (
+          <span className={cn('ml-5 text-right', !upToSmall ? 'w-[150px]' : 'w-[70px]')}>
+            <Skeleton width={70} height={16} />
+          </span>
+        )}
+      </div>
+    ))}
+  </>
+)
 
 export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -100,7 +137,7 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
       <Divider />
 
       {isLoading ? (
-        <LocalLoader />
+        <LeaderboardRowsSkeleton isReferral={isReferralCampaign} showReward={showReward} upToSmall={upToSmall} />
       ) : !isReferralCampaign ? (
         data?.data?.leaderBoards.map((item, index) => (
           <div key={item.wallet} className="flex px-5 py-4 text-sm text-text max-sm:px-0 max-sm:py-4">

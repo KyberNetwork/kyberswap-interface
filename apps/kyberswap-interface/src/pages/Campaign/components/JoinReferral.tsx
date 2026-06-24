@@ -17,6 +17,7 @@ import CopyHelper from 'components/Copy'
 import Input from 'components/Input'
 import Modal from 'components/Modal'
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
+import { KYBERSWAP_DOMAIN, KYBERSWAP_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
@@ -65,10 +66,10 @@ export default function JoinReferal() {
     if (!account) return
     const res = await getNonce(account || '')
     const message = new SiweMessage({
-      domain: 'kyberswap.com',
+      domain: KYBERSWAP_DOMAIN,
       address: account,
       statement: t`By signing this message, you confirm your participation in the KyberSwap Referral Program. This action does not trigger any transaction and does not incur any gas fees.`,
-      uri: 'https://kyberswap.com',
+      uri: KYBERSWAP_URL,
       version: '1',
       chainId: ChainId.ARBITRUM,
       nonce: res?.data?.data?.nonce || t`Nonce Retrieval Failed`,

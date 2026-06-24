@@ -15,6 +15,8 @@ import { formatDisplayNumber } from 'utils/numbers'
 type OrderItemProps = {
   order: ParsedSmartExitOrder
   index: number
+  /** 0-based position within the current page — drives the staggered fade-in delay. */
+  rowIndex: number
   upToMedium: boolean
   onDelete: (order: ParsedSmartExitOrder) => void
 }
@@ -64,7 +66,9 @@ const StatusContent = ({ order }: { order: SmartExitOrder }) => (
   </div>
 )
 
-const OrderItem = React.memo(({ order, index, upToMedium, onDelete }: OrderItemProps) => {
+const OrderItem = React.memo(({ order, index, rowIndex, upToMedium, onDelete }: OrderItemProps) => {
+  // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
+  const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
   const tokenId = order.positionId.split('-')[1]
   const executedAmounts = order.executions[0]?.extraData?.executedAmounts
   const receivedAmounts = order.executions[0]?.extraData?.receivedAmounts
@@ -128,7 +132,11 @@ const OrderItem = React.memo(({ order, index, upToMedium, onDelete }: OrderItemP
 
   if (upToMedium)
     return (
-      <div key={order.id} className="mb-4 flex flex-col gap-3 rounded-xl bg-background p-4">
+      <div
+        key={order.id}
+        className="mb-4 flex animate-[fadeInUp_0.3s_ease-out_both] flex-col gap-3 rounded-xl bg-background p-4 motion-reduce:animate-none"
+        style={{ animationDelay }}
+      >
         <div>{title}</div>
         {condition}
         <div className="-mt-1 flex items-center justify-between gap-1">
@@ -161,8 +169,8 @@ const OrderItem = React.memo(({ order, index, upToMedium, onDelete }: OrderItemP
   return (
     <div
       key={order.id}
-      className="grid items-center gap-4 py-4 text-text"
-      style={{ gridTemplateColumns: ORDERS_TABLE_GRID_COLUMNS }}
+      className="grid animate-[fadeInUp_0.3s_ease-out_both] items-center gap-4 py-4 text-text motion-reduce:animate-none"
+      style={{ gridTemplateColumns: ORDERS_TABLE_GRID_COLUMNS, animationDelay }}
     >
       <span className="text-subText">{index}</span>
       <div>{title}</div>

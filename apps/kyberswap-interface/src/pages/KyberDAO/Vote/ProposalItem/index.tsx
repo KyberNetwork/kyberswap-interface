@@ -132,7 +132,7 @@ function ProposalItem({
     }
   }, [selectedOptions.length, stakerInfo?.stake_amount, isDelegated, totalVotePowerAmount])
 
-  const contentRef = useRef<any>()
+  const contentRef = useRef<any>(null)
   const tagColor = () => {
     switch (proposal.status) {
       case ProposalStatus.Pending:

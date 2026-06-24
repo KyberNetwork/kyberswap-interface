@@ -19,7 +19,7 @@ import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters/types'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
@@ -74,7 +74,7 @@ export default function NetworkModal({
   customOnSelectNetwork?: (chain: Chain) => void
   customToggleModal?: () => void
   disabledMsg?: string
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   const { isWrongNetwork } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
   const { trackingHandler } = useTracking()

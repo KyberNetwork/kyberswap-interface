@@ -4,7 +4,8 @@ import { X } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
-import { useWeb3React } from 'hooks'
+import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTheme from 'hooks/useTheme'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
@@ -36,11 +37,13 @@ interface SmartExitProps {
 export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitProps) => {
   const theme = useTheme()
   const { isSmartConnector } = useWeb3React()
+  const { chainId } = useActiveWeb3React()
   const isSmartAccount = useIsSmartAccount()
   // Cover both connector-level smart wallets (Porto, Safe) and account-level
   // smart wallets detected via bytecode / EIP-5792 capabilities (Coinbase
   // Smart Wallet via passkey, Argent, Ambire, EIP-7702 delegated EOAs).
   const isSmartWallet = isSmartConnector || isSmartAccount
+  const chainName = NETWORKS_INFO[chainId]?.name ?? 'this network'
   const toggleWalletModal = useWalletModalToggle()
   const [selectedMetrics, setSelectedMetrics] = useState<Array<SelectedMetric | null>>([
     { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
@@ -97,9 +100,10 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
             </div>
             <span className="text-sm text-subText">
               <Trans>
-                Smart wallets (Porto, Safe, Coinbase Smart Wallet, Argent, Ambire, ...) aren&apos;t compatible with
-                Smart Exit because the position permit can&apos;t verify their contract signatures. Switch to an EOA
-                wallet (e.g. MetaMask, Rabby) to use this feature.
+                Smart wallets (Porto, Safe, Coinbase Smart Wallet, Argent, Ambire, ...) — including EOAs upgraded to a
+                smart account via EIP-7702 on {chainName} — aren&apos;t compatible with Smart Exit because the position
+                permit can&apos;t verify their contract signatures. Switch to a standard EOA wallet (e.g. MetaMask,
+                Rabby) that hasn&apos;t been upgraded to use this feature.
               </Trans>
             </span>
             <div className="mt-2 flex justify-end">

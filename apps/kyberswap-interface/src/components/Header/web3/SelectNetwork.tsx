@@ -11,14 +11,14 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
-import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-function SelectNetwork(): JSX.Element | null {
+function SelectNetwork(): React.JSX.Element | null {
   const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()

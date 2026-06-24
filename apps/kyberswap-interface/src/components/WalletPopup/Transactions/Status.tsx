@@ -44,7 +44,7 @@ function StatusIcon({
   const dispatch = useDispatch<AppDispatch>()
   const { loading, isOrderCancelling } = cancellingOrderInfo
 
-  const interval = useRef<NodeJS.Timeout>()
+  const interval = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const checkStatus = useCallback(async () => {
     try {

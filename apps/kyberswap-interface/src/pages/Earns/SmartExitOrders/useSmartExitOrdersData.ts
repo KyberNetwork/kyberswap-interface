@@ -81,7 +81,7 @@ type UseSmartExitOrdersDataParams = {
 export function useSmartExitOrdersData({ account, filters, pageSize, updateFilters }: UseSmartExitOrdersDataParams) {
   const currentPage = filters.page || 1
   const [pageLoading, setPageLoading] = useState(false)
-  const prevFiltersRef = useRef<SmartExitFilter>()
+  const prevFiltersRef = useRef<SmartExitFilter | undefined>(undefined)
 
   const lastEnrichedOrdersRef = useRef<ParsedSmartExitOrder[]>([])
   const lastTotalItemsRef = useRef<number>(0)
