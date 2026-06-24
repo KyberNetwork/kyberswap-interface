@@ -1,4 +1,4 @@
-export type WalletType = 'xverse' | 'okx' | 'unisat' | 'bitget' | 'ledger'
+export type WalletType = 'xverse' | 'okx' | 'unisat' | 'fordefi' | 'bitget' | 'ledger'
 
 export interface SendBitcoinParams {
   sender?: string // required for ledger

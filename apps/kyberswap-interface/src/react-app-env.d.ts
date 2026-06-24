@@ -51,5 +51,6 @@ interface Window {
   zESettings?: any
 
   XverseProviders?: { BitcoinProvider: any }
+  FordefiProviders?: { UtxoProvider?: { unisatProvider?: any } }
   bitkeep?: any
 }
