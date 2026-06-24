@@ -55,7 +55,7 @@ const DropdownMenu = ({
   const ref = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [position, setPosition] = useState({ top: 0, left: 0, minWidth: 0 })
+  const [position, setPosition] = useState<Partial<CSSProperties>>({ top: 0, left: 0, minWidth: 0 })
   const [canScrollUp, setCanScrollUp] = useState(false)
   const [canScrollDown, setCanScrollDown] = useState(false)
 
@@ -130,7 +130,7 @@ const DropdownMenu = ({
   }
 
   const dropdownContent = (
-    <DropdownContentWrapper ref={contentRef} $usePortal={usePortal} style={usePortal ? { ...position } : undefined}>
+    <DropdownContentWrapper ref={contentRef} $usePortal={usePortal} style={usePortal ? position : undefined}>
       <ScrollIndicator $visible={canScrollUp} onClick={() => handleScrollClick('up')}>
         <ChevronUp size={16} />
       </ScrollIndicator>

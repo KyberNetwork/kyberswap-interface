@@ -65,11 +65,11 @@ const StatusPill = ({ status, warning }: { status: LimitOrderStatus; warning?: b
   return (
     <span
       className={cn(
-        'inline-flex min-w-[104px] justify-center rounded-full px-4 py-1 text-sm font-medium',
-        active && !warning && 'bg-primary-20 text-primary',
-        danger && 'bg-red-20 text-red',
-        caution && 'bg-warning-20 text-warning',
-        status === LimitOrderStatus.FILLED && 'bg-primary-20 text-primary',
+        'block text-right text-sm font-medium opacity-90',
+        active && !warning && 'text-primary',
+        danger && 'text-red',
+        caution && 'text-warning',
+        status === LimitOrderStatus.FILLED && 'text-primary',
       )}
     >
       {warning ? formatStatus(LimitOrderStatus.INSUFFICIENT_FUNDS) : formatStatus(status)}
@@ -172,7 +172,7 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
           amount={formatOrderDisplayAmount(order.takingAmount, order.takerAssetDecimals)}
           symbol={takerSymbol}
         />
-        <span className="justify-self-end max-[640px]:hidden">
+        <span className="justify-self-end text-right max-[640px]:hidden">
           <StatusPill status={status} warning={insufficientFund} />
         </span>
         <span className="flex justify-end gap-1 max-[640px]:hidden">
