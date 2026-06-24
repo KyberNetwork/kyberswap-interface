@@ -164,8 +164,11 @@ const useCancelOrderRequest = ({ chainId, getEncodeData }: UseCancelOrderRequest
     async (orders: LimitOrder[]) => {
       if (!account) return Promise.reject('Wrong input')
 
-      const orderIds = orders.map(e => e.id)
-      const cancelPayload = { chainId: chainId.toString(), maker: account, orderIds }
+      const cancelPayload = {
+        chainId: chainId.toString(),
+        maker: account,
+        orderIds: orders.map(order => order.id),
+      }
       const messagePayload = await createCancelSignature(cancelPayload).unwrap()
 
       const rawSignature = await signTypedDataRaw({
@@ -175,9 +178,7 @@ const useCancelOrderRequest = ({ chainId, getEncodeData }: UseCancelOrderRequest
       })
 
       const signature = formatSignature(rawSignature)
-      const resp = await cancelOrderRequest({ ...cancelPayload, signature }).unwrap()
-
-      return resp
+      return cancelOrderRequest({ ...cancelPayload, signature }).unwrap()
     },
     [account, cancelOrderRequest, chainId, createCancelSignature],
   )
