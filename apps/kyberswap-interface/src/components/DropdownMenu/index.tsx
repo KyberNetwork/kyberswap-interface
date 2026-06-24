@@ -2,7 +2,6 @@ import Portal from '@reach/portal'
 import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import {
   DropdownContent,
   DropdownContentItem,
@@ -14,12 +13,28 @@ import {
   DropdownWrapper,
   ItemIcon,
   ScrollIndicator,
-} from 'pages/Earns/components/DropdownMenu/styles'
+} from 'components/DropdownMenu/styles'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 
 export interface MenuOption {
   label: string
   value: string
   icon?: string
+}
+
+type DropdownMenuProps = {
+  options: MenuOption[]
+  value: string | number
+  width?: number
+  tooltip?: string
+  flatten?: boolean
+  background?: string
+  fullWidth?: boolean
+  alignItems?: CSSProperties['alignItems']
+  mobileFullWidth?: boolean
+  mobileHalfWidth?: boolean
+  usePortal?: boolean
+  onChange: (value: string | number) => void
 }
 
 const DropdownMenu = ({
@@ -35,20 +50,7 @@ const DropdownMenu = ({
   mobileHalfWidth = false,
   usePortal = false,
   onChange,
-}: {
-  options: MenuOption[]
-  value: string | number
-  width?: number
-  tooltip?: string
-  flatten?: boolean
-  background?: string
-  fullWidth?: boolean
-  alignItems?: CSSProperties['alignItems']
-  mobileFullWidth?: boolean
-  mobileHalfWidth?: boolean
-  usePortal?: boolean
-  onChange: (value: string | number) => void
-}) => {
+}: DropdownMenuProps) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -128,7 +130,7 @@ const DropdownMenu = ({
   }
 
   const dropdownContent = (
-    <DropdownContentWrapper ref={contentRef} flatten={flatten} style={usePortal ? { ...position } : undefined}>
+    <DropdownContentWrapper ref={contentRef} $usePortal={usePortal} style={usePortal ? { ...position } : undefined}>
       <ScrollIndicator $visible={canScrollUp} onClick={() => handleScrollClick('up')}>
         <ChevronUp size={16} />
       </ScrollIndicator>

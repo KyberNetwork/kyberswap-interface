@@ -23,10 +23,6 @@ export const getActiveOrderOptions = (): OrderTypeOption[] => [
     label: t`Open Orders`,
     value: LimitOrderStatus.OPEN,
   },
-  {
-    label: t`Partially Filled Orders`,
-    value: LimitOrderStatus.PARTIALLY_FILLED,
-  },
 ]
 
 export const getCloseOrderOptions = (): OrderTypeOption[] => [

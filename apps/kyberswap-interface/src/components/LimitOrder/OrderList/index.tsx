@@ -20,13 +20,12 @@ const ORDER_LIST_TABS = [
   { id: LimitOrderTab.PRICE, label: <Trans>Price</Trans> },
 ] as const
 
-const TabSelector = ({
-  activeTab,
-  setActiveTab,
-}: {
+type TabSelectorProps = {
   activeTab: LimitOrderTab
   setActiveTab: (n: LimitOrderTab) => void
-}) => {
+}
+
+const TabSelector = ({ activeTab, setActiveTab }: TabSelectorProps) => {
   const { account } = useActiveWeb3React()
   const { chainId } = useLimitOrderContext()
 

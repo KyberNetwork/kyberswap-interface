@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { HTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
@@ -6,6 +7,7 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
+import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
 import CancelOrderModal from 'components/LimitOrder/CancelOrder/CancelOrderModal'
 import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/useCancellingOrders'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
@@ -26,8 +28,8 @@ import Loader from 'components/Loader'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
 import SearchInput from 'components/SearchInput'
-import Select from 'components/Select'
 import { RTK_QUERY_TAGS } from 'constants/index'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import usePageLocation from 'hooks/usePageLocation'
@@ -95,7 +97,6 @@ const MyOrders = () => {
   const { trackingHandler } = useTracking()
   const { isEmbeddedSwap } = usePageLocation()
   const { chainId, networkName } = useLimitOrderContext()
-  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId })
   const [searchParams, setSearchParams] = useSearchParams()
   const invalidateTag = useInvalidateTagLimitOrder()
 
@@ -108,6 +109,7 @@ const MyOrders = () => {
 
   const [curPage, setCurPage] = useState(1)
   const [orderType, setOrderType] = useState<LimitOrderStatus>(orderTab || LimitOrderStatus.ACTIVE)
+  const [selectedChainValue, setSelectedChainValue] = useState<string>(() => chainId.toString())
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isCancelAll, setIsCancelAll] = useState(false)
@@ -116,14 +118,34 @@ const MyOrders = () => {
   const isTabActive = isActiveStatus(orderType)
   const activeTab = getActiveTabByOrderType(orderType)
   const orderTypeOptions = getOrderTypeOptions(orderType)
+  const selectedOrderChainId = selectedChainValue ? (Number(selectedChainValue) as ChainId) : undefined
+  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId: selectedOrderChainId ?? chainId })
+
+  const orderTypeDropdownOptions = useMemo<MenuOption[]>(
+    () => orderTypeOptions.map(option => ({ label: option.label, value: option.value })),
+    [orderTypeOptions],
+  )
+
+  const chainOptions = useMemo<MenuOption[]>(
+    () => [
+      { label: t`All Chains`, value: '' },
+      ...MAINNET_NETWORKS.filter(chainId => Boolean(NETWORKS_INFO[chainId].limitOrder)).map(chainId => ({
+        label: NETWORKS_INFO[chainId].name,
+        value: chainId.toString(),
+        icon: NETWORKS_INFO[chainId].icon,
+      })),
+    ],
+    [],
+  )
 
   const {
     data: { orders = [], totalOrder = 0 } = {},
     isFetching,
+    isError: isOrdersError,
     isSuccess: isOrdersLoaded,
   } = useGetListOrdersQuery(
     {
-      chainId,
+      chainId: selectedOrderChainId,
       maker: account,
       status: orderType,
       query: keyword,
@@ -136,21 +158,26 @@ const MyOrders = () => {
   const hasOrders = orders.length > 0
   const showPagination = hasOrders && totalOrder > PAGE_SIZE
   const showCancelAll = hasOrders && isTabActive
-  const showNoOrders = !hasOrders && (isOrdersLoaded || !account)
+  const showNoOrders = !hasOrders && (isOrdersLoaded || isOrdersError || !account)
 
   const {
     data: { orders: cancelAllOrders = [] } = {},
+    isError: isCancelAllOrdersError,
     isFetching: isFetchingCancelAllOrders,
     isSuccess: isCancelAllOrdersLoaded,
   } = useGetListOrdersQuery(
-    { chainId, maker: account, status: LimitOrderStatus.ACTIVE, pageSize: 100 },
+    { chainId: selectedOrderChainId, maker: account, status: LimitOrderStatus.ACTIVE, pageSize: 100 },
     { skip: !account || !showCancelAll },
   )
 
-  const isLoadingCancelAllOrders = showCancelAll && (!isCancelAllOrdersLoaded || isFetchingCancelAllOrders)
+  const isLoadingCancelAllOrders =
+    showCancelAll && !isCancelAllOrdersError && (!isCancelAllOrdersLoaded || isFetchingCancelAllOrders)
 
-  const totalCancelAllOrdersNotCancelling = cancelAllOrders.filter(order => !isOrderCancelling(order)).length
-  const disabledCancelAll = isLoadingCancelAllOrders || totalCancelAllOrdersNotCancelling === 0
+  const cancelableCancelAllOrders = useMemo(
+    () => cancelAllOrders.filter(order => !isOrderCancelling(order)),
+    [cancelAllOrders, isOrderCancelling],
+  )
+  const disabledCancelAll = isLoadingCancelAllOrders || cancelableCancelAllOrders.length === 0
 
   const selectedCancelOrders = useMemo(
     () => (isCancelAll ? cancelAllOrders : currentOrder ? [currentOrder] : []),
@@ -185,9 +212,15 @@ const MyOrders = () => {
     onReset()
   }
 
-  const onSelectOrderType = (type: LimitOrderStatus) => {
-    setOrderType(type)
-    setOrderTab(isActiveStatus(type) ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED)
+  const onSelectOrderType = (type: string | number) => {
+    const nextOrderType = type as LimitOrderStatus
+    setOrderType(nextOrderType)
+    setOrderTab(isActiveStatus(nextOrderType) ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED)
+    onReset()
+  }
+
+  const onSelectChain = (value: string | number) => {
+    setSelectedChainValue(value.toString())
     onReset()
   }
 
@@ -295,16 +328,25 @@ const MyOrders = () => {
       <TabSelector setActiveTab={onSelectTab} activeTab={activeTab} rightContent={cancelAllButton} />
 
       <div className="flex justify-between gap-4 px-4 py-2 max-sm:flex-col">
-        <Select
-          className="h-9 min-w-[200px] rounded-[40px] bg-buttonGray px-3 py-2 text-sm max-sm:w-full"
-          key={orderType}
-          options={orderTypeOptions}
-          value={orderType}
-          onChange={onSelectOrderType}
-          matchMenuWidth
-        />
+        <div className="flex min-w-0 items-center gap-2 max-sm:w-full">
+          <DropdownMenu
+            options={orderTypeDropdownOptions}
+            value={orderType}
+            width={130}
+            mobileHalfWidth
+            onChange={onSelectOrderType}
+          />
+          <DropdownMenu
+            options={chainOptions}
+            value={selectedChainValue}
+            width={130}
+            mobileHalfWidth
+            usePortal
+            onChange={onSelectChain}
+          />
+        </div>
         <SearchInput
-          className="h-9 min-h-9 max-w-[360px] flex-1 rounded-[40px] bg-buttonGray py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
+          className="h-9 min-h-9 max-w-[280px] flex-1 rounded-[40px] py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
           placeholder={t`Search by token symbol or token address`}
           maxLength={255}
           value={keyword}
@@ -352,15 +394,13 @@ const MyOrders = () => {
         </NoResultWrapper>
       )}
 
-      {selectedCancelOrders.length > 0 && (
-        <CancelOrderModal
-          isOpen={isOpenCancel}
-          onDismiss={hideConfirmCancel}
-          isCancelAll={isCancelAll}
-          orders={selectedCancelOrders}
-          onOrdersCancelling={setCancellingOrders}
-        />
-      )}
+      <CancelOrderModal
+        isOpen={isOpenCancel}
+        onDismiss={hideConfirmCancel}
+        isCancelAll={isCancelAll}
+        orders={selectedCancelOrders}
+        onOrdersCancelling={setCancellingOrders}
+      />
     </div>
   )
 }

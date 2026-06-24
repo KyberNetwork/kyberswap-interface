@@ -1,7 +1,7 @@
 import { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 
-import { MenuOption } from 'pages/Earns/components/DropdownMenu'
+import { MenuOption } from 'components/DropdownMenu'
 import {
   DropdownContent,
   DropdownIcon,
@@ -10,9 +10,22 @@ import {
   DropdownWrapper,
   ItemIcon,
   MultiSelectDropdownContentItem,
-} from 'pages/Earns/components/DropdownMenu/styles'
+} from 'components/DropdownMenu/styles'
 
 const AllOptionValue = ''
+
+type MultiSelectProps = {
+  label: ReactNode
+  options: MenuOption[]
+  value: string
+  width?: number
+  alignItems?: CSSProperties['alignItems']
+  mobileFullWidth?: boolean
+  mobileHalfWidth?: boolean
+  highlightOnSelect?: boolean
+  emptyValueOnClear?: string
+  onChange: (value: string | number) => void
+}
 
 const MultiSelect = ({
   label,
@@ -25,18 +38,7 @@ const MultiSelect = ({
   highlightOnSelect = false,
   emptyValueOnClear,
   onChange,
-}: {
-  label: ReactNode
-  options: MenuOption[]
-  value: string
-  width?: number
-  alignItems?: CSSProperties['alignItems']
-  mobileFullWidth?: boolean
-  mobileHalfWidth?: boolean
-  highlightOnSelect?: boolean
-  emptyValueOnClear?: string
-  onChange: (value: string | number) => void
-}) => {
+}: MultiSelectProps) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 

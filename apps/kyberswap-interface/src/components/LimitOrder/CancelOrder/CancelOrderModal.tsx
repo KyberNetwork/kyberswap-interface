@@ -7,20 +7,14 @@ import { useGetLOConfigQuery } from 'services/limitOrder'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import CancelButtons from 'components/LimitOrder/CancelOrder/CancelButtons'
-import CancelStatusCountDown from 'components/LimitOrder/CancelOrder/CancelStatusCountDown'
+import { CancelStatusCountDown, ChainFilter, SingleOrderSummary } from 'components/LimitOrder/CancelOrder/components'
 import { useCancelOrder } from 'components/LimitOrder/CancelOrder/useCancelOrder'
-import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
 import { useLimitOrderChainId } from 'components/LimitOrder/LimitOrderContext'
-import { OrderSummary } from 'components/LimitOrder/components'
 import { CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
-import { formatAmountOrder, getErrorMessage, getPayloadTracking } from 'components/LimitOrder/utils'
-import Logo from 'components/Logo'
+import { getErrorMessage, getPayloadTracking } from 'components/LimitOrder/utils'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
-import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
-import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CloseIcon } from 'theme/components'
@@ -47,80 +41,18 @@ const useIsSupportSoftCancelOrder = (chainId: ChainId) => {
   )
 }
 
-type CancelOrderModalProps = {
-  isOpen: boolean
-  onDismiss?: () => void
-  isCancelAll: boolean
-  orders?: LimitOrder[]
-  onOrdersCancelling?: (orderIds: number[]) => void
-}
-
 const getCancelStatusByExpiredTime = (expiredTime: number) =>
   expiredTime * 1000 < Date.now() ? CancelStatus.CANCEL_DONE : CancelStatus.COUNTDOWN
 
 const getCancellingExpiredTime = (order: LimitOrder | undefined) =>
   order?.status === LimitOrderStatus.CANCELLING ? order.operatorSignatureExpiredAt ?? 0 : 0
 
-const OrderAmount = ({
-  logo,
-  amount,
-  decimals,
-  symbol,
-}: {
-  logo: string
-  amount: string
-  decimals: number
-  symbol: string
-}) => (
-  <div className="flex min-w-0 items-center justify-end gap-2 text-right text-sm font-medium text-text">
-    <Logo srcs={[logo]} style={{ width: 20, height: 20 }} />
-    <span>
-      {formatAmountOrder(amount, decimals)} {symbol}
-    </span>
-  </div>
-)
-
-const SingleOrderSummary = ({ order }: { order: LimitOrder | undefined }) => {
-  const chainId = useLimitOrderChainId(order?.chainId)
-  const currencyIn = useCurrencyV2(order?.makerAsset, chainId) || undefined
-  const currencyOut = useCurrencyV2(order?.takerAsset, chainId) || undefined
-  const { tradeInfo: marketPrice } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
-
-  if (!order) return null
-
-  const {
-    takerAssetLogoURL,
-    makerAssetSymbol,
-    takerAssetSymbol,
-    makerAssetLogoURL,
-    makingAmount,
-    takingAmount,
-    makerAssetDecimals,
-    takerAssetDecimals,
-  } = order
-
-  const native = NativeCurrencies[Number(order.chainId) as ChainId]
-  const isNative = order.nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
-  const takerSymbol = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
-  const takerLogo = isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL
-
-  return (
-    <OrderSummary
-      inputCurrency={
-        <OrderAmount
-          logo={makerAssetLogoURL}
-          amount={makingAmount}
-          decimals={makerAssetDecimals}
-          symbol={makerAssetSymbol}
-        />
-      }
-      outputCurrency={
-        <OrderAmount logo={takerLogo} amount={takingAmount} decimals={takerAssetDecimals} symbol={takerSymbol} />
-      }
-      order={order}
-      marketRate={<MarketPrice price={marketPrice} symbolIn={makerAssetSymbol} symbolOut={takerAssetSymbol} />}
-    />
-  )
+type CancelOrderModalProps = {
+  isOpen: boolean
+  onDismiss?: () => void
+  isCancelAll: boolean
+  orders?: LimitOrder[]
+  onOrdersCancelling?: (orderIds: number[]) => void
 }
 
 const CancelOrderModal = ({
@@ -130,7 +62,18 @@ const CancelOrderModal = ({
   orders = EMPTY_ORDERS,
   onOrdersCancelling,
 }: CancelOrderModalProps) => {
-  const order = orders[0]
+  const chainOptions = useMemo(() => {
+    const counts = new Map<ChainId, number>()
+    orders.forEach(order => counts.set(order.chainId, (counts.get(order.chainId) || 0) + 1))
+    return Array.from(counts.entries()).map(([chainId, count]) => ({ chainId, count }))
+  }, [orders])
+  const [selectedCancelAllChainId, setSelectedCancelAllChainId] = useState<ChainId>()
+  const selectedChainId = selectedCancelAllChainId ?? chainOptions[0]?.chainId
+  const selectedOrders = useMemo(
+    () => (isCancelAll && selectedChainId ? orders.filter(order => order.chainId === selectedChainId) : orders),
+    [isCancelAll, orders, selectedChainId],
+  )
+  const order = selectedOrders[0]
   const chainId = useLimitOrderChainId(order?.chainId)
 
   const [expiredTime, setExpiredTime] = useState(0)
@@ -147,13 +90,13 @@ const CancelOrderModal = ({
   const { orderSupportGasless, chainSupportGasless } = getGaslessSupport(order)
 
   const gaslessCancelableOrders = useMemo(
-    () => orders.filter(order => getGaslessSupport(order).orderSupportGasless),
-    [getGaslessSupport, orders],
+    () => selectedOrders.filter(order => getGaslessSupport(order).orderSupportGasless),
+    [getGaslessSupport, selectedOrders],
   )
 
   const supportsGaslessCancel = isCancelAll ? gaslessCancelableOrders.length > 0 : orderSupportGasless
   const cancellingExpiredTime = getCancellingExpiredTime(order)
-  const { estimateGas, onCancelOrder } = useCancelOrder({ chainId, orders, isCancelAll })
+  const { estimateGas, onCancelOrder } = useCancelOrder({ chainId, orders: selectedOrders, isCancelAll })
 
   const resetCancelProgress = useCallback(() => {
     setExpiredTime(0)
@@ -162,8 +105,8 @@ const CancelOrderModal = ({
 
   const getOrdersByCancelType = useCallback(
     (type: CancelOrderType) =>
-      isCancelAll && type === CancelOrderType.GAS_LESS_CANCEL ? gaslessCancelableOrders : orders,
-    [gaslessCancelableOrders, isCancelAll, orders],
+      isCancelAll && type === CancelOrderType.GAS_LESS_CANCEL ? gaslessCancelableOrders : selectedOrders,
+    [gaslessCancelableOrders, isCancelAll, selectedOrders],
   )
 
   const handleCancel = useCallback(
@@ -216,6 +159,14 @@ const CancelOrderModal = ({
   const handleHardCancel = useCallback(() => handleCancel(CancelOrderType.HARD_CANCEL), [handleCancel])
   const handleConfirm = useCallback(() => handleCancel(cancelType), [cancelType, handleCancel])
   const handleCountdownEnd = useCallback(() => setCancelStatus(CancelStatus.CANCEL_DONE), [])
+  const handleChangeCancelAllChain = useCallback(
+    (chainId: ChainId) => {
+      setSelectedCancelAllChainId(chainId)
+      setErrorMessage('')
+      resetCancelProgress()
+    },
+    [resetCancelProgress],
+  )
   const handleChangeCancelType = useCallback(
     (type: CancelOrderType) => {
       setCancelType(type)
@@ -234,6 +185,18 @@ const CancelOrderModal = ({
     setAttemptingTxn(false)
     setErrorMessage('')
   }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedCancelAllChainId(undefined)
+      return
+    }
+    if (!isCancelAll) return
+
+    setSelectedCancelAllChainId(current =>
+      current && chainOptions.some(option => option.chainId === current) ? current : chainOptions[0]?.chainId,
+    )
+  }, [chainOptions, isCancelAll, isOpen])
 
   useEffect(() => {
     if (!isOpen) {
@@ -264,17 +227,17 @@ const CancelOrderModal = ({
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
 
-  const disabledBecauseNoOrders = isCancelAll && !orders.length
+  const disabledBecauseNoOrders = isCancelAll && !selectedOrders.length
   const disabledGasLessCancel = !supportsGaslessCancel || attemptingTxn || disabledBecauseNoOrders
   const disabledHardCancel = attemptingTxn || disabledBecauseNoOrders
   const disabledConfirm = attemptingTxn || disabledBecauseNoOrders || (disabledGasLessCancel && disabledHardCancel)
 
   const cancelGaslessText = isCancelAll ? (
-    gaslessCancelableOrders.length === orders.length || !supportsGaslessCancel ? (
+    gaslessCancelableOrders.length === selectedOrders.length || !supportsGaslessCancel ? (
       <Trans>Gasless Cancel All Orders</Trans>
     ) : (
       <Trans>
-        Gasless Cancel {gaslessCancelableOrders.length}/{orders.length} Orders
+        Gasless Cancel {gaslessCancelableOrders.length}/{selectedOrders.length} Orders
       </Trans>
     )
   ) : (
@@ -299,9 +262,19 @@ const CancelOrderModal = ({
 
         <Stack className="gap-4">
           <Stack className="gap-3">
+            {isCancelAll && (
+              <ChainFilter
+                options={chainOptions}
+                selectedChainId={selectedChainId}
+                totalOrders={orders.length}
+                disabled={isCountDown || isCancelDone || attemptingTxn}
+                onChange={handleChangeCancelAllChain}
+              />
+            )}
+
             <div className="text-sm font-medium text-subText">
               {isCancelAll ? (
-                <Trans>You are canceling {orders.length} active orders</Trans>
+                <Trans>You are canceling {selectedOrders.length} active orders</Trans>
               ) : (
                 <Trans>I want to cancel my order where</Trans>
               )}

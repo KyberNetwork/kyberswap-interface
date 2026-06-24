@@ -140,7 +140,7 @@ const limitOrderApi = createApi({
     getListOrders: builder.query<
       { orders: LimitOrder[]; totalOrder: number },
       {
-        chainId: ChainId
+        chainId?: ChainId
         maker: string | undefined
         status: string
         query?: string

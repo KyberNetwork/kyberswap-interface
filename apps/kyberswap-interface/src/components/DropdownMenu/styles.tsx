@@ -19,7 +19,7 @@ export const DropdownTitleWrapper = ({
     style={{ background: highlight ? undefined : background }}
     className={cn(
       'flex w-full cursor-pointer items-center justify-center rounded-[30px] text-sm transition-[filter] duration-200 ease-linear',
-      flatten ? 'border border-solid px-1.5 py-0' : 'border-0 px-3 py-1.5',
+      flatten ? 'border border-solid px-1.5 py-0' : 'border-0 px-2 py-1.5',
       highlight
         ? flatten
           ? 'border-primary bg-primary-20 text-text'
@@ -47,7 +47,7 @@ export const DropdownWrapper = forwardRef<HTMLDivElement, DropdownWrapperProps>(
         'relative',
         fullWidth ? 'w-full min-w-0 flex-1' : 'w-fit min-w-fit flex-initial',
         mobileFullWidth && 'max-sm:w-full',
-        mobileHalfWidth && 'max-sm:w-[calc(50%-4px)]',
+        mobileHalfWidth && 'max-sm:w-[calc(50%_-_4px)]',
         'hover:[&>div]:brightness-110',
         className,
       )}
@@ -78,7 +78,7 @@ export const DropdownTitle = ({
       justifyContent: justifyContent || 'flex-start',
     }}
     className={cn(
-      'flex items-center gap-1.5 capitalize',
+      'flex items-center gap-1 capitalize',
       fullWidth ? 'flex-1' : 'flex-[0_0_auto]',
       !fullWidth && 'max-[500px]:min-w-max',
       className,
@@ -117,15 +117,15 @@ export const ItemIcon = ({ className, ...rest }: React.ImgHTMLAttributes<HTMLIma
   <img className={cn('h-[18px] w-[18px]', className)} {...rest} />
 )
 
-type DropdownContentWrapperProps = React.HTMLAttributes<HTMLDivElement> & { flatten?: boolean }
+type DropdownContentWrapperProps = React.HTMLAttributes<HTMLDivElement> & { $usePortal?: boolean }
 
 export const DropdownContentWrapper = forwardRef<HTMLDivElement, DropdownContentWrapperProps>(
-  ({ children, className, flatten, ...rest }, ref) => (
+  ({ children, className, $usePortal, ...rest }, ref) => (
     <div
       ref={ref}
       className={cn(
-        'absolute left-0 z-[100] flex flex-col rounded-[18px] bg-background py-1 shadow-[0_8px_12px_var(--ks-shadow)] brightness-110',
-        flatten ? 'top-8' : 'top-[42px]',
+        'z-[100] flex flex-col rounded-[18px] bg-background py-1 shadow-[0_8px_12px_var(--ks-shadow)] brightness-110',
+        $usePortal ? 'fixed' : 'absolute left-0 top-[calc(100%+4px)]',
         className,
       )}
       {...rest}
