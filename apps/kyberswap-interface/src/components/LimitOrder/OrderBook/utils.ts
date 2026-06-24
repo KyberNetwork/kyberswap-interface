@@ -2,8 +2,8 @@ import type { Token as SchemaToken } from '@kyber/schema'
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { getMarketPriceDiff } from 'components/LimitOrder/helpers'
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
+import { getMarketPriceDiff } from 'components/LimitOrder/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const MIN_AVAILABLE_USD = 0.01

@@ -12,13 +12,13 @@ import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/Processi
 import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
 import RateComparison from 'components/LimitOrder/TakeOrder/RateComparison'
 import { useTakeLimitOrder } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
-import { removeTrailingZero } from 'components/LimitOrder/helpers'
 import {
   LimitOrderFromTokenPairFormatted,
   LimitOrderStatus,
   LimitOrderTab,
   LimitOrderTakeContext,
 } from 'components/LimitOrder/types'
+import { removeTrailingZero } from 'components/LimitOrder/utils'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
 import { HStack, Stack } from 'components/Stack'

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
 
-import { removeTrailingZero } from 'components/LimitOrder/helpers'
+import { removeTrailingZero } from 'components/LimitOrder/utils'
 import Skeleton from 'components/Skeleton'
 import { HStack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'

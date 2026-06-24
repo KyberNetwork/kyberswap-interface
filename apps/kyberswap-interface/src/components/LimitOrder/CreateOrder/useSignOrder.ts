@@ -1,7 +1,7 @@
 import { useCreateOrderSignatureMutation } from 'services/limitOrder'
 
-import { getPayloadCreateOrder } from 'components/LimitOrder/helpers'
 import { CreateOrderParams } from 'components/LimitOrder/types'
+import { getPayloadCreateOrder } from 'components/LimitOrder/utils'
 import { useActiveWeb3React } from 'hooks'
 import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'

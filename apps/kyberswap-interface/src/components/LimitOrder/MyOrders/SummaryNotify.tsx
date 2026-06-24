@@ -2,13 +2,8 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 
-import {
-  calcPercentFilledOrder,
-  calcRate,
-  formatAmountOrder,
-  formatRateLimitOrder,
-} from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
+import { calcPercentFilledOrder, calcRate, formatAmountOrder, formatRateLimitOrder } from 'components/LimitOrder/utils'
 
 type SummaryNotifyProps = {
   type?: LimitOrderStatus

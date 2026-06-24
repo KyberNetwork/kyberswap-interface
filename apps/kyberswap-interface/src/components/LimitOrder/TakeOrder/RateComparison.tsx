@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { useEffect } from 'react'
 import { parseGetRouteResponse } from 'services/route/utils'
 
-import { removeTrailingZero } from 'components/LimitOrder/helpers'
+import { removeTrailingZero } from 'components/LimitOrder/utils'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'

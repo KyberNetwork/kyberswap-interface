@@ -11,10 +11,10 @@ import {
 
 import { NotificationType } from 'components/Announcement/type'
 import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
-import { getErrorMessage } from 'components/LimitOrder/helpers'
 import { useLimitOrderApproval } from 'components/LimitOrder/hooks/useLimitOrderApproval'
 import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { LimitOrderTakeContext } from 'components/LimitOrder/types'
+import { getErrorMessage } from 'components/LimitOrder/utils'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'

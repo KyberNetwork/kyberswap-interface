@@ -5,13 +5,8 @@ import { useCreateOrderMutation } from 'services/limitOrder'
 import { NotificationType } from 'components/Announcement/type'
 import { useSignOrder } from 'components/LimitOrder/CreateOrder/useSignOrder'
 import { SummaryNotifyOrderPlaced } from 'components/LimitOrder/MyOrders/SummaryNotify'
-import {
-  calcUsdPrices,
-  getErrorMessage,
-  getPayloadCreateOrder,
-  removeTrailingZero,
-} from 'components/LimitOrder/helpers'
 import { CreateOrderParams, LimitOrderCreateContext } from 'components/LimitOrder/types'
+import { calcUsdPrices, getErrorMessage, getPayloadCreateOrder, removeTrailingZero } from 'components/LimitOrder/utils'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'

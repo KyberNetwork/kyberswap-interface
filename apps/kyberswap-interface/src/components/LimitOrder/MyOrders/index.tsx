@@ -20,8 +20,8 @@ import {
   getOrderTypeOptions,
   getSearchParamsWithKeyword,
 } from 'components/LimitOrder/MyOrders/utils'
-import { getPayloadTracking, isActiveStatus } from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
+import { getPayloadTracking, isActiveStatus } from 'components/LimitOrder/utils'
 import Loader from 'components/Loader'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'

@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 
-import { formatAmountOrder, formatRateLimitOrder, isActiveStatus } from 'components/LimitOrder/helpers'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
+import { formatAmountOrder, formatRateLimitOrder, isActiveStatus } from 'components/LimitOrder/utils'
 
 export const PAGE_SIZE = 10
 

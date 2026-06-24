@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 
 import { Clock } from 'components/Icons'
-import { DOCS_LINKS } from 'components/LimitOrder/helpers'
+import { DOCS_LINKS } from 'components/LimitOrder/utils'
 import useInterval from 'hooks/useInterval'
 import { ExternalLink } from 'theme'
 import { formatRemainTime } from 'utils/time'

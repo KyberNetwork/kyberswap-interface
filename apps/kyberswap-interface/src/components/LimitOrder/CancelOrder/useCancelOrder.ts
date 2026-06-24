@@ -6,8 +6,8 @@ import {
   useGetEncodeDataMutation,
 } from 'services/limitOrder'
 
-import { formatAmountOrder, getPayloadTracking } from 'components/LimitOrder/helpers'
 import { CancelOrderFunction, CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
+import { formatAmountOrder, getPayloadTracking } from 'components/LimitOrder/utils'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
