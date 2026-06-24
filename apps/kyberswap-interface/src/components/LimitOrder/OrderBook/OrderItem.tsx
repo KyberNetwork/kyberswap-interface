@@ -46,9 +46,9 @@ const OrderItem = ({ reverse, order, onTake, showInvertedRate }: OrderItemProps)
 
   const chain = NETWORKS_INFO[order.chainId]
   const filledPercent = Math.max(0, Math.min(Number(order.filledPercent) || 0, 100))
-  const sizeAmount = !reverse ? order.formattedMakerAmount : order.formattedTakerAmount
-  const availableAmount = !reverse ? order.formattedAvailableMakerAmount : order.formattedAvailableTakerAmount
-  const totalAmount = !reverse ? order.formattedTakerAmount : order.formattedMakerAmount
+  const sizeAmount = order.formattedMakerAmount
+  const availableAmount = order.formattedAvailableMakerAmount
+  const totalAmount = order.formattedTakerAmount
   const sizeCurrency = !reverse ? makerCurrency : takerCurrency
   const totalCurrency = !reverse ? takerCurrency : makerCurrency
   const rateClassName = reverse ? 'text-primary' : 'text-red'
