@@ -4,7 +4,7 @@ import { t } from '@lingui/macro'
 import { useActiveWeb3React } from 'hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 
-type UseValidateInputErrorArgs = {
+type UseValidateInputErrorProps = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   displayRate: string
@@ -20,7 +20,7 @@ export const useValidateInputError = ({
   displayRate,
   currencyIn,
   currencyOut,
-}: UseValidateInputErrorArgs) => {
+}: UseValidateInputErrorProps) => {
   const { account } = useActiveWeb3React()
   const parsedInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
   const parsedOutputAmount = tryParseAmount(outputAmount, currencyOut ?? undefined)

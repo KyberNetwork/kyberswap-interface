@@ -61,7 +61,7 @@ const CancelOptionCard = ({ selected, disabled, readOnly, icon, title, children,
       tabIndex={disabled || readOnly ? -1 : 0}
       className={cn(
         'flex w-full gap-3 rounded-xl border px-4 py-3 text-left transition-colors',
-        selected ? 'border-primary-50 bg-primary-20' : 'border-darkBorder bg-transparent',
+        selected ? 'border-primary-50 bg-primary-20' : 'border-border bg-transparent',
         disabled ? 'cursor-not-allowed opacity-50' : readOnly ? 'cursor-default' : 'cursor-pointer',
         !disabled && !readOnly && !selected && 'hover:border-primary-40 hover:bg-primary/5',
       )}

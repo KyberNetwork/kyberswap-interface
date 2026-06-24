@@ -5,7 +5,7 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
 import { Address } from 'utils/viem'
 
-type UseLimitOrderApprovalArgs = {
+type UseLimitOrderApprovalProps = {
   account: string | undefined
   amount: CurrencyAmount<Currency> | undefined
   chainId: ChainId
@@ -23,7 +23,7 @@ export const useLimitOrderApproval = ({
   spender,
   isAllowanceEnough,
   passWhenInvalidInput = false,
-}: UseLimitOrderApprovalArgs) => {
+}: UseLimitOrderApprovalProps) => {
   return async () => {
     if (!currency || currency.isNative || !account || !spender || !amount) return passWhenInvalidInput
 

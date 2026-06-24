@@ -4,16 +4,14 @@ import {
   useCancelOrdersMutation,
   useCreateCancelOrderSignatureMutation,
   useGetEncodeDataMutation,
-  useGetLOConfigQuery,
 } from 'services/limitOrder'
 
-import { formatAmountOrder, getPayloadTracking, isActiveStatus } from 'components/LimitOrder/helpers'
-import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
+import { formatAmountOrder, getPayloadTracking } from 'components/LimitOrder/helpers'
+import { CancelOrderFunction, CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
-import { OrderNonces, subscribeCancellingOrders } from 'utils/firebase'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { formatSignature } from 'utils/transaction'
 import { ErrorName } from 'utils/transactionError'
@@ -25,33 +23,7 @@ type GetEncodeLimitOrder = ReturnType<typeof useGetEncodeLimitOrder>
 type EncodedCancelData = { encodedData: string; contractAddress: string }
 type EncodeCancelParams = { orders: LimitOrder[]; isCancelAll: boolean | undefined }
 
-type UseCancelOrderArgs = {
-  chainId?: ChainId
-  orders?: LimitOrder[]
-  isCancelAll?: boolean
-}
-
-export type CancelOrderInfo = {
-  onCancelOrder: CancelOrderFunction
-  estimateGas: string
-}
-
 const EMPTY_ORDERS: LimitOrder[] = []
-const EMPTY_CANCELLING_ORDERS = { orderIds: [], noncesByContract: {} } as {
-  orderIds: number[]
-  noncesByContract: OrderNonces
-}
-
-const mergeOrderIds = (...orderIdsList: number[][]) => Array.from(new Set(orderIdsList.flat()))
-
-const getCancelOrderIdsFromTransaction = (transaction: TransactionDetails) => {
-  const arbitrary = transaction.extraInfo?.arbitrary
-  const orderIds = Array.isArray(arbitrary?.orderIds) ? arbitrary.orderIds : []
-  return arbitrary?.order_id ? [arbitrary.order_id] : orderIds
-}
-
-const isTransactionPendingOrSuccessful = (transaction: TransactionDetails) =>
-  !transaction.receipt || transaction.receipt.status === 1 || typeof transaction.receipt.status === 'undefined'
 
 const useGetEncodeLimitOrder = () => {
   const { account } = useActiveWeb3React()
@@ -78,13 +50,13 @@ const useGetEncodeLimitOrder = () => {
 
       const request = (async () => {
         if (isCancelAll) {
-          const contracts = [...new Set(orders.map(e => e.contractAddress).filter(Boolean))]
+          const contracts = [...new Set(orders.map(order => order.contractAddress).filter(Boolean))]
           const { encodedData } = await getEncodeData({ orderIds: [], isCancelAll }).unwrap()
           return contracts.map(contractAddress => ({ encodedData, contractAddress }))
         }
 
         const { encodedData } = await getEncodeData({
-          orderIds: orders.map(e => e.id),
+          orderIds: orders.map(order => order.id),
         }).unwrap()
         return [{ encodedData, contractAddress: orders[0]?.contractAddress ?? '' }]
       })()
@@ -97,95 +69,12 @@ const useGetEncodeLimitOrder = () => {
   )
 }
 
-export const useCancellingOrders = (chainId: ChainId) => {
-  const { account } = useActiveWeb3React()
-  const transactions = useAllTransactions(true)
-
-  const [cancellingOrders, setCancellingOrders] = useState(EMPTY_CANCELLING_ORDERS)
-  const [localCancellingOrdersIds, setLocalCancellingOrdersIds] = useState<number[]>([])
-
-  const { currentData } = useGetLOConfigQuery(chainId)
-
-  const contract = currentData?.contract || ''
-
-  const transactionOrderIds = useMemo(() => {
-    const cancelTransactions = Object.values(transactions ?? {})
-      .flat()
-      .filter(
-        (transaction): transaction is TransactionDetails =>
-          !!transaction && transaction.chainId === chainId && transaction.type === TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-      )
-
-    return {
-      all: mergeOrderIds(...cancelTransactions.map(getCancelOrderIdsFromTransaction)),
-      cancelling: mergeOrderIds(
-        ...cancelTransactions.filter(isTransactionPendingOrSuccessful).map(getCancelOrderIdsFromTransaction),
-      ),
-    }
-  }, [chainId, transactions])
-
-  const setLocalCancellingOrders = useCallback((orderIds: number[]) => {
-    setLocalCancellingOrdersIds(current => mergeOrderIds(current, orderIds))
-  }, [])
-
-  useEffect(() => {
-    setLocalCancellingOrdersIds([])
-  }, [account, chainId])
-
-  useEffect(() => {
-    if (!account) {
-      setCancellingOrders(EMPTY_CANCELLING_ORDERS)
-      return
-    }
-
-    const unsubscribe = subscribeCancellingOrders(account, chainId, data => {
-      setCancellingOrders({
-        orderIds: data?.orderIds ?? [],
-        noncesByContract: data?.noncesByContract ?? {},
-      })
-    })
-    return () => unsubscribe?.()
-  }, [account, chainId])
-
-  useEffect(() => {
-    setLocalCancellingOrdersIds(current => current.filter(orderId => !transactionOrderIds.all.includes(orderId)))
-  }, [transactionOrderIds.all])
-
-  const mergedCancellingOrdersIds = useMemo(
-    () => mergeOrderIds(cancellingOrders.orderIds, transactionOrderIds.cancelling, localCancellingOrdersIds),
-    [cancellingOrders.orderIds, localCancellingOrdersIds, transactionOrderIds.cancelling],
-  )
-
-  const isOrderCancelling = useCallback(
-    (order: LimitOrder | undefined) => {
-      if (!order) return false
-      const nonces = cancellingOrders.noncesByContract[contract] || []
-      const { status, nonce, operatorSignatureExpiredAt, id } = order
-
-      const isCancellingHardCancel =
-        isActiveStatus(status) && (nonces?.includes?.(nonce) || mergedCancellingOrdersIds.includes(id))
-
-      const isCancellingGaslessCancel =
-        status === LimitOrderStatus.CANCELLING && (operatorSignatureExpiredAt || 0) * 1000 - Date.now() > 0
-
-      return isCancellingHardCancel || isCancellingGaslessCancel
-    },
-    [cancellingOrders.noncesByContract, contract, mergedCancellingOrdersIds],
-  )
-
-  return useMemo(
-    () => ({ setCancellingOrders: setLocalCancellingOrders, isOrderCancelling }),
-    [setLocalCancellingOrders, isOrderCancelling],
-  )
-}
-
-const useCancelOrderRequest = ({
-  chainId,
-  getEncodeData,
-}: {
+type UseCancelOrderRequestProps = {
   chainId: ChainId
   getEncodeData: GetEncodeLimitOrder
-}) => {
+}
+
+const useCancelOrderRequest = ({ chainId, getEncodeData }: UseCancelOrderRequestProps) => {
   const { account, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
 
@@ -304,15 +193,13 @@ const useCancelOrderRequest = ({
   return onCancelOrder
 }
 
-const useCancelOrderEstimate = ({
-  orders,
-  isCancelAll,
-  getEncodeData,
-}: {
+type UseCancelOrderEstimateProps = {
   orders: LimitOrder[]
   isCancelAll: boolean
   getEncodeData: GetEncodeLimitOrder
-}) => {
+}
+
+const useCancelOrderEstimate = ({ orders, isCancelAll, getEncodeData }: UseCancelOrderEstimateProps) => {
   const [estimateGas, setEstimateGas] = useState('')
   const estimateGasTx = useEstimateGasTxs()
 
@@ -352,11 +239,22 @@ const useCancelOrderEstimate = ({
   return estimateGas
 }
 
+type UseCancelOrderProps = {
+  chainId?: ChainId
+  orders?: LimitOrder[]
+  isCancelAll?: boolean
+}
+
+export type CancelOrderInfo = {
+  onCancelOrder: CancelOrderFunction
+  estimateGas: string
+}
+
 export const useCancelOrder = ({
   chainId: customChainId,
   orders = EMPTY_ORDERS,
   isCancelAll = false,
-}: UseCancelOrderArgs = {}): CancelOrderInfo => {
+}: UseCancelOrderProps): CancelOrderInfo => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId ?? walletChainId
   const getEncodeData = useGetEncodeLimitOrder()

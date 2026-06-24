@@ -6,14 +6,14 @@ import { NativeCurrencies } from 'constants/tokens'
 import useWrapCallback from 'hooks/useWrapCallback'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
-type UseLimitOrderWrapStepArgs = {
+type UseLimitOrderWrapStepProps = {
   chainId: ChainId
   currency?: Currency
   amount?: CurrencyAmount<Currency>
   balance?: CurrencyAmount<Currency>
 }
 
-export const useLimitOrderWrapStep = ({ chainId, currency, amount, balance }: UseLimitOrderWrapStepArgs) => {
+export const useLimitOrderWrapStep = ({ chainId, currency, amount, balance }: UseLimitOrderWrapStepProps) => {
   const nativeCurrency = NativeCurrencies[chainId]
   const nativeBalance = useCurrencyBalance(nativeCurrency, chainId)
   const isWrappedNativeCurrency = !!currency?.equals(WETH[chainId])

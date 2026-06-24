@@ -48,13 +48,12 @@ const getAvailablePayAmount = ({ order, payCurrency }: LimitOrderTakeContext) =>
   return CurrencyAmount.fromRawAmount(payCurrency, availablePayRaw)
 }
 
-const getReceiveAmount = ({
-  payAmount,
-  context,
-}: {
+type GetReceiveAmountProps = {
   payAmount: CurrencyAmount<Currency> | undefined
   context: LimitOrderTakeContext
-}) => {
+}
+
+const getReceiveAmount = ({ payAmount, context }: GetReceiveAmountProps) => {
   if (!payAmount) return undefined
   const { order, receiveCurrency } = context
   const receiveRaw = safeDivide(
@@ -88,12 +87,12 @@ const getMaxAmountBeforeTakerFee = (amount: CurrencyAmount<Currency> | undefined
   return CurrencyAmount.fromRawAmount(amount.currency, raw)
 }
 
-type Props = {
+type UseTakeLimitOrderProps = {
   context: LimitOrderTakeContext | undefined
   fillAmount: string
 }
 
-export const useTakeLimitOrder = ({ context, fillAmount }: Props) => {
+export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProps) => {
   const { account, chainId, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
   const notify = useNotify()

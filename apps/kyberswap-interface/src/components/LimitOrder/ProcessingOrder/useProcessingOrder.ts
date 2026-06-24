@@ -22,7 +22,7 @@ export type ProcessingOrderController = {
   retryStep: (step: ProcessingOrderStep) => void
 }
 
-type UseProcessingOrderArgs = {
+type UseProcessingOrderProps = {
   processingOrder: ProcessingOrderState
   setProcessingOrder: Dispatch<SetStateAction<ProcessingOrderState>>
   chainId: number
@@ -60,7 +60,7 @@ export const useProcessingOrder = ({
   onFinalStep,
   onError,
   onStart,
-}: UseProcessingOrderArgs) => {
+}: UseProcessingOrderProps): ProcessingOrderController => {
   const markProcessingStepSuccess = (step: ProcessingOrderStep) => {
     setProcessingOrder(state => {
       if (!state.show || state.currentStep !== step) return state

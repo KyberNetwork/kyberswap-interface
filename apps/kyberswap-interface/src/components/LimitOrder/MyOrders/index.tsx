@@ -7,7 +7,7 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { ButtonLight } from 'components/Button'
 import CancelOrderModal from 'components/LimitOrder/CancelOrder/CancelOrderModal'
-import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/useCancelOrder'
+import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/useCancellingOrders'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import OrderItem from 'components/LimitOrder/MyOrders/OrderItem'
 import TableHeader from 'components/LimitOrder/MyOrders/TableHeader'
@@ -95,7 +95,7 @@ const MyOrders = () => {
   const { trackingHandler } = useTracking()
   const { isEmbeddedSwap } = usePageLocation()
   const { chainId, networkName } = useLimitOrderContext()
-  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders(chainId)
+  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId })
   const [searchParams, setSearchParams] = useSearchParams()
   const invalidateTag = useInvalidateTagLimitOrder()
 

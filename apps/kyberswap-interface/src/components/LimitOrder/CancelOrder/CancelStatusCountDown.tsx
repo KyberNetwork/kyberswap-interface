@@ -7,6 +7,8 @@ import useInterval from 'hooks/useInterval'
 import { ExternalLink } from 'theme'
 import { formatRemainTime } from 'utils/time'
 
+const getRemainTime = (expiredTime: number) => Math.max(0, Math.floor(expiredTime - Date.now() / 1000))
+
 const CancelStatusCountDown = ({
   expiredTime,
   onCountdownEnd,
@@ -14,11 +16,10 @@ const CancelStatusCountDown = ({
   expiredTime: number
   onCountdownEnd: () => void
 }) => {
-  const [remain, setRemain] = useState(0)
+  const [remain, setRemain] = useState(() => getRemainTime(expiredTime))
 
   useEffect(() => {
-    const delta = Math.floor(expiredTime - Date.now() / 1000)
-    setRemain(Math.max(0, delta))
+    setRemain(getRemainTime(expiredTime))
   }, [expiredTime])
 
   const countdown = useCallback(() => {

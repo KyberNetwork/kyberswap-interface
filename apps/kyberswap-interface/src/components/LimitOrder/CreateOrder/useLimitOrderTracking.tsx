@@ -20,14 +20,14 @@ import { getCookieValue } from 'utils'
 
 const getTokenAddress = (currency: Currency | undefined) => (currency?.isNative ? 'NATIVE' : currency?.wrapped?.address)
 
-type UseLimitOrderTrackingArgs = {
+type UseLimitOrderTrackingProps = {
   order: LimitOrderCreateContext
   searchParams: URLSearchParams
   estimateUSD: ReturnType<typeof calcUsdPrices>
   onSuccess?: () => void
 }
 
-export const useLimitOrderTracking = ({ order, searchParams, estimateUSD, onSuccess }: UseLimitOrderTrackingArgs) => {
+export const useLimitOrderTracking = ({ order, searchParams, estimateUSD, onSuccess }: UseLimitOrderTrackingProps) => {
   const {
     currencyIn,
     currencyOut,

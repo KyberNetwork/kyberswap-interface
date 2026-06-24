@@ -13,7 +13,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { formatTimeDuration } from 'utils/time'
 
-export type LimitOrderFormStateArgs = {
+export type UseLimitOrderFormStateProps = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   useUrlParams?: boolean
@@ -22,7 +22,7 @@ export type LimitOrderFormStateArgs = {
 const DEFAULT_EXPIRED = 36500 * TIMES_IN_SECS.ONE_DAY
 const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 
-export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }: LimitOrderFormStateArgs) => {
+export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }: UseLimitOrderFormStateProps) => {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()

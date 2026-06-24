@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 import { useGetLOConfigQuery } from 'services/limitOrder'
 
-import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import CancelButtons from 'components/LimitOrder/CancelOrder/CancelButtons'
 import CancelStatusCountDown from 'components/LimitOrder/CancelOrder/CancelStatusCountDown'
@@ -280,11 +280,9 @@ const CancelOrderModal = ({
   ) : (
     <Trans>Gasless Cancel</Trans>
   )
+
   const gasAmountDisplay = estimateGas
-    ? `~${formatDisplayNumber(estimateGas + '', {
-        style: 'currency',
-        significantDigits: 4,
-      })}`
+    ? formatDisplayNumber(estimateGas, { style: 'currency', significantDigits: 4 })
     : ''
 
   const errorLine = <div className="min-h-4 text-xs leading-4 text-red">{errorMessage}</div>
@@ -311,46 +309,45 @@ const CancelOrderModal = ({
             {!isCancelAll && <SingleOrderSummary order={order} />}
           </Stack>
 
-          {isCountDown && <CancelStatusCountDown expiredTime={expiredTime} onCountdownEnd={handleCountdownEnd} />}
-
           {isCancelDone ? (
             <Stack className="gap-3">
-              <div className="flex items-center gap-1.5 rounded-lg border border-primary-40 bg-primary-20 px-4 py-3 text-sm text-primary">
+              <div className="flex items-center gap-1 text-sm text-primary">
                 <Check size={16} />
                 <Trans>Order has been successfully cancelled.</Trans>
               </div>
-              <ButtonLight onClick={onDismiss}>
-                <Check size={18} /> &nbsp;<Trans>Close</Trans>
-              </ButtonLight>
+              <ButtonOutlined onClick={onDismiss}>
+                <Trans>Close</Trans>
+              </ButtonOutlined>
             </Stack>
           ) : isCountDown ? (
-            <>
+            <Stack className="gap-3">
+              <CancelStatusCountDown expiredTime={expiredTime} onCountdownEnd={handleCountdownEnd} />
+
               <CancelButtons
                 readOnly
                 value={CancelOrderType.HARD_CANCEL}
+                gasless={undefined}
                 hard={{ title: <Trans>Hard Cancel Instead</Trans>, disabled: disabledHardCancel }}
                 gasAmountDisplay={gasAmountDisplay}
                 onChange={handleChangeCancelType}
               />
 
+              {errorLine}
               <HStack className="gap-3 max-sm:flex-col">
                 <ButtonOutlined className="flex-1" onClick={onDismiss}>
-                  <Check size={18} />
-                  &nbsp;
                   <Trans>Close</Trans>
                 </ButtonOutlined>
                 <Stack className="flex-1 gap-1">
-                  {errorLine}
                   <ButtonPrimary disabled={disabledHardCancel} onClick={handleHardCancel}>
                     <Dots absolute loading={attemptingTxn}>
-                      <Trans>Hard Cancel Instead</Trans>
+                      <Trans>Hard Cancel</Trans>
                     </Dots>
                   </ButtonPrimary>
                 </Stack>
               </HStack>
-            </>
+            </Stack>
           ) : (
-            <>
+            <Stack className="gap-3">
               <CancelButtons
                 value={cancelType}
                 gasless={{
@@ -373,7 +370,7 @@ const CancelOrderModal = ({
                   {isCancelAll ? <Trans>Cancel All Orders</Trans> : <Trans>Cancel Order</Trans>}
                 </Dots>
               </ButtonPrimary>
-            </>
+            </Stack>
           )}
         </Stack>
       </Stack>
