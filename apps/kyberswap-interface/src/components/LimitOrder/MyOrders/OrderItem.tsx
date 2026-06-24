@@ -164,7 +164,7 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
   const showFallbackTxLink = isFilledOrder && !txs.length && !!order.txHash
   const canHardCancelInstead =
     order.status === LimitOrderStatus.CANCELLING && !!order.operatorSignatureExpiredAt && isCancelling
-  const showCancelAction = isOrderActive || canHardCancelInstead
+  const showCancelAction = (isOrderActive && !isCancelling) || canHardCancelInstead
 
   const onClickOrder = () => {
     const search = new URLSearchParams({ tab: LimitOrderTab.ORDER_BOOK }).toString()

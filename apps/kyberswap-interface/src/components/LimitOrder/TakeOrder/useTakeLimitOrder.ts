@@ -88,48 +88,49 @@ const getMaxAmountBeforeTakerFee = (amount: CurrencyAmount<Currency> | undefined
 }
 
 type UseTakeLimitOrderProps = {
-  context: LimitOrderTakeContext | undefined
+  context: LimitOrderTakeContext
   fillAmount: string
 }
 
 export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProps) => {
-  const { account, chainId, walletKey } = useActiveWeb3React()
+  const { account, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
   const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const estimateGas = useEstimateGasTxs()
   const invalidateLimitOrderTags = useInvalidateTagLimitOrder()
 
-  const order = context?.order
-  const payCurrency = context?.payCurrency
-  const receiveCurrency = context?.receiveCurrency
+  const order = context.order
+  const payCurrency = context.payCurrency
+  const receiveCurrency = context.receiveCurrency
+  const chainId = order.chainId
 
   const { currentData: config } = useGetLOConfigQuery(chainId)
-  const contractAddress = order?.contractAddress || config?.contract || ''
+  const contractAddress = order.contractAddress || config?.contract || ''
   const [getOperatorSignature] = useLazyGetOperatorSignatureQuery()
   const [encodeFillOrder] = useEncodeFillOrderMutation()
 
-  const maxPayAmount = useMemo(() => (context ? getAvailablePayAmount(context) : undefined), [context])
-  const parsedPayAmount = useMemo(() => tryParseAmount(fillAmount, payCurrency ?? undefined), [fillAmount, payCurrency])
+  const maxPayAmount = useMemo(() => getAvailablePayAmount(context), [context])
+  const parsedPayAmount = useMemo(() => tryParseAmount(fillAmount, payCurrency), [fillAmount, payCurrency])
   const receiveAmount = useMemo(
-    () => (context ? getReceiveAmount({ payAmount: parsedPayAmount, context }) : undefined),
+    () => getReceiveAmount({ payAmount: parsedPayAmount, context }),
     [context, parsedPayAmount],
   )
-  const feeBps = getFeeBps(order?.makerTokenFeePercent)
+  const feeBps = getFeeBps(order.makerTokenFeePercent)
   const receiveAmountAfterFee = useMemo(
-    () => (order?.isTakerAssetFee ? receiveAmount : subtractFee(receiveAmount, feeBps)),
-    [feeBps, order?.isTakerAssetFee, receiveAmount],
+    () => (order.isTakerAssetFee ? receiveAmount : subtractFee(receiveAmount, feeBps)),
+    [feeBps, order.isTakerAssetFee, receiveAmount],
   )
   const thresholdAmount = receiveAmount?.quotient.toString() || '0'
 
   const balance = useCurrencyBalance(payCurrency, chainId)
   const requiredPayAmount = useMemo(
-    () => (order?.isTakerAssetFee ? addFee(parsedPayAmount, feeBps) : parsedPayAmount),
-    [feeBps, order?.isTakerAssetFee, parsedPayAmount],
+    () => (order.isTakerAssetFee ? addFee(parsedPayAmount, feeBps) : parsedPayAmount),
+    [feeBps, order.isTakerAssetFee, parsedPayAmount],
   )
   const maxBalancePayAmount = useMemo(
-    () => (order?.isTakerAssetFee ? getMaxAmountBeforeTakerFee(balance, feeBps) : balance),
-    [balance, feeBps, order?.isTakerAssetFee],
+    () => (order.isTakerAssetFee ? getMaxAmountBeforeTakerFee(balance, feeBps) : balance),
+    [balance, feeBps, order.isTakerAssetFee],
   )
   const {
     insufficientBalance,
@@ -169,7 +170,7 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
   })
 
   const buildFillOrderBody = useCallback(async (): Promise<FillOrderBody> => {
-    if (!account || !order || !parsedPayAmount) throw new Error('Wrong input')
+    if (!account || !parsedPayAmount) throw new Error('Wrong input')
 
     const operatorSignatures = await getOperatorSignature({ chainId, orderIds: [order.id] }).unwrap()
     const operatorSignature = operatorSignatures.find(item => item.id === order.id)
@@ -182,10 +183,10 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
       target: account,
       operatorSignature: operatorSignature.operatorSignature,
     }
-  }, [account, chainId, getOperatorSignature, order, parsedPayAmount, thresholdAmount])
+  }, [account, getOperatorSignature, order, chainId, parsedPayAmount, thresholdAmount])
 
   const submitFillOrder = useCallback(async () => {
-    if (!account || !order || !parsedPayAmount || !contractAddress || !payCurrency || !receiveCurrency) {
+    if (!account || !parsedPayAmount || !contractAddress) {
       throw new Error('Wrong input')
     }
 
@@ -208,6 +209,7 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
 
     addTransactionWithType({
       hash: response.hash,
+      desiredChainId: chainId,
       type: TRANSACTION_TYPE.FILL_LIMIT_ORDER,
       extraInfo: {
         tokenAddressIn: payCurrency.wrapped.address,
